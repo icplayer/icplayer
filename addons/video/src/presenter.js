@@ -547,8 +547,8 @@ function Addonvideo_create() {
             shouldHideSubtitles: ModelValidationUtils.validateBoolean(model["Hide subtitles"]),
             defaultControls: !ModelValidationUtils.validateBoolean(model['Hide default controls']),
             files: presenter.validateFiles(model).files,
-            height: parseInt(model.Height, 10)
-
+            height: parseInt(model.Height, 10),
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
         }
     };
 
@@ -573,6 +573,8 @@ function Addonvideo_create() {
         if (presenter.configuration.defaultControls) {
             presenter.buildControlsBars();
         }
+
+        presenter.addTabindex(presenter.configuration.isTabindexEnabled);
 
         presenter.connectHandlers();
         presenter.reload();
@@ -1354,6 +1356,11 @@ function Addonvideo_create() {
 
         return false;
     }
+
+    presenter.addTabindex = function (isTabindexEnabled) {
+        var value = isTabindexEnabled ? "0" : "-1";
+        presenter.videoContainer.attr("tabindex", value);
+    };
 
     return presenter;
 }
