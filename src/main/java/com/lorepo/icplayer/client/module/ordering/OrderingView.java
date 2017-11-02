@@ -19,15 +19,19 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
+import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class OrderingView extends Composite implements IDisplay, IWCAG{
+
+public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGModuleView {
 
 	private final OrderingModule module;
 	private final IPlayerServices playerServices;
@@ -46,6 +50,8 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	private int currentWCAGSelectedItemIndex = 0;
 	private boolean wcagIsAvtive = false;
 	private boolean isValid = false;
+	private boolean isWCAGOn = false;
+	private PageController pageController;
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
 
 	public OrderingView(OrderingModule module, IPlayerServices services, boolean isPreview) {
@@ -98,7 +104,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 			}			
 		} else {
 			ItemWidget error = new ItemWidget( new OrderingItem(0, errorMessage, ""), module );
-			addWidget(error);			
+			addWidget(error);
 		}
 
 		initWidget(innerCellPanel);
@@ -656,13 +662,33 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 		this.wcagIsAvtive = false;
 	}
 	
+	private String prepearContentToRead (CellPanel cp) {
+		String result = "";
+		
+		for (int i=0; i<this.innerCellPanel.getWidgetCount(); i++) {
+			final Widget w = this.innerCellPanel.getWidget(i);
+			result += " " + (i+1) + ": " + w.getElement().getInnerHTML();
+			
+			final String lastChar = result.substring(result.length() - 1);
+			if (!".!?".contains(lastChar)) {
+				result += ".";
+			}
+		}
+		
+		return result;
+	}
+	
 	@Override
 	public void enter (boolean isExiting) {
 		this.wcagIsAvtive = !isExiting;
 		if (isExiting) {
 			this.deselectCurrentItem();
 		} else {
-			this.selectCurrentItem();		
+			this.selectCurrentItem();
+			
+			if (this.pageController != null) {
+				this.pageController.speak(this.prepearContentToRead(this.innerCellPanel));
+			}
 		}
 	}
 	
@@ -702,6 +728,12 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 		this.move(1);
 	}
 	
+	private void readItem (int index) {
+		if (this.pageController != null) {
+			this.pageController.speak(this.innerCellPanel.getWidget(index).getElement().getInnerText());
+		}
+	}
+	
 	private void move(int delta) {
 		this.deselectCurrentItem();
 		this.currentWCAGSelectedItemIndex += delta;
@@ -713,6 +745,8 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 			this.currentWCAGSelectedItemIndex = 0;
 		}
 		this.selectCurrentItem();
+		
+		this.readItem(currentWCAGSelectedItemIndex);
 	}
 	
 	private void selectCurrentItem () {
@@ -742,5 +776,16 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {
+	}
+
+	@Override
+	public void setWCAGStatus (boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;
+	}
+
+	@Override
+	public void setPageController (PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
 	}
 }

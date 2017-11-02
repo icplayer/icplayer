@@ -110,11 +110,11 @@
 
     KeyboardController.prototype.markCurrentElement = function (new_position_index) {
         if (this.keyboardNavigationCurrentElement) {
-            this.unmark(this.keyboardNavigationCurrentElement)
+            this.unmark(this.keyboardNavigationCurrentElement);
         }
         this.keyboardNavigationCurrentElementIndex = new_position_index;
         this.keyboardNavigationCurrentElement = this.keyboardNavigationElements[new_position_index];
-        this.mark(this.keyboardNavigationCurrentElement)
+        this.mark(this.keyboardNavigationCurrentElement);
     };
 
     KeyboardController.prototype.switchElement = function (move) {

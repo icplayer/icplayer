@@ -15,10 +15,12 @@ import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.choice.ChoiceView;
+import com.lorepo.icplayer.client.module.ordering.OrderingView;
 import com.lorepo.icplayer.client.module.text.TextView;
 
 /*
@@ -139,10 +141,9 @@ public final class KeyboardNavigationController {
 		for (PresenterEntry p:  this.presenters) {
 			IPresenter ip = (IPresenter) p.presenter;
 			
-			// TODO Add to interface
 			if (ip.getModel().getModuleName() == "Text") {
-				TextView tv = (TextView) p.presenter.getWCAGController();
-				tv.setIsWCAGSOn(isOn);
+				IWCAGModuleView tv = (IWCAGModuleView) p.presenter.getWCAGController();
+				tv.setWCAGStatus(isOn);
 			}
 		}
 	}
@@ -533,8 +534,10 @@ public final class KeyboardNavigationController {
 			cv.setPageController(mainPageController);
 		} else if (ip.getModel().getModuleName() == "Text") {
 			TextView tv = (TextView) iWCAGPresenter.getWCAGController();
-			tv.setIsWCAGSOn(true);
 			tv.setPageController(mainPageController);
+		} else if (ip.getModel().getModuleName() == "Ordering") {
+			OrderingView ov = (OrderingView) iWCAGPresenter.getWCAGController();
+			ov.setPageController(mainPageController);
 		} else {
 			mainPageController.playDescription(ip.getModel().getId());
 		}

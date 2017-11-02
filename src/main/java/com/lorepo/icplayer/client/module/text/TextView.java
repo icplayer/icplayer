@@ -15,13 +15,14 @@ import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
 
-public class TextView extends HTML implements IDisplay, IWCAG {
+public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 	private final TextModel module;
 	private ITextViewListener listener;
@@ -377,12 +378,6 @@ public class TextView extends HTML implements IDisplay, IWCAG {
 		return "Text";
 	}
 	
-	public void setPageController (PageController pc) {
-		this.pageController = pc;
-		
-		this.setPageControllerToInLineChoices();
-	}
-	
 	private String getContentWithGapsValues () {
 		String result = "";
 		int textElementIndex = 0;
@@ -498,9 +493,17 @@ public class TextView extends HTML implements IDisplay, IWCAG {
 	public boolean isWCAGon() {
 		return this.isWCAGon;
 	}
-	
-	public void setIsWCAGSOn (boolean isOn) {
+
+	@Override
+	public void setWCAGStatus (boolean isOn) {
 		this.isWCAGon = isOn;
+	}
+
+	@Override
+	public void setPageController (PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+		this.setPageControllerToInLineChoices();
 	}
 
 }

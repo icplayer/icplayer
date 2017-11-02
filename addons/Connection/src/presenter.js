@@ -4,6 +4,7 @@ function AddonConnection_create() {
     var playerController;
     var eventBus;
     var addonID;
+    var tts;
 
     presenter.uniqueIDs = [];
     presenter.uniqueElementLeft = [];
@@ -934,6 +935,12 @@ function AddonConnection_create() {
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), connectionColor)
         }
+
+        // TODO
+        var tts = getTextToSpeech();
+        if (tts) {
+            tts.speak('connected');
+        }
     }
 
     function redrawShowAnswers () {
@@ -1165,7 +1172,7 @@ function AddonConnection_create() {
         if (presenter.correctConnections.hasLine(line))
             presenter.correctConnections.remove(line);
         if (presenter.lineStack.hasLine(line))
-        drawLine(line, incorrectConnection);
+            drawLine(line, incorrectConnection);
 
     };
 
@@ -1329,25 +1336,88 @@ function AddonConnection_create() {
         KeyboardController.call(this, elements, columnsCount);
     }
 
+    function getTextToSpeech () {
+        if (tts) {
+            return tts;
+        }
+
+        tts = playerController.getModule('Text_To_Speech1');
+        return tts;
+    }
+
+    function getActivatedElement () {
+        return $('.keyboard_navigation_active_element'); // TODO improve
+    }
+
+    function getConnections ($element) {
+        var element = $element[0];
+        var result = [];
+
+        for (var i=0; i<presenter.lineStack.stack.length; i++) {
+            var line = presenter.lineStack.stack[i];
+
+            if (element === line.from[0]) {
+                result.push(line.to);
+            }
+
+            if (element === line.to[0]) {
+                result.push(line.from);
+            }
+        }
+
+        return result;
+    }
+
+    function readActivatedElementConnections () {
+        var tts = getTextToSpeech();
+        if (tts) {
+            console.log(1);
+            var $active = getActivatedElement();
+            console.log(2, $active);
+            var text = $active.text().trim();
+            console.log(3, text);
+
+            var connections = getConnections($active);
+            console.log(4);
+
+            if (connections.length) {
+                console.log('YES');
+                var connectionsText = text + ' connected to ';
+                for (var i=0; i<connections.length; i++) {
+                    var connection = connections[i];
+                    connectionsText += ' ' + connection.text().trim() + '.';
+                }
+
+                tts.speak(connectionsText);
+            } else {
+                console.log('NO');
+                tts.speak(text);
+            }
+        }
+    }
+
     ConnectionKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
     ConnectionKeyboardController.prototype.constructor = ConnectionKeyboardController;
 
     ConnectionKeyboardController.prototype.nextRow = function () {
         this.switchElement(1);
+        readActivatedElementConnections();
     };
 
     ConnectionKeyboardController.prototype.previousRow = function () {
         this.switchElement(-1);
+        readActivatedElementConnections();
     };
 
     ConnectionKeyboardController.prototype.nextElement = function () {
         this.switchElement(parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
+        readActivatedElementConnections();
     };
 
     ConnectionKeyboardController.prototype.previousElement = function () {
         this.switchElement(-parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
+        readActivatedElementConnections();
     };
-
 
     return presenter;
 }
