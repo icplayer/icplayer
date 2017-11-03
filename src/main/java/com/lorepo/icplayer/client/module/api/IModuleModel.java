@@ -19,4 +19,6 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public boolean isModuleInEditorVisible();
 	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility);
 	public void load(Element node, String baseURL, String version);
+    public boolean isTabindexEnabled();
+	public void setIsTabindexEnabled(boolean value);
 }

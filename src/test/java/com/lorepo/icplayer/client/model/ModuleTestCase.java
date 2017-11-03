@@ -17,6 +17,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
+import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
@@ -161,5 +162,43 @@ public class ModuleTestCase {
 
 		assertNotNull(layoutProperty);
 		assertEquals("LTRB", layoutProperty.getValue());
+	}
+	
+	@Test
+	public void isTabindexEnabledPropertyIsByDefaultTrue() throws SAXException, IOException {
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("is_tabindex_enabled")).thenReturn("Is Tabindex Enabled");
+		
+		ShapeModule module = initModule("testdata/module2.xml");
+		IBooleanProperty isTabindexEnabledProperty = null;
+		for(int i = 0; i < module.getPropertyCount(); i++) {
+			IProperty property = module.getProperty(i);
+			if(property.getName().equals("Is Tabindex Enabled")){
+				isTabindexEnabledProperty = (IBooleanProperty) property;
+				break;
+			}
+		}
+		
+		assertNotNull(isTabindexEnabledProperty);
+		assertEquals("True", isTabindexEnabledProperty.getValue());
+	}
+	
+	@Test
+	public void checksIfisTabindexEnabledPropertyIsFalse() throws SAXException, IOException {
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("is_tabindex_enabled")).thenReturn("Is Tabindex Enabled");
+		
+		ShapeModule module = initModule("testdata/module4.xml");
+		IBooleanProperty isTabindexEnabledProperty = null;
+		for(int i = 0; i < module.getPropertyCount(); i++) {
+			IProperty property = module.getProperty(i);
+			if(property.getName().equals("Is Tabindex Enabled")){
+				isTabindexEnabledProperty = (IBooleanProperty) property;
+				break;
+			}
+		}
+		
+		assertNotNull(isTabindexEnabledProperty);
+		assertEquals("False", isTabindexEnabledProperty.getValue());
 	}
 }

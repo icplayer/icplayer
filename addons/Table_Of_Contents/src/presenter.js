@@ -4,6 +4,8 @@ function AddonTable_Of_Contents_create(){
 
     var elementsHeights = {};
 
+    presenter.keyboardControllerObject = null;
+
     presenter.ERROR_CODES = {
         E01: "Values in property 'Don't show' pages must be numeric",
         E02: "Values in property 'Don't show' pages must be greater than 0",
@@ -364,6 +366,8 @@ function AddonTable_Of_Contents_create(){
         if (!ModelValidationUtils.isStringEmpty(model['Header'])) {
         	presenter.$view.find('.table-of-contents .table-of-contents-title').text(model['Header'])
         }
+
+         presenter.buildKeyboardController();
     }
 
     presenter.validateHiddenPages = function(hiddenPages) {
@@ -470,6 +474,131 @@ function AddonTable_Of_Contents_create(){
 
     presenter.setPlayerController = function(controller) {
         presentationController = controller;
+    };
+
+    function getElements() {
+        var elements = [];
+
+        if(presenter.configuration.displayType == "comboList"){
+            for (var i = 0; i < presenter.$view.find('select').length; i++) {
+                elements.push($(presenter.$view.find('select')[i]));
+            }
+        }else if(presenter.configuration.displayType == "icons" || presenter.configuration.displayType == "icons+list"){
+            for (var i = 0; i < presenter.$view.find('.iconsList a').length; i++) {
+                elements.push($(presenter.$view.find('.iconsList a')[i]));
+            }
+        }else {
+            for (var i = 0; i < presenter.$view.find('li a').length; i++) {
+                elements.push($(presenter.$view.find('li a')[i]));
+            }
+
+            for (var i = 0; i < presenter.$view.find('.table-of-contents-pagination a').length; i++) {
+                elements.push($(presenter.$view.find('.table-of-contents-pagination a')[i]));
+            }
+        }
+
+        return elements;
+    }
+
+    presenter.buildKeyboardController = function () {
+        presenter.keyboardControllerObject = new TocKeyboardController(getElements(), 1);
+        presenter.keyboardControllerObject.selectEnabled(true);
+    };
+
+    presenter.keyboardController = function(keycode) {
+        if(presenter.configuration.displayType == "comboList") {
+            presenter.$view.find('select').focus();
+        }
+        presenter.keyboardControllerObject.handle(keycode);
+    };
+
+    function TocKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    TocKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    TocKeyboardController.prototype.constructor = TocKeyboardController;
+
+    function scrollHorizontally(element) {
+        var pos = $(element).position().left,
+            currentscroll = presenter.$view.find('.iconsList').scrollLeft(),
+            divwidth = presenter.$view.find('.iconsList').width();
+
+        pos=(pos+currentscroll)-(divwidth/2);
+
+        presenter.$view.find('.iconsList').scrollLeft(pos);
+    }
+
+    function scrollVertically(element) {
+        var pos = $(element).position().top,
+            currentscroll = presenter.$view.find('.table-of-contents-list').scrollTop(),
+            divheight = presenter.$view.find('.table-of-contents-list').height();
+
+        pos=(pos+currentscroll)-(divheight/2);
+
+        presenter.$view.find('.table-of-contents-list').scrollTop(pos);
+    }
+
+    function centerElement(element){
+        if(presenter.configuration.displayType == "icons" || presenter.configuration.displayType == "icons+list"){
+            scrollHorizontally(element);
+        }else {
+            scrollVertically(element);
+        }
+    }
+
+    TocKeyboardController.prototype.nextElement = function () {
+        this.switchElement(1);
+
+        if($(this.keyboardNavigationCurrentElement).parent().style('display') === "none") {
+            this.nextElement();
+        }
+
+        centerElement(this.keyboardNavigationCurrentElement);
+    };
+
+    TocKeyboardController.prototype.previousElement = function () {
+        this.switchElement(-1);
+
+        if($(this.keyboardNavigationCurrentElement).parent().style('display') === "none") {
+            this.previousElement();
+        }
+
+        centerElement(this.keyboardNavigationCurrentElement);
+    };
+
+    TocKeyboardController.prototype.nextRow = function () {
+        if (event) {
+            event.preventDefault();
+        }
+        this.switchElement(this.columnsCount);
+
+        if($(this.keyboardNavigationCurrentElement).parent().style('display') === "none") {
+            this.nextRow();
+        }
+
+        centerElement(this.keyboardNavigationCurrentElement);
+    };
+
+    TocKeyboardController.prototype.previousRow = function () {
+        if (event) {
+            event.preventDefault();
+        }
+        this.switchElement(-this.columnsCount);
+
+        if($(this.keyboardNavigationCurrentElement).parent().style('display') === "none") {
+            this.previousRow();
+        }
+
+        centerElement(this.keyboardNavigationCurrentElement);
+    };
+
+    TocKeyboardController.prototype.select = function () {
+        if (!this.isSelectEnabled) {
+            return;
+        }
+
+        this.selectAction();
     };
 
     return presenter;

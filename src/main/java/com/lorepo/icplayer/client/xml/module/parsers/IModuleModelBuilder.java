@@ -25,4 +25,5 @@ public interface IModuleModelBuilder {
 	public void setStylesClasses(HashMap<String, String> styleClasses);
 	public void setDefaultStyleClass(String styleClass);
 	public void setDefaultInlineStyle(String inlineStyle);
+	public void setIsTabindexEnabled(boolean value);
 }

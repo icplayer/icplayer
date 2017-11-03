@@ -6,6 +6,7 @@ import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
+import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
@@ -19,6 +20,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	protected String baseURL;
 	private INameValidator nameValidator;
 	private String buttonType;
+	private boolean isTabindexEnabled = true;
 
 	protected BasicModuleModel(String typeName, String name) {
 		super(name);
@@ -28,6 +30,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		addPropertyId();
 		registerPositionProperties();
 		addPropertyIsVisible();
+		this.addPropertyIsTabindexEnabled();
 	}
 
 	@Override
@@ -89,9 +92,10 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	protected Element setBaseXMLAttributes(Element moduleXML) {
 		String escapedId = StringUtils.escapeXML(this.getId());
 		moduleXML.setAttribute("id", escapedId);
+		XMLUtils.setBooleanAttribute(moduleXML, "isTabindexEnabled", this.isTabindexEnabled);
 
 		if (this.haveStyles()) {
-			moduleXML.appendChild(this.stylesToXML());	
+			moduleXML.appendChild(this.stylesToXML());
 		}
 
 		return moduleXML;
@@ -171,6 +175,44 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		addProperty(property);
 	}
 
+    private void addPropertyIsTabindexEnabled() {
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isTabindexEnabled) {
+					isTabindexEnabled = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return isTabindexEnabled ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return "Is Tabindex Enabled";
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("is_tabindex_enabled");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+
 	public String getBaseURL() {
 		return baseURL;
 	}
@@ -189,4 +231,13 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		this.id = id;
 	}
 
+	@Override
+	public boolean isTabindexEnabled() {
+		return this.isTabindexEnabled;
+	}
+
+	@Override
+	public void setIsTabindexEnabled(boolean value) {
+		this.isTabindexEnabled = value;
+	}
 }

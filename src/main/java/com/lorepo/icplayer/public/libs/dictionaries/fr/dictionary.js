@@ -302,6 +302,7 @@ var ice_dictionary_fr = {
 "open_popup_button_menu" : "Bouton Ouvrir la pop-up",
 "close_popup_button_menu" : "Bouton Fermer la pop-up",
 "is_visible" : "Est visible",
+"is_tabindex_enabled": "Enable tabindex",
 "layout": "Configuration",
 "top" : "Haut",
 "bottom" : "Bas",

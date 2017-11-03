@@ -249,13 +249,13 @@ public class ModuleModelMockup implements IModuleModel {
 	@Override
 	public void load(Element node, String baseURL, String version) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void setSemiResponsiveLayoutID(String semiResponsiveLayoutID) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -268,7 +268,7 @@ public class ModuleModelMockup implements IModuleModel {
 	public void addSemiResponsiveDimensions(String name,
 			ModuleDimensions dimensions) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -279,13 +279,25 @@ public class ModuleModelMockup implements IModuleModel {
 	@Override
 	public void copyConfiguration(String lastSeenLayout) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void syncSemiResponsiveStyles(
 			Set<PageLayout> actualSemiResponsiveLayouts) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+    @Override
+	public boolean isTabindexEnabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setIsTabindexEnabled(boolean value) {
+		// TODO Auto-generated method stub
+
 	}
 }
