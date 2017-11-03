@@ -88,11 +88,12 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	
 	@Test
 	public void updatingPageWithoutVersion() throws IOException, SAXException {
-		String pageXML = getFromFile("testdata/PageVersion4.xml");
+		String expectedXML = getFromFile("testdata/PageVersion4.xml");
 
 		this.loadPageInAwareFactory(this.page, "testdata/PageWithoutVersion.xml");
 		String result = this.page.toXML();
-		Diff diff = new Diff(pageXML, result);
+		
+		Diff diff = new Diff(expectedXML, result);
 		
 		XMLAssert.assertXMLEqual(diff, true);
 	}
