@@ -60,6 +60,12 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			option = module.getOption(order[i]);
 			OptionView widget;
 			widget = new OptionView(option, module.isMulti());
+			
+			if (!this.module.isTabindexEnabled()) {
+				// must be negative other than -1, otherwise GWT resets it to 0 for FocusWidget in onAttach
+				widget.setTabIndex(-2);
+			}
+			
 			widget.addValueChangeHandler(this);
 			optionWidgets.add(widget);
 			if(module.isHorizontalLayout()){

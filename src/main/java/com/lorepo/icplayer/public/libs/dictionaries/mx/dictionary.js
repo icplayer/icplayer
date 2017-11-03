@@ -254,6 +254,7 @@ var ice_dictionary_mx = {
 	"open_popup_button_menu": "Botón para abrir Ventana Emergente",
 	"close_popup_button_menu": "Botón para cerrar Ventana Emergente",
 	"is_visible": "Visible",
+	"is_tabindex_enabled": "Enable tabindex",
 	"layout": "Fondo",
 	"top": "Arriba",
 	"bottom": "Abajo",

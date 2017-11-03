@@ -1678,32 +1678,34 @@ function AddonIWB_Toolbar_create() {
             lastScrollTop = 0,
             panelTop = 0;
 
-        $(window.parent.document).scroll(function() {
-            if (presenter.isOnScreen(presenter.$view.parent(), window)) {
-                var containerHeight = presenter.$pagePanel.outerHeight(true),
-                    scrollTop = $(this).scrollTop(),
-                    min = presenter.$pagePanel.offset().top,
-                    headerHeight = $('.ic_header').outerHeight(true)-20,
-                    max = containerHeight + headerHeight;
-                difference = scrollTop - lastScrollTop;
-                panelTop = parseInt(presenter.$panel.css('top'), 10) + difference;
-                lastScrollTop = scrollTop;
+        try {
+            $(window.parent.document).scroll(function () {
+                if (presenter.isOnScreen(presenter.$view.parent(), window)) {
+                    var containerHeight = presenter.$pagePanel.outerHeight(true),
+                        scrollTop = $(this).scrollTop(),
+                        min = presenter.$pagePanel.offset().top,
+                        headerHeight = $('.ic_header').outerHeight(true) - 20,
+                        max = containerHeight + headerHeight;
+                    difference = scrollTop - lastScrollTop;
+                    panelTop = parseInt(presenter.$panel.css('top'), 10) + difference;
+                    lastScrollTop = scrollTop;
 
-                if (panelTop && (panelTop) > min && (panelTop) < max) {
-                    presenter.$panel.css({
-                        'top' : (panelTop) + 'px'
-                    });
-                } else if (panelTop && (panelTop) >= max) {
-                    presenter.$panel.css({
-                        'top' : (containerHeight - presenter.$panel.outerHeight(true) + min) + 'px'
-                    });
-                } else if (panelTop && (panelTop) <= min){
-                    presenter.$panel.css({
-                        'top' : min + 'px'
-                    });
+                    if (panelTop && (panelTop) > min && (panelTop) < max) {
+                        presenter.$panel.css({
+                            'top': (panelTop) + 'px'
+                        });
+                    } else if (panelTop && (panelTop) >= max) {
+                        presenter.$panel.css({
+                            'top': (containerHeight - presenter.$panel.outerHeight(true) + min) + 'px'
+                        });
+                    } else if (panelTop && (panelTop) <= min) {
+                        presenter.$panel.css({
+                            'top': min + 'px'
+                        });
+                    }
                 }
-            }
-        });
+            });
+        } catch(e) {}
     }
 
     function drawSketch() {
