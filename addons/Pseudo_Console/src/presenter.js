@@ -76,8 +76,8 @@ function AddonPseudo_Console_create() {
             ["left", "OR", "AND"]
         ],
         "bnf": {
-            "expressions" : [                                                 //Push on stack function name
-                [ "functions program_name section_list code_block",   "return {sections: $3, code: $4.concat($1)};($2 || '') + ($3 || '');"  ]
+            "expressions" : [
+                [ "functions program_name section_list code_block",   "return {sections: $3, code: $4.concat(undefined).concat($1)};($2 || '') + ($3 || '');"  ]
             ],
 
             "functions" : [
@@ -91,11 +91,11 @@ function AddonPseudo_Console_create() {
             ],
 
             "function" : [
-                ["function_declaration ( function_arguments ) end_line section_list code_block", "var sections = [yy.presenterContext.generateExecuteObject($6 || '', '')]; $$ = yy.presenterContext.generateFunctionStart($3, $1).concat(sections).concat($7).concat(yy.presenterContext.generateFunctionEnd($1)); yy.functionNames.pop()"] //Concat function header code + variables def + body + function exiter
+                ["function_declaration ( function_arguments ) end_line section_list code_block", "$$ = yy.presenterContext.bnf['function'](yy, $1, $3, $6, $7);"]
             ],
 
             "function_declaration" : [
-                ["FUNCTION STATIC_VALUE", " yy.functionNames.push($2); $$ = $2"]
+                ["FUNCTION STATIC_VALUE", "$$ = yy.presenterContext.bnf['function_declaration'](yy, $2);"]
             ],
 
             "function_arguments" : [
@@ -109,7 +109,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "program_name" : [
-                ["program_const STATIC_VALUE end_line", "$$ = $2;"]
+                ["program_const STATIC_VALUE end_line", "$$ = yy.presenterContext.bnf['program_name'](yy, $2); "]
             ],
 
             "program_const" : [
@@ -143,7 +143,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "var" : [
-                ["STATIC_VALUE", "$$ = 'actualScope.' + yytext + ' = {value: 0};';"]
+                ["STATIC_VALUE", "$$ = yy.presenterContext.bnf['var'](yy, yytext);"]
             ],
 
             "code_block" : [
@@ -177,8 +177,8 @@ function AddonPseudo_Console_create() {
             ],
 
             "assign_value" : [
-                ['STATIC_VALUE = operation end_line', "$$ = [yy.presenterContext.generateExecuteObject($1 + '.value =' + $3 + '.value;')];"],
-                ['operation end_line', "$$ = [yy.presenterContext.generateExecuteObject($1)];"]
+                ['STATIC_VALUE = operation end_line', "$$ = yy.presenterContext.bnf['assign_value_1'](yy, $1, $3);"],
+                ['operation end_line', "$$ = yy.presenterContext.bnf['assign_value_2'](yy, $1);"]
             ],
 
             "do_while_instruction" : [
@@ -198,7 +198,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "while_header" : [
-                ["WHILE operation DO", "console.log($2); $$ = $$ = yy.presenterContext.generateWhileHeader(yy, $2);"]
+                ["WHILE operation DO", "$$ = $$ = yy.presenterContext.generateWhileHeader(yy, $2);"]
             ],
 
             "for_instruction" : [
@@ -206,11 +206,11 @@ function AddonPseudo_Console_create() {
             ],
 
             "for_value_header" : [
-                ["FOR STATIC_VALUE FROM NUMBER TO static_value_or_number DO", "$$ = yy.presenterContext.generateForHeader(yy, $2, $4, $6);"]
+                ["FOR STATIC_VALUE FROM NUMBER TO static_value_or_number DO", "$$ = yy.presenterContext.bnf['for_value_header'](yy, $2, $4, $6);"]
             ],
 
             "static_value_or_number" : [
-                ["STATIC_VALUE", "$$ = yytext + '.value';"],
+                ["STATIC_VALUE", "$$ = yy.presenterContext.bnf['for_argument'](yy, yytext);"],
                 ["NUMBER", "$$ = Number(yytext);"]
             ],
 
@@ -229,8 +229,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "argument" : [
-                ["operation", "$$ = $1;"],
-                ["string_value", "$$ = '{value: \"' + $1 + '\"}';"]
+                ["operation", "$$ = $1;"]
             ],
 
             "string_value": [
@@ -258,26 +257,95 @@ function AddonPseudo_Console_create() {
             ],
 
             "operation" : [
-                [ "STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.dispatch($1, $3 || []);"],
-                [ "operation + operation",   "$$ = '{value: ' + $1 + '.value +' + $3 + '.value }';" ],
-                [ "operation - operation",   "$$ = '{value: ' + $1 + '.value -' + $3 + '.value }';" ],
-                [ "operation * operation",   "$$ = '{value: ' + $1 + '.value *' + $3 + '.value }';" ],
-                [ "operation / operation",   "$$ = '{value: ' + $1 + '.value /' + $3 + '.value }';" ],
-                [ "operation /_ operation",  "$$ = '{value: ~~(' + $1 + '.value /_' + $3 + '.value) }';" ],
-                [ "operation % operation",   "$$ = '{value: ' + $1 + '.value %' + $3 + '.value }';" ],
-                ["operation <= operation",   "$$ = '{value: ' + $1 + '.value <=' + $3 + '.value }';" ],
-                ["operation >= operation",   "$$ = '{value: ' + $1 + '.value >=' + $3 + '.value }';" ],
-                ["operation > operation",    "$$ = '{value: ' + $1 + '.value >' + $3 + '.value }';" ],
-                ["operation < operation",    "$$ = '{value: ' + $1 + '.value <' + $3 + '.value }';" ],
-                ["operation != operation",   "$$ = '{value: ' + $1 + '.value !==' + $3 + '.value }';" ],
-                ["operation == operation",   "$$ = '{value: ' + $1 + '.value ===' + $3 + '.value }';" ],
-                ["operation OR operation",   "$$ = '{value: ' + $1 + '.value ||' + $3 + '.value }';" ],
-                ["operation AND operation",  "$$ = '{value: ' + $1 + '.value &&' + $3 + '.value }';" ],
-                [ "( operation )",           "$$ = '(' + $2 + ')';"],
-                [ "- operation",             "$$ = '{value: -' + $2 + '.value }';", {"prec": "UMINUS"}],
-                [ "NUMBER",                  "$$ = '{value: Number(' + yytext + ')}';" ],
-                [ "STATIC_VALUE",            "$$ = 'actualScope.' + yytext;"]
+                [ "STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['function_call'](yy, $1, $3);"],
+                [ "operation + operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '+');" ],
+                [ "operation - operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '-');" ],
+                [ "operation * operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '*');" ],
+                [ "operation / operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '/');" ],
+                [ "operation /_ operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '/', '~~');" ],
+                [ "operation % operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '%');" ],
+                [ "operation <= operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '<=');" ],
+                [ "operation >= operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '>=');" ],
+                [ "operation > operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '>');" ],
+                [ "operation < operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '<');" ],
+                [ "operation != operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '===');" ],
+                [ "operation == operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '!==');" ],
+                [ "operation OR operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '||');" ],
+                [ "operation AND operation",    "$$ = yy.presenterContext.genrateOperationCode($1, $3, '&&');" ],
+                [ "( operation )",              "$$ = $2"],
+                [ "- operation",                "$$ = yy.presenterContext.generateMinusOperation($2);", {"prec": "UMINUS"}],
+                [ "NUMBER",                     "$$ = [yy.presenterContext.generateExecuteObject('stack.push({value: Number(' + yytext + ')})', '')];" ],
+                [ "STATIC_VALUE",               "$$ = yy.presenterContext.bnf['argument'](yy, yytext);"],
+                [ "string_value",               "$$ = [yy.presenterContext.generateExecuteObject('stack.push({value: \"' + $1 + '\"})')];"]
             ]
+        }
+    };
+
+    presenter.bnf = {
+        var: function (yy, varName) {
+            presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(varName);
+            return 'actualScope.' + varName + ' = {value: 0};';
+        },
+
+        function_call: function (yy, functionName, args) {
+            presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].fn.push(functionName);
+
+            return yy.presenterContext.dispatch(functionName, args || []);
+        },
+
+        function: function (yy, functionName, functionArgs, sectionsBlock, codeBlock) {
+            var sections = [presenter.generateExecuteObject(sectionsBlock || '', '')];
+
+            presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].args = functionArgs;
+            yy.functionNames.pop();
+
+            return presenter.generateFunctionStart(functionArgs, functionName).concat(sections).concat(codeBlock).concat(yy.presenterContext.generateFunctionEnd(functionName));
+        },
+
+        function_declaration: function (yy, functionName) {
+            presenter.state.variablesAndFunctionsUsage[functionName] = {defined: [], args: [], vars: [], fn: []};
+            yy.actualFunctionName = functionName;
+            presenter.state.definedByUserFunctions.push(functionName);
+            yy.functionNames.push(functionName);
+
+            return functionName;
+        },
+
+        assign_value_1: function (yy, variableName, operations) {
+            operations.push(presenter.generateExecuteObject('actualScope.' + variableName + '.value = stack.pop().value;', ''));
+            presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(variableName);
+
+            return operations;
+        },
+
+        assign_value_2: function (yy, operations) {
+            operations.push(presenter.generateExecuteObject('stack.pop()'));
+
+            return operations;
+        },
+
+        program_name: function (yy, programName) {
+            yy.actualFunctionName = '1_main';
+            presenter.state.variablesAndFunctionsUsage['1_main'] = {defined: [], args: [], vars: [], fn: []};
+            return programName;
+        },
+
+        argument: function (yy, argName) {
+            presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(argName);
+
+            return [presenter.generateExecuteObject('stack.push(actualScope.' + argName + ');', '')];
+        },
+
+        for_argument: function (yy, argName) {
+            presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(argName);
+
+            return 'actualScope.' + argName + '.value';
+        },
+
+        for_value_header: function (yy, variableName, from, to) {
+            presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(variableName);
+
+            return presenter.generateForHeader(yy, variableName, from, to);
         }
     };
 
@@ -285,11 +353,40 @@ function AddonPseudo_Console_create() {
         EXECUTE: 1,
         JUMP: 2
     };
+    /**Generate code for minus precedence
+     * @param  {Object[]} beforeCode code executed before operation
+     */
+    presenter.generateMinusOperation = function (beforeCode) {
+        var minusOperation = presenter.generateExecuteObject("stack.push({value: -stack.pop().value});");
 
-    presenter.genrateOperationCode = function () {
-        var execObjects = [];
+        beforeCode.push(minusOperation);
+        return beforeCode;
+    };
 
+    /**
+     * @param  {Object[]} firstVal array with calculations first value
+     * @param  {Object[]} secVal array with calculations second value
+     * @param  {('+'|'-'|'/'|'*'|'/_'|'%'|'<='|'>='|'<'|'>'|'!='|'--'|'OR'|'AND')} operationType 
+     * @param {("~~"|undefined)} [preOperation] operation which will be called on whole statetement. can be undefined
+     * @return {Array[Object]}
+     */
+    presenter.genrateOperationCode = function (firstVal, secVal, operationType, preOperation) {
+        var execObjects = firstVal.concat(secVal),
+            code = "",
+            preCode = "";
 
+        preCode += "ebx = stack.pop();";
+        preCode += "eax = stack.pop();";
+
+        code += "eax.value" + operationType + "ebx.value";
+
+        if (preOperation !== undefined) {
+            code = preOperation + "(" + code + ")";
+        }
+
+        code = preCode + "stack.push({value: " + code + "});";
+
+        execObjects.push(presenter.generateExecuteObject(code, ""));
         return execObjects;
     };
 
@@ -304,9 +401,9 @@ function AddonPseudo_Console_create() {
         initialCommand += "stack.push(actualScope);\n";  //Save actualScope on stack
         initialCommand += "actualScope = {};\n";        //Reset scope to default
 
-        // Add to actualScope variables passed in functionArgsStack (while function call)
-        for (i = 0; i < argsList.length; i += 1) {
-            initialCommand += "actualScope[" + argsList[i] + "] = functionArgsStack.pop();\n";
+        // Add to actualScope variables passed in stack, but in stack is actualScope saved! (while function call)
+        for (i = argsList.length - 1; i >= 0; i -= 1) {
+            initialCommand += "actualScope['" + argsList[Math.abs(i - (argsList.length - 1))] + "'] = stack[stack.length - (2 + " + i + ")];\n";
         }
 
         execObjects.push(presenter.generateExecuteObject(initialCommand, '')); //Call it as code
@@ -318,23 +415,26 @@ function AddonPseudo_Console_create() {
         var execCommands = [],
             exitCommand = "";
 
-        execCommands.push(presenter.generateExecuteObject('functionArgsStack.push({value: 0})', ''));   //If code goes there without return, then add to stack default value
+        execCommands.push(presenter.generateExecuteObject('retVal = {value: 0}', ''));   //If code goes there without return, then add to stack default value
 
         execCommands.push(presenter.generateExecuteObject('', '1_' + functionName));    //Here return will jump. Define as 1_<function_name>. 
 
         exitCommand += "actualScope = {};"; // Clear scope
-        exitCommand += "actualScope = stack.pop();"; //Get saved scope
+        exitCommand += "actualScope = stack.pop();"; //Get saved scope //TODO: check in tests if stack is there the same
 
         execCommands.push(presenter.generateExecuteObject(exitCommand, ''));
+
+        execCommands.push(presenter.generateExecuteObject("actualIndex = functionsCallPositionStack.pop() + 1;", ""));
+
 
         return execCommands;
     };
 
     presenter.generateReturnValue = function (yy, returnCode) {
         var actualFunctionName = yy.functionNames[yy.functionNames.length - 1],
-            execCommands = [];
+            execCommands = returnCode;
 
-        execCommands.push(presenter.generateExecuteObject("functionArgsStack.push(" + returnCode + ".value)", ""));
+        execCommands.push(presenter.generateExecuteObject("retVal = {value: stack.pop().value};", ""));
         execCommands.push(presenter.generateJumpInstruction('true', "1_" + actualFunctionName));
 
         return execCommands;
@@ -342,21 +442,69 @@ function AddonPseudo_Console_create() {
 
     //TODO check if this is built in function or from code
     presenter.dispatch = function (functionName, args) {
-        var parsedArgs = [],
+        var execCode = [],
+            clearStackCode = '',
             i;
-        for (i = 0; i < args.length; i += 1) {
-            parsedArgs.push(args[i]);
+
+        for (i = 1; i <= args.length; i += 1) {
+            execCode = execCode.concat(args[i - 1]);
+            clearStackCode += 'stack.pop();';
         }
-        if (presenter.state.functions.hasOwnProperty(functionName)) {
-            return "presenter.configuration.functions." + functionName + ".call(presenter.objectForInstructions, next, pause," + parsedArgs.join(",") + ")";
+
+        if (presenter.configuration.functions.hasOwnProperty(functionName)) {
+            execCode = execCode.concat(presenter.dispatchForBuiltInFunctions(functionName, args));
+        } else {
+            execCode.push(presenter.generateExecuteObject("functionsCallPositionStack.push(actualIndex);", ""));    //Push actual index of code, function before end will return to that index
+            execCode = execCode.concat(presenter.dipatchUserFunction(functionName, args));
         }
+
+        execCode.push(presenter.generateExecuteObject(clearStackCode));
+        execCode.push(presenter.generateExecuteObject('stack.push(retVal);', ''));
+        return execCode;
     };
 
-    presenter.generateExecuteObject = function (code, label) {
+    presenter.dipatchUserFunction = function (functionName, args) {
+        var execCode = [];
+
+        execCode.push(presenter.generateJumpInstruction('true',  functionName));
+
+        return execCode;
+    };
+
+    /**Dipatch for build in function (function declared in properties)
+     * @param  {String} functionName
+     * @param  {Array[]} args contains how to resolve each argument
+     */
+    presenter.dispatchForBuiltInFunctions = function (functionName, args) {
+        var parsedArgs = [],
+            i,
+            code,
+            execCode = [];
+
+        // That must be there, because, we don't know how many args receive built in function
+        for (i = 1; i <= args.length; i += 1) {
+            parsedArgs.unshift("stack[stack.length - " + i + "]");
+        }
+
+        code = "retVal = presenter.configuration.functions." + functionName + ".call(presenter.objectForInstructions, next, pause," + parsedArgs.join(",") + ");";
+
+        execCode.push(presenter.generateExecuteObject(code, '', true));
+
+        return execCode;
+    };
+
+    /**
+     * Generate code executed by addon. 
+     * @param  {String} code
+     * @param  {String} label set label for goto instruction
+     * @param  {Boolean} [isAsync] async instructions cant be merged and is optional
+     */
+    presenter.generateExecuteObject = function (code, label, isAsync) {
         return {
             code: code,
             type: presenter.TYPES.EXECUTE,
-            label: label
+            label: label,
+            isAsync: isAsync || false
         };
     };
 
@@ -379,28 +527,27 @@ function AddonPseudo_Console_create() {
         }
     };
 
-    //TODO: zamienic miejscami liczbe i tekst
     presenter.generateForHeader = function (yy, variableName, from, to) {
-        yy.labelsStack.push('for_' + yy.lexer.yylineno);
-        yy.labelsStack.push('for_end_' + yy.lexer.yylineno);
+        yy.labelsStack.push(yy.lexer.yylineno + '_for');
+        yy.labelsStack.push(yy.lexer.yylineno + '_for_end');
 
         var execElements = [];
 
-        execElements.push(presenter.generateExecuteObject(variableName + '.value = ' + from + ' - 1;'));
-        execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.for++', 'for_' + yy.lexer.yylineno));
-        execElements.push(presenter.generateJumpInstruction('!((Boolean(' + variableName + '.value += 1) || true) && ' + variableName + '.value <=' + to + ")", 'for_end_' + yy.lexer.yylineno));
+        execElements.push(presenter.generateExecuteObject("actualScope." + variableName + '.value = ' + from + ' - 1;'));
+        execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.for++', yy.lexer.yylineno + '_for'));
+        execElements.push(presenter.generateJumpInstruction('!((Boolean(actualScope.' + variableName + '.value += 1) || true) && actualScope.' + variableName + '.value <=' + to + ")", yy.lexer.yylineno + '_for_end'));
         return execElements;
     };
 
-    //TODO: zamienic miejscami liczbe i tekst
     presenter.generateWhileHeader = function (yy, expression) {
-        yy.labelsStack.push("while_" + yy.lexer.yylineno);
-        yy.labelsStack.push("while_end_" + yy.lexer.yylineno);
+        yy.labelsStack.push(yy.lexer.yylineno + "_while");
+        yy.labelsStack.push(yy.lexer.yylineno + "_while_end");
 
         var execElements = [];
 
-        execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.while++', "while_" + yy.lexer.yylineno));
-        execElements.push(presenter.generateJumpInstruction('!Boolean(' + expression + '.value)', "while_end_" + yy.lexer.yylineno));
+        execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.while++', yy.lexer.yylineno + "_while"));
+        execElements = execElements.concat(expression);
+        execElements.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value)',  yy.lexer.yylineno + "_while_end"));
 
         return execElements;
     };
@@ -427,10 +574,9 @@ function AddonPseudo_Console_create() {
         return execElements;
     };
 
-    //TODO: zamienic miejscami liczbe i tekst
     presenter.generateDoWhileHeader = function (yy) {
         var execElements = [],
-            enterLabel = "do_while_enter_" + yy.lexer.yylineno;
+            enterLabel = yy.lexer.yylineno + "_do_while_enter";
 
         execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.doWhile++;', enterLabel));
         yy.labelsStack.push(enterLabel);
@@ -442,7 +588,8 @@ function AddonPseudo_Console_create() {
         var execElements = [],
             enterLabel = yy.labelsStack.pop();
 
-        execElements.push(presenter.generateJumpInstruction('Boolean(' + expression + '.value)', enterLabel));
+        execElements = execElements.concat(expression);
+        execElements.push(presenter.generateJumpInstruction('Boolean(stack.pop().value)', enterLabel));
 
         return execElements;
     };
@@ -464,7 +611,9 @@ function AddonPseudo_Console_create() {
         codeGenerator: null,    //Generator code to execute from string.
         wasChanged: false,      //If code was changed and addon must recalculate score
         lastScore: 0,           //Last score, we dont need to recalculate score if user dont run code
-        lastUsedCode: []        //Compiled code which was last used,
+        lastUsedCode: [],        //Compiled code which was last used,
+        definedByUserFunctions: [], //Functions defined by user
+        variablesAndFunctionsUsage : {} //Functions and variables used by user each element contains: {defined: [], args: [], vars: [], fn: []}
     };
 
     presenter.configuration = {
@@ -491,6 +640,11 @@ function AddonPseudo_Console_create() {
         presenter.state.eventBus = presenter.state.playerController.getEventBus();
         presenter.state.eventBus.addEventListener('ShowAnswers', this);
         presenter.state.eventBus.addEventListener('HideAnswers', this);
+    };
+
+    presenter.killCode = function () {
+        //This function will be implemented by code runner;
+        return true;
     };
 
     presenter.run = function (view, model) {
@@ -549,6 +703,7 @@ function AddonPseudo_Console_create() {
         };
         presenter.objectForInstructions.console = consoleMock || presenter.state.jqconsole;
         presenter.objectForInstructions.console.Reset();
+        presenter.state.definedByUserFunctions = [];
     };
 
     presenter.initializeJQConsole = function () {
@@ -591,6 +746,11 @@ function AddonPseudo_Console_create() {
     presenter.connectHandlers = function () {
     };
 
+    presenter.stop = function () {
+        presenter.state.jqconsole.Reset();
+        presenter.killCode();
+    };
+
     presenter.executeCommand = function (name, params) {
         if (presenter.isErrorCheckingMode) {
             return;
@@ -598,7 +758,8 @@ function AddonPseudo_Console_create() {
 
         var commands = {
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'stop': presenter.stop
         };
         Commands.dispatch(commands, name, params, presenter);
     };
@@ -768,12 +929,107 @@ function AddonPseudo_Console_create() {
         Commands.dispatch(commands, name, params, presenter);
     };
 
+    presenter.getExcludedNames = function () {
+        var i,
+            excludedNames = {};
+
+        for (i in presenter.configuration.aliases) {
+            if (presenter.configuration.aliases.hasOwnProperty(i)) {
+                excludedNames[presenter.configuration.aliases[i]] = true;
+            }
+        }
+
+        for (i in presenter.configuration.functions) {
+            if (presenter.configuration.functions.hasOwnProperty(i)) {
+                excludedNames[i] = true;
+            }
+        }
+
+        return excludedNames;
+    };
+
+    presenter.multiDefineInstructionChecker = function () {
+        var i,
+            userFunctionName = "",
+            excludedNames = presenter.getExcludedNames();
+
+        function InstuctionIsDefinedException(instrName) {
+            this.message = "Instruction was defined before: \"" + instrName + "\"";
+            this.name = "InstuctionIsDefinedException";
+        }
+
+        for (i = 0; i < presenter.state.definedByUserFunctions.length; i += 1) {
+            userFunctionName = presenter.state.definedByUserFunctions[i];
+            if (!excludedNames[userFunctionName]) {
+                excludedNames[userFunctionName] = true;
+            } else {
+                throw new InstuctionIsDefinedException(userFunctionName);
+            }
+        }
+    };
+
+    /**
+     * @param  {{defined: String[], args: String[], vars:String [], fn: String[]}} functionData
+     * @param  {Stirng} functionName
+     */
+    presenter.undefinedUsageForFunctionChecker = function (functionData, functionName) {
+        var usedVariableName = "",
+            usedFunctionName = "",
+            i,
+            excludedNames = presenter.getExcludedNames();
+
+        function UndefinedVariableNameException(varName) {
+            this.message = "Usage of undefined variable '" + varName + "' in function '" + functionName + "'";
+            this.name = "UndefinedVariableNameException";
+        }
+
+        function UndefinedFunctionNameException(varName) {
+            this.message = "Usage of undefined function '" + varName + "' in function '" + functionName + "'";
+            this.name = "UndefinedFunctionNameException";
+        }
+
+        for (i = 0; i < functionData.vars.length; i += 1) {
+            usedVariableName = functionData.vars[i];
+            if ($.inArray(usedVariableName, functionData.defined) === -1 && $.inArray(usedVariableName, functionData.args) === -1) {
+                throw new UndefinedVariableNameException(usedVariableName);
+            }
+        }
+
+        for (i = 0; i < functionData.fn.length; i++) {
+            usedFunctionName = functionData.fn[i];
+            if (!excludedNames[usedFunctionName] && $.inArray(usedFunctionName, presenter.state.definedByUserFunctions) === -1) {
+                throw new UndefinedFunctionNameException(usedFunctionName);
+            }
+        }
+    };
+
+    presenter.undefinedInstructionOrVariableChecker = function () {
+        var i,
+            usedVariablesAndFunctions = {};
+
+        for (i in presenter.state.variablesAndFunctionsUsage) {
+            if (presenter.state.variablesAndFunctionsUsage.hasOwnProperty(i)) {
+                usedVariablesAndFunctions = presenter.state.variablesAndFunctionsUsage[i];
+                presenter.undefinedUsageForFunctionChecker(usedVariablesAndFunctions, i);
+            }
+        }
+    };
+
+    presenter.checkCode = function () {
+        presenter.multiDefineInstructionChecker();
+        presenter.undefinedInstructionOrVariableChecker();
+    };
+
     presenter.executeCode = function (code) {
         presenter.state.wasChanged = true;
         presenter.initializeObjectForCode();
         try {
             var executableCode = presenter.state.codeGenerator.parse(code);
+
+            presenter.checkCode();
+
             presenter.state.lastUsedCode = executableCode;
+            presenter.stop();
             presenter.codeExecutor(executableCode, false);
         } catch (e) {
             if (e.name) {
@@ -792,18 +1048,21 @@ function AddonPseudo_Console_create() {
         var actualIndex = 0,
             code = parsedData.code,
             timeoutId = 0,
-            isEnded = true,
+            isEnded = false,
             startTime = new Date().getTime() / 1000,
             actualScope = {},         // There will be saved actual variables
             stack = [],               // Stack contains saved scopes
-            functionArgsStack = [];   // Args passed to function
+            functionsCallPositionStack = [], //Stack wihich contains information about actual executed code position.
+            retVal = {value: 0},      // value returned by function,
+            eax = {value: 0},         // Helper used in generated code (see operation)
+            ebx = {value: 0};         // Helper used in generated code
 
         console.log(parsedData);
 
         function getIndexByLabel(label) {
             var i;
             for (i = 0; i < code.length; i += 1) {
-                if (code[i].label === label) {
+                if (code[i] && code[i].label === label) {
                     return i;
                 }
             }
@@ -828,7 +1087,7 @@ function AddonPseudo_Console_create() {
                 }
                 return false;
             }
-
+            console.log(stack, retVal);
             return true;
         }
 
@@ -837,15 +1096,21 @@ function AddonPseudo_Console_create() {
         }
 
         function next() {
-            timeoutId = setTimeout(executeAsync, 1);
+            if (!isEnded) {
+                timeoutId = setTimeout(executeAsync, 1);
+            }
         }
 
         function executeAsync() {
             next();
             try {
-                executeLine();
+                isEnded = executeLine();
+                if (isEnded) {
+                    pause();
+                }
             } catch (e) {
                 presenter.state.jqconsole.Write(e + "\n", 'program-error-output');
+                console.log(actualIndex);
                 pause();
             }
         }
@@ -856,15 +1121,29 @@ function AddonPseudo_Console_create() {
             while (true) {
                 actualTime = new Date().getTime() / 1000;
                 if (actualTime - startTime > presenter.configuration.answer.maxTimeForAnswer.parsedValue) {
+                    console.log("KILL!");
                     return;
                 }
 
                 isEnded = executeLine();
                 if (isEnded) {
+                    console.log(stack);
                     return;
                 }
             }
         }
+
+        presenter.killCode = function () {
+            debugger;
+            pause();
+            actualScope = null;
+            stack = null;
+            functionsCallPositionStack = null;
+            eax = null;
+            ebx = null;
+            isEnded = true;
+            return true;
+        };
 
         eval(parsedData.sections);
 
