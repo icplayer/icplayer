@@ -42,6 +42,10 @@ public class CssStyle {
 		this.style = value;
 	}
 	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 	public void setIsDefault(boolean isDefault) {
 		this.isDefault = isDefault;
 	}

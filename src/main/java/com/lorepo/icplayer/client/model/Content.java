@@ -516,12 +516,8 @@ public class Content implements IContentBuilder, IContent {
 		return false;
 	}
 
-	public String getActualStyleID() {
-		return this.layoutsContainer.getActualLayoutStyleID();
-	}
-
 	public String getActualStyle() {
-		CssStyle style = styles.get(this.getActualStyleID());
+		CssStyle style = styles.get(this.getActualSemiResponsiveLayoutID());
 
 		if (style == null) {
 			return this.getDefaultCssStyle().getValue();

@@ -17,13 +17,7 @@ public class LayoutsContainer {
 	
 	public void addLayout(PageLayout layout) {
 		this.layoutsMap.put(layout.getID(), layout);
-	}
-
-	public String getActualLayoutStyleID() {
-		PageLayout actualLayout = this.layoutsMap.get(this.actualLayoutID);
-		return actualLayout.getStyleID();
-	}
-	
+	}	
 
 	public String getActualSemiResponsiveLayoutID() {
 		return this.actualLayoutID;

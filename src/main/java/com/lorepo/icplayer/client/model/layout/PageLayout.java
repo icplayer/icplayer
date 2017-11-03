@@ -13,22 +13,22 @@ public class PageLayout implements PageLayoutBuilder {
 	private String id;
 	private int threshold;
 	private String styleID;
-	private boolean isDefault;
+	private boolean isDefault = false;
 	private boolean useDeviceOrientation = false;
 	private DeviceOrientation deviceOrientation = DeviceOrientation.vertical;
 	
 	public PageLayout(String id, String name) {
 		this.id = id;
 		this.name = name;
-		this.isDefault = false;
+		this.styleID = id;
 	}
 	
-	public static PageLayout copy(PageLayout pageLayout) {
-		PageLayout copy = new PageLayout(pageLayout.getID(), pageLayout.getName());
-		copy.setThreshold(pageLayout.getThreshold());
-		copy.setDeviceOrientation(pageLayout.getDeviceOrientation());
-		copy.useDeviceOrientation(pageLayout.useDeviceOrientation());
-		copy.setCssID(pageLayout.getStyleID());
+	public static PageLayout copy(PageLayout pageLayoutToCopy) {
+		PageLayout copy = new PageLayout(pageLayoutToCopy.getID(), pageLayoutToCopy.getName());
+		copy.setThreshold(pageLayoutToCopy.getThreshold());
+		copy.setDeviceOrientation(pageLayoutToCopy.getDeviceOrientation());
+		copy.useDeviceOrientation(pageLayoutToCopy.useDeviceOrientation());
+		copy.setCssID(pageLayoutToCopy.getStyleID());
 		
 		return copy;
 	}
@@ -49,9 +49,10 @@ public class PageLayout implements PageLayoutBuilder {
 		return newPageLayout;
 	}
 	
-	public static PageLayout createPageLayout(String name, int treshold, String cssID, boolean useDeviceOrientation, DeviceOrientation deviceOrientation) {
-		PageLayout newPageLayout = new PageLayout(UUID.uuid(), name);
-		newPageLayout.setCssID(cssID);
+	public static PageLayout createPageLayout(String name, int treshold, boolean useDeviceOrientation, DeviceOrientation deviceOrientation) {
+		String id = UUID.uuid();
+		PageLayout newPageLayout = new PageLayout(id, name);
+		newPageLayout.setCssID(id);
 		newPageLayout.setThreshold(treshold);
 		newPageLayout.useDeviceOrientation(useDeviceOrientation);
 		newPageLayout.setDeviceOrientation(deviceOrientation);
