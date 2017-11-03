@@ -17,6 +17,7 @@ function AddonTrueFalse_create() {
     var playerController;
     var eventBus; // Modules communication
     var textParser = null; // Links to Glossary Addon
+    var tts;
 
     var QUESTION_AND_CHOICES_REQUIRED = "At least 1 question and 2 choices are required.";
     var INDEX_OUT_OF_RANGE = "Index is out of range.";
@@ -679,6 +680,59 @@ function AddonTrueFalse_create() {
         presenter.isShowAnswersActive = false;
     };
 
+    function getTextToSpeech () {
+        if (tts) {
+            return tts;
+        }
+
+        tts = playerController.getModule('Text_To_Speech1');
+        return tts;
+    }
+
+    function getActivatedElement () {
+        return presenter.$view.find('.keyboard_navigation_active_element');
+    }
+
+    function getElementIndex(element) {
+        var div = element.parent(),
+            parent = div.parent(),
+            list = parent.find('td');
+
+        return $(list).index(div);
+    }
+
+    function getChoice(index) {
+         return presenter.$view.find('#0').children().eq(index).text().trim();
+    }
+
+    function readOption(readSelection) {
+        var tts = getTextToSpeech();
+        if (tts) {
+            var $active = getActivatedElement(),
+                question = $active.parent().parent().first().text().trim(),
+                elementIndex = getElementIndex($active),
+                choice = getChoice(elementIndex),
+                text = '';
+
+            if(readSelection) {
+                if ($active.parent().hasClass('down')) {
+                    text = choice + ' selected';
+                } else {
+                    text = choice + ' deselected';
+                }
+            } else {
+                text = question + ' ' + choice + ' activated';
+                if ($active.parent().hasClass('down')) {
+                    text += " selected";
+                } else {
+                    text += " deselected";
+                }
+            }
+
+            tts.speak(text);
+        }
+    }
+
     presenter.keyboardController = function(keycode) {
         $(document).on('keydown', function(e) {
             e.preventDefault();
@@ -710,6 +764,7 @@ function AddonTrueFalse_create() {
             }
             presenter.keyboardNavigationActive = true;
             mark_current_element(0);
+            readOption(false);
         };
 
         function swicht_element(move){
@@ -724,22 +779,27 @@ function AddonTrueFalse_create() {
 
         var next_element = function (){
             swicht_element(1);
+            readOption(false);
         };
 
         var previous_element = function (){
             swicht_element(-1);
+            readOption(false);
         };
 
         var next_question = function () {
             swicht_element(possibleChoices.length);
+            readOption(false);
         };
 
         var previous_question = function () {
             swicht_element(-possibleChoices.length);
+            readOption(false);
         };
 
         var mark = function (){
             presenter.keyboardNavigationCurrentElement.click();
+            readOption(true);
         };
 
         var escape = function (){
