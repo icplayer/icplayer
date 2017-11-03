@@ -14,10 +14,11 @@ TestCase("[Video] ShowPlayButton property", {
         assertEquals('none', this.playButton.css('display'));
     },
 
-    'test check button visibility dont change button visibility if property is true': function () {
+    'test check button visibility do not change button visibility if property is true': function () {
         this.presenter.configuration.showPlayButton = true;
 
         this.presenter.checkPlayButtonVisibility();
+
         assertNotEquals('none', this.playButton.css('display'));
     }
 });

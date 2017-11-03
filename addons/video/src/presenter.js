@@ -567,7 +567,7 @@ function Addonvideo_create() {
         if (!presenter.configuration.showPlayButton) {
             presenter.$view.find('.video-poster-play').hide();
         }
-    }
+    };
 
     presenter.run = function(view, model) {
         var upgradedModel = presenter.upgradeModel(model);

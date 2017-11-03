@@ -53,21 +53,17 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
     assertNotEquals(this.model, upgradedModel);
 };
 
-UpgradeModelTests.prototype.testUpgradeModelForShowPlayButtonShouldAddPropertyIfDoesentExist = function () {
+UpgradeModelTests.prototype.testUpgradeModelForShowPlayButtonShouldAddPropertyIfDoesNotExist = function () {
     var upgradedModel = this.presenter.upgradeModel(this.model);
 
     assertEquals('False', upgradedModel['Show play button']);
 };
 
 
-UpgradeModelTests.prototype.testUpgradeModelForShowPlayButtonShouldNotChangePropertyIsExists= function () {
-    this.model['Show play button'] = 'False';
+UpgradeModelTests.prototype.testUpgradeModelForShowPlayButtonShouldNotChangePropertyIsExists = function () {
+    this.model['Show play button'] = 'lorem ipsum dolor sit amet';
+
     var upgradedModel = this.presenter.upgradeModel(this.model);
 
-    assertEquals('False', upgradedModel['Show play button']);
-
-    this.model['Show play button'] = 'True';
-    var upgradedModel = this.presenter.upgradeModel(this.model);
-
-    assertEquals('True', upgradedModel['Show play button']);
+    assertEquals('lorem ipsum dolor sit amet', upgradedModel['Show play button']);
 };
