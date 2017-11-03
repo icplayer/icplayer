@@ -36,8 +36,8 @@ function AddonPseudo_Console_create() {
                 ["$else$",                  "return 'ELSE';"],      //TODO
                 ["$case$",                  "return 'CASE';"],      //TODO
                 ["$option$",                "return 'OPTION';"],    //TODO
-                ["$function$",              "return 'FUNCTION';"],  //TODO
-                ["$return$",                "return 'RETURN';"],    //TODO
+                ["$function$",              "return 'FUNCTION';"],
+                ["$return$",                "return 'RETURN';"],
                 ["\\n+",                    "return 'NEW_LINE';"],
                 ["$",                       "return 'EOF';"],
                 ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
@@ -73,7 +73,8 @@ function AddonPseudo_Console_create() {
             ["left", "BRACKET"],
             ["left", "UMINUS"],
             ["left", "<=", ">=", "<", ">", "!=", "=="],
-            ["left", "OR", "AND"]
+            ["left", "OR", "AND"],
+            ["right", "IF", "ELSE", "THEN"]
         ],
         "bnf": {
             "expressions" : [
@@ -150,6 +151,11 @@ function AddonPseudo_Console_create() {
                 ["begin_block instructions end_block", "$$ = $2 || [];"]
             ],
 
+            "code_block_or_instruction" : [
+                ["code_block", "$$ = $1 || [];"],
+                ["instruction", "$$ = $1 || [];"]
+            ],
+
             "begin_block" : [
                 ["BEGIN_BLOCK end_line", "$$ = '';"]
             ],
@@ -173,7 +179,13 @@ function AddonPseudo_Console_create() {
                 ['while_instruction', '$$ = $1;'],
                 ['do_while_instruction', '$$ = $1;'],
                 ["assign_value", "$$ = $1;"],
+                ["if_instruction", "$$ = $1"],
                 ["RETURN operation end_line", "$$ = yy.presenterContext.generateReturnValue(yy, $2);"]
+            ],
+
+            "if_instruction" : [
+                ["IF operation THEN end_line code_block_or_instruction", "$$ = yy.presenterContext.bnf['if_instruction'](yy, $2, $5);"],
+                ["IF operation THEN end_line code_block_or_instruction ELSE end_line code_block_or_instruction",  "$$ = yy.presenterContext.bnf['if_else_instruction'](yy, $2, $5, $8);"]
             ],
 
             "assign_value" : [
@@ -182,7 +194,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "do_while_instruction" : [
-                ["do_while_header end_line code_block do_while_checker", "$$ = $1.concat($3).concat($4);"]
+                ["do_while_header end_line code_block_or_instruction do_while_checker", "$$ = $1.concat($3).concat($4);"]
             ],
 
             "do_while_header" : [
@@ -194,7 +206,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "while_instruction" : [
-                ["while_header end_line code_block", "var endBlock = yy.presenterContext.generateWhileExiter(yy); $$ = $1.concat($3).concat(endBlock);"]
+                ["while_header end_line code_block_or_instruction", "var endBlock = yy.presenterContext.generateWhileExiter(yy); $$ = $1.concat($3).concat(endBlock);"]
             ],
 
             "while_header" : [
@@ -202,7 +214,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "for_instruction" : [
-                ["for_value_header end_line code_block", "$$ = $1.concat($3).concat(yy.presenterContext.generateForExiter(yy));"]
+                ["for_value_header end_line code_block_or_instruction", "$$ = $1.concat($3).concat(yy.presenterContext.generateForExiter(yy));"],
             ],
 
             "for_value_header" : [
@@ -268,8 +280,8 @@ function AddonPseudo_Console_create() {
                 [ "operation >= operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '>=');" ],
                 [ "operation > operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '>');" ],
                 [ "operation < operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '<');" ],
-                [ "operation != operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '===');" ],
-                [ "operation == operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '!==');" ],
+                [ "operation != operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '!==');" ],
+                [ "operation == operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '===');" ],
                 [ "operation OR operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '||');" ],
                 [ "operation AND operation",    "$$ = yy.presenterContext.genrateOperationCode($1, $3, '&&');" ],
                 [ "( operation )",              "$$ = $2"],
@@ -346,6 +358,42 @@ function AddonPseudo_Console_create() {
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(variableName);
 
             return presenter.generateForHeader(yy, variableName, from, to);
+        },
+
+        /**
+         * @param  {Object} yy
+         * @param  {Object[]} expression
+         * @param  {Object[]} code
+         */
+        if_instruction: function (yy, expression, code) {
+            var executableCode = expression,
+                if_end = yy.lexer.yylineno + "_end_if";
+
+            executableCode.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value);', if_end));
+            executableCode = executableCode.concat(code);
+            executableCode.push(presenter.generateExecuteObject('', if_end));
+
+            return executableCode;
+        },
+
+        /**
+         * @param  {Object} yy
+         * @param  {Object[]} expression
+         * @param  {Object[]} ifCode
+         * @param  {Object[]} elseCode
+         */
+        if_else_instruction: function (yy, expression, ifCode, elseCode) {
+            var executableCode = expression,
+                else_start = yy.lexer.yylineno + "_else_if",
+                if_end = yy.lexer.yylineno + "_end_if";
+
+            executableCode.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value);', else_start));
+            executableCode = executableCode.concat(ifCode);
+            executableCode.push(presenter.generateJumpInstruction('true', if_end));
+            executableCode = executableCode.concat(elseCode);
+            executableCode.push(presenter.generateExecuteObject('', if_end));
+
+            return executableCode;
         }
     };
 
@@ -353,6 +401,7 @@ function AddonPseudo_Console_create() {
         EXECUTE: 1,
         JUMP: 2
     };
+
     /**Generate code for minus precedence
      * @param  {Object[]} beforeCode code executed before operation
      */
@@ -547,7 +596,7 @@ function AddonPseudo_Console_create() {
 
         execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.while++', yy.lexer.yylineno + "_while"));
         execElements = execElements.concat(expression);
-        execElements.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value)',  yy.lexer.yylineno + "_while_end"));
+        execElements.push(presenter.generateJumpInstruction('Boolean(stack.pop().value)',  yy.lexer.yylineno + "_while_end"));
 
         return execElements;
     };
@@ -589,7 +638,7 @@ function AddonPseudo_Console_create() {
             enterLabel = yy.labelsStack.pop();
 
         execElements = execElements.concat(expression);
-        execElements.push(presenter.generateJumpInstruction('Boolean(stack.pop().value)', enterLabel));
+        execElements.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value)', enterLabel));
 
         return execElements;
     };
@@ -635,6 +684,14 @@ function AddonPseudo_Console_create() {
     presenter.ERROR_CODES = {
     };
 
+    //https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+    function uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+
     presenter.setPlayerController = function (controller) {
         presenter.state.playerController = controller;
         presenter.state.eventBus = presenter.state.playerController.getEventBus();
@@ -642,9 +699,16 @@ function AddonPseudo_Console_create() {
         presenter.state.eventBus.addEventListener('HideAnswers', this);
     };
 
-    presenter.killCode = function () {
-        //This function will be implemented by code runner;
-        return true;
+    presenter.killMachine = {}; // Object which contains all machines with kill machine function
+
+    presenter.killAllMachines = function () {
+        var id;
+
+        for (id in presenter.killMachine) {
+            if (presenter.killMachine.hasOwnProperty(id)) {
+                presenter.killMachine[id]();
+            }
+        }
     };
 
     presenter.run = function (view, model) {
@@ -748,7 +812,7 @@ function AddonPseudo_Console_create() {
 
     presenter.stop = function () {
         presenter.state.jqconsole.Reset();
-        presenter.killCode();
+        presenter.killAllMachines();
     };
 
     presenter.executeCommand = function (name, params) {
@@ -1045,6 +1109,8 @@ function AddonPseudo_Console_create() {
      * @param  {Boolean} getScore if function will be called to get score
      */
     presenter.codeExecutor = function (parsedData, getScore) {
+        console.log("Creating machine!");
+
         var actualIndex = 0,
             code = parsedData.code,
             timeoutId = 0,
@@ -1055,7 +1121,8 @@ function AddonPseudo_Console_create() {
             functionsCallPositionStack = [], //Stack wihich contains information about actual executed code position.
             retVal = {value: 0},      // value returned by function,
             eax = {value: 0},         // Helper used in generated code (see operation)
-            ebx = {value: 0};         // Helper used in generated code
+            ebx = {value: 0},         // Helper used in generated code,
+            id = uuidv4();
 
         console.log(parsedData);
 
@@ -1102,6 +1169,7 @@ function AddonPseudo_Console_create() {
         }
 
         function executeAsync() {
+            console.log(isEnded);
             next();
             try {
                 isEnded = executeLine();
@@ -1115,27 +1183,9 @@ function AddonPseudo_Console_create() {
             }
         }
 
-        function executeCodeSyncWithMaxTime() {
-            var actualTime;
-
-            while (true) {
-                actualTime = new Date().getTime() / 1000;
-                if (actualTime - startTime > presenter.configuration.answer.maxTimeForAnswer.parsedValue) {
-                    console.log("KILL!");
-                    return;
-                }
-
-                isEnded = executeLine();
-                if (isEnded) {
-                    console.log(stack);
-                    return;
-                }
-            }
-        }
-
-        presenter.killCode = function () {
-            debugger;
+        function killMachine() {
             pause();
+            delete presenter.killMachine[id];
             actualScope = null;
             stack = null;
             functionsCallPositionStack = null;
@@ -1143,7 +1193,29 @@ function AddonPseudo_Console_create() {
             ebx = null;
             isEnded = true;
             return true;
-        };
+        }
+
+        function executeCodeSyncWithMaxTime() {
+            var actualTime;
+
+            while (true) {
+                actualTime = new Date().getTime() / 1000;
+                if (actualTime - startTime > presenter.configuration.answer.maxTimeForAnswer.parsedValue) {
+                    console.log("KILL!");
+                    killMachine();
+                    return;
+                }
+
+                isEnded = executeLine();
+                if (isEnded) {
+                    console.log(stack);
+                    killMachine();
+                    return;
+                }
+            }
+        }
+
+        presenter.killMachine[id]  = killMachine;
 
         eval(parsedData.sections);
 
