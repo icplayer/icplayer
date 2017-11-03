@@ -60,7 +60,8 @@ function Addonvideo_create() {
         shouldHideSubtitles: null,
         defaultControls: null,
         files: [],
-        height: 0
+        height: 0,
+        showPlayButton: false
     };
 
     presenter.lastSentCurrentTime = 0;
@@ -87,8 +88,17 @@ function Addonvideo_create() {
         });
     };
 
+    presenter.upgradeShowPlayButton = function (model) {
+        if (!model['Show play button']) {
+            model['Show play button'] = 'False';
+        }
+
+        return model;
+    };
+
     presenter.upgradeModel = function (model) {
-        return presenter.upgradePoster(model);
+        var upgradedModel = presenter.upgradePoster(model);
+        return presenter.upgradeShowPlayButton(upgradedModel);
     };
 
     presenter.upgradePoster = function (model) {
@@ -547,10 +557,17 @@ function Addonvideo_create() {
             shouldHideSubtitles: ModelValidationUtils.validateBoolean(model["Hide subtitles"]),
             defaultControls: !ModelValidationUtils.validateBoolean(model['Hide default controls']),
             files: presenter.validateFiles(model).files,
-            height: parseInt(model.Height, 10)
+            height: parseInt(model.Height, 10),
+            showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button'])
 
         }
     };
+
+    presenter.checkPlayButtonVisibility = function () { 
+        if (!presenter.configuration.showPlayButton) {
+            presenter.$view.find('.video-poster-play').hide();
+        }
+    }
 
     presenter.run = function(view, model) {
         var upgradedModel = presenter.upgradeModel(model);
@@ -569,6 +586,8 @@ function Addonvideo_create() {
         presenter.$videoObject = $(presenter.videoObject);
 
         presenter.setDimensions();
+
+        presenter.checkPlayButtonVisibility();
 
         if (presenter.configuration.defaultControls) {
             presenter.buildControlsBars();
@@ -862,12 +881,14 @@ function Addonvideo_create() {
         presenter.$posterWrapper.find("img").remove();
         var $video = $(video);
 
-        if (posterSource) {      
-            presenter.$posterWrapper.one('click', function onPosterWrapperClick(e) {
-                e.stopPropagation();
-                $(this).hide();
-                presenter.videoObject.play();
-            });
+        if (posterSource) {     
+            if (presenter.configuration.showPlayButton) {
+                presenter.$posterWrapper.one('click', function onPosterWrapperClick(e) {
+                    e.stopPropagation();
+                    $(this).hide();
+                    presenter.videoObject.play();
+                });
+            }
 
             var $poster = $("<img></img>");
             $poster.attr('src', posterSource);
