@@ -730,7 +730,7 @@ function AddonPseudo_Console_create() {
     };
 
     presenter.state = {
-        jqconsole: null,        //Console object
+        console: null,
         functions: {},          //Functions defined by user
         codeGenerator: null,    //Generator code to execute from string.
         wasChanged: false,      //If code was changed and addon must recalculate score
@@ -840,26 +840,30 @@ function AddonPseudo_Console_create() {
                 doWhile: 0
             }
         };
-        presenter.objectForInstructions.console = consoleMock || presenter.state.jqconsole;
-        presenter.objectForInstructions.console.Reset();
+        presenter.objectForInstructions.console = consoleMock || presenter.state.console;
+        //presenter.objectForInstructions.console.Reset();
         presenter.state.definedByUserFunctions = [];
     };
 
-    presenter.initializeJQConsole = function () {
-        var jqConsole = presenter.state.$view.jqconsole('', '>>>'),
-            originalPropmpt = jqConsole.Prompt,
-            readCharCallback = null;
-
-        jqConsole.Prompt = function (callback) {
-            jqConsole.pauseIns();
-            originalPropmpt.call(jqConsole, true, function (input) {
-                callback.call(this, input);
-                jqConsole.nextIns();
-            });
-        };
-
-        presenter.state.jqconsole = jqConsole;
+    presenter.initializeConsole = function () {
+        presenter.state.console = new presenter.console(presenter.state.$view.find(".addon-Pseudo_Console-wrapper"));
     };
+
+    // presenter.initializeJQConsole = function () {
+    //     var jqConsole = presenter.state.$view.jqconsole('', '>>>'),
+    //         originalPropmpt = jqConsole.Prompt,
+    //         readCharCallback = null;
+
+    //     jqConsole.Prompt = function (callback) {
+    //         jqConsole.pauseIns();
+    //         originalPropmpt.call(jqConsole, true, function (input) {
+    //             callback.call(this, input);
+    //             jqConsole.nextIns();
+    //         });
+    //     };
+
+    //     presenter.state.jqconsole = jqConsole;
+    // };
 
     presenter.initialize = function (view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
@@ -873,7 +877,7 @@ function AddonPseudo_Console_create() {
         presenter.state.view = view;
 
         if (!isPreview) {
-            presenter.initializeJQConsole();
+            presenter.initializeConsole();
             presenter.initializeObjectForCode();
             presenter.initializeGrammar();
         }
@@ -887,7 +891,7 @@ function AddonPseudo_Console_create() {
     };
 
     presenter.stop = function () {
-        presenter.state.jqconsole.Reset();
+        //presenter.state.console.Reset();
         presenter.killAllMachines();
     };
 
@@ -969,7 +973,7 @@ function AddonPseudo_Console_create() {
             Prompt: function (callback) {
                 var actualInput = input[actualInputIndex];
                 if (actualInput !== null) {
-                    callback.call(presenter.state.jqconsole, actualInput);
+                    callback.call(presenter.state.console, actualInput);
                     actualInputIndex += 1;
                 }
             },
@@ -1173,9 +1177,9 @@ function AddonPseudo_Console_create() {
             presenter.codeExecutor(executableCode, false);
         } catch (e) {
             if (e.name) {
-                presenter.state.jqconsole.Write(e.message + "\n", 'program-error-output');
+                presenter.state.console.Write(e.message + "\n", 'program-error-output');
             } else {
-                presenter.state.jqconsole.Write("Unexpected identifier\n", 'program-error-output');
+                presenter.state.console.Write("Unexpected identifier\n", 'program-error-output');
             }
         }
     };
@@ -1253,7 +1257,7 @@ function AddonPseudo_Console_create() {
                     pause();
                 }
             } catch (e) {
-                presenter.state.jqconsole.Write(e + "\n", 'program-error-output');
+                presenter.state.console.Write(e + "\n", 'program-error-output');
                 console.log(actualIndex);
                 pause();
             }
@@ -1301,7 +1305,22 @@ function AddonPseudo_Console_create() {
             executeAsync();
         }
     };
+    // ----------------------------------CONSOLE----------------------------------------------
+    function userConsole($element) {
+        this.ownerElement = $element;
+        this.container = $("<pre><div class='pseudoConsole-console-container'><span class='pseudoConsole-console-cursor'>&nbsp;</span></div></pre>");
 
+        $element.append(this.container);
+    }
+
+    userConsole.prototype = {
+        generateLine: function (isActive) {
+            isActive = isActive || false;
+            
+        }
+    };
+
+    presenter.console = userConsole;
     // ---------------------------------- VALIDATION SECTION ---------------------------------
     // TODO:
     // 1. Check if function dont have name like built in functions: for, while
