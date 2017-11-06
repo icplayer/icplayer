@@ -569,6 +569,18 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.showPlayButton = function () {
+        if (presenter.configuration.showPlayButton) {
+            presenter.$view.find('.video-poster-play').show();
+        }        
+    }
+
+    presenter.hidePlayButton = function () {
+        if (presenter.configuration.showPlayButton) {
+            presenter.$view.find('.video-poster-play').hide();
+        }       
+    }
+
     presenter.run = function(view, model) {
         var upgradedModel = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(upgradedModel);
@@ -1141,10 +1153,45 @@ function Addonvideo_create() {
             'play' : presenter.play,
             'stop' : presenter.stop,
             'showSubtitles' : presenter.showSubtitles,
-            'hideSubtitles' : presenter.hideSubtitles
+            'hideSubtitles' : presenter.hideSubtitles,
+            'setVideoURL': presenter.setVideoURLCommand
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.setVideoURLCommand = function (params) {
+        presenter.setVideoURL(params[0]);
+    };
+
+    presenter.setVideoURL = function (url) {
+        var mapper = {
+            "oggFormat": "Ogg video",
+            "mp4Format": "MP4 video",
+            "webMFormat": "WebM video",
+            "poster": "Subtitles",
+            "subtitles": "Poster",
+            "id": "ID",
+            "altText": "AlternativeText",
+            "loop": "Loop video"
+        },
+        key,
+        newFile = {};
+
+        for (key in mapper) {
+            if (mapper.hasOwnProperty(key)) {
+                newFile[mapper[key]] = url[key] || '';
+            }
+        }
+
+        if(newFile.loop === '') {
+            newFile.loop = false;
+        }
+
+        presenter.configuration.files = [];
+        presenter.configuration.files.push(newFile);
+
+        presenter.jumpTo(presenter.configuration.files.length);
     };
 
     presenter.setVisibility = function(isVisible) {
@@ -1262,6 +1309,7 @@ function Addonvideo_create() {
 
     presenter.play = deferredSyncQueue.decorate(function () {
         presenter.removeWaterMark();
+        presenter.hidePlayButton();
         presenter.loadVideoAtPlayOnMobiles();
 
         if (presenter.videoObject.paused) {
@@ -1274,6 +1322,7 @@ function Addonvideo_create() {
 
     presenter.stop = deferredSyncQueue.decorate(function () {
         if (!presenter.videoObject.paused) {
+            presenter.showPlayButton();
             presenter.seek(0); // sets the current time to 0
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
@@ -1282,9 +1331,11 @@ function Addonvideo_create() {
 
     presenter.pause = deferredSyncQueue.decorate(function () {
         if (!presenter.videoObject.paused) {
+            presenter.showPlayButton();
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
         }
+        
     });
 
     presenter.previous = function() {
