@@ -841,6 +841,7 @@ function Addonvideo_create() {
         var isPaused = presenter.videoObject.paused;
         presenter.videoObject.pause();
         return JSON.stringify({
+            files: presenter.configuration.files,
             currentTime : presenter.videoObject.currentTime,
             isCurrentlyVisible : presenter.isCurrentlyVisible,
             isPaused: isPaused,
@@ -853,6 +854,8 @@ function Addonvideo_create() {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
         var state = JSON.parse(stateString);
         var currentTime = state.currentTime;
+        
+        presenter.configuration.files = state.files;
         presenter.isCurrentlyVisible = state.isCurrentlyVisible;
 
         if (presenter.isCurrentlyVisible !== (presenter.$view.css('visibility') !== 'hidden')) {
