@@ -67,13 +67,13 @@ function AddonMagic_Boxes_create() {
 
     function getElementDimensions(element) {
         element = $(element);
-
+        
         return {
             border:{
-                top:Math.round(parseFloat(element.css('border-top-width'), 10)),
-                bottom:Math.round(parseFloat(element.css('border-bottom-width'), 10)),
-                left:Math.round(parseFloat(element.css('border-left-width'), 10)),
-                right:Math.round(parseFloat(element.css('border-right-width'), 10))
+                top:parseFloat(element.css('border-top-width'), 10),
+                bottom:parseFloat(element.css('border-bottom-width'), 10),
+                left:parseFloat(element.css('border-left-width'), 10),
+                right:parseFloat(element.css('border-right-width'), 10)
             },
             margin:{
                 top:parseInt(element.css('margin-top'), 10),
