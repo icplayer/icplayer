@@ -56,6 +56,7 @@ public class GWTPageTestCase extends GwtTest {
 		when(dictMock.keySet()).thenReturn(dictValues);
 		
 		Whitebox.setInternalState(DictionaryWrapper.class, "dictionary", dictMock);
+		Whitebox.setInternalState(DictionaryWrapper.class, "cachedKeySet", dictMock.keySet());
 	}
 	
 	@Test

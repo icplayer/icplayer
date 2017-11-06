@@ -45,6 +45,7 @@ public class GWTTextModelTestCase extends GwtTest {
 		when(dictMock.keySet()).thenReturn(keySet);
 		
 		Whitebox.setInternalState(DictionaryWrapper.class, "dictionary", dictMock);
+		Whitebox.setInternalState(DictionaryWrapper.class, "cachedKeySet", dictMock.keySet());
 	}
 
 	@Test
