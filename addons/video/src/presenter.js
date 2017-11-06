@@ -1169,8 +1169,8 @@ function Addonvideo_create() {
             "oggFormat": "Ogg video",
             "mp4Format": "MP4 video",
             "webMFormat": "WebM video",
-            "poster": "Subtitles",
-            "subtitles": "Poster",
+            "poster": "Poster",
+            "subtitles": "Subtitles",
             "id": "ID",
             "altText": "AlternativeText",
             "loop": "Loop video"
