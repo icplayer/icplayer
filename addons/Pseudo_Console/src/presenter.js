@@ -1306,17 +1306,89 @@ function AddonPseudo_Console_create() {
         }
     };
     // ----------------------------------CONSOLE----------------------------------------------
+    var consoleClasses = {
+        "LINES_CONTAINER": "pseudoConsole-console-container",
+        "CURSOR": "pseudoConsole-console-cursor",
+        "RIGHT_ELEMENT": "pseudoConsole-console-right-element"
+    };
+
     function userConsole($element) {
         this.ownerElement = $element;
-        this.container = $("<pre><div class='pseudoConsole-console-container'><span class='pseudoConsole-console-cursor'>&nbsp;</span></div></pre>");
+        this.container = $("<pre></pre>");
+        this.linesContainer = $("<div class='" + consoleClasses.LINES_CONTAINER + "'></div>");
+        this.lines = [];
+        this.activeLineIndex = -1;
 
         $element.append(this.container);
+        this.container.append(this.linesContainer);
+
+        this.addNewLine(true);
     }
 
     userConsole.prototype = {
-        generateLine: function (isActive) {
-            isActive = isActive || false;
-            
+        generateLine: function () {
+            var $htmlObject = $("<span></span>"),
+                $left = $("<span></span>"),
+                $right = $("<span class='" + consoleClasses.RIGHT_ELEMENT + "'></span>"),
+                $cursor = $("<span class='" + consoleClasses.CURSOR + "'></span>");
+
+            $htmlObject.append($left);
+            $htmlObject.append($cursor);
+            $htmlObject.append($right);
+
+            return {
+                $htmlObject : $htmlObject,
+                elements: {
+                    $left: $left,
+                    $cursor: $cursor,
+                    $right: $right
+                }
+            };
+        },
+
+        addNewLine: function (isActive) {
+            var line = this.generateLine();
+            this.lines.push(line);
+            this.linesContainer.append(line.$htmlObject);
+
+            if (isActive) {
+                this.selectLineAsActive(this.lines.length - 1);
+            }
+        },
+
+        selectLineAsActive: function (index) {
+            var activeLine = null;
+            if (this.activeLineIndex > -1) {
+                activeLine = this.lines[this.activeLineIndex];
+                activeLine.elements.$left.text(activeLine.elements.$left.text() + activeLine.elements.$right.text());
+                activeLine.elements.$cursor.html('');
+            }
+
+            this.activeLineIndex = index;
+            activeLine = this.lines[index];
+            activeLine.elements.$cursor.html('&nbsp;');
+        },
+        /**
+         * @param  {String} text
+         * @param  {String} className
+         */
+        Write: function (text, className) {
+            var lines = text.split('\n'),
+                line,
+                activeLine = this.lines[this.activeLineIndex],
+                i;
+
+            for (i = 0; i < lines.length - 1; i += 1 ) {
+                line = lines[i];
+                activeLine.elements.$left.text(activeLine.elements.$left.text() + line);
+                this.addNewLine(true);
+                activeLine = this.lines[this.activeLineIndex];
+                activeLine.elements.$left.text("\n");
+            }
+
+            activeLine = this.lines[this.activeLineIndex];
+            line = lines[i];
+            activeLine.elements.$left.text(activeLine.elements.$left.text() + line);
         }
     };
 
