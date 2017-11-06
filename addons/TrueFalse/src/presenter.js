@@ -307,9 +307,10 @@ function AddonTrueFalse_create() {
         }
 
         if (!preview) {
-            presenter.$view.find('.tf_' + presenter.type + '_image').each(function(index, element){
+            presenter.$view.find('.tf_' + presenter.type + '_image' + ',.tf_' + presenter.type + '_question:not(.first)').each(function(index, element){
                 presenter.keyboardNavigationElements[index] = $(element);
             });
+
             presenter.keyboardNavigationElementsLen = presenter.keyboardNavigationElements.length;
         }
     };
@@ -714,6 +715,11 @@ function AddonTrueFalse_create() {
                 choice = getChoice(elementIndex),
                 text = '';
 
+            if ($active.hasClass('tf_' + presenter.type + '_question')) {
+                tts.speak($active.text().trim());
+                return;
+            }
+
             if(readSelection) {
                 if ($active.parent().hasClass('down')) {
                     text = choice + ' selected';
@@ -721,7 +727,7 @@ function AddonTrueFalse_create() {
                     text = choice + ' deselected';
                 }
             } else {
-                text = question + ' ' + choice + ' activated';
+                text = choice;
                 if ($active.parent().hasClass('down')) {
                     text += " selected";
                 } else {
@@ -746,16 +752,25 @@ function AddonTrueFalse_create() {
             ARROW_LEFT: 37,
             ARROW_UP: 38,
             ARROW_RIGHT: 39,
-            ARROW_DOWN: 40
+            ARROW_DOWN: 40,
+            TAB: 9
         };
 
         function mark_current_element(new_position_index){
             if (presenter.keyboardNavigationCurrentElement) {
-                presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+                if(presenter.keyboardNavigationCurrentElement.find('div').length > 0) {
+                    presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+                } else {
+                    presenter.keyboardNavigationCurrentElement.removeClass('keyboard_navigation_active_element');
+                }
             }
             presenter.keyboardNavigationCurrentElementIndex = new_position_index;
             presenter.keyboardNavigationCurrentElement = presenter.keyboardNavigationElements[new_position_index];
-            presenter.keyboardNavigationCurrentElement.find('div').addClass('keyboard_navigation_active_element');
+            if(presenter.keyboardNavigationCurrentElement.find('div').length > 0) {
+                presenter.keyboardNavigationCurrentElement.find('div').addClass('keyboard_navigation_active_element');
+            } else {
+                presenter.keyboardNavigationCurrentElement.addClass('keyboard_navigation_active_element');
+            }
         }
 
         var enter = function (){
@@ -788,12 +803,12 @@ function AddonTrueFalse_create() {
         };
 
         var next_question = function () {
-            swicht_element(possibleChoices.length);
+            swicht_element(possibleChoices.length + 1);
             readOption(false);
         };
 
         var previous_question = function () {
-            swicht_element(-possibleChoices.length);
+            swicht_element(-(possibleChoices.length + 1));
             readOption(false);
         };
 
@@ -808,6 +823,7 @@ function AddonTrueFalse_create() {
             }
             presenter.keyboardNavigationActive = false;
             presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+            presenter.keyboardNavigationCurrentElement.removeClass('keyboard_navigation_active_element');
             presenter.keyboardNavigationCurrentElement = null;
         };
 
@@ -819,6 +835,7 @@ function AddonTrueFalse_create() {
         mapping[keys.ARROW_UP] = previous_question;
         mapping[keys.ARROW_RIGHT] = next_element;
         mapping[keys.ARROW_DOWN] = next_question;
+        mapping[keys.TAB] = next_element;
 
         try {
             mapping[keycode]();
