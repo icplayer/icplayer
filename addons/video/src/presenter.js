@@ -855,7 +855,10 @@ function Addonvideo_create() {
         var state = JSON.parse(stateString);
         var currentTime = state.currentTime;
         
-        presenter.configuration.files = state.files;
+        if (state.files) {  //This was added later than rest of state
+            presenter.configuration.files = state.files;
+        }
+
         presenter.isCurrentlyVisible = state.isCurrentlyVisible;
 
         if (presenter.isCurrentlyVisible !== (presenter.$view.css('visibility') !== 'hidden')) {
