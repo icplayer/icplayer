@@ -569,15 +569,17 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.posterPlayButton = null;
+
     presenter.showPlayButton = function () {
         if (presenter.configuration.showPlayButton) {
-            presenter.$view.find('.video-poster-play').show();
+            presenter.posterPlayButton.show();
         }        
     }
 
     presenter.hidePlayButton = function () {
         if (presenter.configuration.showPlayButton) {
-            presenter.$view.find('.video-poster-play').hide();
+            presenter.posterPlayButton.hide();
         }       
     }
 
@@ -590,6 +592,7 @@ function Addonvideo_create() {
         presenter.videoView = view;
         presenter.$view = $(view);
 
+        presenter.posterPlayButton = $(view).find('.video-poster-play');
         presenter.videoContainer = $(view).find('.video-container:first');
         presenter.$captionsContainer = presenter.$view.find(".captions-container:first");
         presenter.$posterWrapper = presenter.$view.find('.poster-wrapper');
@@ -1185,7 +1188,7 @@ function Addonvideo_create() {
         }
 
         if(newFile.loop === '') {
-            newFile.loop = false;
+            newFile['Loop video'] = false;
         }
 
         presenter.configuration.files = [];
