@@ -12,7 +12,7 @@ function AddonPseudo_Console_create() {
             "options" : {
                 flex: true
             },
-            //TODO: If is one instruction
+
             "rules": [
                 ["[\"]",                    "this.begin('string'); return 'START_STRING'"],
                 [["string"], "[^\"\\\\]",   "return 'STRING';"],
@@ -31,9 +31,9 @@ function AddonPseudo_Console_create() {
                 ["$or$",                    "return 'OR';"],
                 ["$and$",                   "return 'AND';"],
                 ["$while$",                 "return 'WHILE';"],
-                ["$if$",                    "return 'IF';"],        //TODO
-                ["$then$",                  "return 'THEN';"],      //TODO
-                ["$else$",                  "return 'ELSE';"],      //TODO
+                ["$if$",                    "return 'IF';"],
+                ["$then$",                  "return 'THEN';"],
+                ["$else$",                  "return 'ELSE';"],
                 ["$case$",                  "return 'CASE';"],      //TODO
                 ["$option$",                "return 'OPTION';"],    //TODO
                 ["$function$",              "return 'FUNCTION';"],
@@ -74,7 +74,8 @@ function AddonPseudo_Console_create() {
             ["left", "UMINUS"],
             ["left", "<=", ">=", "<", ">", "!=", "=="],
             ["left", "OR", "AND"],
-            ["right", "IF", "ELSE", "THEN"]
+            ["right", "IF", "ELSE", "THEN"],
+            ["right", "CASE", "OPTION"]
         ],
         "bnf": {
             "expressions" : [
@@ -180,7 +181,26 @@ function AddonPseudo_Console_create() {
                 ['do_while_instruction', '$$ = $1;'],
                 ["assign_value", "$$ = $1;"],
                 ["if_instruction", "$$ = $1"],
-                ["RETURN operation end_line", "$$ = yy.presenterContext.generateReturnValue(yy, $2);"]
+                ["case_instruction", "$$ = $1;"],
+                ["RETURN operation end_line", "$$ = yy.presenterContext.bnf['return_value'](yy, $2);"]
+            ],
+
+            "case_instruction" : [
+                ["CASE variable_get end_line case_options", "$$ = yy.presenterContext.bnf['case']($2, $4);"]
+            ],
+
+            "case_options" : [
+                ["case_option", "$$ = $1;"],
+                ["case_options case_option", "$$ = $1.concat($2);;"]
+            ],
+
+            "case_option": [
+                ["OPTION number_or_string THEN end_line code_block_or_instruction", "$$ = yy.presenterContext.bnf['case_option']($2, $5);"]
+            ],
+
+            "number_or_string" : [
+                ["number_value", "$$ = $1;"],
+                ["string_value", "$$ = $1;"]
             ],
 
             "if_instruction" : [
@@ -198,23 +218,23 @@ function AddonPseudo_Console_create() {
             ],
 
             "do_while_header" : [
-                ["DO", "$$ = yy.presenterContext.generateDoWhileHeader(yy);"]
+                ["DO", "$$ = yy.presenterContext.bnf['do_while_header'](yy);"]
             ],
 
             "do_while_checker" : [
-                ["WHILE operation end_line", "$$ = yy.presenterContext.generateDoWhileExiter(yy, $2);"]
+                ["WHILE operation end_line", "$$ = yy.presenterContext.bnf['do_while_exiter'](yy, $2);"]
             ],
 
             "while_instruction" : [
-                ["while_header end_line code_block_or_instruction", "var endBlock = yy.presenterContext.generateWhileExiter(yy); $$ = $1.concat($3).concat(endBlock);"]
+                ["while_header end_line code_block_or_instruction", "var endBlock = yy.presenterContext.bnf['while_exiter'](yy); $$ = $1.concat($3).concat(endBlock);"]
             ],
 
             "while_header" : [
-                ["WHILE operation DO", "$$ = $$ = yy.presenterContext.generateWhileHeader(yy, $2);"]
+                ["WHILE operation DO", "$$ = $$ = yy.presenterContext.bnf['while_header'](yy, $2);"]
             ],
 
             "for_instruction" : [
-                ["for_value_header end_line code_block_or_instruction", "$$ = $1.concat($3).concat(yy.presenterContext.generateForExiter(yy));"],
+                ["for_value_header end_line code_block_or_instruction", "$$ = $1.concat($3).concat(yy.presenterContext.bnf['for_exiter'](yy));"],
             ],
 
             "for_value_header" : [
@@ -245,7 +265,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "string_value": [
-                ["START_STRING string_chars END_STRING", "$$ = $2 || '';"]
+                ["START_STRING string_chars END_STRING", "$$ = [yy.presenterContext.generateExecuteObject('stack.push({value: \"' + ($2 || '') + '\"})')];"]
             ],
 
             "string_chars" : [
@@ -284,16 +304,73 @@ function AddonPseudo_Console_create() {
                 [ "operation == operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '===');" ],
                 [ "operation OR operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '||');" ],
                 [ "operation AND operation",    "$$ = yy.presenterContext.genrateOperationCode($1, $3, '&&');" ],
-                [ "( operation )",              "$$ = $2"],
-                [ "- operation",                "$$ = yy.presenterContext.generateMinusOperation($2);", {"prec": "UMINUS"}],
-                [ "NUMBER",                     "$$ = [yy.presenterContext.generateExecuteObject('stack.push({value: Number(' + yytext + ')})', '')];" ],
-                [ "STATIC_VALUE",               "$$ = yy.presenterContext.bnf['argument'](yy, yytext);"],
-                [ "string_value",               "$$ = [yy.presenterContext.generateExecuteObject('stack.push({value: \"' + $1 + '\"})')];"]
+                [ "( operation )",              "$$ = $2" ],
+                [ "- operation",                "$$ = yy.presenterContext.generateMinusOperation($2);", {"prec": "UMINUS"} ],
+                [ "number_value",               "$$ = $1" ],
+                [ "variable_get",               "$$ = $1" ],
+                [ "string_value",               "$$ = $1" ]
+            ],
+
+            "variable_get": [
+                ["STATIC_VALUE", "$$ = yy.presenterContext.bnf['argument'](yy, yytext);"]
+            ],
+
+            "number_value": [
+                ["NUMBER", "$$ = [yy.presenterContext.generateExecuteObject('stack.push({value: Number(' + yytext + ')})', '')];"]
             ]
         }
     };
 
+    presenter.uidDecorator = function (fn) {
+        return function () {
+            presenter.bnf.uid += 1;
+            return fn.apply(this, arguments);
+        };
+    };
+
     presenter.bnf = {
+        uid: 0,
+
+
+        case: presenter.uidDecorator(
+            /**
+             * @param  {Object[]} variableDef
+             * @param  {{option:String, code:Object[]}[]} options
+             */
+            function (variableDef, options) {
+                console.log(variableDef, options);
+
+                var i,
+                    exitLabel = presenter.bnf.uid + "_case_end",
+                    execCode = [];
+
+                execCode = execCode.concat(variableDef);    //On stack is variable value
+
+                for (i = 0; i < options.length; i += 1) {
+                    execCode = execCode.concat(options[i].option);  //Now on stack we have option to compare
+                    execCode.push(presenter.generateJumpInstruction('stack[stack.length - 2].value === stack.pop().value', presenter.bnf.uid + '_case_option_' + i));
+                }
+                execCode.push(presenter.generateJumpInstruction('true', exitLabel));
+
+                for (i = 0; i < options.length; i += 1) {
+                    execCode.push(presenter.generateExecuteObject('', presenter.bnf.uid + '_case_option_' + i));
+                    execCode = execCode.concat(options[i].code);
+                    execCode.push(presenter.generateJumpInstruction('true', exitLabel));
+                }
+                execCode.push(presenter.generateExecuteObject('', exitLabel));
+                execCode.push(presenter.generateExecuteObject('stack.pop();', ''));
+                return execCode;
+            }
+        ),
+
+        case_option: function (option, code) {
+
+            return [{
+                option: option,
+                code: code
+            }];
+        },
+
         var: function (yy, varName) {
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(varName);
             return 'actualScope.' + varName + ' = {value: 0};';
@@ -354,10 +431,31 @@ function AddonPseudo_Console_create() {
             return 'actualScope.' + argName + '.value';
         },
 
-        for_value_header: function (yy, variableName, from, to) {
+        for_value_header: presenter.uidDecorator(function (yy, variableName, from, to) {
+            var execElements = [];
+
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(variableName);
 
-            return presenter.generateForHeader(yy, variableName, from, to);
+            yy.labelsStack.push(presenter.bnf.uid + '_for');
+            yy.labelsStack.push(presenter.bnf.uid + '_for_end');
+
+
+            execElements.push(presenter.generateExecuteObject("actualScope." + variableName + '.value = ' + from + ' - 1;'));
+            execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.for++', presenter.bnf.uid + '_for'));
+            execElements.push(presenter.generateJumpInstruction('!((Boolean(actualScope.' + variableName + '.value += 1) || true) && actualScope.' + variableName + '.value <=' + to + ")", presenter.bnf.uid + '_for_end'));
+            return execElements;
+
+        }),
+
+        for_exiter: function (yy) {
+            var execElements = [],
+                exitLabel = yy.labelsStack.pop(),
+                checkerLabel = yy.labelsStack.pop();
+
+            execElements.push(presenter.generateJumpInstruction('true', checkerLabel));
+            execElements.push(presenter.generateExecuteObject('', exitLabel));
+
+            return execElements;
         },
 
         /**
@@ -365,16 +463,16 @@ function AddonPseudo_Console_create() {
          * @param  {Object[]} expression
          * @param  {Object[]} code
          */
-        if_instruction: function (yy, expression, code) {
+        if_instruction: presenter.uidDecorator(function (yy, expression, code) {
             var executableCode = expression,
-                if_end = yy.lexer.yylineno + "_end_if";
+                if_end = presenter.bnf.uid + "_end_if";
 
             executableCode.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value);', if_end));
             executableCode = executableCode.concat(code);
             executableCode.push(presenter.generateExecuteObject('', if_end));
 
             return executableCode;
-        },
+        }),
 
         /**
          * @param  {Object} yy
@@ -382,18 +480,73 @@ function AddonPseudo_Console_create() {
          * @param  {Object[]} ifCode
          * @param  {Object[]} elseCode
          */
-        if_else_instruction: function (yy, expression, ifCode, elseCode) {
+        if_else_instruction: presenter.uidDecorator(function (yy, expression, ifCode, elseCode) {
             var executableCode = expression,
-                else_start = yy.lexer.yylineno + "_else_if",
-                if_end = yy.lexer.yylineno + "_end_if";
+                else_start = presenter.bnf.uid + "_else_if",
+                if_end = presenter.bnf.uid + "_end_if";
 
             executableCode.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value);', else_start));
             executableCode = executableCode.concat(ifCode);
             executableCode.push(presenter.generateJumpInstruction('true', if_end));
+            executableCode.push(presenter.generateExecuteObject('', else_start));
             executableCode = executableCode.concat(elseCode);
             executableCode.push(presenter.generateExecuteObject('', if_end));
 
             return executableCode;
+        }),
+
+        while_header: presenter.uidDecorator(function (yy, expression) {
+            yy.labelsStack.push(presenter.bnf.uid + "_while");
+            yy.labelsStack.push(presenter.bnf.uid + "_while_end");
+
+            var execElements = [];
+
+            execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.while++', presenter.bnf.uid + "_while"));
+            execElements = execElements.concat(expression);
+            execElements.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value)',  presenter.bnf.uid + "_while_end"));
+
+            return execElements;
+        }),
+
+        while_exiter: function (yy) {
+            var exitLabel = yy.labelsStack.pop(),
+                startWhileLabel = yy.labelsStack.pop(),
+                execElements = [];
+
+            execElements.push(presenter.generateJumpInstruction('true', startWhileLabel));
+            execElements.push(presenter.generateExecuteObject('', exitLabel));
+
+            return execElements;
+        },
+
+        return_value: function (yy, returnCode) {
+            var actualFunctionName = yy.functionNames[yy.functionNames.length - 1],
+                execCommands = returnCode;
+
+            execCommands.push(presenter.generateExecuteObject("retVal = {value: stack.pop().value};", ""));
+            execCommands.push(presenter.generateJumpInstruction('true', "1_" + actualFunctionName));
+
+            return execCommands;
+        },
+
+        do_while_header: presenter.uidDecorator(function (yy) {
+            var execElements = [],
+                enterLabel = presenter.bnf.uid + "_do_while_enter";
+
+            execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.doWhile++;', enterLabel));
+            yy.labelsStack.push(enterLabel);
+
+            return execElements;
+        }),
+
+        do_while_exiter: function (yy, expression) {
+            var execElements = [],
+                enterLabel = yy.labelsStack.pop();
+
+            execElements = execElements.concat(expression);
+            execElements.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value)', enterLabel));
+
+            return execElements;
         }
     };
 
@@ -479,17 +632,6 @@ function AddonPseudo_Console_create() {
         return execCommands;
     };
 
-    presenter.generateReturnValue = function (yy, returnCode) {
-        var actualFunctionName = yy.functionNames[yy.functionNames.length - 1],
-            execCommands = returnCode;
-
-        execCommands.push(presenter.generateExecuteObject("retVal = {value: stack.pop().value};", ""));
-        execCommands.push(presenter.generateJumpInstruction('true', "1_" + actualFunctionName));
-
-        return execCommands;
-    };
-
-    //TODO check if this is built in function or from code
     presenter.dispatch = function (functionName, args) {
         var execCode = [],
             clearStackCode = '',
@@ -504,7 +646,7 @@ function AddonPseudo_Console_create() {
             execCode = execCode.concat(presenter.dispatchForBuiltInFunctions(functionName, args));
         } else {
             execCode.push(presenter.generateExecuteObject("functionsCallPositionStack.push(actualIndex);", ""));    //Push actual index of code, function before end will return to that index
-            execCode = execCode.concat(presenter.dipatchUserFunction(functionName, args));
+            execCode = execCode.concat(presenter.dipatchUserFunction(functionName));
         }
 
         execCode.push(presenter.generateExecuteObject(clearStackCode));
@@ -512,7 +654,7 @@ function AddonPseudo_Console_create() {
         return execCode;
     };
 
-    presenter.dipatchUserFunction = function (functionName, args) {
+    presenter.dipatchUserFunction = function (functionName) {
         var execCode = [];
 
         execCode.push(presenter.generateJumpInstruction('true',  functionName));
@@ -574,73 +716,6 @@ function AddonPseudo_Console_create() {
         if (!presenter.configuration.functions[instructionName]) {
             throw new InstructionNameException(instructionName);
         }
-    };
-
-    presenter.generateForHeader = function (yy, variableName, from, to) {
-        yy.labelsStack.push(yy.lexer.yylineno + '_for');
-        yy.labelsStack.push(yy.lexer.yylineno + '_for_end');
-
-        var execElements = [];
-
-        execElements.push(presenter.generateExecuteObject("actualScope." + variableName + '.value = ' + from + ' - 1;'));
-        execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.for++', yy.lexer.yylineno + '_for'));
-        execElements.push(presenter.generateJumpInstruction('!((Boolean(actualScope.' + variableName + '.value += 1) || true) && actualScope.' + variableName + '.value <=' + to + ")", yy.lexer.yylineno + '_for_end'));
-        return execElements;
-    };
-
-    presenter.generateWhileHeader = function (yy, expression) {
-        yy.labelsStack.push(yy.lexer.yylineno + "_while");
-        yy.labelsStack.push(yy.lexer.yylineno + "_while_end");
-
-        var execElements = [];
-
-        execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.while++', yy.lexer.yylineno + "_while"));
-        execElements = execElements.concat(expression);
-        execElements.push(presenter.generateJumpInstruction('Boolean(stack.pop().value)',  yy.lexer.yylineno + "_while_end"));
-
-        return execElements;
-    };
-
-    presenter.generateWhileExiter = function (yy) {
-        var exitLabel = yy.labelsStack.pop(),
-            startWhileLabel = yy.labelsStack.pop(),
-            execElements = [];
-
-        execElements.push(presenter.generateJumpInstruction('true', startWhileLabel));
-        execElements.push(presenter.generateExecuteObject('', exitLabel));
-
-        return execElements;
-    };
-
-    presenter.generateForExiter = function (yy) {
-        var execElements = [],
-            exitLabel = yy.labelsStack.pop(),
-            checkerLabel = yy.labelsStack.pop();
-
-        execElements.push(presenter.generateJumpInstruction('true', checkerLabel));
-        execElements.push(presenter.generateExecuteObject('', exitLabel));
-
-        return execElements;
-    };
-
-    presenter.generateDoWhileHeader = function (yy) {
-        var execElements = [],
-            enterLabel = yy.lexer.yylineno + "_do_while_enter";
-
-        execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.doWhile++;', enterLabel));
-        yy.labelsStack.push(enterLabel);
-
-        return execElements;
-    };
-
-    presenter.generateDoWhileExiter = function (yy, expression) {
-        var execElements = [],
-            enterLabel = yy.labelsStack.pop();
-
-        execElements = execElements.concat(expression);
-        execElements.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value)', enterLabel));
-
-        return execElements;
     };
 
     // ---------------------------------- ADDON SECTION ---------------------------------------------------------------
@@ -772,7 +847,8 @@ function AddonPseudo_Console_create() {
 
     presenter.initializeJQConsole = function () {
         var jqConsole = presenter.state.$view.jqconsole('', '>>>'),
-            originalPropmpt = jqConsole.Prompt;
+            originalPropmpt = jqConsole.Prompt,
+            readCharCallback = null;
 
         jqConsole.Prompt = function (callback) {
             jqConsole.pauseIns();
@@ -1142,6 +1218,7 @@ function AddonPseudo_Console_create() {
         function executeLine() {
             var actualEntry = code[actualIndex];
             if (actualEntry) {
+                console.log(actualIndex);
                 if (actualEntry.type === presenter.TYPES.EXECUTE) {
                     eval(actualEntry.code);
                     actualIndex += 1;
@@ -1169,7 +1246,6 @@ function AddonPseudo_Console_create() {
         }
 
         function executeAsync() {
-            console.log(isEnded);
             next();
             try {
                 isEnded = executeLine();
