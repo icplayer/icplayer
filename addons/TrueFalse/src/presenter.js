@@ -18,6 +18,8 @@ function AddonTrueFalse_create() {
     var eventBus; // Modules communication
     var textParser = null; // Links to Glossary Addon
     var tts;
+    var selectedSpeechText = "selected";
+    var deselectedSpeechText = "deselected";
 
     var QUESTION_AND_CHOICES_REQUIRED = "At least 1 question and 2 choices are required.";
     var INDEX_OUT_OF_RANGE = "Index is out of range.";
@@ -269,12 +271,37 @@ function AddonTrueFalse_create() {
         }
     }
 
+    function getSpeechTexts(model) {
+        var speechTexts = model['Speech texts'];
+
+        if (speechTexts !== undefined && speechTexts !== '') {
+            for (var index = 0; index < speechTexts.length; index++) {
+                var text = speechTexts[index];
+                for (var key in text) {
+                    if (text.hasOwnProperty(key)) {
+                        if (text[key]['selected'] !== '' && text[key]['selected'] !== undefined) {
+                            selectedSpeechText = text[key]['selected'];
+                        }
+
+                        if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
+                            deselectedSpeechText = text[key]['deselected'];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     var makeView = function (view, model, preview) {
         possibleChoices = model['Choices'];
         questions = model['Questions'];
+        var langAttribute = model['Lang attribute'];
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
+        presenter.$view.attr('lang', langAttribute);
+
+        getSpeechTexts(model);
 
         if (notAllRequiredParameters(questions, possibleChoices)) {
             return $(view).html(QUESTION_AND_CHOICES_REQUIRED);
@@ -722,16 +749,16 @@ function AddonTrueFalse_create() {
 
             if(readSelection) {
                 if ($active.parent().hasClass('down')) {
-                    text = choice + ' selected';
+                    text = choice + ' ' + selectedSpeechText;
                 } else {
-                    text = choice + ' deselected';
+                    text = choice + ' ' + deselectedSpeechText;
                 }
             } else {
                 text = choice;
                 if ($active.parent().hasClass('down')) {
-                    text += " selected";
+                    text += ' ' + selectedSpeechText;
                 } else {
-                    text += " deselected";
+                    text += ' ' + deselectedSpeechText;
                 }
             }
 
