@@ -812,9 +812,9 @@ function AddonTrueFalse_create() {
         function swicht_element(move){
             var new_position_index = presenter.keyboardNavigationCurrentElementIndex + move;
             if (new_position_index >= presenter.keyboardNavigationElementsLen) {
-                new_position_index = new_position_index - presenter.keyboardNavigationElementsLen;
+                new_position_index = new_position_index - move;
             } else if (new_position_index < 0) {
-                new_position_index = presenter.keyboardNavigationElementsLen + new_position_index;
+                new_position_index = presenter.keyboardNavigationCurrentElementIndex;
             }
             mark_current_element(new_position_index);
         }
