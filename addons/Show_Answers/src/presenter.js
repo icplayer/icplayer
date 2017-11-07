@@ -107,7 +107,7 @@ function AddonShow_Answers_create(){
         presenter.$wrapper = presenter.$view.find('.show-answers-wrapper');
 
         if (presenter.configuration.isTabindexEnabled) {
-            presenter.$button.attr('tabindex', '0');
+            presenter.$wrapper.attr('tabindex', '0');
         }
 
         if (!isPreview) {

@@ -49,6 +49,11 @@ function Addonfeedback_create() {
         if (!presenter.preview) {
             presenter.feedbackContainer.find('.response').removeClass('visible');
             presenter.feedbackContainer.find('.default_response').addClass('visible');
+
+            if (presenter.configuration.isTabindexEnabled) {
+                presenter.setTabindex(presenter.feedbackContainer.find('.response'), false);
+                presenter.setTabindex(presenter.feedbackContainer.find('.default_response'), true);
+            }
         }
         if (presenter.preview || !presenter.configuration.fadeTransitions) {
             presenter.feedbackContainer.find('.response').css('opacity', 0);
@@ -65,6 +70,11 @@ function Addonfeedback_create() {
         if (!presenter.preview) {
             presenter.feedbackContainer.find('.response').removeClass('visible');
             presenter.feedbackContainer.find('.response_' + id).addClass('visible');
+
+            if (presenter.configuration.isTabindexEnabled) {
+                presenter.setTabindex(presenter.feedbackContainer.find('.response'), false);
+                presenter.setTabindex(presenter.feedbackContainer.find('.response_' + id), true);
+            }
         }
         if (presenter.preview || !presenter.configuration.fadeTransitions) {
             presenter.feedbackContainer.find('.response').css('opacity', 0);
@@ -103,10 +113,6 @@ function Addonfeedback_create() {
         presenter.$view.append(presenter.feedbackContainer);
 
         presenter.configuration = presenter.validateModel(model);
-
-        if (presenter.configuration.isTabindexEnabled) {
-            presenter.$view.attr("tabindex", "0");
-        }
 
         for (var i = 0; i < model['Responses'].length; i++) {
             if (typeof(presenter.responses[model['Responses'][i]['Unique response ID']]) != "undefined") {
@@ -348,6 +354,11 @@ function Addonfeedback_create() {
         var response = presenter.model.Responses[index];
 
         return response !== undefined ? response['Unique response ID'] : undefined;
+    };
+
+    presenter.setTabindex = function ($element, isTabindexEnabled){
+        var value = isTabindexEnabled ? '0' : '-1';
+        $element.attr('tabindex', value);
     };
 
     return presenter;

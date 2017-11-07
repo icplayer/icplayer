@@ -1359,7 +1359,7 @@ function Addonvideo_create() {
 
     presenter.addTabindex = function (isTabindexEnabled) {
         var value = isTabindexEnabled ? "0" : "-1";
-        presenter.videoContainer.attr("tabindex", value);
+        presenter.$videoObject.attr("tabindex", value);
     };
 
     return presenter;

@@ -504,6 +504,10 @@ function Addonmultiplegap_create(){
             width: presenter.configuration.items.width + 'px',
             height: presenter.configuration.items.height + 'px'
         });
+
+        if (presenter.configuration.isTabindexEnabled) {
+            placeholder.attr("tabindex", "0");
+        }
         
         var positions = presenter.calculateElementPositions();
         placeholder.css({
@@ -530,10 +534,6 @@ function Addonmultiplegap_create(){
                 child = $('<p class="contents"></p>');
                 child.html(presenter.parseItemValue(item.value));
                 break;
-        }
-
-        if (presenter.configuration.isTabindexEnabled) {
-            child.attr("tabindex", "0");
         }
         
         placeholder

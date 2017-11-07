@@ -181,7 +181,7 @@ function AddonDouble_State_Button_create(){
         presenter.setElementSelection();
         presenter.toggleDisable(presenter.configuration.isDisabled);
         presenter.setVisibility(presenter.configuration.isVisible);
-        presenter.setTabindex(presenter.configuration.isTabindexEnabled);
+        presenter.setTabindex(wrapper, presenter.configuration.isTabindexEnabled);
 
         if (!preview) {
             handleTouchActions();
@@ -505,9 +505,9 @@ function AddonDouble_State_Button_create(){
         }
     };
 
-    presenter.setTabindex = function (isTabindexEnabled) {
+    presenter.setTabindex = function (element, isTabindexEnabled) {
         var tabindexValue = isTabindexEnabled ? "0" : "-1";
-        presenter.$view.attr("tabindex", tabindexValue);
+        element.attr("tabindex", tabindexValue);
     };
 
     return presenter;
