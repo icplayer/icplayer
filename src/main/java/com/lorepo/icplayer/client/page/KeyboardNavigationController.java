@@ -223,7 +223,7 @@ public final class KeyboardNavigationController {
 			}
 
 			if (index == this.actualSelectedModuleIndex) break; // if all modules are hidden then break loop
-		} while (!this.getPresenters().get(index).presenter.isSelectable(this.mainPageController.isTextToSpeechModuleEnable()));
+		} while (!this.getPresenters().get(index).presenter.isSelectable(this.isWCAGSupportOn && this.modeOn)); // this.mainPageController.isTextToSpeechModuleEnable() && 
 
 		return index;
 	}

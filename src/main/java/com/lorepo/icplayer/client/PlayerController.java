@@ -60,6 +60,7 @@ public class PlayerController implements IPlayerController{
 	private boolean isPopupEnabled = false;
 	private final KeyboardNavigationController keyboardController = new KeyboardNavigationController();
 	private PlayerEntryPoint entryPoint;
+	private String lang = "en";
 	private int iframeScroll = 0;
 	
 	private int lastVisitedPageIndex = -1;
@@ -81,6 +82,7 @@ public class PlayerController implements IPlayerController{
 		this.timeService = new TimeService();
 		this.keyboardController.run(entryPoint);
 		this.getIFrameScroll(this);
+		this.lang = content.getMetadataValue("lang");
 	}
 
 	private void createPageControllers(boolean bookMode) {
@@ -655,6 +657,11 @@ public class PlayerController implements IPlayerController{
 		} else {
 			this.playerView.removeFooterView();
 		}
+	}
+	
+	@Override
+	public String getLang () {
+		return this.lang;
 	}
 	
 }

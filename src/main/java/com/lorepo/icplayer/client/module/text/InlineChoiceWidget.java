@@ -8,19 +8,19 @@ import com.google.gwt.event.dom.client.TouchEndEvent;
 import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.ListBox;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
 
-public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
+public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	private InlineChoiceInfo choiceInfo;
 	private boolean isDisabled = false;
 	private String value = "";
 	private boolean clicked = false;
 	private PageController pageController;
 	private boolean isSelected = false;
+	private String langTag = "";
 
 	public InlineChoiceWidget (InlineChoiceInfo gi, final ITextViewListener listener) {
 
@@ -47,7 +47,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 					}
 					listener.onValueChanged(choiceInfo.getId(), value);
 					
-					getPageController().speak(value);
+					getPageController().speak(value, langTag);
 				}
 			});
 
@@ -185,13 +185,11 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	@Override
 	public void setDroppedElement(String element) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public String getDroppedElement() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -238,5 +236,9 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
     public boolean isSelected() {
 		return this.isSelected;
+	}
+
+	public void setLang(String langTag) {
+		this.langTag = langTag;
 	}
 }

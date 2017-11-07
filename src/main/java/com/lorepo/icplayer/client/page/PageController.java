@@ -494,9 +494,9 @@ public class PageController implements ITextToSpeechController {
 		}
 	}
 
-	public void speak (String text) {
+	public void speak (String text, String langTag) {
 		if (this.isReadingOn) {
-			TextToSpeechAPI.speak(this.getTextToSpeechAPIJavaScriptObject(), text);
+			TextToSpeechAPI.speak(this.getTextToSpeechAPIJavaScriptObject(), text, langTag);
 		}
 	}
 

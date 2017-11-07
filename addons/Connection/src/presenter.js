@@ -1341,7 +1341,10 @@ function AddonConnection_create() {
             return tts;
         }
 
-        tts = playerController.getModule('Text_To_Speech1');
+        if (playerController) {
+            tts = playerController.getModule('Text_To_Speech1');
+        }
+
         return tts;
     }
 
@@ -1371,17 +1374,12 @@ function AddonConnection_create() {
     function readActivatedElementConnections () {
         var tts = getTextToSpeech();
         if (tts) {
-            console.log(1);
             var $active = getActivatedElement();
-            console.log(2, $active);
             var text = $active.text().trim();
-            console.log(3, text);
 
             var connections = getConnections($active);
-            console.log(4);
 
             if (connections.length) {
-                console.log('YES');
                 var connectionsText = text + ' connected to ';
                 for (var i=0; i<connections.length; i++) {
                     var connection = connections[i];
@@ -1390,7 +1388,6 @@ function AddonConnection_create() {
 
                 tts.speak(connectionsText);
             } else {
-                console.log('NO');
                 tts.speak(text);
             }
         }
@@ -1416,6 +1413,11 @@ function AddonConnection_create() {
 
     ConnectionKeyboardController.prototype.previousElement = function () {
         this.switchElement(-parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
+        readActivatedElementConnections();
+    };
+
+    ConnectionKeyboardController.prototype.enter = function () {
+        Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
         readActivatedElementConnections();
     };
 

@@ -247,7 +247,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private void textToSpeechCurrentOption () {
 		final boolean useDefaultOptionValues = this.optionsVoices.isEmpty() || (this.optionsVoices.size() != module.getOptionCount());
 		final String text = useDefaultOptionValues ? module.getOption(position).getText() : this.optionsVoices.get(position);
-		this.pageController.speak(text);
+		this.pageController.speak(text, ""); // TODO add language from property
 	}
 
 	private void select() {

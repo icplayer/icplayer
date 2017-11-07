@@ -101,7 +101,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 				ItemWidget itemWidget = new ItemWidget(module.getItem(index), module);
 				itemWidget.setWidthWithoutMargin(itemWidth);
 				addWidget(itemWidget);
-			}			
+			}
 		} else {
 			ItemWidget error = new ItemWidget( new OrderingItem(0, errorMessage, ""), module );
 			addWidget(error);
@@ -242,7 +242,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 					return;
 				}
 				isMouseUp = true;
+				
 				onWidgetClicked(widget);
+				checkItem(selectedWidget);
 			}
 
 		});
@@ -265,12 +267,17 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		}
 	}
 
-	/**
-	 * Zamiana miejscami widgetow
-	 */
+	// TODO
 	private void replaceWidgetPositions(int srcIndex, int destIndex) {
+		if (srcIndex != destIndex) {
+			final String sourceText = this.getWidgetText(srcIndex);
+			final String destinyText = this.getWidgetText(destIndex);
+			this.speak(destinyText + " replaced with " + sourceText);
+		} else {
+			this.speak("unchecked");
+		}
 
-		int	loIndex;
+		int loIndex;
 		int hiIndex;
 		Widget firstWidget;
 		Widget secondWidget;
@@ -687,7 +694,8 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			this.selectCurrentItem();
 			
 			if (this.pageController != null) {
-				this.pageController.speak(this.prepearContentToRead(this.innerCellPanel));
+				this.readItem(currentWCAGSelectedItemIndex);
+//				this.speak(this.prepearContentToRead(this.innerCellPanel));
 			}
 		}
 	}
@@ -695,7 +703,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void space () {
 		this.deselectCurrentItem();
-		DomEvent.fireNativeEvent(Document.get().createMouseUpEvent(0, 0, 0, 0, 0,false, false, false, false, 0), this.getWidget(this.currentWCAGSelectedItemIndex));
+		DomEvent.fireNativeEvent(Document.get().createMouseUpEvent(0, 0, 0, 0, 0, false, false, false, false, 0), this.getWidget(this.currentWCAGSelectedItemIndex));
 		this.selectCurrentItem();
 	}
 	
@@ -729,8 +737,17 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 	
 	private void readItem (int index) {
+		this.speak(this.getWidgetText(index));
+	}
+	
+	private void checkItem (Widget selectedWidget) {
 		if (this.pageController != null) {
-			this.pageController.speak(this.innerCellPanel.getWidget(index).getElement().getInnerText());
+			if (selectedWidget != null) {
+				speak(selectedWidget.getElement().getInnerText() + " - checked");
+			}
+//			else {
+//				speak("unchecked");
+//			}
 		}
 	}
 	
@@ -738,11 +755,13 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.deselectCurrentItem();
 		this.currentWCAGSelectedItemIndex += delta;
 		if (this.currentWCAGSelectedItemIndex < 0) {
-			this.currentWCAGSelectedItemIndex = this.getWidgetCount() - 1;
+//			this.currentWCAGSelectedItemIndex = this.getWidgetCount() - 1;
+			this.currentWCAGSelectedItemIndex = 0;
 		}
 		
 		if (this.currentWCAGSelectedItemIndex >= this.getWidgetCount()) {
-			this.currentWCAGSelectedItemIndex = 0;
+//			this.currentWCAGSelectedItemIndex = 0;
+			this.currentWCAGSelectedItemIndex = this.getWidgetCount() - 1;
 		}
 		this.selectCurrentItem();
 		
@@ -788,4 +807,15 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.setWCAGStatus(true);
 		this.pageController = pc;
 	}
+	
+	private String getWidgetText (int index) {
+		return this.innerCellPanel.getWidget(index).getElement().getInnerText();
+	}
+	
+	private void speak (String text) {
+		if (this.pageController != null) {
+			this.pageController.speak(text, "");
+		}
+	}
+	
 }

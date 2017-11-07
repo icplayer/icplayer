@@ -158,7 +158,7 @@ function AddonText_To_Speech_create() {
         return {title: '', description: ''};
     }
 
-    function parseGaps(text) {
+    function parseGaps (text) {
         var gap = 0;
         var option = 0;
         var math = 0;
@@ -185,7 +185,24 @@ function AddonText_To_Speech_create() {
         return text;
     }
 
-    function getLanguageObject(lang) {
+    function getResponsiveVoiceLanguage (langTag) {
+        if (!langTag) {
+            // get lang from document <html lang="">
+            langTag = document.documentElement.lang;
+        }
+
+        // Tags for Identifying Languages: https://www.ietf.org/rfc/bcp/bcp47.txt
+        var languages = {
+            'en': 'UK English Male',
+            'pl': 'Polish Female',
+            'de': 'Deutsch Female'
+        };
+
+        return languages[langTag] || 'UK English Male';
+    }
+
+    // For SynthesisAPI
+    function getLanguageObject (lang) {
         loadVoices();
         for (var i = 0; i < presenter.configuration.voices.length; i++) {
             if (presenter.configuration.voices[i].lang === lang) {
@@ -196,20 +213,28 @@ function AddonText_To_Speech_create() {
         return presenter.configuration.voices[0];
     }
 
-    presenter.speak = function (text) {
-        text = parseGaps(text);
-
-        var languageCode = 'UK English Male';
-
-        switch (presenter.configuration.language) {
-            case 'en-US': languageCode = 'UK English Male'; break;
-            case 'pl-PL': languageCode = 'Polish Female'; break;
-            case 'de-DE': languageCode = 'Deutsch Female'; break;
+    presenter.speak = function (text, langTag) {
+        if (text) {
+            window.responsiveVoice.speak(text, getResponsiveVoiceLanguage(langTag));
         }
-
-        window.responsiveVoice.speak(text, languageCode);
     };
 
+    // responsiveVoice with language from property
+    // presenter.speak = function (text) {
+    //     text = parseGaps(text);
+    //
+    //     var languageCode = 'UK English Male';
+    //
+    //     switch (presenter.configuration.language) {
+    //         case 'en-US': languageCode = 'UK English Male'; break;
+    //         case 'pl-PL': languageCode = 'Polish Female'; break;
+    //         case 'de-DE': languageCode = 'Deutsch Female'; break;
+    //     }
+    //
+    //     window.responsiveVoice.speak(text, languageCode);
+    // };
+
+    // synthesis API with language from property
     // presenter.speak = function (text) {
     //     text = parseGaps(text);
     //
