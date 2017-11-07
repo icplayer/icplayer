@@ -240,24 +240,32 @@ function AddonAnimation_create (){
         	$(this).remove();
         });
 
-        $.imgpreload([presenter.configuration.image, presenter.configuration.animation], {
-            all: function() {
-                var isFirstPreview = $(this[0]).attr('src') == presenter.configuration.image;
-                var previewImage = isFirstPreview ? this[0] : this[1];
-                var animationImage = isFirstPreview ? this[1] : this[0];
-
-                previewImageLogic(previewImage);
-                imageLoadedCallback(animationImage);
-            }
-        });
+        if (presenter.configuration.isPreview) {
+            $.imgpreload([presenter.configuration.image], {
+                all: function () {
+                    previewImageLogic(this[0]);
+                }
+            });
+        } else {
+            $.imgpreload([presenter.configuration.image, presenter.configuration.animation], {
+                all: function() {
+                    var isFirstPreview = $(this[0]).attr('src') == presenter.configuration.image;
+                    var previewImage = isFirstPreview ? this[0] : this[1];
+                    var animationImage = isFirstPreview ? this[1] : this[0];
+    
+                    previewImageLogic(previewImage);
+                    imageLoadedCallback(animationImage);
+                }
+            });
+        }
     }
 
     function imageLoadedCallback (image) {
         animationImageLogic(image);
         hideLoadingScreen();
         loadImagesEndCallback();
-
     }
+    
     function prepareLoadingScreen(containerWidth, containerHeight) {
         if (presenter.configuration.isPreview) return;
 
