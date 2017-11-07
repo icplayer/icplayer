@@ -255,6 +255,7 @@ var ice_dictionary_en = {
 	"open_popup_button_menu" : "Open Popup Button",
 	"close_popup_button_menu" : "Close Popup Button",
 	"is_visible" : "Is Visible",
+	"is_tabindex_enabled": "Enable tabindex",
 	"layout": "Layout",
 	"top" : "Top",
 	"bottom" : "Bottom",

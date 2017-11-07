@@ -267,6 +267,10 @@ function AddonConnection_create() {
         presenter.isVisible = true;
     };
 
+    presenter.validateTabindexEnabled = function (model) {
+        presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
+    };
+
     presenter.initialize = function (view, model, isPreview) {
         if (isPreview) {
             presenter.lineStack = new LineStack(false);
@@ -286,6 +290,8 @@ function AddonConnection_create() {
 
         var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
         var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
+
+        presenter.validateTabindexEnabled(model);
 
         if (isPreview) {
             this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
@@ -722,6 +728,10 @@ function AddonConnection_create() {
         }
     };
 
+    presenter.addTabindexToElement = function(element, tabindexValue){
+        element.attr("tabindex", tabindexValue);
+    };
+
     presenter.appendElements = function (i, model, columnModel, column, isRightColumn) {
         var id = model[columnModel][i]['id'];
         if (!this.isIDUnique(id)) {
@@ -735,6 +745,11 @@ function AddonConnection_create() {
         innerWrapper = presenter.addClassToElement(innerWrapper, model[columnModel][i]['additional class']);
         $(innerWrapper).css('direction', isRTL ? 'rtl' : 'ltr');
         innerWrapper.html(model[columnModel][i]['content']);
+
+        if(presenter.isTabindexEnabled) {
+            presenter.addTabindexToElement(innerWrapper, 0);
+        }
+
         innerElement.append(innerWrapper);
         var iconElement = $('<td class="icon"></td>');
         var iconWrapper = $('<div class="iconWrapper"></div>');
