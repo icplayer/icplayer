@@ -147,12 +147,8 @@ public final class KeyboardNavigationController {
 			}
 		}
 	}
-
-	private void changeKeyboardMode (KeyDownEvent event, boolean isWCAGSupportOn) {
-		if (isWCAGSupportOn && !this.mainPageController.isTextToSpeechModuleEnable()) {
-			return;
-		}
-		
+	
+	public void wcagText(boolean isWCAGSupportOn) {
 		this.modeOn = !this.modeOn;
 		final boolean isWCAGExit = !this.modeOn && this.isWCAGSupportOn;
 		this.isWCAGSupportOn = isWCAGSupportOn;
@@ -169,6 +165,42 @@ public final class KeyboardNavigationController {
 				this.mainPageController.readExitText();
 			}
 		}
+	}
+	
+	public void switchKeyboard(boolean isWCAGSupportOn) {
+		if (isWCAGSupportOn && !this.mainPageController.isTextToSpeechModuleEnable()) {
+			return;
+		}
+		
+		wcagText(isWCAGSupportOn);
+		
+		if (this.modeOn) {
+			this.setFocusOnInvisibleElement();
+			if (this.isInitiated) {
+				this.selectCurrentModule();
+			} else {
+				this.initialSelect();
+			}
+		} else {
+			IWCAG wcagWidget = this.getPresenters().get(this.actualSelectedModuleIndex).presenter.getWCAGController();
+			if (wcagWidget != null) {
+				wcagWidget.enter(true);
+			}
+			
+			this.deselectCurrentModule();
+			this.deselectAllModules();
+		}
+		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);
+		
+		this.actualSelectedModuleIndex = 0;
+	}
+	
+	private void changeKeyboardMode (KeyDownEvent event, boolean isWCAGSupportOn) {
+		if (isWCAGSupportOn && !this.mainPageController.isTextToSpeechModuleEnable()) {
+			return;
+		}
+		
+		wcagText(isWCAGSupportOn);
 		
 		if (this.modeOn) {
 			this.setFocusOnInvisibleElement();

@@ -70,4 +70,6 @@ public interface IPlayerController {
 	int getIframeScroll();
 	
 	void switchToLastVisitedPage();
+
+	void switchKeyboardNavigation(boolean isTTS);
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -655,6 +656,11 @@ public class PlayerController implements IPlayerController{
 		} else {
 			this.playerView.removeFooterView();
 		}
+	}
+	
+	@Override
+	public void switchKeyboardNavigation(boolean isTTS) {
+		keyboardController.switchKeyboard(isTTS);
 	}
 	
 }

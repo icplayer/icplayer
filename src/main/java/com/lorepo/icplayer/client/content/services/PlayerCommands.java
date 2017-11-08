@@ -32,6 +32,11 @@ public class PlayerCommands implements IPlayerCommands {
 	}
 
 	@Override
+	public void switchKeyboardNavigation(boolean isTTS) {
+		controller.switchKeyboardNavigation(isTTS);
+	}
+	
+	@Override
 	public void checkAnswers() {
 		pageController.checkAnswers();
 	}

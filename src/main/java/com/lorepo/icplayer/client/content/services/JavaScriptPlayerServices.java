@@ -235,6 +235,10 @@ public class JavaScriptPlayerServices {
 			var commands = function() {
 			};
 
+			commands.switchKeyboardNavigation = function(isTTS) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::switchKeyboardNavigation(Z)(isTTS);
+			};
+
 			commands.gotoPage = function(pageName) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPage(Ljava/lang/String;)(pageName);
 			};
@@ -499,6 +503,10 @@ public class JavaScriptPlayerServices {
 		return playerServices.getModel().getPageCount();
 	}
 
+	private void switchKeyboardNavigation(boolean isTTS) {
+		playerServices.getCommands().switchKeyboardNavigation(isTTS);
+	}
+	
 	private void gotoPage(String pageName){
 		playerServices.getCommands().gotoPage(pageName);
 	}
