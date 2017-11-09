@@ -181,6 +181,7 @@ function AddonDouble_State_Button_create(){
         presenter.setElementSelection();
         presenter.toggleDisable(presenter.configuration.isDisabled);
         presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setTabindex(wrapper, presenter.configuration.isTabindexEnabled);
 
         if (!preview) {
             handleTouchActions();
@@ -437,6 +438,7 @@ function AddonDouble_State_Button_create(){
         var isDisabled = ModelValidationUtils.validateBoolean(model.Disable);
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         var isSelected = ModelValidationUtils.validateBoolean(model.isSelected);
+        var isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
 
         return {
             addonID: model.ID,
@@ -458,7 +460,8 @@ function AddonDouble_State_Button_create(){
             isDisabledByDefault: isDisabled,
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
-            isErrorMode: false
+            isErrorMode: false,
+            isTabindexEnabled: isTabindexEnabled
         };
     };
 
@@ -500,6 +503,11 @@ function AddonDouble_State_Button_create(){
         if (keyCode == 13) {
             presenter.clickHandler();
         }
+    };
+
+    presenter.setTabindex = function (element, isTabindexEnabled) {
+        var tabindexValue = isTabindexEnabled ? "0" : "-1";
+        element.attr("tabindex", tabindexValue);
     };
 
     return presenter;

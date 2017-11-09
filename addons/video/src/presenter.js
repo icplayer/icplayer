@@ -558,12 +558,13 @@ function Addonvideo_create() {
             defaultControls: !ModelValidationUtils.validateBoolean(model['Hide default controls']),
             files: presenter.validateFiles(model).files,
             height: parseInt(model.Height, 10),
-            showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button'])
+            showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
 
         }
     };
 
-    presenter.checkPlayButtonVisibility = function () { 
+    presenter.checkPlayButtonVisibility = function () {
         if (!presenter.configuration.showPlayButton) {
             presenter.$view.find('.video-poster-play').hide();
         }
@@ -574,14 +575,14 @@ function Addonvideo_create() {
     presenter.showPlayButton = function () {
         if (presenter.configuration.showPlayButton) {
             presenter.posterPlayButton.show();
-        }        
-    }
+        }
+    };
 
     presenter.hidePlayButton = function () {
         if (presenter.configuration.showPlayButton) {
             presenter.posterPlayButton.hide();
-        }       
-    }
+        }
+    };
 
     presenter.run = function(view, model) {
         var upgradedModel = presenter.upgradeModel(model);
@@ -607,6 +608,8 @@ function Addonvideo_create() {
         if (presenter.configuration.defaultControls) {
             presenter.buildControlsBars();
         }
+
+        presenter.addTabindex(presenter.configuration.isTabindexEnabled);
 
         presenter.connectHandlers();
         presenter.reload();
@@ -855,7 +858,7 @@ function Addonvideo_create() {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
         var state = JSON.parse(stateString);
         var currentTime = state.currentTime;
-        
+
         if (state.files) {  //This was added later than rest of state
             presenter.configuration.files = state.files;
         }
@@ -903,7 +906,7 @@ function Addonvideo_create() {
         presenter.$posterWrapper.find("img").remove();
         var $video = $(video);
 
-        if (posterSource) {     
+        if (posterSource) {
             if (presenter.configuration.showPlayButton) {
                 presenter.$posterWrapper.one('click', function onPosterWrapperClick(e) {
                     e.stopPropagation();
@@ -1345,7 +1348,7 @@ function Addonvideo_create() {
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
         }
-        
+
     });
 
     presenter.previous = function() {
@@ -1436,6 +1439,11 @@ function Addonvideo_create() {
 
         return false;
     }
+
+    presenter.addTabindex = function (isTabindexEnabled) {
+        var value = isTabindexEnabled ? "0" : "-1";
+        presenter.$videoObject.attr("tabindex", value);
+    };
 
     return presenter;
 }

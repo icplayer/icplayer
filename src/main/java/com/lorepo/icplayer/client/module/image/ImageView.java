@@ -61,6 +61,10 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 			setVisible(module.isVisible());
 		}
 		getElement().setId(module.getId());
+		
+		if (this.module.isTabindexEnabled()) {
+			image.getElement().setTabIndex(0);
+		}
 	}
 
 	
