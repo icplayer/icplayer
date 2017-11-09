@@ -560,7 +560,6 @@ function Addonvideo_create() {
             height: parseInt(model.Height, 10),
             showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
-
         }
     };
 
@@ -1442,7 +1441,7 @@ function Addonvideo_create() {
 
     presenter.addTabindex = function (isTabindexEnabled) {
         var value = isTabindexEnabled ? "0" : "-1";
-        presenter.$videoObject.attr("tabindex", value);
+        presenter.videoContainer.attr("tabindex", value);
     };
 
     return presenter;

@@ -10,7 +10,7 @@ TestCase('[Video] Adding tabindex tests', {
 
         this.presenter.addTabindex(isTabindexEnabled);
 
-        assertEquals(0, this.presenter.$videoObject.attr("tabindex"));
+        assertEquals(0, this.presenter.videoContainer.attr("tabindex"));
     },
 
     'test should set tabindex of videoobject to -1': function () {
@@ -18,6 +18,6 @@ TestCase('[Video] Adding tabindex tests', {
 
         this.presenter.addTabindex(isTabindexEnabled);
 
-        assertEquals(-1, this.presenter.$videoObject.attr("tabindex"));
+        assertEquals(-1, this.presenter.videoContainer.attr("tabindex"));
     }
 });
