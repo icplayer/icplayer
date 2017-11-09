@@ -9,6 +9,7 @@ TestCase("[Video] Model validation", {
             "Is Visible": "True",
             "Hide subtitles": "False",
             'Hide default controls': "True",
+            'Show play button': "True",
             Files: [{
                 Poster: "ok",
                 Subtitles: "okdaokdoa",
@@ -42,6 +43,7 @@ TestCase("[Video] Model validation", {
             isVisibleByDefault: true,
             shouldHideSubtitles: false,
             defaultControls: false,
+            showPlayButton: true,
             files: [{
                 Poster: "ok",
                 Subtitles: "okdaokdoa",
