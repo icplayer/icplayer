@@ -792,6 +792,7 @@ function Addonvideo_create() {
     };
 
     presenter.reload = function() {
+        presenter.showPlayButton();
         presenter.isVideoLoaded = false;
         $(presenter.videoContainer).find('.captions').remove();
         presenter.setVideo();
@@ -801,7 +802,6 @@ function Addonvideo_create() {
             onTimeUpdate(this);
         });
         presenter.removeClassFromView('playing');
-        presenter.showPlayButton();
     };
 
     presenter.sendTimeUpdate = function Video_sendTime() {
