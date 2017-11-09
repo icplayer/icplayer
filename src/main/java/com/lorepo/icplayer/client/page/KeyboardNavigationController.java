@@ -119,6 +119,24 @@ public final class KeyboardNavigationController {
 		return false;
 	}
 
+	public void switchKeyboard(boolean enable) {
+		this.modeOn = enable;
+		if (this.modeOn) {
+			this.setFocusOnInvisibleElement();
+			if (!this.isInitiated) {
+				this.initialSelect();
+			} else {
+				this.selectCurrentModule();
+			}
+		} else {
+			IWCAG wcagWidget = this.presenters.get(this.actualSelectedModuleIndex).presenter.getWCAGController();
+			if (wcagWidget != null) {
+				wcagWidget.enter(true);
+			}
+			this.deselectCurrentModule();
+		}
+	}
+	
 	private void changeKeyboardMode (KeyDownEvent event) {
 		this.modeOn = !this.modeOn;
 		if (this.modeOn) {

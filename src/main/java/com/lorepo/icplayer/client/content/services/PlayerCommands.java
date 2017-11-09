@@ -151,6 +151,16 @@ public class PlayerCommands implements IPlayerCommands {
 	public void goToLastVisitedPage() {
 		controller.switchToLastVisitedPage();
 	}
+	
+	@Override
+	public void enableKeyboardNavigation() {
+		controller.enableKeyboardNavigation();
+	}
+	
+	@Override
+	public void disableKeyboardNavigation() {
+		controller.disableKeyboardNavigation();
+	}
 
 	public void changeHeaderVisibility(boolean isVisible) {
 		PageView headerView = this.controller.getView().getHeaderView();
