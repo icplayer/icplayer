@@ -1422,16 +1422,14 @@ function AddonPseudo_Console_create() {
                 return;
             }
 
-            if (this.isReadMode) {
-                return;
-            }
-
             this.isReadMode = true;
             var activeLine = this.getActiveLine();
             console.log(this.parentContainer);
             $(this.$parentElement).on('click', function () {
                 this.$textArea.focus();
-                
+                this.$textArea.on('keydown', function (e) {
+                    console.log(e);
+                });
             });
         },
 
