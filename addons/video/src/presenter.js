@@ -60,7 +60,8 @@ function Addonvideo_create() {
         shouldHideSubtitles: null,
         defaultControls: null,
         files: [],
-        height: 0
+        height: 0,
+        showPlayButton: false
     };
 
     presenter.lastSentCurrentTime = 0;
@@ -87,8 +88,17 @@ function Addonvideo_create() {
         });
     };
 
+    presenter.upgradeShowPlayButton = function (model) {
+        if (!model['Show play button']) {
+            model['Show play button'] = 'False';
+        }
+
+        return model;
+    };
+
     presenter.upgradeModel = function (model) {
-        return presenter.upgradePoster(model);
+        var upgradedModel = presenter.upgradePoster(model);
+        return presenter.upgradeShowPlayButton(upgradedModel);
     };
 
     presenter.upgradePoster = function (model) {
@@ -548,7 +558,28 @@ function Addonvideo_create() {
             defaultControls: !ModelValidationUtils.validateBoolean(model['Hide default controls']),
             files: presenter.validateFiles(model).files,
             height: parseInt(model.Height, 10),
+            showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
+        }
+    };
+
+    presenter.checkPlayButtonVisibility = function () {
+        if (!presenter.configuration.showPlayButton) {
+            presenter.$view.find('.video-poster-play').hide();
+        }
+    };
+
+    presenter.posterPlayButton = null;
+
+    presenter.showPlayButton = function () {
+        if (presenter.configuration.showPlayButton) {
+            presenter.posterPlayButton.show();
+        }
+    };
+
+    presenter.hidePlayButton = function () {
+        if (presenter.configuration.showPlayButton) {
+            presenter.posterPlayButton.hide();
         }
     };
 
@@ -561,6 +592,7 @@ function Addonvideo_create() {
         presenter.videoView = view;
         presenter.$view = $(view);
 
+        presenter.posterPlayButton = $(view).find('.video-poster-play');
         presenter.videoContainer = $(view).find('.video-container:first');
         presenter.$captionsContainer = presenter.$view.find(".captions-container:first");
         presenter.$posterWrapper = presenter.$view.find('.poster-wrapper');
@@ -569,6 +601,8 @@ function Addonvideo_create() {
         presenter.$videoObject = $(presenter.videoObject);
 
         presenter.setDimensions();
+
+        presenter.checkPlayButtonVisibility();
 
         if (presenter.configuration.defaultControls) {
             presenter.buildControlsBars();
@@ -760,6 +794,7 @@ function Addonvideo_create() {
     };
 
     presenter.reload = function() {
+        presenter.showPlayButton();
         presenter.isVideoLoaded = false;
         $(presenter.videoContainer).find('.captions').remove();
         presenter.setVideo();
@@ -809,6 +844,7 @@ function Addonvideo_create() {
         var isPaused = presenter.videoObject.paused;
         presenter.videoObject.pause();
         return JSON.stringify({
+            files: presenter.configuration.files,
             currentTime : presenter.videoObject.currentTime,
             isCurrentlyVisible : presenter.isCurrentlyVisible,
             isPaused: isPaused,
@@ -821,6 +857,11 @@ function Addonvideo_create() {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
         var state = JSON.parse(stateString);
         var currentTime = state.currentTime;
+
+        if (state.files) {  //This was added later than rest of state
+            presenter.configuration.files = state.files;
+        }
+
         presenter.isCurrentlyVisible = state.isCurrentlyVisible;
 
         if (presenter.isCurrentlyVisible !== (presenter.$view.css('visibility') !== 'hidden')) {
@@ -864,12 +905,14 @@ function Addonvideo_create() {
         presenter.$posterWrapper.find("img").remove();
         var $video = $(video);
 
-        if (posterSource) {      
-            presenter.$posterWrapper.one('click', function onPosterWrapperClick(e) {
-                e.stopPropagation();
-                $(this).hide();
-                presenter.videoObject.play();
-            });
+        if (posterSource) {
+            if (presenter.configuration.showPlayButton) {
+                presenter.$posterWrapper.one('click', function onPosterWrapperClick(e) {
+                    e.stopPropagation();
+                    $(this).hide();
+                    presenter.videoObject.play();
+                });
+            }
 
             var $poster = $("<img></img>");
             $poster.attr('src', posterSource);
@@ -1122,10 +1165,45 @@ function Addonvideo_create() {
             'play' : presenter.play,
             'stop' : presenter.stop,
             'showSubtitles' : presenter.showSubtitles,
-            'hideSubtitles' : presenter.hideSubtitles
+            'hideSubtitles' : presenter.hideSubtitles,
+            'setVideoURL': presenter.setVideoURLCommand
         };
 
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.setVideoURLCommand = function (params) {
+        presenter.setVideoURL(params[0]);
+    };
+
+    presenter.setVideoURL = function (url) {
+        var mapper = {
+            "oggFormat": "Ogg video",
+            "mp4Format": "MP4 video",
+            "webMFormat": "WebM video",
+            "poster": "Poster",
+            "subtitles": "Subtitles",
+            "id": "ID",
+            "altText": "AlternativeText",
+            "loop": "Loop video"
+        },
+        key,
+        newFile = {};
+
+        for (key in mapper) {
+            if (mapper.hasOwnProperty(key)) {
+                newFile[mapper[key]] = url[key] || '';
+            }
+        }
+
+        if(newFile.loop === '') {
+            newFile['Loop video'] = false;
+        }
+
+        presenter.configuration.files = [];
+        presenter.configuration.files.push(newFile);
+
+        presenter.jumpTo(presenter.configuration.files.length);
     };
 
     presenter.setVisibility = function(isVisible) {
@@ -1243,6 +1321,7 @@ function Addonvideo_create() {
 
     presenter.play = deferredSyncQueue.decorate(function () {
         presenter.removeWaterMark();
+        presenter.hidePlayButton();
         presenter.loadVideoAtPlayOnMobiles();
 
         if (presenter.videoObject.paused) {
@@ -1255,6 +1334,7 @@ function Addonvideo_create() {
 
     presenter.stop = deferredSyncQueue.decorate(function () {
         if (!presenter.videoObject.paused) {
+            presenter.showPlayButton();
             presenter.seek(0); // sets the current time to 0
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
@@ -1263,9 +1343,11 @@ function Addonvideo_create() {
 
     presenter.pause = deferredSyncQueue.decorate(function () {
         if (!presenter.videoObject.paused) {
+            presenter.showPlayButton();
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
         }
+
     });
 
     presenter.previous = function() {
@@ -1359,7 +1441,7 @@ function Addonvideo_create() {
 
     presenter.addTabindex = function (isTabindexEnabled) {
         var value = isTabindexEnabled ? "0" : "-1";
-        presenter.$videoObject.attr("tabindex", value);
+        presenter.videoContainer.attr("tabindex", value);
     };
 
     return presenter;
