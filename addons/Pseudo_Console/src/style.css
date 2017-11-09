@@ -11,3 +11,13 @@
 .pseudoConsole-console-right-element {
     position: relative;
 }
+
+.pseudoConsole-console-textarea {
+    width: 1px;
+    height: 1px;
+    color: transparent;
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    opacity: 0.000001;
+}

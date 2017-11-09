@@ -847,6 +847,15 @@ function AddonPseudo_Console_create() {
 
     presenter.initializeConsole = function () {
         presenter.state.console = new presenter.console(presenter.state.$view.find(".addon-Pseudo_Console-wrapper"));
+        var originalReadLine = presenter.state.console.ReadLine;
+
+        presenter.state.console.ReadLine = function (callback) {
+            presenter.state.console.pauseIns();
+            originalReadLine.call(presenter.state.console, function (input) {
+                callback.call(this, input);
+                presenter.state.console.nextIns();
+            });
+        };
     };
 
     // presenter.initializeJQConsole = function () {
@@ -1309,17 +1318,23 @@ function AddonPseudo_Console_create() {
     var consoleClasses = {
         "LINES_CONTAINER": "pseudoConsole-console-container",
         "CURSOR": "pseudoConsole-console-cursor",
-        "RIGHT_ELEMENT": "pseudoConsole-console-right-element"
+        "RIGHT_ELEMENT": "pseudoConsole-console-right-element",
+        "TEXT_AREA": "pseudoConsole-console-textarea"
     };
 
     function userConsole($element) {
         this.ownerElement = $element;
         this.container = $("<pre></pre>");
+        this.$textArea = $("<textarea class='pseudoConsole-console-textarea'></textarea>");
         this.linesContainer = $("<div class='" + consoleClasses.LINES_CONTAINER + "'></div>");
+        this.$parentElement = $element;
         this.lines = [];
         this.activeLineIndex = -1;
+        this.isReadMode = false;    //Console is waiting for user input
 
         $element.append(this.container);
+        $element.append(this.$textArea);
+
         this.container.append(this.linesContainer);
 
         this.addNewLine(true);
@@ -1359,7 +1374,7 @@ function AddonPseudo_Console_create() {
         selectLineAsActive: function (index) {
             var activeLine = null;
             if (this.activeLineIndex > -1) {
-                activeLine = this.lines[this.activeLineIndex];
+                activeLine = this.getActiveLine();
                 activeLine.elements.$left.text(activeLine.elements.$left.text() + activeLine.elements.$right.text());
                 activeLine.elements.$cursor.html('');
             }
@@ -1369,10 +1384,21 @@ function AddonPseudo_Console_create() {
             activeLine.elements.$cursor.html('&nbsp;');
         },
         /**
+         * @returns {{$htmlObject: jQuery, elements: {$left: jQuery, $right: jQuery, $cursor: jQuery}}}
+         */
+        getActiveLine: function () {
+            return this.lines[this.activeLineIndex];
+        },
+
+        /**
          * @param  {String} text
          * @param  {String} className
          */
         Write: function (text, className) {
+            if (this.isReadMode) {  //Dont write to console if is in read mode.
+                return;
+            }
+
             var lines = text.split('\n'),
                 line,
                 activeLine = this.lines[this.activeLineIndex],
@@ -1382,13 +1408,38 @@ function AddonPseudo_Console_create() {
                 line = lines[i];
                 activeLine.elements.$left.text(activeLine.elements.$left.text() + line);
                 this.addNewLine(true);
-                activeLine = this.lines[this.activeLineIndex];
+                activeLine = this.getActiveLine();
                 activeLine.elements.$left.text("\n");
             }
 
-            activeLine = this.lines[this.activeLineIndex];
+            activeLine = this.getActiveLine();
             line = lines[i];
             activeLine.elements.$left.text(activeLine.elements.$left.text() + line);
+        },
+
+        ReadLine: function () {
+            if (this.isReadMode) {
+                return;
+            }
+
+            if (this.isReadMode) {
+                return;
+            }
+
+            this.isReadMode = true;
+            var activeLine = this.getActiveLine();
+            console.log(this.parentContainer);
+            $(this.$parentElement).on('click', function () {
+                this.$textArea.focus();
+                
+            });
+        },
+
+        ReadChar: function () {
+        },
+
+        Reset: function () {
+
         }
     };
 
