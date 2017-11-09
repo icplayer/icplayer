@@ -1082,7 +1082,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private native void connectGapWhenMathJaxReady(TextPresenter x, String id) /*-{
 		try {
-			var hook = $wnd.MathJax.Hub.Register.MessageHook("End Process", function () {
+			var hook = $wnd.MathJax.Hub.Register.MessageHook("End Typeset", function () {
 				var dfd = $wnd.$.Deferred(),
 					element = $wnd.$("[id='" + id + "']");
 				var checkSelector = setInterval(function () {
