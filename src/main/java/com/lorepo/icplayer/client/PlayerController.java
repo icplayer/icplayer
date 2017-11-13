@@ -62,6 +62,8 @@ public class PlayerController implements IPlayerController{
 	private PlayerEntryPoint entryPoint;
 	private int iframeScroll = 0;
 	
+	private String pageStamp = "0";
+	
 	private int lastVisitedPageIndex = -1;
 	private int currentMainPageIndex = -1;
 	
@@ -290,6 +292,10 @@ public class PlayerController implements IPlayerController{
 			}
 		}
 	}
+	
+	private String generatePageStamp(String pageId) {
+		return pageId + Long.toString(System.currentTimeMillis());
+	}
 
 
 	private void switchToPage(IPage page, final PageController pageController){
@@ -301,8 +307,10 @@ public class PlayerController implements IPlayerController{
 		XMLLoader reader = new XMLLoader(page);
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
 		this.playerView.showWaitDialog();
+		
+		this.pageStamp = this.generatePageStamp(page.getId());
+		
 		reader.load(url, new ILoadListener() {
-
 			@Override
 			public void onFinishedLoading(Object obj) {
 				Page page = (Page) obj;
@@ -669,6 +677,10 @@ public class PlayerController implements IPlayerController{
 		} else {
 			this.playerView.removeFooterView();
 		}
+	}
+	
+	public String getPageStamp() {
+		return this.pageStamp;
 	}
 	
 }

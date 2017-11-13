@@ -1085,6 +1085,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			var hook = $wnd.MathJax.Hub.Register.MessageHook("End Process", function () {
 				var dfd = $wnd.$.Deferred(),
 					element = $wnd.$("[id='" + id + "']");
+				var pageStamp = x.@com.lorepo.icplayer.client.module.text.TextPresenter::getPageStamp()();
 				var checkSelector = setInterval(function () {
 					if (element.length) {
 						dfd.resolve(element);
@@ -1093,8 +1094,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				}, 100);
 
 				dfd.promise().done(function (_element) {
-					// promise can be executed after page change, must check if it still exists in DOM
-					if ($wnd.$(_element.selector).length) {
+					// promise can be executed after page change, check if page wasn't changed
+					currentPageStamp = x.@com.lorepo.icplayer.client.module.text.TextPresenter::getPageStamp()();
+					if (pageStamp === currentPageStamp) {
 						x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
 					}
 					$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
@@ -1104,6 +1106,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			console.log("Error : " + err);
 		}
 	}-*/;
+	
+	private String getPageStamp() {
+		return this.playerServices.getCommands().getPageStamp();
+	}
 
 	private void connectMathGap(String id) {
 		view.connectMathGap(module.getGapInfos().iterator(), id, savedDisabledState);
