@@ -1,3 +1,4 @@
+2017-11-09 Added commands to fire keyboard navigation
 2017-11-09 Added Tabindex property for next part of modules.
 2017-11-09 Added show play button for video addon. Added setVideoURL command for video addon.
 2017-11-06 Fixed problems with Magic_Boxes view.

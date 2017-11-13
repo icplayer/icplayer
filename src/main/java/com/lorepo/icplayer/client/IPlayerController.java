@@ -70,4 +70,8 @@ public interface IPlayerController {
 	int getIframeScroll();
 	
 	void switchToLastVisitedPage();
+
+	void enableKeyboardNavigation();
+
+	void disableKeyboardNavigation();
 }
