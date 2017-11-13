@@ -574,7 +574,16 @@ public class PlayerController implements IPlayerController{
 		return this.footerController != null;
 	}
 
-
+	@Override
+	public void enableKeyboardNavigation() {
+		keyboardController.switchKeyboard(true);
+	}
+	
+	@Override
+	public void disableKeyboardNavigation() {
+		keyboardController.switchKeyboard(false);
+	}
+	
 	public void setPlayerConfig(PlayerConfig config) {
 		this.config = config;
 	}
@@ -591,6 +600,8 @@ public class PlayerController implements IPlayerController{
 	public void setIframeScroll (int scroll) {
 		this.iframeScroll = scroll;
 	}
+	
+	
 	
 	public native int getIFrameScroll (PlayerController x) /*-{
 		var iframeScroll = 0;

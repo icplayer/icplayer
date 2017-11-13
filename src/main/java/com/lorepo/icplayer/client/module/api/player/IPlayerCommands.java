@@ -39,4 +39,6 @@ public interface IPlayerCommands {
 
 	void changeHeaderVisibility(boolean isVisible);
 	void changeFooterVisibility(boolean isVisible);
+	void enableKeyboardNavigation();
+	void disableKeyboardNavigation();
 }

@@ -41,6 +41,10 @@ function AddonHeading_create () {
         var $heading = $(headingString);
         $heading.html(presenter.configuration.content);
 
+        if (presenter.configuration.isTabindexEnabled) {
+            $heading.attr("tabindex", "0");
+        }
+
         presenter.$view.append($heading);
     };
 
@@ -55,7 +59,8 @@ function AddonHeading_create () {
 
             ID: model.ID,
             isValid: true,
-            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible'])
+            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled'])
         };
     };
 

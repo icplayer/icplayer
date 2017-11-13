@@ -40,7 +40,8 @@ function AddonShow_Answers_create(){
             'addonID' : model.ID,
             'isSelected': false,
             'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"]),
-            'enableMistakeCounter': ModelValidationUtils.validateBoolean(model["Increment mistake counter"])
+            'enableMistakeCounter': ModelValidationUtils.validateBoolean(model["Increment mistake counter"]),
+            'isTabindexEnabled': ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
         };
     };
 
@@ -105,12 +106,16 @@ function AddonShow_Answers_create(){
         presenter.$button.text(presenter.configuration.text);
         presenter.$wrapper = presenter.$view.find('.show-answers-wrapper');
 
+        if (presenter.configuration.isTabindexEnabled) {
+            presenter.$wrapper.attr('tabindex', '0');
+        }
+
         if (!isPreview) {
             presenter.handleClickAction();
             presenter.eventBus.addEventListener('ShowAnswers', presenter);
             presenter.eventBus.addEventListener('HideAnswers', presenter);
         }
-    }
+    };
 
     presenter.run = function(view, model) {
         presenter.view = view;

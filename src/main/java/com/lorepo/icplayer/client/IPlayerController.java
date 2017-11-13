@@ -43,4 +43,6 @@ public interface IPlayerController {
 	int getIframeScroll();
 	void switchToLastVisitedPage();
 	String getLang();
+	void enableKeyboardNavigation();
+	void disableKeyboardNavigation();
 }

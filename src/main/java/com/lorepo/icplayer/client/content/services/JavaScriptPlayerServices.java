@@ -235,6 +235,14 @@ public class JavaScriptPlayerServices {
 			var commands = function() {
 			};
 
+			commands.enableKeyboardNavigation = function() {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::enableKeyboardNavigation()();
+			};
+			
+			commands.disableKeyboardNavigation = function() {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::disableKeyboardNavigation()();
+			};
+
 			commands.gotoPage = function(pageName) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPage(Ljava/lang/String;)(pageName);
 			};
@@ -822,5 +830,12 @@ public class JavaScriptPlayerServices {
 		IChapter toc = playerServices.getModel().getTableOfContents();
 		return toc.toJavaScript();
 	}
+	
+	private void enableKeyboardNavigation() {
+		playerServices.getCommands().enableKeyboardNavigation();
+	}
 
+	private void disableKeyboardNavigation() {
+		playerServices.getCommands().disableKeyboardNavigation();
+	}
 }
