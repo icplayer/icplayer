@@ -11,7 +11,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -95,7 +94,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 				gap.setDisabled(module.isDisabled());
 				textElements.add(gap);
 			} catch (Exception e) {
-				JavaScriptUtils.log("Can't create module: " + gi.getId());
+				Window.alert("Can't create module: " + gi.getId());
 			}
 		}
 	}
@@ -116,7 +115,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 				}
 				gap.setDisabled(module.isDisabled());
 			} catch (Exception e) {
-				JavaScriptUtils.log("Can't create module: " + gi.getId());
+				Window.alert("Can't create module: " + gi.getId());
 			}
 		}
 	}
@@ -145,7 +144,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 						mathGapIds.add(id);
 					}
 				} catch (Exception e) {
-					JavaScriptUtils.log("Can't create module: " + gi.getId());
+					Window.alert("Can't create module: " + gi.getId());
 				}
 			}
 		}

@@ -1093,8 +1093,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				}, 100);
 
 				dfd.promise().done(function (_element) {
-					// promise can be executed after page change, when _element doesn't exists in new DOM
-					if (document.body.contains(_element[0])) {
+					// promise can be executed after page change, must check if it still exists in DOM
+					if ($wnd.$(_element.selector).length) {
 						x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
 					}
 					$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
