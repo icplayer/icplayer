@@ -1095,7 +1095,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 				dfd.promise().done(function (_element) {
 					// promise can be executed after page change, check if page wasn't changed
-					currentPageStamp = x.@com.lorepo.icplayer.client.module.text.TextPresenter::getPageStamp()();
+					var currentPageStamp = x.@com.lorepo.icplayer.client.module.text.TextPresenter::getPageStamp()();
 					if (pageStamp === currentPageStamp) {
 						x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
 					}

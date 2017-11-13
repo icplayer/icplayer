@@ -299,6 +299,7 @@ public class PlayerController implements IPlayerController{
 
 
 	private void switchToPage(IPage page, final PageController pageController){
+	    this.pageStamp = this.generatePageStamp(page.getId());
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
 		this.sendAnalytics("switch to page", params );
@@ -307,10 +308,8 @@ public class PlayerController implements IPlayerController{
 		XMLLoader reader = new XMLLoader(page);
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
 		this.playerView.showWaitDialog();
-		
-		this.pageStamp = this.generatePageStamp(page.getId());
-		
 		reader.load(url, new ILoadListener() {
+
 			@Override
 			public void onFinishedLoading(Object obj) {
 				Page page = (Page) obj;
