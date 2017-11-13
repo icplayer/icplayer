@@ -1082,7 +1082,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private native void connectGapWhenMathJaxReady(TextPresenter x, String id) /*-{
 		try {
-			var hook = $wnd.MathJax.Hub.Register.MessageHook("End Typeset", function () {
+			var hook = $wnd.MathJax.Hub.Register.MessageHook("End Process", function () {
 				var dfd = $wnd.$.Deferred(),
 					element = $wnd.$("[id='" + id + "']");
 				var checkSelector = setInterval(function () {
@@ -1093,7 +1093,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				}, 100);
 
 				dfd.promise().done(function (_element) {
-					x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
+					// promise can be executed after page change, when _element doesn't exists in new DOM
+					if (document.body.contains(_element[0])) {
+						x.@com.lorepo.icplayer.client.module.text.TextPresenter::connectMathGap(Ljava/lang/String;)(id);
+					}
 					$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
 				});
 			});
