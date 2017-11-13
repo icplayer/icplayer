@@ -6,20 +6,20 @@ import com.google.gwt.core.client.JsArrayString;
 
 public class TextToSpeechAPI {
 	
-	public static native void playTitle (JavaScriptObject obj, String area, String id) /*-{
+	public static native void playTitle (JavaScriptObject obj, String area, String id, String langTag) /*-{
 		try {
 			if (obj && obj.playTitle) {
-				obj.playTitle(area, id);
+				obj.playTitle(area, id, langTag);
 			}
 		} catch(err) {
 			alert("[TextToSpeech1] Exception in playTitle(): \n" + err);
 		}
 	}-*/;
 	
-	public static native void playDescription (JavaScriptObject obj, String id) /*-{
+	public static native void playDescription (JavaScriptObject obj, String id, String langTag) /*-{
 		try {
 			if (obj && obj.playDescription) {
-				obj.playDescription(id);
+				obj.playDescription('main', id, langTag);
 			}
 		} catch(err) {
 			alert("[TextToSpeech1] Exception in playDescription(): \n" + err);

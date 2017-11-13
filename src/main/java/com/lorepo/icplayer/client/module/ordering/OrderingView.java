@@ -822,5 +822,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			this.pageController.speak(text, "");
 		}
 	}
+
+	@Override
+	public String getLang() {
+		return "";
+	}
 	
 }

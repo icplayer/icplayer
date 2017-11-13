@@ -214,6 +214,8 @@ function AddonText_To_Speech_create() {
     }
 
     presenter.speak = function (text, langTag) {
+        text = parseGaps(text); // TODO przeniesc operację do playera/Text
+
         if (text) {
             window.responsiveVoice.speak(text, getResponsiveVoiceLanguage(langTag));
         }
@@ -269,15 +271,15 @@ function AddonText_To_Speech_create() {
         presenter.speak(gapTypeRead + ' ' + gapNumberRead + ' ' + currentGapContent);
     };
 
-    presenter.playTitle = function (area, id) {
+    presenter.playTitle = function (area, id, langTag) {
         if (area && id) {
-            presenter.speak(getAddOnConfiguration(area, id).title);
+            presenter.speak(getAddOnConfiguration(area, id).title, langTag);
         }
     };
 
-    presenter.playDescription = function (id) {
-        if (id) {
-            presenter.speak(getAddOnConfiguration('main', id).description);
+    presenter.playDescription = function (area, id, langTag) {
+        if (area && id) {
+            presenter.speak(getAddOnConfiguration('main', id).description, langTag);
         }
     };
 

@@ -12,6 +12,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -329,6 +330,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		activeGap.setFocusGap(true);
 		
 		this.pageController.readGap(module.rawTextNoGaps, activeGap.getTextValue(), clicks);
+//		this.readGap(module.rawTextNoGaps, activeGap.getTextValue(), clicks);
 	}
 	
 	private void removeAllSelections () {
@@ -439,6 +441,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		activeGap.setFocusGap(true);
 		
 		this.pageController.readGap(module.rawTextNoGaps, activeGap.getTextValue(), clicks);
+//		this.readGap(module.rawTextNoGaps, activeGap.getTextValue(), clicks);
 	}
 
 	@Override
@@ -505,6 +508,48 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		this.setWCAGStatus(true);
 		this.pageController = pc;
 		this.setPageControllerToInLineChoices();
+	}
+	
+	public String getLang () {
+		return this.module.getLangAttribute();
+	}
+	
+//    '1': 'Gap number ',
+//    '2': 'Option gap number ',
+//    '3': 'Math gap number ',
+//    '4': 'Filled gap number '
+	
+	List<String> textToSpeechTexts = new ArrayList<String>();
+	
+	private void readGap (String text, String currentGapContent, int gapNumber) {
+		// TODO wartosci z property
+		List<String> textToSpeechTexts = new ArrayList<String>();
+		textToSpeechTexts.add("Gap number ");
+		textToSpeechTexts.add("Option gap number ");
+		textToSpeechTexts.add("Math gap number ");
+		textToSpeechTexts.add("Filled gap number ");
+		
+		JavaScriptUtils.log("readGap");
+		JavaScriptUtils.log(text);
+		JavaScriptUtils.log(currentGapContent);
+		JavaScriptUtils.log(gapNumber);
+//		
+////        var gaps = text.match(/#[1-4]#/g);
+//		final String patternString = "#[1-4]#";
+//		final int[] gaps = null;
+//		
+//		Pattern pattern = Pattern.compile(patternString);
+//        Matcher matcher = pattern.matcher(text);
+//		
+////        var gapTypeNumber = gaps[gapNumber][1];
+//		final int gapTypeNumber = Integer.parseInt(matcher.group(gapNumber)); //gaps.get(gapNumber);
+//
+////        var gapTypeRead = presenter.INPUTS_TRANSLATIONS[presenter.configuration.language][gapTypeNumber];
+//		final String gapTypeRead = textToSpeechTexts.get(gapTypeNumber - 1);
+////        var gapNumberRead = presenter.getGapAppearanceAtIndexOfType(gaps, gapNumber) + 1;
+//
+////        presenter.speak(gapTypeRead + ' ' + gapNumberRead + ' ' + currentGapContent);
+//		this.pageController.speak(gapTypeRead + " ", this.module.getLangAttribute());
 	}
 
 }

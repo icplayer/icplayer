@@ -11,6 +11,6 @@
         <property name="EnterText" nameLabel="Text_To_Speech_property_enter_text" type="string" isLocalized="true" />
         <property name="ExitText" nameLabel="Text_To_Speech_property_exit_text" type="string" isLocalized="true" />
 
-        <property name="language" displayName="Language" nameLabel="Text_To_Speech_language" type="{English, Polski, Deutsch}" />
+        <!--<property name="language" displayName="Language" nameLabel="Text_To_Speech_language" type="{English, Polski, Deutsch}" />-->
     </model>
 </addon>

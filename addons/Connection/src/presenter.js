@@ -14,6 +14,8 @@ function AddonConnection_create() {
     presenter.lastEvent = null;
     presenter.disabledConnections = [];
     presenter.keyboardControllerObject = null;
+    presenter.langTag = '';
+    presenter.speechTexts = {};
 
     var connections;
     var singleMode = false;
@@ -271,10 +273,23 @@ function AddonConnection_create() {
         presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
     };
 
+    // TODO
+    function setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+            connected: speechTexts[0]['Connected']['Connected'].trim(),
+            connectedTo: speechTexts[1]['ConnectedTo']['Connected to'].trim()
+        };
+    }
+
     presenter.initialize = function (view, model, isPreview) {
         if (isPreview) {
             presenter.lineStack = new LineStack(false);
         }
+
+        presenter.langTag = model['langAttribute'];
+        $(view).attr('lang', presenter.langTag);
+
+        setSpeechTexts(model['speechTexts']);
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
@@ -365,6 +380,7 @@ function AddonConnection_create() {
                 return presenter.elements[i].element;
             }
         }
+
         return -1;
     }
 
@@ -480,6 +496,7 @@ function AddonConnection_create() {
             if(presenter.checkIfConnectionDisabled($(element).attr('id'), selectedItem.attr('id'))){
                 return;
             }
+            readConnected();
             var line = new Line($(element), selectedItem);
             var shouldDraw = true;
 
@@ -950,12 +967,6 @@ function AddonConnection_create() {
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), connectionColor)
         }
-
-        // TODO
-        var tts = getTextToSpeech();
-        if (tts) {
-            tts.speak('connected');
-        }
     }
 
     function redrawShowAnswers () {
@@ -1207,7 +1218,6 @@ function AddonConnection_create() {
         return presenter.isAttempted();
     };
 
-
     presenter.executeCommand = function (name, params) {
         if (!isSelectionPossible) {
             return;
@@ -1363,6 +1373,13 @@ function AddonConnection_create() {
         return tts;
     }
 
+    function readConnected () {
+        var tts = getTextToSpeech();
+        if (tts) {
+            tts.speak(presenter.speechTexts.connected, presenter.langTag);
+        }
+    }
+
     function getActivatedElement () {
         return $('.keyboard_navigation_active_element'); // TODO improve
     }
@@ -1395,15 +1412,15 @@ function AddonConnection_create() {
             var connections = getConnections($active);
 
             if (connections.length) {
-                var connectionsText = text + ' connected to ';
+                var connectionsText = text + ' ' + presenter.speechTexts.connectedTo + ' ';
                 for (var i=0; i<connections.length; i++) {
                     var connection = connections[i];
                     connectionsText += ' ' + connection.text().trim() + '.';
                 }
 
-                tts.speak(connectionsText);
+                tts.speak(connectionsText, presenter.langTag);
             } else {
-                tts.speak(text);
+                tts.speak(text, presenter.langTag);
             }
         }
     }

@@ -207,8 +207,10 @@ public final class KeyboardNavigationController {
 		final String area = presenterEntry.getArea();
 		final IPresenter iPresenter = (IPresenter) presenterEntry.presenter;
 		final String id = iPresenter.getModel().getId();
+//		final String langTag = ((IWCAGModuleView) presenterEntry.presenter.getWCAGController()).getLang();
+		final String langTag = "";
 		
-		this.mainPageController.playTitle(area, id);
+		this.mainPageController.playTitle(area, id, langTag);
 	}
 
 	private int getNextElementIndex (int step) {
@@ -539,7 +541,7 @@ public final class KeyboardNavigationController {
 			OrderingView ov = (OrderingView) iWCAGPresenter.getWCAGController();
 			ov.setPageController(mainPageController);
 		} else {
-			mainPageController.playDescription(ip.getModel().getId());
+			mainPageController.playDescription(ip.getModel().getId(), "");
 		}
 
 	}
