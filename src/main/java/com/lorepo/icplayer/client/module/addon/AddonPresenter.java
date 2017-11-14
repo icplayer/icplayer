@@ -634,9 +634,11 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 	public boolean isDisabled() {
 		for (IAddonParam propetry : this.model.getParams()){
-			if (propetry.getName().equalsIgnoreCase("Is Disabled") ||
-				propetry.getName().equalsIgnoreCase("IsDisabled")) {
-				return propetry.getAsProperty().getValue().equalsIgnoreCase("true");
+			String propertyName = propetry.getName(); 
+			if (propertyName.equalsIgnoreCase("Is Disabled") ||
+				propertyName.equalsIgnoreCase("IsDisabled") ||
+				propertyName.equalsIgnoreCase("Disable")) {
+					return propetry.getAsProperty().getValue().equalsIgnoreCase("true");
 			}
 		}
 		return false;

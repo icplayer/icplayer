@@ -104,7 +104,8 @@ public final class KeyboardNavigationController {
 			this.modeOn = false;
 			return;
 		}
-		if (!this.getPresenters().get(this.actualSelectedModuleIndex).presenter.isSelectable(this.mainPageController.isTextToSpeechModuleEnable())) { //If first is not selectable
+		if (!this.getPresenters().get(this.actualSelectedModuleIndex).presenter.isSelectable( this.isWCAGSupportOn))//this.mainPageController.isTextToSpeechModuleEnable())) 
+		{ //If first is not selectable
 			this.setIndexToNextModule();
 			if (this.actualSelectedModuleIndex == 0) { //And others modules too, then turn off navigation
 				this.modeOn = false;
@@ -201,7 +202,7 @@ public final class KeyboardNavigationController {
 		}
 		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);
 		
-		this.actualSelectedModuleIndex = 0;
+//		this.actualSelectedModuleIndex = 0;
 	}
 
 	private void changeCurrentModule(KeyDownEvent event) {
@@ -232,6 +233,7 @@ public final class KeyboardNavigationController {
 
 	private int getNextElementIndex (int step) {
 		int index = this.actualSelectedModuleIndex;
+		
 		do {
 			final int presentersSize = this.getPresenters().size();
 			index += step;
@@ -243,7 +245,6 @@ public final class KeyboardNavigationController {
 
 			if (index == this.actualSelectedModuleIndex) break; // if all modules are hidden then break loop
 		} while (!this.getPresenters().get(index).presenter.isSelectable(this.isWCAGSupportOn && this.modeOn)); // this.mainPageController.isTextToSpeechModuleEnable() && 
-
 		return index;
 	}
 
