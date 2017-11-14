@@ -29,6 +29,7 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
+import com.lorepo.icplayer.client.module.addon.param.IAddonParam;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -560,7 +561,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		return isTextToSpeechOn || this.haveWCAGSupport(this.jsObject);
+		boolean isVisible = this.model.isVisible();
+		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible && !isDisabled();
 	}
 
 
@@ -630,4 +632,13 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return false;
 	}
 
+	public boolean isDisabled() {
+		for (IAddonParam propetry : this.model.getParams()){
+			if (propetry.getName().equalsIgnoreCase("Is Disabled") ||
+				propetry.getName().equalsIgnoreCase("IsDisabled")) {
+				return propetry.getAsProperty().getValue().equalsIgnoreCase("true");
+			}
+		}
+		return false;
+	}
 }
