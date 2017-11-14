@@ -4,7 +4,6 @@ function AddonConnection_create() {
     var playerController;
     var eventBus;
     var addonID;
-    var tts;
 
     presenter.uniqueIDs = [];
     presenter.uniqueElementLeft = [];
@@ -275,6 +274,10 @@ function AddonConnection_create() {
 
     // TODO
     function setSpeechTexts (speechTexts) {
+        if (!speechTexts) {
+            return;
+        }
+
         presenter.speechTexts = {
             connected: speechTexts[0]['Connected']['Connected'].trim(),
             connectedTo: speechTexts[1]['ConnectedTo']['Connected to'].trim()
@@ -1361,20 +1364,8 @@ function AddonConnection_create() {
         KeyboardController.call(this, elements, columnsCount);
     }
 
-    function getTextToSpeech () {
-        if (tts) {
-            return tts;
-        }
-
-        if (playerController) {
-            tts = playerController.getModule('Text_To_Speech1');
-        }
-
-        return tts;
-    }
-
     function readConnected () {
-        var tts = getTextToSpeech();
+        var tts = ConnectionKeyboardController.getTextToSpeechOrNull(playerController);
         if (tts) {
             tts.speak(presenter.speechTexts.connected, presenter.langTag);
         }
@@ -1404,7 +1395,7 @@ function AddonConnection_create() {
     }
 
     function readActivatedElementConnections () {
-        var tts = getTextToSpeech();
+        var tts = ConnectionKeyboardController.getTextToSpeechOrNull(playerController);
         if (tts) {
             var $active = getActivatedElement();
             var text = $active.text().trim();
