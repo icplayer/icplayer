@@ -233,7 +233,6 @@ public final class KeyboardNavigationController {
 
 	private int getNextElementIndex (int step) {
 		int index = this.actualSelectedModuleIndex;
-		
 		do {
 			final int presentersSize = this.getPresenters().size();
 			index += step;
@@ -245,6 +244,7 @@ public final class KeyboardNavigationController {
 
 			if (index == this.actualSelectedModuleIndex) break; // if all modules are hidden then break loop
 		} while (!this.getPresenters().get(index).presenter.isSelectable(this.isWCAGSupportOn && this.modeOn)); // this.mainPageController.isTextToSpeechModuleEnable() && 
+
 		return index;
 	}
 
