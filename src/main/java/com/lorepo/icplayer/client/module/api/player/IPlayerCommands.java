@@ -41,4 +41,6 @@ public interface IPlayerCommands {
 	void changeFooterVisibility(boolean isVisible);
 	void enableKeyboardNavigation();
 	void disableKeyboardNavigation();
+	
+	public String getPageStamp();
 }

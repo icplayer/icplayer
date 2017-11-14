@@ -192,4 +192,10 @@ public class CommandsMockup implements IPlayerCommands {
 		
 	}
 
+	@Override
+	public String getPageStamp() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

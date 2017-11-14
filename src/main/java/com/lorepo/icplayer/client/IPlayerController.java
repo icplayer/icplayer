@@ -74,4 +74,6 @@ public interface IPlayerController {
 	void enableKeyboardNavigation();
 
 	void disableKeyboardNavigation();
+	
+	String getPageStamp();
 }

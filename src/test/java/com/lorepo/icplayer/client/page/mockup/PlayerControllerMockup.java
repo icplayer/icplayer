@@ -243,4 +243,11 @@ public class PlayerControllerMockup implements IPlayerController {
 		
 	}
 
+
+	@Override
+	public String getPageStamp() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
