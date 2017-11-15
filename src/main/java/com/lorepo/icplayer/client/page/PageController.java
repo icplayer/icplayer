@@ -40,6 +40,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.Score.Result;
 
+
 public class PageController implements ITextToSpeechController {
 
 	public interface IPageDisplay {
@@ -114,13 +115,11 @@ public class PageController implements ITextToSpeechController {
 		pageView.setPage(page);
 		setViewSize(page);
 		initModules();
-
 		if (playerService.getStateService() != null) {
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
-
 		this.restoreOutstretchHeights();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
@@ -158,7 +157,6 @@ public class PageController implements ITextToSpeechController {
 			IModuleView moduleView = moduleFactory.createView(module);
 			IPresenter presenter = moduleFactory.createPresenter(module);
 			pageView.addModuleView(moduleView, module);
-			
 			if (presenter != null) {
 				presenter.addView(moduleView);
 				presenters.add(presenter);
@@ -482,21 +480,21 @@ public class PageController implements ITextToSpeechController {
 		this.pageView.outstretchHeight(y, height, isRestore, dontMoveModules);
 	}
 
-	public void playTitle (String area, String id) {
+	public void playTitle (String area, String id, String langTag) {
 		if (this.isReadingOn) {
-			TextToSpeechAPI.playTitle(this.getTextToSpeechAPIJavaScriptObject(), area, id);
+			TextToSpeechAPI.playTitle(this.getTextToSpeechAPIJavaScriptObject(), area, id, langTag);
 		}
 	}
 
-	public void playDescription (String id) {
+	public void playDescription (String id, String langTag) {
 		if (this.isReadingOn) {
-			TextToSpeechAPI.playDescription(this.getTextToSpeechAPIJavaScriptObject(), id);
+			TextToSpeechAPI.playDescription(this.getTextToSpeechAPIJavaScriptObject(), id, langTag);
 		}
 	}
 
-	public void speak (String text) {
+	public void speak (String text, String langTag) {
 		if (this.isReadingOn) {
-			TextToSpeechAPI.speak(this.getTextToSpeechAPIJavaScriptObject(), text);
+			TextToSpeechAPI.speak(this.getTextToSpeechAPIJavaScriptObject(), text, langTag);
 		}
 	}
 

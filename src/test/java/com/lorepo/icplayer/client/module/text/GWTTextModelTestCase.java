@@ -38,6 +38,7 @@ public class GWTTextModelTestCase extends GwtTest{
 		when(dictMock.keySet()).thenReturn(dictValues);
 		
 		Whitebox.setInternalState(DictionaryWrapper.class, "dictionary", dictMock);
+		Whitebox.setInternalState(DictionaryWrapper.class, "cachedKeySet", dictMock.keySet());
 		
 		TextModel module = new TextModel();
 
@@ -64,6 +65,7 @@ public class GWTTextModelTestCase extends GwtTest{
 		when(dictMock.keySet()).thenReturn(dictValues);
 		
 		Whitebox.setInternalState(DictionaryWrapper.class, "dictionary", dictMock);
+		Whitebox.setInternalState(DictionaryWrapper.class, "cachedKeySet", dictMock.keySet());
 
 		final String EXPECTED = "<input id=\"-3\" type=\"edit\"";
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module-draggable.xml");

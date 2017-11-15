@@ -6,39 +6,40 @@ import com.google.gwt.core.client.JsArrayString;
 
 public class TextToSpeechAPI {
 	
-	public static native void playTitle (JavaScriptObject obj, String area, String id) /*-{
+	public static native void playTitle (JavaScriptObject obj, String area, String id, String langTag) /*-{
 		try {
-			if (obj && obj.playTitle != undefined) {
-				obj.playTitle(area, id);
+			if (obj && obj.playTitle) {
+				obj.playTitle(area, id, langTag);
 			}
 		} catch(err) {
 			alert("[TextToSpeech1] Exception in playTitle(): \n" + err);
 		}
 	}-*/;
 	
-	public static native void playDescription (JavaScriptObject obj, String id) /*-{
+	public static native void playDescription (JavaScriptObject obj, String id, String langTag) /*-{
 		try {
-			if (obj && obj.playDescription != undefined) {
-				obj.playDescription(id);
+			if (obj && obj.playDescription) {
+				obj.playDescription('main', id, langTag);
 			}
 		} catch(err) {
 			alert("[TextToSpeech1] Exception in playDescription(): \n" + err);
 		}
 	}-*/;
 	
-	public static native void speak (JavaScriptObject obj, String text) /*-{
+	public static native void speak (JavaScriptObject obj, String text, String langTag) /*-{
 		try {
-			if (obj && obj.speak != undefined) {
-				obj.speak(text);
+			if (obj && obj.speak) {
+				obj.speak(text, langTag);
 			}
 		} catch(err) {
 			alert("[TextToSpeech1] Exception in speak(): \n" + err);
 		}
 	}-*/;
 	
+	// TODO remove
 	public static native void readGap (JavaScriptObject obj, String text, String currentGapContent, int gapNumber) /*-{
 		try {
-			if (obj && obj.readGap != undefined) {
+			if (obj && obj.readGap) {
 				obj.readGap(text, currentGapContent, gapNumber);
 			}
 		} catch(err) {
@@ -48,7 +49,7 @@ public class TextToSpeechAPI {
 	
 	public static native void playEnterText (JavaScriptObject obj) /*-{
 		try {
-			if (obj && obj.playEnterText != undefined) {
+			if (obj && obj.playEnterText) {
 				obj.playEnterText();
 			}
 		} catch(err) {
@@ -58,7 +59,7 @@ public class TextToSpeechAPI {
 	
 	public static native void playExitText (JavaScriptObject obj) /*-{
 		try {
-			if (obj && obj.playExitText != undefined) {
+			if (obj && obj.playExitText) {
 				obj.playExitText();
 			}
 		} catch(err) {
@@ -68,7 +69,7 @@ public class TextToSpeechAPI {
 
 	public static native JsArrayString getModulesOrder (JavaScriptObject obj) /*-{
 		try {
-			if (obj && obj.getModulesOrder != undefined) {
+			if (obj && obj.getModulesOrder) {
 				return obj.getModulesOrder();
 			}
 		} catch(err) {
@@ -78,7 +79,7 @@ public class TextToSpeechAPI {
 
 	public static native JsArrayString getMultiPartDescription (JavaScriptObject obj, String id) /*-{
 		try {
-			if (obj && obj.getMultiPartDescription != undefined) {
+			if (obj && obj.getMultiPartDescription) {
 				return obj.getMultiPartDescription(id);
 			}
 		} catch(err) {

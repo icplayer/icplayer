@@ -7,8 +7,10 @@ TestCase("[Video] Model validation", {
             Height: "22",
             ID: "someAddon",
             "Is Visible": "True",
+            "Is Tabindex Enabled": "True",
             "Hide subtitles": "False",
             'Hide default controls': "True",
+            'Show play button': "True",
             Files: [{
                 Poster: "ok",
                 Subtitles: "okdaokdoa",
@@ -40,8 +42,10 @@ TestCase("[Video] Model validation", {
             },
             addonID: "someAddon",
             isVisibleByDefault: true,
+            isTabindexEnabled: true,
             shouldHideSubtitles: false,
             defaultControls: false,
+            showPlayButton: true,
             files: [{
                 Poster: "ok",
                 Subtitles: "okdaokdoa",

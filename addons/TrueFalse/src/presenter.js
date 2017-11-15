@@ -216,12 +216,21 @@ function AddonTrueFalse_create() {
             clickLogic(this);
         });
     }
+    presenter.addTabindex = function (element, value) {
+        element.attr("tabindex", value);
+    };
 
     function generatePossibleChoicesRow(row) {
         row.append('<td class="tf_' + presenter.type + '_question first">&nbsp;</td>');
 
         for (var k = 0; k < possibleChoices.length; k++) {
-            row.append('<td class="tf_' + presenter.type + '_text">' + possibleChoices[k].Choice + '</td>');
+            var td = $('<td class="tf_' + presenter.type + '_text">' + possibleChoices[k].Choice + '</td>');
+
+            if (presenter.isTabindexEnabled) {
+                presenter.addTabindex(td, 0);
+            }
+
+            row.append(td);
         }
     }
 
@@ -231,8 +240,13 @@ function AddonTrueFalse_create() {
         if (textParser !== null) { // Actions performed only in Player mode
             question = textParser.parse(question);
         }
+        var td = $('<td class="tf_' + presenter.type + '_question">' + question + '</td>');
 
-        row.append('<td class="tf_' + presenter.type + '_question">' + question + '</td>');
+        if (presenter.isTabindexEnabled) {
+            presenter.addTabindex(td, 0);
+        }
+
+        row.append(td);
     }
 
     function generateRowContent(row, rowID) {
@@ -244,6 +258,11 @@ function AddonTrueFalse_create() {
                 row.append('<td class="tf_' + presenter.type + '_image up"></td>');
             }
             var innerElement = document.createElement('div');
+
+            if (presenter.isTabindexEnabled) {
+                presenter.addTabindex($(innerElement), 0);
+            }
+
             $(row).find('td:last-child').append(innerElement);
         }
     }
@@ -360,10 +379,17 @@ function AddonTrueFalse_create() {
         presenter.isVisible = true;
     };
 
+    presenter.validateModel = function(model) {
+        presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
+    };
+
     presenter.run = function (view, model) {
         presenter.$view = $(view);
         eventBus = playerController.getEventBus();
         textParser = new TextParserProxy(playerController.getTextParser());
+
+        presenter.validateModel(model);
+
         presenter.addonID = model.ID;
         makeView(view, model, false);
 

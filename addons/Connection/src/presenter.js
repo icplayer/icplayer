@@ -4,7 +4,6 @@ function AddonConnection_create() {
     var playerController;
     var eventBus;
     var addonID;
-    var tts;
 
     presenter.uniqueIDs = [];
     presenter.uniqueElementLeft = [];
@@ -14,6 +13,8 @@ function AddonConnection_create() {
     presenter.lastEvent = null;
     presenter.disabledConnections = [];
     presenter.keyboardControllerObject = null;
+    presenter.langTag = '';
+    presenter.speechTexts = {};
 
     var connections;
     var singleMode = false;
@@ -267,10 +268,31 @@ function AddonConnection_create() {
         presenter.isVisible = true;
     };
 
+    presenter.validateTabindexEnabled = function (model) {
+        presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
+    };
+
+    // TODO
+    function setSpeechTexts (speechTexts) {
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            connected: speechTexts[0]['Connected']['Connected'].trim(),
+            connectedTo: speechTexts[1]['ConnectedTo']['Connected to'].trim()
+        };
+    }
+
     presenter.initialize = function (view, model, isPreview) {
         if (isPreview) {
             presenter.lineStack = new LineStack(false);
         }
+
+        presenter.langTag = model['langAttribute'];
+        $(view).attr('lang', presenter.langTag);
+
+        setSpeechTexts(model['speechTexts']);
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
@@ -286,6 +308,8 @@ function AddonConnection_create() {
 
         var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
         var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
+
+        presenter.validateTabindexEnabled(model);
 
         if (isPreview) {
             this.loadElements(view, model, 'connectionLeftColumn', 'Left column', false);
@@ -359,6 +383,7 @@ function AddonConnection_create() {
                 return presenter.elements[i].element;
             }
         }
+
         return -1;
     }
 
@@ -474,6 +499,7 @@ function AddonConnection_create() {
             if(presenter.checkIfConnectionDisabled($(element).attr('id'), selectedItem.attr('id'))){
                 return;
             }
+            readConnected();
             var line = new Line($(element), selectedItem);
             var shouldDraw = true;
 
@@ -722,6 +748,10 @@ function AddonConnection_create() {
         }
     };
 
+    presenter.addTabindexToElement = function(element, tabindexValue){
+        element.attr("tabindex", tabindexValue);
+    };
+
     presenter.appendElements = function (i, model, columnModel, column, isRightColumn) {
         var id = model[columnModel][i]['id'];
         if (!this.isIDUnique(id)) {
@@ -735,6 +765,11 @@ function AddonConnection_create() {
         innerWrapper = presenter.addClassToElement(innerWrapper, model[columnModel][i]['additional class']);
         $(innerWrapper).css('direction', isRTL ? 'rtl' : 'ltr');
         innerWrapper.html(model[columnModel][i]['content']);
+
+        if(presenter.isTabindexEnabled) {
+            presenter.addTabindexToElement(innerWrapper, 0);
+        }
+
         innerElement.append(innerWrapper);
         var iconElement = $('<td class="icon"></td>');
         var iconWrapper = $('<div class="iconWrapper"></div>');
@@ -934,12 +969,6 @@ function AddonConnection_create() {
 
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), connectionColor)
-        }
-
-        // TODO
-        var tts = getTextToSpeech();
-        if (tts) {
-            tts.speak('connected');
         }
     }
 
@@ -1192,7 +1221,6 @@ function AddonConnection_create() {
         return presenter.isAttempted();
     };
 
-
     presenter.executeCommand = function (name, params) {
         if (!isSelectionPossible) {
             return;
@@ -1336,13 +1364,11 @@ function AddonConnection_create() {
         KeyboardController.call(this, elements, columnsCount);
     }
 
-    function getTextToSpeech () {
+    function readConnected () {
+        var tts = ConnectionKeyboardController.getTextToSpeechOrNull(playerController);
         if (tts) {
-            return tts;
+            tts.speak(presenter.speechTexts.connected, presenter.langTag);
         }
-
-        tts = playerController.getModule('Text_To_Speech1');
-        return tts;
     }
 
     function getActivatedElement () {
@@ -1369,29 +1395,23 @@ function AddonConnection_create() {
     }
 
     function readActivatedElementConnections () {
-        var tts = getTextToSpeech();
+        var tts = ConnectionKeyboardController.getTextToSpeechOrNull(playerController);
         if (tts) {
-            console.log(1);
             var $active = getActivatedElement();
-            console.log(2, $active);
             var text = $active.text().trim();
-            console.log(3, text);
 
             var connections = getConnections($active);
-            console.log(4);
 
             if (connections.length) {
-                console.log('YES');
-                var connectionsText = text + ' connected to ';
+                var connectionsText = text + ' ' + presenter.speechTexts.connectedTo + ' ';
                 for (var i=0; i<connections.length; i++) {
                     var connection = connections[i];
                     connectionsText += ' ' + connection.text().trim() + '.';
                 }
 
-                tts.speak(connectionsText);
+                tts.speak(connectionsText, presenter.langTag);
             } else {
-                console.log('NO');
-                tts.speak(text);
+                tts.speak(text, presenter.langTag);
             }
         }
     }
@@ -1416,6 +1436,11 @@ function AddonConnection_create() {
 
     ConnectionKeyboardController.prototype.previousElement = function () {
         this.switchElement(-parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
+        readActivatedElementConnections();
+    };
+
+    ConnectionKeyboardController.prototype.enter = function () {
+        Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
         readActivatedElementConnections();
     };
 

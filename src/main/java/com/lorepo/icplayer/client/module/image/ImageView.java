@@ -6,15 +6,22 @@ import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Image;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.image.ImageModule.DisplayMode;
 import com.lorepo.icplayer.client.module.image.ImagePresenter.IDisplay;
+import com.lorepo.icplayer.client.page.PageController;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 
 
-public class ImageView extends AbsolutePanel implements IDisplay {
+public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGModuleView {
 
 	private ImageModule module;
 	private Image image;
+	private PageController pageController;
+	private boolean isWCAGOn = false;
 	
 	
 	public ImageView(ImageModule module, boolean isPreview) {
@@ -61,6 +68,10 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 			setVisible(module.isVisible());
 		}
 		getElement().setId(module.getId());
+		
+		if (this.module.isTabindexEnabled()) {
+			image.getElement().setTabIndex(0);
+		}
 	}
 
 	
@@ -124,5 +135,100 @@ public class ImageView extends AbsolutePanel implements IDisplay {
 	@Override
 	public String getName() {
 		return "Image";
+	}
+
+
+	@Override
+	public void setWCAGStatus(boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;	
+	}
+
+
+	@Override
+	public void setPageController(PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+	}
+
+
+	@Override
+	public String getLang() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void enter(boolean isExiting) {
+		this.speak(this.module.getAltText());
+	}
+
+
+	@Override
+	public void space() {
+		// TODO Auto-generated method stub
+	}
+
+
+	@Override
+	public void tab() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void left() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void right() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void down() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void up() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void escape() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void shiftTab() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private void speak (String text) {
+		JavaScriptUtils.log(this.pageController);
+		if (this.pageController != null) {
+			this.pageController.speak(text, "");
+		}
 	}
 }

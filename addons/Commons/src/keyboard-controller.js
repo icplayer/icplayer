@@ -12,6 +12,7 @@
         ARROW_RIGHT: 39,
         ARROW_DOWN: 40
     };
+    var tts = null;
 
     /**
     KeyboardController util for managing WCAG in addons.
@@ -241,6 +242,20 @@
         this.keyboardNavigationActive = false;
         this.unmark(this.keyboardNavigationCurrentElement);
         this.keyboardNavigationCurrentElement = null;
+    };
+
+    KeyboardController.prototype.getTextToSpeechOrNull = function (playerController) {
+        tts = null;
+
+        if (tts) {
+            return tts;
+        }
+
+        if (playerController) {
+            tts = playerController.getModule('Text_To_Speech1');
+        }
+
+        return tts;
     };
 
     window.KeyboardController = KeyboardController;

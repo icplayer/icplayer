@@ -60,7 +60,10 @@ public class PlayerController implements IPlayerController{
 	private boolean isPopupEnabled = false;
 	private final KeyboardNavigationController keyboardController = new KeyboardNavigationController();
 	private PlayerEntryPoint entryPoint;
+	private String lang = "en";
 	private int iframeScroll = 0;
+	
+	private String pageStamp = "0";
 	
 	private int lastVisitedPageIndex = -1;
 	private int currentMainPageIndex = -1;
@@ -81,6 +84,7 @@ public class PlayerController implements IPlayerController{
 		this.timeService = new TimeService();
 		this.keyboardController.run(entryPoint);
 		this.getIFrameScroll(this);
+		this.lang = content.getMetadataValue("lang");
 	}
 
 	private void createPageControllers(boolean bookMode) {
@@ -290,9 +294,14 @@ public class PlayerController implements IPlayerController{
 			}
 		}
 	}
+	
+	private String generatePageStamp(String pageId) {
+		return pageId + Long.toString(System.currentTimeMillis());
+	}
 
 
 	private void switchToPage(IPage page, final PageController pageController){
+	    this.pageStamp = this.generatePageStamp(page.getId());
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
 		this.sendAnalytics("switch to page", params );
@@ -322,7 +331,6 @@ public class PlayerController implements IPlayerController{
 				if(timeStart == 0){
 					timeStart = System.currentTimeMillis();
 				}
-
 				if (!keyboardController.isModuleActivated()) {
 					scrollViewToBeggining();
 				}
@@ -334,23 +342,18 @@ public class PlayerController implements IPlayerController{
 				JavaScriptUtils.log("Can't load page: " + error);
 			}
 		});
-
 	}
 
 	private void pageLoaded(Page page, PageController pageController) {
 		this.keyboardController.save();
 		this.keyboardController.reset();
-
 		pageController.setPage(page);
-		
 		if (this.headerController != null && pageController != this.pageController2) {
 		    this.setHeader(page);
 		}
 		this.keyboardController.addHeaderToNavigation(this.headerController);
-		
 		this.keyboardController.addMainToNavigation(this.pageController1);
 		this.keyboardController.addSecondToNavigation(this.pageController2);
-
 		if (this.footerController != null && pageController != this.pageController2) {
 			this.setFooter(page);
 		}
@@ -572,7 +575,16 @@ public class PlayerController implements IPlayerController{
 		return this.footerController != null;
 	}
 
-
+	@Override
+	public void enableKeyboardNavigation() {
+		keyboardController.switchKeyboard(true);
+	}
+	
+	@Override
+	public void disableKeyboardNavigation() {
+		keyboardController.switchKeyboard(false);
+	}
+	
 	public void setPlayerConfig(PlayerConfig config) {
 		this.config = config;
 	}
@@ -589,6 +601,8 @@ public class PlayerController implements IPlayerController{
 	public void setIframeScroll (int scroll) {
 		this.iframeScroll = scroll;
 	}
+	
+	
 	
 	public native int getIFrameScroll (PlayerController x) /*-{
 		var iframeScroll = 0;
@@ -655,6 +669,15 @@ public class PlayerController implements IPlayerController{
 		} else {
 			this.playerView.removeFooterView();
 		}
+	}
+	
+	@Override
+	public String getLang () {
+		return this.lang;
+	}
+
+	public String getPageStamp() {
+		return this.pageStamp;
 	}
 	
 }

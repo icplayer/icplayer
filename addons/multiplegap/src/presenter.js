@@ -149,12 +149,19 @@ function Addonmultiplegap_create(){
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         var validatedRepetitions = presenter.validateRepetitions(model["Number of repetitions"]);
         var validateRepeatedElement = presenter.validateIdRepeatedElement(model["ID repeated element"]);
+
+        var isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
         
         if (validatedRepetitions.isError) {
             return validatedRepetitions;
         }
         if (validateRepeatedElement.isError) {
             return validateRepeatedElement;
+        }
+
+        var altText = model['Alt text'];
+        if (altText === undefined) {
+            altText = '';
         }
         
         return {
@@ -173,7 +180,9 @@ function Addonmultiplegap_create(){
             repetitions: validatedRepetitions.value,
             repeatedElement: validateRepeatedElement.value,
             blockWrongAnswers: ModelValidationUtils.validateBoolean(model["Block wrong answers"]),
-            wrapItems: ModelValidationUtils.validateBoolean(model["wrapItems"])
+            wrapItems: ModelValidationUtils.validateBoolean(model["wrapItems"]),
+            isTabindexEnabled: isTabindexEnabled,
+            altText: altText
         };
     };
     
@@ -196,6 +205,11 @@ function Addonmultiplegap_create(){
     
     presenter.createView = function Multiplegap_createView () {
         var container = $('<div class="multiplegap_container"></div>');
+
+        if (this.configuration.isTabindexEnabled) {
+            container.attr("tabindex", "0");
+        }
+
         container.click (function (event) {
             event.stopPropagation ();
             event.preventDefault ();
@@ -264,6 +278,8 @@ function Addonmultiplegap_create(){
         }
 
         presenter.buildKeyboardController();
+
+        presenter.$view.attr('alt', presenter.configuration.altText);
     };
     
     presenter.setItemCounterModeValue = function MultipleGap_setItemCounterModeValue () {
@@ -353,6 +369,10 @@ function Addonmultiplegap_create(){
         presenter.$view.find('.handler').show();
         presenter.$view.find('.multiplegap_container').removeClass('multiplegap_active');
         presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
+
+        if (presenter.configuration.isTabindexEnabled) {
+            presenter.container.removeAttr("tabindex");
+        }
     };
     
     presenter.maximumItemCountReached = function() {
@@ -492,6 +512,10 @@ function Addonmultiplegap_create(){
             width: presenter.configuration.items.width + 'px',
             height: presenter.configuration.items.height + 'px'
         });
+
+        if (presenter.configuration.isTabindexEnabled) {
+            placeholder.attr("tabindex", "0");
+        }
         
         var positions = presenter.calculateElementPositions();
         placeholder.css({
@@ -748,6 +772,10 @@ function Addonmultiplegap_create(){
         }
         presenter.performRemoveDraggable($(e.target));
         presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
+
+        if(presenter.configuration.isTabindexEnabled && presenter.$view.find('.placeholder').length === 0) {
+            presenter.container.attr("tabindex", "0");
+        }
     };
     
     presenter.performRemoveDraggable = function(handler) {

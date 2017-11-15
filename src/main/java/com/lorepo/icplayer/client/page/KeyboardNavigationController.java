@@ -148,11 +148,28 @@ public final class KeyboardNavigationController {
 		}
 	}
 
+	public void switchKeyboard(boolean enable) {
+		this.modeOn = enable;
+		if (this.modeOn) {
+			this.setFocusOnInvisibleElement();
+			if (!this.isInitiated) {
+				this.initialSelect();
+			} else {
+				this.selectCurrentModule();
+			}
+		} else {
+			IWCAG wcagWidget = this.presenters.get(this.actualSelectedModuleIndex).presenter.getWCAGController();
+			if (wcagWidget != null) {
+				wcagWidget.enter(true);
+			}
+			this.deselectCurrentModule();
+		}
+	}
+	
 	private void changeKeyboardMode (KeyDownEvent event, boolean isWCAGSupportOn) {
 		if (isWCAGSupportOn && !this.mainPageController.isTextToSpeechModuleEnable()) {
 			return;
 		}
-		
 		this.modeOn = !this.modeOn;
 		final boolean isWCAGExit = !this.modeOn && this.isWCAGSupportOn;
 		this.isWCAGSupportOn = isWCAGSupportOn;
@@ -207,8 +224,10 @@ public final class KeyboardNavigationController {
 		final String area = presenterEntry.getArea();
 		final IPresenter iPresenter = (IPresenter) presenterEntry.presenter;
 		final String id = iPresenter.getModel().getId();
+//		final String langTag = ((IWCAGModuleView) presenterEntry.presenter.getWCAGController()).getLang();
+		final String langTag = "";
 		
-		this.mainPageController.playTitle(area, id);
+		this.mainPageController.playTitle(area, id, langTag);
 	}
 
 	private int getNextElementIndex (int step) {
@@ -223,7 +242,7 @@ public final class KeyboardNavigationController {
 			}
 
 			if (index == this.actualSelectedModuleIndex) break; // if all modules are hidden then break loop
-		} while (!this.getPresenters().get(index).presenter.isSelectable(this.mainPageController.isTextToSpeechModuleEnable()));
+		} while (!this.getPresenters().get(index).presenter.isSelectable(this.isWCAGSupportOn && this.modeOn)); // this.mainPageController.isTextToSpeechModuleEnable() && 
 
 		return index;
 	}
@@ -482,6 +501,7 @@ public final class KeyboardNavigationController {
 	}
 	
 	private List<PresenterEntry> sortTextToSpeechModules (PageController main, PageController header, PageController footer) {
+		JavaScriptUtils.log("sortTextToSpeechModules start");
 		List<PresenterEntry> mainPresenters = this.generatePresenters(main, false);
 		List<PresenterEntry> headerPresenters = this.generatePresenters(header, true);
 		List<PresenterEntry> footerPresenters = this.generatePresenters(footer, true);
@@ -513,6 +533,7 @@ public final class KeyboardNavigationController {
 				result.add(localPresenter);
 			}
 		}
+		JavaScriptUtils.log("sortTextToSpeechModules end");
 		
 		return result;
 	}
@@ -526,20 +547,25 @@ public final class KeyboardNavigationController {
 	}
 	
 	private void playTextToSpeechContent (IWCAGPresenter iWCAGPresenter) {
-		IPresenter ip = (IPresenter) iWCAGPresenter;
+//		IPresenter ip = (IPresenter) iWCAGPresenter;
+//		
+//		if (ip.getModel().getModuleName() == "Choice") {
+//			ChoiceView cv = (ChoiceView) iWCAGPresenter.getWCAGController();
+//			cv.setTextToSpeechVoices(mainPageController.getMultiPartDescription(ip.getModel().getId()));
+//			cv.setPageController(mainPageController);
+//		} else if (ip.getModel().getModuleName() == "Text") {
+//			TextView tv = (TextView) iWCAGPresenter.getWCAGController();
+//			tv.setPageController(mainPageController);
+//		} else if (ip.getModel().getModuleName() == "Ordering") {
+//			OrderingView ov = (OrderingView) iWCAGPresenter.getWCAGController();
+//			ov.setPageController(mainPageController);
+//		} else {
+//			mainPageController.playDescription(ip.getModel().getId(), "");
+//		}
 		
-		if (ip.getModel().getModuleName() == "Choice") {
-			ChoiceView cv = (ChoiceView) iWCAGPresenter.getWCAGController();
-			cv.setTextToSpeechVoices(mainPageController.getMultiPartDescription(ip.getModel().getId()));
-			cv.setPageController(mainPageController);
-		} else if (ip.getModel().getModuleName() == "Text") {
-			TextView tv = (TextView) iWCAGPresenter.getWCAGController();
-			tv.setPageController(mainPageController);
-		} else if (ip.getModel().getModuleName() == "Ordering") {
-			OrderingView ov = (OrderingView) iWCAGPresenter.getWCAGController();
-			ov.setPageController(mainPageController);
-		} else {
-			mainPageController.playDescription(ip.getModel().getId());
+		if (iWCAGPresenter.getWCAGController() instanceof IWCAGModuleView) {
+			IWCAGModuleView view = (IWCAGModuleView) iWCAGPresenter.getWCAGController();
+			view.setPageController(mainPageController);
 		}
 
 	}

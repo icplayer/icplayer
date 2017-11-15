@@ -55,6 +55,8 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG {
 		if (!isPreview) {
 			setVisible(module.isVisible());
 		}
+		
+		getElement().setAttribute("alt", this.module.getAlttext());
 	}
 	
 	@Override

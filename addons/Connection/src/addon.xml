@@ -30,5 +30,17 @@
         <property name="Show answers line color" nameLabel="Connection_property_show_answers_line_color" type="string" />
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="Connection_property_block_wrong_answers" type="boolean" />
 		<property name="removeDraggedElement" displayName="Remove dragged element" nameLabel="Connection_property_remove_dragged_element" type="boolean" />
+
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="Connection_property_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Connection_property_speech_texts" type="staticlist">
+
+            <property name="Connected" nameLabel="Connection_property_connected" type="staticrow">
+                <property name="Connected" nameLabel="Connection_connected" type="string"/>
+            </property>
+
+            <property name="ConnectedTo" nameLabel="Connection_property_connected_to" type="staticrow">
+                <property name="Connected to" nameLabel="Connection_connected_to" type="string"/>
+            </property>
+        </property>
 	</model>
 </addon>

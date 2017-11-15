@@ -205,14 +205,29 @@ function AddonMath_create() {
 
     presenter.evaluateExpression = function (expression, variables, separators) {
         var i, expressionRunner = {
+            /**
+             * @param  {string} expression
+             * @param  {} variables
+             */
             run: function (expression, variables) {
                 presenter.assignVariablesToObject(this, variables);
                 var parser = math.parser();
-
+    
                 parser.set('variables', this.variables);
-                expression = expression.replace(/&&/g," and ").replace(/\|\|/g, " or ").replace(/'/g, '"');
-                parser.eval(expression);
 
+                if ((expression.indexOf("{") > -1) && (expression.indexOf("function") > -1)) {     // There will be probably function declaration
+                    delete math.iifeFunction;
+
+                    math.import({
+                        iifeFunction: new Function(expression + "; return result;")
+                    });
+
+                    expression = "result = iifeFunction.call({variables:variables})";
+                } else {
+                    expression = expression.replace(/&&/g," and ").replace(/\|\|/g, " or ").replace(/'/g, '"');
+                }
+
+                parser.eval(expression);
                 return parser.get('result');
             }
         };
@@ -357,7 +372,7 @@ function AddonMath_create() {
 
     function checkIfCorrectVariable(tempExpression, variable) {
         var lastChar = tempExpression.charAt(tempExpression.indexOf(variable)+variable.length);
-        return lastChar == "(" || lastChar == ")" || lastChar == "" || lastChar == " " || lastChar == "/" || lastChar == "*" || lastChar == "=" || lastChar == "+" || lastChar == "-" || lastChar == ">" || lastChar == "<" || lastChar == "%";
+        return lastChar == "." || lastChar == "(" || lastChar == ")" || lastChar == "" || lastChar == " " || lastChar == "/" || lastChar == "*" || lastChar == "=" || lastChar == "+" || lastChar == "-" || lastChar == ">" || lastChar == "<" || lastChar == "%";
     }
 
     presenter.findTextOccurrences = function (expression, variable) {

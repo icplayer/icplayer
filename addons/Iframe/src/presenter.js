@@ -89,6 +89,8 @@ function AddonIframe_create() {
 
         window.addEventListener("message",presenter.getMessage,false);
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
+
+        presenter.$view.attr('alt', presenter.configuration.altText);
     };
 
     presenter.destroy = function () {
@@ -174,6 +176,11 @@ function AddonIframe_create() {
             allowFullScreen = "False";
         }
 
+        var altText = model['Alt text'];
+        if(altText === undefined) {
+            altText = '';
+        }
+
         return {
             isValid: true,
             haveURL: validateIFrameSourceResult.haveURL,
@@ -183,7 +190,8 @@ function AddonIframe_create() {
             addonID : model.ID,
             fileDictionary: validateFileListResult.fileDictionary,
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            allowFullScreen: ModelValidationUtils.validateBoolean(allowFullScreen)
+            allowFullScreen: ModelValidationUtils.validateBoolean(allowFullScreen),
+            altText: altText
         };
     };
 
