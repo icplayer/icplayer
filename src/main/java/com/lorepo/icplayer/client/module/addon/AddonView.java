@@ -1,9 +1,5 @@
 package com.lorepo.icplayer.client.module.addon;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
