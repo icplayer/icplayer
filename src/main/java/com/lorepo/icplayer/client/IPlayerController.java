@@ -45,4 +45,6 @@ public interface IPlayerController {
 	String getLang();
 	void enableKeyboardNavigation();
 	void disableKeyboardNavigation();
+	
+	String getPageStamp();
 }

@@ -178,4 +178,9 @@ public class PlayerCommands implements IPlayerCommands {
 		}
 
 	}
+	
+	@Override
+	public String getPageStamp() {
+		return controller.getPageStamp();
+	}
 }

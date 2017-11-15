@@ -324,6 +324,10 @@ public class JavaScriptPlayerServices {
 			commands.changeFooterVisibility = function (isVisible) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeFooterVisibility(Z)(isVisible);
 			};
+			
+			commands.getPageStamp = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageStamp()();
+			}
 
 			return commands;
 		};
@@ -474,6 +478,10 @@ public class JavaScriptPlayerServices {
 		this.playerServices.getCommands().changeHeaderVisibility(isVisible);
 	}
 	
+	
+	private String getPageStamp() {
+		return this.playerServices.getCommands().getPageStamp();
+	}
 
 	private void showPopup(String pageName, String top, String left, String additinalClasses){
 		playerServices.getCommands().showPopup(pageName, top, left, additinalClasses);

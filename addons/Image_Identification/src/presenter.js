@@ -177,6 +177,10 @@ function AddonImage_Identification_create(){
         }
 
         loadImage(presenter.configuration.imageSrc, preview);
+
+        if(presenter.configuration.altText !== undefined) {
+            presenter.$view.attr("alt", presenter.configuration.altText);
+        }
     }
 
     presenter.validateModel = function (model) {
@@ -193,7 +197,8 @@ function AddonImage_Identification_create(){
             isActivity: !ModelValidationUtils.validateBoolean(model["Is not an activity"]),
             isBlockedInErrorCheckingMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
             isErrorCheckMode: false,
-            blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers)
+            blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers),
+            altText: model["Alt text"]
         };
     };
 
