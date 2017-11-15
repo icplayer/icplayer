@@ -244,6 +244,7 @@ function AddonAnimation_create (){
             $.imgpreload([presenter.configuration.image], {
                 all: function () {
                     previewImageLogic(this[0]);
+                    hideLoadingScreen();
                 }
             });
         } else {
@@ -866,7 +867,7 @@ function AddonAnimation_create (){
             'value': 'ended',
             'score': ''
         };
-
+        
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
