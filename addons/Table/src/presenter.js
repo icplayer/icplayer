@@ -372,6 +372,11 @@ function AddonTable_create() {
                 colspan: content[i].colSpan,
                 rowspan: content[i].rowSpan
             });
+
+            if ( presenter.configuration.isTabindexEnabled) {
+                $element.attr('tabindex', '0');
+            }
+
             if (content[i].class) {
                 $element.addClass(content[i].class)
             }
@@ -620,6 +625,8 @@ function AddonTable_create() {
 
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 
+        var isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
+
         return {
             addonID: model.ID,
             isValid: true,
@@ -635,7 +642,8 @@ function AddonTable_create() {
             isCaseSensitive: ModelValidationUtils.validateBoolean(model["Case sensitive"]),
             newWidthCalculate: ModelValidationUtils.validateBoolean(model["newWidthCalculate"]),
             gapWidth: gapWidth,
-            gapType: model["Gap Type"]
+            gapType: model["Gap Type"],
+            isTabindexEnabled: isTabindexEnabled
         };
     };
 

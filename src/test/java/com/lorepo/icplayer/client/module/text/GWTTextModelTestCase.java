@@ -33,7 +33,8 @@ public class GWTTextModelTestCase extends GwtTest {
 
 	private static final String PAGE_VERSION = "2";
 
-	@Before public void setUp () {
+	@Before
+	public void setUp () {
 		Dictionary dictMock = Mockito.mock(Dictionary.class);
 		when(dictMock.get("text_module_text")).thenReturn("Text");
 		when(dictMock.get("text_module_gap_type")).thenReturn("Gap type");
