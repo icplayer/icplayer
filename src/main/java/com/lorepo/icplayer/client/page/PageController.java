@@ -115,13 +115,11 @@ public class PageController implements ITextToSpeechController {
 		pageView.setPage(page);
 		setViewSize(page);
 		initModules();
-
 		if (playerService.getStateService() != null) {
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
 		pageView.refreshMathJax();
-
 		this.restoreOutstretchHeights();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
@@ -159,7 +157,6 @@ public class PageController implements ITextToSpeechController {
 			IModuleView moduleView = moduleFactory.createView(module);
 			IPresenter presenter = moduleFactory.createPresenter(module);
 			pageView.addModuleView(moduleView, module);
-			
 			if (presenter != null) {
 				presenter.addView(moduleView);
 				presenters.add(presenter);

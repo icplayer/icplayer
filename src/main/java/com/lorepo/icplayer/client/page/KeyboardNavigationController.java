@@ -501,6 +501,7 @@ public final class KeyboardNavigationController {
 	}
 	
 	private List<PresenterEntry> sortTextToSpeechModules (PageController main, PageController header, PageController footer) {
+		JavaScriptUtils.log("sortTextToSpeechModules start");
 		List<PresenterEntry> mainPresenters = this.generatePresenters(main, false);
 		List<PresenterEntry> headerPresenters = this.generatePresenters(header, true);
 		List<PresenterEntry> footerPresenters = this.generatePresenters(footer, true);
@@ -532,6 +533,7 @@ public final class KeyboardNavigationController {
 				result.add(localPresenter);
 			}
 		}
+		JavaScriptUtils.log("sortTextToSpeechModules end");
 		
 		return result;
 	}

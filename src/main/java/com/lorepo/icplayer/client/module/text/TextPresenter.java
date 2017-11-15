@@ -255,8 +255,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void hideAnswers () {
-		JavaScriptUtils.log("[Text - TextPresenter] hideAnswers");
-		
 //		if (view.isWCAGon()) {
 //			return;
 //		}
@@ -286,7 +284,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public void setWorkMode() {
-		JavaScriptUtils.log("setWorkMode");
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -300,7 +297,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public void setShowErrorsMode() {
-		JavaScriptUtils.log("setShowErrorsMode");
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -469,7 +465,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public void reset() {
-		JavaScriptUtils.log("reset");
 		if (module.isActivity() && isShowAnswers()) {
 			hideAnswers();
 		}
@@ -563,7 +558,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	
 	@Override
 	public void addView(IModuleView display) {
-
 		if (display instanceof IDisplay) {
 			view = (IDisplay) display;
 			connectViewListener();
@@ -588,10 +582,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.connectGaps(module.getGapInfos().iterator());
 			view.connectFilledGaps(module.getGapInfos().iterator());
 		}
-
 		view.connectInlineChoices(module.getChoiceInfos());
 		view.connectLinks(module.getLinkInfos().iterator());
-		
 		view.sortGapsOrder();
 	}
 

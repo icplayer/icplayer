@@ -324,7 +324,6 @@ public class PlayerController implements IPlayerController{
 				if(timeStart == 0){
 					timeStart = System.currentTimeMillis();
 				}
-
 				if (!keyboardController.isModuleActivated()) {
 					scrollViewToBeggining();
 				}
@@ -336,23 +335,18 @@ public class PlayerController implements IPlayerController{
 				JavaScriptUtils.log("Can't load page: " + error);
 			}
 		});
-
 	}
 
 	private void pageLoaded(Page page, PageController pageController) {
 		this.keyboardController.save();
 		this.keyboardController.reset();
-
 		pageController.setPage(page);
-		
 		if (this.headerController != null && pageController != this.pageController2) {
 		    this.setHeader(page);
 		}
 		this.keyboardController.addHeaderToNavigation(this.headerController);
-		
 		this.keyboardController.addMainToNavigation(this.pageController1);
 		this.keyboardController.addSecondToNavigation(this.pageController2);
-
 		if (this.footerController != null && pageController != this.pageController2) {
 			this.setFooter(page);
 		}

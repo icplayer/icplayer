@@ -292,6 +292,12 @@ function AddonText_To_Speech_create() {
     };
 
     presenter.getModulesOrder = function () {
+        console.log(presenter.configuration.addOnsConfiguration.map(function (c) {
+            return {
+                id: c.id,
+                area: c.area
+            };
+        }));
         return presenter.configuration.addOnsConfiguration.map(function (c) {
             return {
                 id: c.id,
