@@ -17,6 +17,9 @@ function AddonTrueFalse_create() {
     var playerController;
     var eventBus; // Modules communication
     var textParser = null; // Links to Glossary Addon
+    var tts;
+    var selectedSpeechText = "selected";
+    var deselectedSpeechText = "deselected";
 
     var QUESTION_AND_CHOICES_REQUIRED = "At least 1 question and 2 choices are required.";
     var INDEX_OUT_OF_RANGE = "Index is out of range.";
@@ -287,12 +290,37 @@ function AddonTrueFalse_create() {
         }
     }
 
+    function getSpeechTexts(model) {
+        var speechTexts = model['Speech texts'];
+
+        if (speechTexts !== undefined && speechTexts !== '') {
+            for (var index = 0; index < speechTexts.length; index++) {
+                var text = speechTexts[index];
+                for (var key in text) {
+                    if (text.hasOwnProperty(key)) {
+                        if (text[key]['selected'] !== '' && text[key]['selected'] !== undefined) {
+                            selectedSpeechText = text[key]['selected'];
+                        }
+
+                        if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
+                            deselectedSpeechText = text[key]['deselected'];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     var makeView = function (view, model, preview) {
         possibleChoices = model['Choices'];
         questions = model['Questions'];
+        var langAttribute = model['Lang attribute'];
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
+        presenter.$view.attr('lang', langAttribute);
+
+        getSpeechTexts(model);
 
         if (notAllRequiredParameters(questions, possibleChoices)) {
             return $(view).html(QUESTION_AND_CHOICES_REQUIRED);
@@ -325,9 +353,10 @@ function AddonTrueFalse_create() {
         }
 
         if (!preview) {
-            presenter.$view.find('.tf_' + presenter.type + '_image').each(function(index, element){
+            presenter.$view.find('.tf_' + presenter.type + '_image' + ',.tf_' + presenter.type + '_question:not(.first)').each(function(index, element){
                 presenter.keyboardNavigationElements[index] = $(element);
             });
+
             presenter.keyboardNavigationElementsLen = presenter.keyboardNavigationElements.length;
         }
     };
@@ -705,6 +734,64 @@ function AddonTrueFalse_create() {
         presenter.isShowAnswersActive = false;
     };
 
+    function getTextToSpeech () {
+        if (tts) {
+            return tts;
+        }
+
+        tts = playerController.getModule('Text_To_Speech1');
+        return tts;
+    }
+
+    function getActivatedElement () {
+        return presenter.$view.find('.keyboard_navigation_active_element');
+    }
+
+    function getElementIndex(element) {
+        var div = element.parent(),
+            parent = div.parent(),
+            list = parent.find('td');
+
+        return $(list).index(div);
+    }
+
+    function getChoice(index) {
+         return presenter.$view.find('#0').children().eq(index).text().trim();
+    }
+
+    function readOption(readSelection) {
+        var tts = getTextToSpeech();
+        if (tts) {
+            var $active = getActivatedElement(),
+                question = $active.parent().parent().first().text().trim(),
+                elementIndex = getElementIndex($active),
+                choice = getChoice(elementIndex),
+                text = '';
+
+            if ($active.hasClass('tf_' + presenter.type + '_question')) {
+                tts.speak($active.text().trim());
+                return;
+            }
+
+            if(readSelection) {
+                if ($active.parent().hasClass('down')) {
+                    text = choice + ' ' + selectedSpeechText;
+                } else {
+                    text = choice + ' ' + deselectedSpeechText;
+                }
+            } else {
+                text = choice;
+                if ($active.parent().hasClass('down')) {
+                    text += ' ' + selectedSpeechText;
+                } else {
+                    text += ' ' + deselectedSpeechText;
+                }
+            }
+
+            tts.speak(text);
+        }
+    }
+
     presenter.keyboardController = function(keycode) {
         $(document).on('keydown', function(e) {
             e.preventDefault();
@@ -718,16 +805,25 @@ function AddonTrueFalse_create() {
             ARROW_LEFT: 37,
             ARROW_UP: 38,
             ARROW_RIGHT: 39,
-            ARROW_DOWN: 40
+            ARROW_DOWN: 40,
+            TAB: 9
         };
 
         function mark_current_element(new_position_index){
             if (presenter.keyboardNavigationCurrentElement) {
-                presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+                if(presenter.keyboardNavigationCurrentElement.find('div').length > 0) {
+                    presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+                } else {
+                    presenter.keyboardNavigationCurrentElement.removeClass('keyboard_navigation_active_element');
+                }
             }
             presenter.keyboardNavigationCurrentElementIndex = new_position_index;
             presenter.keyboardNavigationCurrentElement = presenter.keyboardNavigationElements[new_position_index];
-            presenter.keyboardNavigationCurrentElement.find('div').addClass('keyboard_navigation_active_element');
+            if(presenter.keyboardNavigationCurrentElement.find('div').length > 0) {
+                presenter.keyboardNavigationCurrentElement.find('div').addClass('keyboard_navigation_active_element');
+            } else {
+                presenter.keyboardNavigationCurrentElement.addClass('keyboard_navigation_active_element');
+            }
         }
 
         var enter = function (){
@@ -736,36 +832,42 @@ function AddonTrueFalse_create() {
             }
             presenter.keyboardNavigationActive = true;
             mark_current_element(0);
+            readOption(false);
         };
 
         function swicht_element(move){
             var new_position_index = presenter.keyboardNavigationCurrentElementIndex + move;
             if (new_position_index >= presenter.keyboardNavigationElementsLen) {
-                new_position_index = new_position_index - presenter.keyboardNavigationElementsLen;
+                new_position_index = new_position_index - move;
             } else if (new_position_index < 0) {
-                new_position_index = presenter.keyboardNavigationElementsLen + new_position_index;
+                new_position_index = presenter.keyboardNavigationCurrentElementIndex;
             }
             mark_current_element(new_position_index);
         }
 
         var next_element = function (){
             swicht_element(1);
+            readOption(false);
         };
 
         var previous_element = function (){
             swicht_element(-1);
+            readOption(false);
         };
 
         var next_question = function () {
-            swicht_element(possibleChoices.length);
+            swicht_element(possibleChoices.length + 1);
+            readOption(false);
         };
 
         var previous_question = function () {
-            swicht_element(-possibleChoices.length);
+            swicht_element(-(possibleChoices.length + 1));
+            readOption(false);
         };
 
         var mark = function (){
             presenter.keyboardNavigationCurrentElement.click();
+            readOption(true);
         };
 
         var escape = function (){
@@ -774,6 +876,7 @@ function AddonTrueFalse_create() {
             }
             presenter.keyboardNavigationActive = false;
             presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+            presenter.keyboardNavigationCurrentElement.removeClass('keyboard_navigation_active_element');
             presenter.keyboardNavigationCurrentElement = null;
         };
 
@@ -785,6 +888,7 @@ function AddonTrueFalse_create() {
         mapping[keys.ARROW_UP] = previous_question;
         mapping[keys.ARROW_RIGHT] = next_element;
         mapping[keys.ARROW_DOWN] = next_question;
+        mapping[keys.TAB] = next_element;
 
         try {
             mapping[keycode]();
