@@ -1510,6 +1510,8 @@ var ice_dictionary_mx = {
 	"Catch_property_level": "Level",
 	"Catch_property_points_to_finish": "Points to finish",
 	"Catch_property_count_errors": "Count errors",
+	"Catch_property_item_width": "Item width",
+	"Catch_property_item_height": "Item height",
 	"Iframe_info": "Este addon permite insertar los recursos HTML a la lección.",
 	"Iframe_name": "Iframe",
 	"IFrame_property_iframe_url": "URL deIframe",

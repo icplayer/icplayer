@@ -1518,6 +1518,8 @@ var ice_dictionary_en = {
     "Catch_property_level": "Level",
     "Catch_property_points_to_finish": "Points to finish",
     "Catch_property_count_errors": "Count errors",
+    "Catch_property_item_width": "Item width",
+    "Catch_property_item_height": "Item height",
 	"Iframe_info": "This addon allows users to connection between iframe and addon",
 	"Iframe_name": "Iframe",
 	"IFrame_property_iframe_url": "Iframe URL",

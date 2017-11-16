@@ -1509,6 +1509,8 @@
     "Catch_property_level": "Poziom",
     "Catch_property_points_to_finish": "Punkty do końca",
     "Catch_property_count_errors": "Policz błędy",
+    "Catch_property_item_width": "Szerokość pozycji",
+    "Catch_property_item_height": "Wysokość pozycji",
 	"Iframe_info": "Addon ten umożliwia wprowadzenie do lekcji dowolnych zasobów HTML, zarówno w trybie online, jak i offline.",
 	"Iframe_name": "Iframe",
 	"IFrame_property_iframe_url": "Adres Iframe",
