@@ -3,10 +3,6 @@ function AddonPseudo_Console_create() {
         JISON_GRAMMAR;
 
     // ----------------------- LANGUAGE COMPILER SECTION -----------------------------------
-    // TODO:
-    // Check if function can have that name: built in functions and functions defined in properties
-    // Check if variable can be used(or not?)
-
     JISON_GRAMMAR = {
         "lex": {
             "options" : {
@@ -34,8 +30,8 @@ function AddonPseudo_Console_create() {
                 ["$if$",                    "return 'IF';"],
                 ["$then$",                  "return 'THEN';"],
                 ["$else$",                  "return 'ELSE';"],
-                ["$case$",                  "return 'CASE';"],      //TODO
-                ["$option$",                "return 'OPTION';"],    //TODO
+                ["$case$",                  "return 'CASE';"],
+                ["$option$",                "return 'OPTION';"],
                 ["$function$",              "return 'FUNCTION';"],
                 ["$return$",                "return 'RETURN';"],
                 ["\\n+",                    "return 'NEW_LINE';"],
@@ -93,7 +89,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "function" : [
-                ["function_declaration ( function_arguments ) end_line section_list code_block", "$$ = yy.presenterContext.bnf['function'](yy, $1, $3, $6, $7);"]
+                ["function_declaration ( function_arguments ) end_line section_list code_block", "$$ = yy.presenterContext.bnf['function'](yy, $1, $3 || [], $6, $7);"]
             ],
 
             "function_declaration" : [
@@ -102,7 +98,7 @@ function AddonPseudo_Console_create() {
 
             "function_arguments" : [
                 "",
-                ["function_arguments_list", "$$ = $1;"]
+                ["function_arguments_list", "$$ = $1 || [];"]
             ],
 
             "function_arguments_list" : [
@@ -204,13 +200,13 @@ function AddonPseudo_Console_create() {
             ],
 
             "if_instruction" : [
-                ["IF operation THEN end_line code_block_or_instruction", "$$ = yy.presenterContext.bnf['if_instruction'](yy, $2, $5);"],
-                ["IF operation THEN end_line code_block_or_instruction ELSE end_line code_block_or_instruction",  "$$ = yy.presenterContext.bnf['if_else_instruction'](yy, $2, $5, $8);"]
+                ["IF operation THEN end_line code_block_or_instruction", "$$ = yy.presenterContext.bnf['if_instruction']($2, $5);"],
+                ["IF operation THEN end_line code_block_or_instruction ELSE end_line code_block_or_instruction",  "$$ = yy.presenterContext.bnf['if_else_instruction']($2, $5, $8);"]
             ],
 
             "assign_value" : [
                 ['STATIC_VALUE = operation end_line', "$$ = yy.presenterContext.bnf['assign_value_1'](yy, $1, $3);"],
-                ['operation end_line', "$$ = yy.presenterContext.bnf['assign_value_2'](yy, $1);"]
+                ['operation end_line', "$$ = yy.presenterContext.bnf['assign_value_2']($1);"]
             ],
 
             "do_while_instruction" : [
@@ -234,7 +230,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "for_instruction" : [
-                ["for_value_header end_line code_block_or_instruction", "$$ = $1.concat($3).concat(yy.presenterContext.bnf['for_exiter'](yy));"],
+                ["for_value_header end_line code_block_or_instruction", "$$ = $1.concat($3).concat(yy.presenterContext.bnf['for_exiter'](yy));"]
             ],
 
             "for_value_header" : [
@@ -278,14 +274,15 @@ function AddonPseudo_Console_create() {
                 ["string_char STRING", "$$ = $1 + $2"]
             ],
 
-            "end_line" : [      //TODO: Remove enters from end of input
-                ["new_line_list", "$$='';"],
-                ["EOF", "$$ = '';"]
+            "end_line" : [
+                ["new_line_list", "$$='';"]
             ],
 
             "new_line_list" : [
+                ["EOF", "$$='';"],
                 ["NEW_LINE", "$$='';"],
-                ["new_line_list NEW_LINE", "$$='';"]
+                ["new_line_list NEW_LINE", "$$='';"],
+                ["new_line_list EOF", "$$ = '';"]
             ],
 
             "operation" : [
@@ -338,8 +335,6 @@ function AddonPseudo_Console_create() {
              * @param  {{option:String, code:Object[]}[]} options
              */
             function (variableDef, options) {
-                console.log(variableDef, options);
-
                 var i,
                     exitLabel = presenter.bnf.uid + "_case_end",
                     execCode = [];
@@ -407,7 +402,7 @@ function AddonPseudo_Console_create() {
             return operations;
         },
 
-        assign_value_2: function (yy, operations) {
+        assign_value_2: function (operations) {
             operations.push(presenter.generateExecuteObject('stack.pop()'));
 
             return operations;
@@ -463,7 +458,7 @@ function AddonPseudo_Console_create() {
          * @param  {Object[]} expression
          * @param  {Object[]} code
          */
-        if_instruction: presenter.uidDecorator(function (yy, expression, code) {
+        if_instruction: presenter.uidDecorator(function (expression, code) {
             var executableCode = expression,
                 if_end = presenter.bnf.uid + "_end_if";
 
@@ -480,7 +475,7 @@ function AddonPseudo_Console_create() {
          * @param  {Object[]} ifCode
          * @param  {Object[]} elseCode
          */
-        if_else_instruction: presenter.uidDecorator(function (yy, expression, ifCode, elseCode) {
+        if_else_instruction: presenter.uidDecorator(function (expression, ifCode, elseCode) {
             var executableCode = expression,
                 else_start = presenter.bnf.uid + "_else_if",
                 if_end = presenter.bnf.uid + "_end_if";
@@ -622,7 +617,7 @@ function AddonPseudo_Console_create() {
         execCommands.push(presenter.generateExecuteObject('', '1_' + functionName));    //Here return will jump. Define as 1_<function_name>. 
 
         exitCommand += "actualScope = {};"; // Clear scope
-        exitCommand += "actualScope = stack.pop();"; //Get saved scope //TODO: check in tests if stack is there the same
+        exitCommand += "actualScope = stack.pop();"; //Get saved scope
 
         execCommands.push(presenter.generateExecuteObject(exitCommand, ''));
 
@@ -757,6 +752,11 @@ function AddonPseudo_Console_create() {
     };
 
     presenter.ERROR_CODES = {
+        "FN01": "Defined function name must match to [A-Za-z_][a-zA-Z0-9_]*",
+        "FN02": "Defined function must have unique name",
+        "FN03": "Defined function overrides built in alias",
+        "AN01": "Defined alias name must match to [A-Za-z_][a-zA-Z0-9_]*",
+        "AN02": "Multiple aliases got the same name"
     };
 
     //https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
@@ -819,8 +819,6 @@ function AddonPseudo_Console_create() {
             }
         }
 
-        console.log(JISON_GRAMMAR);
-
         parser = new Jison.Parser(JISON_GRAMMAR);
         parser.yy.presenterContext = presenter;
         parser.yy.labelsStack = [];
@@ -841,13 +839,13 @@ function AddonPseudo_Console_create() {
             }
         };
         presenter.objectForInstructions.console = consoleMock || presenter.state.console;
-        //presenter.objectForInstructions.console.Reset();
         presenter.state.definedByUserFunctions = [];
     };
 
     presenter.initializeConsole = function () {
         presenter.state.console = new presenter.console(presenter.state.$view.find(".addon-Pseudo_Console-wrapper"));
-        var originalReadLine = presenter.state.console.ReadLine;
+        var originalReadLine = presenter.state.console.ReadLine,
+            originalReadChar = presenter.state.console.ReadChar;
 
         presenter.state.console.ReadLine = function (callback) {
             presenter.state.console.pauseIns();
@@ -856,23 +854,15 @@ function AddonPseudo_Console_create() {
                 presenter.state.console.nextIns();
             });
         };
+
+        presenter.state.console.ReadChar = function (callback) {
+            presenter.state.console.pauseIns();
+            originalReadChar.call(presenter.state.console, function (input) {
+                callback.call(this, input);
+                presenter.state.console.nextIns();
+            });
+        };
     };
-
-    // presenter.initializeJQConsole = function () {
-    //     var jqConsole = presenter.state.$view.jqconsole('', '>>>'),
-    //         originalPropmpt = jqConsole.Prompt,
-    //         readCharCallback = null;
-
-    //     jqConsole.Prompt = function (callback) {
-    //         jqConsole.pauseIns();
-    //         originalPropmpt.call(jqConsole, true, function (input) {
-    //             callback.call(this, input);
-    //             jqConsole.nextIns();
-    //         });
-    //     };
-
-    //     presenter.state.jqconsole = jqConsole;
-    // };
 
     presenter.initialize = function (view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
@@ -896,11 +886,8 @@ function AddonPseudo_Console_create() {
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
-    presenter.connectHandlers = function () {
-    };
-
     presenter.stop = function () {
-        //presenter.state.console.Reset();
+        presenter.state.console.Reset();
         presenter.killAllMachines();
     };
 
@@ -921,6 +908,10 @@ function AddonPseudo_Console_create() {
         if (event.target !== this) {
             return;
         }
+
+        presenter.state.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
+
+        presenter.state.console.destroy();
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -979,7 +970,16 @@ function AddonPseudo_Console_create() {
             Reset: function () {
 
             },
-            Prompt: function (callback) {
+
+            ReadLine: function (callback) {
+                var actualInput = input[actualInputIndex];
+                if (actualInput !== null) {
+                    callback.call(presenter.state.console, actualInput);
+                    actualInputIndex += 1;
+                }
+            },
+
+            ReadChar: function (callback) {
                 var actualInput = input[actualInputIndex];
                 if (actualInput !== null) {
                     callback.call(presenter.state.console, actualInput);
@@ -1048,8 +1048,6 @@ function AddonPseudo_Console_create() {
                 sendAllOKEvent();
             }
         }
-
-        console.log("Return score", score);
 
         return score;
     };
@@ -1148,7 +1146,7 @@ function AddonPseudo_Console_create() {
             }
         }
 
-        for (i = 0; i < functionData.fn.length; i++) {
+        for (i = 0; i < functionData.fn.length; i += 1) {
             usedFunctionName = functionData.fn[i];
             if (!excludedNames[usedFunctionName] && $.inArray(usedFunctionName, presenter.state.definedByUserFunctions) === -1) {
                 throw new UndefinedFunctionNameException(usedFunctionName);
@@ -1174,9 +1172,14 @@ function AddonPseudo_Console_create() {
     };
 
     presenter.executeCode = function (code) {
+        if (!presenter.configuration.isValid) {
+            return;
+        }
+
         presenter.state.wasChanged = true;
         presenter.initializeObjectForCode();
         try {
+            presenter.state.console.Reset();
             var executableCode = presenter.state.codeGenerator.parse(code);
 
             presenter.checkCode();
@@ -1198,8 +1201,6 @@ function AddonPseudo_Console_create() {
      * @param  {Boolean} getScore if function will be called to get score
      */
     presenter.codeExecutor = function (parsedData, getScore) {
-        console.log("Creating machine!");
-
         var actualIndex = 0,
             code = parsedData.code,
             timeoutId = 0,
@@ -1212,8 +1213,6 @@ function AddonPseudo_Console_create() {
             eax = {value: 0},         // Helper used in generated code (see operation)
             ebx = {value: 0},         // Helper used in generated code,
             id = uuidv4();
-
-        console.log(parsedData);
 
         function getIndexByLabel(label) {
             var i;
@@ -1231,7 +1230,6 @@ function AddonPseudo_Console_create() {
         function executeLine() {
             var actualEntry = code[actualIndex];
             if (actualEntry) {
-                console.log(actualIndex);
                 if (actualEntry.type === presenter.TYPES.EXECUTE) {
                     eval(actualEntry.code);
                     actualIndex += 1;
@@ -1244,7 +1242,6 @@ function AddonPseudo_Console_create() {
                 }
                 return false;
             }
-            console.log(stack, retVal);
             return true;
         }
 
@@ -1286,7 +1283,7 @@ function AddonPseudo_Console_create() {
 
         function executeCodeSyncWithMaxTime() {
             var actualTime;
-
+            console.log("MACHINE!");
             while (true) {
                 actualTime = new Date().getTime() / 1000;
                 if (actualTime - startTime > presenter.configuration.answer.maxTimeForAnswer.parsedValue) {
@@ -1294,11 +1291,14 @@ function AddonPseudo_Console_create() {
                     killMachine();
                     return;
                 }
-
-                isEnded = executeLine();
-                if (isEnded) {
-                    console.log(stack);
-                    killMachine();
+                try {
+                    isEnded = executeLine();
+                    if (isEnded) {
+                        console.log(stack);
+                        killMachine();
+                        return;
+                    } 
+                } catch (e) {
                     return;
                 }
             }
@@ -1341,10 +1341,14 @@ function AddonPseudo_Console_create() {
     }
 
     userConsole.prototype = {
-        generateLine: function () {
+        generateLine: function (className) {
+            if (!className) {
+                className = '';
+            }
+
             var $htmlObject = $("<span></span>"),
-                $left = $("<span></span>"),
-                $right = $("<span class='" + consoleClasses.RIGHT_ELEMENT + "'></span>"),
+                $left = $("<span class='" + className + "'></span>"),
+                $right = $("<span class='" + className + " " + consoleClasses.RIGHT_ELEMENT + "'></span>"),
                 $cursor = $("<span class='" + consoleClasses.CURSOR + "'></span>");
 
             $htmlObject.append($left);
@@ -1361,8 +1365,16 @@ function AddonPseudo_Console_create() {
             };
         },
 
-        addNewLine: function (isActive) {
-            var line = this.generateLine();
+        /**
+         * @param  {String} isActive Activate this line automatically
+         * @param  {String} [className] set class for that line
+         */
+        addNewLine: function (isActive, className) {
+            if (!className) {
+                className = '';
+            }
+
+            var line = this.generateLine(className);
             this.lines.push(line);
             this.linesContainer.append(line.$htmlObject);
 
@@ -1376,6 +1388,7 @@ function AddonPseudo_Console_create() {
             if (this.activeLineIndex > -1) {
                 activeLine = this.getActiveLine();
                 activeLine.elements.$left.text(activeLine.elements.$left.text() + activeLine.elements.$right.text());
+                activeLine.elements.$right.text('');
                 activeLine.elements.$cursor.html('');
             }
 
@@ -1399,15 +1412,17 @@ function AddonPseudo_Console_create() {
                 return;
             }
 
+            this.addNewLine(true, className);
+
             var lines = text.split('\n'),
                 line,
-                activeLine = this.lines[this.activeLineIndex],
+                activeLine = this.getActiveLine(),
                 i;
 
-            for (i = 0; i < lines.length - 1; i += 1 ) {
+            for (i = 0; i < lines.length - 1; i += 1) {
                 line = lines[i];
                 activeLine.elements.$left.text(activeLine.elements.$left.text() + line);
-                this.addNewLine(true);
+                this.addNewLine(true, className);
                 activeLine = this.getActiveLine();
                 activeLine.elements.$left.text("\n");
             }
@@ -1417,39 +1432,166 @@ function AddonPseudo_Console_create() {
             activeLine.elements.$left.text(activeLine.elements.$left.text() + line);
         },
 
-        ReadLine: function () {
+        ReadLine: function (callback) {
             if (this.isReadMode) {
                 return;
             }
 
             this.isReadMode = true;
-            var activeLine = this.getActiveLine();
-            console.log(this.parentContainer);
-            $(this.$parentElement).on('click', function () {
-                this.$textArea.focus();
-                this.$textArea.on('keydown', function (e) {
-                    console.log(e);
-                });
+            var self = this;
+
+            this.readLineFunction(function (data) {
+                self.isReadMode = false;
+                callback(data);
             });
         },
 
-        ReadChar: function () {
+        readLineFunction: function (onExitCallback) {
+            if (!this.isReadMode) {
+                return;
+            }
+
+            this.addNewLine(true);
+
+            var activeLine = this.getActiveLine(),
+                textAreaElement = this.$textArea,
+                parentElement = this.$parentElement,
+                data,
+                leftText,
+                rightText,
+                keycode,
+                actualTextAreaIndex = textAreaElement.val().length;
+
+            $(parentElement).on('click', function () {
+                textAreaElement.off();
+                textAreaElement.focus();
+
+                textAreaElement.on('input', function () {
+                    data = textAreaElement.val();
+                    leftText = activeLine.elements.$left.text();
+                    rightText = activeLine.elements.$right.text();
+
+                    if (data.length > 0) {
+                        if (data[data.length - 1] !== '\n') {
+                            leftText = leftText + data.substring(actualTextAreaIndex - 1, data.length);
+                            actualTextAreaIndex = data.length;
+                        }
+                    }
+
+                    activeLine.elements.$left.text(leftText);
+                    activeLine.elements.$right.text(rightText);
+                    textAreaElement.val('');
+
+                });
+
+                textAreaElement.on('keydown', function (event) {
+                    keycode = event.which || event.keycode;
+                    data = textAreaElement.val();
+                    leftText = activeLine.elements.$left.text();
+                    rightText = activeLine.elements.$right.text();
+
+                    if (keycode === 39 || keycode === 37 || keycode === 8 || keycode === 13) {
+                        if (keycode === 39) {    //Left arrow
+                            if (rightText.length > 0) {
+                                leftText += rightText[0];
+                                rightText = rightText.substring(1);
+                            }
+                        } else if (keycode === 37) {    //Right arrow
+                            if (leftText.length > 0) {
+                                rightText = leftText[leftText.length - 1] + rightText;
+                                leftText = leftText.substring(0, leftText.length - 1);
+                            }
+                        } else if (keycode === 8) {     //Backspace
+                            leftText = leftText.substring(0, leftText.length - 1);
+                            if (actualTextAreaIndex > 0) {
+                                actualTextAreaIndex -= 1;
+                            }
+                        } else if (keycode === 13) {
+                            $(parentElement).off();
+                            textAreaElement.off();
+                            onExitCallback(leftText + rightText);
+                        }
+
+                        activeLine.elements.$left.text(leftText);
+                        activeLine.elements.$right.text(rightText);
+                        textAreaElement.val('');
+
+                        return false;
+                    }
+                });
+            });
+
+            $(parentElement).click();
+        },
+
+        ReadChar: function (callback) {
+            this.isReadMode = true;
+
+            if (!this.isReadMode) {
+                return;
+            }
+
+            this.addNewLine(true);
+
+            var activeLine = this.getActiveLine(),
+                textAreaElement = this.$textArea,
+                parentElement = this.$parentElement,
+                data,
+                leftText;
+
+            $(parentElement).on('click', function () {
+                textAreaElement.off();
+                textAreaElement.focus();
+
+                textAreaElement.on('input', function () {
+                    leftText = activeLine.elements.$left.text();
+                    data = textAreaElement.val();
+                    if (data[data.length - 1] !== "\n") {
+                        activeLine.elements.$left.text(leftText + data[data.length - 1]);
+                        $(parentElement).off();
+                        textAreaElement.off();
+
+                        callback(data[data.length - 1]);
+                    }
+                });
+            });
+
         },
 
         Reset: function () {
+            var textAreaElement = this.$textArea,
+                parentElement = this.$parentElement;
+            parentElement.off();
+            textAreaElement.off();
+            this.isReadMode = false;
 
+            this.linesContainer.find('span').remove();
+            this.lines = [];
+
+            this.activeLineIndex = -1;
+
+            this.addNewLine(true);
+        },
+
+        destory: function () {
+            this.Reset();
         }
     };
 
     presenter.console = userConsole;
     // ---------------------------------- VALIDATION SECTION ---------------------------------
-    // TODO:
-    // 1. Check if function dont have name like built in functions: for, while
-    // 2. Check if function name is unique
-    // 3. Check function name as regexp
-    // 4. Do it for aliases
+    function generateValidationError(errorCode) {
+        return {
+            isValid: false,
+            errorCode: errorCode
+        };
+    }
 
     presenter.validateFunction = function (functionToValidate) {
+        if (/[A-Za-z_][a-zA-Z0-9_]*/g.exec(functionToValidate.name)[0] !== functionToValidate.name) {
+            return generateValidationError("FN01");
+        }
+
         return {
             isValid: true,
             value: {
@@ -1470,6 +1612,10 @@ function AddonPseudo_Console_create() {
                 return validatedFunction;
             }
 
+            if (validatedFunctions[validatedFunction.value.name]) {
+                return generateValidationError("FN02");
+            }
+
             validatedFunctions[validatedFunction.value.name] = validatedFunction.value.body;
         }
 
@@ -1481,13 +1627,31 @@ function AddonPseudo_Console_create() {
 
     presenter.validateAliases = function (aliases) {
         var definedAliases = {},
-            aliasKey;
+            aliasKey,
+            aliasName,
+            exists = {};
 
         for (aliasKey in aliases) {
             if (aliases.hasOwnProperty(aliasKey)) {
                 if (!ModelValidationUtils.isStringEmpty(aliases[aliasKey].name.trim())) {
+                    aliasName = aliases[aliasKey].name.trim();
+
+                    if (/[A-Za-z_][a-zA-Z0-9_]*/g.exec(aliasName)[0] !== aliasName) {
+                        return generateValidationError("AN01");
+                    }
+
                     definedAliases[aliasKey] = aliases[aliasKey].name.trim();
                 }
+            }
+        }
+
+        for (aliasKey in definedAliases) {
+            if (definedAliases.hasOwnProperty(aliasKey)) {
+                if (exists[definedAliases[aliasKey]]) {
+                    return generateValidationError("AN02");
+                }
+
+                exists[definedAliases[aliasKey]] = true;
             }
         }
 
@@ -1510,20 +1674,13 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    function generateValidationError(errorCode) {
-        return {
-            isValid: false,
-            errorCode: errorCode
-        };
-    }
-
     presenter.validateAnswer = function (model) {
         var runUserCode = ModelValidationUtils.validateBoolean(model.runUserCode),
             answerCode = model.answerCode,
             maxTimeForAnswer = ModelValidationUtils.validateFloatInRange(model.maxTimeForAnswer, 10, 0),
             validatedParameters;
 
-        if (runUserCode && (!maxTimeForAnswer.isValid || maxTimeForAnswer === 0)) {
+        if (runUserCode && (!maxTimeForAnswer.isValid || maxTimeForAnswer.parsedValue === 0)) {
             return generateValidationError("IP01");
         }
 
@@ -1540,10 +1697,27 @@ function AddonPseudo_Console_create() {
 
     };
 
+    presenter.checkAliasesNamesWithFunctions = function (aliases, functions) {
+        var aliasKey;
+
+        for (aliasKey in aliases) {
+            if (aliases.hasOwnProperty(aliasKey)) {
+                if (functions[aliases[aliasKey]]) {
+                    return generateValidationError("FN03");
+                }
+            }
+        }
+
+        return {
+            isValid: true
+        };
+    };
+
     presenter.validateModel = function (model) {
         var validatedAliases,
             validatedFunctions,
-            validatedAnswer;
+            validatedAnswer,
+            isUniqueInAliasesAndFunctions;
 
         validatedAliases = presenter.validateAliases(model.default_aliases);
         if (!validatedAliases.isValid) {
@@ -1553,6 +1727,13 @@ function AddonPseudo_Console_create() {
         validatedFunctions = presenter.validateFunctions(model.functionsList);
         if (!validatedFunctions.isValid) {
             return validatedFunctions;
+        }
+
+        if (validatedAliases.isValid && validatedFunctions.isValid) {
+            isUniqueInAliasesAndFunctions = presenter.checkAliasesNamesWithFunctions(validatedAliases.value, validatedFunctions.value);
+            if (!isUniqueInAliasesAndFunctions.isValid) {
+                return isUniqueInAliasesAndFunctions;
+            }
         }
 
         validatedAnswer = presenter.validateAnswer(model);
