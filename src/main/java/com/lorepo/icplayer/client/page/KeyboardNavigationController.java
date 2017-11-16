@@ -547,26 +547,26 @@ public final class KeyboardNavigationController {
 	}
 	
 	private void playTextToSpeechContent (IWCAGPresenter iWCAGPresenter) {
-//		IPresenter ip = (IPresenter) iWCAGPresenter;
-//		
-//		if (ip.getModel().getModuleName() == "Choice") {
-//			ChoiceView cv = (ChoiceView) iWCAGPresenter.getWCAGController();
-//			cv.setTextToSpeechVoices(mainPageController.getMultiPartDescription(ip.getModel().getId()));
-//			cv.setPageController(mainPageController);
-//		} else if (ip.getModel().getModuleName() == "Text") {
-//			TextView tv = (TextView) iWCAGPresenter.getWCAGController();
-//			tv.setPageController(mainPageController);
-//		} else if (ip.getModel().getModuleName() == "Ordering") {
-//			OrderingView ov = (OrderingView) iWCAGPresenter.getWCAGController();
-//			ov.setPageController(mainPageController);
-//		} else {
-//			mainPageController.playDescription(ip.getModel().getId(), "");
-//		}
+		IPresenter ip = (IPresenter) iWCAGPresenter;
 		
-		if (iWCAGPresenter.getWCAGController() instanceof IWCAGModuleView) {
-			IWCAGModuleView view = (IWCAGModuleView) iWCAGPresenter.getWCAGController();
-			view.setPageController(mainPageController);
+		if (ip.getModel().getModuleName() == "Choice") {
+			ChoiceView cv = (ChoiceView) iWCAGPresenter.getWCAGController();
+			cv.setTextToSpeechVoices(mainPageController.getMultiPartDescription(ip.getModel().getId()));
+			cv.setPageController(mainPageController);
+		} else if (ip.getModel().getModuleName() == "Text") {
+			TextView tv = (TextView) iWCAGPresenter.getWCAGController();
+			tv.setPageController(mainPageController);
+		} else if (ip.getModel().getModuleName() == "Ordering") {
+			OrderingView ov = (OrderingView) iWCAGPresenter.getWCAGController();
+			ov.setPageController(mainPageController);
+		} else {
+			mainPageController.playDescription(ip.getModel().getId(), "");
 		}
+		
+//		if (iWCAGPresenter.getWCAGController() instanceof IWCAGModuleView) {
+//			IWCAGModuleView view = (IWCAGModuleView) iWCAGPresenter.getWCAGController();
+//			view.setPageController(mainPageController);
+//		}
 
 	}
 	

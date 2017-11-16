@@ -30,6 +30,8 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private int[] order;
 	private PageController pageController;
 	private List<String> optionsVoices;
+	private String selectedText = "selected";
+	private String deselectedText = "deselected";
 
 	private int position = -1;
 	
@@ -95,6 +97,16 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		getElement().setId(module.getId());
 		if(module.isDisabled()){
 			setEnabled(false);
+		}
+		
+		getElement().setAttribute("lang", this.module.getLangAttribute());
+		
+		if(this.module.getSpeechTextItem(0) != "") {
+			this.selectedText = this.module.getSpeechTextItem(0);
+		}
+		
+		if(this.module.getSpeechTextItem(1) != "") {
+			this.deselectedText = this.module.getSpeechTextItem(1);
 		}
 	}
 	    
@@ -251,9 +263,27 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	}
 
 	private void textToSpeechCurrentOption () {
+		IOptionDisplay widget = optionWidgets.get(position);
 		final boolean useDefaultOptionValues = this.optionsVoices.isEmpty() || (this.optionsVoices.size() != module.getOptionCount());
-		final String text = useDefaultOptionValues ? module.getOption(position).getText() : this.optionsVoices.get(position);
+		String text = useDefaultOptionValues ? widget.getModel().getText() : this.optionsVoices.get(position);
+		
+		if (widget.isDown()) {
+			text = text + " " + this.selectedText;
+		} else {
+			text = text + " " + this.deselectedText;
+		}
+		
 		this.pageController.speak(text, ""); // TODO add language from property
+	}
+	
+	private void textToSpeechSelectOption () {	
+		IOptionDisplay widget = optionWidgets.get(position);
+		
+		if (widget.isDown()) {
+			this.pageController.speak(this.selectedText, "");
+		} else {
+			this.pageController.speak(this.deselectedText, "");
+		}
 	}
 
 	private void select() {
@@ -307,6 +337,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	@Override
 	public void space() {
 		select();
+		textToSpeechSelectOption();
 	}
 
 
