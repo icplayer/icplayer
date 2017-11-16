@@ -8,5 +8,6 @@
 		<property name="onDeselected" nameLabel="text_identification_property_on_deselected" type="event" />
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="text_identification_property_block_wrong_answers" type="boolean" />
 		<property name="shouldSendEventsOnCommands" displayName="Send event on select/deselect" nameLabel="text_identification_property_send_event_on_command" type="boolean" />
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="Text_identification_property_lang_attribute" type="string" />
 	</model>
 </addon>

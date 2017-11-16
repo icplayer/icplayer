@@ -8,6 +8,7 @@ function Addontext_identification_create(){
     presenter.eventBus = null;
     presenter.lastEvent = null;
     presenter.isDisabled = false;
+    presenter.keyboardControllerObject = null;
     
     var CSS_CLASSES = {
         ELEMENT : "text-identification-element",
@@ -102,6 +103,7 @@ function Addontext_identification_create(){
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeShouldSendEventsOnCommands(model);
+        upgradedModel = presenter.upgradeLangTag(upgradedModel);
         return upgradedModel;
     };
 
@@ -111,6 +113,17 @@ function Addontext_identification_create(){
 
         if (model.shouldSendEventsOnCommands === undefined) {
             upgradedModel["shouldSendEventsOnCommands"] = "false";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeLangTag = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (model.langTag === undefined) {
+            upgradedModel["langAttribute"] = '';
         }
 
         return upgradedModel;
@@ -159,6 +172,8 @@ function Addontext_identification_create(){
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
 
+        presenter.langTag = model['langAttribute'];
+
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
@@ -174,6 +189,7 @@ function Addontext_identification_create(){
         presenter.centerElements(text, container);
 
         if (!isPreview) handleMouseActions();
+        presenter.buildKeyboardController();
     }
 
     presenter.setVisibility = function (isVisible) {
@@ -454,9 +470,44 @@ function Addontext_identification_create(){
         presenter.isShowAnswersActive = false;
     };
 
+    function TextIdentificationKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    TextIdentificationKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    TextIdentificationKeyboardController.prototype.constructor = TextIdentificationKeyboardController;
+
+    TextIdentificationKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+
+        presenter.readSelectedElement();
+    };
+
+    TextIdentificationKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+    TextIdentificationKeyboardController.prototype.select = function (event) {
+        presenter.clickHandler(event);
+    };
+
+
     presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        if (keycode == 13) {
-            presenter.clickHandler()
+        this.keyboardControllerObject.handle(keycode, isShiftKeyDown);
+    };
+
+    presenter.buildKeyboardController = function () {
+        var element = $(presenter.$view).find('.text-identification-container');
+
+        presenter.keyboardControllerObject = new TextIdentificationKeyboardController(element, 1);
+    };
+
+    presenter.readSelectedElement = function () {
+        var tts = this.keyboardControllerObject.getTextToSpeechOrNull(presenter.playerController);
+        if (tts) {
+            var text = $('.text-identification-content').text().trim();
+
+            tts.speak(text, presenter.langTag);
         }
     };
 
