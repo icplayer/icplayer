@@ -32,6 +32,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private List<String> optionsVoices;
 	private String selectedText = "selected";
 	private String deselectedText = "deselected";
+	private boolean isEnabled = true;
 
 	private int position = -1;
 	
@@ -174,7 +175,6 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	@Override
 	public void onValueChange(ValueChangeEvent<Boolean> event) {
-
 		if (listener != null) {
 			listener.onValueChange((IOptionDisplay) event.getSource(), event.getValue());
 		}
@@ -278,6 +278,8 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	
 	private void textToSpeechSelectOption () {	
 		IOptionDisplay widget = optionWidgets.get(position);
+		OptionView optionView = (OptionView) widget;
+		if (!optionView.isEnabled()) return;
 		
 		if (widget.isDown()) {
 			this.pageController.speak(this.selectedText, "");
@@ -291,6 +293,9 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		
 		IOptionDisplay option = optionWidgets.get(position);
 		
+		OptionView optionView = (OptionView) option;
+		if (!optionView.isEnabled()) return;
+		
 		if (!module.isMulti()) {
 			for (IOptionDisplay widget : optionWidgets) {
 				widget.setDown(false);
@@ -299,6 +304,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 		if (option != null) {
 			option.setDown(!option.isDown());
+			listener.onValueChange(option, !option.isDown());
 		}
 	}
 
