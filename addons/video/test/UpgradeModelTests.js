@@ -43,11 +43,27 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
             "Poster": "",
             ID : ""
         }],
-        "Show video": ""
+        "Show video": "",
+        'Show play button': 'False'
     };
 
     var upgradedModel = this.presenter.upgradeModel(this.model);
 
     assertEquals(expectedModel, upgradedModel);
     assertNotEquals(this.model, upgradedModel);
+};
+
+UpgradeModelTests.prototype.testUpgradeModelForShowPlayButtonShouldAddPropertyIfDoesNotExist = function () {
+    var upgradedModel = this.presenter.upgradeModel(this.model);
+
+    assertEquals('False', upgradedModel['Show play button']);
+};
+
+
+UpgradeModelTests.prototype.testUpgradeModelForShowPlayButtonShouldNotChangePropertyIsExists = function () {
+    this.model['Show play button'] = 'lorem ipsum dolor sit amet';
+
+    var upgradedModel = this.presenter.upgradeModel(this.model);
+
+    assertEquals('lorem ipsum dolor sit amet', upgradedModel['Show play button']);
 };

@@ -229,4 +229,25 @@ public class PlayerControllerMockup implements IPlayerController {
 		
 	}
 
+
+	@Override
+	public void enableKeyboardNavigation() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void disableKeyboardNavigation() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public String getPageStamp() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
