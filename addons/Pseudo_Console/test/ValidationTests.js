@@ -177,7 +177,14 @@ TestCase("[Pseudo_Console - validation tests] validate model", {
             "program": "program",
             "while": "dopoki",
             "or": "lub",
-            "and": "i"
+            "and": "i",
+            "if": "if",
+            "then": "then",
+            "else": "else",
+            "case": "case",
+            "option": "option",
+            "function": "function",
+            "return": "return"
         }
     },
 

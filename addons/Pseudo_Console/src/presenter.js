@@ -63,13 +63,13 @@ function AddonPseudo_Console_create() {
             }
         },
         "operators": [                  //Be sure, you added operators here to avoid problems with conflicts
+            ["left", "OR", "AND"],
+            ["left", "<=", ">=", "<", ">", "!=", "=="],
             ["left", "+", "-"],
             ["left", "*", "/", "/_", "%"],
             ["left", "(", ")"],
             ["left", "BRACKET"],
             ["left", "UMINUS"],
-            ["left", "<=", ">=", "<", ">", "!=", "=="],
-            ["left", "OR", "AND"],
             ["right", "IF", "ELSE", "THEN"],
             ["right", "CASE", "OPTION"]
         ],
@@ -103,7 +103,7 @@ function AddonPseudo_Console_create() {
 
             "function_arguments_list" : [
                 ["STATIC_VALUE", "$$ = [$1];"],
-                ["function_arguments_list STATIC_VALUE", "$$ = $1.push($2);"]
+                ["function_arguments_list COMMA STATIC_VALUE", "$1.push($3); $$ = $1;"]
             ],
 
             "program_name" : [
@@ -337,7 +337,7 @@ function AddonPseudo_Console_create() {
             function (variableDef, options) {
                 var i,
                     exitLabel = presenter.bnf.uid + "_case_end",
-                    execCode = [];
+                    execCode = [presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.case++;', '')];
 
                 execCode = execCode.concat(variableDef);    //On stack is variable value
 
@@ -396,7 +396,7 @@ function AddonPseudo_Console_create() {
         },
 
         assign_value_1: function (yy, variableName, operations) {
-            operations.push(presenter.generateExecuteObject('actualScope.' + variableName + '.value = stack.pop().value;', ''));
+            operations.push(presenter.generateExecuteObject('actualScope.' + variableName + ' = stack.pop();', ''));
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(variableName);
 
             return operations;
@@ -448,8 +448,7 @@ function AddonPseudo_Console_create() {
                 checkerLabel = yy.labelsStack.pop();
 
             execElements.push(presenter.generateJumpInstruction('true', checkerLabel));
-            execElements.push(presenter.generateExecuteObject('', exitLabel));
-
+            execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.for--', exitLabel));
             return execElements;
         },
 
@@ -459,9 +458,10 @@ function AddonPseudo_Console_create() {
          * @param  {Object[]} code
          */
         if_instruction: presenter.uidDecorator(function (expression, code) {
-            var executableCode = expression,
+            var executableCode = [presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.if++;')],
                 if_end = presenter.bnf.uid + "_end_if";
 
+            executableCode = executableCode.concat(expression);
             executableCode.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value);', if_end));
             executableCode = executableCode.concat(code);
             executableCode.push(presenter.generateExecuteObject('', if_end));
@@ -476,10 +476,11 @@ function AddonPseudo_Console_create() {
          * @param  {Object[]} elseCode
          */
         if_else_instruction: presenter.uidDecorator(function (expression, ifCode, elseCode) {
-            var executableCode = expression,
+            var executableCode = [presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.if++;')],
                 else_start = presenter.bnf.uid + "_else_if",
                 if_end = presenter.bnf.uid + "_end_if";
 
+            executableCode = executableCode.concat(expression);
             executableCode.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value);', else_start));
             executableCode = executableCode.concat(ifCode);
             executableCode.push(presenter.generateJumpInstruction('true', if_end));
@@ -509,7 +510,7 @@ function AddonPseudo_Console_create() {
                 execElements = [];
 
             execElements.push(presenter.generateJumpInstruction('true', startWhileLabel));
-            execElements.push(presenter.generateExecuteObject('', exitLabel));
+            execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.while--', exitLabel));
 
             return execElements;
         },
@@ -539,7 +540,7 @@ function AddonPseudo_Console_create() {
                 enterLabel = yy.labelsStack.pop();
 
             execElements = execElements.concat(expression);
-            execElements.push(presenter.generateJumpInstruction('!Boolean(stack.pop().value)', enterLabel));
+            execElements.push(presenter.generateJumpInstruction('Boolean(stack.pop().value)', enterLabel));
 
             return execElements;
         }
@@ -720,7 +721,9 @@ function AddonPseudo_Console_create() {
         calledInstructions: {
             for: 0,
             while: 0,
-            doWhile: 0
+            doWhile: 0,
+            if: 0,
+            case: 0
         }    //Object with calculated each built in instruction call e.g. for, while
     };
 
@@ -747,7 +750,14 @@ function AddonPseudo_Console_create() {
             "program": "program",
             "while": "while",
             "or": "or",
-            "and": "and"
+            "and": "and",
+            "if": "if",
+            "then": "then",
+            "else": "else",
+            "case": "case",
+            "option": "option",
+            "function": "function",
+            "return": "return"
         }
     };
 
@@ -835,7 +845,9 @@ function AddonPseudo_Console_create() {
             calledInstructions: {
                 for: 0,
                 while: 0,
-                doWhile: 0
+                doWhile: 0,
+                if: 0,
+                case: 0
             }
         };
         presenter.objectForInstructions.console = consoleMock || presenter.state.console;
@@ -866,23 +878,18 @@ function AddonPseudo_Console_create() {
 
     presenter.initialize = function (view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
-
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
-
         presenter.state.$view = $(view);
         presenter.state.view = view;
-
         if (!isPreview) {
             presenter.initializeConsole();
             presenter.initializeObjectForCode();
             presenter.initializeGrammar();
         }
-
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
-
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
@@ -910,8 +917,9 @@ function AddonPseudo_Console_create() {
         }
 
         presenter.state.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
-
-        presenter.state.console.destroy();
+        if (presenter.state.console) {
+            presenter.state.console.destroy();
+        }
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -1264,7 +1272,6 @@ function AddonPseudo_Console_create() {
                 }
             } catch (e) {
                 presenter.state.console.Write(e + "\n", 'program-error-output');
-                console.log(actualIndex);
                 pause();
             }
         }
@@ -1283,18 +1290,15 @@ function AddonPseudo_Console_create() {
 
         function executeCodeSyncWithMaxTime() {
             var actualTime;
-            console.log("MACHINE!");
             while (true) {
                 actualTime = new Date().getTime() / 1000;
                 if (actualTime - startTime > presenter.configuration.answer.maxTimeForAnswer.parsedValue) {
-                    console.log("KILL!");
                     killMachine();
                     return;
                 }
                 try {
                     isEnded = executeLine();
                     if (isEnded) {
-                        console.log(stack);
                         killMachine();
                         return;
                     } 
@@ -1713,7 +1717,7 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    presenter.validateModel = function (model) {
+    presenter.validateModel = function (model) {    //TODO: Jeżeli nie ma funkcji, to się coś wywala!
         var validatedAliases,
             validatedFunctions,
             validatedAnswer,
