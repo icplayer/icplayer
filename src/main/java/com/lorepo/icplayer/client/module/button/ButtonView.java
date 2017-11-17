@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.button;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -87,6 +88,15 @@ public class ButtonView extends Composite implements IDisplay, IWCAG {
 	@Override
 	public void hide() {
 		setVisible(false);
+	}
+	
+	public boolean isEnabled(){
+		Widget widget = this.getWidget();
+		if (widget instanceof FocusWidget) {
+			return ((FocusWidget) widget).isEnabled();
+		}
+		
+		return true;		
 	}
 	
 	@Override

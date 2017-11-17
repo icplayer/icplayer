@@ -1320,7 +1320,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	public boolean isSelectable (boolean isTextToSpeechOn) {
 		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		final boolean isWithGaps = view.getChildrenCount() > 0;
-		return (isTextToSpeechOn || isWithGaps) && isVisible;
+		final boolean isEnabled = !this.module.isDisabled();
+		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled;
 	}
 
 	@Override
