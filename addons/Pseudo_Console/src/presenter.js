@@ -564,7 +564,7 @@ function AddonPseudo_Console_create() {
     /**
      * @param  {Object[]} firstVal array with calculations first value
      * @param  {Object[]} secVal array with calculations second value
-     * @param  {('+'|'-'|'/'|'*'|'/_'|'%'|'<='|'>='|'<'|'>'|'!='|'--'|'OR'|'AND')} operationType 
+     * @param  {('+'|'-'|'/'|'*'|'/_'|'%'|'<='|'>='|'<'|'>'|'!='|'=='|'OR'|'AND')} operationType 
      * @param {("~~"|undefined)} [preOperation] operation which will be called on whole statetement. can be undefined
      * @return {Array[Object]}
      */
@@ -877,6 +877,8 @@ function AddonPseudo_Console_create() {
     };
 
     presenter.initialize = function (view, model, isPreview) {
+
+
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
