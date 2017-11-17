@@ -499,8 +499,8 @@ function AddonDouble_State_Button_create(){
         }
     };
 
-    presenter.keyboardController = function(keyCode) {
-        if (keyCode == 13) {
+    presenter.keyboardController = function(keyCode, isShift) {
+        if (keyCode == 13 || keyCode == 32) {
             presenter.clickHandler();
         }
     };
