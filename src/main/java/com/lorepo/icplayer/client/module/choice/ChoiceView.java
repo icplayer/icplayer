@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.RandomUtils;
+import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
@@ -273,7 +274,9 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			text = text + " " + this.deselectedText;
 		}
 		
-		this.pageController.speak(text, ""); // TODO add language from property
+		text = StringUtils.removeAllFormatting(text);
+		
+		this.pageController.speak(text, this.module.getLangAttribute()); // TODO add language from property
 	}
 	
 	private void textToSpeechSelectOption () {	
@@ -282,9 +285,9 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		if (!optionView.isEnabled()) return;
 		
 		if (widget.isDown()) {
-			this.pageController.speak(this.selectedText, "");
+			this.pageController.speak(this.selectedText, this.module.getLangAttribute());
 		} else {
-			this.pageController.speak(this.deselectedText, "");
+			this.pageController.speak(this.deselectedText, this.module.getLangAttribute());
 		}
 	}
 
