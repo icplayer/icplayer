@@ -103,7 +103,7 @@ function Addontext_identification_create(){
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeShouldSendEventsOnCommands(model);
-        upgradedModel = presenter.upgradeLangTag(upgradedModel);
+        upgradedModel = presenter.upgradeTTS(upgradedModel);
         return upgradedModel;
     };
 
@@ -118,15 +118,38 @@ function Addontext_identification_create(){
         return upgradedModel;
     };
 
-    presenter.upgradeLangTag = function (model) {
+    presenter.upgradeTTS = function (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
         if (model.langTag === undefined) {
-            upgradedModel["langAttribute"] = '';
+            upgradedModel['langAttribute'] = '';
         }
 
         return upgradedModel;
+    };
+
+    presenter.getSpeechTexts = function (model) {
+       var speechTexts = model['Speech texts'];
+       presenter.selectedSpeechText = '';
+       presenter.deselectedSpeechText = '';
+
+        if (speechTexts !== undefined && speechTexts !== '') {
+            for (var index = 0; index < speechTexts.length; index++) {
+                var text = speechTexts[index];
+                for (var key in text) {
+                    if (text.hasOwnProperty(key)) {
+                        if (text[key]['selected'] !== '' && text[key]['selected'] !== undefined) {
+                            presenter.selectedSpeechText = text[key]['selected'];
+                        }
+
+                        if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
+                            presenter.deselectedSpeechText = text[key]['deselected'];
+                        }
+                    }
+                }
+            }
+        }
     };
 
     presenter.validateModel = function (model) {
@@ -172,6 +195,7 @@ function Addontext_identification_create(){
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
 
+        presenter.getSpeechTexts(model);
         presenter.langTag = model['langAttribute'];
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
@@ -489,6 +513,7 @@ function Addontext_identification_create(){
 
     TextIdentificationKeyboardController.prototype.select = function (event) {
         presenter.clickHandler(event);
+        presenter.readSelectedElement();
     };
 
 
@@ -505,8 +530,9 @@ function Addontext_identification_create(){
     presenter.readSelectedElement = function () {
         var tts = this.keyboardControllerObject.getTextToSpeechOrNull(presenter.playerController);
         if (tts) {
-            var text = $('.text-identification-content').text().trim();
-
+            var text = presenter.$view.find('.text-identification-content').text().trim();
+            var isSelected = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+            text += ' ' + isSelected;
             tts.speak(text, presenter.langTag);
         }
     };
