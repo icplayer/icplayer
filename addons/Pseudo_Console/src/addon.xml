@@ -6,7 +6,7 @@
             <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             <property name="body" nameLabel="Pseudo_Console_property_functions_body" type="text" />
         </property>
-        <property nameLabel="Pseudo_Code_property_default_aliases" type="staticlist" isDefault="true">
+        <property name="default_aliases" nameLabel="Pseudo_Code_property_default_aliases" type="staticlist" isDefault="true">
             <property name="begin" displayName="Begin" type="staticrow">
                 <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>

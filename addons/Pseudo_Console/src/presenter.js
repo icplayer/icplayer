@@ -1763,7 +1763,7 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    presenter.validateModel = function (model) {    //TODO: Jeżeli nie ma funkcji, to się coś wywala!
+    presenter.validateModel = function (model) {
         var validatedAliases,
             validatedFunctions,
             validatedAnswer,
