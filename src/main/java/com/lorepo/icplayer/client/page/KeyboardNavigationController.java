@@ -501,7 +501,6 @@ public final class KeyboardNavigationController {
 	}
 	
 	private List<PresenterEntry> sortTextToSpeechModules (PageController main, PageController header, PageController footer) {
-		JavaScriptUtils.log("sortTextToSpeechModules start");
 		List<PresenterEntry> mainPresenters = this.generatePresenters(main, false);
 		List<PresenterEntry> headerPresenters = this.generatePresenters(header, true);
 		List<PresenterEntry> footerPresenters = this.generatePresenters(footer, true);
@@ -510,7 +509,7 @@ public final class KeyboardNavigationController {
 		List<PresenterEntry> currentPresenter = new ArrayList<PresenterEntry>();
 		
 		List<NavigationModuleIndentifier> TTSModules = new ArrayList<NavigationModuleIndentifier>();
-		if (main != null) {
+		if (main != null && main.isTextToSpeechModuleEnable()) {
 			TTSModules = main.getModulesOrder();
 		}
 		
@@ -533,7 +532,6 @@ public final class KeyboardNavigationController {
 				result.add(localPresenter);
 			}
 		}
-		JavaScriptUtils.log("sortTextToSpeechModules end");
 		
 		return result;
 	}

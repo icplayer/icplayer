@@ -223,7 +223,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		position++;
 		
 		if (position == optionWidgets.size()) {
-			position = position % optionWidgets.size();
+			position = position-1;
 		}
 
 		IOptionDisplay option = optionWidgets.get(position);
@@ -241,7 +241,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		position--;
 
 		if (position < 0) {
-			position = optionWidgets.size()-1;
+			position = position + 1;
 		}
 
 		IOptionDisplay option = optionWidgets.get(position);
@@ -268,30 +268,35 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		final boolean useDefaultOptionValues = this.optionsVoices.isEmpty() || (this.optionsVoices.size() != module.getOptionCount());
 		String text = useDefaultOptionValues ? widget.getModel().getText() : this.optionsVoices.get(position);
 		
-		if (widget.isDown()) {
-			text = text + " " + this.selectedText;
-		} else {
-			text = text + " " + this.deselectedText;
-		}
-		
 		text = StringUtils.removeAllFormatting(text);
 		
-		this.pageController.speak(text, this.module.getLangAttribute()); // TODO add language from property
+		this.pageController.speak(text, this.module.getLangAttribute());
+		if (widget.isDown()) {
+			this.pageController.speak(this.selectedText, "");
+		} else {
+			this.pageController.speak(this.deselectedText, "");
+		}
 	}
-	
+
 	private void textToSpeechSelectOption () {	
 		IOptionDisplay widget = optionWidgets.get(position);
 		OptionView optionView = (OptionView) widget;
 		if (!optionView.isEnabled()) return;
 		
 		if (widget.isDown()) {
-			this.pageController.speak(this.selectedText, this.module.getLangAttribute());
+			this.pageController.speak(this.selectedText,"");
 		} else {
-			this.pageController.speak(this.deselectedText, this.module.getLangAttribute());
+			this.pageController.speak(this.deselectedText, "");
 		}
 	}
 
+	public static native void blurFocusedElements() /*-{
+	  $wnd.$(':focus').blur();
+	}-*/;
+	
 	private void select() {
+		blurFocusedElements();
+		
 		if (position < 0) return;
 		
 		IOptionDisplay option = optionWidgets.get(position);
@@ -301,7 +306,9 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		
 		if (!module.isMulti()) {
 			for (IOptionDisplay widget : optionWidgets) {
-				widget.setDown(false);
+				if(option != widget) {
+					widget.setDown(false);
+				}
 			}
 		}
 
@@ -359,11 +366,15 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	@Override
 	public void left() {
+	    previous();
+		textToSpeechCurrentOption();
 	}
 
 
 	@Override
 	public void right() {
+        skip();
+        textToSpeechCurrentOption();
 	}
 
 
