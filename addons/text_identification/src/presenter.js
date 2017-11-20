@@ -56,7 +56,7 @@ function Addontext_identification_create(){
         }
         if (presenter.configuration.isErrorCheckMode) return;
         presenter.configuration.isSelected = !presenter.configuration.isSelected;
-        presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.MOUSE_HOVER_SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
         presenter.executeUserEventCode();
         presenter.triggerSelectionChangeEvent();
         if (presenter.isAllOK()) sendAllOKEvent();
