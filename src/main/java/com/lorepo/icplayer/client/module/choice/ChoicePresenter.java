@@ -657,6 +657,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		return isVisible;
+		boolean isEnabled = !this.module.isDisabled();
+		return (isVisible || isTextToSpeechOn) && isEnabled;
 	}
 }
