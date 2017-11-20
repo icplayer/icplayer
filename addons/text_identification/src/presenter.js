@@ -504,7 +504,7 @@ function Addontext_identification_create(){
     TextIdentificationKeyboardController.prototype.enter = function (event) {
         KeyboardController.prototype.enter.call(this, event);
 
-        presenter.readSelectedElement();
+        presenter.readElement();
     };
 
     TextIdentificationKeyboardController.prototype.getTarget = function (element, willBeClicked) {
@@ -513,7 +513,8 @@ function Addontext_identification_create(){
 
     TextIdentificationKeyboardController.prototype.select = function (event) {
         presenter.clickHandler(event);
-        presenter.readSelectedElement();
+
+        presenter.readElement();
     };
 
 
@@ -527,7 +528,7 @@ function Addontext_identification_create(){
         presenter.keyboardControllerObject = new TextIdentificationKeyboardController(element, 1);
     };
 
-    presenter.readSelectedElement = function () {
+    presenter.readElement = function () {
         var tts = this.keyboardControllerObject.getTextToSpeechOrNull(presenter.playerController);
         if (tts) {
             var text = presenter.$view.find('.text-identification-content').text().trim();
