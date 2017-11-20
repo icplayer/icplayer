@@ -1142,7 +1142,7 @@ function AddonPseudo_Console_create() {
 
     /**
      * @param  {{defined: String[], args: String[], vars:String [], fn: String[]}} functionData
-     * @param  {Stirng} functionName
+     * @param  {String} functionName
      */
     presenter.undefinedUsageForFunctionChecker = function (functionData, functionName) {
         var usedVariableName = "",
@@ -1339,8 +1339,7 @@ function AddonPseudo_Console_create() {
         "TEXT_AREA": "pseudoConsole-console-textarea"
     };
 
-    function userConsole($element) {
-        this.ownerElement = $element;
+    function UserConsole($element) {
         this.container = $("<pre></pre>");
         this.$textArea = $("<textarea class='pseudoConsole-console-textarea'></textarea>");
         this.linesContainer = $("<div class='" + consoleClasses.LINES_CONTAINER + "'></div>");
@@ -1358,7 +1357,7 @@ function AddonPseudo_Console_create() {
         this.addNewLine(true);
     }
 
-    userConsole.prototype = {
+    UserConsole.prototype = {
         generateLine: function (className) {
             if (!className) {
                 className = '';
@@ -1384,7 +1383,7 @@ function AddonPseudo_Console_create() {
         },
 
         /**
-         * @param  {String} isActive Activate this line automatically
+         * @param  {Boolean} isActive Activate this line automatically
          * @param  {String} [className] set class for that line
          */
         addNewLine: function (isActive, className) {
@@ -1621,7 +1620,7 @@ function AddonPseudo_Console_create() {
         }
     };
 
-    presenter.console = userConsole;
+    presenter.console = UserConsole;
     // ---------------------------------- VALIDATION SECTION ---------------------------------
     function generateValidationError(errorCode) {
         return {
