@@ -122,7 +122,7 @@ function Addontext_identification_create(){
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (model.langTag === undefined) {
+        if (model['langAttribute'] === undefined) {
             upgradedModel['langAttribute'] = '';
         }
 
@@ -131,8 +131,8 @@ function Addontext_identification_create(){
 
     presenter.getSpeechTexts = function (model) {
        var speechTexts = model['Speech texts'];
-       presenter.selectedSpeechText = '';
-       presenter.deselectedSpeechText = '';
+       presenter.selectedSpeechText = 'selected';
+       presenter.deselectedSpeechText = 'deselected';
 
         if (speechTexts !== undefined && speechTexts !== '') {
             for (var index = 0; index < speechTexts.length; index++) {
@@ -532,9 +532,10 @@ function Addontext_identification_create(){
         var tts = this.keyboardControllerObject.getTextToSpeechOrNull(presenter.playerController);
         if (tts) {
             var text = presenter.$view.find('.text-identification-content').text().trim();
-            var isSelected = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
-            text += ' ' + isSelected;
             tts.speak(text, presenter.langTag);
+
+            var isSelected = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+            tts.speak(isSelected);
         }
     };
 
