@@ -2,70 +2,70 @@
 
 <addon id='Pseudo_Console' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-        <property name="functionsList" displayName="Functions List" nameLabel="Pseudo_Console_property_functions_list" type="list">
-            <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
-            <property name="body" displayName="Function Body" nameLabel="Pseudo_Console_property_functions_body" type="text" />
+        <property name="functionsList" nameLabel="Pseudo_Console_property_functions_list" type="list">
+            <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            <property name="body" nameLabel="Pseudo_Console_property_functions_body" type="text" />
         </property>
-        <property name="default_aliases" nameLabel="Pseudo_Code_property_default_aliases" type="staticlist" isDefault="true">
+        <property nameLabel="Pseudo_Code_property_default_aliases" type="staticlist" isDefault="true">
             <property name="begin" displayName="Begin" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="end" displayName="End" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="variable" displayName="Variable" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="for" displayName="For" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="while" displayName="While" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="from" displayName="From" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="to" displayName="To" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="do" displayName="Do" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="program" displayName="Program" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="or" displayName="Or" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="and" displayName="And" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="if" displayName="If" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="then" displayName="Then" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="else" displayName="Else" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="case" displayName="Case" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="option" displayName="Option" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="function" displayName="Function" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
             <property name="return" displayName="Return" type="staticrow">
-                <property name="name" displayName="Name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             </property>
         </property>
         <property name="isNotActivity" nameLabel="Pseudo_Console_property_is_not_activity" type="boolean" />
         <property name="runUserCode" nameLabel="Pseudo_Console_property_run_user_code" type="boolean" />
         <property name="runParameters" nameLabel="Pseudo_Console_property_run_parameters" type="list">
-            <property name="value" displayName="Value" nameLabel="Pseudo_Console_property_parameters_value" type="string" />
+            <property name="value" nameLabel="Pseudo_Console_property_parameters_value" type="string" />
         </property>
         <property name="maxTimeForAnswer" nameLabel="Pseudo_Console_property_answer_max_timeout" type="string" />
         <property name="answerCode" nameLabel="Pseudo_Console_property_answer_code" type="text" />

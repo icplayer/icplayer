@@ -7,7 +7,8 @@ TestCase("[Pseudo_Console - state tests] set state", {
         }
         
         this.exampleState = {
-            isVisible: "xD"
+            isVisible: "xD",
+            score: 1
         };
     },
 
@@ -25,5 +26,21 @@ TestCase("[Pseudo_Console - state tests] set state", {
         this.presenter.setState(json);
 
         assertEquals("xD", this.presenter.state.isVisible);
-    }
+    },
+
+    'test addon recover last score': function () {
+        var json = JSON.stringify(this.exampleState);
+
+        this.presenter.setState(json);
+
+        assertEquals(1, this.presenter.state.lastScore);
+    },
+
+    'test addon save last score to state': function () {
+        this.presenter.state.lastScore = 1;
+
+        var state = JSON.parse(this.presenter.getState());
+
+        assertEquals(1, state.score);
+    },
 });

@@ -900,17 +900,33 @@ function AddonPseudo_Console_create() {
         presenter.killAllMachines();
     };
 
-    presenter.executeCommand = function (name, params) {
-        if (presenter.isErrorCheckingMode) {
-            return;
+    presenter.onEventReceived = function (eventName) {
+        if (eventName === "ShowAnswers") {
+            presenter.showAnswers();
         }
 
+        if (eventName === "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.executeCommand = function (name, params) {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'stop': presenter.stop
+            'stop': presenter.stop,
+            'showAnswers' : presenter.showAnswers,
+            'hideAnswers' : presenter.hideAnswers
         };
         Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.showAnswers = function () {
+        presenter.state.console.disable();
+    };
+
+    presenter.hideAnswers = function () {
+        presenter.state.console.enable();
     };
 
     presenter.destroy = function (event) {
@@ -940,24 +956,31 @@ function AddonPseudo_Console_create() {
     };
 
     presenter.reset = function () {
+        presenter.killAllMachines();
+        presenter.state.console.Reset();
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.state.console.enable();
     };
 
     presenter.setShowErrorsMode = function () {
+        presenter.state.console.disable();
     };
 
     presenter.setWorkMode = function () {
+        presenter.state.console.enable();
     };
 
     presenter.setState = function (stateString) {
         var state = JSON.parse(stateString);
 
         presenter.setVisibility(state.isVisible);
+        presenter.state.lastScore = state.score;
     };
 
     presenter.getState = function () {
         var state = {
-            isVisible: presenter.state.isVisible
+            isVisible: presenter.state.isVisible,
+            score: presenter.state.lastScore
         };
 
         return JSON.stringify(state);
@@ -1072,22 +1095,10 @@ function AddonPseudo_Console_create() {
 
     presenter.getErrorCount = function () {
         if (presenter.configuration.isActivity) {
-            return 0;
+            return 1 - presenter.getScore();
         }
 
         return 0;
-    };
-
-    presenter.executeCommand = function (name, params) {
-        if (presenter.isErrorCheckingMode) {
-            return;
-        }
-
-        var commands = {
-            'show': presenter.show,
-            'hide': presenter.hide
-        };
-        Commands.dispatch(commands, name, params, presenter);
     };
 
     presenter.getExcludedNames = function () {
@@ -1337,6 +1348,7 @@ function AddonPseudo_Console_create() {
         this.lines = [];
         this.activeLineIndex = -1;
         this.isReadMode = false;    //Console is waiting for user input
+        this.isDisabled = false;
 
         $element.append(this.container);
         $element.append(this.$textArea);
@@ -1418,6 +1430,8 @@ function AddonPseudo_Console_create() {
                 return;
             }
 
+            text = String(text);
+
             this.addNewLine(true, className);
 
             var lines = text.split('\n'),
@@ -1466,13 +1480,18 @@ function AddonPseudo_Console_create() {
                 leftText,
                 rightText,
                 keycode,
-                actualTextAreaIndex = textAreaElement.val().length;
+                actualTextAreaIndex = textAreaElement.val().length,
+                self = this;
 
             $(parentElement).on('click', function () {
                 textAreaElement.off();
                 textAreaElement.focus();
 
                 textAreaElement.on('input', function () {
+                    if (self.isDisabled) {
+                        return;
+                    }
+
                     data = textAreaElement.val();
                     leftText = activeLine.elements.$left.text();
                     rightText = activeLine.elements.$right.text();
@@ -1491,6 +1510,10 @@ function AddonPseudo_Console_create() {
                 });
 
                 textAreaElement.on('keydown', function (event) {
+                    if (self.isDisabled) {
+                        return;
+                    }
+
                     keycode = event.which || event.keycode;
                     data = textAreaElement.val();
                     leftText = activeLine.elements.$left.text();
@@ -1543,25 +1566,31 @@ function AddonPseudo_Console_create() {
                 textAreaElement = this.$textArea,
                 parentElement = this.$parentElement,
                 data,
-                leftText;
+                leftText,
+                self = this;
 
             $(parentElement).on('click', function () {
                 textAreaElement.off();
                 textAreaElement.focus();
 
                 textAreaElement.on('input', function () {
+                    if (self.isDisabled) {
+                        return;
+                    }
+
                     leftText = activeLine.elements.$left.text();
                     data = textAreaElement.val();
                     if (data[data.length - 1] !== "\n") {
                         activeLine.elements.$left.text(leftText + data[data.length - 1]);
                         $(parentElement).off();
                         textAreaElement.off();
-
+                        self.isReadMode = false;
                         callback(data[data.length - 1]);
                     }
                 });
             });
 
+            $(parentElement).click();
         },
 
         Reset: function () {
@@ -1579,8 +1608,16 @@ function AddonPseudo_Console_create() {
             this.addNewLine(true);
         },
 
-        destory: function () {
+        destroy: function () {
             this.Reset();
+        },
+
+        disable: function () {
+            this.isDisabled = true;
+        },
+
+        enable: function () {
+            this.isDisabled = false;
         }
     };
 
@@ -1594,6 +1631,10 @@ function AddonPseudo_Console_create() {
     }
 
     presenter.validateFunction = function (functionToValidate) {
+        if (!/[A-Za-z_][a-zA-Z0-9_]*/g.exec(functionToValidate.name)) {
+            return generateValidationError("FN01");
+        }
+
         if (/[A-Za-z_][a-zA-Z0-9_]*/g.exec(functionToValidate.name)[0] !== functionToValidate.name) {
             return generateValidationError("FN01");
         }
@@ -1613,6 +1654,10 @@ function AddonPseudo_Console_create() {
             validatedFunction;
 
         for (i = 0; i < functions.length; i += 1) {
+            if (functions[i].name.trim().length === 0) {
+                continue;
+            }
+
             validatedFunction = presenter.validateFunction(functions[i]);
             if (!validatedFunction.isValid) {
                 return validatedFunction;
