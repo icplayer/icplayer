@@ -131,8 +131,10 @@ function Addontext_identification_create(){
 
     presenter.getSpeechTexts = function (model) {
        var speechTexts = model['Speech texts'];
-       presenter.selectedSpeechText = 'selected';
-       presenter.deselectedSpeechText = 'deselected';
+       presenter.selectedSpeechText = 'Selected';
+       presenter.deselectedSpeechText = 'Deselected';
+       presenter.correctSpeechText = "Correct";
+       presenter.incorrectSpeechText = "Incorrect";
 
         if (speechTexts !== undefined && speechTexts !== '') {
             for (var index = 0; index < speechTexts.length; index++) {
@@ -145,6 +147,14 @@ function Addontext_identification_create(){
 
                         if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
                             presenter.deselectedSpeechText = text[key]['deselected'];
+                        }
+
+                        if (!ModelValidationUtils.isArrayElementEmpty(text[key]['correct'])) {
+                            presenter.correctSpeechText = text[key]['correct'];
+                        }
+
+                        if (!ModelValidationUtils.isArrayElementEmpty(text[key]['incorrect'])) {
+                            presenter.correctSpeechText = text[key]['incorrect'];
                         }
                     }
                 }
@@ -531,11 +541,23 @@ function Addontext_identification_create(){
     presenter.readElement = function () {
         var tts = this.keyboardControllerObject.getTextToSpeechOrNull(presenter.playerController);
         if (tts) {
-            var text = presenter.$view.find('.text-identification-content').text().trim();
+            var isSelected, text;
+
+            text = presenter.$view.find('.text-identification-content').text().trim();
             tts.speak(text, presenter.langTag);
 
-            var isSelected = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+            if (presenter.isShowAnswersActive) {
+                isSelected = presenter.configuration.shouldBeSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+            }
+            else {
+                isSelected = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+            }
             tts.speak(isSelected);
+
+            if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode) {
+                var isAnswerCorrect = presenter.configuration.isSelected == presenter.configuration.shouldBeSelected;
+                tts.speak(isAnswerCorrect ? "Correct" : "Incorrect");
+            }
         }
     };
 

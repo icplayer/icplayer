@@ -15,6 +15,13 @@
 			<property name="Deselected" displayName="deselected" type="staticrow">
                 <property name="deselected" nameLabel="Text_identification_property_deselected" type="string"/>
             </property>
+			<property name="Correct" displayName="selected" type="staticrow">
+                <property name="correct" nameLabel="Text_identification_property_correct" type="string"/>
+            </property>
+			<property name="Incorrect" displayName="deselected" type="staticrow">
+                <property name="incorrect" nameLabel="Text_identification_property_incorrect" type="string"/>
+            </property>
+
 		</property>
 		<property name="langAttribute" displayName="Lang attribute" nameLabel="Text_identification_property_lang_attribute" type="string" />
 	</model>
