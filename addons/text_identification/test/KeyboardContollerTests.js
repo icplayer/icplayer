@@ -60,8 +60,10 @@ TestCase("[Text Identification] Keyboard controller tests", {
         $(document).trigger('keydown', enterKeycode);
 
         var readText = this.tts.speak.getCall(0).args[0];
+        var readSelected = this.tts.speak.getCall(1).args[0];
 
-        assertEquals('Text selected', readText);
+        assertEquals('Text', readText);
+        assertEquals('selected', readSelected);
     },
 
 
