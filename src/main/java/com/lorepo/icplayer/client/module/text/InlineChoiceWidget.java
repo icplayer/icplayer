@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 
 
 public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
@@ -47,7 +48,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 					}
 					listener.onValueChanged(choiceInfo.getId(), value);
 					
-					getPageController().speak(value, langTag);
+					getPageController().speak(value, langTag, new ResponsiveVoiceOnEndCallback());
 				}
 			});
 

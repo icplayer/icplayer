@@ -13,6 +13,7 @@ import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.image.ImageModule.DisplayMode;
 import com.lorepo.icplayer.client.module.image.ImagePresenter.IDisplay;
 import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 
 
@@ -228,7 +229,7 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 	private void speak (String text) {
 		JavaScriptUtils.log(this.pageController);
 		if (this.pageController != null) {
-			this.pageController.speak(text, "");
+			this.pageController.speak(text, "", new ResponsiveVoiceOnEndCallback());
 		}
 	}
 }

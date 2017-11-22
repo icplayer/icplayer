@@ -213,11 +213,15 @@ function AddonText_To_Speech_create() {
         return presenter.configuration.voices[0];
     }
 
-    presenter.speak = function (text, langTag) {
+    presenter.speak = function (text, langTag, callback) {
         text = parseGaps(text); // TODO przeniesc operację do playera/Text
 
         if (text) {
-            window.responsiveVoice.speak(text, getResponsiveVoiceLanguage(langTag));
+            if (callback && callback.text) {
+                window.responsiveVoice.speak(text, getResponsiveVoiceLanguage(langTag), {onend: function(){window.responsiveVoice.speak(callback.text, getResponsiveVoiceLanguage(callback.lang))}});
+            } else {
+                window.responsiveVoice.speak(text, getResponsiveVoiceLanguage(langTag));
+            }
         }
     };
 
@@ -235,6 +239,7 @@ function AddonText_To_Speech_create() {
     //
     //     window.responsiveVoice.speak(text, languageCode);
     // };
+
 
     // synthesis API with language from property
     // presenter.speak = function (text) {

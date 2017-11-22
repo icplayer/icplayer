@@ -53,6 +53,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		public int[] getOryginalOrder();
 		public void setVisibleVal(boolean val);
 		public void getOrderedOptions();
+		void isShowErrorsMode(boolean isShowErrorsMode);
 	}
 	
 	private IDisplay view;
@@ -188,7 +189,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 				}
 			}
 		}
-	
+
+		view.isShowErrorsMode(true);
 		view.setEnabled(false);
 	}	
 	
@@ -204,6 +206,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			}
 		}
 			
+		view.isShowErrorsMode(false);
 		view.setEnabled(!isDisabled);
 	}	
 	
