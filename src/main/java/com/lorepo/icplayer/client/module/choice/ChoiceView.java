@@ -455,10 +455,4 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	public String getLang() {
 		return null;
 	}
-	
-	@Override
-	public String getLang() {
-		return null;
-	}
-
 }
