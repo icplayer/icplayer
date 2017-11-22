@@ -141,6 +141,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		this.isShowAnswersActive = true;
 
 		clearStylesAndSelection();
+		view.isShowErrorsMode(false);
 		view.setEnabled(false);
 		
 		for(IOptionDisplay optionView : view.getOptions()){
