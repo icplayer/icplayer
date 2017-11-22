@@ -20,6 +20,7 @@ import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 import com.lorepo.icplayer.client.utils.MathJax;
 
 
@@ -424,7 +425,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			}
 			
 			if (this.pageController != null) {
-				this.pageController.speak(getContentWithGapsValues(), this.module.getLangAttribute());
+				this.pageController.speak(getContentWithGapsValues(), this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback());
 			}
 		}
 	}

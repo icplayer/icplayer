@@ -13,13 +13,16 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.RandomUtils;
+import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG {
+public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG, IWCAGModuleView {
 
 	private ChoiceModel module;
 	private VerticalPanel optionsPanel;
@@ -30,6 +33,13 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private int[] order;
 	private PageController pageController;
 	private List<String> optionsVoices;
+	private String selectedText = "selected";
+	private String deselectedText = "deselected";
+	private String correctText = "correct";
+	private String incorrectText = "incorrect";
+	private boolean isEnabled = true;
+	private boolean isWCAGOn = false;
+	private boolean isShowErrorsMode = false;
 
 	private int position = -1;
 	
@@ -95,6 +105,24 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		getElement().setId(module.getId());
 		if(module.isDisabled()){
 			setEnabled(false);
+		}
+		
+		getElement().setAttribute("lang", this.module.getLangAttribute());
+		
+		if(this.module.getSpeechTextItem(0) != "") {
+			this.selectedText = this.module.getSpeechTextItem(0);
+		}
+		
+		if(this.module.getSpeechTextItem(1) != "") {
+			this.deselectedText = this.module.getSpeechTextItem(1);
+		}
+		
+		if(this.module.getSpeechTextItem(2) != "") {
+			this.correctText = this.module.getSpeechTextItem(2);
+		}
+		
+		if(this.module.getSpeechTextItem(3) != "") {
+			this.incorrectText = this.module.getSpeechTextItem(3);
 		}
 	}
 	    
@@ -162,7 +190,6 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	@Override
 	public void onValueChange(ValueChangeEvent<Boolean> event) {
-
 		if (listener != null) {
 			listener.onValueChange((IOptionDisplay) event.getSource(), event.getValue());
 		}
@@ -176,6 +203,11 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			OptionView widget = (OptionView) optionView;
 			widget.setEnabled(b);
 		}
+	}
+	
+	@Override
+	public void isShowErrorsMode(boolean isShowErrorsMode) {
+		this.isShowErrorsMode = isShowErrorsMode;
 	}
 
 	@Override
@@ -210,7 +242,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		position++;
 		
 		if (position == optionWidgets.size()) {
-			position = position % optionWidgets.size();
+			position = position-1;
 		}
 
 		IOptionDisplay option = optionWidgets.get(position);
@@ -228,7 +260,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		position--;
 
 		if (position < 0) {
-			position = optionWidgets.size()-1;
+			position = position + 1;
 		}
 
 		IOptionDisplay option = optionWidgets.get(position);
@@ -249,29 +281,81 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	public void setTextToSpeechVoices (List<String> optionsVoices) {
 		this.optionsVoices = optionsVoices;
 	}
-
+	
 	private void textToSpeechCurrentOption () {
+		IOptionDisplay widget = optionWidgets.get(position);
+		ChoiceOption option = widget.getModel();
 		final boolean useDefaultOptionValues = this.optionsVoices.isEmpty() || (this.optionsVoices.size() != module.getOptionCount());
-		final String text = useDefaultOptionValues ? module.getOption(position).getText() : this.optionsVoices.get(position);
-		this.pageController.speak(text, ""); // TODO add language from property
+		String text = useDefaultOptionValues ? widget.getModel().getText() : this.optionsVoices.get(position);
+		String checkText = "";
+		
+		text = StringUtils.removeAllFormatting(text);
+		
+		if (this.pageController != null) {
+			if (widget.isDown()) {
+				if(this.isShowErrorsMode) {
+					if(option.getValue() > 0){
+						checkText = this.correctText;
+					} else{
+						checkText = this.incorrectText;
+					}					
+					this.pageController.speak(text, this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback(this.selectedText + " " + checkText, ""));
+				} else {
+					this.pageController.speak(text, this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback(this.selectedText, ""));
+				}
+			} else {
+				this.pageController.speak(text, this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback(this.deselectedText, ""));
+			}
+		}
 	}
 
+	private void textToSpeechSelectOption () {	
+		IOptionDisplay widget = optionWidgets.get(position);
+		OptionView optionView = (OptionView) widget;
+		if (!optionView.isEnabled()) return;
+		
+		if (this.pageController != null) {
+			if (widget.isDown()) {
+				this.pageController.speak(this.selectedText,"", new ResponsiveVoiceOnEndCallback());
+			} else {
+				this.pageController.speak(this.deselectedText, "", new ResponsiveVoiceOnEndCallback());
+			}
+		}
+	}
+
+	public static native void blurFocusedElements() /*-{
+	  $wnd.$(':focus').blur();
+	}-*/;
+	
 	private void select() {
+		blurFocusedElements();
+		
 		if (position < 0) return;
 		
 		IOptionDisplay option = optionWidgets.get(position);
 		
+		OptionView optionView = (OptionView) option;
+		if (!optionView.isEnabled()) return;
+		
 		if (!module.isMulti()) {
 			for (IOptionDisplay widget : optionWidgets) {
-				widget.setDown(false);
+				if(option != widget) {
+					widget.setDown(false);
+				}
 			}
 		}
 
 		if (option != null) {
 			option.setDown(!option.isDown());
+			listener.onValueChange(option, !option.isDown());
 		}
 	}
 
+	@Override
+	public void setWCAGStatus (boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;
+	}
+	
 	private void addBorder() {
 		if (position < 0) {
 			position = 0;
@@ -307,6 +391,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	@Override
 	public void space() {
 		select();
+		textToSpeechSelectOption();
 	}
 
 
@@ -319,11 +404,15 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	@Override
 	public void left() {
+	    previous();
+		textToSpeechCurrentOption();
 	}
 
 
 	@Override
 	public void right() {
+        skip();
+        textToSpeechCurrentOption();
 	}
 
 
@@ -358,6 +447,11 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	
 	@Override
 	public void shiftTab() {
+	}
+	
+	@Override
+	public String getLang() {
+		return null;
 	}
 
 }
