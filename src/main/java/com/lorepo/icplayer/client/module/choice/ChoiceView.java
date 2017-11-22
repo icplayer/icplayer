@@ -447,6 +447,13 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	
 	@Override
 	public void shiftTab() {
+	    previous();
+		textToSpeechCurrentOption();
+	}
+	
+	@Override
+	public String getLang() {
+		return null;
 	}
 	
 	@Override
