@@ -100,6 +100,8 @@ public class ChoiceModel extends BasicModuleModel{
 			langAttribute = XMLUtils.getAttributeAsString(choice, "langAttribute");
 			this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(choice, "selected"));
 			this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(choice, "deselected"));
+			this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(choice, "correct"));
+			this.speechTextItems.get(3).setText(XMLUtils.getAttributeAsString(choice, "incorrect"));
 		}
 		
 		// Read options nodes
@@ -147,6 +149,8 @@ public class ChoiceModel extends BasicModuleModel{
 				"langAttribute='" + langAttribute +  "' " +
 				"selected='" + this.speechTextItems.get(0).getText() +  "' " +
 				"deselected='" + this.speechTextItems.get(1).getText() +  "' " +
+				"correct='" + this.speechTextItems.get(2).getText() +  "' " +
+				"incorrect='" + this.speechTextItems.get(3).getText() +  "' " +
 				" />";
 		xml += "<options>";
 		for(ChoiceOption option : options){
@@ -577,6 +581,8 @@ public class ChoiceModel extends BasicModuleModel{
 			public void addChildren(int count) {
 				speechTextItems.add(new SpeechTextsStaticListItem("selected"));
 				speechTextItems.add(new SpeechTextsStaticListItem("deselected"));
+				speechTextItems.add(new SpeechTextsStaticListItem("correct"));
+				speechTextItems.add(new SpeechTextsStaticListItem("incorrect"));
 			}
 
 			@Override

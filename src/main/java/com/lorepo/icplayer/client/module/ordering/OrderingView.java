@@ -28,6 +28,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
 import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 import com.lorepo.icplayer.client.utils.MathJax;
 
 
@@ -819,7 +820,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	
 	private void speak (String text) {
 		if (this.pageController != null) {
-			this.pageController.speak(text, "");
+			this.pageController.speak(text, "", new ResponsiveVoiceOnEndCallback());
 		}
 	}
 
