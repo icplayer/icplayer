@@ -20,6 +20,8 @@ function AddonTrueFalse_create() {
     var tts;
     var selectedSpeechText = "selected";
     var deselectedSpeechText = "deselected";
+    var correctSpeechText = "correct";
+    var incorrectSpeechText = "incorrect";
 
     var QUESTION_AND_CHOICES_REQUIRED = "At least 1 question and 2 choices are required.";
     var INDEX_OUT_OF_RANGE = "Index is out of range.";
@@ -314,11 +316,11 @@ function AddonTrueFalse_create() {
     var makeView = function (view, model, preview) {
         possibleChoices = model['Choices'];
         questions = model['Questions'];
-        var langAttribute = model['Lang attribute'];
+        presenter.langAttribute = model['Lang attribute'];
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
-        presenter.$view.attr('lang', langAttribute);
+        presenter.$view.attr('lang', presenter.langAttribute);
 
         getSpeechTexts(model);
 
@@ -699,6 +701,7 @@ function AddonTrueFalse_create() {
 
         presenter.isShowAnswersActive = true;
         presenter.currentState = getSelectedElements();
+        presenter.isErrorMode = false;
         workMode(true);
 
         for (var i = 1; i < questions.length + 1; i++) {
@@ -773,22 +776,33 @@ function AddonTrueFalse_create() {
                 return;
             }
 
-            if(readSelection) {
+            // if(readSelection) {
                 if ($active.parent().hasClass('down')) {
-                    text = choice + ' ' + selectedSpeechText;
+                    // text = choice + ' ' + selectedSpeechText;
+                    if(presenter.isErrorMode) {
+                        if($active.parent().hasClass('correct')) {
+                            tts.speak(choice, presenter.langAttribute, {'text': selectedSpeechText + " " + correctSpeechText, 'lang': ''});
+                        }
+                        if($active.parent().hasClass('wrong')) {
+                            tts.speak(choice, presenter.langAttribute, {'text': selectedSpeechText + " " + incorrectSpeechText, 'lang': ''});
+                        }
+                    } else {
+                        tts.speak(choice, presenter.langAttribute, {'text': selectedSpeechText, 'lang': ''});
+                    }
                 } else {
-                    text = choice + ' ' + deselectedSpeechText;
+                    // text = choice + ' ' + deselectedSpeechText;
+                    tts.speak(choice, presenter.langAttribute, {'text': deselectedSpeechText, 'lang': ''});
                 }
-            } else {
-                text = choice;
-                if ($active.parent().hasClass('down')) {
-                    text += ' ' + selectedSpeechText;
-                } else {
-                    text += ' ' + deselectedSpeechText;
-                }
-            }
-
-            tts.speak(text);
+            // } else {
+            //     text = choice;
+            //     if ($active.parent().hasClass('down')) {
+            //         // text += ' ' + selectedSpeechText;
+            //         tts.speak(selectedSpeechText)
+            //     } else {
+            //         // text += ' ' + deselectedSpeechText;
+            //         tts.speak(deselectedSpeechText)//TODO prawdopodobnie nadmiarowy caly if else readSelection
+            //     }
+            // }
         }
     }
 
