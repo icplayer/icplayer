@@ -26,10 +26,17 @@ public class TextToSpeechAPI {
 		}
 	}-*/;
 	
-	public static native void speak (JavaScriptObject obj, String text, String langTag) /*-{
+	public static void speak (JavaScriptObject obj, String text, String langTag, ResponsiveVoiceOnEndCallback callback) {
+		nativeSpeak(obj, text, langTag, callback.getText(), callback.getLang());
+	}
+	
+	public static native void nativeSpeak(JavaScriptObject obj, String text, String langTag, String callbackText, String callbackLangTag)  /*-{
 		try {
 			if (obj && obj.speak) {
-				obj.speak(text, langTag);
+				obj.speak(text, langTag, {
+					text: callbackText,
+					lang: callbackLangTag
+				});
 			}
 		} catch(err) {
 			alert("[TextToSpeech1] Exception in speak(): \n" + err);

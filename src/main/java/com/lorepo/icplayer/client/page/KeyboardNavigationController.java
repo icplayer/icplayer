@@ -501,7 +501,6 @@ public final class KeyboardNavigationController {
 	}
 	
 	private List<PresenterEntry> sortTextToSpeechModules (PageController main, PageController header, PageController footer) {
-		JavaScriptUtils.log("sortTextToSpeechModules start");
 		List<PresenterEntry> mainPresenters = this.generatePresenters(main, false);
 		List<PresenterEntry> headerPresenters = this.generatePresenters(header, true);
 		List<PresenterEntry> footerPresenters = this.generatePresenters(footer, true);
@@ -510,7 +509,7 @@ public final class KeyboardNavigationController {
 		List<PresenterEntry> currentPresenter = new ArrayList<PresenterEntry>();
 		
 		List<NavigationModuleIndentifier> TTSModules = new ArrayList<NavigationModuleIndentifier>();
-		if (main != null) {
+		if (main != null && main.isTextToSpeechModuleEnable()) {
 			TTSModules = main.getModulesOrder();
 		}
 		
@@ -533,7 +532,6 @@ public final class KeyboardNavigationController {
 				result.add(localPresenter);
 			}
 		}
-		JavaScriptUtils.log("sortTextToSpeechModules end");
 		
 		return result;
 	}
@@ -547,26 +545,26 @@ public final class KeyboardNavigationController {
 	}
 	
 	private void playTextToSpeechContent (IWCAGPresenter iWCAGPresenter) {
-//		IPresenter ip = (IPresenter) iWCAGPresenter;
-//		
-//		if (ip.getModel().getModuleName() == "Choice") {
-//			ChoiceView cv = (ChoiceView) iWCAGPresenter.getWCAGController();
-//			cv.setTextToSpeechVoices(mainPageController.getMultiPartDescription(ip.getModel().getId()));
-//			cv.setPageController(mainPageController);
-//		} else if (ip.getModel().getModuleName() == "Text") {
-//			TextView tv = (TextView) iWCAGPresenter.getWCAGController();
-//			tv.setPageController(mainPageController);
-//		} else if (ip.getModel().getModuleName() == "Ordering") {
-//			OrderingView ov = (OrderingView) iWCAGPresenter.getWCAGController();
-//			ov.setPageController(mainPageController);
-//		} else {
-//			mainPageController.playDescription(ip.getModel().getId(), "");
-//		}
+		IPresenter ip = (IPresenter) iWCAGPresenter;
 		
-		if (iWCAGPresenter.getWCAGController() instanceof IWCAGModuleView) {
-			IWCAGModuleView view = (IWCAGModuleView) iWCAGPresenter.getWCAGController();
-			view.setPageController(mainPageController);
+		if (ip.getModel().getModuleName() == "Choice") {
+			ChoiceView cv = (ChoiceView) iWCAGPresenter.getWCAGController();
+			cv.setTextToSpeechVoices(mainPageController.getMultiPartDescription(ip.getModel().getId()));
+			cv.setPageController(mainPageController);
+		} else if (ip.getModel().getModuleName() == "Text") {
+			TextView tv = (TextView) iWCAGPresenter.getWCAGController();
+			tv.setPageController(mainPageController);
+		} else if (ip.getModel().getModuleName() == "Ordering") {
+			OrderingView ov = (OrderingView) iWCAGPresenter.getWCAGController();
+			ov.setPageController(mainPageController);
+		} else {
+			mainPageController.playDescription(ip.getModel().getId(), "");
 		}
+		
+//		if (iWCAGPresenter.getWCAGController() instanceof IWCAGModuleView) {
+//			IWCAGModuleView view = (IWCAGModuleView) iWCAGPresenter.getWCAGController();
+//			view.setPageController(mainPageController);
+//		}
 
 	}
 	
