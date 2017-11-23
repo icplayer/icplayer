@@ -541,23 +541,27 @@ function Addontext_identification_create(){
     presenter.readElement = function () {
         var tts = this.keyboardControllerObject.getTextToSpeechOrNull(presenter.playerController);
         if (tts) {
-            var isSelected, text;
+            var text;
+            var textSelection = {
+                text: ''
+            };
 
             text = presenter.$view.find('.text-identification-content').text().trim();
-            tts.speak(text, presenter.langTag);
 
             if (presenter.isShowAnswersActive) {
-                isSelected = presenter.configuration.shouldBeSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+                textSelection.text = presenter.configuration.shouldBeSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
             }
             else {
-                isSelected = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+                textSelection.text = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
             }
-            tts.speak(isSelected);
 
             if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode) {
                 var isAnswerCorrect = presenter.configuration.isSelected === presenter.configuration.shouldBeSelected;
-                tts.speak(isAnswerCorrect ?  presenter.correctSpeechText : presenter.incorrectSpeechText);
+                textSelection.text += ' ';
+                textSelection.text += isAnswerCorrect ?  presenter.correctSpeechText : presenter.incorrectSpeechText;
             }
+
+            tts.speak(text, presenter.langTag, textSelection);
         }
     };
 
