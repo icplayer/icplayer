@@ -132,10 +132,6 @@ public final class KeyboardNavigationController {
 				this.selectCurrentModule();
 			}
 		} else {
-			IWCAG wcagWidget = this.presenters.get(this.actualSelectedModuleIndex).presenter.getWCAGController();
-			if (wcagWidget != null) {
-				wcagWidget.enter(true);
-			}
 			this.deselectCurrentModule();
 		}
 	}
