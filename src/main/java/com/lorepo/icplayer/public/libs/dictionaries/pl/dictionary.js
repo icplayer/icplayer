@@ -589,7 +589,7 @@
 	"ProgrammingCommandPrompt_property_scene_id": "ID sceny",
 	"ProgrammingCommandPrompt_property_hide_run": "Ukryj przycisk Run",
 	"Pseudo_Console_info": "Console for pseudo code",
-	"Pseudo_Console_name": "Pseudo Console",	
+	"Pseudo_Console_name": "Pseudocode Console",
 	"Pseudo_Console_property_functions_list" : "Functions list",
 	"Pseudo_Console_property_functions_name" : "Name",
 	"Pseudo_Console_property_functions_body" : "Body",

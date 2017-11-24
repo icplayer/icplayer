@@ -1,6 +1,5 @@
 .pseudoConsole-console-cursor {
     background-color: #666;
-    position: absolute;
 }
 
 .addon-Pseudo_Console-console {
@@ -25,4 +24,9 @@
 .addon-Pseudo_Console-wrapper {
     width: 100%;
     height: 100%;
+    overflow: auto;
+}
+
+.pseudoConsole-console-cursor-active {
+    margin-right: -0.5em;
 }
