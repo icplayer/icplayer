@@ -12,13 +12,12 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 
 
-public class SourceListModule extends BasicModuleModel{
-
+public class SourceListModule extends BasicModuleModel {
 	private ArrayList<String>	items = new ArrayList<String>();
 	private boolean removable = true;
 	private boolean vertical = false;
 	private boolean randomOrder = false;
-	
+	private String langAttribute = "";
 	
 	public SourceListModule() {
 		super("Source list", DictionaryWrapper.get("source_list_module"));
@@ -28,8 +27,8 @@ public class SourceListModule extends BasicModuleModel{
 		addPropertyRemovable();
 		addPropertyVertical();
 		addPropertyRandomOrder();
+		addPropertyLangAttribute();
 	}
-
 
 	private void initData() {
 		items.add("Item 1");
@@ -59,6 +58,7 @@ public class SourceListModule extends BasicModuleModel{
 			removable = XMLUtils.getAttributeAsBoolean(itemsElement, "removable", true);
 			vertical = XMLUtils.getAttributeAsBoolean(itemsElement, "vertical", false);
 			randomOrder = XMLUtils.getAttributeAsBoolean(itemsElement, "randomOrder", false);
+			langAttribute = XMLUtils.getAttributeAsString(itemsElement, "langAttribute");
 		}
 
 		items.clear();
@@ -80,7 +80,7 @@ public class SourceListModule extends BasicModuleModel{
 	public String toXML() {
 		String xml = "<sourceListModule " + getBaseXML() + ">" + getLayoutXML();
 		
-		xml += "<items removable='" + removable + "' vertical='" + vertical + "' randomOrder='" + randomOrder + "'>";
+		xml += "<items removable='" + removable + "' vertical='" + vertical + "' randomOrder='" + randomOrder + "' langAttribute='" + langAttribute + "'>";
 		
 		for(String item : items){
 			xml += "<item><![CDATA[" + item + "]]></item>";
@@ -166,6 +166,39 @@ public class SourceListModule extends BasicModuleModel{
 			}
 		};
 		
+		addProperty(property);
+	}
+	
+	private void addPropertyLangAttribute() {
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				langAttribute = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return langAttribute;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("text_module_lang_attribute");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_lang_attribute");
+			}
+		};
+
 		addProperty(property);
 	}
 	
@@ -259,12 +292,7 @@ public class SourceListModule extends BasicModuleModel{
 			
 			@Override
 			public String getValue() {
-				if(vertical){
-					return "True";
-				}
-				else{
-					return "False";
-				}
+				return vertical ? "True" : "False";
 			}
 			
 			@Override
@@ -291,4 +319,9 @@ public class SourceListModule extends BasicModuleModel{
 	public boolean isVertical() {
 		return vertical;
 	}
+	
+	public String getLangAttribute () {
+		return this.langAttribute;
+	}
+	
 }

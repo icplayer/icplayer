@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -12,14 +11,14 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG {
+public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG, IWCAGModuleView {
 
 	private ChoiceModel module;
 	private VerticalPanel optionsPanel;
@@ -29,7 +28,8 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private IOptionListener listener;
 	private int[] order;
 	private PageController pageController;
-	private List<String> optionsVoices;
+//	private List<String> optionsVoices = new ArrayList<String>();
+	private boolean isWCAGOn = false;
 
 	private int position = -1;
 	
@@ -242,18 +242,8 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 	}
 
-	public void setPageController (PageController pageController) {
-		this.pageController = pageController;
-	}
-
-	public void setTextToSpeechVoices (List<String> optionsVoices) {
-		this.optionsVoices = optionsVoices;
-	}
-
 	private void textToSpeechCurrentOption () {
-		final boolean useDefaultOptionValues = this.optionsVoices.isEmpty() || (this.optionsVoices.size() != module.getOptionCount());
-		final String text = useDefaultOptionValues ? module.getOption(position).getText() : this.optionsVoices.get(position);
-		this.pageController.speak(text, ""); // TODO add language from property
+		this.pageController.speak(module.getOption(position).getText(), ""); // TODO add language from property
 	}
 
 	private void select() {
@@ -358,6 +348,23 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	
 	@Override
 	public void shiftTab() {
+	}
+
+
+	@Override
+	public void setWCAGStatus (boolean isOn) {
+		this.isWCAGOn = isOn;
+	}
+
+	@Override
+	public void setPageController (PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+	}
+	
+	public String getLang () {
+//		return this.module.getLangAttribute();
+		return null;
 	}
 
 }
