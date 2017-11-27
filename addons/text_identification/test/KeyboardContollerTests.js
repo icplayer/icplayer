@@ -14,8 +14,8 @@ TestCase("[Text Identification] Keyboard controller tests", {
             'shouldBeSelected': false,
             'blockWrongAnswers': true
         };
-        this.presenter.selectedSpeechText = "selected";
-        this.presenter.deselectedSpeechText = "deselected";
+        this.presenter.selectedSpeechText = "Selected";
+        this.presenter.deselectedSpeechText = "Deselected";
 
         this.tts = {
             speak: sinon.spy()
@@ -59,11 +59,27 @@ TestCase("[Text Identification] Keyboard controller tests", {
         this.presenter.keyboardController(enterKeycode, false);
         $(document).trigger('keydown', enterKeycode);
 
-        var readText = this.tts.speak.getCall(0).args[0];
-        var readSelected = this.tts.speak.getCall(1).args[0];
-
+        // gets first call
+        var args = this.tts.speak.args[0];
+        // gets first argument of call
+        var readText = args[0];
         assertEquals('Text', readText);
-        assertEquals('selected', readSelected);
+    },
+
+    'test should call tts.read when selecting addon' : function() {
+        var enterKeycode = 13;
+        var spaceKeycode= 32;
+        this.presenter.keyboardController(enterKeycode, false);
+        $(document).trigger('keydown', enterKeycode);
+
+        this.presenter.keyboardController(spaceKeycode, false);
+        $(document).trigger('keydown', spaceKeycode);
+
+        // gets second call
+        var args = this.tts.speak.args[1];
+        // gets first argument of call
+        var readText = args[0];
+        assertEquals('Selected', readText);
     },
 
 

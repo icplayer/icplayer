@@ -524,7 +524,7 @@ function Addontext_identification_create(){
     TextIdentificationKeyboardController.prototype.select = function (event) {
         presenter.clickHandler(event);
 
-        presenter.readElement();
+        presenter.readSelected();
     };
 
 
@@ -538,30 +538,38 @@ function Addontext_identification_create(){
         presenter.keyboardControllerObject = new TextIdentificationKeyboardController(element, 1);
     };
 
+    presenter.readSelected = function () {
+        var tts = this.keyboardControllerObject.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts) {
+            var text;
+
+            if (presenter.isShowAnswersActive) {
+                text = presenter.configuration.shouldBeSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+            }
+            else {
+                text = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+            }
+
+            // correctness should be read only when check mode is active and addon is selected
+            if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode &&  presenter.configuration.isSelected) {
+                var isAnswerCorrect = presenter.configuration.isSelected === presenter.configuration.shouldBeSelected;
+                text += ' ';
+                text += isAnswerCorrect ? presenter.correctSpeechText : presenter.incorrectSpeechText;
+            }
+
+            tts.speak(text);
+        }
+    };
+
     presenter.readElement = function () {
         var tts = this.keyboardControllerObject.getTextToSpeechOrNull(presenter.playerController);
         if (tts) {
             var text;
-            var textSelection = {
-                text: ''
-            };
 
             text = presenter.$view.find('.text-identification-content').text().trim();
 
-            if (presenter.isShowAnswersActive) {
-                textSelection.text = presenter.configuration.shouldBeSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
-            }
-            else {
-                textSelection.text = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
-            }
-
-            if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode) {
-                var isAnswerCorrect = presenter.configuration.isSelected === presenter.configuration.shouldBeSelected;
-                textSelection.text += ' ';
-                textSelection.text += isAnswerCorrect ?  presenter.correctSpeechText : presenter.incorrectSpeechText;
-            }
-
-            tts.speak(text, presenter.langTag, textSelection);
+            tts.speak(text, presenter.langTag);
         }
     };
 
