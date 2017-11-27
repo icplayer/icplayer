@@ -19,5 +19,6 @@
         <property name="Number of repetitions" nameLabel="multiplegap_property_number_of_repetitions" type="string" />
         <property name="ID repeated element" nameLabel="multiplegap_property_id_repeated_element" type="string" />
         <property name="Block wrong answers" displayName="Block wrong answers" nameLabel="multiplegap_property_block_wrong_answers" type="boolean" />
+		<property name="Alt text" nameLabel="multiplegap_property_alt_text" type="string" />
 	</model>
 </addon>

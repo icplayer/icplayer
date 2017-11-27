@@ -62,6 +62,8 @@ public class PlayerController implements IPlayerController{
 	private PlayerEntryPoint entryPoint;
 	private int iframeScroll = 0;
 	
+	private String pageStamp = "0";
+	
 	private int lastVisitedPageIndex = -1;
 	private int currentMainPageIndex = -1;
 	
@@ -290,9 +292,14 @@ public class PlayerController implements IPlayerController{
 			}
 		}
 	}
+	
+	private String generatePageStamp(String pageId) {
+		return pageId + Long.toString(System.currentTimeMillis());
+	}
 
 
 	private void switchToPage(IPage page, final PageController pageController){
+	    this.pageStamp = this.generatePageStamp(page.getId());
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
 		this.sendAnalytics("switch to page", params );
@@ -575,7 +582,16 @@ public class PlayerController implements IPlayerController{
 		return this.footerController != null;
 	}
 
-
+	@Override
+	public void enableKeyboardNavigation() {
+		keyboardController.switchKeyboard(true);
+	}
+	
+	@Override
+	public void disableKeyboardNavigation() {
+		keyboardController.switchKeyboard(false);
+	}
+	
 	public void setPlayerConfig(PlayerConfig config) {
 		this.config = config;
 	}
@@ -592,6 +608,8 @@ public class PlayerController implements IPlayerController{
 	public void setIframeScroll (int scroll) {
 		this.iframeScroll = scroll;
 	}
+	
+	
 	
 	public native int getIFrameScroll (PlayerController x) /*-{
 		var iframeScroll = 0;
@@ -658,6 +676,10 @@ public class PlayerController implements IPlayerController{
 		} else {
 			this.playerView.removeFooterView();
 		}
+	}
+	
+	public String getPageStamp() {
+		return this.pageStamp;
 	}
 	
 }

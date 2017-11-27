@@ -235,6 +235,14 @@ public class JavaScriptPlayerServices {
 			var commands = function() {
 			};
 
+			commands.enableKeyboardNavigation = function() {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::enableKeyboardNavigation()();
+			};
+			
+			commands.disableKeyboardNavigation = function() {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::disableKeyboardNavigation()();
+			};
+
 			commands.gotoPage = function(pageName) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPage(Ljava/lang/String;)(pageName);
 			};
@@ -316,6 +324,10 @@ public class JavaScriptPlayerServices {
 			commands.changeFooterVisibility = function (isVisible) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeFooterVisibility(Z)(isVisible);
 			};
+			
+			commands.getPageStamp = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageStamp()();
+			}
 
 			return commands;
 		};
@@ -466,6 +478,10 @@ public class JavaScriptPlayerServices {
 		this.playerServices.getCommands().changeHeaderVisibility(isVisible);
 	}
 	
+	
+	private String getPageStamp() {
+		return this.playerServices.getCommands().getPageStamp();
+	}
 
 	private void showPopup(String pageName, String top, String left, String additinalClasses){
 		playerServices.getCommands().showPopup(pageName, top, left, additinalClasses);
@@ -822,5 +838,12 @@ public class JavaScriptPlayerServices {
 		IChapter toc = playerServices.getModel().getTableOfContents();
 		return toc.toJavaScript();
 	}
+	
+	private void enableKeyboardNavigation() {
+		playerServices.getCommands().enableKeyboardNavigation();
+	}
 
+	private void disableKeyboardNavigation() {
+		playerServices.getCommands().disableKeyboardNavigation();
+	}
 }

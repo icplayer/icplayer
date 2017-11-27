@@ -360,11 +360,12 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 		String originalOrder = new String(initialOrder);
 		String correctOrder = trimSpacesInside(module.getItemsOrder());
 		String altCorrectOrder = trimSpacesInside(module.getOptionalOrder());
+		int widgetsCount = innerCellPanel.getWidgetCount();
 		
 		if (module.isDontGenerateCorrectOrder()) {
 			do {
 				generateRandomItemOrder();
-			} while (initialOrder == correctOrder || initialOrder == altCorrectOrder || initialOrder == originalOrder);
+			} while (initialOrder.equals(correctOrder) || initialOrder.equals(altCorrectOrder) || (initialOrder.equals(originalOrder) && widgetsCount > 2));
 		}
 		else {
 			generateRandomItemOrder();

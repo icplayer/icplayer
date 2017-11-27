@@ -49,7 +49,8 @@ function AddonCatch_create() {
         L01: 'Property level cannot be empty',
         L02: 'Property level fill with numbers in range 1 - 3',
         P01: 'Property Points to Finish expects number',
-        O01: 'Property Items cannot be empty'
+        O01: 'Property Items cannot be empty',
+        W01: 'Property Width or Height cannot be empty'
     };
 
     presenter.setPlayerController = function (controller) {
@@ -117,6 +118,16 @@ function AddonCatch_create() {
         return getCorrectObject(points);
     }
 
+    function parseWidthHeight (propertyValue) {
+        var value = parseInt(propertyValue, 10);
+
+        if (isNaN(value)) {
+            return getErrorObject('W01');
+        }
+
+        return getCorrectObject(value);
+    }
+
     presenter.calculateLevelsItems = function (items) {
         var result = [[], [], []];
 
@@ -142,12 +153,23 @@ function AddonCatch_create() {
             return getErrorObject(validatedPointsToFinish.errorCode);
         }
 
+        var validatedItemWidth = parseWidthHeight(model['Item_Width']);
+        if (!validatedItemWidth.isValid) {
+            return getErrorObject(validatedItemWidth.errorCode);
+        }
+
+        var validatedItemHeight = parseWidthHeight(model['Item_Height']);
+        if (!validatedItemHeight.isValid) {
+            return getErrorObject(validatedItemHeight.errorCode);
+        }
+
         return {
             items: validatedItems.value,
             levelsItems: presenter.calculateLevelsItems(validatedItems.value),
             pointsToFinish: validatedPointsToFinish.value,
             countErrors: ModelValidationUtils.validateBoolean(model["Count errors"]),
-
+            itemWidth: validatedItemWidth.value,
+            itemHeight: validatedItemHeight.value,
             ID: model.ID,
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
             isValid: true
@@ -164,8 +186,13 @@ function AddonCatch_create() {
     function makeDescription (description) {
         var $description = $('<span class="description">' + description + '</span>');
         $description.css('top', '-15px');
-        $description.css('left', '-5px');
         return $description;
+    }
+
+    function setDescriptionPosition (description, itemWidth) {
+        var descWidth = description.outerWidth(); // get full width, including padding
+        var leftPos= (-descWidth/2 + itemWidth/2) + 'px';
+        description.css('left', leftPos );
     }
 
     function getRandomItemFromLevel (level) {
@@ -208,20 +235,32 @@ function AddonCatch_create() {
 
         var $objectElement = $('<div class="fallingObject"></div>');
         $objectElement.css('background', 'url(' + itemObject.image + ')');
-        $objectElement.append(makeDescription(itemObject.description));
+        var description = makeDescription(itemObject.description);
+        $objectElement.append(description);
+
         $objectElement.css('background-size', 'cover');
         presenter.$view.append($objectElement);
 
-        var xPosition = getRandomInt(0, presenter.$view.width() - $objectElement.width());
+        setDescriptionPosition(description, presenter.configuration.itemWidth); // we have to do this after appending object to DOM
+
+        var longestWidth = Math.max(description.outerWidth(), presenter.configuration.itemWidth);
+        var xPosition = getRandomInt(longestWidth/2, presenter.$view.width() - longestWidth);
+
         $objectElement.css('left', xPosition + 'px');
         $objectElement.css('top', '-100px');
+        $objectElement.css('width', presenter.configuration.itemWidth);
+        $objectElement.css('height', presenter.configuration.itemHeight);
 
         var speed = getRandomInt(levelsParameters[currentLevel].speedMin, levelsParameters[currentLevel].speedMax);
         var landingPosition = (addOnHeight + 100) + 'px';
 
         $objectElement.animate({'top': landingPosition}, {
             duration: speed,
-            complete: function () { reCreateFallingObject(itemObject.index + 1) },
+            complete: function () {
+                $objectElement.stop();
+                $objectElement.remove();
+                reCreateFallingObject(itemObject.index + 1);
+            },
             step: function (now, tween) {
                 if (isRemoved) return;
 
@@ -236,11 +275,7 @@ function AddonCatch_create() {
                     var plateLeftEdge = $plateElement.offset().left - presenter.$view.offset().left;
                     var plateRightEdge = plateLeftEdge + $plateElement.width();
 
-                    var isOnLeftEdge = plateLeftEdge < elementRightEdge && plateRightEdge > elementRightEdge;
-                    var isOnCenter = plateLeftEdge <= elementLeftEdge && plateRightEdge >= elementRightEdge;
-                    var isOnRightEdge = plateLeftEdge < elementLeftEdge && plateRightEdge > elementLeftEdge;
-
-                    if (isOnLeftEdge || isOnCenter || isOnRightEdge) {
+                    if (!(plateLeftEdge > elementRightEdge || plateRightEdge < elementLeftEdge)) {
                         if (itemObject.isCorrect) {
                             onNewPoint(itemObject.index + 1);
                         } else {

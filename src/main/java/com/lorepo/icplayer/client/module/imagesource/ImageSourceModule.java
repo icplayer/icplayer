@@ -18,6 +18,7 @@ public class ImageSourceModule extends BasicModuleModel {
 	private String baseUrl = "";
 	private boolean removable = true;
 	private boolean isDisabled = false;
+	private String altText = "";
 	
 	public ImageSourceModule() {
 		super("Image source", DictionaryWrapper.get("image_source_module"));
@@ -25,6 +26,7 @@ public class ImageSourceModule extends BasicModuleModel {
 		addPropertyImage();
 		addPropertyIsDisabled();
 		addPropertyRemovable();
+		addPropertyAltText();
 	}
 
 	public String getUrl() {
@@ -54,6 +56,7 @@ public class ImageSourceModule extends BasicModuleModel {
 					imagePath = StringUtils.unescapeXML(childElement.getAttribute("src"));
 					removable = XMLUtils.getAttributeAsBoolean((Element)childNode, "removable", true);
 					isDisabled = XMLUtils.getAttributeAsBoolean((Element)childNode, "isDisabled", false);
+					altText = XMLUtils.getAttributeAsString(childElement, "altText");
 				}
 			}
 		}
@@ -67,7 +70,7 @@ public class ImageSourceModule extends BasicModuleModel {
 		String removableString = removable ? "True":"False";
 		String xml = 
 				"<imageSourceModule " + getBaseXML() + ">" + getLayoutXML() + 
-				"<image src='" + StringUtils.escapeHTML(imagePath) + "' removable='" + removableString + "' isDisabled='" + isDisabled + "'/>" +
+				"<image src='" + StringUtils.escapeHTML(imagePath) + "' removable='" + removableString + "' isDisabled='" + isDisabled + "' altText='" + altText +"'/>" +
 				"</imageSourceModule>";
 		
 		return xml;
@@ -191,6 +194,43 @@ public class ImageSourceModule extends BasicModuleModel {
 		};
 		
 		addProperty(property);
+	}
+	
+	private void addPropertyAltText() {
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				altText = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return altText;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("image_source_alt_text");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("image_source_alt_text");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public String getAlttext() {
+		return altText;
 	}
 	
 }
