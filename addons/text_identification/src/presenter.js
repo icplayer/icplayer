@@ -8,6 +8,7 @@ function Addontext_identification_create(){
     presenter.eventBus = null;
     presenter.lastEvent = null;
     presenter.isDisabled = false;
+    presenter.keyboardControllerObject = null;
     
     var CSS_CLASSES = {
         ELEMENT : "text-identification-element",
@@ -55,7 +56,7 @@ function Addontext_identification_create(){
         }
         if (presenter.configuration.isErrorCheckMode) return;
         presenter.configuration.isSelected = !presenter.configuration.isSelected;
-        presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.MOUSE_HOVER_SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
         presenter.executeUserEventCode();
         presenter.triggerSelectionChangeEvent();
         if (presenter.isAllOK()) sendAllOKEvent();
@@ -102,6 +103,7 @@ function Addontext_identification_create(){
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeShouldSendEventsOnCommands(model);
+        upgradedModel = presenter.upgradeTTS(upgradedModel);
         return upgradedModel;
     };
 
@@ -114,6 +116,50 @@ function Addontext_identification_create(){
         }
 
         return upgradedModel;
+    };
+
+    presenter.upgradeTTS = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (model['langAttribute'] === undefined) {
+            upgradedModel['langAttribute'] = '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.getSpeechTexts = function (model) {
+       var speechTexts = model['Speech texts'];
+       presenter.selectedSpeechText = 'Selected';
+       presenter.deselectedSpeechText = 'Deselected';
+       presenter.correctSpeechText = "Correct";
+       presenter.incorrectSpeechText = "Incorrect";
+
+        if (speechTexts !== undefined && speechTexts !== '') {
+            for (var index = 0; index < speechTexts.length; index++) {
+                var text = speechTexts[index];
+                for (var key in text) {
+                    if (text.hasOwnProperty(key)) {
+                        if (text[key]['selected'] !== '' && text[key]['selected'] !== undefined) {
+                            presenter.selectedSpeechText = text[key]['selected'];
+                        }
+
+                        if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
+                            presenter.deselectedSpeechText = text[key]['deselected'];
+                        }
+
+                        if (!ModelValidationUtils.isArrayElementEmpty(text[key]['correct'])) {
+                            presenter.correctSpeechText = text[key]['correct'];
+                        }
+
+                        if (!ModelValidationUtils.isArrayElementEmpty(text[key]['incorrect'])) {
+                            presenter.incorrectSpeechText = text[key]['incorrect'];
+                        }
+                    }
+                }
+            }
+        }
     };
 
     presenter.validateModel = function (model) {
@@ -159,6 +205,9 @@ function Addontext_identification_create(){
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
 
+        presenter.getSpeechTexts(model);
+        presenter.langTag = model['langAttribute'];
+
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
@@ -174,6 +223,7 @@ function Addontext_identification_create(){
         presenter.centerElements(text, container);
 
         if (!isPreview) handleMouseActions();
+        presenter.buildKeyboardController();
     }
 
     presenter.setVisibility = function (isVisible) {
@@ -454,9 +504,72 @@ function Addontext_identification_create(){
         presenter.isShowAnswersActive = false;
     };
 
+    function TextIdentificationKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    TextIdentificationKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    TextIdentificationKeyboardController.prototype.constructor = TextIdentificationKeyboardController;
+
+    TextIdentificationKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+
+        presenter.readElement();
+    };
+
+    TextIdentificationKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+    TextIdentificationKeyboardController.prototype.select = function (event) {
+        presenter.clickHandler(event);
+
+        presenter.readSelected();
+    };
+
+
     presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        if (keycode == 13) {
-            presenter.clickHandler()
+        this.keyboardControllerObject.handle(keycode, isShiftKeyDown);
+    };
+
+    presenter.buildKeyboardController = function () {
+        var element = $(presenter.$view).find('.text-identification-container');
+
+        presenter.keyboardControllerObject = new TextIdentificationKeyboardController(element, 1);
+    };
+
+    presenter.readSelected = function () {
+        var tts = this.keyboardControllerObject.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts) {
+            var text;
+
+            if (presenter.isShowAnswersActive) {
+                text = presenter.configuration.shouldBeSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+            }
+            else {
+                text = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+            }
+
+            // correctness should be read only when check mode is active and addon is selected
+            if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode &&  presenter.configuration.isSelected) {
+                var isAnswerCorrect = presenter.configuration.isSelected === presenter.configuration.shouldBeSelected;
+                text += ' ';
+                text += isAnswerCorrect ? presenter.correctSpeechText : presenter.incorrectSpeechText;
+            }
+
+            tts.speak(text);
+        }
+    };
+
+    presenter.readElement = function () {
+        var tts = this.keyboardControllerObject.getTextToSpeechOrNull(presenter.playerController);
+        if (tts) {
+            var text;
+
+            text = presenter.$view.find('.text-identification-content').text().trim();
+
+            tts.speak(text, presenter.langTag);
         }
     };
 
