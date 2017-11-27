@@ -41,6 +41,10 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 			hide();
 		}
 		
+		if (this.module.isTabindexEnabled()) {
+			this.getElement().setTabIndex(0);
+		}
+		
 		getElement().setAttribute("lang", this.module.getLangAttribute());
 	}
 
@@ -62,6 +66,10 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
+			if (!this.module.isTabindexEnabled()){
+				gap.getElement().setTabIndex(-2);
+			}
+			
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
 		}
@@ -76,6 +84,10 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
+			if (!this.module.isTabindexEnabled()){
+				gap.getElement().setTabIndex(-2);
+			}
+			
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
 		}
@@ -88,9 +100,14 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 			GapInfo gi = giIterator.next();
 			try {
 				GapWidget gap = new GapWidget(gi, listener);
+				
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
 				}
+				if (!this.module.isTabindexEnabled()){
+					gap.getElement().setTabIndex(-2);
+				}
+				
 				gap.setDisabled(module.isDisabled());
 				textElements.add(gap);
 			} catch (Exception e) {
@@ -113,6 +130,10 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
 				}
+				if (!this.module.isTabindexEnabled()){
+					gap.getElement().setTabIndex(-2);
+				}
+				
 				gap.setDisabled(module.isDisabled());
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
@@ -131,6 +152,11 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 						if (savedDisabledState.size() > counter) {
 							GapWidget gap = (GapWidget) getChild(counter);
 							gap.setDisabled(savedDisabledState.get(counter));
+							
+							if (!this.module.isTabindexEnabled()){
+								gap.getElement().setTabIndex(-2);
+							}
+							
 							textElements.set(counter, gap);
 						}
 					} else {
@@ -140,6 +166,11 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 						} else {
 							gap.setDisabled(module.isDisabled());
 						}
+						
+						if (!this.module.isTabindexEnabled()){
+							gap.getElement().setTabIndex(-2);
+						}
+						
 						textElements.add(gap);
 						mathGapIds.add(id);
 					}
