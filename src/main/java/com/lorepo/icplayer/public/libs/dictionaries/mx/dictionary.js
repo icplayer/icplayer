@@ -1045,6 +1045,8 @@ var ice_dictionary_mx = {
 	"TrueFalse_property_speech_texts": "Speech texts",
 	"TrueFalse_property_deselected": "Deselected",
 	"TrueFalse_property_selected": "Selected",
+	"TrueFalse_property_correct": "Correct",
+	"TrueFalse_property_incorrect": "Incorrect",
 	"video_info": "Permite incrustar un vídeo con subtítulos. Para que el addon funcione en todos los navegadores y sistemas operativos comunes, es necesario cargar los archivos en tres formatos: mp4, ogg y WebM. El addon se puede completar con varios archivos de vídeo que se pueden cambiar dinámicamente usando Botones.",
 	"video_name": "Vídeo",
 	"video_property_files": "Archivo",

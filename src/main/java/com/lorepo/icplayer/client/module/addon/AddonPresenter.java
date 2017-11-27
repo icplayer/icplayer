@@ -622,7 +622,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 	@Override
 	public void shiftTab() {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, false);
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, true);
 	}
 
 	public boolean isButton() {

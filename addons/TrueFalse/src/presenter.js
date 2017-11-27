@@ -20,6 +20,8 @@ function AddonTrueFalse_create() {
     var tts;
     var selectedSpeechText = "selected";
     var deselectedSpeechText = "deselected";
+    var correctSpeechText = "correct";
+    var incorrectSpeechText = "incorrect";
 
     var QUESTION_AND_CHOICES_REQUIRED = "At least 1 question and 2 choices are required.";
     var INDEX_OUT_OF_RANGE = "Index is out of range.";
@@ -267,6 +269,17 @@ function AddonTrueFalse_create() {
         }
     }
 
+    function rowIndexed () {
+        var count = possibleChoices.length + 1;
+        return questions.reduce(function (acc, q, index) {
+            acc.push({
+                start: (index * count),
+                end: ((index + 1) * count) - 1
+            });
+            return acc;
+        }, []);
+    }
+
     function generateTableContent(table, view) {
         for (var rowID = 0; rowID < questions.length + 1; rowID++) {
             $(table).append('<tr class="tf_' + presenter.type + '_row" id=' + rowID + '></tr>');
@@ -305,6 +318,14 @@ function AddonTrueFalse_create() {
                         if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
                             deselectedSpeechText = text[key]['deselected'];
                         }
+
+                        if (text[key]['correct'] !== '' && text[key]['correct'] !== undefined) {
+                            correctSpeechText = text[key]['correct'];
+                        }
+
+                        if (text[key]['incorrect'] !== '' && text[key]['incorrect'] !== undefined) {
+                            incorrectSpeechText = text[key]['incorrect'];
+                        }
                     }
                 }
             }
@@ -314,11 +335,11 @@ function AddonTrueFalse_create() {
     var makeView = function (view, model, preview) {
         possibleChoices = model['Choices'];
         questions = model['Questions'];
-        var langAttribute = model['Lang attribute'];
+        presenter.langAttribute = model['Lang attribute'];
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
-        presenter.$view.attr('lang', langAttribute);
+        presenter.$view.attr('lang', presenter.langAttribute);
 
         getSpeechTexts(model);
 
@@ -699,6 +720,7 @@ function AddonTrueFalse_create() {
 
         presenter.isShowAnswersActive = true;
         presenter.currentState = getSelectedElements();
+        presenter.isErrorMode = false;
         workMode(true);
 
         for (var i = 1; i < questions.length + 1; i++) {
@@ -769,32 +791,39 @@ function AddonTrueFalse_create() {
                 text = '';
 
             if ($active.hasClass('tf_' + presenter.type + '_question')) {
-                tts.speak($active.text().trim());
+                tts.speak($active.text().trim(), presenter.langAttribute);
                 return;
             }
 
-            if(readSelection) {
+            if(!readSelection) {
                 if ($active.parent().hasClass('down')) {
-                    text = choice + ' ' + selectedSpeechText;
+                    if(presenter.isErrorMode) {
+                        if($active.parent().hasClass('correct')) {
+                            tts.speak(choice, presenter.langAttribute, {'text': selectedSpeechText + " " + correctSpeechText, 'lang': ''});
+                        }
+                        if($active.parent().hasClass('wrong')) {
+                            tts.speak(choice, presenter.langAttribute, {'text': selectedSpeechText + " " + incorrectSpeechText, 'lang': ''});
+                        }
+                    } else {
+                        tts.speak(choice, presenter.langAttribute, {'text': selectedSpeechText, 'lang': ''});
+                    }
                 } else {
-                    text = choice + ' ' + deselectedSpeechText;
+                    tts.speak(choice, presenter.langAttribute, {'text': deselectedSpeechText, 'lang': ''});
                 }
             } else {
-                text = choice;
                 if ($active.parent().hasClass('down')) {
-                    text += ' ' + selectedSpeechText;
+                    tts.speak(selectedSpeechText);
                 } else {
-                    text += ' ' + deselectedSpeechText;
+                    tts.speak(deselectedSpeechText);
                 }
             }
-
-            tts.speak(text);
         }
     }
 
-    presenter.keyboardController = function(keycode) {
+    presenter.keyboardController = function(keycode, isShiftKeyDown) {
         $(document).on('keydown', function(e) {
             e.preventDefault();
+            presenter.shiftPressed = e.shiftKey;
             $(this).off('keydown');
         });
 
@@ -827,16 +856,36 @@ function AddonTrueFalse_create() {
         }
 
         var enter = function (){
-            if (presenter.keyboardNavigationActive){
-                return;
+            if (isShiftKeyDown) {
+                if (presenter.keyboardNavigationActive){
+                    escape();
+                    presenter.isKeyboardOpened = false;
+                    return;
+                }
             }
-            presenter.keyboardNavigationActive = true;
-            mark_current_element(0);
-            readOption(false);
+
+            if (!presenter.keyboardNavigationActive) {
+                presenter.keyboardNavigationActive = true;
+                mark_current_element(0);
+                readOption(false);
+            } else {
+                readOption(false);
+            }
         };
 
-        function swicht_element(move){
+        function swicht_element(move, checkDirection){
+            var rows = rowIndexed();
+
+            var currentRow = rows.filter(function (row) {
+                return row.start <= presenter.keyboardNavigationCurrentElementIndex && row.end >= presenter.keyboardNavigationCurrentElementIndex;
+            })[0];
+
             var new_position_index = presenter.keyboardNavigationCurrentElementIndex + move;
+
+            if(checkDirection && currentRow && (new_position_index < currentRow.start || new_position_index > currentRow.end)) {
+                return;
+            }
+
             if (new_position_index >= presenter.keyboardNavigationElementsLen) {
                 new_position_index = new_position_index - move;
             } else if (new_position_index < 0) {
@@ -846,26 +895,29 @@ function AddonTrueFalse_create() {
         }
 
         var next_element = function (){
-            swicht_element(1);
+            swicht_element(1, true);
             readOption(false);
         };
 
         var previous_element = function (){
-            swicht_element(-1);
+            swicht_element(-1, true);
             readOption(false);
         };
 
         var next_question = function () {
-            swicht_element(possibleChoices.length + 1);
+            swicht_element(possibleChoices.length + 1, false);
             readOption(false);
         };
 
         var previous_question = function () {
-            swicht_element(-(possibleChoices.length + 1));
+            swicht_element(-(possibleChoices.length + 1), false);
             readOption(false);
         };
 
         var mark = function (){
+            if (presenter.isErrorMode) {
+                return;
+            }
             presenter.keyboardNavigationCurrentElement.click();
             readOption(true);
         };
@@ -880,6 +932,16 @@ function AddonTrueFalse_create() {
             presenter.keyboardNavigationCurrentElement = null;
         };
 
+        function tabHandler() {
+            if(isShiftKeyDown) {
+                swicht_element(-1, true);
+                readOption(false);
+            } else {
+                swicht_element(1, true);
+                readOption(false);
+            }
+        }
+
         var mapping = {};
         mapping[keys.ENTER] = enter;
         mapping[keys.ESCAPE] = escape;
@@ -888,7 +950,7 @@ function AddonTrueFalse_create() {
         mapping[keys.ARROW_UP] = previous_question;
         mapping[keys.ARROW_RIGHT] = next_element;
         mapping[keys.ARROW_DOWN] = next_question;
-        mapping[keys.TAB] = next_element;
+        mapping[keys.TAB] = tabHandler;
 
         try {
             mapping[keycode]();
