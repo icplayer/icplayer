@@ -791,7 +791,7 @@ function AddonTrueFalse_create() {
                 text = '';
 
             if ($active.hasClass('tf_' + presenter.type + '_question')) {
-                tts.speak($active.text().trim());
+                tts.speak($active.text().trim(), presenter.langAttribute);
                 return;
             }
 
@@ -812,9 +812,9 @@ function AddonTrueFalse_create() {
                 }
             } else {
                 if ($active.parent().hasClass('down')) {
-                    tts.speak(selectedSpeechText)
+                    tts.speak(selectedSpeechText);
                 } else {
-                    tts.speak(deselectedSpeechText)//TODO prawdopodobnie nadmiarowy caly if else readSelection
+                    tts.speak(deselectedSpeechText);
                 }
             }
         }
@@ -856,13 +856,21 @@ function AddonTrueFalse_create() {
         }
 
         var enter = function (){
-            if (presenter.keyboardNavigationActive){
-                escape();
-                return;
+            if (isShiftKeyDown) {
+                if (presenter.keyboardNavigationActive){
+                    escape();
+                    presenter.isKeyboardOpened = false;
+                    return;
+                }
             }
-            presenter.keyboardNavigationActive = true;
-            mark_current_element(0);
-            readOption(false);
+
+            if (!presenter.keyboardNavigationActive) {
+                presenter.keyboardNavigationActive = true;
+                mark_current_element(0);
+                readOption(false);
+            } else {
+                readOption(false);
+            }
         };
 
         function swicht_element(move, checkDirection){
@@ -907,6 +915,9 @@ function AddonTrueFalse_create() {
         };
 
         var mark = function (){
+            if (presenter.isErrorMode) {
+                return;
+            }
             presenter.keyboardNavigationCurrentElement.click();
             readOption(true);
         };
