@@ -402,6 +402,12 @@ function AddoneKeyboard_create(){
                     });
                 }
 
+                if (MobileUtils.isSafariMobile(navigator.userAgent) && presenter.constructor.lockInput) {
+                    $('input[readonly]').onfocus(function (event){
+                        event.preventDefault();
+                    })
+                }
+
                 $(presenter.configuration.workWithViews).find('input').on('focus', function () {
                     lastClickedElement = this;
                     if (!keyboardIsVisible) {
@@ -860,6 +866,7 @@ function AddoneKeyboard_create(){
         presenter.sendEvent("enable");
         keyboardIsVisible = true;
         $(presenter.configuration.workWithViews).find('input').off('focusout', focusoutCallBack);
+        $(presenter.configuration.workWithViews).find('input').addClass('ui-keyboard-input ui-keyboard-input-current').attr("readonly", true);
     };
 
     presenter.open = function (moduleId, index) {
