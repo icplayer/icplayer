@@ -28,6 +28,14 @@ function AddonParagraph_create() {
         'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
         'bullist numlist outdent indent blockquote undo redo '+
         'removeformat subscript superscript forecolor backcolor |'.split(' ');
+    
+    function isIOSSafari() {
+        var ua = window.navigator.userAgent,
+            iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
+            webkit = !!ua.match(/WebKit/i),
+            iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
+        return iOSSafari
+    }
 
     presenter.executeCommand = function AddonParagraph_executeCommand(name, params) {
         if (!presenter.configuration.isValid) { return; }
@@ -105,14 +113,17 @@ function AddonParagraph_create() {
         tinymce.init(presenter.getTinymceInitConfiguration(presenter.getTinyMceSelector())).then(function (editors) {
             presenter.editor = editors[0];
             presenter.onInit();
-
-            var ua = window.navigator.userAgent,
-                iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
-                webkit = !!ua.match(/WebKit/i),
-                iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
-
-            if (iOSSafari) {
+            
+            if (isIOSSafari()) {
                 presenter.findIframeAndSetStyles();
+                
+                // var refocus = function() {
+                //     $(presenter.editor.contentDocument).focus();
+                //     $(presenter.editor).focus();
+                // };
+                // presenter.editor.contentDocument.addEventListener("keydown", refocus);
+                // presenter.editor.contentDocument.addEventListener("touchstart", refocus);
+                // presenter.editor.contentDocument.addEventListener("touchend", refocus);
             }
 
             presenter.editor.on('blur', function () {
@@ -121,13 +132,8 @@ function AddonParagraph_create() {
         });
 
         presenter.setVisibility(presenter.configuration.isVisible);
-
-        var ua = window.navigator.userAgent,
-            iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i),
-            webkit = !!ua.match(/WebKit/i),
-            iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
-
-        if(iOSSafari) {
+        
+        if(isIOSSafari()) {
             var input = document.createElement("input");
             input.type = "text";
             $(input).css('display', 'none');
@@ -609,13 +615,8 @@ function AddonParagraph_create() {
         } else {
             tinymceState = '';
         }
-
-        // iOS fix to hide keyboard after page change
-        var ua = window.navigator.userAgent,
-            iOS = !!ua.match(/iPad/i),
-            webkit = !!ua.match(/WebKit/i),
-            iOSSafari = iOS && webkit && !ua.match(/CriOS/i);
-        if(iOSSafari){
+        
+        if(isIOSSafari()){
             $('input').focus();
         }
 
