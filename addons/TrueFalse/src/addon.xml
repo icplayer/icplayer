@@ -19,6 +19,12 @@
 			<property name="Deselected" displayName="deselected" type="staticrow">
                 <property name="deselected" nameLabel="TrueFalse_property_deselected" type="string"/>
             </property>
+			<property name="Correct" displayName="correct" type="staticrow">
+                <property name="correct" nameLabel="TrueFalse_property_correct" type="string"/>
+            </property>
+			<property name="Incorrect" displayName="incorrect" type="staticrow">
+                <property name="incorrect" nameLabel="TrueFalse_property_incorrect" type="string"/>
+            </property>
 		</property>
 	</model>
 </addon>
