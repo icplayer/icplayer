@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.image;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import com.google.gwt.event.dom.client.LoadEvent;
@@ -7,13 +9,13 @@ import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Image;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.image.ImageModule.DisplayMode;
 import com.lorepo.icplayer.client.module.image.ImagePresenter.IDisplay;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 
 
@@ -119,31 +121,26 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 
 	@Override
 	public void show() {
-
 		setVisible(true);
 		if(module.getDisplayMode() == DisplayMode.keepAspect){
 			center();
 		}
 	}
 
-
 	@Override
 	public void hide() {
 		setVisible(false);
 	}
-
 
 	@Override
 	public String getName() {
 		return "Image";
 	}
 
-
 	@Override
 	public void setWCAGStatus(boolean isWCAGOn) {
 		this.isWCAGOn = isWCAGOn;	
 	}
-
 
 	@Override
 	public void setPageController(PageController pc) {
@@ -151,85 +148,50 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 		this.pageController = pc;
 	}
 
-
 	@Override
 	public String getLang() {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	@Override
 	public void enter(boolean isExiting) {
 		this.speak(this.module.getAltText());
 	}
 
+	@Override
+	public void space() {}
 
 	@Override
-	public void space() {
-		// TODO Auto-generated method stub
-	}
-
+	public void tab() {}
 
 	@Override
-	public void tab() {
-		// TODO Auto-generated method stub
-		
-	}
-
+	public void left() {}
 
 	@Override
-	public void left() {
-		// TODO Auto-generated method stub
-		
-	}
-
+	public void right() {}
 
 	@Override
-	public void right() {
-		// TODO Auto-generated method stub
-		
-	}
-
+	public void down() {}
 
 	@Override
-	public void down() {
-		// TODO Auto-generated method stub
-		
-	}
-
+	public void up() {}
 
 	@Override
-	public void up() {
-		// TODO Auto-generated method stub
-		
-	}
-
+	public void escape() {}
 
 	@Override
-	public void escape() {
-		// TODO Auto-generated method stub
-		
-	}
-
+	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void shiftTab() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void shiftTab() {}
 	
 	private void speak (String text) {
-		JavaScriptUtils.log(this.pageController);
 		if (this.pageController != null) {
-			this.pageController.speak(text, "", new ResponsiveVoiceOnEndCallback());
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			textVoices.add(TextToSpeechVoice.create(text, ""));
+			textVoices.add(TextToSpeechVoice.create());
+			
+			this.pageController.speak(textVoices);
 		}
 	}
 }

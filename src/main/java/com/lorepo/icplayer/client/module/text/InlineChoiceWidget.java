@@ -1,5 +1,8 @@
 package com.lorepo.icplayer.client.module.text;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -9,9 +12,9 @@ import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.ListBox;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 
 
 public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
@@ -48,7 +51,9 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 					}
 					listener.onValueChanged(choiceInfo.getId(), value);
 					
-					getPageController().speak(value, langTag, new ResponsiveVoiceOnEndCallback());
+					List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+					textVoices.add(TextToSpeechVoice.create(value, langTag));
+					getPageController().speak(textVoices);
 				}
 			});
 

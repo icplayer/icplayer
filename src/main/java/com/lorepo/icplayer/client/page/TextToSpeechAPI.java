@@ -1,7 +1,12 @@
 package com.lorepo.icplayer.client.page;
 
+import java.util.List;
+
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.core.client.JsArrayString;
+import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 
 
 public class TextToSpeechAPI {
@@ -26,22 +31,32 @@ public class TextToSpeechAPI {
 		}
 	}-*/;
 	
-	public static void speak (JavaScriptObject obj, String text, String langTag, ResponsiveVoiceOnEndCallback callback) {
-		nativeSpeak(obj, text, langTag, callback.getText(), callback.getLang());
+	public static void speak (JavaScriptObject obj, List<TextToSpeechVoice> voiceTexts) {
+		nativeSpeak(obj, JavaScriptUtils.textToSpeechVoicesObjectToJavaScriptArray(voiceTexts));
 	}
 	
-	public static native void nativeSpeak(JavaScriptObject obj, String text, String langTag, String callbackText, String callbackLangTag)  /*-{
+	public static native void nativeSpeak(JavaScriptObject obj, JsArray<JavaScriptObject> texts) /*-{
 		try {
 			if (obj && obj.speak) {
-				obj.speak(text, langTag, {
-					text: callbackText,
-					lang: callbackLangTag
-				});
+				obj.speak(texts);
 			}
 		} catch(err) {
 			alert("[TextToSpeech1] Exception in speak(): \n" + err);
 		}
 	}-*/;
+	
+//	public static native void nativeSpeak(JavaScriptObject obj, String text, String langTag, String callbackText, String callbackLangTag)  /*-{
+//		try {
+//			if (obj && obj.speak) {
+//				obj.speak(text, langTag, {
+//					text: callbackText,
+//					lang: callbackLangTag
+//				});
+//			}
+//		} catch(err) {
+//			alert("[TextToSpeech1] Exception in speak(): \n" + err);
+//		}
+//	}-*/;
 	
 	// TODO remove
 	public static native void readGap (JavaScriptObject obj, String text, String currentGapContent, int gapNumber) /*-{
@@ -81,16 +96,6 @@ public class TextToSpeechAPI {
 			}
 		} catch(err) {
 			alert("[TextToSpeech1] Exception in getModulesOrder(): \n" + err);
-		}
-	}-*/;
-
-	public static native JsArrayString getMultiPartDescription (JavaScriptObject obj, String id) /*-{
-		try {
-			if (obj && obj.getMultiPartDescription) {
-				return obj.getMultiPartDescription(id);
-			}
-		} catch(err) {
-			alert("[TextToSpeech1] Exception in getMultiPartDescription(): \n" + err);
 		}
 	}-*/;
 

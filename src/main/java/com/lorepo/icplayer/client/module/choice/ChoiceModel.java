@@ -13,7 +13,6 @@ import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
-import com.lorepo.icplayer.client.module.addon.param.AddonParamProvider;
 
 public class ChoiceModel extends BasicModuleModel{
 
@@ -359,20 +358,6 @@ public class ChoiceModel extends BasicModuleModel{
 			options.add(index+1, item);
 		}
 	}
-	
-	private void moveSpeechTextItemUp(int index) {
-		if(index > 0){
-			SpeechTextsStaticListItem item = this.speechTextItems.remove(index);
-			this.speechTextItems.add(index-1, item);
-		}
-	}
-
-	private void moveSpeechTextItemDown(int index) {
-		if(index < this.speechTextItems.size()-1){
-			SpeechTextsStaticListItem item = this.speechTextItems.remove(index);
-			this.speechTextItems.add(index+1, item);
-		}
-	}
 
 	public ArrayList<ChoiceOption> getOptions() {
 		return options;
@@ -551,7 +536,6 @@ public class ChoiceModel extends BasicModuleModel{
 
 			@Override
 			public String getValue() {
-				// TODO Auto-generated method stub
 				return Integer.toString(speechTextItems.size());
 			}
 
@@ -561,14 +545,10 @@ public class ChoiceModel extends BasicModuleModel{
 			}
 
 			@Override
-			public void setValue(String newValue) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void setValue(String newValue) {}
 
 			@Override
 			public boolean isDefault() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 
@@ -597,7 +577,6 @@ public class ChoiceModel extends BasicModuleModel{
 			@Override
 			public void moveChildDown(int index) {
 			}
-
 
 		};
 

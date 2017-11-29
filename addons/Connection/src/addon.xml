@@ -38,6 +38,10 @@
                 <property name="Connected" nameLabel="Connection_connected" type="string"/>
             </property>
 
+			<property name="Disconnected" nameLabel="Connection_property_disconnected" type="staticrow">
+                <property name="Disconnected" nameLabel="Connection_disconnected" type="string"/>
+            </property>
+
             <property name="ConnectedTo" nameLabel="Connection_property_connected_to" type="staticrow">
                 <property name="Connected to" nameLabel="Connection_connected_to" type="string"/>
             </property>

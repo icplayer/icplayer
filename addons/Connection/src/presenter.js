@@ -1,4 +1,7 @@
 function AddonConnection_create() {
+
+    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
+
     var presenter = function() {};
 
     var playerController;
@@ -280,7 +283,8 @@ function AddonConnection_create() {
 
         presenter.speechTexts = {
             connected: speechTexts[0]['Connected']['Connected'].trim(),
-            connectedTo: speechTexts[1]['ConnectedTo']['Connected to'].trim()
+            disconnected: speechTexts[1]['Disconnected']['Disconnected'].trim(),
+            connectedTo: speechTexts[2]['ConnectedTo']['Connected to'].trim()
         };
     }
 
@@ -499,13 +503,12 @@ function AddonConnection_create() {
             if(presenter.checkIfConnectionDisabled($(element).attr('id'), selectedItem.attr('id'))){
                 return;
             }
-            readConnected();
             var line = new Line($(element), selectedItem);
             var shouldDraw = true;
 
             if (singleMode) {
                 var usedInLines = presenter.lineStack.isItemUsed(line);
-                if (usedInLines.length == 2) {
+                if (usedInLines.length === 2) {
                     shouldDraw = false
                 }
             }
@@ -939,6 +942,7 @@ function AddonConnection_create() {
         if (addLine) {
             presenter.lineStack.push(line);
         }
+        readConnected(addLine);
     }
 
     function redraw() {
@@ -1364,10 +1368,22 @@ function AddonConnection_create() {
         KeyboardController.call(this, elements, columnsCount);
     }
 
-    function readConnected () {
-        var tts = ConnectionKeyboardController.getTextToSpeechOrNull(playerController);
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    function readConnected (isDrawing) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
         if (tts) {
-            tts.speak(presenter.speechTexts.connected, presenter.langTag);
+            var voiceObject = getTextVoiceObject(
+                isDrawing ? presenter.speechTexts.connected : presenter.speechTexts.disconnected,
+                presenter.langTag
+            );
+            tts.speak([voiceObject]);
         }
     }
 
@@ -1395,7 +1411,7 @@ function AddonConnection_create() {
     }
 
     function readActivatedElementConnections () {
-        var tts = ConnectionKeyboardController.getTextToSpeechOrNull(playerController);
+        var tts = presenter.getTextToSpeechOrNull(playerController);
         if (tts) {
             var $active = getActivatedElement();
             var text = $active.text().trim();
@@ -1409,9 +1425,9 @@ function AddonConnection_create() {
                     connectionsText += ' ' + connection.text().trim() + '.';
                 }
 
-                tts.speak(connectionsText, presenter.langTag);
+                tts.speak([getTextVoiceObject(connectionsText, presenter.langTag)]);
             } else {
-                tts.speak(text, presenter.langTag);
+                tts.speak([getTextVoiceObject(text, presenter.langTag)]);
             }
         }
     }
@@ -1420,12 +1436,26 @@ function AddonConnection_create() {
     ConnectionKeyboardController.prototype.constructor = ConnectionKeyboardController;
 
     ConnectionKeyboardController.prototype.nextRow = function () {
-        this.switchElement(1);
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + 1;
+        if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+        if (new_position_index === parseInt(this.keyboardNavigationElementsLen / 2, 10)) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+        this.markCurrentElement(new_position_index);
         readActivatedElementConnections();
     };
 
     ConnectionKeyboardController.prototype.previousRow = function () {
-        this.switchElement(-1);
+        var new_position_index = this.keyboardNavigationCurrentElementIndex - 1;
+        if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex
+        }
+        if (new_position_index === parseInt(this.keyboardNavigationElementsLen / 2, 10) - 1) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+        this.markCurrentElement(new_position_index);
         readActivatedElementConnections();
     };
 
@@ -1442,6 +1472,7 @@ function AddonConnection_create() {
     ConnectionKeyboardController.prototype.enter = function () {
         Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
         readActivatedElementConnections();
+        ConnectionKeyboardController.select();
     };
 
     return presenter;

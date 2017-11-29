@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.sourcelist;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.dom.client.Element;
@@ -19,17 +20,21 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter.IDisplay;
+import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
+
+public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGModuleView {
 
 	private static final String SELECTED_STYLE = "ic_sourceListItem-selected";
 	private final SourceListModule module;
-	private final HashMap<String, Label>	labels = new HashMap<String, Label>();
+	private final HashMap<String, Label> labels = new HashMap<String, Label>();
 	private IViewListener listener;
 	private boolean isDragged = false;
 	private boolean isTouchSupported = false;
@@ -39,31 +44,25 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 	private String idOfLabelToRemove = null;
 	private int currentLabel = 0;
 	private ArrayList <String> labelsIds = new ArrayList <String>();
+	private PageController pageController;
+	private boolean isWCAGOn = false;
 
 	public SourceListView(SourceListModule module, boolean isPreview){
-
 		this.module = module;
 		createUI(isPreview);
 	}
 
-
 	private void createUI(boolean isPreview) {
-
-        this.isPreview = isPreview;
-		if(module.getStyleClass().isEmpty()){
-			setStyleName("ic_sourceList");
-		}
-		else{
-			setStyleName(module.getStyleClass());
-		}
-
+		this.isPreview = isPreview;
+		setStyleName(module.getStyleClass().isEmpty() ? "ic_sourceList" : module.getStyleClass());
 		StyleUtils.applyInlineStyle(this, module);
-		if(!isPreview){
+		if (!isPreview) {
 			setVisible(module.isVisible());
 		}
 		getElement().setId(module.getId());
+		
+		getElement().setAttribute("lang", this.module.getLangAttribute());
 	}
-
 
 	private void fireClickEvent(String id) {
 		if(!isDragged && listener != null){
@@ -96,19 +95,18 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 
 	@Override
 	public void selectItem(String id) {
-
 		Label label = labels.get(id);
-		if(label != null){
+		if (label != null) {
 			label.addStyleName(SELECTED_STYLE);
 		}
-	}
 
+		this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""), TextToSpeechVoice.create());
+	}
 
 	@Override
 	public void addListener(IViewListener l) {
 		this.listener = l;
 	}
-
 
 	@Override
 	public void addItem(final String id, String item, boolean callMathJax) {
@@ -218,15 +216,15 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 		}
 	}
 
-
 	@Override
-	public void deselectItem(String id) {
+	public void deselectItem(String id, boolean read) {
 		Label label = labels.get(id);
-		if(label != null){
+		if (label != null) {
 			label.removeStyleName(SELECTED_STYLE);
+			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1), ""), TextToSpeechVoice.create());
 		}
 
-		if(module.isVertical()){
+		if (module.isVertical()) {
 			DOMUtils.applyInlineStyle(label.getElement(), "display: block; position: relative");
 		} else {
 			DOMUtils.applyInlineStyle(label.getElement(), "display: inline-block; white-space: nowrap; position: relative");
@@ -313,7 +311,7 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 
 	private void unMarkCurrentItem(){
 		Label current = labels.get(labelsIds.get(currentLabel));
-		current.removeStyleName("keyboard_navigation_active_element");		
+		current.removeStyleName("keyboard_navigation_active_element");
 	}
 	
 	private void markCurrentItem(){
@@ -322,24 +320,43 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 	}
 
 	private void enter() {
-		try {
-			unMarkCurrentItem();
-		} catch (Error e) {}
-		currentLabel = 0;
+		markCurrentItem();
+		this.speakOption(currentLabel);
+	}
+	
+	private void switchItem (boolean moveNext) {
+		unMarkCurrentItem();
+		
+		currentLabel += moveNext ? 1 : -1;
+		currentLabel = currentLabel < 0 ? 0 : currentLabel % labelsIds.size();
+		speakOption(currentLabel);
+		
 		markCurrentItem();
 	}
 
-	private void next() {
-		unMarkCurrentItem();
-		currentLabel++;
-		currentLabel = currentLabel % labelsIds.size();
-		markCurrentItem();
+	private void next () {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+		
+		this.switchItem(true);
+	}
+	
+	private void previous () {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+		
+		this.switchItem(false);
 	}
 
 	private void select() {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+		
 		fireClickEvent(labelsIds.get(currentLabel));
 	}
-
 
 	@Override
 	public void enter(boolean isExiting) {
@@ -352,47 +369,41 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 		} else {
 			this.enter();
 		}
-
 	}
 
 
 	@Override
 	public void space() {
-		if (labelsIds.size() < 1) {
-			return;
-		}
-
 		select();
 	}
 
-
 	@Override
 	public void tab() {
-		if (labelsIds.size() < 1) {
-			return;
-		}
-
 		next();
 	}
 
 
 	@Override
 	public void left() {
+		previous();
 	}
 
 
 	@Override
 	public void right() {
+		next();
 	}
 
 
 	@Override
 	public void down() {
+		next();
 	}
 
 
 	@Override
 	public void up() {
+		previous();
 	}
 
 
@@ -410,8 +421,44 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 	public void customKeyCode(KeyDownEvent event) {
 	}
 
-
 	@Override
 	public void shiftTab() {
+		previous();
+	}
+	
+	private void speak (TextToSpeechVoice t1, TextToSpeechVoice t2) {
+		if (this.pageController != null) {
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			textVoices.add(t1);
+			textVoices.add(t2);
+			
+			this.pageController.speak(textVoices);
+		}
+	}
+	
+	private void speakOption (int index) {
+		if (index >= 0 && index < labelsIds.size()) {
+			final Label label = labels.get(labelsIds.get(index));
+			this.speak(
+				TextToSpeechVoice.create(label.getText(), this.module.getLangAttribute()),
+				TextToSpeechVoice.create()
+			);
+		}
+	}
+
+	@Override
+	public void setWCAGStatus (boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;
+	}
+
+	@Override
+	public void setPageController (PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+	}
+
+	@Override
+	public String getLang () {
+		return this.module.getLangAttribute();
 	}
 }

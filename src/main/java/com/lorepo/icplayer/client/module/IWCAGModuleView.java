@@ -4,7 +4,7 @@ import com.lorepo.icplayer.client.page.PageController;
 
 
 public interface IWCAGModuleView {
-	public void setWCAGStatus (boolean isWCAGOn);
 	public void setPageController (PageController pc);
+	public void setWCAGStatus (boolean isWCAGOn);
 	public String getLang ();
 }

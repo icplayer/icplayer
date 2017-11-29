@@ -10,7 +10,6 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
@@ -19,9 +18,6 @@ import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.choice.ChoiceView;
-import com.lorepo.icplayer.client.module.ordering.OrderingView;
-import com.lorepo.icplayer.client.module.text.TextView;
 
 /*
 	Usage:
@@ -544,7 +540,7 @@ public final class KeyboardNavigationController {
 		this.presentersOriginalOrder.addAll(this.generatePresenters(controller, isCommon));
 	}
 	
-	private void playTextToSpeechContent (IWCAGPresenter iWCAGPresenter) {		
+	private void playTextToSpeechContent (IWCAGPresenter iWCAGPresenter) {
 		if (iWCAGPresenter.getWCAGController() instanceof IWCAGModuleView) {
 			IWCAGModuleView view = (IWCAGModuleView) iWCAGPresenter.getWCAGController();
 			view.setPageController(mainPageController);

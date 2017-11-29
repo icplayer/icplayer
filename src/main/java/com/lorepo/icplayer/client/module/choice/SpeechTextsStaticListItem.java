@@ -13,7 +13,6 @@ public class SpeechTextsStaticListItem extends BasicPropertyProvider {
 		super(name);
 		addPropertyText();
 		dictionaryLabel = "choice_item_" + name;
-		// TODO Auto-generated constructor stub
 	}
 	
 	public String getText() {

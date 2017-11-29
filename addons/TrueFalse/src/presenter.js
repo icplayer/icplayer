@@ -1,6 +1,8 @@
 function AddonTrueFalse_create() {
-    var presenter = function () {
-    };
+
+    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
+
+    var presenter = function () {};
 
     presenter.type = "";
     presenter.lastEvent = null;
@@ -791,7 +793,7 @@ function AddonTrueFalse_create() {
                 text = '';
 
             if ($active.hasClass('tf_' + presenter.type + '_question')) {
-                tts.speak($active.text().trim(), presenter.langAttribute);
+                tts.speak([getTextVoiceObject($active.text().trim(), presenter.langAttribute)]);
                 return;
             }
 

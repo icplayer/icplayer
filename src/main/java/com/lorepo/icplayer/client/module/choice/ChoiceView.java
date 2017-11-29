@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -12,14 +11,13 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 import com.lorepo.icplayer.client.utils.MathJax;
 
 public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG, IWCAGModuleView {
@@ -32,7 +30,6 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private IOptionListener listener;
 	private int[] order;
 	private PageController pageController;
-	private List<String> optionsVoices;
 	private String selectedText = "selected";
 	private String deselectedText = "deselected";
 	private String correctText = "correct";
@@ -47,7 +44,6 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		this.module = module;
 		createUI(isPreview);
 	}
-
 	
 	/**
 	 * To zamieszanie z tworzeniem VerticalPanel jest potrzebne ponieważ bez tego 
@@ -273,54 +269,36 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			option.addBorder();
 		}
 	}
-
-	public void setPageController (PageController pageController) {
-		this.pageController = pageController;
-	}
-
-	public void setTextToSpeechVoices (List<String> optionsVoices) {
-		this.optionsVoices = optionsVoices;
-	}
 	
 	private void textToSpeechCurrentOption () {
 		IOptionDisplay widget = optionWidgets.get(position);
 		ChoiceOption option = widget.getModel();
-		final boolean useDefaultOptionValues = this.optionsVoices.isEmpty() || (this.optionsVoices.size() != module.getOptionCount());
-		String text = useDefaultOptionValues ? widget.getModel().getText() : this.optionsVoices.get(position);
-		String checkText = "";
+		String text = widget.getModel().getText();
 		
 		text = StringUtils.removeAllFormatting(text);
+		String callbackText = this.deselectedText;
 		
-		if (this.pageController != null) {
-			if (widget.isDown()) {
-				if(this.isShowErrorsMode) {
-					if(option.getValue() > 0){
-						checkText = this.correctText;
-					} else{
-						checkText = this.incorrectText;
-					}					
-					this.pageController.speak(text, this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback(this.selectedText + " " + checkText, ""));
-				} else {
-					this.pageController.speak(text, this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback(this.selectedText, ""));
-				}
+		if (widget.isDown()) {
+			if(this.isShowErrorsMode) {
+				String checkText = option.getValue() > 0 ? this.correctText : this.incorrectText;
+				callbackText = this.selectedText + " " + checkText;
 			} else {
-				this.pageController.speak(text, this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback(this.deselectedText, ""));
+				callbackText = this.selectedText;
 			}
 		}
+		
+		this.speak(TextToSpeechVoice.create(text, this.module.getLangAttribute()), TextToSpeechVoice.create(callbackText, ""));
 	}
 
-	private void textToSpeechSelectOption () {	
+	private void textToSpeechSelectOption () {
 		IOptionDisplay widget = optionWidgets.get(position);
 		OptionView optionView = (OptionView) widget;
 		if (!optionView.isEnabled()) return;
 		
-		if (this.pageController != null) {
-			if (widget.isDown()) {
-				this.pageController.speak(this.selectedText,"", new ResponsiveVoiceOnEndCallback());
-			} else {
-				this.pageController.speak(this.deselectedText, "", new ResponsiveVoiceOnEndCallback());
-			}
-		}
+		this.speak(
+			TextToSpeechVoice.create(widget.isDown() ? this.selectedText : this.deselectedText, ""),
+			TextToSpeechVoice.create()
+		);
 	}
 
 	public static native void blurFocusedElements() /*-{
@@ -349,11 +327,6 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			option.setDown(!option.isDown());
 			listener.onValueChange(option, !option.isDown());
 		}
-	}
-
-	@Override
-	public void setWCAGStatus (boolean isWCAGOn) {
-		this.isWCAGOn = isWCAGOn;
 	}
 	
 	private void addBorder() {
@@ -450,9 +423,31 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	    previous();
 		textToSpeechCurrentOption();
 	}
+
+	@Override
+	public void setWCAGStatus (boolean isOn) {
+		this.isWCAGOn = isOn;
+	}
+
+	@Override
+	public void setPageController (PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+	}
 	
 	@Override
-	public String getLang() {
-		return null;
+	public String getLang () {
+		return this.module.getLangAttribute();
 	}
+	
+	private void speak (TextToSpeechVoice t1, TextToSpeechVoice t2) {
+		if (this.pageController != null) {
+			List<TextToSpeechVoice> voiceTexts = new ArrayList<TextToSpeechVoice>();
+			voiceTexts.add(t1);
+			voiceTexts.add(t2);
+		
+			this.pageController.speak(voiceTexts);
+		}
+	}
+
 }

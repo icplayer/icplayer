@@ -13,6 +13,7 @@ import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.NavigationModuleIndentifier;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Group;
@@ -486,15 +487,9 @@ public class PageController implements ITextToSpeechController {
 		}
 	}
 
-	public void playDescription (String id, String langTag) {
+	public void speak (List<TextToSpeechVoice> voiceTexts) {
 		if (this.isReadingOn) {
-			TextToSpeechAPI.playDescription(this.getTextToSpeechAPIJavaScriptObject(), id, langTag);
-		}
-	}
-
-	public void speak (String text, String langTag, ResponsiveVoiceOnEndCallback callback) {
-		if (this.isReadingOn) {
-			TextToSpeechAPI.speak(this.getTextToSpeechAPIJavaScriptObject(), text, langTag, callback);
+			TextToSpeechAPI.speak(this.getTextToSpeechAPIJavaScriptObject(), voiceTexts);
 		}
 	}
 
@@ -514,10 +509,6 @@ public class PageController implements ITextToSpeechController {
 
 	public List<NavigationModuleIndentifier> getModulesOrder () {
 		return JavaScriptUtils.convertJsArrayObjectsToJavaObjects(TextToSpeechAPI.getModulesOrder(this.getTextToSpeechAPIJavaScriptObject()));
-	}
-
-	public List<String> getMultiPartDescription (String id) {
-		return JavaScriptUtils.convertJsArrayToArrayList(TextToSpeechAPI.getMultiPartDescription(this.getTextToSpeechAPIJavaScriptObject(), id));
 	}
 	
 	public boolean isTextToSpeechModuleEnable () {

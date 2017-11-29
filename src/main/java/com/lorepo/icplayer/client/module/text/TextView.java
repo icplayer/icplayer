@@ -14,13 +14,13 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 import com.lorepo.icplayer.client.utils.MathJax;
 
 
@@ -425,7 +425,9 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			}
 			
 			if (this.pageController != null) {
-				this.pageController.speak(getContentWithGapsValues(), this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback());
+				List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+				textVoices.add(TextToSpeechVoice.create(getContentWithGapsValues(), this.module.getLangAttribute()));
+				this.pageController.speak(textVoices);
 			}
 		}
 	}

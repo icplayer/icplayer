@@ -5,12 +5,9 @@
             <property name="ID" nameLabel="Text_To_Speech_property_id" type="string" />
             <property name="Area" displayName="Area" nameLabel="Text_To_Speech_area" type="{Main, Header, Footer}" />
             <property name="Title" nameLabel="Text_To_Speech_property_title" type="string" isLocalized="true" />
-            <property name="Description" nameLabel="Text_To_Speech_property_description" type="text" isLocalized="true" />
         </property>
 
         <property name="EnterText" nameLabel="Text_To_Speech_property_enter_text" type="string" isLocalized="true" />
         <property name="ExitText" nameLabel="Text_To_Speech_property_exit_text" type="string" isLocalized="true" />
-
-        <!--<property name="language" displayName="Language" nameLabel="Text_To_Speech_language" type="{English, Polski, Deutsch}" />-->
     </model>
 </addon>
