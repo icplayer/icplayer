@@ -19,6 +19,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
@@ -281,7 +282,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 			this.speak(textVoices);
 		} else {
-			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1), ""), TextToSpeechVoice.create());
+			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1), this.getLang()), TextToSpeechVoice.create());
 		}
 
 		int loIndex;
@@ -744,7 +745,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	
 	private void readItem (int index) {
 		this.speak(
-			TextToSpeechVoice.create(this.getWidgetText(index), this.module.getLangAttribute()),
+			TextToSpeechVoice.create(this.getWidgetText(index), this.getLang()),
 			TextToSpeechVoice.create()
 		);
 	}
@@ -819,6 +820,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 	@Override
 	public String getLang () {
+		JavaScriptUtils.log(this.module.getLangAttribute());
 		return this.module.getLangAttribute();
 	}
 	

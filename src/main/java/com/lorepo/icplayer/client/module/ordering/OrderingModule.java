@@ -84,14 +84,18 @@ public class OrderingModule extends BasicModuleModel {
 		items.clear();
 		// Read ordering node
 		NodeList nodeList = node.getElementsByTagName("ordering");
-		if(nodeList.getLength() > 0){
-			Element choice = (Element)nodeList.item(0);
-			isVertical = XMLUtils.getAttributeAsBoolean(choice, "isVertical");
-			isActivity = XMLUtils.getAttributeAsBoolean(choice, "isActivity", true);
-			optionalOrder = XMLUtils.getAttributeAsString(choice, "optionalOrder");
-			allElementsHasSameWidth = XMLUtils.getAttributeAsBoolean(choice, "allElementsHasSameWidth");
-			graduallyScore = XMLUtils.getAttributeAsBoolean(choice, "graduallyScore");
-			dontGenerateCorrectOrder = XMLUtils.getAttributeAsBoolean(choice, "dontGenerateCorrectOrder");
+		if (nodeList.getLength() > 0) {
+			Element ordering = (Element) nodeList.item(0);
+			isVertical = XMLUtils.getAttributeAsBoolean(ordering, "isVertical");
+			isActivity = XMLUtils.getAttributeAsBoolean(ordering, "isActivity", true);
+			optionalOrder = XMLUtils.getAttributeAsString(ordering, "optionalOrder");
+			allElementsHasSameWidth = XMLUtils.getAttributeAsBoolean(ordering, "allElementsHasSameWidth");
+			graduallyScore = XMLUtils.getAttributeAsBoolean(ordering, "graduallyScore");
+			dontGenerateCorrectOrder = XMLUtils.getAttributeAsBoolean(ordering, "dontGenerateCorrectOrder");
+			this.langAttribute = XMLUtils.getAttributeAsString(ordering, "lang");
+			this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(ordering, "selected"));
+			this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(ordering, "deselected"));
+			this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(ordering, "replaced_with"));
 		}
 
 		// Read item nodes
@@ -170,6 +174,10 @@ public class OrderingModule extends BasicModuleModel {
 				optionalOrder + "' isActivity='" + isActivity + "' allElementsHasSameWidth='" + 
 				Boolean.toString(allElementsHasSameWidth) + "' graduallyScore='" + Boolean.toString(graduallyScore) +
 				"' dontGenerateCorrectOrder='" + Boolean.toString(dontGenerateCorrectOrder) +
+				"' lang='" + this.langAttribute +
+				"' selected='" + this.speechTextItems.get(0).getText() +
+				"' deselected='" + this.speechTextItems.get(1).getText() +
+				"' replaced_with='" + this.speechTextItems.get(2).getText() +
 				"'/>";
 
 		for (OrderingItem item : items) {
@@ -560,7 +568,7 @@ public class OrderingModule extends BasicModuleModel {
 			public void addChildren(int count) {
 				speechTextItems.add(new SpeechTextsStaticListItem("selected"));
 				speechTextItems.add(new SpeechTextsStaticListItem("deselected"));
-				speechTextItems.add(new SpeechTextsStaticListItem("replaced with"));
+				speechTextItems.add(new SpeechTextsStaticListItem("replaced_with"));
 			}
 
 			@Override

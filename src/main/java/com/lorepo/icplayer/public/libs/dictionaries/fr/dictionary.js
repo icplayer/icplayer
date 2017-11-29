@@ -302,6 +302,7 @@ var ice_dictionary_fr = {
 "choice_speech_texts": "Speech texts",
 "choice_item_selected": "Selected",
 "choice_item_deselected": "Deselected",
+"choice_item_replaced_with": "Replaced with",
 "choice_item_correct": "Correct",
 "choice_item_incorrect": "Incorrect",
 "error_counter_module" : "Compteur d'erreurs",
