@@ -80,7 +80,4 @@ public class CheckCounterModule extends BasicModuleModel{
 	public String getLangAttribute() {
 		return langAttribute;
 	}
-
-
-
 }

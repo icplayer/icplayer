@@ -10,6 +10,7 @@ import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 import com.lorepo.icplayer.client.utils.widget.ProgressBar;
 
 public class PageProgressView extends ProgressBar implements PageProgressPresenter.IDisplay, IWCAG, IWCAGModuleView {
@@ -17,6 +18,8 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 //	private ProgressBar progress;
 	private PageProgressModule module;
 	private ArrayList<IOptionDisplay> optionWidgets = new ArrayList<IOptionDisplay>();
+	private boolean isWCAGOn = false;
+	private PageController pageController;
 	
 	public PageProgressView(PageProgressModule module, boolean isPreview){
 		
@@ -74,94 +77,78 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 		return "PageProgress";
 	}
 
-
+	private void speak() {
+		if (this.pageController != null) {
+			this.pageController.speak(Double.toString(getProgress()), this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback());
+		}
+	}
+	
 	@Override
 	public void setWCAGStatus(boolean isWCAGOn) {
-		// TODO Auto-generated method stub
-		
+		this.isWCAGOn = isWCAGOn;
 	}
 
 
 	@Override
 	public void setPageController(PageController pc) {
-		// TODO Auto-generated method stub
-		
+		this.setWCAGStatus(true);
+		this.pageController = pc;
 	}
 
 
 	@Override
 	public String getLang() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 
 	@Override
 	public void enter(boolean isExiting) {
-		// TODO Auto-generated method stub
-		
+		speak();
 	}
 
 
 	@Override
 	public void space() {
-		// TODO Auto-generated method stub
-		
 	}
 
 
 	@Override
 	public void tab() {
-		// TODO Auto-generated method stub
-		
 	}
 
 
 	@Override
 	public void left() {
-		// TODO Auto-generated method stub
-		
 	}
 
 
 	@Override
 	public void right() {
-		// TODO Auto-generated method stub
-		
 	}
 
 
 	@Override
 	public void down() {
-		// TODO Auto-generated method stub
-		
 	}
 
 
 	@Override
 	public void up() {
-		// TODO Auto-generated method stub
-		
 	}
 
 
 	@Override
 	public void escape() {
-		// TODO Auto-generated method stub
-		
 	}
 
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {
-		// TODO Auto-generated method stub
-		
 	}
 
 
 	@Override
 	public void shiftTab() {
-		// TODO Auto-generated method stub
-		
 	}
 }

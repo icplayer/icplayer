@@ -85,18 +85,17 @@ public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDi
 	public void speak() {
 		if (this.pageController != null) {
 			String text = getText();
-			JavaScriptUtils.log(text.contains("/"));
 			if (text.contains("/")) {
 				String[] splittedText = text.split("/");
+				this.pageController.speak(splittedText[0] + " " + splittedText[1], this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback());	
+			} else {
+				this.pageController.speak(getText(), this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback());	
 			}
-			
-			this.pageController.speak(getText(), this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback());
 		}
 	}
 	
 	@Override
 	public String getLang() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

@@ -7,6 +7,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -305,25 +306,24 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 
 	@Override
 	public IWCAG getWCAGController() {
-		// TODO Auto-generated method stub
-		return null;
+		return (IWCAG) this.view;
 	}
 
 	@Override
 	public void selectAsActive(String className) {
-		// TODO Auto-generated method stub
-		
+		if(className != "ic_active_module") {
+			this.view.getElement().addClassName(className);
+		}
 	}
 
 	@Override
 	public void deselectAsActive(String className) {
-		// TODO Auto-generated method stub
-		
+		this.view.getElement().removeClassName(className);	
 	}
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
+		return (isVisible || isTextToSpeechOn);
 	}
 }
