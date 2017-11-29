@@ -11,6 +11,8 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
@@ -28,8 +30,13 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private IOptionListener listener;
 	private int[] order;
 	private PageController pageController;
-//	private List<String> optionsVoices = new ArrayList<String>();
+	private String selectedText = "selected";
+	private String deselectedText = "deselected";
+	private String correctText = "correct";
+	private String incorrectText = "incorrect";
+	private boolean isEnabled = true;
 	private boolean isWCAGOn = false;
+	private boolean isShowErrorsMode = false;
 
 	private int position = -1;
 	
@@ -37,7 +44,6 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		this.module = module;
 		createUI(isPreview);
 	}
-
 	
 	/**
 	 * To zamieszanie z tworzeniem VerticalPanel jest potrzebne ponieważ bez tego 
@@ -95,6 +101,24 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		getElement().setId(module.getId());
 		if(module.isDisabled()){
 			setEnabled(false);
+		}
+		
+		getElement().setAttribute("lang", this.module.getLangAttribute());
+		
+		if(this.module.getSpeechTextItem(0) != "") {
+			this.selectedText = this.module.getSpeechTextItem(0);
+		}
+		
+		if(this.module.getSpeechTextItem(1) != "") {
+			this.deselectedText = this.module.getSpeechTextItem(1);
+		}
+		
+		if(this.module.getSpeechTextItem(2) != "") {
+			this.correctText = this.module.getSpeechTextItem(2);
+		}
+		
+		if(this.module.getSpeechTextItem(3) != "") {
+			this.incorrectText = this.module.getSpeechTextItem(3);
 		}
 	}
 	    
@@ -162,7 +186,6 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	@Override
 	public void onValueChange(ValueChangeEvent<Boolean> event) {
-
 		if (listener != null) {
 			listener.onValueChange((IOptionDisplay) event.getSource(), event.getValue());
 		}
@@ -176,6 +199,11 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			OptionView widget = (OptionView) optionView;
 			widget.setEnabled(b);
 		}
+	}
+	
+	@Override
+	public void isShowErrorsMode(boolean isShowErrorsMode) {
+		this.isShowErrorsMode = isShowErrorsMode;
 	}
 
 	@Override
@@ -210,7 +238,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		position++;
 		
 		if (position == optionWidgets.size()) {
-			position = position % optionWidgets.size();
+			position = position-1;
 		}
 
 		IOptionDisplay option = optionWidgets.get(position);
@@ -228,7 +256,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		position--;
 
 		if (position < 0) {
-			position = optionWidgets.size()-1;
+			position = position + 1;
 		}
 
 		IOptionDisplay option = optionWidgets.get(position);
@@ -241,27 +269,66 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			option.addBorder();
 		}
 	}
-
+	
 	private void textToSpeechCurrentOption () {
-		this.pageController.speak(module.getOption(position).getText(), ""); // TODO add language from property
+		IOptionDisplay widget = optionWidgets.get(position);
+		ChoiceOption option = widget.getModel();
+		String text = widget.getModel().getText();
+		
+		text = StringUtils.removeAllFormatting(text);
+		String callbackText = this.deselectedText;
+		
+		if (widget.isDown()) {
+			if(this.isShowErrorsMode) {
+				String checkText = option.getValue() > 0 ? this.correctText : this.incorrectText;
+				callbackText = this.selectedText + " " + checkText;
+			} else {
+				callbackText = this.selectedText;
+			}
+		}
+		
+		this.speak(TextToSpeechVoice.create(text, this.module.getLangAttribute()), TextToSpeechVoice.create(callbackText, ""));
 	}
 
+	private void textToSpeechSelectOption () {
+		IOptionDisplay widget = optionWidgets.get(position);
+		OptionView optionView = (OptionView) widget;
+		if (!optionView.isEnabled()) return;
+		
+		this.speak(
+			TextToSpeechVoice.create(widget.isDown() ? this.selectedText : this.deselectedText, ""),
+			TextToSpeechVoice.create()
+		);
+	}
+
+	public static native void blurFocusedElements() /*-{
+	  $wnd.$(':focus').blur();
+	}-*/;
+	
 	private void select() {
+		blurFocusedElements();
+		
 		if (position < 0) return;
 		
 		IOptionDisplay option = optionWidgets.get(position);
 		
+		OptionView optionView = (OptionView) option;
+		if (!optionView.isEnabled()) return;
+		
 		if (!module.isMulti()) {
 			for (IOptionDisplay widget : optionWidgets) {
-				widget.setDown(false);
+				if(option != widget) {
+					widget.setDown(false);
+				}
 			}
 		}
 
 		if (option != null) {
 			option.setDown(!option.isDown());
+			listener.onValueChange(option, !option.isDown());
 		}
 	}
-
+	
 	private void addBorder() {
 		if (position < 0) {
 			position = 0;
@@ -297,6 +364,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	@Override
 	public void space() {
 		select();
+		textToSpeechSelectOption();
 	}
 
 
@@ -309,11 +377,15 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	@Override
 	public void left() {
+	    previous();
+		textToSpeechCurrentOption();
 	}
 
 
 	@Override
 	public void right() {
+        skip();
+        textToSpeechCurrentOption();
 	}
 
 
@@ -348,8 +420,9 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	
 	@Override
 	public void shiftTab() {
+	    previous();
+		textToSpeechCurrentOption();
 	}
-
 
 	@Override
 	public void setWCAGStatus (boolean isOn) {
@@ -362,9 +435,19 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		this.pageController = pc;
 	}
 	
+	@Override
 	public String getLang () {
-//		return this.module.getLangAttribute();
-		return null;
+		return this.module.getLangAttribute();
+	}
+	
+	private void speak (TextToSpeechVoice t1, TextToSpeechVoice t2) {
+		if (this.pageController != null) {
+			List<TextToSpeechVoice> voiceTexts = new ArrayList<TextToSpeechVoice>();
+			voiceTexts.add(t1);
+			voiceTexts.add(t2);
+		
+			this.pageController.speak(voiceTexts);
+		}
 	}
 
 }

@@ -19,8 +19,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
@@ -272,14 +272,16 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		}
 	}
 
-	// TODO
 	private void replaceWidgetPositions(int srcIndex, int destIndex) {
 		if (srcIndex != destIndex) {
-			final String sourceText = this.getWidgetText(srcIndex);
-			final String destinyText = this.getWidgetText(destIndex);
-			this.speak(destinyText + " replaced with " + sourceText);
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			textVoices.add(TextToSpeechVoice.create(this.getWidgetText(destIndex), this.getLang()));
+			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(2), ""));
+			textVoices.add(TextToSpeechVoice.create(this.getWidgetText(srcIndex), this.getLang()));
+
+			this.speak(textVoices);
 		} else {
-			this.speak("unchecked");
+			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1), ""), TextToSpeechVoice.create());
 		}
 
 		int loIndex;
@@ -700,7 +702,6 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			
 			if (this.pageController != null) {
 				this.readItem(currentWCAGSelectedItemIndex);
-//				this.speak(this.prepearContentToRead(this.innerCellPanel));
 			}
 		}
 	}
@@ -742,17 +743,18 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 	
 	private void readItem (int index) {
-		this.speak(this.getWidgetText(index));
+		this.speak(
+			TextToSpeechVoice.create(this.getWidgetText(index), this.module.getLangAttribute()),
+			TextToSpeechVoice.create()
+		);
 	}
 	
 	private void checkItem (Widget selectedWidget) {
-		if (this.pageController != null) {
-			if (selectedWidget != null) {
-				speak(selectedWidget.getElement().getInnerText() + " - checked");
-			}
-//			else {
-//				speak("unchecked");
-//			}
+		if (selectedWidget != null) {
+			this.speak(
+				TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""),
+				TextToSpeechVoice.create()
+			);
 		}
 	}
 	
@@ -760,12 +762,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.deselectCurrentItem();
 		this.currentWCAGSelectedItemIndex += delta;
 		if (this.currentWCAGSelectedItemIndex < 0) {
-//			this.currentWCAGSelectedItemIndex = this.getWidgetCount() - 1;
 			this.currentWCAGSelectedItemIndex = 0;
 		}
 		
 		if (this.currentWCAGSelectedItemIndex >= this.getWidgetCount()) {
-//			this.currentWCAGSelectedItemIndex = 0;
 			this.currentWCAGSelectedItemIndex = this.getWidgetCount() - 1;
 		}
 		this.selectCurrentItem();
@@ -816,16 +816,26 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private String getWidgetText (int index) {
 		return this.innerCellPanel.getWidget(index).getElement().getInnerText();
 	}
-	
-	private void speak (String text) {
-		if (this.pageController != null) {
-			this.pageController.speak(text, "");
-		}
-	}
 
 	@Override
-	public String getLang() {
-		return "";
+	public String getLang () {
+		return this.module.getLangAttribute();
+	}
+	
+	private void speak (TextToSpeechVoice t1, TextToSpeechVoice t2) {
+		if (this.pageController != null) {
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			textVoices.add(t1);
+			textVoices.add(t2);
+			
+			this.pageController.speak(textVoices);
+		}
+	}
+	
+	private void speak (List<TextToSpeechVoice> textVoices) {
+		if (this.pageController != null) {
+			this.pageController.speak(textVoices);
+		}
 	}
 	
 }

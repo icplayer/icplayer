@@ -9,11 +9,13 @@ import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 public class OrderingModule extends BasicModuleModel {
 
@@ -26,6 +28,8 @@ public class OrderingModule extends BasicModuleModel {
 	private boolean allElementsHasSameWidth = false;
 	private boolean graduallyScore = false;
 	private boolean dontGenerateCorrectOrder = false;
+	private String langAttribute = "";
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 
 	public OrderingModule() {
 		super("Ordering", DictionaryWrapper.get("ordering_module"));
@@ -41,6 +45,8 @@ public class OrderingModule extends BasicModuleModel {
 		addPropertyAllElementHasSameWidth();
 		addPropertyGraduallyScore();
 		addPropertyDontGenerateCorrectOrder();
+		addPropertySpeechTexts();
+		addPropertyLangAttribute();
 	}
 
 	private void addItem(OrderingItem item) {
@@ -518,6 +524,123 @@ public class OrderingModule extends BasicModuleModel {
 		};
 
 		addProperty(property);
+	}
+	
+	private void addPropertySpeechTexts() {
+		IStaticListProperty property = new IStaticListProperty() {
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(speechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return speechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("selected"));
+				speechTextItems.add(new SpeechTextsStaticListItem("deselected"));
+				speechTextItems.add(new SpeechTextsStaticListItem("replaced with"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return speechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+
+		};
+
+		addProperty(property);
+		property.addChildren(1);
+	}
+	
+	private void addPropertyLangAttribute() {
+		IProperty property = new IProperty() {
+			@Override
+			public void setValue(String newValue) {
+				langAttribute = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return langAttribute;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("text_module_lang_attribute");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_lang_attribute");
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public String getSpeechTextItem (int index) {
+		if (index < 0 || index >= this.speechTextItems.size()) {
+			return "";
+		}
+		
+		final String text = this.speechTextItems.get(index).getText();
+		if (text.isEmpty()) {
+			if (index == 0) {
+				return "selected";
+			}
+			
+			if (index == 1) {
+				return "deselected";
+			}
+			
+			if (index == 2) {
+				return "replaced with";
+			}
+			
+			return "";
+		}
+		
+		return text;
+	}
+	
+	public String getLangAttribute () {
+		return this.langAttribute;
 	}
 
 }

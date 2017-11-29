@@ -1,4 +1,7 @@
 function AddonConnection_create() {
+
+    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
+
     var presenter = function() {};
 
     var playerController;
@@ -1376,7 +1379,11 @@ function AddonConnection_create() {
     function readConnected (isDrawing) {
         var tts = presenter.getTextToSpeechOrNull(playerController);
         if (tts) {
-            tts.speak(isDrawing ? presenter.speechTexts.connected : presenter.speechTexts.disconnected, presenter.langTag);
+            var voiceObject = getTextVoiceObject(
+                isDrawing ? presenter.speechTexts.connected : presenter.speechTexts.disconnected,
+                presenter.langTag
+            );
+            tts.speak([voiceObject]);
         }
     }
 
@@ -1418,9 +1425,9 @@ function AddonConnection_create() {
                     connectionsText += ' ' + connection.text().trim() + '.';
                 }
 
-                tts.speak(connectionsText, presenter.langTag);
+                tts.speak([getTextVoiceObject(connectionsText, presenter.langTag)]);
             } else {
-                tts.speak(text, presenter.langTag);
+                tts.speak([getTextVoiceObject(text, presenter.langTag)]);
             }
         }
     }

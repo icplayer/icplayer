@@ -6,10 +6,13 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 
 public class SourceListModule extends BasicModuleModel {
@@ -18,6 +21,7 @@ public class SourceListModule extends BasicModuleModel {
 	private boolean vertical = false;
 	private boolean randomOrder = false;
 	private String langAttribute = "";
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	
 	public SourceListModule() {
 		super("Source list", DictionaryWrapper.get("source_list_module"));
@@ -27,6 +31,7 @@ public class SourceListModule extends BasicModuleModel {
 		addPropertyRemovable();
 		addPropertyVertical();
 		addPropertyRandomOrder();
+		addPropertySpeechTexts();
 		addPropertyLangAttribute();
 	}
 
@@ -49,16 +54,17 @@ public class SourceListModule extends BasicModuleModel {
 	
 	@Override
 	public void load(Element rootElement, String baseUrl) {
-	
 		super.load(rootElement, baseUrl);
 		
 		NodeList nodeList = rootElement.getElementsByTagName("items");
-		if(nodeList.getLength() > 0){
+		if (nodeList.getLength() > 0) {
 			Element itemsElement = (Element)nodeList.item(0);
 			removable = XMLUtils.getAttributeAsBoolean(itemsElement, "removable", true);
 			vertical = XMLUtils.getAttributeAsBoolean(itemsElement, "vertical", false);
 			randomOrder = XMLUtils.getAttributeAsBoolean(itemsElement, "randomOrder", false);
 			langAttribute = XMLUtils.getAttributeAsString(itemsElement, "langAttribute");
+			this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(itemsElement, "selected"));
+			this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(itemsElement, "deselected"));
 		}
 
 		items.clear();
@@ -75,14 +81,18 @@ public class SourceListModule extends BasicModuleModel {
 		
 	}
 	
-	
 	@Override
 	public String toXML() {
 		String xml = "<sourceListModule " + getBaseXML() + ">" + getLayoutXML();
 		
-		xml += "<items removable='" + removable + "' vertical='" + vertical + "' randomOrder='" + randomOrder + "' langAttribute='" + langAttribute + "'>";
+		xml += "<items removable='" + removable +
+				"' vertical='" + vertical +
+				"' randomOrder='" + randomOrder +
+				"' selected='" + this.speechTextItems.get(0).getText() +
+				"' deselected='" + this.speechTextItems.get(1).getText() +
+				"' langAttribute='" + langAttribute + "'>";
 		
-		for(String item : items){
+		for (String item : items) {
 			xml += "<item><![CDATA[" + item + "]]></item>";
 		}
 
@@ -167,6 +177,62 @@ public class SourceListModule extends BasicModuleModel {
 		};
 		
 		addProperty(property);
+	}
+	
+	private void addPropertySpeechTexts() {
+		IStaticListProperty property = new IStaticListProperty() {
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(speechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return speechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("selected"));
+				speechTextItems.add(new SpeechTextsStaticListItem("deselected"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return speechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+
+		};
+
+		addProperty(property);
+		property.addChildren(1);
 	}
 	
 	private void addPropertyLangAttribute() {
@@ -318,6 +384,27 @@ public class SourceListModule extends BasicModuleModel {
 
 	public boolean isVertical() {
 		return vertical;
+	}
+	
+	public String getSpeechTextItem (int index) {
+		if (index < 0 || index >= this.speechTextItems.size()) {
+			return "";
+		}
+		
+		final String text = this.speechTextItems.get(index).getText();
+		if (text.isEmpty()) {
+			if (index == 0) {
+				return "selected";
+			}
+			
+			if (index == 1) {
+				return "deselected";
+			}
+			
+			return "";
+		}
+		
+		return text;
 	}
 	
 	public String getLangAttribute () {

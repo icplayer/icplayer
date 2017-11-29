@@ -1,8 +1,10 @@
 function AddonText_To_Speech_create() {
 
-    function getErrorObject(ec) { return {isValid: false, errorCode: ec}; }
+    function getErrorObject (ec) { return {isValid: false, errorCode: ec}; }
 
-    function getCorrectObject(v) { return {isValid: true, value: v}; }
+    function getCorrectObject (v) { return {isValid: true, value: v}; }
+
+    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
 
     function getConfObject (id, area, title, description) {
         return {
@@ -69,8 +71,7 @@ function AddonText_To_Speech_create() {
             addOnsTextToSpeechData.push(getConfObject(
                 conf.ID,
                 ModelValidationUtils.validateOption(presenter.AREAS, conf.Area),
-                conf.Title,
-                conf.Description
+                conf.Title
             ));
         }
 
@@ -98,7 +99,6 @@ function AddonText_To_Speech_create() {
             isValid: true,
 
             addOnsConfiguration: validatedConfiguration.value,
-            startText: model['StartText'], // TODO remove
             enterText: model['EnterText'],
             exitText: model['ExitText'],
             language: validatedLanguage.value
@@ -213,11 +213,43 @@ function AddonText_To_Speech_create() {
         return presenter.configuration.voices[0];
     }
 
-    presenter.speak = function (text, langTag) {
-        text = parseGaps(text); // TODO przeniesc operację do playera/Text
+    // presenter.speak = function (text, langTag, callback) {
+    //     text = parseGaps(text); // TODO przeniesc operację do playera/Text
+    //
+    //     if (text) {
+    //         if (callback && callback.text) {
+    //             window.responsiveVoice.speak(text, getResponsiveVoiceLanguage(langTag), {
+    //                 onend: function () {
+    //                     window.responsiveVoice.speak(callback.text, getResponsiveVoiceLanguage(callback.lang))
+    //                 }
+    //             });
+    //         } else {
+    //             window.responsiveVoice.speak(text, getResponsiveVoiceLanguage(langTag));
+    //         }
+    //     }
+    // };
 
-        if (text) {
-            window.responsiveVoice.speak(text, getResponsiveVoiceLanguage(langTag));
+    presenter.speak = function (texts) {
+        var textsObjects = texts.map(function (t) {
+            return {
+                lang: getResponsiveVoiceLanguage(t.lang ? t.lang : ''),
+                text: t.text ? parseGaps(t.text): '' // TODO przeniesc operację do playera/Text
+            };
+        }).filter(function (t) { return t.text !== '' });
+
+        var onEndStack = { onend: null };
+        for (var i=textsObjects.length-1; i>=0; i--) {
+            var textObject = textsObjects[i];
+
+            if (i === 0) {
+                window.responsiveVoice.speak(textObject.text, textObject.lang, onEndStack);
+            } else {
+                onEndStack.onend = (function (textObject, onEndStack) {
+                    return function () {
+                        window.responsiveVoice.speak(textObject.text, textObject.lang, onEndStack);
+                    }
+                })($.extend({}, textObject), $.extend({}, onEndStack));
+            }
         }
     };
 
@@ -268,27 +300,21 @@ function AddonText_To_Speech_create() {
         var gapTypeRead = presenter.INPUTS_TRANSLATIONS[presenter.configuration.language][gapTypeNumber];
         var gapNumberRead = presenter.getGapAppearanceAtIndexOfType(gaps, gapNumber) + 1;
 
-        presenter.speak(gapTypeRead + ' ' + gapNumberRead + ' ' + currentGapContent);
+        presenter.speak([gapTypeRead + ' ' + gapNumberRead + ' ' + currentGapContent]);
     };
 
     presenter.playTitle = function (area, id, langTag) {
         if (area && id) {
-            presenter.speak(getAddOnConfiguration(area, id).title, langTag);
-        }
-    };
-
-    presenter.playDescription = function (area, id, langTag) {
-        if (area && id) {
-            presenter.speak(getAddOnConfiguration('main', id).description, langTag);
+            presenter.speak([getTextVoiceObject(getAddOnConfiguration(area, id).title, langTag)]);
         }
     };
 
     presenter.playEnterText = function () {
-        presenter.speak(presenter.configuration.enterText || presenter.configuration.startText || '');
+        presenter.speak([getTextVoiceObject(presenter.configuration.enterText)]);
     };
 
     presenter.playExitText = function () {
-        presenter.speak(presenter.configuration.exitText);
+        presenter.speak([getTextVoiceObject(presenter.configuration.exitText)]);
     };
 
     presenter.getModulesOrder = function () {
@@ -298,20 +324,6 @@ function AddonText_To_Speech_create() {
                 area: c.area
             };
         });
-    };
-
-    function parseMultiPartDescription(text) {
-        if (text === '') {
-            return [];
-        }
-
-        return text.split('[PART]').map(function (option) {
-            return option.trim();
-        });
-    }
-
-    presenter.getMultiPartDescription = function (id) {
-        return parseMultiPartDescription(getAddOnConfiguration(id).description);
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -337,13 +349,11 @@ function AddonText_To_Speech_create() {
             "show": presenter.show,
             "hide": presenter.hide,
             "playTitle": presenter.playTitle,
-            "playDescription": presenter.playDescription,
             "speak": presenter.speak,
             "readGap": presenter.readGap,
             "playEnterText": presenter.playEnterText,
             "playExitText": presenter.playExitText,
-            "getModulesOrder": presenter.getModulesOrder,
-            "getMultiPartDescription": presenter.getMultiPartDescription
+            "getModulesOrder": presenter.getModulesOrder
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -374,7 +384,7 @@ function AddonText_To_Speech_create() {
     presenter.destroy = function () {
         presenter.$view[0].removeEventListener('DOMNodeRemoved', presenter.destroy);
 
-        window.speechSynthesis.cancel();
+        // window.speechSynthesis.cancel();
     };
 
     return presenter;
