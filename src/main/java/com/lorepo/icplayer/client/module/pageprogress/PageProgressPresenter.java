@@ -7,6 +7,9 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -21,7 +24,7 @@ import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter;
 
-public class PageProgressPresenter implements IPresenter, IStateful, ICommandReceiver {
+public class PageProgressPresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
 
 	public interface IDisplay extends IModuleView{
 		public void show();
@@ -298,5 +301,29 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	@Override
 	public void setWorkMode() {
 		// Module is not an activity
+	}
+
+	@Override
+	public IWCAG getWCAGController() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void selectAsActive(String className) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deselectAsActive(String className) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isSelectable(boolean isTextToSpeechOn) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

@@ -1,17 +1,23 @@
 package com.lorepo.icplayer.client.module.checkcounter;
 
+import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.NodeList;
 
 public class CheckCounterModule extends BasicModuleModel{
 
+	private String langAttribute = "";
+	
 	/**
 	 * constructor
 	 * @param services
 	 */
 	public CheckCounterModule() {
 		super("Check Counter", DictionaryWrapper.get("check_counter_module"));
-
+		addPropertyLangAttribute();
 	}
 
 	
@@ -19,12 +25,61 @@ public class CheckCounterModule extends BasicModuleModel{
 	public String toXML() {
 		
 		String xml = 
-				"<checkCounterModule " + getBaseXML() + ">" + getLayoutXML() + 
-				"</checkCounterModule>";
+				"<checkCounterModule " + getBaseXML() + ">" + getLayoutXML();
+		xml += "<counter langAttribute='" + langAttribute + "'/>";
+		 xml += "</checkCounterModule>";
 		
 		return xml;
 	}
 
+	@Override
+	public void load(Element node, String baseUrl) {
+	
+		super.load(node, baseUrl);
+		NodeList counters = node.getElementsByTagName("counter");
+		if(counters.getLength() > 0){
+			Element counterElement = (Element)counters.item(0);
+			langAttribute = XMLUtils.getAttributeAsString(counterElement, "langAttribute");
+		}
+		
+	}
+	
+	private void addPropertyLangAttribute() {
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				langAttribute = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return langAttribute;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_lang_attribute");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_lang_attribute");
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public String getLangAttribute() {
+		return langAttribute;
+	}
 
 
 
