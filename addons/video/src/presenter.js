@@ -1173,10 +1173,10 @@ function Addonvideo_create() {
     };
 
     presenter.setVideoURLCommand = function (params) {
-        presenter.setVideoURL(params[0]);
+        presenter.setVideoURL(params[0], params[1]);
     };
 
-    presenter.setVideoURL = function (url, id) {
+    presenter.setVideoURL = function (url, index) {
         var mapper = {
             "oggFormat": "Ogg video",
             "mp4Format": "MP4 video",
@@ -1189,31 +1189,18 @@ function Addonvideo_create() {
         },
         key,
         videoFile = {},
-        index = null;
+        index = (index || 1) - 1;
 
-        if (id === undefined) {
+        if (index >= presenter.configuration.files.length) {
             return false;
         }
 
-        presenter.configuration.files.forEach(function (file, idx) {
-            if (file.ID === id) {
-                videoFile = file;
-                index = idx;
-            }
-        });
-
-        if (index === null) {
-            return false;
-        }
+        videoFile = presenter.configuration.files[index];
 
         for (key in mapper) {
             if (mapper.hasOwnProperty(key)) {
                 videoFile[mapper[key]] = url[key] || videoFile[mapper[key]];
             }
-        }
-
-        if(videoFile.loop === '') {
-            videoFile['Loop video'] = false;
         }
 
         presenter.jumpTo(index + 1);
