@@ -1,12 +1,16 @@
 package com.lorepo.icplayer.client.module.checkcounter;
 
 import com.google.gwt.user.client.ui.Label;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 
 public class CheckCounterView extends Label implements CheckCounterPresenter.IDisplay, IWCAG, IWCAGModuleView {
 
@@ -37,7 +41,11 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 
 	public void speak() {
 		if (this.pageController != null) {
-			this.pageController.speak(getText(), this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback());
+			List<TextToSpeechVoice> voiceTexts = new ArrayList<TextToSpeechVoice>();
+			TextToSpeechVoice t1 = TextToSpeechVoice.create(getText(),  this.module.getLangAttribute());
+			voiceTexts.add(t1);
+			
+			this.pageController.speak(voiceTexts);
 		}
 	}
 	

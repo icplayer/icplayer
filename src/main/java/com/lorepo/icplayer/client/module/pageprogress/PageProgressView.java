@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.user.client.DOM;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
 import com.lorepo.icplayer.client.utils.widget.ProgressBar;
 
 public class PageProgressView extends ProgressBar implements PageProgressPresenter.IDisplay, IWCAG, IWCAGModuleView {
@@ -78,8 +78,12 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 	}
 
 	private void speak() {
-		if (this.pageController != null) {
-			this.pageController.speak(Double.toString(getProgress()), this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback());
+		if (this.pageController != null) {		
+			List<TextToSpeechVoice> voiceTexts = new ArrayList<TextToSpeechVoice>();
+			TextToSpeechVoice t1 = TextToSpeechVoice.create(Double.toString(getProgress()),  this.module.getLangAttribute());
+			voiceTexts.add(t1);
+			
+			this.pageController.speak(voiceTexts);
 		}
 	}
 	

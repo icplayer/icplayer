@@ -2,11 +2,15 @@ package com.lorepo.icplayer.client.module.errorcounter;
 
 import com.google.gwt.user.client.ui.Label;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.page.PageController;
-import com.lorepo.icplayer.client.page.ResponsiveVoiceOnEndCallback;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.event.dom.client.KeyDownEvent;
 
 public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDisplay, IWCAG, IWCAGModuleView{
@@ -84,13 +88,18 @@ public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDi
 
 	public void speak() {
 		if (this.pageController != null) {
+			List<TextToSpeechVoice> voiceTexts = new ArrayList<TextToSpeechVoice>();
 			String text = getText();
 			if (text.contains("/")) {
 				String[] splittedText = text.split("/");
-				this.pageController.speak(splittedText[0] + " " + splittedText[1], this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback());	
+				TextToSpeechVoice t1 = TextToSpeechVoice.create(splittedText[0] + " " + splittedText[1],  this.module.getLangAttribute());
+				voiceTexts.add(t1);
 			} else {
-				this.pageController.speak(getText(), this.module.getLangAttribute(), new ResponsiveVoiceOnEndCallback());	
+				TextToSpeechVoice t1 = TextToSpeechVoice.create(getText(),  this.module.getLangAttribute());
+				voiceTexts.add(t1);
 			}
+			
+			this.pageController.speak(voiceTexts);
 		}
 	}
 	
