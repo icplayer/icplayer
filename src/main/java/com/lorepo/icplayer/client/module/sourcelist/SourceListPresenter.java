@@ -239,7 +239,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private void clickItem(String id) {
 		DraggableItem draggableItem = new DraggableText(null, null);
 		String oldSelection = selectedId;
-		deselectCurrentItem(false);
+		deselectCurrentItem(oldSelection != null && oldSelection.compareTo(id) == 0);
 		
 		if(oldSelection == null || oldSelection.compareTo(id) != 0) {
 			selectedId = id;
@@ -250,7 +250,6 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		ItemSelectedEvent event = new ItemSelectedEvent(draggableItem);
 		playerServices.getEventBus().fireEventFromSource(event, this);
 	}
-
 
 	private void selectItem(String id) {
 		deselectCurrentItem(false);
@@ -263,7 +262,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	
 	
 	private void deselectCurrentItem (boolean read) {
-		if(selectedId != null){
+		if (selectedId != null) {
 			view.deselectItem(selectedId, read);
 			selectedId = null;
 		}

@@ -128,6 +128,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		if(!isPreview){
 			makeSortable(getElement(), jsObject, workMode);
 		}
+		getElement().setAttribute("lang", this.module.getLangAttribute());
 	}
 	
 	private String validate() {
@@ -796,12 +797,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
-	public void shiftTab() {
-	}
+	public void shiftTab() {}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
-	}
+	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
 	public void setWCAGStatus (boolean isWCAGOn) {
@@ -820,7 +819,6 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 	@Override
 	public String getLang () {
-		JavaScriptUtils.log(this.module.getLangAttribute());
 		return this.module.getLangAttribute();
 	}
 	
