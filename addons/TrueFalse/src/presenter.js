@@ -801,22 +801,22 @@ function AddonTrueFalse_create() {
                 if ($active.parent().hasClass('down')) {
                     if(presenter.isErrorMode) {
                         if($active.parent().hasClass('correct')) {
-                            tts.speak(choice, presenter.langAttribute, {'text': selectedSpeechText + " " + correctSpeechText, 'lang': ''});
+                            tts.speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + correctSpeechText, "")]);
                         }
                         if($active.parent().hasClass('wrong')) {
-                            tts.speak(choice, presenter.langAttribute, {'text': selectedSpeechText + " " + incorrectSpeechText, 'lang': ''});
+                            tts.speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + incorrectSpeechText, "")]);
                         }
                     } else {
-                        tts.speak(choice, presenter.langAttribute, {'text': selectedSpeechText, 'lang': ''});
+                        tts.speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText, "")]);
                     }
                 } else {
-                    tts.speak(choice, presenter.langAttribute, {'text': deselectedSpeechText, 'lang': ''});
+                    tts.speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(deselectedSpeechText, "")]);
                 }
             } else {
                 if ($active.parent().hasClass('down')) {
-                    tts.speak(selectedSpeechText);
+                    tts.speak([getTextVoiceObject(selectedSpeechText, "")]);
                 } else {
-                    tts.speak(deselectedSpeechText);
+                    tts.speak([getTextVoiceObject(deselectedSpeechText, "")]);
                 }
             }
         }
@@ -862,8 +862,8 @@ function AddonTrueFalse_create() {
                 if (presenter.keyboardNavigationActive){
                     escape();
                     presenter.isKeyboardOpened = false;
-                    return;
                 }
+                return;
             }
 
             if (!presenter.keyboardNavigationActive) {
