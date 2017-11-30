@@ -45,19 +45,6 @@ public class TextToSpeechAPI {
 		}
 	}-*/;
 	
-//	public static native void nativeSpeak(JavaScriptObject obj, String text, String langTag, String callbackText, String callbackLangTag)  /*-{
-//		try {
-//			if (obj && obj.speak) {
-//				obj.speak(text, langTag, {
-//					text: callbackText,
-//					lang: callbackLangTag
-//				});
-//			}
-//		} catch(err) {
-//			alert("[TextToSpeech1] Exception in speak(): \n" + err);
-//		}
-//	}-*/;
-	
 	// TODO remove
 	public static native void readGap (JavaScriptObject obj, String text, String currentGapContent, int gapNumber) /*-{
 		try {

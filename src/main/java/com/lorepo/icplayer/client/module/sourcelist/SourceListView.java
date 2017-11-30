@@ -60,7 +60,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 			setVisible(module.isVisible());
 		}
 		getElement().setId(module.getId());
-		
 		getElement().setAttribute("lang", this.module.getLangAttribute());
 	}
 
@@ -100,7 +99,7 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 			label.addStyleName(SELECTED_STYLE);
 		}
 
-		this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""), TextToSpeechVoice.create());
+		this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""));
 	}
 
 	@Override
@@ -131,7 +130,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		}
 
 		label.addTouchEndHandler(new TouchEndHandler() {
-
 			@Override
 			public void onTouchEnd(TouchEndEvent event) {
 				isTouchSupported = true;
@@ -141,7 +139,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		});
 
 		label.addClickHandler(new ClickHandler() {
-
 			@Override
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
@@ -151,7 +148,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		});
 
 		label.addMouseUpHandler(new MouseUpHandler() {
-
 			@Override
 			public void onMouseUp(MouseUpEvent event) {
 				if (!isTouchSupported) {
@@ -160,7 +156,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 			}
 		});
 		label.addDragStartHandler(new DragStartHandler() {
-
 			@Override
 			public void onDragStart(DragStartEvent event) {
 				itemDragged(id);
@@ -217,11 +212,14 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	}
 
 	@Override
-	public void deselectItem(String id, boolean read) {
+	public void deselectItem (String id, boolean read) {
 		Label label = labels.get(id);
 		if (label != null) {
 			label.removeStyleName(SELECTED_STYLE);
-			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1), ""), TextToSpeechVoice.create());
+			
+			if (read) {
+				this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1), ""));
+			}
 		}
 
 		if (module.isVertical()) {
@@ -424,6 +422,15 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	@Override
 	public void shiftTab() {
 		previous();
+	}
+	
+	private void speak (TextToSpeechVoice t1) {
+		if (this.pageController != null) {
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			textVoices.add(t1);
+			
+			this.pageController.speak(textVoices);
+		}
 	}
 	
 	private void speak (TextToSpeechVoice t1, TextToSpeechVoice t2) {
