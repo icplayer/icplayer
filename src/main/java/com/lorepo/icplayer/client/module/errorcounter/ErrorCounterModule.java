@@ -14,6 +14,7 @@ public class ErrorCounterModule extends BasicModuleModel{
 	private boolean showErrorCounter = true;
 	private boolean showMistakeCounter = true;
 	private boolean realTimeCalculation = false;
+	private String langAttribute = "";
 	
 	
 	public ErrorCounterModule() {
@@ -21,6 +22,7 @@ public class ErrorCounterModule extends BasicModuleModel{
 		addPropertyShowErrors();
 		addPropertyShowMistakes();
 		addPropertyRealTimeCalculation();
+		addPropertyLangAttribute();
 	}
 
 	
@@ -30,7 +32,8 @@ public class ErrorCounterModule extends BasicModuleModel{
 		String xml = "<errorCounterModule " + getBaseXML() + ">" + getLayoutXML();
 		xml += "<counter showErrorCounter='" + showErrorCounter +
 				"' showMistakeCounter='" + showMistakeCounter + 
-				"' realTimeCalculation='" + realTimeCalculation + "'/>";
+				"' realTimeCalculation='" + realTimeCalculation +
+				"' langAttribute='" + langAttribute + "'/>";
 		xml += "</errorCounterModule>";
 		
 		return xml;
@@ -47,6 +50,7 @@ public class ErrorCounterModule extends BasicModuleModel{
 			showErrorCounter = XMLUtils.getAttributeAsBoolean(counterElement, "showErrorCounter", true);
 			showMistakeCounter = XMLUtils.getAttributeAsBoolean(counterElement, "showMistakeCounter", true);
 			realTimeCalculation = XMLUtils.getAttributeAsBoolean(counterElement, "realTimeCalculation", false);
+			langAttribute = XMLUtils.getAttributeAsString(counterElement, "langAttribute");
 		}
 		
 	}
@@ -192,5 +196,42 @@ public class ErrorCounterModule extends BasicModuleModel{
 		};
 		
 		addProperty(property);	
+	}
+	
+	private void addPropertyLangAttribute() {
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				langAttribute = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return langAttribute;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_lang_attribute");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_lang_attribute");
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public String getLangAttribute() {
+		return langAttribute;
 	}
 }
