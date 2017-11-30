@@ -66,6 +66,11 @@ function AddoneKeyboard_create(){
         closeButtonElement.innerHTML = '<span>\u2716</span>';
         touchStartDecorator(closeButtonCallBack, closeButtonElement);
 
+        closeButtonElement.onclick = function() {
+            $(lastClickedElement).focus();
+            $(lastClickedElement).click();
+        };
+
     }
 
     function initializeOpenButton() {
@@ -400,12 +405,6 @@ function AddoneKeyboard_create(){
                     $(presenter.configuration.workWithViews).find('input').on('mousedown', function () {
                         $(this).focus();
                     });
-                }
-
-                if (MobileUtils.isSafariMobile(navigator.userAgent) && presenter.constructor.lockInput) {
-                    $('input[readonly]').onfocus(function (event){
-                        event.preventDefault();
-                    })
                 }
 
                 $(presenter.configuration.workWithViews).find('input').on('focus', function () {
@@ -743,9 +742,18 @@ function AddoneKeyboard_create(){
         presenter.enable();
 
         escClicked = false;
+
+        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            // hides native keyboard
+            document.activeElement.blur();
+        }
+
         $(lastClickedElement).click();
         $(lastClickedElement).focus();
         $(lastClickedElement).trigger('showKeyboard');
+
+        $(presenter.configuration.workWithViews).find('input').attr("readonly", "readonly")
+            .addClass('ui-keyboard-input ui-keyboard-lockedinput ui-keyboard-autoaccepted');
     }
 
     function actualizeOpenButtonPosition(element) {
@@ -866,7 +874,6 @@ function AddoneKeyboard_create(){
         presenter.sendEvent("enable");
         keyboardIsVisible = true;
         $(presenter.configuration.workWithViews).find('input').off('focusout', focusoutCallBack);
-        $(presenter.configuration.workWithViews).find('input').addClass('ui-keyboard-input ui-keyboard-input-current').attr("readonly", true);
     };
 
     presenter.open = function (moduleId, index) {
