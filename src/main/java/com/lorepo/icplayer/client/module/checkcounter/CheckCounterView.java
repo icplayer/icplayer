@@ -41,10 +41,15 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 
 	public void speak() {
 		if (this.pageController != null) {
+			String text = getText();
 			List<TextToSpeechVoice> voiceTexts = new ArrayList<TextToSpeechVoice>();
-			TextToSpeechVoice t1 = TextToSpeechVoice.create(getText(),  this.module.getLangAttribute());
-			voiceTexts.add(t1);
-			
+			if (text.length() > 0) {
+				TextToSpeechVoice t1 = TextToSpeechVoice.create(text,  this.module.getLangAttribute());
+				voiceTexts.add(t1);	
+			} else {
+				TextToSpeechVoice t1 = TextToSpeechVoice.create("0",  this.module.getLangAttribute());
+				voiceTexts.add(t1);
+			}
 			this.pageController.speak(voiceTexts);
 		}
 	}
