@@ -7,6 +7,10 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -21,7 +25,7 @@ import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter;
 
-public class PageProgressPresenter implements IPresenter, IStateful, ICommandReceiver {
+public class PageProgressPresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
 
 	public interface IDisplay extends IModuleView{
 		public void show();
@@ -298,5 +302,28 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	@Override
 	public void setWorkMode() {
 		// Module is not an activity
+	}
+
+	@Override
+	public IWCAG getWCAGController() {
+		return (IWCAG) this.view;
+	}
+
+	@Override
+	public void selectAsActive(String className) {
+		if(className != "ic_active_module") {
+			this.view.getElement().addClassName(className);
+		}
+	}
+
+	@Override
+	public void deselectAsActive(String className) {
+		this.view.getElement().removeClassName(className);	
+	}
+
+	@Override
+	public boolean isSelectable(boolean isTextToSpeechOn) {
+		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
+		return (isVisible || isTextToSpeechOn);
 	}
 }
