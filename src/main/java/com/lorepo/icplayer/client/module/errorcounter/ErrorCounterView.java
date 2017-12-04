@@ -92,11 +92,18 @@ public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDi
 			String text = getText();
 			if (text.contains("/")) {
 				String[] splittedText = text.split("/");
-				TextToSpeechVoice t1 = TextToSpeechVoice.create(splittedText[0] + " " + splittedText[1],  this.module.getLangAttribute());
+				TextToSpeechVoice t1 = TextToSpeechVoice.create(splittedText[0],  this.module.getLangAttribute());
+				TextToSpeechVoice t2 = TextToSpeechVoice.create(splittedText[1],  this.module.getLangAttribute());
 				voiceTexts.add(t1);
+				voiceTexts.add(t2);
 			} else {
-				TextToSpeechVoice t1 = TextToSpeechVoice.create(getText(),  this.module.getLangAttribute());
-				voiceTexts.add(t1);
+				if(text.length() > 0) {
+					TextToSpeechVoice t1 = TextToSpeechVoice.create(getText(),  this.module.getLangAttribute());
+					voiceTexts.add(t1);
+				} else {
+					TextToSpeechVoice t1 = TextToSpeechVoice.create("0",  this.module.getLangAttribute());
+					voiceTexts.add(t1);
+				}
 			}
 			
 			this.pageController.speak(voiceTexts);
