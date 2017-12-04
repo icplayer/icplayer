@@ -361,7 +361,6 @@ function AddonIframe_create() {
     };
 
     presenter.getMessage = function AddonIFrame_Communication_get_message (event) {
-        debugger;
         var message = event.data;
         if (presenter.validateMessage(message)) {
             switch (message.actionID) {
