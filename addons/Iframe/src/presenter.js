@@ -1,3 +1,10 @@
+/**
+ * 
+ * KNOWN WORKAROUNDS:
+ *  Iframe src:
+ *      -mCourser have optimalization on /file/serve, where file serving is redirecting to GCS. Files passed in FILE_DICTIONARY_ACTUALIZATION are relative to domain, so after redirect that files while request are built by browser as storage.google.com/file/serve/<id>. To fix it add no_gcs flag to address
+ * 
+ */
 function AddonIframe_create() {
     var presenter = function (){};
 
@@ -84,7 +91,6 @@ function AddonIframe_create() {
             iframe.attr("src", presenter.configuration.iframeURL);
         }
         else {
-            //mCourser have optimalization on /file/serve, where file serving is redirecting to GCS. Files passed in FILE_DICTIONARY_ACTUALIZATION are relative to domain, so after redirect that files while request are built by browser as storage.google.com/file/serve/<id>.
             iframe.attr("src", presenter.getIframeIndexSource());
         }
 

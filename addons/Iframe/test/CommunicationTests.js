@@ -82,6 +82,10 @@ TestCase("[Iframe] getMessage", {
             postMessage : function () {}
         };
 
+        this.presenter.eventBus = {
+            sendEvent: sinon.spy()
+        };
+
         this.validStateRequestMessage = {
             data: {
                 id: "test",
@@ -111,8 +115,7 @@ TestCase("[Iframe] getMessage", {
         };
 
         this.spys = {
-            sendMessage : sinon.spy(this.presenter, 'sendMessage'),
-            triggerCustomEvent: sinon.spy(this.presenter, 'triggerCustomEvent')
+            sendMessage : sinon.spy(this.presenter, 'sendMessage')
         };
 
         this.stubs = {
@@ -124,7 +127,6 @@ TestCase("[Iframe] getMessage", {
     tearDown : function () {
         this.spys.sendMessage.restore();
         this.stubs.setStateActualization.restore();
-        this.spys.triggerCustomEvent.restore();
     },
 
     'test if there is STATE_REQUEST there should be sendMessage once called' : function () {
@@ -147,7 +149,6 @@ TestCase("[Iframe] getMessage", {
     'test if addon received custom event then will send ValueChanged with custom event value': function () {
         this.presenter.getMessage(this.validCustomEventRequest);
 
-        sinon.assert.calledOnce(this.spys.triggerCustomEvent);
-        sinon.assert.calledWith(this.spys.triggerCustomEvent, this.validCustomEventRequest.data);
+        sinon.assert.calledOnce(this.presenter.eventBus.sendEvent);
     }
 });
