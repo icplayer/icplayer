@@ -25,10 +25,10 @@ import com.lorepo.icf.properties.IStaticRowProperty;
 import com.lorepo.icf.properties.IVideoProperty;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.addon.param.IAddonParam;
 import com.lorepo.icplayer.client.module.api.IActivity;
@@ -36,15 +36,15 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
-import com.lorepo.icplayer.client.module.api.ITextToSpeechPresenter;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.page.PageController;
 
 
-public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, ITextToSpeechPresenter, IWCAGPresenter, IWCAG {
+public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IWCAG, IWCAGModuleView {
 
 	public interface IDisplay extends IModuleView{
 		public Element getElement();
@@ -55,17 +55,15 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private JavaScriptObject jsObject;
 	private IPlayerServices services;
 	private IDisplay view;
-	private IAddonDescriptor	addonDescriptor;
+	private IAddonDescriptor addonDescriptor;
 	private Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "text_identification", "image_identification"));
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
-
 		this.model = model;
 		this.services = services;
 		this.addonDescriptor = services.getModel().getAddonDescriptor(model.getAddonId());
 		connectHandlers();
 	}
-
 
 	private void connectHandlers() {
 
@@ -127,7 +125,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 	
 	private native void setWorkMode(JavaScriptObject obj, String addonId) /*-{
-	
 		try{
 			if(obj.setWorkMode != undefined){
 				obj.setWorkMode();
@@ -162,7 +159,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 	}
 
-
 	@Override
 	public void addView(IModuleView view) {
 		if(view instanceof IDisplay){
@@ -170,7 +166,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			startAddon();
 		}
 	}
-
 
 	@Override
 	public int getErrorCount() {
@@ -230,7 +225,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		
 		return 0;
 	}-*/;
-	
 	
 	public void run() {
 		jsObject = initJavaScript("Addon" + model.getAddonId() + "_create");
@@ -354,7 +348,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return model.getId();
 	}
 
-
 	@Override
 	public String getState() {
 		String state = getState(jsObject, addonDescriptor.getAddonId());
@@ -389,112 +382,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  		alert("[" + addonId + "] Exception in setState(): \n" + err);
 	  	}
 	}-*/;
-
-	@Override
-	public void playTitle (String area, String id) {
-		playTitle(jsObject, area, id, addonDescriptor.getAddonId());
-	}
-
-	private native void playTitle (JavaScriptObject obj, String area, String id, String addonId) /*-{
-		try {
-			if (obj.playTitle != undefined) {
-				obj.playTitle(area, id);
-			}
-		} catch(err) {
-	  		alert("[" + addonId + "] Exception in playTitle(): \n" + err);
-	  	}
-	}-*/;
-
-	@Override
-	public void playDescription (String id) {
-		playDescription(jsObject, id, addonDescriptor.getAddonId());
-	}
-
-	private native void playDescription (JavaScriptObject obj, String id, String addonId) /*-{
-		try {
-			if (obj.playDescription != undefined) {
-				obj.playDescription(id);
-			}
-		} catch(err) {
-	  		alert("[" + addonId + "] Exception in playDescription(): \n" + err);
-	  	}
-	}-*/;
-
-	public void speak (String text) {
-		speak(jsObject, text, addonDescriptor.getAddonId());
-	}
-
-	private native void speak (JavaScriptObject obj, String text, String addonId) /*-{
-		try {
-			if (obj.speak != undefined) {
-				obj.speak(text);
-			}
-		} catch(err) {
-			alert("[" + addonId + "] Exception in speak(): \n" + err);
-		}
-	}-*/;
-
-	public void readGap (String text, String currentGapContent, int gapNumber) {
-		readGap(jsObject, text, currentGapContent, gapNumber, addonDescriptor.getAddonId());
-	}
-
-	private native void readGap (JavaScriptObject obj, String text, String currentGapContent, int gapNumber, String addonId) /*-{
-		try {
-			if (obj.readGap != undefined) {
-				obj.readGap(text, currentGapContent, gapNumber);
-			}
-		} catch(err) {
-			alert("[" + addonId + "] Exception in readGap(): \n" + err);
-		}
-	}-*/;
-	
-	public void readStartText () {
-		readStartText(jsObject, addonDescriptor.getAddonId());
-	}
-	
-	private native void readStartText (JavaScriptObject obj, String addonId) /*-{
-		try {
-			if (obj.playStartText != undefined) {
-				obj.playStartText();
-			}
-		} catch(err) {
-			alert("[" + addonId + "] Exception in playStartText(): \n" + err);
-		}
-	}-*/;
-
-	public void readExitText () {
-		readExitText(jsObject, addonDescriptor.getAddonId());
-	}
-	
-	private native void readExitText (JavaScriptObject obj, String addonId) /*-{
-		try {
-			if (obj.playExitText != undefined) {
-				obj.playExitText();
-			}
-		} catch(err) {
-			alert("[" + addonId + "] Exception in playExitText(): \n" + err);
-		}
-	}-*/;
-
-	@Override
-	public JsArrayString getAddOnsOrder () {
-		return getAddOnsOrder(jsObject, addonDescriptor.getAddonId());
-	}
-
-	private native JsArrayString getAddOnsOrder (JavaScriptObject obj, String addonId) /*-{
-		try {
-			if (obj.getAddOnsOrder != undefined) {
-				return obj.getAddOnsOrder();
-			}
-		} catch(err) {
-	  		alert("[" + addonId + "] Exception in playDescription(): \n" + err);
-	  	}
-	}-*/;
-
-	@Override
-	public JsArrayString getMultiPartDescription(String id) {
-		return getMultiPartDescription(jsObject, id, addonDescriptor.getAddonId());
-	}
 
 	private native JsArrayString getMultiPartDescription (JavaScriptObject obj, String id, String addonId) /*-{
 		try {
@@ -558,67 +445,56 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		this.view.getElement().removeClassName(className);
 	}
 
-
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = this.model.isVisible();
 		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible && !isDisabled();
 	}
 
-
 	@Override
 	public void enter(boolean isExiting) {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting);
 	}
-
 
 	@Override
 	public void space() {
 		this.onKeyDown(this.jsObject, 32, false);
 	}
 
-
 	@Override
 	public void tab() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, false);
 	}
-
 
 	@Override
 	public void left() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_LEFT, false);
 	}
 
-
 	@Override
 	public void right() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_RIGHT, false);
 	}
-
 
 	@Override
 	public void down() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_DOWN, false);
 	}
 
-
 	@Override
 	public void up() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_UP, false);
 	}
-
 
 	@Override
 	public void escape() {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_ESCAPE, false);
 	}
 
-
 	@Override
 	public void customKeyCode(KeyDownEvent event) {
 		this.onKeyDown(this.jsObject, event.getNativeKeyCode(), event.isShiftKeyDown());
 	}
-
 
 	@Override
 	public void shiftTab() {
@@ -642,5 +518,31 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public void setPageController (PageController pc) {
+		// this can be empty for addons
+		this.setWCAGStatus(true);
+	}
+
+	@Override
+	public void setWCAGStatus (boolean isWCAGOn) {
+		setWCAGStatus(jsObject, addonDescriptor.getAddonId(), isWCAGOn);
+	}
+
+	private native void setWCAGStatus (JavaScriptObject obj, String addonId, boolean isWCAGOn) /*-{
+		try {
+			if(obj.setWCAGStatus != undefined) {
+				obj.setWCAGStatus(isWCAGOn);
+			}
+		} catch(err) {
+			alert("[" + addonId + "] Exception in setWCAGStatus(): \n" + err);
+		}
+	}-*/;
+	
+	@Override
+	public String getLang () {
+		return null;
 	}
 }

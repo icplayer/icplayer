@@ -7,6 +7,7 @@ function AddonConnection_create() {
     var playerController;
     var eventBus;
     var addonID;
+    var isWCAGOn = false;
 
     presenter.uniqueIDs = [];
     presenter.uniqueElementLeft = [];
@@ -18,6 +19,7 @@ function AddonConnection_create() {
     presenter.keyboardControllerObject = null;
     presenter.langTag = '';
     presenter.speechTexts = {};
+    presenter.columnSizes = {};
 
     var connections;
     var singleMode = false;
@@ -756,6 +758,7 @@ function AddonConnection_create() {
     };
 
     presenter.appendElements = function (i, model, columnModel, column, isRightColumn) {
+        presenter.columnSizes[columnModel] = model[columnModel].length;
         var id = model[columnModel][i]['id'];
         if (!this.isIDUnique(id)) {
             return $(this.view).html(this.ERROR_MESSAGES['ID not unique']);
@@ -1376,6 +1379,10 @@ function AddonConnection_create() {
         return null;
     };
 
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
     function readConnected (isDrawing) {
         var tts = presenter.getTextToSpeechOrNull(playerController);
         if (tts) {
@@ -1383,7 +1390,7 @@ function AddonConnection_create() {
                 isDrawing ? presenter.speechTexts.connected : presenter.speechTexts.disconnected,
                 presenter.langTag
             );
-            tts.speak([voiceObject]);
+            speak([voiceObject]);
         }
     }
 
@@ -1425,10 +1432,18 @@ function AddonConnection_create() {
                     connectionsText += ' ' + connection.text().trim() + '.';
                 }
 
-                tts.speak([getTextVoiceObject(connectionsText, presenter.langTag)]);
+                speak([getTextVoiceObject(connectionsText, presenter.langTag)]);
             } else {
-                tts.speak([getTextVoiceObject(text, presenter.langTag)]);
+                speak([getTextVoiceObject(text, presenter.langTag)]);
             }
+        }
+    }
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
         }
     }
 
@@ -1440,7 +1455,7 @@ function AddonConnection_create() {
         if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
             new_position_index = this.keyboardNavigationCurrentElementIndex;
         }
-        if (new_position_index === parseInt(this.keyboardNavigationElementsLen / 2, 10)) {
+        if (new_position_index === presenter.columnSizes['Left column']) {
             new_position_index = this.keyboardNavigationCurrentElementIndex;
         }
         this.markCurrentElement(new_position_index);
@@ -1452,20 +1467,62 @@ function AddonConnection_create() {
         if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
             new_position_index = this.keyboardNavigationCurrentElementIndex
         }
-        if (new_position_index === parseInt(this.keyboardNavigationElementsLen / 2, 10) - 1) {
+        if (new_position_index === presenter.columnSizes['Left column']-1) {
             new_position_index = this.keyboardNavigationCurrentElementIndex;
         }
         this.markCurrentElement(new_position_index);
         readActivatedElementConnections();
     };
 
+    function indexesInTheSameColumn (index1, index2) {
+        var leftColumnSize = presenter.columnSizes['Left column'];
+
+        return (index1 < leftColumnSize && index2 < leftColumnSize) || (index1 >= leftColumnSize && index2 >= leftColumnSize);
+    }
+
     ConnectionKeyboardController.prototype.nextElement = function () {
-        this.switchElement(parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + presenter.columnSizes['Left column'];
+
+        if (new_position_index >= this.keyboardNavigationElementsLen) {
+            new_position_index = this.keyboardNavigationElementsLen - 1;
+        }
+
+        if (new_position_index < 0) {
+            new_position_index = 0;
+        }
+
+        if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+
+        // if (new_position_index >= this.keyboardNavigationElementsLen) {
+        //     new_position_index = new_position_index - this.keyboardNavigationElementsLen;
+        // } else if (new_position_index < 0) {
+        //     new_position_index = this.keyboardNavigationElementsLen + new_position_index;
+        // }
+        // if (new_position_index < this.keyboardNavigationCurrentElementIndex) {
+        //     new_position_index = this.keyboardNavigationCurrentElementIndex;
+        // } else if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
+        //     new_position_index = this.keyboardNavigationElementsLen - 1;
+        // }
+        this.markCurrentElement(new_position_index);
         readActivatedElementConnections();
     };
 
     ConnectionKeyboardController.prototype.previousElement = function () {
-        this.switchElement(-parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
+        var new_position_index = this.keyboardNavigationCurrentElementIndex - presenter.columnSizes['Right column'];
+
+        if (new_position_index >= this.keyboardNavigationElementsLen) {
+            new_position_index = new_position_index - this.keyboardNavigationElementsLen;
+        } else if (new_position_index < 0) {
+            new_position_index = this.keyboardNavigationElementsLen + new_position_index;
+        }
+        if (new_position_index > this.keyboardNavigationCurrentElementIndex) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        } else if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
+            new_position_index = presenter.columnSizes['Left column'] - 1;
+        }
+        this.markCurrentElement(new_position_index);
         readActivatedElementConnections();
     };
 
@@ -1473,6 +1530,14 @@ function AddonConnection_create() {
         Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
         readActivatedElementConnections();
         ConnectionKeyboardController.select();
+    };
+
+    ConnectionKeyboardController.prototype.select = function () {
+        Object.getPrototypeOf(ConnectionKeyboardController.prototype).select.call(this);
+
+        if ($('.keyboard_navigation_active_element').hasClass('selected')) {
+            speak([getTextVoiceObject('selected')]);
+        }
     };
 
     return presenter;

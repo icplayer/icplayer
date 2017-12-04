@@ -135,12 +135,18 @@ public final class KeyboardNavigationController {
 	
 	private void setWCAGModulesStatus (boolean isOn) {
 		for (PresenterEntry p:  this.presenters) {
-			IPresenter ip = (IPresenter) p.presenter;
+//			IPresenter ip = (IPresenter) p.presenter;
+			p.presenter.getWCAGController();
 			
-			if (ip.getModel().getModuleName() == "Text") {
-				IWCAGModuleView tv = (IWCAGModuleView) p.presenter.getWCAGController();
-				tv.setWCAGStatus(isOn);
+			if (p.presenter.getWCAGController() instanceof IWCAGModuleView) {
+				IWCAGModuleView view = (IWCAGModuleView) p.presenter.getWCAGController();
+				view.setWCAGStatus(isOn);
 			}
+			
+//			if (ip.getModel().getModuleName() == "Text") {
+//				IWCAGModuleView tv = (IWCAGModuleView) p.presenter.getWCAGController();
+//				tv.setWCAGStatus(isOn);
+//			}
 		}
 	}
 

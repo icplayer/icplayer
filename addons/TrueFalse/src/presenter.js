@@ -27,6 +27,7 @@ function AddonTrueFalse_create() {
 
     var QUESTION_AND_CHOICES_REQUIRED = "At least 1 question and 2 choices are required.";
     var INDEX_OUT_OF_RANGE = "Index is out of range.";
+    var isWCAGOn = false;
 
     presenter.isSelectionCorrect = function (question, selection) {
         var answers = question.Answer.split(',');
@@ -793,7 +794,7 @@ function AddonTrueFalse_create() {
                 text = '';
 
             if ($active.hasClass('tf_' + presenter.type + '_question')) {
-                tts.speak([getTextVoiceObject($active.text().trim(), presenter.langAttribute)]);
+                speak([getTextVoiceObject($active.text().trim(), presenter.langAttribute)]);
                 return;
             }
 
@@ -801,24 +802,35 @@ function AddonTrueFalse_create() {
                 if ($active.parent().hasClass('down')) {
                     if(presenter.isErrorMode) {
                         if($active.parent().hasClass('correct')) {
-                            tts.speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + correctSpeechText, "")]);
+                            speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + correctSpeechText, "")]);
                         }
                         if($active.parent().hasClass('wrong')) {
-                            tts.speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + incorrectSpeechText, "")]);
+                            speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + incorrectSpeechText, "")]);
                         }
                     } else {
-                        tts.speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText, "")]);
+                        speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText, "")]);
                     }
                 } else {
-                    tts.speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(deselectedSpeechText, "")]);
+                    speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(deselectedSpeechText, "")]);
                 }
             } else {
                 if ($active.parent().hasClass('down')) {
-                    tts.speak([getTextVoiceObject(selectedSpeechText, "")]);
+                    speak([getTextVoiceObject(selectedSpeechText, "")]);
                 } else {
-                    tts.speak([getTextVoiceObject(deselectedSpeechText, "")]);
+                    speak([getTextVoiceObject(deselectedSpeechText, "")]);
                 }
             }
+        }
+    }
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function speak (data) {
+        var tts = getTextToSpeech();
+        if (tts && isWCAGOn) {
+            tts.speak(data);
         }
     }
 
