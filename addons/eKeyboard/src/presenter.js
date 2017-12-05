@@ -36,26 +36,11 @@ function AddoneKeyboard_create(){
     };
 
     function touchStartDecorator(func, element) {
-        //Fix bug with button in android
-        var androidVersion = window.MobileUtils.getAndroidVersion(navigator.userAgent);
-        var rapairAndroidVersion = (["4.1.1", "4.2.2", "4.4.2"].indexOf(androidVersion) !== -1);
-
-        $(element).on('touchstart', function (ev) {
-            ev.preventDefault();
-            ev.stopPropagation();
-
-            if (window.MobileUtils.isEventSupported('touchstart') && !rapairAndroidVersion) {
-                func();
-            }
-        });
-
         $(element).on('click', function (ev) {
             ev.preventDefault();
             ev.stopPropagation();
 
-            if (!window.MobileUtils.isEventSupported('touchstart') || rapairAndroidVersion) {
-                func();
-            }
+            func();
         });
     }
 
@@ -64,13 +49,10 @@ function AddoneKeyboard_create(){
         closeButtonElement.className = 'eKeyboard-close-button';
         closeButtonElement.style.position = 'absolute';
         closeButtonElement.innerHTML = '<span>\u2716</span>';
+
+        $('body').append(closeButtonElement);
+
         touchStartDecorator(closeButtonCallBack, closeButtonElement);
-
-        closeButtonElement.onclick = function() {
-            $(lastClickedElement).focus();
-            $(lastClickedElement).click();
-        };
-
     }
 
     function initializeOpenButton() {
@@ -312,7 +294,8 @@ function AddoneKeyboard_create(){
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
-        initializeOpenButton(view);
+        initializeOpenButton();
+        initializeCloseButton();
 
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_eKeyboard (ev) {
             if (ev.target === this) {
@@ -617,11 +600,21 @@ function AddoneKeyboard_create(){
                         showCloseButton();
                         keyboard['$keyboard'].draggable();
 
+                        $(closeButtonElement).show();
+
+                        $(closeButtonElement).position({
+                            my:        "left top",
+                            at:        "right top",
+                            of:         $('.ui-keyboard'),
+                            collision: 'fit'
+                        });
+
                     },
                     change: function (e, keyboard, el) {
                         $(element).trigger("change");
                     },
                     beforeClose: function(e, keyboard, el, accepted) {
+
                     },
                     accepted: function(e, keyboard, el) {},
                     canceled: function(e, keyboard, el) {},
@@ -701,6 +694,10 @@ function AddoneKeyboard_create(){
         openButtonElement.style.display = 'none';
     }
 
+    function hideCloseButton() {
+        closeButtonElement.style.display = 'none';
+    }
+
     function focusoutCallBack(ev) {
         if (!keyboardIsVisible && !movedInput) {
             hideOpenButton();
@@ -718,7 +715,6 @@ function AddoneKeyboard_create(){
     function showCloseButton() {
         showButtonDecorator(function showCloseButtonDecorator() {
             initializeCloseButton();
-            $('.ui-keyboard').append(closeButtonElement);
         });
     }
 
@@ -727,6 +723,8 @@ function AddoneKeyboard_create(){
 
         $(lastClickedElement).focus();
         $(lastClickedElement).click();
+
+        hideCloseButton();
     }
 
     function showOpenButton() {
