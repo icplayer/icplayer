@@ -47,7 +47,8 @@ function AddoneKeyboard_create(){
     function initializeCloseButton() {
         closeButtonElement = document.createElement('button');
         closeButtonElement.className = 'eKeyboard-close-button';
-        closeButtonElement.style.position = 'absolute';
+        closeButtonElement.style.display = 'none';
+        closeButtonElement.style.zindex = 'none';
         closeButtonElement.innerHTML = '<span>\u2716</span>';
 
         $('body').append(closeButtonElement);
@@ -613,9 +614,7 @@ function AddoneKeyboard_create(){
                     change: function (e, keyboard, el) {
                         $(element).trigger("change");
                     },
-                    beforeClose: function(e, keyboard, el, accepted) {
-
-                    },
+                    beforeClose: function(e, keyboard, el, accepted) {},
                     accepted: function(e, keyboard, el) {},
                     canceled: function(e, keyboard, el) {},
                     hidden: function(e, keyboard, el) {},
@@ -714,7 +713,7 @@ function AddoneKeyboard_create(){
 
     function showCloseButton() {
         showButtonDecorator(function showCloseButtonDecorator() {
-            initializeCloseButton();
+            closeButtonElement.style.display = "block";
         });
     }
 
@@ -912,7 +911,6 @@ function AddoneKeyboard_create(){
         if (presenter.isPreview) {
             return;
         }
-
         $(presenter.configuration.workWithViews).find('input').off('focusout', focusoutCallBack);
         var inputs = $(presenter.configuration.workWithViews).find('input');
         for (var i = 0; i < inputs.length; i++) {
