@@ -1,3 +1,4 @@
+2017-12-06 Added custom events handling and using /file/serve files from mCourser with no_gcs flag
 2017-12-05 Added Enable tabindex property and changed default value.
 2017-12-01 Added setVideoURL command for video addon.
 2017-11-27 Added tabindex for text.
