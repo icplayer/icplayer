@@ -1173,10 +1173,24 @@ function Addonvideo_create() {
     };
 
     presenter.setVideoURLCommand = function (params) {
-        presenter.setVideoURL(params[0]);
+        presenter.setVideoURL(params[0], params[1]);
     };
 
-    presenter.setVideoURL = function (url) {
+    /*
+        Set video url and jump to this video.
+        index: video index counted from 1
+        url: object {
+            "oggFormat": "Ogg video",
+            "mp4Format": "MP4 video",
+            "webMFormat": "WebM video",
+            "poster": "Poster",
+            "subtitles": "Subtitles",
+            "id": "ID",
+            "altText": "AlternativeText",
+            "loop": "Loop video"
+        }
+    */
+    presenter.setVideoURL = function (url, index) {
         var mapper = {
             "oggFormat": "Ogg video",
             "mp4Format": "MP4 video",
@@ -1188,22 +1202,22 @@ function Addonvideo_create() {
             "loop": "Loop video"
         },
         key,
-        newFile = {};
+        videoFile = {},
+        index = (index || 1) - 1;
+
+        if (index >= presenter.configuration.files.length) {
+            return false;
+        }
+
+        videoFile = presenter.configuration.files[index];
 
         for (key in mapper) {
             if (mapper.hasOwnProperty(key)) {
-                newFile[mapper[key]] = url[key] || '';
+                videoFile[mapper[key]] = url[key] || videoFile[mapper[key]];
             }
         }
 
-        if(newFile.loop === '') {
-            newFile['Loop video'] = false;
-        }
-
-        presenter.configuration.files = [];
-        presenter.configuration.files.push(newFile);
-
-        presenter.jumpTo(presenter.configuration.files.length);
+        presenter.jumpTo(index + 1);
     };
 
     presenter.setVisibility = function(isVisible) {

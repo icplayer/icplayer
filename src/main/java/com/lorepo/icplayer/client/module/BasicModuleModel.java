@@ -20,7 +20,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	protected String baseURL;
 	private INameValidator nameValidator;
 	private String buttonType;
-	private boolean isTabindexEnabled = true;
+	private boolean isTabindexEnabled = false;
 
 	protected BasicModuleModel(String typeName, String name) {
 		super(name);

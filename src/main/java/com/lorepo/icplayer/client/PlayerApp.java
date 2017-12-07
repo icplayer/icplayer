@@ -324,6 +324,8 @@ public class PlayerApp {
 		playerController.setPlayerConfig(playerConfig);
 		playerController.setFirstPageAsCover(showCover);
 		playerController.setAnalytics(analyticsId);
+		
+		EnableTabindex.getInstance().create(contentModel.getMetadataValue("enableTabindex").compareTo("true") == 0);
 
 		playerController.addPageLoadListener(new ILoadListener() {
 			@Override
@@ -337,7 +339,7 @@ public class PlayerApp {
 				}
 
 				setLangAttribute(contentModel.getMetadataValue("lang"));
-
+				
 				entryPoint.onPageLoaded();
 			}
 			@Override

@@ -1,3 +1,11 @@
+2017-12-06 Added custom events handling and using /file/serve files from mCourser with no_gcs flag
+2017-12-05 Added Enable tabindex property and changed default value.
+2017-12-01 Added setVideoURL command for video addon.
+2017-11-27 Added tabindex for text.
+2017-11-23 Double State Button can be activated with enter/space when cycling through modules using browser's tab navigation
+2017-11-22 Fixed Ordering module that could crash browser when two items were added and "don't generate correct order" was selected
+2017-11-22 Fixed log2 operation in Fractions module
+2017-11-15 Added alternative text property in Image Source, Image Identification, iFrame and Multiplegap modules
 2017-11-14 Fixed problem with math gaps in Text when changing page quickly.
 2017-11-09 Added commands to fire keyboard navigation
 2017-11-09 Added Tabindex property for next part of modules.

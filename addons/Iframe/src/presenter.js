@@ -1,3 +1,10 @@
+/**
+ * 
+ * KNOWN WORKAROUNDS:
+ *  Iframe src:
+ *      -mCourser have optimalization on /file/serve, where file serving is redirecting to GCS. Files passed in FILE_DICTIONARY_ACTUALIZATION are relative to domain, so after redirect that files while request are built by browser as storage.google.com/file/serve/<id>. To fix it add no_gcs flag to address
+ * 
+ */
 function AddonIframe_create() {
     var presenter = function (){};
 
@@ -16,7 +23,8 @@ function AddonIframe_create() {
         SHOW_ANSWERS: "SHOW_ANSWERS",
         HIDE_ANSWERS: "HIDE_ANSWERS",
         FILE_DICTIONARY_REQUEST: "FILE_DICTIONARY_REQUEST",
-        FILE_DICTIONARY_ACTUALIZATION: "FILE_DICTIONARY_ACTUALIZATION"
+        FILE_DICTIONARY_ACTUALIZATION: "FILE_DICTIONARY_ACTUALIZATION",
+        CUSTOM_EVENT: "CUSTOM_EVENT"
     };
 
     presenter.iframeScore = {
@@ -44,7 +52,7 @@ function AddonIframe_create() {
             }
         }
         return false;
-    }
+    };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
@@ -61,6 +69,16 @@ function AddonIframe_create() {
         presenter.initialize(view, model);
     };
 
+    presenter.getIframeIndexSource = function () {
+        var source = presenter.configuration.index;
+        if (source.indexOf("/file/serve") > -1) {
+            var separator = (presenter.configuration.index.indexOf("?")===-1)?"?":"&";
+            source = presenter.configuration.index + separator + "no_gcs=true";
+        }
+
+        return source;
+    };
+
     presenter.initialize = function AddonIFrame_Communication_initialize (view, model)  {
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
@@ -68,12 +86,14 @@ function AddonIframe_create() {
             return;
         }
 
+        window.addEventListener("message", presenter.getMessage, false);
+
         var iframe = $(view).find("iframe");
         if(presenter.configuration.haveURL) {
             iframe.attr("src", presenter.configuration.iframeURL);
         }
         else {
-            iframe.attr("src", presenter.configuration.index);
+            iframe.attr("src", presenter.getIframeIndexSource());
         }
 
         if (presenter.configuration.allowFullScreen) {
@@ -86,9 +106,9 @@ function AddonIframe_create() {
         presenter.view = view;
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.iframeContent = iframe.get(0).contentWindow;
-
-        window.addEventListener("message",presenter.getMessage,false);
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
+
+        presenter.$view.attr('alt', presenter.configuration.altText);
     };
 
     presenter.destroy = function () {
@@ -174,6 +194,11 @@ function AddonIframe_create() {
             allowFullScreen = "False";
         }
 
+        var altText = model['Alt text'];
+        if(altText === undefined) {
+            altText = '';
+        }
+
         return {
             isValid: true,
             haveURL: validateIFrameSourceResult.haveURL,
@@ -183,7 +208,8 @@ function AddonIframe_create() {
             addonID : model.ID,
             fileDictionary: validateFileListResult.fileDictionary,
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            allowFullScreen: ModelValidationUtils.validateBoolean(allowFullScreen)
+            allowFullScreen: ModelValidationUtils.validateBoolean(allowFullScreen),
+            altText: altText
         };
     };
 
@@ -290,6 +316,22 @@ function AddonIframe_create() {
         }
     };
 
+    presenter.createCustomEventData = function AddonIframe_Communication_create_custom_data (data) {
+        return {
+            source : presenter.configuration.addonID,
+            item : "CUSTOM_EVENT",
+            value : data.params,
+            score : ''
+        }
+    };
+
+    presenter.triggerCustomEvent = function AddonIFrame_Communication_trigget_custon_event (data) {
+        if (presenter.eventBus != undefined) {
+            presenter.eventBus.sendEvent('ValueChanged', presenter.createCustomEventData(data));
+
+        }
+    };
+
     presenter.sendMessage = function AddonIFrame_Communication_send_message (actionID, params) {
         if (params == undefined) {
             params = {};
@@ -339,6 +381,9 @@ function AddonIframe_create() {
 
                 case presenter.actionID.FILE_DICTIONARY_REQUEST:
                     presenter.sendMessage(presenter.actionID.FILE_DICTIONARY_ACTUALIZATION, { fileDictionary: presenter.configuration.fileDictionary});
+                    break;
+                case presenter.actionID.CUSTOM_EVENT:
+                    presenter.triggerCustomEvent(message);
                     break;
             }
         }

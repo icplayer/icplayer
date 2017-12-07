@@ -158,6 +158,11 @@ function Addonmultiplegap_create(){
         if (validateRepeatedElement.isError) {
             return validateRepeatedElement;
         }
+
+        var altText = model['Alt text'];
+        if (altText === undefined) {
+            altText = '';
+        }
         
         return {
             isError: false,
@@ -176,7 +181,8 @@ function Addonmultiplegap_create(){
             repeatedElement: validateRepeatedElement.value,
             blockWrongAnswers: ModelValidationUtils.validateBoolean(model["Block wrong answers"]),
             wrapItems: ModelValidationUtils.validateBoolean(model["wrapItems"]),
-            isTabindexEnabled: isTabindexEnabled
+            isTabindexEnabled: isTabindexEnabled,
+            altText: altText
         };
     };
     
@@ -272,6 +278,8 @@ function Addonmultiplegap_create(){
         }
 
         presenter.buildKeyboardController();
+
+        presenter.$view.attr('alt', presenter.configuration.altText);
     };
     
     presenter.setItemCounterModeValue = function MultipleGap_setItemCounterModeValue () {
