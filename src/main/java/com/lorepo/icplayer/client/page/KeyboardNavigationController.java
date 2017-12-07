@@ -33,6 +33,9 @@ public final class KeyboardNavigationController {
 	private PlayerEntryPoint entryPoint;
 	private JavaScriptObject invisibleInputForFocus = null;
 	private int actualSelectedModuleIndex = 0;
+	private PageController headerController = null;
+	private PageController mainController = null;
+	private PageController footerController = null;
 
 	//state
 	private PresenterEntry savedEntry = null;
@@ -129,10 +132,6 @@ public final class KeyboardNavigationController {
 				this.selectCurrentModule();
 			}
 		} else {
-			IWCAG wcagWidget = this.presenters.get(this.actualSelectedModuleIndex).presenter.getWCAGController();
-			if (wcagWidget != null) {
-				wcagWidget.enter(true);
-			}
 			this.deselectCurrentModule();
 		}
 	}
@@ -190,6 +189,10 @@ public final class KeyboardNavigationController {
 		this.actualSelectedModuleIndex = this.getNextElementIndex(-1);
 	}
 
+	private boolean isSpace(int key) {
+		return key == 32;
+	}
+	
 	public void run(PlayerEntryPoint entry) {
 		entryPoint = entry;
 				
@@ -219,6 +222,10 @@ public final class KeyboardNavigationController {
 					event.preventDefault();
 					activateModule();
 				}
+				
+				if (!modeOn && (event.getNativeKeyCode() == KeyCodes.KEY_ENTER || isSpace(event.getNativeKeyCode()) )) {
+					this.handleDoubleStateButton();
+				}
 
 	            if (modeOn && moduleIsActivated) {
 	            	manageKey(event);
@@ -232,12 +239,86 @@ public final class KeyboardNavigationController {
 	            
 	            restoreClasses();
 	        }
+
+			// for DoubleStateButton we want to activate it also when not in WCAG navigation mode, but during browsers tab navigation
+			private void handleDoubleStateButton() {
+				String focusedID = getActiveElementParentId();
+				
+				if (focusedID != "") {
+					String pageType = getPageTypeOfActiveElement();
+					
+					if (pageType != null) {
+						IPresenter module = null;
+						
+						if (pageType.equals("main")) {
+							module = mainController.findModule(focusedID);
+						} else 
+						if (pageType.equals("header")) {
+							module = headerController.findModule(focusedID);
+						} else 
+						if (pageType.equals("footer")) {
+							module = footerController.findModule(focusedID);
+						}
+						
+						if (module != null) {
+							if (module.getModel().getModuleTypeName().equals("Double_State_Button")) {
+								findAndActivateModule(module);
+							}
+						}
+					}  
+				}
+			}
+			
+			private void findAndActivateModule(IPresenter module) {
+				for (int i = 0; i < presenters.size(); i++) {
+					IPresenter presenter = (IPresenter) presenters.get(i).presenter;
+		
+					if(presenter.getModel() == module.getModel()) {
+						IWCAGPresenter wcagPresenter = (IWCAGPresenter) presenter;
+						wcagPresenter.getWCAGController().enter(false);
+						return;
+					}
+				}
+			}
+			
+			
 	    }, KeyDownEvent.getType());
 	}
+	
+
 	
 	private void setFocusOnInvisibleElement () {
 		this.focusElement(this.getInputElement());
 	} 
+	
+	private native String getActiveElementParentId() /*-{
+		return $wnd.document.activeElement.parentElement.id;
+	}-*/;
+	
+	private native String getPageTypeOfActiveElement() /*-{
+		 var node = $wnd.document.activeElement;
+		 
+		 // start at the element and go up the page structure, looking for first parent element which is page container 
+		 // the stop condition: window.parent == window for the top level element in DOM
+		 while (node.parentElement != $wnd) {
+		 	
+		 	if (node.classList.contains('ic_page')) {
+		 		return 'main';
+		 	}
+		 	
+		 	if (node.classList.contains('ic_header')) {
+		 		return 'header';
+		 	}  
+		 	
+		 	if (node.classList.contains('ic_footer')) {
+		 		return 'footer';
+		 	}
+		 	
+		 	node = node.parentElement; 
+		 }
+		 return null; 
+		 
+	}-*/;
 		
 	private native JavaScriptObject	getInputElement() /*-{
 		var input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
@@ -402,14 +483,17 @@ public final class KeyboardNavigationController {
 	}
 	
 	public void addHeaderToNavigation(PageController controller) {
+		this.headerController = controller;
 		addToNavigation(controller, true);
 	}
 	
 	public void addFooterToNavigation(PageController controller) {
+		this.footerController = controller;
 		addToNavigation(controller, true);
 	}
 	
 	public void addMainToNavigation(PageController controller) {
+		this.mainController = controller;
 		addToNavigation(controller, false);
 	}
 	
