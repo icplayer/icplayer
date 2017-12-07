@@ -307,6 +307,7 @@ var ice_dictionary_en = {
 	"choice_item_deselected": "Deselected",
 	"choice_item_replaced_with": "Replaced with",
 	"choice_item_correct": "Correct",
+	"choice_item_wrong": "Wrong",
 	"choice_item_incorrect": "Incorrect",
 	"choice_speech_texts": "Speech texts",
 	"error_counter_module" : "Error Counter",

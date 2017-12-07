@@ -53,7 +53,6 @@ public class OrderingModule extends BasicModuleModel {
 
 		items.add(item);
 		item.addPropertyListener(new IPropertyListener() {
-
 			@Override
 			public void onPropertyChanged(IProperty source) {
 				OrderingModule.this.sendPropertyChangedEvent(itemsProperty);
@@ -178,6 +177,8 @@ public class OrderingModule extends BasicModuleModel {
 				"' selected='" + this.speechTextItems.get(0).getText() +
 				"' deselected='" + this.speechTextItems.get(1).getText() +
 				"' replaced_with='" + this.speechTextItems.get(2).getText() +
+				"' correct='" + this.speechTextItems.get(3).getText() +
+				"' wrong='" + this.speechTextItems.get(4).getText() +
 				"'/>";
 
 		for (OrderingItem item : items) {
@@ -569,6 +570,8 @@ public class OrderingModule extends BasicModuleModel {
 				speechTextItems.add(new SpeechTextsStaticListItem("selected"));
 				speechTextItems.add(new SpeechTextsStaticListItem("deselected"));
 				speechTextItems.add(new SpeechTextsStaticListItem("replaced_with"));
+				speechTextItems.add(new SpeechTextsStaticListItem("correct"));
+				speechTextItems.add(new SpeechTextsStaticListItem("wrong"));
 			}
 
 			@Override
@@ -639,6 +642,14 @@ public class OrderingModule extends BasicModuleModel {
 			
 			if (index == 2) {
 				return "replaced with";
+			}
+			
+			if (index == 3) {
+				return "correct";
+			}
+			
+			if (index == 4) {
+				return "wrong";
 			}
 			
 			return "";

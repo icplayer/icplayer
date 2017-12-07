@@ -21,6 +21,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icf.utils.dom.ElementHTMLUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
@@ -182,7 +183,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		return labels.keySet();
 	}
 
-
 	@Override
 	public void removeItem(String id) {
 		Label label = labels.get(id);
@@ -326,9 +326,16 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		unMarkCurrentItem();
 		
 		currentLabel += moveNext ? 1 : -1;
-		currentLabel = currentLabel < 0 ? 0 : currentLabel % labelsIds.size();
-		speakOption(currentLabel);
 		
+		if (currentLabel < 0) {
+			currentLabel = 0;
+		}
+		
+		if (currentLabel >= labelsIds.size()) {
+			currentLabel = labelsIds.size()-1;
+		}
+		
+		speakOption(currentLabel);
 		markCurrentItem();
 	}
 
@@ -369,7 +376,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		}
 	}
 
-
 	@Override
 	public void space() {
 		select();
@@ -380,30 +386,25 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		next();
 	}
 
-
 	@Override
 	public void left() {
 		previous();
 	}
-
 
 	@Override
 	public void right() {
 		next();
 	}
 
-
 	@Override
 	public void down() {
 		next();
 	}
 
-
 	@Override
 	public void up() {
 		previous();
 	}
-
 
 	@Override
 	public void escape() {
@@ -416,8 +417,7 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
-	}
+	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
 	public void shiftTab() {
@@ -446,10 +446,13 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	private void speakOption (int index) {
 		if (index >= 0 && index < labelsIds.size()) {
 			final Label label = labels.get(labelsIds.get(index));
-			this.speak(
-				TextToSpeechVoice.create(label.getText(), this.module.getLangAttribute()),
-				TextToSpeechVoice.create()
-			);
+			TextToSpeechVoice option = TextToSpeechVoice.create(label.getText(), this.module.getLangAttribute());
+			
+			if (ElementHTMLUtils.hasClass(label.getElement(), SELECTED_STYLE)) {
+				this.speak(option, TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""));
+			} else {
+				this.speak(option);
+			}
 		}
 	}
 

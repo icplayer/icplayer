@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
@@ -135,18 +136,12 @@ public final class KeyboardNavigationController {
 	
 	private void setWCAGModulesStatus (boolean isOn) {
 		for (PresenterEntry p:  this.presenters) {
-//			IPresenter ip = (IPresenter) p.presenter;
 			p.presenter.getWCAGController();
 			
 			if (p.presenter.getWCAGController() instanceof IWCAGModuleView) {
 				IWCAGModuleView view = (IWCAGModuleView) p.presenter.getWCAGController();
 				view.setWCAGStatus(isOn);
 			}
-			
-//			if (ip.getModel().getModuleName() == "Text") {
-//				IWCAGModuleView tv = (IWCAGModuleView) p.presenter.getWCAGController();
-//				tv.setWCAGStatus(isOn);
-//			}
 		}
 	}
 
@@ -175,6 +170,7 @@ public final class KeyboardNavigationController {
 		this.modeOn = !this.modeOn;
 		final boolean isWCAGExit = !this.modeOn && this.isWCAGSupportOn;
 		this.isWCAGSupportOn = isWCAGSupportOn;
+		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);
 		
 		if (this.mainPageController != null) {
 			final boolean isWCAGOn = this.modeOn && this.isWCAGSupportOn;
@@ -201,7 +197,6 @@ public final class KeyboardNavigationController {
 			this.deselectCurrentModule();
 			this.deselectAllModules();
 		}
-		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);
 		
 		this.actualSelectedModuleIndex = 0;
 	}
@@ -381,8 +376,10 @@ public final class KeyboardNavigationController {
 		
 		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_active_module");
 		
-		IWCAGPresenter p = this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
-		playTextToSpeechContent(p);
+		if (this.isWCAGSupportOn) {
+			IWCAGPresenter p = this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
+			playTextToSpeechContent(p);
+		}
 		
 		this.moduleIsActivated = true;
 	}

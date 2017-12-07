@@ -22,6 +22,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icf.utils.dom.ElementHTMLUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
@@ -49,11 +50,14 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private boolean mathJaxIsLoaded = false;
 	private boolean shouldRefreshMath = false;
 	private int currentWCAGSelectedItemIndex = 0;
-	private boolean wcagIsAvtive = false;
+	private boolean isWCAGActive = false;
 	private boolean isValid = false;
 	private boolean isWCAGOn = false;
 	private PageController pageController;
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
+	
+	private final String ITEM_CORRECT_CLASS = "ic_ordering-item-correct";
+	private final String ITEM_WRONG_CLASS = "ic_ordering-item-wrong";
 
 	public OrderingView(OrderingModule module, IPlayerServices services, boolean isPreview) {
 		this.module = module;
@@ -251,7 +255,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 				isMouseUp = true;
 				
 				onWidgetClicked(widget);
-				checkItem(selectedWidget);
+				selectItem(selectedWidget);
 			}
 
 		});
@@ -283,7 +287,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 			this.speak(textVoices);
 		} else {
-			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1), this.getLang()), TextToSpeechVoice.create());
+			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1), this.getLang()));
 		}
 
 		int loIndex;
@@ -675,7 +679,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void escape () {
 		this.deselectCurrentItem();
-		this.wcagIsAvtive = false;
+		this.isWCAGActive = false;
 	}
 	
 	private String prepearContentToRead (CellPanel cp) {
@@ -696,7 +700,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	
 	@Override
 	public void enter (boolean isExiting) {
-		this.wcagIsAvtive = !isExiting;
+		this.isWCAGActive = !isExiting;
 		if (isExiting) {
 			this.deselectCurrentItem();
 		} else {
@@ -745,18 +749,24 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 	
 	private void readItem (int index) {
-		this.speak(
-			TextToSpeechVoice.create(this.getWidgetText(index), this.getLang()),
-			TextToSpeechVoice.create()
-		);
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(TextToSpeechVoice.create(this.getWidgetText(index), this.getLang()));
+		
+		Widget widget = this.innerCellPanel.getWidget(index);
+		if (ElementHTMLUtils.hasClass(widget.getElement(), ITEM_CORRECT_CLASS)) {
+			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(3)));
+		}
+		
+		if (ElementHTMLUtils.hasClass(widget.getElement(), ITEM_WRONG_CLASS)) {
+			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(4)));
+		}
+		
+		this.speak(textVoices);
 	}
 	
-	private void checkItem (Widget selectedWidget) {
+	private void selectItem (Widget selectedWidget) {
 		if (selectedWidget != null) {
-			this.speak(
-				TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""),
-				TextToSpeechVoice.create()
-			);
+			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""));
 		}
 	}
 	
@@ -784,7 +794,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 	
 	private void refreshSelection () {
-		if (this.wcagIsAvtive) { 
+		if (this.isWCAGActive) { 
 			int savedWidget = this.currentWCAGSelectedItemIndex;
 			for (int i = 0; i < this.getWidgetCount(); i++) {
 				this.currentWCAGSelectedItemIndex = i;
@@ -819,17 +829,15 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 	@Override
 	public String getLang () {
+		JavaScriptUtils.log("this.module.getLangAttribute(): " + this.module.getLangAttribute());
 		return this.module.getLangAttribute();
 	}
 	
-	private void speak (TextToSpeechVoice t1, TextToSpeechVoice t2) {
-		if (this.pageController != null) {
-			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-			textVoices.add(t1);
-			textVoices.add(t2);
-			
-			this.pageController.speak(textVoices);
-		}
+	private void speak (TextToSpeechVoice t1) {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(t1);
+		
+		this.speak(textVoices);
 	}
 	
 	private void speak (List<TextToSpeechVoice> textVoices) {

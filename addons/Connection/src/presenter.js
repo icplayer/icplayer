@@ -2,7 +2,11 @@ function AddonConnection_create() {
 
     function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
 
-    var presenter = function() {};
+    var presenter = function () {};
+
+    function getCurrentActivatedElement () {
+        return $('.keyboard_navigation_active_element'); // TODO improve
+    }
 
     var playerController;
     var eventBus;
@@ -20,6 +24,10 @@ function AddonConnection_create() {
     presenter.langTag = '';
     presenter.speechTexts = {};
     presenter.columnSizes = {};
+    presenter.lineStackSA = [];
+
+    presenter.isShowAnswersActive = false;
+    presenter.isCheckActive = false;
 
     var connections;
     var singleMode = false;
@@ -36,6 +44,9 @@ function AddonConnection_create() {
     var incorrectConnection = "#d00";
     var connectionThickness = "1px";
     var showAnswersColor = "#0d0";
+
+    var CORRECT_ITEM_CLASS = 'connectionItem-correct';
+    var WRONG_ITEM_CLASS = 'connectionItem-wrong';
 
     presenter.ERROR_MESSAGES = {
         'ID not unique': 'One or more IDs are not unique.'
@@ -280,13 +291,27 @@ function AddonConnection_create() {
     // TODO
     function setSpeechTexts (speechTexts) {
         if (!speechTexts) {
+            presenter.speechTexts = {
+                connected:  'connected',
+                disconnected: 'disconnected',
+                connectedTo: 'connected to',
+                selected: 'selected',
+                deselected: 'deselected',
+                correct: 'correct',
+                wrong: 'wrong'
+            };
+
             return;
         }
 
         presenter.speechTexts = {
-            connected: speechTexts[0]['Connected']['Connected'].trim(),
-            disconnected: speechTexts[1]['Disconnected']['Disconnected'].trim(),
-            connectedTo: speechTexts[2]['ConnectedTo']['Connected to'].trim()
+            connected: speechTexts[0] ? speechTexts[0]['Connected']['Connected'].trim() : 'connected',
+            disconnected: speechTexts[1] ? speechTexts[1]['Disconnected']['Disconnected'].trim() : 'disconnected',
+            connectedTo: speechTexts[2] ? speechTexts[2]['ConnectedTo']['Connected to'].trim() : 'connected to',
+            selected: speechTexts[3] ? speechTexts[3]['Selected']['Selected'].trim() : 'selected',
+            deselected: speechTexts[4] ? speechTexts[4]['Deselected']['Deselected'].trim() : 'deselected',
+            correct: speechTexts[5] ? speechTexts[5]['Correct']['Correct'].trim() : 'correct',
+            wrong: speechTexts[6] ? speechTexts[6]['Wrong']['Wrong'].trim() : 'wrong'
         };
     }
 
@@ -296,7 +321,8 @@ function AddonConnection_create() {
         }
 
         presenter.langTag = model['langAttribute'];
-        $(view).attr('lang', presenter.langTag);
+        presenter.$view = $(view);
+        presenter.$view.attr('lang', presenter.langTag);
 
         setSpeechTexts(model['speechTexts']);
 
@@ -305,8 +331,8 @@ function AddonConnection_create() {
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
 
-        isRTL = $(view).css('direction').toLowerCase() === 'rtl';
-        connections = $(view).find('.connections:first');
+        isRTL = presenter.$view.css('direction').toLowerCase() === 'rtl';
+        connections = presenter.$view.find('.connections:first');
 
         model = presenter.upgradeModel(model);
 
@@ -433,10 +459,12 @@ function AddonConnection_create() {
     };
 
     presenter.sendEvent = function (fromID, toID, value, score) {
-        if(!presenter.isShowAnswersActive) {
-        var eventData = presenter.createEventData(addonID, fromID, toID, presenter.model, value, score);
-        eventBus.sendEvent('ValueChanged', eventData);
-            if (presenter.isAllOK()) sendAllOKEvent();
+        if (!presenter.isShowAnswersActive) {
+            var eventData = presenter.createEventData(addonID, fromID, toID, presenter.model, value, score);
+            eventBus.sendEvent('ValueChanged', eventData);
+            if (presenter.isAllOK()) {
+                sendAllOKEvent();
+            }
         }
     };
 
@@ -1000,7 +1028,8 @@ function AddonConnection_create() {
         });
     }
 
-    presenter.setShowErrorsMode = function() {
+    presenter.setShowErrorsMode = function () {
+        presenter.isCheckActive = true;
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1035,6 +1064,7 @@ function AddonConnection_create() {
     };
 
     presenter.setWorkMode = function () {
+        presenter.isCheckActive = false;
         presenter.gatherCorrectConnections();
         redraw();
         $(presenter.view).find('.connectionItem').each(function () {
@@ -1343,11 +1373,12 @@ function AddonConnection_create() {
             }
         }
 
+        presenter.lineStackSA = presenter.lineStack.concat([]);
         redrawShowAnswers();
         presenter.lineStack.clear();
         isSelectionPossible = false;
 
-        for (var element = 0; element <  presenter.tmpElements.length; element++) {
+        for (var element = 0; element < presenter.tmpElements.length; element++) {
             var pairs =  presenter.tmpElements[element].split(':');
             pushConnection(new Line(getElementById(pairs[0]), getElementById(pairs[1])), false);
         }
@@ -1385,7 +1416,7 @@ function AddonConnection_create() {
 
     function readConnected (isDrawing) {
         var tts = presenter.getTextToSpeechOrNull(playerController);
-        if (tts) {
+        if (tts && presenter.$view.hasClass('ic_active_module')) {
             var voiceObject = getTextVoiceObject(
                 isDrawing ? presenter.speechTexts.connected : presenter.speechTexts.disconnected,
                 presenter.langTag
@@ -1394,16 +1425,14 @@ function AddonConnection_create() {
         }
     }
 
-    function getActivatedElement () {
-        return $('.keyboard_navigation_active_element'); // TODO improve
-    }
-
     function getConnections ($element) {
         var element = $element[0];
         var result = [];
 
-        for (var i=0; i<presenter.lineStack.stack.length; i++) {
-            var line = presenter.lineStack.stack[i];
+        var lines = presenter.isShowAnswersActive ? presenter.lineStackSA : presenter.lineStack;
+
+        for (var i=0; i<lines.stack.length; i++) {
+            var line = lines.stack[i];
 
             if (element === line.from[0]) {
                 result.push(line.to);
@@ -1417,24 +1446,39 @@ function AddonConnection_create() {
         return result;
     }
 
+    function getConnectionsInfo (connections) {
+        var result = [];
+
+        for (var i=0; i<connections.length; i++) {
+            var $connection = connections[i];
+
+            result.push(getTextVoiceObject($connection.text().trim(), presenter.langTag));
+
+            if ($connection.hasClass(CORRECT_ITEM_CLASS) && presenter.isShowAnswersActive) {
+                result.push(getTextVoiceObject('correct', ''));
+            }
+
+            if ($connection.hasClass(WRONG_ITEM_CLASS) && presenter.isShowAnswersActive) {
+                result.push(getTextVoiceObject('wrong', ''));
+            }
+        }
+
+        return result;
+    }
+
     function readActivatedElementConnections () {
         var tts = presenter.getTextToSpeechOrNull(playerController);
         if (tts) {
-            var $active = getActivatedElement();
-            var text = $active.text().trim();
-
+            var $active = getCurrentActivatedElement();
             var connections = getConnections($active);
 
             if (connections.length) {
-                var connectionsText = text + ' ' + presenter.speechTexts.connectedTo + ' ';
-                for (var i=0; i<connections.length; i++) {
-                    var connection = connections[i];
-                    connectionsText += ' ' + connection.text().trim() + '.';
-                }
-
-                speak([getTextVoiceObject(connectionsText, presenter.langTag)]);
+                speak([
+                    getTextVoiceObject($active.text().trim(), presenter.langTag),
+                    getTextVoiceObject(presenter.speechTexts.connectedTo, '')
+                ].concat(getConnectionsInfo(connections)));
             } else {
-                speak([getTextVoiceObject(text, presenter.langTag)]);
+                speak([getTextVoiceObject($active.text().trim(), presenter.langTag)]);
             }
         }
     }
@@ -1533,10 +1577,14 @@ function AddonConnection_create() {
     };
 
     ConnectionKeyboardController.prototype.select = function () {
+        if (getCurrentActivatedElement().hasClass('selected')) {
+            speak([getTextVoiceObject(presenter.speechTexts.deselected)]);
+        }
+
         Object.getPrototypeOf(ConnectionKeyboardController.prototype).select.call(this);
 
-        if ($('.keyboard_navigation_active_element').hasClass('selected')) {
-            speak([getTextVoiceObject('selected')]);
+        if (getCurrentActivatedElement().hasClass('selected')) {
+            speak([getTextVoiceObject(presenter.speechTexts.selected)]);
         }
     };
 

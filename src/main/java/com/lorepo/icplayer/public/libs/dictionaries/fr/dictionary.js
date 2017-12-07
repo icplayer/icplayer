@@ -304,6 +304,7 @@ var ice_dictionary_fr = {
 "choice_item_deselected": "Deselected",
 "choice_item_replaced_with": "Replaced with",
 "choice_item_correct": "Correct",
+"choice_item_wrong": "Wrong",
 "choice_item_incorrect": "Incorrect",
 "error_counter_module" : "Compteur d'erreurs",
 "mistakes_property" : "Afficher les fautes",
