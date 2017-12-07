@@ -49,6 +49,7 @@ function AddoneKeyboard_create(){
         closeButtonElement.className = 'eKeyboard-close-button';
         closeButtonElement.style.display = 'none';
         closeButtonElement.style.zindex = 'none';
+        closeButtonElement.style.cursor = 'pointer';
         closeButtonElement.innerHTML = '<span>\u2716</span>';
 
         $('body').append(closeButtonElement);
@@ -477,191 +478,210 @@ function AddoneKeyboard_create(){
                 collision: 'flip'
             },
 
-                    // preview added above keyboard if true, original input/textarea used if false
-                    usePreview: false,
+            // preview added above keyboard if true, original input/textarea used if false
+            usePreview: false,
 
-                    // if true, the keyboard will always be visible
-                    alwaysOpen: false,
+            // if true, the keyboard will always be visible
+            alwaysOpen: true,
 
-                    // give the preview initial focus when the keyboard becomes visible
-                    initialFocus: true,
+            // give the preview initial focus when the keyboard becomes visible
+            initialFocus: true,
 
-                    // if true, keyboard will remain open even if the input loses focus.
-                    stayOpen: false,
+            // if true, keyboard will remain open even if the input loses focus.
+            stayOpen: true,
 
-                    // *** change keyboard language & look ***
-                    display: display,
+            // *** change keyboard language & look ***
+            display: display,
 
-                    // Message added to the key title while hovering, if the mousewheel plugin exists
-                    wheelMessage: 'Use mousewheel to see other keys',
+            // Message added to the key title while hovering, if the mousewheel plugin exists
+            wheelMessage: 'Use mousewheel to see other keys',
 
-                    css: {
-                        input          : '', //'ui-widget-content ui-corner-all', // input & preview
-                        container      : 'ui-widget-content ui-widget ui-corner-all ui-helper-clearfix', // keyboard container
-                        buttonDefault  : 'ui-state-default ui-corner-all', // default state
-                        buttonHover    : 'ui-state-hover',  // hovered button
-                        buttonAction   : 'ui-state-active', // Action keys (e.g. Accept, Cancel, Tab, etc); replaces "actionClass"
-                        buttonDisabled : 'ui-state-disabled' // used when disabling the decimal button {dec}
-                    },
+            css: {
+                input          : '', //'ui-widget-content ui-corner-all', // input & preview
+                container      : 'ui-widget-content ui-widget ui-corner-all ui-helper-clearfix', // keyboard container
+                buttonDefault  : 'ui-state-default ui-corner-all', // default state
+                buttonHover    : 'ui-state-hover',  // hovered button
+                buttonAction   : 'ui-state-active', // Action keys (e.g. Accept, Cancel, Tab, etc); replaces "actionClass"
+                buttonDisabled : 'ui-state-disabled' // used when disabling the decimal button {dec}
+            },
 
-                    // *** Useability ***
-                    // Auto-accept content when clicking outside the keyboard (popup will close)
-                    autoAccept: true,
+            // *** Useability ***
+            // Auto-accept content when clicking outside the keyboard (popup will close)
+            autoAccept: true,
 
-                    // Prevents direct input in the preview window when true
-                    lockInput: presenter.configuration.lockInput,
+            // Prevents direct input in the preview window when true
+            lockInput: presenter.configuration.lockInput,
 
-                    // Prevent keys not in the displayed keyboard from being typed in
-                    restrictInput: false,
+            // Prevent keys not in the displayed keyboard from being typed in
+            restrictInput: false,
 
-                    // Check input against validate function, if valid the accept button is clickable;
-                    // if invalid, the accept button is disabled.
-                    acceptValid: true,
+            // Check input against validate function, if valid the accept button is clickable;
+            // if invalid, the accept button is disabled.
+            acceptValid: true,
 
-                    // Use tab to navigate between input fields
-                    tabNavigation: true,
+            // Use tab to navigate between input fields
+            tabNavigation: true,
 
-                    // press enter (shift-enter in textarea) to go to the next input field
-                    enterNavigation : true,
-                    // mod key options: 'ctrlKey', 'shiftKey', 'altKey', 'metaKey' (MAC only)
-                    enterMod : 'altKey', // alt-enter to go to previous; shift-alt-enter to accept & go to previous
+            // press enter (shift-enter in textarea) to go to the next input field
+            enterNavigation : true,
+            // mod key options: 'ctrlKey', 'shiftKey', 'altKey', 'metaKey' (MAC only)
+            enterMod : 'altKey', // alt-enter to go to previous; shift-alt-enter to accept & go to previous
 
-                    // if true, the next button will stop on the last keyboard input/textarea; prev button stops at first
-                    // if false, the next button will wrap to target the first input/textarea; prev will go to the last
-                    stopAtEnd : false,
+            // if true, the next button will stop on the last keyboard input/textarea; prev button stops at first
+            // if false, the next button will wrap to target the first input/textarea; prev will go to the last
+            stopAtEnd : false,
 
-                    // Set this to append the keyboard immediately after the input/textarea it is attached to.
-                    // This option works best when the input container doesn't have a set width and when the
-                    // "tabNavigation" option is true
-                    appendLocally: false,
+            // Set this to append the keyboard immediately after the input/textarea it is attached to.
+            // This option works best when the input container doesn't have a set width and when the
+            // "tabNavigation" option is true
+            appendLocally: false,
 
-                    // If false, the shift key will remain active until the next key is (mouse) clicked on;
-                    // if true it will stay active until pressed again
-                    stickyShift: true,
+            // If false, the shift key will remain active until the next key is (mouse) clicked on;
+            // if true it will stay active until pressed again
+            stickyShift: true,
 
-                    // Prevent pasting content into the area
-                    preventPaste: false,
+            // Prevent pasting content into the area
+            preventPaste: false,
 
-                    // Set the max number of characters allowed in the input, setting it to false disables this option
-                    //maxLength: presenter.configuration.maxCharacters,
+            // Set the max number of characters allowed in the input, setting it to false disables this option
+            //maxLength: presenter.configuration.maxCharacters,
 
-                    // Mouse repeat delay - when clicking/touching a virtual keyboard key, after this delay the key
-                    // will start repeating
-                    repeatDelay: 500,
+            // Mouse repeat delay - when clicking/touching a virtual keyboard key, after this delay the key
+            // will start repeating
+            repeatDelay: 500,
 
-                    // Mouse repeat rate - after the repeatDelay, this is the rate (characters per second) at which the
-                    // key is repeated. Added to simulate holding down a real keyboard key and having it repeat. I haven't
-                    // calculated the upper limit of this rate, but it is limited to how fast the javascript can process
-                    // the keys. And for me, in Firefox, it's around 20.
-                    repeatRate: 20,
+            // Mouse repeat rate - after the repeatDelay, this is the rate (characters per second) at which the
+            // key is repeated. Added to simulate holding down a real keyboard key and having it repeat. I haven't
+            // calculated the upper limit of this rate, but it is limited to how fast the javascript can process
+            // the keys. And for me, in Firefox, it's around 20.
+            repeatRate: 20,
 
-                    // resets the keyboard to the default keyset when visible
-                    resetDefault: false,
+            // resets the keyboard to the default keyset when visible
+            resetDefault: false,
 
-                    // Event (namespaced) on the input to reveal the keyboard. To disable it, just set it to ''.
-                    openOn: presenter.configuration.openOnFocus ? 'showKeyboard' : '',
+            // Event (namespaced) on the input to reveal the keyboard. To disable it, just set it to ''.
+            openOn: presenter.configuration.openOnFocus ? 'showKeyboard' : '',
 
-                    // When the character is added to the input
-                    keyBinding: 'touchend mousedown',
+            // When the character is added to the input
+            keyBinding: 'touchend mousedown',
 
-                    // combos (emulate dead keys : http://en.wikipedia.org/wiki/Keyboard_layout#US-International)
-                    // if user inputs `a the script converts it to à, ^o becomes ô, etc.
-                    useCombos: false,
+            // combos (emulate dead keys : http://en.wikipedia.org/wiki/Keyboard_layout#US-International)
+            // if user inputs `a the script converts it to à, ^o becomes ô, etc.
+            useCombos: false,
 
-                    // if true, keyboard will not close if you press escape.
-                    ignoreEsc : true,
+            // if true, keyboard will not close if you press escape.
+            ignoreEsc : true,
 
-                    autoAcceptOnEsc : false,
-                    // *** Methods ***
-                    // Callbacks - add code inside any of these callback functions as desired
-                    initialized: function (e, keyboard, el) {
-                    },
-                    beforeVisible: function (e, keyboard, el) {
-                        if (!keyboard['$keyboard'].parent().hasClass('html')) {
-                            var dialogBox = keyboard['$keyboard'].parent().find('.gwt-DialogBox');
-                            dialogBox.append(keyboard['$keyboard']);
-                        }
+            autoAcceptOnEsc : false,
+            // *** Methods ***
+            // Callbacks - add code inside any of these callback functions as desired
+            initialized: function (e, keyboard, el) {
+            },
+            beforeVisible: function (e, keyboard, el) {
+                if (!keyboard['$keyboard'].parent().hasClass('html')) {
+                    var dialogBox = keyboard['$keyboard'].parent().find('.gwt-DialogBox');
+                    dialogBox.append(keyboard['$keyboard']);
+                }
 
-                        var parent = keyboard['$keyboard'].parent(),
-                            popup = parent.find('.ic_popup');
+                var parent = keyboard['$keyboard'].parent(),
+                    popup = parent.find('.ic_popup');
 
-                        if (popup.length > 0) {
-                            popup.append(keyboard['$keyboard']);
-                        }
-                    },
-                    visible: function (e, keyboard, el) {
-                        var isVisibleInViewPort = getIsVisibleInViewPort(keyboard['$keyboard']);
-                        if (!isVisibleInViewPort) {
-                            return;
-                        }
+                if (popup.length > 0) {
+                    popup.append(keyboard['$keyboard']);
+                }
+            },
+            visible: function (e, keyboard, el) {
+                var isVisibleInViewPort = getIsVisibleInViewPort(keyboard['$keyboard']);
+                if (!isVisibleInViewPort) {
+                    return;
+                }
 
-                        if (!isVisibleInViewPort.vertical || !isVisibleInViewPort.horizontal) {
-                            shiftKeyboard(keyboard, isVisibleInViewPort);
-                        }
-                        showCloseButton();
-                        keyboard['$keyboard'].draggable();
-
-                        $(closeButtonElement).show();
-
+                if (!isVisibleInViewPort.vertical || !isVisibleInViewPort.horizontal) {
+                    shiftKeyboard(keyboard, isVisibleInViewPort);
+                }
+                showCloseButton();
+                keyboard['$keyboard'].draggable({
+                    drag: function (event) {
                         $(closeButtonElement).position({
                             my:        "left top",
                             at:        "right top",
                             of:         $('.ui-keyboard'),
                             collision: 'fit'
                         });
-
-                    },
-                    change: function (e, keyboard, el) {
-                        $(element).trigger("change");
-                    },
-                    beforeClose: function(e, keyboard, el, accepted) {},
-                    accepted: function(e, keyboard, el) {},
-                    canceled: function(e, keyboard, el) {},
-                    hidden: function(e, keyboard, el) {},
-
-                    switchInput : function(keyboard, goToNext, isAccepted){
-                        var base = keyboard, kb, stopped = false,
-                            all = $('input, textarea').filter(':enabled'),
-                            indx = all.index(base.$el) + (goToNext ? 1 : -1);
-
-                        if (indx > all.length - 1) {
-                            stopped = keyboard.stopAtEnd;
-                            indx = 0; // go to first input
-                        }
-                        if (indx < 0) {
-                            stopped = keyboard.stopAtEnd;
-                            indx = all.length - 1; // stop or go to last
-                        }
-                			if (!stopped) {
-                				if (!base.close(isAccepted)) {
-                                    return;
-                                }
-                                if (presenter.addonIsWorkingWithElement(all.eq(indx))) {
-                                        presenter.createEKeyboard(all.eq(indx), display);
-                                }
-                                if (keyboardIsVisible) {
-                                    all.eq(indx).trigger('forceClick');
-                                }
-                                if($(".ic_popup_page").length == 0){
-                                    all.eq(indx).focus();
-                                }
-                			}
-
-                        return false;
-                	},
-                    // this callback is called just before the "beforeClose" to check the value
-                    // if the value is valid, return true and the  will continue as it should
-                    // (close if not always open, etc)
-                    // if the value is not value, return false and the clear the keyboard value
-                    // ( like this "keyboard.$preview.val('');" ), if desired
-                    // The validate function is called after each input, the "isClosing" value will be false;
-                    // when the accept button is clicked, "isClosing" is true
-                    validate: function (keyboard, value, isClosing) {
-                        return true;
                     }
                 });
-                $(lastClickedElement).trigger('forceClick');
-            };
+
+                $(closeButtonElement).show();
+
+                $(lastClickedElement).on('focusout', function (event) {
+                    if (event.relatedTarget !== closeButtonElement) {
+                        $(this).off('focusout');
+                        $(closeButtonElement).hide();
+                        if ($(this).data('keyboard') !== undefined) {
+                            $(this).data('keyboard').destroy();
+                        }
+                    }
+                });
+
+                $(closeButtonElement).position({
+                    my:        "left top",
+                    at:        "right top",
+                    of:         $('.ui-keyboard'),
+                    collision: 'fit'
+                });
+
+            },
+            change: function (e, keyboard, el) {
+                $(element).trigger("change");
+            },
+            beforeClose: function(e, keyboard, el, accepted) {},
+            accepted: function(e, keyboard, el) {},
+            canceled: function(e, keyboard, el) {},
+            hidden: function(e, keyboard, el) {},
+
+            switchInput : function(keyboard, goToNext, isAccepted){
+                var base = keyboard, kb, stopped = false,
+                    all = $('input, textarea').filter(':enabled'),
+                    indx = all.index(base.$el) + (goToNext ? 1 : -1);
+
+                if (indx > all.length - 1) {
+                    stopped = keyboard.stopAtEnd;
+                    indx = 0; // go to first input
+                }
+                if (indx < 0) {
+                    stopped = keyboard.stopAtEnd;
+                    indx = all.length - 1; // stop or go to last
+                }
+                    if (!stopped) {
+                        if (!base.close(isAccepted)) {
+                            return;
+                        }
+                        if (presenter.addonIsWorkingWithElement(all.eq(indx))) {
+                                presenter.createEKeyboard(all.eq(indx), display);
+                        }
+                        if (keyboardIsVisible) {
+                            all.eq(indx).trigger('forceClick');
+                        }
+                        if($(".ic_popup_page").length == 0){
+                            all.eq(indx).focus();
+                        }
+                    }
+
+                return false;
+            },
+            // this callback is called just before the "beforeClose" to check the value
+            // if the value is valid, return true and the  will continue as it should
+            // (close if not always open, etc)
+            // if the value is not value, return false and the clear the keyboard value
+            // ( like this "keyboard.$preview.val('');" ), if desired
+            // The validate function is called after each input, the "isClosing" value will be false;
+            // when the accept button is clicked, "isClosing" is true
+            validate: function (keyboard, value, isClosing) {
+                return true;
+            }
+        });
+        $(lastClickedElement).trigger('forceClick');
+    };
 
     function getNextFocusableElement (element, next) {
         var all = $('input, textarea').filter(':enabled');
