@@ -132,7 +132,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		if(!isPreview){
 			makeSortable(getElement(), jsObject, workMode);
 		}
-		getElement().setAttribute("lang", this.module.getLangAttribute());
+		getElement().setAttribute("lang", this.getLang());
 	}
 	
 	private String validate() {
@@ -282,12 +282,12 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		if (srcIndex != destIndex) {
 			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 			textVoices.add(TextToSpeechVoice.create(this.getWidgetText(destIndex), this.getLang()));
-			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(2), ""));
+			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(2)));
 			textVoices.add(TextToSpeechVoice.create(this.getWidgetText(srcIndex), this.getLang()));
 
 			this.speak(textVoices);
 		} else {
-			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1), this.getLang()));
+			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1)));
 		}
 
 		int loIndex;
@@ -705,10 +705,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			this.deselectCurrentItem();
 		} else {
 			this.selectCurrentItem();
-			
-			if (this.pageController != null) {
-				this.readItem(currentWCAGSelectedItemIndex);
-			}
+			this.readItem(currentWCAGSelectedItemIndex);
 		}
 	}
 	
@@ -753,6 +750,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		textVoices.add(TextToSpeechVoice.create(this.getWidgetText(index), this.getLang()));
 		
 		Widget widget = this.innerCellPanel.getWidget(index);
+		if (ElementHTMLUtils.hasClass(widget.getElement(), "ic_drag-source")) {
+			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(0)));
+		}
+		
 		if (ElementHTMLUtils.hasClass(widget.getElement(), ITEM_CORRECT_CLASS)) {
 			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(3)));
 		}
@@ -766,7 +767,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	
 	private void selectItem (Widget selectedWidget) {
 		if (selectedWidget != null) {
-			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""));
+			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(0)));
 		}
 	}
 	
@@ -829,7 +830,6 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 	@Override
 	public String getLang () {
-		JavaScriptUtils.log("this.module.getLangAttribute(): " + this.module.getLangAttribute());
 		return this.module.getLangAttribute();
 	}
 	
