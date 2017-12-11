@@ -66,9 +66,6 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
-			if (!this.module.isTabindexEnabled()){
-				gap.getElement().setTabIndex(-2);
-			}
 			
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
@@ -83,9 +80,6 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 			DraggableGapWidget gap = new DraggableGapWidget(gi, listener);
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
-			}
-			if (!this.module.isTabindexEnabled()){
-				gap.getElement().setTabIndex(-2);
 			}
 			
 			gap.setDisabled(module.isDisabled());
@@ -103,9 +97,6 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 				
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
-				}
-				if (!this.module.isTabindexEnabled()){
-					gap.getElement().setTabIndex(-2);
 				}
 				
 				gap.setDisabled(module.isDisabled());
@@ -130,9 +121,6 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
 				}
-				if (!this.module.isTabindexEnabled()){
-					gap.getElement().setTabIndex(-2);
-				}
 				
 				gap.setDisabled(module.isDisabled());
 			} catch (Exception e) {
@@ -153,10 +141,6 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 							GapWidget gap = (GapWidget) getChild(counter);
 							gap.setDisabled(savedDisabledState.get(counter));
 							
-							if (!this.module.isTabindexEnabled()){
-								gap.getElement().setTabIndex(-2);
-							}
-							
 							textElements.set(counter, gap);
 						}
 					} else {
@@ -165,10 +149,6 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 							gap.setDisabled(savedDisabledState.get(counter));
 						} else {
 							gap.setDisabled(module.isDisabled());
-						}
-						
-						if (!this.module.isTabindexEnabled()){
-							gap.getElement().setTabIndex(-2);
 						}
 						
 						textElements.add(gap);
