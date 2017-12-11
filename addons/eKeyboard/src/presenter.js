@@ -617,12 +617,16 @@ function AddoneKeyboard_create(){
                             }
                         });
 
-                        $(lastClickedElement).on('blur', function (event) {
+                        $(lastClickedElement).on('focusout', function (event) {
                             event.preventDefault();
                             event.stopPropagation();
 
-                            if (event.relatedTarget !== closeButtonElement && document.activeElement !== closeButtonElement) {
-                                $(lastClickedElement).off('blur');
+                            if(event.relatedTarget == null) {
+                                console.log(document.activeElement.toString());
+                            }
+
+                            if (event.relatedTarget !== closeButtonElement) {
+                                $(lastClickedElement).off('focusout');
                                 $(closeButtonElement).hide();
                                 if ($(this).data('keyboard') !== undefined) {
                                     $(this).data('keyboard').destroy();
@@ -745,7 +749,7 @@ function AddoneKeyboard_create(){
         $(lastClickedElement).focus();
         $(lastClickedElement).click();
 
-        $(lastClickedElement).off("blur");
+        $(lastClickedElement).off("focusout");
 
         hideCloseButton();
     }
