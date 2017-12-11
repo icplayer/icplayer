@@ -84,11 +84,11 @@ function AddonPseudo_Console_create() {
                 ["<",                       "return '<';"],
                 [">",                       "return '>';"],
                 ["\\*",                     "return '*';"],
+                ["\\/_",                    "return 'DIV_FLOOR';"],
                 ["\\/",                     "return '/';"],
                 ["-",                       "return '-';"],
                 ["\\+",                     "return '+';"],
                 ["%",                       "return '%';"],
-                ["\\/_",                    "return '/_';"],
                 ["\\(",                     "return '(';"],
                 ["\\)",                     "return ')';"],
                 ["[A-Za-z_][a-zA-Z0-9_]*",  "return 'STATIC_VALUE';"],
@@ -108,7 +108,7 @@ function AddonPseudo_Console_create() {
             ["left", "OR", "AND"],
             ["left", "<=", ">=", "<", ">", "!=", "=="],
             ["left", "+", "-"],
-            ["left", "*", "/", "/_", "%"],
+            ["left", "*", "/", "DIV_FLOOR", "%"],
             ["left", "(", ")"],
             ["left", "BRACKET"],
             ["left", "UMINUS"],
@@ -335,7 +335,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "string_value": [
-                ["START_STRING string_chars END_STRING", "$$ = [yy.presenterContext.generateExecuteObject('stack.push({value: \"' + ($2 || '') + '\"})')];"]
+                ["START_STRING string_chars END_STRING", "$$ = [yy.presenterContext.generateExecuteObject('stack.push(presenter.objectMocks.String.__constructor__.call({},\"' +  ($2 || '') + '\"))', '')];"]
             ],
 
             "string_chars" : [
@@ -364,8 +364,8 @@ function AddonPseudo_Console_create() {
                 [ "operation + operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__add__');" ],
                 [ "operation - operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__sub__');" ],
                 [ "operation * operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__mul__');" ],
+                [ "operation DIV_FLOOR operation", "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__div_full__');" ],
                 [ "operation / operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__div__');" ],
-                [ "operation /_ operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__div_full__', '~~');" ],
                 [ "operation % operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__mod__');" ],
                 [ "operation <= operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__le__');" ],
                 [ "operation >= operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__ge__');" ],
@@ -399,9 +399,9 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    function CastingErrorException(type, toType) {
-        this.message = "Cant cast \"" + type + "\" to type: \"" + toType + "\"";
-        this.name = "CastingErrorException";
+    function CastErrorException(type, toType) {
+        this.message = "Cast exception \"" + type + "\" to type: \"" + toType + "\"";
+        this.name = "CastErrorException";
     };
 
     presenter.objectMocks = {
@@ -507,7 +507,7 @@ function AddonPseudo_Console_create() {
 
                 __eq__: {
                     native: true,
-                    jsCode: function (toValuestack) {
+                    jsCode: function (toValue) {
                         if (this.value === toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
@@ -537,12 +537,22 @@ function AddonPseudo_Console_create() {
                 return {
                     value: String(val) || '',
                     type: "String",
-                    methods: presenter.objectMocks.Boolean['__methods__'],
+                    methods: presenter.objectMocks.String['__methods__'],
                     parent: presenter.objectMocks.Object
                 }
             },
 
             __methods__: {
+                __add__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (toValue.type === "Number" || toValue.type === "String") {
+                            return presenter.objectMocks.Number.__constructor__(this.value + toValue.value);
+                        }
+
+                        throw new CastErrorException(this.type, toValue.type);
+                    }
+                }
             }
         },
 
@@ -566,7 +576,7 @@ function AddonPseudo_Console_create() {
                             return presenter.objectMocks.String.__constructor__(this.value + toValue.value);
                         }
 
-                        throw new CastingErrorException(this.type, toValue.type);
+                        throw new CastErrorException(this.type, toValue.type);
                     }
                 },
                 __sub__: {
@@ -576,7 +586,7 @@ function AddonPseudo_Console_create() {
                             return presenter.objectMocks.Number.__constructor__(this.value - toValue.value);
                         }
 
-                        throw new CastingErrorException(this.type, toValue.type);
+                        throw new CastErrorException(this.type, toValue.type);
                     }
                 },
 
@@ -587,7 +597,7 @@ function AddonPseudo_Console_create() {
                             return presenter.objectMocks.Number.__constructor__(this.value * toValue.value);
                         }
 
-                        throw new CastingErrorException(this.type, toValue.type);
+                        throw new CastErrorException(this.type, toValue.type);
                     }
                 },
 
@@ -598,9 +608,35 @@ function AddonPseudo_Console_create() {
                             return presenter.objectMocks.Number.__constructor__(this.value / toValue.value);
                         }
 
-                        throw new CastingErrorException(this.type, toValue.type);
+                        throw new CastErrorException(this.type, toValue.type);
                     }
                 },
+                __div_full__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (toValue.type === "Number") {
+                            return presenter.objectMocks.Number.__constructor__(~~(this.value / toValue.value));
+                        }
+
+                        throw new CastErrorException(this.type, toValue.type);
+                    }
+                },
+                __mod__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (toValue.type === "Number") {
+                            return presenter.objectMocks.Number.__constructor__(this.value % toValue.value);
+                        }
+
+                        throw new CastErrorException(this.type, toValue.type);
+                    }
+                },
+                __minus__: {
+                    native: true,
+                    jsCode: function () {
+                        return presenter.objectMocks.Number.__constructor__(this.value * -1);
+                    }
+                }
             }
         }
     };
@@ -883,16 +919,6 @@ function AddonPseudo_Console_create() {
         JUMP: 2
     };
 
-    /**Generate code for minus precedence
-     * @param  {Object[]} beforeCode code executed before operation
-     */
-    presenter.generateMinusOperation = function (beforeCode) {
-        var minusOperation = presenter.generateExecuteObject("stack.push({value: -stack.pop().value});");
-
-        beforeCode.push(minusOperation);
-        return beforeCode;
-    };
-
     /**
      * 
      * @param {Object[]} stack 
@@ -917,10 +943,10 @@ function AddonPseudo_Console_create() {
      * @param  {Object[]} firstVal array with calculations first value
      * @param  {Object[]} secVal array with calculations second value
      * @param  {('__add__'|'__sub__'|'__div__'|'__mul__'|'__div_full__'|'__mod__'|'__ge__'|'__le__'|'__gt__'|'__lt__'|'__neq__'|'__eq__'|'__or__'|'__and__')} operationType 
-     * @param {("~~"|undefined)} [preOperation] operation which will be called on whole statetement. can be undefined
      * @return {Array[Object]}
      */
-    presenter.genrateOperationCode = function (firstVal, secVal, operationType, preOperation) {
+
+    presenter.genrateOperationCode = function (firstVal, secVal, operationType) {
         var execObjects = firstVal.concat(secVal),
             code = "",
             exitCode = "",
@@ -934,15 +960,7 @@ function AddonPseudo_Console_create() {
         code += "stack.push(1);"
         code += "functionsCallPositionStack.push(actualIndex);";
 
-        exitCode += "stack.pop();stack.pop();stack.pop();stack.push(retVal);";
-        
-        // code += "eax.value" + operationType + "ebx.value";
-
-        // if (preOperation !== undefined) {
-        //     code = preOperation + "(" + code + ")";
-        // }
-
-        // code = preCode + "stack.push({value: " + code + "});";
+        exitCode += "stack.push(retVal);";
 
         execObjects.push(presenter.generateExecuteObject(code, ""));
         execObjects.push(presenter.generateJumpInstruction('true', '1_get_object_call_manager'));
@@ -950,6 +968,23 @@ function AddonPseudo_Console_create() {
         return execObjects;
     };
 
+    presenter.generateMinusOperation = function (execObjects) {
+        var code = "";
+        var exitCode = "";
+
+        code += "stack.push('__minus__');"
+        code += "stack.push(0);"
+        code += "functionsCallPositionStack.push(actualIndex);";
+
+        exitCode += "stack.push(retVal);";
+
+        execObjects.push(presenter.generateExecuteObject(code, ""));
+        execObjects.push(presenter.generateJumpInstruction('true', '1_get_object_call_manager'));
+        execObjects.push(presenter.generateExecuteObject(exitCode, ''));
+        return execObjects;
+    };
+
+    
     presenter.generateFunctionStart = function (argsList, functionName) {
         var execObjects = [],
             i,
