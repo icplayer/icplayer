@@ -1,8 +1,51 @@
+/**
+ * Check comments if you want to add OOP to language.
+ */
 function AddonPseudo_Console_create() {
     var presenter = function () {},
         JISON_GRAMMAR;
 
     // ----------------------- LANGUAGE COMPILER SECTION -----------------------------------
+    /**
+     * OOP:
+     *      Each variable is object, with struct as:
+     *      {
+     *          value: valueOfObject,
+     *          methods: {
+     *              methodName: {isBuiltIn: true|false, labelToJump: string|null, jsCode: string|null}
+     *          },
+     *          type: typeNameAsString,
+     *          parent: object to parent or null
+     *      }
+     *      New object is created by function which will returns empty object.
+     *      Each object can contains class methods, which name will start with __. (Concept: user can override this methods by built prefix.)
+     *
+     *      Calling built in methods:
+     *          Check Object call manager for more information
+     *
+     *      Defined by user (concept):
+     *          Set as actual context object value, and jump to labelToJump
+     *
+     *          Example class:
+     *          class A
+     *               field zmienna
+     *
+     *               method getName (tekst)
+     *               begin
+     *                   print()
+     *               end
+     *           
+     *               built method toString ()    %As override class method in toString%
+     *               begin
+     *                   return "A"
+     *               end
+     *
+     *
+     *           endClass
+     *
+     *          check object call manager for more information
+     *
+     */
     JISON_GRAMMAR = {
         "lex": {
             "rules": [
@@ -30,6 +73,7 @@ function AddonPseudo_Console_create() {
                 ["$option$",                "return 'OPTION';"],
                 ["$function$",              "return 'FUNCTION';"],
                 ["$return$",                "return 'RETURN';"],
+                ["$array_block$",           "return 'ARRAY_DEF';"],
                 ["\\n+",                    "return 'NEW_LINE';"],
                 ["$",                       "return 'EOF';"],
                 ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
@@ -48,6 +92,8 @@ function AddonPseudo_Console_create() {
                 ["\\(",                     "return '(';"],
                 ["\\)",                     "return ')';"],
                 ["[A-Za-z_][a-zA-Z0-9_]*",  "return 'STATIC_VALUE';"],
+                ["\\[",                     "return '[';"],
+                ["\\]",                     "return ']';"],
                 [",",                       "return 'COMMA';"],
                 ["=",                       "return '=';"],
                 ["[ \f\r\t\v​\u00A0\u1680​\u180e\u2000​\u2001\u2002​\u2003\u2004​\u2005\u2006​\u2007\u2008​\u2009\u200a​\u2028\u2029​\u2028\u2029​\u202f\u205f​\u3000]",                   "/* IGNORE SPACES */"]
@@ -71,7 +117,7 @@ function AddonPseudo_Console_create() {
         ],
         "bnf": {
             "expressions" : [
-                [ "functions program_name section_list code_block",   "return {sections: $3, code: $4.concat(undefined).concat($1)};($2 || '') + ($3 || '');"  ]
+                [ "functions program_name section_list code_block",   "return {sections: $3, code: $4.concat(undefined).concat($1).concat(undefined).concat(yy.presenterContext.bnf['getObjectCallManager']())};($2 || '') + ($3 || '');"  ]
             ],
 
             "functions" : [
@@ -116,7 +162,39 @@ function AddonPseudo_Console_create() {
             ],
 
             "section" : [
-                ["var_section", "$$ = $1"]
+                ["var_section", "$$ = $1;"],
+                ["array_section", "$$ = $1;"]
+            ],
+
+            "array_section" : [
+                ["ARRAY_DEF array_list NEW_LINE", "$$ = $2 || ''"]
+            ],
+
+            "array_list": [
+                ["array_definition", "$$ = $1"],
+                ["array_list COMMA array_definition", "$$ = $1"]
+            ],
+
+            "array_definition" : [
+                ["array_name_definition array_start_value", "$$ = $1 + ($2 || '')"]
+            ],
+
+            "array_name_definition": [
+                ["STATIC_VALUE [ NUMBER ]", "$$ = ''"]
+            ],
+
+            "array_start_value": [
+                "",
+                [" = [ array_start_entries ]", "$$ = $3"]
+            ],
+            
+            "array_start_entries": [
+                ["array_start_entry", "$$ = $1"],
+                ["array_start_entries COMMA array_start_entry", "$$ = $1"]
+            ],
+
+            "array_start_entry" : [
+                ["number_or_string", "$$ = $1"]
             ],
 
             "var_section" : [
@@ -283,20 +361,20 @@ function AddonPseudo_Console_create() {
 
             "operation" : [
                 [ "STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['function_call'](yy, $1, $3);"],
-                [ "operation + operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '+');" ],
-                [ "operation - operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '-');" ],
-                [ "operation * operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '*');" ],
-                [ "operation / operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '/');" ],
-                [ "operation /_ operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '/', '~~');" ],
-                [ "operation % operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '%');" ],
-                [ "operation <= operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '<=');" ],
-                [ "operation >= operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '>=');" ],
-                [ "operation > operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '>');" ],
-                [ "operation < operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '<');" ],
-                [ "operation != operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '!==');" ],
-                [ "operation == operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '===');" ],
-                [ "operation OR operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '||');" ],
-                [ "operation AND operation",    "$$ = yy.presenterContext.genrateOperationCode($1, $3, '&&');" ],
+                [ "operation + operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__add__');" ],
+                [ "operation - operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__sub__');" ],
+                [ "operation * operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__mul__');" ],
+                [ "operation / operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__div__');" ],
+                [ "operation /_ operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__div_full__', '~~');" ],
+                [ "operation % operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__mod__');" ],
+                [ "operation <= operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__le__');" ],
+                [ "operation >= operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__ge__');" ],
+                [ "operation > operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__gt__');" ],
+                [ "operation < operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__lt__');" ],
+                [ "operation != operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__neq__');" ],
+                [ "operation == operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__eq__');" ],
+                [ "operation OR operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__or__');" ],
+                [ "operation AND operation",    "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__and__');" ],
                 [ "( operation )",              "$$ = $2" ],
                 [ "- operation",                "$$ = yy.presenterContext.generateMinusOperation($2);", {"prec": "UMINUS"} ],
                 [ "number_value",               "$$ = $1" ],
@@ -309,7 +387,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "number_value": [
-                ["NUMBER", "$$ = [yy.presenterContext.generateExecuteObject('stack.push({value: Number(' + yytext + ')})', '')];"]
+                ["NUMBER", "$$ = [yy.presenterContext.generateExecuteObject('stack.push(presenter.objectMocks.Number.__constructor__.call({}, Number(' + yytext + ')))', '')];"]
             ]
         }
     };
@@ -321,9 +399,214 @@ function AddonPseudo_Console_create() {
         };
     };
 
+    function CastingErrorException(type, toType) {
+        this.message = "Cant cast \"" + type + "\" to type: \"" + toType + "\"";
+        this.name = "CastingErrorException";
+    };
+
+    presenter.objectMocks = {
+        Object: {
+            __constructor__: function () {
+                return {
+                    value: null,
+                    type: "Object",
+                    methods: presenter.objectMocks.Object['__methods__'],
+                    parent: null
+                }
+            },
+            __methods__: {
+                __and__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        /**
+                         *  False1 and True2  -> False1
+                         *  False1 and False2 -> False1
+                         *  True1  and False2 -> False2
+                         *  True1  and True2  -> True2
+                         */
+                        if (!this.value) {
+                            return this;
+                        }
+
+                        if (toValue.value) {
+                            return toValue;
+                        }
+
+                        return toValue;
+                    }
+                },
+                __or__: {
+                        /**
+                         *  False1 and True2  -> True2
+                         *  False1 and False2 -> False2
+                         *  True1  and False2 -> True1
+                         *  True1  and True2  -> True1
+                         */
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (this.value) {
+                            return this;
+                        }
+
+                        return toValue;
+                    }
+                },
+                __ge__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (this.value >= toValue.value) {
+                            return presenter.objectMocks.Boolean.__constructor__(true);
+                        }
+
+                        return presenter.objectMocks.Boolean.__constructor__(false);
+                    }
+                },
+                __le__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (this.value <= toValue.value) {
+                            return presenter.objectMocks.Boolean.__constructor__(true);
+                        }
+
+                        return presenter.objectMocks.Boolean.__constructor__(false);
+                    }
+                },
+
+                __gt__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (this.value > toValue.value) {
+                            return presenter.objectMocks.Boolean.__constructor__(true);
+                        }
+
+                        return presenter.objectMocks.Boolean.__constructor__(false);
+                    }
+                },
+
+                __lt__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (this.value < toValue.value) {
+                            return presenter.objectMocks.Boolean.__constructor__(true);
+                        }
+
+                        return presenter.objectMocks.Boolean.__constructor__(false);
+                    }
+                },
+
+                __neq__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (this.value !== toValue.value) {
+                            return presenter.objectMocks.Boolean.__constructor__(true);
+                        }
+
+                        return presenter.objectMocks.Boolean.__constructor__(false);
+                    }
+                },
+
+                __eq__: {
+                    native: true,
+                    jsCode: function (toValuestack) {
+                        if (this.value === toValue.value) {
+                            return presenter.objectMocks.Boolean.__constructor__(true);
+                        }
+
+                        return presenter.objectMocks.Boolean.__constructor__(false);
+                    }
+                }
+            }
+        },
+
+        Boolean: {
+            __constructor__: function (val) {
+                return {
+                    value: Boolean(val) || false,
+                    type: "Boolean",
+                    methods: presenter.objectMocks.Boolean['__methods__'],
+                    parent: presenter.objectMocks.Object
+                }
+            },
+
+            __methods__: {
+            }
+        },
+
+        String: {
+            __constructor__: function (val) {
+                return {
+                    value: String(val) || '',
+                    type: "String",
+                    methods: presenter.objectMocks.Boolean['__methods__'],
+                    parent: presenter.objectMocks.Object
+                }
+            },
+
+            __methods__: {
+            }
+        },
+
+        Number: {
+            __constructor__: function (value) {
+                return {
+                    constructor: presenter.objectMocks.Number['__constructor__'],
+                    value: value || 0,
+                    type: "Number",
+                    methods: presenter.objectMocks.Number['__methods__'],
+                    parent: presenter.objectMocks.Object
+                }
+            },
+            __methods__: {
+                __add__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (toValue.type === "Number") {
+                            return presenter.objectMocks.Number.__constructor__(this.value + toValue.value);
+                        } else if (toValue.type === "String") {
+                            return presenter.objectMocks.String.__constructor__(this.value + toValue.value);
+                        }
+
+                        throw new CastingErrorException(this.type, toValue.type);
+                    }
+                },
+                __sub__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (toValue.type === "Number") {
+                            return presenter.objectMocks.Number.__constructor__(this.value - toValue.value);
+                        }
+
+                        throw new CastingErrorException(this.type, toValue.type);
+                    }
+                },
+
+                __mul__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (toValue.type === "Number") {
+                            return presenter.objectMocks.Number.__constructor__(this.value * toValue.value);
+                        }
+
+                        throw new CastingErrorException(this.type, toValue.type);
+                    }
+                },
+
+                __div__: {
+                    native: true,
+                    jsCode: function (toValue) {
+                        if (toValue.type === "Number") {
+                            return presenter.objectMocks.Number.__constructor__(this.value / toValue.value);
+                        }
+
+                        throw new CastingErrorException(this.type, toValue.type);
+                    }
+                },
+            }
+        }
+    };
+
     presenter.bnf = {
         uid: 0,
-
 
         case: presenter.uidDecorator(
             /**
@@ -353,6 +636,59 @@ function AddonPseudo_Console_create() {
                 return execCode;
             }
         ),
+
+
+        getMethodFromObject: function (object, methodName) {
+            function MethodNotFoundException(instrName) {
+                this.message = "Undefined method \"" + instrName + "\"";
+                this.name = "MethodNotFoundException";
+            }
+
+            var methods = object.methods;
+            while(true) {
+                if (methods[methodName] != null) {
+                    return methods[methodName];
+                }
+
+                if (object.parent == null) {
+                    throw new MethodNotFoundException(methodName);
+                }
+
+                object = object.parent;
+                methods = object.__methods__;
+            }
+        },
+
+        /**
+         * Manager which should be added to each program. If method is called then this manager will find correct function.
+         *  Built in methods:
+         *  -get method from object. Call this object method as call with passed object and stack.
+         *  -push returns value to stack
+         * 
+         * 
+         * Objects and inharitance in pseudocode (Concept):
+         *  -Add to machine new instruction evaluateJumpLabelAndJump which will execute code in label and will jump to generated label.
+         *  -Add new object to presenter.objectMocks
+         *  -Use it in object call manager, if getMethodFromObject(a,b).native is True, then execute original code, if false then use evaluateJumpLabelAndJump to getMethodFromObject(a,b).labelCode where will be code to jump.
+         *  -Each class should be saved in precessor code, each method should contains own label to jump, for example MyClass.myMethod should contains MyClass.myMethod label for jump
+         *  -Before jump, set scope for this class and jump to method.
+         * 
+         */
+        getObjectCallManager: function () {
+            var execCode = [];
+            
+            execCode.push(presenter.generateExecuteObject('', '1_get_object_call_manager'));
+
+            var code = "";
+            code += "retVal = presenter.builtInMethodCall(stack)";
+
+            
+            execCode.push(presenter.generateExecuteObject(code, ''));
+
+            execCode.push(presenter.generateExecuteObject("actualIndex = functionsCallPositionStack.pop() + 1;", ""));
+
+            return execCode;
+        },        
 
         case_option: function (option, code) {
 
@@ -558,29 +894,59 @@ function AddonPseudo_Console_create() {
     };
 
     /**
+     * 
+     * @param {Object[]} stack 
+     * @param {Function} method 
+     */
+    presenter.builtInMethodCall = function (stack) {
+        var argsCount = stack.pop();
+        var methName = stack.pop();
+        var obj = stack.pop();
+        var args = [];
+
+        var method = presenter.bnf.getMethodFromObject(obj, methName).jsCode;
+
+        for (var i = 0; i < argsCount; i++) {
+            args.push(stack.pop());
+        }
+
+        return method.apply(obj, args);
+    };
+
+    /**
      * @param  {Object[]} firstVal array with calculations first value
      * @param  {Object[]} secVal array with calculations second value
-     * @param  {('+'|'-'|'/'|'*'|'/_'|'%'|'<='|'>='|'<'|'>'|'!='|'=='|'OR'|'AND')} operationType 
+     * @param  {('__add__'|'__sub__'|'__div__'|'__mul__'|'__div_full__'|'__mod__'|'__ge__'|'__le__'|'__gt__'|'__lt__'|'__neq__'|'__eq__'|'__or__'|'__and__')} operationType 
      * @param {("~~"|undefined)} [preOperation] operation which will be called on whole statetement. can be undefined
      * @return {Array[Object]}
      */
     presenter.genrateOperationCode = function (firstVal, secVal, operationType, preOperation) {
         var execObjects = firstVal.concat(secVal),
             code = "",
+            exitCode = "",
             preCode = "";
 
-        preCode += "ebx = stack.pop();";
-        preCode += "eax = stack.pop();";
+        code += "ebx = stack.pop();";
+        code += "eax = stack.pop();";
+        code += "stack.push(ebx);";
+        code += "stack.push(eax);";
+        code += "stack.push('" + operationType +"');"
+        code += "stack.push(1);"
+        code += "functionsCallPositionStack.push(actualIndex);";
 
-        code += "eax.value" + operationType + "ebx.value";
+        exitCode += "stack.pop();stack.pop();stack.pop();stack.push(retVal);";
+        
+        // code += "eax.value" + operationType + "ebx.value";
 
-        if (preOperation !== undefined) {
-            code = preOperation + "(" + code + ")";
-        }
+        // if (preOperation !== undefined) {
+        //     code = preOperation + "(" + code + ")";
+        // }
 
-        code = preCode + "stack.push({value: " + code + "});";
+        // code = preCode + "stack.push({value: " + code + "});";
 
         execObjects.push(presenter.generateExecuteObject(code, ""));
+        execObjects.push(presenter.generateJumpInstruction('true', '1_get_object_call_manager'));
+        execObjects.push(presenter.generateExecuteObject(exitCode, ''));
         return execObjects;
     };
 
@@ -753,7 +1119,8 @@ function AddonPseudo_Console_create() {
             "case": "case",
             "option": "option",
             "function": "function",
-            "return": "return"
+            "return": "return",
+            "array_block": "array"
         }
     };
 
@@ -1191,22 +1558,24 @@ function AddonPseudo_Console_create() {
         presenter.state.variablesAndFunctionsUsage = {};
         presenter.state.wasChanged = true;
         presenter.initializeObjectForCode();
-        try {
+        // try {
             presenter.state.console.Reset();
             var executableCode = presenter.state.codeGenerator.parse(code);
+            console.log(executableCode);
 
             presenter.checkCode();
 
             presenter.state.lastUsedCode = executableCode;
             presenter.stop();
             presenter.codeExecutor(executableCode, false);
-        } catch (e) {
-            if (e.name !== "Error") {
-                presenter.state.console.Write(e.message + "\n", 'program-error-output');
-            } else {
-                presenter.state.console.Write("Unexpected identifier\n", 'program-error-output');
-            }
-        }
+        // } catch (e) {
+        //     if (e.name !== "Error") {
+        //         presenter.state.console.Write(e.message + "\n", 'program-error-output');
+        //     } else {
+        //         presenter.state.console.Write(e.message, 'program-error-output');
+        //         presenter.state.console.Write("Unexpected identifier\n", 'program-error-output');
+        //     }
+        // }
     };
 
     /**
@@ -1276,7 +1645,11 @@ function AddonPseudo_Console_create() {
                     pause();
                 }
             } catch (e) {
-                presenter.state.console.Write(e + "\n", 'program-error-output');
+                if (!e.message) {
+                    presenter.state.console.Write(e + "\n", 'program-error-output');
+                } else {
+                    presenter.state.console.Write(e.message + "\n", 'program-error-output');
+                }
                 pause();
             }
         }
@@ -1606,6 +1979,8 @@ function AddonPseudo_Console_create() {
             this.activeLineIndex = -1;
 
             this.addNewLine(true);
+
+            this.$textArea.val('');
         },
 
         destroy: function () {
