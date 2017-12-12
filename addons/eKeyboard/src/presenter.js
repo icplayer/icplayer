@@ -604,6 +604,7 @@ function AddoneKeyboard_create(){
                         if (!isVisibleInViewPort.vertical || !isVisibleInViewPort.horizontal) {
                             shiftKeyboard(keyboard, isVisibleInViewPort);
                         }
+
                         showCloseButton();
 
                         $(closeButtonElement).position({
@@ -743,7 +744,7 @@ function AddoneKeyboard_create(){
     }
 
     function showCloseButton() {
-        showButtonDecorator(function showCloseButtonDecorator() {
+        showButtonDecorator(function () {
             $(closeButtonElement).show();
         });
     }
