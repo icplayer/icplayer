@@ -50,7 +50,7 @@ function AddoneKeyboard_create(){
         closeButtonElement.style.position = 'absolute';
         closeButtonElement.innerHTML = '\u2716';
 
-        $('body').append(closeButtonElement);
+        $(presenter.keyboardWrapper).append(closeButtonElement);
 
         touchStartDecorator(closeButtonCallBack, closeButtonElement);
     }
@@ -294,6 +294,10 @@ function AddoneKeyboard_create(){
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
+        presenter.keyboardWrapper = document.createElement("div");
+        presenter.keyboardWrapper.className = "ui-ekeybaord-wrapper";
+        document.body.append(presenter.keyboardWrapper);
+
         initializeOpenButton();
         initializeCloseButton();
 
@@ -534,6 +538,8 @@ function AddoneKeyboard_create(){
                     // "tabNavigation" option is true
                     appendLocally: false,
 
+            appendTo: presenter.keyboardWrapper,
+
                     // If false, the shift key will remain active until the next key is (mouse) clicked on;
                     // if true it will stay active until pressed again
                     stickyShift: true,
@@ -617,35 +623,30 @@ function AddoneKeyboard_create(){
                             }
                         });
 
-                        $(lastClickedElement).on('focusout', function (event) {
-                            event.preventDefault();
-                            event.stopPropagation();
+                        $(document).on('mouseup.ekeyboard', function (event) {
+                            var wrapper = $(presenter.keyboardWrapper);
 
-                            if(event.relatedTarget == null) {
-                                console.log(document.activeElement.toString());
-                            }
-
-                            if (event.relatedTarget !== closeButtonElement) {
-                                $(lastClickedElement).off('focusout');
+                            if (!wrapper.is(event.target) && wrapper.has(event.target).length === 0 && ! $(event.target).is('input')) {
+                                $(this).off('mouseup.ekeyboard');
                                 $(closeButtonElement).hide();
-                                if ($(this).data('keyboard') !== undefined) {
-                                    $(this).data('keyboard').destroy();
-                                }
+
+                                // if ($(lastClickedElement).data('keyboard') !== undefined) {
+                                //     $(lastClickedElement).data('keyboard').destroy();
+                                // }
                             }
                         });
-
                     },
                     change: function (e, keyboard, el) {
                         $(element).trigger("change");
                     },
                     beforeClose: function(e, keyboard, el, accepted) {
-
                     },
                     accepted: function(e, keyboard, el) {},
                     canceled: function(e, keyboard, el) {},
                     hidden: function(e, keyboard, el) {},
 
                     switchInput : function(keyboard, goToNext, isAccepted){
+                console.log('switch');
                         var base = keyboard, kb, stopped = false,
                             all = $('input, textarea').filter(':enabled'),
                             indx = all.index(base.$el) + (goToNext ? 1 : -1);
@@ -749,7 +750,7 @@ function AddoneKeyboard_create(){
         $(lastClickedElement).focus();
         $(lastClickedElement).click();
 
-        $(lastClickedElement).off("focusout");
+        $(document).off('mouseup.ekeyboard');
 
         hideCloseButton();
     }
