@@ -48,6 +48,7 @@ function AddoneKeyboard_create(){
         closeButtonElement = document.createElement('button');
         closeButtonElement.className = 'eKeyboard-close-button';
         closeButtonElement.style.position = 'absolute';
+        closeButtonElement.style.display= 'none';
         closeButtonElement.innerHTML = '\u2716';
 
         $(presenter.keyboardWrapper).append(closeButtonElement);
@@ -295,8 +296,8 @@ function AddoneKeyboard_create(){
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
         presenter.keyboardWrapper = document.createElement("div");
-        presenter.keyboardWrapper.className = "ui-ekeybaord-wrapper";
-        document.body.append(presenter.keyboardWrapper);
+        presenter.keyboardWrapper.className = "ui-ekeyboard-wrapper";
+        $(document.body).append(presenter.keyboardWrapper);
 
         initializeOpenButton();
         initializeCloseButton();
@@ -484,13 +485,13 @@ function AddoneKeyboard_create(){
                     usePreview: false,
 
                     // if true, the keyboard will always be visible
-                    alwaysOpen: true,
+                    alwaysOpen: false,
 
                     // give the preview initial focus when the keyboard becomes visible
                     initialFocus: true,
 
                     // if true, keyboard will remain open even if the input loses focus.
-                    stayOpen: false,
+                    stayOpen: true,
 
                     // *** change keyboard language & look ***
                     display: display,
@@ -623,16 +624,18 @@ function AddoneKeyboard_create(){
                             }
                         });
 
-                        $(document).on('mouseup.ekeyboard', function (event) {
+                        $(document).on('mousedown.ekeyboard', function (event) {
+                            if (event.target === lastClickedElement) return;
+
                             var wrapper = $(presenter.keyboardWrapper);
 
-                            if (!wrapper.is(event.target) && wrapper.has(event.target).length === 0 && ! $(event.target).is('input')) {
-                                $(this).off('mouseup.ekeyboard');
+                            if (!wrapper.is(event.target) && wrapper.has(event.target).length === 0) {
+                                $(this).off('mousedown.ekeyboard');
                                 $(closeButtonElement).hide();
 
-                                // if ($(lastClickedElement).data('keyboard') !== undefined) {
-                                //     $(lastClickedElement).data('keyboard').destroy();
-                                // }
+                                if ($(lastClickedElement).data('keyboard') !== undefined) {
+                                    $(lastClickedElement).data('keyboard').destroy();
+                                }
                             }
                         });
                     },
@@ -640,13 +643,14 @@ function AddoneKeyboard_create(){
                         $(element).trigger("change");
                     },
                     beforeClose: function(e, keyboard, el, accepted) {
+                        $(document).off('mousedown.ekeyboard');
+                        hideCloseButton();
                     },
                     accepted: function(e, keyboard, el) {},
                     canceled: function(e, keyboard, el) {},
                     hidden: function(e, keyboard, el) {},
 
                     switchInput : function(keyboard, goToNext, isAccepted){
-                console.log('switch');
                         var base = keyboard, kb, stopped = false,
                             all = $('input, textarea').filter(':enabled'),
                             indx = all.index(base.$el) + (goToNext ? 1 : -1);
@@ -750,7 +754,7 @@ function AddoneKeyboard_create(){
         $(lastClickedElement).focus();
         $(lastClickedElement).click();
 
-        $(document).off('mouseup.ekeyboard');
+        $(document).off('mousedown.ekeyboard');
 
         hideCloseButton();
     }
