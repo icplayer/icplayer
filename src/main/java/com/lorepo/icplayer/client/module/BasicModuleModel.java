@@ -91,10 +91,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		isVisible = XMLUtils.getAttributeAsBoolean(element, "isVisible", true);
 		isLocked = XMLUtils.getAttributeAsBoolean(element, "isLocked", false);
 		isModuleVisibleInEditor = XMLUtils.getAttributeAsBoolean(element, "isModuleVisibleInEditor", true);
-
-		if(EnableTabindex.getInstance().isTabindexEnabled) {
-			this.isTabindexEnabled = XMLUtils.getAttributeAsBoolean(element, "isTabindexEnabled", false);
-		}
+		this.isTabindexEnabled = XMLUtils.getAttributeAsBoolean(element, "isTabindexEnabled", false);
 		setLeft(left);
 		setTop(top);
 		setWidth(width);
@@ -295,7 +292,9 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	}
 	
 	public boolean isTabindexEnabled() {
-		return this.isTabindexEnabled;
+		boolean isTabEnabledPreferences = EnableTabindex.getInstance().isTabindexEnabled && isTabindexEnabled ? true : false;
+		
+		return isTabEnabledPreferences;
 	}
 	
 	public void setIsTabindexEnabled(boolean value) {
