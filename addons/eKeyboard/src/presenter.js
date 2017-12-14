@@ -48,9 +48,8 @@ function AddoneKeyboard_create(){
     function initializeCloseButton() {
         closeButtonElement = document.createElement('button');
         closeButtonElement.className = 'eKeyboard-close-button';
-        closeButtonElement.style.position = 'absolute';
-        closeButtonElement.style.display= 'none';
         closeButtonElement.innerHTML = '\u2716';
+        $(closeButtonElement).hide();
 
         $(keyboardWrapper).append(closeButtonElement);
 
@@ -405,6 +404,10 @@ function AddoneKeyboard_create(){
                         showOpenButton();
                     } else {
                         presenter.createEKeyboard(this, display);
+                        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+                           // hides native keyboard
+                            document.activeElement.blur();
+                        }
                         $(this).trigger('showKeyboard');
                     }
                 });
@@ -445,8 +448,6 @@ function AddoneKeyboard_create(){
                                 lastClickedElement = this;
                                 movedInput = true;
                                 getNextFocusableElement(this, true).focus();
-
-
                             }
                         }
                     });
@@ -606,17 +607,8 @@ function AddoneKeyboard_create(){
                             shiftKeyboard(keyboard, isVisibleInViewPort);
                         }
 
-                        showCloseButton();
-
-                        $(closeButtonElement).position({
-                            my:        "left top",
-                            at:        "right top",
-                            of:         keyboard['$keyboard'],
-                            collision: 'fit'
-                        });
-
                         keyboard['$keyboard'].draggable({
-                            drag: function (event) {
+                            drag: function () {
                                 $(closeButtonElement).position({
                                     my:        "left top",
                                     at:        "right top",
@@ -624,6 +616,25 @@ function AddoneKeyboard_create(){
                                     collision: 'fit'
                                 });
                             }
+                        });
+
+                        var position = keyboard['$keyboard'].position();
+                        var width = keyboard['$keyboard'].outerWidth();
+                        console.log(width, position.top, position.left);
+
+
+                        // $(closeButtonElement).css({
+                        //     top: position.top + 'px',
+                        //     left: position.left + width + 'px'
+                        // });
+
+                        showCloseButton();
+
+                        $(closeButtonElement).position({
+                            my:        "left top",
+                            at:        "right top",
+                            of:         keyboard['$keyboard'],
+                            collision: 'fit'
                         });
 
                         $(document).on('mousedown.ekeyboard', function (event) {
@@ -646,7 +657,7 @@ function AddoneKeyboard_create(){
                     },
                     beforeClose: function(e, keyboard, el, accepted) {
                         $(document).off('mousedown.ekeyboard');
-                        hideCloseButton();
+                        $(closeButtonElement).hide();
                     },
                     accepted: function(e, keyboard, el) {},
                     canceled: function(e, keyboard, el) {},
@@ -726,10 +737,6 @@ function AddoneKeyboard_create(){
         openButtonElement.style.display = 'none';
     }
 
-    function hideCloseButton() {
-        $(closeButtonElement).hide();
-    }
-
     function focusoutCallBack(ev) {
         if (!keyboardIsVisible && !movedInput) {
             hideOpenButton();
@@ -758,7 +765,7 @@ function AddoneKeyboard_create(){
 
         $(document).off('mousedown.ekeyboard');
 
-        hideCloseButton();
+        $(closeButtonElement).hide();
     }
 
     function showOpenButton() {
