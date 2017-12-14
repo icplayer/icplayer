@@ -396,7 +396,7 @@ function AddoneKeyboard_create(){
                     });
                 }
 
-                $(presenter.configuration.workWithViews).find('input').on('focusin', function () {
+                $(presenter.configuration.workWithViews).find('input').on('focus', function () {
                     lastClickedElement = this;
                     if (!keyboardIsVisible) {
                         if ($(this).data('keyboard') !== undefined) {
@@ -514,7 +514,7 @@ function AddoneKeyboard_create(){
                     autoAccept: true,
 
                     // Prevents direct input in the preview window when true
-                    lockInput: false,
+                    lockInput: presenter.configuration.lockInput,
 
                     // Prevent keys not in the displayed keyboard from being typed in
                     restrictInput: false,
@@ -634,9 +634,8 @@ function AddoneKeyboard_create(){
                             if (!wrapper.is(event.target) && wrapper.has(event.target).length === 0) {
                                 $(this).off('mousedown.ekeyboard');
                                 $(closeButtonElement).hide();
-
+                                $(lastClickedElement).removeAttr("readonly");
                                 if ($(lastClickedElement).data('keyboard') !== undefined) {
-                                    console.log('destroy');
                                     $(lastClickedElement).data('keyboard').destroy();
                                 }
                             }
