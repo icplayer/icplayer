@@ -628,4 +628,8 @@ public class Content implements IContentBuilder, IContent {
 		}
 		return footer;
 	}
+	
+	public boolean isCommonPage(Page page) {
+		return this.getCommonPages().contains(page);
+	}
 }
