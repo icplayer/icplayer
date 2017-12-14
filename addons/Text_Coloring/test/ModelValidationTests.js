@@ -148,7 +148,6 @@ TestCase("[Text_Coloring] Validate Text", {
         this.expectedResult.push(getSpaceToken());
         this.expectedResult.push(getWordToken("red:"));
         this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken(""));
         this.expectedResult.push(getSelectableToken("Text", "red"));
         this.expectedResult.push(getNewLineToken());
         this.expectedResult.push(getWordToken("and"));
@@ -163,7 +162,6 @@ TestCase("[Text_Coloring] Validate Text", {
         this.expectedResult.push(getSpaceToken());
         this.expectedResult.push(getWordToken("blue:"));
         this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken(""));
         this.expectedResult.push(getSelectableToken("Text", "blue"));
         this.expectedResult.push(getNewLineToken());
         this.expectedResult.push(getWordToken("and"));
@@ -176,7 +174,6 @@ TestCase("[Text_Coloring] Validate Text", {
         this.expectedResult.push(getSpaceToken());
         this.expectedResult.push(getWordToken("with:"));
         this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken(""));
         this.expectedResult.push(getSelectableToken("Text", "red"));
         this.expectedResult.push(getWordToken("."));
     },

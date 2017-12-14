@@ -233,7 +233,9 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 
 	@Override
 	public boolean isTabindexEnabled() {
-		return this.isTabindexEnabled;
+		boolean isTabEnabledPreferences = EnableTabindex.getInstance().isTabindexEnabled && isTabindexEnabled ? true : false;
+
+		return isTabEnabledPreferences;
 	}
 
 	@Override

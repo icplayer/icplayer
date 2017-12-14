@@ -28,6 +28,7 @@ public class PagePopupPanel extends DialogBox {
 	private String left;
 	private PageController openingPageController;
 	private String popupName = "";
+	private int popupHeightWithoutBorder = 0;
 
 	public PagePopupPanel(Widget parent, PageController pageController, String top, String left, String additionalClasses) {
 		this.pageController = pageController;
@@ -91,17 +92,15 @@ public class PagePopupPanel extends DialogBox {
 		pageController.setPage(page);
 				
 		Style glassStyle = getGlassElement().getStyle();
-				
+		
 		int popupWidthWithBorder = page.getWidth() + this.getBorderWidth();
-				
-		if (popupWidthWithBorder > windowWidth){
+		if (page.getWidth() >= windowWidth){
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
 			this.compensateWidthBorder();
 		}
 
 		int popupHeightWithBorder = page.getHeight() + this.getBorderHeight();
-		
-		if (popupHeightWithBorder > windowHeight){
+		if (page.getHeight() >= windowHeight){
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
 			this.compensateHeightBorder();
 		}
@@ -123,7 +122,8 @@ public class PagePopupPanel extends DialogBox {
 		
 		glassStyle.setProperty("top", 0 + "px");
 		glassStyle.setProperty("height", height + "px");
-		center();
+		
+		center(page.getHeight() >= windowHeight);
 	}
 	
 	public static native int getParentWindowOffset() /*-{
@@ -158,7 +158,7 @@ public class PagePopupPanel extends DialogBox {
 	 * Center popup
 	 * @param parentWidget
 	 */
-	public void center() {		
+	public void center(boolean shouldRemoveScroll) {		
 		if(parentWidget != null){
 			int left = parentWidget.getAbsoluteLeft();
 			int offsetX = parentWidget.getOffsetWidth() - getOffsetWidth();
@@ -185,6 +185,10 @@ public class PagePopupPanel extends DialogBox {
 				}
 
 			});
+			
+			if(shouldRemoveScroll) {
+				this.pageWidget.setHeight(popupHeightWithoutBorder - top);
+			}
 			
 			
 			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){		
@@ -242,6 +246,7 @@ public class PagePopupPanel extends DialogBox {
 		int popupHeight = this.pageWidget.getOffsetHeight();
 		int borderHeight = this.getBorderHeight();
 		int popupWithoutBorder = popupHeight - borderHeight;
+		popupHeightWithoutBorder = popupWithoutBorder;
 
 		this.pageWidget.setHeight(popupWithoutBorder);
 	}
