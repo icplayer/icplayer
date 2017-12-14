@@ -169,7 +169,7 @@ public class ModuleTestCase {
 	}
 	
 	@Test
-	public void isTabindexEnabledPropertyIsByDefaultTrue() throws SAXException, IOException {
+	public void isTabindexEnabledPropertyIsByDefaultFalse() throws SAXException, IOException {
 		PowerMockito.spy(DictionaryWrapper.class);
 		when(DictionaryWrapper.get("is_tabindex_enabled")).thenReturn("Is Tabindex Enabled");
 		
@@ -184,7 +184,7 @@ public class ModuleTestCase {
 		}
 		
 		assertNotNull(isTabindexEnabledProperty);
-		assertEquals("True", isTabindexEnabledProperty.getValue());
+		assertEquals("False", isTabindexEnabledProperty.getValue());
 	}
 	
 	@Test

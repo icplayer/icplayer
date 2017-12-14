@@ -10,6 +10,7 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.EnableTabindex;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
 
@@ -23,7 +24,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private INameValidator nameValidator;
 	private String buttonType;
 	private boolean isModuleVisibleInEditor = true;
-	private boolean isTabindexEnabled = true;
+	private boolean isTabindexEnabled = false;
 	
 	protected BasicModuleModel(String typeName, String name){
 		super(name);
@@ -90,7 +91,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		isVisible = XMLUtils.getAttributeAsBoolean(element, "isVisible", true);
 		isLocked = XMLUtils.getAttributeAsBoolean(element, "isLocked", false);
 		isModuleVisibleInEditor = XMLUtils.getAttributeAsBoolean(element, "isModuleVisibleInEditor", true);
-		this.isTabindexEnabled = XMLUtils.getAttributeAsBoolean(element, "isTabindexEnabled", true);
+		this.isTabindexEnabled = XMLUtils.getAttributeAsBoolean(element, "isTabindexEnabled", false);
 		setLeft(left);
 		setTop(top);
 		setWidth(width);
@@ -291,7 +292,9 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	}
 	
 	public boolean isTabindexEnabled() {
-		return this.isTabindexEnabled;
+		boolean isTabEnabledPreferences = EnableTabindex.getInstance().isTabindexEnabled && isTabindexEnabled ? true : false;
+		
+		return isTabEnabledPreferences;
 	}
 	
 	public void setIsTabindexEnabled(boolean value) {
