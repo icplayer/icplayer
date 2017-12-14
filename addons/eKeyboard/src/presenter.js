@@ -12,6 +12,7 @@ function AddoneKeyboard_create(){
     var closeButtonElement = null;
     var openButtonElement = null;
     var lastClickedElement = null;
+    var keyboardWrapper = null;
     var movedInput = false;
     var escClicked = false;
 
@@ -51,7 +52,7 @@ function AddoneKeyboard_create(){
         closeButtonElement.style.display= 'none';
         closeButtonElement.innerHTML = '\u2716';
 
-        $(presenter.keyboardWrapper).append(closeButtonElement);
+        $(keyboardWrapper).append(closeButtonElement);
 
         touchStartDecorator(closeButtonCallBack, closeButtonElement);
     }
@@ -295,9 +296,9 @@ function AddoneKeyboard_create(){
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
-        presenter.keyboardWrapper = document.createElement("div");
-        presenter.keyboardWrapper.className = "ui-ekeyboard-wrapper";
-        $(document.body).append(presenter.keyboardWrapper);
+        keyboardWrapper = document.createElement("div");
+        keyboardWrapper.className = "ui-ekeyboard-wrapper";
+        $(document.body).append(keyboardWrapper);
 
         initializeOpenButton();
         initializeCloseButton();
@@ -395,7 +396,7 @@ function AddoneKeyboard_create(){
                     });
                 }
 
-                $(presenter.configuration.workWithViews).find('input').on('focus', function () {
+                $(presenter.configuration.workWithViews).find('input').on('focusin', function () {
                     lastClickedElement = this;
                     if (!keyboardIsVisible) {
                         if ($(this).data('keyboard') !== undefined) {
@@ -513,7 +514,7 @@ function AddoneKeyboard_create(){
                     autoAccept: true,
 
                     // Prevents direct input in the preview window when true
-                    lockInput: presenter.configuration.lockInput,
+                    lockInput: false,
 
                     // Prevent keys not in the displayed keyboard from being typed in
                     restrictInput: false,
@@ -539,7 +540,7 @@ function AddoneKeyboard_create(){
                     // "tabNavigation" option is true
                     appendLocally: false,
 
-            appendTo: presenter.keyboardWrapper,
+            appendTo: keyboardWrapper,
 
                     // If false, the shift key will remain active until the next key is (mouse) clicked on;
                     // if true it will stay active until pressed again
@@ -610,7 +611,7 @@ function AddoneKeyboard_create(){
                         $(closeButtonElement).position({
                             my:        "left top",
                             at:        "right top",
-                            of:         $('.ui-keyboard'),
+                            of:         keyboard['$keyboard'],
                             collision: 'fit'
                         });
 
@@ -619,7 +620,7 @@ function AddoneKeyboard_create(){
                                 $(closeButtonElement).position({
                                     my:        "left top",
                                     at:        "right top",
-                                    of:         $('.ui-keyboard'),
+                                    of:         keyboard['$keyboard'],
                                     collision: 'fit'
                                 });
                             }
@@ -628,13 +629,14 @@ function AddoneKeyboard_create(){
                         $(document).on('mousedown.ekeyboard', function (event) {
                             if (event.target === lastClickedElement) return;
 
-                            var wrapper = $(presenter.keyboardWrapper);
+                            var wrapper = $(keyboardWrapper);
 
                             if (!wrapper.is(event.target) && wrapper.has(event.target).length === 0) {
                                 $(this).off('mousedown.ekeyboard');
                                 $(closeButtonElement).hide();
 
                                 if ($(lastClickedElement).data('keyboard') !== undefined) {
+                                    console.log('destroy');
                                     $(lastClickedElement).data('keyboard').destroy();
                                 }
                             }
@@ -953,6 +955,9 @@ function AddoneKeyboard_create(){
                 $(inputs[i]).data('keyboard').destroy();
             } catch(err){}
         }
+
+        $(keyboardWrapper).remove();
+        $(openButtonElement).remove();
     };
 
     presenter.setWorkMode = function(){
