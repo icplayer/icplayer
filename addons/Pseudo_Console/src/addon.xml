@@ -6,6 +6,11 @@
             <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
             <property name="body" nameLabel="Pseudo_Console_property_functions_body" type="text" />
         </property>
+        <property name="methodsList" nameLabel="Pseudo_Console_property_methods_list" type="list">
+            <property name="objectName" nameLabel="Pseudo_Console_property_object_name" type="{Number,String,Array}"/>
+            <property name="methodName" nameLabel="Pseudo_Console_property_method_name" type="string"/>
+            <property name="methodBody" nameLabel="Pseudo_Console_property_method_body" type="text"/>
+        </property>
         <property name="default_aliases" nameLabel="Pseudo_Code_property_default_aliases" type="staticlist" isDefault="true">
             <property name="begin" displayName="Begin" type="staticrow">
                 <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />

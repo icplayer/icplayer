@@ -48,6 +48,9 @@ function AddonPseudo_Console_create() {
      */
     JISON_GRAMMAR = {
         "lex": {
+            "options" : {
+                flex: true
+            },
             "rules": [
                 ["[\"]",                    "this.begin('string'); return 'START_STRING'"],
                 [["string"], "[^\"\\\\]",   "return 'STRING';"],
@@ -55,25 +58,25 @@ function AddonPseudo_Console_create() {
                 [["string"], "\\\\.",       "return 'STRING'"],  // match \. <- escaped characters"
                 [["string"], "$",           "return 'EOF_IN_STRING';"],
                 [["string"], "[\"]",        "this.popState(); return 'END_STRING';"],
-                ["$begin$",                 "return 'BEGIN_BLOCK';"],
-                ["$end$",                   "return 'END_BLOCK';"],
-                ["$program$",               "return 'PROGRAM';"],
-                ["$variable$",              "return 'VARIABLE_DEF';"],
-                ["$for$",                   "return 'FOR';"],
-                ["$from$",                  "return 'FROM';"],
-                ["$to$",                    "return 'TO';"],
-                ["$do$",                    "return 'DO';"],
-                ["$or$",                    "return 'OR';"],
-                ["$and$",                   "return 'AND';"],
-                ["$while$",                 "return 'WHILE';"],
-                ["$if$",                    "return 'IF';"],
-                ["$then$",                  "return 'THEN';"],
-                ["$else$",                  "return 'ELSE';"],
-                ["$case$",                  "return 'CASE';"],
-                ["$option$",                "return 'OPTION';"],
-                ["$function$",              "return 'FUNCTION';"],
-                ["$return$",                "return 'RETURN';"],
-                ["$array_block$",           "return 'ARRAY_DEF';"],
+                ["|begin|",                 "return 'BEGIN_BLOCK';"],
+                ["|end|",                   "return 'END_BLOCK';"],
+                ["|program|",               "return 'PROGRAM';"],
+                ["|variable|",              "return 'VARIABLE_DEF';"],
+                ["|for|",                   "return 'FOR';"],
+                ["|from|",                  "return 'FROM';"],
+                ["|to|",                    "return 'TO';"],
+                ["|do|",                    "return 'DO';"],
+                ["|or|",                    "return 'OR';"],
+                ["|and|",                   "return 'AND';"],
+                ["|while|",                 "return 'WHILE';"],
+                ["|if|",                    "return 'IF';"],
+                ["|then|",                  "return 'THEN';"],
+                ["|else|",                  "return 'ELSE';"],
+                ["|case|",                  "return 'CASE';"],
+                ["|option|",                "return 'OPTION';"],
+                ["|function|",              "return 'FUNCTION';"],
+                ["|return|",                "return 'RETURN';"],
+                ["|array_block|",           "return 'ARRAY_DEF';"],
                 ["\\n+",                    "return 'NEW_LINE';"],
                 ["$",                       "return 'EOF';"],
                 ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
@@ -95,8 +98,10 @@ function AddonPseudo_Console_create() {
                 ["\\[",                     "return '[';"],
                 ["\\]",                     "return ']';"],
                 [",",                       "return 'COMMA';"],
+                ["\\.",                     "return 'DOT';"],
                 ["=",                       "return '=';"],
-                ["[ \f\r\t\v​\u00A0\u1680​\u180e\u2000​\u2001\u2002​\u2003\u2004​\u2005\u2006​\u2007\u2008​\u2009\u200a​\u2028\u2029​\u2028\u2029​\u202f\u205f​\u3000]",                   "/* IGNORE SPACES */"]
+                ["[ \f\r\t\v​\u00A0\u1680​\u180e\u2000​\u2001\u2002​\u2003\u2004​\u2005\u2006​\u2007\u2008​\u2009\u200a​\u2028\u2029​\u2028\u2029​\u202f\u205f​\u3000]",                   "/* IGNORE SPACES */"],
+                [".",                       "return 'NOT_MATCH';"]
             ],
 
             "startConditions" : {
@@ -110,6 +115,7 @@ function AddonPseudo_Console_create() {
             ["left", "+", "-"],
             ["left", "*", "/", "DIV_FLOOR", "%"],
             ["left", "(", ")"],
+            ["lefr", "DOT"],
             ["left", "BRACKET"],
             ["left", "UMINUS"],
             ["right", "IF", "ELSE", "THEN"],
@@ -176,21 +182,17 @@ function AddonPseudo_Console_create() {
             ],
 
             "array_definition" : [
-                ["array_name_definition array_start_value", "$$ = $1 + ($2 || '')"]
-            ],
-
-            "array_name_definition": [
-                ["STATIC_VALUE [ NUMBER ]", "$$ = ''"]
+                ["STATIC_VALUE [ NUMBER ] array_start_value", "$$ = yy.presenterContext.bnf['array'](yy, $1, $3, $5);"]
             ],
 
             "array_start_value": [
                 "",
                 [" = [ array_start_entries ]", "$$ = $3"]
             ],
-            
+
             "array_start_entries": [
                 ["array_start_entry", "$$ = $1"],
-                ["array_start_entries COMMA array_start_entry", "$$ = $1"]
+                ["array_start_entries COMMA array_start_entry", "$$ = $1.concat($3);"]
             ],
 
             "array_start_entry" : [
@@ -377,6 +379,7 @@ function AddonPseudo_Console_create() {
                 [ "operation AND operation",    "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__and__');" ],
                 [ "( operation )",              "$$ = $2" ],
                 [ "- operation",                "$$ = yy.presenterContext.generateMinusOperation($2);", {"prec": "UMINUS"} ],
+                [ "operation DOT STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['method_call']($3, $5, $1);"],
                 [ "number_value",               "$$ = $1" ],
                 [ "variable_get",               "$$ = $1" ],
                 [ "string_value",               "$$ = $1" ]
@@ -518,6 +521,32 @@ function AddonPseudo_Console_create() {
             }
         },
 
+        Array: {
+            __constructor__: function (count, values) {
+                values = values || [];
+
+                var value = [];
+
+                for (var i = 0; i < values.length; i += 1) {
+                    value[i] = values[i];
+                }
+
+                for (; i < count; i += 1) {
+                    value.push(null);
+                }
+
+                return {
+                    value: value,
+                    type: "Array",
+                    methods: presenter.objectMocks.Array['__methods__'],
+                    parent: presenter.objectMocks.Object
+                }
+            },
+
+            __methods__: {
+            }
+        },
+
         Boolean: {
             __constructor__: function (val) {
                 return {
@@ -560,7 +589,7 @@ function AddonPseudo_Console_create() {
             __constructor__: function (value) {
                 return {
                     constructor: presenter.objectMocks.Number['__constructor__'],
-                    value: value || 0,
+                    value: Number(value) || 0,
                     type: "Number",
                     methods: presenter.objectMocks.Number['__methods__'],
                     parent: presenter.objectMocks.Object
@@ -716,7 +745,7 @@ function AddonPseudo_Console_create() {
             execCode.push(presenter.generateExecuteObject('', '1_get_object_call_manager'));
 
             var code = "";
-            code += "retVal = presenter.builtInMethodCall(stack)";
+            code += "retVal = presenter.builtInMethodCall(stack, presenter.objectForInstructions, presenter.objectMocks, next, pause)";
 
             
             execCode.push(presenter.generateExecuteObject(code, ''));
@@ -734,15 +763,52 @@ function AddonPseudo_Console_create() {
             }];
         },
 
+        array: function (yy, arrayName, arraySize, startValues) {
+            var code = 'var buff1 = [];';
+            
+            startValues = startValues || [];
+
+            startValues.forEach(function (el) {
+                code += el.code;
+                code += ';buff1.push(stack.pop());';
+            });
+
+
+
+            presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(arrayName);
+            return code + 'actualScope.' + arrayName + '= presenter.objectMocks.Array.__constructor__.call({},' + arraySize + ', buff1);';
+        },
+
+
         var: function (yy, varName) {
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(varName);
-            return 'actualScope.' + varName + ' = {value: 0};';
+            return 'actualScope.' + varName + ' = presenter.objectMocks.Number.__constructor__.call({}, 0);';
         },
 
         function_call: function (yy, functionName, args) {
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].fn.push(functionName);
 
             return yy.presenterContext.dispatch(functionName, args || []);
+        },
+
+        method_call: function (methodName, args, operations) {
+            var execObjects = [];
+
+            //Call args code in reverse order to save it on stack
+            for (var i = args.length - 1; i >= 0; i--){
+                execObjects = execObjects.concat(args[i]);
+            };
+
+            execObjects = execObjects.concat(operations);
+
+            execObjects.push(presenter.generateExecuteObject("stack.push('" + methodName + "');", ''));
+            execObjects.push(presenter.generateExecuteObject("stack.push(" + args.length + ");", ''));
+
+            execObjects.push(presenter.generateExecuteObject("functionsCallPositionStack.push(actualIndex);", ""));
+            execObjects.push(presenter.generateJumpInstruction('true', '1_get_object_call_manager'));
+            execObjects.push(presenter.generateExecuteObject("stack.push(retVal);", ''));
+
+            return execObjects;
         },
 
         function: function (yy, functionName, functionArgs, sectionsBlock, codeBlock) {
@@ -924,11 +990,12 @@ function AddonPseudo_Console_create() {
      * @param {Object[]} stack 
      * @param {Function} method 
      */
-    presenter.builtInMethodCall = function (stack) {
+    presenter.builtInMethodCall = function (stack, consoleObj, objects, next, pause) {
+        debugger;
         var argsCount = stack.pop();
         var methName = stack.pop();
         var obj = stack.pop();
-        var args = [];
+        var args = [consoleObj, objects, next, pause];
 
         var method = presenter.bnf.getMethodFromObject(obj, methName).jsCode;
 
@@ -1070,7 +1137,7 @@ function AddonPseudo_Console_create() {
             parsedArgs.unshift("stack[stack.length - " + i + "]");
         }
 
-        code = "retVal = presenter.configuration.functions." + functionName + ".call(presenter.objectForInstructions, next, pause," + parsedArgs.join(",") + ");";
+        code = "debugger; retVal = presenter.configuration.functions." + functionName + ".call({}, presenter.objectForInstructions, presenter.objectMocks, next, pause," + parsedArgs.join(",") + ");";
 
         execCode.push(presenter.generateExecuteObject(code, '', true));
 
@@ -1121,7 +1188,10 @@ function AddonPseudo_Console_create() {
             doWhile: 0,
             if: 0,
             case: 0
-        }    //Object with calculated each built in instruction call e.g. for, while
+        },    //Object with calculated each built in instruction call e.g. for, while,
+        data: {
+
+        }
     };
 
     presenter.state = {
@@ -1164,7 +1234,9 @@ function AddonPseudo_Console_create() {
         "FN02": "Defined function must have unique name",
         "FN03": "Defined function overrides built in alias",
         "AN01": "Defined alias name must match to ^[A-Za-z_][a-zA-Z0-9_]*$",
-        "AN02": "Multiple aliases got the same name"
+        "AN02": "Multiple aliases got the same name",
+        "JS01": "Java Script code in mdefined ethod is not valid.",
+        "JS02": "Java Script code in defined function is not valid"
     };
 
     //https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
@@ -1203,7 +1275,7 @@ function AddonPseudo_Console_create() {
     };
 
     presenter.getWordBetweenDolars = function (word) {
-        if (word.indexOf("$") > -1 && word.lastIndexOf("$") !== word.indexOf("$")) {
+        if (word.indexOf("|") > -1 && word.lastIndexOf("|") !== word.indexOf("|")) {
             return word.substring(1, word.length - 1);
         }
         return null;
@@ -1246,6 +1318,9 @@ function AddonPseudo_Console_create() {
                 doWhile: 0,
                 if: 0,
                 case: 0
+            },
+            data: {
+
             }
         };
         presenter.objectForInstructions.console = consoleMock || presenter.state.console;
@@ -1274,6 +1349,16 @@ function AddonPseudo_Console_create() {
         };
     };
 
+    presenter.completeObjectsMethods = function () {
+        presenter.configuration.methods.forEach(function (method) {
+            presenter.objectMocks[method.objectName].__methods__[method.methodName] = {
+                native: true,
+                jsCode: method.function
+            };
+
+        });
+    };
+
     presenter.initialize = function (view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
@@ -1286,6 +1371,7 @@ function AddonPseudo_Console_create() {
             presenter.initializeConsole();
             presenter.initializeObjectForCode();
             presenter.initializeGrammar();
+            presenter.completeObjectsMethods();
         }
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
@@ -1680,6 +1766,7 @@ function AddonPseudo_Console_create() {
                     pause();
                 }
             } catch (e) {
+                console.log("Index: ", actualIndex);
                 if (!e.message) {
                     presenter.state.console.Write(e + "\n", 'program-error-output');
                 } else {
@@ -2033,6 +2120,22 @@ function AddonPseudo_Console_create() {
 
     presenter.console = UserConsole;
     // ---------------------------------- VALIDATION SECTION ---------------------------------
+    function wrapMethodOrFunctionWithBuiltInCode (userCode) {
+        var code = "var builtIn = {\n";
+        code += "   console: arguments[0].console,\n"
+        code += "   data: arguments[0].data,";
+        code += "   objects: arguments[1]\n";
+        code += "};";
+        code += "builtIn.console.nextIns = arguments[2];\n";
+        code += "builtIn.console.pauseIns = arguments[3];\n";
+        code += "arguments = Array.prototype.slice.call(arguments, 4)\n";
+
+        code += userCode;
+
+        code += ";return builtIn.objects.Object.__constructor__();";
+        return code;
+    }
+
     function generateValidationError(errorCode) {
         return {
             isValid: false,
@@ -2041,15 +2144,23 @@ function AddonPseudo_Console_create() {
     }
 
     presenter.validateFunction = function (functionToValidate) {
+        var validatedFunction;
+
         if (!/^[A-Za-z_][a-zA-Z0-9_]*$/g.exec(functionToValidate.name)) {
             return generateValidationError("FN01");
+        }
+
+        try {
+            validatedFunction = new Function(wrapMethodOrFunctionWithBuiltInCode(functionToValidate.body));
+        } catch (e) {
+            return generateValidationError("JS02");
         }
 
         return {
             isValid: true,
             value: {
                 name: functionToValidate.name,
-                body: new Function("this.console.pauseIns = arguments[1], this.console.nextIns = arguments[0]; arguments = Array.prototype.slice.call(arguments, 2);" + functionToValidate.body + "; return {value: undefined};")
+                body: validatedFunction
             }
         };
     };
@@ -2170,11 +2281,58 @@ function AddonPseudo_Console_create() {
         };
     };
 
+    /**
+     * 
+     * @param {{objectName: (Array|Number|String), methodName: String, methodBody: String}} method 
+     */
+    presenter.validateMethod = function (method) {
+        var validatedMethod = {};
+
+        try {
+            validatedMethod = {
+                objectName: method.objectName,
+                methodName: method.methodName,
+                function: new Function (wrapMethodOrFunctionWithBuiltInCode(method.methodBody))
+            }
+        } catch (e) {
+            return generateValidationError("JS01");
+        }
+
+        return {
+            isValid: true,
+            method: validatedMethod
+        };
+    };
+
+    /**
+     * 
+     * @param {{objectName: (Array|Number|String), methodName: String, methodBody: String}[]} methods 
+     */
+    presenter.validateMethods = function (methods) {
+        var validatedMethods = [];
+
+        methods.forEach(function (method) {
+            var validatedMethod = presenter.validateMethod(method);
+
+            if (!validatedMethod.isValid) {
+                return validatedMethod;
+            }
+
+            validatedMethods.push(validatedMethod.method);
+        });
+
+        return {
+            isValid: true,
+            methods: validatedMethods
+        }
+    };
+
     presenter.validateModel = function (model) {
         var validatedAliases,
             validatedFunctions,
             validatedAnswer,
-            isUniqueInAliasesAndFunctions;
+            isUniqueInAliasesAndFunctions,
+            validatedMethods;
 
         validatedAliases = presenter.validateAliases(model.default_aliases);
         if (!validatedAliases.isValid) {
@@ -2198,6 +2356,11 @@ function AddonPseudo_Console_create() {
             return validatedAnswer;
         }
 
+        validatedMethods = presenter.validateMethods(model.methodsList);
+        if (!validatedMethods.isValid) {
+            return validatedMethods;
+        }
+
         return {
             isValid: true,
             addonID: model.ID,
@@ -2205,7 +2368,8 @@ function AddonPseudo_Console_create() {
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
             functions: validatedFunctions.value,
             aliases: $.extend(presenter.configuration.aliases, validatedAliases.value),
-            answer: validatedAnswer
+            answer: validatedAnswer,
+            methods: validatedMethods.methods
         };
     };
 
