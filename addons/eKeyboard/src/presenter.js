@@ -49,7 +49,8 @@ function AddoneKeyboard_create(){
         closeButtonElement = document.createElement('button');
         closeButtonElement.className = 'eKeyboard-close-button';
         closeButtonElement.innerHTML = '\u2716';
-        $(closeButtonElement).hide();
+        closeButtonElement.style.position = 'absolute';
+        closeButtonElement.style.display = 'none';
 
         $(keyboardWrapper).append(closeButtonElement);
 
@@ -403,11 +404,11 @@ function AddoneKeyboard_create(){
                         }
                         showOpenButton();
                     } else {
-                        presenter.createEKeyboard(this, display);
                         if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
                            // hides native keyboard
                             document.activeElement.blur();
                         }
+                        presenter.createEKeyboard(this, display);
                         $(this).trigger('showKeyboard');
                     }
                 });
@@ -618,27 +619,23 @@ function AddoneKeyboard_create(){
                             }
                         });
 
-                        var position = keyboard['$keyboard'].position();
-                        var width = keyboard['$keyboard'].outerWidth();
-                        console.log(width, position.top, position.left);
+                        var $keyboard = keyboard['$keyboard'];
+                        var position = $keyboard.position();
 
+                        var widthMargin = ($keyboard.outerWidth(true) -  $keyboard.innerWidth()) / 2;
+                        var width = $keyboard.outerWidth() + widthMargin;
 
-                        // $(closeButtonElement).css({
-                        //     top: position.top + 'px',
-                        //     left: position.left + width + 'px'
-                        // });
+                        var heightMargin = ($keyboard.outerHeight(true) -  $keyboard.innerHeight()) / 2;
+
+                        $(closeButtonElement).css({
+                            top: position.top + heightMargin + 'px',
+                            left: position.left + width + 'px'
+                        });
 
                         showCloseButton();
 
-                        $(closeButtonElement).position({
-                            my:        "left top",
-                            at:        "right top",
-                            of:         keyboard['$keyboard'],
-                            collision: 'fit'
-                        });
-
                         $(document).on('mousedown.ekeyboard', function (event) {
-                            if (event.target === lastClickedElement) return;
+                            if (event.target === el) return;
 
                             var wrapper = $(keyboardWrapper);
 
@@ -764,7 +761,6 @@ function AddoneKeyboard_create(){
         $(lastClickedElement).click();
 
         $(document).off('mousedown.ekeyboard');
-
         $(closeButtonElement).hide();
     }
 
@@ -791,8 +787,10 @@ function AddoneKeyboard_create(){
         $(lastClickedElement).focus();
         $(lastClickedElement).trigger('showKeyboard');
 
-        $(presenter.configuration.workWithViews).find('input').attr("readonly", "readonly")
-            .addClass('ui-keyboard-input ui-keyboard-lockedinput ui-keyboard-autoaccepted');
+        $(presenter.configuration.workWithViews).find('input').addClass('ui-keyboard-input ui-keyboard-lockedinput ui-keyboard-autoaccepted');
+        if (presenter.configuration.lockInput) {
+            find('input').attr("readonly", "readonly")
+        }
     }
 
     function actualizeOpenButtonPosition(element) {
@@ -900,7 +898,7 @@ function AddoneKeyboard_create(){
                 $(inputs[i]).data('keyboard').destroy();
             } catch(err){}
         }
-
+        $(document).off('mousedown.ekeyboard');
         $(presenter.configuration.workWithViews).find('input').on('focusout', focusoutCallBack);
         $(presenter.configuration.workWithViews).find('input').removeClass('ui-keyboard-input ui-keyboard-input-current').removeAttr("readonly");
     };
