@@ -9,9 +9,8 @@ import com.lorepo.icf.utils.TextToSpeechVoice;
 public interface ITextToSpeechController {
 	public void playTitle (String area, String id, String lagTag);
 	public void speak (List<TextToSpeechVoice> voiceTexts);
-	public void readGap (String text, String currentGapContent, int gapNumber);
-	public void readStartText();
-	public void readExitText();
+	public void readStartText ();
+	public void readExitText ();
 	public List<NavigationModuleIndentifier> getModulesOrder ();
 	public boolean isTextToSpeechModuleEnable ();
 }

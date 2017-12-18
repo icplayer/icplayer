@@ -492,12 +492,6 @@ public class PageController implements ITextToSpeechController {
 			TextToSpeechAPI.speak(this.getTextToSpeechAPIJavaScriptObject(), voiceTexts);
 		}
 	}
-
-	public void readGap (String text, String currentGapContent, int gapNumber) {
-		if (this.isReadingOn) {
-			TextToSpeechAPI.readGap(this.getTextToSpeechAPIJavaScriptObject(), text, currentGapContent, gapNumber);
-		}
-	}
 	
 	public void readStartText () {
 		TextToSpeechAPI.playEnterText(this.getTextToSpeechAPIJavaScriptObject());

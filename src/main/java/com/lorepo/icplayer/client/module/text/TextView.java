@@ -12,7 +12,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
@@ -25,13 +24,12 @@ import com.lorepo.icplayer.client.utils.MathJax;
 
 
 public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
-
 	private final TextModel module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 	private boolean moduleHasFocus = false;
-	private int clicks = 0;
+	private int clicks = -1;
 	private TextElementDisplay activeGap = null;
 	private PageController pageController;
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
@@ -318,28 +316,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		return textElements.size();
 	}
 	
-	private void skip() {
-		int size = getTextElementsSize();
-
-		if (size == 0) return;
-		
-		if (activeGap != null) {
-			activeGap.setFocusGap(false);
-		}
-		
-		clicks++;
-		
-		if (clicks >= size && size > 0) {
-			clicks = 0;
-		}
-
-		activeGap = textElements.get(clicks);
-		activeGap.setFocusGap(true);
-		
-		this.pageController.readGap(module.rawTextNoGaps, activeGap.getTextValue(), clicks);
-//		this.readGap(module.rawTextNoGaps, activeGap.getTextValue(), clicks);
-	}
-	
 	private void removeAllSelections () {
 		for (TextElementDisplay element: this.textElements) {
 			element.deselect();
@@ -424,33 +400,38 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 				}
 			}
 			
-			if (this.pageController != null) {
-				List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-				textVoices.add(TextToSpeechVoice.create(getContentWithGapsValues(), this.module.getLangAttribute()));
-				this.pageController.speak(textVoices);
-			}
+			this.readTextContent();
 		}
 	}
-
-	@Override
-	public void tab () {
+	
+	private void move (boolean goNext) {
 		int size = getTextElementsSize();
-
-		if (size == 0) return;
-
+		
+		if (size == 0) {
+			return;
+		}
+		
 		this.removeAllSelections();
 		
-		clicks++;
+		clicks += goNext ? 1 : -1;
 		
-		if (clicks >= size && size > 0) {
+		if (clicks >= size) {
+			clicks = size-1;
+		}
+		
+		if (clicks < 0) {
 			clicks = 0;
 		}
 		
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
 		
-		this.pageController.readGap(module.rawTextNoGaps, activeGap.getTextValue(), clicks);
-//		this.readGap(module.rawTextNoGaps, activeGap.getTextValue(), clicks);
+		this.readGap(activeGap.getGapType(), clicks, activeGap.getTextValue());
+	}
+
+	@Override
+	public void tab () {
+		this.move(true);
 	}
 
 	@Override
@@ -461,37 +442,20 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 	@Override
 	public void shiftTab () {
-		int size = getTextElementsSize();
-
-		if (size == 0) return;
-
-		this.removeAllSelections();
-		
-		clicks--;
-		
-		if (clicks < 0) {
-			clicks = size - 1;
-		}
-		
-		activeGap = textElements.get(clicks);
-		activeGap.setFocusGap(true);
+		this.move(false);
 	}
 	
 	@Override
-	public void left() {
-	}
+	public void left () {}
 
 	@Override
-	public void right() {
-	}
+	public void right () {}
 
 	@Override
-	public void down() {
-	}
+	public void down () {}
 
 	@Override
-	public void up() {
-	}
+	public void up () {}
 	
 	@Override
 	public void space() {
@@ -499,8 +463,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
-	}
+	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
 	public boolean isWCAGon() {
@@ -523,42 +486,32 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		return this.module.getLangAttribute();
 	}
 	
-//    '1': 'Gap number ',
-//    '2': 'Option gap number ',
-//    '3': 'Math gap number ',
-//    '4': 'Filled gap number '
-	
-	List<String> textToSpeechTexts = new ArrayList<String>();
-	
-	private void readGap (String text, String currentGapContent, int gapNumber) {
-		// TODO wartosci z property
-		List<String> textToSpeechTexts = new ArrayList<String>();
-		textToSpeechTexts.add("Gap number ");
-		textToSpeechTexts.add("Option gap number ");
-		textToSpeechTexts.add("Math gap number ");
-		textToSpeechTexts.add("Filled gap number ");
+	private void readGap (String type, int index, String content) {
+		final String gapType = type == "gap" ? this.module.getSpeechTextItem(1) : this.module.getSpeechTextItem(2);
 		
-		JavaScriptUtils.log("readGap");
-		JavaScriptUtils.log(text);
-		JavaScriptUtils.log(currentGapContent);
-		JavaScriptUtils.log(gapNumber);
-//		
-////        var gaps = text.match(/#[1-4]#/g);
-//		final String patternString = "#[1-4]#";
-//		final int[] gaps = null;
-//		
-//		Pattern pattern = Pattern.compile(patternString);
-//        Matcher matcher = pattern.matcher(text);
-//		
-////        var gapTypeNumber = gaps[gapNumber][1];
-//		final int gapTypeNumber = Integer.parseInt(matcher.group(gapNumber)); //gaps.get(gapNumber);
-//
-////        var gapTypeRead = presenter.INPUTS_TRANSLATIONS[presenter.configuration.language][gapTypeNumber];
-//		final String gapTypeRead = textToSpeechTexts.get(gapTypeNumber - 1);
-////        var gapNumberRead = presenter.getGapAppearanceAtIndexOfType(gaps, gapNumber) + 1;
-//
-////        presenter.speak(gapTypeRead + ' ' + gapNumberRead + ' ' + currentGapContent);
-//		this.pageController.speak(gapTypeRead + " ", this.module.getLangAttribute());
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(TextToSpeechVoice.create(gapType + " " + Integer.toString(index + 1)));
+		textVoices.add(TextToSpeechVoice.create(content, this.module.getLangAttribute()));
+		
+		this.speak(textVoices);
+	}
+	
+	private void readTextContent () {
+		final String readableText = WCAGUtils.getReadableText(this.module.getOriginalText(), this.textElements);
+		this.speak(TextToSpeechVoice.create(readableText, this.module.getLangAttribute()));
+	}
+	
+	private void speak (TextToSpeechVoice t1) {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(t1);
+		
+		this.speak(textVoices);
+	}
+	
+	private void speak (List<TextToSpeechVoice> textVoices) {
+		if (this.pageController != null) {
+			this.pageController.speak(textVoices);
+		}
 	}
 
 }

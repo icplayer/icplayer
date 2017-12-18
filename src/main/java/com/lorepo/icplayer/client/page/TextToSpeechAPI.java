@@ -45,17 +45,6 @@ public class TextToSpeechAPI {
 		}
 	}-*/;
 	
-	// TODO remove
-	public static native void readGap (JavaScriptObject obj, String text, String currentGapContent, int gapNumber) /*-{
-		try {
-			if (obj && obj.readGap) {
-				obj.readGap(text, currentGapContent, gapNumber);
-			}
-		} catch(err) {
-			alert("[TextToSpeech1] Exception in readGap(): \n" + err);
-		}
-	}-*/;
-	
 	public static native void playEnterText (JavaScriptObject obj) /*-{
 		try {
 			if (obj && obj.playEnterText) {

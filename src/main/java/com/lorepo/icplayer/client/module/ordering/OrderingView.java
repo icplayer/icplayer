@@ -704,7 +704,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			this.deselectCurrentItem();
 		} else {
 			this.selectCurrentItem();
-			this.readItem(currentWCAGSelectedItemIndex);
+			this.readItem(this.currentWCAGSelectedItemIndex);
 		}
 	}
 	
@@ -720,27 +720,27 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}-*/;
 	
 	@Override
-	public void tab() {
+	public void tab () {
 		this.move(1);
 	}
 	
 	@Override
-	public void left() {
+	public void left () {
 		this.move(-1);
 	}
 	
 	@Override
-	public void right() {
+	public void right () {
 		this.move(1);
 	}
 	
 	@Override
-	public void up() {
+	public void up () {
 		this.move(-1);
 	}
 	
 	@Override
-	public void down() {
+	public void down () {
 		this.move(1);
 	}
 	
@@ -807,7 +807,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
-	public void shiftTab() {}
+	public void shiftTab () {}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {}

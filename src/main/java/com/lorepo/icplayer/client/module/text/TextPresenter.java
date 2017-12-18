@@ -411,14 +411,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	            }
 	        }
 		}
-		
-		if (state.containsKey("textToSpeechTitle")) {
-			module.setTextToSpeechTitle(state.get("textToSpeechTitle"));
-		}
-		
-		if (state.containsKey("textToSpeechDescription")) {
-			module.setTextToSpeechDescription(state.get("textToSpeechDescription"));
-		}
 
 		isVisible = Boolean.parseBoolean(state.get("isVisible"));
 
@@ -447,7 +439,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue)) {
 				errorCount++;
 			}
-		}		
+		}
 		
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			enteredValue = getElementText(choice.getId());

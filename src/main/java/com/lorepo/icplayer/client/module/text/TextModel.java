@@ -10,12 +10,15 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 
 
@@ -43,10 +46,10 @@ public class TextModel extends BasicModuleModel {
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
-	private String textToSpeechTitle = "";
-	private String textToSpeechDescription = "";
 	private List<String> gapsOrder;
 	public String rawTextNoGaps;
+	private String originalText;
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String langAttribute = "";
 
 	public TextModel() {
@@ -68,6 +71,7 @@ public class TextModel extends BasicModuleModel {
 		addPropertyBlockWrongAnswers();
 		addPropertyUserActionEvents();
 		addPropertyUseEscapeCharacterInGap();
+		addPropertySpeechTexts();
 		addPropertyLangAttribute();
 	}
 
@@ -126,6 +130,11 @@ public class TextModel extends BasicModuleModel {
 					blockWrongAnswers = XMLUtils.getAttributeAsBoolean(textElement, "blockWrongAnswers", false);
 					userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
 					this.useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
+					this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(textElement, "number"));
+					this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(textElement, "gap"));
+					this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(textElement, "dropdown"));
+					this.speechTextItems.get(3).setText(XMLUtils.getAttributeAsString(textElement, "correct"));
+					this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(textElement, "wrong"));
 					langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
 					
 					if (rawText == null) {
@@ -154,6 +163,7 @@ public class TextModel extends BasicModuleModel {
 		parsedText = parsedTextInfo.parsedText;
 		gapsOrder = parser.getGapsOrder();
 		rawTextNoGaps = parser.getRawText();
+		originalText = parsedTextInfo.originalText;
 
 		if (parsedText.equals("#ERROR#")) {
 			parsedText = DictionaryWrapper.get("text_parse_error");
@@ -188,7 +198,12 @@ public class TextModel extends BasicModuleModel {
 				"' blockWrongAnswers='" + blockWrongAnswers +
 				"' userActionEvents='" + userActionEvents +
 				"' useEscapeCharacterInGap='" + this.useEscapeCharacterInGap +
-				"' langAttribute='" + langAttribute +
+				"' number='" + this.speechTextItems.get(0).getText() +
+				"' gap='" + this.speechTextItems.get(1).getText() +
+				"' dropdown='" + this.speechTextItems.get(2).getText() +
+				"' correct='" + this.speechTextItems.get(3).getText() +
+				"' wrong='" + this.speechTextItems.get(4).getText() +
+				"' langAttribute='" + this.langAttribute +
 				"'><![CDATA[" + moduleText + "]]></text>";
 		xml += "</textModule>";
 
@@ -763,7 +778,7 @@ public class TextModel extends BasicModuleModel {
 
 		};
 
-		addProperty(property);		
+		addProperty(property);
 	}
 	
 	private void addPropertyUserActionEvents() {
@@ -803,7 +818,65 @@ public class TextModel extends BasicModuleModel {
 
 		addProperty(property);
 	}
-				
+	
+	private void addPropertySpeechTexts() {
+		IStaticListProperty property = new IStaticListProperty() {
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(speechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return speechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("number"));
+				speechTextItems.add(new SpeechTextsStaticListItem("gap"));
+				speechTextItems.add(new SpeechTextsStaticListItem("dropdown"));
+				speechTextItems.add(new SpeechTextsStaticListItem("correct"));
+				speechTextItems.add(new SpeechTextsStaticListItem("wrong"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return speechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+
+		};
+
+		addProperty(property);
+		property.addChildren(1);
+	}
+
 	private void addPropertyLangAttribute() {
 		IProperty property = new IProperty() {
 
@@ -885,33 +958,46 @@ public class TextModel extends BasicModuleModel {
 		return this.useEscapeCharacterInGap;
 	}
 	
-	public String getLangAttribute() {
+	public String getSpeechTextItem (int index) {
+		if (index < 0 || index >= this.speechTextItems.size()) {
+			return "";
+		}
+		
+		final String text = this.speechTextItems.get(index).getText();
+		if (text.isEmpty()) {
+			if (index == 0) {
+				return "number";
+			}
+			
+			if (index == 1) {
+				return "gap";
+			}
+			
+			if (index == 2) {
+				return "dropdown";
+			}
+			
+			if (index == 3) {
+				return "correct";
+			}
+			
+			if (index == 4) {
+				return "wrong";
+			}
+			
+			return "";
+		}
+		
+		return text;
+	}
+	
+	public String getLangAttribute () {
 		return langAttribute;
 	}
-
-	public String getTextToSpeechTitle () {
-		return this.textToSpeechTitle;
-	}
 	
-	public void setTextToSpeechTitle (String newValue) {
-		if (newValue != null) {
-			this.textToSpeechTitle = newValue;
-		}
-	}
-	
-	public String getTextToSpeechDescription () {
-		return this.textToSpeechDescription;
-	}
-	
-	public void setTextToSpeechDescription (String newValue) {
-		if (newValue != null) {
-			this.textToSpeechDescription = newValue;
-		}
-	}
-	
-	public void getCurrentContent () {
-		JavaScriptUtils.log(this.parsedText);
-		JavaScriptUtils.log(this.rawText);
+	public String getOriginalText () {
+		JavaScriptUtils.log("getOriginalText: " + this.originalText);
+		return this.originalText;
 	}
 	
 }

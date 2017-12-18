@@ -221,10 +221,8 @@ public final class KeyboardNavigationController {
 		final String area = presenterEntry.getArea();
 		final IPresenter iPresenter = (IPresenter) presenterEntry.presenter;
 		final String id = iPresenter.getModel().getId();
-//		final String langTag = ((IWCAGModuleView) presenterEntry.presenter.getWCAGController()).getLang();
-		final String langTag = "";
 		
-		this.mainPageController.playTitle(area, id, langTag);
+		this.mainPageController.playTitle(area, id, "");
 	}
 
 	private int getNextElementIndex (int step) {
@@ -370,6 +368,7 @@ public final class KeyboardNavigationController {
 	}
 
 	private void activateModule () {
+		JavaScriptUtils.log("[KeyboardNavigationController] activateModule");
 		if (!this.modeOn) {
 			return;
 		}

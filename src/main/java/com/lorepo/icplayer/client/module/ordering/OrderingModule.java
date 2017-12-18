@@ -11,7 +11,6 @@ import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.IStringListProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -92,12 +91,12 @@ public class OrderingModule extends BasicModuleModel {
 			allElementsHasSameWidth = XMLUtils.getAttributeAsBoolean(ordering, "allElementsHasSameWidth");
 			graduallyScore = XMLUtils.getAttributeAsBoolean(ordering, "graduallyScore");
 			dontGenerateCorrectOrder = XMLUtils.getAttributeAsBoolean(ordering, "dontGenerateCorrectOrder");
-			this.langAttribute = XMLUtils.getAttributeAsString(ordering, "lang");
 			this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(ordering, "selected"));
 			this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(ordering, "deselected"));
 			this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(ordering, "replaced_with"));
 			this.speechTextItems.get(3).setText(XMLUtils.getAttributeAsString(ordering, "correct"));
 			this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(ordering, "wrong"));
+			this.langAttribute = XMLUtils.getAttributeAsString(ordering, "lang");
 		}
 
 		// Read item nodes

@@ -288,30 +288,40 @@ function AddonConnection_create() {
         presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
     };
 
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
     // TODO
     function setSpeechTexts (speechTexts) {
-        if (!speechTexts) {
-            presenter.speechTexts = {
-                connected:  'connected',
-                disconnected: 'disconnected',
-                connectedTo: 'connected to',
-                selected: 'selected',
-                deselected: 'deselected',
-                correct: 'correct',
-                wrong: 'wrong'
-            };
+        presenter.speechTexts = {
+            connected:  'connected',
+            disconnected: 'disconnected',
+            connectedTo: 'connected to',
+            selected: 'selected',
+            deselected: 'deselected',
+            correct: 'correct',
+            wrong: 'wrong'
+        };
 
+        if (!speechTexts) {
             return;
         }
 
         presenter.speechTexts = {
-            connected: speechTexts[0] ? speechTexts[0]['Connected']['Connected'].trim() : 'connected',
-            disconnected: speechTexts[1] ? speechTexts[1]['Disconnected']['Disconnected'].trim() : 'disconnected',
-            connectedTo: speechTexts[2] ? speechTexts[2]['ConnectedTo']['Connected to'].trim() : 'connected to',
-            selected: speechTexts[3] ? speechTexts[3]['Selected']['Selected'].trim() : 'selected',
-            deselected: speechTexts[4] ? speechTexts[4]['Deselected']['Deselected'].trim() : 'deselected',
-            correct: speechTexts[5] ? speechTexts[5]['Correct']['Correct'].trim() : 'correct',
-            wrong: speechTexts[6] ? speechTexts[6]['Wrong']['Wrong'].trim() : 'wrong'
+            connected:    getSpeechTextProperty(speechTexts[0]['Connected']['Connected'], presenter.speechTexts.connected),
+            disconnected: getSpeechTextProperty(speechTexts[1]['Disconnected']['Disconnected'], presenter.speechTexts.disconnected),
+            connectedTo:  getSpeechTextProperty(speechTexts[2]['ConnectedTo']['Connected to'], presenter.speechTexts.connectedTo),
+            selected:     getSpeechTextProperty(speechTexts[3]['Selected']['Selected'], presenter.speechTexts.selected),
+            deselected:   getSpeechTextProperty(speechTexts[4]['Deselected']['Deselected'], presenter.speechTexts.deselected),
+            correct:      getSpeechTextProperty(speechTexts[5]['Correct']['Correct'], presenter.speechTexts.correct),
+            wrong:        getSpeechTextProperty(speechTexts[6]['Wrong']['Wrong'], presenter.speechTexts.wrong)
         };
     }
 
@@ -1373,7 +1383,9 @@ function AddonConnection_create() {
             }
         }
 
-        presenter.lineStackSA = presenter.lineStack.concat([]);
+        presenter.lineStackSA = {
+            stack: presenter.lineStack ? presenter.lineStack.stack.concat([]) : []
+        };
         redrawShowAnswers();
         presenter.lineStack.clear();
         isSelectionPossible = false;
@@ -1417,18 +1429,15 @@ function AddonConnection_create() {
     function readConnected (isDrawing) {
         var tts = presenter.getTextToSpeechOrNull(playerController);
         if (tts && presenter.$view.hasClass('ic_active_module')) {
-            var voiceObject = getTextVoiceObject(
-                isDrawing ? presenter.speechTexts.connected : presenter.speechTexts.disconnected,
-                presenter.langTag
-            );
-            speak([voiceObject]);
+            speak([getTextVoiceObject(
+                isDrawing ? presenter.speechTexts.connected : presenter.speechTexts.disconnected
+            )]);
         }
     }
 
     function getConnections ($element) {
         var element = $element[0];
         var result = [];
-
         var lines = presenter.isShowAnswersActive ? presenter.lineStackSA : presenter.lineStack;
 
         for (var i=0; i<lines.stack.length; i++) {
@@ -1454,12 +1463,12 @@ function AddonConnection_create() {
 
             result.push(getTextVoiceObject($connection.text().trim(), presenter.langTag));
 
-            if ($connection.hasClass(CORRECT_ITEM_CLASS) && presenter.isShowAnswersActive) {
-                result.push(getTextVoiceObject('correct', ''));
+            if ($connection.hasClass(CORRECT_ITEM_CLASS) && presenter.isCheckActive) {
+                result.push(getTextVoiceObject(presenter.speechTexts.correct));
             }
 
-            if ($connection.hasClass(WRONG_ITEM_CLASS) && presenter.isShowAnswersActive) {
-                result.push(getTextVoiceObject('wrong', ''));
+            if ($connection.hasClass(WRONG_ITEM_CLASS) && presenter.isCheckActive) {
+                result.push(getTextVoiceObject(presenter.speechTexts.wrong));
             }
         }
 
@@ -1531,6 +1540,17 @@ function AddonConnection_create() {
             new_position_index = this.keyboardNavigationElementsLen - 1;
         }
 
+        if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+
+        this.markCurrentElement(new_position_index);
+        readActivatedElementConnections();
+    };
+
+    ConnectionKeyboardController.prototype.previousElement = function () {
+        var new_position_index = this.keyboardNavigationCurrentElementIndex - presenter.columnSizes['Right column'];
+
         if (new_position_index < 0) {
             new_position_index = 0;
         }
@@ -1539,33 +1559,6 @@ function AddonConnection_create() {
             new_position_index = this.keyboardNavigationCurrentElementIndex;
         }
 
-        // if (new_position_index >= this.keyboardNavigationElementsLen) {
-        //     new_position_index = new_position_index - this.keyboardNavigationElementsLen;
-        // } else if (new_position_index < 0) {
-        //     new_position_index = this.keyboardNavigationElementsLen + new_position_index;
-        // }
-        // if (new_position_index < this.keyboardNavigationCurrentElementIndex) {
-        //     new_position_index = this.keyboardNavigationCurrentElementIndex;
-        // } else if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
-        //     new_position_index = this.keyboardNavigationElementsLen - 1;
-        // }
-        this.markCurrentElement(new_position_index);
-        readActivatedElementConnections();
-    };
-
-    ConnectionKeyboardController.prototype.previousElement = function () {
-        var new_position_index = this.keyboardNavigationCurrentElementIndex - presenter.columnSizes['Right column'];
-
-        if (new_position_index >= this.keyboardNavigationElementsLen) {
-            new_position_index = new_position_index - this.keyboardNavigationElementsLen;
-        } else if (new_position_index < 0) {
-            new_position_index = this.keyboardNavigationElementsLen + new_position_index;
-        }
-        if (new_position_index > this.keyboardNavigationCurrentElementIndex) {
-            new_position_index = this.keyboardNavigationCurrentElementIndex;
-        } else if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
-            new_position_index = presenter.columnSizes['Left column'] - 1;
-        }
         this.markCurrentElement(new_position_index);
         readActivatedElementConnections();
     };

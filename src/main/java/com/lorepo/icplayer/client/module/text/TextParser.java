@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
@@ -17,8 +16,8 @@ import com.lorepo.icplayer.client.utils.DomElementManipulator;
 public class TextParser {
 
 	public class ParserResult {
-
 		public String parsedText;
+		public String originalText;
 		public List<GapInfo> gapInfos = new ArrayList<GapInfo>();
 		public List<InlineChoiceInfo> choiceInfos = new ArrayList<InlineChoiceInfo>();
 		public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
@@ -39,6 +38,7 @@ public class TextParser {
 	private boolean useEscapeCharacterInGap = false;
 	private List<String> gapsOrder;
 	private String rawText;
+	private String readableText;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -126,6 +126,7 @@ public class TextParser {
 		this.rawText = getRawTextSource(srcText);
 
 		parserResult = new ParserResult();
+		parserResult.originalText = srcText;
 		srcText = srcText.replaceAll("\\s+", " ");
 
 		try {
@@ -922,6 +923,10 @@ public class TextParser {
 	
 	public String getRawText () {
 		return this.rawText;
+	}
+	
+	public String getReadableText () {
+		return this.readableText;
 	}
 
 }
