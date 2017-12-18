@@ -1,0 +1,80 @@
+.Maze-wrapper {
+    width: 100%;
+    height: 100%;
+
+}
+
+.Maze-wrapper-menu {
+    float: right;
+    height: 100%;
+    width: 200px;
+    border-left: solid 1px;
+    box-sizing: border-box;
+}
+
+.Maze-wrapper-game-container{
+    float: left;
+    height: 100%;
+    width: calc(100% - 200px);
+}
+
+.Maze-wrapper-menu-controls {
+    position: absolute;
+    bottom: 0;
+    width: inherit;
+}
+
+.Maze-wrapper-menu-controls-up {
+    width: 33%;
+    margin-left: auto;
+    margin-right: auto;
+}
+.Maze-wrapper-menu-controls-down {
+    clear: both;
+    width: 33%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.Maze-wrapper-menu-controls-left {
+    float: left;
+    width: 33%;
+}
+
+.Maze-wrapper-menu-controls-right {
+    float: right;
+    width: 33%;
+}
+
+.Maze-wrapper-menu-controls-up-text {
+    text-align: center;
+}
+
+.Maze-wrapper-menu-controls-down-text {
+    text-align: center;
+}
+
+.Maze-wrapper-menu-controls-left-text {
+    text-align: center;
+}
+
+.Maze-wrapper-menu-controls-right-text {
+    text-align: center;
+}
+
+.Maze-wrapper-menu-controls-up-text::after {
+    content: "Up";
+}
+
+.Maze-wrapper-menu-controls-down-text::after {
+    content: "Down";
+}
+
+.Maze-wrapper-menu-controls-left-text::after {
+    content: "Left";
+}
+
+.Maze-wrapper-menu-controls-right-text::after {
+    content: "Right";
+}
+
