@@ -12,7 +12,6 @@ function AddoneKeyboard_create(){
     var closeButtonElement = null;
     var openButtonElement = null;
     var lastClickedElement = null;
-    var keyboardWrapper = null;
     var movedInput = false;
     var escClicked = false;
 
@@ -45,17 +44,17 @@ function AddoneKeyboard_create(){
         });
     }
 
-    function initializeCloseButton() {
+    presenter.initializeCloseButton = function () {
         closeButtonElement = document.createElement('button');
         closeButtonElement.className = 'eKeyboard-close-button';
-        closeButtonElement.innerHTML = '\u2716';
         closeButtonElement.style.position = 'absolute';
+        closeButtonElement.innerHTML = '<span>\u2716</span>';
         closeButtonElement.style.display = 'none';
 
-        $(keyboardWrapper).append(closeButtonElement);
+        $(presenter.keyboardWrapper).append(closeButtonElement);
 
         touchStartDecorator(closeButtonCallBack, closeButtonElement);
-    }
+    };
 
     function initializeOpenButton() {
         openButtonElement = document.createElement('button');
@@ -296,12 +295,12 @@ function AddoneKeyboard_create(){
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
-        keyboardWrapper = document.createElement("div");
-        keyboardWrapper.className = "ui-ekeyboard-wrapper";
-        $(document.body).append(keyboardWrapper);
+        presenter.keyboardWrapper = document.createElement("div");
+        presenter.keyboardWrapper.className = "ui-ekeyboard-wrapper";
+        $(document.body).append(presenter.keyboardWrapper);
 
         initializeOpenButton();
-        initializeCloseButton();
+        presenter.initializeCloseButton();
 
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_eKeyboard (ev) {
             if (ev.target === this) {
@@ -463,7 +462,24 @@ function AddoneKeyboard_create(){
             }
             presenter.isLoaded = true;
         });
+    }
 
+    function clickedOutsideCallback(event) {
+        // shouldn't hide keyboard when input was clicked
+        if (event.target === lastClickedElement) return;
+
+        var wrapper = $(presenter.keyboardWrapper);
+
+        // checks if click was inside of keyboard wrapper
+        if (!wrapper.is(event.target) && wrapper.has(event.target).length === 0) {
+            $(this).off('mousedown.ekeyboard');
+
+            $(closeButtonElement).hide();
+            $(lastClickedElement).removeAttr("readonly");
+            if ($(lastClickedElement).data('keyboard') !== undefined) {
+                $(lastClickedElement).data('keyboard').destroy();
+            }
+        }
     }
 
     presenter.createEKeyboard = function (element, display) {
@@ -542,7 +558,7 @@ function AddoneKeyboard_create(){
                     // "tabNavigation" option is true
                     appendLocally: false,
 
-            appendTo: keyboardWrapper,
+            appendTo: presenter.keyboardWrapper,
 
                     // If false, the shift key will remain active until the next key is (mouse) clicked on;
                     // if true it will stay active until pressed again
@@ -627,6 +643,7 @@ function AddoneKeyboard_create(){
 
                         var heightMargin = ($keyboard.outerHeight(true) -  $keyboard.innerHeight()) / 2;
 
+                        // when set with jquery-ui-position doesn't work on iOS
                         $(closeButtonElement).css({
                             top: position.top + heightMargin + 'px',
                             left: position.left + width + 'px'
@@ -634,20 +651,7 @@ function AddoneKeyboard_create(){
 
                         showCloseButton();
 
-                        $(document).on('mousedown.ekeyboard', function (event) {
-                            if (event.target === el) return;
-
-                            var wrapper = $(keyboardWrapper);
-
-                            if (!wrapper.is(event.target) && wrapper.has(event.target).length === 0) {
-                                $(this).off('mousedown.ekeyboard');
-                                $(closeButtonElement).hide();
-                                $(lastClickedElement).removeAttr("readonly");
-                                if ($(lastClickedElement).data('keyboard') !== undefined) {
-                                    $(lastClickedElement).data('keyboard').destroy();
-                                }
-                            }
-                        });
+                        $(document).on('mousedown.ekeyboard', clickedOutsideCallback);
                     },
                     change: function (e, keyboard, el) {
                         $(element).trigger("change");
@@ -778,8 +782,8 @@ function AddoneKeyboard_create(){
 
         escClicked = false;
 
+        // hide native keyboard when mobile
         if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
-            // hides native keyboard
             document.activeElement.blur();
         }
 
@@ -789,7 +793,7 @@ function AddoneKeyboard_create(){
 
         $(presenter.configuration.workWithViews).find('input').addClass('ui-keyboard-input ui-keyboard-lockedinput ui-keyboard-autoaccepted');
         if (presenter.configuration.lockInput) {
-            find('input').attr("readonly", "readonly")
+            $(presenter.configuration.workWithViews).find('input').attr("readonly", "readonly")
         }
     }
 
@@ -957,10 +961,11 @@ function AddoneKeyboard_create(){
         for (var i = 0; i < inputs.length; i++) {
             try {
                 $(inputs[i]).data('keyboard').destroy();
+                 $(inputs[i]).off('focus');
             } catch(err){}
         }
 
-        $(keyboardWrapper).remove();
+        $(presenter.keyboardWrapper).remove();
         $(openButtonElement).remove();
     };
 
