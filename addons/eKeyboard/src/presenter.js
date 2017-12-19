@@ -485,8 +485,7 @@ function AddoneKeyboard_create(){
         $(lastClickedElement).removeAttr("readonly");
         var keyboard = $(lastClickedElement).data('keyboard');
         if (keyboard !== undefined) {
-            keyboard.close();
-            keyboard.destroy();
+            keyboard.accept();
         }
     };
 
