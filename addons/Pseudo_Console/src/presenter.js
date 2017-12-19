@@ -116,7 +116,7 @@ function AddonPseudo_Console_create() {
             ["left", "*", "/", "DIV_FLOOR", "%"],
             ["left", "(", ")"],
             ["lefr", "DOT"],
-            ["left", "BRACKET"],
+            ["left", "[", "]"],
             ["left", "UMINUS"],
             ["right", "IF", "ELSE", "THEN"],
             ["right", "CASE", "OPTION"]
@@ -281,6 +281,7 @@ function AddonPseudo_Console_create() {
             ],
 
             "assign_value" : [
+                ['operation [ operation ] = operation end_line', "$$ = yy.presenterContext.bnf['assign_array_value']($1, $3, $6);"],
                 ['STATIC_VALUE = operation end_line', "$$ = yy.presenterContext.bnf['assign_value_1'](yy, $1, $3);"],
                 ['operation end_line', "$$ = yy.presenterContext.bnf['assign_value_2']($1);"]
             ],
@@ -382,11 +383,12 @@ function AddonPseudo_Console_create() {
                 [ "operation DOT STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['method_call']($3, $5, $1);"],
                 [ "number_value",               "$$ = $1" ],
                 [ "variable_get",               "$$ = $1" ],
-                [ "string_value",               "$$ = $1" ]
+                [ "string_value",               "$$ = $1" ],
             ],
 
             "variable_get": [
-                ["STATIC_VALUE", "$$ = yy.presenterContext.bnf['argument'](yy, yytext);"]
+                ["STATIC_VALUE", "$$ = yy.presenterContext.bnf['argument'](yy, yytext);"],
+                ["operation [ operation ]", "$$ = yy.presenterContext.bnf['array_get']($1, $3);"]
             ],
 
             "number_value": [
@@ -405,6 +407,33 @@ function AddonPseudo_Console_create() {
     function CastErrorException(type, toType) {
         this.message = "Cast exception \"" + type + "\" to type: \"" + toType + "\"";
         this.name = "CastErrorException";
+    };
+
+    function GetErrorException(type, index) {
+        this.message = "Exception (" + type + "): Value at index " + index + " is not defined";
+        this.name = "GetErrorException";
+    };
+
+    function IndexOutOfBoundsException(type, index, length) {
+        this.message = "Exception (" + type + "): index " + index + " is out of bounds";
+        this.name = "IndexOutOfBoundsException";
+    };
+
+    presenter.objectMocksMethodArgumentsDispatcherDecorator = function (fn) {
+        return function () {
+            var builtIn = {
+               console: arguments[0].console,
+               data: arguments[0].data,
+               objects: arguments[1]
+            };
+            builtIn.console.nextIns = arguments[2];
+            builtIn.console.pauseIns = arguments[3];
+            arguments = Array.prototype.slice.call(arguments, 4);
+
+            arguments.push(builtIn);
+
+            return fn.apply(this, arguments);
+        };
     };
 
     presenter.objectMocks = {
@@ -544,6 +573,36 @@ function AddonPseudo_Console_create() {
             },
 
             __methods__: {
+                __get__: {
+                    native: true,
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (index) {
+                        if (index.type !== "Number") {
+                            throw new CastErrorException("String", "Number");
+                        }
+
+                        if (this.value[index.value] === undefined || this.value[index.value] === null) {
+                            throw new GetErrorException(this.type, index.value);
+                        }
+
+                        return this.value[index.value];
+                    }),
+                },
+                __set__: {
+                    native: true,
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (index, value) {
+                        if (index.type !== "Number") {
+                            throw new CastErrorException("String", "Number");
+                        }
+
+                        if (this.value[index.value] === undefined) {
+                            throw new IndexOutOfBoundsException(this.type, index.value, this.value.length);
+                        }
+
+                        this.value[index.value] = value;
+
+                        return this;
+                    })
+                }
             }
         },
 
@@ -811,6 +870,10 @@ function AddonPseudo_Console_create() {
             return execObjects;
         },
 
+        array_get: function (variableName, operations) {
+            return presenter.bnf.method_call("__get__", operations, variableName);
+        },
+
         function: function (yy, functionName, functionArgs, sectionsBlock, codeBlock) {
             var sections = [presenter.generateExecuteObject(sectionsBlock || '', '')];
 
@@ -840,6 +903,10 @@ function AddonPseudo_Console_create() {
             operations.push(presenter.generateExecuteObject('stack.pop()'));
 
             return operations;
+        },
+
+        assign_array_value: function (variableName, operations, value) {
+            return presenter.bnf.method_call("__set__", operations.concat(value), variableName);
         },
 
         program_name: function (yy, programName) {
@@ -991,7 +1058,6 @@ function AddonPseudo_Console_create() {
      * @param {Function} method 
      */
     presenter.builtInMethodCall = function (stack, consoleObj, objects, next, pause) {
-        debugger;
         var argsCount = stack.pop();
         var methName = stack.pop();
         var obj = stack.pop();
@@ -2282,7 +2348,6 @@ function AddonPseudo_Console_create() {
     };
 
     /**
-     * 
      * @param {{objectName: (Array|Number|String), methodName: String, methodBody: String}} method 
      */
     presenter.validateMethod = function (method) {
@@ -2305,7 +2370,6 @@ function AddonPseudo_Console_create() {
     };
 
     /**
-     * 
      * @param {{objectName: (Array|Number|String), methodName: String, methodBody: String}[]} methods 
      */
     presenter.validateMethods = function (methods) {
