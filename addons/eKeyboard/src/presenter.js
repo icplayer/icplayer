@@ -404,7 +404,7 @@ function AddoneKeyboard_create(){
                         showOpenButton();
                     } else {
                         if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
-                           // hides native keyboard
+                            // hides native keyboard
                             document.activeElement.blur();
                         }
                         presenter.createEKeyboard(this, display);
@@ -416,7 +416,7 @@ function AddoneKeyboard_create(){
                 $(presenter.configuration.workWithViews).find('input').on('forceClick', function () {
                     if (presenter.configuration.openOnFocus) {
                         $(this).data('keyboard').reveal();
-                        if($(".ic_popup_page").length == 0){
+                        if ($(".ic_popup_page").length == 0) {
                             $(this).data('keyboard').startup();
                         }
                     } else {
@@ -448,6 +448,8 @@ function AddoneKeyboard_create(){
                                 lastClickedElement = this;
                                 movedInput = true;
                                 getNextFocusableElement(this, true).focus();
+
+
                             }
                         }
                     });
@@ -462,25 +464,30 @@ function AddoneKeyboard_create(){
             }
             presenter.isLoaded = true;
         });
+
     }
 
-    function clickedOutsideCallback(event) {
-        // shouldn't hide keyboard when input was clicked
+    presenter.clickedOutsideCallback = function(event) {
+        // shouldn't hide keyboard when current input was clicked
         if (event.target === lastClickedElement) return;
 
         var wrapper = $(presenter.keyboardWrapper);
 
-        // checks if click was inside of keyboard wrapper
+        // if click outside of wrapper or it's descendant, hide keyboard
         if (!wrapper.is(event.target) && wrapper.has(event.target).length === 0) {
-            $(this).off('mousedown.ekeyboard');
-
-            $(closeButtonElement).hide();
-            $(lastClickedElement).removeAttr("readonly");
-            if ($(lastClickedElement).data('keyboard') !== undefined) {
-                $(lastClickedElement).data('keyboard').destroy();
-            }
+            presenter.hideKeyboard();
         }
-    }
+    };
+
+    presenter.hideKeyboard = function () {
+        $(document).off('mousedown.ekeyboard');
+
+        $(closeButtonElement).hide();
+        $(lastClickedElement).removeAttr("readonly");
+        if ($(lastClickedElement).data('keyboard') !== undefined) {
+            $(lastClickedElement).data('keyboard').destroy();
+        }
+    };
 
     presenter.createEKeyboard = function (element, display) {
         if ($(element).data('keyboard') !== undefined) {
@@ -651,7 +658,7 @@ function AddoneKeyboard_create(){
 
                         showCloseButton();
 
-                        $(document).on('mousedown.ekeyboard', clickedOutsideCallback);
+                        $(document).on('mousedown.ekeyboard', presenter.clickedOutsideCallback);
                     },
                     change: function (e, keyboard, el) {
                         $(element).trigger("change");
@@ -790,11 +797,6 @@ function AddoneKeyboard_create(){
         $(lastClickedElement).click();
         $(lastClickedElement).focus();
         $(lastClickedElement).trigger('showKeyboard');
-
-        $(presenter.configuration.workWithViews).find('input').addClass('ui-keyboard-input ui-keyboard-lockedinput ui-keyboard-autoaccepted');
-        if (presenter.configuration.lockInput) {
-            $(presenter.configuration.workWithViews).find('input').attr("readonly", "readonly")
-        }
     }
 
     function actualizeOpenButtonPosition(element) {
@@ -961,7 +963,6 @@ function AddoneKeyboard_create(){
         for (var i = 0; i < inputs.length; i++) {
             try {
                 $(inputs[i]).data('keyboard').destroy();
-                 $(inputs[i]).off('focus');
             } catch(err){}
         }
 
