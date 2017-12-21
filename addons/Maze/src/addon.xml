@@ -2,5 +2,16 @@
 
 <addon id='Maze' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
+		<property name="width" nameLabel="Maze_property_width" type="string"/>
+		<property name="height" nameLabel="Maze_property_height" type="string"/>
+		<property name="numberOfMazes" nameLabel="Maze_property_number_of_mazes" type="string"/>
+		<property name="gameMode" nameLabel="Maze_property_game_mode" type="{Diamond,Letters}"/>
+
+		<property name="questions" nameLabel="Maze_property_questions" type="list">
+            <property name="question" nameLabel="Maze_property_questions_question" type="html" />
+            <property name="answer" nameLabel="Maze_property_questions_answer" type="string"/>
+			<property name="letter" nameLabel="Maze_property_questions_letter" type="string"/>
+			<property name="mazeId" nameLabel="Maze_property_questions_maze_number" type="string"/>
+        </property>
 	</model>
 </addon>

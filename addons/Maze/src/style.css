@@ -78,3 +78,73 @@
     content: "Right";
 }
 
+.Maze_main_container {
+    width: 100%;
+    height: 100%;
+}
+
+.Maze_wall_close {
+    background-color: black;
+}
+
+
+
+.Maze_room {
+    float: left;
+    margin: -1px;
+}
+.Maze_room > div {
+    width: 100%;
+    height:100%;
+    position: absolute;
+}
+
+.Maze_room_image_top_left_right_bottom {
+    background: url('resources/topleftrightbottom.svg') no-repeat center;
+    background-size: contain;    
+}
+
+.Maze_room_image_top_left_right {
+    background: url('resources/topleftright.svg') no-repeat center;
+    background-size: contain;  
+}
+
+.Maze_room_image_top_left {
+    background: url('resources/topleft.svg') no-repeat center;
+    background-size: contain;  
+}
+
+.Maze_room_image_top_bottom {
+    background: url('resources/topbottom.svg') no-repeat center;
+    background-size: contain;  
+} 
+
+.Maze_room_image_top {
+    background: url('resources/top.svg') no-repeat center;
+    background-size: contain;  
+}
+
+.Maze_room_image_top {
+    background: url('resources/top.svg') no-repeat center;
+    background-size: contain;  
+}
+
+.Maze_player_element {
+    background: url('resources/player.svg') no-repeat center;
+    background-size: contain;  
+}
+
+.Maze_treasure_element {
+    background: url('resources/treasure.svg') no-repeat center;
+    background-size: contain;  
+}
+
+.Maze_door {
+    background: url('resources/door.svg') no-repeat center;
+    background-size: contain;  
+}
+
+.Maze_door_opened {
+    background: url('resources/door_opened.svg') no-repeat center;
+    background-size: contain;      
+}
