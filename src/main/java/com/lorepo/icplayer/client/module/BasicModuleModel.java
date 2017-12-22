@@ -8,6 +8,7 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.EnableTabindex;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
 import com.lorepo.icplayer.client.xml.module.ModuleXMLParsersFactory;
