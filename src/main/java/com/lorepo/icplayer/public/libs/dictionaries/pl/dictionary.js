@@ -802,6 +802,7 @@
     "gamememo_property_keep_wrong_marking": "Zachowaj błędne zaznaczenie",
 	"gamememo_property_time_to_solve": "Time to solve the task",
 	"gamememo_property_session_ended_message": "Session ended message",
+	"gamememo_property_click_to_turn_over_incorrect_pair": "Click to turn over incorrect pair",
 	"MultiAudio_info" : "Jest to rozszerzona wersja Addonu dźwiękowego, wzbogacona o nowe funkcje, takie jak możliwość wgrania wielu plików audio, włączenie zapętlenia dla każdego pliku osobno oraz przeskakiwanie między plikami.",
 	"MultiAudio_name" : "Wielokrotne pliki dźwiękowe",
 	"MultiAudio_property_files": "Pliki",
