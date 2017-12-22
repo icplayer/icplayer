@@ -396,6 +396,8 @@ function AddoneKeyboard_create(){
                     $('input').attr("readonly", true);
                 }
 
+
+                $(presenter.configuration.workWithViews).find('input').off();
                 if (DevicesUtils.isInternetExplorer()) {
                     $(presenter.configuration.workWithViews).find('input').on('mousedown', function () {
                         $(this).focus();
