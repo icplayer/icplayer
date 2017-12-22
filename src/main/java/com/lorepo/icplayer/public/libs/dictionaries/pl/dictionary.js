@@ -664,6 +664,7 @@
 	"BlocklyCodeEditor_property_max_block_limit" : "Limit bloków",
 	"BlocklyCodeEditor_property_hide_run" : "Ukryj przycisk Run",
 	"BlocklyCodeEditor_property_blocksTranslation": "Tłumaczenie bloków",
+	"BlocklyCodeEditor_property_initial_configuration": "Initial configuration",
 	"Hangman_info" : "Pozwala na dodanie do prezentacji gotowej gry Hangman (Wisielec). Wystarczy kilka kliknięć w edytorze i ćwiczenie jest gotowe do wykorzystania.",
 	"Hangman_name" : "Wisielec",
 	"Hangman_property_phrases": "Wyrażenia",

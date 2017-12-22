@@ -664,6 +664,7 @@ var ice_dictionary_mx = {
 	"BlocklyCodeEditor_property_max_block_limit" : "Límite de bloques",
 	"BlocklyCodeEditor_property_hide_run" : "Ocultar el bóton Ejecutar",
 	"BlocklyCodeEditor_property_blocksTranslation": "Traducción de bloques",
+	"BlocklyCodeEditor_property_initial_configuration": "Initial configuration",
 	"Hangman_info": "Permite añadir el juego del ahorcado a la presentación. La actividad está lista para usar con unos pocos clics en el editor.",
 	"Hangman_name": "Ahorcado",
 	"Hangman_property_phrases": "Palabras",

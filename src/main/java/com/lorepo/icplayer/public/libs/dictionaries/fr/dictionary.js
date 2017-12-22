@@ -664,6 +664,7 @@ var ice_dictionary_fr = {
 "BlocklyCodeEditor_property_max_block_limit" : "Bloquer la limite",
 "BlocklyCodeEditor_property_hide_run" : "Cacher le lancement",
 "BlocklyCodeEditor_property_blocksTranslation": "Translation des Blocs",
+"BlocklyCodeEditor_property_initial_configuration": "Initial configuration",
 "Hangman_info": "Permet d'ajouter le jeu du pendu à une présentation. L'activité est prête à être utilisée en quelques clics dans l'éditeur.",
 "Hangman_name": "Jeu du pendu",
 "Hangman_property_phrases": "Phrases",
