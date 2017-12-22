@@ -233,11 +233,20 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return 0;
 	}-*/;
 	
+	// setting tabindex property according to editor preferences
+	public void setProperTabindexValue(AddonModel model) {
+		for (int i = 0; i < model.getPropertyCount(); i = i + 1 ) {
+			if(model.getProperty(i).getName().equals("Is Tabindex Enabled")) {
+				model.getProperty(i).setValue(model.isTabindexEnabled() ? "True" : "False");
+			}
+		}
+	}
 	
 	public void run() {
 		jsObject = initJavaScript("Addon" + model.getAddonId() + "_create");
 
 		if(jsObject != null){
+			setProperTabindexValue(model);
 			JavaScriptObject jsModel = createModel(model);
 			setPlayerController(jsObject, services.getAsJSObject());
 			run(jsObject, view.getElement(), jsModel, model.getAddonId());
