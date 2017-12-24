@@ -35,7 +35,7 @@ function AddonPseudo_Console_create() {
      *                   print()
      *               end
      *           
-     *               built method toString ()    %As override class method in toString%
+     *               built method add ()    %As override class method in add%
      *               begin
      *                   return "A"
      *               end
@@ -364,20 +364,20 @@ function AddonPseudo_Console_create() {
 
             "operation" : [
                 [ "STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['function_call'](yy, $1, $3);"],
-                [ "operation + operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__add__');" ],
-                [ "operation - operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__sub__');" ],
-                [ "operation * operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__mul__');" ],
-                [ "operation DIV_FLOOR operation", "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__div_full__');" ],
-                [ "operation / operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__div__');" ],
-                [ "operation % operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__mod__');" ],
-                [ "operation <= operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__le__');" ],
-                [ "operation >= operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__ge__');" ],
-                [ "operation > operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__gt__');" ],
-                [ "operation < operation",      "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__lt__');" ],
-                [ "operation != operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__neq__');" ],
-                [ "operation == operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__eq__');" ],
-                [ "operation OR operation",     "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__or__');" ],
-                [ "operation AND operation",    "$$ = yy.presenterContext.genrateOperationCode($1, $3, '__and__');" ],
+                [ "operation + operation",      "$$ = yy.presenterContext.generateOperationCode($1, $3, '__add__');" ],
+                [ "operation - operation",      "$$ = yy.presenterContext.generateOperationCode($1, $3, '__sub__');" ],
+                [ "operation * operation",      "$$ = yy.presenterContext.generateOperationCode($1, $3, '__mul__');" ],
+                [ "operation DIV_FLOOR operation", "$$ = yy.presenterContext.generateOperationCode($1, $3, '__div_full__');" ],
+                [ "operation / operation",      "$$ = yy.presenterContext.generateOperationCode($1, $3, '__div__');" ],
+                [ "operation % operation",      "$$ = yy.presenterContext.generateOperationCode($1, $3, '__mod__');" ],
+                [ "operation <= operation",     "$$ = yy.presenterContext.generateOperationCode($1, $3, '__le__');" ],
+                [ "operation >= operation",     "$$ = yy.presenterContext.generateOperationCode($1, $3, '__ge__');" ],
+                [ "operation > operation",      "$$ = yy.presenterContext.generateOperationCode($1, $3, '__gt__');" ],
+                [ "operation < operation",      "$$ = yy.presenterContext.generateOperationCode($1, $3, '__lt__');" ],
+                [ "operation != operation",     "$$ = yy.presenterContext.generateOperationCode($1, $3, '__neq__');" ],
+                [ "operation == operation",     "$$ = yy.presenterContext.generateOperationCode($1, $3, '__eq__');" ],
+                [ "operation OR operation",     "$$ = yy.presenterContext.generateOperationCode($1, $3, '__or__');" ],
+                [ "operation AND operation",    "$$ = yy.presenterContext.generateOperationCode($1, $3, '__and__');" ],
                 [ "( operation )",              "$$ = $2" ],
                 [ "- operation",                "$$ = yy.presenterContext.generateMinusOperation($2);", {"prec": "UMINUS"} ],
                 [ "operation DOT STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['method_call']($3, $5, $1);"],
@@ -407,35 +407,44 @@ function AddonPseudo_Console_create() {
     function CastErrorException(type, toType) {
         this.message = "Cast exception \"" + type + "\" to type: \"" + toType + "\"";
         this.name = "CastErrorException";
-    };
+    }
 
     function GetErrorException(type, index) {
         this.message = "Exception (" + type + "): Value at index " + index + " is not defined";
         this.name = "GetErrorException";
-    };
+    }
 
     function IndexOutOfBoundsException(type, index, length) {
         this.message = "Exception (" + type + "): index " + index + " is out of bounds";
         this.name = "IndexOutOfBoundsException";
-    };
+    }
 
+    /**
+     * Arguments dispatcher for methods. Before calling method get object and arguments from stack and convert it to js call with arguments
+     * @param fn {Function}
+     * @returns {Function}
+     */
     presenter.objectMocksMethodArgumentsDispatcherDecorator = function (fn) {
         return function () {
             var builtIn = {
                console: arguments[0].console,
                data: arguments[0].data,
-               objects: arguments[1]
+               objects: arguments[1],
+               retVal: arguments[4]
             };
             builtIn.console.nextIns = arguments[2];
             builtIn.console.pauseIns = arguments[3];
-            arguments = Array.prototype.slice.call(arguments, 4);
+            arguments = Array.prototype.slice.call(arguments, 5);
 
             arguments.push(builtIn);
 
-            return fn.apply(this, arguments);
+            builtIn.retVal.value = fn.apply(this, arguments);
         };
     };
 
+    /**
+     * Each object in psedocode console must be created by this mock.
+     */
     presenter.objectMocks = {
         Object: {
             __constructor__: function () {
@@ -449,8 +458,10 @@ function AddonPseudo_Console_create() {
             __methods__: {
                 __and__: {
                     native: true,
-                    jsCode: function (toValue) {
-                        /**
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                        /** Table which value should be returned
+                         *  Value1 and Value2 -Will Return -> ValueX:
+                         *  -----------------------------
                          *  False1 and True2  -> False1
                          *  False1 and False2 -> False1
                          *  True1  and False2 -> False2
@@ -465,87 +476,89 @@ function AddonPseudo_Console_create() {
                         }
 
                         return toValue;
-                    }
+                    })
                 },
                 __or__: {
-                        /**
+                        /** Table which value should be returned
+                         *  Value1 and Value2 -Will Return -> ValueX:
+                         *  --------------------------------
                          *  False1 and True2  -> True2
                          *  False1 and False2 -> False2
                          *  True1  and False2 -> True1
                          *  True1  and True2  -> True1
                          */
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (this.value) {
                             return this;
                         }
 
                         return toValue;
-                    }
+                    })
                 },
                 __ge__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (this.value >= toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
 
                         return presenter.objectMocks.Boolean.__constructor__(false);
-                    }
+                    })
                 },
                 __le__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (this.value <= toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
 
                         return presenter.objectMocks.Boolean.__constructor__(false);
-                    }
+                    })
                 },
 
                 __gt__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (this.value > toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
 
                         return presenter.objectMocks.Boolean.__constructor__(false);
-                    }
+                    })
                 },
 
                 __lt__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (this.value < toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
 
                         return presenter.objectMocks.Boolean.__constructor__(false);
-                    }
+                    })
                 },
 
                 __neq__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (this.value !== toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
 
                         return presenter.objectMocks.Boolean.__constructor__(false);
-                    }
+                    })
                 },
 
                 __eq__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (this.value === toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
 
                         return presenter.objectMocks.Boolean.__constructor__(false);
-                    }
+                    })
                 }
             }
         },
@@ -585,7 +598,7 @@ function AddonPseudo_Console_create() {
                         }
 
                         return this.value[index.value];
-                    }),
+                    })
                 },
                 __set__: {
                     native: true,
@@ -633,13 +646,14 @@ function AddonPseudo_Console_create() {
             __methods__: {
                 __add__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                        debugger;
                         if (toValue.type === "Number" || toValue.type === "String") {
-                            return presenter.objectMocks.Number.__constructor__(this.value + toValue.value);
+                            return presenter.objectMocks.String.__constructor__(this.value + toValue.value);
                         }
 
                         throw new CastErrorException(this.type, toValue.type);
-                    }
+                    })
                 }
             }
         },
@@ -657,7 +671,7 @@ function AddonPseudo_Console_create() {
             __methods__: {
                 __add__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(this.value + toValue.value);
                         } else if (toValue.type === "String") {
@@ -665,65 +679,65 @@ function AddonPseudo_Console_create() {
                         }
 
                         throw new CastErrorException(this.type, toValue.type);
-                    }
+                    })
                 },
                 __sub__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(this.value - toValue.value);
                         }
 
                         throw new CastErrorException(this.type, toValue.type);
-                    }
+                    })
                 },
 
                 __mul__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(this.value * toValue.value);
                         }
 
                         throw new CastErrorException(this.type, toValue.type);
-                    }
+                    })
                 },
 
                 __div__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(this.value / toValue.value);
                         }
 
                         throw new CastErrorException(this.type, toValue.type);
-                    }
+                    })
                 },
                 __div_full__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(~~(this.value / toValue.value));
                         }
 
                         throw new CastErrorException(this.type, toValue.type);
-                    }
+                    })
                 },
                 __mod__: {
                     native: true,
-                    jsCode: function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(this.value % toValue.value);
                         }
 
                         throw new CastErrorException(this.type, toValue.type);
-                    }
+                    })
                 },
                 __minus__: {
                     native: true,
-                    jsCode: function () {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function () {
                         return presenter.objectMocks.Number.__constructor__(this.value * -1);
-                    }
+                    })
                 }
             }
         }
@@ -762,6 +776,12 @@ function AddonPseudo_Console_create() {
         ),
 
 
+        /**
+         * Try to find method in object. If object doesn't contains method then check his parent.
+         * @param object {Object}
+         * @param methodName {String}
+         * @returns {Function}
+         */
         getMethodFromObject: function (object, methodName) {
             function MethodNotFoundException(instrName) {
                 this.message = "Undefined method \"" + instrName + "\"";
@@ -784,10 +804,10 @@ function AddonPseudo_Console_create() {
         },
 
         /**
-         * Manager which should be added to each program. If method is called then this manager will find correct function.
+         * Manager should be added to each program. If method is called then this manager will find correct function.
          *  Built in methods:
-         *  -get method from object. Call this object method as call with passed object and stack.
-         *  -push returns value to stack
+         *  -get method from object. Call this object method as js call function with passed object and stack and builtIn arguments.
+         *  -get retVal value and add it to stack
          * 
          * 
          * Objects and inharitance in pseudocode (Concept):
@@ -804,7 +824,7 @@ function AddonPseudo_Console_create() {
             execCode.push(presenter.generateExecuteObject('', '1_get_object_call_manager'));
 
             var code = "";
-            code += "retVal = presenter.builtInMethodCall(stack, presenter.objectForInstructions, presenter.objectMocks, next, pause)";
+            code += "presenter.builtInMethodCall(stack, presenter.objectForInstructions, presenter.objectMocks, next, pause, retVal);;";
 
             
             execCode.push(presenter.generateExecuteObject(code, ''));
@@ -856,7 +876,7 @@ function AddonPseudo_Console_create() {
             //Call args code in reverse order to save it on stack
             for (var i = args.length - 1; i >= 0; i--){
                 execObjects = execObjects.concat(args[i]);
-            };
+            }
 
             execObjects = execObjects.concat(operations);
 
@@ -865,7 +885,7 @@ function AddonPseudo_Console_create() {
 
             execObjects.push(presenter.generateExecuteObject("functionsCallPositionStack.push(actualIndex);", ""));
             execObjects.push(presenter.generateJumpInstruction('true', '1_get_object_call_manager'));
-            execObjects.push(presenter.generateExecuteObject("stack.push(retVal);", ''));
+            execObjects.push(presenter.generateExecuteObject("stack.push(retVal.value);", ''));
 
             return execObjects;
         },
@@ -954,7 +974,6 @@ function AddonPseudo_Console_create() {
         },
 
         /**
-         * @param  {Object} yy
          * @param  {Object[]} expression
          * @param  {Object[]} code
          */
@@ -971,7 +990,6 @@ function AddonPseudo_Console_create() {
         }),
 
         /**
-         * @param  {Object} yy
          * @param  {Object[]} expression
          * @param  {Object[]} ifCode
          * @param  {Object[]} elseCode
@@ -1020,7 +1038,7 @@ function AddonPseudo_Console_create() {
             var actualFunctionName = yy.functionNames[yy.functionNames.length - 1],
                 execCommands = returnCode;
 
-            execCommands.push(presenter.generateExecuteObject("retVal = {value: stack.pop().value};", ""));
+            execCommands.push(presenter.generateExecuteObject("retVal = {value: stack.pop()};", ""));
             execCommands.push(presenter.generateJumpInstruction('true', "1_" + actualFunctionName));
 
             return execCommands;
@@ -1053,15 +1071,21 @@ function AddonPseudo_Console_create() {
     };
 
     /**
-     * 
-     * @param {Object[]} stack 
-     * @param {Function} method 
+     *
+     *
+     * @param stack {Object[]}
+     * @param consoleObj {UserConsole}
+     * @param objects {Object[]} List of objects from objectMocks
+     * @param next {Function}
+     * @param pause {Function}
+     * @param retVal {{value: Object}}
+     * @returns {*|void}
      */
-    presenter.builtInMethodCall = function (stack, consoleObj, objects, next, pause) {
+    presenter.builtInMethodCall = function (stack, consoleObj, objects, next, pause, retVal) {
         var argsCount = stack.pop();
         var methName = stack.pop();
         var obj = stack.pop();
-        var args = [consoleObj, objects, next, pause];
+        var args = [consoleObj, objects, next, pause, retVal];
 
         var method = presenter.bnf.getMethodFromObject(obj, methName).jsCode;
 
@@ -1076,10 +1100,10 @@ function AddonPseudo_Console_create() {
      * @param  {Object[]} firstVal array with calculations first value
      * @param  {Object[]} secVal array with calculations second value
      * @param  {('__add__'|'__sub__'|'__div__'|'__mul__'|'__div_full__'|'__mod__'|'__ge__'|'__le__'|'__gt__'|'__lt__'|'__neq__'|'__eq__'|'__or__'|'__and__')} operationType 
-     * @return {Array[Object]}
+     * @return {Object[]}
      */
 
-    presenter.genrateOperationCode = function (firstVal, secVal, operationType) {
+    presenter.generateOperationCode = function (firstVal, secVal, operationType) {
         var execObjects = firstVal.concat(secVal),
             code = "",
             exitCode = "",
@@ -1089,11 +1113,11 @@ function AddonPseudo_Console_create() {
         code += "eax = stack.pop();";
         code += "stack.push(ebx);";
         code += "stack.push(eax);";
-        code += "stack.push('" + operationType +"');"
-        code += "stack.push(1);"
+        code += "stack.push('" + operationType +"');";
+        code += "stack.push(1);";
         code += "functionsCallPositionStack.push(actualIndex);";
 
-        exitCode += "stack.push(retVal);";
+        exitCode += "stack.push(retVal.value);";
 
         execObjects.push(presenter.generateExecuteObject(code, ""));
         execObjects.push(presenter.generateJumpInstruction('true', '1_get_object_call_manager'));
@@ -1105,11 +1129,11 @@ function AddonPseudo_Console_create() {
         var code = "";
         var exitCode = "";
 
-        code += "stack.push('__minus__');"
-        code += "stack.push(0);"
+        code += "stack.push('__minus__');";
+        code += "stack.push(0);";
         code += "functionsCallPositionStack.push(actualIndex);";
 
-        exitCode += "stack.push(retVal);";
+        exitCode += "stack.push(retVal.value);";
 
         execObjects.push(presenter.generateExecuteObject(code, ""));
         execObjects.push(presenter.generateJumpInstruction('true', '1_get_object_call_manager'));
@@ -1143,7 +1167,7 @@ function AddonPseudo_Console_create() {
         var execCommands = [],
             exitCommand = "";
 
-        execCommands.push(presenter.generateExecuteObject('retVal = {value: 0}', ''));   //If code goes there without return, then add to stack default value
+        //execCommands.push(presenter.generateExecuteObject('retVal.value = presenter.objectMocks.Number.__constructor__(0);', ''));   //If code goes there without return, then add to stack default value
 
         execCommands.push(presenter.generateExecuteObject('', '1_' + functionName));    //Here return will jump. Define as 1_<function_name>. 
 
@@ -1172,15 +1196,15 @@ function AddonPseudo_Console_create() {
             execCode = execCode.concat(presenter.dispatchForBuiltInFunctions(functionName, args));
         } else {
             execCode.push(presenter.generateExecuteObject("functionsCallPositionStack.push(actualIndex);", ""));    //Push actual index of code, function before end will return to that index
-            execCode = execCode.concat(presenter.dipatchUserFunction(functionName));
+            execCode = execCode.concat(presenter.dispatchUserFunction(functionName));
         }
 
         execCode.push(presenter.generateExecuteObject(clearStackCode));
-        execCode.push(presenter.generateExecuteObject('stack.push(retVal);', ''));
+        execCode.push(presenter.generateExecuteObject('stack.push(retVal.value);', ''));
         return execCode;
     };
 
-    presenter.dipatchUserFunction = function (functionName) {
+    presenter.dispatchUserFunction = function (functionName) {
         var execCode = [];
 
         execCode.push(presenter.generateJumpInstruction('true',  functionName));
@@ -1188,7 +1212,8 @@ function AddonPseudo_Console_create() {
         return execCode;
     };
 
-    /**Dipatch for build in function (function declared in properties)
+    /**Dispatch for build in function (function declared in properties)
+     * Returned value is executed in machine scope, so next, pause, retVal are locally variable for each machine (function presenter.codeExecutor is scope for this code (eval))
      * @param  {String} functionName
      * @param  {Array[]} args contains how to resolve each argument
      */
@@ -1203,7 +1228,7 @@ function AddonPseudo_Console_create() {
             parsedArgs.unshift("stack[stack.length - " + i + "]");
         }
 
-        code = "debugger; retVal = presenter.configuration.functions." + functionName + ".call({}, presenter.objectForInstructions, presenter.objectMocks, next, pause," + parsedArgs.join(",") + ");";
+        code = "presenter.configuration.functions." + functionName + ".call({}, presenter.objectForInstructions, presenter.objectMocks, next, pause, retVal," + parsedArgs.join(",") + ");";
 
         execCode.push(presenter.generateExecuteObject(code, '', true));
 
@@ -1340,7 +1365,7 @@ function AddonPseudo_Console_create() {
         presenter.initialize(view, model, true);
     };
 
-    presenter.getWordBetweenDolars = function (word) {
+    presenter.getWordBetweenHorizontalLine = function (word) {
         if (word.indexOf("|") > -1 && word.lastIndexOf("|") !== word.indexOf("|")) {
             return word.substring(1, word.length - 1);
         }
@@ -1357,7 +1382,7 @@ function AddonPseudo_Console_create() {
 
         for (i = 0; i < rules.length; i += 1) {
             rule = rules[i][0];
-            word = presenter.getWordBetweenDolars(rule);
+            word = presenter.getWordBetweenHorizontalLine(rule);
             if (word !== null) {    //We want to find words between "$" and replace them with aliases
                 if (aliases.hasOwnProperty(word)) {
                     rules[i][0] = aliases[word];
@@ -1398,6 +1423,12 @@ function AddonPseudo_Console_create() {
         var originalReadLine = presenter.state.console.ReadLine,
             originalReadChar = presenter.state.console.ReadChar;
 
+        /**
+         * Because console is asynchronous but pseudocode console is synchronous we must wrap user callback  for console.
+         * Before executing original console function we must stop machine which is executing this code and when user enters input then we resume machine
+         * pauseIns and nextIns are set while executing each command (see dispatchForBuiltInFunctions which is calling wrapMethodOrFunctionWithBuiltInCode code)
+         * @param callback {Function}
+         */
         presenter.state.console.ReadLine = function (callback) {
             presenter.state.console.pauseIns();
             originalReadLine.call(presenter.state.console, function (input) {
@@ -1406,6 +1437,10 @@ function AddonPseudo_Console_create() {
             });
         };
 
+        /**
+         * Like ReadLine
+         * @param callback {Function}
+         */
         presenter.state.console.ReadChar = function (callback) {
             presenter.state.console.pauseIns();
             originalReadChar.call(presenter.state.console, function (input) {
@@ -1576,7 +1611,7 @@ function AddonPseudo_Console_create() {
     presenter.evaluateScoreFromUserCode = function () {
         var code = presenter.state.lastUsedCode,
             objectForInstructionsSaved = presenter.objectForInstructions,
-            score = 0;
+            score;
 
         presenter.initializeObjectForCode(presenter.generateConsoleMock(presenter.configuration.answer.parameters));
 
@@ -1670,7 +1705,7 @@ function AddonPseudo_Console_create() {
             userFunctionName = "",
             excludedNames = presenter.getExcludedNames();
 
-        function InstuctionIsDefinedException(instrName) {
+        function InstructionIsDefinedException(instrName) {
             this.message = "Instruction was defined before: \"" + instrName + "\"";
             this.name = "InstuctionIsDefinedException";
         }
@@ -1680,7 +1715,7 @@ function AddonPseudo_Console_create() {
             if (!excludedNames[userFunctionName]) {
                 excludedNames[userFunctionName] = true;
             } else {
-                throw new InstuctionIsDefinedException(userFunctionName);
+                throw new InstructionIsDefinedException(userFunctionName);
             }
         }
     };
@@ -1745,7 +1780,7 @@ function AddonPseudo_Console_create() {
         presenter.state.variablesAndFunctionsUsage = {};
         presenter.state.wasChanged = true;
         presenter.initializeObjectForCode();
-        // try {
+        try {
             presenter.state.console.Reset();
             var executableCode = presenter.state.codeGenerator.parse(code);
             console.log(executableCode);
@@ -1755,14 +1790,14 @@ function AddonPseudo_Console_create() {
             presenter.state.lastUsedCode = executableCode;
             presenter.stop();
             presenter.codeExecutor(executableCode, false);
-        // } catch (e) {
-        //     if (e.name !== "Error") {
-        //         presenter.state.console.Write(e.message + "\n", 'program-error-output');
-        //     } else {
-        //         presenter.state.console.Write(e.message, 'program-error-output');
-        //         presenter.state.console.Write("Unexpected identifier\n", 'program-error-output');
-        //     }
-        // }
+        } catch (e) {
+            if (e.name !== "Error") {
+                presenter.state.console.Write(e.message + "\n", 'program-error-output');
+            } else {
+                presenter.state.console.Write(e.message, 'program-error-output');
+                presenter.state.console.Write("Unexpected identifier\n", 'program-error-output');
+            }
+        }
     };
 
     /**
@@ -1781,7 +1816,7 @@ function AddonPseudo_Console_create() {
             retVal = {value: 0},      // value returned by function,
             eax = {value: 0},         // Helper used in generated code (see operation)
             ebx = {value: 0},         // Helper used in generated code,
-            id = uuidv4();
+            id = uuidv4();            // Each machine contains own unique id which will be saved in presenter
 
         function getIndexByLabel(label) {
             var i;
@@ -2031,14 +2066,8 @@ function AddonPseudo_Console_create() {
 
             this.addNewLine(true);
 
-            var activeLine = this.getActiveLine(),
-                textAreaElement = this.$textArea,
+            var textAreaElement = this.$textArea,
                 parentElement = this.$parentElement,
-                data,
-                leftText,
-                rightText,
-                keycode,
-                actualTextAreaIndex = textAreaElement.val().length,
                 self = this;
 
             $(parentElement).on('click', function () {
@@ -2046,71 +2075,80 @@ function AddonPseudo_Console_create() {
                 textAreaElement.focus();
 
                 textAreaElement.on('input', function () {
-                    if (self.isDisabled) {
-                        return;
-                    }
-
-                    data = textAreaElement.val();
-                    leftText = activeLine.elements.$left.text();
-                    rightText = activeLine.elements.$right.text();
-
-                    if (data.length > 0) {
-                        if (data[data.length - 1] !== '\n') {
-                            leftText = leftText + data.substring(actualTextAreaIndex - 1, data.length);
-                            actualTextAreaIndex = data.length;
-                        }
-                    }
-
-                    activeLine.elements.$left.text(leftText);
-                    activeLine.elements.$right.text(rightText);
-                    textAreaElement.val('');
-
+                    return self.onInputCallback();
                 });
 
                 textAreaElement.on('keydown', function (event) {
-                    if (self.isDisabled) {
-                        return;
-                    }
-
-                    keycode = event.which || event.keycode;
-                    data = textAreaElement.val();
-                    leftText = activeLine.elements.$left.text();
-                    rightText = activeLine.elements.$right.text();
-
-                    if (keycode === 39 || keycode === 37 || keycode === 8 || keycode === 13) {
-                        if (keycode === 39) {    //Left arrow
-                            if (rightText.length > 0) {
-                                leftText += rightText[0];
-                                rightText = rightText.substring(1);
-                            }
-                        } else if (keycode === 37) {    //Right arrow
-                            if (leftText.length > 0) {
-                                rightText = leftText[leftText.length - 1] + rightText;
-                                leftText = leftText.substring(0, leftText.length - 1);
-                            }
-                        } else if (keycode === 8) {     //Backspace
-                            leftText = leftText.substring(0, leftText.length - 1);
-                            if (actualTextAreaIndex > 0) {
-                                actualTextAreaIndex -= 1;
-                            }
-                        } else if (keycode === 13) {
-                            if ((leftText + rightText).length > 0) {
-                                $(parentElement).off();
-                                textAreaElement.off();
-                                onExitCallback(leftText + rightText);
-                            }
-                        }
-
-                        activeLine.elements.$left.text(leftText);
-                        activeLine.elements.$right.text(rightText);
-                        textAreaElement.val('');
-
-                        return false;
-                    }
+                    return self.onKeyDownCallback(event, onExitCallback);
                 });
             });
 
             $(parentElement).click();
+        },
+
+        onInputCallback: function () {
+            if (this.isDisabled) {
+                return;
+            }
+
+            var textAreaElement = this.$textArea,
+                activeLine = this.getActiveLine(),
+                data = textAreaElement.val(),
+                leftText = activeLine.elements.$left.text(),
+                rightText = activeLine.elements.$right.text();
+
+            if (data.length > 0) {
+                if (data[data.length - 1] !== '\n') {
+                    leftText = leftText + data;
+                }
+            }
+
+            activeLine.elements.$left.text(leftText);
+            activeLine.elements.$right.text(rightText);
+            textAreaElement.val('');
+
+            return false;
+        },
+
+        onKeyDownCallback: function (event, onExitCallback) {
+            if (this.isDisabled) {
+                return;
+            }
+
+            var textAreaElement = this.$textArea,
+                activeLine = this.getActiveLine(),
+                keycode = event.which || event.keycode,
+                leftText = activeLine.elements.$left.text(),
+                rightText = activeLine.elements.$right.text(),
+                parentElement = this.$parentElement;
+
+            if (keycode === 39 || keycode === 37 || keycode === 8 || keycode === 13) {
+                if (keycode === 39) {    //Left arrow
+                    if (rightText.length > 0) {
+                        leftText += rightText[0];
+                        rightText = rightText.substring(1);
+                    }
+                } else if (keycode === 37) {    //Right arrow
+                    if (leftText.length > 0) {
+                        rightText = leftText[leftText.length - 1] + rightText;
+                        leftText = leftText.substring(0, leftText.length - 1);
+                    }
+                } else if (keycode === 8) {     //Backspace
+                    leftText = leftText.substring(0, leftText.length - 1);
+                } else if (keycode === 13) {
+                    if ((leftText + rightText).length > 0) {
+                        $(parentElement).off();
+                        textAreaElement.off();
+                        onExitCallback(leftText + rightText);
+                    }
+                }
+
+                activeLine.elements.$left.text(leftText);
+                activeLine.elements.$right.text(rightText);
+                textAreaElement.val('');
+
+                return false;
+            }
         },
 
         ReadChar: function (callback) {
@@ -2141,9 +2179,9 @@ function AddonPseudo_Console_create() {
                     leftText = activeLine.elements.$left.text();
                     data = textAreaElement.val();
                     if (data[data.length - 1] !== "\n") {
-                        activeLine.elements.$left.text(leftText + data[data.length - 1]);
                         $(parentElement).off();
                         textAreaElement.off();
+                        activeLine.elements.$left.text(leftText + data[data.length - 1]);   //Get only last char
                         self.isReadMode = false;
                         textAreaElement.val('');
                         callback(data[data.length - 1]);
@@ -2157,8 +2195,10 @@ function AddonPseudo_Console_create() {
         Reset: function () {
             var textAreaElement = this.$textArea,
                 parentElement = this.$parentElement;
+
             parentElement.off();
             textAreaElement.off();
+
             this.isReadMode = false;
 
             this.linesContainer.find('span').remove();
@@ -2186,19 +2226,25 @@ function AddonPseudo_Console_create() {
 
     presenter.console = UserConsole;
     // ---------------------------------- VALIDATION SECTION ---------------------------------
+    /**
+     * Wrap each function or method defined by user by this code. It will set default values for function and initialize console for call
+     * Functions pause and next will stop or resume machine which actually executes this code.
+     * @param {String} userCode
+     * @returns {string}
+     */
     function wrapMethodOrFunctionWithBuiltInCode (userCode) {
         var code = "var builtIn = {\n";
-        code += "   console: arguments[0].console,\n"
+        code += "   console: arguments[0].console,\n";
         code += "   data: arguments[0].data,";
-        code += "   objects: arguments[1]\n";
+        code += "   objects: arguments[1],\n";
+        code += "   retVal: arguments[4]\n";
         code += "};";
         code += "builtIn.console.nextIns = arguments[2];\n";
         code += "builtIn.console.pauseIns = arguments[3];\n";
-        code += "arguments = Array.prototype.slice.call(arguments, 4)\n";
+        code += "arguments = Array.prototype.slice.call(arguments, 5)\n";
 
         code += userCode;
 
-        code += ";return builtIn.objects.Object.__constructor__();";
         return code;
     }
 

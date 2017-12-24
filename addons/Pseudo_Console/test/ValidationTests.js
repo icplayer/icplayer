@@ -163,7 +163,20 @@ TestCase("[Pseudo_Console - validation tests] validate model", {
                 "while": {name: "dopoki"},
                 "or": {name: "lub"},
                 "and": {name: "i"}
-            }
+            },
+
+            methodsList: [
+                {
+                    objectName: "Number",
+                    methodName: "toString",
+                    methodBody: "console.log('ok');"
+                },
+                {
+                    objectName: "Number",
+                    methodName: "toString2",
+                    methodBody: "console.log('ok2');"
+                }
+            ]
         };
 
         this.expectedAliases = {
@@ -184,8 +197,11 @@ TestCase("[Pseudo_Console - validation tests] validate model", {
             "case": "case",
             "option": "option",
             "function": "function",
-            "return": "return"
+            "return": "return",
+            "array_block": "array"
         }
+
+
     },
 
     'test validate model will return validated model' : function () {
@@ -205,6 +221,12 @@ TestCase("[Pseudo_Console - validation tests] validate model", {
         assertTrue(validatedModel.answer.runUserCode);
         assertEquals({"isValid": true, "value": "0.10", "parsedValue": 0.1}, validatedModel.answer.maxTimeForAnswer);
         assertTrue(validatedModel.answer.answerCode.toString().indexOf(this.model.answerCode) > -1);
+
+        assertTrue(validatedModel.methods.length === 2);
+        assertEquals(validatedModel.methods[0].objectName, "Number");
+        assertEquals(validatedModel.methods[0].methodName, 'toString');
+        assertEquals(validatedModel.methods[1].objectName, "Number");
+        assertEquals(validatedModel.methods[1].methodName, 'toString2');
     },
 
 
