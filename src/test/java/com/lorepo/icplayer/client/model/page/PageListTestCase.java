@@ -12,7 +12,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
-import com.lorepo.icplayer.client.model.page.IPageListListener;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
@@ -227,34 +226,6 @@ public class PageListTestCase {
 		}
 
 		assertEquals("New name", pages.getName());
-	}
-
-	@Test
-	public void namePropertyEvent(){
-		PowerMockito.spy(DictionaryWrapper.class);
-		when(DictionaryWrapper.get("name")).thenReturn("Name");
-
-		PageList pages = new PageList();
-		pages.addListener(new IPageListListener() {
-			public void onNodeRemoved(IContentNode node, IChapter parent) {
-			}
-			public void onNodeMoved(IChapter source, int from, int to) {
-			}
-			public void onNodeAdded(IContentNode node) {
-			}
-			public void onChanged(IContentNode source) {
-				eventSource = source;
-			}
-		});
-
-		for(int i = 0; i < pages.getPropertyCount(); i++){
-			IProperty property = pages.getProperty(i);
-			if(property.getName().compareToIgnoreCase("name") == 0){
-				property.setValue("New name");
-			}
-		}
-
-		assertEquals(pages, eventSource);
 	}
 	
 	@Test

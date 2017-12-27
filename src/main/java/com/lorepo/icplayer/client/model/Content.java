@@ -15,7 +15,6 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
-import com.lorepo.icplayer.client.model.page.IPageListListener;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
@@ -40,7 +39,6 @@ public class Content implements IContentBuilder, IContent {
 	private ArrayList<IAsset>	assets = new ArrayList<IAsset>();
 	private HashMap<String, String>	metadata = new HashMap<String, String>();
 	private String		baseUrl = "";
-	private IContentListener listener;
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
 
@@ -52,65 +50,10 @@ public class Content implements IContentBuilder, IContent {
 	public Content(){
 		this.pages = new PageList("root");
 		this.commonPages = new PageList("commons");
-		this.connectHandlers();
 	}
 
 	public void setPlayerController(IPlayerServices ps) {
 		pages.setPlayerServices(ps);
-	}
-
-	public void connectHandlers() {
-		pages.addListener(new IPageListListener() {
-			@Override
-			public void onNodeRemoved(IContentNode node, IChapter parent) {
-				if(listener != null){
-					listener.onRemovePage(node, parent);
-				}
-			}
-
-			@Override
-			public void onNodeMoved(IChapter source, int from, int to) {
-				if(listener != null){
-					listener.onPageMoved(source, from, to);
-				}
-			}
-
-			@Override
-			public void onNodeAdded(IContentNode node) {
-				if(listener != null){
-					listener.onAddPage(node);
-				}
-			}
-
-			@Override
-			public void onChanged(IContentNode source) {
-				if(listener != null){
-					listener.onChanged(source);
-				}
-
-			}
-		});
-
-		commonPages.addListener(new IPageListListener() {
-			@Override
-			public void onNodeRemoved(IContentNode node, IChapter parent) {
-				if(listener != null){
-					listener.onRemovePage(node, parent);
-				}
-			}
-			@Override
-			public void onNodeMoved(IChapter source, int from, int to) {
-			}
-			@Override
-			public void onNodeAdded(IContentNode node) {
-				if(listener != null){
-					listener.onAddPage(node);
-				}
-			}
-			@Override
-			public void onChanged(IContentNode source) {
-			}
-		});
 	}
 
 	@Override
@@ -130,11 +73,6 @@ public class Content implements IContentBuilder, IContent {
 	public void setScoreType(ScoreType scoreType){
 		this.scoreType = scoreType;
 	}
-
-	public void addChangeListener(IContentListener l){
-		this.listener = l;
-	}
-
 
 	public HashMap<String,AddonDescriptor>	getAddonDescriptors(){
 		return addonDescriptors;

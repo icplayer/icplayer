@@ -22,7 +22,6 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 	private IPlayerServices playerServices;
 	private final List<IContentNode>	nodes = new ArrayList<IContentNode>();
-	private IPageListListener listener;
 	public String name;
 	private String id;
 
@@ -69,36 +68,14 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	}
 
 
-	public void addListener(IPageListListener l){
-		this.listener = l;
-	}
-
-
 	@Override
 	public void addOnIndex(int index, IContentNode node){
 		nodes.add(index, node);
-		if(listener != null){
-			listener.onNodeAdded(node);
-			if(node instanceof PageList){
-				PageList pages = (PageList) node;
-				pages.addListener(listener);
-			}
-		}
 	}
 	
 	@Override
 	public boolean add(IContentNode node){
-
-		boolean result = nodes.add(node);
-		if(listener != null){
-			listener.onNodeAdded(node);
-			if(node instanceof PageList){
-				PageList pages = (PageList) node;
-				pages.addListener(listener);
-			}
-		}
-
-		return result;
+		return nodes.add(node);
 	}
 
 
@@ -134,12 +111,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	}
 	
 	public void insertBefore(int index, IContentNode node){
-
 		nodes.add(index, node);
-
-		if(listener != null){
-			listener.onNodeAdded(node);
-		}
 	}
 
 
@@ -147,20 +119,12 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 		IContentNode node = nodes.remove(index);
 
-		if(listener != null){
-			listener.onNodeRemoved(node, this);
-		}
-
 		return node;
 	}
 
 
 	public boolean remove(IContentNode node){		
 		boolean result = nodes.remove(node);
-
-		if(listener != null && result){
-			listener.onNodeRemoved(node, this);
-		}
 
 		return result;
 	}
@@ -176,9 +140,6 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		
 
 		if(result){
-			if(listener != null){
-				listener.onNodeRemoved(node, this);
-			}
 		}
 		else{
 			for(IContentNode item : nodes){
@@ -212,9 +173,6 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 				Page page = (Page) node;
 				if(page.getName().equals(name)){
 					nodes.remove(node);
-					if(listener != null){
-						listener.onNodeRemoved(page, this);
-					}
 					return true;
 				}
 			}
@@ -331,7 +289,6 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 					}
 				} else if(node.getNodeName().compareTo("chapter") == 0) {
 					PageList chapter = new PageList();
-					chapter.addListener(listener);
 					pageIndex = chapter.load(node, url, subsetOfPages, pageIndex);
 					nodes.add(chapter);
 				}
@@ -414,9 +371,6 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		if (from < nodes.size() && to < nodes.size()){
 			IContentNode node = nodes.remove(from);
 			nodes.add(to, node);
-			if(listener != null && node instanceof Page){
-				listener.onNodeMoved(this, from, to);
-			}
 		}
 	}
 
@@ -468,7 +422,6 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			@Override
 			public void setValue(String newValue) {
 				name = newValue;
-				fireChangedEvent();
 			}
 
 			@Override
@@ -493,12 +446,6 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 		};
 
 		addProperty(propertyName);
-	}
-
-	protected void fireChangedEvent() {
-		if(listener != null){
-			listener.onChanged(this);
-		}
 	}
 
 	public IChapter getParentChapter(IContentNode node) {

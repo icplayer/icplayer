@@ -14,7 +14,6 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
@@ -626,11 +625,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	public int getHeight() {
 		Size size = this.pageSizes.get(this.semiResponsiveLayoutID);
-		JavaScriptUtils.log("====== get height ==============");
-		JavaScriptUtils.log(this.pageSizes);
-		JavaScriptUtils.log(this.semiResponsiveLayoutID);
-		JavaScriptUtils.log(size);
-		JavaScriptUtils.log("=====================================");
 		return size.getHeight();
 	}
 
@@ -643,28 +637,12 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	@Override
 	public void setHeight(int height) {
-		JavaScriptUtils.log("=========== begin set height ==============");
-		JavaScriptUtils.log(height);
-		JavaScriptUtils.log(this.pageSizes);
-		JavaScriptUtils.log(this.semiResponsiveLayoutID);
-		JavaScriptUtils.log(this);
-		JavaScriptUtils.trace();
-		JavaScriptUtils.log("=========== end set height ==============");
-		
 		Size size = this.pageSizes.get(this.semiResponsiveLayoutID);
 		size.setHeight(height);
 		this.setCurrentSize(size);
 	}
 
-	private void setCurrentSize(Size size) {
-		JavaScriptUtils.log("=========== begin set size ==============");
-		JavaScriptUtils.log(size);
-		JavaScriptUtils.log(this.pageSizes);
-		JavaScriptUtils.log(this.semiResponsiveLayoutID);
-		JavaScriptUtils.log(this);
-		JavaScriptUtils.trace();
-		JavaScriptUtils.log("=========== end set size ==============");
-		
+	private void setCurrentSize(Size size) {		
 		this.pageSizes.put(this.semiResponsiveLayoutID, size);
 	}
 

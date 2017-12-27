@@ -311,63 +311,6 @@ public class GWTContentTestCase extends GwtTest {
 		assertEquals(1, content.getAssetCount());
 	}
 
-	@Test
-	public void pageListener() {
-
-		receivedEvent = false;
-		Content content = new Content();
-		content.addChangeListener(new IContentListener() {
-
-			@Override
-			public void onRemovePage(IContentNode node, IChapter parent) {
-			}
-
-			@Override
-			public void onPageMoved(IChapter source, int from, int to) {
-			}
-
-			@Override
-			public void onAddPage(IContentNode node) {
-				receivedEvent = true;
-			}
-
-			@Override
-			public void onChanged(IContentNode source) {
-			}
-		});
-
-		content.getPages().add(new Page("1", ""));
-		assertTrue(receivedEvent);
-	}
-
-	@Test
-	public void commonPageListener() {
-
-		receivedEvent = false;
-		Content content = new Content();
-		content.addChangeListener(new IContentListener() {
-
-			@Override
-			public void onRemovePage(IContentNode node, IChapter parent) {
-			}
-
-			@Override
-			public void onPageMoved(IChapter source, int from, int to) {
-			}
-
-			@Override
-			public void onAddPage(IContentNode node) {
-				receivedEvent = true;
-			}
-
-			@Override
-			public void onChanged(IContentNode source) {
-			}
-		});
-
-		content.getCommonPages().add(new Page("1", ""));
-		assertTrue(receivedEvent);
-	}
 
 
 	@Test
@@ -505,39 +448,6 @@ public class GWTContentTestCase extends GwtTest {
 		assertEquals("Chapter 1", chapter.getName());
 	}
 
-	@Test
-	public void chapterNameEvent() throws SAXException, IOException {
-
-		Content model = initContentFromFile("testdata/content4.xml");
-
-		receivedEvent = false;
-		model.addChangeListener(new IContentListener() {
-
-			@Override
-			public void onRemovePage(IContentNode node, IChapter parent) {
-			}
-
-			@Override
-			public void onPageMoved(IChapter source, int from, int to) {
-			}
-
-			@Override
-			public void onAddPage(IContentNode node) {
-			}
-
-			@Override
-			public void onChanged(IContentNode source) {
-				receivedEvent = true;
-			}
-		});
-		
-		IContentNode node = model.getPages().get(3);
-		assertTrue(node instanceof PageList);
-		PageList chapter = (PageList) node;
-		chapter.getProperty(0).setValue("new name");
-		
-		assertTrue(receivedEvent);
-	}
 
 
 	@Test

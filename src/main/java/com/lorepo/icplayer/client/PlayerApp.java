@@ -84,7 +84,6 @@ public class PlayerApp {
 		contentFactory.load(url, new IProducingLoadingListener() {
 			public void onFinishedLoading(Object content) {
 				contentModel = (Content) content;
-				contentModel.connectHandlers();
 				initPlayer(isCommonPage);
 			}
 
