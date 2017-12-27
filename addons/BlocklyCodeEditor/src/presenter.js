@@ -169,11 +169,25 @@ function AddonBlocklyCodeEditor_create () {
 
         isPreviewDecorator(presenter.updateToolbox)();
 
+        isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);
+
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_Blockly (ev) {
             if (ev.target === this) {
                 presenter.destroy();
             }
         });
+    };
+
+    presenter.setConfiguration = function(configuration) {
+        if(configuration) {
+            var xml = Blockly.Xml.textToDom(configuration);
+            Blockly.Xml.domToWorkspace(xml, presenter.configuration.workspace);
+        }
+    };
+
+    presenter.getConfiguration = function() {
+        var xml = Blockly.Xml.workspaceToDom(presenter.configuration.workspace);
+        return Blockly.Xml.domToText(xml);
     };
 
     presenter.createWorkspace = function (view, isPreview) {
@@ -382,7 +396,8 @@ function AddonBlocklyCodeEditor_create () {
             toolboxXML: validatedToolbox.value.categories,
             customBlocksXML: presenter.convertCustomBlocksToJS(validatedCustomBlocks.value),
             maxBlocks: validatedBlockLimit.value,
-            blocksTranslation: $.extend(validatedToolbox.value.translations, validatedBlocksTranslations.value)
+            blocksTranslation: $.extend(validatedToolbox.value.translations, validatedBlocksTranslations.value),
+            initialConfiguration: model["initialConfiguration"]
         };
     };
 
@@ -871,7 +886,8 @@ function AddonBlocklyCodeEditor_create () {
         var commands = {
             'getWorkspaceCode' : presenter.getWorkspaceCode,
             'show' : presenter.show,
-            'hide' : presenter.hide
+            'hide' : presenter.hide,
+            'getConfiguration' : presenter.getConfiguration
         };
 
         Commands.dispatch(commands, name, params, presenter);

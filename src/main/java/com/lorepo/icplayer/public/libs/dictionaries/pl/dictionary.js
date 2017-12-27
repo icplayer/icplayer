@@ -1,4 +1,4 @@
-var ice_dictionary_pl = {
+﻿var ice_dictionary_pl = {
 	"orientation_type_vertical" : "vertical",
 	"orientation_type_horizontal": "horizontal",
 	"semi_responsive_properties_label": "Layout",
@@ -712,6 +712,7 @@ var ice_dictionary_pl = {
 	"BlocklyCodeEditor_property_max_block_limit" : "Limit bloków",
 	"BlocklyCodeEditor_property_hide_run" : "Ukryj przycisk Run",
 	"BlocklyCodeEditor_property_blocksTranslation": "Tłumaczenie bloków",
+	"BlocklyCodeEditor_property_initial_configuration": "Initial configuration",
 	"Hangman_info" : "Pozwala na dodanie do prezentacji gotowej gry Hangman (Wisielec). Wystarczy kilka kliknięć w edytorze i ćwiczenie jest gotowe do wykorzystania.",
 	"Hangman_name" : "Wisielec",
 	"Hangman_property_phrases": "Wyrażenia",
@@ -850,6 +851,7 @@ var ice_dictionary_pl = {
     "gamememo_property_keep_wrong_marking": "Zachowaj błędne zaznaczenie",
 	"gamememo_property_time_to_solve": "Time to solve the task",
 	"gamememo_property_session_ended_message": "Session ended message",
+	"gamememo_property_click_to_turn_over_incorrect_pair": "Click to turn over incorrect pair",
 	"MultiAudio_info" : "Jest to rozszerzona wersja Addonu dźwiękowego, wzbogacona o nowe funkcje, takie jak możliwość wgrania wielu plików audio, włączenie zapętlenia dla każdego pliku osobno oraz przeskakiwanie między plikami.",
 	"MultiAudio_name" : "Wielokrotne pliki dźwiękowe",
 	"MultiAudio_property_files": "Pliki",

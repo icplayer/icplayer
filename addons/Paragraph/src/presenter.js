@@ -116,14 +116,6 @@ function AddonParagraph_create() {
             
             if (isIOSSafari()) {
                 presenter.findIframeAndSetStyles();
-                
-                // var refocus = function() {
-                //     $(presenter.editor.contentDocument).focus();
-                //     $(presenter.editor).focus();
-                // };
-                // presenter.editor.contentDocument.addEventListener("keydown", refocus);
-                // presenter.editor.contentDocument.addEventListener("touchstart", refocus);
-                // presenter.editor.contentDocument.addEventListener("touchend", refocus);
             }
 
             presenter.editor.on('blur', function () {

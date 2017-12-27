@@ -238,7 +238,8 @@ function Addongamememo_create(){
             pairs: model['Pairs'],
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
+            clickToTurnOverIncorrectPair: ModelValidationUtils.validateBoolean(model["Click to turn over incorrect pair"])
         };
     };
 
@@ -256,9 +257,14 @@ function Addongamememo_create(){
 
     presenter.slideDownAnimation = function ($element, successFunction) {
         var distance = $element.outerHeight();
-        $element.css({'bottom': (distance + 'px'), visibility: 'visible'})
+
+        if(presenter.imageMode == 'KeepAspect') {
+            $element.css('visibility', 'visible');
+        } else {
+             $element.css({'bottom': (distance + 'px'), visibility: 'visible'})
                 .animate({bottom: 0}, 200);
-        };
+        }
+    };
 
     presenter.showCard = function(cell) {
         var successFunction = function () {
@@ -468,6 +474,14 @@ function Addongamememo_create(){
         }
     };
 
+    function numberToCardType(element) {
+        if (element.is("img")) {
+            return element.parent().parent().find('.card').attr('card_style');
+        } else {
+            return element.parent().find('.card').attr('card_style');
+        }
+    }
+
     presenter.onCardClicked = function(e) {
         e.stopPropagation();
 
@@ -480,11 +494,16 @@ function Addongamememo_create(){
 
         if(presenter.useTwoStyles) {
             var clickedStyle;
-            clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().find('.card').attr('card_style')));
+            clickedStyle = presenter.numberToCardType(parseInt(numberToCardType($(e.target))));
             if(clickedStyle == presenter.cardClickedStyle) {
                 return;
             }
         }
+
+        if(presenter.configuration.clickToTurnOverIncorrectPair && presenter.STATES.CLICKED_SECOND) {
+
+        }
+
         switch(presenter.state) {
             case presenter.STATES.READY:
                 presenter.handleCardClickedFirst($(e.target).parent());
@@ -515,6 +534,7 @@ function Addongamememo_create(){
 
                     eventData = presenter.createItemEventData(presenter.cardClickedFirstId, presenter.cardClickedSecondId,  false);
                     presenter.sendEventData(eventData);
+                    presenter.isCorrectMark = false;
                 } else {
                     presenter.markCardTick(presenter.cardClickedFirst.find(".card"), presenter.cardClickedFirst.find(".card"));
                     presenter.markCardTick(presenter.cardClickedSecond.find(".card"), presenter.cardClickedFirst.find(".card"));
@@ -523,6 +543,7 @@ function Addongamememo_create(){
                     presenter.sendEventData(eventData);
 
                     presenter.addScoreAndSentEvent();
+                    presenter.isCorrectMark = true;
                 }
 
                 if(presenter.useTwoStyles) {
@@ -537,7 +558,13 @@ function Addongamememo_create(){
                     presenter.hideCard(presenter.cardClickedFirst);
                     presenter.hideCard(presenter.cardClickedSecond);
                 }
-                presenter.handleCardClickedFirst($(e.target).parent());
+
+                if(presenter.configuration.clickToTurnOverIncorrectPair && !presenter.isCorrectMark) {
+                    presenter.cardClickedFirst = null;
+                    presenter.state = presenter.STATES.READY;
+                } else {
+                    presenter.handleCardClickedFirst($(e.target).parent());
+                }
 
                 presenter.cardClickedSecond = null;
                 presenter.cardClickedFirstId = null;
@@ -549,6 +576,26 @@ function Addongamememo_create(){
                 }
 
                 break;
+        }
+    };
+
+    presenter.onBackClick = function () {
+        if(presenter.STATES.CLICKED_SECOND && presenter.configuration.clickToTurnOverIncorrectPair && !presenter.isCorrectMark) {
+            if(presenter.cardClickedFirstId != presenter.cardClickedSecondId) {
+                presenter.hideCard(presenter.cardClickedFirst);
+                presenter.hideCard(presenter.cardClickedSecond);
+            }
+
+            presenter.cardClickedFirst = null;
+            presenter.state = presenter.STATES.READY;
+            presenter.cardClickedSecond = null;
+            presenter.cardClickedFirstId = null;
+            presenter.cardClickedSecondId = null;
+
+            if (presenter.keppWrongMarking) {
+                var mark = presenter.viewContainer.find('.mismatch_mark');
+                fadeOutMark(mark, 1000);
+            }
         }
     };
 
@@ -601,7 +648,7 @@ function Addongamememo_create(){
 
                 if(!presenter.preview) {
                     cell.append(back).append(front);
-
+                    back.click(presenter.onBackClick);
                 } else {
                     if(presenter.previewCards) {
                         back.css('display', 'block');

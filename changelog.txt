@@ -1,3 +1,6 @@
+2017-12-22 Fixed tests in Video module
+2017-12-22 Added initial configuration in Blockly Code Editor module
+2017-12-22 Fixed showing cards and images in Memogame module
 2017-12-14 Fixed performance issues with preloading images for preview mode in Animation module
 2017-12-13 Fixed popup scrolling
 2017-12-13 Fixed managing tabindex property
