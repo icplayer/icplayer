@@ -2,12 +2,12 @@ function AddonMaze_create () {
     var presenter = function () {};
 
     presenter.ERROR_MESSAGES = {
-        "WW01": "Width must be positive integer",
-        "WW02": "Width must be bigger than 5",
-        "WH01": "Height must be positive integer",
-        "WH02": "Height must be bigger than 5",
-        "WC01": "Number of mazes must be positive integer",
-        "WN01": "Labyrinth number must be positive integer"
+        'WW01': 'Width must be positive integer',
+        'WW02': 'Width must be bigger than 5',
+        'WH01': 'Height must be positive integer',
+        'WH02': 'Height must be bigger than 5',
+        'WC01': 'Number of mazes must be positive integer',
+        'WN01': 'Labyrinth number must be positive integer'
     };
 
     presenter.state = {
@@ -44,8 +44,8 @@ function AddonMaze_create () {
     };
 
     presenter.GAME_TYPES = {
-        "DIAMOND": 1,
-        "LETTERS": 2
+        'DIAMOND': 1,
+        'LETTERS': 2
     };
 
     presenter.showErrorMessage = function (message, substitutions) {
@@ -104,22 +104,22 @@ function AddonMaze_create () {
      */
     presenter.completeState = function () {
         var expectedElements = {
-                questionContainer: "Maze_game_question_container",
-                questionBackground: "Maze_game_question_background",
-                gameContainer: "Maze-wrapper-game-container",
-                upButton: "Maze-wrapper-menu-controls-up",
-                leftButton: "Maze-wrapper-menu-controls-left",
-                rightButton: "Maze-wrapper-menu-controls-right",
-                downButton: "Maze-wrapper-menu-controls-down",
-                applyButton: "Maze_game_question_container_question_apply",
-                questionText: "Maze_game_question_container_question_text",
-                answerInput: "Maze_game_question_container_question_input",
-                endGame: "Maze_game_end",
-                menu: "Maze-wrapper-menu",
-                lettersAnswerBackground: "Maze_letters_end_level_background",
-                lettersAnswerContainer: "Maze_letters_end_level_answer_wrapper",
-                lettersAnswerButton: "Maze_letters_end_level_next_maze_button",
-                lettersContainer: "Maze_letters_end_level_answer_letters_container"
+                questionContainer: 'Maze_game_question_container',
+                questionBackground: 'Maze_game_question_background',
+                gameContainer: 'Maze-wrapper-game-container',
+                upButton: 'Maze-wrapper-menu-controls-up',
+                leftButton: 'Maze-wrapper-menu-controls-left',
+                rightButton: 'Maze-wrapper-menu-controls-right',
+                downButton: 'Maze-wrapper-menu-controls-down',
+                applyButton: 'Maze_game_question_container_question_apply',
+                questionText: 'Maze_game_question_container_question_text',
+                answerInput: 'Maze_game_question_container_question_input',
+                endGame: 'Maze_game_end',
+                menu: 'Maze-wrapper-menu',
+                lettersAnswerBackground: 'Maze_letters_end_level_background',
+                lettersAnswerContainer: 'Maze_letters_end_level_answer_wrapper',
+                lettersAnswerButton: 'Maze_letters_end_level_next_maze_button',
+                lettersContainer: 'Maze_letters_end_level_answer_letters_container'
             },
             i;
 
@@ -131,6 +131,14 @@ function AddonMaze_create () {
 
         presenter.state.isDisabled = presenter.configuration.isDisabled;
     };
+
+    function rotateElement (element, rotation) {
+        element.style.webkitTransform = 'rotate(' + rotation + 'deg)';
+        element.style.mozTransform    = 'rotate(' + rotation + 'deg)';
+        element.style.msTransform     = 'rotate(' + rotation + 'deg)';
+        element.style.oTransform      = 'rotate(' + rotation + 'deg)';
+        element.style.transform       = 'rotate(' + rotation + 'deg)';
+    }
 
     /**
      * @param  {HTMLDivElement} view
@@ -158,7 +166,7 @@ function AddonMaze_create () {
 
             if (presenter.configuration.hideControlPanel) {
                 presenter.state.elements.menu.style.display = 'none';
-                presenter.state.elements.gameContainer.style.width = "100%";
+                presenter.state.elements.gameContainer.style.width = '100%';
             }
 
             presenter.connectHandlers();
@@ -292,7 +300,7 @@ function AddonMaze_create () {
         return {
             source : presenter.configuration.addonID,
             value: presenter.state.mistakes + '',
-            item: "mistake"
+            item: 'mistake'
         };
     };
 
@@ -300,7 +308,7 @@ function AddonMaze_create () {
         return {
             source : presenter.configuration.addonID,
             value: number + '',
-            item: "opened"
+            item: 'opened'
         };
     };
 
@@ -312,7 +320,7 @@ function AddonMaze_create () {
         return {
             source : presenter.configuration.addonID,
             value: letter,
-            item: "gathered"
+            item: 'gathered'
         };
     };
 
@@ -366,7 +374,7 @@ function AddonMaze_create () {
         presenter.state.elements.lettersContainer.innerHTML = '';
         letters.forEach(function (element) {
            var div = document.createElement('div');
-           div.classList.add("Maze_letters_letter_element");
+           div.classList.add('Maze_letters_letter_element');
            div.innerText = element;
            presenter.state.elements.lettersContainer.appendChild(div);
         });
@@ -462,11 +470,11 @@ function AddonMaze_create () {
     };
 
     presenter.onEventReceived = function (eventName) {
-        if (eventName === "ShowAnswers") {
+        if (eventName === 'ShowAnswers') {
             presenter.showAnswers();
         }
 
-        if (eventName === "HideAnswers") {
+        if (eventName === 'HideAnswers') {
             presenter.hideAnswers();
         }
     };
@@ -476,19 +484,19 @@ function AddonMaze_create () {
         var validatedHeight = ModelValidationUtils.validatePositiveInteger(model.height);
 
         if (!validatedHeight.isValid) {
-            return generateValidationError("WH01");
+            return generateValidationError('WH01');
         }
 
         if (!validatedWidth.isValid) {
-            return generateValidationError("WW01");
+            return generateValidationError('WW01');
         }
 
         if (validatedWidth.value <= 5) {
-            return generateValidationError("WW02");
+            return generateValidationError('WW02');
         }
 
         if (validatedHeight.value <= 5) {
-            return generateValidationError("WH02");
+            return generateValidationError('WH02');
         }
 
         return {
@@ -506,7 +514,7 @@ function AddonMaze_create () {
         var validatedNumberOfMazes = ModelValidationUtils.validatePositiveInteger(model.numberOfMazes);
 
         if (!validatedNumberOfMazes.isValid) {
-            return generateValidationError("WC01");
+            return generateValidationError('WC01');
         }
 
         return {
@@ -527,7 +535,7 @@ function AddonMaze_create () {
             var element = questions[i];
             var validatedLabyrinthNumber = ModelValidationUtils.validatePositiveInteger(element.mazeId);
             if (!validatedLabyrinthNumber.isValid) {
-                return generateValidationError("WN01");
+                return generateValidationError('WN01');
             }
 
             validatedQuestions[validatedLabyrinthNumber.value - 1] = validatedQuestions[validatedLabyrinthNumber.value - 1] || [];
@@ -546,7 +554,7 @@ function AddonMaze_create () {
 
     presenter.validateModel = function (model) {
         if (model.gameMode === '') {
-            model.gameMode = "diamond";
+            model.gameMode = 'diamond';
         }
 
         var validatedLabyrinthSize = presenter.validateLabyrinthSize(model);
@@ -643,7 +651,7 @@ function AddonMaze_create () {
     };
 
     presenter.setVisibility = function (isVisible) {
-        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+        presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
     };
 
     /**
@@ -694,7 +702,7 @@ function AddonMaze_create () {
     };
 
     /**
-     * @param {Room }room
+     * @param {Room}room
      */
     Game.prototype.movePlayerTo = function (room) {
         if (this.checkRoomCallback(room)) {
@@ -956,7 +964,7 @@ function AddonMaze_create () {
      */
     DiamondGame.prototype.createDoors = function (longestPath) {
         var doorsCount = this.questions.length,
-            spaceBetween = ~~(longestPath.length / (doorsCount + 1)),
+            spaceBetween = Math.floor(longestPath.length / (doorsCount + 1)),
             i;
 
         for(i = 1; i <= doorsCount; i += 1) {
@@ -991,7 +999,6 @@ function AddonMaze_create () {
     DiamondGame.prototype.onEnterDoor = function (room) {
             presenter.setQuestionHTML(this.questions[this.keysCount].question);
             presenter.showQuestionModal();
-
 
             var self = this;
             presenter.setOnQuestionApplyCallback(function (value) {
@@ -1122,12 +1129,7 @@ function AddonMaze_create () {
         var dotDiv = document.createElement('div');
         dotDiv.classList.add('Maze_room_left_top_dot');
 
-        dotDiv.style.webkitTransform = 'rotate(' + rotation + 'deg)';
-        dotDiv.style.mozTransform    = 'rotate(' + rotation + 'deg)';
-        dotDiv.style.msTransform     = 'rotate(' + rotation + 'deg)';
-        dotDiv.style.oTransform      = 'rotate(' + rotation + 'deg)';
-        dotDiv.style.transform       = 'rotate(' + rotation + 'deg)';
-
+        rotateElement(dotDiv, rotation)
         this.getElement().appendChild(dotDiv);
     };
 
@@ -1278,7 +1280,7 @@ function AddonMaze_create () {
      * @param {"PRIMS"} [algorithmName] name of algorithm which will generate maze
      */
     Maze.prototype.generate = function (algorithmName) {
-        algorithmName = algorithmName || "PRIMS";
+        algorithmName = algorithmName || 'PRIMS';
 
         this.mazeElementsContainer = document.createElement('div');
         this.mazeElementsContainer.classList.add('Maze_game_elements_container');
@@ -1320,11 +1322,11 @@ function AddonMaze_create () {
             var room = this.rooms[i];
 
             var percent = (100 / Math.max(this.xSize, this.ySize));
-            room.getElement().style.width = Math.floor(this.maxSize * percent / 100) + "px";
-            room.getElement().style.height = Math.floor(this.maxSize * percent / 100) + "px";
+            room.getElement().style.width = Math.floor(this.maxSize * percent / 100) + 'px';
+            room.getElement().style.height = Math.floor(this.maxSize * percent / 100) + 'px';
 
             if (i % this.xSize === 0) {
-                room.getElement().style.clear = "both";
+                room.getElement().style.clear = 'both';
             }
 
             var roomWalls = this.getRoomWalls(room);
@@ -1332,11 +1334,7 @@ function AddonMaze_create () {
 
             room.addWallClass(matchedClass.className);
 
-            room.getWallsElement().style.webkitTransform = 'rotate(-' + matchedClass.rotation + 'deg)';
-            room.getWallsElement().style.mozTransform    = 'rotate(-' + matchedClass.rotation + 'deg)';
-            room.getWallsElement().style.msTransform     = 'rotate(-' + matchedClass.rotation + 'deg)';
-            room.getWallsElement().style.oTransform      = 'rotate(-' + matchedClass.rotation + 'deg)';
-            room.getWallsElement().style.transform       = 'rotate(-' + matchedClass.rotation + 'deg)';
+            rotateElement(room.getWallsElement(), matchedClass.rotation * -1);
 
             this.checkDotIsNeeded(1, 1, 0, room);
             this.checkDotIsNeeded(-1, 1, 90, room);
@@ -1416,11 +1414,11 @@ function AddonMaze_create () {
         }
 
         var classes = {
-            4: "Maze_room_image_top_left_right_bottom",
-            3: "Maze_room_image_top_left_right",
-            2: "Maze_room_image_top_left",
-            1: "Maze_room_image_top_bottom",
-            0: "Maze_room_image_top"
+            4: 'Maze_room_image_top_left_right_bottom',
+            3: 'Maze_room_image_top_left_right',
+            2: 'Maze_room_image_top_left',
+            1: 'Maze_room_image_top_bottom',
+            0: 'Maze_room_image_top'
         };
 
         return {
