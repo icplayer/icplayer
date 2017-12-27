@@ -13,5 +13,7 @@
 			<property name="letter" nameLabel="Maze_property_questions_letter" type="string"/>
 			<property name="mazeId" nameLabel="Maze_property_questions_maze_number" type="string"/>
         </property>
+		<property name="isDisabled" nameLabel="Maze_property_is_disabled" type="boolean"/>
+		<property name="hideControlPanel" nameLabel="Maze_property_hide_control_panel" type="boolean" />
 	</model>
 </addon>

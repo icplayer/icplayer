@@ -3,14 +3,44 @@ function AddonMaze_create () {
 
     presenter.ERROR_MESSAGES = {
         "WW01": "Width must be positive integer",
+        "WW02": "Width must be bigger than 5",
         "WH01": "Height must be positive integer",
+        "WH02": "Height must be bigger than 5",
         "WC01": "Number of mazes must be positive integer",
         "WN01": "Labyrinth number must be positive integer"
     };
 
     presenter.state = {
         games: [],
-        actualGameIndex: 0
+        actualGameIndex: 0,
+        mistakes: 0,
+        errorCount: 0,
+        applyButtonClickCallback: function () {},
+
+        elements: {
+            questionContainer: null,
+            questionBackground: null,
+            gameContainer: null,
+            upButton: null,
+            leftButton: null,
+            rightButton: null,
+            downButton: null,
+            applyButton: null,
+            questionText: null,
+            answerInput: null,
+            endGame: null,
+            menu: null,
+            lettersAnswerBackground: null,
+            lettersAnswerContainer: null,
+            lettersAnswerButton: null,
+            lettersContainer: null
+        },
+
+        isDisabled: false,
+        nextMazeButtonCallback: function () {},
+        isShowingAnswers: false,
+        isShowingErrors: false
+
     };
 
     presenter.GAME_TYPES = {
@@ -41,13 +71,65 @@ function AddonMaze_create () {
         presenter.runLogic(view, model, true);
     };
 
+    presenter.getScore = function () {
+        return presenter.state.actualGameIndex;
+    };
+
+    presenter.getMaxScore = function () {
+        return presenter.configuration.numberOfMazes;
+    };
+
+    presenter.getErrorCount = function () {
+        var lastErrorCount = presenter.state.errorCount;
+        presenter.state.errorCount = 0;
+
+        return lastErrorCount;
+    };
+
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.destroy = function () {
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+        presenter.getActualGame().destroy();
+        presenter.disconnectHandlers();
+    };
+
+    /**
+     * Set in state expected elements like DOM elements
+     */
+    presenter.completeState = function () {
+        var expectedElements = {
+                questionContainer: "Maze_game_question_container",
+                questionBackground: "Maze_game_question_background",
+                gameContainer: "Maze-wrapper-game-container",
+                upButton: "Maze-wrapper-menu-controls-up",
+                leftButton: "Maze-wrapper-menu-controls-left",
+                rightButton: "Maze-wrapper-menu-controls-right",
+                downButton: "Maze-wrapper-menu-controls-down",
+                applyButton: "Maze_game_question_container_question_apply",
+                questionText: "Maze_game_question_container_question_text",
+                answerInput: "Maze_game_question_container_question_input",
+                endGame: "Maze_game_end",
+                menu: "Maze-wrapper-menu",
+                lettersAnswerBackground: "Maze_letters_end_level_background",
+                lettersAnswerContainer: "Maze_letters_end_level_answer_wrapper",
+                lettersAnswerButton: "Maze_letters_end_level_next_maze_button",
+                lettersContainer: "Maze_letters_end_level_answer_letters_container"
+            },
+            i;
+
+        for (i in expectedElements) {
+            if (expectedElements.hasOwnProperty(i)) {
+                presenter.state.elements[i] = presenter.view.getElementsByClassName(expectedElements[i])[0];
+            }
+        }
+
+        presenter.state.isDisabled = presenter.configuration.isDisabled;
     };
 
     /**
@@ -72,22 +154,46 @@ function AddonMaze_create () {
         });
 
         if (!isPreview) {
+            presenter.completeState();
+
+            if (presenter.configuration.hideControlPanel) {
+                presenter.state.elements.menu.style.display = 'none';
+                presenter.state.elements.gameContainer.style.width = "100%";
+            }
+
             presenter.connectHandlers();
-            var gameContainer = view.getElementsByClassName('Maze-wrapper-game-container')[0];
-            var i,
-                minSize = Math.min(gameContainer.offsetWidth, gameContainer.offsetHeight);
+            presenter.initializeMaze();
+
+        }
+
+        presenter.setVisibility(presenter.configuration.isVisible);
+    };
+
+    presenter.initializeMaze = function () {
+            var gameContainer = presenter.state.elements.gameContainer,
+                i,
+                minSize = Math.min(gameContainer.offsetWidth, gameContainer.offsetHeight),
+                game;
+
+
+            if (presenter.configuration.hideControlPanel) {
+                minSize = Math.min(presenter.configuration.addonSize.width, presenter.configuration.addonSize.height);
+            }
+
+            presenter.state.actualGameIndex = 0;
+            presenter.state.games = [];
 
             for (i = 0; i < presenter.configuration.numberOfMazes; i += 1) {
                 if (presenter.configuration.gameType === presenter.GAME_TYPES.DIAMOND) {
-                    var diamond = new DiamondGame(presenter.configuration.labyrinthSize, minSize, presenter.configuration.questions[i] || []);
-                    presenter.state.games.push(diamond);
+                    game = new DiamondGame(presenter.configuration.labyrinthSize, minSize, presenter.configuration.questions[i] || []);
+                    presenter.state.games.push(game);
+                } else  {
+                    game = new LetterGame(presenter.configuration.labyrinthSize, minSize, presenter.configuration.questions[i] || []);
+                    presenter.state.games.push(game);
                 }
             }
 
             presenter.getActualGame().start(gameContainer);
-        }
-
-        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     /**@returns {Game}
@@ -96,33 +202,229 @@ function AddonMaze_create () {
         return presenter.state.games[presenter.state.actualGameIndex];
     };
 
-    presenter.onUpButtonClick = function () {
+    presenter.moveUp = function () {
+        if (presenter.state.isDisabled) {
+            return;
+        }
+
+        if (presenter.state.isShowingErrors || presenter.state.isShowingAnswers) {
+            return;
+        }
+
         presenter.getActualGame().goUp();
     };
 
-    presenter.onDownButtonClick = function () {
+    presenter.moveDown = function () {
+        if (presenter.state.isDisabled) {
+            return;
+        }
+
+        if (presenter.state.isShowingErrors || presenter.state.isShowingAnswers) {
+            return;
+        }
+
         presenter.getActualGame().goDown();
     };
 
-    presenter.onLeftButtonClick = function () {
+    presenter.moveLeft = function () {
+        if (presenter.state.isDisabled) {
+            return;
+        }
+
+        if (presenter.state.isShowingErrors || presenter.state.isShowingAnswers) {
+            return;
+        }
+
         presenter.getActualGame().goLeft();
     };
 
-    presenter.onRightButtonClick = function () {
+    presenter.moveRight = function () {
+        if (presenter.state.isDisabled) {
+            return;
+        }
+
+        if (presenter.state.isShowingErrors || presenter.state.isShowingAnswers) {
+            return;
+        }
+
         presenter.getActualGame().goRight();
     };
 
+    presenter.onQuestionApplyButtonClick = function () {
+        presenter.state.applyButtonClickCallback(presenter.state.elements.answerInput.value);
+        presenter.state.elements.answerInput.value = '';
+        presenter.state.applyButtonClickCallback = function () {};
+    };
+
+    presenter.setOnQuestionApplyCallback = function (fn) {
+        presenter.state.applyButtonClickCallback = fn;
+    };
+
+    presenter.setQuestionHTML = function (html) {
+        presenter.state.elements.questionText.innerHTML = html;
+    };
+
+    presenter.showQuestionModal = function () {
+        presenter.state.elements.questionContainer.style.display = 'block';
+        presenter.state.elements.questionBackground.style.display = 'block';
+    };
+
+    presenter.hideQuestionModal = function () {
+        presenter.state.elements.questionContainer.style.display = 'none';
+        presenter.state.elements.questionBackground.style.display = 'none';
+    };
+
+    presenter.sendEvent = function (evData) {
+        if (presenter.eventBus != undefined) {
+            presenter.eventBus.sendEvent('ValueChanged', evData);
+        }
+    };
+
+    presenter.disable = function () {
+        presenter.state.isDisabled = true;
+    };
+
+    presenter.enable = function () {
+        presenter.state.isDisabled = false;
+    };
+
+    presenter.getMistakeEventData = function () {
+        return {
+            source : presenter.configuration.addonID,
+            value: presenter.state.mistakes + '',
+            item: "mistake"
+        };
+    };
+
+    presenter.getOpenedDoorEventData = function (number) {
+        return {
+            source : presenter.configuration.addonID,
+            value: number + '',
+            item: "opened"
+        };
+    };
+
+    presenter.openedDoor = function (number) {
+        presenter.sendEvent(presenter.getOpenedDoorEventData(number));
+    };
+
+    presenter.getGatheredLetterEventData = function (letter) {
+        return {
+            source : presenter.configuration.addonID,
+            value: letter,
+            item: "gathered"
+        };
+    };
+
+    presenter.receivedLetter = function (letter) {
+        presenter.sendEvent(presenter.getGatheredLetterEventData(letter));
+    };
+
+    presenter.getFinishedMazeEventData = function (mazeNumber) {
+        return {
+            source: presenter.configuration.addonID,
+            value: '1',
+            item: mazeNumber + '',
+            score: 1
+        };
+    };
+
+    presenter.getFinishedAllMazeEventData = function () {
+        return {
+            source: presenter.configuration.addonID,
+            value: '1',
+            item: 'all',
+            score: 1
+        };
+    };
+
+    presenter.showEndGame = function () {
+        presenter.state.elements.endGame.style.display = 'block';
+    };
+
+    presenter.finishedMaze = function () {
+        if (presenter.state.actualGameIndex + 1 === presenter.configuration.numberOfMazes) {
+            presenter.state.actualGameIndex += 1;
+            presenter.showEndGame();
+            presenter.sendEvent(presenter.getFinishedAllMazeEventData());
+        } else {
+            presenter.getActualGame().destroy();
+            presenter.state.actualGameIndex += 1;
+            presenter.getActualGame().start(presenter.state.elements.gameContainer);
+            presenter.sendEvent(presenter.getFinishedMazeEventData(presenter.state.actualGameIndex));
+        }
+    };
+
+    presenter.setNextMazeButtonCallback = function (fn) {
+        presenter.state.nextMazeButtonCallback = fn;
+    };
+
+    presenter.showLettersAnswer = function (letters) {
+        presenter.state.elements.lettersAnswerBackground.style.display = 'block';
+        presenter.state.elements.lettersAnswerContainer.style.display = 'block';
+
+        presenter.state.elements.lettersContainer.innerHTML = '';
+        letters.forEach(function (element) {
+           var div = document.createElement('div');
+           div.classList.add("Maze_letters_letter_element");
+           div.innerText = element;
+           presenter.state.elements.lettersContainer.appendChild(div);
+        });
+
+    };
+
+    presenter.hideLettersAnswer = function () {
+        presenter.state.elements.lettersAnswerBackground.style.display = 'none';
+        presenter.state.elements.lettersAnswerContainer.style.display = 'none';
+    };
+
+    presenter.playerMistake = function () {
+        presenter.state.mistakes += 1;
+        presenter.state.errorCount += 1;
+
+        presenter.sendEvent(presenter.getMistakeEventData());
+
+        if (presenter.state.mistakes === 3) {
+            presenter.getActualGame().destroy();
+            presenter.initializeMaze();
+            presenter.state.mistakes = 0;
+        }
+    };
+
+    presenter.onNextMazeButtonClick = function () {
+        presenter.state.nextMazeButtonCallback.call(presenter.getActualGame());
+    };
+
     presenter.connectHandlers = function () {
-        presenter.view.getElementsByClassName('Maze-wrapper-menu-controls-up')[0].addEventListener('click', presenter.onUpButtonClick);
-        presenter.view.getElementsByClassName('Maze-wrapper-menu-controls-left')[0].addEventListener('click', presenter.onLeftButtonClick);
-        presenter.view.getElementsByClassName('Maze-wrapper-menu-controls-down')[0].addEventListener('click', presenter.onDownButtonClick);
-        presenter.view.getElementsByClassName('Maze-wrapper-menu-controls-right')[0].addEventListener('click', presenter.onRightButtonClick);
+        presenter.state.elements.upButton.addEventListener('click', presenter.moveUp);
+        presenter.state.elements.leftButton.addEventListener('click', presenter.moveLeft);
+        presenter.state.elements.downButton.addEventListener('click', presenter.moveDown);
+        presenter.state.elements.rightButton.addEventListener('click', presenter.moveRight);
+        presenter.state.elements.applyButton.addEventListener('click', presenter.onQuestionApplyButtonClick);
+        presenter.state.elements.lettersAnswerButton.addEventListener('click', presenter.onNextMazeButtonClick);
+    };
+
+    presenter.disconnectHandlers = function () {
+        presenter.state.elements.upButton.removeEventListener('click', presenter.moveUp);
+        presenter.state.elements.leftButton.removeEventListener('click', presenter.moveLeft);
+        presenter.state.elements.downButton.removeEventListener('click', presenter.moveDown);
+        presenter.state.elements.rightButton.removeEventListener('click', presenter.moveRight);
+        presenter.state.elements.applyButton.removeEventListener('click', presenter.onQuestionApplyButtonClick);
+        presenter.state.elements.lettersAnswerButton.removeEventListener('click', presenter.onNextMazeButtonClick);
     };
 
     presenter.executeCommand = function(name, params) {
         var commands = {
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'showAnswers' : presenter.showAnswers,
+            'hideAnswers' : presenter.hideAnswers,
+            'moveUp': presenter.moveUp,
+            'moveDown': presenter.moveDown,
+            'moveLeft': presenter.moveLeft,
+            'moveRight': presenter.moveRight,
+            'enable': presenter.enable,
+            'disable': presenter.disable
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -135,6 +437,40 @@ function AddonMaze_create () {
         };
     }
 
+    presenter.showAnswers = function () {
+        presenter.state.isShowingAnswers = true;
+
+        if (presenter.state.showingErrors) {
+            presenter.setWorkMode();
+        }
+    };
+
+    presenter.hideAnswers = function () {
+        presenter.state.isShowingAnswers = false;
+    };
+
+    presenter.setShowErrorsMode = function() {
+        presenter.state.isShowingErrors = true;
+
+        if (presenter.state.isShowingAnswers) {
+            presenter.hideAnswers();
+        }
+    };
+
+    presenter.setWorkMode = function () {
+        presenter.state.isShowingErrors = false;
+    };
+
+    presenter.onEventReceived = function (eventName) {
+        if (eventName === "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName === "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
     presenter.validateLabyrinthSize = function (model) {
         var validatedWidth = ModelValidationUtils.validatePositiveInteger(model.width);
         var validatedHeight = ModelValidationUtils.validatePositiveInteger(model.height);
@@ -145,6 +481,14 @@ function AddonMaze_create () {
 
         if (!validatedWidth.isValid) {
             return generateValidationError("WW01");
+        }
+
+        if (validatedWidth.value <= 5) {
+            return generateValidationError("WW02");
+        }
+
+        if (validatedHeight.value <= 5) {
+            return generateValidationError("WH02");
         }
 
         return {
@@ -238,20 +582,56 @@ function AddonMaze_create () {
             numberOfMazes: validatedNumberOfMazes.value,
 
             gameType: validatedLabyrinthType,
-            questions: validatedQuestions.value
+            questions: validatedQuestions.value,
+
+            addonID: model.ID,
+            hideControlPanel: ModelValidationUtils.validateBoolean(model['hideControlPanel']),
+            isDisabled: ModelValidationUtils.validateBoolean(model['isDisabled'])
         };
     };
 
     presenter.getState = function () {
         return JSON.stringify({
+            isDisabled: presenter.state.isDisabled,
+            actualGameIndex: presenter.state.actualGameIndex,
+            mistakes: presenter.state.mistakes,
+            errorCount: presenter.state.errorCount,
+            actualGame: presenter.getActualGame()? presenter.getActualGame().serialize(): null
         });
     };
 
     presenter.setState = function (state) {
         var object = JSON.parse(state);
+        if (object.actualGameIndex !== 0) {
+            presenter.getActualGame().destroy();
+        }
+
+        presenter.state.isDisabled = object.isDisabled;
+        presenter.state.actualGameIndex = object.actualGameIndex;
+        presenter.state.mistakes = object.mistakes;
+        presenter.state.errorCount = object.errorCount;
+
+        if (presenter.getActualGame()) {
+            if (object.actualGameIndex !== 0) {
+                presenter.getActualGame().start(presenter.state.elements.gameContainer);
+            }
+            presenter.getActualGame().deserialize(object.actualGame);
+        } else {
+            presenter.showEndGame();
+        }
+
     };
 
     presenter.reset = function () {
+        presenter.state.mistakes = 0;
+        presenter.state.isDisabled = presenter.configuration.isDisabled;
+        presenter.state.isShowingAnswers = false;
+        presenter.state.isShowingErrors = false;
+        
+        presenter.getActualGame().destroy();
+        presenter.state.games = [];
+
+        presenter.initializeMaze();
     };
 
     presenter.show = function () {
@@ -284,6 +664,19 @@ function AddonMaze_create () {
             y: 0
         };
     }
+
+    Game.prototype.serialize = function () {
+        return {
+            maze: this.maze.serialize(),
+            playerPosition: this.playerPosition
+        }
+    };
+
+    Game.prototype.deserialize = function (obj) {
+        this.playerPosition = obj.playerPosition;
+        this.maze.deserialize(obj.maze);
+    };
+
     /**
      * @param  {HTMLDivElement} container
      */
@@ -291,6 +684,13 @@ function AddonMaze_create () {
         this.maze.generate();
 
         container.appendChild(this.maze.getElement());
+    };
+
+    Game.prototype.destroy = function () {
+        this.maze.getElement().parentNode.removeChild(this.maze.getElement());
+        this.maze.mazeElements = [];
+        this.maze.rooms = [];
+        this.maze.walls = [];
     };
 
     /**
@@ -341,8 +741,9 @@ function AddonMaze_create () {
     };
 
     /**
-     *
+     * Call room callback if exists
      * @param {Room} room
+     * @returns {Boolean} true, if can go, false if something is there
      */
     Game.prototype.checkRoomCallback = function (room) {
         if (room.callback) {
@@ -350,6 +751,149 @@ function AddonMaze_create () {
         }
 
         return true;
+    };
+
+    function LetterGame (size, maxSize, questions) {
+        Game.call(this, size, maxSize);
+
+        this.questions = questions;
+
+        this.endLevelElement = document.createElement('div');
+        this.endLevelElement.classList.add('Maze_letters_end_level');
+        this.gatheredLettersCount = 0;
+        this.questionsPositions = [];   //Saving question as [index] = roomIndex, if roomIndex is null then question is resolved
+    }
+
+    LetterGame.prototype = Object.create(Game.prototype);
+
+    LetterGame.prototype.serialize = function () {
+        var gameObj = Game.prototype.serialize.call(this);
+
+        return {
+            gameObj: gameObj, 
+            gatheredLettersCount: this.gatheredLettersCount,
+            questionsPositions: this.questionsPositions
+        };
+    };
+
+    LetterGame.prototype.deserialize = function (obj) {
+        Game.prototype.deserialize.call(this, obj.gameObj);
+        
+        this.gatheredLettersCount = obj.gatheredLettersCount;
+        var longestPath = this.maze.getLongestPath();
+
+        this.createEndLevelElement(longestPath);
+        this.questionsPositions = obj.questionsPositions;
+
+        var self = this;
+        this.questionsPositions.forEach(function (element, index) {
+            if (element !== null) {
+                self.setLetterInRoom(self.maze.rooms[element], self.questions[index]);
+            }
+        });
+
+        this.movePlayerTo(this.maze.mazeElements[this.playerPosition.y][this.playerPosition.x]);
+    };
+
+    LetterGame.prototype.start = function (container) {
+        Game.prototype.start.call(this, container);
+
+        var longestPath = this.maze.getLongestPath();
+        this.movePlayerTo(longestPath[0]);
+        this.createEndLevelElement(longestPath);
+
+        var questions = this.questions.slice();
+
+        while(questions.length !== 0) {
+            var questionIndex = getRandomIndex(questions);
+
+            var question = questions.splice(questionIndex, 1)[0];
+            var counter = 0;
+
+            while (true) {
+                counter++;
+
+                var roomIndex = getRandomIndex(this.maze.rooms);
+                var room = this.maze.rooms[roomIndex];
+
+                if (room == longestPath[0]) {
+                    continue;
+                }
+
+                if (!room.hasCallback()) {
+                    this.setLetterInRoom(room, question);
+                    this.questionsPositions[this.questions.indexOf(question)] = roomIndex;
+                    break;
+                }
+
+                //Be sure that there never will be forever while
+                if (counter === 50) {
+                    return;
+                }
+            }
+        }
+    };
+
+    /**
+     *
+     * @param room {Room}
+     * @param question {{}}
+     */
+    LetterGame.prototype.setLetterInRoom = function (room, question) {
+        room.setCallback(this.onLetterEnterCallback.bind(this, question));
+
+        var paragraph = document.createElement('p');
+        paragraph.classList.add('Maze_letters_room_letter');
+        paragraph.innerText = question.letter;
+
+        room.getElement().appendChild(paragraph);        
+    };
+
+    LetterGame.prototype.onLetterEnterCallback = function (questionObj, room) {
+        presenter.setQuestionHTML(questionObj.question);
+        presenter.showQuestionModal();
+
+
+        var self = this;
+        presenter.setOnQuestionApplyCallback(function (value) {
+            if (value === questionObj.answer) {
+                self.gatheredLettersCount += 1;
+                room.removeCallback();
+                var letter = room.element.getElementsByClassName('Maze_letters_room_letter')[0];
+                letter.parentNode.removeChild(letter);
+
+                presenter.receivedLetter(questionObj.letter);
+                self.questionsPositions[self.questions.indexOf(questionObj)] = null;
+            } else {
+                presenter.playerMistake();
+            }
+
+            presenter.hideQuestionModal();
+        });
+    };
+
+    LetterGame.prototype.createEndLevelElement = function (longestPath) {
+        longestPath[longestPath.length - 1].element.appendChild(this.endLevelElement);
+        longestPath[longestPath.length - 1].setCallback(this.onEnterEndGame);
+    };
+
+    LetterGame.prototype.onEnterEndGame = function () {
+        var i,
+            letters = [];
+
+        if (this.questions.length !== this.gatheredLettersCount) {
+            return false;
+        }
+        
+        for (i = 0; i < this.questions.length; i += 1) {
+            letters.push(this.questions[i].letter);
+        }
+
+        presenter.showLettersAnswer(letters);
+        presenter.setNextMazeButtonCallback(function () {
+            presenter.finishedMaze();
+            presenter.hideLettersAnswer();
+        });
     };
 
     /**
@@ -370,6 +914,33 @@ function AddonMaze_create () {
 
     DiamondGame.prototype = Object.create(Game.prototype);
 
+    DiamondGame.prototype.serialize = function () {
+        var gameObj = Game.prototype.serialize.call(this);
+
+        return {
+            gameObj: gameObj, 
+            keysCount: this.keysCount
+        };
+    };
+
+    DiamondGame.prototype.deserialize = function (obj) {
+        Game.prototype.deserialize.call(this, obj.gameObj);
+
+        this.keysCount = obj.keysCount;
+        var longestPath = this.maze.getLongestPath(),
+            doorsCount = this.questions.length,
+            spaceBetween = ~~(longestPath.length / (doorsCount + 1));
+        
+        this.createTreasureElement(longestPath);
+        this.createDoors(longestPath);
+
+        for (var i = 0; i < this.keysCount; i++) {
+            this.openDoor(longestPath[(i + 1) * spaceBetween]);
+        }
+
+        this.movePlayerTo(this.maze.mazeElements[this.playerPosition.y][this.playerPosition.x]);        
+    };
+
     DiamondGame.prototype.start = function (container) {
         Game.prototype.start.call(this, container);
         var longestPath = this.maze.getLongestPath();
@@ -377,7 +948,6 @@ function AddonMaze_create () {
 
         this.createTreasureElement(longestPath);
         this.createDoors(longestPath);
-        
     };
 
     /**
@@ -419,24 +989,39 @@ function AddonMaze_create () {
      * @returns {boolean}
      */
     DiamondGame.prototype.onEnterDoor = function (room) {
-        if (this.keysCount > 0) {
-            this.keysCount -= 1;
+            presenter.setQuestionHTML(this.questions[this.keysCount].question);
+            presenter.showQuestionModal();
 
-            room.removeCallback();
 
-            var door = room.element.getElementsByClassName('Maze_door')[0];
-            door.parentNode.removeChild(door);
+            var self = this;
+            presenter.setOnQuestionApplyCallback(function (value) {
+                if (value === self.questions[self.keysCount].answer) {
+                    self.openDoor(room);
+                    self.keysCount += 1;
 
-            this.createOpenedDoorElement(room);
+                    presenter.openedDoor(self.keysCount);
+                } else {
+                    presenter.playerMistake();
+                }
 
-            return true;
-        } else {
-            return false;
-        }
+                presenter.hideQuestionModal();
+            });
     };
+
+    DiamondGame.prototype.openDoor = function (room) {
+        var door = room.element.getElementsByClassName('Maze_door')[0];
+        door.parentNode.removeChild(door);
+        this.createOpenedDoorElement(room);
+        room.removeCallback();
+    }
 
     DiamondGame.prototype.createTreasureElement = function (longestPath) {
         longestPath[longestPath.length - 1].element.appendChild(this.treasureElement);
+        longestPath[longestPath.length - 1].setCallback(this.onEnterTreasure);
+    };
+
+    DiamondGame.prototype.onEnterTreasure = function () {
+        presenter.finishedMaze();
     };
 
     /**
@@ -450,6 +1035,16 @@ function AddonMaze_create () {
 
         this.state = this.STATES.close;
     }
+
+    Wall.prototype.serialize = function () {
+        return {
+            state: this.state
+        };
+    };
+
+    Wall.prototype.deserialize = function (obj) {
+        this.state = obj.state;
+    };
 
     /**
      * close this wall
@@ -491,12 +1086,28 @@ function AddonMaze_create () {
         this.callback = null;
     }
 
+    Room.prototype.serialize = function () {
+        return {
+        };
+    };
+
+    Room.prototype.deserialize = function (obj) {
+    };
+
+    Room.prototype.hasCallback = function () {
+        return this.callback;
+    };
+
     Room.prototype.getElement = function() {
         return this.element;
     };
 
     Room.prototype.addWallClass = function (className) {
         this.walls.classList.add(className);
+    };
+
+    Room.prototype.getWallsElement = function () {
+        return this.walls;
     };
 
     Room.prototype.setCallback = function (callback) {
@@ -507,9 +1118,35 @@ function AddonMaze_create () {
         this.callback = null;
     };
 
+    Room.prototype.setDotElement = function (rotation) {
+        var dotDiv = document.createElement('div');
+        dotDiv.classList.add('Maze_room_left_top_dot');
+
+        dotDiv.style.webkitTransform = 'rotate(' + rotation + 'deg)';
+        dotDiv.style.mozTransform    = 'rotate(' + rotation + 'deg)';
+        dotDiv.style.msTransform     = 'rotate(' + rotation + 'deg)';
+        dotDiv.style.oTransform      = 'rotate(' + rotation + 'deg)';
+        dotDiv.style.transform       = 'rotate(' + rotation + 'deg)';
+
+        this.getElement().appendChild(dotDiv);
+    };
+
+    /**
+     * Helper for storing maze in memory as square
+     */
     function Edge () {
 
     }
+
+    Edge.prototype.serialize = function () {
+        return {
+
+        };
+    };
+
+    Edge.prototype.deserialize = function (obj) {
+
+    };
 
     /**
      * @class
@@ -524,7 +1161,7 @@ function AddonMaze_create () {
         this.ySize = size.height;
         this.maxSize = maxSize;
 
-        this.mazeElements = [];
+        this.mazeElements = []; //All elements in maze. This is {Edge|Wall|Room}[y][x]
 
         this.mainDiv = document.createElement('div');
         this.mainDiv.className += ' Maze_main_container';
@@ -533,10 +1170,45 @@ function AddonMaze_create () {
         this.walls = [];
         /**@type {Room[]} */
         this.rooms = [];
-
-        this.buildStruct();
     }
 
+    Maze.prototype.serialize = function () {
+        var elements = [];
+
+        this.mazeElements.forEach(function (row) {
+            var rowElements = [];
+            row.forEach(function(value) {
+                rowElements.push(value.serialize());
+            });
+
+            elements.push(rowElements);
+        });
+
+        return {
+            elements: elements
+        };
+    };
+
+    Maze.prototype.deserialize = function (mazeObj) {
+        this.getMazeElementsContainer().innerHTML = '';
+        this.walls = [];
+        this.rooms = [];
+        this.mazeElements = [];
+        this.buildStruct();
+
+        var self = this;
+        mazeObj.elements.forEach(function (rowObj, yIndex) {
+            rowObj.forEach(function (value, xIndex) {
+                self.mazeElements[yIndex][xIndex].deserialize(value);
+            });
+        });
+
+        this.setValidClasses();
+    };
+
+    /**
+     * Build structure of maze in memory
+     */
     Maze.prototype.buildStruct = function () {
             var i;
 
@@ -588,13 +1260,17 @@ function AddonMaze_create () {
             var room = new Room(this.rooms.length);
 
             this.rooms.push(room);
-            this.mainDiv.appendChild(room.getElement());
+            this.getMazeElementsContainer().appendChild(room.getElement());
 
             return room;
     };
 
     Maze.prototype.algorithms = {
         PRIMS: Prims
+    };
+
+    Maze.prototype.getMazeElementsContainer = function () {
+        return this.mazeElementsContainer;
     };
 
     /**
@@ -604,10 +1280,18 @@ function AddonMaze_create () {
     Maze.prototype.generate = function (algorithmName) {
         algorithmName = algorithmName || "PRIMS";
 
+        this.mazeElementsContainer = document.createElement('div');
+        this.mazeElementsContainer.classList.add('Maze_game_elements_container');
+
+        this.buildStruct();
+
+        this.getElement().appendChild(this.mazeElementsContainer);
+
         //Call algorithm to build maze
         this.algorithms[algorithmName](this);
 
         this.setValidClasses();
+
     };
 
     /**
@@ -624,6 +1308,11 @@ function AddonMaze_create () {
         return this.mainDiv;
     };
 
+    /**
+     * Set classes and styles for maze after generating valid maze.
+     * Each maze cell is image with correct class name and rotation.
+     * Sometimes cell contains single dot in corner to complete this corner.
+     */
     Maze.prototype.setValidClasses = function () {
         var i;
 
@@ -643,14 +1332,41 @@ function AddonMaze_create () {
 
             room.addWallClass(matchedClass.className);
 
-            room.getElement().style.webkitTransform = 'rotate(-' + matchedClass.rotation + 'deg)'; 
-            room.getElement().style.mozTransform    = 'rotate(-' + matchedClass.rotation + 'deg)'; 
-            room.getElement().style.msTransform     = 'rotate(-' + matchedClass.rotation + 'deg)'; 
-            room.getElement().style.oTransform      = 'rotate(-' + matchedClass.rotation + 'deg)'; 
-            room.getElement().style.transform       = 'rotate(-' + matchedClass.rotation + 'deg)'; 
+            room.getWallsElement().style.webkitTransform = 'rotate(-' + matchedClass.rotation + 'deg)';
+            room.getWallsElement().style.mozTransform    = 'rotate(-' + matchedClass.rotation + 'deg)';
+            room.getWallsElement().style.msTransform     = 'rotate(-' + matchedClass.rotation + 'deg)';
+            room.getWallsElement().style.oTransform      = 'rotate(-' + matchedClass.rotation + 'deg)';
+            room.getWallsElement().style.transform       = 'rotate(-' + matchedClass.rotation + 'deg)';
+
+            this.checkDotIsNeeded(1, 1, 0, room);
+            this.checkDotIsNeeded(-1, 1, 90, room);
+            this.checkDotIsNeeded(-1, -1, 180, room);
+            this.checkDotIsNeeded(1, -1, 270, room);
         }
     };
+
     /**
+     * Sometimes on connection between two walls is needed to put small image for valid display (in corner)
+     * @param xSign {Number} check x position with positive sign or negative
+     * @param ySign {Number} check y position with positive sign or negative
+     * @param rotation {Number}
+     * @param room {Room}
+     */
+    Maze.prototype.checkDotIsNeeded = function (xSign, ySign, rotation, room) {
+        var roomPosition = this.getRoomPosition(room);
+
+        if (this.mazeElements[roomPosition.y - (1 * ySign)] && this.mazeElements[roomPosition.y - (2 * ySign)]) {
+                var leftWall = this.mazeElements[roomPosition.y - (1 * ySign)][roomPosition.x - (2 * xSign)];
+                var topWall = this.mazeElements[roomPosition.y - (2 * ySign)][roomPosition.x - (1 * xSign)];
+                if (leftWall && topWall && leftWall.isClosed() && topWall.isClosed()) {
+                    room.setDotElement(rotation);
+                }
+            }
+    };
+
+    /**
+     * Rotate received walls and try match it to predefined values. Returns the best matched class name and rotation.
+     * Be sure that order is correct.
      * @param  {Wall[]} walls in order top, right, bottom, left
      */
     Maze.prototype.getCorrectClass = function (walls) {
@@ -798,6 +1514,11 @@ function AddonMaze_create () {
         return this.mazeElements[wallYPosition][wallXPosition].isOpened();
     };
 
+    /**
+     * Get longest path in maze.
+     * Algorithm: get random element and find longest path from it. Get last element from that longest path and find next longest path which is longest path in maze
+     * @returns {Array}
+     */
     Maze.prototype.getLongestPath = function () {
         var self = this;
         var bestAnswer = [];
@@ -831,7 +1552,11 @@ function AddonMaze_create () {
         return bestAnswer;
     };
 
-    /**
+    function getRandomIndex (array) {
+        return Math.floor(Math.random() * array.length);
+    }
+
+    /**http://weblog.jamisbuck.org/2011/1/10/maze-generation-prim-s-algorithm
      * @param  {Maze} maze
      */
     function Prims (maze) {
@@ -839,7 +1564,7 @@ function AddonMaze_create () {
         var selected = [];
 
         function initialize () {
-            var i = 0;
+            var i;
 
             for (i = 0; i < maze.getWallsCount(); i++) {
                 maze.walls[i].close();
@@ -850,14 +1575,10 @@ function AddonMaze_create () {
             selected.push(maze.rooms[0]);
         }
 
-        function getRandomRoomIndex (array) {
-            return Math.floor(Math.random() * array.length);
-        }
-
         initialize();
 
         while (roomsList.length !== 0) {
-            var roomIndex = getRandomRoomIndex(roomsList);
+            var roomIndex = getRandomIndex(roomsList);
             var room = roomsList.splice(roomIndex, 1)[0];
             var roomNeigh = maze.getRoomNeigh(room);
             var selectedNeight = [];
@@ -872,7 +1593,7 @@ function AddonMaze_create () {
                 }
             });
 
-            var connectWithIndex = getRandomRoomIndex(selectedNeight);
+            var connectWithIndex = getRandomIndex(selectedNeight);
             maze.openWallBetween(room, selectedNeight[connectWithIndex]);
             selected.push(room);
 
