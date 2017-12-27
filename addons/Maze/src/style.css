@@ -91,12 +91,12 @@
 
 .Maze_room {
     float: left;
-    /* margin: -1px; */
     -webkit-transform: rotate(0deg);
     -moz-transform: rotate(0deg);
     -ms-transform: rotate(0deg);
     -o-transform: rotate(0deg);
     transform: rotate(0deg);
+    background-color: white;
 }
 
 .Maze_room > div {
@@ -291,5 +291,5 @@
     transform: translateY(-50%);
     -webkit-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
-    font-size: 4em;
+    font-size: 1em;
 }
