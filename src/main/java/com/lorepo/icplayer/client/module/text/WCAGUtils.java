@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
@@ -48,20 +47,16 @@ public class WCAGUtils {
 	
 	// TODO change to ENUM
 	private static TextToSpeechVoice getElementStatus (TextElementDisplay element, TextModel model) {
-		JavaScriptUtils.log("[getElementStatus]: " + element.getGapState());
 		if (!element.isWorkingMode()) {
 			if (element.getGapState() == 1) {
-				JavaScriptUtils.log(element.getGapState() + " " + model.getSpeechTextItem(3));
 				return TextToSpeechVoice.create(model.getSpeechTextItem(3));
 			}
 			
 			if (element.getGapState() == 2) {
-				JavaScriptUtils.log(element.getGapState() + " " + model.getSpeechTextItem(4));
 				return TextToSpeechVoice.create(model.getSpeechTextItem(4));
 			}
 			
 			if (element.getGapState() == 3) {
-				JavaScriptUtils.log(element.getGapState() + " " + model.getSpeechTextItem(5));
 				return TextToSpeechVoice.create(model.getSpeechTextItem(5));
 			}
 		}
@@ -71,11 +66,7 @@ public class WCAGUtils {
 	
 	// TODO add speech texts
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<TextElementDisplay> textElements, String lang) {
-		String originalText = model.getOriginalText();
-		for (TextElementDisplay e: textElements) {
-			JavaScriptUtils.log("content: |" + e.getTextValue() + "| " + e.isWorkingMode() + " " + e.getGapState());
-		}
-		
+		final String originalText = model.getOriginalText();
 		final String noHTML = originalText.replaceAll("\\<.*?>", " ").replaceAll("&nbsp;", " ");
 		String text = noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if mare than 1
 		int gapNumber = 1;

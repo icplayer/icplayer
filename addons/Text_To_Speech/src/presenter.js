@@ -67,11 +67,6 @@ function AddonText_To_Speech_create() {
             return getErrorObject(validatedConfiguration.errorCode);
         }
 
-        var validatedLanguage = parseLanguage(model['language']);
-        if (!validatedLanguage.isValid) {
-            return getErrorObject(validatedLanguage.errorCode);
-        }
-
         return {
             ID: model.ID,
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
@@ -79,8 +74,7 @@ function AddonText_To_Speech_create() {
 
             addOnsConfiguration: validatedConfiguration.value,
             enterText: model['EnterText'],
-            exitText: model['ExitText'],
-            language: validatedLanguage.value
+            exitText: model['ExitText']
         }
     };
 
@@ -153,36 +147,26 @@ function AddonText_To_Speech_create() {
         return languages[langTag] || 'UK English Male';
     }
 
-    // For SynthesisAPI
-    function getLanguageObject (lang) {
+    function getSpeechSynthesisLanguage (langTag) {
+        if (!langTag) {
+            // get lang from document <html lang="">
+            langTag = document.documentElement.lang;
+        }
+
         loadVoices();
-        for (var i = 0; i < presenter.configuration.voices.length; i++) {
-            if (presenter.configuration.voices[i].lang === lang) {
+        for (var i=0; i<presenter.configuration.voices.length; i++) {
+            if (presenter.configuration.voices[i].lang === langTag) {
                 return presenter.configuration.voices[i];
             }
         }
 
-        return presenter.configuration.voices[0];
+        return 'en';
     }
-
-    // presenter.speak = function (text, langTag, callback) {
-    //     if (text) {
-    //         if (callback && callback.text) {
-    //             window.responsiveVoice.speak(text, getResponsiveVoiceLanguage(langTag), {
-    //                 onend: function () {
-    //                     window.responsiveVoice.speak(callback.text, getResponsiveVoiceLanguage(callback.lang))
-    //                 }
-    //             });
-    //         } else {
-    //             window.responsiveVoice.speak(text, getResponsiveVoiceLanguage(langTag));
-    //         }
-    //     }
-    // };
 
     function filterTexts (texts, languageGetter) {
         return texts.map(function (t) {
             return {
-                lang: t.lang ? languageGetter(t.lang) : '',
+                lang: languageGetter(t.lang),
                 text: t.text ? t.text : ''
             };
         }).filter(function (t) { return t.text !== '' });
@@ -190,12 +174,7 @@ function AddonText_To_Speech_create() {
 
     // https://responsivevoice.org/
     function responsiveVoiceSpeak (texts) {
-        var textsObjects = texts.map(function (t) {
-            return {
-                lang: getResponsiveVoiceLanguage(t.lang ? t.lang : ''),
-                text: t.text ? t.text: ''
-            };
-        }).filter(function (t) { return t.text !== '' });
+        var textsObjects = filterTexts(texts, getResponsiveVoiceLanguage);
 
         var onEndStack = { onend: null };
         for (var i=textsObjects.length-1; i>=0; i--) {
@@ -213,8 +192,21 @@ function AddonText_To_Speech_create() {
         }
     }
 
+    // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
     function speechSynthesisSpeak (texts) {
-        // TODO
+        var textsObjects = filterTexts(texts, getSpeechSynthesisLanguage);
+
+        for (var i=0; i<textsObjects.length; i++) {
+            var textObject = textsObjects[i];
+
+            var msg = new SpeechSynthesisUtterance(textObject.text);
+            msg.volume = parseFloat(1); // 0 - 1
+            msg.rate = parseFloat(1); // 0 - 10
+            msg.pitch = parseFloat(1); // 0 - 2
+            msg.voice = textObject.lang;
+
+            window.speechSynthesis.speak(msg);
+        }
     }
 
     presenter.speak = function (texts) {
@@ -230,34 +222,6 @@ function AddonText_To_Speech_create() {
 
         console.log(texts);
     };
-
-    // responsiveVoice with language from property
-    // presenter.speak = function (text) {
-    //     text = parseGaps(text);
-    //
-    //     var languageCode = 'UK English Male';
-    //
-    //     switch (presenter.configuration.language) {
-    //         case 'en-US': languageCode = 'UK English Male'; break;
-    //         case 'pl-PL': languageCode = 'Polish Female'; break;
-    //         case 'de-DE': languageCode = 'Deutsch Female'; break;
-    //     }
-    //
-    //     window.responsiveVoice.speak(text, languageCode);
-    // };
-
-    // synthesis API with language from property
-    // presenter.speak = function (text) {
-    //     text = parseGaps(text);
-    //
-    //     var msg = new SpeechSynthesisUtterance(text);
-    //     msg.volume = parseFloat(1); // 0 - 1
-    //     msg.rate = parseFloat(1); // 0 - 10
-    //     msg.pitch = parseFloat(1); // 0 - 2
-    //     msg.voice = getLanguageObject(presenter.configuration.language);
-    //
-    //     window.speechSynthesis.speak(msg);
-    // };
 
     presenter.playTitle = function (area, id, langTag) {
         if (area && id) {
@@ -318,7 +282,9 @@ function AddonText_To_Speech_create() {
     presenter.getState = function () {
         return JSON.stringify({
             addOnsConfiguration: presenter.configuration.addOnsConfiguration,
-            language: presenter.configuration.language,
+            enterText: presenter.configuration.enterText,
+            exitText: presenter.configuration.exitText,
+
             isVisible: presenter.configuration.isVisible
         });
     };
@@ -331,12 +297,14 @@ function AddonText_To_Speech_create() {
         var parsedState = JSON.parse(state);
 
         presenter.configuration.addOnsConfiguration = parsedState.addOnsConfiguration;
-        presenter.configuration.language = parsedState.language;
-        presenter.configuration.isVisible = parsedState.isVisible;
+        presenter.configuration.enterText = parsedState.enterText;
+        presenter.configuration.exitText = parsedState.exitText;
 
+        presenter.configuration.isVisible = parsedState.isVisible;
         presenter.setVisibility(presenter.configuration.isVisible);
     };
 
+    // TODO
     presenter.destroy = function () {
         presenter.$view[0].removeEventListener('DOMNodeRemoved', presenter.destroy);
 

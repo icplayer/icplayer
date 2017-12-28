@@ -21,16 +21,6 @@ public class TextToSpeechAPI {
 		}
 	}-*/;
 	
-	public static native void playDescription (JavaScriptObject obj, String id, String langTag) /*-{
-		try {
-			if (obj && obj.playDescription) {
-				obj.playDescription('main', id, langTag);
-			}
-		} catch(err) {
-			alert("[TextToSpeech1] Exception in playDescription(): \n" + err);
-		}
-	}-*/;
-	
 	public static void speak (JavaScriptObject obj, List<TextToSpeechVoice> voiceTexts) {
 		nativeSpeak(obj, JavaScriptUtils.textToSpeechVoicesObjectToJavaScriptArray(voiceTexts));
 	}
