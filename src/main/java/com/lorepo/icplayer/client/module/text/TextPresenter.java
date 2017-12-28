@@ -67,6 +67,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String getGapType();
 		void select();
 		void deselect();
+		boolean isWorkingMode();
+		int getGapState();
 	}
 
 	public interface IDisplay extends IModuleView {

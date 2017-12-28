@@ -16,17 +16,20 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TextBox;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
-public class GapWidget extends TextBox implements TextElementDisplay{
 
+public class GapWidget extends TextBox implements TextElementDisplay {
 	private final GapInfo gapInfo;
 	private boolean isDisabled = false;
 	private String gapId = "";
 	private String text = "";
 	private boolean firstSend = true;
 	private boolean isSelected = false;
-
+	private boolean isWorkingMode = true;
+	private int gapState = 0;
+	
 	public GapWidget(GapInfo gi, final ITextViewListener listener){
 
 		super(DOM.getElementById(gi.getId()));
@@ -139,12 +142,16 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		if (isActivity) {
 			String text = getText().trim();
 			if (text.length() > 0) {
+				this.isWorkingMode = false;
 				if (gapInfo.isCorrect(text)) {
 					addStyleDependentName("correct");
+					this.gapState = 1;
 				} else {
 					addStyleDependentName("wrong");
+					this.gapState = 2;
 				}
 			} else {
+				this.isWorkingMode = true;
 				addStyleDependentName("empty");
 			}
 		}
@@ -154,6 +161,8 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 	@Override
 	public void setWorkMode() {
+		this.gapState = 0;
+		this.isWorkingMode = true;
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
@@ -163,10 +172,7 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 	@Override
 	public void reset() {
 		setText("");
-		removeStyleDependentName("correct");
-		removeStyleDependentName("wrong");
-		removeStyleDependentName("empty");
-		setEnabled(!isDisabled);
+		this.setWorkMode();
 		this.text = "";
 		this.gapId = "";
 		this.firstSend = true;
@@ -178,14 +184,19 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 	}
 
 	@Override
-	public void markGapAsCorrect() {
+	public void markGapAsCorrect () {
+		this.gapState = 1;
+		this.isWorkingMode = false;
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
 		addStyleDependentName("correct");
 	}
 
 	@Override
-	public void markGapAsWrong() {
+	public void markGapAsWrong () {
+		JavaScriptUtils.log("markGapAsWrong");
+		this.gapState = 2;
+		this.isWorkingMode = false;
 		removeStyleDependentName("correct");
 		removeStyleDependentName("empty");
 		addStyleDependentName("wrong");
@@ -193,6 +204,8 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 
 	@Override
 	public void markGapAsEmpty() {
+		this.gapState = 3;
+		this.isWorkingMode = false;
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		addStyleDependentName("empty");
@@ -232,18 +245,13 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 	}
 
 	@Override
-	public void removeDefaultStyle() {	
-	}
+	public void removeDefaultStyle() {}
 
 	@Override
-	public void setDroppedElement(String element) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void setDroppedElement(String element) {}
 
 	@Override
 	public String getDroppedElement() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -271,7 +279,6 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		this.addStyleName("keyboard_navigation_active_element");
 		this.addStyleName("keyboard_navigation_active_element_text");
 		this.isSelected = true;
-		
 	}
 
 	@Override
@@ -281,7 +288,15 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 		this.isSelected = false;
 	}
 	
-	public boolean isSelected() {
+	public boolean isSelected () {
 		return this.isSelected;
+	}
+	
+	public boolean isWorkingMode () {
+		return this.isWorkingMode;
+	}
+	
+	public int getGapState () {
+		return this.gapState;
 	}
 }

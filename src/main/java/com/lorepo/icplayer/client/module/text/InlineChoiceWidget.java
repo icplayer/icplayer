@@ -25,6 +25,8 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	private PageController pageController;
 	private boolean isSelected = false;
 	private String langTag = "";
+	private boolean isWorkingMode = true;
+	private int gapState = 0;
 
 	public InlineChoiceWidget (InlineChoiceInfo gi, final ITextViewListener listener) {
 
@@ -99,17 +101,20 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	@Override
 	public void setStyleShowAnswers() {
+		this.gapState = 1;
 		addStyleDependentName("correct-answer");
 		setEnabled(false);
 	}
 
 	@Override
 	public void removeStyleHideAnswers() {
+		this.gapState = 0;
 		removeStyleDependentName("correct-answer");
 		setEnabled(true);
 	}
 
 	public void setWorkMode() {
+		this.isWorkingMode = true;
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
@@ -118,11 +123,8 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	public void reset() {
 		setSelectedIndex(0);
-		removeStyleDependentName("correct");
-		removeStyleDependentName("wrong");
-		removeStyleDependentName("empty");
 		addStyleName("ic_inlineChoice-default");
-		setEnabled(!isDisabled);
+		setWorkMode();
 	}
 
 	public void setText(String value) {
@@ -143,6 +145,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	@Override
 	public void markGapAsCorrect() {
+		this.gapState = 1;
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
 		addStyleDependentName("correct");
@@ -150,6 +153,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	@Override
 	public void markGapAsWrong() {
+		this.gapState = 2;
 		if (!getTextValue().equals("---")) {
 			removeStyleDependentName("correct");
 			removeStyleDependentName("empty");
@@ -164,6 +168,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	@Override
 	public void markGapAsEmpty() {
+		this.gapState = 3;
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("correct");
 		addStyleDependentName("empty");
@@ -246,5 +251,15 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	public void setLang(String langTag) {
 		this.langTag = langTag;
+	}
+
+	@Override
+	public boolean isWorkingMode() {
+		return this.isWorkingMode;
+	}
+
+	@Override
+	public int getGapState() {
+		return this.gapState;
 	}
 }

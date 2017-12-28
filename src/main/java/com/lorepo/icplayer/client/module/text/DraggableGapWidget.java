@@ -26,6 +26,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private String droppedElementHelper = "";
 	private boolean isShowAnswersMode = false;
 	private boolean isSelected = false;
+	private int gapState = 0;
 
 	public DraggableGapWidget(GapInfo gi, final ITextViewListener listener) {
 		super(DOM.getElementById(gi.getId()));
@@ -231,6 +232,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 
 	@Override
 	public void markGapAsCorrect() {
+		this.gapState = 1;
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
 		addStyleDependentName("correct");
@@ -238,6 +240,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 
 	@Override
 	public void markGapAsWrong() {
+		this.gapState = 2;
 		removeStyleDependentName("correct");
 		removeStyleDependentName("empty");
 		addStyleDependentName("wrong");
@@ -255,6 +258,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 
 	@Override
 	public void markGapAsEmpty() {
+		this.gapState = 3;
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		addStyleDependentName("empty");
@@ -286,12 +290,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 
 	@Override
 	public void setEnableGap(boolean enable) {
-		setDisabled(!enable);		
+		setDisabled(!enable);
 	}
 
 	@Override
-	public void removeDefaultStyle() {
-	}
+	public void removeDefaultStyle() {}
 	
 	private void setFocus(boolean focus) {
 		if (focus) {
@@ -326,5 +329,15 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 
     public boolean isSelected() {
 		return this.isSelected;
+	}
+
+	@Override
+	public boolean isWorkingMode() {
+		return this.isWorkMode;
+	}
+
+	@Override
+	public int getGapState() {
+		return this.gapState;
 	}
 }

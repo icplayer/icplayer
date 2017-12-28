@@ -135,6 +135,7 @@ public class TextModel extends BasicModuleModel {
 					this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(textElement, "dropdown"));
 					this.speechTextItems.get(3).setText(XMLUtils.getAttributeAsString(textElement, "correct"));
 					this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(textElement, "wrong"));
+					this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(textElement, "empty"));
 					langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
 					
 					if (rawText == null) {
@@ -183,7 +184,6 @@ public class TextModel extends BasicModuleModel {
 
 	@Override
 	public String toXML() {
-
 		String xml = "<textModule " + getBaseXML() + ">" + getLayoutXML();
 		xml += "<text draggable='" + useDraggableGaps + "' " +
 				"math='" + useMathGaps + "' " +
@@ -203,6 +203,7 @@ public class TextModel extends BasicModuleModel {
 				"' dropdown='" + this.speechTextItems.get(2).getText() +
 				"' correct='" + this.speechTextItems.get(3).getText() +
 				"' wrong='" + this.speechTextItems.get(4).getText() +
+				"' empty='" + this.speechTextItems.get(5).getText() +
 				"' langAttribute='" + this.langAttribute +
 				"'><![CDATA[" + moduleText + "]]></text>";
 		xml += "</textModule>";
@@ -856,6 +857,7 @@ public class TextModel extends BasicModuleModel {
 				speechTextItems.add(new SpeechTextsStaticListItem("dropdown"));
 				speechTextItems.add(new SpeechTextsStaticListItem("correct"));
 				speechTextItems.add(new SpeechTextsStaticListItem("wrong"));
+				speechTextItems.add(new SpeechTextsStaticListItem("empty"));
 			}
 
 			@Override
@@ -985,6 +987,10 @@ public class TextModel extends BasicModuleModel {
 				return "wrong";
 			}
 			
+			if (index == 5) {
+				return "empty";
+			}
+			
 			return "";
 		}
 		
@@ -996,7 +1002,6 @@ public class TextModel extends BasicModuleModel {
 	}
 	
 	public String getOriginalText () {
-		JavaScriptUtils.log("getOriginalText: " + this.originalText);
 		return this.originalText;
 	}
 	

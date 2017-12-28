@@ -497,8 +497,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 	
 	private void readTextContent () {
-		final String readableText = WCAGUtils.getReadableText(this.module.getOriginalText(), this.textElements);
-		this.speak(TextToSpeechVoice.create(readableText, this.module.getLangAttribute()));
+		final List<TextToSpeechVoice> result = WCAGUtils.getReadableText(this.module, this.textElements, this.module.getLangAttribute());
+		this.speak(result);
 	}
 	
 	private void speak (TextToSpeechVoice t1) {

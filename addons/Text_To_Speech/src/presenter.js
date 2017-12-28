@@ -39,27 +39,6 @@ function AddonText_To_Speech_create() {
         DEFAULT: 'Main'
     };
 
-    presenter.INPUTS_TRANSLATIONS = {
-        'en-US': {
-            '1': 'Gap number ',
-            '2': 'Option gap number ',
-            '3': 'Math gap number ',
-            '4': 'Filled gap number '
-        },
-        'pl-PL': {
-            '1': 'Luka numer ',
-            '2': 'Opcja wielokrotnego wyboru numer ',
-            '3': 'Luka matematyczna numer ',
-            '4': 'Wypełniona luka numer '
-        },
-        'de-DE': {
-            '1': 'Gap number ',
-            '2': 'Option gap number ',
-            '3': 'Math gap number ',
-            '4': 'Filled gap number '
-        }
-    };
-
     function parseConfiguration(configuration) {
         if (!configuration) {
             return getErrorObject('C01');
@@ -105,7 +84,7 @@ function AddonText_To_Speech_create() {
         }
     };
 
-    function loadVoices() {
+    function loadVoices () {
         presenter.configuration.voices = window.speechSynthesis.getVoices();
     }
 
@@ -158,33 +137,6 @@ function AddonText_To_Speech_create() {
         return {title: '', description: ''};
     }
 
-    function parseGaps (text) {
-        var gap = 0;
-        var option = 0;
-        var math = 0;
-        var filledGap = 0;
-
-        while (text.indexOf('#1#') !== -1 || text.indexOf('#2#') !== -1 || text.indexOf('#3#') !== -1 || text.indexOf('#4#') !== -1) {
-            if (text.indexOf('#1#') !== -1) {
-                text = text.replace('#1#', ' ' + presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['1'] + ++gap + ' ');
-            }
-
-            if (text.indexOf('#2#') !== -1) {
-                text = text.replace('#2#', ' ' + presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['2'] + ++option + ' ');
-            }
-
-            if (text.indexOf('#3#') !== -1) {
-                text = text.replace('#3#', ' ' + presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['3'] + ++math + ' ');
-            }
-
-            if (text.indexOf('#4#') !== -1) {
-                text = text.replace('#4#', ' ' + presenter.INPUTS_TRANSLATIONS[presenter.configuration.language]['4'] + ++filledGap + ' ');
-            }
-        }
-
-        return text;
-    }
-
     function getResponsiveVoiceLanguage (langTag) {
         if (!langTag) {
             // get lang from document <html lang="">
@@ -214,8 +166,6 @@ function AddonText_To_Speech_create() {
     }
 
     // presenter.speak = function (text, langTag, callback) {
-    //     text = parseGaps(text); // TODO przeniesc operację do playera/Text
-    //
     //     if (text) {
     //         if (callback && callback.text) {
     //             window.responsiveVoice.speak(text, getResponsiveVoiceLanguage(langTag), {
@@ -229,11 +179,21 @@ function AddonText_To_Speech_create() {
     //     }
     // };
 
-    presenter.speak = function (texts) {
+    function filterTexts (texts, languageGetter) {
+        return texts.map(function (t) {
+            return {
+                lang: t.lang ? languageGetter(t.lang) : '',
+                text: t.text ? t.text : ''
+            };
+        }).filter(function (t) { return t.text !== '' });
+    }
+
+    // https://responsivevoice.org/
+    function responsiveVoiceSpeak (texts) {
         var textsObjects = texts.map(function (t) {
             return {
                 lang: getResponsiveVoiceLanguage(t.lang ? t.lang : ''),
-                text: t.text ? parseGaps(t.text): '' // TODO przeniesc operację do playera/Text
+                text: t.text ? t.text: ''
             };
         }).filter(function (t) { return t.text !== '' });
 
@@ -251,6 +211,24 @@ function AddonText_To_Speech_create() {
                 })($.extend({}, textObject), $.extend({}, onEndStack));
             }
         }
+    }
+
+    function speechSynthesisSpeak (texts) {
+        // TODO
+    }
+
+    presenter.speak = function (texts) {
+        if (window.responsiveVoice) {
+            responsiveVoiceSpeak(texts);
+            return;
+        }
+
+        if ('speechSynthesis' in window) {
+            speechSynthesisSpeak(texts);
+            return;
+        }
+
+        console.log(texts);
     };
 
     // responsiveVoice with language from property
@@ -280,28 +258,6 @@ function AddonText_To_Speech_create() {
     //
     //     window.speechSynthesis.speak(msg);
     // };
-
-    presenter.getGapAppearanceAtIndexOfType = function (gaps, gapNumber) {
-        var index = 0;
-
-        for (var i = 0; i < gapNumber; i++) {
-            if (gaps[i] === gaps[gapNumber - 1]) {
-                index++;
-            }
-        }
-
-        return index;
-    };
-
-    presenter.readGap = function (text, currentGapContent, gapNumber) {
-        var gaps = text.match(/#[1-4]#/g);
-        var gapTypeNumber = gaps[gapNumber][1];
-
-        var gapTypeRead = presenter.INPUTS_TRANSLATIONS[presenter.configuration.language][gapTypeNumber];
-        var gapNumberRead = presenter.getGapAppearanceAtIndexOfType(gaps, gapNumber) + 1;
-
-        presenter.speak([gapTypeRead + ' ' + gapNumberRead + ' ' + currentGapContent]);
-    };
 
     presenter.playTitle = function (area, id, langTag) {
         if (area && id) {
@@ -348,9 +304,9 @@ function AddonText_To_Speech_create() {
         var commands = {
             "show": presenter.show,
             "hide": presenter.hide,
-            "playTitle": presenter.playTitle,
+
             "speak": presenter.speak,
-            "readGap": presenter.readGap,
+            "playTitle": presenter.playTitle,
             "playEnterText": presenter.playEnterText,
             "playExitText": presenter.playExitText,
             "getModulesOrder": presenter.getModulesOrder
