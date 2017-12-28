@@ -9,7 +9,6 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
  *
  */
 public interface IModuleListListener {
-
 	void onModuleChanged(IModuleModel module);
 	void onModuleAdded(IModuleModel module);
 	void onModuleRemoved(IModuleModel module);

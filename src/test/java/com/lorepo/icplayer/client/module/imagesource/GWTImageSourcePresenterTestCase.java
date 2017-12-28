@@ -2,11 +2,14 @@ package com.lorepo.icplayer.client.module.imagesource;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
+import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
 import com.googlecode.gwt.test.GwtModule;
@@ -16,11 +19,12 @@ import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Content;
-import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PageView;
 import com.lorepo.icplayer.client.ui.PlayerView;
+import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTImageSourcePresenterTestCase extends GwtTest{
@@ -34,9 +38,21 @@ public class GWTImageSourcePresenterTestCase extends GwtTest{
 	
 	private PlayerController playerController;
 	
+	private Content initContentFromFile(String path) throws SAXException, IOException {
+		InputStream inputStream = getClass().getResourceAsStream(path);
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+	
+		ContentParser_v0 parser = new ContentParser_v0();
+		parser.setPagesSubset(new ArrayList<Integer> ());
+		return (Content) parser.parse(element);
+	}
+	
+	
 	@Before
 	public void runBeforeEveryTest() throws Exception {
-		Content content = new Content();
+		Content content = initContentFromFile("testdata/content4.xml");
+		
 		PlayerView view = new PlayerView();
 		PlayerEntryPoint playerEntryPoint = new PlayerEntryPoint();
 		
@@ -45,12 +61,12 @@ public class GWTImageSourcePresenterTestCase extends GwtTest{
 		playerController = new PlayerController(content, view, false, playerEntryPoint);
 		
 		PageController mainPageController = new PageController(this.playerController);
+		mainPageController.setContent(content);
 		
 		mainPageView = new PageView("main");
 		
 		mainPageController.setView(mainPageView);
 		mainPageController.setPage(main);	
-			
 		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
@@ -98,7 +114,7 @@ public class GWTImageSourcePresenterTestCase extends GwtTest{
 		}
 		
 		module = new ImageSourceModule();
-		module.load(element, "");
+		module.load(element, "", "2");
 		
 		display = new SomeToMock(module, false); 	
 		presenter = new ImageSourcePresenter(module, services);

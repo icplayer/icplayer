@@ -17,6 +17,8 @@ import com.lorepo.icplayer.client.module.ordering.mockup.OrderingViewMockup;
 
 public class PresenterTestCase {
 
+	private static final String PAGE_VERSION = "2";
+
 	@Test
 	public void getState() throws SAXException, IOException {
 		InputStream inputStream = getClass().getResourceAsStream("testdata/orderingPresenter.xml");
@@ -24,7 +26,7 @@ public class PresenterTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		OrderingModule module = new OrderingModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		PlayerServicesMockup services = new PlayerServicesMockup();
 		OrderingViewMockup display = new OrderingViewMockup();
@@ -50,7 +52,7 @@ public class PresenterTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		OrderingModule module = new OrderingModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		PlayerServicesMockup services = new PlayerServicesMockup();
 		OrderingViewMockup display = new OrderingViewMockup();
@@ -70,7 +72,7 @@ public class PresenterTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		OrderingModule module = new OrderingModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		PlayerServicesMockup services = new PlayerServicesMockup();
 		OrderingViewMockup display = new OrderingViewMockup();

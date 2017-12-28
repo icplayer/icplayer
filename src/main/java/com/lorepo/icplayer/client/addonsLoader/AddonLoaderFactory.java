@@ -8,9 +8,6 @@ import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptorFactory;
 
 public class AddonLoaderFactory {
-	
-
-
 	private AddonDescriptorFactory localAddons;
 	private String baseUrl;
 	

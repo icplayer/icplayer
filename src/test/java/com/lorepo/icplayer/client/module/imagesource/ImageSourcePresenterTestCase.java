@@ -33,7 +33,7 @@ public class ImageSourcePresenterTestCase {
 	private ImageSourceViewMockup display;
 	private ImageSourcePresenter presenter;
 	private DraggableItem draggableItem;
-	
+	private static final String PAGE_VERSION = "2";
 	
 	@Before
 	public void runBeforeEveryTest() throws SAXException, IOException {
@@ -43,7 +43,7 @@ public class ImageSourcePresenterTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		module = new ImageSourceModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new ImageSourceViewMockup(module);
@@ -199,7 +199,7 @@ public class ImageSourcePresenterTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		module = new ImageSourceModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new ImageSourceViewMockup(module);

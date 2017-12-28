@@ -1,9 +1,14 @@
 package com.lorepo.icplayer.client.page.mockup;
 
+import java.util.HashMap;
+import java.util.Set;
+
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyListener;
+import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
@@ -191,11 +196,6 @@ public class ModuleModelMockup implements IModuleModel {
 		
 	}
 
-	@Override
-	public void load(Element node, String baseUrl) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public String toXML() {
@@ -247,6 +247,49 @@ public class ModuleModelMockup implements IModuleModel {
 	}
 
 	@Override
+	public void load(Element node, String baseURL, String version) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setSemiResponsiveLayoutID(String semiResponsiveLayoutID) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public HashMap<String, ModuleDimensions> getResponsiveLayouts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addSemiResponsiveDimensions(String name,
+			ModuleDimensions dimensions) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void syncSemiResponsiveLayouts(
+			Set<PageLayout> actualSemiResponsiveLayouts) {
+	}
+
+	@Override
+	public void copyConfiguration(String lastSeenLayout) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void syncSemiResponsiveStyles(
+			Set<PageLayout> actualSemiResponsiveLayouts) {
+		// TODO Auto-generated method stub
+
+	}
+
+    @Override
 	public boolean isTabindexEnabled() {
 		// TODO Auto-generated method stub
 		return false;
@@ -255,7 +298,6 @@ public class ModuleModelMockup implements IModuleModel {
 	@Override
 	public void setIsTabindexEnabled(boolean value) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 }

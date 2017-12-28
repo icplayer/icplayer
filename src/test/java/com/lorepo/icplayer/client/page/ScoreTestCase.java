@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.mockito.Mockito;
 
-import com.lorepo.icplayer.client.model.Page.ScoringType;
+import com.lorepo.icplayer.client.model.page.Page.ScoringType;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.page.Score.Result;
 

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<choiceModule id='Choice2' left='5' top='5' width='90' height='60' style='' class='choice_multi'>
+	<choice isMulti='true'/>
+	<options>
+		<option value='1'>
+			<text>This is the correct answer.</text>
+			<feedback>Feedback 1</feedback>
+		</option>
+		<option value='0'>
+			<text>&lt;span id=&quot;result_box&quot; class=&quot;short_text&quot; lang=&quot;en&quot;&gt;&lt;span class=&quot;hps&quot;&gt;This&lt;/span&gt; &lt;span class=&quot;hps&quot;&gt;is the&lt;/span&gt; &lt;span class=&quot;hps&quot;&gt;wrong&lt;/span&gt; &lt;span class=&quot;hps&quot;&gt;answer.&lt;/span&gt;&lt;/span&gt;</text><feedback></feedback>
+		</option>
+		<option value='0'>
+			<text>&lt;span id=&quot;result_box&quot; class=&quot;short_text&quot; lang=&quot;en&quot;&gt;&lt;span class=&quot;hps&quot;&gt;This&lt;/span&gt; &lt;span class=&quot;hps&quot;&gt;is the&lt;/span&gt; &lt;span class=&quot;hps&quot;&gt;wrong&lt;/span&gt; &lt;span class=&quot;hps&quot;&gt;answer.&lt;/span&gt;&lt;/span&gt; &lt;span class=&quot;hps&quot;&gt;&lt;/span&gt;&lt;span class=&quot;hps&quot;&gt;&lt;/span&gt;</text>
+			<feedback></feedback>
+		</option>
+		<option value='1'>
+			<text>This is the correct answer.</text>
+			<feedback></feedback>
+		</option>
+		<option value='0'>
+			<text>&lt;span id=&quot;result_box&quot; class=&quot;short_text&quot; lang=&quot;en&quot;&gt;&lt;span class=&quot;hps&quot;&gt;This&lt;/span&gt; &lt;span class=&quot;hps&quot;&gt;is the&lt;/span&gt; &lt;span class=&quot;hps&quot;&gt;wrong&lt;/span&gt; &lt;span class=&quot;hps&quot;&gt;answer.&lt;/span&gt;&lt;/span&gt;</text>
+			<feedback>Feedback 2</feedback>
+		</option>
+		<option value='1'>
+			<text>This is the correct answer.</text>
+			<feedback></feedback>
+		</option>
+	</options>
+</choiceModule>

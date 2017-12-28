@@ -15,8 +15,8 @@ import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLLoader;
-import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
+import com.lorepo.icplayer.client.model.page.Page;
 
 public class PagePopupPanel extends DialogBox {
 
@@ -46,7 +46,7 @@ public class PagePopupPanel extends DialogBox {
 		else{
 			loadPage(page, baseUrl);
 		}
-		
+
 		popupName = page.getName();
 	}
 
@@ -306,7 +306,7 @@ public class PagePopupPanel extends DialogBox {
 	public void setPagePlayerController(PageController openingPageController) {
 		this.openingPageController = openingPageController;
 	}
-	
+
 	public void close() {
 		removeHoveringFromButtons();
 		hide();

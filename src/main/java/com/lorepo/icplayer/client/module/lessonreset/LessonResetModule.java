@@ -149,10 +149,7 @@ private boolean resetChecks = false;
 	}
 	
 	@Override
-	public void load(Element node, String baseUrl) {
-
-		super.load(node, baseUrl);
-		
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			
@@ -170,21 +167,23 @@ private boolean resetChecks = false;
 		}
 	}
 	
-	protected String modelToXML() {
-		String encodedTitle = StringUtils.escapeHTML(title);
-
-		String xml = "<lessonReset title='" + encodedTitle + "' resetMistakes='" + resetMistakes + "' resetChecks='" + resetChecks + "'>"
-				+ "</lessonReset>";
-		
-		return xml;
-	}
-	
 	@Override
 	public String toXML() {
-		return "<lessonResetModule " + getBaseXML() + ">" 
-			+ getLayoutXML()
-			+ modelToXML()
-			+ "</lessonResetModule>";
+		Element lessonResetModule = XMLUtils.createElement("lessonResetModule");
+		this.setBaseXMLAttributes(lessonResetModule);
+		lessonResetModule.appendChild(this.getLayoutsXML());
+		lessonResetModule.appendChild(this.modelToXML());
+		
+		return lessonResetModule.toString();
 	}
 	
+	protected Element modelToXML() {
+		Element lessonResetElement = XMLUtils.createElement("lessonReset");
+		String encodedTitle = StringUtils.escapeHTML(title);
+		lessonResetElement.setAttribute("title", encodedTitle);
+		XMLUtils.setBooleanAttribute(lessonResetElement, "resetMistakes", resetMistakes);
+		XMLUtils.setBooleanAttribute(lessonResetElement, "resetChecks", resetChecks);
+		
+		return lessonResetElement;
+	}
 }

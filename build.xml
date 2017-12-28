@@ -1,19 +1,19 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version='1.0' encoding='utf-8'?>
 <project name="icplayer" default="dist" basedir=".">
     <taskdef name="for" classname="com.icplayer.ac.ForTask" classpath="addons/addon-compiler.jar"/>
 
-    <property file="build.properties" />
-    <property name="src" location="src/main/java" />
-    <property name="src-test" location="src/test/java" />
-    <property name="icfoundation-src" location="../icfoundation/src/main/java" />
-    <property name="jstestdriver.jar" location="addons/tools/JsTestDriver.jar" />
-    <property name="libs" location="src/main/java/com/lorepo/icplayer/public/libs" />
+    <property file="build.properties"/>
+    <property name="src" location="src/main/java"/>
+    <property name="src-test" location="src/test/java"/>
+    <property name="icfoundation-src" location="../icfoundation/src/main/java"/>
+    <property name="jstestdriver.jar" location="addons/tools/JsTestDriver.jar"/>
+    <property name="libs" location="src/main/java/com/lorepo/icplayer/public/libs"/>
 
     <!-- Arguments to gwtc and devmode targets -->
-  	<property name="gwt.args" value="" />
+  	<property name="gwt.args" value=""/>
     <import file="build-js-addons-compress.xml"/>
 
-    <property name="libs.junit" location="libs/junit-4.9.jar" />
+    <property name="libs.junit" location="libs/junit-4.9.jar"/>
     <path id="project.class.path">
         <pathelement location="war/WEB-INF/classes"/>
         <pathelement location="${gwt.sdk}/gwt-user.jar"/>
@@ -24,9 +24,9 @@
     </path>
 
     <target name="clean" description="Cleans this project">
-        <delete dir="war/WEB-INF/classes" failonerror="false" />
-        <delete dir="war/icplayer" failonerror="false" />
-        <delete dir="gwt-unitCache" failonerror="false" />
+        <delete dir="war/WEB-INF/classes" failonerror="false"/>
+        <delete dir="war/icplayer" failonerror="false"/>
+        <delete dir="gwt-unitCache" failonerror="false"/>
     </target>
 
     <target name="addons" description="Copy addon descriptors">
@@ -34,20 +34,14 @@
     </target>
 
     <target name="javac" depends="addons" description="Compile java source to bytecode">
-
         <mkdir dir="war/WEB-INF/classes"/>
-        <javac srcdir="${src}" includes="**" encoding="utf-8"
-               destdir="war/WEB-INF/classes"
-               source="1.6" target="1.6" nowarn="true"
-               includeantruntime="false"
-               debug="true" debuglevel="lines,vars,source">
+        <javac srcdir="${src}" includes="**" encoding="utf-8" destdir="war/WEB-INF/classes" source="1.6" target="1.6" nowarn="true" includeantruntime="false" debug="true" debuglevel="lines,vars,source">
             <classpath refid="project.class.path"/>
         </javac>
         <copy todir="war/WEB-INF/classes">
             <fileset dir="${src}" excludes="**/*.java"/>
             <fileset dir="${src-test}" excludes="**/*.java"/>
         </copy>
-
     </target>
 
     <target name="gwtc" depends="javac, bundle-libs" description="GWT compile to JavaScript (production mode)">
@@ -56,8 +50,8 @@
                 <pathelement location="${src}"/>
                 <pathelement location="${icfoundation-src}"/>
                 <path refid="project.class.path"/>
-                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar" />
-                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar" />
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar"/>
             </classpath>
             <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError -->
             <jvmarg value="-Xmx256M"/>
@@ -74,8 +68,8 @@
             <classpath>
                 <pathelement location="${src}"/>
                 <path refid="project.class.path"/>
-                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar" />
-                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar" />
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar"/>
             </classpath>
             <jvmarg value="-Xmx256M"/>
             <arg value="-startupUrl"/>
@@ -89,12 +83,7 @@
     </target>
 
     <target name="javac.tests" depends="javac" description="Compiles test code">
-
-        <javac srcdir="${src-test}" includes="**" encoding="utf-8"
-               source="1.6" target="1.6" nowarn="true"
-               includeantruntime="false"
-               destdir="war/WEB-INF/classes"
-               debug="true" debuglevel="lines,vars,source">
+<javac srcdir="${src-test}" includes="**" encoding="utf-8" source="1.6" target="1.6" nowarn="true" includeantruntime="false" destdir="war/WEB-INF/classes" debug="true" debuglevel="lines,vars,source">
             <classpath location="${libs.junit}"/>
             <classpath location="../icfoundation/war/WEB-INF/classes"/>
             <classpath refid="project.class.path"/>
@@ -106,69 +95,69 @@
     </target>
 
     <target name="test.dev" depends="javac.tests" description="Run development mode tests">
-        <mkdir dir="reports/htmlunit.dev" />
+        <mkdir dir="reports/htmlunit.dev"/>
         <junit fork="yes" printsummary="yes" haltonfailure="yes" dir=".">
-            <jvmarg line="-Xmx256m" />
-            <sysproperty key="gwt.args" value="-standardsMode -logLevel WARN" />
-            <sysproperty key="java.awt.headless" value="true" />
+            <jvmarg line="-Xmx256m"/>
+            <sysproperty key="gwt.args" value="-standardsMode -logLevel WARN"/>
+            <sysproperty key="java.awt.headless" value="true"/>
             <classpath>
                 <pathelement location="${icfoundation-src}"/>
-                <pathelement location="${src}" />
-                <pathelement location="${src-test}" />
-                <path refid="project.class.path" />
-                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar" />
-                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar" />
-                <pathelement location="${libs.junit}" />
+                <pathelement location="${src}"/>
+                <pathelement location="${src-test}"/>
+                <path refid="project.class.path"/>
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar"/>
+                <pathelement location="${libs.junit}"/>
                 <fileset dir="libs" includes="*.jar"/>
             </classpath>
-            <batchtest todir="reports/htmlunit.dev" >
-                <fileset dir="${src-test}" >
-                    <include name="**/*TestCase.java" />
+            <batchtest todir="reports/htmlunit.dev">
+                <fileset dir="${src-test}">
+                    <include name="**/*TestCase.java"/>
                 </fileset>
             </batchtest>
-            <formatter type="plain" />
-            <formatter type="xml" />
+            <formatter type="plain"/>
+            <formatter type="xml"/>
         </junit>
     </target>
 
     <target name="test.prod" depends="javac.tests" description="Run production mode tests">
-        <mkdir dir="reports/htmlunit.prod" />
+        <mkdir dir="reports/htmlunit.prod"/>
         <junit fork="yes" printsummary="yes" haltonfailure="yes" dir=".">
-            <jvmarg line="-Xmx256m" />
-            <sysproperty key="gwt.args" value="-prod -standardsMode -logLevel WARN -standardsMode -out www-test" />
-            <sysproperty key="java.awt.headless" value="true" />
+            <jvmarg line="-Xmx256m"/>
+            <sysproperty key="gwt.args" value="-prod -standardsMode -logLevel WARN -standardsMode -out www-test"/>
+            <sysproperty key="java.awt.headless" value="true"/>
             <classpath>
                 <pathelement location="${icfoundation-src}"/>
-                <pathelement location="${src}" />
-                <pathelement location="${src-test}" />
-                <path refid="project.class.path" />
-                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar" />
-                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar" />
-                <pathelement location="${libs.junit}" />
+                <pathelement location="${src}"/>
+                <pathelement location="${src-test}"/>
+                <path refid="project.class.path"/>
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar"/>
+                <pathelement location="${libs.junit}"/>
                 <fileset dir="libs" includes="*.jar"/>
             </classpath>
-            <batchtest todir="reports/htmlunit.prod" >
-                <fileset dir="${src-test}" >
-                    <include name="**/*TestCase.java" />
+            <batchtest todir="reports/htmlunit.prod">
+                <fileset dir="${src-test}">
+                    <include name="**/*TestCase.java"/>
                 </fileset>
             </batchtest>
-            <formatter type="plain" />
+            <formatter type="plain"/>
         </junit>
     </target>
 
     <target name="test.single.addon">
         <echo>Testing addon with ID ${addon.id}</echo>
 
-        <mkdir dir="addons/${addon.id}/test-reports" />
+        <mkdir dir="addons/${addon.id}/test-reports"/>
         <exec executable="java" failonerror="true">
-            <arg line="-jar" />
-            <arg path="${jstestdriver.jar}" />
+            <arg line="-jar"/>
+            <arg path="${jstestdriver.jar}"/>
             <arg line="--tests all"/>
-            <arg line="--config" />
-            <arg path="addons/${addon.id}/jsTestDriver.conf" />
-            <arg line="--testOutput" />
-            <arg path="addons/${addon.id}/test-reports" />
-            <arg line="--captureConsole" />
+            <arg line="--config"/>
+            <arg path="addons/${addon.id}/jsTestDriver.conf"/>
+            <arg line="--testOutput"/>
+            <arg path="addons/${addon.id}/test-reports"/>
+            <arg line="--captureConsole"/>
         </exec>
     </target>
 
@@ -187,16 +176,16 @@
     </target>
 
     <target name="test.full" description="Run development, production and addons tests" depends="test">
-        <antcall target="test.addons" />
+        <antcall target="test.addons"/>
     </target>
 
-    <target name="build" depends="clean, test, gwtc" description="Build this project" />
+    <target name="build" depends="clean, test, gwtc" description="Build this project"/>
 
-    <target name="build.full" depends="clean, test.full, gwtc" description="Build this project with addon tests" />
+    <target name="build.full" depends="clean, test.full, gwtc" description="Build this project with addon tests"/>
 
-    <target name="create.package" >
-        <delete dir="dist" failonerror="false" />
-        <mkdir dir="dist/build" />
+    <target name="create.package">
+        <delete dir="dist" failonerror="false"/>
+        <mkdir dir="dist/build"/>
 
         <copy todir="dist/build/icplayer">
             <fileset dir="war/icplayer"/>
@@ -209,21 +198,66 @@
     </target>
 
     <target name="dist" depends="validate-translations-javascript, build" description="Create player package">
-        <antcall target="create.package" />
+        <antcall target="create.package"/>
     </target>
 
     <target name="dist.full" depends="build.full" description="Create player package after full build">
-        <antcall target="create.package" />
+        <antcall target="create.package"/>
     </target>
 
     <target name="validate-translations-javascript">
-        <echo message="Validating JSON in files:" />
+        <echo message="Validating JSON in files:"/>
 
         <exec executable="python" failonerror="true">
-            <arg value="validate_translations_javascript.py" />
+            <arg value="validate_translations_javascript.py"/>
         </exec>
 
-        <echo message="All ok" />
+        <echo message="All ok"/>
     </target>
 
+
+    <target name="test.case" depends="javac.tests" description="Run production single testcase">
+        <mkdir dir="reports/htmlunit.prod"/>
+        <junit fork="yes" printsummary="yes" haltonfailure="yes" dir=".">
+            <jvmarg line="-Xmx256m"/>
+            <sysproperty key="gwt.args" value="-prod -standardsMode -logLevel WARN -standardsMode -out www-test"/>
+            <sysproperty key="java.awt.headless" value="true"/>
+            <classpath>
+                <pathelement location="${icfoundation-src}"/>
+                <pathelement location="${src}"/>
+                <pathelement location="${src-test}"/>
+                <path refid="project.class.path"/>
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar"/>
+                <pathelement location="${libs.junit}"/>
+                <fileset dir="libs" includes="*.jar"/>
+            </classpath>
+            <test todir="reports/htmlunit.prod" name="test.java.com.lorepo.icplayer.client.module.text.GWTTextModelTestCase"/>
+            <formatter type="plain"/>
+        </junit>
+    </target>
+
+    <target name="test.single.case" depends="javac.tests" description="Run production single testcase, -Dname=Test_Case_Name">
+        <mkdir dir="reports/htmlunit.prod"/>
+        <junit fork="yes" printsummary="yes" haltonfailure="yes" dir=".">
+            <jvmarg line="-Xmx256m"/>
+            <sysproperty key="gwt.args" value="-prod -standardsMode -logLevel WARN -standardsMode -out www-test"/>
+            <sysproperty key="java.awt.headless" value="true"/>
+            <classpath>
+                <pathelement location="${icfoundation-src}"/>
+                <pathelement location="${src}"/>
+                <pathelement location="${src-test}"/>
+                <path refid="project.class.path"/>
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
+                <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar"/>
+                <fileset dir="libs" includes="*.jar"/>
+            </classpath>
+            <batchtest todir="reports/htmlunit.prod">
+                <fileset dir="${src-test}">
+                    <include name="**/${name}.java"/>
+                </fileset>
+            </batchtest>
+            <formatter type="plain"/>
+        </junit>
+    </target>
 </project>

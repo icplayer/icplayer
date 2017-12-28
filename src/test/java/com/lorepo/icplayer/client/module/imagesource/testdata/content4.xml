@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<interactiveContent>
+
+<pages>
+	<page id="123456" name="Page 1" href="pages/style-audio.page.xml" preview="/file/12"/>
+	<page name="Page 2" href="pages/schoice.page.xml" reportable="False"/>
+	<page name="Page 3" href="pages/ordering.page.xml"/>
+	<chapter name="Chapter 1">
+		<page name="Page 1-2" href="pages/schoice.page.xml" reportable="False"/>
+		<page name="Page 1-3" href="pages/ordering.page.xml"/>
+	</chapter>
+
+	<folder name="commons">
+		<page name="header" href="pages/header.xml"/>
+		<page name="footer" href="pages/footer.xml"/>
+	</folder>
+	
+	<header ref="commons/header"/>
+	<footer ref="commons/footer"/>
+</pages>
+
+</interactiveContent>

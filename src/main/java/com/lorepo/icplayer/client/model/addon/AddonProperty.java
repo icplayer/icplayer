@@ -18,9 +18,7 @@ public class AddonProperty {
 	private List<AddonProperty> childProperties = new ArrayList<AddonProperty>();
 	private boolean isDefault = false;
 	
-	public AddonProperty(){
-	}
-	
+	public AddonProperty(){}
 
 	public AddonProperty(String name, String displayName, String type){
 		this.name = name;

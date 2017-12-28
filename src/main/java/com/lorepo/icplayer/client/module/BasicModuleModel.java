@@ -1,8 +1,6 @@
 package com.lorepo.icplayer.client.module;
 
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.Node;
-import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
@@ -13,20 +11,19 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.EnableTabindex;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
+import com.lorepo.icplayer.client.xml.module.ModuleXMLParsersFactory;
+import com.lorepo.icplayer.client.xml.module.parsers.IModuleModelBuilder;
 
-public abstract class BasicModuleModel extends StyledModule implements IModuleModel {
+public abstract class BasicModuleModel extends StyledModule implements IModuleModel, IModuleModelBuilder {
 	private String moduleTypeName;
 	private String moduleName;
 	private String id;
-	private boolean isVisible = true;
-	private boolean isLocked = false;
-	private String baseURL;
+	protected String baseURL;
 	private INameValidator nameValidator;
 	private String buttonType;
-	private boolean isModuleVisibleInEditor = true;
 	private boolean isTabindexEnabled = false;
-	
-	protected BasicModuleModel(String typeName, String name){
+
+	protected BasicModuleModel(String typeName, String name) {
 		super(name);
 		this.moduleTypeName = typeName;
 		this.moduleName = name;
@@ -36,22 +33,22 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		addPropertyIsVisible();
 		this.addPropertyIsTabindexEnabled();
 	}
-	
+
 	@Override
 	public String getModuleName() {
 		return moduleName;
 	}
-	
+
 	@Override
 	public String getModuleTypeName() {
 		return moduleTypeName;
-	} 
-	
+	}
+
 	@Override
 	public String getClassNamePrefix() {
 		return getModuleTypeName();
 	};
-	
+
 	@Override
 	public String getId() {
 		return id;
@@ -61,118 +58,73 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	public void setId(String newId) {
 		id = newId;
 	}
-	
+
 	@Override
 	public void release() {
 	}
-	
-	/**
-	 * Load attributes common to all modules:
-	 * - position
-	 * - style
-	 */
-	@Override
-	public void load(Element element, String baseUrl) {
 
-		this.baseURL = baseUrl;
-		id = element.getAttribute("id");
-		if (id == null || id.compareTo("null") == 0) {
-			id = UUID.uuid(6);
-		} else {
-			id = StringUtils.unescapeXML(id);
-		}
-		
-		int left = XMLUtils.getAttributeAsInt(element, "left");
-		int top = XMLUtils.getAttributeAsInt(element, "top");
-		int width = XMLUtils.getAttributeAsInt(element, "width");
-		int height = XMLUtils.getAttributeAsInt(element, "height");
-		int right = XMLUtils.getAttributeAsInt(element, "right");
-		int bottom = XMLUtils.getAttributeAsInt(element, "bottom");
-		isVisible = XMLUtils.getAttributeAsBoolean(element, "isVisible", true);
-		isLocked = XMLUtils.getAttributeAsBoolean(element, "isLocked", false);
-		isModuleVisibleInEditor = XMLUtils.getAttributeAsBoolean(element, "isModuleVisibleInEditor", true);
-		this.isTabindexEnabled = XMLUtils.getAttributeAsBoolean(element, "isTabindexEnabled", false);
-		setLeft(left);
-		setTop(top);
-		setWidth(width);
-		setHeight(height);
-		setRight(right);
-		setBottom(bottom);
-		String style = StringUtils.unescapeXML(element.getAttribute("style"));
-		String css = URLUtils.resolveCSSURL(baseURL, style);
-		setInlineStyle(css);
-		setStyleClass(StringUtils.unescapeXML( element.getAttribute("class") ));
-		
-		NodeList nodes = element.getChildNodes();
-		for(int i = 0; i < nodes.getLength(); i++){
-			Node childNode = nodes.item(i);
-			
-			if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element){
-				buttonType = StringUtils.unescapeXML(((Element) childNode).getAttribute("type"));
-				setButtonType(buttonType);
-			}
-			if(childNode.getNodeName().compareTo("layout") == 0 && childNode instanceof Element){
-				layout.load((Element) childNode);
-			}
-		}
+	@Override
+	public void setInlineStyle(String style) {
+		String css = URLUtils.resolveCSSURL(this.baseURL, style);
+		super.setInlineStyle(css);
 	}
 
-	private void setButtonType(String type) {
+	/**
+	 * Load attributes common to all modules: - position - style
+	 */
+	@Override
+	public void load(Element element, String baseUrl, String version) {
+		this.baseURL = baseUrl;
+		ModuleXMLParsersFactory factory = new ModuleXMLParsersFactory(this);
+		factory.produce(element, version);
+		this.parseModuleNode(element);
+	}
+
+	protected abstract void parseModuleNode(Element element);
+
+	public void setButtonType(String type) {
 		this.buttonType = type;
 	}
 
 	public String getButtonType() {
 		return buttonType;
 	}
-	
-	protected String getBaseXML(){
-		
-		String escapedId = StringUtils.escapeXML(id);
-		String xml = "id='" + escapedId + "' left='" + getLeft() + "' top='" + getTop()  +
-				"' width='" + getWidth() + "' height='" + getHeight() + "' " +
-				"right='" + getRight() + "' bottom='" + getBottom() + "' " +
-				"isVisible='" + isVisible + "' isLocked='" + isLocked +"'" + " isModuleVisibleInEditor='" + isModuleVisibleInEditor +"' " + 
-				"isTabindexEnabled='" + isTabindexEnabled + "'";
-		
-		if (!getInlineStyle().isEmpty()) {
-			String encodedStyle = StringUtils.escapeXML(getInlineStyle());
-			xml += " style='" + encodedStyle + "'";
-		}
-		
-		if (!getStyleClass().isEmpty()) {
-			String encodedStyleClass = StringUtils.escapeXML(getStyleClass());
-			xml += " class='" + encodedStyleClass + "'";
-		}
-		
-		return xml;
-	}
 
-	protected String getLayoutXML() {
-		return layout.toXML();
+	protected Element setBaseXMLAttributes(Element moduleXML) {
+		String escapedId = StringUtils.escapeXML(this.getId());
+		moduleXML.setAttribute("id", escapedId);
+		XMLUtils.setBooleanAttribute(moduleXML, "isTabindexEnabled", this.isTabindexEnabled);
+
+		if (this.haveStyles()) {
+			moduleXML.appendChild(this.stylesToXML());
+		}
+
+		return moduleXML;
 	}
 
 	private void addPropertyId() {
 
 		IProperty property = new IProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				if (nameValidator != null && nameValidator.canChangeName(newValue)) {
+				if (nameValidator != null
+						&& nameValidator.canChangeName(newValue)) {
 					id = newValue;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return id;
 			}
-			
+
 			@Override
 			public String getName() {
 				return "ID";
 			}
-			
+
 			public String getDisplayName() {
 				return "ID";
 			}
@@ -182,28 +134,28 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 				return false;
 			}
 		};
-		
+
 		addProperty(property);
 	}
 
 	private void addPropertyIsVisible() {
 		IProperty property = new IBooleanProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
-				if (value != isVisible) {
-					isVisible = value;
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isVisible()) {
+					setIsVisible(value);
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
-				return isVisible ? "True" : "False";
+				return isVisible() ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return "Is Visible";
@@ -220,28 +172,28 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			}
 
 		};
-		
+
 		addProperty(property);
 	}
-	
-	private void addPropertyIsTabindexEnabled() {
+
+    private void addPropertyIsTabindexEnabled() {
 		IProperty property = new IBooleanProperty() {
-			
+
 			@Override
 			public void setValue(String newValue) {
-				boolean value = (newValue.compareToIgnoreCase("true") == 0); 
-				
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
 				if (value != isTabindexEnabled) {
 					isTabindexEnabled = value;
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return isTabindexEnabled ? "True" : "False";
 			}
-			
+
 			@Override
 			public String getName() {
 				return "Is Tabindex Enabled";
@@ -258,45 +210,36 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 			}
 
 		};
-		
+
 		addProperty(property);
 	}
-	
-	public boolean isVisible() {
-		return isVisible;
-	}
 
-	public void lock(boolean state) {
-		isLocked = state;
-	}
-	
-	public boolean isLocked() {
-		return isLocked;
-	}
-	
 	public String getBaseURL() {
 		return baseURL;
 	}
-	
-	public boolean isModuleInEditorVisible() {
-		return this.isModuleVisibleInEditor;
+
+	public void setBaseUrl(String baseUrl) {
+		this.baseURL = baseUrl;
 	}
-	
-	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility) {
-		this.isModuleVisibleInEditor = moduleInEditorVisibility;
-	}
-	
+
 	@Override
 	public void addNameValidator(INameValidator validator) {
 		this.nameValidator = validator;
 	}
-	
+
+	@Override
+	public void setID(String id) {
+		this.id = id;
+	}
+
+	@Override
 	public boolean isTabindexEnabled() {
 		boolean isTabEnabledPreferences = EnableTabindex.getInstance().isTabindexEnabled && isTabindexEnabled ? true : false;
-		
+
 		return isTabEnabledPreferences;
 	}
-	
+
+	@Override
 	public void setIsTabindexEnabled(boolean value) {
 		this.isTabindexEnabled = value;
 	}

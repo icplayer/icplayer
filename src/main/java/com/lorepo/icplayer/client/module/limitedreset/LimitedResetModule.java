@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.limitedreset;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.gwt.xml.client.CDATASection;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -105,12 +106,9 @@ public class LimitedResetModule extends BasicModuleModel {
 		
 		addProperty(property);
 	}
-	
-	@Override
-	public void load(Element node, String baseUrl) {
 
-		super.load(node, baseUrl);
-		
+	@Override
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			
@@ -128,20 +126,24 @@ public class LimitedResetModule extends BasicModuleModel {
 		}
 	}
 	
-	protected String modelToXML() {
-		String encodedTitle = StringUtils.escapeHTML(title);
-
-		return "<limitedReset title='" + encodedTitle + "'>"
-				+ "<![CDATA[" + rawWorksWith + "]]>"
-				+ "</limitedReset>";
-	}
-	
 	@Override
 	public String toXML() {
-		return "<limitedResetModule " + getBaseXML() + ">" 
-			+ getLayoutXML()
-			+ modelToXML()
-			+ "</limitedResetModule>";
+		Element limitedResetModule = XMLUtils.createElement("limitedResetModule");
+		this.setBaseXMLAttributes(limitedResetModule);
+		limitedResetModule.appendChild(this.getLayoutsXML());
+		limitedResetModule.appendChild(this.modelToXML());
+		return limitedResetModule.toString();
 	}
 
+	protected Element modelToXML() {
+		String encodedTitle = StringUtils.escapeHTML(title);
+		
+		Element limitedResetElement = XMLUtils.createElement("limitedReset");
+		limitedResetElement.setAttribute("title", encodedTitle);
+		
+		CDATASection cdata = XMLUtils.createCDATASection(rawWorksWith);
+
+		limitedResetElement.appendChild(cdata);
+		return limitedResetElement;
+	}
 }

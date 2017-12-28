@@ -22,7 +22,6 @@ public class ImageModule extends BasicModuleModel {
 	}
 	
 	private String imagePath = "";
-	private String baseUrl = "";
 	private DisplayMode mode = DisplayMode.stretch;
 	private boolean animatedGifRefresh = false;
 	private String alternativeText = "";
@@ -48,28 +47,22 @@ public class ImageModule extends BasicModuleModel {
 			return imagePath;
 		}
 		else{
-			return baseUrl + imagePath;
+			return this.baseURL + imagePath;
 		}
 	}
-	
+
 	public String getAltText() {
 		return this.alternativeText;
 	}
-
-
-	@Override
-	public void load(Element node, String baseUrl) {
 	
-		super.load(node, baseUrl);
-		
-		this.baseUrl = baseUrl;
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
 			
+			
 			Node childNode = nodes.item(i);
 			if(childNode instanceof Element){
-				
-				if(childNode.getNodeName().compareTo("image") == 0 && childNode instanceof Element){
+				if(childNode.getNodeName().compareTo("image") == 0){
 					Element childElement = (Element) childNode;
 					imagePath = StringUtils.unescapeXML(childElement.getAttribute("src"));
 					String modeName = childElement.getAttribute("mode");
@@ -81,30 +74,30 @@ public class ImageModule extends BasicModuleModel {
 		}
 	}
 	
-	
+
 	private void setModeFromString(String typeName) {
-		
-		if(typeName != null){
-			for(DisplayMode modeType : DisplayMode.values()){
-				if(modeType.toString().compareTo(typeName) == 0){
-					mode = modeType;
-				}
-			}
+		if (typeName != null) {
+			this.mode = DisplayMode.valueOf(typeName); 
 		}
 	}	
 
 
 	@Override
 	public String toXML() {
+		Element imageModule = XMLUtils.createElement("imageModule");
 		
-		String xml = 
-				"<imageModule " + getBaseXML() + ">" + getLayoutXML() +
-				"<image src='" + StringUtils.escapeHTML(imagePath) + "' " +
-				"alt='" + StringUtils.escapeXML(this.alternativeText) + "' " + 
-				"mode='"+ mode.toString() + "' " + "animatedGifRefresh='" + animatedGifRefresh +"'/>" +
-				"</imageModule>";
+		this.setBaseXMLAttributes(imageModule);
+		imageModule.appendChild(this.getLayoutsXML());
 		
-		return xml;
+		Element imageElement = XMLUtils.createElement("image");
+		imageElement.setAttribute("src", StringUtils.escapeHTML(imagePath));
+		imageElement.setAttribute("alt", StringUtils.escapeXML(this.alternativeText));
+		imageElement.setAttribute("mode", mode.toString());
+		imageElement.setAttribute("animatedGifRefresh", Boolean.toString(animatedGifRefresh));
+
+		imageModule.appendChild(imageElement);
+		
+		return imageModule.toString();
 	}
 	
 	
