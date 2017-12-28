@@ -6242,7 +6242,7 @@
 		<property displayName="Block limit" name="maxBlocksLimit" nameLabel="BlocklyCodeEditor_property_max_block_limit" type="string"/>
 		<property displayName="Hide Run" name="hideRun" nameLabel="BlocklyCodeEditor_property_hide_run" type="boolean"/>
 		<property name="blocksTranslation" nameLabel="BlocklyCodeEditor_property_blocksTranslation" type="text"/>
-
+		<property name="initialConfiguration" nameLabel="BlocklyCodeEditor_property_initial_configuration" type="text"/>
 	</model>
 <css>.blocklyEditor-wrapper button {&#13;
     margin-top: 10px;&#13;
@@ -6436,11 +6436,25 @@ function AddonBlocklyCodeEditor_create () {&#13;
 &#13;
         isPreviewDecorator(presenter.updateToolbox)();&#13;
 &#13;
+        isPreviewDecorator(presenter.setConfiguration)(presenter.configuration.initialConfiguration);&#13;
+&#13;
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_Blockly (ev) {&#13;
             if (ev.target === this) {&#13;
                 presenter.destroy();&#13;
             }&#13;
         });&#13;
+    };&#13;
+&#13;
+    presenter.setConfiguration = function(configuration) {&#13;
+        if(configuration) {&#13;
+            var xml = Blockly.Xml.textToDom(configuration);&#13;
+            Blockly.Xml.domToWorkspace(xml, presenter.configuration.workspace);&#13;
+        }&#13;
+    };&#13;
+&#13;
+    presenter.getConfiguration = function() {&#13;
+        var xml = Blockly.Xml.workspaceToDom(presenter.configuration.workspace);&#13;
+        return Blockly.Xml.domToText(xml);&#13;
     };&#13;
 &#13;
     presenter.createWorkspace = function (view, isPreview) {&#13;
@@ -6649,7 +6663,8 @@ function AddonBlocklyCodeEditor_create () {&#13;
             toolboxXML: validatedToolbox.value.categories,&#13;
             customBlocksXML: presenter.convertCustomBlocksToJS(validatedCustomBlocks.value),&#13;
             maxBlocks: validatedBlockLimit.value,&#13;
-            blocksTranslation: $.extend(validatedToolbox.value.translations, validatedBlocksTranslations.value)&#13;
+            blocksTranslation: $.extend(validatedToolbox.value.translations, validatedBlocksTranslations.value),&#13;
+            initialConfiguration: model["initialConfiguration"]&#13;
         };&#13;
     };&#13;
 &#13;
@@ -7138,7 +7153,8 @@ function AddonBlocklyCodeEditor_create () {&#13;
         var commands = {&#13;
             'getWorkspaceCode' : presenter.getWorkspaceCode,&#13;
             'show' : presenter.show,&#13;
-            'hide' : presenter.hide&#13;
+            'hide' : presenter.hide,&#13;
+            'getConfiguration' : presenter.getConfiguration&#13;
         };&#13;
 &#13;
         Commands.dispatch(commands, name, params, presenter);&#13;
@@ -47242,14 +47258,6 @@ div.paragraph-wrapper textarea {&#13;
             &#13;
             if (isIOSSafari()) {&#13;
                 presenter.findIframeAndSetStyles();&#13;
-                &#13;
-                // var refocus = function() {&#13;
-                //     $(presenter.editor.contentDocument).focus();&#13;
-                //     $(presenter.editor).focus();&#13;
-                // };&#13;
-                // presenter.editor.contentDocument.addEventListener("keydown", refocus);&#13;
-                // presenter.editor.contentDocument.addEventListener("touchstart", refocus);&#13;
-                // presenter.editor.contentDocument.addEventListener("touchend", refocus);&#13;
             }&#13;
 &#13;
             presenter.editor.on('blur', function () {&#13;
@@ -77438,6 +77446,7 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
         <property name="Keep wrong marking" nameLabel="gamememo_property_keep_wrong_marking" type="boolean"/>
         <property name="Time to solve" nameLabel="gamememo_property_time_to_solve" type="string"/>
         <property name="Session ended message" nameLabel="gamememo_property_session_ended_message" type="html"/>
+		<property name="Click to turn over incorrect pair" nameLabel="gamememo_property_click_to_turn_over_incorrect_pair" type="boolean"/>
 	</model>
 <css>.gamememo_container table {&#13;
     border-spacing: 0;&#13;
@@ -77796,7 +77805,8 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
             pairs: model['Pairs'],&#13;
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),&#13;
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),&#13;
-            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])&#13;
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),&#13;
+            clickToTurnOverIncorrectPair: ModelValidationUtils.validateBoolean(model["Click to turn over incorrect pair"])&#13;
         };&#13;
     };&#13;
 &#13;
@@ -77814,9 +77824,14 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
 &#13;
     presenter.slideDownAnimation = function ($element, successFunction) {&#13;
         var distance = $element.outerHeight();&#13;
-        $element.css({'bottom': (distance + 'px'), visibility: 'visible'})&#13;
+&#13;
+        if(presenter.imageMode == 'KeepAspect') {&#13;
+            $element.css('visibility', 'visible');&#13;
+        } else {&#13;
+             $element.css({'bottom': (distance + 'px'), visibility: 'visible'})&#13;
                 .animate({bottom: 0}, 200);&#13;
-        };&#13;
+        }&#13;
+    };&#13;
 &#13;
     presenter.showCard = function(cell) {&#13;
         var successFunction = function () {&#13;
@@ -78026,6 +78041,14 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
         }&#13;
     };&#13;
 &#13;
+    function numberToCardType(element) {&#13;
+        if (element.is("img")) {&#13;
+            return element.parent().parent().find('.card').attr('card_style');&#13;
+        } else {&#13;
+            return element.parent().find('.card').attr('card_style');&#13;
+        }&#13;
+    }&#13;
+&#13;
     presenter.onCardClicked = function(e) {&#13;
         e.stopPropagation();&#13;
 &#13;
@@ -78038,11 +78061,16 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
 &#13;
         if(presenter.useTwoStyles) {&#13;
             var clickedStyle;&#13;
-            clickedStyle = presenter.numberToCardType(parseInt($(e.target).parent().find('.card').attr('card_style')));&#13;
+            clickedStyle = presenter.numberToCardType(parseInt(numberToCardType($(e.target))));&#13;
             if(clickedStyle == presenter.cardClickedStyle) {&#13;
                 return;&#13;
             }&#13;
         }&#13;
+&#13;
+        if(presenter.configuration.clickToTurnOverIncorrectPair &amp;&amp; presenter.STATES.CLICKED_SECOND) {&#13;
+&#13;
+        }&#13;
+&#13;
         switch(presenter.state) {&#13;
             case presenter.STATES.READY:&#13;
                 presenter.handleCardClickedFirst($(e.target).parent());&#13;
@@ -78073,6 +78101,7 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
 &#13;
                     eventData = presenter.createItemEventData(presenter.cardClickedFirstId, presenter.cardClickedSecondId,  false);&#13;
                     presenter.sendEventData(eventData);&#13;
+                    presenter.isCorrectMark = false;&#13;
                 } else {&#13;
                     presenter.markCardTick(presenter.cardClickedFirst.find(".card"), presenter.cardClickedFirst.find(".card"));&#13;
                     presenter.markCardTick(presenter.cardClickedSecond.find(".card"), presenter.cardClickedFirst.find(".card"));&#13;
@@ -78081,6 +78110,7 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
                     presenter.sendEventData(eventData);&#13;
 &#13;
                     presenter.addScoreAndSentEvent();&#13;
+                    presenter.isCorrectMark = true;&#13;
                 }&#13;
 &#13;
                 if(presenter.useTwoStyles) {&#13;
@@ -78095,7 +78125,13 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
                     presenter.hideCard(presenter.cardClickedFirst);&#13;
                     presenter.hideCard(presenter.cardClickedSecond);&#13;
                 }&#13;
-                presenter.handleCardClickedFirst($(e.target).parent());&#13;
+&#13;
+                if(presenter.configuration.clickToTurnOverIncorrectPair &amp;&amp; !presenter.isCorrectMark) {&#13;
+                    presenter.cardClickedFirst = null;&#13;
+                    presenter.state = presenter.STATES.READY;&#13;
+                } else {&#13;
+                    presenter.handleCardClickedFirst($(e.target).parent());&#13;
+                }&#13;
 &#13;
                 presenter.cardClickedSecond = null;&#13;
                 presenter.cardClickedFirstId = null;&#13;
@@ -78107,6 +78143,26 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
                 }&#13;
 &#13;
                 break;&#13;
+        }&#13;
+    };&#13;
+&#13;
+    presenter.onBackClick = function () {&#13;
+        if(presenter.STATES.CLICKED_SECOND &amp;&amp; presenter.configuration.clickToTurnOverIncorrectPair &amp;&amp; !presenter.isCorrectMark) {&#13;
+            if(presenter.cardClickedFirstId != presenter.cardClickedSecondId) {&#13;
+                presenter.hideCard(presenter.cardClickedFirst);&#13;
+                presenter.hideCard(presenter.cardClickedSecond);&#13;
+            }&#13;
+&#13;
+            presenter.cardClickedFirst = null;&#13;
+            presenter.state = presenter.STATES.READY;&#13;
+            presenter.cardClickedSecond = null;&#13;
+            presenter.cardClickedFirstId = null;&#13;
+            presenter.cardClickedSecondId = null;&#13;
+&#13;
+            if (presenter.keppWrongMarking) {&#13;
+                var mark = presenter.viewContainer.find('.mismatch_mark');&#13;
+                fadeOutMark(mark, 1000);&#13;
+            }&#13;
         }&#13;
     };&#13;
 &#13;
@@ -78159,7 +78215,7 @@ button.ui-keyboard-accept.ui-keyboard-invalid-input:hover { background: #a00; }&
 &#13;
                 if(!presenter.preview) {&#13;
                     cell.append(back).append(front);&#13;
-&#13;
+                    back.click(presenter.onBackClick);&#13;
                 } else {&#13;
                     if(presenter.previewCards) {&#13;
                         back.css('display', 'block');&#13;
