@@ -16,6 +16,8 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
+import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
+import com.lorepo.icplayer.client.xml.page.PageFactory;
 import com.lorepo.icplayer.client.model.page.Page;
 
 public class PagePopupPanel extends DialogBox {
@@ -52,15 +54,22 @@ public class PagePopupPanel extends DialogBox {
 
 
 	private void loadPage(Page page, String baseUrl) {
-		XMLLoader reader = new XMLLoader(page);
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
-		reader.load(url, new ILoadListener() {
-			public void onFinishedLoading(Object obj) {
-				initPanel((Page) obj);
+		PageFactory factory = new PageFactory((Page) page);
+		
+		factory.load(url, new IProducingLoadingListener () {
+
+			@Override
+			public void onFinishedLoading(Object producedItem) {
+				Page page = (Page) producedItem;
+				initPanel(page);
 			}
+
+			@Override
 			public void onError(String error) {
 				JavaScriptUtils.log("Can't load page: " + error);
 			}
+			
 		});
 	}
 
