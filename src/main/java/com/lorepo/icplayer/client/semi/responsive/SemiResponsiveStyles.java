@@ -72,13 +72,15 @@ public class SemiResponsiveStyles {
 		Element listNode = XMLUtils.createElement(mainNode);
 		
 		for (String key : hashmap.keySet()) {
-			String value = StringUtils.escapeXML(hashmap.get(key));
+			String value = hashmap.get(key);
 			if (value.compareTo("") == 0) {
 				continue;
 			}
+			String escapedValue = StringUtils.escapeXML(value);
+
 			
 			Element child = XMLUtils.createElement(childNodeName);
-			child.setAttribute("value", value);
+			child.setAttribute("value", escapedValue);
 			child.setAttribute("layoutID", key);
 			listNode.appendChild(child);
 		}
@@ -223,7 +225,8 @@ public class SemiResponsiveStyles {
 				Element childElement = (Element) child;
 				String layoutID = XMLUtils.getAttributeAsString(childElement, "layoutID");
 				String value = XMLUtils.getAttributeAsString(childElement, "value");
-				result.put(layoutID, value);
+				String unescapedValue = StringUtils.unescapeXML(value);
+				result.put(layoutID, unescapedValue);
 			}
 		}
 		
