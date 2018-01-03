@@ -1,4 +1,6 @@
 /**
+ * Teoria:
+ * http://wazniak.mimuw.edu.pl/index.php?title=Podstawy_kompilator%C3%B3w
  * Check comments if you want to add OOP to language.
  */
 function AddonPseudo_Console_create() {
@@ -122,6 +124,7 @@ function AddonPseudo_Console_create() {
             ["right", "CASE", "OPTION"]
         ],
         "bnf": {
+            //entry point
             "expressions" : [
                 //Code executor will stop when will receive undefined to execute.
                 [ "functions program_name section_list code_block",   "return {sections: $3, code: $4.concat(undefined).concat($1).concat(undefined).concat(yy.presenterContext.bnf['getObjectCallManager']())};($2 || '') + ($3 || '');"  ]
@@ -591,7 +594,7 @@ function AddonPseudo_Console_create() {
                     native: true,
                     jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (index) {
                         if (index.type !== "Number") {
-                            throw new CastErrorException("String", "Number");
+                            throw new CastErrorException(index.type, "Number");
                         }
 
                         if (this.value[index.value] === undefined || this.value[index.value] === null) {
@@ -1072,8 +1075,6 @@ function AddonPseudo_Console_create() {
     };
 
     /**
-     *
-     *
      * @param stack {Object[]}
      * @param consoleObj {UserConsole}
      * @param objects {Object[]} List of objects from objectMocks
@@ -1168,9 +1169,9 @@ function AddonPseudo_Console_create() {
         var execCommands = [],
             exitCommand = "";
 
-        //execCommands.push(presenter.generateExecuteObject('retVal.value = presenter.objectMocks.Number.__constructor__(0);', ''));   //If code goes there without return, then add to stack default value
+        execCommands.push(presenter.generateExecuteObject('retVal.value = presenter.objectMocks.Number.__constructor__(0);', ''));   //If code goes there without return, then add to stack default value
 
-        execCommands.push(presenter.generateExecuteObject('', '1_' + functionName));    //Here return will jump. Define as 1_<function_name>. 
+        execCommands.push(presenter.generateExecuteObject('', '1_' + functionName));    //Here return will jump. Define as 1_<function_name>.
 
         exitCommand += "actualScope = {};"; // Clear scope
         exitCommand += "actualScope = stack.pop();"; //Get saved scope
@@ -1784,7 +1785,6 @@ function AddonPseudo_Console_create() {
         try {
             presenter.state.console.Reset();
             var executableCode = presenter.state.codeGenerator.parse(code);
-            console.log(executableCode);
 
             presenter.checkCode();
 
@@ -1795,7 +1795,6 @@ function AddonPseudo_Console_create() {
             if (e.name !== "Error") {
                 presenter.state.console.Write(e.message + "\n", 'program-error-output');
             } else {
-                presenter.state.console.Write(e.message, 'program-error-output');
                 presenter.state.console.Write("Unexpected identifier\n", 'program-error-output');
             }
         }
@@ -1868,7 +1867,6 @@ function AddonPseudo_Console_create() {
                     pause();
                 }
             } catch (e) {
-                console.log("Index: ", actualIndex);
                 if (!e.message) {
                     presenter.state.console.Write(e + "\n", 'program-error-output');
                 } else {
