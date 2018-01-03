@@ -15,11 +15,10 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
 public class ImageSourceModule extends BasicModuleModel {
 
 	private String imagePath = "";
-	private String baseUrl = "";
 	private boolean removable = true;
 	private boolean isDisabled = false;
 	private String altText = "";
-	
+
 	public ImageSourceModule() {
 		super("Image source", DictionaryWrapper.get("image_source_module"));
 		
@@ -38,14 +37,11 @@ public class ImageSourceModule extends BasicModuleModel {
 			return imagePath;
 		}
 		
-		return baseUrl + imagePath;
+		return this.baseURL + imagePath;
 	}
 
 	@Override
-	public void load(Element node, String baseUrl) {
-		super.load(node, baseUrl);
-		
-		this.baseUrl = baseUrl;
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -68,12 +64,20 @@ public class ImageSourceModule extends BasicModuleModel {
 	@Override
 	public String toXML() {
 		String removableString = removable ? "True":"False";
-		String xml = 
-				"<imageSourceModule " + getBaseXML() + ">" + getLayoutXML() + 
-				"<image src='" + StringUtils.escapeHTML(imagePath) + "' removable='" + removableString + "' isDisabled='" + isDisabled + "' altText='" + altText +"'/>" +
-				"</imageSourceModule>";
 		
-		return xml;
+		Element imageSourceModule = XMLUtils.createElement("imageSourceModule");
+		this.setBaseXMLAttributes(imageSourceModule);
+		imageSourceModule.appendChild(this.getLayoutsXML());
+
+		Element image = XMLUtils.createElement("image");
+		image.setAttribute("src", StringUtils.escapeHTML(imagePath));
+		image.setAttribute("removable", removableString);
+		image.setAttribute("isDisabled", Boolean.toString(this.isDisabled));
+		image.setAttribute("altText", this.altText);
+		imageSourceModule.appendChild(image);
+
+		return imageSourceModule.toString();
+
 	}
 	
 	private void addPropertyIsDisabled() {
@@ -195,7 +199,7 @@ public class ImageSourceModule extends BasicModuleModel {
 		
 		addProperty(property);
 	}
-	
+
 	private void addPropertyAltText() {
 		IProperty property = new IProperty() {
 
@@ -228,9 +232,9 @@ public class ImageSourceModule extends BasicModuleModel {
 
 		addProperty(property);
 	}
-	
+
 	public String getAlttext() {
 		return altText;
 	}
-	
+
 }

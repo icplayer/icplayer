@@ -1,12 +1,13 @@
 package com.lorepo.icplayer.client.module.addon.param;
 
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.addon.AddonModel;
 
-public class StringAddonParam implements IAddonParam{
+public class StringAddonParam implements IAddonParam {
 
 	protected String name;
 	protected String displayName;
@@ -28,26 +29,27 @@ public class StringAddonParam implements IAddonParam{
 	}
 	
 	@Override
-	public String toXML(){
+	public Element toXML(){
 		
-		String xml;
+		Element property = XMLUtils.createElement("property");
 		
-		xml = "<property";
-		xml += " name='" + StringUtils.escapeXML(name) + "'";
-		xml += " displayName='" + StringUtils.escapeXML(displayName) + "'";
-		xml += " type='" + StringUtils.escapeXML(type) + "'";
-		xml += " value='" + StringUtils.escapeXML(value) + "'";
-		xml += "/>";
+		property.setAttribute("name", StringUtils.escapeXML(name));
+		property.setAttribute("displayName", StringUtils.escapeXML(displayName));
+		property.setAttribute("type", StringUtils.escapeXML(type));
+		property.setAttribute("value", StringUtils.escapeXML(value));
 		
-		return xml;
+		return property;
 	}
 
 
 	@Override
 	public void load(Element element, String baseUrl) {
 		name = XMLUtils.getAttributeAsString(element, "name");
+		name = StringUtils.unescapeXML(name);
 		displayName = XMLUtils.getAttributeAsString(element, "displayName");
+		displayName = StringUtils.unescapeXML(displayName);
 		type = XMLUtils.getAttributeAsString(element, "type");
+		type = StringUtils.unescapeXML(type);
 		String rawPropertyValue = XMLUtils.getAttributeAsString(element, "value");
 		value = StringUtils.unescapeXML(rawPropertyValue);
 	}

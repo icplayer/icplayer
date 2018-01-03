@@ -33,7 +33,8 @@ function AddonText_Coloring_create() {
 
     function flattenArrays(result, array) {
         array.forEach(function (element) {
-            result.push(element);
+            if (element)
+                result.push(element);
         });
 
         return result;
@@ -680,7 +681,7 @@ function AddonText_Coloring_create() {
             var wordGroup = groups[groupNumber];
             if (wordGroup.length == 0) {
                 result.push(getNewLineToken());
-                continue
+                continue;
             }
 
             var parsedWords = presenter.splitGroupToWords(groups[groupNumber]).map(presenter.parseWords).reduce(flattenArrays, []);
@@ -720,10 +721,14 @@ function AddonText_Coloring_create() {
         }
 
         var selectableWord = getSelectableToken(parsedSelectableWord.selectable, parsedColorID.value);
+        var wordBefore = null;
+        if (parsedColorID.wordBefore.trim().length > 0)
+            wordBefore = getWordToken(parsedColorID.wordBefore);
+
         if (parsedSelectableWord.normal === undefined) {
-            return [getWordToken(parsedColorID.wordBefore), selectableWord, getSpaceToken()];
+            return [wordBefore, selectableWord, getSpaceToken()];
         } else {
-            return [getWordToken(parsedColorID.wordBefore), selectableWord, getWordToken(parsedSelectableWord.normal), getSpaceToken()];
+            return [wordBefore, selectableWord, getWordToken(parsedSelectableWord.normal), getSpaceToken()];
         }
     };
 
@@ -733,7 +738,6 @@ function AddonText_Coloring_create() {
         var MARKING_LENGTH_OF_COLOR_ID = MARKING_START_OF_COLOR_ID.length;
         var wordBefore = "";
 
-        var markingStart = word.substring(0, MARKING_LENGTH_OF_COLOR_ID);
         if (word.indexOf(MARKING_START_OF_COLOR_ID) !== -1) {
             wordBefore = word.substring(0, word.indexOf(MARKING_START_OF_COLOR_ID));
             var enclosingIndexOfColorID = word.indexOf("}", MARKING_LENGTH_OF_COLOR_ID);
@@ -744,7 +748,7 @@ function AddonText_Coloring_create() {
                 } else {
                     return {
                       isError: false,
-                      value: word.substring(word.indexOf(MARKING_START_OF_COLOR_ID) + MARKING_LENGTH_OF_COLOR_ID, enclosingIndexOfColorID),//word.substring(MARKING_LENGTH_OF_COLOR_ID, enclosingIndexOfColorID),
+                      value: word.substring(word.indexOf(MARKING_START_OF_COLOR_ID) + MARKING_LENGTH_OF_COLOR_ID, enclosingIndexOfColorID),
                       enclosingIndex: enclosingIndexOfColorID,
                       wordBefore: wordBefore
                     }

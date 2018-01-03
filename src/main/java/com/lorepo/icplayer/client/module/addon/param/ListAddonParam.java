@@ -2,9 +2,10 @@ package com.lorepo.icplayer.client.module.addon.param;
 
 import java.util.ArrayList;
 
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
@@ -28,7 +29,7 @@ public class ListAddonParam extends StringAddonParam{
 
 
 	@Override
-	public String toXML(){
+	public Element toXML(){
 		
 		String xml;
 		
@@ -42,7 +43,7 @@ public class ListAddonParam extends StringAddonParam{
 		xml += temsToXML();
 		
 		xml += "</property>";
-		return xml;
+		return XMLParser.parse(xml).getDocumentElement();
 	}
 
 
@@ -63,7 +64,7 @@ public class ListAddonParam extends StringAddonParam{
 		
 		String xml = "<items>";
 		for(AddonParamProvider provider : propertyProviders){
-			
+
 			xml += provider.toXML();
 		}
 		xml += "</items>";

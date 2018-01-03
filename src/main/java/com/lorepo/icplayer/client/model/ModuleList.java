@@ -110,7 +110,6 @@ public class ModuleList extends ArrayList<IModuleModel> {
 
 	
 	public void sendBackModule(IModuleModel module) {
-		
 		remove(module);
 		add(0, module);
 		
@@ -147,15 +146,11 @@ public class ModuleList extends ArrayList<IModuleModel> {
 		IModuleModel foundModule = null;
 		
 		for(IModuleModel module : this){
-			
 			if(module.getId().compareTo(name) == 0){
 				foundModule = module;
 				break;
 			}
 		}
-		
 		return foundModule;
 	}
-	
-	
 }

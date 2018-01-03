@@ -45,10 +45,18 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.setAnalytics = function(id) {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setAnalytics(Ljava/lang/String;)(id);
 			};
+			
+			player.getSemiResponsiveLayouts = function () {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getSemiResponsiveLayouts()();
+			}
 
 			player.getState = function() {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getState()();
 			};
+			
+			player.changeLayout = function (layoutID) {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::changeLayout(Ljava/lang/String;)(layoutID);
+			}
 
 			player.setState = function(state) {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setState(Ljava/lang/String;)(state);
@@ -160,9 +168,17 @@ public class PlayerEntryPoint implements EntryPoint {
 	private String getState() {
 		return this.theApplication.getState();
 	}
+	
+	private JavaScriptObject getSemiResponsiveLayouts() {
+		return this.theApplication.getSemiResponsiveLayouts();
+	}
 
 	private JavaScriptObject getPlayerServices() {
 		return this.theApplication.getPlayerServices().getAsJSObject();
+	}
+	
+	private boolean changeLayout(String layoutID) {
+		return this.theApplication.changeLayout(layoutID);
 	}
 
 	private static native void fireCallback(JavaScriptObject callback) /*-{

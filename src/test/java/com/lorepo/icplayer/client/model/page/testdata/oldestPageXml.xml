@@ -1,0 +1,634 @@
+<page layout="pixels" name="Measures of Angles" isReportable="true" scoring="percentage" width="0" height="911" version="2">
+    <modules>
+        <textModule id="Text1" left="21" top="79" width="101" height="750" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="text_ActivityBackgroundFrame">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <text draggable="false" math="false" gapMaxLength="0" gapWidth="0" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" valueType="" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false">
+                <![CDATA[
+<b>Activity: 
+</b>Use the compass provided to find directions of the shown objects. Fill in the blanks.
+]]>
+
+            </text>
+
+        </textModule>
+        <textModule id="Text4" left="21" top="22" width="675" height="34" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="text_pageTitle">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <text draggable="false" math="false" gapMaxLength="0" gapWidth="0" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" valueType="" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false">
+                <![CDATA[
+<span id="result_box" class="short_text" lang="en"><span class="hps">Measures of Angles
+</span>
+</span>
+]]>
+
+            </text>
+
+        </textModule>
+        <shapeModule id="Shape1" left="21" top="824" width="706" height="64" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" style=" " class="shape_gradient_OptionsPanel">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+
+        </shapeModule>
+        <buttonModule id="Button1" left="662" top="832" width="50" height="49" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <button type="reset" text="" onclick="" confirmReset="false" confirmInfo="" confirmYesInfo="" confirmNoInfo=""/>
+
+        </buttonModule>
+        <checkModule id="Button2" left="599" top="832" width="50" height="49" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <button checkTitle="" unCheckTitle=""/>
+
+        </checkModule>
+        <checkCounterModule id="Check Counter1" left="556" top="858" width="36" height="18" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" style=" " class="checkcounter_ver1">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+
+        </checkCounterModule>
+        <errorCounterModule id="Error Counter1" left="170" top="840" width="35" height="30" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="errorcounter_ver1">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <counter showErrorCounter="true" showMistakeCounter="true" realTimeCalculation="false"/>
+
+        </errorCounterModule>
+        <pageProgressModule id="Page Progress1" left="36" top="840" width="113" height="26" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" style=" ">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <pageProgress>
+                <![CDATA[ ]]>
+
+            </pageProgress>
+
+        </pageProgressModule>
+        <shapeModule id="Shape2" left="21" top="13" width="21" height="2000" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+
+        </shapeModule>
+        <shapeModule id="Shape3" left="706" top="10" width="21" height="2000" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+
+        </shapeModule>
+        <shapeModule id="Shape4" left="-3" top="889" width="600" height="21" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+
+        </shapeModule>
+        <textModule id="Text2" left="42" top="716" width="144" height="87" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="text_paragraph_withEditableGaps">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <text draggable="false" math="false" gapMaxLength="0" gapWidth="35" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" valueType="" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false">
+                <![CDATA[ \gap{110}° <br>counterclockwise<br>from north ]]>
+
+            </text>
+
+        </textModule>
+        <imageModule id="Image1" left="43" top="568" width="125" height="125" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="image_pictureFrame">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <image src="/file/serve/2164784" mode="stretch" animatedGifRefresh="false"/>
+
+        </imageModule>
+        <imageModule id="Image2" left="221" top="567" width="125" height="125" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="image_pictureFrame">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <image src="/file/serve/2165695" mode="stretch" animatedGifRefresh="false"/>
+
+        </imageModule>
+        <textModule id="Text3" left="220" top="716" width="125" height="88" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="text_paragraph_withEditableGaps">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <text draggable="false" math="false" gapMaxLength="0" gapWidth="35" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" valueType="" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false">
+                <![CDATA[ \gap{80}° clockwise<br>from north ]]>
+
+            </text>
+
+        </textModule>
+        <textModule id="Text5" left="575" top="716" width="129" height="89" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="text_paragraph_withEditableGaps">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <text draggable="false" math="false" gapMaxLength="0" gapWidth="35" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" valueType="" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false">
+                <![CDATA[ \gap{120}° clockwise<br>from north ]]>
+
+            </text>
+
+        </textModule>
+        <textModule id="Text6" left="400" top="716" width="125" height="92" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="text_paragraph_withEditableGaps">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <text draggable="false" math="false" gapMaxLength="0" gapWidth="35" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" valueType="" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false">
+                <![CDATA[ \gap{30}° clockwise<br>from north ]]>
+
+            </text>
+
+        </textModule>
+        <imageModule id="Image4" left="576" top="567" width="125" height="125" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="image_pictureFrame">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <image src="/file/serve/2171687" mode="stretch" animatedGifRefresh="false"/>
+
+        </imageModule>
+        <imageModule id="Image5" left="75" top="158" width="594" height="120" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="image_pictureFrame">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <image src="" mode="stretch" animatedGifRefresh="false"/>
+
+        </imageModule>
+        <addonModule addonId="Image_Viewer_Public" id="Image_Viewer_Public1" left="78" top="161" width="198" height="120" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <properties>
+                <property name="Image" displayName="" type="file" value="/file/serve/2172570"/>
+                <property name="Frames" displayName="" type="string" value="36"/>
+                <property name="Frame size" displayName="" type="{Original, Keep aspect ratio, Stretch}" value=""/>
+                <property name="Sounds" displayName="" type="list">
+                    <template>
+                        <property name="MP3 sound" displayName="" type="file" value=""/>
+                        <property name="OGG sound" displayName="" type="file" value=""/>
+                        <property name="AAC sound" displayName="" type="file" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="MP3 sound" displayName="" type="file" value=""/>
+                            <property name="OGG sound" displayName="" type="file" value=""/>
+                            <property name="AAC sound" displayName="" type="file" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="Frame names" displayName="" type="list">
+                    <template>
+                        <property name="name" displayName="" type="string" value=""/>
+                        <property name="frame" displayName="" type="string" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="name" displayName="" type="string" value=""/>
+                            <property name="frame" displayName="" type="string" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="isClickDisabled" displayName="" type="boolean" value=""/>
+                <property name="Labels" displayName="" type="list">
+                    <template>
+                        <property name="Text" displayName="" type="string" value=""/>
+                        <property name="Top" displayName="" type="string" value=""/>
+                        <property name="Left" displayName="" type="string" value=""/>
+                        <property name="Frames" displayName="" type="string" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="Text" displayName="" type="string" value=""/>
+                            <property name="Top" displayName="" type="string" value=""/>
+                            <property name="Left" displayName="" type="string" value=""/>
+                            <property name="Frames" displayName="" type="string" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="Show watermark" displayName="" type="boolean" value=""/>
+                <property name="Watermark color" displayName="" type="string" value=""/>
+                <property name="Watermark opacity" displayName="" type="string" value=""/>
+                <property name="Watermark size" displayName="" type="string" value=""/>
+                <property name="Show frame" displayName="" type="string" value=""/>
+                <property name="Animation" displayName="" type="{None, Linear, Fading}" value=""/>
+                <property name="Correct frames" displayName="" type="string" value=""/>
+                <property name="Do not reset" displayName="" type="boolean" value=""/>
+                <property name="Random frame" displayName="" type="boolean" value=""/>
+                <property name="Initial frame" displayName="" type="string" value=""/>
+                <property name="Show frame counter" displayName="" type="boolean" value=""/>
+
+            </properties>
+
+        </addonModule>
+        <addonModule addonId="Image_Viewer_Public" id="Image_Viewer_Public2" left="276" top="161" width="198" height="120" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <properties>
+                <property name="Image" displayName="" type="file" value="/file/serve/2149925"/>
+                <property name="Frames" displayName="" type="string" value="36"/>
+                <property name="Frame size" displayName="" type="{Original, Keep aspect ratio, Stretch}" value=""/>
+                <property name="Sounds" displayName="" type="list">
+                    <template>
+                        <property name="MP3 sound" displayName="" type="file" value=""/>
+                        <property name="OGG sound" displayName="" type="file" value=""/>
+                        <property name="AAC sound" displayName="" type="file" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="MP3 sound" displayName="" type="file" value=""/>
+                            <property name="OGG sound" displayName="" type="file" value=""/>
+                            <property name="AAC sound" displayName="" type="file" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="Frame names" displayName="" type="list">
+                    <template>
+                        <property name="name" displayName="" type="string" value=""/>
+                        <property name="frame" displayName="" type="string" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="name" displayName="" type="string" value=""/>
+                            <property name="frame" displayName="" type="string" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="isClickDisabled" displayName="" type="boolean" value=""/>
+                <property name="Labels" displayName="" type="list">
+                    <template>
+                        <property name="Text" displayName="" type="string" value=""/>
+                        <property name="Top" displayName="" type="string" value=""/>
+                        <property name="Left" displayName="" type="string" value=""/>
+                        <property name="Frames" displayName="" type="string" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="Text" displayName="" type="string" value=""/>
+                            <property name="Top" displayName="" type="string" value=""/>
+                            <property name="Left" displayName="" type="string" value=""/>
+                            <property name="Frames" displayName="" type="string" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="Show watermark" displayName="" type="boolean" value=""/>
+                <property name="Watermark color" displayName="" type="string" value=""/>
+                <property name="Watermark opacity" displayName="" type="string" value=""/>
+                <property name="Watermark size" displayName="" type="string" value=""/>
+                <property name="Show frame" displayName="" type="string" value=""/>
+                <property name="Animation" displayName="" type="{None, Linear, Fading}" value=""/>
+                <property name="Correct frames" displayName="" type="string" value=""/>
+                <property name="Do not reset" displayName="" type="boolean" value=""/>
+                <property name="Random frame" displayName="" type="boolean" value=""/>
+                <property name="Initial frame" displayName="" type="string" value=""/>
+                <property name="Show frame counter" displayName="" type="boolean" value=""/>
+
+            </properties>
+
+        </addonModule>
+        <addonModule addonId="Image_Viewer_Public" id="Image_Viewer_Public3" left="474" top="161" width="198" height="120" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <properties>
+                <property name="Image" displayName="" type="file" value="/file/serve/2166582"/>
+                <property name="Frames" displayName="" type="string" value="36"/>
+                <property name="Frame size" displayName="" type="{Original, Keep aspect ratio, Stretch}" value=""/>
+                <property name="Sounds" displayName="" type="list">
+                    <template>
+                        <property name="MP3 sound" displayName="" type="file" value=""/>
+                        <property name="OGG sound" displayName="" type="file" value=""/>
+                        <property name="AAC sound" displayName="" type="file" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="MP3 sound" displayName="" type="file" value=""/>
+                            <property name="OGG sound" displayName="" type="file" value=""/>
+                            <property name="AAC sound" displayName="" type="file" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="Frame names" displayName="" type="list">
+                    <template>
+                        <property name="name" displayName="" type="string" value=""/>
+                        <property name="frame" displayName="" type="string" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="name" displayName="" type="string" value=""/>
+                            <property name="frame" displayName="" type="string" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="isClickDisabled" displayName="" type="boolean" value=""/>
+                <property name="Labels" displayName="" type="list">
+                    <template>
+                        <property name="Text" displayName="" type="string" value=""/>
+                        <property name="Top" displayName="" type="string" value=""/>
+                        <property name="Left" displayName="" type="string" value=""/>
+                        <property name="Frames" displayName="" type="string" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="Text" displayName="" type="string" value=""/>
+                            <property name="Top" displayName="" type="string" value=""/>
+                            <property name="Left" displayName="" type="string" value=""/>
+                            <property name="Frames" displayName="" type="string" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="Show watermark" displayName="" type="boolean" value=""/>
+                <property name="Watermark color" displayName="" type="string" value=""/>
+                <property name="Watermark opacity" displayName="" type="string" value=""/>
+                <property name="Watermark size" displayName="" type="string" value=""/>
+                <property name="Show frame" displayName="" type="string" value=""/>
+                <property name="Animation" displayName="" type="{None, Linear, Fading}" value=""/>
+                <property name="Correct frames" displayName="" type="string" value=""/>
+                <property name="Do not reset" displayName="" type="boolean" value=""/>
+                <property name="Random frame" displayName="" type="boolean" value=""/>
+                <property name="Initial frame" displayName="" type="string" value=""/>
+                <property name="Show frame counter" displayName="" type="boolean" value=""/>
+
+            </properties>
+
+        </addonModule>
+        <addonModule addonId="Image_Viewer_Public" id="Image_Viewer_Public4" left="255" top="305" width="235" height="235" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="Image_Viewer_Public_frame">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <properties>
+                <property name="Image" displayName="" type="file" value="/file/serve/2154715"/>
+                <property name="Frames" displayName="" type="string" value="36"/>
+                <property name="Frame size" displayName="" type="{Original, Keep aspect ratio, Stretch}" value=""/>
+                <property name="Sounds" displayName="" type="list">
+                    <template>
+                        <property name="MP3 sound" displayName="" type="file" value=""/>
+                        <property name="OGG sound" displayName="" type="file" value=""/>
+                        <property name="AAC sound" displayName="" type="file" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="MP3 sound" displayName="" type="file" value=""/>
+                            <property name="OGG sound" displayName="" type="file" value=""/>
+                            <property name="AAC sound" displayName="" type="file" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="Frame names" displayName="" type="list">
+                    <template>
+                        <property name="name" displayName="" type="string" value=""/>
+                        <property name="frame" displayName="" type="string" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="name" displayName="" type="string" value=""/>
+                            <property name="frame" displayName="" type="string" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="isClickDisabled" displayName="" type="boolean" value=""/>
+                <property name="Labels" displayName="" type="list">
+                    <template>
+                        <property name="Text" displayName="" type="string" value=""/>
+                        <property name="Top" displayName="" type="string" value=""/>
+                        <property name="Left" displayName="" type="string" value=""/>
+                        <property name="Frames" displayName="" type="string" value=""/>
+
+                    </template>
+                    <items>
+                        <item>
+                            <property name="Text" displayName="" type="string" value=""/>
+                            <property name="Top" displayName="" type="string" value=""/>
+                            <property name="Left" displayName="" type="string" value=""/>
+                            <property name="Frames" displayName="" type="string" value=""/>
+
+                        </item>
+
+                    </items>
+
+                </property>
+                <property name="Show watermark" displayName="" type="boolean" value=""/>
+                <property name="Watermark color" displayName="" type="string" value=""/>
+                <property name="Watermark opacity" displayName="" type="string" value=""/>
+                <property name="Watermark size" displayName="" type="string" value=""/>
+                <property name="Show frame" displayName="" type="string" value=""/>
+                <property name="Animation" displayName="" type="{None, Linear, Fading}" value=""/>
+                <property name="Correct frames" displayName="" type="string" value=""/>
+                <property name="Do not reset" displayName="" type="boolean" value=""/>
+                <property name="Random frame" displayName="" type="boolean" value=""/>
+                <property name="Initial frame" displayName="" type="string" value=""/>
+                <property name="Show frame counter" displayName="" type="boolean" value=""/>
+
+            </properties>
+
+        </addonModule>
+        <addonModule addonId="Single_State_Button" id="Single_State_Button1" left="195" top="406" width="40" height="40" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <properties>
+                <property name="Title" displayName="" type="string" value=""/>
+                <property name="Image" displayName="" type="image" value="/file/serve/2155704"/>
+                <property name="onClick" displayName="" type="event">
+                    Image_Viewer_Public1.previous();\nImage_Viewer_Public2.previous();\nImage_Viewer_Public3.previous();\nImage_Viewer_Public4.previous();
+
+                </property>
+                <property name="Disable" displayName="" type="boolean" value=""/>
+
+            </properties>
+
+        </addonModule>
+        <addonModule addonId="Single_State_Button" id="Single_State_Button2" left="516" top="406" width="40" height="40" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <properties>
+                <property name="Title" displayName="" type="string" value=""/>
+                <property name="Image" displayName="" type="image" value="/file/serve/2171604"/>
+                <property name="onClick" displayName="" type="event">
+                    Image_Viewer_Public1.next();\nImage_Viewer_Public2.next();\nImage_Viewer_Public3.next();\nImage_Viewer_Public4.next();
+
+                </property>
+                <property name="Disable" displayName="" type="boolean" value=""/>
+
+            </properties>
+
+        </addonModule>
+        <imageModule id="Image3" left="400" top="567" width="125" height="125" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true" class="image_pictureFrame">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+            <image src="/file/serve/2154802" mode="stretch" animatedGifRefresh="false"/>
+
+        </imageModule>
+        <shapeModule id="Shape5" left="28" top="801" width="100" height="21" right="0" bottom="0" isVisible="true" isLocked="false" isModuleVisibleInEditor="true">
+            <layout type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+
+            </layout>
+
+        </shapeModule>
+
+    </modules>
+    <groups/>
+    <editorRulers>
+        <vertical>0
+        </vertical>
+
+    </editorRulers>
+    <page-weight value="1" mode="defaultWeight"/>
+
+</page>

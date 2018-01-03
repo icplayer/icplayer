@@ -6,7 +6,10 @@ import java.util.List;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.PlayerApp;
-import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.dimensions.CalculateModuleDimensions;
+import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
+import com.lorepo.icplayer.client.dimensions.PageDimensionsForCalculations;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -35,22 +38,25 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		this.currentPage = newPage;
 		String styles = "position:relative;overflow:hidden;";
 		if(this.currentPage.getInlineStyle() != null){
-			styles += this.currentPage.getInlineStyle(); 
-			
+			styles += this.currentPage.getInlineStyle();
 		}
+
 		DOMUtils.applyInlineStyle(this.getElement(), styles);
+
 		if(!this.currentPage.getStyleClass().isEmpty()){
 			this.addStyleName(this.currentPage.getStyleClass());
 		}
 		this.getElement().setId(this.currentPage.getId());
 		this.removeAllModules();
-		this.createPageDimensions();
 	}
 	
 	private void createPageDimensions() {
 		this.pageDimensions = PageDimensionsForCalculations.getAbsolutePageViewDimensions(this);
 	}
 
+	public void recalculatePageDimensions() {
+		this.createPageDimensions();
+	}
 
 	@Override
 	public void refreshMathJax() {
@@ -62,7 +68,6 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		if(view instanceof Widget){
 			Widget moduleView = (Widget) view;
 
-			
 			ModuleDimensions moduleDimensions = this.calculateModuleDimensions.setPageDimensions(this.pageDimensions)
 					.setModule(module)
 					.compute(this.widgets);
@@ -112,12 +117,12 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 			return 0;
 		}
 	}
-	
+
 	public static native void setProperPageHeight(int difference) /*-{
 		var currentHeight = $wnd.$(".ic_content").parent().css("height").replace("px", "");
 		$wnd.$(".ic_content").parent().css("height", parseInt(currentHeight, 10) + difference + "px");
 	}-*/;
-	
+
 	public static native void setProperFotterPosition () /*-{
 		try {
 			var icFooterHeight = $wnd.$(".ic_footer").css("height").replace("px",""),
@@ -129,7 +134,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		}
 	}-*/;
 	
-	public void outstretchHeight(int y, int difference, boolean isRestore, boolean dontMoveModules) {		
+	public void outstretchHeight(int y, int difference, boolean isRestore, boolean dontMoveModules) {
 		if (!dontMoveModules) {
 			List<WidgetPositionStruct> widgetsList = this.widgetsPositions.getAllWidgetsFromPoint(y);
 			for (WidgetPositionStruct widgetData: widgetsList) {
@@ -137,7 +142,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 				this.widgetsPositions.setWidgetNewData(widgetData);
 				this.setWidgetPosition(widgetData.widget, widgetData.getLeft(), widgetData.getTop());
 			}
-		}	
+		}
 		
 		if (difference > 0 && !isRestore) {
 			int height = this.height + difference + calculateStaticHeaderFooterHeight();
@@ -153,7 +158,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 			}
 			if(!PlayerApp.isStaticHeader() && PlayerApp.isStaticFooter()) {
 				int height = this.height + difference + calculateStaticHeaderFooterHeight();
-				this.height = this.height + difference;				
+				this.height = this.height + difference;
 				this.setHeight(height + "px");
 			}else{
 				setHeight(this.height + difference);

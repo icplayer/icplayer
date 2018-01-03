@@ -75,10 +75,7 @@ public class ChoiceModel extends BasicModuleModel{
 	}
 
 	@Override
-	public void load(Element node, String baseUrl) {
-	
-		super.load(node, baseUrl);
-		
+	protected void parseModuleNode(Element node) {
 		options.clear();
 		maxScore = 0;
 		
@@ -101,10 +98,9 @@ public class ChoiceModel extends BasicModuleModel{
 			Element element = (Element)optionNodes.item(i);
 			String optionID = Integer.toString(i+1);
 			ChoiceOption option = new ChoiceOption(optionID);
-			option.load(element, baseUrl);
+			option.load(element, this.getBaseURL());
 			addOption(option);
 		}
-		
 	}
 
 	/**
@@ -127,24 +123,27 @@ public class ChoiceModel extends BasicModuleModel{
 	 */
 	@Override
 	public String toXML() {
+		Element choiceModule = XMLUtils.createElement("choiceModule");
 		
-		String xml = "<choiceModule " + getBaseXML() + ">" + getLayoutXML();
-		xml += "<choice " +
-				"isMulti='" + isMulti + "' " +
-				"isDisabled='" + isDisabled +  "' " +
-				"isActivity='" + isActivity +  "' " +
-				"randomOrder='" + randomOrder +  "' " +
-				"isHorizontal='" + isHorizontal +  "' " +
-				" />";
-		xml += "<options>";
+		this.setBaseXMLAttributes(choiceModule);
+		choiceModule.appendChild(this.getLayoutsXML());
+		
+		Element choice = XMLUtils.createElement("choice");
+		choice.setAttribute("isMulti", Boolean.toString(isMulti));
+		choice.setAttribute("isDisabled", Boolean.toString(isDisabled));
+		choice.setAttribute("isActivity", Boolean.toString(isActivity));
+		choice.setAttribute("randomOrder", Boolean.toString(randomOrder));
+		choice.setAttribute("isHorizontal", Boolean.toString(isHorizontal));
+		
+		choiceModule.appendChild(choice);
+		
+		Element optionsElement = XMLUtils.createElement("options");
 		for(ChoiceOption option : options){
-			xml += option.toXML();
+			optionsElement.appendChild(option.toXML());
 		}
-		xml += "</options>";
-
-		xml += "</choiceModule>";
 		
-		return xml;
+		choiceModule.appendChild(optionsElement);
+		return choiceModule.toString();
 	}
 
 	

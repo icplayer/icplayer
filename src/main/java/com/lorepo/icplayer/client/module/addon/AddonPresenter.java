@@ -294,7 +294,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 
 	private void addPropertyToModel(JavaScriptObject jsModel, IProperty property){
-		
 		String value = property.getValue();
 		
 		if(	property instanceof IAudioProperty || 

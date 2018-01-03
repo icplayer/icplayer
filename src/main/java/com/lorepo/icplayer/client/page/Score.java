@@ -1,7 +1,7 @@
 package com.lorepo.icplayer.client.page;
 
-import com.lorepo.icplayer.client.model.Page;
-import com.lorepo.icplayer.client.model.Page.ScoringType;
+import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.Page.ScoringType;
 import com.lorepo.icplayer.client.module.api.IActivity;
 
 public class Score {

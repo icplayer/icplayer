@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -20,6 +21,8 @@ import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DictionaryWrapper.class)
 public class LimitedCheckModuleTestCase {
+
+	private static final String PAGE_VERSION = "2";
 
 	@Test
 	public void moduleTypeName() {
@@ -38,22 +41,10 @@ public class LimitedCheckModuleTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		LimitedCheckModule module = new LimitedCheckModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		assertEquals("check", module.getCheckText());
 		assertEquals("unCheck", module.getUnCheckText());
 		assertEquals("Text1", module.getRawWorksWith());
-	}
-	
-	@Test
-	public void modelToXML() {
-		LimitedCheckModule module = new LimitedCheckModule();
-		module.setCheckText("Some text");
-		module.setUnCheckText("Some uncheck text");
-		module.setRawWorksWith("Table1;Table1");
-		
-		String xml = module.modelToXML();
-		
-		assertEquals("<limitedCheck checkText='Some text' unCheckText='Some uncheck text' mistakesFromProvidedModules='false'><![CDATA[Table1;Table1]]></limitedCheck>", xml);
 	}
 }

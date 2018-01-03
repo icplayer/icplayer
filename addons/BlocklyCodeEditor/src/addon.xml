@@ -78,6 +78,6 @@
 		<property name="maxBlocksLimit" displayName="Block limit" nameLabel="BlocklyCodeEditor_property_max_block_limit" type="string"/>
 		<property name="hideRun" displayName="Hide Run" nameLabel="BlocklyCodeEditor_property_hide_run" type="boolean" />
 		<property name="blocksTranslation" nameLabel="BlocklyCodeEditor_property_blocksTranslation" type="text"/>
-
+		<property name="initialConfiguration" nameLabel="BlocklyCodeEditor_property_initial_configuration" type="text"/>
 	</model>
 </addon>

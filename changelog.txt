@@ -1,3 +1,13 @@
+2018-01-03 Fixed problem with moving to next gap in eKeyboard module
+2017-12-28 Added possibility to define many layouts for lesson depending on device threshold
+2017-12-22 Fixed tests in Video module
+2017-12-22 Added initial configuration in Blockly Code Editor module
+2017-12-22 Fixed showing cards and images in Memogame module
+2017-12-14 Fixed performance issues with preloading images for preview mode in Animation module
+2017-12-13 Fixed popup scrolling
+2017-12-13 Fixed managing tabindex property
+2017-12-12 Fixed Text coloring that was producing additional clickable elements
+2017-12-06 Fixed navigating in gaps
 2017-12-06 Added custom events handling and using /file/serve files from mCourser with no_gcs flag
 2017-12-05 Added Enable tabindex property and changed default value.
 2017-12-01 Added setVideoURL command for video addon.

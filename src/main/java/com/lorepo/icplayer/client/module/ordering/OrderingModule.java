@@ -72,9 +72,7 @@ public class OrderingModule extends BasicModuleModel {
 	}
 
 	@Override
-	public void load(Element node, String baseUrl) {
-		super.load(node, baseUrl);
-
+	protected void parseModuleNode(Element node) {
 		items.clear();
 		// Read ordering node
 		NodeList nodeList = node.getElementsByTagName("ordering");
@@ -129,15 +127,15 @@ public class OrderingModule extends BasicModuleModel {
 		}
 		catch (NumberFormatException e) {}
 	}
-	
+
 	public String getItemsOrder() {
 		String order = "";
 		int last = 0;
-		
+
 		for (OrderingItem item : items) {
 			order += item.getIndex();
 			last++;
-			
+
 			if (last != items.size() )
 				order += ", ";
 		}
@@ -157,20 +155,27 @@ public class OrderingModule extends BasicModuleModel {
 	 */
 	@Override
 	public String toXML() {
+		Element orderingModule = XMLUtils.createElement("orderingModule");
+		this.setBaseXMLAttributes(orderingModule);
+		orderingModule.appendChild(this.getLayoutsXML());
 
-		String xml = "<orderingModule " + getBaseXML() + ">" + getLayoutXML();
+		Element ordering = XMLUtils.createElement("ordering");
 
-		xml += "<ordering isVertical='" + Boolean.toString(isVertical) + "' optionalOrder='" +
-				optionalOrder + "' isActivity='" + isActivity + "' allElementsHasSameWidth='" + 
-				Boolean.toString(allElementsHasSameWidth) + "' graduallyScore='" + Boolean.toString(graduallyScore) +
-				"' dontGenerateCorrectOrder='" + Boolean.toString(dontGenerateCorrectOrder) +
-				"'/>";
+		XMLUtils.setBooleanAttribute(ordering, "isVertical", isVertical);
+		XMLUtils.setBooleanAttribute(ordering, "isActivity", isActivity);
+		XMLUtils.setBooleanAttribute(ordering, "allElementsHasSameWidth", allElementsHasSameWidth);
+		XMLUtils.setBooleanAttribute(ordering, "graduallyScore", graduallyScore);
+		XMLUtils.setBooleanAttribute(ordering, "dontGenerateCorrectOrder", dontGenerateCorrectOrder);
+		ordering.setAttribute("optionalOrder", optionalOrder);
+		orderingModule.appendChild(ordering);
 
 		for (OrderingItem item : items) {
-			xml += "<item><![CDATA[" + item.getText() + "]]></item>";
+			Element itemElement = XMLUtils.createElement("item");
+			itemElement.appendChild(XMLUtils.createCDATASection(item.getText()));
+			orderingModule.appendChild(itemElement);
 		}
 
-		return xml + "</orderingModule>";
+		return orderingModule.toString();
 	}
 
 	public int getMaxScore() {
@@ -476,11 +481,11 @@ public class OrderingModule extends BasicModuleModel {
 
 		addProperty(property);
 	}
-	
+
 	public boolean isDontGenerateCorrectOrder() {
 		return dontGenerateCorrectOrder;
 	}
-	
+
 	private void addPropertyDontGenerateCorrectOrder() {
 
 		IProperty property = new IBooleanProperty() {

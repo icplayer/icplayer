@@ -2,58 +2,62 @@ package com.lorepo.icplayer.client.page;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.xml.sax.SAXException;
 
-import com.google.gwt.xml.client.Element;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icplayer.client.IPlayerController;
-import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
-import com.lorepo.icplayer.client.model.Group;
-import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.mockup.xml.PageFactoryMockup;
+import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.model.page.Group;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockup;
 import com.lorepo.icplayer.client.page.mockup.PageViewMockup;
 import com.lorepo.icplayer.client.page.mockup.PlayerControllerMockup;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
-public class GWTPageControllerTestCase extends GwtTest{
+public class GWTPageControllerTestCase extends GwtTest {
 
 	private PageViewMockup display;
-	private PageController pageController;
 	
-	
-	public void init(String pageURL) throws SAXException, IOException {
+	public PageController init(String dataPath) throws SAXException, IOException {
 		
 		display = new PageViewMockup();
 		IPlayerController playerController = new PlayerControllerMockup();
-		pageController = new PageController(playerController);
+		PageController pageController = new PageController(playerController);
 		pageController.setView(display);
 		pageController.setModuleFactory(new ModuleFactoryMockup(pageController.getPlayerServices()));
 		
-		InputStream inputStream = getClass().getResourceAsStream(pageURL);
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
+		Page page = new PageFactoryMockup(new Page("Sizes", "")).loadFromFile(dataPath);
 		
-		Page page = new Page("Sizes", "");
-		page.load(element, "");
+		Set<PageLayout> pageLayouts = new HashSet<PageLayout>(Arrays.asList(PageLayout.createDefaultPageLayout()));
+		
+		Content contentMock = Mockito.mock(Content.class);
+		when(contentMock.getActualSemiResponsiveLayoutID()).thenReturn("default");
+		when(contentMock.getActualSemiResponsiveLayouts()).thenReturn(pageLayouts);
+		
+		pageController.setContent(contentMock);
 		
 		pageController.setPage(page);
+		return pageController;
 	}
-	
 	
 	@Test
 	public void setDisplaySize() throws SAXException, IOException {
-
-		init("testdata/page.xml");
+		init("testdata/pagecontroller/page.xml");
 		
 		assertEquals(100, display.getWidth());
 		assertEquals(200, display.getHeight());
@@ -61,8 +65,7 @@ public class GWTPageControllerTestCase extends GwtTest{
 
 	@Test
 	public void dontSetDisplaySize() throws SAXException, IOException {
-
-		init("testdata/addon.page.xml");
+		init("testdata/pagecontroller/addon.page.xml");
 
 		assertEquals(-1, display.getWidth());
 		assertEquals(-1, display.getHeight());
@@ -70,8 +73,7 @@ public class GWTPageControllerTestCase extends GwtTest{
 
 	@Test
 	public void findModule() throws SAXException, IOException {
-
-		init("testdata/page.xml");
+		PageController pageController = init("testdata/pagecontroller/page.xml");
 		IPresenter presenter = pageController.findModule("sl2");
 
 		assertNotNull(presenter);
@@ -79,7 +81,7 @@ public class GWTPageControllerTestCase extends GwtTest{
 	
 	@Test
 	public void createGroupPresenters() throws SAXException, IOException {
-		init("testdata/page.xml");
+		PageController pageController = init("testdata/pagecontroller/page.xml");
 		
 		Group group = new Group();
 		group.add(pageController.findModule("sl1").getModel());
