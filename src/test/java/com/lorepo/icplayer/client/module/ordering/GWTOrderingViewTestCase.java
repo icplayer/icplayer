@@ -28,6 +28,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Before
 	public void beforeTest() throws Exception {
 		this.model = Mockito.mock(OrderingModule.class);
+//		Mockito.mock(this.model.getLangAttribute, "");
 		this.orderingView = Mockito.mock(OrderingView.class);
 		this.orderingViewPMMock = PowerMockito.spy(Whitebox.newInstance(OrderingView.class));
 		innerCellPanel = new VerticalPanel();
@@ -183,7 +184,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Test
 	public void moveWillSelectFirstElementIfIsAboveElementsCount () throws Exception {
 		Whitebox.setInternalState(this.orderingViewPMMock, "currentWCAGSelectedItemIndex", 2);
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);	
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "move", 1);
 		
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
@@ -194,7 +195,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Test 
 	public void moveWillSelectLastElementIfIsBelowZero () throws Exception {
 		Whitebox.setInternalState(this.orderingViewPMMock, "currentWCAGSelectedItemIndex", 0);
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);	
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "move", -1);
 		
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);

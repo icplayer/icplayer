@@ -67,4 +67,10 @@ public class ButtonViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public boolean isEnabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

@@ -62,7 +62,6 @@ public class TextViewMockup implements IDisplay {
 		
 	}
 
-	@Override
 	public void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator) {
 		// TODO Auto-generated method stub
 		
@@ -159,6 +158,12 @@ public class TextViewMockup implements IDisplay {
 	public void sortGapsOrder() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public boolean isWCAGon() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

@@ -55,7 +55,6 @@ public class SourceListViewMockup implements IDisplay {
 		items.clear();
 	}
 
-	@Override
 	public void deselectItem(String id) {
 		if(selectedId.compareTo(id) == 0){
 			selectedId = null;
@@ -141,6 +140,12 @@ public class SourceListViewMockup implements IDisplay {
 
 	public void executeOnKeyCode(KeyDownEvent keyDownEvent) {
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void deselectItem(String id, boolean read) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

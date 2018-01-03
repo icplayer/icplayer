@@ -368,7 +368,6 @@ public final class KeyboardNavigationController {
 	}
 
 	private void activateModule () {
-		JavaScriptUtils.log("[KeyboardNavigationController] activateModule");
 		if (!this.modeOn) {
 			return;
 		}

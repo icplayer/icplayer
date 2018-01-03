@@ -210,7 +210,7 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 		Mockito.when(mock1.presenter.getWCAGController())
 			.thenReturn(Mockito.mock(IWCAG.class));
 		
-		Mockito.when(mock1.presenter.isSelectable())
+		Mockito.when(mock1.presenter.isSelectable(true))
 			.thenReturn(true);
 		
 		Whitebox.setInternalState(this.controller, "presenters", presenters);

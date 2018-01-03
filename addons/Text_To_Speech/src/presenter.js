@@ -160,7 +160,7 @@ function AddonText_To_Speech_create() {
             }
         }
 
-        return 'en';
+        return presenter.configuration.voices[0];
     }
 
     function filterTexts (texts, languageGetter) {
