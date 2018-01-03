@@ -438,7 +438,7 @@ function AddoneKeyboard_create(){
 
                 if (presenter.configuration.maxCharacters !== false) {
                     $(presenter.configuration.workWithViews).find('input').on("change paste keyup", function () {
-                        if ($(this).val().length > presenter.configuration.maxCharacters) {
+                        if ($(this).val().length >= presenter.configuration.maxCharacters) {
                             var self = this;
                             $(this).val($(this).val().substring(0, presenter.configuration.maxCharacters));
 
