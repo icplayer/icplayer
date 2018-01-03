@@ -123,6 +123,7 @@ function AddonPseudo_Console_create() {
         ],
         "bnf": {
             "expressions" : [
+                //Code executor will stop when will receive undefined to execute.
                 [ "functions program_name section_list code_block",   "return {sections: $3, code: $4.concat(undefined).concat($1).concat(undefined).concat(yy.presenterContext.bnf['getObjectCallManager']())};($2 || '') + ($3 || '');"  ]
             ],
 
@@ -380,7 +381,7 @@ function AddonPseudo_Console_create() {
                 [ "operation AND operation",    "$$ = yy.presenterContext.generateOperationCode($1, $3, '__and__');" ],
                 [ "( operation )",              "$$ = $2" ],
                 [ "- operation",                "$$ = yy.presenterContext.generateMinusOperation($2);", {"prec": "UMINUS"} ],
-                [ "operation DOT STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['method_call']($3, $5, $1);"],
+                [ "operation DOT STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['method_call']($3, $5 || [], $1);"],
                 [ "number_value",               "$$ = $1" ],
                 [ "variable_get",               "$$ = $1" ],
                 [ "string_value",               "$$ = $1" ],
@@ -2313,7 +2314,7 @@ function AddonPseudo_Console_create() {
 
         for (aliasKey in aliases) {
             if (aliases.hasOwnProperty(aliasKey)) {
-                if (!ModelValidationUtils.isStringEmpty(aliases[aliasKey].name.trim())) {
+                if (aliases[aliasKey].name && !ModelValidationUtils.isStringEmpty(aliases[aliasKey].name.trim())) {
                     aliasName = aliases[aliasKey].name.trim();
 
                     if (!/^[A-Za-z_][a-zA-Z0-9_]*$/g.exec(aliasName)) {

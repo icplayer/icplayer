@@ -4,7 +4,7 @@ TestCase("[Pseudo_Console - state tests] set state", {
 
         this.presenter.state.$view = {
             css: function () {}
-        }
+        };
         
         this.exampleState = {
             isVisible: "xD",
