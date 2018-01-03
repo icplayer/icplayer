@@ -1,3 +1,4 @@
+2018-01-03 Added WCAG to the Report module
 2017-11-15 Added alternative text property in Image Source, Image Identification, iFrame and Multiplegap modules
 2017-11-14 Fixed problem with math gaps in Text when changing page quickly.
 2017-11-09 Added commands to fire keyboard navigation

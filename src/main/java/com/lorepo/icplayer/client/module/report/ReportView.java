@@ -1,26 +1,39 @@
 package com.lorepo.icplayer.client.module.report;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.report.ReportPresenter.IDisplay;
 import com.lorepo.icplayer.client.utils.widget.ProgressBar;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
+import com.lorepo.icplayer.client.page.PageController;
 
 
-public class ReportView extends Composite implements IDisplay{
+public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModuleView{
 
 	private ReportModule module;
 	private Grid grid;
 	private int lastRow;
 	private IViewListener listener;
 	private HashMap<Integer, String> pageLinks;
+	private boolean isWCAGOn = false;
+	private boolean isWCAGActive = false;
+	private PageController pageController;
+	private int currentWCAGSelectedRowIndex = 1;
+	private int currentWCAGSelectedColumnIndex = 0;
 	
+	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
 	
 	public ReportView(ReportModule module, boolean isPreview){
 	
@@ -166,5 +179,152 @@ public class ReportView extends Composite implements IDisplay{
 	@Override
 	public String getName() {
 		return "Report";
+	}
+
+	@Override
+	public void setPageController(PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+	}
+
+	@Override
+	public void setWCAGStatus(boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;
+		
+	}
+
+	@Override
+	public String getLang() {
+		return null;
+	}
+	
+	private String getCellText(int x, int y){
+		String cellText = grid.getText(y, x);
+		if (x==3) cellText = cellText.replaceAll("/", ", ");
+		return cellText;
+			
+	}
+
+	private void readCell(int x, int y){
+		String columnName = "";
+		if(x!=0) columnName = this.module.getSpeechTextItem(x);
+		this.speak(TextToSpeechVoice.create(columnName+" "+this.getCellText(x, y)));
+	}
+	
+	private void readRow(int x, int y){
+		if(x==0){
+		this.speak(TextToSpeechVoice.create(grid.getText(y, 0)));
+		}else{
+			String columnName = this.module.getSpeechTextItem(x);
+			String pageName = grid.getText(y, 0);
+			this.speak(TextToSpeechVoice.create(pageName+", "+columnName+" "+this.getCellText(x, y)));
+		}
+	}
+	
+	private void move(int columnDelta, int rowDelta){
+		grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
+		
+		currentWCAGSelectedRowIndex+=rowDelta;
+		if(currentWCAGSelectedRowIndex<1) currentWCAGSelectedRowIndex = 1;
+		if(currentWCAGSelectedRowIndex>lastRow) currentWCAGSelectedRowIndex = lastRow;
+		
+		currentWCAGSelectedColumnIndex+=columnDelta;
+		if(currentWCAGSelectedColumnIndex<0) currentWCAGSelectedColumnIndex = 0;
+		if(currentWCAGSelectedColumnIndex>=this.getColumnCount()) currentWCAGSelectedColumnIndex = this.getColumnCount()-1;
+		
+		grid.getCellFormatter().addStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
+		
+		if(rowDelta==0){
+			this.readCell(currentWCAGSelectedColumnIndex, currentWCAGSelectedRowIndex);
+		} else {
+			this.readRow(currentWCAGSelectedColumnIndex, currentWCAGSelectedRowIndex);
+		}
+			
+	}
+	
+	@Override
+	public void enter(boolean isExiting) {
+		this.isWCAGActive = !isExiting;
+		if(isExiting){
+			grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
+			currentWCAGSelectedRowIndex = 1;
+			currentWCAGSelectedColumnIndex = 0;
+		}else{
+			this.readRow(currentWCAGSelectedColumnIndex, currentWCAGSelectedRowIndex);
+			grid.getCellFormatter().addStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
+		}
+		
+	}
+
+	@Override
+	public void space() {
+
+	}
+
+	@Override
+	public void tab() {
+		if(currentWCAGSelectedColumnIndex==this.getColumnCount()-1){
+			if(currentWCAGSelectedRowIndex==lastRow){
+				this.readCell(currentWCAGSelectedColumnIndex, currentWCAGSelectedRowIndex);
+				return;
+			}
+			this.move(1-1*this.getColumnCount(),1);
+		}else{
+			this.move(1,0);
+		}
+		
+	}
+
+	@Override
+	public void left() {
+		this.move(-1,0);
+	}
+
+	@Override
+	public void right() {
+		this.move(1,0);
+		
+	}
+
+	@Override
+	public void down() {
+		this.move(0,1);
+		
+	}
+
+	@Override
+	public void up() {
+		this.move(0,-1);
+		
+	}
+
+	@Override
+	public void escape() {
+		grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
+		currentWCAGSelectedRowIndex = 1;
+		currentWCAGSelectedColumnIndex = 0;
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {}
+
+	@Override
+	public void shiftTab() {
+		grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
+		currentWCAGSelectedRowIndex = 1;
+		currentWCAGSelectedColumnIndex = 0;
+	}
+	
+	private void speak (TextToSpeechVoice t1) {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(t1);
+		
+		this.speak(textVoices);
+	}
+	
+	private void speak (List<TextToSpeechVoice> textVoices) {
+		if (this.pageController != null) {
+			this.pageController.speak(textVoices);
+		}
 	}
 }
