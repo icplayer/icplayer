@@ -1,3 +1,4 @@
+2018-01-04 Fixed showing system keyboard for eKeyboard on mobiles.
 2018-01-03 Fixed inline-css error with not unescaping apostrophe
 2018-01-03 Fixed problem with opening popup.
 2018-01-03 Fixed problem with moving to next gap in eKeyboard module
