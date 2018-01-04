@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icplayer.client.model.Page;
-import com.lorepo.icplayer.client.model.Page.LayoutType;
+import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.Page.LayoutType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -82,5 +82,10 @@ public class PageView extends SimplePanel implements IPageDisplay {
 	@Override
 	public void outstretchHeight (int y, int difference, boolean isRestore, boolean dontMoveModules) {
 		this.display.outstretchHeight(y, difference, isRestore, dontMoveModules);
+	}
+
+	@Override
+	public void recalculatePageDimensions() {
+		this.display.recalculatePageDimensions();
 	}
 }

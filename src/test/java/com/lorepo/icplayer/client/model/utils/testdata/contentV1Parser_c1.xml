@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<interactiveContent name="Meetings - Getting started (semi-responsive)" scoreType="last" version="2">
+    <metadata>
+        <entry key="useGrid" value="true"/>
+        <entry key="snapToGrid" value="true"/>
+        <entry key="gridSize" value="20"/>
+        <entry key="staticHeader" value="false"/>
+        <entry key="staticFooter" value="false"/>
+        <entry key="useRulers" value="true"/>
+        <entry key="snapToRulers" value="true"/>
+        <entry key="theme.href" value="/file/5073949583212544"/>
+    </metadata>
+    <addons>
+        <addon-descriptor addonId="Page_Counter"
+                          href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Page_Counter.xml"/>
+        <addon-descriptor addonId="Navigation_Bar"
+                          href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Navigation_Bar.xml"/>
+        <addon-descriptor addonId="Connection" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Connection.xml"/>
+        <addon-descriptor addonId="text_identification"
+                          href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/text_identification.xml"/>
+        <addon-descriptor addonId="Double_State_Button"
+                          href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Double_State_Button.xml"/>
+        <addon-descriptor addonId="Advanced_Connector"
+                          href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Advanced_Connector.xml"/>
+        <addon-descriptor addonId="Audio" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Audio.xml"/>
+        <addon-descriptor addonId="Show_Answers"
+                          href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Show_Answers.xml"/>
+        <addon-descriptor addonId="Table" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Table.xml"/>
+        <addon-descriptor addonId="Hierarchical_Lesson_Report"
+                          href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Hierarchical_Lesson_Report.xml"/>
+        <addon-descriptor addonId="Paragraph" href="/proxy/get?url=//www.mauthor.com/media/iceditor/addons/Paragraph.xml"/>
+        <addon-descriptor addonId="Hierarchical_Table_Of_Contents"
+                          href="/proxy/get?url=//www.mauthor.com/media/iceditor/addons/Hierarchical_Table_Of_Contents.xml"/>
+    </addons>
+    <styles>
+        <style id="default" isDefault="true" name="default">default-style</style>
+        <style id="320-style" name="320">320-style</style>
+        <style id="T2-style" name="T2">T2-style</style>
+        <style id="DFBD7B95-5781-45CF-8AE3-4AAD6F9CA4BE" name="TT">TT-style</style>
+    </styles>
+    <layouts>
+        <layout id="default" isDefault="true" name="default">
+            <style id="default"/>
+            <threshold width="1000"/>
+            <deviceOrientation value="horizontal"/>
+        </layout>
+        <layout id="320" name="320">
+            <style id="320-style"/>
+            <threshold width="320"/>
+            <deviceOrientation value="vertical"/>
+        </layout>
+        <layout id="TT" name="TT">
+            <style id="320-style"/>
+            <threshold width="11"/>
+        </layout>
+        <layout id="T2" name="T2">
+            <style id="T2-style"/>
+            <threshold width="22"/>
+        </layout>
+    </layouts>
+    <pages>
+        <page href="6720386867658752" id="aecOAT" modulesMaxScore="0" name="Title Page" pageWeight="1"
+              preview="/file/serve/5802603896111104" reportable="false"/>
+        <page href="4521363612106752" id="PtEV8j" modulesMaxScore="0" name="Exercise 1" pageWeight="1" preview=""
+              reportable="true"/>
+        <page href="5647263518949376" id="WaTVtU" modulesMaxScore="0" name="Exercise 2" pageWeight="1" preview=""
+              reportable="true"/>
+        <page href="5084313565528064" id="7iUiKT" modulesMaxScore="0" name="Exercise 3" pageWeight="1" preview=""
+              reportable="true"/>
+        <page href="6210213472370688" id="B6iNP5" modulesMaxScore="0" name="Exercise 4" pageWeight="1" preview=""
+              reportable="true"/>
+        <page href="4802838588817408" id="HERrbA" modulesMaxScore="0" name="Exercise 5" pageWeight="1" preview=""
+              reportable="true"/>
+        <page href="5928738495660032" id="3dnkRW" modulesMaxScore="0" name="Exercise 6" pageWeight="1" preview=""
+              reportable="true"/>
+        <page href="5365788542238720" id="CoIh1h" modulesMaxScore="0" name="Exercise 7" pageWeight="1" preview=""
+              reportable="true"/>
+        <page href="6491688449081344" id="yctjb0" modulesMaxScore="0" name="Exercise 8" pageWeight="1" preview=""
+              reportable="true"/>
+        <page href="4662101100462080" id="biV4E0" modulesMaxScore="0" name="Exercise 9" pageWeight="1" preview=""
+              reportable="true"/>
+        <page href="5788001007304704" id="gLbKsZ" modulesMaxScore="0" name="Exercise 10" pageWeight="1" preview=""
+              reportable="true"/>
+        <page href="5225051053883392" id="4TtHiI" modulesMaxScore="0" name="Exercise 11" pageWeight="1" preview=""
+              reportable="true"/>
+        <page href="6350950960726016" id="YkpS5I" modulesMaxScore="0" name="Key phrases" pageWeight="1" preview=""
+              reportable="false"/>
+        <page href="4943576077172736" id="OY8pHp" modulesMaxScore="0" name="Over to you" pageWeight="1" preview=""
+              reportable="false"/>
+        <page href="6069475984015360" id="3bbmHu" modulesMaxScore="0" name="Last but not least" pageWeight="1" preview=""
+              reportable="false"/>
+        <page href="5506526030594048" id="UGvcc6" modulesMaxScore="0" name="Lesson report" pageWeight="1" preview=""
+              reportable="false"/>
+        <folder name="commons">
+            <page href="6632425937436672" id="TiL07D" modulesMaxScore="0" name="header" pageWeight="1" preview=""
+                  reportable="true"/>
+            <page href="4591732356284416" id="y4djrX" modulesMaxScore="0" name="footer" pageWeight="1" preview=""
+                  reportable="true"/>
+        </folder>
+        <header ref="commons/header"/>
+        <footer ref="commons/footer"/>
+    </pages>
+    <assets>
+        <asset contentType="image/png" fileName="5907476014170112.png" href="/file/serve/5151693012467712" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="Bez tytułu — 4.svg" href="/file/serve/5582701570555904" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="prev-arr.svg" href="/file/serve/5714642965889024" title="" type="image"/>
+        <asset contentType="image/png" fileName="addon_advconnector.png" href="/file/serve/5679458593800192" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="bckgrd-know.svg" href="/file/serve/6066486686777344" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="Bez tytułu — 11.svg" href="/file/serve/6567863989043200" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_arrow_upward_white_24px.svg" href="/file/serve/6101671058866176" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProSemiboldIt.ttf" href="/file/serve/5477148454289408" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="Bez tytułu — 8.svg" href="/file/serve/5301226593845248" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="MyriadProCondIt.svg" href="/file/serve/6488699151843328" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="moption.svg" href="/file/serve/5855380454244352" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_play_arrow_black_48px.svg" href="/file/serve/5257246128734208" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_print_white_48px.svg" href="/file/serve/6453514779754496" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="Bez tytułu — 6.svg" href="/file/serve/5019751617134592" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="1461694962_key.svg" href="/file/serve/4870218035757056" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProCond.eot" href="/file/serve/4518374314868736" title="" type="file"/>
+        <asset contentType="image/png" fileName="audio-stop-btn.png" href="/file/serve/5397983617089536" title="" type="image"/>
+        <asset contentType="audio/mp3" fileName="03 Track 3.mp3" href="/file/serve/4597539152068608" title="" type="audio"/>
+        <asset contentType="image/svg+xml" fileName="Bez tytułu — 2.svg" href="/file/serve/6629436640198656" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProCondIt.ttf" href="/file/serve/5362799245000704" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="icon_gap_disabled.svg" href="/file/serve/6418330407665664" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_volume_up_black_48px.svg" href="/file/serve/5820196082155520" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="bckgrd-vocabulary.svg" href="/file/serve/6347961663488000" title=""
+               type="image"/>
+        <asset contentType="audio/mp3" fileName="02 Track 2.mp3" href="/file/serve/5512332826378240" title="" type="audio"/>
+        <asset contentType="audio/mp3" fileName="04 Track 4.mp3" href="/file/serve/5160489105489920" title="" type="audio"/>
+        <asset contentType="" fileName="MyriadProIt.eot" href="/file/serve/5054935989223424" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="ic_subdirectory_arrow_right_white_24px.svg"
+               href="/file/serve/6312777291399168" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="Bez tytułu — 7.svg" href="/file/serve/6427126500687872" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProSemibold.eot" href="/file/serve/4632723524157440" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="moption-orange.svg" href="/file/serve/5292430500823040" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_refresh_white_48px.svg" href="/file/serve/5433167989178368" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_link_white_48px.svg" href="/file/serve/5609089849622528" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="Bez tytułu — 3.svg" href="/file/serve/6708601477398528" title=""
+               type="image"/>
+        <asset contentType="image/png" fileName="5907476014170112.png" href="/file/serve/6031302314688512" title="" type="image"/>
+        <asset contentType="" fileName="MyriadProBoldIt.woff" href="/file/serve/5969729663533056" title="" type="file"/>
+        <asset contentType="image/png" fileName="clouds0002.png" href="/file/serve/5230857849667584" title="" type="image"/>
+        <asset contentType="audio/ogg" fileName="05_Track_5.ogg" href="/file/serve/5441964082200576" title="" type="audio"/>
+        <asset contentType="audio/ogg" fileName="04_Track_4.ogg" href="/file/serve/6286389012332544" title="" type="audio"/>
+        <asset contentType="image/gif" fileName="ring-alt.gif" href="/file/serve/4659111803224064" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_arrow_downward_white_24px.svg" href="/file/serve/5538721105444864"
+               title="" type="image"/>
+        <asset contentType="" fileName="MyriadProBoldCondIt.ttf" href="/file/serve/5547517198467072" title="" type="file"/>
+        <asset contentType="image/png" fileName="clouds0003.png" href="/file/serve/6356757756510208" title="" type="image"/>
+        <asset contentType="image/png" fileName="6502987456839680.png" href="/file/serve/6277592919310336" title="" type="image"/>
+        <asset contentType="image/png" fileName="audio-pause-btn.png" href="/file/serve/5960933570510848" title="" type="image"/>
+        <asset contentType="audio/ogg" fileName="02_Track_2.ogg" href="/file/serve/6638232733220864" title="" type="audio"/>
+        <asset contentType="audio/mp3" fileName="05 Track 5.mp3" href="/file/serve/6004914035621888" title="" type="audio"/>
+        <asset contentType="image/svg+xml" fileName="ham-menu-close.svg" href="/file/serve/5222061756645376" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="key-arrows-1.svg" href="/file/serve/5239653942689792" title="" type="image"/>
+        <asset contentType="" fileName="MyriadProSemibold.ttf" href="/file/serve/5195673477578752" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="Bez tytułu — 5.svg" href="/file/serve/6145651523977216" title=""
+               type="image"/>
+        <asset contentType="image/png" fileName="correct-icon.png" href="/file/serve/4905402407845888" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="MyriadProBoldCond.svg" href="/file/serve/6391942128599040" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_autorenew_white_48px (1).svg" href="/file/serve/5749827337977856" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="bckgrd-know-2.svg" href="/file/serve/5503536733356032" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProBoldCond.woff" href="/file/serve/5828992175177728" title="" type="file"/>
+        <asset contentType="image/png" fileName="addon_multipleaudio.png" href="/file/serve/6699805384376320" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ham-menu.svg" href="/file/serve/5785011710066688" title="" type="image"/>
+        <asset contentType="" fileName="MyriadProSemiboldIt.eot" href="/file/serve/4914198500868096" title="" type="file"/>
+        <asset contentType="" fileName="MyriadProBoldCond.eot" href="/file/serve/4703092268335104" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="clouds0001.svg" href="/file/serve/5793807803088896" title="" type="image"/>
+        <asset contentType="image/png" fileName="icon_errors.png" href="/file/serve/4764664919490560" title="" type="image"/>
+        <asset contentType="" fileName="MyriadProBoldIt.ttf" href="/file/serve/5406779710111744" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="ic_pause_black_48px.svg" href="/file/serve/6383146035576832" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="MyriadProIt.svg" href="/file/serve/6743785849487360" title="" type="image"/>
+        <asset contentType="" fileName="MyriadProBoldCond.ttf" href="/file/serve/5266042221756416" title="" type="file"/>
+        <asset contentType="" fileName="MyriadProSemibold.woff" href="/file/serve/5758623431000064" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="ic_stop_black_24px.svg" href="/file/serve/5661866407755776" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_open_in_new_white_24px.svg" href="/file/serve/5046139896201216" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_skip_previous_black_24px.svg" href="/file/serve/5098916454334464" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="bckgrd-yellow.svg" href="/file/serve/6075282779799552" title=""
+               type="image"/>
+        <asset contentType="image/png" fileName="Variable_Storage.png" href="/file/serve/4676703989268480" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="MyriadProBold.svg" href="/file/serve/6251204640243712" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_skip_next_black_24px.svg" href="/file/serve/6224816361177088" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProCondIt.woff" href="/file/serve/5925749198422016" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="ic_arrow_forward_white_48px.svg" href="/file/serve/6172039803043840" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProCond.woff" href="/file/serve/5644274221711360" title="" type="file"/>
+        <asset contentType="image/png" fileName="addon_connector.png" href="/file/serve/4553558686957568" title="" type="image"/>
+        <asset contentType="image/jpeg" fileName="DSC_0057.jpg" href="/file/serve/4667907896246272" title="" type="image"/>
+        <asset contentType="image/png" fileName="audio-slider-btn.png" href="/file/serve/4694296175312896" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="MyriadProRegular.svg" href="/file/serve/6462310872776704" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProBold.eot" href="/file/serve/4562354779979776" title="" type="file"/>
+        <asset contentType="" fileName="MyriadProRegular.eot" href="/file/serve/4773461012512768" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="next-arr.svg" href="/file/serve/4588743059046400" title="" type="image"/>
+        <asset contentType="" fileName="MyriadProBold.woff" href="/file/serve/5688254686822400" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="ic_lock_open_white_48px.svg" href="/file/serve/5996117942599680" title=""
+               type="image"/>
+        <asset contentType="image/png" fileName="points_to_plot.png" href="/file/serve/5116508640378880" title="" type="image"/>
+        <asset contentType="" fileName="MyriadProBoldIt.eot" href="/file/serve/4843829756690432" title="" type="file"/>
+        <asset contentType="" fileName="MyriadProCondIt.eot" href="/file/serve/4799849291579392" title="" type="file"/>
+        <asset contentType="audio/ogg" fileName="03_Track_3.ogg" href="/file/serve/5723439058911232" title="" type="audio"/>
+        <asset contentType="image/png" fileName="icon_mistakes.png" href="/file/serve/5468352361267200" title="" type="image"/>
+        <asset contentType="image/png" fileName="eKeyboard.png" href="/file/serve/5380391431045120" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="Bez tytułu — 10.svg" href="/file/serve/4738276640423936" title=""
+               type="image"/>
+        <asset contentType="image/png" fileName="ic_done_white_48dp.png" href="/file/serve/6559067896020992" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProCond.ttf" href="/file/serve/5081324268290048" title="" type="file"/>
+        <asset contentType="" fileName="MyriadProBoldCondIt.woff" href="/file/serve/6110467151888384" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="MyriadProBoldIt.svg" href="/file/serve/6532679616954368" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="MyriadProCond.svg" href="/file/serve/6207224175132672" title=""
+               type="image"/>
+        <asset contentType="image/png" fileName="clouds0004.png" href="/file/serve/4949382872956928" title="" type="image"/>
+        <asset contentType="image/png" fileName="icon_checks.png" href="/file/serve/6594252268109824" title="" type="image"/>
+        <asset contentType="image/png" fileName="SelectableAddonsBinder.png" href="/file/serve/6506291337887744" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="choice-new-01.svg" href="/file/serve/4729480547401728" title=""
+               type="image"/>
+        <asset contentType="image/png" fileName="custom_scoring.png" href="/file/serve/6242408547221504" title="" type="image"/>
+        <asset contentType="image/jpeg" fileName="pic_02.jpg" href="/file/serve/4879014128779264" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_send_white_48px.svg" href="/file/serve/5890564826333184" title=""
+               type="image"/>
+        <asset contentType="image/png" fileName="audio-volume-btn.png" href="/file/serve/6523883523932160" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_zoom_in_white_24px.svg" href="/file/serve/4817441477623808" title=""
+               type="image"/>
+        <asset contentType="image/png" fileName="addon_math.png" href="/file/serve/5010955524112384" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="Bez tytułu — 9.svg" href="/file/serve/5864176547266560" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProRegular.woff" href="/file/serve/5899360919355392" title="" type="file"/>
+        <asset contentType="image/png" fileName="addon_audiobinder.png" href="/file/serve/6136855430955008" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="slider.svg" href="/file/serve/4975771152023552" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="MyriadProBoldCondIt.svg" href="/file/serve/6673417105309696" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_done_all_white_48px.svg" href="/file/serve/5186877384556544" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="infinity-minus.svg" href="/file/serve/6664621012287488" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="MyriadProSemibold.svg" href="/file/serve/6321573384421376" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="bckgrd-volabulary-2.svg" href="/file/serve/4940586779934720" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProSemiboldIt.woff" href="/file/serve/6040098407710720" title="" type="file"/>
+        <asset contentType="image/png" fileName="audio-play-btn.png" href="/file/serve/4835033663668224" title="" type="image"/>
+        <asset contentType="image/png" fileName="FractionsBinder.png" href="/file/serve/5573905477533696" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_pause_black_24px.svg" href="/file/serve/4535966500913152" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="MyriadProSemiboldIt.svg" href="/file/serve/6603048361132032" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_close_white_24px.svg" href="/file/serve/5327614872911872" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProIt.woff" href="/file/serve/6180835896066048" title="" type="file"/>
+        <asset contentType="" fileName="MyriadProRegular.ttf" href="/file/serve/5336410965934080" title="" type="file"/>
+        <asset contentType="" fileName="MyriadProIt.ttf" href="/file/serve/5617885942644736" title="" type="file"/>
+        <asset contentType="" fileName="MyriadProBold.ttf" href="/file/serve/5125304733401088" title="" type="file"/>
+        <asset contentType="image/svg+xml" fileName="infinity-plus.svg" href="/file/serve/4623927431135232" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_close_white_24px.svg" href="/file/serve/5943341384466432" title=""
+               type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_play_arrow_black_24px.svg" href="/file/serve/6734989756465152" title=""
+               type="image"/>
+        <asset contentType="" fileName="MyriadProBoldCondIt.eot" href="/file/serve/4984567245045760" title="" type="file"/>
+    </assets>
+</interactiveContent>

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -35,6 +34,7 @@ import com.lorepo.icplayer.client.module.text.mockup.TextViewMockup;
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTTextPresenterTestCase extends GwtTest{
 
+	private static final String PAGE_VERSION = "2";
 	private TextModel module;
 	private PlayerServicesMockup services;
 	private TextViewMockup display;
@@ -52,7 +52,7 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new TextViewMockup(module);
@@ -289,7 +289,7 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new TextViewMockup(module);
@@ -315,7 +315,7 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new TextViewMockup(module);

@@ -1,5 +1,9 @@
 package com.lorepo.icplayer.client.framework.module;
 
+import java.util.Set;
+
+import com.lorepo.icplayer.client.model.layout.PageLayout;
+
 /**
  * 
  * @author Krzysztof Langner
@@ -12,5 +16,5 @@ public interface IStyledModule {
 	public void setInlineStyle(String inlineStyle);
 	public void setStyleClass(String styleClass);
 	public String getClassNamePrefix();
-	
+	public void syncSemiResponsiveStyles(Set<PageLayout> actualSemiResponsiveLayouts);
 }

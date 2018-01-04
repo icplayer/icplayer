@@ -1,126 +1,78 @@
 package com.lorepo.icplayer.client.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.NodeList;
-import com.lorepo.icf.utils.IXMLSerializable;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.utils.StringUtils;
-import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
-import com.lorepo.icplayer.client.model.asset.AssetFactory;
+import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
-public class Content implements IXMLSerializable, IContent {
+public class Content implements IContentBuilder, IContent {
 
-	public enum ScoreType{ first, last }
+	public final static String version = "2";
+	public enum ScoreType { first, last }
 
 	private static final String COMMONS_FOLDER = "commons/";
 	private String name = "";
 	private ScoreType scoreType = ScoreType.last;
-	private final PageList	pages;
-	private final PageList	commonPages;
-	private final HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
-	private final ArrayList<IAsset>	assets = new ArrayList<IAsset>();
-	private ArrayList<Integer> pageSubset = new ArrayList<Integer>();
-	private String styles;
-	private final HashMap<String, String>	metadata = new HashMap<String, String>();
+	private PageList	pages;
+	private PageList	commonPages;
+	private HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
+	private ArrayList<IAsset>	assets = new ArrayList<IAsset>();
+	private HashMap<String, String>	metadata = new HashMap<String, String>();
 	private String		baseUrl = "";
-	private IContentListener listener;
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
+
+	private HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
+	private LayoutsContainer layoutsContainer = new LayoutsContainer();
+
 	private int maxPagesCount = 100;
 
 	public Content(){
-
-		pages = new PageList("root");
-		commonPages = new PageList("commons");
-		connectHandlers();
+		this.pages = new PageList("root");
+		this.commonPages = new PageList("commons");
 	}
 
 	public void setPlayerController(IPlayerServices ps) {
 		pages.setPlayerServices(ps);
 	}
-	
-	public void setBaseURL() {
-		pages.setBaseURL(this.baseUrl);
-	}
-	
-	private void connectHandlers() {
-		pages.addListener(new IPageListListener() {
-			@Override
-			public void onNodeRemoved(IContentNode node, IChapter parent) {
-				if(listener != null){
-					listener.onRemovePage(node, parent);
-				}
-			}
 
-			@Override
-			public void onNodeMoved(IChapter source, int from, int to) {
-				if(listener != null){
-					listener.onPageMoved(source, from, to);
-				}
-			}
-
-			@Override
-			public void onNodeAdded(IContentNode node) {
-				if(listener != null){
-					listener.onAddPage(node);
-				}
-			}
-
-			@Override
-			public void onChanged(IContentNode source) {
-				if(listener != null){
-					listener.onChanged(source);
-				}
-
-			}
-		});
-
-		commonPages.addListener(new IPageListListener() {
-			@Override
-			public void onNodeRemoved(IContentNode node, IChapter parent) {
-				if(listener != null){
-					listener.onRemovePage(node, parent);
-				}
-			}
-			@Override
-			public void onNodeMoved(IChapter source, int from, int to) {
-			}
-			@Override
-			public void onNodeAdded(IContentNode node) {
-				if(listener != null){
-					listener.onAddPage(node);
-				}
-			}
-			@Override
-			public void onChanged(IContentNode source) {
-			}
-		});
-
+	@Override
+	public PageList getPagesList() {
+		return this.pages;
 	}
 
+	@Override
+	public PageList getCommonPagesList() {
+		return this.commonPages;
+	}
 
 	public ScoreType getScoreType(){
 		return scoreType;
 	}
 
-	public void setScoreType(ScoreType st){
-		scoreType = st;
+	public void setScoreType(ScoreType scoreType){
+		this.scoreType = scoreType;
 	}
-
-	public void addChangeListener(IContentListener l){
-		listener = l;
-	}
-
 
 	public HashMap<String,AddonDescriptor>	getAddonDescriptors(){
 		return addonDescriptors;
@@ -194,22 +146,25 @@ public class Content implements IXMLSerializable, IContent {
 	}
 
 
-	@Override
 	public String getBaseUrl(){
 		return baseUrl;
 	}
 
 
-	public String getMetadataValue(String key){
+	public String getMetadataValue(String key) {
 		return metadata.get(key);
 	}
 
 
-	public String getStyles(){
-		return styles;
+	public HashMap<String,CssStyle> getStyles() {
+		return new HashMap<String, CssStyle>(this.styles);
 	}
 
-	public void setMetadataValue(String key, String value){
+	public CssStyle getStyle(String cssStyleID) {
+		return this.styles.get(cssStyleID);
+	}
+
+    public void setMetadataValue(String key, String value){
 
 		if(value == null || value.length() == 0){
 			metadata.remove(key);
@@ -220,147 +175,21 @@ public class Content implements IXMLSerializable, IContent {
 	}
 
 
-	public void setStyles(String text) {
-		styles = text;
-	}
-
 	public void setPageSubset(ArrayList<Integer> pageList){
-		pageSubset = pageList;
-	}
-
-	@Override
-	public void load(Element rootElement, String url) {
-
-		baseUrl = url.substring(0, url.lastIndexOf("/")+1);
-
-		loadAttributes(rootElement);
-
-		NodeList children = rootElement.getChildNodes();
-		for(int i = 0; i < children.getLength(); i++){
-
-			if(children.item(i) instanceof Element){
-				Element child = (Element) children.item(i);
-				String name = child.getNodeName();
-				if(name.compareTo("metadata") == 0){
-					loadMetadata(child);
-				}
-				else if(name.compareTo("addons") == 0){
-					loadAddonDescriptors(child);
-				}
-				else if(name.compareTo("style") == 0){
-					loadStyles(child);
-				}
-				else if(name.compareTo("pages") == 0){
-					loadPages(child, url, pageSubset);
-				}
-				else if(name.compareTo("assets") == 0){
-					loadAssets(child);
-				}
-			}
-		}
-
-	}
-
-	private void loadAttributes(Element rootElement) {
-		name = XMLUtils.getAttributeAsString(rootElement, "name");
-		name = StringUtils.unescapeXML(name);
-		String st = XMLUtils.getAttributeAsString(rootElement, "scoreType");
-		if(st.equals(ScoreType.first.toString())){
-			scoreType = ScoreType.first;
+		if (pageList != null) {
 		}
 	}
-
-
-	private void loadMetadata(Element rootElement) {
-		NodeList entries = rootElement.getElementsByTagName("entry");
-
-		for(int i = 0; i < entries.getLength(); i++){
-
-			Element node = (Element)entries.item(i);
-			String key = StringUtils.unescapeXML(node.getAttribute("key"));
-			String value = StringUtils.unescapeXML(node.getAttribute("value"));
-			setMetadataValue(key, value);
-		}
-	}
-
-
-	private void loadAddonDescriptors(Element rootElement) {
-
-		NodeList descriptorNodes = rootElement.getElementsByTagName("addon-descriptor");
-
-		for(int i = 0; i < descriptorNodes.getLength(); i++){
-
-			Element node = (Element)descriptorNodes.item(i);
-			String addonId = node.getAttribute("addonId");
-			String href = StringUtils.unescapeXML(node.getAttribute("href"));
-			addonDescriptors.put(addonId, new AddonDescriptor(addonId, href));
-		}
-	}
-
-
-	private void loadStyles(Element rootElement) {
-
-		String style = XMLUtils.getText(rootElement);
-		if(style.length() > 0){
-			style = StringUtils.unescapeXML(style);
-			setStyles(style);
-		}
-	}
-
-
-	private void loadPages(Element rootElement, String baseUrl, ArrayList<Integer> pageSubset) {
-		NodeList children = rootElement.getChildNodes();
-		pages.load(rootElement, baseUrl, pageSubset, 0);
-		for(int i = 0; i < children.getLength(); i++){
-
-			if(children.item(i) instanceof Element){
-				Element node = (Element)children.item(i);
-				if(node.getNodeName().compareTo("folder") == 0){
-					commonPages.load(node, baseUrl, null, 0);
-				}
-				else if(node.getNodeName().compareTo("header") == 0){
-					headerPageName = node.getAttribute("ref");
-				}
-				else if(node.getNodeName().compareTo("footer") == 0){
-					footerPageName = node.getAttribute("ref");
-				}
-			}
-		}
-	}
-
-
-	private void loadAssets(Element rootElement) {
-
-		AssetFactory factory = new AssetFactory();
-
-		NodeList assets = rootElement.getElementsByTagName("asset");
-		for(int i = 0; i < assets.getLength(); i++){
-
-			Element node = (Element)assets.item(i);
-			String href = StringUtils.unescapeXML(node.getAttribute("href"));
-			String type = StringUtils.unescapeXML(node.getAttribute("type"));
-			IAsset asset = factory.createAsset(type, href);
-			if(asset != null){
-				addAsset(asset);
-				asset.setTitle(StringUtils.unescapeXML(node.getAttribute("title")));
-				asset.setFileName(StringUtils.unescapeXML(node.getAttribute("fileName")));
-				asset.setContentType(StringUtils.unescapeXML(node.getAttribute("contentType")));
-			}
-		}
-	}
-
 
 	/**
 	 * Convert model into XML
 	 * @return
 	 */
-	@Override
 	public String toXML(){
 
 		String xml = "<?xml version='1.0' encoding='UTF-8' ?>";
-
 		String escapedName = StringUtils.escapeXML(name);
-		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "'>";
+		xml += "<interactiveContent name='" + escapedName + "' scoreType='" +scoreType + "\'";
+		xml += " version=\"" + Content.version + "\">";
 
 		// Metadata
 		xml += "<metadata>";
@@ -378,9 +207,20 @@ public class Content implements IXMLSerializable, IContent {
 		}
 		xml += 	"</addons>";
 
-		if(styles != null){
-			xml += "<style>" + StringUtils.escapeHTML(styles) + "</style>";
+		xml += "<styles>";
+		for(CssStyle style : styles.values()) {
+			Element cssStyle = style.toXML();
+			xml += cssStyle.toString();
 		}
+		xml += "</styles>";
+
+		Document xmlDocument = XMLParser.createDocument();
+		Element layouts = xmlDocument.createElement("layouts");
+		for(PageLayout pageLayout : layoutsContainer.getLayouts().values()) {
+			Element pl = pageLayout.toXML();
+			layouts.appendChild(pl);
+		}
+		xml += layouts.toString();
 
 		// Pages
 		xml += toXMLPages();
@@ -439,7 +279,6 @@ public class Content implements IXMLSerializable, IContent {
 		return pages.getAllPages().get(index);
 	}
 
-	@Override
 	public IPage getCommonPage(int index) {
 		return commonPages.getAllPages().get(index);
 	}
@@ -461,15 +300,12 @@ public class Content implements IXMLSerializable, IContent {
 	}
 
 
-	@Override
 	public Page findPageByName(String pageName){
-
 		int index;
 		Page page = null;
 		String lowerCaseName = pageName.toLowerCase();
 
 		if(lowerCaseName.startsWith(COMMONS_FOLDER)){
-
 			String commonPageName = lowerCaseName.substring(COMMONS_FOLDER.length());
 			index = commonPages.findPageIndexByName(commonPageName);
 			if(index >= 0){
@@ -483,17 +319,15 @@ public class Content implements IXMLSerializable, IContent {
 			}
 		}
 
-
 		return page;
 	}
 
-	@Override
 	public int getCommonPageIndex(String pageId) {
 	    //  -1 if page not found
 		return commonPages.findPageIndexById(pageId);
 	}
 
-
+	
 	public Page getDefaultHeader(){
 		return findPageByName(this.headerPageName);
 	}
@@ -543,7 +377,68 @@ public class Content implements IXMLSerializable, IContent {
 		return parent;
 	}
 
-	public HashMap<String, Integer> getPageWeights() {
+	@Override
+	public void setBaseUrl(String url) {
+		this.baseUrl = url.substring(0, url.lastIndexOf("/")+1);
+        this.pages.setBaseURL(this.baseUrl);
+	}
+
+	@Override
+	public void setMetadata(HashMap<String, String> metadata) {
+		this.metadata = metadata;
+	}
+
+	@Override
+	public void setAddonDescriptors (HashMap<String, AddonDescriptor> addonDescriptors) {
+		this.addonDescriptors = addonDescriptors;
+	}
+
+	@Override
+	public void setStyles(HashMap<String, CssStyle> styles) {
+		this.styles = styles;
+	}
+
+	public void setStyle(CssStyle style) {
+		this.styles.put(style.getID(), style);
+	}
+
+	@Override
+	public void setPages(PageList pagesList) {
+		this.pages = pagesList;
+	}
+
+	@Override
+	public void setAssets(ArrayList<IAsset> assets) {
+		this.assets = assets;
+
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public void setHeaderPageName(String name) {
+		this.headerPageName = name;
+	}
+
+	@Override
+	public void setFooterPageName(String name) {
+		this.footerPageName = name;
+	}
+
+	@Override
+	public void setCommonPages(PageList commonPageList) {
+		this.commonPages = commonPageList;
+	}
+
+	@Override
+	public void addLayout(PageLayout pageLayout) {
+		this.layoutsContainer.addLayout(pageLayout);
+	}
+
+    public HashMap<String, Integer> getPageWeights() {
 		HashMap<String, Integer> weights = new HashMap<String, Integer>();
 
 		for(IPage page : getPages().getAllPages()) {
@@ -557,6 +452,80 @@ public class Content implements IXMLSerializable, IContent {
 		if(getPageCount() + getCommonPages().size() > getMaxPagesCount())
 			return true;
 		return false;
+	}
+
+	public String getActualStyle() {
+		CssStyle style = styles.get(this.getActualSemiResponsiveLayoutID());
+
+		if (style == null) {
+			return this.getDefaultCssStyle().getValue();
+		}
+
+		return style.getValue();
+	}
+
+	public CssStyle getDefaultCssStyle() {
+		for(CssStyle contentStyle : this.styles.values()) {
+			if (contentStyle.isDefault()) {
+				return contentStyle;
+			}
+		}
+
+		return null;
+	}
+
+	public void removeFromLayoutsStyle(CssStyle styleToDelete) {
+		this.layoutsContainer.removeFromLayoutsStyle(styleToDelete, this.styles);
+	}
+
+	public  HashMap<String, PageLayout> getLayouts() {
+		return this.layoutsContainer.getLayouts();
+	}
+
+	public void setSemiResponsiveLayouts(HashMap<String, PageLayout> layouts) {
+		this.layoutsContainer.setPageLayouts(layouts);
+	}
+
+	public Set<PageLayout> getActualSemiResponsiveLayouts() {
+		HashMap<String, PageLayout> layoutsContainer = this.getLayouts();
+		Collection<PageLayout> layouts = layoutsContainer.values();
+		Set<PageLayout> setsLayouts = new HashSet<PageLayout>(layouts);
+		return setsLayouts;
+	}
+
+	public String getDefaultSemiResponsiveLayoutID() {
+		return this.layoutsContainer.getDefaultSemiResponsiveLayoutID();
+	}
+
+	public void setDefaultSemiResponsiveLayout(String newDefaultLayoutID) {
+		this.layoutsContainer.setDefaultSemiResponsiveLayout(newDefaultLayoutID);
+	}
+
+	@Override
+	public boolean setActualLayoutID(String id) {
+		return this.layoutsContainer.setActualLayoutID(id);
+	}
+
+	public void setDefaultCSSStyle(String cssStyleID) {
+		for (CssStyle style : this.styles.values()) {
+			if (style.getID().compareTo(cssStyleID) == 0) {
+				style.setIsDefault(true);
+			} else {
+				style.setIsDefault(false);
+			}
+		}
+	}
+
+	public String getActualSemiResponsiveLayoutID() {
+		return this.layoutsContainer.getActualSemiResponsiveLayoutID();
+	}
+
+	public JavaScriptObject getSemiResponsiveLayoutsAsJS() {
+		return this.layoutsContainer.toJS();
+	}
+
+	public boolean isSemiResponsiveContent() {
+		return this.styles.size() > 1 || this.layoutsContainer.getLayouts().size() > 1;
 	}
 	
 	public ArrayList<String> getCommonPagesIdsStartingWith(String prefix){
@@ -596,5 +565,9 @@ public class Content implements IXMLSerializable, IContent {
 			return this.getDefaultFooter();
 		}
 		return footer;
+	}
+	
+	public boolean isCommonPage(Page page) {
+		return this.getCommonPages().contains(page);
 	}
 }

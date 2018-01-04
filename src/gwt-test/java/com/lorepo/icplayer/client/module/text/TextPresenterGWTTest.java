@@ -23,6 +23,8 @@ public class TextPresenterGWTTest {
 	private TextPresenter presenter;
 	private String id1;
 	private String id3;
+	
+	private static final String PAGE_VERSION = "2";
 
 
 	@Before
@@ -32,7 +34,7 @@ public class TextPresenterGWTTest {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new TextViewMockup(module);
@@ -49,15 +51,13 @@ public class TextPresenterGWTTest {
 	}
 
 	@Test
-	public void saveStateEditable() throws SAXException, IOException {
+	public void getScore() throws SAXException, IOException {
 		
 		display.getListener().onValueChanged(id1, "likes");
 		display.getListener().onValueChanged(id3, "Volvo");
-//		String state = presenter.getState();
 		display = new TextViewMockup(module);
 		presenter = new TextPresenter(module, services);
 		presenter.addView(display);
-//		presenter.setState(state);
 		
 		assertEquals(3, presenter.getScore());
 	}

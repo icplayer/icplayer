@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class PageHeightModifications {
 	private class ListEntry {
@@ -69,7 +70,7 @@ public class PageHeightModifications {
 			this.pushToArray(jsArray, modifications.get(i).y, modifications.get(i).height, modifications.get(i).dontMoveModules);
 		}
 		
-		return stringify(jsArray);
+		return JavaScriptUtils.stringify(jsArray);
 	}
 	
 	private native JavaScriptObject createEmptyJsArray() /*-{
@@ -83,10 +84,6 @@ public class PageHeightModifications {
 			"dontMoveModules": dontMoveModules
 		});
 	}-*/;
-	
-	private native String stringify(JavaScriptObject obj) /*-{
-		return JSON.stringify(obj);
-	}-*/; 
 	
 	public void setState(String jsonText) {
 		this.modifications.clear();

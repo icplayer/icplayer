@@ -42,11 +42,9 @@ public class ImageGapModule extends BasicModuleModel {
 	public String getAnswerId() {
 		return answerId;
 	}
-
+	
 	@Override
-	public void load(Element node, String baseUrl) {
-		super.load(node, baseUrl);
-
+	protected void parseModuleNode(Element node) {
 		loadEvents(node);
 
 		NodeList nodes = node.getChildNodes();
@@ -91,22 +89,36 @@ public class ImageGapModule extends BasicModuleModel {
 	 */
 	@Override
 	public String toXML() {
-		String xml = "<imageGapModule " + getBaseXML() + ">" + getLayoutXML();
-		xml += "<events>";
-		xml += eventToXML(EVENT_CORRECT);
-		xml += eventToXML(EVENT_WRONG);
-		xml += eventToXML(EVENT_EMPTY);
-		xml += "</events>";
-		xml += "<gap answerId='" + answerId + "' isActivity='" + isActivity + "' isDisabled='" + isDisabled + "' blockWrongAnswers='" + blockWrongAnswers + "'/>";
-		xml += "</imageGapModule>";
+		Element imageGapModule = XMLUtils.createElement("imageGapModule");
+		
+		this.setBaseXMLAttributes(imageGapModule);
+		imageGapModule.appendChild(this.getLayoutsXML());
+		
+		Element events = XMLUtils.createElement("events");
+		events.appendChild(this.eventToXML(EVENT_CORRECT));
+		events.appendChild(this.eventToXML(EVENT_WRONG));
+		events.appendChild(this.eventToXML(EVENT_EMPTY));
+		imageGapModule.appendChild(events);
+		
+		Element gap = XMLUtils.createElement("gap");
+		gap.setAttribute("answerId", answerId);
+		gap.setAttribute("isActivity", Boolean.toString(isActivity));
+		gap.setAttribute("isDisabled", Boolean.toString(isDisabled));
+		gap.setAttribute("blockWrongAnswers", Boolean.toString(blockWrongAnswers));
+		imageGapModule.appendChild(gap);
 
-		return xml;
+		return imageGapModule.toString();
 	}
 
-	private String eventToXML(String eventName) {
+	private Node eventToXML(String eventName) {
 		String code = events.get(eventName);
 		String escapedCode = StringUtils.escapeXML(code);
-		return "<event name='" + eventName + "' code='" + escapedCode + "'/>";
+		
+		Element event = XMLUtils.createElement("event");
+		event.setAttribute("name", eventName);
+		event.setAttribute("code", escapedCode);
+		
+		return event;
 	}
 
 	private void addPropertyAnswer() {

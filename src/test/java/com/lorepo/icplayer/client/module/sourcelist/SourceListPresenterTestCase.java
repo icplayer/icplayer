@@ -12,10 +12,16 @@ import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
+import com.lorepo.icf.utils.XMLUtils;
+import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
@@ -29,6 +35,7 @@ import com.lorepo.icplayer.client.module.sourcelist.mockup.SourceListViewMockup;
 
 public class SourceListPresenterTestCase {
 
+	private static final String PAGE_VERSION = "2";
 	private SourceListModule module;
 	private PlayerServicesMockup services;
 	private SourceListViewMockup display;
@@ -38,13 +45,12 @@ public class SourceListPresenterTestCase {
 	
 	@Before
 	public void runBeforeEveryTest() throws SAXException, IOException {
-		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		
 		module = new SourceListModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new SourceListViewMockup(module);
@@ -162,7 +168,7 @@ public class SourceListPresenterTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		module = new SourceListModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		assertNotNull(display.getItems().get(id));
 		
 		display = new SourceListViewMockup(module);
@@ -213,7 +219,7 @@ public class SourceListPresenterTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		module = new SourceListModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		display = new SourceListViewMockup(module);
 		presenter = new SourceListPresenter(module, services);
 		presenter.addView(display);
@@ -259,23 +265,23 @@ public class SourceListPresenterTestCase {
 		data.put("value", "checked");
 		CustomEvent event = new CustomEvent("limitedcheck", data);
 		Whitebox.invokeMethod(this.presenter, "onCustomEventCallback", event);
-		
+
 		Field field = this.presenter.getClass().getDeclaredField("canDrag");
-		
+
 		field.setAccessible(true);
-		
+
 		boolean canDrag = field.getBoolean(this.presenter);
-		
+
 		assertTrue(canDrag);
-		
+
 		this.presenter.setShowErrorsMode();
 		data = new HashMap<String, String>();
 		data.put("value", "unchecked");
-		
+
 		canDrag = field.getBoolean(this.presenter);
-		
+
 		assertTrue(!canDrag);
-		
+
 	}
-	
+
 }

@@ -10,7 +10,7 @@ import com.lorepo.icplayer.client.content.services.PlayerCommands;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.model.Content;
-import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IPage;

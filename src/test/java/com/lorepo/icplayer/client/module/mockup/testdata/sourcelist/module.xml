@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<sourceListModule id="sl1" left='5' top='10' width='80' height='40'>
+	<items removable='true'>
+		<item text="A"/>
+		<item text="B"/>
+		<item text="C"/>
+		<item text="D"/>
+	</items>
+</sourceListModule>

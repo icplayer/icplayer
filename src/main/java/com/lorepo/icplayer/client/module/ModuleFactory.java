@@ -59,6 +59,7 @@ import com.lorepo.icplayer.client.module.sourcelist.SourceListView;
 import com.lorepo.icplayer.client.module.text.TextModel;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
 import com.lorepo.icplayer.client.module.text.TextView;
+import com.lorepo.icplayer.client.utils.ModuleFactoryUtils;
 
 public class ModuleFactory implements IModuleFactory{
 
@@ -95,13 +96,13 @@ public class ModuleFactory implements IModuleFactory{
 		else if(xmlNodeName.compareTo("limitedResetModule") == 0){
 			module = new LimitedResetModule();
 		}
-		else if(xmlNodeName.compareTo("lessonResetModule") == 0){
+		else if(xmlNodeName.compareTo("lessonResetModule") == 0) {
 			module = new LessonResetModule();
 		}
-		else if(xmlNodeName.compareTo("choiceModule") == 0){
+		else if(xmlNodeName.compareTo("choiceModule") == 0) {
 			module = new ChoiceModel();
 		}
-		else if(xmlNodeName.compareTo("imageModule") == 0){
+		else if(xmlNodeName.compareTo("imageModule") == 0) {
 			module = new ImageModule();
 		}
 		else if(xmlNodeName.compareTo("imageSourceModule") == 0){
@@ -137,6 +138,10 @@ public class ModuleFactory implements IModuleFactory{
 		else if(xmlNodeName.compareTo("addonModule") == 0){
 			module = new AddonModel();
 		}
+		
+		if (ModuleFactoryUtils.isCheckAnswersButton(module)) {
+			module = new CheckButtonModule();
+		};
 		
 		return module;
 	}

@@ -1,0 +1,137 @@
+<interactiveContent name="Copy Semi Responsive Second Test" scoreType="last" version="2">
+    <metadata>
+        <entry key="useGrid" value="true"/>
+        <entry key="snapToGrid" value="true"/>
+        <entry key="gridSize" value="25"/>
+        <entry key="staticHeader" value="true"/>
+        <entry key="staticFooter" value="false"/>
+        <entry key="useRulers" value="true"/>
+        <entry key="snapToRulers" value="true"/>
+        <entry key="theme.href" value="/file/6485362123997184"/>
+    </metadata>
+    <addons>
+        <addon-descriptor addonId="Page_Name" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Page_Name.xml"/>
+        <addon-descriptor addonId="Page_Counter" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Page_Counter.xml"/>
+        <addon-descriptor addonId="Navigation_Bar" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Navigation_Bar.xml"/>
+        <addon-descriptor addonId="video" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/video.xml"/>
+        <addon-descriptor addonId="Connection" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Connection.xml"/>
+        <addon-descriptor addonId="TrueFalse" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/TrueFalse.xml"/>
+        <addon-descriptor addonId="Image_Identification" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Image_Identification.xml"/>
+        <addon-descriptor addonId="text_identification" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/text_identification.xml"/>
+        <addon-descriptor addonId="Multiple_Audio_Controls_Binder" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Multiple_Audio_Controls_Binder.xml"/>
+        <addon-descriptor addonId="Double_State_Button" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Double_State_Button.xml"/>
+        <addon-descriptor addonId="Table_Of_Contents" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Table_Of_Contents.xml"/>
+        <addon-descriptor addonId="Advanced_Connector" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Advanced_Connector.xml"/>
+        <addon-descriptor addonId="Audio" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Audio.xml"/>
+        <addon-descriptor addonId="graph" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/graph.xml"/>
+        <addon-descriptor addonId="gamememo" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/gamememo.xml"/>
+        <addon-descriptor addonId="Show_Answers" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Show_Answers.xml"/>
+        <addon-descriptor addonId="Hangman" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Hangman.xml"/>
+        <addon-descriptor addonId="multiplegap" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/multiplegap.xml"/>
+        <addon-descriptor addonId="Table" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Table.xml"/>
+        <addon-descriptor addonId="crossword" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/crossword.xml"/>
+        <addon-descriptor addonId="Basic_Math_Gaps" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Basic_Math_Gaps.xml"/>
+        <addon-descriptor addonId="Clock" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Clock.xml"/>
+        <addon-descriptor addonId="Text_Selection" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Text_Selection.xml"/>
+        <addon-descriptor addonId="Magic_Boxes" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Magic_Boxes.xml"/>
+        <addon-descriptor addonId="PointsLines" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/PointsLines.xml"/>
+        <addon-descriptor addonId="Single_State_Button" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Single_State_Button.xml"/>
+        <addon-descriptor addonId="SelectableAddonsBinder" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/SelectableAddonsBinder.xml"/>
+        <addon-descriptor addonId="Fractions" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Fractions.xml"/>
+        <addon-descriptor addonId="ConnectingDots" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/ConnectingDots.xml"/>
+        <addon-descriptor addonId="Puzzle" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Puzzle.xml"/>
+        <addon-descriptor addonId="Standard_Shapes" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Standard_Shapes.xml"/>
+        <addon-descriptor addonId="Slider" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Slider.xml"/>
+        <addon-descriptor addonId="Viewer_3D" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Viewer_3D.xml"/>
+        <addon-descriptor addonId="feedback" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/feedback.xml"/>
+        <addon-descriptor addonId="YouTube_Addon" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/YouTube_Addon.xml"/>
+        <addon-descriptor addonId="Board_Game" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Board_Game.xml"/>
+        <addon-descriptor addonId="Line_Selection" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Line_Selection.xml"/>
+        <addon-descriptor addonId="Count_and_Graph" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Count_and_Graph.xml"/>
+        <addon-descriptor addonId="FigureDrawing" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/FigureDrawing.xml"/>
+        <addon-descriptor addonId="Line_Number" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Line_Number.xml"/>
+        <addon-descriptor addonId="PieChart" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/PieChart.xml"/>
+        <addon-descriptor addonId="Plot" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Plot.xml"/>
+        <addon-descriptor addonId="Sudoku" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Sudoku.xml"/>
+        <addon-descriptor addonId="Print_Report" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Print_Report.xml"/>
+        <addon-descriptor addonId="Hierarchical_Lesson_Report" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/Hierarchical_Lesson_Report.xml"/>
+        <addon-descriptor addonId="SVG2" href="/proxy/get?url=http://www.mauthor.com/media/iceditor/addons/SVG2.xml"/>
+        <addon-descriptor addonId="Text_Coloring" href="//www.mauthor.com/media/iceditor/addons/Text_Coloring.xml"/>
+    </addons>
+    <styles>
+        <style name="default" id="default" isDefault="true">
+            .ic_page{
+            background-color: #efefef;
+            font-size:18px;
+            width:	800px;
+            height:	600px;
+            }
+
+            .myText{
+            background-color:yellow;
+            border:1px solid blue;
+            }
+
+            .silver{
+            background-color:silver;
+            }
+        </style>
+    </styles>
+    <layouts>
+        <layout id="default" isDefault="true" name="default">
+            <style id="default"/>
+            <threshold width="800"/>
+        </layout>
+    </layouts>
+    <pages>
+        <page href="4589705131720704" id="Sw8NvN" modulesMaxScore="3" name="Page 2" pageWeight="1" preview="" reportable="true"/>
+        <page href="5715605038563328" id="aecOAT" modulesMaxScore="5" name="Page 1" pageWeight="1" preview="/file/serve/6722757689606144" reportable="false"/>
+        <folder name="commons">
+            <page href="5152655085142016" id="ZF2Wg1" modulesMaxScore="2" name="header" pageWeight="1" preview="" reportable="true"/>
+            <page href="6278554991984640" id="8LJBze" modulesMaxScore="0" name="footer" pageWeight="1" preview="" reportable="true"/>
+        </folder>
+        <header ref="commons/header"/>
+        <footer ref="commons/footer"/>
+    </pages>
+    <assets>
+        <asset contentType="image/svg+xml" fileName="ic_arrow_back_white_48px.svg" href="/file/serve/4576510992187392" title="" type="image"/>
+        <asset contentType="image/jpeg" fileName="iStock_000018239670Large.jpg" href="/file/serve/4523734434054144" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_play_arrow_black_48px.svg" href="/file/serve/4822801596809216" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="1461694962_key.svg" href="/file/serve/4857985968898048" title="" type="image"/>
+        <asset contentType="image/jpeg" fileName="6036576870072320-01.jpg" href="/file/serve/5649634340896768" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_volume_up_black_48px.svg" href="/file/serve/6230176480362496" title="" type="image"/>
+        <asset contentType="image/jpeg" fileName="5401849960071168-01.jpg" href="/file/serve/5086684387475456" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_refresh_white_48px.svg" href="/file/serve/5420935922319360" title="" type="image"/>
+        <asset contentType="image/jpeg" fileName="6113062184550400-01.jpg" href="/file/serve/6212584294318080" title="" type="image"/>
+        <asset contentType="image/png" fileName="addon_math.png" href="/file/serve/6406098340806656" title="" type="image"/>
+        <asset contentType="image/png" fileName="addon_connector.png" href="/file/serve/6687573317517312" title="" type="image"/>
+        <asset contentType="image/jpeg" fileName="pic_01.jpg" href="/file/serve/4805209410764800" title="" type="image"/>
+        <asset contentType="image/png" fileName="custom_scoring.png" href="/file/serve/5104276573519872" title="" type="image"/>
+        <asset contentType="image/gif" fileName="ring-alt.gif" href="/file/serve/6054254619918336" title="" type="image"/>
+        <asset contentType="audio/ogg" fileName="bensound-jazzyfrenchy.ogg" href="/file/serve/5931109317607424" title="" type="audio"/>
+        <asset contentType="image/png" fileName="points_to_plot.png" href="/file/serve/5667226526941184" title="" type="image"/>
+        <asset contentType="image/png" fileName="addon_audiobinder.png" href="/file/serve/4998723457253376" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="555002.svg" href="/file/serve/4717248480542720" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="icon_gap_disabled.svg" href="/file/serve/5280198433964032" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_pause_black_48px.svg" href="/file/serve/5948701503651840" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_toc_white_48px.svg" href="/file/serve/5491304666497024" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="528011.svg" href="/file/serve/5843148387385344" title="" type="image"/>
+        <asset contentType="video/ogg" fileName="keyboard.ogv" href="/file/serve/5368159364186112" title="" type="video"/>
+        <asset contentType="image/jpeg" fileName="6527749866913792-01.jpg" href="/file/serve/6494059271028736" title="" type="image"/>
+        <asset contentType="image/png" fileName="ic_done_white_48dp.png" href="/file/serve/6546835829161984" title="" type="image"/>
+        <asset contentType="image/jpeg" fileName="pic_02.jpg" href="/file/serve/4664471922409472" title="" type="image"/>
+        <asset contentType="image/png" fileName="icon_checks.png" href="/file/serve/5702410899030016" title="" type="image"/>
+        <asset contentType="image/png" fileName="addon_advconnector.png" href="/file/serve/4541326620098560" title="" type="image"/>
+        <asset contentType="video/mp4" fileName="keyboard.mp4" href="/file/serve/5790371829252096" title="" type="video"/>
+        <asset contentType="audio/mp3" fileName="bensound-jazzyfrenchy.mp3" href="/file/serve/5227421875830784" title="" type="audio"/>
+        <asset contentType="image/png" fileName="icon_errors.png" href="/file/serve/6265360852451328" title="" type="image"/>
+        <asset contentType="image/jpeg" fileName="534004.jpg" href="/file/serve/6353321782673408" title="" type="image"/>
+        <asset contentType="image/png" fileName="icon_mistakes.png" href="/file/serve/5139460945608704" title="" type="image"/>
+        <asset contentType="image/jpeg" fileName="pic_03.jpg" href="/file/serve/4945946899120128" title="" type="image"/>
+        <asset contentType="image/jpeg" fileName="1748747.jpeg" href="/file/serve/6071846805962752" title="" type="image"/>
+        <asset contentType="image/png" fileName="addon_multipleaudio.png" href="/file/serve/5561673410674688" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_lock_open_white_48px.svg" href="/file/serve/5983885875740672" title="" type="image"/>
+        <asset contentType="image/svg+xml" fileName="ic_arrow_forward_white_48px.svg" href="/file/serve/6617204573339648" title="" type="image"/>
+        <asset contentType="image/png" fileName="" href="http://0x0800.github.io/2048-STARWARS/style/img/8.svg" title="" type="image"/>
+    </assets>
+</interactiveContent>

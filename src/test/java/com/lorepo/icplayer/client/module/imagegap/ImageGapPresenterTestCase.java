@@ -36,6 +36,7 @@ public class ImageGapPresenterTestCase {
 	private ImageGapViewMockup display;
 	private ImageGapPresenter presenter;
 	private boolean eventReceived;
+	private final static String PAGE_VERSION = "2";
 	
 	@Before
 	public void runBeforeEveryTest() throws SAXException, IOException {
@@ -43,7 +44,7 @@ public class ImageGapPresenterTestCase {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new ImageGapModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new ImageGapViewMockup(module);
@@ -211,7 +212,7 @@ public class ImageGapPresenterTestCase {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new ImageGapModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new ImageGapViewMockup(module);
@@ -233,7 +234,7 @@ public class ImageGapPresenterTestCase {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new ImageGapModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new ImageGapViewMockup(module);
@@ -282,7 +283,7 @@ public class ImageGapPresenterTestCase {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new ImageGapModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new ImageGapViewMockup(module);

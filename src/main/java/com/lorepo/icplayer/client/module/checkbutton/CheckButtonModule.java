@@ -20,12 +20,8 @@ public class CheckButtonModule extends BasicModuleModel {
 		addPropertyCheckTitle();
 		addPropertyUnCheckTitle();
 	}
-
-	@Override
-	public void load(Element node, String baseUrl) {
-
-		super.load(node, baseUrl);
-		
+	
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			
@@ -50,10 +46,20 @@ public class CheckButtonModule extends BasicModuleModel {
 	
 	@Override
 	public String toXML() {
+		Element checkModule = XMLUtils.createElement("checkModule");
+		this.setBaseXMLAttributes(checkModule);
+		checkModule.appendChild(this.getLayoutsXML());
+		
 		String encodedCheck = StringUtils.escapeHTML(checkTitle);
 		String encodedUnCheck = StringUtils.escapeHTML(unCheckTitle);
 		
-			return "<checkModule " + getBaseXML() + ">" + getLayoutXML() + "<button checkTitle='" + encodedCheck + "' unCheckTitle='" + encodedUnCheck + "'/></checkModule>";
+		Element button = XMLUtils.createElement("button");
+		button.setAttribute("checkTitle", encodedCheck);
+		button.setAttribute("unCheckTitle", encodedUnCheck);
+		
+		checkModule.appendChild(button);
+		
+		return checkModule.toString();
 	}
 
 	public String getCheckTitle() {
