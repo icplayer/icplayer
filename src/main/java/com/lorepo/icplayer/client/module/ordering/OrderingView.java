@@ -678,6 +678,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void escape () {
 		this.deselectCurrentItem();
+		currentWCAGSelectedItemIndex = 0;
 		this.isWCAGActive = false;
 	}
 	
@@ -702,6 +703,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.isWCAGActive = !isExiting;
 		if (isExiting) {
 			this.deselectCurrentItem();
+			currentWCAGSelectedItemIndex = 0;
 		} else {
 			this.selectCurrentItem();
 			this.readItem(this.currentWCAGSelectedItemIndex);
