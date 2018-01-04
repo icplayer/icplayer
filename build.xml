@@ -193,7 +193,7 @@
         <antcall target="test.addons" />
     </target>
 
-    <target name="build" depends="clean, gwtc" description="Build this project" />
+    <target name="build" depends="clean, test, gwtc" description="Build this project" />
 
     <target name="build.full" depends="clean, gwtc" description="Build this project with addon tests" />
 
