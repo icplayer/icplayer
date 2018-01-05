@@ -93,6 +93,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectDOMNodeRemovedEvent(String id);
 		void sortGapsOrder();
 		boolean isWCAGon();
+		void setWorkMode();
+		void setShowErrorsMode();
 	}
 
 	private final TextModel module;
@@ -293,7 +295,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			view.getChild(i).setWorkMode();
 		}
-
+		this.view.setWorkMode();
 		this.isShowErrorsMode = false;
 	}
 
@@ -306,7 +308,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
 		}
-
+		this.view.setShowErrorsMode();
 		this.isShowErrorsMode = true;
 	}
 
