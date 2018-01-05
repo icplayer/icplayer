@@ -283,6 +283,15 @@
         }
     };
 
+    /**
+     * Show and add elements to burger menu
+     * @param {String} name of burger menu
+     * @param {{title: String, callback: Function}[]} elements to append
+     */
+    CustomControlsBar.prototype.setBurgerMenu = function (name, elements) {
+
+
+    };
 
     /**
     Function to show play button

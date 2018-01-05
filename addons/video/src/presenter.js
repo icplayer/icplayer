@@ -129,7 +129,8 @@ function Addonvideo_create() {
         'MEDIA_ERR_ABORTED' : 1,
         'MEDIA_ERR_DECODE' : 2,
         'MEDIA_ERR_NETWORK' : 3,
-        'MEDIA_ERR_SRC_NOT_SUPPORTED' : [4, 'Ups ! Looks like your browser doesn\'t support this codecs. Go <a href="https://tools.google.com/dlpage/webmmf/" > -here- </a> to download WebM plugin']
+        'MEDIA_ERR_SRC_NOT_SUPPORTED' : [4, 'Ups ! Looks like your browser doesn\'t support this codecs. Go <a href="https://tools.google.com/dlpage/webmmf/" > -here- </a> to download WebM plugin'],
+        'NVT01': "Not valid data format in time labels property"
     };
 
     presenter.getVideoErrorMessage = function (errorCode) {
@@ -512,7 +513,73 @@ function Addonvideo_create() {
         }
     };
 
+    /**
+     *
+     * @param {String} timeLabel
+     */
+    presenter.validateTimeLabel = function (timeLabel) {
+        var title = timeLabel.split(' ').slice(1).join(' '),
+            time = timeLabel.split(' ')[0],
+            timeMultiplication = [120, 60, 1],
+            timeElements = time.split(':');
+
+        if (timeElements.length === 0 || timeElements.length > 3) {
+            return {
+                isValid: false,
+                errorCode: "NVT01"
+            };
+        }
+
+        if (title.trim() === '') {
+            title = time;
+        }
+
+        var timeInSeconds = 0;
+
+        for (var i = timeElements.length - 1; i >= 0; i--) {
+            timeInSeconds += parseInt(timeElements[i], 10) * timeMultiplication[i];
+        }
+
+        if (isNaN(timeInSeconds)) {
+            return {
+                isValid: false,
+                errorCode: "NVT01"
+            };
+        }
+
+        return {
+            isValid: true,
+            title: title,
+            time: timeInSeconds
+        };
+    };
+
+    presenter.validateTimeLabels = function (file) {
+        var timeLabelsText = file['time_labels'],
+            timeLabels = timeLabelsText.match(/[^\r\n]+/g) || [],  //https://stackoverflow.com/questions/5034781/js-regex-to-split-by-line
+            validatedTimeLabels = [];
+
+        for (var i = 0; i < timeLabels.length; i++) {
+            var validatedTimeLabel = presenter.validateTimeLabel(timeLabels[i]);
+            if (!validatedTimeLabel.isValid) {
+                return validatedTimeLabel;
+            }
+
+            validatedTimeLabels.push(validatedTimeLabel);
+        }
+
+        return {
+            isValid: true,
+            value: validatedTimeLabels
+        }
+    };
+
     presenter.validateFile = function (file) {
+        var validatedTimeLabels = presenter.validateTimeLabels(file);
+        if (!validatedTimeLabels.isValid) {
+            return validatedTimeLabels;
+        }
+
         var fileToReturn = {
             "Ogg video": file['Ogg video'],
             "MP4 video": file['MP4 video'],
@@ -521,7 +588,8 @@ function Addonvideo_create() {
             "Poster": file['Poster'],
             "ID": file['ID'],
             "AlternativeText": file['AlternativeText'],
-            "Loop video": ModelValidationUtils.validateBoolean(file['Loop video'])
+            "Loop video": ModelValidationUtils.validateBoolean(file['Loop video']),
+            timeLabels: validatedTimeLabels.value
         };
 
         return  {
@@ -536,7 +604,12 @@ function Addonvideo_create() {
         var files = [];
 
         for (var i = 0; i < modelFiles.length; i++) {
-            files.push(presenter.validateFile(modelFiles[i]).file);
+            var validatedFile = presenter.validateFile(modelFiles[i]);
+            if (!validatedFile.isValid) {
+                return validatedFile;
+            }
+
+            files.push(validatedFile.file);
         }
 
         return {
@@ -546,6 +619,11 @@ function Addonvideo_create() {
     };
 
     presenter.validateModel = function (model) {
+        var validatedFiles = presenter.validateFiles(model);
+        if (!validatedFiles.isValid) {
+            return validatedFiles;
+        }
+
         return {
             isValid: true,
             addonSize: {
@@ -556,7 +634,7 @@ function Addonvideo_create() {
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             shouldHideSubtitles: ModelValidationUtils.validateBoolean(model["Hide subtitles"]),
             defaultControls: !ModelValidationUtils.validateBoolean(model['Hide default controls']),
-            files: presenter.validateFiles(model).files,
+            files: validatedFiles.files,
             height: parseInt(model.Height, 10),
             showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
@@ -586,6 +664,11 @@ function Addonvideo_create() {
     presenter.run = function(view, model) {
         var upgradedModel = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(upgradedModel);
+        if (!validatedModel.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
+            return;
+        }
+
         presenter.configuration = $.extend(presenter.configuration, validatedModel);
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
 
@@ -765,6 +848,11 @@ function Addonvideo_create() {
 
         var upgradedModel = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(upgradedModel);
+        if (!validatedModel.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
+            return;
+        }
+
         presenter.configuration = $.extend(presenter.configuration, validatedModel);
 
         presenter.$view = $(view);
