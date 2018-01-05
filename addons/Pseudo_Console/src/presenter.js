@@ -1104,7 +1104,6 @@ function AddonPseudo_Console_create() {
      * @param  {('__add__'|'__sub__'|'__div__'|'__mul__'|'__div_full__'|'__mod__'|'__ge__'|'__le__'|'__gt__'|'__lt__'|'__neq__'|'__eq__'|'__or__'|'__and__')} operationType 
      * @return {Object[]}
      */
-
     presenter.generateOperationCode = function (firstVal, secVal, operationType) {
         var execObjects = firstVal.concat(secVal),
             code = "",
@@ -1214,7 +1213,8 @@ function AddonPseudo_Console_create() {
         return execCode;
     };
 
-    /**Dispatch for build in function (function declared in properties)
+    /**
+     * Dispatch for build in function (function declared in properties)
      * Returned value is executed in machine scope, so next, pause, retVal are locally variable for each machine (function presenter.codeExecutor is scope for this code (eval))
      * @param  {String} functionName
      * @param  {Array[]} args contains how to resolve each argument
@@ -1225,7 +1225,7 @@ function AddonPseudo_Console_create() {
             code,
             execCode = [];
 
-        // That must be there, because, we don't know how many args receive built in function
+        // That must be there, because, we don't know how many args receive built in function, so we send all args to this function
         for (i = 1; i <= args.length; i += 1) {
             parsedArgs.unshift("stack[stack.length - " + i + "]");
         }
