@@ -1,3 +1,4 @@
+2018-01-05 Added Do not block in check mode property to DoubleStateButton
 2018-01-04 Fixed issue with too large coordinates in Coloring
 2018-01-04 Fixed showing system keyboard for eKeyboard on mobiles.
 2018-01-03 Fixed inline-css error with not unescaping apostrophe
