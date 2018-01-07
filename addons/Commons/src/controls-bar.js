@@ -188,7 +188,7 @@
     */
     CustomControlsBar.prototype.buildShowAndHideControlsEvents = function () {
         this.actualTime = 0;
-        this.configuration.parentElement.addEventListener("mouseleave", this.hideControls, false);
+        //this.configuration.parentElement.addEventListener("mouseleave", this.hideControls, false);
         this.configuration.parentElement.addEventListener("mouseenter", this.onWrapperMouseEnter, false);
         this.configuration.parentElement.addEventListener("mousemove", this.onWrapperMouseMove, false);
     };
@@ -203,7 +203,7 @@
         if (this.configuration.parentElement) {
             if (!this.mainDivIsHidden) {
                 if (this.actualTime > this.configuration.mouseDontMoveClocks) {
-                    this.hideControls();
+                    //this.hideControls();
                 }
                 this.actualTime++;
             }
@@ -288,9 +288,42 @@
      * @param {String} name of burger menu
      * @param {{title: String, callback: Function}[]} elements to append
      */
-    CustomControlsBar.prototype.setBurgerMenu = function (name, elements) {
+    CustomControlsBar.prototype.addBurgerMenu = function (name, elements) {
+        var burgerMenuElement = document.createElement('div');
+        burgerMenuElement.classList.add('CustomControlsBar-wrapper-controls-burgersContainer-' + name);
 
+        var burgerElementWrapper = document.createElement('div');
+        burgerElementWrapper.classList.add('CustomControlsBar-wrapper-controls-burgersContainer-container-' + name);
+        this.elements[name + '-container'] = buildTreeNode(burgerElementWrapper);
+        burgerMenuElement.appendChild(burgerElementWrapper);
 
+        this.elements.burgersContainer.element.appendChild(burgerMenuElement);
+        this.elements[name] = buildTreeNode(burgerMenuElement);
+
+        elements.forEach(function (value, index) {
+            var element = document.createElement('div');
+            element.classList.add('CustomControlsBar-wrapper-controls-burgersContainer-' + name + '-' + 'element');
+            element.classList.add('number-' + index);
+            element.innerText = value.title;
+
+            var treeElement = buildTreeNode(element);
+            this.elements['BURGER_MENU_' + name + '_' + index] = treeElement;
+
+            addNewCallback.call(this, treeElement, value.callback, 'click');
+
+            burgerElementWrapper.appendChild(element);
+        }, this);
+    };
+
+    /**
+     * @param {String} name
+     */
+    CustomControlsBar.prototype.removeBurgerMenu = function (name) {
+        if (this.elements[name]) {
+            destroyTreeElement.call(this, this.elements[name]);
+            this.elements[name].element.parentNode.removeChild(this.elements[name].element);
+            this.elements[name] = null;
+        }
     };
 
     /**
@@ -554,7 +587,8 @@
             volumeBackgroundSelected,
             fullscreen,
             closeFullscreen,
-            timer;
+            timer,
+            burgersContainer;
 
         mainDiv = document.createElement('div');
         mainDiv.className = 'CustomControlsBar-wrapper';
@@ -606,6 +640,10 @@
         volumeBackgroundSelected.style.display = 'none';
         volumeBarWrapper.appendChild(volumeBackgroundSelected);
 
+        burgersContainer = document.createElement('div');
+        burgersContainer.className = 'CustomControlsBar-wrapper-controls-burgersContainer';
+        controlsWrapper.appendChild(burgersContainer);
+
         fullscreen = document.createElement('div');
         fullscreen.className = 'CustomControlsBar-wrapper-controls-fullscreen';
         controlsWrapper.appendChild(fullscreen);
@@ -634,7 +672,8 @@
             redProgressBar: buildTreeNode(redProgressBar),
             grayProgressBar: buildTreeNode(grayProgressBar),
             closeFullscreen: buildTreeNode(closeFullscreen),
-            volumeBackgroundSelected: buildTreeNode(volumeBackgroundSelected)
+            volumeBackgroundSelected: buildTreeNode(volumeBackgroundSelected),
+            burgersContainer: buildTreeNode(burgersContainer)
 
         }
     }

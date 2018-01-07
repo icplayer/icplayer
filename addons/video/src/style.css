@@ -181,3 +181,16 @@
     float: right;
 
 }
+
+.CustomControlsBar-wrapper-controls-burgersContainer-time_labels {
+    height: 100%;
+    width: 40px;
+    background: url("resources/video-stop-btn.png") no-repeat center center;
+    cursor: pointer;
+    float: left;
+}
+
+.CustomControlsBar-wrapper-controls-burgersContainer {
+    float: left;
+    height: 100%;
+}

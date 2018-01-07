@@ -661,6 +661,36 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.setBurgerMenu = function () {
+        var BURGER_MENU = "time_labels";
+        if (!presenter.configuration.defaultControls) {
+            return;
+        }
+
+        presenter.controlBar.removeBurgerMenu(BURGER_MENU);
+
+        var currentElement = presenter.configuration.files[presenter.currentMovie],
+            /**
+             * @type {{title: String, time: Number}[]}
+             */
+            labels = currentElement.timeLabels;
+
+        if (labels.length === 0) {
+            return;
+        }
+
+        var elementsForBurger = labels.map(function (value) {
+            return {
+                title: value.title,
+                callback: function () {
+                    presenter.seek(value.time);
+                }
+            };
+        });
+
+        presenter.controlBar.addBurgerMenu(BURGER_MENU, elementsForBurger);
+    };
+
     presenter.run = function(view, model) {
         var upgradedModel = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(upgradedModel);
@@ -887,6 +917,7 @@ function Addonvideo_create() {
         $(presenter.videoContainer).find('.captions').remove();
         presenter.setVideo();
         presenter.loadSubtitles();
+        presenter.setBurgerMenu();
         $(presenter.videoObject).unbind('timeupdate');
         $(presenter.videoObject).bind("timeupdate", function () {
             onTimeUpdate(this);
@@ -1069,7 +1100,7 @@ function Addonvideo_create() {
 
             // "ended" event doesn't work on Safari
             $(presenter.videoObject).unbind('timeupdate');
-            $(presenter.videoObject).bind("timeupdate", function onTimeUpdate() {
+            $(presenter.videoObject).bind("timeupdate", function () {
                 onTimeUpdate(this);
             });
 
