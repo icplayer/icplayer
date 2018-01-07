@@ -90,40 +90,35 @@ public class TextModel extends BasicModuleModel {
 	}
 
 	@Override
-	public void load(Element node, String baseUrl) {
-		super.load(node, baseUrl);
-
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
-
 			Node childNode = nodes.item(i);
-			if (childNode instanceof Element) {
-				if (childNode.getNodeName().compareTo("text") == 0) {
-					Element textElement = (Element) childNode;
-					useDraggableGaps = XMLUtils.getAttributeAsBoolean(textElement, "draggable");
-					useMathGaps = XMLUtils.getAttributeAsBoolean(textElement, "math");
-					gapWidth = XMLUtils.getAttributeAsInt(textElement, "gapWidth");
-					gapMaxLength = XMLUtils.getAttributeAsInt(textElement, "gapMaxLength");
-					isActivity = XMLUtils.getAttributeAsBoolean(textElement, "isActivity", true);
-					isDisabled = XMLUtils.getAttributeAsBoolean(textElement, "isDisabled", false);
-					isCaseSensitive = XMLUtils.getAttributeAsBoolean(textElement, "isCaseSensitive", false);
-					isIgnorePunctuation = XMLUtils.getAttributeAsBoolean(textElement, "isIgnorePunctuation", false);
-					isKeepOriginalOrder = XMLUtils.getAttributeAsBoolean(textElement, "isKeepOriginalOrder", false);
-					isClearPlaceholderOnFocus = XMLUtils.getAttributeAsBoolean(textElement, "isClearPlaceholderOnFocus", false);
-					openLinksinNewTab = XMLUtils.getAttributeAsBoolean(textElement, "openLinksinNewTab", true);
-					rawText = XMLUtils.getCharacterDataFromElement(textElement);
-					valueType = XMLUtils.getAttributeAsString(textElement, "valueType");
-					blockWrongAnswers = XMLUtils.getAttributeAsBoolean(textElement, "blockWrongAnswers", false);
-					userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
-					this.useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
-					langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
-					
-					if (rawText == null) {
-						rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
-					}
-					setText(rawText);
+			if (childNode instanceof Element && childNode.getNodeName().compareTo("text") == 0) {
+				Element textElement = (Element) childNode;
+				useDraggableGaps = XMLUtils.getAttributeAsBoolean(textElement, "draggable");
+				useMathGaps = XMLUtils.getAttributeAsBoolean(textElement, "math");
+				gapWidth = XMLUtils.getAttributeAsInt(textElement, "gapWidth");
+				gapMaxLength = XMLUtils.getAttributeAsInt(textElement, "gapMaxLength");
+				isActivity = XMLUtils.getAttributeAsBoolean(textElement, "isActivity", true);
+				isDisabled = XMLUtils.getAttributeAsBoolean(textElement, "isDisabled", false);
+				isCaseSensitive = XMLUtils.getAttributeAsBoolean(textElement, "isCaseSensitive", false);
+				isIgnorePunctuation = XMLUtils.getAttributeAsBoolean(textElement, "isIgnorePunctuation", false);
+				isKeepOriginalOrder = XMLUtils.getAttributeAsBoolean(textElement, "isKeepOriginalOrder", false);
+				isClearPlaceholderOnFocus = XMLUtils.getAttributeAsBoolean(textElement, "isClearPlaceholderOnFocus", false);
+				openLinksinNewTab = XMLUtils.getAttributeAsBoolean(textElement, "openLinksinNewTab", true);
+				rawText = XMLUtils.getCharacterDataFromElement(textElement);
 
+				valueType = XMLUtils.getAttributeAsString(textElement, "valueType");
+				blockWrongAnswers = XMLUtils.getAttributeAsBoolean(textElement, "blockWrongAnswers", false);
+				userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
+				useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
+				langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
+
+				if (rawText == null) {
+					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 				}
+				setText(rawText);
 			}
 		}
 	}
@@ -162,26 +157,35 @@ public class TextModel extends BasicModuleModel {
 
 	@Override
 	public String toXML() {
+		Element textModule = XMLUtils.createElement("textModule");
+		this.setBaseXMLAttributes(textModule);
+		textModule.appendChild(this.getLayoutsXML());
 
-		String xml = "<textModule " + getBaseXML() + ">" + getLayoutXML();
-		xml += "<text draggable='" + useDraggableGaps + "' " +
-				"math='" + useMathGaps + "' " +
-				"gapMaxLength='" + gapMaxLength + "' " +
-				"gapWidth='" + gapWidth + "' isActivity='" + isActivity + "' " +
-				"isIgnorePunctuation='" + isIgnorePunctuation +
-				"' isKeepOriginalOrder='" + isKeepOriginalOrder +
-				"' isClearPlaceholderOnFocus='" + isClearPlaceholderOnFocus +
-				"' isDisabled='" + isDisabled + "' isCaseSensitive='" + isCaseSensitive +
-				"' openLinksinNewTab='" + openLinksinNewTab +
-				"' valueType='" + valueType +
-				"' blockWrongAnswers='" + blockWrongAnswers +
-				"' userActionEvents='" + userActionEvents +
-				"' useEscapeCharacterInGap='" + this.useEscapeCharacterInGap +
-				"' langAttribute='" + langAttribute +
-				"'><![CDATA[" + moduleText + "]]></text>";
-		xml += "</textModule>";
+		Element text = XMLUtils.createElement("text");
 
-		return XMLUtils.removeIllegalCharacters(xml);
+		XMLUtils.setBooleanAttribute(text, "draggable", this.useDraggableGaps);
+		XMLUtils.setBooleanAttribute(text, "math", this.useMathGaps);
+		XMLUtils.setIntegerAttribute(text, "gapMaxLength", this.gapMaxLength);
+		XMLUtils.setIntegerAttribute(text, "gapWidth", this.gapWidth);
+		XMLUtils.setBooleanAttribute(text, "isActivity", this.isActivity);
+		XMLUtils.setBooleanAttribute(text, "isIgnorePunctuation", this.isIgnorePunctuation);
+		XMLUtils.setBooleanAttribute(text, "isKeepOriginalOrder", this.isKeepOriginalOrder);
+		XMLUtils.setBooleanAttribute(text, "isClearPlaceholderOnFocus", this.isClearPlaceholderOnFocus);
+		XMLUtils.setBooleanAttribute(text, "isDisabled", this.isDisabled);
+		XMLUtils.setBooleanAttribute(text, "isCaseSensitive", this.isCaseSensitive);
+		XMLUtils.setBooleanAttribute(text, "openLinksinNewTab", this.openLinksinNewTab);
+		XMLUtils.setBooleanAttribute(text, "blockWrongAnswers", this.blockWrongAnswers);
+		XMLUtils.setBooleanAttribute(text, "userActionEvents", this.userActionEvents);
+		XMLUtils.setBooleanAttribute(text, "useEscapeCharacterInGap", this.useEscapeCharacterInGap);
+		if (this.langAttribute.compareTo("") != 0) {
+			text.setAttribute("langAttribute", this.langAttribute);
+		}
+		text.setAttribute("valueType", this.valueType);
+		text.appendChild(XMLUtils.createCDATASection(this.moduleText));
+
+		textModule.appendChild(text);
+
+		return StringUtils.removeIllegalCharacters(textModule.toString());
 	}
 
 	private void addPropertyText(final boolean is_default) {
@@ -752,9 +756,9 @@ public class TextModel extends BasicModuleModel {
 
 		};
 
-		addProperty(property);		
+		addProperty(property);
 	}
-	
+
 	private void addPropertyUserActionEvents() {
 		IProperty property = new IBooleanProperty() {
 
@@ -792,7 +796,7 @@ public class TextModel extends BasicModuleModel {
 
 		addProperty(property);
 	}
-	
+
 	private void addPropertyLangAttribute() {
 		IProperty property = new IProperty() {
 
@@ -869,11 +873,11 @@ public class TextModel extends BasicModuleModel {
 	public String getValueType() {
 		return valueType;
 	}
-	
+
 	public boolean isUsingEscapeCharacterInGap() {
 		return this.useEscapeCharacterInGap;
 	}
-	
+
 	public String getLangAttribute() {
 		return langAttribute;
 	}

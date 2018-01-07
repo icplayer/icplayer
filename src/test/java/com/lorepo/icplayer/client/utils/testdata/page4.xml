@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<page layout='pixels' scoring="zeroOne">
+
+	<modules>
+		
+		<shapeModule id="shape1" left="100" top="100" width="600" height="240" style="background-color:#bbbbbb">
+		</shapeModule>
+		
+		<choiceModule id="2frg43d" left="120" top="120" width="560" right="10" bottom="10" height="200" style="background-color:yellow">
+			<layout type="LTRB">
+				<left relative="" property="left"/>
+				<top relative="" property="top"/>
+				<right relative="" property="right"/>
+				<bottom relative="" property="bottom"/>
+			</layout>
+			<choice isDisabled='false'/>
+			<options>
+				<option value="5">
+					<text>To jest opcja pierwsza za 5 punktow</text>
+				</option>
+				<option value="0">
+					<text>To jest opcja druga za 0 punktow</text>
+				</option>
+				<option value="1">To jest opcja trzecia za 1 punkt</option>
+			</options>
+		</choiceModule>
+		
+		<buttonModule  left="600" top="400" width="50" height="50" style="">
+			<layout type="RBWH" left="shape1" top="shape1" right="shape1" bottom="shape1"/>
+			<button type="checkAnswers" text=""/>
+		</buttonModule>
+		
+		<buttonModule  left="660" top="400" width="50" height="50" style="">
+			<button type="reset" text=""/>
+		</buttonModule>
+		
+		<checkCounterModule id="2frcd45" left="100" top="400" width="50" height="20">
+		</checkCounterModule>
+		
+		<errorCounterModule id="2frcd55" left="100" top="450" width="50" height="20">
+		</errorCounterModule>
+		
+		<pageProgressModule id="2frcd65" left="200" top="400" width="200" height="20">
+		</pageProgressModule>
+		
+	</modules>
+
+</page>

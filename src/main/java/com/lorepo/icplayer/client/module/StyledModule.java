@@ -1,14 +1,20 @@
 package com.lorepo.icplayer.client.module;
 
+import java.util.HashMap;
+import java.util.Set;
+
+import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.semi.responsive.SemiResponsiveStyles;
 
 
 class StyledModule extends AbsolutePositioningModule implements IStyledModule {
 
 	private IStyleListener styleListener;
-	private String	style = "";
-	private String	styleClass;
+	private SemiResponsiveStyles semiResponsiveStyles = new SemiResponsiveStyles();
+
 	
 	public StyledModule(String name) {
 		super(name);
@@ -21,23 +27,26 @@ class StyledModule extends AbsolutePositioningModule implements IStyledModule {
 	
 	@Override
 	public String getInlineStyle() {
-		return style;
+		return this.semiResponsiveStyles.getInlineStyle(this.getSemiResponsiveID(), this.getDefaultSemiResponsiveID());
+	}
+	
+	protected HashMap<String, String> getInlineStyles() {
+		return this.semiResponsiveStyles.getInlineStyles();
+	}
+	
+	protected HashMap<String, String> getStylesClasses() {
+		return this.semiResponsiveStyles.getStylesClasses();
 	}
 	
 	@Override
 	public String getStyleClass() {
-		
-		if(styleClass == null){
-			return "";
-		}
-		
-		return styleClass;
+		return this.semiResponsiveStyles.getStyleClass(this.getSemiResponsiveID(), this.getDefaultSemiResponsiveID());
 	}
 	
 	@Override
 	public void setInlineStyle(String style){
+		this.semiResponsiveStyles.setInlineStyle(this.getSemiResponsiveID(), style);
 		
-		this.style = style;
 		if(styleListener != null){
 			styleListener.onStyleChanged();
 		}
@@ -45,14 +54,8 @@ class StyledModule extends AbsolutePositioningModule implements IStyledModule {
 
 	@Override
 	public void setStyleClass(String styleClass){
+		this.semiResponsiveStyles.setStyleClass(this.getSemiResponsiveID(), styleClass);
 		
-		if(styleClass != null && styleClass.length() > 0){
-			this.styleClass = styleClass;
-		}
-		else{
-			this.styleClass = null;
-		}
-
 		if(styleListener != null){
 			styleListener.onStyleChanged();
 		}
@@ -63,5 +66,35 @@ class StyledModule extends AbsolutePositioningModule implements IStyledModule {
 	public String getClassNamePrefix() {
 		return "";
 	};
-
+	
+	
+	public void setDefaultInlineStyle(String inlineStyle) {
+		this.semiResponsiveStyles.setInlineStyle(this.getDefaultSemiResponsiveID(), inlineStyle);
+	}
+	
+	public void setDefaultStyleClass(String styleClass) {
+		this.semiResponsiveStyles.setStyleClass(this.getDefaultSemiResponsiveID(), styleClass);
+	}
+	
+	public void setInlineStyles(HashMap<String, String> inlineStyles) {
+		this.semiResponsiveStyles.setInlineStyles(inlineStyles);
+	}
+	
+	public void setStylesClasses(HashMap<String, String> styleClasses) {
+		this.semiResponsiveStyles.setStylesClasses(styleClasses);
+	}
+	
+	
+	protected boolean haveStyles() {
+		return this.semiResponsiveStyles.haveStyles();
+	}
+	
+	protected Element stylesToXML() {
+		return this.semiResponsiveStyles.toXML();
+	}
+	
+	public void syncSemiResponsiveStyles(Set<PageLayout> actualSemiResponsiveLayouts) {
+		this.semiResponsiveStyles.syncStyles(actualSemiResponsiveLayouts, this.getDefaultSemiResponsiveID());
+		
+	}
 }

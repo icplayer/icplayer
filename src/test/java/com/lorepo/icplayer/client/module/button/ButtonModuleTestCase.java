@@ -1,7 +1,6 @@
 package com.lorepo.icplayer.client.module.button;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -23,6 +22,7 @@ import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 @PrepareForTest(DictionaryWrapper.class)
 public class ButtonModuleTestCase {
 
+	private static final String PAGE_VERSION = "2";
 
 	@Test
 	public void moduleTypeName() {
@@ -33,23 +33,6 @@ public class ButtonModuleTestCase {
 		assertEquals("Button", module.getModuleTypeName());
 	}
 
-	
-	@Test
-	public void toXML() {
-		
-		ButtonModule module = new ButtonModule();
-		module.setLeft(1);
-		module.setTop(2);
-		module.setWidth(3);
-		module.setHeight(4);
-		module.setType("nextPage");
-		String xml = module.toXML();
-		
-		
-		String expected = 
-				"<buttonModule id='" + module.getId() + "'";
-		assertTrue(xml.startsWith(expected));
-	}
 
 	
 	@Test
@@ -62,7 +45,7 @@ public class ButtonModuleTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ButtonModule module = new ButtonModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		String pageName = null;
 		for(int i = 0; i < module.getPropertyCount(); i++){
@@ -86,7 +69,7 @@ public class ButtonModuleTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ButtonModule module = new ButtonModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		String additionalClassesText = null;
 		for (int i=0; i<module.getPropertyCount(); i++) {
@@ -109,7 +92,7 @@ public class ButtonModuleTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ButtonModule module = new ButtonModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		String onClickText = null;
 		for(int i = 0; i < module.getPropertyCount(); i++){

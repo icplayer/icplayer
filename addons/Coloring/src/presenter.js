@@ -295,7 +295,7 @@ function AddonColoring_create(){
     };
 
     function runLogic(view, model, isPreview) {
-        presenter.configuration = presenter.validateModel(model);
+        presenter.configuration = presenter.validateModel(model, isPreview);
         presenter.allColoredPixels = [];
 
         if (presenter.configuration.isError) {
@@ -496,16 +496,17 @@ function AddonColoring_create(){
         'E01': 'Wrong color notation. Must be in "r g b a" format. See documentation for more details.',
         'E02': 'All color values must be between 0 - 255.',
         'E03': 'Areas are configured wrong. It should be in "x; y; color" format. See documentation for more details.',
+        'E04': 'Areas x & y values have to be smaller than Width and Height properties.',
         'A01': "Areas x & y values have to be integer values between 0 - 255."
     };
 
-    presenter.validateModel = function(model) {
+    presenter.validateModel = function(model, isPreview) {
         var validatedAreas = {
             items: []
         };
 
         if (model['Areas'].toString().length > 0) {
-            validatedAreas = presenter.validateAreas(model['Areas']);
+            validatedAreas = presenter.validateAreas(model['Areas'], isPreview, model['Width'], model['Height']);
             if (validatedAreas.isError) {
                 return { isError: true, errorCode: validatedAreas.errorCode};
             }
@@ -586,19 +587,21 @@ function AddonColoring_create(){
     };
 
     presenter.isTransparent = function (value) {
-        if (value.length == 3) {
-            return value[2] == "transparent";
+        if (value.length === 3) {
+            return value[2] === "transparent";
         }
 
         return false;
     };
 
-    presenter.validateAreas = function(areasText) {
+    presenter.validateAreas = function(areasText, isPreview, modelWidth, modelHeight) {
+        modelWidth = parseInt(modelWidth, 10);
+        modelHeight = parseInt(modelHeight, 10);
         var areas = Helpers.splitLines(areasText).map(function (element) {
            return element.split(';');
         }).map(function (element) {
 
-            if (element.length == 3) {
+            if (element.length === 3) {
                 var trimmedArray = element.map(function (value) {return value.trim();});
 
                 if (presenter.isTransparent(trimmedArray)) {
@@ -610,6 +613,9 @@ function AddonColoring_create(){
                         type: presenter.AREA_TYPE.NORMAL
                     };
 
+                    if(isPreview && (area.x>=modelWidth || area.y>=modelHeight)) {
+                        return {isValid: false, isError: true, errorCode: 'E04'};
+                    }
 
                     var validatedColor = presenter.validateColor(trimmedArray[2]);
                     if(!validatedColor.isError) {

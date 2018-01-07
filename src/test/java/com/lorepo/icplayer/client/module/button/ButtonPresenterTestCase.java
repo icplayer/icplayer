@@ -19,6 +19,7 @@ import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.button.mockup.ButtonViewMockup;
 
 public class ButtonPresenterTestCase {
+	private static final String PAGE_VERSION = "2";
 	private ButtonModule module;
 	private PlayerServicesMockup services;
 	private ButtonViewMockup display;
@@ -30,7 +31,7 @@ public class ButtonPresenterTestCase {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		module = new ButtonModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 
 		services = new PlayerServicesMockup();
 		display = new ButtonViewMockup(module);

@@ -1,5 +1,5 @@
 package com.lorepo.icplayer.client.module.ordering;
-
+	
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.tools.ant.filters.StringInputStream;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -29,6 +30,7 @@ import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 @PrepareForTest(DictionaryWrapper.class)
 public class OrderingModelTestCase {
 
+	private static final String PAGE_VERSION = "2";
 	private boolean eventReceived;
 
 	@Test
@@ -97,28 +99,6 @@ public class OrderingModelTestCase {
 	}
 	
 	@Test
-	public void saveLoad() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/ordering2.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		OrderingModule module = new OrderingModule();
-		module.load(element, "");
-		String oldText = module.getItem(0).getText();
-				
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new OrderingModule();
-		module.load(element, "");
-		String newText = module.getItem(0).getText();
-		
-		assertEquals(oldText, newText);
-		assertFalse(module.isActivity());
-	}
-
-
-	@Test
 	public void goToPageProperty() throws SAXException, IOException {
 		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/ordering.xml");
@@ -126,11 +106,7 @@ public class OrderingModelTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		OrderingModule module = new OrderingModule();
-		module.load(element, "");
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new OrderingModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		assertEquals(4, module.getItemCount());
 	}
@@ -147,7 +123,7 @@ public class OrderingModelTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		OrderingModule module = new OrderingModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		boolean foundProperty = false;
 		for(int i = 0; i < module.getPropertyCount(); i++){

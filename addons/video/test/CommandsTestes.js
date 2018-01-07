@@ -1,6 +1,11 @@
 TestCase("[Video] Commands", {
     setUp: function () {
         this.presenter = Addonvideo_create();
+
+        this.presenter.configuration.files[0] = {
+
+        };
+
         this.presenter.jumpTo = sinon.spy();
     },
 
@@ -33,21 +38,20 @@ TestCase("[Video] Commands", {
     },
 
     'test if setVideoURL will set default properties': function () {
-        var expected = {
-            "Ogg video": "",
-            "MP4 video": "",
-            "WebM video": "",
-            "Poster": "",
-            "Subtitles": "",
-            "ID": "",
-            "AlternativeText": "",
-            "Loop video": false
+        var expected = {AlternativeText: undefined,
+            ID: undefined,
+            "Loop video": undefined,
+            "MP4 video": undefined,
+            "Ogg video": "format",
+            Poster: undefined,
+            Subtitles: undefined,
+            "WebM video": undefined
         };
 
-        this.presenter.setVideoURL({});
+        this.presenter.setVideoURL({oggFormat: "format"});
 
         assertEquals(expected, this.presenter.configuration.files[0]);
         assertEquals(1, this.presenter.configuration.files.length);
-        assertTrue(this.presenter.jumpTo.calledOnce);       
+        assertTrue(this.presenter.jumpTo.calledOnce);
     }
 });

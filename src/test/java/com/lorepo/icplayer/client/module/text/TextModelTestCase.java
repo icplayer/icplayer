@@ -1,16 +1,13 @@
 package com.lorepo.icplayer.client.module.text;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.tools.ant.filters.StringInputStream;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -28,6 +25,8 @@ import com.lorepo.icplayer.client.utils.DomElementManipulator;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DictionaryWrapper.class, TextModel.class, TextParser.class})
 public class TextModelTestCase {
+
+    private static final String PAGE_VERSION = "2";
 
 	@Before
 	public void setUp () throws Exception {
@@ -85,95 +84,6 @@ public class TextModelTestCase {
 		assertTrue(foundProperty);
 	}
 
-	@Test
-	public void saveLoad() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module-draggable.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		TextModel module = new TextModel();
-		module.load(element, "");
-		String oldText = module.getParsedText();
-		
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new TextModel();
-		module.load(element, "");
-		String newText = module.getParsedText();
-
-		assertTrue(module.hasDraggableGaps());
-		assertEquals(100, module.getGapWidth());
-		assertFalse(module.isActivity());
-		assertTrue(module.isCaseSensitive());
-		oldText = oldText.replaceAll("id='[^-]+", "id='");
-		newText = newText.replaceAll("id='[^-]+", "id='");
-		assertEquals(oldText, newText);
-	}
-	
-	@Test
-	public void saveLoadModule1() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module1.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		TextModel module = new TextModel();
-		module.load(element, "");
-		
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new TextModel();
-		module.load(element, "");
-
-		assertTrue(module.isDisabled());
-		assertFalse(module.isIgnorePunctuation());
-	}
-	
-	@Test
-	public void saveLoadModule2() throws SAXException, IOException {
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module2.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		TextModel module = new TextModel();
-		module.load(element, "");
-		
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new TextModel();
-		module.load(element, "");
-
-		assertTrue(module.isIgnorePunctuation());
-	}
-	
-	
-	@Test
-	public void nonUnicodeText() throws SAXException, IOException {
-		PowerMockito.spy(DictionaryWrapper.class);
-		when(DictionaryWrapper.get("text_module_text")).thenReturn("Text");
-		
-		InputStream inputStream = getClass().getResourceAsStream("testdata/module1.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		
-		TextModel module = new TextModel();
-		module.load(element, "");
-		for(int i = 0; i < module.getPropertyCount(); i++){
-			IProperty property = module.getProperty(i);
-			if(property.getName().compareTo("Text") == 0){
-				property.setValue("In chapter 6");
-			}
-		}
-		
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new TextModel();
-		module.load(element, "");
-
-		assertEquals("In chapter 6", module.getParsedText());
-	}
 	
 	
 	@Test
@@ -189,7 +99,7 @@ public class TextModelTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		TextModel module = new TextModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		boolean found = false;
 
 		for(int i = 0; i < module.getPropertyCount(); i++){
@@ -286,7 +196,6 @@ public class TextModelTestCase {
 	
 	@Test
 	public void propertyKeepOriginalOrder() {
-		
 		PowerMockito.spy(DictionaryWrapper.class);
 		when(DictionaryWrapper.get("Keep_original_order")).thenReturn("Keep Original Order");
 
@@ -303,5 +212,4 @@ public class TextModelTestCase {
 
 		assertTrue(foundProperty);
 	}
-	
 }

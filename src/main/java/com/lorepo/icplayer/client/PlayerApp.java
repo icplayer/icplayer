@@ -9,24 +9,26 @@ import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
-import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
-import com.lorepo.icplayer.client.model.Page;
+import com.lorepo.icplayer.client.model.CssStyle;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
-import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.ui.PlayerView;
+import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
+import com.lorepo.icplayer.client.xml.IXMLFactory;
+import com.lorepo.icplayer.client.xml.content.ContentFactory;
 
 public class PlayerApp {
 
-	private final String divId;
+	private String divId;
 	private	Content contentModel;
 	private PlayerController playerController;
 	private PlayerConfig playerConfig = new PlayerConfig();
 	/** Score service impl */
-	private final PlayerEntryPoint entryPoint;
+	private PlayerEntryPoint entryPoint;
 	private int startPageIndex = 0;
 	private HashMap<String, String> loadedState;
 	private boolean bookMode = false;
@@ -41,7 +43,7 @@ public class PlayerApp {
 		this.entryPoint = entryPoint;
 	}
 
-	public static native int getIFrameSizeAndSetHandlers (boolean isCommonPage, PlayerApp instance) /*-{
+	public static native int getIFrameSize (boolean isCommonPage, PlayerApp instance) /*-{
 		$wnd.addEventListener('message', function (event) {
 			var data = event.data;
 
@@ -58,9 +60,6 @@ public class PlayerApp {
 			windowInnerHeight: 0,
 			isEditorPreview: false
 		};
-		
-		instance.@com.lorepo.icplayer.client.PlayerApp::setHandlers(Z)(isCommonPage);
-		$wnd.get_iframe();
 	}-*/;
 
 	/**
@@ -79,18 +78,15 @@ public class PlayerApp {
 	 */
 	private void loadPage(String url, int pageIndex, final boolean isCommonPage) {
 		startPageIndex = pageIndex;
-		contentModel = new Content();
-		if (pagesSubset != null) {
-			contentModel.setPageSubset(pagesSubset);
-		}
-		XMLLoader reader = new XMLLoader(contentModel);
 
-		reader.load(url, new ILoadListener() {
-			@Override
-			public void onFinishedLoading(Object obj) {
+		IXMLFactory contentFactory = ContentFactory.getInstance(this.pagesSubset);
+
+		contentFactory.load(url, new IProducingLoadingListener() {
+			public void onFinishedLoading(Object content) {
+				contentModel = (Content) content;
 				initPlayer(isCommonPage);
 			}
-			@Override
+
 			public void onError(String error) {
 				JavaScriptUtils.log("Can't load:" + error);
 			}
@@ -174,9 +170,9 @@ public class PlayerApp {
 					}
 				});
 				$wnd.isFrameInDifferentDomain = false;
-				
+
 				$wnd.isInIframe = ($wnd.location != $wnd.parent.location) ? true : false;
-				
+
 				return $wnd.playerIFrame;
 			} catch(e) {
 				$wnd.isFrameInDifferentDomain = true;
@@ -240,7 +236,7 @@ public class PlayerApp {
 		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
 			var offsetIframe = $wnd.iframeSize.frameOffset;
 			var sum = $wnd.iframeSize.windowInnerHeight - offsetIframe - icFooterHeight;
-			
+
 			$wnd.$(".ic_static_footer").css("top", sum + "px");
 
 			$wnd.addEventListener('message', function (event) {
@@ -285,48 +281,45 @@ public class PlayerApp {
 	public static native int getHeaderHeight() /*-{
 		return $wnd.$(".ic_header").css("height");
 	}-*/;
-	
+
 	public static native String getStaticHeaderHeight() /*-{
 		return $wnd.$(".ic_static_header").css("height").replace("px", "");
 	}-*/;
-	
+
 	public static native String getStaticFooterHeight() /*-{
 		return $wnd.$(".ic_footer").css("height").replace("px", "");
 	}-*/;
-	
+
 	public static native boolean isStaticFooter() /*-{
 		return $wnd.$(".ic_static_footer").length > 0;
 	}-*/;
-	
+
 	public static native boolean isStaticHeader() /*-{
 		return $wnd.$(".ic_static_header").length > 0;
 	}-*/;
-	
-	public void makeHeaderStatic() {
-		int headerHeight = getHeaderHeight();
-		setPageTopAndStaticHeader(headerHeight);
-		isStaticHeader = true;
+
+
+	/**
+	 * Init player after content is loaded
+	 */
+	@SuppressWarnings("static-access")
+	private void initPlayer(final boolean isCommonPage) {
+		registerGetIframe(this);
+		getIFrameSize(isCommonPage, this);
+		this._initPlayer(isCommonPage);
+		this.getIframe();
 	}
 
-	public void makeFooterStatic() {
-		removeStaticFooter();
-
-		final int screenHeight = getScreenHeight();
-		final int pageHeight = getPageHeight();
-
-		if (screenHeight < pageHeight) {
-			final int headerHeight = getHeaderHeight();
-			setStaticFooter(headerHeight, isStaticHeader);
-		}
-	}
-
-	public static native void setLangAttribute (String lang) /*-{
+    public static native void setLangAttribute (String lang) /*-{
 		$wnd.$("html").attr("lang", lang);
 	}-*/;
-	
-	private void setHandlers(final boolean isCommonPage) {
+
+	/**
+	 * Init player after content is loaded
+	 */
+	private void _initPlayer(final boolean isCommonPage) {
 		PlayerView playerView = new PlayerView();
-		playerController = new PlayerController(contentModel, playerView, bookMode, entryPoint);
+		playerController = new PlayerController(this.contentModel, playerView, bookMode, entryPoint);
 		playerController.setPlayerConfig(playerConfig);
 		playerController.setFirstPageAsCover(showCover);
 		playerController.setAnalytics(analyticsId);
@@ -343,7 +336,7 @@ public class PlayerApp {
 				if (contentModel.getMetadataValue("staticFooter").compareTo("true") == 0 && playerController.hasFooter()) {
 					makeFooterStatic();
 				}
-				
+
 				setLangAttribute(contentModel.getMetadataValue("lang"));
 				
 				entryPoint.onPageLoaded();
@@ -355,11 +348,9 @@ public class PlayerApp {
 		});
 
 		contentModel.setPlayerController(getPlayerServices());
-		contentModel.setBaseURL();
 
 		RootPanel.get(divId).add(playerView);
-		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), contentModel.getStyles());
-		DOMInjector.appendStyle(css);
+		this.loadActualLayoutCSSStyles();
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
 
@@ -385,13 +376,35 @@ public class PlayerApp {
 		});
 	}
 
-	/**
-	 * Init player after content is loaded
-	 */
-	private void initPlayer(final boolean isCommonPage) {
-		registerGetIframe(this);
-		getIFrameSizeAndSetHandlers(isCommonPage, this);
+	private void loadActualLayoutCSSStyles() {
+		String actualCSSID = this.contentModel.getActualSemiResponsiveLayoutID();
+		CssStyle actualStyle = contentModel.getStyle(actualCSSID);
+		String cssValue = actualStyle.getValue();
+		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
+		DOMInjector.appendStyle(css);
 	}
+
+	private void makeHeaderStatic() {
+		int headerHeight = getHeaderHeight();
+		setPageTopAndStaticHeader(headerHeight);
+		isStaticHeader = true;
+	}
+
+	private void makeFooterStatic() {
+		removeStaticFooter();
+
+		final int screenHeight = getScreenHeight();
+		final int pageHeight = getPageHeight();
+
+		if (screenHeight < pageHeight) {
+			final int headerHeight = getHeaderHeight();
+			setStaticFooter(headerHeight, isStaticHeader);
+		}
+	}
+
+	private static native void getIframe () /*-{
+		$wnd.get_iframe();
+	}-*/;
 
 	private void loadFirstPage(boolean isCommonPage) {
 		if (loadedState != null) {
@@ -402,14 +415,14 @@ public class PlayerApp {
 				this.playerController.getPlayerServices().getReportableService().loadFromString(this.loadedState.get("isReportable"));
 			}
 		}
-		
+
 		//All reportable values for pages should be loaded before start.
 		Content playerModel = this.playerController.getModel();
 		HashMap<String, String> states = this.playerController.getPlayerServices().getReportableService().getStates();
 		for (int i = 0; i < playerModel.getPageCount(); i++) {
 			this.setPageReportableFromMap(playerModel.getPage(i), states);
 		}
-		
+
 		if (isCommonPage) {
 			playerController.switchToCommonPage(startPageIndex);
 		} else {
@@ -486,13 +499,13 @@ public class PlayerApp {
 		String score = playerController.getPlayerServices().getScoreService().getAsString();
 		String time = playerController.getPlayerServices().getTimeService().getAsString();
 		String isReportable = playerController.getPlayerServices().getReportableService().getAsString();
-		
+
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("state", state);
 		data.put("score", score);
 		data.put("time", time);
 		data.put("isReportable", isReportable);
-		
+
 		return JSONUtils.toJSONString(data);
 	}
 
@@ -502,5 +515,21 @@ public class PlayerApp {
 
 	public void showCover(boolean show) {
 		showCover = show;
+	}
+
+	public JavaScriptObject getSemiResponsiveLayouts() {
+		return this.contentModel.getSemiResponsiveLayoutsAsJS();
+	}
+
+	public boolean changeLayout(String layoutID) {
+		boolean isLayoutChanged = this.contentModel.setActualLayoutID(layoutID);
+
+		if (isLayoutChanged) {
+			this.loadActualLayoutCSSStyles();
+			int pageIndex = this.playerController.getCurrentPageIndex();
+			this.playerController.switchToPage(pageIndex);
+		}
+
+		return isLayoutChanged;
 	}
 }

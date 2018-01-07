@@ -38,7 +38,6 @@ public class SourceListViewMockup implements IDisplay {
 	public void addItem(String id, String value, boolean callMathJax) {
 		
 		if(items.get(id) != null){
-			System.out.println("Duplicate entry");
 			id = id + System.currentTimeMillis(); 
 		}
 		
