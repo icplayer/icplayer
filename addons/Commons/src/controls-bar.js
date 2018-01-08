@@ -3,6 +3,10 @@
  */
 (function (window) {
     /**
+     * @typedef {{element: HTMLDivElement, events:{}}} TreeNode
+     */
+
+    /**
     Custom controls bar for video/audio
     @class DOM Operations Utils
     */
@@ -221,9 +225,31 @@
             }
         }
 
+    };
 
-        for (var i = 0; i < this.ownTimerCallbacks.length; i++) {
-            this.ownTimerCallbacks[i].call(this);
+    /**
+     *
+     * @param {TreeNode} element
+     */
+    CustomControlsBar.prototype.checkBurgerMenuSize = function (element) {
+        var height = element.element.offsetHeight,
+            width = element.element.offsetWidth,
+            xPosition = element.element.getBoundingClientRect().left - this.configuration.parentElement.getBoundingClientRect().left,
+            windowWidth = this.configuration.parentElement.offsetWidth,
+            marginLeft = element.element.style.marginLeft;
+
+
+        if (marginLeft === '') {
+            marginLeft = '0';
+        }
+
+        marginLeft = parseInt(marginLeft.replace('px', ''), 10);
+
+        element.element.style.marginTop = '-' + (height - 2) + 'px';
+        if (width + xPosition - marginLeft > windowWidth) {
+            element.element.style.marginLeft = '-' + (width + xPosition - windowWidth - marginLeft) + 'px';
+        } else {
+            element.element.style.marginLeft = "0px";
         }
     };
 
@@ -289,12 +315,23 @@
      * @param {{title: String, callback: Function}[]} elements to append
      */
     CustomControlsBar.prototype.addBurgerMenu = function (name, elements) {
+        function showContainer (container) {
+            container.element.style.display = 'block';
+            this.checkBurgerMenuSize(container);
+        }
+
+        function hideContainer (container) {
+            container.element.style.display = 'none';
+        }
+
         var burgerMenuElement = document.createElement('div');
         burgerMenuElement.classList.add('CustomControlsBar-wrapper-controls-burgersContainer-' + name);
 
         var burgerElementWrapper = document.createElement('div');
         burgerElementWrapper.classList.add('CustomControlsBar-wrapper-controls-burgersContainer-container-' + name);
-        this.elements[name + '-container'] = buildTreeNode(burgerElementWrapper);
+        var container = buildTreeNode(burgerElementWrapper);
+
+        this.elements['BURGER_MENU_' + name + '_container'] = container;
         burgerMenuElement.appendChild(burgerElementWrapper);
 
         this.elements.burgersContainer.element.appendChild(burgerMenuElement);
@@ -309,10 +346,20 @@
             var treeElement = buildTreeNode(element);
             this.elements['BURGER_MENU_' + name + '_' + index] = treeElement;
 
-            addNewCallback.call(this, treeElement, value.callback, 'click');
+            addNewCallback.call(this, treeElement, this.wrapBurgerElementClick(hideContainer.bind(this, container), value.callback), 'click');
 
             burgerElementWrapper.appendChild(element);
         }, this);
+
+        addNewCallback(this.elements[name], showContainer.bind(this, container), 'mouseenter');
+        addNewCallback(this.elements[name], hideContainer.bind(this, container), 'mouseleave');
+    };
+
+    CustomControlsBar.prototype.wrapBurgerElementClick = function (beforeCall, originalFunction) {
+        return function () {
+            beforeCall.apply(this, arguments);
+            originalFunction.apply(this, arguments)
+        };
     };
 
     /**
@@ -323,6 +370,16 @@
             destroyTreeElement.call(this, this.elements[name]);
             this.elements[name].element.parentNode.removeChild(this.elements[name].element);
             this.elements[name] = null;
+        }
+
+        for (var elementName in this.elements) {
+            if (this.elements.hasOwnProperty(elementName)) {
+                if (elementName.startsWith("BURGER_MENU_" + name + "_")) {
+                    destroyTreeElement.call(this, this.elements[elementName]);
+                    this.elements[elementName].element.parentNode.removeChild(this.elements[elementName].element);
+                    this.elements[elementName] = null;
+                }
+            }
         }
     };
 
@@ -640,10 +697,6 @@
         volumeBackgroundSelected.style.display = 'none';
         volumeBarWrapper.appendChild(volumeBackgroundSelected);
 
-        burgersContainer = document.createElement('div');
-        burgersContainer.className = 'CustomControlsBar-wrapper-controls-burgersContainer';
-        controlsWrapper.appendChild(burgersContainer);
-
         fullscreen = document.createElement('div');
         fullscreen.className = 'CustomControlsBar-wrapper-controls-fullscreen';
         controlsWrapper.appendChild(fullscreen);
@@ -652,6 +705,10 @@
         closeFullscreen.className = 'CustomControlsBar-wrapper-controls-closeFullscreen';
         closeFullscreen.style.display = 'none';
         controlsWrapper.appendChild(closeFullscreen);
+
+        burgersContainer = document.createElement('div');
+        burgersContainer.className = 'CustomControlsBar-wrapper-controls-burgersContainer';
+        controlsWrapper.appendChild(burgersContainer);
 
         timer = document.createElement('div');
         timer.className = 'CustomControlsBar-wrapper-controls-timer';

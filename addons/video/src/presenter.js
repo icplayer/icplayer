@@ -517,10 +517,10 @@ function Addonvideo_create() {
      *
      * @param {String} timeLabel
      */
-    presenter.validateTimeLabel = function (timeLabel) {
+    presenter.validateTimeLabel = function (timeLabel, index) {
         var title = timeLabel.split(' ').slice(1).join(' '),
             time = timeLabel.split(' ')[0],
-            timeMultiplication = [120, 60, 1],
+            timeMultiplication = [60 * 60, 60, 1],
             timeElements = time.split(':');
 
         if (timeElements.length === 0 || timeElements.length > 3) {
@@ -531,7 +531,7 @@ function Addonvideo_create() {
         }
 
         if (title.trim() === '') {
-            title = time;
+            title = index + ". " + time;
         }
 
         var timeInSeconds = 0;
@@ -560,7 +560,7 @@ function Addonvideo_create() {
             validatedTimeLabels = [];
 
         for (var i = 0; i < timeLabels.length; i++) {
-            var validatedTimeLabel = presenter.validateTimeLabel(timeLabels[i]);
+            var validatedTimeLabel = presenter.validateTimeLabel(timeLabels[i], i + 1);
             if (!validatedTimeLabel.isValid) {
                 return validatedTimeLabel;
             }
