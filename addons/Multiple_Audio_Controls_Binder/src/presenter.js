@@ -106,7 +106,6 @@ function AddonMultiple_Audio_Controls_Binder_create() {
                 return false;
             }
 
-            console.log(itemID);
             if (itemID === undefined && presenter.isAudioIDPresent(parsedConnections, audioID)) {
                 isValid = false;
                 errorCode = 'CONNECTIONS_06';
