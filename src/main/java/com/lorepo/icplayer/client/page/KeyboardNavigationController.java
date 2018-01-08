@@ -169,7 +169,9 @@ public final class KeyboardNavigationController {
 		}
 		this.modeOn = !this.modeOn;
 		final boolean isWCAGExit = !this.modeOn && this.isWCAGSupportOn;
-		this.isWCAGSupportOn = isWCAGSupportOn;
+		if(this.modeOn){
+			this.isWCAGSupportOn = isWCAGSupportOn;
+		}
 		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);
 		
 		if (this.mainPageController != null) {

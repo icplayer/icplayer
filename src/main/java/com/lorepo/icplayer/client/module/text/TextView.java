@@ -66,7 +66,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		
 		for (InlineChoiceInfo ic: InlineChoiceList) {
 			inlineChoiceInfoArrayList.add(ic);
-			InlineChoiceWidget gap = new InlineChoiceWidget(ic, listener);
+			InlineChoiceWidget gap = new InlineChoiceWidget(ic, listener,this);
 			gap.setLang(this.module.getLangAttribute());
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
@@ -78,7 +78,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	
 	private void setPageControllerToInLineChoices () {
 		for (InlineChoiceInfo c: this.inlineChoiceInfoArrayList) {
-			InlineChoiceWidget gap = new InlineChoiceWidget(c, listener);
+			InlineChoiceWidget gap = new InlineChoiceWidget(c, listener,this);
 			gap.setPageController(this.pageController);
 		}
 	}

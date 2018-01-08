@@ -27,11 +27,13 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	private String langTag = "";
 	private boolean isWorkingMode = true;
 	private int gapState = 0;
+	private TextView view;
 
-	public InlineChoiceWidget (InlineChoiceInfo gi, final ITextViewListener listener) {
+	public InlineChoiceWidget (InlineChoiceInfo gi, final ITextViewListener listener, TextView view) {
 
 		super(DOM.getElementById(gi.getId()));
 
+		this.view = view;
 		this.choiceInfo = gi;
 		setStylePrimaryName("ic_inlineChoice");
 		addStyleName("ic_inlineChoice-default");
@@ -52,10 +54,11 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 						addStyleName("ic_inlineChoice-default");
 					}
 					listener.onValueChanged(choiceInfo.getId(), value);
-					
-					List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-					textVoices.add(TextToSpeechVoice.create(value, langTag));
-					getPageController().speak(textVoices);
+					if(getView().isWCAGon()){
+						List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+						textVoices.add(TextToSpeechVoice.create(value, langTag));
+						getPageController().speak(textVoices);
+					}
 				}
 			});
 
@@ -261,5 +264,9 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	@Override
 	public int getGapState() {
 		return this.gapState;
+	}
+	
+	private TextView getView(){
+		return this.view;
 	}
 }
