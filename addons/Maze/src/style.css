@@ -123,11 +123,6 @@
 .Maze_room_image_top_bottom {
     background: url('resources/topbottom.svg') no-repeat center;
     background-size: contain;  
-} 
-
-.Maze_room_image_top {
-    background: url('resources/top.svg') no-repeat center;
-    background-size: contain;  
 }
 
 .Maze_room_image_top {
@@ -142,17 +137,17 @@
 
 .Maze_treasure_element {
     background: url('resources/treasure.svg') no-repeat center;
-    background-size: contain;  
+    background-size: 80% 80%;
 }
 
 .Maze_door {
     background: url('resources/door.svg') no-repeat center;
-    background-size: contain;  
+    background-size: 80% 80%;
 }
 
 .Maze_door_opened {
     background: url('resources/door_opened.svg') no-repeat center;
-    background-size: contain;      
+    background-size: 80% 80%;
 }
 
 .Maze_room_left_top_dot {
@@ -230,7 +225,7 @@
 
 .Maze_letters_end_level {
     background: url('resources/letterEndGame.svg') no-repeat center;
-    background-size: contain;  
+    background-size: 80% 80%;
 }
 
 .Maze_letters_end_level_background {
