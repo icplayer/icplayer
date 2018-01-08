@@ -74,7 +74,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         if (ModelValidationUtils.isStringEmpty(connections)) return { isValid: false, errorCode: 'CONNECTIONS_01'};
 
         jQuery.each(connections.split('\n'), function (elementIndex, element) {
-            var indexOfSeparator, modules, audioID, doubleStateButtonID;
+            var indexOfSeparator, modules, audioID, doubleStateButtonID, itemID;
 
             if (ModelValidationUtils.isStringEmpty(element)) {
                 isValid = false;
@@ -92,6 +92,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
             modules = element.split('|');
             audioID = modules[0];
             doubleStateButtonID = modules[1];
+            itemID = modules[2];
 
             if (ModelValidationUtils.isStringEmpty(audioID)) {
                 isValid = false;
@@ -105,7 +106,8 @@ function AddonMultiple_Audio_Controls_Binder_create() {
                 return false;
             }
 
-            if (presenter.isAudioIDPresent(parsedConnections, audioID)) {
+            console.log(itemID);
+            if (itemID === undefined && presenter.isAudioIDPresent(parsedConnections, audioID)) {
                 isValid = false;
                 errorCode = 'CONNECTIONS_06';
                 return false;
@@ -117,7 +119,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
                 return false;
             }
 
-            parsedConnections.push({ Audio: audioID, DoubleStateButton: doubleStateButtonID });
+            parsedConnections.push({ Audio: audioID, DoubleStateButton: doubleStateButtonID, Item: itemID });
         });
 
         return {
@@ -127,7 +129,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         };
     };
 
-    presenter.Connection = function (audioID, doubleStateButtonID, ID) {
+    presenter.Connection = function (audioID, doubleStateButtonID, ID, itemID) {
         var self = this;
 
         this.DoubleStateButton = {
@@ -142,6 +144,10 @@ function AddonMultiple_Audio_Controls_Binder_create() {
             state: presenter.STATES.AUDIO.STOPPED
         };
 
+        this.Item = {
+            ID: itemID
+        };
+
         this.ID = ID;
     };
 
@@ -151,8 +157,9 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         for (var i = 0; i < connections.length; i++) {
             var audioID = connections[i].Audio;
             var doubleStateButtonID = connections[i].DoubleStateButton;
+            var itemID = connections[i].Item;
 
-            this.connections.push(new presenter.Connection(audioID, doubleStateButtonID, i));
+            this.connections.push(new presenter.Connection(audioID, doubleStateButtonID, i, itemID));
         }
 
         this.getConnection = function (connectionID) {
@@ -245,7 +252,12 @@ function AddonMultiple_Audio_Controls_Binder_create() {
             }
         });
 
-        connection.Audio.getModule().play();
+        var audioModule = connection.Audio.getModule();
+        if (connection.Item.ID !== undefined && audioModule.jumpToID !== undefined) {
+            audioModule.jumpToID(connection.Item.ID)
+        }
+
+        audioModule.play();
         connection.Audio.state = presenter.STATES.AUDIO.PLAYING;
         connection.DoubleStateButton.state = presenter.STATES.DOUBLE_STATE_BUTTON.SELECTED;
     };
