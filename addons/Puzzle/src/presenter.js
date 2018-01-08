@@ -139,6 +139,89 @@ function AddonPuzzle_create() {
         }
     }
 
+
+    function clickHandler(event) {
+        if(presenter.isShowAnswersActive) {
+            return;
+        }
+        event.stopPropagation();
+
+        if (presenter.configuration.isErrorMode) return;
+
+        var Piece = $(this);
+        // Check to see if we are in the middle of an animation.
+        if (clickNumber == 0) {
+            clickNumber = 1;
+            PieceOld = $(this);
+            PieceOld.addClass('selected');
+            PiecePos = {
+                top: parseInt(Piece.css("top")),
+                left: parseInt(Piece.css("left"))
+            };
+            PiecePos.row = Math.floor(((PiecePos.top - topOffset) / puzzleOuterHeight) + 0.5);
+            PiecePos.col = Math.floor(((PiecePos.left - leftOffset) / puzzleOuterWidth) + 0.5);
+        } else {
+            swapPieces(Piece);
+        }
+    }
+
+    function getPieceCenter(Piece) {
+        return {
+            x: parseInt(Piece.css("left")) + puzzleOuterWidth/2,
+            y: parseInt(Piece.css("top")) + puzzleOuterHeight/2
+        };
+    }
+
+    function swapPieces(Piece) {
+        if (presenter.isShowAnswersActive) {
+            return;
+        }
+
+        clickNumber = 0;
+        PiecePos2 = {
+            top: parseInt(Piece.css("top")),
+            left: parseInt(Piece.css("left"))
+        };
+        PiecePos2.row = Math.floor(((PiecePos2.top - topOffset) / puzzleOuterHeight) + 0.5);
+        PiecePos2.col = Math.floor(((PiecePos2.left - leftOffset) / puzzleOuterWidth) + 0.5);
+        PieceOld.removeClass('selected');
+
+        if (isSamePiece(PieceOld, Piece)) return;
+        if (!event.triggered) presenter.configuration.shouldCalcScore = true;
+
+        board[PiecePos2.row][PiecePos2.col] = PieceOld;
+        board[PiecePos.row][PiecePos.col] = Piece;
+
+        if (animation) {
+            //Animate change of places
+            board[PiecePos.row][PiecePos.col].animate({
+                left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
+            }, 200);
+
+            board[PiecePos2.row][PiecePos2.col].animate({
+                left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
+            }, 200);
+        } else {
+            board[PiecePos.row][PiecePos.col].css({
+                left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
+            });
+            board[PiecePos2.row][PiecePos2.col].css({
+                left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
+            });
+        }
+
+        replaceBorderClasses(board[PiecePos.row][PiecePos.col], board[PiecePos2.row][PiecePos2.col]);
+
+        if (!event.triggered && presenter.isAllOK()) {
+            sendAllOKEvent();
+        }
+    }
+
+
     function InitPuzzle(width, height) {
         var outerDistances = getOuterDistances();
         var markDimensions = getMarkDimensions();
@@ -190,6 +273,29 @@ function AddonPuzzle_create() {
                 });
 
                 puzzle.attr("href", "javascript:void( 0 );").click(clickHandler);
+
+                puzzle.draggable({
+                     containment: ".puzzle-container",
+
+                      start: function() {
+                          if ( !puzzle.hasClass( "ui-state-hover" ) ) {
+                                puzzle.addClass( "ui-state-hover" )
+                                .siblings().removeClass( "ui-state-hover" );
+                            }
+
+                              var puzzleCenter = getPieceCenter(puzzle);
+                            console.log(puzzleCenter);
+
+                      },
+                      drag: function() {
+                          //checkIfDragged(this);
+
+                      },
+                      stop: function() {
+
+                      }
+                });
+
                 puzzle.attr("position", row + "-" + col);
                 board[row][col] = puzzle;
                 Container.append(puzzle);
@@ -203,6 +309,40 @@ function AddonPuzzle_create() {
 
         addBorderClasses();
         Shuffle();
+    }
+
+    function checkIfDragged(puzzle) {
+
+        //console.log("checkIfDragged for ", puzzle);
+
+        var rows = presenter.configuration.rows,
+            columns = presenter.configuration.columns,
+            row, col;
+
+        presenter.configuration.shouldCalcScore = true;
+
+        for (row = 0; row < rows; row++) {
+            for (col = 0; col < columns; col++) {
+                var other = $(board[row][col]);
+
+                //var otherCenter = getPieceCenter(other);
+                var puzzleCenter = getPieceCenter(puzzle);
+
+                console.log(puzzleCenter);
+
+                /*var distanceSquared = Math.pow((puzzleCenter.x - otherCenter.x), 2) + Math.pow((puzzleCenter.y - otherCenter.y), 2);
+
+                if (distanceSquared < 50*50)
+                {
+                    console.log("OK on ", otherCenter );
+
+                    //accept
+                    //swapPieces(puzzle);
+
+
+                }*/
+            }
+        }
     }
 
     /**
@@ -316,72 +456,6 @@ function AddonPuzzle_create() {
             piece2ID = $(piece2).attr('position');
 
         return piece1ID == piece2ID;
-    }
-
-    function clickHandler(event) {
-        if(presenter.isShowAnswersActive) {
-            return;
-        }
-        event.stopPropagation();
-
-        if (presenter.configuration.isErrorMode) return;
-
-        var Piece = $(this);
-        // Check to see if we are in the middle of an animation.
-        if (clickNumber == 0) {
-            clickNumber = 1;
-            PieceOld = $(this);
-            PieceOld.addClass('selected');
-            PiecePos = {
-                top: parseInt(Piece.css("top")),
-                left: parseInt(Piece.css("left"))
-            };
-            PiecePos.row = Math.floor(((PiecePos.top - topOffset) / puzzleOuterHeight) + 0.5);
-            PiecePos.col = Math.floor(((PiecePos.left - leftOffset) / puzzleOuterWidth) + 0.5);
-        } else {
-            clickNumber = 0;
-            PiecePos2 = {
-                top: parseInt(Piece.css("top")),
-                left: parseInt(Piece.css("left"))
-            };
-            PiecePos2.row = Math.floor(((PiecePos2.top - topOffset) / puzzleOuterHeight) + 0.5);
-            PiecePos2.col = Math.floor(((PiecePos2.left - leftOffset) / puzzleOuterWidth) + 0.5);
-            PieceOld.removeClass('selected');
-
-            if (isSamePiece(PieceOld, Piece)) return;
-            if (!event.triggered) presenter.configuration.shouldCalcScore = true;
-
-            board[PiecePos2.row][PiecePos2.col] = PieceOld;
-            board[PiecePos.row][PiecePos.col] = Piece;
-
-            if (animation) {
-                //Animate change of places
-                board[PiecePos.row][PiecePos.col].animate({
-                    left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
-                    top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
-                }, 200);
-
-                board[PiecePos2.row][PiecePos2.col].animate({
-                    left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
-                    top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
-                }, 200);
-            } else {
-                board[PiecePos.row][PiecePos.col].css({
-                    left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
-                    top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
-                });
-                board[PiecePos2.row][PiecePos2.col].css({
-                    left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
-                    top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
-                });
-            }
-
-            replaceBorderClasses(board[PiecePos.row][PiecePos.col], board[PiecePos2.row][PiecePos2.col]);
-
-            if (!event.triggered && presenter.isAllOK()) {
-                sendAllOKEvent();
-            }
-        }
     }
 
     function setNormalMode() {
