@@ -192,7 +192,7 @@
     */
     CustomControlsBar.prototype.buildShowAndHideControlsEvents = function () {
         this.actualTime = 0;
-        //this.configuration.parentElement.addEventListener("mouseleave", this.hideControls, false);
+        this.configuration.parentElement.addEventListener("mouseleave", this.hideControls, false);
         this.configuration.parentElement.addEventListener("mouseenter", this.onWrapperMouseEnter, false);
         this.configuration.parentElement.addEventListener("mousemove", this.onWrapperMouseMove, false);
     };
@@ -207,7 +207,7 @@
         if (this.configuration.parentElement) {
             if (!this.mainDivIsHidden) {
                 if (this.actualTime > this.configuration.mouseDontMoveClocks) {
-                    //this.hideControls();
+                    this.hideControls();
                 }
                 this.actualTime++;
             }
@@ -225,10 +225,13 @@
             }
         }
 
+        for (var i = 0; i < this.ownTimerCallbacks.length; i++) {
+            this.ownTimerCallbacks[i].call(this);
+        }
     };
 
-    /**
-     *
+    /**Check if burger menu have good position.
+     * @method checkBurgerMenuSize
      * @param {TreeNode} element
      */
     CustomControlsBar.prototype.checkBurgerMenuSize = function (element) {
@@ -310,7 +313,7 @@
     };
 
     /**
-     * Show and add elements to burger menu
+     * Add new burger menu and add elements to this menu.
      * @param {String} name of burger menu
      * @param {{title: String, callback: Function}[]} elements to append
      */
@@ -326,6 +329,8 @@
 
         var burgerMenuElement = document.createElement('div');
         burgerMenuElement.classList.add('CustomControlsBar-wrapper-controls-burgersContainer-' + name);
+        this.elements.burgersContainer.element.appendChild(burgerMenuElement);
+        this.elements[name] = buildTreeNode(burgerMenuElement);
 
         var burgerElementWrapper = document.createElement('div');
         burgerElementWrapper.classList.add('CustomControlsBar-wrapper-controls-burgersContainer-container-' + name);
@@ -333,9 +338,6 @@
 
         this.elements['BURGER_MENU_' + name + '_container'] = container;
         burgerMenuElement.appendChild(burgerElementWrapper);
-
-        this.elements.burgersContainer.element.appendChild(burgerMenuElement);
-        this.elements[name] = buildTreeNode(burgerMenuElement);
 
         elements.forEach(function (value, index) {
             var element = document.createElement('div');
@@ -355,6 +357,12 @@
         addNewCallback(this.elements[name], hideContainer.bind(this, container), 'mouseleave');
     };
 
+    /**
+     * Call one function before second.
+     * @param beforeCall function to call before
+     * @param originalFunction function to call after
+     * @returns {Function}
+     */
     CustomControlsBar.prototype.wrapBurgerElementClick = function (beforeCall, originalFunction) {
         return function () {
             beforeCall.apply(this, arguments);
@@ -363,6 +371,8 @@
     };
 
     /**
+     * Remove burger menu from dom, remove event listeners.
+     * @method removeBurgerMenu
      * @param {String} name
      */
     CustomControlsBar.prototype.removeBurgerMenu = function (name) {

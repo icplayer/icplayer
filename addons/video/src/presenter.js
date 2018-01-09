@@ -96,8 +96,22 @@ function Addonvideo_create() {
         return model;
     };
 
+    presenter.upgradeTimeLabels = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy
+
+        for (var i = 0; i < model.Files.length; i++) {
+            if (!upgradedModel.Files[i].time_labels) {
+                upgradedModel.Files[i].time_labels = "";
+            }
+        }
+
+        return upgradedModel;
+    };
+
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradePoster(model);
+        upgradedModel = presenter.upgradeTimeLabels(upgradedModel);
         return presenter.upgradeShowPlayButton(upgradedModel);
     };
 
@@ -453,8 +467,7 @@ function Addonvideo_create() {
         presenter.calculatePosterSize(presenter.videoObject, presenter.configuration.addonSize);
     };
 
-    presenter.keyboardController = function(keycode) {
-
+    presenter.keyboardController = function(keycode, isShift, event) {
         $(document).on('keydown', function(e) {
             e.preventDefault();
             $(this).off('keydown');
@@ -488,6 +501,43 @@ function Addonvideo_create() {
             }
         }
 
+        function nextTimeLabel () {
+            var currentTime = presenter.videoObject.currentTime;
+            var currentElement = presenter.configuration.files[presenter.currentMovie],
+                /**
+                * @type {{title: String, time: Number}[]}
+                */
+                timeLabels = currentElement.timeLabels;
+
+
+            for (var i = 0; i < timeLabels.length; i++) {
+                var element = timeLabels[i];
+
+                if (element.time > currentTime) {
+                    presenter.seek(element.time);
+                    break;
+                }
+            }
+        }
+
+        function previousTimeLabel () {
+            var currentTime = presenter.videoObject.currentTime - 2;
+            var currentElement = presenter.configuration.files[presenter.currentMovie],
+                /**
+                * @type {{title: String, time: Number}[]}
+                */
+                timeLabels = currentElement.timeLabels;
+
+            for (var i = timeLabels.length - 1; i >= 0; i--) {
+                var element = timeLabels[i];
+
+                if (element.time < currentTime) {
+                    presenter.seek(element.time);
+                    break;
+                }
+            }
+        }
+
         switch(keycode) {
             case 32:
                 playPause();
@@ -499,10 +549,18 @@ function Addonvideo_create() {
                 presenter.videoObject.volume = decreasedVolume();
                 break;
             case 37:
-                backward();
+                if (!isShift) {
+                    backward();
+                } else {
+                    previousTimeLabel();
+                }
                 break;
             case 39:
-                forward();
+                if (!isShift) {
+                    forward();
+                } else {
+                    nextTimeLabel();
+                }
                 break;
             case 27:
                 presenter.pause();

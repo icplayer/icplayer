@@ -653,7 +653,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	}
 	
 	@Override
-	public void escape () {
+	public void escape (KeyDownEvent event) {
 		this.deselectCurrentItem();
 		this.wcagIsAvtive = false;
 	}
@@ -669,7 +669,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	}
 	
 	@Override
-	public void space () {
+	public void space (KeyDownEvent event) {
 		this.deselectCurrentItem();
 		DomEvent.fireNativeEvent(Document.get().createMouseUpEvent(0, 0, 0, 0, 0,false, false, false, false, 0), this.getWidget(this.currentWCAGSelectedItemIndex));
 		this.selectCurrentItem();
@@ -680,27 +680,27 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	}-*/;
 	
 	@Override
-	public void tab() {
+	public void tab(KeyDownEvent event) {
 		this.move(1);
 	}
 	
 	@Override
-	public void left() {
+	public void left(KeyDownEvent event) {
 		this.move(-1);
 	}
 	
 	@Override
-	public void right() {
+	public void right(KeyDownEvent event) {
 		this.move(1);
 	}
 	
 	@Override
-	public void up() {
+	public void up(KeyDownEvent event) {
 		this.move(-1);
 	}
 	
 	@Override
-	public void down() {
+	public void down(KeyDownEvent event) {
 		this.move(1);
 	}
 	
@@ -739,7 +739,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	}
 
 	@Override
-	public void shiftTab() {
+	public void shiftTab(KeyDownEvent event) {
 	}
 
 	@Override
