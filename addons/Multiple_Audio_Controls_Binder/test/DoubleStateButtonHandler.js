@@ -44,7 +44,7 @@ TestCase("Handling Double State Button selection", {
        assertTrue(this.audioModule.jumpToID.calledBefore(this.audioModule.play));
     },
 
-    'test should not call jumpToID before playing when audioModule does not have specified item': function () {
+    'test should not call jumpToID when item.id is undefined but jumpToID function exists': function () {
        this.audioModule.jumpToID = sinon.stub();
 
        this.presenter.doubleStateButtonSelectionHandler();

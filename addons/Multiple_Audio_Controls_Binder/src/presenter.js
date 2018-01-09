@@ -287,13 +287,6 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         }
     };
 
-    presenter.playAudio = function AddonMultiple_Audio_Controls_Binder_playAudioModule(audio) {
-        var audioModule = audio.getModule();
-        if (audioModule !== null && audioModule !== undefined) {
-            audioModule.play();
-        }
-    };
-
     presenter.matchEventToModules = function (eventData) {
         var moduleID = eventData.source,
             connection = presenter.configuration.connections.getConnectionWithAudio(moduleID),
