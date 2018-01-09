@@ -166,4 +166,16 @@ public class TextViewMockup implements IDisplay {
 		return false;
 	}
 
+	@Override
+	public void setWorkMode() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setShowErrorsMode() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

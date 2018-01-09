@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.report.mockup;
 
+import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.report.IViewListener;
 import com.lorepo.icplayer.client.module.report.ReportPresenter.IDisplay;
@@ -40,6 +41,12 @@ public class ReportDisplayMockup implements IDisplay{
 
 	@Override
 	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Element getElement() {
 		// TODO Auto-generated method stub
 		return null;
 	}
