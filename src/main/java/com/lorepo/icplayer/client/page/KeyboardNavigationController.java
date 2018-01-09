@@ -187,9 +187,6 @@ public final class KeyboardNavigationController {
 			}
 		}
 		
-		this.actualSelectedModuleIndex = 0;
-		setClosestSelectableElementIndex();
-		
 		if (this.modeOn) {
 			this.setFocusOnInvisibleElement();
 			if (this.isInitiated) {
@@ -202,6 +199,8 @@ public final class KeyboardNavigationController {
 			this.deselectCurrentModule();
 			this.deselectAllModules();
 		}
+		
+		this.actualSelectedModuleIndex = 0;
 	}
 
 	private void changeCurrentModule(KeyDownEvent event) {
@@ -243,27 +242,6 @@ public final class KeyboardNavigationController {
 		} while (!this.getPresenters().get(index).presenter.isSelectable(this.isWCAGSupportOn && this.modeOn)); // this.mainPageController.isTextToSpeechModuleEnable() && 
 
 		return index;
-	}
-	
-	private void setClosestSelectableElementIndex(){
-		int index = this.actualSelectedModuleIndex-1;
-		boolean firstLoop = true;
-		do {
-			final int presentersSize = this.getPresenters().size();
-			index ++;
-			index = index % presentersSize;
-			if (index < 0) {
-				index = presentersSize - 1;
-			}
-			if (index == this.actualSelectedModuleIndex) { 
-				if(firstLoop){
-					firstLoop=false;
-				} else{
-					break;
-				}
-			}
-		} while (!this.getPresenters().get(index).presenter.isSelectable(this.isWCAGSupportOn && this.modeOn));
-		this.actualSelectedModuleIndex = index;
 	}
 
 	private void setIndexToNextModule() {
