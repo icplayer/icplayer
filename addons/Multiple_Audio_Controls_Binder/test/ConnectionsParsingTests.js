@@ -16,7 +16,7 @@ TestCase("Connections parsing", {
             ];
 
 
-        var parsedConnections = this.presenter.parseConnections(connections);
+        var parsedConnections = this.presenter.validateConnections(connections);
 
         assertTrue(parsedConnections.isValid);
         assertEquals(expectedConnections, parsedConnections.connections);
@@ -37,7 +37,7 @@ TestCase("Connections parsing", {
             ];
 
 
-        var parsedConnections = this.presenter.parseConnections(connections);
+        var parsedConnections = this.presenter.validateConnections(connections);
 
         assertTrue(parsedConnections.isValid);
         assertEquals(expectedConnections, parsedConnections.connections);
@@ -47,14 +47,14 @@ TestCase("Connections parsing", {
         var connections = '';
 
 
-        var parsedConnections = this.presenter.parseConnections(connections);
+        var parsedConnections = this.presenter.validateConnections(connections);
 
         assertFalse(parsedConnections.isValid);
         assertEquals('CONNECTIONS_01', parsedConnections.errorCode);
     },
 
     'test undefined connection definition': function() {
-        var parsedConnections = this.presenter.parseConnections(undefined);
+        var parsedConnections = this.presenter.validateConnections(undefined);
 
         assertFalse(parsedConnections.isValid);
         assertEquals('CONNECTIONS_01', parsedConnections.errorCode);
@@ -66,7 +66,7 @@ TestCase("Connections parsing", {
                           'Audio7Double_State_Button7';
 
 
-        var parsedConnections = this.presenter.parseConnections(connections);
+        var parsedConnections = this.presenter.validateConnections(connections);
 
         assertFalse(parsedConnections.isValid);
         assertEquals('CONNECTIONS_02', parsedConnections.errorCode);
@@ -78,7 +78,7 @@ TestCase("Connections parsing", {
             'Audio7|Double_State_Button7';
 
 
-        var parsedConnections = this.presenter.parseConnections(connections);
+        var parsedConnections = this.presenter.validateConnections(connections);
 
         assertFalse(parsedConnections.isValid);
         assertEquals('CONNECTIONS_03', parsedConnections.errorCode);
@@ -90,7 +90,7 @@ TestCase("Connections parsing", {
             'Audio7|Double_State_Button7';
 
 
-        var parsedConnections = this.presenter.parseConnections(connections);
+        var parsedConnections = this.presenter.validateConnections(connections);
 
         assertFalse(parsedConnections.isValid);
         assertEquals('CONNECTIONS_04', parsedConnections.errorCode);
@@ -103,7 +103,7 @@ TestCase("Connections parsing", {
             'Audio7|Double_State_Button7';
 
 
-        var parsedConnections = this.presenter.parseConnections(connections);
+        var parsedConnections = this.presenter.validateConnections(connections);
 
         assertFalse(parsedConnections.isValid);
         assertEquals('CONNECTIONS_05', parsedConnections.errorCode);
@@ -116,7 +116,7 @@ TestCase("Connections parsing", {
                 'Audio6|Double_State_Button8';
 
 
-        var parsedConnections = this.presenter.parseConnections(connections);
+        var parsedConnections = this.presenter.validateConnections(connections);
 
         assertFalse(parsedConnections.isValid);
         assertEquals('CONNECTIONS_06', parsedConnections.errorCode);
@@ -129,7 +129,7 @@ TestCase("Connections parsing", {
             'Audio8|Double_State_Button8';
 
 
-        var parsedConnections = this.presenter.parseConnections(connections);
+        var parsedConnections = this.presenter.validateConnections(connections);
 
         assertFalse(parsedConnections.isValid);
         assertEquals('CONNECTIONS_07', parsedConnections.errorCode);

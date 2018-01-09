@@ -28,15 +28,31 @@ function AddonMultiple_Audio_Controls_Binder_create() {
     function showErrorMessage(errorCode) {
         presenter.$view.html(presenter.ERROR_CODES[errorCode]);
     }
-    
+
+    presenter.validateModel = function AddonMultiple_Audio_Controls_Binder_validateModel (model) {
+        var validatedConnections = presenter.validateConnections(model.Connections);
+
+        if (!validatedConnections.isValid) {
+            return {
+                isValid: false,
+                errorCode: validatedConnections.errorCode
+            }
+        }
+
+        return {
+            isValid: true,
+            connections:  new presenter.Connections(validatedConnections.connections)
+        }
+    };
 
     function presenterLogic (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.model = model;
 
-        var connections = presenter.parseConnections(model.Connections);
-        if (!connections.isValid) {
-            showErrorMessage(connections.errorCode);
+        presenter.configuration = presenter.validateModel(model);
+
+        if (!presenter.configuration.isValid) {
+            showErrorMessage(presenter.configuration.errorCode);
 
             delete presenter.getState;
             delete presenter.setState;
@@ -51,7 +67,6 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         if (isPreview) return;
 
         presenter.$view.css('visible', 'hidden');
-        presenter.configuration.connections = new presenter.Connections(connections.connections);
     }
 
     presenter.isAudioIDPresent = function (connections, audioID) {
@@ -74,7 +89,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         return false;
     };
 
-    presenter.parseConnections = function (connections) {
+    presenter.validateConnections = function AddonMultiple_Audio_Controls_Binder_validateConnections(connections) {
         var parsedConnections = [], isValid = true, errorCode;
 
         if (ModelValidationUtils.isStringEmpty(connections)) return { isValid: false, errorCode: 'CONNECTIONS_01'};
