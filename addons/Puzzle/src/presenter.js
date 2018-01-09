@@ -140,6 +140,13 @@ function AddonPuzzle_create() {
     }
 
 
+    function getPieceCenter(Piece) {
+        return {
+            x: parseInt(Piece.css("left")) + puzzleOuterWidth/2,
+            y: parseInt(Piece.css("top")) + puzzleOuterHeight/2
+        };
+    }
+
     function clickHandler(event) {
         if(presenter.isShowAnswersActive) {
             return;
@@ -151,6 +158,9 @@ function AddonPuzzle_create() {
         var Piece = $(this);
         // Check to see if we are in the middle of an animation.
         if (clickNumber == 0) {
+
+            console.log("clickHandler Piece: ", Piece);
+
             clickNumber = 1;
             PieceOld = $(this);
             PieceOld.addClass('selected');
@@ -161,66 +171,9 @@ function AddonPuzzle_create() {
             PiecePos.row = Math.floor(((PiecePos.top - topOffset) / puzzleOuterHeight) + 0.5);
             PiecePos.col = Math.floor(((PiecePos.left - leftOffset) / puzzleOuterWidth) + 0.5);
         } else {
-            swapPieces(Piece);
+            swapPieces(Piece,event);
         }
     }
-
-    function getPieceCenter(Piece) {
-        return {
-            x: parseInt(Piece.css("left")) + puzzleOuterWidth/2,
-            y: parseInt(Piece.css("top")) + puzzleOuterHeight/2
-        };
-    }
-
-    function swapPieces(Piece) {
-        if (presenter.isShowAnswersActive) {
-            return;
-        }
-
-        clickNumber = 0;
-        PiecePos2 = {
-            top: parseInt(Piece.css("top")),
-            left: parseInt(Piece.css("left"))
-        };
-        PiecePos2.row = Math.floor(((PiecePos2.top - topOffset) / puzzleOuterHeight) + 0.5);
-        PiecePos2.col = Math.floor(((PiecePos2.left - leftOffset) / puzzleOuterWidth) + 0.5);
-        PieceOld.removeClass('selected');
-
-        if (isSamePiece(PieceOld, Piece)) return;
-        if (!event.triggered) presenter.configuration.shouldCalcScore = true;
-
-        board[PiecePos2.row][PiecePos2.col] = PieceOld;
-        board[PiecePos.row][PiecePos.col] = Piece;
-
-        if (animation) {
-            //Animate change of places
-            board[PiecePos.row][PiecePos.col].animate({
-                left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
-                top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
-            }, 200);
-
-            board[PiecePos2.row][PiecePos2.col].animate({
-                left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
-                top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
-            }, 200);
-        } else {
-            board[PiecePos.row][PiecePos.col].css({
-                left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
-                top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
-            });
-            board[PiecePos2.row][PiecePos2.col].css({
-                left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
-                top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
-            });
-        }
-
-        replaceBorderClasses(board[PiecePos.row][PiecePos.col], board[PiecePos2.row][PiecePos2.col]);
-
-        if (!event.triggered && presenter.isAllOK()) {
-            sendAllOKEvent();
-        }
-    }
-
 
     function InitPuzzle(width, height) {
         var outerDistances = getOuterDistances();
@@ -283,16 +236,16 @@ function AddonPuzzle_create() {
                                 .siblings().removeClass( "ui-state-hover" );
                             }
 
-                              var puzzleCenter = getPieceCenter(puzzle);
-                            console.log(puzzleCenter);
+                            var puzzleCenter = getPieceCenter(puzzle);
+                            console.log("drag start, puzzle center: ", puzzle);
 
                       },
                       drag: function() {
-                          //checkIfDragged(this);
+                          checkIfDraggedOver(puzzle);
 
                       },
                       stop: function() {
-
+                        console.log("drag stop");
                       }
                 });
 
@@ -311,9 +264,9 @@ function AddonPuzzle_create() {
         Shuffle();
     }
 
-    function checkIfDragged(puzzle) {
+    function checkIfDraggedOver(puzzle) {
 
-        //console.log("checkIfDragged for ", puzzle);
+        console.log("checkIfDragged for ", puzzle);
 
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
@@ -326,9 +279,9 @@ function AddonPuzzle_create() {
                 var other = $(board[row][col]);
 
                 //var otherCenter = getPieceCenter(other);
-                var puzzleCenter = getPieceCenter(puzzle);
+                //var puzzleCenter = getPieceCenter(puzzle);
 
-                console.log(puzzleCenter);
+                //console.log(puzzle);
 
                 /*var distanceSquared = Math.pow((puzzleCenter.x - otherCenter.x), 2) + Math.pow((puzzleCenter.y - otherCenter.y), 2);
 
@@ -456,6 +409,57 @@ function AddonPuzzle_create() {
             piece2ID = $(piece2).attr('position');
 
         return piece1ID == piece2ID;
+    }
+
+
+
+    function swapPieces(Piece,event) {
+        if (presenter.isShowAnswersActive) {
+            return;
+        }
+
+        clickNumber = 0;
+        PiecePos2 = {
+            top: parseInt(Piece.css("top")),
+            left: parseInt(Piece.css("left"))
+        };
+        PiecePos2.row = Math.floor(((PiecePos2.top - topOffset) / puzzleOuterHeight) + 0.5);
+        PiecePos2.col = Math.floor(((PiecePos2.left - leftOffset) / puzzleOuterWidth) + 0.5);
+        PieceOld.removeClass('selected');
+
+        if (isSamePiece(PieceOld, Piece)) return;
+        if (!event.triggered) presenter.configuration.shouldCalcScore = true;
+
+        board[PiecePos2.row][PiecePos2.col] = PieceOld;
+        board[PiecePos.row][PiecePos.col] = Piece;
+
+        if (animation) {
+            //Animate change of places
+            board[PiecePos.row][PiecePos.col].animate({
+                left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
+            }, 200);
+
+            board[PiecePos2.row][PiecePos2.col].animate({
+                left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
+            }, 200);
+        } else {
+            board[PiecePos.row][PiecePos.col].css({
+                left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
+            });
+            board[PiecePos2.row][PiecePos2.col].css({
+                left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
+            });
+        }
+
+        replaceBorderClasses(board[PiecePos.row][PiecePos.col], board[PiecePos2.row][PiecePos2.col]);
+
+        if (!event.triggered && presenter.isAllOK()) {
+            sendAllOKEvent();
+        }
     }
 
     function setNormalMode() {
