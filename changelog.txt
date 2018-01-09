@@ -1,3 +1,5 @@
+2018-01-09 Changed in Connecting wcag enter no longer selects chosen element
+2018-01-09 Fixed in Connecting wcag not reading selected when navigating over selected element
 2018-01-08 Fixed issues with old keyboard navigation when in dropdown gap or exiting with ctrl+enter
 2018-01-05 Fixed draggable gap in Text now blocked when in wcag and ShowErrorsMode
 2018-01-03 Added WCAG to the Report module

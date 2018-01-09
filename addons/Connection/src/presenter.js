@@ -4,10 +4,6 @@ function AddonConnection_create() {
 
     var presenter = function () {};
 
-    function getCurrentActivatedElement () {
-        return $('.keyboard_navigation_active_element'); // TODO improve
-    }
-
     var playerController;
     var eventBus;
     var addonID;
@@ -55,6 +51,10 @@ function AddonConnection_create() {
     presenter.ELEMENT_SIDE = {
         LEFT: 0,
         RIGHT: 1
+    };
+
+    presenter.getCurrentActivatedElement = function () {
+                return $('.keyboard_navigation_active_element'); // TODO improve
     };
 
     presenter.upgradeModel = function (model) {
@@ -1478,17 +1478,22 @@ function AddonConnection_create() {
     function readActivatedElementConnections () {
         var tts = presenter.getTextToSpeechOrNull(playerController);
         if (tts) {
-            var $active = getCurrentActivatedElement();
+            var $active = presenter.getCurrentActivatedElement();
             var connections = getConnections($active);
 
-            if (connections.length) {
-                speak([
-                    getTextVoiceObject($active.text().trim(), presenter.langTag),
-                    getTextVoiceObject(presenter.speechTexts.connectedTo, '')
-                ].concat(getConnectionsInfo(connections)));
-            } else {
-                speak([getTextVoiceObject($active.text().trim(), presenter.langTag)]);
+            var TextVoiceArray = [getTextVoiceObject($active.text().trim(), presenter.langTag)];
+
+            if ($active.hasClass('selected')) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
             }
+
+            if (connections.length) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.connectedTo, ''));
+                console.log(TextVoiceArray);
+                TextVoiceArray = TextVoiceArray.concat(getConnectionsInfo(connections));
+            }
+
+            speak(TextVoiceArray);
         }
     }
 
@@ -1566,17 +1571,16 @@ function AddonConnection_create() {
     ConnectionKeyboardController.prototype.enter = function () {
         Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
         readActivatedElementConnections();
-        ConnectionKeyboardController.select();
     };
 
     ConnectionKeyboardController.prototype.select = function () {
-        if (getCurrentActivatedElement().hasClass('selected')) {
+        if (presenter.getCurrentActivatedElement().hasClass('selected')) {
             speak([getTextVoiceObject(presenter.speechTexts.deselected)]);
         }
 
         Object.getPrototypeOf(ConnectionKeyboardController.prototype).select.call(this);
 
-        if (getCurrentActivatedElement().hasClass('selected')) {
+        if (presenter.getCurrentActivatedElement().hasClass('selected')) {
             speak([getTextVoiceObject(presenter.speechTexts.selected)]);
         }
     };
