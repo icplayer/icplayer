@@ -32,11 +32,9 @@ function AddonMultiple_Audio_Controls_Binder_create() {
     function presenterLogic (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.model = model;
-
         var connections = presenter.parseConnections(model.Connections);
         if (!connections.isValid) {
             showErrorMessage(connections.errorCode);
-
             delete presenter.getState;
             delete presenter.setState;
 
@@ -260,7 +258,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
 
         var audioModule = connection.Audio.getModule();
         if (connection.Item.ID !== undefined && typeof(audioModule.jumpToID) === 'function') {
-            audioModule.jumpToID(connection.Item.ID)
+            audioModule.jumpToID(connection.Item.ID);
         }
 
         audioModule.play();
