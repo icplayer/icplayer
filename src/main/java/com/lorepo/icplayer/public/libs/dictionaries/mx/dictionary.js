@@ -1100,6 +1100,7 @@ var ice_dictionary_mx = {
     "video_property_hide_subtitles" : "Ocultar subtítulos",
 	"video_property_loop_video": "Poner el video en bucle",
 	"video_property_show_play_button": "Show play button",
+	"video_property_time_labels": "Time labels",
 	"WritingCalculations_info": "Permite realizar las actividades de operaciones aritméticas básicas tales como: la multiplicación, la división, la adición o la resta.",
 	"WritingCalculations_name": "Operaciones aritméticas",
 	"WritingCalculations_property_value": "Valor",

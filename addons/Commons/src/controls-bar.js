@@ -379,7 +379,7 @@
         if (this.elements[name]) {
             destroyTreeElement.call(this, this.elements[name]);
             this.elements[name].element.parentNode.removeChild(this.elements[name].element);
-            this.elements[name] = null;
+            delete this.elements[name];
         }
 
         for (var elementName in this.elements) {
@@ -387,7 +387,7 @@
                 if (elementName.startsWith("BURGER_MENU_" + name + "_")) {
                     destroyTreeElement.call(this, this.elements[elementName]);
                     this.elements[elementName].element.parentNode.removeChild(this.elements[elementName].element);
-                    this.elements[elementName] = null;
+                    delete this.elements[elementName];
                 }
             }
         }

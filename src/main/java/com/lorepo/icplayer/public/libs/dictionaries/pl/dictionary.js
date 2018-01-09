@@ -1099,6 +1099,7 @@
     "video_property_hide_subtitles" : "Ukryj napisy",
 	"video_property_loop_video": "Zapętlanie się filmu wideo",
 	"video_property_show_play_button": "Show play button",
+	"video_property_time_labels": "Time labels",
 	"WritingCalculations_info" : "Umożliwia dodanie ćwiczeń matematycznych zawierających obliczenia pisemne: mnożenie, dzielenie, dodawanie i odejmowanie.",
 	"WritingCalculations_name" : "Obliczenia pisemne",
 	"WritingCalculations_property_value": "Wartość",
