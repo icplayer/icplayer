@@ -32,14 +32,18 @@ function AddonMultiple_Audio_Controls_Binder_create() {
     function presenterLogic (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.model = model;
+
         var connections = presenter.parseConnections(model.Connections);
         if (!connections.isValid) {
             showErrorMessage(connections.errorCode);
+
             delete presenter.getState;
             delete presenter.setState;
 
             return;
         }
+
+        presenter.eventBus.addEventListener('PageLoaded', presenter);
 
         if (isPreview) return;
 
@@ -207,7 +211,6 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
         presenter.eventBus.addEventListener('ValueChanged', this);
-        presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
