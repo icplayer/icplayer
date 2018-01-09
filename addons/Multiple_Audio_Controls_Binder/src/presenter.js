@@ -252,7 +252,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
             audio = connection.Audio;
             doubleStateButton = connection.DoubleStateButton;
             if (presenter.STATES.AUDIO.PLAYING == audio.state) {
-                audio.getModule().stop();
+                presenter.stopAudio(audio);
                 audio.state = presenter.STATES.AUDIO.STOPPED;
                 doubleStateButton.getModule().deselect();
                 doubleStateButton.state = presenter.STATES.DOUBLE_STATE_BUTTON.DESELECTED;
@@ -260,21 +260,38 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         });
 
         var audioModule = connection.Audio.getModule();
-        if (connection.Item.ID !== undefined && typeof(audioModule.jumpToID) === 'function') {
-            audioModule.jumpToID(connection.Item.ID);
+
+        if (audioModule !== null && audioModule !== undefined) {
+            if (connection.Item.ID !== undefined && typeof(audioModule.jumpToID) === 'function') {
+                audioModule.jumpToID(connection.Item.ID);
+            }
+
+            audioModule.play();
         }
 
-        audioModule.play();
         connection.Audio.state = presenter.STATES.AUDIO.PLAYING;
         connection.DoubleStateButton.state = presenter.STATES.DOUBLE_STATE_BUTTON.SELECTED;
     };
 
     presenter.doubleStateButtonDeselectionHandler = function (moduleID) {
         var connection = presenter.configuration.connections.getConnectionWithDSB(moduleID);
-
-        connection.Audio.getModule().stop();
+        presenter.stopAudio(connection.Audio);
         connection.Audio.state = presenter.STATES.AUDIO.STOPPED;
         connection.DoubleStateButton.state = presenter.STATES.DOUBLE_STATE_BUTTON.DESELECTED;
+    };
+
+    presenter.stopAudio = function AddonMultiple_Audio_Controls_Binder_stopAudioModule(audio) {
+        var audioModule = audio.getModule();
+        if (audioModule !== null && audioModule !== undefined) {
+            audioModule.stop();
+        }
+    };
+
+    presenter.playAudio = function AddonMultiple_Audio_Controls_Binder_playAudioModule(audio) {
+        var audioModule = audio.getModule();
+        if (audioModule !== null && audioModule !== undefined) {
+            audioModule.play();
+        }
     };
 
     presenter.matchEventToModules = function (eventData) {
