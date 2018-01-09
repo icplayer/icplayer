@@ -437,8 +437,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	@Override
 	public void selectAsActive(String className) {
 		this.view.getElement().addClassName(className);
+		this.view.getElement().focus();
 	}
-
 
 	@Override
 	public void deselectAsActive(String className) {

@@ -12,7 +12,6 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -238,10 +237,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	
 	private void clickItem(String id) {
 		DraggableItem draggableItem = new DraggableText(null, null);
-		String oldSelection = selectedId;
+		final String oldSelection = selectedId;
 		deselectCurrentItem(oldSelection != null && oldSelection.compareTo(id) == 0);
-		
-		if(oldSelection == null || oldSelection.compareTo(id) != 0) {
+
+		if (oldSelection == null || oldSelection.compareTo(id) != 0) {
 			selectedId = id;
 			view.selectItem(id);
 			draggableItem = new DraggableText(selectedId, items.get(selectedId));
@@ -264,10 +263,9 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private void deselectCurrentItem (boolean read) {
 		if (selectedId != null) {
 			view.deselectItem(selectedId, read);
-			selectedId = null;
 		}
+		selectedId = null;
 	}
-
 
 	@Override
 	public void addView(IModuleView display) {

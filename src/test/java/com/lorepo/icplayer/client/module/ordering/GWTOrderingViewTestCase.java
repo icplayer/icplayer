@@ -28,11 +28,13 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Before
 	public void beforeTest() throws Exception {
 		this.model = Mockito.mock(OrderingModule.class);
-//		Mockito.mock(this.model.getLangAttribute, "");
+		Mockito.when(this.model.getLangAttribute()).thenReturn("en");
 		this.orderingView = Mockito.mock(OrderingView.class);
+		Mockito.when(this.orderingView.getLang()).thenReturn("en");
 		this.orderingViewPMMock = PowerMockito.spy(Whitebox.newInstance(OrderingView.class));
 		innerCellPanel = new VerticalPanel();
 		Whitebox.setInternalState(this.orderingViewPMMock, "innerCellPanel", this.innerCellPanel);
+		Whitebox.setInternalState(this.orderingViewPMMock, "module", this.model);
 		
 		itemWidget1 = new ItemWidget(new OrderingItem(0, "string", "string"), this.model);
 		itemWidget2 = new ItemWidget(new OrderingItem(1, "string", "string"), this.model);
@@ -41,6 +43,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 		Whitebox.invokeMethod(this.orderingViewPMMock, "addWidget", itemWidget1);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "addWidget", itemWidget2);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "addWidget", itemWidget3);
+
 	}
 	
 	@Test
@@ -187,9 +190,9 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "move", 1);
 		
-		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
+		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
 		assertTrue(this.itemWidget2.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
-		assertTrue(this.itemWidget3.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);			
+		assertTrue(this.itemWidget3.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
 	}
 	
 	@Test 
@@ -198,9 +201,9 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "move", -1);
 		
-		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
+		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
 		assertTrue(this.itemWidget2.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
-		assertTrue(this.itemWidget3.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);			
+		assertTrue(this.itemWidget3.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
 	}
 
 }

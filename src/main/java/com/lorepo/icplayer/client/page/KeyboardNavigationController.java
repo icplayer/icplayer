@@ -10,7 +10,6 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
@@ -391,7 +390,6 @@ public final class KeyboardNavigationController {
 		if (this.getPresenters().size() == 0) {
 			return;
 		}
-		
 		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_selected_module");
 	}
 
