@@ -83,11 +83,6 @@
     height: 100%;
 }
 
-.Maze_wall_close {
-    background-color: black;
-}
-
-
 
 .Maze_room {
     float: left;
