@@ -28,13 +28,16 @@ function AddonMultiple_Audio_Controls_Binder_create() {
     function showErrorMessage(errorCode) {
         presenter.$view.html(presenter.ERROR_CODES[errorCode]);
     }
+    
 
     function presenterLogic (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.model = model;
+
         var connections = presenter.parseConnections(model.Connections);
         if (!connections.isValid) {
             showErrorMessage(connections.errorCode);
+
             delete presenter.getState;
             delete presenter.setState;
 
@@ -355,27 +358,21 @@ function AddonMultiple_Audio_Controls_Binder_create() {
 
     presenter.AudioAdapter = function AddonMultiple_Audio_Controls_Binder_AudioAdapter (audioPresenter) {
         this.audioPresenter = audioPresenter;
+    };
 
-        this.play = function (itemId) {
-            if (this.audioPresenter === undefined || this.audioPresenter === null) return;
+    presenter.AudioAdapter.prototype.play = function (itemId) {
+        if (this.audioPresenter === undefined || this.audioPresenter === null) return;
 
-            if (this.audioPresenter.type === 'multiaudio') {
-                this.multiAudioPlay(itemId);
-            } else {
-                this.audioPresenter.play();
-            }
-        };
-
-        this.stop = function () {
-            if (this.audioPresenter === undefined || this.audioPresenter === null) return;
-
-            this.audioPresenter.stop();
-        };
-
-        this.multiAudioPlay = function(itemId) {
+        if (this.audioPresenter.type === 'multiaudio') {
             this.audioPresenter.jumpToID(itemId);
-            this.audioPresenter.play();
         }
+        this.audioPresenter.play();
+    };
+
+     presenter.AudioAdapter.prototype.stop = function () {
+         if (this.audioPresenter === undefined || this.audioPresenter === null) return;
+
+         this.audioPresenter.stop();
     };
 
     return presenter;
