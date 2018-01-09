@@ -9,7 +9,8 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         'CONNECTIONS_04': "Missing Double State Button addon ID!",
         'CONNECTIONS_05': "Empty lines are not allowed!",
         'CONNECTIONS_06': "Repeated Audio addon ID!",
-        'CONNECTIONS_07': "Repeated Double State Button addon ID!"
+        'CONNECTIONS_07': "Repeated Double State Button addon ID!",
+        'CONNECTIONS_08': "Missing item ID!"
     };
 
     presenter.STATES = {
@@ -115,6 +116,12 @@ function AddonMultiple_Audio_Controls_Binder_create() {
             if (presenter.isDoubleStateButtonIDPresent(parsedConnections, doubleStateButtonID)) {
                 isValid = false;
                 errorCode = 'CONNECTIONS_07';
+                return false;
+            }
+
+            if (itemID !== undefined && ModelValidationUtils.isStringEmpty(itemID)){
+                isValid = false;
+                errorCode = 'CONNECTIONS_08';
                 return false;
             }
 
@@ -252,7 +259,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         });
 
         var audioModule = connection.Audio.getModule();
-        if (connection.Item.ID !== undefined && audioModule.jumpToID !== undefined) {
+        if (connection.Item.ID !== undefined && typeof(audioModule.jumpToID) === 'function') {
             audioModule.jumpToID(connection.Item.ID)
         }
 
