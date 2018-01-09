@@ -1,4 +1,4 @@
-TestCase("Handling Double State Button selection", {
+TestCase("[Multiple_Audio_Controler_Binder] Handling Double State Button selection", {
    setUp: function () {
        this.presenter = AddonMultiple_Audio_Controls_Binder_create();
 
@@ -33,24 +33,11 @@ TestCase("Handling Double State Button selection", {
        assertTrue(this.audioModule.play.called)
     },
 
-    'test should call jumpToID before playing when audioModule has item': function () {
-       this.connection.Item.ID = "item1";
-       this.audioModule.jumpToID = sinon.stub();
+    'test should call play with ID Item1': function () {
+       this.connection.Item.ID = 'Item1';
 
        this.presenter.doubleStateButtonSelectionHandler();
 
-       assertTrue(this.audioModule.jumpToID.called);
-       assertTrue(this.audioModule.play.called);
-       assertTrue(this.audioModule.jumpToID.calledBefore(this.audioModule.play));
-    },
-
-    'test should not call jumpToID when item.id is undefined but jumpToID function exists': function () {
-       this.audioModule.jumpToID = sinon.stub();
-
-       this.presenter.doubleStateButtonSelectionHandler();
-
-       assertFalse(this.audioModule.jumpToID.called);
-       assertTrue(this.audioModule.play.called);
-       assertFalse(this.audioModule.jumpToID.calledBefore(this.audioModule.play));
+       assertTrue(this.audioModule.play.calledWith('Item1'))
     }
 });

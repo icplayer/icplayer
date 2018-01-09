@@ -148,11 +148,11 @@ function AddonMultiple_Audio_Controls_Binder_create() {
 
         this.Audio = {
             ID: audioID,
-            getModule: function () { return presenter.getModule(self.Audio.ID); },
+            getModule: function () { return new presenter.AudioInterface(presenter.getModule(self.Audio.ID)); },
             state: presenter.STATES.AUDIO.STOPPED
         };
 
-        this.Item = {
+         this.Item = {
             ID: itemID
         };
 
@@ -252,39 +252,24 @@ function AddonMultiple_Audio_Controls_Binder_create() {
             audio = connection.Audio;
             doubleStateButton = connection.DoubleStateButton;
             if (presenter.STATES.AUDIO.PLAYING == audio.state) {
-                presenter.stopAudio(audio);
+                audio.getModule().stop();
                 audio.state = presenter.STATES.AUDIO.STOPPED;
                 doubleStateButton.getModule().deselect();
                 doubleStateButton.state = presenter.STATES.DOUBLE_STATE_BUTTON.DESELECTED;
             }
         });
 
-        var audioModule = connection.Audio.getModule();
-
-        if (audioModule !== null && audioModule !== undefined) {
-            if (connection.Item.ID !== undefined && typeof(audioModule.jumpToID) === 'function') {
-                audioModule.jumpToID(connection.Item.ID);
-            }
-
-            audioModule.play();
-        }
-
+        connection.Audio.getModule().play(connection.Item.ID);
         connection.Audio.state = presenter.STATES.AUDIO.PLAYING;
         connection.DoubleStateButton.state = presenter.STATES.DOUBLE_STATE_BUTTON.SELECTED;
     };
 
     presenter.doubleStateButtonDeselectionHandler = function (moduleID) {
         var connection = presenter.configuration.connections.getConnectionWithDSB(moduleID);
-        presenter.stopAudio(connection.Audio);
+
+        connection.Audio.getModule().stop();
         connection.Audio.state = presenter.STATES.AUDIO.STOPPED;
         connection.DoubleStateButton.state = presenter.STATES.DOUBLE_STATE_BUTTON.DESELECTED;
-    };
-
-    presenter.stopAudio = function AddonMultiple_Audio_Controls_Binder_stopAudioModule(audio) {
-        var audioModule = audio.getModule();
-        if (audioModule !== null && audioModule !== undefined) {
-            audioModule.stop();
-        }
     };
 
     presenter.matchEventToModules = function (eventData) {
@@ -366,6 +351,26 @@ function AddonMultiple_Audio_Controls_Binder_create() {
                 connection.DoubleStateButton.getModule().deselect();
             });
         });
+    };
+
+    presenter.AudioInterface = function AddonMultiple_Audio_Controls_Binder_AudioInterface (audioPresenter) {
+        this.audioPresenter = audioPresenter;
+
+        this.play = function (itemId) {
+            if (this.audioPresenter === undefined || this.audioPresenter === null) return;
+
+            if (this.audioPresenter.type === 'multiaudio') {
+                this.audioPresenter.jumpToID(itemId);
+            }
+
+            this.audioPresenter.play();
+        };
+
+        this.stop = function () {
+            if (this.audioPresenter === undefined || this.audioPresenter === null) return;
+
+            this.audioPresenter.stop();
+        };
     };
 
     return presenter;
