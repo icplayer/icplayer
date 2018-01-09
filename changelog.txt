@@ -1,3 +1,6 @@
+2018-01-08 Fixed issues with old keyboard navigation when in dropdown gap or exiting with ctrl+enter
+2018-01-05 Fixed draggable gap in Text now blocked when in wcag and ShowErrorsMode
+2018-01-03 Added WCAG to the Report module
 2017-11-15 Added alternative text property in Image Source, Image Identification, iFrame and Multiplegap modules
 2017-11-14 Fixed problem with math gaps in Text when changing page quickly.
 2017-11-09 Added commands to fire keyboard navigation

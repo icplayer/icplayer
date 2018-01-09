@@ -34,6 +34,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	private PageController pageController;
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
 	private boolean isWCAGon = false;
+	private boolean isShowErrorsMode = false;
 	
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
@@ -65,7 +66,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		
 		for (InlineChoiceInfo ic: InlineChoiceList) {
 			inlineChoiceInfoArrayList.add(ic);
-			InlineChoiceWidget gap = new InlineChoiceWidget(ic, listener);
+			InlineChoiceWidget gap = new InlineChoiceWidget(ic, listener,this);
 			gap.setLang(this.module.getLangAttribute());
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
@@ -77,7 +78,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	
 	private void setPageControllerToInLineChoices () {
 		for (InlineChoiceInfo c: this.inlineChoiceInfoArrayList) {
-			InlineChoiceWidget gap = new InlineChoiceWidget(c, listener);
+			InlineChoiceWidget gap = new InlineChoiceWidget(c, listener,this);
 			gap.setPageController(this.pageController);
 		}
 	}
@@ -459,9 +460,21 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	
 	@Override
 	public void space() {
-		this.listener.onGapClicked(activeGap.getId());
+		if(!isShowErrorsMode){
+			this.listener.onGapClicked(activeGap.getId());
+		}
 	}
 
+	@Override
+	public void setWorkMode(){
+		this.isShowErrorsMode = false;
+	}
+	
+	@Override
+	public void setShowErrorsMode(){
+		this.isShowErrorsMode = true;
+	}
+	
 	@Override
 	public void customKeyCode(KeyDownEvent event) {}
 
