@@ -1,4 +1,4 @@
-TestCase("[Multiple_Audio_Controler_Binder] Audio interface tests", {
+TestCase("[Multiple_Audio_Controler_Binder] Audio adapter tests", {
     setUp: function () {
         this.presenter = AddonMultiple_Audio_Controls_Binder_create();
         this.stubs = {
@@ -18,7 +18,7 @@ TestCase("[Multiple_Audio_Controler_Binder] Audio interface tests", {
     },
     
     'test should call play': function () {
-        var audioInterface = new this.presenter.AudioInterface(this.audioPresenter);
+        var audioInterface = new this.presenter.AudioAdapter(this.audioPresenter);
 
         audioInterface.play();
 
@@ -29,7 +29,7 @@ TestCase("[Multiple_Audio_Controler_Binder] Audio interface tests", {
     'test should call jumpToID and play if type is multiaudio': function () {
         this.audioPresenter.type = 'multiaudio';
 
-        var audioInterface = new this.presenter.AudioInterface(this.audioPresenter);
+        var audioInterface = new this.presenter.AudioAdapter(this.audioPresenter);
 
         audioInterface.play();
 
@@ -39,7 +39,7 @@ TestCase("[Multiple_Audio_Controler_Binder] Audio interface tests", {
     },
 
     'test should call stop': function () {
-        var audioInterface = new this.presenter.AudioInterface(this.audioPresenter);
+        var audioInterface = new this.presenter.AudioAdapter(this.audioPresenter);
 
         audioInterface.stop();
 

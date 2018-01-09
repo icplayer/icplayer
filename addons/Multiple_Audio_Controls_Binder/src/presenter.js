@@ -148,7 +148,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
 
         this.Audio = {
             ID: audioID,
-            getModule: function () { return new presenter.AudioInterface(presenter.getModule(self.Audio.ID)); },
+            getModule: function () { return new presenter.AudioAdapter(presenter.getModule(self.Audio.ID)); },
             state: presenter.STATES.AUDIO.STOPPED
         };
 
@@ -353,17 +353,17 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         });
     };
 
-    presenter.AudioInterface = function AddonMultiple_Audio_Controls_Binder_AudioInterface (audioPresenter) {
+    presenter.AudioAdapter = function AddonMultiple_Audio_Controls_Binder_AudioAdapter (audioPresenter) {
         this.audioPresenter = audioPresenter;
 
         this.play = function (itemId) {
             if (this.audioPresenter === undefined || this.audioPresenter === null) return;
 
             if (this.audioPresenter.type === 'multiaudio') {
-                this.audioPresenter.jumpToID(itemId);
+                this.multiAudioPlay(itemId);
+            } else {
+                this.audioPresenter.play();
             }
-
-            this.audioPresenter.play();
         };
 
         this.stop = function () {
@@ -371,6 +371,11 @@ function AddonMultiple_Audio_Controls_Binder_create() {
 
             this.audioPresenter.stop();
         };
+
+        this.multiAudioPlay = function(itemId) {
+            this.audioPresenter.jumpToID(itemId);
+            this.audioPresenter.play();
+        }
     };
 
     return presenter;
