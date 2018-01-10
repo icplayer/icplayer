@@ -21,7 +21,7 @@ TestCase("[Video] Model validation", {
                 "Ogg video": "and another path",
                 "AlternativeText": "A",
                 "time_labels":  "00:00:00 Start\n" +
-                                "01:00:00 End :P"
+                                "20 End :P"
             }, {
                 Poster: "ok",
                 Subtitles: "okdaokdoa",
@@ -31,8 +31,8 @@ TestCase("[Video] Model validation", {
                 "MP4 video": "else path",
                 "Ogg video": "that should be something different",
                 "AlternativeText": "B",
-                "time_labels":  "00:00:00 Start2\n" +
-                                "00:00:20"
+                "time_labels":  "02:01:01 Start2\n" +
+                                "02:20"
             }]
         }
     },
@@ -61,7 +61,7 @@ TestCase("[Video] Model validation", {
                 "AlternativeText": "A",
                 "timeLabels": [
                     {isValid: true, title: "Start", time:0},
-                    {isValid: true, title: "End :P", time: 3600}
+                    {isValid: true, title: "End :P", time: 20}
                 ]
             }, {
                 Poster: "ok",
@@ -73,8 +73,8 @@ TestCase("[Video] Model validation", {
                 "Ogg video": "that should be something different",
                 "AlternativeText": "B",
                 "timeLabels": [
-                    {isValid: true, title: "Start2", time:0},
-                    {isValid: true, title: "2. 00:00:20", time: 20}
+                    {isValid: true, title: "2. 02:20", time: 140},
+                    {isValid: true, title: "Start2", time:7261}
                 ]
             }],
             height: 22

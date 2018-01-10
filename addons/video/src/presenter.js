@@ -580,13 +580,23 @@ function Addonvideo_create() {
             time = timeLabel.split(' ')[0],
             //[Sec, Min, Hour]
             timeMultiplication = [1, 60, 60 * 60],
-            timeElements = time.split(':');
+            timeElements = time.split(':'),
+            i;
 
         if (timeElements.length === 0 || timeElements.length > 3) {
             return {
                 isValid: false,
                 errorCode: "NVT01"
             };
+        }
+
+        for (i = 0; i < timeElements.length; i++) {
+            if (!timeElements[i].match(/^[0-9]+$/g)) {
+                return {
+                    isValid: false,
+                    errorCode: "NVT01"
+                };
+            }
         }
 
         if (title.trim() === '') {
@@ -596,7 +606,7 @@ function Addonvideo_create() {
         var timeInSeconds = 0;
 
         timeElements = timeElements.reverse();
-        for (var i = timeElements.length - 1; i >= 0; i--) {
+        for (i = timeElements.length - 1; i >= 0; i--) {
             timeInSeconds += parseInt(timeElements[i], 10) * timeMultiplication[i];
         }
 
@@ -627,6 +637,10 @@ function Addonvideo_create() {
 
             validatedTimeLabels.push(validatedTimeLabel);
         }
+
+        validatedTimeLabels = validatedTimeLabels.sort(function (a, b) {
+            return a.time - b.time;
+        });
 
         return {
             isValid: true,
