@@ -578,7 +578,8 @@ function Addonvideo_create() {
     presenter.validateTimeLabel = function (timeLabel, index) {
         var title = timeLabel.split(' ').slice(1).join(' '),
             time = timeLabel.split(' ')[0],
-            timeMultiplication = [60 * 60, 60, 1],
+            //[Sec, Min, Hour]
+            timeMultiplication = [1, 60, 60 * 60],
             timeElements = time.split(':');
 
         if (timeElements.length === 0 || timeElements.length > 3) {
@@ -594,6 +595,7 @@ function Addonvideo_create() {
 
         var timeInSeconds = 0;
 
+        timeElements = timeElements.reverse();
         for (var i = timeElements.length - 1; i >= 0; i--) {
             timeInSeconds += parseInt(timeElements[i], 10) * timeMultiplication[i];
         }
