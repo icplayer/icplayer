@@ -12,6 +12,7 @@ import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticListProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
@@ -27,7 +28,7 @@ public class TextModel extends BasicModuleModel {
 	public List<InlineChoiceInfo> choiceInfos = new ArrayList<InlineChoiceInfo>();
 	public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
 
-	private String moduleText = "";
+	public String moduleText = "";
 	private boolean useDraggableGaps;
 	private boolean useMathGaps;
 	private boolean openLinksinNewTab = true;
@@ -134,7 +135,7 @@ public class TextModel extends BasicModuleModel {
 					this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(textElement, "dropdown"));
 					this.speechTextItems.get(3).setText(XMLUtils.getAttributeAsString(textElement, "correct"));
 					this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(textElement, "wrong"));
-					this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(textElement, "empty"));
+					this.speechTextItems.get(5).setText(XMLUtils.getAttributeAsString(textElement, "empty"));
 					langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
 					
 					if (rawText == null) {
@@ -146,7 +147,7 @@ public class TextModel extends BasicModuleModel {
 		}
 	}
 
-	private void setText(String text) {
+	public void setText(String text) {
 		moduleText = text;
 		TextParser parser = new TextParser();
 		parser.setId(gapUniqueId);

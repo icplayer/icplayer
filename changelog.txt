@@ -1,3 +1,6 @@
+2018-01-10 Fixed issue with keyboard navigation in Text module
+2018-01-10 Fixed issues with draggable and dropdown gap in wcag
+2018-01-10 Fixed hadnling of correct/wrong/empty properties in Text module
 2018-01-09 Fixed bug where keyboard navigation would sometimes point to invisible element
 2018-01-09 Changed in Connecting wcag enter no longer selects chosen element
 2018-01-09 Fixed in Connecting wcag not reading selected when navigating over selected element

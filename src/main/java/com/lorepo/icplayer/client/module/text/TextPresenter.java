@@ -95,6 +95,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		boolean isWCAGon();
 		void setWorkMode();
 		void setShowErrorsMode();
+		void setValue(String text);
 	}
 
 	private final TextModel module;
@@ -1279,7 +1280,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		enteredText = text;
-		view.setHTML(text);
+		view.setValue(text);
 	}
 
 	private void show() {

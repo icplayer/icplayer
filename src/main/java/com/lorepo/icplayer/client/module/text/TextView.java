@@ -123,7 +123,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 			if (gi.getPlaceHolder() == "") {
 				continue;
-			}
+					}
 			try {
 				FilledGapWidget gap = new FilledGapWidget(gi, listener);
 				if (gapWidth > 0) {
@@ -281,6 +281,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	public void setHTML (String html) {
 		super.setHTML(html);
 	}
+	
+	public void setValue(String text) {
+		super.setHTML(text);
+		this.module.setText(text);
+	}
 
 	@Override
 	public void refreshMath () {
@@ -427,7 +432,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
 		
-		this.readGap(activeGap.getGapType(), clicks, activeGap.getTextValue());
+		this.readGap(activeGap.getGapType(), clicks, activeGap.getTextValue(),activeGap.getGapState());
 	}
 
 	@Override
@@ -499,12 +504,22 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		return this.module.getLangAttribute();
 	}
 	
-	private void readGap (String type, int index, String content) {
-		final String gapType = type == "gap" ? this.module.getSpeechTextItem(1) : this.module.getSpeechTextItem(2);
-		
+	private void readGap (String type, int index, String content, int gapState) {
+		final String gapType = type == "dropdown" ? this.module.getSpeechTextItem(2) : this.module.getSpeechTextItem(1);
+
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 		textVoices.add(TextToSpeechVoice.create(gapType + " " + Integer.toString(index + 1)));
 		textVoices.add(TextToSpeechVoice.create(content, this.module.getLangAttribute()));
+		
+		if(this.isShowErrorsMode) {
+			if(gapState==1) {
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(3)));
+			}else if(gapState==2) {
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(4)));
+			}else if(gapState==3) {
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(5)));
+			}
+		}
 		
 		this.speak(textVoices);
 	}
@@ -526,5 +541,5 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			this.pageController.speak(textVoices);
 		}
 	}
-
+	
 }

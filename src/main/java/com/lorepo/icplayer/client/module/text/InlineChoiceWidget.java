@@ -56,7 +56,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 					listener.onValueChanged(choiceInfo.getId(), value);
 					if(getView().isWCAGon()){
 						List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-						textVoices.add(TextToSpeechVoice.create(value, langTag));
+						textVoices.add(TextToSpeechVoice.create(value, getView().getLang()));
 						getPageController().speak(textVoices);
 					}
 				}
@@ -88,14 +88,17 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	public void setShowErrorsMode(boolean isActivity) {
 
 		if (isActivity) {
+			this.isWorkingMode = false;
 			int selectedIndex = getSelectedIndex();
 			boolean isFilledGap = selectedIndex > 0;
 
 			if (isFilledGap) {
 				boolean isCorrectAnswer = getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
 				addStyleDependentName(isCorrectAnswer ? "correct" : "wrong");
+				this.gapState = (isCorrectAnswer ? 1 : 2);
 			} else {
 				addStyleDependentName("empty");
+				this.gapState = 3;
 			}
 		}
 
