@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.page;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -16,10 +17,12 @@ import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
-import com.lorepo.icplayer.client.model.Group;
-import com.lorepo.icplayer.client.model.Group.ScoringGroupType;
+import com.lorepo.icplayer.client.model.Content;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.model.page.Group;
+import com.lorepo.icplayer.client.model.page.Group.ScoringGroupType;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.properties.OutstretchHeightData;
-import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
@@ -52,6 +55,7 @@ public class PageController implements ITextToSpeechController {
 		void setHeight(int height);
 		void removeAllModules();
 		void outstretchHeight(int y, int difference, boolean isRestore, boolean dontMoveModules);
+		void recalculatePageDimensions();
 		HashMap<String, Widget> getWidgets();
 	}
 	
@@ -68,7 +72,8 @@ public class PageController implements ITextToSpeechController {
 	private HandlerRegistration valueChangedHandler;
 	private final static String PAGE_TTS_MODULE_ID = "Text_To_Speech1";
 	private boolean isReadingOn = false;
-	
+	private Content contentModel;
+
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
@@ -83,6 +88,10 @@ public class PageController implements ITextToSpeechController {
 		presenters = new ArrayList<IPresenter>();
 		this.playerService = playerServices;
 		moduleFactory = new ModuleFactory(playerService);
+	}
+
+	public void setContent(Content model) {
+		this.contentModel = model;
 	}
 
 	public void setView(IPageDisplay view) {
@@ -111,20 +120,49 @@ public class PageController implements ITextToSpeechController {
 		if (playerServiceImpl != null) {
 			playerServiceImpl.resetEventBus();
 		}
+
 		currentPage = page;
+		this.setCurrentPageSemiResponsiveLayouts();
 
 		pageView.setPage(page);
-		setViewSize(page);
+		this.setViewSize(page);
+		pageView.recalculatePageDimensions();
 		initModules();
 		if (playerService.getStateService() != null) {
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
 		}
+
 		pageView.refreshMathJax();
 		this.restoreOutstretchHeights();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
 	}
 	
+	private void setViewSize(Page page) {
+		if (page.getWidth() > 0) {
+			pageView.setWidth(page.getWidth());
+		}
+
+		if (page.getHeight() > 0) {
+			pageView.setHeight(page.getHeight());
+		}
+	}
+
+	private void setCurrentPageSemiResponsiveLayouts() {
+		String layoutID = this.contentModel.getActualSemiResponsiveLayoutID();
+		Set<PageLayout> actualSemiResponsiveLayouts = this.contentModel.getActualSemiResponsiveLayouts();
+
+		this.currentPage.syncPageSizes(actualSemiResponsiveLayouts);
+		this.currentPage.syncSemiResponsiveStyles(actualSemiResponsiveLayouts);
+		for (IModuleModel module : this.currentPage.getModules()) {
+			module.syncSemiResponsiveStyles(actualSemiResponsiveLayouts);
+			module.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
+			module.setSemiResponsiveLayoutID(layoutID);
+		}
+
+		this.currentPage.setSemiResponsiveLayoutID(layoutID);
+	}
+
 	private void restoreOutstretchHeights() {
 		for (OutstretchHeightData data : this.currentPage.heightModifications.getOutStretchHeights()) {
 			this.outstretchHeightWithoutAddingToModifications(data.y, data.height, true, data.dontMoveModules);
@@ -135,15 +173,6 @@ public class PageController implements ITextToSpeechController {
 		Score.Result result = getCurrentScore();
 		if (result.errorCount == 0 && result.maxScore > 0 && result.score == result.maxScore) {
 			playerService.getEventBus().fireEvent(new CustomEvent("PageAllOk", new HashMap<String, String>()));
-		}
-	}
-
-	private void setViewSize(Page page) {
-		if (page.getWidth() > 0) {
-			pageView.setWidth(page.getWidth());
-		}
-		if (page.getHeight() > 0) {
-			pageView.setHeight(page.getHeight());
 		}
 	}
 
@@ -292,7 +321,7 @@ public class PageController implements ITextToSpeechController {
 			playerService.getScoreService().setPageScore(currentPage, score.increaseMistakeCounter());
 		}
 	}
-	
+
 	public void updateScoreWithMistakes(int mistakes) {
 		if (currentPage != null && currentPage.isReportable()) {
 			Score.Result result = getCurrentScore();
@@ -301,7 +330,7 @@ public class PageController implements ITextToSpeechController {
 			playerService.getScoreService().setPageScore(currentPage, score.incrementProvidedMistakes(mistakes));
 		}
 	}
-	
+
 	public void updateScore(boolean updateCounters) {
 		if (currentPage != null && currentPage.isReportable()) {
 			Score.Result result = getCurrentScore();

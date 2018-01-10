@@ -1,21 +1,17 @@
 package com.lorepo.icplayer.client.module.addon.param;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IEditableSelectProperty;
-import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.properties.IPropertyProvider;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.addon.AddonModel;
 
-public class EditableSelectAddonParam extends StringAddonParam{
+public class EditableSelectAddonParam extends StringAddonParam {
 
 	private AddonParamFactory factory;
 	private ArrayList<IAddonParam> options = new ArrayList<IAddonParam>();
@@ -26,7 +22,7 @@ public class EditableSelectAddonParam extends StringAddonParam{
 	}
 	
 	@Override
-	public String toXML(){
+	public Element toXML(){
 		String xml;
 		
 		xml = "<property";
@@ -39,7 +35,8 @@ public class EditableSelectAddonParam extends StringAddonParam{
 		xml += itemsToXML();
 		
 		xml += "</property>";
-		return xml;
+		
+		return XMLParser.parse(xml).getDocumentElement();
 	}
 	
 	private String itemsToXML() {

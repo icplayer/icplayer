@@ -7,7 +7,7 @@ import org.mockito.Mockito;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icplayer.client.model.Content;
-import com.lorepo.icplayer.client.model.PageList;
+import com.lorepo.icplayer.client.model.page.PageList;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTPlayerControllerTestCase extends GwtTest {

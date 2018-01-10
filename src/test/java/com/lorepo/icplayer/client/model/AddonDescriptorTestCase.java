@@ -15,11 +15,9 @@ import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.addon.AddonProperty;
 
-
-public class AddonDescriptorTestCase {
-
+public class AddonDescriptorTestCase  {
+	
 	private AddonDescriptor initDescriptor() throws SAXException, IOException{
-		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/addon-descriptor.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);

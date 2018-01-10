@@ -49,6 +49,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			hide();
 		}
 		
+		if (this.module.isTabindexEnabled()) {
+			this.getElement().setTabIndex(0);
+		}
+		
 		getElement().setAttribute("lang", this.module.getLangAttribute());
 	}
 
@@ -71,6 +75,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
+			
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
 		}
@@ -92,6 +97,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
+			
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
 		}
@@ -104,9 +110,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			GapInfo gi = giIterator.next();
 			try {
 				GapWidget gap = new GapWidget(gi, listener);
+				
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
 				}
+				
 				gap.setDisabled(module.isDisabled());
 				textElements.add(gap);
 			} catch (Exception e) {
@@ -129,6 +137,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
 				}
+				
 				gap.setDisabled(module.isDisabled());
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
@@ -147,6 +156,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 						if (savedDisabledState.size() > counter) {
 							GapWidget gap = (GapWidget) getChild(counter);
 							gap.setDisabled(savedDisabledState.get(counter));
+							
 							textElements.set(counter, gap);
 						}
 					} else {
@@ -156,6 +166,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 						} else {
 							gap.setDisabled(module.isDisabled());
 						}
+						
 						textElements.add(gap);
 						mathGapIds.add(id);
 					}

@@ -9,12 +9,13 @@ import com.google.gwt.core.client.GWT;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
-import com.lorepo.icf.utils.XMLLoader;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.addonsLoader.AddonLoaderFactory;
 import com.lorepo.icplayer.client.addonsLoader.IAddonLoader;
-import com.lorepo.icplayer.client.model.Page;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
+import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
+import com.lorepo.icplayer.client.xml.page.PageFactory;
 
 
 /**
@@ -34,6 +35,10 @@ public class ContentDataLoader {
 		this.baseUrl = baseUrl;
 		this.addonsLoaderFactory = new AddonLoaderFactory(baseUrl);
 	}
+	
+	public ContentDataLoader() {
+		this.addonsLoaderFactory = new AddonLoaderFactory(baseUrl);
+	}
 
 	public void addPage(Page page) {
 		pages.add(page);
@@ -41,6 +46,10 @@ public class ContentDataLoader {
 	
 	public void addAddons(Collection<AddonDescriptor> descriptors) {
 		this.descriptors = descriptors;
+	}
+	
+	public void setBaseUrl(String baseURL) {
+		this.baseUrl = baseURL;
 	}
 
 	public void load(ILoadListener listener) {
@@ -81,16 +90,14 @@ public class ContentDataLoader {
 			}
 		});
 	}
-	
-	private void loadPage(Page page) {
 
-		XMLLoader reader = new XMLLoader(page);
+	private void loadPage(Page page) {
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
 
-		reader.load(url, new ILoadListener() {
-			
+		PageFactory factory = new PageFactory((Page) page);
+		factory.load(url, new IProducingLoadingListener() {
 			@Override
-			public void onFinishedLoading(Object obj) {
+			public void onFinishedLoading(Object producedItem) {
 				resourceLoaded();
 			}
 
@@ -118,7 +125,7 @@ public class ContentDataLoader {
 			DOMInjector.injectStyleAtStart(css);
 		}
 	}
-	
+
 	private void resourceLoaded() {
 		count--;
 		if (count == 0) {

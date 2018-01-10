@@ -7,7 +7,7 @@ public interface IAddonParam {
 
 	void load(Element element, String baseURL);
 	IProperty getAsProperty();
-	String toXML();
+	Element toXML();
 	void setName(String name);
 	String getName();
 	void setDisplayName(String displayName);

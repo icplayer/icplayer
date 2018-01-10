@@ -49,11 +49,7 @@ public class ButtonModule extends BasicModuleModel {
 		return additionalClasses;
 	}
 	
-	@Override
-	public void load(Element node, String baseUrl) {
-
-		super.load(node, baseUrl);
-		
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++) {
 			
@@ -90,34 +86,40 @@ public class ButtonModule extends BasicModuleModel {
 
 	@Override
 	public String toXML() {
-		String encodedText = StringUtils.escapeHTML(text);
-		String xml = 
-				"<buttonModule " + getBaseXML() + ">" + getLayoutXML() + 
-				"<button type='" + type + "' text='" + encodedText + "'";
+		Element buttonModule = XMLUtils.createElement("buttonModule");
+		this.setBaseXMLAttributes(buttonModule);
 		
-		xml += " onclick='" + StringUtils.escapeXML(onClick) + "'";
+		String encodedText = StringUtils.escapeHTML(text);
+		buttonModule.appendChild(this.getLayoutsXML());
+		
+		Element button = XMLUtils.createElement("button");
+		button.setAttribute("onclick", StringUtils.escapeXML(onClick));
+		button.setAttribute("type", type.toString());
+		button.setAttribute("text", encodedText);
 
 		if (type == ButtonType.popup) {
-			xml += " additionalClasses='" + StringUtils.escapeXML(additionalClasses) + "'";
-			xml += " popupLeftPosition='" + StringUtils.escapeXML(popupLeftPosition) + "'";
-			xml += " popupTopPosition='" + StringUtils.escapeXML(popupTopPosition) + "'";
-		}
-		if (type == ButtonType.gotoPage) {
-			xml += " pageIndex='" + StringUtils.escapeXML(pageIndex) + "'";
-		}
-		if (type == ButtonType.reset) {
-			xml += " confirmReset='" + confirmReset + "'";
-			xml += " confirmInfo='" + StringUtils.escapeXML(confirmInfo) + "'";
-			xml += " confirmYesInfo='" + StringUtils.escapeXML(confirmYesInfo) + "'";
-			xml += " confirmNoInfo='" + StringUtils.escapeXML(confirmNoInfo) + "'";
-		}
-		if (type == ButtonType.prevPage) {
-			xml += " goToLastVisitedPage='" + this.goToLastVisitedPage + "'";
+			button.setAttribute("additionalClasses", StringUtils.escapeXML(additionalClasses));
+			button.setAttribute("popupLeftPosition", StringUtils.escapeXML(popupLeftPosition));
+			button.setAttribute("popupTopPosition", StringUtils.escapeXML(popupTopPosition));
 		}
 		
-		xml += "/></buttonModule>";
-
-		return xml;
+		if (type == ButtonType.gotoPage) {
+			button.setAttribute("pageIndex", StringUtils.escapeXML(pageIndex));
+		}
+		
+		if (type == ButtonType.reset) {
+			button.setAttribute("confirmReset", Boolean.toString(confirmReset));
+			button.setAttribute("confirmInfo", StringUtils.escapeXML(confirmInfo));
+			button.setAttribute("confirmYesInfo", StringUtils.escapeXML(confirmYesInfo));
+			button.setAttribute("confirmNoInfo", StringUtils.escapeXML(confirmNoInfo));
+		}
+		if (type == ButtonType.prevPage) {
+			XMLUtils.setBooleanAttribute(button, "goToLastVisitedPage", this.goToLastVisitedPage);
+		}
+		
+		buttonModule.appendChild(button);
+		
+		return buttonModule.toString();
 	}
 
 	/**

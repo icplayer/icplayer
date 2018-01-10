@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.choice;
 
+import com.google.gwt.xml.client.CDATASection;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.BasicPropertyProvider;
@@ -193,14 +194,21 @@ public class ChoiceOption extends BasicPropertyProvider{
 	}
 	
 	
-	public String toXML() {
+	public Element toXML() {
+		Element optionElement = XMLUtils.createElement("option");
+		XMLUtils.setIntegerAttribute(optionElement, "value", value);
 		
-		String xml = "<option value='" + value + "'>";
-		xml += "<text><![CDATA[" + text + "]]></text>";
-		xml += "<feedback>" + StringUtils.escapeHTML(feedback) + "</feedback>";
-		xml += "</option>";
+		Element textElement = XMLUtils.createElement("text");
+		CDATASection cdataText = XMLUtils.createCDATASection(text);
+		textElement.appendChild(cdataText);
 		
-		return xml;
+		Element feedbackElement = XMLUtils.createElement("feedback");
+		feedbackElement.setNodeValue(StringUtils.escapeHTML(feedback));
+
+		optionElement.appendChild(textElement);
+		optionElement.appendChild(feedbackElement);
+		
+		return optionElement;
 	}
 	
 }

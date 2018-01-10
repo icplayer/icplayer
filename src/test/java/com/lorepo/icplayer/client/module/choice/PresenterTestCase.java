@@ -25,6 +25,7 @@ import com.lorepo.icplayer.client.module.choice.mockup.OptionViewMockup.StyleTyp
 public class PresenterTestCase {
 
 	private boolean eventReceived;
+	private static final String PAGE_VERSION = "2";
 	
 	@Test
 	public void testViewMockup() {
@@ -223,7 +224,7 @@ public class PresenterTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ChoiceModel module = new ChoiceModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		PlayerServicesMockup services = new PlayerServicesMockup();
 		ChoiceViewMockup display = new ChoiceViewMockup(module);
@@ -249,7 +250,7 @@ public class PresenterTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ChoiceModel module = new ChoiceModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		PlayerServicesMockup services = new PlayerServicesMockup();
 		ChoiceViewMockup display = new ChoiceViewMockup(module);
@@ -282,7 +283,7 @@ public class PresenterTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ChoiceModel module = new ChoiceModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		PlayerServicesMockup services = new PlayerServicesMockup();
 		ChoiceViewMockup display = new ChoiceViewMockup(module);
@@ -303,7 +304,7 @@ public class PresenterTestCase {
 		Element element = xmlParser.parser(inputStream);
 		
 		ChoiceModel module = new ChoiceModel();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		PlayerServicesMockup services = new PlayerServicesMockup();
 		ChoiceViewMockup display = new ChoiceViewMockup(module);

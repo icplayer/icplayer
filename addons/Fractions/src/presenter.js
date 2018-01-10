@@ -192,12 +192,16 @@ function AddonFractions_create(){
         };
     };
 
+    function log2(number) {
+        return Math.log(number) / Math.log(2);
+    }
+
     presenter.validateSquareParts = function (model) {
         if (parseInt(model.SquareParts) <= 0 || isNaN(model.SquareParts)) {
             return generateValidationError("P06");
         }
 
-        if (Math.log2(parseInt(model.SquareParts)) % 1 != 0) {
+        if (log2(parseInt(model.SquareParts)) % 1 != 0) {
             return generateValidationError("P07");
         }
 
@@ -457,7 +461,7 @@ function AddonFractions_create(){
         var elements = [new SquareShapeElement(addonWidth, addonHeight, 0,0, 1, config.addonId)];
 
         //Cut elements to half Log2(n) times
-        for (i = 1; i <= Math.log2(parts); i++) {
+        for (i = 1; i <= log2(parts); i++) {
             var elementsBuff = [];
             for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
                 elementsBuff = elementsBuff.concat(elements[elementIndex].cutToHalf(addonWidth, addonHeight));

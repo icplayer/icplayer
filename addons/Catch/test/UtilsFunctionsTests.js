@@ -14,7 +14,9 @@ TestCase("[Catch] Utils validation", {
                 'Description': 'cat',
                 'Is Correct': 'False',
                 'Level': '2,3'
-            }]
+            }],
+            'Item_Width': '20',
+            'Item_Height': '20'
         };
     },
 

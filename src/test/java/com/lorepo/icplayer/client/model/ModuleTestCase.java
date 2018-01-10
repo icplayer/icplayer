@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.tools.ant.filters.StringInputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -31,6 +30,8 @@ import com.lorepo.icplayer.client.module.shape.ShapeModule;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(DictionaryWrapper.class)
 public class ModuleTestCase {
+	
+	private static final String PAGE_VERSION = "2";
 
 
 	private ShapeModule initModule(String filename) throws SAXException, IOException {
@@ -38,22 +39,17 @@ public class ModuleTestCase {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		ShapeModule module = new ShapeModule();
-		module.load(element, "");
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new ShapeModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		return module;
 	}
 
 	@Test
 	public void defaultModuleLayout() throws SAXException, IOException {
-		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module1.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		ShapeModule module = new ShapeModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		ILayoutDefinition layout = module.getLayout();
 		
 		assertTrue(layout.hasLeft());
@@ -169,7 +165,7 @@ public class ModuleTestCase {
 	}
 	
 	@Test
-	public void isTabindexEnabledPropertyIsByDefaultTrue() throws SAXException, IOException {
+	public void isTabindexEnabledPropertyIsByDefaultFalse() throws SAXException, IOException {
 		PowerMockito.spy(DictionaryWrapper.class);
 		when(DictionaryWrapper.get("is_tabindex_enabled")).thenReturn("Is Tabindex Enabled");
 		
@@ -184,7 +180,7 @@ public class ModuleTestCase {
 		}
 		
 		assertNotNull(isTabindexEnabledProperty);
-		assertEquals("True", isTabindexEnabledProperty.getValue());
+		assertEquals("False", isTabindexEnabledProperty.getValue());
 	}
 	
 	@Test

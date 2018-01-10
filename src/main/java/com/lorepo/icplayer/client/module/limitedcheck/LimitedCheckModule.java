@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.limitedcheck;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.google.gwt.xml.client.CDATASection;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -202,16 +203,13 @@ public class LimitedCheckModule extends BasicModuleModel {
 
 		addProperty(property);
 	}
-	
+
 	public boolean getMistakesFromProvidedModules() {
 		return mistakesFromProvidedModules;
 	}
-	
-	@Override
-	public void load(Element node, String baseUrl) {
 
-		super.load(node, baseUrl);
-		
+	@Override
+	protected void parseModuleNode(Element node) {
 		NodeList nodes = node.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			
@@ -224,27 +222,35 @@ public class LimitedCheckModule extends BasicModuleModel {
 					unCheckText = XMLUtils.getAttributeAsString(childElement, "unCheckText");
 					rawWorksWith = XMLUtils.getCharacterDataFromElement(childElement);
 					mistakesFromProvidedModules = XMLUtils.getAttributeAsBoolean(childElement, "mistakesFromProvidedModules");
-					
+
 					modules = ModuleUtils.getListFromRawText(rawWorksWith);
 				}
 			}
 		}
 	}
-	
-	protected String modelToXML() {
-		String encodedCheck = StringUtils.escapeHTML(checkText);
-		String encodedUnCheck = StringUtils.escapeHTML(unCheckText);
-
-		return "<limitedCheck checkText='" + encodedCheck + "' unCheckText='" + encodedUnCheck + "' mistakesFromProvidedModules='" + mistakesFromProvidedModules + "'>"
-				+ "<![CDATA[" + rawWorksWith + "]]>"
-				+ "</limitedCheck>";
-	}
 
 	@Override
 	public String toXML() {
-		return "<limitedCheckModule " + getBaseXML() + ">" 
-			+ getLayoutXML()
-			+ modelToXML()
-			+ "</limitedCheckModule>";
+		Element limitedCheckModule = XMLUtils.createElement("limitedCheckModule");
+		this.setBaseXMLAttributes(limitedCheckModule);
+		limitedCheckModule.appendChild(this.getLayoutsXML());
+		limitedCheckModule.appendChild(this.modelToXML());
+
+		return limitedCheckModule.toString();
+	}
+
+	protected Element modelToXML() {
+		String encodedCheck = StringUtils.escapeHTML(checkText);
+		String encodedUnCheck = StringUtils.escapeHTML(unCheckText);
+
+		Element limitedCheckElement = XMLUtils.createElement("limitedCheck");
+		limitedCheckElement.setAttribute("checkText", encodedCheck);
+		limitedCheckElement.setAttribute("unCheckText", encodedUnCheck);
+		XMLUtils.setBooleanAttribute(limitedCheckElement, "mistakesFromProvidedModules", mistakesFromProvidedModules);
+
+		CDATASection cdata = XMLUtils.createCDATASection(rawWorksWith);
+
+		limitedCheckElement.appendChild(cdata);
+		return limitedCheckElement;
 	}
 }

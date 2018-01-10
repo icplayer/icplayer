@@ -70,7 +70,7 @@ public class ElementImpl implements Element{
 
 	@Override
 	public short getNodeType() {
-		throw new UnsupportedOperationException();
+		return elementImpl.getNodeType();
 	}
 
 	@Override
@@ -167,5 +167,9 @@ public class ElementImpl implements Element{
 	public void setAttribute(String name, String value) {
 		throw new UnsupportedOperationException();
 	}
-
+	
+	@Override
+	public String toString() {
+		return elementImpl.toString();
+	}
 }

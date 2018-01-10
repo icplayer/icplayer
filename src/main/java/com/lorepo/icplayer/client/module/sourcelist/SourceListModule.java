@@ -16,7 +16,7 @@ import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 
 public class SourceListModule extends BasicModuleModel {
-	private ArrayList<String>	items = new ArrayList<String>();
+	private ArrayList<String> items = new ArrayList<String>();
 	private boolean removable = true;
 	private boolean vertical = false;
 	private boolean randomOrder = false;
@@ -51,11 +51,12 @@ public class SourceListModule extends BasicModuleModel {
 		return removable;
 	}
 	
-	
-	@Override
-	public void load(Element rootElement, String baseUrl) {
-		super.load(rootElement, baseUrl);
+//	@Override
+//	public void load(Element rootElement, String baseUrl) {
+//		super.load(rootElement, baseUrl);
+//	}
 		
+	protected void parseModuleNode(Element rootElement) {
 		NodeList nodeList = rootElement.getElementsByTagName("items");
 		if (nodeList.getLength() > 0) {
 			Element itemsElement = (Element)nodeList.item(0);
@@ -78,28 +79,32 @@ public class SourceListModule extends BasicModuleModel {
 		    }
 			items.add(itemText);
 		}
-		
+
 	}
 	
 	@Override
 	public String toXML() {
-		String xml = "<sourceListModule " + getBaseXML() + ">" + getLayoutXML();
+		Element sourceListModule = XMLUtils.createElement("sourceListModule");
 		
-		xml += "<items removable='" + removable +
-				"' vertical='" + vertical +
-				"' randomOrder='" + randomOrder +
-				"' selected='" + this.speechTextItems.get(0).getText() +
-				"' deselected='" + this.speechTextItems.get(1).getText() +
-				"' langAttribute='" + langAttribute + "'>";
+		this.setBaseXMLAttributes(sourceListModule);
+		sourceListModule.appendChild(this.getLayoutsXML());
 		
+		Element itemsElement = XMLUtils.createElement("items");
+		XMLUtils.setBooleanAttribute(itemsElement, "removable", removable);
+		XMLUtils.setBooleanAttribute(itemsElement, "vertical", vertical);
+		XMLUtils.setBooleanAttribute(itemsElement, "randomOrder", randomOrder);
+		itemsElement.setAttribute("selected", this.speechTextItems.get(0).getText());
+		itemsElement.setAttribute("deselected", this.speechTextItems.get(0).getText());
+		itemsElement.setAttribute("langAttribute", langAttribute);
+
 		for (String item : items) {
-			xml += "<item><![CDATA[" + item + "]]></item>";
+			Element itemElement = XMLUtils.createElement("item");
+			itemElement.appendChild(XMLUtils.createCDATASection(item));
+			itemsElement.appendChild(itemElement);
 		}
 
-		xml += "</items>";
-		xml += "</sourceListModule>";
-		
-		return xml;
+		sourceListModule.appendChild(itemsElement);
+		return sourceListModule.toString();
 	}
 
 

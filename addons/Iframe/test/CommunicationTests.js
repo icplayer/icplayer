@@ -82,6 +82,10 @@ TestCase("[Iframe] getMessage", {
             postMessage : function () {}
         };
 
+        this.presenter.eventBus = {
+            sendEvent: sinon.spy()
+        };
+
         this.validStateRequestMessage = {
             data: {
                 id: "test",
@@ -103,8 +107,15 @@ TestCase("[Iframe] getMessage", {
             }
         };
 
+        this.validCustomEventRequest = {
+            data: {
+                id: "test",
+                actionID: "CUSTOM_EVENT"
+            }
+        };
+
         this.spys = {
-            sendMessage : sinon.spy(this.presenter, 'sendMessage'),
+            sendMessage : sinon.spy(this.presenter, 'sendMessage')
         };
 
         this.stubs = {
@@ -133,6 +144,11 @@ TestCase("[Iframe] getMessage", {
         this.presenter.getMessage(this.validFileDictionaryRequest);
         sinon.assert.calledWith(this.spys.sendMessage, "FILE_DICTIONARY_ACTUALIZATION");
         sinon.assert.calledOnce(this.spys.sendMessage);
-    }
+    },
 
+    'test if addon received custom event then will send ValueChanged with custom event value': function () {
+        this.presenter.getMessage(this.validCustomEventRequest);
+
+        sinon.assert.calledOnce(this.presenter.eventBus.sendEvent);
+    }
 });

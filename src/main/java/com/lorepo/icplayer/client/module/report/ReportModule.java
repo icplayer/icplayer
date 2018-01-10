@@ -37,12 +37,9 @@ public class ReportModule extends BasicModuleModel {
 		addPropertySpeechTexts();
 	}
 
-	
-	@Override
-	public void load(Element node, String baseUrl) {
 
-		super.load(node, baseUrl);
-		
+	@Override
+	protected void parseModuleNode(Element node) {
 		NodeList labels = node.getElementsByTagName("labels");
 		if(labels.getLength() > 0){
 			Element labelsElement = (Element)labels.item(0);
@@ -77,30 +74,36 @@ public class ReportModule extends BasicModuleModel {
 		}
 	}
 	
-	
 	@Override
 	public String toXML() {
+		Element reportModule = XMLUtils.createElement("reportModule");
 		
-		String xml; 
+		this.setBaseXMLAttributes(reportModule);
+		reportModule.appendChild(this.getLayoutsXML());
 		
-		xml = "<reportModule " + getBaseXML() + ">" + getLayoutXML();
-		xml += "<labels showCounters='" + showCounters + 
-				"' pageNameWidth='" + pageNameWidth + 
-				"' resultsWCAG='" + this.speechTextItems.get(0).getText() +
-				"' percentWCAG='" + this.speechTextItems.get(1).getText() +
-				"' checksWCAG='" + this.speechTextItems.get(2).getText() +
-				"' errorsWCAG='" + this.speechTextItems.get(3).getText() +
-				"'>";
+		Element labels = XMLUtils.createElement("labels");
+		XMLUtils.setBooleanAttribute(labels, "showCounters", showCounters);
+		XMLUtils.setIntegerAttribute(labels, "pageNameWidth", pageNameWidth);
+		labels.setAttribute("resultsWCAG", this.speechTextItems.get(0).getText());
+		labels.setAttribute("percentWCAG", this.speechTextItems.get(1).getText());
+		labels.setAttribute("checksWCAG", this.speechTextItems.get(2).getText());
+		labels.setAttribute("errorsWCAG", this.speechTextItems.get(3).getText());
+
+		labels.appendChild(this.createLabel("ErrorCount", errorsLabel));
+		labels.appendChild(this.createLabel("CheckCount", checksLabel));
+		labels.appendChild(this.createLabel("Results", resultsLabel));
+		labels.appendChild(this.createLabel("Total", totalLabel));
 		
-		xml += "<label name='ErrorCount' value='" + StringUtils.escapeHTML(errorsLabel) +"'/>";
-		xml += "<label name='CheckCount' value='" + StringUtils.escapeHTML(checksLabel) +"'/>";
-		xml += "<label name='Results' value='" + StringUtils.escapeHTML(resultsLabel) +"'/>";
-		xml += "<label name='Total' value='" + StringUtils.escapeHTML(totalLabel) +"'/>";
+		reportModule.appendChild(labels);
+		return reportModule.toString();
+	}
+	
+	private Element createLabel(String name, String value) {
+		Element label = XMLUtils.createElement("label");
+		label.setAttribute("name", name);
+		label.setAttribute("value", StringUtils.escapeHTML(value));
 		
-		xml += "</labels>";
-		xml += "</reportModule>";
-		
-		return xml;
+		return label;
 	}
 
 	private void addErrorsLabel() {

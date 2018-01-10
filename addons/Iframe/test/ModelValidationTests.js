@@ -335,7 +335,8 @@ TestCase("[Iframe] validateModelOriginal", {
             ID : "someAddonID",
             index : "/file/123453",
             fileList : [{id: "someID", file: "/file/12345"}],
-            communicationID: "someID"
+            communicationID: "someID",
+            "Alt text": "some alt"
         };
 
         this.expectedValue = {
@@ -349,7 +350,8 @@ TestCase("[Iframe] validateModelOriginal", {
                 "someID": "/file/12345"
             },
             isVisibleByDefault: false,
-            allowFullScreen:false
+            allowFullScreen:false,
+            altText: "some alt"
         };
     },
 
@@ -357,46 +359,5 @@ TestCase("[Iframe] validateModelOriginal", {
         var result = this.presenter.validateModel(this.validModel);
 
         assertEquals(this.expectedValue, result);
-    }
-});
-
-
-TestCase("[Iframe] validateModel", {
-    setUp: function () {
-        this.presenter = AddonIframe_create();
-        this.stubs = {
-            validateIFrameSource : sinon.stub(this.presenter, 'validateIFrameSource', function () {
-                return {isValid: true,haveURL: true};
-            }),
-            validateCommunicationID: sinon.stub(this.presenter, 'validateCommunicationID', function () {
-                return {isValid: true,value : "someID"};
-            }),
-            validateFileList : sinon.stub(this.presenter, 'validateFileList', function () {
-                return {isValid: true,fileDictionary: {"someID" : "/file/12345"}};
-            })
-        };
-    },
-    tearDown: function () {
-        this.stubs.validateCommunicationID.restore();
-        this.stubs.validateFileList.restore();
-        this.stubs.validateFileList.restore();
-    },
-
-    'test if there is valid model there should be addon configuration' : function () {
-        var expectedValue = {
-            isValid : true,
-            haveURL : true,
-            communicationID : "someID",
-            fileDictionary :  {"someID" : "/file/12345"},
-            isVisibleByDefault: false,
-            allowFullScreen:false
-        };
-
-        var result = this.presenter.validateModel({});
-
-        sinon.assert.calledOnce(this.stubs.validateIFrameSource);
-        sinon.assert.calledOnce(this.stubs.validateCommunicationID);
-        sinon.assert.calledOnce(this.stubs.validateFileList);
-        assertEquals(JSON.stringify(expectedValue), JSON.stringify(result));
     }
 });

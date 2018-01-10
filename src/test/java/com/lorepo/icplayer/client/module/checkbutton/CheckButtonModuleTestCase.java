@@ -6,7 +6,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.tools.ant.filters.StringInputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -22,6 +21,7 @@ import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 @PrepareForTest(DictionaryWrapper.class)
 public class CheckButtonModuleTestCase {
 
+	private static final String PAGE_VERSION = "2";
 
 	@Test
 	public void moduleTypeName() {
@@ -32,25 +32,6 @@ public class CheckButtonModuleTestCase {
 		assertEquals("Check Button", module.getModuleTypeName());
 	}
 
-	
-	@Test
-	public void saveLoad() throws SAXException, IOException {
-
-		InputStream inputStream = getClass().getResourceAsStream("testdata/check1.xml");
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-		CheckButtonModule module = new CheckButtonModule();
-		module.load(element, "");
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new CheckButtonModule();
-		module.load(element, "");
-		
-		assertEquals("check", module.getCheckTitle());
-		assertEquals("unCheck", module.getUnCheckTitle());
-	}
-	
-	
 	@Test
 	public void backwardCompatibilityForCheckAnswers() throws SAXException, IOException {
 		
@@ -58,11 +39,7 @@ public class CheckButtonModuleTestCase {
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
 		CheckButtonModule module = new CheckButtonModule();
-		module.load(element, "");
-		String xml = module.toXML();
-		element = xmlParser.parser(new StringInputStream(xml));
-		module = new CheckButtonModule();
-		module.load(element, "");
+		module.load(element, "", PAGE_VERSION);
 		
 		assertEquals("Some title", module.getCheckTitle());
 		assertEquals("Some title", module.getUnCheckTitle());

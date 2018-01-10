@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticRowProperty;
@@ -71,8 +72,7 @@ public class StaticRowAddonParam implements IAddonParam{
 	}
 	
 	@Override
-	public String toXML(){
-	
+	public Element toXML() {
 		String xml;
 		
 		xml = "<property";
@@ -83,7 +83,8 @@ public class StaticRowAddonParam implements IAddonParam{
 		
 		xml += itemsToXML();
 		xml += "</property>";
-		return xml;
+		
+		return XMLParser.parse(xml).getDocumentElement();
 	}
 
 	

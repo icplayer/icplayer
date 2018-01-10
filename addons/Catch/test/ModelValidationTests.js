@@ -13,7 +13,9 @@ TestCase("[Catch] Model validation", {
                 'Is Correct': 'False',
                 'Level': '2,3'
             }],
-            'Points to finish': '3'
+            'Points to finish': '3',
+            'Item_Width': '20',
+            'Item_Height': '20'
         };
     },
 
@@ -82,6 +84,22 @@ TestCase("[Catch] Model validation", {
 
         assertFalse(validated.isValid);
         assertEquals('O01', validated.errorCode);
+    },
+
+    'test empty itemWidth property' : function () {
+        this.model['Item_Width'] = '';
+        var validated = this.presenter.validateModel(this.model);
+
+        assertFalse(validated.isValid);
+        assertEquals('W01', validated.errorCode);
+    },
+
+    'test empty itemHeight property' : function () {
+        this.model['Item_Height'] = '';
+        var validated = this.presenter.validateModel(this.model);
+
+        assertFalse(validated.isValid);
+        assertEquals('W01', validated.errorCode);
     }
 
 });

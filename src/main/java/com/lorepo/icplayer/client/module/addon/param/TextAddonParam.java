@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.addon.param;
 
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.ITextProperty;
 import com.lorepo.icf.utils.StringUtils;
@@ -16,7 +17,7 @@ public class TextAddonParam extends StringAddonParam{
 
 
 	@Override
-	public String toXML(){
+	public Element toXML(){
 		
 		String xml;
 		
@@ -30,7 +31,8 @@ public class TextAddonParam extends StringAddonParam{
 		singleLine = singleLine.replace("\n", "\\n");
 		xml += StringUtils.escapeXML(singleLine);
 		xml += "</property>";
-		return xml;
+		
+		return XMLParser.parse(xml).getDocumentElement();
 	}
 
 

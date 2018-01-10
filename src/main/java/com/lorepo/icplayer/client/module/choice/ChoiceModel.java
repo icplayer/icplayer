@@ -80,10 +80,7 @@ public class ChoiceModel extends BasicModuleModel{
 	}
 
 	@Override
-	public void load(Element node, String baseUrl) {
-	
-		super.load(node, baseUrl);
-		
+	protected void parseModuleNode(Element node) {
 		options.clear();
 		maxScore = 0;
 		
@@ -111,10 +108,9 @@ public class ChoiceModel extends BasicModuleModel{
 			Element element = (Element)optionNodes.item(i);
 			String optionID = Integer.toString(i+1);
 			ChoiceOption option = new ChoiceOption(optionID);
-			option.load(element, baseUrl);
+			option.load(element, this.getBaseURL());
 			addOption(option);
 		}
-		
 	}
 
 	/**
@@ -136,32 +132,35 @@ public class ChoiceModel extends BasicModuleModel{
 	 * Convert module into XML
 	 */
 	@Override
-	public String toXML() {
+	public String toXML () {
+		Element choiceModule = XMLUtils.createElement("choiceModule");
 		
-		String xml = "<choiceModule " + getBaseXML() + ">" + getLayoutXML();
-		xml += "<choice " +
-				"isMulti='" + isMulti + "' " +
-				"isDisabled='" + isDisabled +  "' " +
-				"isActivity='" + isActivity +  "' " +
-				"randomOrder='" + randomOrder +  "' " +
-				"isHorizontal='" + isHorizontal +  "' " +
-				"langAttribute='" + langAttribute +  "' " +
-				"selected='" + this.speechTextItems.get(0).getText() +  "' " +
-				"deselected='" + this.speechTextItems.get(1).getText() +  "' " +
-				"correct='" + this.speechTextItems.get(2).getText() +  "' " +
-				"incorrect='" + this.speechTextItems.get(3).getText() +  "' " +
-				" />";
-		xml += "<options>";
-		for(ChoiceOption option : options){
-			xml += option.toXML();
+		this.setBaseXMLAttributes(choiceModule);
+		choiceModule.appendChild(this.getLayoutsXML());
+		
+		Element choice = XMLUtils.createElement("choice");
+		choice.setAttribute("isMulti", Boolean.toString(isMulti));
+		choice.setAttribute("isDisabled", Boolean.toString(isDisabled));
+		choice.setAttribute("isActivity", Boolean.toString(isActivity));
+		choice.setAttribute("randomOrder", Boolean.toString(randomOrder));
+		choice.setAttribute("isHorizontal", Boolean.toString(isHorizontal));
+		choice.setAttribute("langAttribute", langAttribute);
+		choice.setAttribute("selected", this.speechTextItems.get(0).getText());
+		choice.setAttribute("deselected", this.speechTextItems.get(1).getText());
+		choice.setAttribute("correct", this.speechTextItems.get(2).getText());
+		choice.setAttribute("incorrect", this.speechTextItems.get(3).getText());
+		
+		choiceModule.appendChild(choice);
+		
+		Element optionsElement = XMLUtils.createElement("options");
+
+		for (ChoiceOption option : options) {
+			optionsElement.appendChild(option.toXML());
 		}
-		xml += "</options>";
-
-		xml += "</choiceModule>";
 		
-		return xml;
+		choiceModule.appendChild(optionsElement);
+		return choiceModule.toString();
 	}
-
 	
 	public int calculateMaxScore() {
 		int maxScore = 0;
@@ -172,10 +171,9 @@ public class ChoiceModel extends BasicModuleModel{
 		return maxScore;
 	}
 	
-	public int getMaxScore() {		
+	public int getMaxScore() {
 		return calculateMaxScore();
 	}
-
 
 	private void addPropertyHorizontalLayout() {
 

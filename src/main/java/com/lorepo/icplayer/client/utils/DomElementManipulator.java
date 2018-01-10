@@ -1,6 +1,5 @@
 package com.lorepo.icplayer.client.utils;
 
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 

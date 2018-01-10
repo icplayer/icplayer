@@ -1,7 +1,5 @@
 package com.lorepo.icplayer.client.mockup.utils;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -12,7 +10,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-import com.google.gwt.user.client.DOM;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
 
@@ -25,7 +22,7 @@ public class DomElementManipulatorMockup extends DomElementManipulator {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.newDocument();
-		element = doc.createElement(name);;
+		element = doc.createElement(name);
 	}
 
 	@Override
@@ -66,7 +63,6 @@ public class DomElementManipulatorMockup extends DomElementManipulator {
 		LSSerializer serializer = lsImpl.createLSSerializer();
 		serializer.getDomConfig().setParameter("xml-declaration", false); //by default its true, so set it to false to get String without xml-declaration
 		String str = serializer.writeToString(this.element);
-		System.out.println(str);
 		return str;
 	}
 		

@@ -28,22 +28,24 @@ public class ErrorCounterModule extends BasicModuleModel{
 	
 	@Override
 	public String toXML() {
+		Element errorCounterModule = XMLUtils.createElement("errorCounterModule");
 		
-		String xml = "<errorCounterModule " + getBaseXML() + ">" + getLayoutXML();
-		xml += "<counter showErrorCounter='" + showErrorCounter +
-				"' showMistakeCounter='" + showMistakeCounter + 
-				"' realTimeCalculation='" + realTimeCalculation +
-				"' langAttribute='" + langAttribute + "'/>";
-		xml += "</errorCounterModule>";
+		this.setBaseXMLAttributes(errorCounterModule);
+		errorCounterModule.appendChild(this.getLayoutsXML());
 		
-		return xml;
+		Element counter = XMLUtils.createElement("counter");
+		counter.setAttribute("showErrorCounter", Boolean.toString(this.showErrorCounter));
+		counter.setAttribute("showMistakeCounter", Boolean.toString(this.showMistakeCounter));
+		counter.setAttribute("realTimeCalculation", Boolean.toString(this.realTimeCalculation));
+		counter.setAttribute("langAttribute", langAttribute);
+		
+		errorCounterModule.appendChild(counter);
+
+		return errorCounterModule.toString();
 	}
-
-
-	@Override
-	public void load(Element node, String baseUrl) {
 	
-		super.load(node, baseUrl);
+	@Override
+	protected void parseModuleNode(Element node) {
 		NodeList counters = node.getElementsByTagName("counter");
 		if(counters.getLength() > 0){
 			Element counterElement = (Element)counters.item(0);
@@ -52,14 +54,11 @@ public class ErrorCounterModule extends BasicModuleModel{
 			realTimeCalculation = XMLUtils.getAttributeAsBoolean(counterElement, "realTimeCalculation", false);
 			langAttribute = XMLUtils.getAttributeAsString(counterElement, "langAttribute");
 		}
-		
 	}
-	
 	
 	public boolean getShowErrorCounter() {
 		return showErrorCounter;
 	}
-
 
 	public boolean getShowMistakeCounter() {
 		return showMistakeCounter;

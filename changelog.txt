@@ -1,6 +1,26 @@
-2018-01-08 Fixed issues with old keyboard navigation when in dropdown gap or exiting with ctrl+enter
-2018-01-05 Fixed draggable gap in Text now blocked when in wcag and ShowErrorsMode
-2018-01-03 Added WCAG to the Report module
+2018-01-09 Fixed setting enable tabindex property
+2018-01-05 Added Do not block in check mode property to DoubleStateButton
+2018-01-04 Fixed issue with too large coordinates in Coloring
+2018-01-04 Fixed showing system keyboard for eKeyboard on mobiles.
+2018-01-03 Fixed inline-css error with not unescaping apostrophe
+2018-01-03 Fixed problem with opening popup.
+2018-01-03 Fixed problem with moving to next gap in eKeyboard module
+2017-12-28 Added possibility to define many layouts for lesson depending on device threshold
+2017-12-22 Fixed tests in Video module
+2017-12-22 Added initial configuration in Blockly Code Editor module
+2017-12-22 Fixed showing cards and images in Memogame module
+2017-12-14 Fixed performance issues with preloading images for preview mode in Animation module
+2017-12-13 Fixed popup scrolling
+2017-12-13 Fixed managing tabindex property
+2017-12-12 Fixed Text coloring that was producing additional clickable elements
+2017-12-06 Fixed navigating in gaps
+2017-12-06 Added custom events handling and using /file/serve files from mCourser with no_gcs flag
+2017-12-05 Added Enable tabindex property and changed default value.
+2017-12-01 Added setVideoURL command for video addon.
+2017-11-27 Added tabindex for text.
+2017-11-23 Double State Button can be activated with enter/space when cycling through modules using browser's tab navigation
+2017-11-22 Fixed Ordering module that could crash browser when two items were added and "don't generate correct order" was selected
+2017-11-22 Fixed log2 operation in Fractions module
 2017-11-15 Added alternative text property in Image Source, Image Identification, iFrame and Multiplegap modules
 2017-11-14 Fixed problem with math gaps in Text when changing page quickly.
 2017-11-09 Added commands to fire keyboard navigation
