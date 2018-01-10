@@ -36,5 +36,30 @@
 
 .selected {
     border-color: orange;
+    /*border-width: 2px;*/
     z-index: 3;
+}
+
+.activated {
+    border-color: green;
+    /*border-width: 2px;*/
+}
+
+.hovered-over-another {
+    border-color: blue;
+    /*border-width: 2px;*/
+    z-index: 3;
+    opacity: 0.9;
+}
+.hovered-over-by-other {
+    border-color: red;
+    /*border-width: 2px;*/
+    z-index: 3;
+}
+
+.being-hovered {
+    /*border-color: red;
+    border-width: 2px;*/
+    z-index: 3;
+    opacity: 0.9;
 }
