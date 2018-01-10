@@ -143,12 +143,12 @@ function AddonPuzzle_create() {
     }
 
     // returns position in absolute coords
-    function getPieceCenter(Piece) {
+    /*function getPieceCenter(Piece) {
         return {
             x: parseInt(Piece.css("left")) + puzzleOuterWidth/2,
             y: parseInt(Piece.css("top")) + puzzleOuterHeight/2
         };
-    }
+    }*/
 
     function InitPuzzle(width, height) {
         var outerDistances = getOuterDistances();
@@ -214,7 +214,7 @@ function AddonPuzzle_create() {
                     revert: "invalid", // put it back when drag stops and it hasn't been dropped on droppable
                     revertDuration: 100,
                     zIndex: 100,
-                    containment: ".puzzle-container",
+                    //containment: ".puzzle-container", // it breaks when dragging element a bit, then its position gets set to fractions
                     delay: 70, // to give more time before drag starts, to prevent drags when clicking
                     //grid: [ 50, 20 ]
                     // classes: {
@@ -241,36 +241,28 @@ function AddonPuzzle_create() {
 
                         console.log("--- drag start:  DragStartPos", DragStartPos);
                         console.log("Pos from: " + DraggedPiece.attr("position"));
-
-                        console.log(board);
+                        //console.log(board);
 
                         // remove class selected, so that when user clicks on piece, and then starts to drag, it won't
                         var hoverClass="being-hovered";
                         if ( !DraggedPiece.hasClass( hoverClass ) ) {
-                            DraggedPiece.addClass( hoverClass ).siblings().removeClass( hoverClass );
+                            DraggedPiece.addClass( hoverClass );//.siblings().removeClass( hoverClass );
                         }
 
                       },
                     drag: function(event,ui) {
-
-                        //console.log(ui.position.top);
-                          //checkIfDraggedOver(puzzle);
-
                     },
                     stop: function(event,ui) {
+                        DraggedPiece = null;
+                        DragStartPos = null;
 
-                          DraggedPiece = null;
-                          DragStartPos = null;
-
-                          console.log("--- drag stop");
+                        console.log("--- drag stop");
                           //console.log("Pos: " + ui.helper.css("top"));
-
                         console.log(board);
 
-
-                          ui.helper.removeClass( "being-hovered" );
+                        ui.helper.removeClass( "being-hovered" );
                           // bringing it back here directly would make the click be called
-                          setTimeout( function() {
+                            setTimeout( function() {
                               //ui.helper.on("click", clickHandler);
                               ui.helper.attr("href", "javascript:void( 0 );").click(clickHandler);
                           }, 0 );
@@ -306,6 +298,7 @@ function AddonPuzzle_create() {
                         //console.log("dropping ", ui.helper.attr('position'), " on ", ui.draggable.attr('position'));
 
                         var DraggedOnPiece = $(this); //  ui.helper
+                        DraggedOnPiece.removeClass('hovered-over-by-other');
 
                         var DragEndPos = {
                             top: parseInt(DraggedOnPiece.css("top")),
@@ -338,18 +331,18 @@ function AddonPuzzle_create() {
                         DragStartPos = null;
 
                     },
-                    activate: function( event, ui ) {
+                    /*activate: function( event, ui ) {
                         $(this).addClass('activated');
                     },
                     deactivate: function( event, ui ) {
                         $(this).removeClass('activated');
-                    },
+                    },*/
                     over: function (event, ui) {
-
+                        $(this).addClass('hovered-over-by-other');
                     },
                     // Triggered when an accepted draggable is dragged out of the droppable
                     out: function (event, ui) {
-                        //$(this).removeClass('selected');
+                        $(this).removeClass('hovered-over-by-other');
                     }
                 });
 

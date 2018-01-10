@@ -36,30 +36,34 @@
 
 .selected {
     border-color: orange;
-    /*border-width: 2px;*/
     z-index: 3;
 }
 
-.activated {
+/*.activated {
     border-color: green;
-    /*border-width: 2px;*/
-}
+    border-width: 2px;
+}*/
 
 .hovered-over-another {
-    border-color: blue;
-    /*border-width: 2px;*/
-    z-index: 3;
+    /*border-color: blue;
+    border-width: 2px;
     opacity: 0.9;
+
+    z-index: 3;*/
 }
+
 .hovered-over-by-other {
-    border-color: red;
-    /*border-width: 2px;*/
+    /*border-color: red;
+    border-width: 2px;*/
+    opacity: 0.8;
     z-index: 3;
 }
 
 .being-hovered {
     /*border-color: red;
-    border-width: 2px;*/
-    z-index: 3;
+    border-width: 2px;
     opacity: 0.9;
+    */
+    z-index: 3;
+
 }
