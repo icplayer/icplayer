@@ -481,7 +481,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	public void setShowErrorsMode() {
 		workMode = false;
 		makeSortable(getElement(), jsObject, workMode);
-
+		
+		if(selectedWidget!=null){
+			selectedWidget.removeStyleName("ic_drag-source");
+			selectedWidget = null;
+		}
 		if (module.isActivity()) {
 			for (int i = 0; i < getWidgetCount(); i++) {
 
@@ -548,6 +552,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 
 	@Override
 	public void setCorrectAnswer() {
+		if(selectedWidget!=null){
+			selectedWidget.removeStyleName("ic_drag-source");
+			selectedWidget = null;
+		}
 		List<Integer> correctOrder = new ArrayList<Integer>();
 		for (int i=0; i<module.getItemCount(); i++) {
 			correctOrder.add(module.getItem(i).getIndex() - 1);
@@ -581,6 +589,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 		workMode = true;
 		makeSortable(getElement(), jsObject, workMode);
 
+		if(selectedWidget!=null){
+			selectedWidget.removeStyleName("ic_drag-source");
+			selectedWidget = null;
+		}
+		
 		randomizeViewItems();
 		for (int i = 0; i < getWidgetCount(); i++) {
 			Widget widget = getWidget(i);
