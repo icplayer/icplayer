@@ -187,7 +187,7 @@ public final class KeyboardNavigationController {
 		}
 		
 		if (this.modeOn) {
-			setClosestSelectableElementIndex();
+			this.actualSelectedModuleIndex = getFirstSelectableElementIndex();
 			this.setFocusOnInvisibleElement();
 			if (this.isInitiated) {
 				this.selectCurrentModule();
@@ -244,25 +244,13 @@ public final class KeyboardNavigationController {
 		return index;
 	}
 	
-	private void setClosestSelectableElementIndex(){
-		int index = this.actualSelectedModuleIndex-1;
-		boolean firstLoop = true;
-		do {
-			final int presentersSize = this.getPresenters().size();
-			index ++;
-			index = index % presentersSize;
-			if (index < 0) {
-				index = presentersSize - 1;
+	private int getFirstSelectableElementIndex(){
+		for(int i=0; i<this.getPresenters().size();i++){
+			if(this.getPresenters().get(i).presenter.isSelectable(this.isWCAGSupportOn && this.modeOn)){
+				return i;
 			}
-			if (index == this.actualSelectedModuleIndex) { 
-				if(firstLoop){
-					firstLoop=false;
-				} else{
-					break;
-				}
-			}
-		} while (!this.getPresenters().get(index).presenter.isSelectable(this.isWCAGSupportOn && this.modeOn));
-		this.actualSelectedModuleIndex = index;
+		}
+		return 0;
 	}
 
 	private void setIndexToNextModule() {
