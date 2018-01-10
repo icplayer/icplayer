@@ -158,7 +158,7 @@ private boolean resetChecks = false;
 				if(childNode.getNodeName().compareTo("lessonReset") == 0) {
 					Element childElement = (Element) childNode;
 					
-					title = XMLUtils.getAttributeAsString(childElement, "title");
+					title = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "title"));
 					resetMistakes = XMLUtils.getAttributeAsBoolean((Element)childElement, "resetMistakes", false);
 					resetChecks = XMLUtils.getAttributeAsBoolean((Element)childElement, "resetChecks", false);
 					
