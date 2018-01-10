@@ -53,7 +53,7 @@ function AddonDouble_State_Button_create(){
             event.stopPropagation();
         }
 
-        if (presenter.configuration.isErrorMode) {
+        if (presenter.configuration.isErrorMode && !presenter.configuration.enableCheckMode) {
             return;
         }
 
@@ -439,6 +439,7 @@ function AddonDouble_State_Button_create(){
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         var isSelected = ModelValidationUtils.validateBoolean(model.isSelected);
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
+        var enableCheckMode = ModelValidationUtils.validateBoolean(model["Do not block in check mode"]);
 
         return {
             addonID: model.ID,
@@ -461,7 +462,8 @@ function AddonDouble_State_Button_create(){
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
             isErrorMode: false,
-            isTabindexEnabled: isTabindexEnabled
+            isTabindexEnabled: isTabindexEnabled,
+            enableCheckMode: enableCheckMode
         };
     };
 
