@@ -204,7 +204,7 @@ function AddonPuzzle_create() {
                     revert: "invalid", // put it back when drag stops and it hasn't been dropped on droppable
                     revertDuration: 100,
                     zIndex: 100,
-                    delay: 70, // to give more time before drag starts, to prevent drags when clicking
+                    delay: 150, // to give more time before drag starts, to prevent drags when clicking
                     start: function(event,ui) {
                         // clear state if it was clicked before
                         clickNumber = 0;
@@ -218,13 +218,10 @@ function AddonPuzzle_create() {
                         DragStartPos = presenter.getPiecePositionData(DraggedPiece);
 
                         // remove class selected, so that when user clicks on piece, and then starts to drag, it won't
-                        if ( !DraggedPiece.hasClass( hoverClass ) ) {
-                            DraggedPiece.addClass( hoverClass );
-                        }
+                        DraggedPiece.addClass( hoverClass );
 
                       },
-                    drag: function(event,ui) {
-                    },
+
                     stop: function(event,ui) {
                         DraggedPiece = null;
                         DragStartPos = null;
@@ -261,7 +258,6 @@ function AddonPuzzle_create() {
                             left: ((puzzleOuterWidth * DragEndPos.col + leftOffset) + "px"),
                             top: ((puzzleOuterHeight * DragEndPos.row + topOffset) + "px")
                         }, 200);
-
 
                         var temp = board[DragStartPos.row][DragStartPos.col];
                         board[DragStartPos.row][DragStartPos.col] = DraggedOnPiece;
@@ -302,7 +298,7 @@ function AddonPuzzle_create() {
         Pos.row = Math.floor(((Pos.top - topOffset) / puzzleOuterHeight) + 0.5);
         Pos.col = Math.floor(((Pos.left - leftOffset) / puzzleOuterWidth) + 0.5);
         return Pos;
-    }
+    };
 
     /**
      * Fisher-Yates Shuffle algorithm: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
@@ -502,7 +498,7 @@ function AddonPuzzle_create() {
                 element.draggable( state );
             }
         }
-    }
+    };
 
     presenter.reset = function () {
         if (presenter.isShowAnswersActive) {
