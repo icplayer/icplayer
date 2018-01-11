@@ -20,6 +20,7 @@ function AddonPuzzle_create() {
     var DragStartPos;
     var DraggedPiece;
     var hoverClass = "being-hovered";
+    var hoveredOverByOtherClass = "hovered-over-by-other";
 
     var puzzleWidth = 0;
     var puzzleOuterWidth = 0;
@@ -143,14 +144,6 @@ function AddonPuzzle_create() {
         }
     }
 
-    // returns position in absolute coords
-    /*function getPieceCenter(Piece) {
-        return {
-            x: parseInt(Piece.css("left")) + puzzleOuterWidth/2,
-            y: parseInt(Piece.css("top")) + puzzleOuterHeight/2
-        };
-    }*/
-
     function InitPuzzle(width, height) {
         var outerDistances = getOuterDistances();
         var markDimensions = getMarkDimensions();
@@ -202,7 +195,6 @@ function AddonPuzzle_create() {
                 });
 
                 puzzle.attr("href", "javascript:void( 0 );").click(clickHandler);
-
                 puzzle.attr("position", row + "-" + col);
                 board[row][col] = puzzle;
                 Container.append(puzzle);
@@ -212,7 +204,6 @@ function AddonPuzzle_create() {
                     revert: "invalid", // put it back when drag stops and it hasn't been dropped on droppable
                     revertDuration: 100,
                     zIndex: 100,
-                    //containment: ".puzzle-container", // it breaks when dragging element a bit, then its position gets set to fractions
                     delay: 70, // to give more time before drag starts, to prevent drags when clicking
                     start: function(event,ui) {
                         // clear state if it was clicked before
@@ -226,9 +217,6 @@ function AddonPuzzle_create() {
                         DraggedPiece = ui.helper;
                         DragStartPos = presenter.getPiecePositionData(DraggedPiece);
 
-                        //console.log("--- drag start:  DragStartPos", DragStartPos);
-                        //console.log("Pos from: " + DraggedPiece.attr("position"));
-
                         // remove class selected, so that when user clicks on piece, and then starts to drag, it won't
                         if ( !DraggedPiece.hasClass( hoverClass ) ) {
                             DraggedPiece.addClass( hoverClass );
@@ -240,9 +228,6 @@ function AddonPuzzle_create() {
                     stop: function(event,ui) {
                         DraggedPiece = null;
                         DragStartPos = null;
-
-                        console.log("--- drag stop");
-                        console.log(board);
 
                         ui.helper.removeClass( hoverClass );
                           // bringing it back here directly would make the click be called
@@ -263,12 +248,9 @@ function AddonPuzzle_create() {
                             return;
 
                         var DraggedOnPiece = $(this);
-                        DraggedOnPiece.removeClass('hovered-over-by-other');
+                        DraggedOnPiece.removeClass(hoveredOverByOtherClass);
 
                         var DragEndPos = presenter.getPiecePositionData(DraggedOnPiece);
-
-                        //console.log("*** drop ", DragStartPos , " on ", DragEndPos);
-                        //console.log("Pos to: " + DraggedOnPiece.attr("position"));
 
                         board[DragEndPos.row][DragEndPos.col].animate({
                             left: ((puzzleOuterWidth * DragStartPos.col + leftOffset) + "px"),
@@ -292,11 +274,11 @@ function AddonPuzzle_create() {
 
                     },
                     over: function (event, ui) {
-                        $(this).addClass('hovered-over-by-other');
+                        $(this).addClass(hoveredOverByOtherClass);
                     },
                     // Triggered when an accepted draggable is dragged out of the droppable
                     out: function (event, ui) {
-                        $(this).removeClass('hovered-over-by-other');
+                        $(this).removeClass(hoveredOverByOtherClass);
                     }
                 });
 
@@ -512,7 +494,9 @@ function AddonPuzzle_create() {
     }
 
     presenter.setDraggableState = function(state) {
-         for (var row = 0; row < rows; row++) {
+        var rows = presenter.configuration.rows,
+            columns = presenter.configuration.columns;
+        for (var row = 0; row < rows; row++) {
             for (var column = 0; column < columns; column++) {
                 var element = board[row][column];
                 element.draggable( state );
@@ -732,7 +716,6 @@ function AddonPuzzle_create() {
         jImg.load(function () {
             InitPuzzle(width, height);
             presenter['imageLoadedDeferred'].resolve();
-            console.log(board);
         });
         if (!presenter.configuration.isVisibleByDefault) {
             presenter.hide();
