@@ -515,6 +515,21 @@ function AddonPuzzle_create() {
         }
     };
 
+    presenter.setMarkVisibility = function (isVisible) {
+        // it will be called by createPreview, in which case indexBoard won't be created
+        if (indexBoard.length === 0)
+            return;
+
+        var rows = presenter.configuration.rows,
+            columns = presenter.configuration.columns,
+            rowIndex, colIndex;
+
+        for (rowIndex = 0; rowIndex < rows; rowIndex++) {
+            for (colIndex = 0; colIndex < columns; colIndex++) {
+                indexBoard[rowIndex][colIndex].css("visibility", isVisible ? "visible" : "hidden");
+            }
+        }
+    }
 
     presenter.prepareBoardFromSavedState = function (savedBoard) {
         var rows = presenter.configuration.rows,
@@ -778,12 +793,14 @@ function AddonPuzzle_create() {
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
+        presenter.setMarkVisibility(true);
     };
 
     presenter.hide = function () {
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
+        presenter.setMarkVisibility(false);
     };
 
     presenter.isAllOK = function () {
