@@ -476,9 +476,6 @@ function AddonPuzzle_create() {
     }
 
     function setNormalMode() {
-
-        console.log("setNormalMode");
-
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
             rowIndex, colIndex;
@@ -663,14 +660,9 @@ function AddonPuzzle_create() {
     };
 
     presenter.setShowErrorsMode = function () {
-
-        console.log("setShowErrorsMode", presenter.configuration);
-
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-
-
 
         if (!presenter.configuration.isVisible) {
             return;
@@ -783,14 +775,12 @@ function AddonPuzzle_create() {
     };
 
     presenter.show = function () {
-        console.log("show", presenter.configuration);
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
     };
 
     presenter.hide = function () {
-        console.log("hide", presenter.configuration);
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
@@ -823,7 +813,6 @@ function AddonPuzzle_create() {
     };
 
     function showCorrect() {
-        console.log("showCorrect", presenter.configuration);
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns;
 
@@ -844,7 +833,6 @@ function AddonPuzzle_create() {
     }
 
     presenter.showAnswers = function () {
-        console.log("showAnswers", presenter.configuration);
         presenter.isShowAnswersActive = true;
         presenter.saveBoard();
         presenter.setWorkMode();
