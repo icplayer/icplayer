@@ -141,8 +141,8 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	public void setShowErrorsMode(boolean isActivity) {
 		if (isActivity) {
 			String text = getText().trim();
+			this.isWorkingMode = false;
 			if (text.length() > 0) {
-				this.isWorkingMode = false;
 				if (gapInfo.isCorrect(text)) {
 					addStyleDependentName("correct");
 					this.gapState = 1;
@@ -151,8 +151,8 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 					this.gapState = 2;
 				}
 			} else {
-				this.isWorkingMode = true;
 				addStyleDependentName("empty");
+				this.gapState = 3;
 			}
 		}
 

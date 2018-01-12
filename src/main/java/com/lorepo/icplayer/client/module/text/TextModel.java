@@ -12,6 +12,7 @@ import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticListProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
@@ -27,7 +28,7 @@ public class TextModel extends BasicModuleModel {
 	public List<InlineChoiceInfo> choiceInfos = new ArrayList<InlineChoiceInfo>();
 	public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
 
-	private String moduleText = "";
+	public String moduleText = "";
 	private boolean useDraggableGaps;
 	private boolean useMathGaps;
 	private boolean openLinksinNewTab = true;
@@ -107,6 +108,7 @@ public class TextModel extends BasicModuleModel {
 		NodeList nodes = node.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
 			Node childNode = nodes.item(i);
+
 			if (childNode instanceof Element && childNode.getNodeName().compareTo("text") == 0) {
 				Element textElement = (Element) childNode;
 				useDraggableGaps = XMLUtils.getAttributeAsBoolean(textElement, "draggable");
@@ -142,7 +144,7 @@ public class TextModel extends BasicModuleModel {
 		}
 	}
 
-	private void setText(String text) {
+	public void setText(String text) {
 		moduleText = text;
 		TextParser parser = new TextParser();
 		parser.setId(gapUniqueId);

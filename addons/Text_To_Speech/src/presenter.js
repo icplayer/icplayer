@@ -304,11 +304,20 @@ function AddonText_To_Speech_create() {
         presenter.setVisibility(presenter.configuration.isVisible);
     };
 
-    // TODO
+    presenter.cancelSpeechSynthesis = function(){
+        if (window.responsiveVoice) {
+            window.responsiveVoice.cancel();
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+    };
+
     presenter.destroy = function () {
         presenter.$view[0].removeEventListener('DOMNodeRemoved', presenter.destroy);
-
-        // window.speechSynthesis.cancel();
+        presenter.cancelSpeechSynthesis();
+        presenter.configuration = null;
+        presenter.$view = null;
     };
 
     return presenter;

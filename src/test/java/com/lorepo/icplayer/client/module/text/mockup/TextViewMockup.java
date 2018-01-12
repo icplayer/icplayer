@@ -178,4 +178,10 @@ public class TextViewMockup implements IDisplay {
 		
 	}
 
+	@Override
+	public void setValue(String text) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

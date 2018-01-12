@@ -125,11 +125,14 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			if (answerText.length() > 0) {
 				if (gapInfo.isCorrect(answerText)){
 					addStyleDependentName("correct");
+					this.gapState = 1;
 				} else {
 					addStyleDependentName("wrong");
+					this.gapState = 2;
 				}
 			} else {
 				addStyleDependentName("empty");
+				this.gapState = 3;
 			}
 		}
 		isWorkMode = false;
