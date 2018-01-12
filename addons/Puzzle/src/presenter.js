@@ -476,6 +476,9 @@ function AddonPuzzle_create() {
     }
 
     function setNormalMode() {
+
+        console.log("setNormalMode");
+
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
             rowIndex, colIndex;
@@ -660,8 +663,17 @@ function AddonPuzzle_create() {
     };
 
     presenter.setShowErrorsMode = function () {
+
+        console.log("setShowErrorsMode", presenter.configuration);
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
+        }
+
+        presenter.configuration.isErrorMode = true;
+
+        if (!presenter.configuration.isVisible) {
+            return;
         }
 
         var rows = presenter.configuration.rows,
@@ -682,7 +694,6 @@ function AddonPuzzle_create() {
         }
 
         presenter.setDraggableState("disable");
-        presenter.configuration.isErrorMode = true;
     };
 
     presenter.setPlayerController = function (controller) {
@@ -771,14 +782,22 @@ function AddonPuzzle_create() {
     };
 
     presenter.show = function () {
+        console.log("show", presenter.configuration);
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
+
+        if (presenter.configuration.isErrorMode)
+            presenter.setShowErrorsMode();
     };
 
     presenter.hide = function () {
+        console.log("hide", presenter.configuration);
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(false);
+        var temp = presenter.configuration.isErrorMode;
+        presenter.setWorkMode();
+        presenter.configuration.isErrorMode = temp;
         presenter.configuration.isVisible = false;
     };
 
@@ -809,6 +828,7 @@ function AddonPuzzle_create() {
     };
 
     function showCorrect() {
+        console.log("showCorrect", presenter.configuration);
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns;
 
@@ -829,6 +849,7 @@ function AddonPuzzle_create() {
     }
 
     presenter.showAnswers = function () {
+        console.log("showAnswers", presenter.configuration);
         presenter.isShowAnswersActive = true;
         presenter.saveBoard();
         presenter.setWorkMode();
