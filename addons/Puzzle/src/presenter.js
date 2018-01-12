@@ -670,7 +670,7 @@ function AddonPuzzle_create() {
             presenter.hideAnswers();
         }
 
-        presenter.configuration.isErrorMode = true;
+
 
         if (!presenter.configuration.isVisible) {
             return;
@@ -694,6 +694,7 @@ function AddonPuzzle_create() {
         }
 
         presenter.setDraggableState("disable");
+        presenter.configuration.isErrorMode = true;
     };
 
     presenter.setPlayerController = function (controller) {
@@ -786,18 +787,12 @@ function AddonPuzzle_create() {
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
-
-        if (presenter.configuration.isErrorMode)
-            presenter.setShowErrorsMode();
     };
 
     presenter.hide = function () {
         console.log("hide", presenter.configuration);
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(false);
-        var temp = presenter.configuration.isErrorMode;
-        presenter.setWorkMode();
-        presenter.configuration.isErrorMode = temp;
         presenter.configuration.isVisible = false;
     };
 
