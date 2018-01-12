@@ -40,6 +40,7 @@ function AddonPuzzle_create() {
 
     presenter.previousScore = 0;
     presenter.previousErrors = 0;
+    presenter.isPreview = false;
 
     function getElementDimensions(element) {
         element = $(element);
@@ -517,8 +518,9 @@ function AddonPuzzle_create() {
 
     presenter.setMarkVisibility = function (isVisible) {
         // it will be called by createPreview, in which case indexBoard won't be created
-        if (indexBoard.length === 0)
+        if (presenter.isPreview || indexBoard.length === 0) {
             return;
+        }
 
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
@@ -679,10 +681,6 @@ function AddonPuzzle_create() {
             presenter.hideAnswers();
         }
 
-        if (!presenter.configuration.isVisible) {
-            return;
-        }
-
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
             row, col;
@@ -723,6 +721,7 @@ function AddonPuzzle_create() {
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
         presenter.configuration = presenter.validateModel(model);
+        presenter.isPreview = false;
 
         jImg = Container.find("img:first");
         jImg.attr('src', model.Image);
@@ -730,6 +729,7 @@ function AddonPuzzle_create() {
         jImg.attr('width', width);
         jImg.load(function () {
             InitPuzzle(width, height);
+            presenter.setMarkVisibility(false);
             presenter['imageLoadedDeferred'].resolve();
         });
         if (!presenter.configuration.isVisibleByDefault) {
@@ -761,6 +761,7 @@ function AddonPuzzle_create() {
     };
 
     presenter.createPreview = function (view, model) {
+        presenter.isPreview = true;
         var element = view.getElementsByTagName('img')[0];
         element.setAttribute('src', model.Image);
 
