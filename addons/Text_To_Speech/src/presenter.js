@@ -192,21 +192,41 @@ function AddonText_To_Speech_create() {
         }
     }
 
+    presenter.intervalId = null;
+
     // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
     function speechSynthesisSpeak (texts) {
-        var textsObjects = filterTexts(texts, getSpeechSynthesisLanguage);
+        window.speechSynthesis.cancel();
 
-        for (var i=0; i<textsObjects.length; i++) {
-            var textObject = textsObjects[i];
-
-            var msg = new SpeechSynthesisUtterance(textObject.text);
-            msg.volume = parseFloat(1); // 0 - 1
-            msg.rate = parseFloat(1); // 0 - 10
-            msg.pitch = parseFloat(1); // 0 - 2
-            msg.voice = textObject.lang;
-
-            window.speechSynthesis.speak(msg);
+        if (presenter.intervalId!==null) {
+            clearInterval(presenter.intervalId);
+            presenter.intervalId = undefined;
         }
+
+        presenter.intervalId = setInterval(function() {
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+            }
+            var textsObjects = filterTexts(texts, getSpeechSynthesisLanguage);
+            if (textsObjects.length === 0) {
+                clearInterval(presenter.intervalId);
+                return;
+            }
+            for (var i=0; i<textsObjects.length; i++) {
+                var textObject = textsObjects[i];
+                var msg = new SpeechSynthesisUtterance(textObject.text);
+                msg.volume = parseFloat(1); // 0 - 1
+                msg.rate = parseFloat(1); // 0 - 10
+                msg.pitch = parseFloat(1); // 0 - 2
+                msg.voice = textObject.lang;
+                msg.onstart = function (event) {
+                    clearInterval(presenter.intervalId);
+                    presenter.intervalId = undefined;
+                };
+                window.speechSynthesis.speak(msg);
+            }
+        }, 200);
+
     }
 
     presenter.speak = function (texts) {
@@ -310,6 +330,10 @@ function AddonText_To_Speech_create() {
         }
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
+        }
+        if(presenter.speechSynthInterval!==null){
+            clearInterval(presenter.intervalId);
+            presenter.intervalId = undefined;
         }
     };
 
