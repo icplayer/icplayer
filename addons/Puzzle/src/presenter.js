@@ -217,11 +217,11 @@ function AddonPuzzle_create() {
 
     function AddDraggableDroppable(puzzle, board) {
         puzzle.draggable({
-            zIndex: 100,
             delay: 150, // to give more time before drag starts, to prevent drags when clicking
+            // don't use container or revert, as those options are bugged in subtle ways
             start: function(event,ui) {
                 // clear state if it was clicked before
-                presenter.clickNumber = 0;
+                clickNumber = 0;
                 PieceOld.removeClass('selected');
 
                 // this prevents clickHandler from being called, because jquery would call it in such situation:
@@ -242,18 +242,20 @@ function AddonPuzzle_create() {
                     DraggedPiece.animate({
                         left: (DragStartPos.left + "px"),
                         top: (DragStartPos.top + "px")
-                    }, 200);
+                    }, 200, function() {
+                        ui.helper.removeClass( hoverClass );
+                    });
                 }
 
                 DraggedPiece = null;
                 DragStartPos = null;
 
-                ui.helper.removeClass( hoverClass );
-                  // bringing it back here directly would make the click be called
-                    setTimeout( function() {
-                      ui.helper.attr("href", "javascript:void( 0 );").click(clickHandler);
-                  }, 0 );
-              }
+                // bringing it back here directly would make the click be called on puzzle (see comment in start), so we want
+                // to do it in next browser update cycle
+                setTimeout(
+                    function() { ui.helper.attr("href", "javascript:void( 0 );").click(clickHandler); }
+                    ,  0 );
+            }
         });
 
         puzzle.droppable({

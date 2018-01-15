@@ -46,4 +46,5 @@
 }
 
 .being-hovered {
+    z-index: 3;
 }
