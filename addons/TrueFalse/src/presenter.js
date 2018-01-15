@@ -723,11 +723,14 @@ function AddonTrueFalse_create() {
 
         function mark_current_element(new_position_index){
             if (presenter.keyboardNavigationCurrentElement) {
-                presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+                var div = presenter.keyboardNavigationCurrentElement.find('div');
+                div.removeClass('keyboard_navigation_active_element');
             }
             presenter.keyboardNavigationCurrentElementIndex = new_position_index;
             presenter.keyboardNavigationCurrentElement = presenter.keyboardNavigationElements[new_position_index];
-            presenter.keyboardNavigationCurrentElement.find('div').addClass('keyboard_navigation_active_element');
+            var div = presenter.keyboardNavigationCurrentElement.find('div');
+            div.addClass('keyboard_navigation_active_element');
+            div.focus();
         }
 
         var enter = function (){
@@ -773,7 +776,9 @@ function AddonTrueFalse_create() {
                 return;
             }
             presenter.keyboardNavigationActive = false;
-            presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+            var div = presenter.keyboardNavigationCurrentElement.find('div');
+            div.removeClass('keyboard_navigation_active_element');
+            div.blur();
             presenter.keyboardNavigationCurrentElement = null;
         };
 

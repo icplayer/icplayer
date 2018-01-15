@@ -645,7 +645,6 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	public void selectAsActive(String className) {
 		this.view.getElement().addClassName(className);
 		this.view.getElement().focus();
-
 	}
 
 

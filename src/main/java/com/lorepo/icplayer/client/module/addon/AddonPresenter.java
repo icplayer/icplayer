@@ -455,9 +455,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	public void selectAsActive(String className) {
 		this.view.getElement().addClassName(className);
 		
-		if ("ic_selected_module" == className) {
-			this.view.getElement().focus();
-			com.google.gwt.dom.client.Element child = this.view.getElement().getFirstChildElement();
+		this.view.getElement().focus();
+		com.google.gwt.dom.client.Element child = this.view.getElement().getFirstChildElement();
+		if (child != null) {
 			child.focus();
 		}
 	}
@@ -467,7 +467,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	public void deselectAsActive(String className) {
 		this.view.getElement().removeClassName(className);
 		com.google.gwt.dom.client.Element child = this.view.getElement().getFirstChildElement();
-		child.blur();
+		if (child != null) {
+			child.blur();
+		}
 	}
 
 

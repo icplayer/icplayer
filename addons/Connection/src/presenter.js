@@ -746,7 +746,7 @@ function AddonConnection_create() {
         innerWrapper.html(model[columnModel][i]['content']);
 
         if(presenter.isTabindexEnabled) {
-            presenter.addTabindexToElement(innerWrapper, 0);
+            presenter.addTabindexToElement(element, 0);
         }
 
         innerElement.append(innerWrapper);

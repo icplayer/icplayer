@@ -244,10 +244,12 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	@Override
 	public void removeBorder() {
 		removeStyleName("ic_option_border");
+		this.setFocus(false);
 	}
 
 	@Override
 	public void addBorder() {
 		addStyleName("ic_option_border");
+		this.setFocus(true);
 	}
 }

@@ -1685,7 +1685,7 @@ function AddonTable_create() {
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
-        return presenter.$view.find('td, .ic_gap, .ic_filled_gap');
+        return presenter.$view.find('.ic_gap, .ic_filled_gap');
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown) {

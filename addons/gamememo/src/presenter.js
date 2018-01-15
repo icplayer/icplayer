@@ -12,7 +12,23 @@ function Addongamememo_create(){
     MemoKeyboardController.prototype.constructor = MemoKeyboardController;
 
     MemoKeyboardController.prototype.getTarget = function (element) {
-        return element.find('.placeholder');
+        return $(element);
+    };
+
+    MemoKeyboardController.prototype.mark = function (element) {
+        var target = this.getTarget(element);
+        var placeholder = target.find('.placeholder');
+
+        placeholder.addClass('keyboard_navigation_active_element');
+        target.focus();
+    };
+
+    MemoKeyboardController.prototype.unmark = function (element) {
+        var target = this.getTarget(element);
+        var placeholder = target.find('.placeholder');
+
+        placeholder.removeClass('keyboard_navigation_active_element');
+        target.blur();
     };
 
     MemoKeyboardController.prototype.selectAction = function () {

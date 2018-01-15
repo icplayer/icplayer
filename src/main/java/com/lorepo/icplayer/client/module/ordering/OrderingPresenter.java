@@ -449,8 +449,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	@Override
 	public void deselectAsActive(String className) {
 		this.view.getElement().removeClassName(className);
-		this.view.getElement().focus();
-
+		this.view.getElement().blur();
 	}
 
 	@Override
