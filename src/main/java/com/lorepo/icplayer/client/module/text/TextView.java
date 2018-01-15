@@ -340,7 +340,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	}
 
 	@Override
-	public void tab() {
+	public void tab(KeyDownEvent event) {
 		int size = getTextElementsSize();
 
 		if (size == 0) return;
@@ -358,13 +358,13 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	}
 
 	@Override
-	public void escape() {
+	public void escape(KeyDownEvent event) {
 		this.removeAllSelections();
 		moduleHasFocus = false;
 	}
 
 	@Override
-	public void shiftTab() {
+	public void shiftTab(KeyDownEvent event) {
 		int size = getTextElementsSize();
 
 		if (size == 0) return;
@@ -382,23 +382,23 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	}
 	
 	@Override
-	public void left() {
+	public void left(KeyDownEvent event) {
 	}
 
 	@Override
-	public void right() {
+	public void right(KeyDownEvent event) {
 	}
 
 	@Override
-	public void down() {
+	public void down(KeyDownEvent event) {
 	}
 
 	@Override
-	public void up() {
+	public void up(KeyDownEvent event) {
 	}
 	
 	@Override
-	public void space() {
+	public void space(KeyDownEvent event) {
 		this.listener.onGapClicked(activeGap.getId());
 	}
 

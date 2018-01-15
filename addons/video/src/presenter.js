@@ -96,8 +96,22 @@ function Addonvideo_create() {
         return model;
     };
 
+    presenter.upgradeTimeLabels = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy
+
+        for (var i = 0; i < model.Files.length; i++) {
+            if (!upgradedModel.Files[i].time_labels) {
+                upgradedModel.Files[i].time_labels = "";
+            }
+        }
+
+        return upgradedModel;
+    };
+
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradePoster(model);
+        upgradedModel = presenter.upgradeTimeLabels(upgradedModel);
         return presenter.upgradeShowPlayButton(upgradedModel);
     };
 
@@ -129,7 +143,8 @@ function Addonvideo_create() {
         'MEDIA_ERR_ABORTED' : 1,
         'MEDIA_ERR_DECODE' : 2,
         'MEDIA_ERR_NETWORK' : 3,
-        'MEDIA_ERR_SRC_NOT_SUPPORTED' : [4, 'Ups ! Looks like your browser doesn\'t support this codecs. Go <a href="https://tools.google.com/dlpage/webmmf/" > -here- </a> to download WebM plugin']
+        'MEDIA_ERR_SRC_NOT_SUPPORTED' : [4, 'Ups ! Looks like your browser doesn\'t support this codecs. Go <a href="https://tools.google.com/dlpage/webmmf/" > -here- </a> to download WebM plugin'],
+        'NVT01': "Not valid data format in time labels property"
     };
 
     presenter.getVideoErrorMessage = function (errorCode) {
@@ -452,8 +467,7 @@ function Addonvideo_create() {
         presenter.calculatePosterSize(presenter.videoObject, presenter.configuration.addonSize);
     };
 
-    presenter.keyboardController = function(keycode) {
-
+    presenter.keyboardController = function(keycode, isShift, event) {
         $(document).on('keydown', function(e) {
             e.preventDefault();
             $(this).off('keydown');
@@ -487,6 +501,43 @@ function Addonvideo_create() {
             }
         }
 
+        function nextTimeLabel () {
+            var currentTime = presenter.videoObject.currentTime;
+            var currentElement = presenter.configuration.files[presenter.currentMovie],
+                /**
+                * @type {{title: String, time: Number}[]}
+                */
+                timeLabels = currentElement.timeLabels;
+
+
+            for (var i = 0; i < timeLabels.length; i++) {
+                var element = timeLabels[i];
+
+                if (element.time > currentTime) {
+                    presenter.seek(element.time);
+                    break;
+                }
+            }
+        }
+
+        function previousTimeLabel () {
+            var currentTime = presenter.videoObject.currentTime - 2;
+            var currentElement = presenter.configuration.files[presenter.currentMovie],
+                /**
+                * @type {{title: String, time: Number}[]}
+                */
+                timeLabels = currentElement.timeLabels;
+
+            for (var i = timeLabels.length - 1; i >= 0; i--) {
+                var element = timeLabels[i];
+
+                if (element.time < currentTime) {
+                    presenter.seek(element.time);
+                    break;
+                }
+            }
+        }
+
         switch(keycode) {
             case 32:
                 playPause();
@@ -498,10 +549,18 @@ function Addonvideo_create() {
                 presenter.videoObject.volume = decreasedVolume();
                 break;
             case 37:
-                backward();
+                if (!isShift) {
+                    backward();
+                } else {
+                    previousTimeLabel();
+                }
                 break;
             case 39:
-                forward();
+                if (!isShift) {
+                    forward();
+                } else {
+                    nextTimeLabel();
+                }
                 break;
             case 27:
                 presenter.pause();
@@ -512,7 +571,89 @@ function Addonvideo_create() {
         }
     };
 
+    /**
+     *
+     * @param {String} timeLabel
+     */
+    presenter.validateTimeLabel = function (timeLabel, index) {
+        var title = timeLabel.split(' ').slice(1).join(' '),
+            time = timeLabel.split(' ')[0],
+            //[Sec, Min, Hour]
+            timeMultiplication = [1, 60, 60 * 60],
+            timeElements = time.split(':'),
+            i;
+
+        if (timeElements.length === 0 || timeElements.length > 3) {
+            return {
+                isValid: false,
+                errorCode: "NVT01"
+            };
+        }
+
+        for (i = 0; i < timeElements.length; i++) {
+            if (!timeElements[i].match(/^[0-9]+$/g)) {
+                return {
+                    isValid: false,
+                    errorCode: "NVT01"
+                };
+            }
+        }
+
+        if (title.trim() === '') {
+            title = index + ". " + time;
+        }
+
+        var timeInSeconds = 0;
+
+        timeElements = timeElements.reverse();
+        for (i = timeElements.length - 1; i >= 0; i--) {
+            timeInSeconds += parseInt(timeElements[i], 10) * timeMultiplication[i];
+        }
+
+        if (isNaN(timeInSeconds)) {
+            return {
+                isValid: false,
+                errorCode: "NVT01"
+            };
+        }
+
+        return {
+            isValid: true,
+            title: title,
+            time: timeInSeconds
+        };
+    };
+
+    presenter.validateTimeLabels = function (file) {
+        var timeLabelsText = file['time_labels'],
+            timeLabels = timeLabelsText.match(/[^\r\n]+/g) || [],  //https://stackoverflow.com/questions/5034781/js-regex-to-split-by-line
+            validatedTimeLabels = [];
+
+        for (var i = 0; i < timeLabels.length; i++) {
+            var validatedTimeLabel = presenter.validateTimeLabel(timeLabels[i], i + 1);
+            if (!validatedTimeLabel.isValid) {
+                return validatedTimeLabel;
+            }
+
+            validatedTimeLabels.push(validatedTimeLabel);
+        }
+
+        validatedTimeLabels = validatedTimeLabels.sort(function (a, b) {
+            return a.time - b.time;
+        });
+
+        return {
+            isValid: true,
+            value: validatedTimeLabels
+        }
+    };
+
     presenter.validateFile = function (file) {
+        var validatedTimeLabels = presenter.validateTimeLabels(file);
+        if (!validatedTimeLabels.isValid) {
+            return validatedTimeLabels;
+        }
+
         var fileToReturn = {
             "Ogg video": file['Ogg video'],
             "MP4 video": file['MP4 video'],
@@ -521,7 +662,8 @@ function Addonvideo_create() {
             "Poster": file['Poster'],
             "ID": file['ID'],
             "AlternativeText": file['AlternativeText'],
-            "Loop video": ModelValidationUtils.validateBoolean(file['Loop video'])
+            "Loop video": ModelValidationUtils.validateBoolean(file['Loop video']),
+            timeLabels: validatedTimeLabels.value
         };
 
         return  {
@@ -536,7 +678,12 @@ function Addonvideo_create() {
         var files = [];
 
         for (var i = 0; i < modelFiles.length; i++) {
-            files.push(presenter.validateFile(modelFiles[i]).file);
+            var validatedFile = presenter.validateFile(modelFiles[i]);
+            if (!validatedFile.isValid) {
+                return validatedFile;
+            }
+
+            files.push(validatedFile.file);
         }
 
         return {
@@ -546,6 +693,11 @@ function Addonvideo_create() {
     };
 
     presenter.validateModel = function (model) {
+        var validatedFiles = presenter.validateFiles(model);
+        if (!validatedFiles.isValid) {
+            return validatedFiles;
+        }
+
         return {
             isValid: true,
             addonSize: {
@@ -556,7 +708,7 @@ function Addonvideo_create() {
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model["Is Visible"]),
             shouldHideSubtitles: ModelValidationUtils.validateBoolean(model["Hide subtitles"]),
             defaultControls: !ModelValidationUtils.validateBoolean(model['Hide default controls']),
-            files: presenter.validateFiles(model).files,
+            files: validatedFiles.files,
             height: parseInt(model.Height, 10),
             showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
@@ -583,9 +735,44 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.setBurgerMenu = function () {
+        var BURGER_MENU = "time_labels";
+        if (!presenter.configuration.defaultControls) {
+            return;
+        }
+
+        presenter.controlBar.removeBurgerMenu(BURGER_MENU);
+
+        var currentElement = presenter.configuration.files[presenter.currentMovie],
+            /**
+             * @type {{title: String, time: Number}[]}
+             */
+            labels = currentElement.timeLabels;
+
+        if (labels.length === 0) {
+            return;
+        }
+
+        var elementsForBurger = labels.map(function (value) {
+            return {
+                title: value.title,
+                callback: function () {
+                    presenter.seek(value.time);
+                }
+            };
+        });
+
+        presenter.controlBar.addBurgerMenu(BURGER_MENU, elementsForBurger);
+    };
+
     presenter.run = function(view, model) {
         var upgradedModel = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(upgradedModel);
+        if (!validatedModel.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
+            return;
+        }
+
         presenter.configuration = $.extend(presenter.configuration, validatedModel);
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
 
@@ -765,6 +952,11 @@ function Addonvideo_create() {
 
         var upgradedModel = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(upgradedModel);
+        if (!validatedModel.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
+            return;
+        }
+
         presenter.configuration = $.extend(presenter.configuration, validatedModel);
 
         presenter.$view = $(view);
@@ -799,6 +991,7 @@ function Addonvideo_create() {
         $(presenter.videoContainer).find('.captions').remove();
         presenter.setVideo();
         presenter.loadSubtitles();
+        presenter.setBurgerMenu();
         $(presenter.videoObject).unbind('timeupdate');
         $(presenter.videoObject).bind("timeupdate", function () {
             onTimeUpdate(this);
@@ -981,7 +1174,7 @@ function Addonvideo_create() {
 
             // "ended" event doesn't work on Safari
             $(presenter.videoObject).unbind('timeupdate');
-            $(presenter.videoObject).bind("timeupdate", function onTimeUpdate() {
+            $(presenter.videoObject).bind("timeupdate", function () {
                 onTimeUpdate(this);
             });
 
