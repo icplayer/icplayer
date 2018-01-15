@@ -217,8 +217,6 @@ function AddonPuzzle_create() {
 
     function AddDraggableDroppable(puzzle, board) {
         puzzle.draggable({
-            revert: "invalid", // put it back when drag stops and it hasn't been dropped on droppable
-            revertDuration: 100,
             zIndex: 100,
             delay: 150, // to give more time before drag starts, to prevent drags when clicking
             start: function(event,ui) {
@@ -238,6 +236,15 @@ function AddonPuzzle_create() {
               },
 
             stop: function(event,ui) {
+
+                if (DraggedPiece) {
+                    // revert position
+                    DraggedPiece.animate({
+                        left: (DragStartPos.left + "px"),
+                        top: (DragStartPos.top + "px")
+                    }, 200);
+                }
+
                 DraggedPiece = null;
                 DragStartPos = null;
 
@@ -432,7 +439,6 @@ function AddonPuzzle_create() {
             PieceOld = $(this);
             PieceOld.addClass('selected');
             PiecePos = presenter.getPiecePositionData(Piece);
-
         } else {
             swapPieces(Piece, event);
         }
