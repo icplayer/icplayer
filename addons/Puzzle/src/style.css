@@ -8,20 +8,19 @@
 
 .mark {
     position: absolute;
-    visibility: hidden;
-    z-index: 4;
+    z-index: 0;
     width: 35px;
     height: 34px;
 }
 
 .mark.wrong {
     background-image: url('resources/puzzle-mark-wrong.png');
-    visibility: visible;
+    z-index: 5;
 }
 
 .mark.correct {
     background-image: url('resources/puzzle-mark-correct.png');
-    visibility: visible;
+    z-index: 5;
 }
 
 .puzzle {
