@@ -644,13 +644,15 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	@Override
 	public void selectAsActive(String className) {
 		this.view.getElement().addClassName(className);
-		
+		this.view.getElement().focus();
+
 	}
 
 
 	@Override
 	public void deselectAsActive(String className) {
 		this.view.getElement().removeClassName(className);
+		this.view.getElement().blur();
 	}
 
 

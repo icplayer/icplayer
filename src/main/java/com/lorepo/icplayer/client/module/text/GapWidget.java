@@ -266,6 +266,7 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 	public void select() {
 		this.addStyleName("keyboard_navigation_active_element");
 		this.addStyleName("keyboard_navigation_active_element_text");
+		this.getElement().focus();
 		this.isSelected = true;
 		
 	}
@@ -274,6 +275,7 @@ public class GapWidget extends TextBox implements TextElementDisplay{
 	public void deselect() {
 		this.removeStyleName("keyboard_navigation_active_element");
 		this.removeStyleName("keyboard_navigation_active_element_text");
+		this.getElement().blur();
 		this.isSelected = false;
 	}
 	

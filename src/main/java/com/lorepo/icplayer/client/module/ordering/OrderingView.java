@@ -732,10 +732,12 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	
 	private void selectCurrentItem () {
 		this.getWidget(this.currentWCAGSelectedItemIndex).addStyleName(OrderingView.WCAG_SELECTED_CLASS_NAME);
+		this.getWidget(this.currentWCAGSelectedItemIndex).getElement().focus();
 	}
 	
 	private void deselectCurrentItem () {
 		this.getWidget(this.currentWCAGSelectedItemIndex).removeStyleName(OrderingView.WCAG_SELECTED_CLASS_NAME);
+		this.getWidget(this.currentWCAGSelectedItemIndex).getElement().blur();
 	}
 	
 	private void refreshSelection () {

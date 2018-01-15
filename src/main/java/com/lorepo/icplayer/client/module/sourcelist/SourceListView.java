@@ -309,12 +309,14 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 
 	private void unMarkCurrentItem(){
 		Label current = labels.get(labelsIds.get(currentLabel));
-		current.removeStyleName("keyboard_navigation_active_element");		
+		current.removeStyleName("keyboard_navigation_active_element");
+		current.getElement().blur();
 	}
 	
 	private void markCurrentItem(){
 		Label current = labels.get(labelsIds.get(currentLabel));
 		current.addStyleName("keyboard_navigation_active_element");
+		current.getElement().focus();
 	}
 
 	private void enter() {
