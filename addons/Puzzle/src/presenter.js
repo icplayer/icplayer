@@ -201,83 +201,7 @@ function AddonPuzzle_create() {
                 Container.append(puzzle);
 
                 // first add it to DOM, then apply draggable, so that it won't add position: relative to element
-                puzzle.draggable({
-                    revert: "invalid", // put it back when drag stops and it hasn't been dropped on droppable
-                    revertDuration: 100,
-                    zIndex: 100,
-                    delay: 150, // to give more time before drag starts, to prevent drags when clicking
-                    start: function(event,ui) {
-                        // clear state if it was clicked before
-                        clickNumber = 0;
-                        PieceOld.removeClass('selected');
-
-                        // this prevents clickHandler from being called, because jquery would call it in such situation:
-                        // user is dragging element, and lifts mouse button, and *pointer is still over element when drag stops*
-                        ui.helper.off("click");
-
-                        DraggedPiece = ui.helper;
-                        DragStartPos = presenter.getPiecePositionData(DraggedPiece);
-
-                        // remove class selected, so that when user clicks on piece, and then starts to drag, it won't
-                        DraggedPiece.addClass( hoverClass );
-
-                      },
-
-                    stop: function(event,ui) {
-                        DraggedPiece = null;
-                        DragStartPos = null;
-
-                        ui.helper.removeClass( hoverClass );
-                          // bringing it back here directly would make the click be called
-                            setTimeout( function() {
-                              ui.helper.attr("href", "javascript:void( 0 );").click(clickHandler);
-                          }, 0 );
-                      }
-                });
-
-                puzzle.droppable({
-                    tolerance: "intersect",
-                    classes: {
-                        "ui-droppable-active": "hovered-over-another", // When a draggable that can be dropped on this dropppable is activated,
-                    },
-
-                    drop: function (event, ui) {
-                        if (!DragStartPos)
-                            return;
-
-                        var DraggedOnPiece = $(this);
-                        DraggedOnPiece.removeClass(hoveredOverByOtherClass);
-
-                        var DragEndPos = presenter.getPiecePositionData(DraggedOnPiece);
-
-                        board[DragEndPos.row][DragEndPos.col].animate({
-                            left: ((puzzleOuterWidth * DragStartPos.col + leftOffset) + "px"),
-                            top: ((puzzleOuterHeight * DragStartPos.row + topOffset) + "px")
-                        }, 200);
-
-                        board[DragStartPos.row][DragStartPos.col].animate({
-                            left: ((puzzleOuterWidth * DragEndPos.col + leftOffset) + "px"),
-                            top: ((puzzleOuterHeight * DragEndPos.row + topOffset) + "px")
-                        }, 200);
-
-                        var temp = board[DragStartPos.row][DragStartPos.col];
-                        board[DragStartPos.row][DragStartPos.col] = DraggedOnPiece;
-                        board[DragEndPos.row][DragEndPos.col] = temp;
-
-                        replaceBorderClasses(board[DragStartPos.row][DragStartPos.col], board[DragEndPos.row][DragEndPos.col]);
-
-                        DraggedPiece = null;
-                        DragStartPos = null;
-
-                    },
-                    over: function (event, ui) {
-                        $(this).addClass(hoveredOverByOtherClass);
-                    },
-                    // Triggered when an accepted draggable is dragged out of the droppable
-                    out: function (event, ui) {
-                        $(this).removeClass(hoveredOverByOtherClass);
-                    }
-                });
+                AddDraggableDroppable(puzzle, board);
 
             }
         }
@@ -289,6 +213,85 @@ function AddonPuzzle_create() {
 
         addBorderClasses();
         Shuffle();
+    }
+
+    function AddDraggableDroppable(puzzle, board) {
+        puzzle.draggable({
+            revert: "invalid", // put it back when drag stops and it hasn't been dropped on droppable
+            revertDuration: 100,
+            zIndex: 100,
+            delay: 150, // to give more time before drag starts, to prevent drags when clicking
+            start: function(event,ui) {
+                // clear state if it was clicked before
+                presenter.clickNumber = 0;
+                PieceOld.removeClass('selected');
+
+                // this prevents clickHandler from being called, because jquery would call it in such situation:
+                // user is dragging element, and lifts mouse button, and *pointer is still over element when drag stops*
+                ui.helper.off("click");
+
+                DraggedPiece = ui.helper;
+                DragStartPos = presenter.getPiecePositionData(DraggedPiece);
+
+                // remove class selected, so that when user clicks on piece, and then starts to drag, it won't
+                DraggedPiece.addClass( hoverClass );
+              },
+
+            stop: function(event,ui) {
+                DraggedPiece = null;
+                DragStartPos = null;
+
+                ui.helper.removeClass( hoverClass );
+                  // bringing it back here directly would make the click be called
+                    setTimeout( function() {
+                      ui.helper.attr("href", "javascript:void( 0 );").click(clickHandler);
+                  }, 0 );
+              }
+        });
+
+        puzzle.droppable({
+            tolerance: "intersect",
+            classes: {
+                "ui-droppable-active": "hovered-over-another", // When a draggable that can be dropped on this dropppable is activated,
+            },
+
+            drop: function (event, ui) {
+                if (!DragStartPos)
+                    return;
+
+                var DraggedOnPiece = $(this);
+                DraggedOnPiece.removeClass(hoveredOverByOtherClass);
+
+                var DragEndPos = presenter.getPiecePositionData(DraggedOnPiece);
+
+                board[DragEndPos.row][DragEndPos.col].animate({
+                    left: ((puzzleOuterWidth * DragStartPos.col + leftOffset) + "px"),
+                    top: ((puzzleOuterHeight * DragStartPos.row + topOffset) + "px")
+                }, 200);
+
+                board[DragStartPos.row][DragStartPos.col].animate({
+                    left: ((puzzleOuterWidth * DragEndPos.col + leftOffset) + "px"),
+                    top: ((puzzleOuterHeight * DragEndPos.row + topOffset) + "px")
+                }, 200);
+
+                var temp = board[DragStartPos.row][DragStartPos.col];
+                board[DragStartPos.row][DragStartPos.col] = DraggedOnPiece;
+                board[DragEndPos.row][DragEndPos.col] = temp;
+
+                replaceBorderClasses(board[DragStartPos.row][DragStartPos.col], board[DragEndPos.row][DragEndPos.col]);
+
+                DraggedPiece = null;
+                DragStartPos = null;
+
+            },
+            over: function (event, ui) {
+                $(this).addClass(hoveredOverByOtherClass);
+            },
+            // Triggered when an accepted draggable is dragged out of the droppable
+            out: function (event, ui) {
+                $(this).removeClass(hoveredOverByOtherClass);
+            }
+        });
     }
 
     presenter.getPiecePositionData = function(piece) {
