@@ -102,10 +102,12 @@
 
     KeyboardController.prototype.mark = function (element) {
         this.getTarget(element, false).addClass('keyboard_navigation_active_element');
+        this.getTarget(element, false).focus();
     };
 
     KeyboardController.prototype.unmark = function (element) {
         this.getTarget(element, false).removeClass('keyboard_navigation_active_element');
+        this.getTarget(element, false).blur();
     };
 
     KeyboardController.prototype.markCurrentElement = function (new_position_index) {
