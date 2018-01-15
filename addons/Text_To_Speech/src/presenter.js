@@ -154,6 +154,14 @@ function AddonText_To_Speech_create() {
         }
 
         loadVoices();
+
+        var languages = {
+            'en': "en-GB",
+            'pl': 'pl-PL',
+            'de': 'de-DE'
+        };
+        langTag = languages[langTag] || langTag;
+
         for (var i=0; i<presenter.configuration.voices.length; i++) {
             if (presenter.configuration.voices[i].lang === langTag) {
                 return presenter.configuration.voices[i];
