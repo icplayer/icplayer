@@ -194,7 +194,6 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 
 	@Override
 	public void markGapAsWrong () {
-		JavaScriptUtils.log("markGapAsWrong");
 		this.gapState = 2;
 		this.isWorkingMode = false;
 		removeStyleDependentName("correct");

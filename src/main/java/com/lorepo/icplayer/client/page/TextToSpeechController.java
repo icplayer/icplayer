@@ -21,12 +21,6 @@ public class TextToSpeechController {
 		}
 	}
 	
-	public void playDescription (String id) {
-		if (this.isTextToSpeechModuleEnable()) {
-			this.textToSpeechModule.playDescription(id);
-		}
-	}
-	
 	public void speak (String text) {
 		if (this.isTextToSpeechModuleEnable()) {
 			this.textToSpeechModule.speak(text);
@@ -56,15 +50,6 @@ public class TextToSpeechController {
 			return JavaScriptUtils.convertJsArrayObjectsToJavaObjects(this.textToSpeechModule.getAddOnsOrder());
 		} else {
 			List<NavigationModuleIndentifier> result = new ArrayList<NavigationModuleIndentifier>();
-			return result;
-		}
-	}
-
-	public List<String> getMultiPartDescription (String id) {
-		if (this.isTextToSpeechModuleEnable()) {
-			return JavaScriptUtils.convertJsArrayToArrayList(this.textToSpeechModule.getMultiPartDescription(id));
-		} else {
-			List<String> result = new ArrayList<String>();
 			return result;
 		}
 	}

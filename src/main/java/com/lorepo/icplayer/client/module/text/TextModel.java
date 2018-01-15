@@ -134,7 +134,7 @@ public class TextModel extends BasicModuleModel {
 				this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(textElement, "dropdown"));
 				this.speechTextItems.get(3).setText(XMLUtils.getAttributeAsString(textElement, "correct"));
 				this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(textElement, "wrong"));
-				this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(textElement, "empty"));
+				this.speechTextItems.get(5).setText(XMLUtils.getAttributeAsString(textElement, "empty"));
 
 				if (rawText == null) {
 					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));

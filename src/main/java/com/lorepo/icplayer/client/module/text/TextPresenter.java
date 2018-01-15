@@ -260,10 +260,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void hideAnswers () {
-//		if (view.isWCAGon()) {
-//			return;
-//		}
-		
 		if (!module.isActivity()) {
 			for (int i = 0; i < view.getChildrenCount(); i++) {
 				TextElementDisplay child = view.getChild(i);

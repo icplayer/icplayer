@@ -51,11 +51,8 @@ public class SourceListModule extends BasicModuleModel {
 		return removable;
 	}
 	
-//	@Override
-//	public void load(Element rootElement, String baseUrl) {
-//		super.load(rootElement, baseUrl);
-//	}
-		
+
+	@Override
 	protected void parseModuleNode(Element rootElement) {
 		NodeList nodeList = rootElement.getElementsByTagName("items");
 		if (nodeList.getLength() > 0) {

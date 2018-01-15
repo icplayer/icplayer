@@ -137,7 +137,7 @@ public final class KeyboardNavigationController {
 	}
 	
 	private void setWCAGModulesStatus (boolean isOn) {
-		for (PresenterEntry p:  this.presenters) {
+		for (PresenterEntry p: this.presenters) {
 			p.presenter.getWCAGController();
 			
 			if (p.presenter.getWCAGController() instanceof IWCAGModuleView) {
@@ -167,7 +167,7 @@ public final class KeyboardNavigationController {
 		}
 		this.modeOn = !this.modeOn;
 		final boolean isWCAGExit = !this.modeOn && this.isWCAGSupportOn;
-		if(this.modeOn){
+		if (this.modeOn) {
 			this.isWCAGSupportOn = isWCAGSupportOn;
 		}
 		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);

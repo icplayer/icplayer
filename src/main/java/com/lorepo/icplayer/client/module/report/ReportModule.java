@@ -293,7 +293,7 @@ public class ReportModule extends BasicModuleModel {
 	
 	private void addPropertyTitleWidth() {
 		
-IProperty property = new IProperty() {
+        IProperty property = new IProperty() {
 			
 			@Override
 			public void setValue(String newValue) {

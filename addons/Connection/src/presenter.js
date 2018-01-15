@@ -54,7 +54,7 @@ function AddonConnection_create() {
     };
 
     presenter.getCurrentActivatedElement = function () {
-                return $('.keyboard_navigation_active_element'); // TODO improve
+        return $('.keyboard_navigation_active_element');
     };
 
     presenter.upgradeModel = function (model) {
@@ -298,7 +298,6 @@ function AddonConnection_create() {
         return value;
     }
 
-    // TODO
     function setSpeechTexts (speechTexts) {
         presenter.speechTexts = {
             connected:  'connected',

@@ -63,8 +63,7 @@ public class WCAGUtils {
 		
 		return TextToSpeechVoice.create();
 	}
-	
-	// TODO add speech texts
+
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<TextElementDisplay> textElements, String lang) {
 		final String originalText = model.getOriginalText();
 		final String noHTML = originalText.replaceAll("\\<.*?>", " ").replaceAll("&nbsp;", " ");

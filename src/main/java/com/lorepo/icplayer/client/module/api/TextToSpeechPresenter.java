@@ -17,12 +17,6 @@ public class TextToSpeechPresenter implements ITextToSpeechPresenter {
 	}
 	
 	@Override
-	public void playDescription (String id) {
-		ITextToSpeechPresenter activity = (ITextToSpeechPresenter) presenter;
-		activity.playDescription(id);
-	}
-	
-	@Override
 	public void speak (String text) {
 		ITextToSpeechPresenter activity = (ITextToSpeechPresenter) presenter;
 		activity.speak(text);
@@ -54,16 +48,6 @@ public class TextToSpeechPresenter implements ITextToSpeechPresenter {
 		
 		ITextToSpeechPresenter activity = (ITextToSpeechPresenter) presenter;
 		return activity.getAddOnsOrder();
-	}
-	
-	@Override
-	public JsArrayString getMultiPartDescription(String id) {
-		if (presenter == null) {
-			return (JsArrayString) JsArrayString.createArray();
-		}
-		
-		ITextToSpeechPresenter activity = (ITextToSpeechPresenter) presenter;
-		return activity.getMultiPartDescription(id);
 	}
 	
 	@Override

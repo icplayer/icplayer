@@ -131,7 +131,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 			if (gi.getPlaceHolder() == "") {
 				continue;
-					}
+			}
 			try {
 				FilledGapWidget gap = new FilledGapWidget(gi, listener);
 				if (gapWidth > 0) {

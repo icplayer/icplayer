@@ -392,16 +392,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  	}
 	}-*/;
 
-	private native JsArrayString getMultiPartDescription (JavaScriptObject obj, String id, String addonId) /*-{
-		try {
-			if (obj.getMultiPartDescription != undefined) {
-				return obj.getMultiPartDescription(id);
-			}
-		} catch(err) {
-	  		alert("[" + addonId + "] Exception in getMultiPartDescription(): \n" + err);
-	  	}
-	}-*/;
-
 	private native String executeCommand(JavaScriptObject obj, String name, List<String> params) /*-{
 	
 		if(obj.executeCommand != undefined){
