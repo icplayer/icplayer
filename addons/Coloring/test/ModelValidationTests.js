@@ -3,42 +3,74 @@ TestCase("[Coloring] Model validation", {
         this.presenter = AddonColoring_create();
         this.model = {
             'Areas' : '55; 150; 255 200 255 255',
+            'Width' : '500',
+            'Height' : '500',
             'Tolerance' : '50',
             'DefaultFillingColor' : ''
         };
+        this.isPreview = false;
     },
 
     'test validate areas wrong color format' : function() {
         this.model.Areas = '55; 150; 255 200 255';
-        var validated = this.presenter.validateModel(this.model);
+        var validated = this.presenter.validateModel(this.model, this.isPreview);
         assertEquals(true, validated.isError);
         assertEquals('E01', validated.errorCode);
     },
 
     'test validate areas proper color format' : function() {
-        var validated = this.presenter.validateModel(this.model);
+        var validated = this.presenter.validateModel(this.model, this.isPreview);
         assertEquals(false, validated.isError);
         assertEquals([255, 200, 255, 255], validated.areas[0].colorToFill);
     },
 
     'test validate areas too few arguments' : function() {
         this.model.Areas = '55; 150';
-        var validated = this.presenter.validateModel(this.model);
+        var validated = this.presenter.validateModel(this.model, this.isPreview);
         assertEquals(true, validated.isError);
         assertEquals('E03', validated.errorCode);
     },
 
     'test validate areas when last param (color to be filled) is blank will set it to default' : function() {
         this.model.Areas = '55; 150; 255 200 255 255';
-        var validated = this.presenter.validateModel(this.model);
+        var validated = this.presenter.validateModel(this.model, this.isPreview);
         assertEquals(false, validated.isError);
     },
 
     'test when DefaultFillingColor is empty, then its auto set to red' : function() {
         var expectedColor = [255, 100, 100, 255],
-            validated = this.presenter.validateModel(this.model);
+            validated = this.presenter.validateModel(this.model, this.isPreview);
 
         assertEquals(expectedColor, validated.defaultFillingColor);
+    },
+
+    'test validate areas when x is not smaller than Width' : function(){
+        this.model.Areas = '550; 50; 255 200 255 255';
+        this.model.Width = '500';
+        this.model.Height = '500';
+        this.isPreview = true;
+        var validated = this.presenter.validateModel(this.model, this.isPreview);
+        assertEquals(true, validated.isError);
+        assertEquals('E04',validated.errorCode);
+    },
+
+    'test validate areas when y is not smaller than Height': function(){
+        this.model.Areas = '50; 550; 255 200 255 255';
+        this.model.Width = '500';
+        this.model.Height = '500';
+        this.isPreview = true;
+        var validated = this.presenter.validateModel(this.model, this.isPreview);
+        assertEquals(true, validated.isError);
+        assertEquals('E04',validated.errorCode);
+    },
+
+    'test validate areas when x and y is too large and not in preview': function(){
+        this.model.Areas = '550; 550; 255 200 255 255';
+        this.model.Width = '500';
+        this.model.Height = '500';
+        this.isPreview = false;
+        var validated = this.presenter.validateModel(this.model, this.isPreview);
+        assertEquals(false, validated.isError);
     }
 
 });
@@ -54,9 +86,11 @@ TestCase("[Coloring] Transparent areas validation", {
             Areas: '55; 150; 255 200 255 255\n' +
             '200; 300; transparent\n' +
             '150; 300; transparent\n' +
-            '500; 50; 50 30 40 60'
+            '500; 50; 50 30 40 60',
+            Width: '600',
+            Height: '600'
         };
-
+        var isPreview = false;
         var expectedData = [
             {isError: false, x: 55, y: 150, colorToFill: [255, 200, 255, 255], type: this.presenter.AREA_TYPE.NORMAL},
             {isError: false, x: 200, y: 300, colorToFill: [-1, -1, -1, -1], type: this.presenter.AREA_TYPE.TRANSPARENT},
@@ -64,7 +98,7 @@ TestCase("[Coloring] Transparent areas validation", {
             {isError: false, x: 500, y: 50, colorToFill: [50, 30, 40, 60], type: this.presenter.AREA_TYPE.NORMAL}
         ];
 
-        var validatedAreas = this.presenter.validateAreas(model.Areas);
+        var validatedAreas = this.presenter.validateAreas(model.Areas, isPreview, model.Width, model.Height);
 
         assertFalse(validatedAreas.isError);
         assertTrue(validatedAreas.isValid);

@@ -57,17 +57,17 @@ public class ButtonModule extends BasicModuleModel {
 			if(childNode instanceof Element) {
 				if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element) {
 					Element childElement = (Element) childNode;
-					text = childElement.getAttribute("text");
+					text = StringUtils.unescapeXML(childElement.getAttribute("text"));
 					setType(childElement.getAttribute("type"));
-					onClick = childElement.getAttribute("onclick");
-					additionalClasses = childElement.getAttribute("additionalClasses");
-					pageIndex = childElement.getAttribute("pageIndex");
-					popupTopPosition = childElement.getAttribute("popupTopPosition");
-					popupLeftPosition = childElement.getAttribute("popupLeftPosition");
+					onClick = StringUtils.unescapeXML(childElement.getAttribute("onclick"));
+					additionalClasses = StringUtils.unescapeXML(childElement.getAttribute("additionalClasses"));
+					pageIndex = StringUtils.unescapeXML(childElement.getAttribute("pageIndex"));
+					popupTopPosition = StringUtils.unescapeXML(childElement.getAttribute("popupTopPosition"));
+					popupLeftPosition = StringUtils.unescapeXML(childElement.getAttribute("popupLeftPosition"));
 					confirmReset = XMLUtils.getAttributeAsBoolean(childElement, "confirmReset", false);
-					confirmInfo = childElement.getAttribute("confirmInfo");
-					confirmYesInfo = childElement.getAttribute("confirmYesInfo");
-					confirmNoInfo = childElement.getAttribute("confirmNoInfo");
+					confirmInfo = StringUtils.unescapeXML(childElement.getAttribute("confirmInfo"));
+					confirmYesInfo = StringUtils.unescapeXML(childElement.getAttribute("confirmYesInfo"));
+					confirmNoInfo = StringUtils.unescapeXML(childElement.getAttribute("confirmNoInfo"));
 					goToLastVisitedPage = XMLUtils.getAttributeAsBoolean(childElement, "goToLastVisitedPage", false);
 				}
 			}

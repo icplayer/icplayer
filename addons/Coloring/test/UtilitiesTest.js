@@ -31,3 +31,18 @@ TestCase("[Coloring] Transparent validation", {
         assertFalse(this.presenter.isTransparent(["55", "15", "p;41 ;gh 23 3rth9ifdgashi; "]));
     }
 });
+
+TestCase("[Coloring] getColorAtPoint validation", {
+    setUp: function () {
+        this.presenter = AddonColoring_create();
+
+        this.stubs = {getImageData: sinon.stub()};
+        this.presenter.ctx = {getImageData: this.stubs.getImageData};
+    },
+
+    'test getColorAtPoint sample color': function () {
+        this.stubs.getImageData.withArgs(0,0).returns({data: [255,0,0,255]});
+        assertEquals([255,0,0,255],this.presenter.getColorAtPoint(0,0));
+    }
+
+});

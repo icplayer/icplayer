@@ -1,3 +1,11 @@
+2018-01-15 Added time labels property for video addon.
+2018-01-10 Fixed problem with saving and restoring modules xml.
+2018-01-10 Fixed deselects the selected widget when showing errors, correct answer, or resetting
+2018-01-09 Fixed setting enable tabindex property
+2018-01-05 Added Do not block in check mode property to DoubleStateButton
+2018-01-04 Fixed issue with too large coordinates in Coloring
+2018-01-04 Fixed showing system keyboard for eKeyboard on mobiles.
+2018-01-03 Fixed inline-css error with not unescaping apostrophe
 2018-01-03 Fixed problem with opening popup.
 2018-01-03 Fixed problem with moving to next gap in eKeyboard module
 2017-12-28 Added possibility to define many layouts for lesson depending on device threshold

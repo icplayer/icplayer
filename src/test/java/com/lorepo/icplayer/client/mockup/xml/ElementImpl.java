@@ -8,6 +8,7 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NamedNodeMap;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.utils.StringUtils;
 
 public class ElementImpl implements Element{
 
@@ -135,7 +136,7 @@ public class ElementImpl implements Element{
 
 	@Override
 	public String getAttribute(String name) {
-		return elementImpl.getAttribute(name);
+		return StringUtils.escapeHTML(elementImpl.getAttribute(name));
 	}
 
 	@Override
