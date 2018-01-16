@@ -550,6 +550,12 @@ function Addontext_identification_create() {
             text = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
         }
 
+        speak(text);
+    };
+
+    presenter.readElement = function () {
+        var text = presenter.$view.find('.text-identification-content').text().trim();
+
         // correctness should be read only when check mode is active and addon is selected
         if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode &&  presenter.configuration.isSelected) {
             var isAnswerCorrect = presenter.configuration.isSelected === presenter.configuration.shouldBeSelected;
@@ -557,11 +563,7 @@ function Addontext_identification_create() {
             text += isAnswerCorrect ? presenter.correctSpeechText : presenter.incorrectSpeechText;
         }
 
-        speak(text);
-    };
-
-    presenter.readElement = function () {
-        speak(presenter.$view.find('.text-identification-content').text().trim(), presenter.langTag);
+        speak(text, presenter.langTag);
     };
 
     presenter.getTextToSpeechOrNull = function (playerController) {
