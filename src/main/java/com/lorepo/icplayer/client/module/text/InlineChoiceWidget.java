@@ -249,6 +249,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 		this.removeStyleName("keyboard_navigation_active_element");
 		this.removeStyleName("keyboard_navigation_active_element_text");
 		this.isSelected = false;
+		DOM.getElementById(this.getId()).blur();
 	}
 
     public boolean isSelected() {
