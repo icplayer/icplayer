@@ -10,7 +10,8 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         'CONNECTIONS_05': "Empty lines are not allowed!",
         'CONNECTIONS_06': "Repeated Audio addon ID!",
         'CONNECTIONS_07': "Repeated Double State Button addon ID!",
-        'CONNECTIONS_08': "Missing item ID!"
+        'CONNECTIONS_08': "Missing item number!",
+        'CONNECTIONS_09': "Item must be positive number!"
     };
 
     presenter.STATES = {
@@ -95,7 +96,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         if (ModelValidationUtils.isStringEmpty(connections)) return { isValid: false, errorCode: 'CONNECTIONS_01'};
 
         jQuery.each(connections.split('\n'), function (elementIndex, element) {
-            var indexOfSeparator, modules, audioID, doubleStateButtonID, itemID;
+            var indexOfSeparator, modules, audioID, doubleStateButtonID, itemNumber;
 
             if (ModelValidationUtils.isStringEmpty(element)) {
                 isValid = false;
@@ -113,7 +114,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
             modules = element.split('|');
             audioID = modules[0];
             doubleStateButtonID = modules[1];
-            itemID = modules[2];
+            itemNumber = modules[2];
 
             if (ModelValidationUtils.isStringEmpty(audioID)) {
                 isValid = false;
@@ -127,7 +128,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
                 return false;
             }
 
-            if (itemID === undefined && presenter.isAudioIDPresent(parsedConnections, audioID)) {
+            if (itemNumber === undefined && presenter.isAudioIDPresent(parsedConnections, audioID)) {
                 isValid = false;
                 errorCode = 'CONNECTIONS_06';
                 return false;
@@ -139,13 +140,19 @@ function AddonMultiple_Audio_Controls_Binder_create() {
                 return false;
             }
 
-            if (itemID !== undefined && ModelValidationUtils.isStringEmpty(itemID)){
+            if (itemNumber !== undefined && ModelValidationUtils.isStringEmpty(itemNumber)) {
                 isValid = false;
                 errorCode = 'CONNECTIONS_08';
                 return false;
             }
 
-            parsedConnections.push({ Audio: audioID, DoubleStateButton: doubleStateButtonID, Item: itemID });
+            if (itemNumber !== undefined && !ModelValidationUtils.validatePositiveInteger(itemNumber).isValid) {
+                isValid = false;
+                errorCode = 'CONNECTIONS_09';
+                return false;
+            }
+
+            parsedConnections.push({ Audio: audioID, DoubleStateButton: doubleStateButtonID, Item: itemNumber });
         });
 
         return {
@@ -375,11 +382,11 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         this.audioPresenter = audioPresenter;
     };
 
-    presenter.AudioAdapter.prototype.play = function (itemId) {
+    presenter.AudioAdapter.prototype.play = function (item) {
         if (this.audioPresenter === undefined || this.audioPresenter === null) return;
 
         if (this.audioPresenter.type === 'multiaudio') {
-            this.audioPresenter.jumpToID(itemId);
+            this.audioPresenter.jumpTo(item);
         }
         this.audioPresenter.play();
     };
