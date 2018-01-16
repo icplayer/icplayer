@@ -38,9 +38,6 @@
     z-index: 3;
 }
 
-.hovered-over-another {
-}
-
 .hovered-over-by-other {
     opacity: 0.8;
 }

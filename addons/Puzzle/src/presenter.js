@@ -264,9 +264,6 @@ function AddonPuzzle_create() {
 
         puzzle.droppable({
             tolerance: "intersect",
-            classes: {
-                "ui-droppable-active": "hovered-over-another", // When a draggable that can be dropped on this dropppable is activated,
-            },
 
             drop: function (event, ui) {
                 if (!DragStartPos)
@@ -761,12 +758,12 @@ function AddonPuzzle_create() {
         jImg.attr('width', width);
         jImg.load(function () {
             InitPuzzle(width, height);
-            presenter.setMarkVisibility(false);
+            if (!presenter.configuration.isVisibleByDefault) {
+                presenter.hide();
+            }
             presenter['imageLoadedDeferred'].resolve();
         });
-        if (!presenter.configuration.isVisibleByDefault) {
-            presenter.hide();
-        }
+
     };
 
     presenter.validateModel = function (model) {
