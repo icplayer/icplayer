@@ -78,52 +78,51 @@ public class TextParser {
 		return parse(srcText);
 	}
 	
-//	private List<String> calculateGapsOrder (String text) {
-//		String rawText = getRawTextSource(text);
-//		ArrayList<String> result = new ArrayList<String>();
-//		
-//		for (int i=0; i<rawText.length(); i++) {
-//			String currentChar = Character.toString((char) rawText.charAt(i));
-//			String nextChar = i+1 < rawText.length() ? Character.toString((char) rawText.charAt(i+1)) : "_";
-//			String lastChar = i+2 < rawText.length() ? Character.toString((char) rawText.charAt(i+2)) : "_";
-//			
-//			if (currentChar == "#" && lastChar == "#") {
-//				if (nextChar == "1") {
-//					result.add("gap");
-//				}
-//				
-//				if (nextChar == "2") {
-//					result.add("dropdown");
-//				}
-//				
-//				if (nextChar == "3") {
-//					result.add("math");
-//				}
-//				
-//				if (nextChar == "4") {
-//					result.add("gap");
-//				}
-//			}
-//		}
-//		
-//		return result;
-//	}
+	private List<String> calculateGapsOrder (String text) {
+		String rawText = getRawTextSource(text);
+		ArrayList<String> result = new ArrayList<String>();
+		
+		for (int i=0; i<rawText.length(); i++) {
+			String currentChar = Character.toString((char) rawText.charAt(i));
+			String nextChar = i+1 < rawText.length() ? Character.toString((char) rawText.charAt(i+1)) : "_";
+			String lastChar = i+2 < rawText.length() ? Character.toString((char) rawText.charAt(i+2)) : "_";
+			
+			if (currentChar == "#" && lastChar == "#") {
+				if (nextChar == "1") {
+					result.add("gap");
+				}
+				
+				if (nextChar == "2") {
+					result.add("dropdown");
+				}
+				
+				if (nextChar == "3") {
+					result.add("math");
+				}
+				
+				if (nextChar == "4") {
+					result.add("gap");
+				}
+			}
+		}
+		
+		return result;
+	}
 	
-//	public String getRawTextSource (String text) {
-//		final String availableCharsInGapContent = "[a-zA-Z0-9_ |:]+";
-//		final String availableCharsInGapContent = "[^\\}]+";
-//		
-//		return text
-//			.replaceAll("\\<.*?>", "").replaceAll("&nbsp;", "")
-//			.replaceAll("\\\\gap\\{" + availableCharsInGapContent + "\\}", "#1#")
-//			.replaceAll("\\{\\{" + availableCharsInGapContent + "\\}\\}", "#2#")
-//			.replaceAll("\\\\(" + availableCharsInGapContent + "\\\\)", "#3#")
-//			.replaceAll("\\\\filledGap\\{" + availableCharsInGapContent + "\\}", "#4#");
-//	}
+	public String getRawTextSource (String text) {
+		final String availableCharsInGapContent = "[^\\}]+";
+		
+		return text
+			.replaceAll("\\<.*?>", "").replaceAll("&nbsp;", "")
+			.replaceAll("\\\\gap\\{" + availableCharsInGapContent + "\\}", "#1#")
+			.replaceAll("\\{\\{" + availableCharsInGapContent + "\\}\\}", "#2#")
+			.replaceAll("\\\\(" + availableCharsInGapContent + "\\\\)", "#3#")
+			.replaceAll("\\\\filledGap\\{" + availableCharsInGapContent + "\\}", "#4#");
+	}
 	
 	public ParserResult parse (String srcText) {
-//		this.gapsOrder = calculateGapsOrder(srcText);
-//		this.rawText = getRawTextSource(srcText);
+		this.gapsOrder = calculateGapsOrder(srcText);
+		this.rawText = getRawTextSource(srcText);
 
 		parserResult = new ParserResult();
 		parserResult.originalText = srcText;
@@ -908,6 +907,7 @@ public class TextParser {
 	public void setGapWidth(int gapWidth) {
 		this.gapWidth = gapWidth;
 	}
+	
 	
 	public void setGapMaxLength(int gapMaxLength) {
 		this.gapMaxLength = gapMaxLength;

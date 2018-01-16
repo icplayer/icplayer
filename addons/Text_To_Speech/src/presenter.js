@@ -210,7 +210,7 @@ function AddonText_To_Speech_create() {
             clearInterval(presenter.intervalId);
             presenter.intervalId = undefined;
         }
-
+        // Fix for running speak method after cancelling SpeechSynthesis queue
         presenter.intervalId = setInterval(function() {
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();

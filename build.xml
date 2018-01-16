@@ -11,8 +11,8 @@
     <property name="jsoup-lib" location="libs/jsoup-1.10.3.jar"/>
 
     <!-- Arguments to gwtc and devmode targets -->
-    <property name="gwt.args" value="" />
-    <!-- <property name="gwt.args" value="-style PRETTY" /> -->
+    <!--<property name="gwt.args" value="" />-->
+    <property name="gwt.args" value="-style PRETTY" />
     <import file="build-js-addons-compress.xml"/>
 
     <property name="libs.junit" location="libs/junit-4.9.jar"/>
@@ -182,7 +182,7 @@
         <antcall target="test.addons"/>
     </target>
 
-    <target name="build" depends="clean, test, gwtc" description="Build this project"/>
+    <target name="build" depends="clean, gwtc" description="Build this project"/>
 
     <target name="build.full" depends="clean, test.full, gwtc" description="Build this project with addon tests"/>
 
