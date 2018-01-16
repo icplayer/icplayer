@@ -71,7 +71,7 @@ public class WCAGUtils {
 		int gapNumber = 1;
 		final List<TextToSpeechVoice> result = new ArrayList<TextToSpeechVoice>();
 		
-		while (text.indexOf(GAP_START) > 0 || text.indexOf(FILLED_GAP_START) > 0 || text.indexOf(DROP_DOWN_GAP_START) > 0) {
+		while (text.indexOf(GAP_START) >= 0 || text.indexOf(FILLED_GAP_START) >= 0 || text.indexOf(DROP_DOWN_GAP_START) >= 0) {
 			final int gapIndex = text.indexOf(GAP_START);
 			final int filledGapIndex = text.indexOf(FILLED_GAP_START);
 			final int dropdownIndex = text.indexOf(DROP_DOWN_GAP_START);
@@ -93,7 +93,7 @@ public class WCAGUtils {
 				final int endGapIndex = text.indexOf(GAP_END, gapIndex) + GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
-			
+
 			if (isClosestFilledGap) {
 				result.add(TextToSpeechVoice.create(text.substring(0, filledGapIndex), lang));
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(1) + " " + gapNumber++));
@@ -103,7 +103,7 @@ public class WCAGUtils {
 				final int endGapIndex = text.indexOf(FILLED_GAP_END, filledGapIndex) + FILLED_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
-			
+
 			if (isClosestDropdown) {
 				result.add(TextToSpeechVoice.create(text.substring(0, dropdownIndex), lang));
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(2) + " " + gapNumber++));
@@ -114,9 +114,8 @@ public class WCAGUtils {
 				text = text.substring(endGapIndex);
 			}
 		}
-		
+
 		result.add(TextToSpeechVoice.create(text, lang)); // remaining text
-		
 		return result;
 	}
 	
