@@ -405,6 +405,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	public void enter (boolean isExiting) {
 		if (isExiting) {
 			this.removeAllSelections();
+			clicks = -1;
+			activeGap = null;
 		} else {
 			if (activeGap == null) {
 				if (textElements.size() > 0) {
@@ -455,6 +457,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	public void escape() {
 		this.removeAllSelections();
 		moduleHasFocus = false;
+		clicks = -1;
+		activeGap = null;
 	}
 
 	@Override
