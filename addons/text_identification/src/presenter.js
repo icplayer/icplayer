@@ -527,7 +527,9 @@ function Addontext_identification_create() {
     TextIdentificationKeyboardController.prototype.select = function (event) {
         presenter.clickHandler(event);
 
-        presenter.readSelected();
+        if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode()) {
+            presenter.readSelected();
+        }
     };
 
 
