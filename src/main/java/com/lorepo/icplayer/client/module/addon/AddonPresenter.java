@@ -25,6 +25,7 @@ import com.lorepo.icf.properties.IStaticRowProperty;
 import com.lorepo.icf.properties.IVideoProperty;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -445,6 +446,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	@Override
 	public void deselectAsActive(String className) {
 		this.view.getElement().removeClassName(className);
+		if ("ic_selected_module" == className) {
+			this.view.getElement().blur();
+		}
 	}
 
 	@Override
