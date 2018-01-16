@@ -11,6 +11,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
 
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.user.client.ui.CellPanel;
@@ -93,7 +94,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Test
 	public void escapeWillDeselectCurrentElement () throws Exception {
 		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);		
-		Whitebox.invokeMethod(this.orderingViewPMMock, "escape");
+		Whitebox.invokeMethod(this.orderingViewPMMock, "escape", Mockito.mock(KeyDownEvent.class));
 		
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
 	}
@@ -116,7 +117,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Test
 	public void spaceWillCallClickEventAndSelectNewItem() throws Exception {
 		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);	
-		Whitebox.invokeMethod(this.orderingViewPMMock, "right");
+		Whitebox.invokeMethod(this.orderingViewPMMock, "right", Mockito.mock(KeyDownEvent.class));
 		
 		assertTrue(this.itemWidget2.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
 		class Clicked {
@@ -150,7 +151,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 			
 		});
 		
-		Whitebox.invokeMethod(this.orderingViewPMMock, "space");
+		Whitebox.invokeMethod(this.orderingViewPMMock, "space", Mockito.mock(KeyDownEvent.class));
 		
 		assertTrue(clicked.isClicked());
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);

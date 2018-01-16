@@ -33,6 +33,21 @@ UpgradeModelTests.prototype.testUpgradePoster = function() {
 };
 
 
+UpgradeModelTests.prototype.testUpgradeTimeLabels = function () {
+    var expectedFilesAfterUpgradePoster = [{
+        "Ogg video": "",
+        "MP4 video": "",
+        "WebM video": "",
+        "Subtitles": "",
+        ID : "",
+        "time_labels": ""
+    }];
+
+    var upgradedModel = this.presenter.upgradeTimeLabels(this.model);
+    assertEquals(expectedFilesAfterUpgradePoster, upgradedModel["Files"]);
+    assertTrue(this.model != upgradedModel);  //Different object, this is copy
+};
+
 UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
     var expectedModel = {
         "Files": [{
@@ -41,7 +56,8 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
             "WebM video": "",
             "Subtitles": "",
             "Poster": "",
-            ID : ""
+            ID : "",
+            "time_labels": ""
         }],
         "Show video": "",
         'Show play button': 'False'

@@ -181,3 +181,35 @@
     float: right;
 
 }
+
+.CustomControlsBar-wrapper-controls-burgersContainer-time_labels {
+    height: 100%;
+    width: 40px;
+    background: url("resources/video-drop-down.png") no-repeat center;
+    cursor: pointer;
+    float: left;
+}
+
+.CustomControlsBar-wrapper-controls-burgersContainer {
+    float: right;
+    height: 100%;
+}
+
+.CustomControlsBar-wrapper-controls-burgersContainer-container-time_labels {
+    background-color: #f9f9f9;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    position: absolute;
+    display: none;
+    z-index: 1;
+    white-space: nowrap;
+    word-break: keep-all;
+}
+
+.CustomControlsBar-wrapper-controls-burgersContainer-time_labels-element {
+    padding: 5px;
+}
+
+.CustomControlsBar-wrapper-controls-burgersContainer-time_labels-element:hover {
+    background-color: #f1f1f1;
+}
