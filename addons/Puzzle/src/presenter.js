@@ -242,13 +242,17 @@ function AddonPuzzle_create() {
                     DraggedPiece.animate({
                         left: (DragStartPos.left + "px"),
                         top: (DragStartPos.top + "px")
-                    }, 200, function() {
-                        ui.helper.removeClass( hoverClass );
-                    });
+                        }, 200,
+                        function() { ui.helper.removeClass( hoverClass ); }
+                    );
+                    DraggedPiece = null;
+                    DragStartPos = null;
+                } else {
+                    // it was dropped on other puzzle before, but we still need to clear hover
+                    ui.helper.removeClass( hoverClass );
                 }
 
-                DraggedPiece = null;
-                DragStartPos = null;
+                sendEvents(puzzle);
 
                 // bringing it back here directly would make the click be called on puzzle (see comment in start), so we want
                 // to do it in next browser update cycle
@@ -482,9 +486,26 @@ function AddonPuzzle_create() {
 
         replaceBorderClasses(board[PiecePos.row][PiecePos.col], board[PiecePos2.row][PiecePos2.col]);
 
-        if (!event.triggered && presenter.isAllOK()) {
+        if (!event.triggered) {
+            sendEvents(Piece);
+        }
+    }
+
+    function sendEvents(puzzle) {
+        sendValueChangedEvent(puzzle);
+        if (presenter.isAllOK()) {
             sendAllOKEvent();
         }
+    }
+
+    function sendValueChangedEvent(puzzle) {
+        var data = {
+            'source': presenter.configuration.addonID,
+            'item': puzzle.attr("position"),
+            'value': '',
+            'score': ''
+        };
+        eventBus.sendEvent('ValueChanged', data);
     }
 
     function setNormalMode() {
@@ -866,12 +887,14 @@ function AddonPuzzle_create() {
         presenter.saveBoard();
         presenter.setWorkMode();
         showCorrect();
+        presenter.setDraggableState("disable");
     };
 
     presenter.hideAnswers = function () {
         Container.find(".show-answers").removeClass("show-answers");
         $.when(presenter['imageLoaded']).then(function () {
             presenter.prepareBoardFromSavedState(savedBoard);
+            presenter.setDraggableState("enable");
         });
 
         presenter.isShowAnswersActive = false;
