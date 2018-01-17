@@ -1339,7 +1339,7 @@ function AddonPseudo_Console_create() {
             "function": "function",
             "return": "return",
             "array_block": "array"
-        }
+        },
         isValid: false,
         addonID: null,
         isActivity: false,
@@ -1358,14 +1358,6 @@ function AddonPseudo_Console_create() {
         "JS01": "Java Script code in mdefined ethod is not valid.",
         "JS02": "Java Script code in defined function is not valid"
     };
-
-    //https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-    function uuidv4() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    }
 
     presenter.setPlayerController = function presenter_setPlayerController (controller) {
         presenter.state.playerController = controller;
@@ -1837,7 +1829,7 @@ function AddonPseudo_Console_create() {
             retVal = {value: 0},      // value returned by function,
             eax = {value: 0},         // Helper register used in generated code (used for saving temporary data while executing code)
             ebx = {value: 0},         // Helper register used in generated code (used for saving temporary data while executing code)
-            id = uuidv4();            // Each machine contains own unique id which will be saved in presenter
+            id = window.Helpers.uuidv4();            // Each machine contains own unique id which will be saved in presenter
 
         function getIndexByLabel(label) {
             var i;
