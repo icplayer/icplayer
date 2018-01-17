@@ -63,11 +63,14 @@ public class WCAGUtils {
 		
 		return TextToSpeechVoice.create();
 	}
+	
+	private static String getCleanText (String text) {
+		final String noHTML = text.replaceAll("\\<.*?>", " ").replaceAll("&nbsp;", " ");
+		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if mare than 1
+	}
 
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<TextElementDisplay> textElements, String lang) {
-		final String originalText = model.getOriginalText();
-		final String noHTML = originalText.replaceAll("\\<.*?>", " ").replaceAll("&nbsp;", " ");
-		String text = noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if mare than 1
+		String text = getCleanText(model.getOriginalText());
 		int gapNumber = 1;
 		final List<TextToSpeechVoice> result = new ArrayList<TextToSpeechVoice>();
 		
@@ -116,6 +119,45 @@ public class WCAGUtils {
 		}
 
 		result.add(TextToSpeechVoice.create(text, lang)); // remaining text
+		return result;
+	}
+	
+	public static List<String> getGapsOrder (TextModel model) {
+		String text = getCleanText(model.getOriginalText());
+		ArrayList<String> result = new ArrayList<String>();
+		
+		while (text.indexOf(GAP_START) >= 0 || text.indexOf(FILLED_GAP_START) >= 0 || text.indexOf(DROP_DOWN_GAP_START) >= 0) {
+			final int gapIndex = text.indexOf(GAP_START);
+			final int filledGapIndex = text.indexOf(FILLED_GAP_START);
+			final int dropdownIndex = text.indexOf(DROP_DOWN_GAP_START);
+			final int lowestIndex = getMinPositiveNumber(gapIndex, filledGapIndex, dropdownIndex);
+			
+			final boolean isClosestGap = lowestIndex == gapIndex;
+			final boolean isClosestFilledGap = lowestIndex == filledGapIndex;
+			final boolean isClosestDropdown = lowestIndex == dropdownIndex;
+			
+			if (isClosestGap) {
+				result.add("gap");
+				
+				final int endGapIndex = text.indexOf(GAP_END, gapIndex) + GAP_END.length();
+				text = text.substring(endGapIndex);
+			}
+
+			if (isClosestFilledGap) {
+				result.add("gap");
+				
+				final int endGapIndex = text.indexOf(FILLED_GAP_END, filledGapIndex) + FILLED_GAP_END.length();
+				text = text.substring(endGapIndex);
+			}
+
+			if (isClosestDropdown) {
+				result.add("dropdown");
+				
+				final int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, dropdownIndex) + DROP_DOWN_GAP_END.length();
+				text = text.substring(endGapIndex);
+			}
+		}
+		
 		return result;
 	}
 	

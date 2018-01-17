@@ -212,7 +212,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 	
 	public void sortGapsOrder () {
-		final List<String> gapsOrder = module.getGapsOrder();
+//		final List<String> gapsOrder = module.getGapsOrder();
+		final List<String> gapsOrder = WCAGUtils.getGapsOrder(module);
 		final int gapsOrderSize = gapsOrder.size();
 		final int textElementsSize = textElements.size();
 		
@@ -220,7 +221,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			return;
 		}
 		
-		for (int i=0; i<textElementsSize; i++) {
+		for (int i=0; i<textElementsSize && i<gapsOrderSize; i++) {
 			final String gapType = gapsOrder.get(i);
 			final String currentGapType = textElements.get(i).getGapType();
 			
