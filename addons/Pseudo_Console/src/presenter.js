@@ -1340,6 +1340,13 @@ function AddonPseudo_Console_create() {
             "return": "return",
             "array_block": "array"
         }
+        isValid: false,
+        addonID: null,
+        isActivity: false,
+        isVisibleByDefault: false,
+        functions: [],
+        answer: null,
+        methods: []
     };
 
     presenter.ERROR_CODES = {
@@ -1819,7 +1826,6 @@ function AddonPseudo_Console_create() {
      * @param  {Boolean} getScore if function will be called to get score
      */
     presenter.codeExecutor = function presenter_codeExecutor (parsedData, getScore) {
-        console.log(parsedData);
         var actualIndex = 0,
             code = parsedData.code,
             timeoutId = 0,

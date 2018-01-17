@@ -316,9 +316,14 @@ TestCase("[Pseudo_Console - language tests] logical statement", {
             b = 1 != 2
             mock(11, a)
             mock(12, b)
+
+            a = 1 < 2
+            b = 2 < 1
+            mock(13, a)
+            mock(14, b)
         end
     */
-    this.test2 = "program test \n variable a, b, c \n begin \n a = 1 > 2 \n b = 2 > 1 \n mock(1, a) \n mock(2, b) \n a = 1 == 2 \n b = 2 == 2 \n mock(3, a) \n mock(4, b) \n a = 1 >= 2 \n b = 2 >= 1 \n c = 2 >= 2 \n mock(5, a) \n mock(6, b) \n mock(7, c) \n a = 1 <= 2 \n b = 2 <= 1 \n c = 2 <= 2 \n mock(8, a) \n mock(9, b) \n mock(10, c) \n a = 1 != 1 \n b = 1 != 2 \n mock(11, a) \n mock(12, b) \n end";
+    this.test2 = "program test \n variable a, b, c \n begin \n a = 1 > 2 \n b = 2 > 1 \n mock(1, a) \n mock(2, b) \n a = 1 == 2 \n b = 2 == 2 \n mock(3, a) \n mock(4, b) \n a = 1 >= 2 \n b = 2 >= 1 \n c = 2 >= 2 \n mock(5, a) \n mock(6, b) \n mock(7, c) \n a = 1 <= 2 \n b = 2 <= 1 \n c = 2 <= 2 \n mock(8, a) \n mock(9, b) \n mock(10, c) \n a = 1 != 1 \n b = 1 != 2 \n mock(11, a) \n mock(12, b) \n a = 1 < 2 \n b = 2 < 1 \n mock(13, a) \n mock(14, b) \n end";
     },
 
     'test "and" and "or" statements': function () {
@@ -331,7 +336,7 @@ TestCase("[Pseudo_Console - language tests] logical statement", {
     },
 
     'test comparasions': function () {
-        var expected = [false, true, false, true, false, true, true, true, false, true, false, true];
+        var expected = [false, true, false, true, false, true, true, true, false, true, false, true, true, false];
         var i;
 
         this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test2);
@@ -503,17 +508,18 @@ TestCase("[Pseudo_Console - language tests] for statement", {
 
         /*
         program test
-        variable a, b
+        variable a, b, c
         begin
             b = 8
             for a from 1 to b do
             begin
-                mock()
+                for c from 1 to 2 do
+                    mock()
             end
             mock2()
         end
         */
-        this.test2 = "program test \n variable a, b \n begin \n b = 8\n for a from 1 to b do \n begin \n mock() \n end \n mock2() \n end";
+        this.test2 = "program test \n variable a, b, c \n begin \n b = 8\n for a from 1 to b do \n begin \n for c from 1 to 2 do \n mock() \n end \n mock2() \n end";
     },
 
     'test for will be called 5 times' : function () {
@@ -532,8 +538,8 @@ TestCase("[Pseudo_Console - language tests] for statement", {
         this.presenter.evaluateScoreFromUserCode();
 
         assertTrue(this.afterExecutingObject.data.mockCalled2);
-        assertEquals(8, this.afterExecutingObject.data.mockCalled);
-        assertEquals(8, this.afterExecutingObject.calledInstructions.for);        
+        assertEquals(16, this.afterExecutingObject.data.mockCalled);
+        assertEquals(24, this.afterExecutingObject.calledInstructions.for);
     }
 });
 
