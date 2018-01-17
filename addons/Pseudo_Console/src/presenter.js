@@ -54,12 +54,15 @@ function AddonPseudo_Console_create() {
                 flex: true
             },
             "rules": [
+                //String section, if lexer will catch " without string condition, then start condition string. While this condition, only rules with ["string"] will be in use
+                //and this condition will be turned off if " will be catch with start condition
                 ["[\"]",                    "this.begin('string'); return 'START_STRING'"],
                 [["string"], "[^\"\\\\]",   "return 'STRING';"],
                 [["string"], "[\\n]",       "return 'NEWLINE_IN_STRING';"],
                 [["string"], "\\\\.",       "return 'STRING'"],  // match \. <- escaped characters"
                 [["string"], "$",           "return 'EOF_IN_STRING';"],
                 [["string"], "[\"]",        "this.popState(); return 'END_STRING';"],
+                //Words between |<name>| will be replaced by values from configuration
                 ["|begin|",                 "return 'BEGIN_BLOCK';"],
                 ["|end|",                   "return 'END_BLOCK';"],
                 ["|program|",               "return 'PROGRAM';"],
@@ -106,11 +109,13 @@ function AddonPseudo_Console_create() {
                 [".",                       "return 'NOT_MATCH';"]
             ],
 
+            //Each conditions used by lexer must be defined there
             "startConditions" : {
                 string: 1,
-                string_found: 2
             }
         },
+
+        //Operators order
         "operators": [                  //Be sure, you added operators here to avoid problems with conflicts
             ["left", "OR", "AND"],
             ["left", "<=", ">=", "<", ">", "!=", "=="],
@@ -401,13 +406,6 @@ function AddonPseudo_Console_create() {
         }
     };
 
-    presenter.uidDecorator = function (fn) {
-        return function () {
-            presenter.bnf.uid += 1;
-            return fn.apply(this, arguments);
-        };
-    };
-
     function CastErrorException(type, toType) {
         this.message = "Cast exception \"" + type + "\" to type: \"" + toType + "\"";
         this.name = "CastErrorException";
@@ -422,6 +420,18 @@ function AddonPseudo_Console_create() {
         this.message = "Exception (" + type + "): index " + index + " is out of bounds";
         this.name = "IndexOutOfBoundsException";
     }
+
+    function ToFewArgumentsException(functionName, expected) {
+        this.name = "ToFewArgumentsException";
+        this.message = "To few arguments for function " + functionName + " (expected at least: " + expected + " arguments)";
+    }
+
+    presenter.uidDecorator = function (fn) {
+        return function () {
+            presenter.bnf.uid += 1;
+            return fn.apply(this, arguments);
+        };
+    };
 
     /**
      * Arguments dispatcher for methods. Before calling method get object and arguments from stack and convert it to js call with arguments
@@ -447,7 +457,7 @@ function AddonPseudo_Console_create() {
     };
 
     /**
-     * Each object in psedocode console must be created by this mock.
+     * Each object in pseudocode console must be created by this mock.
      */
     presenter.objectMocks = {
         Object: {
@@ -651,7 +661,6 @@ function AddonPseudo_Console_create() {
                 __add__: {
                     native: true,
                     jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
-                        debugger;
                         if (toValue.type === "Number" || toValue.type === "String") {
                             return presenter.objectMocks.String.__constructor__(this.value + toValue.value);
                         }
@@ -814,7 +823,7 @@ function AddonPseudo_Console_create() {
          *  -get retVal value and add it to stack
          * 
          * 
-         * Objects and inharitance in pseudocode (Concept):
+         * Objects and inheritance in pseudocode (Concept):
          *  -Add to machine new instruction evaluateJumpLabelAndJump which will execute code in label and will jump to generated label.
          *  -Add new object to presenter.objectMocks
          *  -Use it in object call manager, if getMethodFromObject(a,b).native is True, then execute original code, if false then use evaluateJumpLabelAndJump to getMethodFromObject(a,b).labelCode where will be code to jump.
@@ -855,7 +864,6 @@ function AddonPseudo_Console_create() {
                 code += el.code;
                 code += ';buff1.push(stack.pop());';
             });
-
 
 
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(arrayName);
@@ -1142,7 +1150,6 @@ function AddonPseudo_Console_create() {
         return execObjects;
     };
 
-    
     presenter.generateFunctionStart = function (argsList, functionName) {
         var execObjects = [],
             i,
@@ -1151,12 +1158,17 @@ function AddonPseudo_Console_create() {
         // Set start label
         execObjects.push(presenter.generateExecuteObject('', functionName));
 
+        initialCommand += "eax = stack.pop();\n";         //Size of args array
+        initialCommand += "ebx = Math.abs(eax - " + argsList.length + ");\n";
+
+        initialCommand += "if (eax < " + argsList.length + ") throw new ToFewArgumentsException('" + functionName + "'," + argsList.length + ");\n";
+
         initialCommand += "stack.push(actualScope);\n";  //Save actualScope on stack
         initialCommand += "actualScope = {};\n";        //Reset scope to default
 
         // Add to actualScope variables passed in stack, but in stack is actualScope saved! (while function call)
         for (i = argsList.length - 1; i >= 0; i -= 1) {
-            initialCommand += "actualScope['" + argsList[Math.abs(i - (argsList.length - 1))] + "'] = stack[stack.length - (2 + " + i + ")];\n";
+            initialCommand += "actualScope['" + argsList[Math.abs(i - (argsList.length - 1))] + "'] = stack[stack.length - (2 + " + i + " + ebx)];\n";
         }
 
         execObjects.push(presenter.generateExecuteObject(initialCommand, '')); //Call it as code
@@ -1196,11 +1208,12 @@ function AddonPseudo_Console_create() {
         if (presenter.configuration.functions.hasOwnProperty(functionName)) {
             execCode = execCode.concat(presenter.dispatchForBuiltInFunctions(functionName, args));
         } else {
+            execCode.push(presenter.generateExecuteObject("stack.push(" + args.length + ");", ''));
             execCode.push(presenter.generateExecuteObject("functionsCallPositionStack.push(actualIndex);", ""));    //Push actual index of code, function before end will return to that index
             execCode = execCode.concat(presenter.dispatchUserFunction(functionName));
         }
 
-        execCode.push(presenter.generateExecuteObject(clearStackCode));
+        execCode.push(presenter.generateExecuteObject(clearStackCode, ''));
         execCode.push(presenter.generateExecuteObject('stack.push(retVal.value);', ''));
         return execCode;
     };
@@ -1335,7 +1348,7 @@ function AddonPseudo_Console_create() {
     //https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
     function uuidv4() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
     }
@@ -1576,7 +1589,9 @@ function AddonPseudo_Console_create() {
             if (presenter.configuration.answer.answerCode.call(presenter.objectForInstructions)) {
                 return 1;
             }
+
             return 0;
+
         } catch (e) {
             return 0;
         }
@@ -1702,6 +1717,9 @@ function AddonPseudo_Console_create() {
         return excludedNames;
     };
 
+    /**
+     * If user defined function which was defined then throw error
+     */
     presenter.multiDefineInstructionChecker = function () {
         var i,
             userFunctionName = "",
@@ -1723,6 +1741,7 @@ function AddonPseudo_Console_create() {
     };
 
     /**
+     * User calls undefined function
      * @param  {{defined: String[], args: String[], vars:String [], fn: String[]}} functionData
      * @param  {String} functionName
      */
@@ -1757,6 +1776,9 @@ function AddonPseudo_Console_create() {
         }
     };
 
+    /**
+     * Check if user uses not defined variable or instruction
+     */
     presenter.undefinedInstructionOrVariableChecker = function () {
         var i,
             usedVariablesAndFunctions = {};
@@ -1814,8 +1836,8 @@ function AddonPseudo_Console_create() {
             stack = [],               // Stack contains saved scopes
             functionsCallPositionStack = [], //Stack which contains information about actual executed code position.
             retVal = {value: 0},      // value returned by function,
-            eax = {value: 0},         // Helper used in generated code (see operation)
-            ebx = {value: 0},         // Helper used in generated code,
+            eax = {value: 0},         // Helper register used in generated code (used for saving temporary data while executing code)
+            ebx = {value: 0},         // Helper register used in generated code (used for saving temporary data while executing code)
             id = uuidv4();            // Each machine contains own unique id which will be saved in presenter
 
         function getIndexByLabel(label) {
@@ -2376,7 +2398,7 @@ function AddonPseudo_Console_create() {
 
     };
 
-    presenter.checkAliasesNamesWithFunctions = function (aliases, functions) {
+    presenter.validateUniquenessAliasesNamesAndFunctions = function (aliases, functions) {
         var aliasKey;
 
         for (aliasKey in aliases) {
@@ -2454,7 +2476,7 @@ function AddonPseudo_Console_create() {
         }
 
         if (validatedAliases.isValid && validatedFunctions.isValid) {
-            isUniqueInAliasesAndFunctions = presenter.checkAliasesNamesWithFunctions(validatedAliases.value, validatedFunctions.value);
+            isUniqueInAliasesAndFunctions = presenter.validateUniquenessAliasesNamesAndFunctions(validatedAliases.value, validatedFunctions.value);
             if (!isUniqueInAliasesAndFunctions.isValid) {
                 return isUniqueInAliasesAndFunctions;
             }

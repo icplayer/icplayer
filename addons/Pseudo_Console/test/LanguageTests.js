@@ -331,8 +331,9 @@ TestCase("[Pseudo_Console - language tests] logical statement", {
     },
 
     'test comparasions': function () {
-        var expected = [false, true, false, true, false, true, true, true, false, true, false, true],
-            i;
+        var expected = [false, true, false, true, false, true, true, true, false, true, false, true];
+        var i;
+
         this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test2);
         
         this.presenter.evaluateScoreFromUserCode();
@@ -390,11 +391,11 @@ TestCase("[Pseudo_Console - language tests] user defined functions", {
 
         program test
         begin
-            testfunc("W", 5)
+            testfunc("W", 5, 6, 7, 8, 9, 10)
             mock(3, "OK2")
         end
         */
-        this.test2 = "function testfunc (a, b) \n begin \n mock(1, a) \n mock(2, b) \n end \n program test \n begin \n testfunc(\"W\", 5) \n mock(3, \"OK2\") \n end";
+        this.test2 = "function testfunc (a, b) \n begin \n mock(1, a) \n mock(2, b) \n end \n program test \n begin \n testfunc(\"W\", 5, 6, 7, 8, 9, 10) \n mock(3, \"OK2\") \n end";
 
         /*
         function testfunc (a, b)
@@ -409,7 +410,23 @@ TestCase("[Pseudo_Console - language tests] user defined functions", {
             mock(1, a)
         end
         */
-        this.test3 = "function testfunc (a, b) \n begin \n return a + b \n end \n program test \n variable a \n begin \n a = testfunc(2, 4) \n mock(1, a) \n end"
+        this.test3 = "function testfunc (a, b) \n begin \n return a + b \n end \n program test \n variable a \n begin \n a = testfunc(2, 4) \n mock(1, a) \n end";
+
+
+        /*
+        function testfunc (a, b, c)
+        begin
+            return a + b
+        end
+
+        program test
+        variable a
+        begin
+            a = testfunc(2, 4)
+            mock(1, a)
+        end
+        */
+        this.test4 = "function testfunc (a, b, c) \n begin \n return a + b \n end \n program test \n variable a \n begin \n a = testfunc(2, 4) \n mock(1, a) \n end";
     },
 
     'test function defined by user is called': function () {
@@ -437,6 +454,14 @@ TestCase("[Pseudo_Console - language tests] user defined functions", {
         this.presenter.evaluateScoreFromUserCode();
 
         assertEquals(6, this.afterExecutingObject.data.mockCalled[1].value);
+    },
+
+
+    'test function defined by user with to few arguments while calling returns error': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test4);
+
+        this.presenter.evaluateScoreFromUserCode();
+        assertEquals(undefined, this.afterExecutingObject.data.mockCalled);
     }
 });
 
