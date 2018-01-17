@@ -838,3 +838,188 @@ TestCase("[Pseudo_Console - language tests] array statement", {
     }
 
 });
+
+TestCase("[Pseudo_Console - language tests] exceptions", {
+    setUp: function () {
+        this.presenter = AddonPseudo_Console_create();
+
+        for (var exceptionName in this.presenter.exceptions) {
+            if (this.presenter.exceptions.hasOwnProperty(exceptionName)) {
+                sinon.spy(this.presenter.exceptions, exceptionName);
+            }
+        }
+
+        this.afterExecutingObject = {};
+        var self = this;
+
+        this.presenter.configuration.functions = {
+            mock2:  this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = arguments[0].value;"}).value.body
+        };
+
+        this.presenter.configuration.answer = {
+            parameters: [],
+            maxTimeForAnswer: {
+                parsedValue: 20
+            },
+            answerCode: function () {
+                self.afterExecutingObject = this;
+            }
+        };
+
+        this.presenter.initializeGrammar();
+
+        /*
+        program test
+        variable a
+        array b[2] = [1, 2]
+        begin
+            mock(b)
+            mock2(b)
+        end
+         */
+        this.test1 = "program test \n variable a \n array b[2] = [1, 2] \n begin \n mock(b)\n mock2(b)\n end";
+
+        /*
+        program test
+        variable a
+        begin
+            mock2(b)
+        end
+         */
+        this.test2 = "program test \n variable a \n begin \n mock2(b)\n end";
+
+        /*
+        program test
+        variable a
+        array b[2] = [1, 2]
+        begin
+            mock2(b);
+        end
+         */
+        this.test3 = "program test \n variable a \n array b[2] = [1, 2] \n begin \n mock2(b);\n end";
+
+
+        /*
+        program test
+        variable a
+        array b[2] = [1, 2]
+        begin
+            mock2(b[1])
+            mock2(b[3])
+        end
+         */
+        this.test4 = "program test \n variable a \n array b[2] = [1, 2] \n begin \n mock2(b[1])\n mock2(b[2]) \n end";
+
+        /*
+        program test
+        variable a
+        array b[2] = [1, 2]
+        begin
+            mock2(b[1])
+            mock2(b[-1])
+        end
+         */
+        this.test5 = "program test \n variable a \n array b[2] = [1, 2] \n begin \n mock2(b[1])\n mock2(b[-1]) \n end";
+
+        /*
+        program test
+        variable a
+        array b[2] = [1]
+        begin
+            mock2(b[0])
+            mock2(b[1])
+        end
+         */
+        this.test6 = "program test \n variable a \n array b[2] = [1] \n begin \n mock2(b[0])\n mock2(b[1]) \n end";
+
+        /*
+        program test
+        variable a
+        array b[2] = [1]
+        begin
+            mock2(b[0])
+            mock2(b["1"])
+        end
+         */
+        this.test7 = "program test \n variable a \n array b[2] = [1] \n begin \n mock2(b[0])\n mock2(b[\"1\"]) \n end";
+
+    },
+
+    tearDown: function () {
+        for (var exceptionName in this.presenter.exceptions) {
+            if (this.presenter.exceptions.hasOwnProperty(exceptionName)) {
+                this.presenter.exceptions[exceptionName].restore();
+            }
+        }
+    },
+
+    'test executing undefined function will throw exception': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test1);
+
+        try {
+            this.presenter.checkCode();
+        } catch (e) {
+        }
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.UndefinedFunctionNameException.calledWithNew());
+    },
+
+    'test executing undefined variable will throw exception': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test2);
+
+        try {
+            this.presenter.checkCode();
+        } catch (e) {
+        }
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.UndefinedVariableNameException.calledWithNew());
+    },
+
+    'test wrong syntax will throw error': function () {
+        var wasError = false;
+        try {
+            this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test3);
+        } catch (e) {
+            wasError = true;
+        }
+
+        assertEquals(true, wasError);
+    },
+
+    'test array throw OutOfBounds exception if index is above array length': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test4);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.calledWithNew());
+    },
+
+    'test array throw OutOfBounds exception if index is below 0': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test5);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.calledWithNew());
+    },
+
+    'test array throw GetError if is trying to get undefined value': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test6);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.GetErrorException.calledWithNew());
+    },
+
+    'test if array getter parameter is not a integer then throws Cast exception': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test7);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+    }
+
+});

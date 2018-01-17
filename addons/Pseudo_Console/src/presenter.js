@@ -406,27 +406,7 @@ function AddonPseudo_Console_create() {
         }
     };
 
-    function CastErrorException(type, toType) {
-        this.message = "Cast exception \"" + type + "\" to type: \"" + toType + "\"";
-        this.name = "CastErrorException";
-    }
-
-    function GetErrorException(type, index) {
-        this.message = "Exception (" + type + "): Value at index " + index + " is not defined";
-        this.name = "GetErrorException";
-    }
-
-    function IndexOutOfBoundsException(type, index, length) {
-        this.message = "Exception (" + type + "): index " + index + " is out of bounds";
-        this.name = "IndexOutOfBoundsException";
-    }
-
-    function ToFewArgumentsException(functionName, expected) {
-        this.name = "ToFewArgumentsException";
-        this.message = "To few arguments for function " + functionName + " (expected at least: " + expected + " arguments)";
-    }
-
-    presenter.uidDecorator = function (fn) {
+    presenter.uidDecorator = function presenter_uidDecorator(fn) {
         return function () {
             presenter.bnf.uid += 1;
             return fn.apply(this, arguments);
@@ -438,7 +418,7 @@ function AddonPseudo_Console_create() {
      * @param fn {Function}
      * @returns {Function}
      */
-    presenter.objectMocksMethodArgumentsDispatcherDecorator = function (fn) {
+    presenter.objectMocksMethodArgumentsDispatcherDecorator = function presenter_objectMocksMethodArgumentsDispatcherDecorator (fn) {
         return function () {
             var builtIn = {
                console: arguments[0].console,
@@ -461,7 +441,7 @@ function AddonPseudo_Console_create() {
      */
     presenter.objectMocks = {
         Object: {
-            __constructor__: function () {
+            __constructor__: function object__constructor__ () {
                 return {
                     value: null,
                     type: "Object",
@@ -472,7 +452,7 @@ function AddonPseudo_Console_create() {
             __methods__: {
                 __and__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function object__and__method (toValue) {
                         /** Table which value should be returned
                          *  Value1 and Value2 -Will Return -> ValueX:
                          *  -----------------------------
@@ -502,7 +482,7 @@ function AddonPseudo_Console_create() {
                          *  True1  and True2  -> True1
                          */
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function object__or__method (toValue) {
                         if (this.value) {
                             return this;
                         }
@@ -512,7 +492,7 @@ function AddonPseudo_Console_create() {
                 },
                 __ge__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function object_ge__method (toValue) {
                         if (this.value >= toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
@@ -522,7 +502,7 @@ function AddonPseudo_Console_create() {
                 },
                 __le__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function object__le__method (toValue) {
                         if (this.value <= toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
@@ -533,7 +513,7 @@ function AddonPseudo_Console_create() {
 
                 __gt__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function object__gt__method (toValue) {
                         if (this.value > toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
@@ -544,7 +524,7 @@ function AddonPseudo_Console_create() {
 
                 __lt__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function object__lt__method (toValue) {
                         if (this.value < toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
@@ -555,7 +535,7 @@ function AddonPseudo_Console_create() {
 
                 __neq__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function object__neq__method (toValue) {
                         if (this.value !== toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
@@ -566,7 +546,7 @@ function AddonPseudo_Console_create() {
 
                 __eq__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function object__eq__method (toValue) {
                         if (this.value === toValue.value) {
                             return presenter.objectMocks.Boolean.__constructor__(true);
                         }
@@ -578,7 +558,7 @@ function AddonPseudo_Console_create() {
         },
 
         Array: {
-            __constructor__: function (count, values) {
+            __constructor__: function array__constructor__ (count, values) {
                 values = values || [];
 
                 var value = [];
@@ -602,13 +582,17 @@ function AddonPseudo_Console_create() {
             __methods__: {
                 __get__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (index) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function array__get__code (index) {
                         if (index.type !== "Number") {
-                            throw new CastErrorException(index.type, "Number");
+                            throw new presenter.exceptions.CastErrorException(index.type, "Number");
                         }
 
-                        if (this.value[index.value] === undefined || this.value[index.value] === null) {
-                            throw new GetErrorException(this.type, index.value);
+                        if (this.value[index.value] === null) {
+                            throw new presenter.exceptions.GetErrorException(this.type, index.value);
+                        }
+
+                        if (this.value[index.value] === undefined) {
+                            throw new presenter.exceptions.IndexOutOfBoundsException(this.type, index.value, this.value.length);
                         }
 
                         return this.value[index.value];
@@ -616,13 +600,13 @@ function AddonPseudo_Console_create() {
                 },
                 __set__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (index, value) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function array__set__code (index, value) {
                         if (index.type !== "Number") {
-                            throw new CastErrorException("String", "Number");
+                            throw new presenter.exceptions.CastErrorException("String", "Number");
                         }
 
                         if (this.value[index.value] === undefined) {
-                            throw new IndexOutOfBoundsException(this.type, index.value, this.value.length);
+                            throw new presenter.exceptions.IndexOutOfBoundsException(this.type, index.value, this.value.length);
                         }
 
                         this.value[index.value] = value;
@@ -634,7 +618,7 @@ function AddonPseudo_Console_create() {
         },
 
         Boolean: {
-            __constructor__: function (val) {
+            __constructor__: function boolean__constructor__ (val) {
                 return {
                     value: Boolean(val) || false,
                     type: "Boolean",
@@ -648,7 +632,7 @@ function AddonPseudo_Console_create() {
         },
 
         String: {
-            __constructor__: function (val) {
+            __constructor__: function string__constructor__ (val) {
                 return {
                     value: String(val) || '',
                     type: "String",
@@ -660,19 +644,19 @@ function AddonPseudo_Console_create() {
             __methods__: {
                 __add__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function string__add__method__ (toValue) {
                         if (toValue.type === "Number" || toValue.type === "String") {
                             return presenter.objectMocks.String.__constructor__(this.value + toValue.value);
                         }
 
-                        throw new CastErrorException(this.type, toValue.type);
+                        throw new presenter.exceptions.CastErrorException(this.type, toValue.type);
                     })
                 }
             }
         },
 
         Number: {
-            __constructor__: function (value) {
+            __constructor__: function number__constructor__ (value) {
                 return {
                     constructor: presenter.objectMocks.Number['__constructor__'],
                     value: Number(value) || 0,
@@ -684,71 +668,71 @@ function AddonPseudo_Console_create() {
             __methods__: {
                 __add__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function number__add__method (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(this.value + toValue.value);
                         } else if (toValue.type === "String") {
                             return presenter.objectMocks.String.__constructor__(this.value + toValue.value);
                         }
 
-                        throw new CastErrorException(this.type, toValue.type);
+                        throw new presenter.exceptions.CastErrorException(this.type, toValue.type);
                     })
                 },
                 __sub__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function number__sub__method (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(this.value - toValue.value);
                         }
 
-                        throw new CastErrorException(this.type, toValue.type);
+                        throw new presenter.exceptions.CastErrorException(this.type, toValue.type);
                     })
                 },
 
                 __mul__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function number__mul__method (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(this.value * toValue.value);
                         }
 
-                        throw new CastErrorException(this.type, toValue.type);
+                        throw new presenter.exceptions.CastErrorException(this.type, toValue.type);
                     })
                 },
 
                 __div__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function number__div__method (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(this.value / toValue.value);
                         }
 
-                        throw new CastErrorException(this.type, toValue.type);
+                        throw new presenter.exceptions.CastErrorException(this.type, toValue.type);
                     })
                 },
                 __div_full__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function number__div_full__method (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(~~(this.value / toValue.value));
                         }
 
-                        throw new CastErrorException(this.type, toValue.type);
+                        throw new presenter.exceptions.CastErrorException(this.type, toValue.type);
                     })
                 },
                 __mod__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function (toValue) {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function number__mod__method (toValue) {
                         if (toValue.type === "Number") {
                             return presenter.objectMocks.Number.__constructor__(this.value % toValue.value);
                         }
 
-                        throw new CastErrorException(this.type, toValue.type);
+                        throw new presenter.exceptions.CastErrorException(this.type, toValue.type);
                     })
                 },
                 __minus__: {
                     native: true,
-                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function () {
+                    jsCode: presenter.objectMocksMethodArgumentsDispatcherDecorator(function number__minus__method () {
                         return presenter.objectMocks.Number.__constructor__(this.value * -1);
                     })
                 }
@@ -764,7 +748,7 @@ function AddonPseudo_Console_create() {
              * @param  {Object[]} variableDef
              * @param  {{option:String, code:Object[]}[]} options
              */
-            function (variableDef, options) {
+            function bnf_case (variableDef, options) {
                 var i,
                     exitLabel = presenter.bnf.uid + "_case_end",
                     execCode = [presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.case++;', '')];
@@ -795,12 +779,7 @@ function AddonPseudo_Console_create() {
          * @param methodName {String}
          * @returns {Function}
          */
-        getMethodFromObject: function (object, methodName) {
-            function MethodNotFoundException(instrName) {
-                this.message = "Undefined method \"" + instrName + "\"";
-                this.name = "MethodNotFoundException";
-            }
-
+        getMethodFromObject: function bnf_getMethodFromObject (object, methodName) {
             var methods = object.methods;
             while(true) {
                 if (methods[methodName] != null) {
@@ -808,7 +787,7 @@ function AddonPseudo_Console_create() {
                 }
 
                 if (object.parent == null) {
-                    throw new MethodNotFoundException(methodName);
+                    throw new presenter.exceptions.MethodNotFoundException(methodName);
                 }
 
                 object = object.parent;
@@ -831,7 +810,7 @@ function AddonPseudo_Console_create() {
          *  -Before jump, set scope for this class and jump to method.
          * 
          */
-        getObjectCallManager: function () {
+        getObjectCallManager: function bnf_getObjectCallManager () {
             var execCode = [];
             
             execCode.push(presenter.generateExecuteObject('', '1_get_object_call_manager'));
@@ -847,7 +826,7 @@ function AddonPseudo_Console_create() {
             return execCode;
         },        
 
-        case_option: function (option, code) {
+        case_option: function bnf_case_option (option, code) {
 
             return [{
                 option: option,
@@ -855,7 +834,7 @@ function AddonPseudo_Console_create() {
             }];
         },
 
-        array: function (yy, arrayName, arraySize, startValues) {
+        array: function bnf_array (yy, arrayName, arraySize, startValues) {
             var code = 'var buff1 = [];';
             
             startValues = startValues || [];
@@ -871,18 +850,18 @@ function AddonPseudo_Console_create() {
         },
 
 
-        var: function (yy, varName) {
+        var: function bnf_var (yy, varName) {
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(varName);
             return 'actualScope.' + varName + ' = presenter.objectMocks.Number.__constructor__.call({}, 0);';
         },
 
-        function_call: function (yy, functionName, args) {
+        function_call: function bnf_function_call (yy, functionName, args) {
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].fn.push(functionName);
 
             return yy.presenterContext.dispatchFunction(functionName, args || []);
         },
 
-        method_call: function (methodName, args, operations) {
+        method_call: function bnf_method_call (methodName, args, operations) {
             var execObjects = [];
 
             //Call args code in reverse order to save it on stack
@@ -902,11 +881,11 @@ function AddonPseudo_Console_create() {
             return execObjects;
         },
 
-        array_get: function (variableName, operations) {
+        array_get: function bnf_array_get (variableName, operations) {
             return presenter.bnf.method_call("__get__", operations, variableName);
         },
 
-        function: function (yy, functionName, functionArgs, sectionsBlock, codeBlock) {
+        function: function bnf_function (yy, functionName, functionArgs, sectionsBlock, codeBlock) {
             var sections = [presenter.generateExecuteObject(sectionsBlock || '', '')];
 
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].args = functionArgs;
@@ -915,7 +894,7 @@ function AddonPseudo_Console_create() {
             return presenter.generateFunctionStart(functionArgs, functionName).concat(sections).concat(codeBlock).concat(yy.presenterContext.generateFunctionEnd(functionName));
         },
 
-        function_declaration: function (yy, functionName) {
+        function_declaration: function bnf_function_declaration (yy, functionName) {
             presenter.state.variablesAndFunctionsUsage[functionName] = {defined: [], args: [], vars: [], fn: []};
             yy.actualFunctionName = functionName;
             presenter.state.definedByUserFunctions.push(functionName);
@@ -924,42 +903,42 @@ function AddonPseudo_Console_create() {
             return functionName;
         },
 
-        assign_value_1: function (yy, variableName, operations) {
+        assign_value_1: function bnf_assign_value_1 (yy, variableName, operations) {
             operations.push(presenter.generateExecuteObject('actualScope.' + variableName + ' = stack.pop();', ''));
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(variableName);
 
             return operations;
         },
 
-        assign_value_2: function (operations) {
+        assign_value_2: function bnf_assign_value_2 (operations) {
             operations.push(presenter.generateExecuteObject('stack.pop()'));
 
             return operations;
         },
 
-        assign_array_value: function (variableName, operations, value) {
+        assign_array_value: function bnf_assign_array_value (variableName, operations, value) {
             return presenter.bnf.method_call("__set__", operations.concat(value), variableName);
         },
 
-        program_name: function (yy, programName) {
+        program_name: function bnf_program_name (yy, programName) {
             yy.actualFunctionName = '1_main';
             presenter.state.variablesAndFunctionsUsage['1_main'] = {defined: [], args: [], vars: [], fn: []};
             return programName;
         },
 
-        argument: function (yy, argName) {
+        argument: function bnf_argument (yy, argName) {
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(argName);
 
             return [presenter.generateExecuteObject('stack.push(actualScope.' + argName + ');', '')];
         },
 
-        for_argument: function (yy, argName) {
+        for_argument: function bnf_for_argument (yy, argName) {
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(argName);
 
             return 'actualScope.' + argName + '.value';
         },
 
-        for_value_header: presenter.uidDecorator(function (yy, variableName, from, to) {
+        for_value_header: presenter.uidDecorator(function bnf_for_value_header (yy, variableName, from, to) {
             var execElements = [];
 
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(variableName);
@@ -975,7 +954,7 @@ function AddonPseudo_Console_create() {
 
         }),
 
-        for_exiter: function (yy) {
+        for_exiter: function bnf_for_exiter (yy) {
             var execElements = [],
                 exitLabel = yy.labelsStack.pop(),
                 checkerLabel = yy.labelsStack.pop();
@@ -989,7 +968,7 @@ function AddonPseudo_Console_create() {
          * @param  {Object[]} expression
          * @param  {Object[]} code
          */
-        if_instruction: presenter.uidDecorator(function (expression, code) {
+        if_instruction: presenter.uidDecorator(function bnf_if_instruction (expression, code) {
             var executableCode = [presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.if++;')],
                 if_end = presenter.bnf.uid + "_end_if";
 
@@ -1006,7 +985,7 @@ function AddonPseudo_Console_create() {
          * @param  {Object[]} ifCode
          * @param  {Object[]} elseCode
          */
-        if_else_instruction: presenter.uidDecorator(function (expression, ifCode, elseCode) {
+        if_else_instruction: presenter.uidDecorator(function bnf_if_else_instruction (expression, ifCode, elseCode) {
             var executableCode = [presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.if++;')],
                 else_start = presenter.bnf.uid + "_else_if",
                 if_end = presenter.bnf.uid + "_end_if";
@@ -1022,7 +1001,7 @@ function AddonPseudo_Console_create() {
             return executableCode;
         }),
 
-        while_header: presenter.uidDecorator(function (yy, expression) {
+        while_header: presenter.uidDecorator(function bnf_while_header (yy, expression) {
             yy.labelsStack.push(presenter.bnf.uid + "_while");
             yy.labelsStack.push(presenter.bnf.uid + "_while_end");
 
@@ -1035,7 +1014,7 @@ function AddonPseudo_Console_create() {
             return execElements;
         }),
 
-        while_exiter: function (yy) {
+        while_exiter: function bnf_while_exiter (yy) {
             var exitLabel = yy.labelsStack.pop(),
                 startWhileLabel = yy.labelsStack.pop(),
                 execElements = [];
@@ -1046,7 +1025,7 @@ function AddonPseudo_Console_create() {
             return execElements;
         },
 
-        return_value: function (yy, returnCode) {
+        return_value: function bnf_return_value (yy, returnCode) {
             var actualFunctionName = yy.functionNames[yy.functionNames.length - 1],
                 execCommands = returnCode;
 
@@ -1056,7 +1035,7 @@ function AddonPseudo_Console_create() {
             return execCommands;
         },
 
-        do_while_header: presenter.uidDecorator(function (yy) {
+        do_while_header: presenter.uidDecorator(function bnf_do_while_header (yy) {
             var execElements = [],
                 enterLabel = presenter.bnf.uid + "_do_while_enter";
 
@@ -1066,7 +1045,7 @@ function AddonPseudo_Console_create() {
             return execElements;
         }),
 
-        do_while_exiter: function (yy, expression) {
+        do_while_exiter: function bnf_do_while_exiter (yy, expression) {
             var execElements = [],
                 enterLabel = yy.labelsStack.pop();
 
@@ -1091,7 +1070,7 @@ function AddonPseudo_Console_create() {
      * @param retVal {{value: Object}}
      * @returns {*|void}
      */
-    presenter.builtInMethodCall = function (stack, consoleObj, objects, next, pause, retVal) {
+    presenter.builtInMethodCall = function presenter_builtInMethodCall (stack, consoleObj, objects, next, pause, retVal) {
         var argsCount = stack.pop();
         var methName = stack.pop();
         var obj = stack.pop();
@@ -1112,7 +1091,7 @@ function AddonPseudo_Console_create() {
      * @param  {('__add__'|'__sub__'|'__div__'|'__mul__'|'__div_full__'|'__mod__'|'__ge__'|'__le__'|'__gt__'|'__lt__'|'__neq__'|'__eq__'|'__or__'|'__and__')} operationType 
      * @return {Object[]}
      */
-    presenter.generateOperationCode = function (firstVal, secVal, operationType) {
+    presenter.generateOperationCode = function presenter_generateOperationCode (firstVal, secVal, operationType) {
         var execObjects = firstVal.concat(secVal),
             code = "",
             exitCode = "",
@@ -1134,7 +1113,8 @@ function AddonPseudo_Console_create() {
         return execObjects;
     };
 
-    presenter.generateMinusOperation = function (execObjects) {
+    presenter.generateMinusOperation = function presenter_generateMinusOperation (execObjects) {
+        var retVal = [].concat(execObjects);
         var code = "";
         var exitCode = "";
 
@@ -1144,13 +1124,13 @@ function AddonPseudo_Console_create() {
 
         exitCode += "stack.push(retVal.value);";
 
-        execObjects.push(presenter.generateExecuteObject(code, ""));
-        execObjects.push(presenter.generateJumpInstruction('true', '1_get_object_call_manager'));
-        execObjects.push(presenter.generateExecuteObject(exitCode, ''));
-        return execObjects;
+        retVal.push(presenter.generateExecuteObject(code, ""));
+        retVal.push(presenter.generateJumpInstruction('true', '1_get_object_call_manager'));
+        retVal.push(presenter.generateExecuteObject(exitCode, ''));
+        return retVal.reverse();
     };
 
-    presenter.generateFunctionStart = function (argsList, functionName) {
+    presenter.generateFunctionStart = function presenter_generateFunctionStart (argsList, functionName) {
         var execObjects = [],
             i,
             initialCommand = "";
@@ -1161,7 +1141,7 @@ function AddonPseudo_Console_create() {
         initialCommand += "eax = stack.pop();\n";         //Size of args array
         initialCommand += "ebx = Math.abs(eax - " + argsList.length + ");\n";
 
-        initialCommand += "if (eax < " + argsList.length + ") throw new ToFewArgumentsException('" + functionName + "'," + argsList.length + ");\n";
+        initialCommand += "if (eax < " + argsList.length + ") throw new presenter.exceptions.ToFewArgumentsException('" + functionName + "'," + argsList.length + ");\n";
 
         initialCommand += "stack.push(actualScope);\n";  //Save actualScope on stack
         initialCommand += "actualScope = {};\n";        //Reset scope to default
@@ -1176,7 +1156,7 @@ function AddonPseudo_Console_create() {
         return execObjects;
     };
 
-    presenter.generateFunctionEnd = function (functionName) {
+    presenter.generateFunctionEnd = function presenter_generateFunctionEnd (functionName) {
         var execCommands = [],
             exitCommand = "";
 
@@ -1195,7 +1175,7 @@ function AddonPseudo_Console_create() {
         return execCommands;
     };
 
-    presenter.dispatchFunction = function (functionName, args) {
+    presenter.dispatchFunction = function presenter_dispatchFunction  (functionName, args) {
         var execCode = [],
             clearStackCode = '',
             i;
@@ -1218,7 +1198,7 @@ function AddonPseudo_Console_create() {
         return execCode;
     };
 
-    presenter.dispatchUserFunction = function (functionName) {
+    presenter.dispatchUserFunction = function presenter_dispatchUserFunction (functionName) {
         var execCode = [];
 
         execCode.push(presenter.generateJumpInstruction('true',  functionName));
@@ -1232,7 +1212,7 @@ function AddonPseudo_Console_create() {
      * @param  {String} functionName
      * @param  {Array[]} args contains how to resolve each argument
      */
-    presenter.dispatchForBuiltInFunctions = function (functionName, args) {
+    presenter.dispatchForBuiltInFunctions = function presenter_dispatchForBuiltInFunctions (functionName, args) {
         var parsedArgs = [],
             i,
             code,
@@ -1256,7 +1236,7 @@ function AddonPseudo_Console_create() {
      * @param  {String} label set label for goto instruction
      * @param  {Boolean} [isAsync] async instructions cant be merged and is optional
      */
-    presenter.generateExecuteObject = function (code, label, isAsync) {
+    presenter.generateExecuteObject = function presenter_generateExecuteObject (code, label, isAsync) {
         return {
             code: code,
             type: presenter.TYPES.EXECUTE,
@@ -1265,7 +1245,7 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    presenter.generateJumpInstruction = function (code, toLabel) {
+    presenter.generateJumpInstruction = function presenter_generateJumpInstruction (code, toLabel) {
         return {
             code: code,
             toLabel: toLabel,
@@ -1273,17 +1253,60 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    presenter.checkInstructionName = function (instructionName) {
-        function InstructionNameException(instrName) {
-            this.message = "Undefined instruction \"" + instrName + "\"";
-            this.name = "InstructionNameException";
-        }
-
+    presenter.checkInstructionName = function presenter_checkInstructionName (instructionName) {
         if (!presenter.configuration.functions[instructionName]) {
-            throw new InstructionNameException(instructionName);
+            throw new presenter.exceptions.InstructionNameException(instructionName);
         }
     };
 
+
+    presenter.exceptions = {
+        InstructionIsDefinedException: function InstructionIsDefinedException(instrName) {
+            this.message = "Instruction was defined before: \"" + instrName + "\"";
+            this.name = "InstructionIsDefinedException";
+        },
+
+        InstructionNameException: function InstructionNameException(instrName) {
+            this.message = "Undefined instruction \"" + instrName + "\"";
+            this.name = "InstructionNameException";
+        },
+
+        CastErrorException: function CastErrorException(type, toType) {
+            this.message = "Cast exception \"" + type + "\" to type: \"" + toType + "\"";
+            this.name = "CastErrorException";
+        },
+
+        GetErrorException: function GetErrorException(type, index) {
+            this.message = "Exception (" + type + "): Value at index " + index + " is not defined";
+            this.name = "GetErrorException";
+        },
+
+        IndexOutOfBoundsException: function IndexOutOfBoundsException(type, index, length) {
+            this.message = "Exception (" + type + "): index " + index + " is out of bounds";
+            this.name = "IndexOutOfBoundsException";
+        },
+
+        ToFewArgumentsException: function ToFewArgumentsException(functionName, expected) {
+            this.name = "ToFewArgumentsException";
+            this.message = "To few arguments for function " + functionName + " (expected at least: " + expected + " arguments)";
+        },
+
+        MethodNotFoundException: function MethodNotFoundException(instrName) {
+            this.message = "Undefined method \"" + instrName + "\"";
+            this.name = "MethodNotFoundException";
+        },
+
+        UndefinedVariableNameException: function UndefinedVariableNameException(varName, functionName) {
+            this.message = "Usage of undefined variable '" + varName + "' in function '" + functionName + "'";
+            this.name = "UndefinedVariableNameException";
+        },
+
+        UndefinedFunctionNameException: function UndefinedFunctionNameException(varName, functionName) {
+            this.message = "Usage of undefined function '" + varName + "' in function '" + functionName + "'";
+            this.name = "UndefinedFunctionNameException";
+        }
+
+    };
     // ---------------------------------- ADDON SECTION ---------------------------------------------------------------
 
     //This object will be passed to instruction as scope
@@ -1353,7 +1376,7 @@ function AddonPseudo_Console_create() {
         });
     }
 
-    presenter.setPlayerController = function (controller) {
+    presenter.setPlayerController = function presenter_setPlayerController (controller) {
         presenter.state.playerController = controller;
         presenter.state.eventBus = presenter.state.playerController.getEventBus();
         presenter.state.eventBus.addEventListener('ShowAnswers', this);
@@ -1362,7 +1385,7 @@ function AddonPseudo_Console_create() {
 
     presenter.killMachine = {}; // Object which contains all machines with kill machine function
 
-    presenter.killAllMachines = function () {
+    presenter.killAllMachines = function presenter_killAllMachines () {
         var id;
 
         for (id in presenter.killMachine) {
@@ -1372,22 +1395,22 @@ function AddonPseudo_Console_create() {
         }
     };
 
-    presenter.run = function (view, model) {
+    presenter.run = function presenter_run (view, model) {
         presenter.initialize(view, model, false);
     };
 
-    presenter.createPreview = function (view, model) {
+    presenter.createPreview = function presenter_createPreview (view, model) {
         presenter.initialize(view, model, true);
     };
 
-    presenter.getWordBetweenHorizontalLine = function (word) {
+    presenter.getWordBetweenHorizontalLine = function presenter_getWordBetweenHorizontalLine (word) {
         if (word.indexOf("|") > -1 && word.lastIndexOf("|") !== word.indexOf("|")) {
             return word.substring(1, word.length - 1);
         }
         return null;
     };
 
-    presenter.initializeGrammar = function () {
+    presenter.initializeGrammar = function presenter_initializeGrammar () {
         var rules = JISON_GRAMMAR.lex.rules,
             aliases = presenter.configuration.aliases,
             i,
@@ -1416,7 +1439,7 @@ function AddonPseudo_Console_create() {
      * Before each user code call, this object should be initialized
      * @param  {Object} [consoleMock] optional argument for console
      */
-    presenter.initializeObjectForCode = function (consoleMock) {
+    presenter.initializeObjectForCode = function presenter_initializeObjectForCode (consoleMock) {
         presenter.objectForInstructions = {
             calledInstructions: {
                 for: 0,
@@ -1433,7 +1456,7 @@ function AddonPseudo_Console_create() {
         presenter.state.definedByUserFunctions = [];
     };
 
-    presenter.initializeConsole = function () {
+    presenter.initializeConsole = function presenter_initializeConsole () {
         presenter.state.console = new presenter.console(presenter.state.$view.find(".addon-Pseudo_Console-wrapper"));
         var originalReadLine = presenter.state.console.ReadLine,
             originalReadChar = presenter.state.console.ReadChar;
@@ -1444,7 +1467,7 @@ function AddonPseudo_Console_create() {
          * pauseIns and nextIns are set while executing each command (see dispatchForBuiltInFunctions which is calling wrapMethodOrFunctionWithBuiltInCode code)
          * @param callback {Function}
          */
-        presenter.state.console.ReadLine = function (callback) {
+        presenter.state.console.ReadLine = function console_read_line_override (callback) {
             presenter.state.console.pauseIns();
             originalReadLine.call(presenter.state.console, function (input) {
                 callback.call(this, input);
@@ -1456,7 +1479,7 @@ function AddonPseudo_Console_create() {
          * Like ReadLine
          * @param callback {Function}
          */
-        presenter.state.console.ReadChar = function (callback) {
+        presenter.state.console.ReadChar = function console_read_char_override (callback) {
             presenter.state.console.pauseIns();
             originalReadChar.call(presenter.state.console, function (input) {
                 callback.call(this, input);
@@ -1465,7 +1488,7 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    presenter.completeObjectsMethods = function () {
+    presenter.completeObjectsMethods = function presenter_completeObjectsMethods () {
         presenter.configuration.methods.forEach(function (method) {
             presenter.objectMocks[method.objectName].__methods__[method.methodName] = {
                 native: true,
@@ -1475,7 +1498,7 @@ function AddonPseudo_Console_create() {
         });
     };
 
-    presenter.initialize = function (view, model, isPreview) {
+    presenter.initialize = function presenter_initialize (view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -1493,12 +1516,12 @@ function AddonPseudo_Console_create() {
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
-    presenter.stop = function () {
+    presenter.stop = function presenter_stop () {
         presenter.state.console.Reset();
         presenter.killAllMachines();
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function presenter_onEventReceived (eventName) {
         if (eventName === "ShowAnswers") {
             presenter.showAnswers();
         }
@@ -1508,7 +1531,7 @@ function AddonPseudo_Console_create() {
         }
     };
 
-    presenter.executeCommand = function (name, params) {
+    presenter.executeCommand = function presenter_executeCommand (name, params) {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
@@ -1519,15 +1542,15 @@ function AddonPseudo_Console_create() {
         Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.showAnswers = function () {
+    presenter.showAnswers = function presenter_showAnswers () {
         presenter.state.console.disable();
     };
 
-    presenter.hideAnswers = function () {
+    presenter.hideAnswers = function presenter_hideAnswers () {
         presenter.state.console.enable();
     };
 
-    presenter.destroy = function (event) {
+    presenter.destroy = function presenter_destroy (event) {
         if (event.target !== this) {
             return;
         }
@@ -1538,44 +1561,44 @@ function AddonPseudo_Console_create() {
         }
     };
 
-    presenter.setVisibility = function (isVisible) {
+    presenter.setVisibility = function presenter_setVisibility (isVisible) {
         presenter.state.$view.css('visibility', isVisible ? 'visible' : 'hidden');
         presenter.state.$view.css('display', isVisible ? 'block' : 'none');
 
         presenter.state.isVisible = isVisible;
     };
 
-    presenter.show = function () {
+    presenter.show = function presenter_show () {
         presenter.setVisibility(true);
     };
 
-    presenter.hide = function () {
+    presenter.hide = function presenter_hide () {
         presenter.setVisibility(false);
     };
 
-    presenter.reset = function () {
+    presenter.reset = function presenter_reset () {
         presenter.killAllMachines();
         presenter.state.console.Reset();
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.state.console.enable();
     };
 
-    presenter.setShowErrorsMode = function () {
+    presenter.setShowErrorsMode = function presenter_setShowErrorsMode () {
         presenter.state.console.disable();
     };
 
-    presenter.setWorkMode = function () {
+    presenter.setWorkMode = function presenter_setWorkMode () {
         presenter.state.console.enable();
     };
 
-    presenter.setState = function (stateString) {
+    presenter.setState = function presenter_setState (stateString) {
         var state = JSON.parse(stateString);
 
         presenter.setVisibility(state.isVisible);
         presenter.state.lastScore = state.score;
     };
 
-    presenter.getState = function () {
+    presenter.getState = function presenter_getState () {
         var state = {
             isVisible: presenter.state.isVisible,
             score: presenter.state.lastScore
@@ -1584,7 +1607,7 @@ function AddonPseudo_Console_create() {
         return JSON.stringify(state);
     };
 
-    presenter.evaluateScoreFromLastOutput = function () {
+    presenter.evaluateScoreFromLastOutput = function presenter_evaluateScoreFromLastOutput () {
         try {
             if (presenter.configuration.answer.answerCode.call(presenter.objectForInstructions)) {
                 return 1;
@@ -1597,7 +1620,7 @@ function AddonPseudo_Console_create() {
         }
     };
 
-    presenter.generateConsoleMock = function (input) {
+    presenter.generateConsoleMock = function presenter_generateConsoleMock (input) {
         var actualInputIndex = 0;
         return {
             Reset: function () {
@@ -1625,7 +1648,7 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    presenter.evaluateScoreFromUserCode = function () {
+    presenter.evaluateScoreFromUserCode = function presenter_evaluateScoreFromUserCode () {
         var code = presenter.state.lastUsedCode,
             objectForInstructionsSaved = presenter.objectForInstructions,
             score;
@@ -1640,7 +1663,7 @@ function AddonPseudo_Console_create() {
         return score;
     };
 
-    presenter.evaluateScore = function () {
+    presenter.evaluateScore = function presenter_evaluateScore () {
         if (presenter.configuration.answer.runUserCode) {
             return presenter.evaluateScoreFromUserCode();
         }
@@ -1664,7 +1687,7 @@ function AddonPseudo_Console_create() {
         sendValueChangedEvent(eventData);
     }
 
-    presenter.getScore = function () {
+    presenter.getScore = function presenter_getScore () {
         if (!presenter.state.wasChanged) {
             return presenter.state.lastScore;
         }
@@ -1682,7 +1705,7 @@ function AddonPseudo_Console_create() {
         return score;
     };
 
-    presenter.getMaxScore = function () {
+    presenter.getMaxScore = function presenter_getMaxScore () {
         if (presenter.configuration.isActivity) {
             return 1;
         }
@@ -1690,7 +1713,7 @@ function AddonPseudo_Console_create() {
         return 0;
     };
 
-    presenter.getErrorCount = function () {
+    presenter.getErrorCount = function presenter_getErrorCount () {
         if (presenter.configuration.isActivity) {
             return 1 - presenter.getScore();
         }
@@ -1698,7 +1721,7 @@ function AddonPseudo_Console_create() {
         return 0;
     };
 
-    presenter.getExcludedNames = function () {
+    presenter.getExcludedNames = function presenter_getExcludedNames () {
         var i,
             excludedNames = {};
 
@@ -1720,22 +1743,18 @@ function AddonPseudo_Console_create() {
     /**
      * If user defined function which was defined then throw error
      */
-    presenter.multiDefineInstructionChecker = function () {
+    presenter.multiDefineInstructionChecker = function presenter_multiDefineInstructionChecker () {
         var i,
             userFunctionName = "",
             excludedNames = presenter.getExcludedNames();
 
-        function InstructionIsDefinedException(instrName) {
-            this.message = "Instruction was defined before: \"" + instrName + "\"";
-            this.name = "InstuctionIsDefinedException";
-        }
 
         for (i = 0; i < presenter.state.definedByUserFunctions.length; i += 1) {
             userFunctionName = presenter.state.definedByUserFunctions[i];
             if (!excludedNames[userFunctionName]) {
                 excludedNames[userFunctionName] = true;
             } else {
-                throw new InstructionIsDefinedException(userFunctionName);
+                throw new presenter.exceptions.InstructionIsDefinedException(userFunctionName);
             }
         }
     };
@@ -1745,33 +1764,23 @@ function AddonPseudo_Console_create() {
      * @param  {{defined: String[], args: String[], vars:String [], fn: String[]}} functionData
      * @param  {String} functionName
      */
-    presenter.undefinedUsageForFunctionChecker = function (functionData, functionName) {
+    presenter.undefinedUsageForFunctionChecker = function presenter_undefinedUsageForFunctionChecker(functionData, functionName) {
         var usedVariableName = "",
             usedFunctionName = "",
             i,
             excludedNames = presenter.getExcludedNames();
 
-        function UndefinedVariableNameException(varName) {
-            this.message = "Usage of undefined variable '" + varName + "' in function '" + functionName + "'";
-            this.name = "UndefinedVariableNameException";
-        }
-
-        function UndefinedFunctionNameException(varName) {
-            this.message = "Usage of undefined function '" + varName + "' in function '" + functionName + "'";
-            this.name = "UndefinedFunctionNameException";
-        }
-
         for (i = 0; i < functionData.vars.length; i += 1) {
             usedVariableName = functionData.vars[i];
             if ($.inArray(usedVariableName, functionData.defined) === -1 && $.inArray(usedVariableName, functionData.args) === -1) {
-                throw new UndefinedVariableNameException(usedVariableName);
+                throw new presenter.exceptions.UndefinedVariableNameException(usedVariableName, functionName);
             }
         }
 
         for (i = 0; i < functionData.fn.length; i += 1) {
             usedFunctionName = functionData.fn[i];
             if (!excludedNames[usedFunctionName] && $.inArray(usedFunctionName, presenter.state.definedByUserFunctions) === -1) {
-                throw new UndefinedFunctionNameException(usedFunctionName);
+                throw new presenter.exceptions.UndefinedFunctionNameException(usedFunctionName, functionName);
             }
         }
     };
@@ -1779,7 +1788,7 @@ function AddonPseudo_Console_create() {
     /**
      * Check if user uses not defined variable or instruction
      */
-    presenter.undefinedInstructionOrVariableChecker = function () {
+    presenter.undefinedInstructionOrVariableChecker = function presenter_undefinedInstructionOrVariableChecker () {
         var i,
             usedVariablesAndFunctions = {};
 
@@ -1791,12 +1800,12 @@ function AddonPseudo_Console_create() {
         }
     };
 
-    presenter.checkCode = function () {
+    presenter.checkCode = function presenter_checkCode () {
         presenter.multiDefineInstructionChecker();
         presenter.undefinedInstructionOrVariableChecker();
     };
 
-    presenter.executeCode = function (code) {
+    presenter.executeCode = function presenter_executeCode (code) {
         if (!presenter.configuration.isValid) {
             return;
         }
@@ -1826,7 +1835,7 @@ function AddonPseudo_Console_create() {
      * @param  {Object} parsedData parsed code by jison
      * @param  {Boolean} getScore if function will be called to get score
      */
-    presenter.codeExecutor = function (parsedData, getScore) {
+    presenter.codeExecutor = function presenter_codeExecutor (parsedData, getScore) {
         var actualIndex = 0,
             code = parsedData.code,
             timeoutId = 0,
@@ -1894,7 +1903,7 @@ function AddonPseudo_Console_create() {
                 } else {
                     presenter.state.console.Write(e.message + "\n", 'program-error-output');
                 }
-                pause();
+                killMachine();
             }
         }
 
@@ -1925,6 +1934,7 @@ function AddonPseudo_Console_create() {
                         return;
                     } 
                 } catch (e) {
+                    killMachine();
                     return;
                 }
             }
@@ -2276,7 +2286,7 @@ function AddonPseudo_Console_create() {
         };
     }
 
-    presenter.validateFunction = function (functionToValidate) {
+    presenter.validateFunction = function presenter_validateFunction (functionToValidate) {
         var validatedFunction;
 
         if (!/^[A-Za-z_][a-zA-Z0-9_]*$/g.exec(functionToValidate.name)) {
@@ -2298,7 +2308,7 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    presenter.validateFunctions = function (functions) {
+    presenter.validateFunctions = function presenter_validateFunctions (functions) {
         var validatedFunctions = {},
             i,
             validatedFunction;
@@ -2326,7 +2336,7 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    presenter.validateAliases = function (aliases) {
+    presenter.validateAliases = function presenter_validateAliases (aliases) {
         var definedAliases = {},
             aliasKey,
             aliasName,
@@ -2362,7 +2372,7 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    presenter.validateParameters = function (params) {
+    presenter.validateParameters = function presenter_validateParameters (params) {
         var parameters = [],
             i;
         for (i = 0; i < params.length; i += 1) {
@@ -2375,7 +2385,7 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    presenter.validateAnswer = function (model) {
+    presenter.validateAnswer = function presenter_validateAnswer (model) {
         var runUserCode = ModelValidationUtils.validateBoolean(model.runUserCode),
             answerCode = model.answerCode,
             maxTimeForAnswer = ModelValidationUtils.validateFloatInRange(model.maxTimeForAnswer, 10, 0),
@@ -2398,7 +2408,7 @@ function AddonPseudo_Console_create() {
 
     };
 
-    presenter.validateUniquenessAliasesNamesAndFunctions = function (aliases, functions) {
+    presenter.validateUniquenessAliasesNamesAndFunctions = function presenter_validateUniquenessAliasesNamesAndFunctions (aliases, functions) {
         var aliasKey;
 
         for (aliasKey in aliases) {
@@ -2417,7 +2427,7 @@ function AddonPseudo_Console_create() {
     /**
      * @param {{objectName: (Array|Number|String), methodName: String, methodBody: String}} method 
      */
-    presenter.validateMethod = function (method) {
+    presenter.validateMethod = function presenter_validateMethod (method) {
         var validatedMethod = {};
 
         try {
@@ -2439,7 +2449,7 @@ function AddonPseudo_Console_create() {
     /**
      * @param {{objectName: (Array|Number|String), methodName: String, methodBody: String}[]} methods 
      */
-    presenter.validateMethods = function (methods) {
+    presenter.validateMethods = function presenter_validateMethods (methods) {
         var validatedMethods = [];
 
         methods.forEach(function (method) {
@@ -2458,7 +2468,7 @@ function AddonPseudo_Console_create() {
         }
     };
 
-    presenter.validateModel = function (model) {
+    presenter.validateModel = function presenter_validateModel (model) {
         var validatedAliases,
             validatedFunctions,
             validatedAnswer,
