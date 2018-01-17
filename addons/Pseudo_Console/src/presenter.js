@@ -879,7 +879,7 @@ function AddonPseudo_Console_create() {
         function_call: function (yy, functionName, args) {
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].fn.push(functionName);
 
-            return yy.presenterContext.dispatch(functionName, args || []);
+            return yy.presenterContext.dispatchFunction(functionName, args || []);
         },
 
         method_call: function (methodName, args, operations) {
@@ -1195,7 +1195,7 @@ function AddonPseudo_Console_create() {
         return execCommands;
     };
 
-    presenter.dispatch = function (functionName, args) {
+    presenter.dispatchFunction = function (functionName, args) {
         var execCode = [],
             clearStackCode = '',
             i;
