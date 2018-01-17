@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.core.client.JsArrayString;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.shared.EventBus;
@@ -25,7 +25,6 @@ import com.lorepo.icf.properties.IStaticRowProperty;
 import com.lorepo.icf.properties.IVideoProperty;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -88,10 +87,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		});
 	}
 	
-	private native void onKeyDown(JavaScriptObject obj, int keyCode, boolean isShiftDown) /*-{
+	private native void onKeyDown(JavaScriptObject obj, int keyCode, boolean isShiftDown, NativeEvent originalEvent) /*-{
 		try{
 			if(obj.keyboardController !== undefined && obj.keyboardController !== null) {
-				obj.keyboardController(parseInt(keyCode, 10), isShiftDown);
+				obj.keyboardController(parseInt(keyCode, 10), isShiftDown, originalEvent);
 			}
 		}
 		catch(err){
@@ -459,52 +458,52 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 	@Override
 	public void enter(boolean isExiting) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting);
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting, null);
 	}
 
 	@Override
-	public void space() {
-		this.onKeyDown(this.jsObject, 32, false);
+	public void space(KeyDownEvent event) {
+		this.onKeyDown(this.jsObject, 32, event.isShiftKeyDown(), event.getNativeEvent());
 	}
 
 	@Override
-	public void tab() {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, false);
+	public void tab(KeyDownEvent event) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, event.isShiftKeyDown(), event.getNativeEvent());
 	}
 
 	@Override
-	public void left() {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_LEFT, false);
+	public void left(KeyDownEvent event) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_LEFT, event.isShiftKeyDown(), event.getNativeEvent());
 	}
 
 	@Override
-	public void right() {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_RIGHT, false);
+	public void right(KeyDownEvent event) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_RIGHT, event.isShiftKeyDown(), event.getNativeEvent());
 	}
 
 	@Override
-	public void down() {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_DOWN, false);
+	public void down(KeyDownEvent event) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_DOWN, event.isShiftKeyDown(), event.getNativeEvent());
 	}
 
 	@Override
-	public void up() {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_UP, false);
+	public void up(KeyDownEvent event) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_UP, event.isShiftKeyDown(), event.getNativeEvent());
 	}
 
 	@Override
-	public void escape() {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_ESCAPE, false);
+	public void escape(KeyDownEvent event) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_ESCAPE, event.isShiftKeyDown(), event.getNativeEvent());
 	}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {
-		this.onKeyDown(this.jsObject, event.getNativeKeyCode(), event.isShiftKeyDown());
+		this.onKeyDown(this.jsObject, event.getNativeKeyCode(), event.isShiftKeyDown(), event.getNativeEvent());
 	}
 
 	@Override
-	public void shiftTab() {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, true);
+	public void shiftTab(KeyDownEvent event) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, true, event.getNativeEvent());
 	}
 
 	public boolean isButton() {

@@ -218,8 +218,8 @@ public class LimitedCheckModule extends BasicModuleModel {
 				if(childNode.getNodeName().compareTo("limitedCheck") == 0) {
 					Element childElement = (Element) childNode;
 					
-					checkText = XMLUtils.getAttributeAsString(childElement, "checkText");
-					unCheckText = XMLUtils.getAttributeAsString(childElement, "unCheckText");
+					checkText = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "checkText"));
+					unCheckText = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "unCheckText"));
 					rawWorksWith = XMLUtils.getCharacterDataFromElement(childElement);
 					mistakesFromProvidedModules = XMLUtils.getAttributeAsBoolean(childElement, "mistakesFromProvidedModules");
 

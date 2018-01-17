@@ -425,32 +425,32 @@ public final class KeyboardNavigationController {
 
 		switch (event.getNativeEvent().getKeyCode()) {
 			case KeyCodes.KEY_UP:
-				wcagWidget.up();
+				wcagWidget.up(event);
 				break;
 			case KeyCodes.KEY_DOWN:
-				wcagWidget.down();
+				wcagWidget.down(event);
 				break;
 			case KeyCodes.KEY_LEFT:
-				wcagWidget.left();
+				wcagWidget.left(event);
 				break;
 			case KeyCodes.KEY_RIGHT:
-				wcagWidget.right();
+				wcagWidget.right(event);
 				break;
 			case KeyCodes.KEY_ESCAPE:
-				wcagWidget.escape();
+				wcagWidget.escape(event);
 				break;
 			case KeyCodes.KEY_ENTER:
 				wcagWidget.enter(event.isShiftKeyDown() || event.isControlKeyDown());
 				break;
 			case KeyCodes.KEY_TAB:
 				if (event.isShiftKeyDown()) {
-					wcagWidget.shiftTab();
+					wcagWidget.shiftTab(event);
 				} else {
-					wcagWidget.tab();
+					wcagWidget.tab(event);
 				}
 				break;
 			case 32:
-				wcagWidget.space();
+				wcagWidget.space(event);
 				break;
 			default:
 				wcagWidget.customKeyCode(event);

@@ -80,15 +80,9 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 			}
 		});
 	}
-
 	
 	private int getColumnCount() {
-		if(module.isShowCounters()){
-			return 4;
-		}
-		else{
-			return 2;
-		}
+		return module.isShowCounters() ? 4 : 2;
 	}
 
 	protected void fireEvent(Cell cell) {
@@ -100,7 +94,6 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 			}
 		}
 	}
-
 	
 	@Override
 	public void clear() {
@@ -190,7 +183,6 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	@Override
 	public void setWCAGStatus(boolean isWCAGOn) {
 		this.isWCAGOn = isWCAGOn;
-		
 	}
 
 	@Override
@@ -257,12 +249,10 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 
 	@Override
-	public void space() {
-
-	}
+	public void space(KeyDownEvent event) {}
 
 	@Override
-	public void tab() {
+	public void tab(KeyDownEvent event) {
 		if(currentWCAGSelectedColumnIndex==this.getColumnCount()-1){
 			if(currentWCAGSelectedRowIndex==lastRow){
 				this.readCell(currentWCAGSelectedColumnIndex, currentWCAGSelectedRowIndex);
@@ -276,30 +266,30 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 
 	@Override
-	public void left() {
+	public void left(KeyDownEvent event) {
 		this.move(-1,0);
 	}
 
 	@Override
-	public void right() {
+	public void right(KeyDownEvent event) {
 		this.move(1,0);
 		
 	}
 
 	@Override
-	public void down() {
+	public void down(KeyDownEvent event) {
 		this.move(0,1);
 		
 	}
 
 	@Override
-	public void up() {
+	public void up(KeyDownEvent event) {
 		this.move(0,-1);
 		
 	}
 
 	@Override
-	public void escape() {
+	public void escape(KeyDownEvent event) {
 		grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
 		currentWCAGSelectedRowIndex = 1;
 		currentWCAGSelectedColumnIndex = 0;
@@ -309,7 +299,7 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
-	public void shiftTab() {
+	public void shiftTab(KeyDownEvent event) {
 		grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
 		currentWCAGSelectedRowIndex = 1;
 		currentWCAGSelectedColumnIndex = 0;

@@ -81,38 +81,29 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 	}
 
 	@Override
-	public void space() {
-	}
+	public void space(KeyDownEvent event) {}
 
 	@Override
-	public void tab() {	
-	}
+	public void tab(KeyDownEvent event) {}
 
 	@Override
-	public void left() {
-	}
+	public void left(KeyDownEvent event) {}
 
 	@Override
-	public void right() {
-	}
+	public void right(KeyDownEvent event) {}
 
 	@Override
-	public void down() {	
-	}
+	public void down(KeyDownEvent event) {}
 
 	@Override
-	public void up() {	
-	}
+	public void up(KeyDownEvent event) {}
 
 	@Override
-	public void escape() {	
-	}
+	public void escape(KeyDownEvent event) {}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
-	}
+	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
-	public void shiftTab() {
-	}
+	public void shiftTab(KeyDownEvent event) {}
 }

@@ -139,21 +139,21 @@ public class WCAGUtils {
 			if (isClosestGap) {
 				result.add("gap");
 				
-				final int endGapIndex = text.indexOf(GAP_END, gapIndex) + GAP_END.length();
+				final int endGapIndex = text.indexOf(GAP_END, lowestIndex) + GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
 
 			if (isClosestFilledGap) {
 				result.add("gap");
 				
-				final int endGapIndex = text.indexOf(FILLED_GAP_END, filledGapIndex) + FILLED_GAP_END.length();
+				final int endGapIndex = text.indexOf(FILLED_GAP_END, lowestIndex) + FILLED_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
 
 			if (isClosestDropdown) {
 				result.add("dropdown");
 				
-				final int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, dropdownIndex) + DROP_DOWN_GAP_END.length();
+				final int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, lowestIndex) + DROP_DOWN_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
 		}
