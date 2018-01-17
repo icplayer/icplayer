@@ -328,10 +328,6 @@ function AddonPseudo_Console_create() {
                 ["NUMBER", "$$ = Number(yytext);"]
             ],
 
-            "instruction_name" : [
-                ["STATIC_VALUE", "yy.presenterContext.checkInstructionName($1); $$=$1;"]
-            ],
-
             "arguments" : [
                 "",
                 ["arguments_list", "$$ = $1;"]
@@ -782,7 +778,7 @@ function AddonPseudo_Console_create() {
         getMethodFromObject: function bnf_getMethodFromObject (object, methodName) {
             var methods = object.methods;
             while(true) {
-                if (methods[methodName] != null) {
+                if (methods.hasOwnProperty(methodName)) {
                     return methods[methodName];
                 }
 
@@ -1253,22 +1249,10 @@ function AddonPseudo_Console_create() {
         };
     };
 
-    presenter.checkInstructionName = function presenter_checkInstructionName (instructionName) {
-        if (!presenter.configuration.functions[instructionName]) {
-            throw new presenter.exceptions.InstructionNameException(instructionName);
-        }
-    };
-
-
     presenter.exceptions = {
         InstructionIsDefinedException: function InstructionIsDefinedException(instrName) {
             this.message = "Instruction was defined before: \"" + instrName + "\"";
             this.name = "InstructionIsDefinedException";
-        },
-
-        InstructionNameException: function InstructionNameException(instrName) {
-            this.message = "Undefined instruction \"" + instrName + "\"";
-            this.name = "InstructionNameException";
         },
 
         CastErrorException: function CastErrorException(type, toType) {
@@ -1654,7 +1638,6 @@ function AddonPseudo_Console_create() {
             score;
 
         presenter.initializeObjectForCode(presenter.generateConsoleMock(presenter.configuration.answer.parameters));
-
         presenter.codeExecutor(code, true);
         score = presenter.evaluateScoreFromLastOutput();
 
@@ -1836,6 +1819,7 @@ function AddonPseudo_Console_create() {
      * @param  {Boolean} getScore if function will be called to get score
      */
     presenter.codeExecutor = function presenter_codeExecutor (parsedData, getScore) {
+        console.log(parsedData);
         var actualIndex = 0,
             code = parsedData.code,
             timeoutId = 0,

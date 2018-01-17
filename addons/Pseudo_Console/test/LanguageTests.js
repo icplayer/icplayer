@@ -943,6 +943,153 @@ TestCase("[Pseudo_Console - language tests] exceptions", {
          */
         this.test7 = "program test \n variable a \n array b[2] = [1] \n begin \n mock2(b[0])\n mock2(b[\"1\"]) \n end";
 
+        /*
+        program test
+        variable a
+        array b[2] = [1]
+        begin
+
+        end
+         */
+        this.test8 = "program test \n variable a \n array b[2] = [1] \n begin \n b[3] = 1 \n end";
+
+        /*
+        program test
+        variable a
+        array b[2] = [1]
+        begin
+            b[-1] = 2
+        end
+         */
+        this.test9 = "program test \n variable a \n array b[2] = [1] \n begin \n b[-1] = 2 \n end";
+
+        /*
+        program test
+        variable a
+        array b[2] = [1]
+        begin
+            b["-1"] = 2
+        end
+         */
+        this.test10 = "program test \n variable a \n array b[2] = [1] \n begin \n b[\"-1\"] = 2 \n end";
+
+        /*
+        program test
+        variable a, b, c
+        begin
+            a = 1 == 1
+            b = "xd"
+            c = b + a
+        end
+         */
+        this.test11 = "program test \n variable a, b, c \n begin \n a = 1 == 1 \n b = \"xd\" \n c = b + a \n end";
+
+        /*
+        program test
+        variable a, b, c
+        begin
+            a = 1 == 1
+            b = 12
+            c = b + a
+        end
+         */
+        this.test12 = "program test \n variable a, b, c \n begin \n a = 1 == 1 \n b = 12 \n c = b + a \n end";
+
+        /*
+        program test
+        variable a, b, c
+        begin
+            a = 12
+            b = "12"
+            c = a - b
+        end
+        */
+        this.test13 = "program test \n variable a, b, c \n begin \n a = 12 \n b = \"12\" \n c = a - b \n end";
+
+        /*
+        program test
+        variable a, b, c
+        begin
+            a = 12
+            b = "12"
+            c = a / b
+        end
+        */
+        this.test14 = "program test \n variable a, b, c \n begin \n a = 12 \n b = \"12\" \n c = a / b \n end";
+
+
+        /*
+        program test
+        variable a, b, c
+        begin
+            a = 12
+            b = "12"
+            c = a * b
+        end
+        */
+        this.test15 = "program test \n variable a, b, c \n begin \n a = 12 \n b = \"12\" \n c = a * b \n end";
+
+        /*
+        program test
+        variable a, b, c
+        begin
+            a = 12
+            b = "12"
+            c = a /_ b
+        end
+        */
+        this.test16 = "program test \n variable a, b, c \n begin \n a = 12 \n b = \"12\" \n c = a /_ b \n end";
+
+
+        /*
+        program test
+        variable a, b, c
+        begin
+            a = 12
+            b = "12"
+            c = a % b
+        end
+        */
+        this.test17 = "program test \n variable a, b, c \n begin \n a = 12 \n b = \"12\" \n c = a % b \n end";
+
+        /*
+        function a ()
+        begin
+
+        end
+
+        function a ()
+        begin
+
+        end
+
+        program test
+        begin
+
+        end
+         */
+        this.test18 = "function a () \n begin \n end \n function a () \n begin \n end \n program test \n begin \n end";
+
+        /*
+        function mock2 ()
+        begin
+
+        end
+        program test
+        begin
+
+        end
+         */
+        this.test19 = "function mock2() \n begin \n end \n program test \n begin \n end \n";
+
+        /*
+        program test
+        begin
+            1.toString()
+        end
+         */
+        //This toString is on purpose and will check if js built in method is not returned.
+        this.test20 = "program test \n begin \n 1.toString2() \n end";
     },
 
     tearDown: function () {
@@ -1020,6 +1167,124 @@ TestCase("[Pseudo_Console - language tests] exceptions", {
         this.presenter.evaluateScoreFromUserCode();
 
         assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
-    }
+    },
 
+    'test array setter throw OutOfBounds exception if index is above array size': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test8);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.calledWithNew());
+    },
+
+    'test array setter throw OutOfBounds exception if index is below 0': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test9);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.calledWithNew());
+    },
+
+    'test array setter will throw cast exception if index is not a number': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test10);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+    },
+
+    'test string will throw exception if is trying to add not a number and not a string': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test11);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+    },
+
+    'test number will throw exception if is trying to add not a number and not a string': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test12);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+    },
+
+    'test number will throw exception if is trying to sub not a number': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test13);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+    },
+
+    'test number will throw exception if is trying to div not a number': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test14);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+    },
+
+    'test number will throw exception if is trying to mul not a number': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test15);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+    },
+
+    'test number will throw exception if is trying to div without rest not a number': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test16);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+    },
+
+    'test number will throw exception if is trying to modulo not a number': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test17);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+    },
+
+    'test user defined multiple instructions with the same name': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test18);
+
+        try {
+            this.presenter.checkCode();
+        } catch (e) {
+        }
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.InstructionIsDefinedException.calledWithNew());
+    },
+
+    'test user defined instruction with name which was defined in addon property': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test19);
+
+        try {
+            this.presenter.checkCode();
+        } catch (e) {
+        }
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.InstructionIsDefinedException.calledWithNew());
+    },
+
+    'test user calls method which is not defined': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test20);
+
+        try {
+            this.presenter.checkCode();
+        } catch (e) {
+        }
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.presenter.exceptions.MethodNotFoundException.calledWithNew());
+    }
 });
