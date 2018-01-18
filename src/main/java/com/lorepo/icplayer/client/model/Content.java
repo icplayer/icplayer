@@ -174,12 +174,6 @@ public class Content implements IContentBuilder, IContent {
 		}
 	}
 
-
-	public void setPageSubset(ArrayList<Integer> pageList){
-		if (pageList != null) {
-		}
-	}
-
 	/**
 	 * Convert model into XML
 	 * @return

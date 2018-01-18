@@ -17,14 +17,16 @@ import com.lorepo.icplayer.client.xml.content.ContentFactory;
 
 public class ContentFactoryMockup extends ContentFactory {
 	
-	public ContentFactoryMockup() {
-		super();
+	public ContentFactoryMockup(ArrayList<Integer> pagesSubset) {
+		super(pagesSubset);
 	}
 	
 	public static ContentFactoryMockup getInstanceWithAllPages() {
-		ContentFactoryMockup cf = new ContentFactoryMockup();
-		cf.setPagesSubset(new ArrayList<Integer>());
-		return cf;
+		return new ContentFactoryMockup(new ArrayList<Integer>());
+	}
+	
+	public static ContentFactoryMockup getInstanceWithSubset(ArrayList<Integer> pageSubset) {
+		return new ContentFactoryMockup(pageSubset);
 	}
 	
 	@Override

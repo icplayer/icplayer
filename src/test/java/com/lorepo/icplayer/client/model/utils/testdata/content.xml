@@ -26,11 +26,11 @@
 
 <pages>
 	<page name="style-audio" href="pages/style-audio.page.xml"/>
-	<page name="schoice" href="pages/schoice.page.xml"/>
-	<page name="ordering" href="pages/ordering.page.xml"/>
+	<page id="schoice1" name="schoice" href="pages/schoice.page.xml"/>
+	<page id="ordering2" name="ordering" href="pages/ordering.page.xml"/>
 	<page name="cloze" href="pages/cloze.page.xml"/>
 	<page name="inline choice" href="pages/inline-choice.page.xml"/>
-	<page name="report" href="pages/report.page.xml"/>
+	<page id="report5" name="report" href="pages/report.page.xml"/>
 	<page name="text" href="pages/text.page.xml"/>
 	<page name="mchoice" href="pages/mchoice.page.xml"/>
 	<page name="addon" href="pages/addon.xml"/>

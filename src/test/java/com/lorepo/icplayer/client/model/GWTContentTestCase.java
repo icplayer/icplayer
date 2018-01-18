@@ -6,17 +6,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.tools.ant.filters.StringInputStream;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.ElementNameAndAttributeQualifier;
 import org.custommonkey.xmlunit.XMLAssert;
@@ -26,68 +23,45 @@ import org.junit.Test;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.google.gwt.xml.client.Element;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
-import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.asset.AudioAsset;
 import com.lorepo.icplayer.client.model.asset.ImageAsset;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.PageList;
+import com.lorepo.icplayer.client.model.utils.ContentFactoryMockup;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IContentNode;
 import com.lorepo.icplayer.client.module.api.player.IPage;
-import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
-import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v1;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTContentTestCase extends GwtTest {
 
-	private boolean receivedEvent = false;
 	private String DEFAULT = "default";
 	
-
-	private Content initContentFromFile(String path) throws SAXException, IOException {
-		InputStream inputStream = getClass().getResourceAsStream(path);
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-	
-		ContentParser_v0 parser = new ContentParser_v0();
-		parser.setPagesSubset(new ArrayList<Integer> ());
-		return (Content) parser.parse(element);
-	}
-	
-	private Content initContentFromFileV2(String path) throws SAXException, IOException {
-		InputStream inputStream = getClass().getResourceAsStream(path);
-		
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(inputStream);
-	
-		ContentParser_v1 parser2 = new ContentParser_v1();
-		parser2.setPagesSubset(new ArrayList<Integer> ());
-		return (Content) parser2.parse(element);
-	}
-
 	private static Content initContentFromString(String xml) throws SAXException, IOException {
-
-		XMLParserMockup xmlParser = new XMLParserMockup();
-		Element element = xmlParser.parser(new StringInputStream(xml));
-		
-		ContentParser_v0 parser = new ContentParser_v0();
-		parser.setPagesSubset(new ArrayList<Integer> ());
-		
-		return (Content) parser.parse(element);
+		ContentFactoryMockup contentFactory = (ContentFactoryMockup) ContentFactoryMockup.getInstanceWithAllPages();
+		return contentFactory.loadFromString(xml);
+	}
+	
+	private Content initContentFactoryFromFile(String path, ArrayList<Integer> pageSubset) throws SAXException, IOException {
+		ContentFactoryMockup contentFactory = (ContentFactoryMockup) ContentFactoryMockup.getInstanceWithSubset(pageSubset);
+		return contentFactory.loadFromFile(path);
+	}
+	
+	private Content initContentFactoryFromFileWithAllPages(String path) throws SAXException, IOException {
+		ContentFactoryMockup contentFactory = (ContentFactoryMockup) ContentFactoryMockup.getInstanceWithAllPages();
+		return contentFactory.loadFromFile(path);
 	}
 	
 	private String getFromFile(String path) throws IOException {
-		InputStream xmlStream = getClass().getResourceAsStream(path);
-		Scanner s = new Scanner(xmlStream).useDelimiter("\\A");
-		String result = s.hasNext() ? s.next() : "";
-		return result;
+		ContentFactoryMockup contentFactory = (ContentFactoryMockup) ContentFactoryMockup.getInstanceWithAllPages();
+		return contentFactory.getFromFile(path);
 	}
 
+	
 	@Before
 	public void setUp() {
 		XMLUnit.setIgnoreWhitespace(true);
@@ -166,7 +140,7 @@ public class GWTContentTestCase extends GwtTest {
 
 	@Test
 	public void toXMLCheckValid() throws SAXException, IOException {
-		Content model = initContentFromFile("testdata/content.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content.xml");
 		String xml = model.toXML();
 		initContentFromString(xml);
 	}
@@ -174,7 +148,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void toXMLCheckAddons() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content.xml");
 		String xml = model.toXML();
 
 		int index = xml.indexOf("<addon-descriptor");
@@ -184,7 +158,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void loadFromXMLCheckPages() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content.xml");
 
 		assertEquals(17, model.getPages().getTotalPageCount());
 	}
@@ -192,7 +166,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void findPage() throws ParserConfigurationException, SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content.xml");
 
 		Page page = model.findPageByName("cloze");
 
@@ -203,7 +177,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void findCommonPage() throws ParserConfigurationException, SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content.xml");
 
 		Page page = model.findPageByName("commons/Popup1");
 
@@ -214,7 +188,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void commonsCount() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content.xml");
 
 		assertEquals(2, model.getCommonPages().getTotalPageCount());
 
@@ -228,7 +202,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void checkReportablePages() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content3.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content3.xml");
 
 		assertEquals(3, model.getPages().getTotalPageCount());
 
@@ -240,7 +214,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void loadSaveReportablePages() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content3.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content3.xml");
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 
@@ -254,7 +228,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void loadFromXMLCheckStyles() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content.xml");
 
 		HashMap<String, CssStyle> styles = model.getStyles();
 		CssStyle defaultStyle = styles.get(this.DEFAULT);
@@ -265,7 +239,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void loadFromXMLCheckAssets() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content.xml");
 
 		assertEquals(3, model.getAssetCount());
 	}
@@ -273,7 +247,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void loadFromXMLCheckAddons() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content2.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content2.xml");
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 
@@ -316,7 +290,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void headerAndFooter() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content-headerfooter.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content-headerfooter.xml");
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 
@@ -334,7 +308,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void caseInsensitiveFolder() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content-headerfooter.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content-headerfooter.xml");
 
 		Page page = model.findPageByName("COMMONS/HEADER");
 
@@ -362,7 +336,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void loadSaveAssets() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content.xml");
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 
@@ -377,7 +351,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void loadSave() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content3.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content3.xml");
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 
@@ -390,7 +364,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void contentName() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content.xml");
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 
@@ -400,7 +374,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void randomPageId() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content3.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content3.xml");
 
 		IPage page = model.getPage(0);
 		assertTrue(page.getId().length() > 0);
@@ -409,7 +383,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void loadSavePageId() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content3.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content3.xml");
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 
@@ -420,7 +394,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void chapterPages() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content4.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content4.xml");
 
 		assertEquals(5, model.getPages().getTotalPageCount());
 	}
@@ -428,7 +402,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void loadSaveChapter() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content4.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content4.xml");
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 
@@ -438,7 +412,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void chapterName() throws SAXException, IOException {
 
-		Content model = initContentFromFile("testdata/content4.xml");
+		Content model = initContentFactoryFromFileWithAllPages("testdata/content4.xml");
 		String xml = model.toXML();
 		model = initContentFromString(xml);
 
@@ -453,7 +427,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void currentChapterRoot() throws SAXException, IOException {
 
-		Content content = initContentFromFile("testdata/content4.xml");
+		Content content = initContentFactoryFromFileWithAllPages("testdata/content4.xml");
 		String xml = content.toXML();
 		content = initContentFromString(xml);
 
@@ -464,7 +438,7 @@ public class GWTContentTestCase extends GwtTest {
 
 	@Test
 	public void currentChapterCommons() throws SAXException, IOException {
-		Content content = initContentFromFile("testdata/content4.xml");
+		Content content = initContentFactoryFromFileWithAllPages("testdata/content4.xml");
 		String xml = content.toXML();
 		content = initContentFromString(xml);
 
@@ -476,7 +450,7 @@ public class GWTContentTestCase extends GwtTest {
 	@Test
 	public void currentChapterSecondLevel() throws SAXException, IOException {
 
-		Content content = initContentFromFile("testdata/content4.xml");
+		Content content = initContentFactoryFromFileWithAllPages("testdata/content4.xml");
 		String xml = content.toXML();
 		content = initContentFromString(xml);
 
@@ -487,7 +461,7 @@ public class GWTContentTestCase extends GwtTest {
 	
 	@Test
 	public void loadToXMLHaveToPreserverModulesMaxScoresNonSemiResponsive() throws SAXException, IOException {
-		Content content = initContentFromFile("testdata/contentWithModulesMaxScores.xml");
+		Content content = initContentFactoryFromFileWithAllPages("testdata/contentWithModulesMaxScores.xml");
 		
 		String result = content.toXML();
 		
@@ -500,7 +474,7 @@ public class GWTContentTestCase extends GwtTest {
 	
 	@Test
 	public void loadToXMLHaveToPreserverModulesMaxScoresSemiResponsiveVersion2() throws SAXException, IOException {
-		Content content = initContentFromFileV2("testdata/contentWithModulesSemiResponsiveMaxScoresV2.xml");
+		Content content = initContentFactoryFromFileWithAllPages("testdata/contentWithModulesSemiResponsiveMaxScoresV2.xml");
 		
 		String result = content.toXML();
 		
@@ -576,5 +550,21 @@ public class GWTContentTestCase extends GwtTest {
 		
 		Page result = content.getHeader(page);
 		assertEquals(header, result);
+	}
+	
+	@Test
+	public void pageSubset() throws SAXException, IOException {
+
+		ArrayList<Integer> selectedPages = new ArrayList<Integer>();
+		selectedPages.add(1);
+		selectedPages.add(2);
+		selectedPages.add(5);
+		
+		Content content = initContentFactoryFromFile("testdata/content.xml", selectedPages);
+		assertEquals(3, content.getPages().getTotalPageCount());
+		
+		assertNotNull(content.getPageById("schoice1"));
+		assertNotNull(content.getPageById("ordering2"));
+		assertNotNull(content.getPageById("report5"));
 	}
 }

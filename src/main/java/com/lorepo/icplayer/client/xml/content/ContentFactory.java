@@ -19,7 +19,8 @@ import com.lorepo.icplayer.client.xml.content.parsers.IContentParser;
 public class ContentFactory extends XMLVersionAwareFactory {
 	private ArrayList<Integer> pagesSubset;
 	
-	protected ContentFactory() {
+	protected ContentFactory(ArrayList<Integer> pagesSubset) {
+		this.setPagesSubset(pagesSubset);
 		this.addParser(new ContentParser_v0());
 		this.addParser(new ContentParser_v1());
 	}
@@ -34,10 +35,7 @@ public class ContentFactory extends XMLVersionAwareFactory {
 	}
 
 	public static IXMLFactory getInstance(ArrayList<Integer> pagesSubset) {
-		ContentFactory factory = new ContentFactory();
-		factory.setPagesSubset(pagesSubset);
-		
-		return factory;
+		return new ContentFactory(pagesSubset);
 	}
 	
 	public static IXMLFactory getInstanceWithAllPages() {
