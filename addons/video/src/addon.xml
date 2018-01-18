@@ -11,6 +11,7 @@
 			<property name="ID" nameLabel="video_property_id" type="string" />
             <property name="Loop video" nameLabel="video_property_loop_video" type="boolean" />
 			<property name="AlternativeText" nameLabel="video_property_alternative_text" type="string" />
+			<property name="time_labels" nameLabel="video_property_time_labels" type="text"/>
 		</property>
 		<property name="Show video" nameLabel="video_property_show_video" type="string" />
 		<property name="Narration" nameLabel="video_property_narration" type="narration" isLocalized="true" />

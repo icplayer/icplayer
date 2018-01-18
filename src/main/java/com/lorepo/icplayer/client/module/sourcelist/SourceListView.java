@@ -377,37 +377,37 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	}
 
 	@Override
-	public void space() {
+	public void space(KeyDownEvent event) {
 		select();
 	}
 
 	@Override
-	public void tab() {
+	public void tab(KeyDownEvent event) {
 		next();
 	}
 
 	@Override
-	public void left() {
+	public void left(KeyDownEvent event) {
 		previous();
 	}
 
 	@Override
-	public void right() {
+	public void right(KeyDownEvent event) {
 		next();
 	}
 
 	@Override
-	public void down() {
+	public void down(KeyDownEvent event) {
 		next();
 	}
 
 	@Override
-	public void up() {
+	public void up(KeyDownEvent event) {
 		previous();
 	}
 
 	@Override
-	public void escape() {
+	public void escape(KeyDownEvent event) {
 		if (labelsIds.size() < 1) {
 			return;
 		}
@@ -415,12 +415,11 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		this.unMarkCurrentItem();
 	}
 
-
 	@Override
 	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
-	public void shiftTab() {
+	public void shiftTab(KeyDownEvent event) {
 		previous();
 	}
 	

@@ -30,9 +30,9 @@ public class CheckButtonModule extends BasicModuleModel {
 				if(childNode.getNodeName().compareTo("button") == 0 && childNode instanceof Element) {
 					Element childElement = (Element) childNode;
 					
-					title = XMLUtils.getAttributeAsString(childElement, "text");
-					checkTitle = XMLUtils.getAttributeAsString(childElement, "checkTitle");
-					unCheckTitle = XMLUtils.getAttributeAsString(childElement, "unCheckTitle");
+					title = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "text"));
+					checkTitle = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "checkTitle"));
+					unCheckTitle = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "unCheckTitle"));
 					
 					if (!title.equals("")) {
 						checkTitle = title;

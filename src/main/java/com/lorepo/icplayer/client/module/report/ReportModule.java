@@ -56,7 +56,7 @@ public class ReportModule extends BasicModuleModel {
 
 			Element element = (Element)labelNodes.item(i);
 			String labelName = XMLUtils.getAttributeAsString(element, "name");
-			String labelValue = XMLUtils.getAttributeAsString(element, "value");
+			String labelValue = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(element, "value"));
 			
 			if(labelName.compareTo("ErrorCount") == 0){
 				errorsLabel = labelValue;

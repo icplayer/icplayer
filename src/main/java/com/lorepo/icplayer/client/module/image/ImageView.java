@@ -26,7 +26,6 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 	private PageController pageController;
 	private boolean isWCAGOn = false;
 	
-	
 	public ImageView(ImageModule module, boolean isPreview) {
 	
 		this.module = module;
@@ -159,31 +158,31 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 	}
 
 	@Override
-	public void space() {}
+	public void space(KeyDownEvent event) {}
 
 	@Override
-	public void tab() {}
+	public void tab(KeyDownEvent event) {}
 
 	@Override
-	public void left() {}
+	public void left(KeyDownEvent event) {}
 
 	@Override
-	public void right() {}
+	public void right(KeyDownEvent event) {}
 
 	@Override
-	public void down() {}
+	public void down(KeyDownEvent event) {}
 
 	@Override
-	public void up() {}
+	public void up(KeyDownEvent event) {}
 
 	@Override
-	public void escape() {}
+	public void escape(KeyDownEvent event) {}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
-	public void shiftTab() {}
+	public void shiftTab(KeyDownEvent event) {}
 	
 	private void speak (String text) {
 		if (this.pageController != null) {

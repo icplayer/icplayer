@@ -362,49 +362,47 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 
 	@Override
-	public void space() {
+	public void space(KeyDownEvent event) {
 		select();
 		textToSpeechSelectOption();
 	}
 
 
 	@Override
-	public void tab() {
+	public void tab(KeyDownEvent event) {
 		skip();
 		textToSpeechCurrentOption();
 	}
 
 
 	@Override
-	public void left() {
+	public void left(KeyDownEvent event) {
 	    previous();
 		textToSpeechCurrentOption();
 	}
 
+	@Override
+	public void right(KeyDownEvent event) {
+        skip();
+        textToSpeechCurrentOption();
+	}
 
 	@Override
-	public void right() {
+	public void down(KeyDownEvent event) {
         skip();
         textToSpeechCurrentOption();
 	}
 
 
 	@Override
-	public void down() {
-        skip();
-        textToSpeechCurrentOption();
-	}
-
-
-	@Override
-	public void up() {
+	public void up(KeyDownEvent event) {
 	    previous();
 		textToSpeechCurrentOption();
 	}
 
 
 	@Override
-	public void escape() {
+	public void escape(KeyDownEvent event) {
 		removeBorder();
 	}
 
@@ -419,7 +417,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	}
 	
 	@Override
-	public void shiftTab() {
+	public void shiftTab(KeyDownEvent event) {
 	    previous();
 		textToSpeechCurrentOption();
 	}

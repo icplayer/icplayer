@@ -212,7 +212,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 	
 	public void sortGapsOrder () {
-		final List<String> gapsOrder = module.getGapsOrder();
+//		final List<String> gapsOrder = module.getGapsOrder();
+		final List<String> gapsOrder = WCAGUtils.getGapsOrder(module);
 		final int gapsOrderSize = gapsOrder.size();
 		final int textElementsSize = textElements.size();
 		
@@ -220,7 +221,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			return;
 		}
 		
-		for (int i=0; i<textElementsSize; i++) {
+		for (int i=0; i<textElementsSize && i<gapsOrderSize; i++) {
 			final String gapType = gapsOrder.get(i);
 			final String currentGapType = textElements.get(i).getGapType();
 			
@@ -449,12 +450,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 
 	@Override
-	public void tab () {
+	public void tab (KeyDownEvent event) {
 		this.move(true);
 	}
 
 	@Override
-	public void escape() {
+	public void escape(KeyDownEvent event) {
 		this.removeAllSelections();
 		moduleHasFocus = false;
 		clicks = -1;
@@ -462,24 +463,24 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 
 	@Override
-	public void shiftTab () {
+	public void shiftTab (KeyDownEvent event) {
 		this.move(false);
 	}
 	
 	@Override
-	public void left () {}
+	public void left (KeyDownEvent event) {}
 
 	@Override
-	public void right () {}
+	public void right (KeyDownEvent event) {}
 
 	@Override
-	public void down () {}
+	public void down (KeyDownEvent event) {}
 
 	@Override
-	public void up () {}
+	public void up (KeyDownEvent event) {}
 	
 	@Override
-	public void space() {
+	public void space(KeyDownEvent event) {
 		if(!isShowErrorsMode){
 			this.listener.onGapClicked(activeGap.getId());
 		}
@@ -491,7 +492,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 	
 	@Override
-	public void setShowErrorsMode(){
+	public void setShowErrorsMode () {
 		this.isShowErrorsMode = true;
 	}
 	

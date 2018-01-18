@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<reportModule id="report1" left="10" top="2" width="80" height="96">
+	<labels pageNameWidth="100">
+		<label name="ErrorCount" value="1&lt;&gt;"/>
+		<label name="CheckCount" value="2&lt;&gt;"/>
+		<label name="Results" value="3&lt;&gt;"/>
+		<label name="Total" value="4&lt;&gt;"/>
+	</labels>
+</reportModule>
