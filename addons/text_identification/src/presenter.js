@@ -527,7 +527,9 @@ function Addontext_identification_create() {
     TextIdentificationKeyboardController.prototype.select = function (event) {
         presenter.clickHandler(event);
 
-        if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode()) {
+        if (presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode) {
+            presenter.readSelected();
+        } else if (!presenter.isShowAnswersActive && !presenter.configuration.isErrorCheckMode) {
             presenter.readSelected();
         }
     };
@@ -557,6 +559,12 @@ function Addontext_identification_create() {
 
     presenter.readElement = function () {
         var text = presenter.$view.find('.text-identification-content').text().trim();
+
+        if (presenter.configuration.isSelected && !presenter.isShowAnswersActive) {
+            text += ' ' + presenter.selectedSpeechText;
+        } else if (presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode && presenter.configuration.isSelected) {
+             text += ' ' + presenter.selectedSpeechText;
+        }
 
         // correctness should be read only when check mode is active and addon is selected
         if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode &&  presenter.configuration.isSelected) {
