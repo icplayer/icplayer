@@ -700,9 +700,16 @@ function AddonLearnPen_Report_create() {
     };
 
     presenter.reset = function() {
+        var addon;
         presenter.data.sensorsDataHistory = [];
         presenter.displayData(presenter.getData());
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+
+        for (addon in presenter.addons) {
+            if (presenter.addons.hasOwnProperty(addon)) {
+                hookToDrawingAreas(addon);
+            }
+        }
     };
 
     presenter.show = function() {
