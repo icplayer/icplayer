@@ -544,7 +544,7 @@ function Addontext_identification_create() {
     };
 
     presenter.readSelected = function () {
-        var text;
+        var text, voiceObject;
 
         if (presenter.isShowAnswersActive) {
             text = presenter.configuration.shouldBeSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
@@ -552,28 +552,35 @@ function Addontext_identification_create() {
             text = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
         }
 
-        speak(text);
+        voiceObject = getTextVoiceObject(text);
+
+        speak([voiceObject]);
     };
 
     presenter.readElement = function () {
+        var voiceObjects = [];
+
         var text = presenter.$view.find('.text-identification-content').text().trim();
+        voiceObjects.push(getTextVoiceObject(text, presenter.langTag));
+
+        var selectedTextObject = getTextVoiceObject(presenter.selectedSpeechText);
 
         if (!presenter.isShowAnswersActive && !presenter.configuration.isErrorCheckMode && presenter.configuration.isSelected) {
-            text += ' ' + presenter.selectedSpeechText;
+            voiceObjects.push(selectedTextObject);
         } else if (presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode && presenter.configuration.shouldBeSelected) {
-            text += ' ' + presenter.selectedSpeechText;
+            voiceObjects.push(selectedTextObject);
         }
 
         // correctness should be read only when check mode is active and addon is selected
         if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode &&  presenter.configuration.isSelected) {
-            text += ' ' + presenter.selectedSpeechText;
+            voiceObjects.push(selectedTextObject);
 
             var isAnswerCorrect = presenter.configuration.isSelected === presenter.configuration.shouldBeSelected;
-            text += ' ';
-            text += isAnswerCorrect ? presenter.correctSpeechText : presenter.incorrectSpeechText;
+            var isAnswerCorrectText = isAnswerCorrect ? presenter.correctSpeechText : presenter.incorrectSpeechText;
+            voiceObjects.push(getTextVoiceObject(isAnswerCorrectText));
         }
 
-        speak(text, presenter.langTag);
+        speak(voiceObjects, presenter.langTag);
     };
 
     presenter.getTextToSpeechOrNull = function (playerController) {
@@ -584,10 +591,10 @@ function Addontext_identification_create() {
         return null;
     };
 
-    function speak (text, lang) {
+    function speak (voiceObjects) {
         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
         if (tts) {
-            tts.speak([getTextVoiceObject(text, lang)]);
+            tts.speak(voiceObjects);
         }
     }
 
