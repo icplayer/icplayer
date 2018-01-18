@@ -12,7 +12,6 @@ import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticListProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
@@ -46,8 +45,6 @@ public class TextModel extends BasicModuleModel {
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
-	private List<String> gapsOrder;
-	public String rawTextNoGaps;
 	private String originalText;
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String langAttribute = "";
@@ -97,10 +94,6 @@ public class TextModel extends BasicModuleModel {
 
 	public int getGapWidth() {
 		return gapWidth;
-	}
-	
-	public List<String> getGapsOrder () {
-		return this.gapsOrder;
 	}
 
 	@Override
@@ -159,8 +152,6 @@ public class TextModel extends BasicModuleModel {
 		parser.setUseEscapeCharacterInGap(this.useEscapeCharacterInGap);
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
-		gapsOrder = parser.getGapsOrder();
-		rawTextNoGaps = parser.getRawText();
 		originalText = parsedTextInfo.originalText;
 
 		if (parsedText.equals("#ERROR#")) {

@@ -790,18 +790,17 @@ function AddonTrueFalse_create() {
             var $active = getActivatedElement(),
                 question = $active.parent().parent().first().text().trim(),
                 elementIndex = getElementIndex($active),
-                choice = getChoice(elementIndex),
-                text = '';
+                choice = getChoice(elementIndex);
 
             if ($active.hasClass('tf_' + presenter.type + '_question')) {
                 speak([getTextVoiceObject($active.text().trim(), presenter.langAttribute)]);
                 return;
             }
 
-            if(!readSelection) {
+            if (!readSelection) {
                 if ($active.parent().hasClass('down')) {
-                    if(presenter.isErrorMode) {
-                        if($active.parent().hasClass('correct')) {
+                    if (presenter.isErrorMode) {
+                        if ($active.parent().hasClass('correct')) {
                             speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + correctSpeechText, "")]);
                         }
                         if($active.parent().hasClass('wrong')) {
@@ -811,7 +810,7 @@ function AddonTrueFalse_create() {
                         speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText, "")]);
                     }
                 } else {
-                    speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(deselectedSpeechText, "")]);
+                    speak([getTextVoiceObject(choice, presenter.langAttribute)]);
                 }
             } else {
                 if ($active.parent().hasClass('down')) {
@@ -947,13 +946,8 @@ function AddonTrueFalse_create() {
         };
 
         function tabHandler() {
-            if(isShiftKeyDown) {
-                swicht_element(-1, true);
-                readOption(false);
-            } else {
-                swicht_element(1, true);
-                readOption(false);
-            }
+            swicht_element(isShiftKeyDown ? -1 : 1, true);
+            readOption(false);
         }
 
         var mapping = {};

@@ -382,27 +382,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		return "Text";
 	}
 	
-	private String getContentWithGapsValues () {
-		String result = "";
-		int textElementIndex = 0;
-		
-		for (int i=0; i<module.rawTextNoGaps.length(); i++) {
-			String letter3 = Character.toString ((char) module.rawTextNoGaps.charAt(i));
-			result += letter3;
-			
-			if (i >= 2) {
-				String letter1 = Character.toString((char) module.rawTextNoGaps.charAt(i-2));
-				String letter2 = Character.toString((char) module.rawTextNoGaps.charAt(i-1));
-				
-				if (letter1.equals("#") && letter3.equals("#") && (letter2.equals("1") || letter2.equals("2") || letter2.equals("3") || letter2.equals("4"))) {
-					result += "  " + this.textElements.get(textElementIndex++).getTextValue();
-				}
-			}
-		}
-		
-		return result;
-	}
-	
 	public void enter (boolean isExiting) {
 		if (isExiting) {
 			this.removeAllSelections();

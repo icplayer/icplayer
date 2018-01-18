@@ -273,21 +273,21 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private void textToSpeechCurrentOption () {
 		IOptionDisplay widget = optionWidgets.get(position);
 		ChoiceOption option = widget.getModel();
-		String text = widget.getModel().getText();
-		
-		text = StringUtils.removeAllFormatting(text);
-		String callbackText = this.deselectedText;
+		String callbackText = "";
 		
 		if (widget.isDown()) {
-			if(this.isShowErrorsMode) {
-				String checkText = option.getValue() > 0 ? this.correctText : this.incorrectText;
+			if (this.isShowErrorsMode) {
+				final String checkText = option.getValue() > 0 ? this.correctText : this.incorrectText;
 				callbackText = this.selectedText + " " + checkText;
 			} else {
 				callbackText = this.selectedText;
 			}
 		}
 		
-		this.speak(TextToSpeechVoice.create(text, this.module.getLangAttribute()), TextToSpeechVoice.create(callbackText, ""));
+		this.speak(
+			TextToSpeechVoice.create(StringUtils.removeAllFormatting(widget.getModel().getText()), this.module.getLangAttribute()),
+			TextToSpeechVoice.create(callbackText)
+		);
 	}
 
 	private void textToSpeechSelectOption () {
@@ -357,9 +357,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		} else {
 			removeBorder();
 		}
-		
 	}
-
 
 	@Override
 	public void space(KeyDownEvent event) {
@@ -367,17 +365,15 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		textToSpeechSelectOption();
 	}
 
-
 	@Override
 	public void tab(KeyDownEvent event) {
 		skip();
 		textToSpeechCurrentOption();
 	}
 
-
 	@Override
 	public void left(KeyDownEvent event) {
-	    previous();
+		previous();
 		textToSpeechCurrentOption();
 	}
 
@@ -393,19 +389,16 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
         textToSpeechCurrentOption();
 	}
 
-
 	@Override
 	public void up(KeyDownEvent event) {
 	    previous();
 		textToSpeechCurrentOption();
 	}
 
-
 	@Override
 	public void escape(KeyDownEvent event) {
 		removeBorder();
 	}
-
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {
