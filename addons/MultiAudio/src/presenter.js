@@ -13,6 +13,7 @@ function AddonMultiAudio_create(){
     presenter.globalModel = null;
     presenter.playerController = null;
     presenter.addonID = null;
+    presenter.type = 'multiaudio';
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
