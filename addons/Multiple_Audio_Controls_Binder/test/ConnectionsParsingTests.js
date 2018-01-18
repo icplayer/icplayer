@@ -24,14 +24,14 @@ TestCase("Connections parsing", {
 
     'test proper connection for different items': function() {
         var connections = 'Audio5|Double_State_Button5\n' +
-                          'Audio6|Double_State_Button6|Item1\n' +
-                          'Audio6|Double_State_Button7|Item2\n' +
+                          'Audio6|Double_State_Button6|1\n' +
+                          'Audio6|Double_State_Button7|2\n' +
                           'Audio7|Double_State_Button8\n' +
                           'Audio8|Double_State_Button9',
             expectedConnections = [
                 { Audio: 'Audio5', DoubleStateButton: 'Double_State_Button5', Item: undefined},
-                { Audio: 'Audio6', DoubleStateButton: 'Double_State_Button6', Item: 'Item1'},
-                { Audio: 'Audio6', DoubleStateButton: 'Double_State_Button7', Item: 'Item2'},
+                { Audio: 'Audio6', DoubleStateButton: 'Double_State_Button6', Item: '1'},
+                { Audio: 'Audio6', DoubleStateButton: 'Double_State_Button7', Item: '2'},
                 { Audio: 'Audio7', DoubleStateButton: 'Double_State_Button8', Item: undefined},
                 { Audio: 'Audio8', DoubleStateButton: 'Double_State_Button9', Item: undefined}
             ];
