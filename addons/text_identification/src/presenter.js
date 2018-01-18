@@ -527,7 +527,9 @@ function Addontext_identification_create() {
     TextIdentificationKeyboardController.prototype.select = function (event) {
         presenter.clickHandler(event);
 
-        presenter.readSelected();
+        if (!presenter.isShowAnswersActive && !presenter.configuration.isErrorCheckMode) {
+            presenter.readSelected();
+        }
     };
 
 
@@ -542,7 +544,7 @@ function Addontext_identification_create() {
     };
 
     presenter.readSelected = function () {
-        var text;
+        var text, voiceObject;
 
         if (presenter.isShowAnswersActive) {
             text = presenter.configuration.shouldBeSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
@@ -550,18 +552,35 @@ function Addontext_identification_create() {
             text = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
         }
 
-        // correctness should be read only when check mode is active and addon is selected
-        if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode &&  presenter.configuration.isSelected) {
-            var isAnswerCorrect = presenter.configuration.isSelected === presenter.configuration.shouldBeSelected;
-            text += ' ';
-            text += isAnswerCorrect ? presenter.correctSpeechText : presenter.incorrectSpeechText;
-        }
+        voiceObject = getTextVoiceObject(text);
 
-        speak(text);
+        speak([voiceObject]);
     };
 
     presenter.readElement = function () {
-        speak(presenter.$view.find('.text-identification-content').text().trim(), presenter.langTag);
+        var voiceObjects = [];
+
+        var text = presenter.$view.find('.text-identification-content').text().trim();
+        voiceObjects.push(getTextVoiceObject(text, presenter.langTag));
+
+        var selectedTextObject = getTextVoiceObject(presenter.selectedSpeechText);
+
+        if (!presenter.isShowAnswersActive && !presenter.configuration.isErrorCheckMode && presenter.configuration.isSelected) {
+            voiceObjects.push(selectedTextObject);
+        } else if (presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode && presenter.configuration.shouldBeSelected) {
+            voiceObjects.push(selectedTextObject);
+        }
+
+        // correctness should be read only when check mode is active and addon is selected
+        if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode &&  presenter.configuration.isSelected) {
+            voiceObjects.push(selectedTextObject);
+
+            var isAnswerCorrect = presenter.configuration.isSelected === presenter.configuration.shouldBeSelected;
+            var isAnswerCorrectText = isAnswerCorrect ? presenter.correctSpeechText : presenter.incorrectSpeechText;
+            voiceObjects.push(getTextVoiceObject(isAnswerCorrectText));
+        }
+
+        speak(voiceObjects, presenter.langTag);
     };
 
     presenter.getTextToSpeechOrNull = function (playerController) {
@@ -572,10 +591,10 @@ function Addontext_identification_create() {
         return null;
     };
 
-    function speak (text, lang) {
+    function speak (voiceObjects) {
         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
         if (tts) {
-            tts.speak([getTextVoiceObject(text, lang)]);
+            tts.speak(voiceObjects);
         }
     }
 
