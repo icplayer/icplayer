@@ -3,7 +3,7 @@ function AddonPuzzle_create() {
 
     /* Global variables */
     var board = []; // Array that will hold the 2-dimentional representation of the board.
-    var indexBoard = [];
+    var indexBoard = []; // board storing marks
     var savedBoard = [];
 
     var intPuzzleWidth = 0;
@@ -212,7 +212,7 @@ function AddonPuzzle_create() {
         });
 
         addBorderClasses();
-        Shuffle();
+        //Shuffle();
     }
 
     function AddDraggableDroppable(puzzle, board) {
@@ -222,7 +222,15 @@ function AddonPuzzle_create() {
             start: function(event,ui) {
                 // clear state if it was clicked before
                 clickNumber = 0;
-                PieceOld.removeClass('selected');
+                if (PieceOld) {
+                    PieceOld.removeClass('selected');
+                    PieceOld = null;
+                }
+
+                Log(".............. drag start of ", ui.helper.attr('position'));
+
+                if (DraggedPiece || DragStartPos)
+                    console.log("WARNING started second drag");
 
                 // this prevents clickHandler from being called, because jquery would call it in such situation:
                 // user is dragging element, and lifts mouse button, and *pointer is still over element when drag stops*
@@ -230,6 +238,7 @@ function AddonPuzzle_create() {
 
                 DraggedPiece = ui.helper;
                 DragStartPos = presenter.getPiecePositionData(DraggedPiece);
+                Log("from DragStartPos", DragStartPos);
 
                 // remove class selected, so that when user clicks on piece, and then starts to drag, it won't
                 DraggedPiece.addClass( hoverClass );
@@ -238,16 +247,20 @@ function AddonPuzzle_create() {
             stop: function(event,ui) {
 
                 if (DraggedPiece) {
+
+                    Log("___ drag-stop  revert for ", DraggedPiece.attr('position'));
+                    Log(" to DragStartPos", DragStartPos);
                     // revert position
                     DraggedPiece.animate({
                         left: (DragStartPos.left + "px"),
                         top: (DragStartPos.top + "px")
-                        }, 200,
+                        }, 4000,
                         function() { ui.helper.removeClass( hoverClass ); }
                     );
                     DraggedPiece = null;
                     DragStartPos = null;
                 } else {
+                    //console.log("___ drag-stop  revert simple");
                     // it was dropped on other puzzle before, but we still need to clear hover
                     ui.helper.removeClass( hoverClass );
                 }
@@ -266,25 +279,38 @@ function AddonPuzzle_create() {
             tolerance: "intersect",
 
             drop: function (event, ui) {
-                if (!DragStartPos)
-                    return;
+                if (!DragStartPos) { console.log("!! drop empty");
+                    return; }
 
                 var DraggedOnPiece = $(this);
                 DraggedOnPiece.removeClass(hoveredOverByOtherClass);
 
+                console.log("---------- puzzle drop");
+                Log("DraggedOnPiece: ", DraggedOnPiece.attr('position'));
+
                 var DragEndPos = presenter.getPiecePositionData(DraggedOnPiece);
+                Log("  has position DragEndPos: ", DragEndPos);
+
+                Log("DragStartPos: ", DragStartPos);
 
                 board[DragEndPos.row][DragEndPos.col].animate({
                     left: ((puzzleOuterWidth * DragStartPos.col + leftOffset) + "px"),
                     top: ((puzzleOuterHeight * DragStartPos.row + topOffset) + "px")
-                }, 200);
+                }, 2000);
 
                 board[DragStartPos.row][DragStartPos.col].animate({
                     left: ((puzzleOuterWidth * DragEndPos.col + leftOffset) + "px"),
                     top: ((puzzleOuterHeight * DragEndPos.row + topOffset) + "px")
-                }, 200);
+                }, 2100, function() { LogBoard("after drop"); } );
 
                 var temp = board[DragStartPos.row][DragStartPos.col];
+                console.log("will attempt to exchange puzzles: ");
+
+                LogPuzzle('DragStartPos', board[DragStartPos.row][DragStartPos.col]);
+                Log('with DragStartPos', DragStartPos);
+                LogPuzzle('and DragEndPos', board[DragEndPos.row][DragEndPos.col]);
+                Log('with DragEndPos', DragEndPos);
+
                 board[DragStartPos.row][DragStartPos.col] = DraggedOnPiece;
                 board[DragEndPos.row][DragEndPos.col] = temp;
 
@@ -292,6 +318,9 @@ function AddonPuzzle_create() {
 
                 DraggedPiece = null;
                 DragStartPos = null;
+
+
+
 
             },
             over: function (event, ui) {
@@ -302,6 +331,46 @@ function AddonPuzzle_create() {
                 $(this).removeClass(hoveredOverByOtherClass);
             }
         });
+    }
+
+    function Log(txt, obj) {
+        console.log( txt + " " + JSON.stringify(obj, null, 4));
+    }
+
+    function LogPuzzle(name, puz) {
+        Log(name + " has correct position", puz.attr('position') );
+
+        console.log(name + " has css position   left: " + puz.css("left") );
+        var PosData = presenter.getPiecePositionData(puz);
+        console.log(name + " calculated  PosData  col " + PosData.col );
+
+        /*         console.log(name + " has css position  top: " + puz.css("top") + " / left: " + puz.css("left") );
+        var PosData = presenter.getPiecePositionData(puz);
+        console.log(name + " calculated  PosData row " + PosData.row + " / col " + PosData.col ); */
+
+    }
+
+    function LogBoard(name) {
+
+        console.log(">>>>> board " + name);
+
+        var rows = presenter.configuration.rows,
+            columns = presenter.configuration.columns,
+            rowIndex, colIndex;
+
+        // for (rowIndex = 0; rowIndex < rows; rowIndex++) {
+        //     for (colIndex = 0; colIndex < columns; colIndex++) {
+        //         LogPuzzle( "r" + rowIndex + " / c" + colIndex + " = ", board[rowIndex][colIndex]  );
+        //     }
+        // }
+
+        for (rowIndex = 0; rowIndex < rows; rowIndex++) {
+            for (colIndex = 0; colIndex < columns; colIndex++) {
+                LogPuzzle( colIndex + " = ", board[rowIndex][colIndex]  );
+            }
+        }
+
+        console.log(" ");
     }
 
     presenter.getPiecePositionData = function(piece) {
@@ -362,8 +431,11 @@ function AddonPuzzle_create() {
         animation = false; // Shuffling should be without animation
 
 
-        for (iteration = 0; iteration < 3; iteration++) {
-            shuffleSequence = presenter.getShuffleSequence(board);
+        for (iteration = 0; iteration < 1; iteration++) {
+            //shuffleSequence =  [{"row":{"from":1,"to":1},"column":{"from":2,"to":0}},{"row":{"from":1,"to":0},"column":{"from":1,"to":0}}]; //presenter.getShuffleSequence(board);
+            shuffleSequence =  [{"row":{"from":0,"to":0},"column":{"from":2,"to":0}},{"row":{"from":0,"to":0},"column":{"from":1,"to":0}}]; //presenter.getShuffleSequence(board);
+
+            //console.log(JSON.stringify(shuffleSequence));
 
             for (i = 0; i < shuffleSequence.length; i++) {
                 shuffle = shuffleSequence[i];
@@ -435,15 +507,27 @@ function AddonPuzzle_create() {
 
         if (presenter.configuration.isErrorMode) return;
 
-        var Piece = $(this);
         // Check to see if we are in the middle of an animation.
         if (clickNumber == 0) {
             clickNumber = 1;
             PieceOld = $(this);
             PieceOld.addClass('selected');
-            PiecePos = presenter.getPiecePositionData(Piece);
+            PiecePos = presenter.getPiecePositionData(PieceOld);
+
+            console.log("clickHandler 1");
+            Log("PieceOld", PieceOld.attr('position'));
+            Log("PiecePos", PiecePos);
+
+            LogBoard("before swap");
+
         } else {
+            var Piece = $(this);
+            console.log("clickHandler 2");
+            Log("Piece", Piece.attr('position'));
+
             swapPieces(Piece, event);
+
+            LogBoard("after swap");
         }
     }
 
@@ -451,13 +535,20 @@ function AddonPuzzle_create() {
 
         clickNumber = 0;
         PiecePos2 = presenter.getPiecePositionData(Piece);
+        Log("PiecePos2", PiecePos2);
         PieceOld.removeClass('selected');
 
-        if (isSamePiece(PieceOld, Piece)) return;
+        if (isSamePiece(PieceOld, Piece)) {
+            PieceOld = null;
+            return;
+        }
         if (!event.triggered) presenter.configuration.shouldCalcScore = true;
 
+        var temp = board[PiecePos2.row][PiecePos2.col];
+
         board[PiecePos2.row][PiecePos2.col] = PieceOld;
-        board[PiecePos.row][PiecePos.col] = Piece;
+        board[PiecePos.row][PiecePos.col] = temp;
+        PieceOld = null;
 
         if (animation) {
             //Animate change of places
