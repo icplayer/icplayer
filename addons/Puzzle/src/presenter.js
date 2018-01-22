@@ -3,7 +3,7 @@ function AddonPuzzle_create() {
 
     /* Global variables */
     var board = []; // Array that will hold the 2-dimentional representation of the board.
-    var indexBoard = [];
+    var indexBoard = []; // board storing marks
     var savedBoard = [];
 
     var intPuzzleWidth = 0;
@@ -16,6 +16,11 @@ function AddonPuzzle_create() {
     var PieceOld;
     var PiecePos;
     var PiecePos2;
+
+    var DragStartPos;
+    var DraggedPiece;
+    var hoverClass = "being-hovered";
+    var hoveredOverByOtherClass = "hovered-over-by-other";
 
     var puzzleWidth = 0;
     var puzzleOuterWidth = 0;
@@ -35,6 +40,7 @@ function AddonPuzzle_create() {
 
     presenter.previousScore = 0;
     presenter.previousErrors = 0;
+    presenter.isPreview = false;
 
     function getElementDimensions(element) {
         element = $(element);
@@ -193,6 +199,10 @@ function AddonPuzzle_create() {
                 puzzle.attr("position", row + "-" + col);
                 board[row][col] = puzzle;
                 Container.append(puzzle);
+
+                // first add it to DOM, then apply draggable, so that it won't add position: relative to element
+                AddDraggableDroppable(puzzle);
+
             }
         }
 
@@ -204,6 +214,105 @@ function AddonPuzzle_create() {
         addBorderClasses();
         Shuffle();
     }
+
+    function AddDraggableDroppable(puzzle) {
+        puzzle.draggable({
+            delay: 150, // to give more time before drag starts, to prevent drags when clicking
+            // don't use container or revert, as those options are bugged in subtle ways
+            start: function(event,ui) {
+                // clear state if it was clicked before
+                clickNumber = 0;
+                PieceOld.removeClass('selected');
+
+                // this prevents clickHandler from being called, because jquery would call it in such situation:
+                // user is dragging element, and lifts mouse button, and *pointer is still over element when drag stops*
+                ui.helper.off("click");
+
+                DraggedPiece = ui.helper;
+                DragStartPos = presenter.getPiecePositionData(DraggedPiece);
+
+                // remove class selected, so that when user clicks on piece, and then starts to drag, it won't
+                DraggedPiece.addClass( hoverClass );
+              },
+
+            stop: function(event,ui) {
+
+                if (DraggedPiece) {
+                    // revert position
+                    DraggedPiece.animate({
+                        left: (DragStartPos.left + "px"),
+                        top: (DragStartPos.top + "px")
+                        }, 200,
+                        function() { ui.helper.removeClass( hoverClass ); }
+                    );
+                    DraggedPiece = null;
+                    DragStartPos = null;
+                } else {
+                    // it was dropped on other puzzle before, but we still need to clear hover
+                    ui.helper.removeClass( hoverClass );
+                }
+
+                sendEvents(puzzle);
+
+                // bringing it back here directly would make the click be called on puzzle (see comment in start), so we want
+                // to do it in next browser update cycle
+                setTimeout(
+                    function() { ui.helper.attr("href", "javascript:void( 0 );").click(clickHandler); }
+                    ,  0 );
+            }
+        });
+
+        puzzle.droppable({
+            tolerance: "intersect",
+
+            drop: function (event, ui) {
+                if (!DragStartPos)
+                    return;
+
+                var DraggedOnPiece = $(this);
+                DraggedOnPiece.removeClass(hoveredOverByOtherClass);
+
+                var DragEndPos = presenter.getPiecePositionData(DraggedOnPiece);
+
+                board[DragEndPos.row][DragEndPos.col].animate({
+                    left: ((puzzleOuterWidth * DragStartPos.col + leftOffset) + "px"),
+                    top: ((puzzleOuterHeight * DragStartPos.row + topOffset) + "px")
+                }, 200);
+
+                board[DragStartPos.row][DragStartPos.col].animate({
+                    left: ((puzzleOuterWidth * DragEndPos.col + leftOffset) + "px"),
+                    top: ((puzzleOuterHeight * DragEndPos.row + topOffset) + "px")
+                }, 200);
+
+                var temp = board[DragStartPos.row][DragStartPos.col];
+                board[DragStartPos.row][DragStartPos.col] = DraggedOnPiece;
+                board[DragEndPos.row][DragEndPos.col] = temp;
+
+                replaceBorderClasses(board[DragStartPos.row][DragStartPos.col], board[DragEndPos.row][DragEndPos.col]);
+
+                DraggedPiece = null;
+                DragStartPos = null;
+
+            },
+            over: function (event, ui) {
+                $(this).addClass(hoveredOverByOtherClass);
+            },
+            // Triggered when an accepted draggable is dragged out of the droppable
+            out: function (event, ui) {
+                $(this).removeClass(hoveredOverByOtherClass);
+            }
+        });
+    }
+
+    presenter.getPiecePositionData = function(piece) {
+        var Pos = {
+            top: parseInt(piece.css("top")),
+            left: parseInt(piece.css("left"))
+        };
+        Pos.row = Math.floor(((Pos.top - topOffset) / puzzleOuterHeight) + 0.5);
+        Pos.col = Math.floor(((Pos.left - leftOffset) / puzzleOuterWidth) + 0.5);
+        return Pos;
+    };
 
     /**
      * Fisher-Yates Shuffle algorithm: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
@@ -332,56 +441,68 @@ function AddonPuzzle_create() {
             clickNumber = 1;
             PieceOld = $(this);
             PieceOld.addClass('selected');
-            PiecePos = {
-                top: parseInt(Piece.css("top")),
-                left: parseInt(Piece.css("left"))
-            };
-            PiecePos.row = Math.floor(((PiecePos.top - topOffset) / puzzleOuterHeight) + 0.5);
-            PiecePos.col = Math.floor(((PiecePos.left - leftOffset) / puzzleOuterWidth) + 0.5);
+            PiecePos = presenter.getPiecePositionData(Piece);
         } else {
-            clickNumber = 0;
-            PiecePos2 = {
-                top: parseInt(Piece.css("top")),
-                left: parseInt(Piece.css("left"))
-            };
-            PiecePos2.row = Math.floor(((PiecePos2.top - topOffset) / puzzleOuterHeight) + 0.5);
-            PiecePos2.col = Math.floor(((PiecePos2.left - leftOffset) / puzzleOuterWidth) + 0.5);
-            PieceOld.removeClass('selected');
-
-            if (isSamePiece(PieceOld, Piece)) return;
-            if (!event.triggered) presenter.configuration.shouldCalcScore = true;
-
-            board[PiecePos2.row][PiecePos2.col] = PieceOld;
-            board[PiecePos.row][PiecePos.col] = Piece;
-
-            if (animation) {
-                //Animate change of places
-                board[PiecePos.row][PiecePos.col].animate({
-                    left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
-                    top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
-                }, 200);
-
-                board[PiecePos2.row][PiecePos2.col].animate({
-                    left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
-                    top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
-                }, 200);
-            } else {
-                board[PiecePos.row][PiecePos.col].css({
-                    left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
-                    top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
-                });
-                board[PiecePos2.row][PiecePos2.col].css({
-                    left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
-                    top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
-                });
-            }
-
-            replaceBorderClasses(board[PiecePos.row][PiecePos.col], board[PiecePos2.row][PiecePos2.col]);
-
-            if (!event.triggered && presenter.isAllOK()) {
-                sendAllOKEvent();
-            }
+            swapPieces(Piece, event);
         }
+    }
+
+    function swapPieces(Piece,event) {
+
+        clickNumber = 0;
+        PiecePos2 = presenter.getPiecePositionData(Piece);
+        PieceOld.removeClass('selected');
+
+        if (isSamePiece(PieceOld, Piece)) return;
+        if (!event.triggered) presenter.configuration.shouldCalcScore = true;
+
+        board[PiecePos2.row][PiecePos2.col] = PieceOld;
+        board[PiecePos.row][PiecePos.col] = Piece;
+
+        if (animation) {
+            //Animate change of places
+            board[PiecePos.row][PiecePos.col].animate({
+                left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
+            }, 200);
+
+            board[PiecePos2.row][PiecePos2.col].animate({
+                left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
+            }, 200);
+        } else {
+            board[PiecePos.row][PiecePos.col].css({
+                left: ((puzzleOuterWidth * PiecePos.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos.row + topOffset) + "px")
+            });
+            board[PiecePos2.row][PiecePos2.col].css({
+                left: ((puzzleOuterWidth * PiecePos2.col + leftOffset) + "px"),
+                top: ((puzzleOuterHeight * PiecePos2.row + topOffset) + "px")
+            });
+        }
+
+        replaceBorderClasses(board[PiecePos.row][PiecePos.col], board[PiecePos2.row][PiecePos2.col]);
+
+        if (!event.triggered) {
+            sendEvents(Piece);
+        }
+    }
+
+    function sendEvents(puzzle) {
+        sendValueChangedEvent(puzzle);
+        if (presenter.isAllOK()) {
+            sendAllOKEvent();
+        }
+    }
+
+    function sendValueChangedEvent(puzzle) {
+        var data = {
+            'source': presenter.configuration.addonID,
+            'item': puzzle.attr("position"),
+            'value': '',
+            'score': ''
+        };
+        eventBus.sendEvent('ValueChanged', data);
     }
 
     function setNormalMode() {
@@ -394,9 +515,20 @@ function AddonPuzzle_create() {
                 indexBoard[rowIndex][colIndex].removeClass('wrong').removeClass('correct');
             }
         }
-
+        presenter.setDraggableState("enable");
         presenter.configuration.isErrorMode = false;
     }
+
+    presenter.setDraggableState = function(state) {
+        var rows = presenter.configuration.rows,
+            columns = presenter.configuration.columns;
+        for (var row = 0; row < rows; row++) {
+            for (var column = 0; column < columns; column++) {
+                var element = board[row][column];
+                element.draggable( state );
+            }
+        }
+    };
 
     presenter.reset = function () {
         if (presenter.isShowAnswersActive) {
@@ -413,6 +545,22 @@ function AddonPuzzle_create() {
         }
     };
 
+    presenter.setMarkVisibility = function (isVisible) {
+        // it will be called by createPreview, in which case indexBoard won't be created
+        if (presenter.isPreview || indexBoard.length === 0) {
+            return;
+        }
+
+        var rows = presenter.configuration.rows,
+            columns = presenter.configuration.columns,
+            rowIndex, colIndex;
+
+        for (rowIndex = 0; rowIndex < rows; rowIndex++) {
+            for (colIndex = 0; colIndex < columns; colIndex++) {
+                indexBoard[rowIndex][colIndex].css("visibility", isVisible ? "visible" : "hidden");
+            }
+        }
+    }
 
     presenter.prepareBoardFromSavedState = function (savedBoard) {
         var rows = presenter.configuration.rows,
@@ -579,6 +727,7 @@ function AddonPuzzle_create() {
             }
         }
 
+        presenter.setDraggableState("disable");
         presenter.configuration.isErrorMode = true;
     };
 
@@ -601,6 +750,7 @@ function AddonPuzzle_create() {
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
         presenter.configuration = presenter.validateModel(model);
+        presenter.isPreview = false;
 
         jImg = Container.find("img:first");
         jImg.attr('src', model.Image);
@@ -608,11 +758,12 @@ function AddonPuzzle_create() {
         jImg.attr('width', width);
         jImg.load(function () {
             InitPuzzle(width, height);
+            if (!presenter.configuration.isVisibleByDefault) {
+                presenter.hide();
+            }
             presenter['imageLoadedDeferred'].resolve();
         });
-        if (!presenter.configuration.isVisibleByDefault) {
-            presenter.hide();
-        }
+
     };
 
     presenter.validateModel = function (model) {
@@ -639,6 +790,7 @@ function AddonPuzzle_create() {
     };
 
     presenter.createPreview = function (view, model) {
+        presenter.isPreview = true;
         var element = view.getElementsByTagName('img')[0];
         element.setAttribute('src', model.Image);
 
@@ -671,12 +823,14 @@ function AddonPuzzle_create() {
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
+        presenter.setMarkVisibility(true);
     };
 
     presenter.hide = function () {
         presenter.configuration.shouldCalcScore = true;
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
+        presenter.setMarkVisibility(false);
     };
 
     presenter.isAllOK = function () {
@@ -730,12 +884,14 @@ function AddonPuzzle_create() {
         presenter.saveBoard();
         presenter.setWorkMode();
         showCorrect();
+        presenter.setDraggableState("disable");
     };
 
     presenter.hideAnswers = function () {
         Container.find(".show-answers").removeClass("show-answers");
         $.when(presenter['imageLoaded']).then(function () {
             presenter.prepareBoardFromSavedState(savedBoard);
+            presenter.setDraggableState("enable");
         });
 
         presenter.isShowAnswersActive = false;
