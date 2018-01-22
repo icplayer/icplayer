@@ -144,8 +144,13 @@ function AddonImage_Identification_create(){
             $(innerElement).css({
                 backgroundImage:"url('" + imageSrc + "')",
                 width:$(element).width() + 'px',
-                height:$(element).height() + 'px'
+                height:$(element).height() + 'px',
+                color: 'rgba(0,0,0,0.0)'
             });
+
+            if(presenter.configuration.altText !== undefined) {
+                $(innerElement).html(presenter.configuration.altText);
+            }
 
             $(element).html(innerElement);
             presenter.$view.html(element);
@@ -177,10 +182,7 @@ function AddonImage_Identification_create(){
         }
 
         loadImage(presenter.configuration.imageSrc, preview);
-
-        if(presenter.configuration.altText !== undefined) {
-            presenter.$view.attr("alt", presenter.configuration.altText);
-        }
+        
     }
 
     presenter.validateModel = function (model) {
