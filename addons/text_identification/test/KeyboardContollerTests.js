@@ -62,7 +62,7 @@ TestCase("[Text Identification] Keyboard controller tests", {
         // gets first call
         var args = this.tts.speak.args[0];
         // gets first argument of call
-        var readText = args[0];
+        var readText = args[0][0].text;
         assertEquals('Text', readText);
     },
 
@@ -78,7 +78,7 @@ TestCase("[Text Identification] Keyboard controller tests", {
         // gets second call
         var args = this.tts.speak.args[1];
         // gets first argument of call
-        var readText = args[0];
+        var readText = args[0][0].text;
         assertEquals('Selected', readText);
     },
 
