@@ -28,7 +28,9 @@ import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
+import com.lorepo.icplayer.client.module.addon.param.IAddonParam;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -39,30 +41,29 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.page.PageController;
 
-public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IWCAG {
+
+public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IWCAG, IWCAGModuleView {
 
 	public interface IDisplay extends IModuleView{
 		public Element getElement();
 		public void setViewHTML(String viewHTML);
 	}
-	
-	
+
 	private AddonModel model;
-	private JavaScriptObject	jsObject;
+	private JavaScriptObject jsObject;
 	private IPlayerServices services;
 	private IDisplay view;
-	private IAddonDescriptor	addonDescriptor;
+	private IAddonDescriptor addonDescriptor;
 	private Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "text_identification", "image_identification"));
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
-
 		this.model = model;
 		this.services = services;
 		this.addonDescriptor = services.getModel().getAddonDescriptor(model.getAddonId());
 		connectHandlers();
 	}
-
 
 	private void connectHandlers() {
 
@@ -84,9 +85,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 				reset();
 			}
 		});
-		
 	}
-	
 	
 	private native void onKeyDown(JavaScriptObject obj, int keyCode, boolean isShiftDown, NativeEvent originalEvent) /*-{
 		try{
@@ -102,7 +101,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private native boolean haveWCAGSupport(JavaScriptObject obj) /*-{
 		return (obj.keyboardController !== undefined && obj.keyboardController !== null);
 	}-*/;
-	
+
 	@Override
 	public void setShowErrorsMode() {
 		setShowErrorsMode(jsObject, addonDescriptor.getAddonId());
@@ -126,7 +125,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 	
 	private native void setWorkMode(JavaScriptObject obj, String addonId) /*-{
-	
 		try{
 			if(obj.setWorkMode != undefined){
 				obj.setWorkMode();
@@ -153,27 +151,21 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  		alert("[" + addonId + "] Exception in reset(): \n" + err);
 	  	}		
 	}-*/;
-	
-	
-	
+
 	public void startAddon() {
-		
-		if(addonDescriptor != null){
+		if (addonDescriptor != null) {
 			view.setViewHTML(addonDescriptor.getViewHTML());
 			run();
 		}
 	}
 
-
 	@Override
 	public void addView(IModuleView view) {
-		
 		if(view instanceof IDisplay){
 			this.view = (IDisplay) view;
 			startAddon();
 		}
 	}
-
 
 	@Override
 	public int getErrorCount() {
@@ -235,7 +227,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}-*/;
 	
 	// setting tabindex property according to editor preferences
-	public void setProperTabindexValue(AddonModel model) {
+	public void setProperTabindexValue (AddonModel model) {
 		for (int i = 0; i < model.getPropertyCount(); i = i + 1 ) {
 			if(model.getProperty(i).getName().equals("Is Tabindex Enabled")) {
 				model.getProperty(i).setValue(model.isTabindexEnabled() ? "True" : "False");
@@ -365,7 +357,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return model.getId();
 	}
 
-
 	@Override
 	public String getState() {
 		String state = getState(jsObject, addonDescriptor.getAddonId());
@@ -401,7 +392,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	  	}
 	}-*/;
 
-
 	private native String executeCommand(JavaScriptObject obj, String name, List<String> params) /*-{
 	
 		if(obj.executeCommand != undefined){
@@ -414,12 +404,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 	}-*/;
 
-
 	@Override
 	public String getName() {
 		return model.getId();
 	}
-
 
 	@Override
 	public String executeCommand(String commandName, List<IType> params) {
@@ -430,117 +418,136 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 		return executeCommand(jsObject, commandName, values);
 	}
-
-
-	
 	
 	@Override
 	public IModuleModel getModel() {
 		return model;
 	}
-
 	
 	public JavaScriptObject getJavaScriptObject(){
 		return jsObject;
 	}
-
 
 	@Override
 	public IWCAG getWCAGController() {
 		return this;
 	}
 
-
 	@Override
 	public void selectAsActive(String className) {
 		this.view.getElement().addClassName(className);
 		
+		if ("ic_selected_module" == className) {
+			this.view.getElement().focus();
+		}
 	}
-
 
 	@Override
 	public void deselectAsActive(String className) {
 		this.view.getElement().removeClassName(className);
-		
+		if ("ic_selected_module" == className) {
+			this.view.getElement().blur();
+		}
 	}
-
 
 	@Override
-	public boolean isSelectable() {
-		return this.haveWCAGSupport(this.jsObject);
+	public boolean isSelectable(boolean isTextToSpeechOn) {
+		boolean isVisible = this.model.isVisible();
+		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible && !isDisabled();
 	}
-
 
 	@Override
 	public void enter(boolean isExiting) {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting, null);
 	}
 
-
 	@Override
 	public void space(KeyDownEvent event) {
 		this.onKeyDown(this.jsObject, 32, event.isShiftKeyDown(), event.getNativeEvent());
 	}
 
-
 	@Override
 	public void tab(KeyDownEvent event) {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, event.isShiftKeyDown(), event.getNativeEvent());
-		
 	}
-
 
 	@Override
 	public void left(KeyDownEvent event) {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_LEFT, event.isShiftKeyDown(), event.getNativeEvent());
-		
 	}
-
 
 	@Override
 	public void right(KeyDownEvent event) {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_RIGHT, event.isShiftKeyDown(), event.getNativeEvent());
-		
 	}
-
 
 	@Override
 	public void down(KeyDownEvent event) {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_DOWN, event.isShiftKeyDown(), event.getNativeEvent());
-		
 	}
-
 
 	@Override
 	public void up(KeyDownEvent event) {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_UP, event.isShiftKeyDown(), event.getNativeEvent());
 	}
 
-
 	@Override
 	public void escape(KeyDownEvent event) {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_ESCAPE, event.isShiftKeyDown(), event.getNativeEvent());
-		
 	}
-
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {
 		this.onKeyDown(this.jsObject, event.getNativeKeyCode(), event.isShiftKeyDown(), event.getNativeEvent());
-		
 	}
-
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_TAB, true, event.getNativeEvent());
-		
 	}
-	
+
 	public boolean isButton() {
 		if (buttonAddons.contains(this.model.getAddonId().toLowerCase())) {
 			return true;
-		}		
+		}
 		return false;
+	}
+
+	public boolean isDisabled() {
+		for (IAddonParam propetry : this.model.getParams()){
+			String propertyName = propetry.getName(); 
+			if (propertyName.equalsIgnoreCase("Is Disabled") ||
+				propertyName.equalsIgnoreCase("IsDisabled") ||
+				propertyName.equalsIgnoreCase("Disable")) {
+					return propetry.getAsProperty().getValue().equalsIgnoreCase("true");
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public void setPageController (PageController pc) {
+		// this can be empty for addons
+		this.setWCAGStatus(true);
+	}
+
+	@Override
+	public void setWCAGStatus (boolean isWCAGOn) {
+		setWCAGStatus(jsObject, addonDescriptor.getAddonId(), isWCAGOn);
+	}
+
+	private native void setWCAGStatus (JavaScriptObject obj, String addonId, boolean isWCAGOn) /*-{
+		try {
+			if(obj.setWCAGStatus != undefined) {
+				obj.setWCAGStatus(isWCAGOn);
+			}
+		} catch(err) {
+			alert("[" + addonId + "] Exception in setWCAGStatus(): \n" + err);
+		}
+	}-*/;
+	
+	@Override
+	public String getLang () {
+		return null;
 	}
 }

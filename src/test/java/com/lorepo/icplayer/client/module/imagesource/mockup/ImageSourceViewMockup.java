@@ -96,4 +96,10 @@ public class ImageSourceViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

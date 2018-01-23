@@ -167,6 +167,10 @@ public class ImageGapView extends Image implements IDisplay, IWCAG {
 	}
 
 	@Override
+	public String getName() {
+		return "ImageGap";
+	}
+	
 	public void enter(boolean isExiting) {
 		if (!isExiting) {
 			this.listener.onClicked();
@@ -177,54 +181,45 @@ public class ImageGapView extends Image implements IDisplay, IWCAG {
 	@Override
 	public void space(KeyDownEvent event) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void tab(KeyDownEvent event) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void left(KeyDownEvent event) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void right(KeyDownEvent event) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void down(KeyDownEvent event) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void up(KeyDownEvent event) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void escape(KeyDownEvent event) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {
 		// TODO Auto-generated method stub
-		
 	}
 }

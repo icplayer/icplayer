@@ -666,9 +666,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	@Override
-	public boolean isSelectable() {
+	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		return isVisible;
+		boolean isEnabled = !this.model.isDisabled();
+		return (isVisible || isTextToSpeechOn) && isEnabled;
 	}
 
 }

@@ -1,6 +1,8 @@
 function AddonTrueFalse_create() {
-    var presenter = function () {
-    };
+
+    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
+
+    var presenter = function () {};
 
     presenter.type = "";
     presenter.lastEvent = null;
@@ -17,9 +19,15 @@ function AddonTrueFalse_create() {
     var playerController;
     var eventBus; // Modules communication
     var textParser = null; // Links to Glossary Addon
+    var tts;
+    var selectedSpeechText = "selected";
+    var deselectedSpeechText = "deselected";
+    var correctSpeechText = "correct";
+    var incorrectSpeechText = "incorrect";
 
     var QUESTION_AND_CHOICES_REQUIRED = "At least 1 question and 2 choices are required.";
     var INDEX_OUT_OF_RANGE = "Index is out of range.";
+    var isWCAGOn = false;
 
     presenter.isSelectionCorrect = function (question, selection) {
         var answers = question.Answer.split(',');
@@ -264,6 +272,17 @@ function AddonTrueFalse_create() {
         }
     }
 
+    function rowIndexed () {
+        var count = possibleChoices.length + 1;
+        return questions.reduce(function (acc, q, index) {
+            acc.push({
+                start: (index * count),
+                end: ((index + 1) * count) - 1
+            });
+            return acc;
+        }, []);
+    }
+
     function generateTableContent(table, view) {
         for (var rowID = 0; rowID < questions.length + 1; rowID++) {
             $(table).append('<tr class="tf_' + presenter.type + '_row" id=' + rowID + '></tr>');
@@ -287,12 +306,45 @@ function AddonTrueFalse_create() {
         }
     }
 
+    function getSpeechTexts(model) {
+        var speechTexts = model['Speech texts'];
+
+        if (speechTexts !== undefined && speechTexts !== '') {
+            for (var index = 0; index < speechTexts.length; index++) {
+                var text = speechTexts[index];
+                for (var key in text) {
+                    if (text.hasOwnProperty(key)) {
+                        if (text[key]['selected'] !== '' && text[key]['selected'] !== undefined) {
+                            selectedSpeechText = text[key]['selected'];
+                        }
+
+                        if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
+                            deselectedSpeechText = text[key]['deselected'];
+                        }
+
+                        if (text[key]['correct'] !== '' && text[key]['correct'] !== undefined) {
+                            correctSpeechText = text[key]['correct'];
+                        }
+
+                        if (text[key]['incorrect'] !== '' && text[key]['incorrect'] !== undefined) {
+                            incorrectSpeechText = text[key]['incorrect'];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     var makeView = function (view, model, preview) {
         possibleChoices = model['Choices'];
         questions = model['Questions'];
+        presenter.langAttribute = model['Lang attribute'];
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
+        presenter.$view.attr('lang', presenter.langAttribute);
+
+        getSpeechTexts(model);
 
         if (notAllRequiredParameters(questions, possibleChoices)) {
             return $(view).html(QUESTION_AND_CHOICES_REQUIRED);
@@ -325,9 +377,10 @@ function AddonTrueFalse_create() {
         }
 
         if (!preview) {
-            presenter.$view.find('.tf_' + presenter.type + '_image').each(function(index, element){
+            presenter.$view.find('.tf_' + presenter.type + '_image' + ',.tf_' + presenter.type + '_question:not(.first)').each(function(index, element){
                 presenter.keyboardNavigationElements[index] = $(element);
             });
+
             presenter.keyboardNavigationElementsLen = presenter.keyboardNavigationElements.length;
         }
     };
@@ -670,6 +723,7 @@ function AddonTrueFalse_create() {
 
         presenter.isShowAnswersActive = true;
         presenter.currentState = getSelectedElements();
+        presenter.isErrorMode = false;
         workMode(true);
 
         for (var i = 1; i < questions.length + 1; i++) {
@@ -705,9 +759,84 @@ function AddonTrueFalse_create() {
         presenter.isShowAnswersActive = false;
     };
 
-    presenter.keyboardController = function(keycode) {
+    function getTextToSpeech () {
+        if (tts) {
+            return tts;
+        }
+
+        tts = playerController.getModule('Text_To_Speech1');
+        return tts;
+    }
+
+    function getActivatedElement () {
+        return presenter.$view.find('.keyboard_navigation_active_element');
+    }
+
+    function getElementIndex(element) {
+        var div = element.parent(),
+            parent = div.parent(),
+            list = parent.find('td');
+
+        return $(list).index(div);
+    }
+
+    function getChoice(index) {
+         return presenter.$view.find('#0').children().eq(index).text().trim();
+    }
+
+    function readOption(readSelection) {
+        var tts = getTextToSpeech();
+        if (tts) {
+            var $active = getActivatedElement(),
+                question = $active.parent().parent().first().text().trim(),
+                elementIndex = getElementIndex($active),
+                choice = getChoice(elementIndex);
+
+            if ($active.hasClass('tf_' + presenter.type + '_question')) {
+                speak([getTextVoiceObject($active.text().trim(), presenter.langAttribute)]);
+                return;
+            }
+
+            if (!readSelection) {
+                if ($active.parent().hasClass('down')) {
+                    if (presenter.isErrorMode) {
+                        if ($active.parent().hasClass('correct')) {
+                            speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + correctSpeechText, "")]);
+                        }
+                        if($active.parent().hasClass('wrong')) {
+                            speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + incorrectSpeechText, "")]);
+                        }
+                    } else {
+                        speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText, "")]);
+                    }
+                } else {
+                    speak([getTextVoiceObject(choice, presenter.langAttribute)]);
+                }
+            } else {
+                if ($active.parent().hasClass('down')) {
+                    speak([getTextVoiceObject(selectedSpeechText, "")]);
+                } else {
+                    speak([getTextVoiceObject(deselectedSpeechText, "")]);
+                }
+            }
+        }
+    }
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function speak (data) {
+        var tts = getTextToSpeech();
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown) {
         $(document).on('keydown', function(e) {
             e.preventDefault();
+            presenter.shiftPressed = e.shiftKey;
             $(this).off('keydown');
         });
 
@@ -718,54 +847,92 @@ function AddonTrueFalse_create() {
             ARROW_LEFT: 37,
             ARROW_UP: 38,
             ARROW_RIGHT: 39,
-            ARROW_DOWN: 40
+            ARROW_DOWN: 40,
+            TAB: 9
         };
 
         function mark_current_element(new_position_index){
             if (presenter.keyboardNavigationCurrentElement) {
-                presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+                if(presenter.keyboardNavigationCurrentElement.find('div').length > 0) {
+                    presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+                } else {
+                    presenter.keyboardNavigationCurrentElement.removeClass('keyboard_navigation_active_element');
+                }
             }
             presenter.keyboardNavigationCurrentElementIndex = new_position_index;
             presenter.keyboardNavigationCurrentElement = presenter.keyboardNavigationElements[new_position_index];
-            presenter.keyboardNavigationCurrentElement.find('div').addClass('keyboard_navigation_active_element');
+            if(presenter.keyboardNavigationCurrentElement.find('div').length > 0) {
+                presenter.keyboardNavigationCurrentElement.find('div').addClass('keyboard_navigation_active_element');
+            } else {
+                presenter.keyboardNavigationCurrentElement.addClass('keyboard_navigation_active_element');
+            }
         }
 
         var enter = function (){
-            if (presenter.keyboardNavigationActive){
+            if (isShiftKeyDown) {
+                if (presenter.keyboardNavigationActive){
+                    escape();
+                    presenter.isKeyboardOpened = false;
+                }
                 return;
             }
-            presenter.keyboardNavigationActive = true;
-            mark_current_element(0);
+
+            if (!presenter.keyboardNavigationActive) {
+                presenter.keyboardNavigationActive = true;
+                mark_current_element(0);
+                readOption(false);
+            } else {
+                readOption(false);
+            }
         };
 
-        function swicht_element(move){
+        function swicht_element(move, checkDirection){
+            var rows = rowIndexed();
+
+            var currentRow = rows.filter(function (row) {
+                return row.start <= presenter.keyboardNavigationCurrentElementIndex && row.end >= presenter.keyboardNavigationCurrentElementIndex;
+            })[0];
+
             var new_position_index = presenter.keyboardNavigationCurrentElementIndex + move;
+
+            if(checkDirection && currentRow && (new_position_index < currentRow.start || new_position_index > currentRow.end)) {
+                return;
+            }
+
             if (new_position_index >= presenter.keyboardNavigationElementsLen) {
-                new_position_index = new_position_index - presenter.keyboardNavigationElementsLen;
+                new_position_index = new_position_index - move;
             } else if (new_position_index < 0) {
-                new_position_index = presenter.keyboardNavigationElementsLen + new_position_index;
+                new_position_index = presenter.keyboardNavigationCurrentElementIndex;
             }
             mark_current_element(new_position_index);
         }
 
         var next_element = function (){
-            swicht_element(1);
+            swicht_element(1, true);
+            readOption(false);
         };
 
         var previous_element = function (){
-            swicht_element(-1);
+            swicht_element(-1, true);
+            readOption(false);
         };
 
         var next_question = function () {
-            swicht_element(possibleChoices.length);
+            swicht_element(possibleChoices.length + 1, false);
+            readOption(false);
         };
 
         var previous_question = function () {
-            swicht_element(-possibleChoices.length);
+            swicht_element(-(possibleChoices.length + 1), false);
+            readOption(false);
         };
 
         var mark = function (){
+            if (presenter.isErrorMode) {
+                return;
+            }
             presenter.keyboardNavigationCurrentElement.click();
+            readOption(true);
         };
 
         var escape = function (){
@@ -774,8 +941,14 @@ function AddonTrueFalse_create() {
             }
             presenter.keyboardNavigationActive = false;
             presenter.keyboardNavigationCurrentElement.find('div').removeClass('keyboard_navigation_active_element');
+            presenter.keyboardNavigationCurrentElement.removeClass('keyboard_navigation_active_element');
             presenter.keyboardNavigationCurrentElement = null;
         };
+
+        function tabHandler() {
+            swicht_element(isShiftKeyDown ? -1 : 1, true);
+            readOption(false);
+        }
 
         var mapping = {};
         mapping[keys.ENTER] = enter;
@@ -785,6 +958,7 @@ function AddonTrueFalse_create() {
         mapping[keys.ARROW_UP] = previous_question;
         mapping[keys.ARROW_RIGHT] = next_element;
         mapping[keys.ARROW_DOWN] = next_question;
+        mapping[keys.TAB] = tabHandler;
 
         try {
             mapping[keycode]();

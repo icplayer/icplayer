@@ -222,10 +222,11 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 		Mockito.when(mock1.presenter.getWCAGController())
 			.thenReturn(Mockito.mock(IWCAG.class));
 		
-		Mockito.when(mock1.presenter.isSelectable())
-			.thenReturn(true);
+		Mockito.when(mock1.presenter.isSelectable(true)).thenReturn(true);
+		Mockito.when(mock1.presenter.isSelectable(false)).thenReturn(true);
 		
 		Whitebox.setInternalState(this.controller, "presenters", presenters);
+		Whitebox.setInternalState(this.controller, "presentersOriginalOrder", presenters);
 		
 		Event event = EventBuilder.create(Event.ONKEYDOWN)
 				.setKeyCode(KeyCodes.KEY_ENTER)

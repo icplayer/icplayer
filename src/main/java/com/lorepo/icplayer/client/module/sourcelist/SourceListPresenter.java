@@ -40,7 +40,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public void removeItem(String id);
 		public void removeAll();
 		public void selectItem(String id);
-		public void deselectItem(String id);
+		public void deselectItem(String id, boolean read);
 		public void addListener(IViewListener l);
 		public Element getElement();
 		public void show();
@@ -66,9 +66,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private boolean returned = false;
 	private boolean isTest = false;
 	
-	
 	public SourceListPresenter(SourceListModule model, IPlayerServices services){
-
 		this.playerServices = services;
 		this.model = model;
 		this.isVisible = model.isVisible();
@@ -101,7 +99,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		eventBus.addHandler(ItemSelectedEvent.TYPE, new ItemSelectedEvent.Handler() {
 			public void onItemSelected(ItemSelectedEvent event) {
 				if(event.getSource() != SourceListPresenter.this){
-					deselectCurrentItem();
+					deselectCurrentItem(false);
 				}
 			}
 		});
@@ -164,7 +162,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			if (model.isRemovable() && returned) {
 				view.showItem(gotItem);
 			}
-			deselectCurrentItem();
+			deselectCurrentItem(true);
 			ItemSelectedEvent removeSelectionEvent = new ItemSelectedEvent(new DraggableText(null, null));
 			playerServices.getEventBus().fireEventFromSource(removeSelectionEvent, this);
 		}		
@@ -172,7 +170,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 	private void itemConsumed(ItemConsumedEvent event) {
 		returned = false;
-		deselectCurrentItem();
+		deselectCurrentItem(false);
 		if(model.isRemovable()){
 			removeItem(event.getItem().getId());
 		}
@@ -193,7 +191,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 	@Override
 	public void reset() {
-		deselectCurrentItem();
+		deselectCurrentItem(false);
 		loadItems(true);
 		canDrag = true;
 		
@@ -239,10 +237,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	
 	private void clickItem(String id) {
 		DraggableItem draggableItem = new DraggableText(null, null);
-		String oldSelection = selectedId;
-		deselectCurrentItem();
-		
-		if(oldSelection == null || oldSelection.compareTo(id) != 0) {
+		final String oldSelection = selectedId;
+		deselectCurrentItem(oldSelection != null && oldSelection.compareTo(id) == 0);
+
+		if (oldSelection == null || oldSelection.compareTo(id) != 0) {
 			selectedId = id;
 			view.selectItem(id);
 			draggableItem = new DraggableText(selectedId, items.get(selectedId));
@@ -252,9 +250,8 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		playerServices.getEventBus().fireEventFromSource(event, this);
 	}
 
-
 	private void selectItem(String id) {
-		deselectCurrentItem();
+		deselectCurrentItem(false);
 		selectedId = id;
 		view.selectItem(id);
 		DraggableItem draggableItem = new DraggableText(selectedId, items.get(selectedId));
@@ -263,13 +260,12 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	}
 	
 	
-	private void deselectCurrentItem() {
-		if(selectedId != null){
-			view.deselectItem(selectedId);
-			selectedId = null;
+	private void deselectCurrentItem (boolean read) {
+		if (selectedId != null) {
+			view.deselectItem(selectedId, read);
 		}
+		selectedId = null;
 	}
-
 
 	@Override
 	public void addView(IModuleView display) {
@@ -482,29 +478,25 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 	@Override
 	public int getErrorCount() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 
 	@Override
 	public int getMaxScore() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 
 	@Override
 	public int getScore() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 
 	@Override
 	public void onValueChange(IOptionDisplay option, boolean selected) {
-		// TODO Auto-generated method stub
-		
+
 	}
 	
 	private void show(){
@@ -553,7 +545,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	}
 
 	@Override
-	public boolean isSelectable() {
+	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
 		return isVisible;
 	}

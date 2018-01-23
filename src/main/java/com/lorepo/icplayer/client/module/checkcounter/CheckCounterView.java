@@ -1,11 +1,25 @@
 package com.lorepo.icplayer.client.module.checkcounter;
 
 import com.google.gwt.user.client.ui.Label;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 
-public class CheckCounterView extends Label implements CheckCounterPresenter.IDisplay {
+import java.util.ArrayList;
+import java.util.List;
 
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.lorepo.icplayer.client.page.PageController;
+
+public class CheckCounterView extends Label implements CheckCounterPresenter.IDisplay, IWCAG, IWCAGModuleView {
+
+	private CheckCounterModule module;
+	private boolean isWCAGOn = false;
+	private PageController pageController;
+	
 	public CheckCounterView(CheckCounterModule module, boolean isPreview) {
+		this.module = module;
 		setStyleName("ic_checkcounter");
 		StyleUtils.applyInlineStyle(this, module);
 		if (isPreview) {
@@ -24,4 +38,72 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 			setText("");
 		}
 	}
+
+	public void speak() {
+		if (this.pageController != null) {
+			String text = getText();
+			List<TextToSpeechVoice> voiceTexts = new ArrayList<TextToSpeechVoice>();
+			if (text.length() > 0) {
+				TextToSpeechVoice t1 = TextToSpeechVoice.create(text,  this.module.getLangAttribute());
+				voiceTexts.add(t1);	
+			} else {
+				TextToSpeechVoice t1 = TextToSpeechVoice.create("0",  this.module.getLangAttribute());
+				voiceTexts.add(t1);
+			}
+			this.pageController.speak(voiceTexts);
+		}
+	}
+	
+	@Override
+	public String getName() {
+		return "CheckCounter";
+	}
+
+	@Override
+	public void setWCAGStatus(boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;	
+	}
+
+	@Override
+	public void setPageController(PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+	}
+
+	@Override
+	public String getLang() {
+		return null;
+	}
+
+	@Override
+	public void enter(boolean isExiting) {
+		speak();
+	}
+
+	@Override
+	public void space(KeyDownEvent event) {}
+
+	@Override
+	public void tab(KeyDownEvent event) {}
+
+	@Override
+	public void left(KeyDownEvent event) {}
+
+	@Override
+	public void right(KeyDownEvent event) {}
+
+	@Override
+	public void down(KeyDownEvent event) {}
+
+	@Override
+	public void up(KeyDownEvent event) {}
+
+	@Override
+	public void escape(KeyDownEvent event) {}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {}
+
+	@Override
+	public void shiftTab(KeyDownEvent event) {}
 }

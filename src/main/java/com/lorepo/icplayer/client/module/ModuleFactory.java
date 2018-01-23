@@ -68,6 +68,11 @@ public class ModuleFactory implements IModuleFactory{
 		public DummyView(String text) {
 			super(text);
 		}
+
+		@Override
+		public String getName() {
+			return null;
+		}
 	}
 	
 	

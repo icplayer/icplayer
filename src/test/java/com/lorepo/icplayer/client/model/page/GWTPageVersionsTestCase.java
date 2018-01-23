@@ -144,7 +144,7 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	@Test
 	public void updatingWithoutVersionNoClassAndLayout() throws IOException, SAXException {
 		String expectedXML = getFromFile("testdata/PageVersion4NoClassAndLayout.xml");
-		this.loadPageInAwareFactory(this.page, "testdata/PageWithoutVersionNoClassAndLayout.xml");	
+		this.loadPageInAwareFactory(this.page, "testdata/PageWithoutVersionNoClassAndLayout.xml");
 		
 		String result = this.page.toXML();
 		

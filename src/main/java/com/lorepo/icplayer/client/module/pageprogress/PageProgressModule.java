@@ -7,6 +7,7 @@ import com.google.gwt.xml.client.CDATASection;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -27,6 +28,7 @@ public class PageProgressModule extends BasicModuleModel{
 
 	private String rawWorksWith = "";
 	private List<String> modules = new LinkedList<String>();
+	private String langAttribute = "";
 
 	/**
 	 * constructor
@@ -36,6 +38,7 @@ public class PageProgressModule extends BasicModuleModel{
 		super("Page Progress", DictionaryWrapper.get("page_progress_module"));
 
 		addPropertyWorksWith();
+		addPropertyLangAttribute();
 	}
 
 
@@ -45,12 +48,12 @@ public class PageProgressModule extends BasicModuleModel{
 	@Override
 	public String toXML() {
 		Element module = XMLUtils.createElement("pageProgressModule");
+		module.setAttribute("langAttribute", this.langAttribute);
 		this.setBaseXMLAttributes(module);
 		module.appendChild(this.getLayoutsXML());
 		module.appendChild(modelToXML());
 		return module.toString();
 	}
-
 
 	@Override
 	protected void parseModuleNode(Element element) {
@@ -61,6 +64,7 @@ public class PageProgressModule extends BasicModuleModel{
 				if(childNode.getNodeName().compareTo("pageProgress") == 0) {
 					Element childElement = (Element) childNode;
 
+					langAttribute = XMLUtils.getAttributeAsString(childElement, "langAttribute");
 					rawWorksWith = XMLUtils.getCharacterDataFromElement(childElement);
 					modules = ModuleUtils.getListFromRawText(rawWorksWith);
 				}
@@ -115,7 +119,43 @@ public class PageProgressModule extends BasicModuleModel{
 				return false;
 			}
 		};
+	}
+
+	private void addPropertyLangAttribute() {
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				langAttribute = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return langAttribute;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_lang_attribute");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_lang_attribute");
+			}
+		};
 
 		addProperty(property);
 	}
+	
+	public String getLangAttribute() {
+		return langAttribute;
+	}
+
 }

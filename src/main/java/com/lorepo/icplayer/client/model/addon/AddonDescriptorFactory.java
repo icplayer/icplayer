@@ -139,12 +139,12 @@ public class AddonDescriptorFactory {
 		addDescriptor("ProgrammingCommandPrompt", "scripting_menu");
 		addDescriptor("Grid_Scene", "scripting_menu");
 		addDescriptor("BlocklyCodeEditor", "scripting_menu");
+		addDescriptor("Text_To_Speech", "scripting_menu");
 
 		// LEARN PEN
 		addDescriptor("LearnPen", "learn_pen_menu");
 		addDescriptor("LearnPen_Data", "learn_pen_menu");
 		addDescriptor("LearnPen_Report", "learn_pen_menu");
-
 	}
 
 	private void addDescriptor(String id, String category) {
