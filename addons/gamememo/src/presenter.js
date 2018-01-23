@@ -144,7 +144,7 @@ function Addongamememo_create(){
         return tts
     }
 
-    presenter.readConfiguration = function(model) {
+    presenter.validateModel = function(model) {
         if(model['Pairs'].length == 0) {
             return {
                 isError: true,
@@ -239,8 +239,14 @@ function Addongamememo_create(){
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
-            clickToTurnOverIncorrectPair: ModelValidationUtils.validateBoolean(model["Click to turn over incorrect pair"])
+            clickToTurnOverIncorrectPair: ModelValidationUtils.validateBoolean(model["Click to turn over incorrect pair"]),
+            altTextStyleA: model['Style A cover alt text'],
+            altTextStyleB: model['Style B cover alt text']
         };
+    };
+
+    presenter.validateAltText = function Addongamememo_validateAltText(model) {
+
     };
 
     presenter.slideUpAnimation = function ($element, successFunction) {
@@ -351,13 +357,13 @@ function Addongamememo_create(){
 
         for(var n = 0; n <= 1; n++) {
             for(var j = 0; j < pairs.length; j++) {
-
                 if(pairs[j][presenter.numberToCardType(n) + ' (text)'] != "") {
                     card = $('<p></p>').text(pairs[j][presenter.numberToCardType(n) + ' (text)']);
                     serializedCard = { revealed: false, type: "text", content: pairs[j][presenter.numberToCardType(n) + ' (text)'] }
 
                 } else {
                     card = $('<img/>').attr({ src: pairs[j][presenter.numberToCardType(n) + ' (image)']});
+                    card.attr('alt',  pairs[j][presenter.numberToCardType(n) + ' (alt text)']);
                     serializedCard = { revealed: false, type: "image", content: pairs[j][presenter.numberToCardType(n) + ' (image)'] }
                 }
 
@@ -672,8 +678,9 @@ function Addongamememo_create(){
         var img;
 
         if(presenter.styleAImage != null){
+            var frontDivA = $container.find('div.front_A');
             if(presenter.imageMode == 'Stretch'){
-                $container.find('div.front_A').css({
+                frontDivA.css({
                     'background': 'url(' + encodeURI(presenter.styleAImage) + ')',
                     'background-size': '100% 100%'
                 });
@@ -687,18 +694,25 @@ function Addongamememo_create(){
                     'width': 'auto',
                     'height': 'auto'
                 });
-                $container.find('div.front_A').append(img);
-                $container.find('div.front_A').css('background', 'transparent');
+                frontDivA.append(img);
+                frontDivA.css('background', 'transparent');
             }else{
-                $container.find('div.front_A').css({
+                frontDivA.css({
                     'background': 'url(' + encodeURI(presenter.styleAImage) + ')'
                 });
             }
+
+            var altText = document.createElement('span');
+            altText.innerText = presenter.configuration.altTextStyleA;
+            altText.className = 'gamememo_alt_text';
+
+            frontDivA.append(altText);
         }
 
         if(presenter.styleBImage != null){
+            var frontDivB = $container.find('div.front_B');
             if(presenter.imageMode == 'Stretch'){
-                $container.find('div.front_B').css({
+                frontDivB.css({
                     'background': 'url(' + encodeURI(presenter.styleBImage) + ')',
                     'background-size': '100% 100%'
                 });
@@ -712,13 +726,19 @@ function Addongamememo_create(){
                     'width': 'auto',
                     'height': 'auto'
                 });
-                $container.find('div.front_B').append(img);
-                $container.find('div.front_B').css('background', 'transparent');
+                frontDivB.append(img);
+                frontDivB.css('background', 'transparent');
             }else{
-                $container.find('div.front_B').css({
+                frontDivB.css({
                     'background': 'url(' + encodeURI(presenter.styleBImage) + ')'
                 });
             }
+
+            var altText = document.createElement('span');
+            altText.innerText = presenter.configuration.altTextStyleB;
+            altText.className = 'gamememo_alt_text';
+
+            frontDivB.append(altText);
         }
 
         presenter.viewContainer.children('div').append($container);
@@ -786,7 +806,7 @@ function Addongamememo_create(){
         presenter.viewContainer = $(view);
         presenter.model = model;
 
-        presenter.configuration = presenter.readConfiguration(model);
+        presenter.configuration = presenter.validateModel(model);
         presenter.ID = model.ID;
         if(presenter.configuration.isError) {
             presenter.showErrorMessage(presenter.configuration.errorMessage, presenter.configuration.errorMessageSubstitutions);

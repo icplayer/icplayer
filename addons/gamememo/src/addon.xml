@@ -5,14 +5,18 @@
 		<property name='Pairs' nameLabel="gamememo_property_pairs" type='list'>
 			<property name="A (text)" nameLabel="gamememo_property_pair_a_text" type="string" isLocalized="true" />
 			<property name="A (image)" nameLabel="gamememo_property_pair_a_image" type="image" />
+			<property name="A (alt text)" nameLabel="gamememo_property_alt_text_style_a" type="string" />
 			<property name="B (text)" nameLabel="gamememo_property_pair_b_text" type="string" isLocalized="true" />
 			<property name="B (image)" nameLabel="gamememo_property_pair_b_image" type="image" />
+			<property name="B (alt text)" nameLabel="gamememo_property_alt_text_style_a" type="string" />
 		</property>
 		<property name="Columns" nameLabel="gamememo_property_columns" type="string" />
 		<property name="Rows" nameLabel="gamememo_property_rows" type="string" />
 		<property name="Use two styles for cards" nameLabel="gamememo_property_use_two_styles_for_cards" type="boolean" />
 		<property name="Image for style A" nameLabel="gamememo_property_image_for_style_a" type="image" />
 		<property name="Image for style B" nameLabel="gamememo_property_image_for_style_b" type="image" />
+		<property name="Style A cover alt text" nameLabel="gamememo_property_alt_text_style_a" type="string" />
+		<property name="Style B cover alt text" nameLabel="gamememo_property_alt_text_style_b" type="string" />
 		<property name="Keep cards aspect ratio" nameLabel="gamememo_property_keep_cards_aspect_ratio" type="boolean" />
 		<property name="Show cards for preview" nameLabel="gamememo_property_show_cards_for_preview" type="boolean" />
         <property name="Is Not Activity" nameLabel="gamememo_property_is_not_activity" type="boolean" />
