@@ -1,3 +1,4 @@
+2018-01-23 Added tabindex in Image Identification, Image Source and Text Identification
 2018-01-23 Added TTS functionality
 2018-01-19 Puzzle addon allows drag'n'dropping elements; fixed showing correctness marks for many puzzle addons at once; now it sends valueChanged event
 2018-01-18 Added item handling of MultiAudio in Multiple Audio Controler Binder

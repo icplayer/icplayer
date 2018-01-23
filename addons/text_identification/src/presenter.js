@@ -174,7 +174,8 @@ function Addontext_identification_create() {
             isSelected: false,
             isErrorCheckMode: false,
             blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers),
-            shouldSendEventsOnCommands: ModelValidationUtils.validateBoolean(model.shouldSendEventsOnCommands)
+            shouldSendEventsOnCommands: ModelValidationUtils.validateBoolean(model.shouldSendEventsOnCommands),
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
         };
     };
 
@@ -217,6 +218,8 @@ function Addontext_identification_create() {
 
         var container = $('<div class="text-identification-container"></div>');
         container.addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
+
+        presenter.setTabindex(container,presenter.configuration.isTabindexEnabled);
 
         var text = $('<div class="text-identification-content"></div>');
         text.html(textSrc);
@@ -589,6 +592,11 @@ function Addontext_identification_create() {
         }
 
         return null;
+    };
+
+    presenter.setTabindex = function (element, isTabindexEnabled) {
+        var tabindexValue = isTabindexEnabled ? "0" : "-1";
+        element.attr("tabindex", tabindexValue);
     };
 
     function speak (voiceObjects) {
