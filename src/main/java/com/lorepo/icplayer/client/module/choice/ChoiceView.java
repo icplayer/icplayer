@@ -356,6 +356,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			textToSpeechCurrentOption();
 		} else {
 			removeBorder();
+			position = -1;
 		}
 	}
 
@@ -398,6 +399,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	@Override
 	public void escape(KeyDownEvent event) {
 		removeBorder();
+		position = -1;
 	}
 
 	@Override
