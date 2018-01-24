@@ -1,6 +1,6 @@
-TestCase("[Pseudo_Console - validation tests] validate aliases", {
+TestCase("[PseudoCode_Console - validation tests] validate aliases", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.aliases = {
             "begin": {name: "poczatek  "},
@@ -57,9 +57,9 @@ TestCase("[Pseudo_Console - validation tests] validate aliases", {
 
 });
 
-TestCase("[Pseudo_Console - validation tests] validate functions", {
+TestCase("[PseudoCode_Console - validation tests] validate functions", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.functions = [
             {name: "function1", body: "asdfghjklmnbvder56tyujndfrtgyh();"},
@@ -104,9 +104,9 @@ TestCase("[Pseudo_Console - validation tests] validate functions", {
 
 });
 
-TestCase("[Pseudo_Console - validation tests] validate answer", {
+TestCase("[PseudoCode_Console - validation tests] validate answer", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.model = {
             runUserCode: "True",
@@ -136,9 +136,9 @@ TestCase("[Pseudo_Console - validation tests] validate answer", {
     }
 });
 
-TestCase("[Pseudo_Console - validation tests] validate model", {
+TestCase("[PseudoCode_Console - validation tests] validate model", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.model = {
             ID: "kmfskmfskdfmsk",

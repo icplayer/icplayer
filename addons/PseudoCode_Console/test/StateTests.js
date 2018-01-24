@@ -1,6 +1,6 @@
-TestCase("[Pseudo_Console - state tests] set state", {
+TestCase("[PseudoCode_Console - state tests] set state", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.state.$view = {
             css: function () {}

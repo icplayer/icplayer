@@ -1,6 +1,6 @@
-TestCase("[Pseudo_Console - language tests] if statement", {
+TestCase("[PseudoCode_Console - language tests] if statement", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.afterExecutingObject = {};
         var self = this;
@@ -123,9 +123,9 @@ TestCase("[Pseudo_Console - language tests] if statement", {
 
 });
 
-TestCase("[Pseudo_Console - language tests] variables statement", {
+TestCase("[PseudoCode_Console - language tests] variables statement", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.configuration.functions = {
             mock: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = arguments[0];"}).value.body,
@@ -170,9 +170,9 @@ TestCase("[Pseudo_Console - language tests] variables statement", {
 });
 
 
-TestCase("[Pseudo_Console - language tests] math statement", {
+TestCase("[PseudoCode_Console - language tests] math statement", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.configuration.functions = {
             mock: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = arguments[0];"}).value.body,
@@ -248,9 +248,9 @@ TestCase("[Pseudo_Console - language tests] math statement", {
     }
 });
 
-TestCase("[Pseudo_Console - language tests] logical statement", {
+TestCase("[PseudoCode_Console - language tests] logical statement", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.configuration.functions = {
             mock: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = builtIn.data.mockCalled || {}; builtIn.data.mockCalled[arguments[0].value] = arguments[1]; "}).value.body
@@ -350,9 +350,9 @@ TestCase("[Pseudo_Console - language tests] logical statement", {
 
 });
 
-TestCase("[Pseudo_Console - language tests] user defined functions", {
+TestCase("[PseudoCode_Console - language tests] user defined functions", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.configuration.functions = {
             mock: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = builtIn.data.mockCalled || {}; builtIn.data.mockCalled[arguments[0].value] = arguments[1];"}).value.body
@@ -470,9 +470,9 @@ TestCase("[Pseudo_Console - language tests] user defined functions", {
     }
 });
 
-TestCase("[Pseudo_Console - language tests] for statement", {
+TestCase("[PseudoCode_Console - language tests] for statement", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.configuration.functions = {
             mock: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = builtIn.data.mockCalled || 0;  builtIn.data.mockCalled++;"}).value.body,
@@ -543,9 +543,9 @@ TestCase("[Pseudo_Console - language tests] for statement", {
     }
 });
 
-TestCase("[Pseudo_Console - language tests] while statement", {
+TestCase("[PseudoCode_Console - language tests] while statement", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.configuration.functions = {
             mock: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = builtIn.data.mockCalled || 0;  builtIn.data.mockCalled++;"}).value.body,
@@ -619,9 +619,9 @@ TestCase("[Pseudo_Console - language tests] while statement", {
     }
 });
 
-TestCase("[Pseudo_Console - language tests] do-while statement", {
+TestCase("[PseudoCode_Console - language tests] do-while statement", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.configuration.functions = {
             mock: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = builtIn.data.mockCalled || 0;  builtIn.data.mockCalled++;"}).value.body,
@@ -696,9 +696,9 @@ TestCase("[Pseudo_Console - language tests] do-while statement", {
     }
 });
 
-TestCase("[Pseudo_Console - language tests] case statement", {
+TestCase("[PseudoCode_Console - language tests] case statement", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.configuration.functions = {
             mock:  this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = builtIn.data.mockCalled || {};  builtIn.data.mockCalled[arguments[0].value] = true"}).value.body
@@ -777,12 +777,13 @@ TestCase("[Pseudo_Console - language tests] case statement", {
     }
 });
 
-TestCase("[Pseudo_Console - language tests] array statement", {
+TestCase("[PseudoCode_Console - language tests] array statement", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.configuration.functions = {
-            mock:  this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = arguments[0].value;"}).value.body
+            mock:  this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = arguments[0].value;"}).value.body,
+            mock2: this.presenter.validateFunction({name: "name2", body: "builtIn.retVal.value = builtIn.objects.Number.__constructor__(22);"}).value.body
 
         };
 
@@ -831,23 +832,60 @@ TestCase("[Pseudo_Console - language tests] array statement", {
             mock(b[1])
         end
          */
-        this.test2 = "program test \n variable a \n array b[2] = [1, 2] \n begin \n b[1] = 4 \n mock(b[1]) \n end";
+        this.test3 = "program test \n variable a \n array b[2] = [1, 2] \n begin \n b[1] = 4 \n mock(b[1]) \n end";
 
+
+        /*
+        program test
+        variable a
+        array b[3] = [1, 2]
+        begin
+            b[1 + 1 + (0 * 5) + 0] = 4 + 4 * 2 + mock2()
+            mock(b[2])
+        end
+         */
+        this.test4 = "program test \n variable a \n array b[3] = [1, 2] \n begin \n b[1 + 1 + (0 * 5) + 0] = 4 + 4 * 2 + mock2() \n mock(b[2]) \n end";
     },
 
-    'test array get value are correctly received': function () {
+    'test array is correctly passed to function': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test1);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertEquals(1, this.afterExecutingObject.data.mockCalled[0].value);
+        assertEquals(2, this.afterExecutingObject.data.mockCalled[1].value);
+        assertEquals(2, this.afterExecutingObject.data.mockCalled.length);
+    },
+
+    'test array get value are correctly set': function () {
         this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test2);
 
         this.presenter.evaluateScoreFromUserCode();
 
+        assertEquals(1, this.afterExecutingObject.data.mockCalled);
+    },
+
+    'test array get value are correctly received': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test3);
+
+        this.presenter.evaluateScoreFromUserCode();
+
         assertEquals(4, this.afterExecutingObject.data.mockCalled);
+    },
+
+    'test array set correctly working with complicated statements': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test4);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertEquals(34, this.afterExecutingObject.data.mockCalled);
     }
 
 });
 
-TestCase("[Pseudo_Console - language tests] exceptions", {
+TestCase("[PseudoCode_Console - language tests] exceptions", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         for (var exceptionName in this.presenter.exceptions) {
             if (this.presenter.exceptions.hasOwnProperty(exceptionName)) {

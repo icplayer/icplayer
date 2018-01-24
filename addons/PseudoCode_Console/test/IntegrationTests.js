@@ -1,6 +1,6 @@
-TestCase("[Pseudo_Console - integration tests] correct run", {
+TestCase("[PseudoCode_Console - integration tests] correct run", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.model = {
             ID: "kmfskmfskdfmsk",
@@ -41,7 +41,7 @@ TestCase("[Pseudo_Console - integration tests] correct run", {
             ]
         };
 
-        this.view = $("<div><div class=\"addon-Pseudo_Console-wrapper\"></div></div>")[0];
+        this.view = $("<div><div class=\"addon-PseudoCode_Console-wrapper\"></div></div>")[0];
 
 
         /*

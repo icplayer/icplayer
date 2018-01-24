@@ -1,6 +1,6 @@
-TestCase("[Pseudo_Console - events tests] sending events", {
+TestCase("[PseudoCode_Console - events tests] sending events", {
     setUp: function () {
-        this.presenter = AddonPseudo_Console_create();
+        this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.state.wasChanged = true;
         this.presenter.configuration.isActivity = true;

@@ -3,7 +3,7 @@
  * http://wazniak.mimuw.edu.pl/index.php?title=Podstawy_kompilator%C3%B3w
  * Check comments if you want to add OOP to language.
  */
-function AddonPseudo_Console_create() {
+function AddonPseudoCode_Console_create() {
     var presenter = function () {},
         JISON_GRAMMAR;
 
@@ -861,7 +861,7 @@ function AddonPseudo_Console_create() {
             var execObjects = [];
 
             //Call args code in reverse order to save it on stack
-            for (var i = args.length - 1; i >= 0; i--){
+            for (var i = 0; i < args.length; i++){
                 execObjects = execObjects.concat(args[i]);
             }
 
@@ -913,7 +913,7 @@ function AddonPseudo_Console_create() {
         },
 
         assign_array_value: function bnf_assign_array_value (variableName, operations, value) {
-            return presenter.bnf.method_call("__set__", operations.concat(value), variableName);
+            return presenter.bnf.method_call("__set__", [value, operations], variableName);
         },
 
         program_name: function bnf_program_name (yy, programName) {
@@ -1123,7 +1123,7 @@ function AddonPseudo_Console_create() {
         retVal.push(presenter.generateExecuteObject(code, ""));
         retVal.push(presenter.generateJumpInstruction('true', '1_get_object_call_manager'));
         retVal.push(presenter.generateExecuteObject(exitCode, ''));
-        return retVal.reverse();
+        return retVal;
     };
 
     presenter.generateFunctionStart = function presenter_generateFunctionStart (argsList, functionName) {
@@ -1440,7 +1440,7 @@ function AddonPseudo_Console_create() {
     };
 
     presenter.initializeConsole = function presenter_initializeConsole () {
-        presenter.state.console = new presenter.console(presenter.state.$view.find(".addon-Pseudo_Console-wrapper"));
+        presenter.state.console = new presenter.console(presenter.state.$view.find(".addon-PseudoCode_Console-wrapper"));
         var originalReadLine = presenter.state.console.ReadLine,
             originalReadChar = presenter.state.console.ReadChar;
 
@@ -1473,11 +1473,12 @@ function AddonPseudo_Console_create() {
 
     presenter.completeObjectsMethods = function presenter_completeObjectsMethods () {
         presenter.configuration.methods.forEach(function (method) {
-            presenter.objectMocks[method.objectName].__methods__[method.methodName] = {
-                native: true,
-                jsCode: method.function
-            };
-
+            if (method.objectName !== "" && method.methodName !== "") {
+                presenter.objectMocks[method.objectName].__methods__[method.methodName] = {
+                    native: true,
+                    jsCode: method.function
+                };
+            }
         });
     };
 
@@ -1803,6 +1804,7 @@ function AddonPseudo_Console_create() {
 
             presenter.state.lastUsedCode = executableCode;
             presenter.stop();
+
             presenter.codeExecutor(executableCode, false);
         } catch (e) {
             if (e.name !== "Error") {
