@@ -9,11 +9,13 @@ import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 public class OrderingModule extends BasicModuleModel {
 
@@ -26,6 +28,8 @@ public class OrderingModule extends BasicModuleModel {
 	private boolean allElementsHasSameWidth = false;
 	private boolean graduallyScore = false;
 	private boolean dontGenerateCorrectOrder = false;
+	private String langAttribute = "";
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 
 	public OrderingModule() {
 		super("Ordering", DictionaryWrapper.get("ordering_module"));
@@ -41,13 +45,14 @@ public class OrderingModule extends BasicModuleModel {
 		addPropertyAllElementHasSameWidth();
 		addPropertyGraduallyScore();
 		addPropertyDontGenerateCorrectOrder();
+		addPropertySpeechTexts();
+		addPropertyLangAttribute();
 	}
 
 	private void addItem(OrderingItem item) {
 
 		items.add(item);
 		item.addPropertyListener(new IPropertyListener() {
-
 			@Override
 			public void onPropertyChanged(IProperty source) {
 				OrderingModule.this.sendPropertyChangedEvent(itemsProperty);
@@ -76,14 +81,20 @@ public class OrderingModule extends BasicModuleModel {
 		items.clear();
 		// Read ordering node
 		NodeList nodeList = node.getElementsByTagName("ordering");
-		if(nodeList.getLength() > 0){
-			Element choice = (Element)nodeList.item(0);
-			isVertical = XMLUtils.getAttributeAsBoolean(choice, "isVertical");
-			isActivity = XMLUtils.getAttributeAsBoolean(choice, "isActivity", true);
-			optionalOrder = XMLUtils.getAttributeAsString(choice, "optionalOrder");
-			allElementsHasSameWidth = XMLUtils.getAttributeAsBoolean(choice, "allElementsHasSameWidth");
-			graduallyScore = XMLUtils.getAttributeAsBoolean(choice, "graduallyScore");
-			dontGenerateCorrectOrder = XMLUtils.getAttributeAsBoolean(choice, "dontGenerateCorrectOrder");
+		if (nodeList.getLength() > 0) {
+			Element ordering = (Element) nodeList.item(0);
+			isVertical = XMLUtils.getAttributeAsBoolean(ordering, "isVertical");
+			isActivity = XMLUtils.getAttributeAsBoolean(ordering, "isActivity", true);
+			optionalOrder = XMLUtils.getAttributeAsString(ordering, "optionalOrder");
+			allElementsHasSameWidth = XMLUtils.getAttributeAsBoolean(ordering, "allElementsHasSameWidth");
+			graduallyScore = XMLUtils.getAttributeAsBoolean(ordering, "graduallyScore");
+			dontGenerateCorrectOrder = XMLUtils.getAttributeAsBoolean(ordering, "dontGenerateCorrectOrder");
+			this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(ordering, "selected"));
+			this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(ordering, "deselected"));
+			this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(ordering, "replaced_with"));
+			this.speechTextItems.get(3).setText(XMLUtils.getAttributeAsString(ordering, "correct"));
+			this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(ordering, "wrong"));
+			this.langAttribute = XMLUtils.getAttributeAsString(ordering, "lang");
 		}
 
 		// Read item nodes
@@ -167,6 +178,13 @@ public class OrderingModule extends BasicModuleModel {
 		XMLUtils.setBooleanAttribute(ordering, "graduallyScore", graduallyScore);
 		XMLUtils.setBooleanAttribute(ordering, "dontGenerateCorrectOrder", dontGenerateCorrectOrder);
 		ordering.setAttribute("optionalOrder", optionalOrder);
+		ordering.setAttribute("lang", this.langAttribute);
+		ordering.setAttribute("selected", this.speechTextItems.get(0).getText());
+		ordering.setAttribute("deselected", this.speechTextItems.get(1).getText());
+		ordering.setAttribute("replaced_with", this.speechTextItems.get(2).getText());
+		ordering.setAttribute("correct", this.speechTextItems.get(3).getText());
+		ordering.setAttribute("wrong", this.speechTextItems.get(4).getText());
+		
 		orderingModule.appendChild(ordering);
 
 		for (OrderingItem item : items) {
@@ -408,7 +426,7 @@ public class OrderingModule extends BasicModuleModel {
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0);
 
-				if(value!= allElementsHasSameWidth){
+				if (value != allElementsHasSameWidth) {
 					allElementsHasSameWidth = value;
 					sendPropertyChangedEvent(this);
 				}
@@ -494,7 +512,7 @@ public class OrderingModule extends BasicModuleModel {
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0);
 
-				if (value!= dontGenerateCorrectOrder) {
+				if (value != dontGenerateCorrectOrder) {
 					dontGenerateCorrectOrder = value;
 					sendPropertyChangedEvent(this);
 				}
@@ -523,6 +541,133 @@ public class OrderingModule extends BasicModuleModel {
 		};
 
 		addProperty(property);
+	}
+	
+	private void addPropertySpeechTexts() {
+		IStaticListProperty property = new IStaticListProperty() {
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(speechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return speechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("selected"));
+				speechTextItems.add(new SpeechTextsStaticListItem("deselected"));
+				speechTextItems.add(new SpeechTextsStaticListItem("replaced_with"));
+				speechTextItems.add(new SpeechTextsStaticListItem("correct"));
+				speechTextItems.add(new SpeechTextsStaticListItem("wrong"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return speechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+
+		};
+
+		addProperty(property);
+		property.addChildren(1);
+	}
+	
+	private void addPropertyLangAttribute() {
+		IProperty property = new IProperty() {
+			@Override
+			public void setValue(String newValue) {
+				langAttribute = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return langAttribute;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("text_module_lang_attribute");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_lang_attribute");
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public String getSpeechTextItem (int index) {
+		if (index < 0 || index >= this.speechTextItems.size()) {
+			return "";
+		}
+		
+		final String text = this.speechTextItems.get(index).getText();
+		if (text.isEmpty()) {
+			if (index == 0) {
+				return "selected";
+			}
+			
+			if (index == 1) {
+				return "deselected";
+			}
+			
+			if (index == 2) {
+				return "replaced with";
+			}
+			
+			if (index == 3) {
+				return "correct";
+			}
+			
+			if (index == 4) {
+				return "wrong";
+			}
+			
+			return "";
+		}
+		
+		return text;
+	}
+	
+	public String getLangAttribute () {
+		return this.langAttribute;
 	}
 
 }

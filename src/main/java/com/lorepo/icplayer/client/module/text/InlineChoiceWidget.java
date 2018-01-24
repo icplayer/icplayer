@@ -1,5 +1,8 @@
 package com.lorepo.icplayer.client.module.text;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -9,32 +12,39 @@ import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.ListBox;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+import com.lorepo.icplayer.client.page.PageController;
+
 
 public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
-
 	private InlineChoiceInfo choiceInfo;
 	private boolean isDisabled = false;
 	private String value = "";
 	private boolean clicked = false;
+	private PageController pageController;
 	private boolean isSelected = false;
+	private String langTag = "";
+	private boolean isWorkingMode = true;
+	private int gapState = 0;
+	private TextView view;
 
-	public InlineChoiceWidget(InlineChoiceInfo gi, final ITextViewListener listener) {
+	public InlineChoiceWidget (InlineChoiceInfo gi, final ITextViewListener listener, TextView view) {
 
 		super(DOM.getElementById(gi.getId()));
 
-		choiceInfo = gi;
+		this.view = view;
+		this.choiceInfo = gi;
 		setStylePrimaryName("ic_inlineChoice");
 		addStyleName("ic_inlineChoice-default");
 
 		onAttach();
 
 		if (listener != null) {
-
 			addChangeHandler(new ChangeHandler() {
 
 				@Override
-				public void onChange(ChangeEvent event) {
+				public void onChange (ChangeEvent event) {
 					int index = getSelectedIndex();
 					if (index > 0) {
 						value = StringUtils.unescapeXML(getValue(index));
@@ -44,6 +54,11 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 						addStyleName("ic_inlineChoice-default");
 					}
 					listener.onValueChanged(choiceInfo.getId(), value);
+					if(getView().isWCAGon()){
+						List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+						textVoices.add(TextToSpeechVoice.create(value, getView().getLang()));
+						getPageController().speak(textVoices);
+					}
 				}
 			});
 
@@ -73,19 +88,17 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	public void setShowErrorsMode(boolean isActivity) {
 
 		if (isActivity) {
+			this.isWorkingMode = false;
 			int selectedIndex = getSelectedIndex();
 			boolean isFilledGap = selectedIndex > 0;
 
 			if (isFilledGap) {
-				boolean correctAnswer = getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
-
-				if (correctAnswer) {
-					addStyleDependentName("correct");
-				} else {
-					addStyleDependentName("wrong");
-				}
+				boolean isCorrectAnswer = getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
+				addStyleDependentName(isCorrectAnswer ? "correct" : "wrong");
+				this.gapState = (isCorrectAnswer ? 1 : 2);
 			} else {
 				addStyleDependentName("empty");
+				this.gapState = 3;
 			}
 		}
 
@@ -94,18 +107,20 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	@Override
 	public void setStyleShowAnswers() {
+		this.gapState = 1;
 		addStyleDependentName("correct-answer");
 		setEnabled(false);
 	}
 
 	@Override
 	public void removeStyleHideAnswers() {
+		this.gapState = 0;
 		removeStyleDependentName("correct-answer");
 		setEnabled(true);
 	}
 
 	public void setWorkMode() {
-
+		this.isWorkingMode = true;
 		removeStyleDependentName("correct");
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
@@ -113,17 +128,12 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	}
 
 	public void reset() {
-
 		setSelectedIndex(0);
-		removeStyleDependentName("correct");
-		removeStyleDependentName("wrong");
-		removeStyleDependentName("empty");
 		addStyleName("ic_inlineChoice-default");
-		setEnabled(!isDisabled);
+		setWorkMode();
 	}
 
 	public void setText(String value) {
-
 		for (int i = 0; i < getItemCount(); i++) {
 			String item = getItemText(i);
 			if (item.compareTo(value) == 0) {
@@ -135,13 +145,13 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	@Override
 	public String getTextValue() {
-
 		int index = getSelectedIndex();
 		return getItemText(index);
 	}
 
 	@Override
 	public void markGapAsCorrect() {
+		this.gapState = 1;
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("empty");
 		addStyleDependentName("correct");
@@ -149,6 +159,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	@Override
 	public void markGapAsWrong() {
+		this.gapState = 2;
 		if (!getTextValue().equals("---")) {
 			removeStyleDependentName("correct");
 			removeStyleDependentName("empty");
@@ -157,13 +168,13 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	}
 
 	public void setDisabled(boolean disabled) {
-
 		isDisabled = disabled;
 		setEnabled(!disabled);
 	}
 
 	@Override
 	public void markGapAsEmpty() {
+		this.gapState = 3;
 		removeStyleDependentName("wrong");
 		removeStyleDependentName("correct");
 		addStyleDependentName("empty");
@@ -191,13 +202,11 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 
 	@Override
 	public void setDroppedElement(String element) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public String getDroppedElement() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -217,6 +226,18 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	}
 
 	@Override
+	public String getGapType() {
+		return "dropdown";
+	}
+	
+	private PageController getPageController () {
+		return this.pageController;
+	}
+	
+	public void setPageController (PageController pc) {
+		this.pageController = pc;
+	}
+	
 	public void select() {
 		this.addStyleName("keyboard_navigation_active_element");
 		this.addStyleName("keyboard_navigation_active_element_text");
@@ -228,9 +249,28 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 		this.removeStyleName("keyboard_navigation_active_element");
 		this.removeStyleName("keyboard_navigation_active_element_text");
 		this.isSelected = false;
+		DOM.getElementById(this.getId()).blur();
 	}
 
     public boolean isSelected() {
 		return this.isSelected;
+	}
+
+	public void setLang(String langTag) {
+		this.langTag = langTag;
+	}
+
+	@Override
+	public boolean isWorkingMode() {
+		return this.isWorkingMode;
+	}
+
+	@Override
+	public int getGapState() {
+		return this.gapState;
+	}
+	
+	private TextView getView(){
+		return this.view;
 	}
 }

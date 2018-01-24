@@ -21,6 +21,7 @@ function AddonAudio_create(){
     };
     presenter.playerController = null;
     presenter.addonID = null;
+    presenter.type = 'audio';
 
     presenter.mouseData = {};
 

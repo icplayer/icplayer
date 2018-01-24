@@ -477,8 +477,8 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	}
 
 	@Override
-	public boolean isSelectable() {
-		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		return !this.view.getDisabled() && isVisible;
+	public boolean isSelectable(boolean isTextToSpeechOn) {
+		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
+		return (isTextToSpeechOn || !this.view.getDisabled()) && isVisible;
 	}
 }

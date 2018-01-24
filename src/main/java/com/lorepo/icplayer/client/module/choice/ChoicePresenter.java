@@ -53,6 +53,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		public int[] getOryginalOrder();
 		public void setVisibleVal(boolean val);
 		public void getOrderedOptions();
+		void isShowErrorsMode(boolean isShowErrorsMode);
 	}
 	
 	private IDisplay view;
@@ -140,6 +141,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		this.isShowAnswersActive = true;
 
 		clearStylesAndSelection();
+		view.isShowErrorsMode(false);
 		view.setEnabled(false);
 		
 		for(IOptionDisplay optionView : view.getOptions()){
@@ -188,7 +190,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 				}
 			}
 		}
-	
+
+		view.isShowErrorsMode(true);
 		view.setEnabled(false);
 	}	
 	
@@ -204,6 +207,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			}
 		}
 			
+		view.isShowErrorsMode(false);
 		view.setEnabled(!isDisabled);
 	}	
 	
@@ -655,8 +659,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 
 	@Override
-	public boolean isSelectable() {
+	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		return isVisible;
+		boolean isEnabled = !this.module.isDisabled();
+		return (isVisible || isTextToSpeechOn) && isEnabled;
 	}
 }

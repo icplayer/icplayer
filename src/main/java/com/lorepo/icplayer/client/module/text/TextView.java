@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.text;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -12,32 +13,39 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class TextView extends HTML implements IDisplay, IWCAG{
 
+public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	private final TextModel module;
 	private ITextViewListener listener;
-	private final ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
+	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
 	private final ArrayList<String> mathGapIds = new ArrayList<String>();
 	private boolean moduleHasFocus = false;
-	private int clicks = 0;
+	private int clicks = -1;
 	private TextElementDisplay activeGap = null;
+	private PageController pageController;
+	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
+	private boolean isWCAGon = false;
+	private boolean isShowErrorsMode = false;
 	
-	public TextView(TextModel module, boolean isPreview) {
+	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
 	}
 
-	private void createUI(boolean isPreview) {
+	private void createUI (boolean isPreview) {
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
 		StyleUtils.applyInlineStyle(this, module);
-		if(!isPreview && !module.isVisible()) {
+		if (!isPreview && !module.isVisible()) {
 			hide();
 		}
 		
@@ -57,18 +65,26 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	}
 
 	@Override
-	public void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator) {
-
-		int gapWidth = module.getGapWidth();
-		while (giIterator.hasNext()) {
-			InlineChoiceInfo gi = giIterator.next();
-			InlineChoiceWidget gap = new InlineChoiceWidget(gi, listener);
+	public void connectInlineChoices (List<InlineChoiceInfo> InlineChoiceList) {
+		final int gapWidth = module.getGapWidth();
+		
+		for (InlineChoiceInfo ic: InlineChoiceList) {
+			inlineChoiceInfoArrayList.add(ic);
+			InlineChoiceWidget gap = new InlineChoiceWidget(ic, listener,this);
+			gap.setLang(this.module.getLangAttribute());
 			if (gapWidth > 0) {
 				gap.setWidth(gapWidth + "px");
 			}
 			
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
+		}
+	}
+	
+	private void setPageControllerToInLineChoices () {
+		for (InlineChoiceInfo c: this.inlineChoiceInfoArrayList) {
+			InlineChoiceWidget gap = new InlineChoiceWidget(c, listener,this);
+			gap.setPageController(this.pageController);
 		}
 	}
 
@@ -165,7 +181,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	public void connectLinks(Iterator<LinkInfo> it) {
 		while (it.hasNext()) {
 			final LinkInfo info = it.next();
-			if(DOM.getElementById(info.getId()) != null){
+			if (DOM.getElementById(info.getId()) != null) {
 				LinkWidget widget = new LinkWidget(info);
 				widget.addClickHandler(new ClickHandler() {
 
@@ -173,12 +189,49 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 					public void onClick(ClickEvent event) {
 						event.stopPropagation();
 						event.preventDefault();
-						if(listener != null){
+						if (listener != null) {
 							listener.onLinkClicked(info.getType(), info.getHref(), info.getTarget());
 						}
 						event.preventDefault();
 					}
 				});
+			}
+		}
+	}
+	
+	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<TextElementDisplay> textElements) {
+		for (int i=startingIndex; i<textElements.size(); i++) {
+			TextElementDisplay textElement = textElements.get(i);
+			String teGapType = textElement.getGapType() == "draggable" ? "gap" : textElement.getGapType();
+			if (teGapType == gapType) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+	
+	public void sortGapsOrder () {
+//		final List<String> gapsOrder = module.getGapsOrder();
+		final List<String> gapsOrder = WCAGUtils.getGapsOrder(module);
+		final int gapsOrderSize = gapsOrder.size();
+		final int textElementsSize = textElements.size();
+		
+		if (gapsOrderSize == 0 && textElementsSize != gapsOrderSize) {
+			return;
+		}
+		
+		for (int i=0; i<textElementsSize && i<gapsOrderSize; i++) {
+			final String gapType = gapsOrder.get(i);
+			final String currentGapType = textElements.get(i).getGapType();
+			
+			if (gapType != currentGapType) {
+				int correctElementId = getIndexOfNextGapType(i, gapType, textElements);
+				
+				if (correctElementId != -1) {
+					textElements.add(i, textElements.get(correctElementId));
+					textElements.remove(correctElementId+1);
+				}
 			}
 		}
 	}
@@ -202,9 +255,9 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	public HashMap<String, String> getDroppedElements() {
 		HashMap<String, String> droppedElements = new HashMap<String, String>();
 
-		for(TextElementDisplay gap : textElements){
+		for (TextElementDisplay gap : textElements) {
 			String helper = gap.getDroppedElement();
-			if(helper != null){
+			if (helper != null) {
 				String escaped = StringUtils.escapeXML(helper);
 				droppedElements.put(gap.getId(), escaped);
 			}
@@ -213,13 +266,12 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 		return droppedElements;
 	}
 
-
 	@Override
-	public void setValue(String id, String value) {
-		for(TextElementDisplay gap : textElements){
-			if(gap.hasId(id)){
+	public void setValue (String id, String value) {
+		for (TextElementDisplay gap : textElements) {
+			if (gap.hasId(id)) {
 				gap.setText(value);
-				if(!value.equals("---")){
+				if (!value.equals("---")) {
 					gap.removeDefaultStyle();
 				}
 				return;
@@ -233,21 +285,26 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	}
 
 	@Override
-	public TextElementDisplay getChild(int index) {
+	public TextElementDisplay getChild (int index) {
 		return textElements.get(index);
 	}
 
 	@Override
-	public void setHTML(String html){
+	public void setHTML (String html) {
 		super.setHTML(html);
+	}
+	
+	public void setValue(String text) {
+		super.setHTML(text);
+		this.module.setText(text);
 	}
 
 	@Override
-	public void refreshMath() {
+	public void refreshMath () {
 		MathJax.refreshMathJax(getElement());
 	}
 	
-	public void rerenderMathJax (){
+	public void rerenderMathJax () {
 		MathJax.rerenderMathJax(getElement());
 	}
 
@@ -266,7 +323,7 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 
 			if (callRefreshMath) {
 				refreshMath();
-				if(!(module.hasMathGaps() || module.hasDraggableGaps())){
+				if (!(module.hasMathGaps() || module.hasDraggableGaps())){
 					rerenderMathJax();
 				}
 			}
@@ -276,7 +333,6 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	private int getTextElementsSize() {
 		return textElements.size();
 	}
-	
 	
 	private void removeAllSelections () {
 		for (TextElementDisplay element: this.textElements) {
@@ -322,87 +378,163 @@ public class TextView extends HTML implements IDisplay, IWCAG{
 	}-*/;
 
 	@Override
-	public void enter(boolean isExiting) {
+	public String getName() {
+		return "Text";
+	}
+	
+	public void enter (boolean isExiting) {
 		if (isExiting) {
 			this.removeAllSelections();
+			clicks = -1;
+			activeGap = null;
 		} else {
 			if (activeGap == null) {
-				if(textElements.size() > 0) {
+				if (textElements.size() > 0) {
 					activeGap = textElements.get(0);
 				}
+			} else {
+				if (!moduleHasFocus) {
+					activeGap.setFocusGap(true);
+					moduleHasFocus = true;
+				}
 			}
-
-			if (activeGap != null && !moduleHasFocus) {
-				activeGap.setFocusGap(true);
-				moduleHasFocus = true;
-			}
+			
+			this.readTextContent();
 		}
 	}
-
-	@Override
-	public void tab(KeyDownEvent event) {
+	
+	private void move (boolean goNext) {
 		int size = getTextElementsSize();
-
-		if (size == 0) return;
-
+		
+		if (size == 0) {
+			return;
+		}
+		
 		this.removeAllSelections();
 		
-		clicks++;
+		clicks += goNext ? 1 : -1;
 		
-		if (clicks >= size && size > 0) {
+		if (clicks >= size) {
+			clicks = size-1;
+		}
+		
+		if (clicks < 0) {
 			clicks = 0;
 		}
 		
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
+		
+		this.readGap(activeGap.getGapType(), clicks, activeGap.getTextValue(),activeGap.getGapState());
+	}
+
+	@Override
+	public void tab (KeyDownEvent event) {
+		this.move(true);
 	}
 
 	@Override
 	public void escape(KeyDownEvent event) {
 		this.removeAllSelections();
 		moduleHasFocus = false;
+		clicks = -1;
+		activeGap = null;
 	}
 
 	@Override
-	public void shiftTab(KeyDownEvent event) {
-		int size = getTextElementsSize();
-
-		if (size == 0) return;
-
-		this.removeAllSelections();
-		
-		clicks--;
-		
-		if (clicks < 0) {
-			clicks = size - 1;
-		}
-		
-		activeGap = textElements.get(clicks);
-		activeGap.setFocusGap(true);
+	public void shiftTab (KeyDownEvent event) {
+		this.move(false);
 	}
 	
 	@Override
-	public void left(KeyDownEvent event) {
-	}
+	public void left (KeyDownEvent event) {}
 
 	@Override
-	public void right(KeyDownEvent event) {
-	}
+	public void right (KeyDownEvent event) {}
 
 	@Override
-	public void down(KeyDownEvent event) {
-	}
+	public void down (KeyDownEvent event) {}
 
 	@Override
-	public void up(KeyDownEvent event) {
-	}
+	public void up (KeyDownEvent event) {}
 	
 	@Override
 	public void space(KeyDownEvent event) {
-		this.listener.onGapClicked(activeGap.getId());
+		if(!isShowErrorsMode){
+			this.listener.onGapClicked(activeGap.getId());
+		}
 	}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
+	public void setWorkMode(){
+		this.isShowErrorsMode = false;
 	}
+	
+	@Override
+	public void setShowErrorsMode () {
+		this.isShowErrorsMode = true;
+	}
+	
+	@Override
+	public void customKeyCode(KeyDownEvent event) {}
+
+	@Override
+	public boolean isWCAGon() {
+		return this.isWCAGon;
+	}
+
+	@Override
+	public void setWCAGStatus (boolean isOn) {
+		this.isWCAGon = isOn;
+	}
+
+	@Override
+	public void setPageController (PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+		this.setPageControllerToInLineChoices();
+	}
+	
+	public String getLang () {
+		return this.module.getLangAttribute();
+	}
+	
+	private void readGap (String type, int index, String content, int gapState) {
+		final String gapType = type == "dropdown" ? this.module.getSpeechTextItem(2) : this.module.getSpeechTextItem(1);
+
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(TextToSpeechVoice.create(gapType + " " + Integer.toString(index + 1)));
+		textVoices.add(TextToSpeechVoice.create(content, this.module.getLangAttribute()));
+		
+		if(this.isShowErrorsMode) {
+			if(gapState==1) {
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(3)));
+			}else if(gapState==2) {
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(4)));
+			}else if(gapState==3) {
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(5)));
+			}
+		}
+		
+		this.speak(textVoices);
+	}
+	
+	private void readTextContent () {
+		final List<TextToSpeechVoice> result = WCAGUtils.getReadableText(this.module, this.textElements, this.module.getLangAttribute());
+		this.speak(result);
+	}
+	
+	private void speak (TextToSpeechVoice t1) {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(t1);
+		
+		this.speak(textVoices);
+	}
+	
+	private void speak (List<TextToSpeechVoice> textVoices) {
+		if (this.pageController != null) {
+			this.pageController.speak(textVoices);
+		}
+	}
+	
 }

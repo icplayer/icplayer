@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.report;
 
+import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -8,9 +9,11 @@ import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 
 
-public class ReportPresenter implements IPresenter{
+public class ReportPresenter implements IPresenter, IWCAGPresenter{
 
 	public interface IDisplay extends IModuleView{
 		void clear();
@@ -18,6 +21,7 @@ public class ReportPresenter implements IPresenter{
 		void addRow(String name);
 		void addSummaryRow(int totalScore, int totalChecks, int totalErrors, int totalMistakes);
 		void addListener(IViewListener l);
+		public Element getElement();
 	}
 	
 	private IDisplay view;
@@ -114,5 +118,31 @@ public class ReportPresenter implements IPresenter{
 	@Override
 	public void reset() {
 		// Module is not an activity
+	}
+
+
+	@Override
+	public IWCAG getWCAGController() {
+		return (IWCAG) this.view;
+	}
+
+
+	@Override
+	public void selectAsActive(String className) {
+		this.view.getElement().addClassName(className);
+		
+	}
+
+
+	@Override
+	public void deselectAsActive(String className) {
+		this.view.getElement().removeClassName(className);
+		
+	}
+
+
+	@Override
+	public boolean isSelectable(boolean isTextToSpeechOn) {
+		return !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
 	}
 }

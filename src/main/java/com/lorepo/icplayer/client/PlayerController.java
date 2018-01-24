@@ -61,6 +61,7 @@ public class PlayerController implements IPlayerController{
 	private boolean isPopupEnabled = false;
 	private final KeyboardNavigationController keyboardController = new KeyboardNavigationController();
 	private PlayerEntryPoint entryPoint;
+	private String lang = "en";
 	private int iframeScroll = 0;
 
 	private String pageStamp = "0";
@@ -84,6 +85,7 @@ public class PlayerController implements IPlayerController{
 		this.timeService = new TimeService();
 		this.keyboardController.run(entryPoint);
 		this.getIFrameScroll(this);
+		this.lang = content.getMetadataValue("lang");
 	}
 
 	private void createPageControllers(boolean bookMode) {
@@ -335,7 +337,6 @@ public class PlayerController implements IPlayerController{
 				if(timeStart == 0){
 					timeStart = System.currentTimeMillis();
 				}
-
 				if (!keyboardController.isModuleActivated()) {
 					scrollViewToBeggining();
 				}
@@ -352,19 +353,13 @@ public class PlayerController implements IPlayerController{
 	private void pageLoaded(Page page, PageController pageController) {
 		this.keyboardController.save();
 		this.keyboardController.reset();
-
 		pageController.setPage(page);
-		
 		if (this.headerController != null && pageController != this.pageController2) {
 		    this.setHeader(page);
 		}
 		this.keyboardController.addHeaderToNavigation(this.headerController);
-		
 		this.keyboardController.addMainToNavigation(this.pageController1);
 		this.keyboardController.addSecondToNavigation(this.pageController2);
-
-
-
 		if (this.footerController != null && pageController != this.pageController2) {
 			this.setFooter(page);
 		}
@@ -381,7 +376,6 @@ public class PlayerController implements IPlayerController{
 			}
 		});
 	}
-
 
 	private void closeCurrentPages() {
 		this.closePopup();
@@ -685,6 +679,11 @@ public class PlayerController implements IPlayerController{
 		}
 	}
 	
+	@Override
+	public String getLang () {
+		return this.lang;
+	}
+
 	public String getPageStamp() {
 		return this.pageStamp;
 	}

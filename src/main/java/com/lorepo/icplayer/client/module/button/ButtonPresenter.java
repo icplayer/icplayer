@@ -30,6 +30,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 		void setErrorCheckingMode(boolean isErrorCheckingMode);
 		boolean isErrorCheckingMode();
 		void setDisabled(boolean isDisabled);
+		boolean isEnabled();
 		public Element getElement();
 		void execute();
 	}
@@ -234,8 +235,12 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 	}
 
 	@Override
-	public boolean isSelectable() {
-		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
+	public boolean isSelectable(boolean isTextToSpeechOn) {
+		boolean isHidden = this.getView().getStyle().getVisibility().equals("hidden");
+		boolean isNone = this.getView().getStyle().getDisplay().equals("none");
+		boolean isEnabled = this.view.isEnabled();
+		
+		boolean isVisible = !isHidden && !isNone && isEnabled;
 		return isVisible;
 	}
 }

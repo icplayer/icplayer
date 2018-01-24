@@ -1,7 +1,6 @@
 package com.lorepo.icplayer.client.module.button.mockup;
 
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.lorepo.icplayer.client.module.button.ButtonModule;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter.IDisplay;
 
@@ -61,5 +60,17 @@ public class ButtonViewMockup implements IDisplay {
 	public void execute() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

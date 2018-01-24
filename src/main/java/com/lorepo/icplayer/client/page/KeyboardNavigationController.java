@@ -9,11 +9,12 @@ import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -28,29 +29,44 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 public final class KeyboardNavigationController {
 	private boolean moduleIsActivated = false;
 	private boolean isInitiated = false;
+	private List<PresenterEntry> presentersOriginalOrder = new ArrayList<PresenterEntry>();
 	private List<PresenterEntry> presenters = new ArrayList<PresenterEntry>();
 	private boolean modeOn = false;
 	private PlayerEntryPoint entryPoint;
+	private PageController mainPageController;
 	private JavaScriptObject invisibleInputForFocus = null;
 	private int actualSelectedModuleIndex = 0;
+
 	private PageController headerController = null;
 	private PageController mainController = null;
 	private PageController footerController = null;
+	
+	private boolean isWCAGSupportOn = false;
+	private boolean isPresentersInit = false;
 
 	//state
 	private PresenterEntry savedEntry = null;
-
+	
 	class PresenterEntry {
 		public IWCAGPresenter presenter = null;
 		public boolean common = false;
+		private String area = "main";  // header, main, footer TODO create ENUM
 
-		PresenterEntry(IWCAGPresenter presenter, boolean isCommon) {
+		PresenterEntry (IWCAGPresenter presenter, boolean isCommon) {
 			this.presenter = presenter;
 			this.common = isCommon;
 		}
 
 		public boolean isCommon() {
 			return this.common;
+		}
+		
+		public void setArea (String area) {
+			this.area = area;
+		}
+		
+		public String getArea () {
+			return this.area;
 		}
 	}
 	
@@ -83,23 +99,22 @@ public final class KeyboardNavigationController {
 	}-*/;
 
 	private void initialSelect() {
-		if (this.presenters.size() == 0) {
+		if (this.getPresenters().size() == 0) {
 			this.modeOn = false;
 			return;
 		}
-		
-		if (!this.presenters.get(this.actualSelectedModuleIndex).presenter.isSelectable()) {	//If first is not selectable
+		if (!this.getPresenters().get(this.actualSelectedModuleIndex).presenter.isSelectable(this.mainPageController.isTextToSpeechModuleEnable())) { //If first is not selectable
 			this.setIndexToNextModule();
-			if (this.actualSelectedModuleIndex == 0) {	//And others modules too, then turn off navigation
+			if (this.actualSelectedModuleIndex == 0) { //And others modules too, then turn off navigation
 				this.modeOn = false;
 				return;
 			}
+
 		}
 		selectCurrentModule();
 		isInitiated = true;
 	}
 	
-
 	// Sometimes modules can remove classes just activated or selected modules. We must restore them.
 	private void restoreClasses() {
 		if (!modeOn) {
@@ -109,17 +124,27 @@ public final class KeyboardNavigationController {
 	}
 	
 	private boolean isModuleButton() {
-		if (this.presenters.get(this.actualSelectedModuleIndex).presenter instanceof IButton) {
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof IButton) {
 			return true;
 		}
-
 		
-		if (this.presenters.get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {	//Addon can be button or not, so AddonPresenter contains list of buttons
-			AddonPresenter presenter = (AddonPresenter) this.presenters.get(this.actualSelectedModuleIndex).presenter;
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {	//Addon can be button or not, so AddonPresenter contains list of buttons
+			AddonPresenter presenter = (AddonPresenter) this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
 			return presenter.isButton();
 		}
 		
 		return false;
+	}
+	
+	private void setWCAGModulesStatus (boolean isOn) {
+		for (PresenterEntry p: this.presenters) {
+			p.presenter.getWCAGController();
+			
+			if (p.presenter.getWCAGController() instanceof IWCAGModuleView) {
+				IWCAGModuleView view = (IWCAGModuleView) p.presenter.getWCAGController();
+				view.setWCAGStatus(isOn);
+			}
+		}
 	}
 
 	public void switchKeyboard(boolean enable) {
@@ -136,26 +161,52 @@ public final class KeyboardNavigationController {
 		}
 	}
 	
-	private void changeKeyboardMode (KeyDownEvent event) {
+	private void changeKeyboardMode (KeyDownEvent event, boolean isWCAGSupportOn) {
+		if (isWCAGSupportOn && !this.mainPageController.isTextToSpeechModuleEnable()) {
+			return;
+		}
 		this.modeOn = !this.modeOn;
+		final boolean isWCAGExit = !this.modeOn && this.isWCAGSupportOn;
 		if (this.modeOn) {
+			this.isWCAGSupportOn = isWCAGSupportOn;
+		}
+		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);
+		
+		if (this.mainPageController != null) {
+			final boolean isWCAGOn = this.modeOn && this.isWCAGSupportOn;
+			this.mainPageController.setTextReading(isWCAGOn);
+			
+			if (isWCAGOn) {
+				this.mainPageController.readStartText();
+			}
+			
+			if (isWCAGExit) {
+				this.mainPageController.readExitText();
+			}
+		}
+		
+		if (this.modeOn) {
+			this.actualSelectedModuleIndex = getFirstSelectableElementIndex();
 			this.setFocusOnInvisibleElement();
-			if (!this.isInitiated) {
-				this.initialSelect();
-			} else {
+			if (this.isInitiated) {
 				this.selectCurrentModule();
+			} else {
+				this.initialSelect();
 			}
 		} else {
 			this.manageKey(event);
 			this.deselectCurrentModule();
+			this.deselectAllModules();
+			this.actualSelectedModuleIndex = 0;
 		}
+		
 	}
 
 	private void changeCurrentModule(KeyDownEvent event) {
 		if (!this.modeOn) {
 			return;
 		}
-
+		
 		this.deselectCurrentModule();
 		if (event.isShiftKeyDown()) {
 			this.setIndexToPreviousModule();
@@ -163,22 +214,42 @@ public final class KeyboardNavigationController {
 			this.setIndexToNextModule();
 		}
 		this.selectCurrentModule();
+		this.readTitle();
+	}
+	
+	private void readTitle () {
+		final PresenterEntry presenterEntry = this.getPresenters().get(this.actualSelectedModuleIndex);
+		final String area = presenterEntry.getArea();
+		final IPresenter iPresenter = (IPresenter) presenterEntry.presenter;
+		final String id = iPresenter.getModel().getId();
+		
+		this.mainPageController.playTitle(area, id, "");
 	}
 
-	private int getNextElementIndex(int step) {
+	private int getNextElementIndex (int step) {
 		int index = this.actualSelectedModuleIndex;
 		do {
+			final int presentersSize = this.getPresenters().size();
 			index += step;
 
-			index = index % this.presenters.size();
+			index = index % presentersSize;
 			if (index < 0) {
-				index = this.presenters.size() - 1;
+				index = presentersSize - 1;
 			}
 
 			if (index == this.actualSelectedModuleIndex) break; // if all modules are hidden then break loop
-		} while (!this.presenters.get(index).presenter.isSelectable());
+		} while (!this.getPresenters().get(index).presenter.isSelectable(this.isWCAGSupportOn && this.modeOn)); // this.mainPageController.isTextToSpeechModuleEnable() && 
 
 		return index;
+	}
+	
+	private int getFirstSelectableElementIndex(){
+		for(int i=0; i<this.getPresenters().size();i++){
+			if(this.getPresenters().get(i).presenter.isSelectable(this.isWCAGSupportOn && this.modeOn)){
+				return i;
+			}
+		}
+		return 0;
 	}
 
 	private void setIndexToNextModule() {
@@ -189,7 +260,7 @@ public final class KeyboardNavigationController {
 		this.actualSelectedModuleIndex = this.getNextElementIndex(-1);
 	}
 
-	private boolean isSpace(int key) {
+	private boolean isSpace (int key) {
 		return key == 32;
 	}
 	
@@ -198,19 +269,25 @@ public final class KeyboardNavigationController {
 				
 		RootPanel.get().addDomHandler(new KeyDownHandler() {
 			@Override
-	        public void onKeyDown(KeyDownEvent event) {
+			public void onKeyDown(KeyDownEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isShiftKeyDown()) {
 					event.preventDefault();
-					changeKeyboardMode(event);
+					changeKeyboardMode(event, false);
+					return;
+				}
+				
+				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isControlKeyDown()) {
+					event.preventDefault();
+					changeKeyboardMode(event, true);
 					return;
 				}
 
-				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && modeOn) {	//Disable tab default action if eKeyboard is working
+				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && modeOn) { // Disable tab default action if eKeyboard is working
 					event.preventDefault();
 				}
 
 				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && (!moduleIsActivated || isModuleButton())) {
-					if (moduleIsActivated) {	//If we was in button, and he was clicked then we want to disactivate that button
+					if (moduleIsActivated) { // If we was in button, and he was clicked then we want to disactivate that button
 						deactivateModule();
 						moduleIsActivated = false;
 					}
@@ -218,7 +295,7 @@ public final class KeyboardNavigationController {
 					return;
 				}
 
-				if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+				if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER && !event.isControlKeyDown() && !event.isShiftKeyDown()) {
 					event.preventDefault();
 					activateModule();
 				}
@@ -285,8 +362,6 @@ public final class KeyboardNavigationController {
 	    }, KeyDownEvent.getType());
 	}
 	
-
-	
 	private void setFocusOnInvisibleElement () {
 		this.focusElement(this.getInputElement());
 	} 
@@ -326,30 +401,29 @@ public final class KeyboardNavigationController {
 			input = $wnd.$("<input/>");
 			input.attr("id", "input_element_for_focus_to_change_focused_element_by_browser");
 			input.css({
-						"opacity": 0.0001,
-						'pointer-events':    "none",
-						"position": "absolute",
-						"top": "0px"
-						});
+				"opacity": 0.0001,
+				"pointer-events": "none",
+				"position": "absolute",
+				"top": "0px"
+			});
 			var body = $wnd.$("body");
 			body.append(input);
 		}
 		
-		return input;		
+		return input;
 	}-*/;
 	
-	private native void focusElement(JavaScriptObject element) /*-{
+	private native void focusElement (JavaScriptObject element) /*-{
 		element.focus();
 	}-*/;
-	
 
 	private void manageKey (KeyDownEvent event) {
-		IWCAG wcagWidget = this.presenters.get(this.actualSelectedModuleIndex).presenter.getWCAGController();
+		IWCAG wcagWidget = this.getPresenters().get(this.actualSelectedModuleIndex).presenter.getWCAGController();
 		if (wcagWidget == null) {
 			return;
 		}
-		
-		switch(event.getNativeEvent().getKeyCode()) {
+
+		switch (event.getNativeEvent().getKeyCode()) {
 			case KeyCodes.KEY_UP:
 				wcagWidget.up(event);
 				break;
@@ -366,11 +440,7 @@ public final class KeyboardNavigationController {
 				wcagWidget.escape(event);
 				break;
 			case KeyCodes.KEY_ENTER:
-				if (event.isShiftKeyDown()) {
-					wcagWidget.enter(true);
-				} else {
-					wcagWidget.enter(false);
-				}
+				wcagWidget.enter(event.isShiftKeyDown() || event.isControlKeyDown());
 				break;
 			case KeyCodes.KEY_TAB:
 				if (event.isShiftKeyDown()) {
@@ -392,53 +462,75 @@ public final class KeyboardNavigationController {
 		if (!this.modeOn) {
 			return;
 		}
-
-		this.presenters.get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_active_module");
+		
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_active_module");
+		
+		if (this.isWCAGSupportOn) {
+			IWCAGPresenter p = this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
+			playTextToSpeechContent(p);
+		}
+		
 		this.moduleIsActivated = true;
 	}
 	
 	private void deactivateModule () {
-		this.presenters.get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_active_module");
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_active_module");
 		this.moduleIsActivated = false;
 	}
 	
 	private void selectCurrentModule() {
-		if (this.presenters.size() == 0) {
+		if (this.getPresenters().size() == 0) {
 			return;
 		}
-		
-		this.presenters.get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_selected_module");
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_selected_module");
 	}
 
 	private void deselectCurrentModule () {
-		if (this.presenters.size() == 0) {
+		if (this.getPresenters().size() == 0) {
 			return;
 		}
 
-		this.presenters.get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_selected_module");
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_selected_module");
 	}
 	
-	public boolean isModuleActivated() {
+	private void deselectAllModules () {
+		if (this.getPresenters().size() == 0) {
+			return;
+		}
+		this.moduleIsActivated = false;
+		
+		for (PresenterEntry ip: this.getPresenters()) {
+			IWCAGPresenter presenter = ip.presenter;
+			presenter.deselectAsActive("ic_selected_module");
+			presenter.deselectAsActive("ic_active_module");
+		}
+	}
+	
+	public boolean isModuleActivated () {
 		return moduleIsActivated;
 	}
 	
-	public void reset() {
-		if (this.presenters.size() == 0) {
+	public void reset () {
+		if (this.presenters.size() == 0 && this.presentersOriginalOrder.size() == 0) {
 			return;
 		}
-
-		if (!(this.presenters.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated())) {
+		
+		final boolean isCommonModuleActivatedOriginalNavigation = this.presentersOriginalOrder.size() > 0 ? this.presentersOriginalOrder.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated() : false;
+		final boolean isCommonModuleActivatedWCAGNavigation = this.presenters.size() > 0 ? this.presenters.get(this.actualSelectedModuleIndex).isCommon() && isModuleActivated() : false;
+		
+		if (!isCommonModuleActivatedOriginalNavigation && !isCommonModuleActivatedWCAGNavigation) {
 			this.moduleIsActivated = false;
 			this.isInitiated = false;
 			this.actualSelectedModuleIndex = 0;
 		}
 		
-
+		this.isPresentersInit = false;
 		this.presenters.clear();
+		this.presentersOriginalOrder.clear();
 	}
 	
-	public void save() {
-		if (this.presenters.size() == 0) {
+	public void save () {
+		if (this.getPresenters().size() == 0) {
 			return;
 		}
 
@@ -446,58 +538,133 @@ public final class KeyboardNavigationController {
 			return;
 		}
 
-		this.savedEntry = this.presenters.get(this.actualSelectedModuleIndex);
+		this.savedEntry = this.getPresenters().get(this.actualSelectedModuleIndex);
 	}
 
-	public void restore() {
+	public void restore () {
 		if (this.savedEntry == null) {
 			return;
 		}
 
-		for (int i = 0; i < this.presenters.size(); i++) {
-			IPresenter presenter = (IPresenter) this.presenters.get(i).presenter;
-			IPresenter savedPresenter = (IPresenter)this.savedEntry.presenter;
+		for (int i = 0; i < this.getPresenters().size(); i++) {
+			IPresenter presenter = (IPresenter) this.getPresenters().get(i).presenter;
+			IPresenter savedPresenter = (IPresenter) this.savedEntry.presenter;
 
-			if(presenter.getModel() == savedPresenter.getModel()) {
+			if (presenter.getModel() == savedPresenter.getModel()) {
 				this.actualSelectedModuleIndex = i;
 				this.initialSelect();
 				this.activateModule();
 				return;
 			}
 		}
+		
 		this.actualSelectedModuleIndex = 0;
 		this.initialSelect();
 	}
+	
+	private PresenterEntry getPresenterById (List<PresenterEntry> mainPagePresenters, String id) {
+		for (PresenterEntry presenter: mainPagePresenters) {
+			IPresenter iPresenter = (IPresenter) presenter.presenter;
+			if (iPresenter.getModel().getId().equals(id)) {
+				return presenter;
+			}
+		}
+		
+		return null;
+	}
+	
+	private List<PresenterEntry> generatePresenters (PageController controller, boolean isCommonPage) {
+		List<PresenterEntry> result = new ArrayList<PresenterEntry>();
+		
+		if (controller != null) {
+			for (IPresenter presenter : controller.getPresenters()) {
+				if (presenter instanceof IWCAGPresenter) {
+					result.add(new PresenterEntry((IWCAGPresenter) presenter, isCommonPage));
+				}
+			}
+		}
+		
+		return result;
+	}
+	
+	private List<PresenterEntry> sortTextToSpeechModules (PageController main, PageController header, PageController footer) {
+		List<PresenterEntry> mainPresenters = this.generatePresenters(main, false);
+		List<PresenterEntry> headerPresenters = this.generatePresenters(header, true);
+		List<PresenterEntry> footerPresenters = this.generatePresenters(footer, true);
+		
+		List<PresenterEntry> result = new ArrayList<PresenterEntry>();
+		List<PresenterEntry> currentPresenter = new ArrayList<PresenterEntry>();
+		
+		List<NavigationModuleIndentifier> TTSModules = new ArrayList<NavigationModuleIndentifier>();
+		if (main != null && main.isTextToSpeechModuleEnable()) {
+			TTSModules = main.getModulesOrder();
+		}
+		
+		for (NavigationModuleIndentifier module: TTSModules) {
+			if (module.getArea().equals("main")) {
+				currentPresenter = mainPresenters;
+			}
+			
+			if (module.getArea().equals("header")) {
+				currentPresenter = headerPresenters;
+			}
+			
+			if (module.getArea().equals("footer")) {
+				currentPresenter = footerPresenters;
+			}
+			
+			PresenterEntry localPresenter = getPresenterById(currentPresenter, module.getId());
+			if (localPresenter != null) {
+				localPresenter.setArea(module.getArea());
+				result.add(localPresenter);
+			}
+		}
+		
+		return result;
+	}
 
-	private void addToNavigation(PageController controller, boolean isCommon) {
+	private void addToNavigation (PageController controller, boolean isCommon) {
 		if (controller == null || controller.getWidgets() == null) {
 			return;
 		}
-
-		for (IPresenter presenter : controller.getPresenters()) {
-			if (presenter instanceof IWCAGPresenter) {
-				this.presenters.add(new PresenterEntry((IWCAGPresenter) presenter, isCommon));
-			}
-		}
-
+		
+		this.presentersOriginalOrder.addAll(this.generatePresenters(controller, isCommon));
 	}
 	
-	public void addHeaderToNavigation(PageController controller) {
+	private void playTextToSpeechContent (IWCAGPresenter iWCAGPresenter) {
+		if (iWCAGPresenter.getWCAGController() instanceof IWCAGModuleView) {
+			IWCAGModuleView view = (IWCAGModuleView) iWCAGPresenter.getWCAGController();
+			view.setPageController(mainPageController);
+		}
+	}
+	
+	public void addHeaderToNavigation (PageController controller) {
 		this.headerController = controller;
 		addToNavigation(controller, true);
 	}
 	
-	public void addFooterToNavigation(PageController controller) {
+	public void addFooterToNavigation (PageController controller) {
 		this.footerController = controller;
 		addToNavigation(controller, true);
 	}
 	
-	public void addMainToNavigation(PageController controller) {
-		this.mainController = controller;
+	public void addMainToNavigation (PageController controller) {
+		this.mainPageController = controller;
 		addToNavigation(controller, false);
 	}
 	
-	public void addSecondToNavigation(PageController controller) {
+	public void addSecondToNavigation (PageController controller) {
 		addToNavigation(controller, false);
 	}
+	
+	private List<PresenterEntry> getPresenters () {
+		if (!this.isPresentersInit && this.isWCAGSupportOn) {
+			this.presenters = this.sortTextToSpeechModules(this.mainPageController, this.headerController, this.footerController);
+			
+			this.isPresentersInit = this.presenters.size() > 0;
+		}
+		
+		return this.isWCAGSupportOn ? this.presenters : this.presentersOriginalOrder;
+	}
+	
 }

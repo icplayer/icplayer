@@ -42,6 +42,11 @@ TestCase("[Connection - WCAG] navigation", {
            element: this.elements[3]
        }];
 
+       this.presenter.columnSizes = {
+           "Left column":2,
+           "Right column":2
+       };
+
        this.jQuery = window.$;
 
        window.$ = function (a) {
@@ -50,6 +55,13 @@ TestCase("[Connection - WCAG] navigation", {
            } else {
                return a;
            }
+       };
+
+       this.getCurrentElement = this.presenter.getCurrentActivatedElement;
+
+       var self = this;
+       this.presenter.getCurrentActivatedElement = function(){
+           return self.jQuery('div');
        };
 
        this.presenter.buildKeyboardController();
@@ -68,6 +80,7 @@ TestCase("[Connection - WCAG] navigation", {
    tearDown: function () {
        window.$ = this.jQuery;
        this.presenter.keyboardControllerObject.handle = this.handleFunction;
+       this.presenter.getCurrentActivatedElement = this.getCurrentElement;
    },
 
    'test keyboardController call will call properly dom events' : function () {

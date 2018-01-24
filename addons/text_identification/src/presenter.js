@@ -1,4 +1,7 @@
-function Addontext_identification_create(){
+function Addontext_identification_create() {
+
+    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
+
     var presenter = function() {};
 
     var viewContainer;
@@ -8,6 +11,7 @@ function Addontext_identification_create(){
     presenter.eventBus = null;
     presenter.lastEvent = null;
     presenter.isDisabled = false;
+    presenter.keyboardControllerObject = null;
     
     var CSS_CLASSES = {
         ELEMENT : "text-identification-element",
@@ -55,7 +59,7 @@ function Addontext_identification_create(){
         }
         if (presenter.configuration.isErrorCheckMode) return;
         presenter.configuration.isSelected = !presenter.configuration.isSelected;
-        presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.MOUSE_HOVER_SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.applySelectionStyle(presenter.isSelected(), CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
         presenter.executeUserEventCode();
         presenter.triggerSelectionChangeEvent();
         if (presenter.isAllOK()) sendAllOKEvent();
@@ -102,6 +106,7 @@ function Addontext_identification_create(){
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeShouldSendEventsOnCommands(model);
+        upgradedModel = presenter.upgradeTTS(upgradedModel);
         return upgradedModel;
     };
 
@@ -116,6 +121,50 @@ function Addontext_identification_create(){
         return upgradedModel;
     };
 
+    presenter.upgradeTTS = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (model['langAttribute'] === undefined) {
+            upgradedModel['langAttribute'] = '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.getSpeechTexts = function (model) {
+       var speechTexts = model['Speech texts'];
+       presenter.selectedSpeechText = 'Selected';
+       presenter.deselectedSpeechText = 'Deselected';
+       presenter.correctSpeechText = "Correct";
+       presenter.incorrectSpeechText = "Incorrect";
+
+        if (speechTexts !== undefined && speechTexts !== '') {
+            for (var index = 0; index < speechTexts.length; index++) {
+                var text = speechTexts[index];
+                for (var key in text) {
+                    if (text.hasOwnProperty(key)) {
+                        if (text[key]['selected'] !== '' && text[key]['selected'] !== undefined) {
+                            presenter.selectedSpeechText = text[key]['selected'];
+                        }
+
+                        if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
+                            presenter.deselectedSpeechText = text[key]['deselected'];
+                        }
+
+                        if (!ModelValidationUtils.isArrayElementEmpty(text[key]['correct'])) {
+                            presenter.correctSpeechText = text[key]['correct'];
+                        }
+
+                        if (!ModelValidationUtils.isArrayElementEmpty(text[key]['incorrect'])) {
+                            presenter.incorrectSpeechText = text[key]['incorrect'];
+                        }
+                    }
+                }
+            }
+        }
+    };
+
     presenter.validateModel = function (model) {
         return {
             addonID: model.ID,
@@ -125,7 +174,8 @@ function Addontext_identification_create(){
             isSelected: false,
             isErrorCheckMode: false,
             blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers),
-            shouldSendEventsOnCommands: ModelValidationUtils.validateBoolean(model.shouldSendEventsOnCommands)
+            shouldSendEventsOnCommands: ModelValidationUtils.validateBoolean(model.shouldSendEventsOnCommands),
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
         };
     };
 
@@ -159,12 +209,17 @@ function Addontext_identification_create(){
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
 
+        presenter.getSpeechTexts(model);
+        presenter.langTag = model['langAttribute'];
+
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
 
         var container = $('<div class="text-identification-container"></div>');
         container.addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
+
+        presenter.setTabindex(container,presenter.configuration.isTabindexEnabled);
 
         var text = $('<div class="text-identification-content"></div>');
         text.html(textSrc);
@@ -174,6 +229,7 @@ function Addontext_identification_create(){
         presenter.centerElements(text, container);
 
         if (!isPreview) handleMouseActions();
+        presenter.buildKeyboardController();
     }
 
     presenter.setVisibility = function (isVisible) {
@@ -454,11 +510,101 @@ function Addontext_identification_create(){
         presenter.isShowAnswersActive = false;
     };
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        if (keycode == 13) {
-            presenter.clickHandler()
+    function TextIdentificationKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    TextIdentificationKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    TextIdentificationKeyboardController.prototype.constructor = TextIdentificationKeyboardController;
+
+    TextIdentificationKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+
+        presenter.readElement();
+    };
+
+    TextIdentificationKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+    TextIdentificationKeyboardController.prototype.select = function (event) {
+        presenter.clickHandler(event);
+
+        if (!presenter.isShowAnswersActive && !presenter.configuration.isErrorCheckMode) {
+            presenter.readSelected();
         }
     };
+
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown) {
+        this.keyboardControllerObject.handle(keycode, isShiftKeyDown);
+    };
+
+    presenter.buildKeyboardController = function () {
+        var element = $(presenter.$view).find('.text-identification-container');
+
+        presenter.keyboardControllerObject = new TextIdentificationKeyboardController(element, 1);
+    };
+
+    presenter.readSelected = function () {
+        var text, voiceObject;
+
+        if (presenter.isShowAnswersActive) {
+            text = presenter.configuration.shouldBeSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+        } else {
+            text = presenter.configuration.isSelected ? presenter.selectedSpeechText : presenter.deselectedSpeechText;
+        }
+
+        voiceObject = getTextVoiceObject(text);
+
+        speak([voiceObject]);
+    };
+
+    presenter.readElement = function () {
+        var voiceObjects = [];
+
+        var text = presenter.$view.find('.text-identification-content').text().trim();
+        voiceObjects.push(getTextVoiceObject(text, presenter.langTag));
+
+        var selectedTextObject = getTextVoiceObject(presenter.selectedSpeechText);
+
+        if (!presenter.isShowAnswersActive && !presenter.configuration.isErrorCheckMode && presenter.configuration.isSelected) {
+            voiceObjects.push(selectedTextObject);
+        } else if (presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode && presenter.configuration.shouldBeSelected) {
+            voiceObjects.push(selectedTextObject);
+        }
+
+        // correctness should be read only when check mode is active and addon is selected
+        if (!presenter.isShowAnswersActive && presenter.configuration.isErrorCheckMode &&  presenter.configuration.isSelected) {
+            voiceObjects.push(selectedTextObject);
+
+            var isAnswerCorrect = presenter.configuration.isSelected === presenter.configuration.shouldBeSelected;
+            var isAnswerCorrectText = isAnswerCorrect ? presenter.correctSpeechText : presenter.incorrectSpeechText;
+            voiceObjects.push(getTextVoiceObject(isAnswerCorrectText));
+        }
+
+        speak(voiceObjects, presenter.langTag);
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setTabindex = function (element, isTabindexEnabled) {
+        var tabindexValue = isTabindexEnabled ? "0" : "-1";
+        element.attr("tabindex", tabindexValue);
+    };
+
+    function speak (voiceObjects) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts) {
+            tts.speak(voiceObjects);
+        }
+    }
 
     return presenter;
 }

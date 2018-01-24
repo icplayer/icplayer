@@ -10,12 +10,16 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
+
 
 public class TextModel extends BasicModuleModel {
 	public String parsedText;
@@ -23,7 +27,7 @@ public class TextModel extends BasicModuleModel {
 	public List<InlineChoiceInfo> choiceInfos = new ArrayList<InlineChoiceInfo>();
 	public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
 
-	private String moduleText = "";
+	public String moduleText = "";
 	private boolean useDraggableGaps;
 	private boolean useMathGaps;
 	private boolean openLinksinNewTab = true;
@@ -41,6 +45,8 @@ public class TextModel extends BasicModuleModel {
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
+	private String originalText;
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String langAttribute = "";
 
 	public TextModel() {
@@ -62,6 +68,7 @@ public class TextModel extends BasicModuleModel {
 		addPropertyBlockWrongAnswers();
 		addPropertyUserActionEvents();
 		addPropertyUseEscapeCharacterInGap();
+		addPropertySpeechTexts();
 		addPropertyLangAttribute();
 	}
 
@@ -73,19 +80,19 @@ public class TextModel extends BasicModuleModel {
 		}
 	}
 
-	public String getGapUniqueId(){
+	public String getGapUniqueId() {
 		return gapUniqueId;
 	}
 
-	public String getParsedText(){
+	public String getParsedText() {
 		return parsedText;
 	}
 
-	public boolean hasDraggableGaps(){
+	public boolean hasDraggableGaps() {
 		return useDraggableGaps;
 	}
 
-	public int getGapWidth(){
+	public int getGapWidth() {
 		return gapWidth;
 	}
 
@@ -94,6 +101,7 @@ public class TextModel extends BasicModuleModel {
 		NodeList nodes = node.getChildNodes();
 		for(int i = 0; i < nodes.getLength(); i++){
 			Node childNode = nodes.item(i);
+
 			if (childNode instanceof Element && childNode.getNodeName().compareTo("text") == 0) {
 				Element textElement = (Element) childNode;
 				useDraggableGaps = XMLUtils.getAttributeAsBoolean(textElement, "draggable");
@@ -114,6 +122,12 @@ public class TextModel extends BasicModuleModel {
 				userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
 				useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
 				langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
+				this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(textElement, "number"));
+				this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(textElement, "gap"));
+				this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(textElement, "dropdown"));
+				this.speechTextItems.get(3).setText(XMLUtils.getAttributeAsString(textElement, "correct"));
+				this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(textElement, "wrong"));
+				this.speechTextItems.get(5).setText(XMLUtils.getAttributeAsString(textElement, "empty"));
 
 				if (rawText == null) {
 					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
@@ -123,7 +137,7 @@ public class TextModel extends BasicModuleModel {
 		}
 	}
 
-	private void setText(String text) {
+	public void setText(String text) {
 		moduleText = text;
 		TextParser parser = new TextParser();
 		parser.setId(gapUniqueId);
@@ -138,6 +152,7 @@ public class TextModel extends BasicModuleModel {
 		parser.setUseEscapeCharacterInGap(this.useEscapeCharacterInGap);
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
+		originalText = parsedTextInfo.originalText;
 
 		if (parsedText.equals("#ERROR#")) {
 			parsedText = DictionaryWrapper.get("text_parse_error");
@@ -181,6 +196,12 @@ public class TextModel extends BasicModuleModel {
 			text.setAttribute("langAttribute", this.langAttribute);
 		}
 		text.setAttribute("valueType", this.valueType);
+		text.setAttribute("number", this.speechTextItems.get(0).getText());
+		text.setAttribute("gap", this.speechTextItems.get(1).getText());
+		text.setAttribute("dropdown", this.speechTextItems.get(2).getText());
+		text.setAttribute("correct", this.speechTextItems.get(3).getText());
+		text.setAttribute("wrong", this.speechTextItems.get(4).getText());
+		text.setAttribute("empty", this.speechTextItems.get(5).getText());
 		text.appendChild(XMLUtils.createCDATASection(this.moduleText));
 
 		textModule.appendChild(text);
@@ -796,6 +817,65 @@ public class TextModel extends BasicModuleModel {
 
 		addProperty(property);
 	}
+	
+	private void addPropertySpeechTexts() {
+		IStaticListProperty property = new IStaticListProperty() {
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(speechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return speechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("number"));
+				speechTextItems.add(new SpeechTextsStaticListItem("gap"));
+				speechTextItems.add(new SpeechTextsStaticListItem("dropdown"));
+				speechTextItems.add(new SpeechTextsStaticListItem("correct"));
+				speechTextItems.add(new SpeechTextsStaticListItem("wrong"));
+				speechTextItems.add(new SpeechTextsStaticListItem("empty"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return speechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+
+		};
+
+		addProperty(property);
+		property.addChildren(1);
+	}
 
 	private void addPropertyLangAttribute() {
 		IProperty property = new IProperty() {
@@ -817,13 +897,13 @@ public class TextModel extends BasicModuleModel {
 			}
 
 			@Override
-			public String getDisplayName() {
-				return DictionaryWrapper.get("text_module_lang_attribute");
+			public boolean isDefault() {
+				return false;
 			}
 
 			@Override
-			public boolean isDefault() {
-				return false;
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_lang_attribute");
 			}
 		};
 
@@ -877,9 +957,50 @@ public class TextModel extends BasicModuleModel {
 	public boolean isUsingEscapeCharacterInGap() {
 		return this.useEscapeCharacterInGap;
 	}
-
-	public String getLangAttribute() {
+	
+	public String getSpeechTextItem (int index) {
+		if (index < 0 || index >= this.speechTextItems.size()) {
+			return "";
+		}
+		
+		final String text = this.speechTextItems.get(index).getText();
+		if (text.isEmpty()) {
+			if (index == 0) {
+				return "number";
+			}
+			
+			if (index == 1) {
+				return "gap";
+			}
+			
+			if (index == 2) {
+				return "dropdown";
+			}
+			
+			if (index == 3) {
+				return "correct";
+			}
+			
+			if (index == 4) {
+				return "wrong";
+			}
+			
+			if (index == 5) {
+				return "empty";
+			}
+			
+			return "";
+		}
+		
+		return text;
+	}
+	
+	public String getLangAttribute () {
 		return langAttribute;
 	}
-
+	
+	public String getOriginalText () {
+		return this.originalText;
+	}
+	
 }

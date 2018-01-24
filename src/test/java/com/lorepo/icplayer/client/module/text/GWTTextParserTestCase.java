@@ -219,7 +219,6 @@ public class GWTTextParserTestCase extends GwtTest{
 		assertTrue(parsed.parsedText.indexOf("{{2:ala}}") > 0);
 	}
 	
-	@Test
 	public void parserIsInEditorModeAndAddAdditionalInformationsToElements() {
 		TextParser parser = new TextParser();
 		String srcText ="[[page1|Link do strony 1]] \\gap{answer1|answer2|answer3} \\gap{answer1|answer2|answer3} \\filledGap{initial text|answer} \\def{słowko1}";

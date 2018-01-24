@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.text.mockup;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -60,8 +61,7 @@ public class TextViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		
 	}
-	
-	@Override
+
 	public void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator) {
 		// TODO Auto-generated method stub
 		
@@ -141,4 +141,47 @@ public class TextViewMockup implements IDisplay {
 	public void connectDOMNodeRemovedEvent(String id) {
 		// TODO Auto-generated method stub
 	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void connectInlineChoices(List<InlineChoiceInfo> list) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void sortGapsOrder() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean isWCAGon() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setWorkMode() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setShowErrorsMode() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setValue(String text) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -118,38 +118,34 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG {
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {
-	}
+	public void space(KeyDownEvent event) {}
 
 	@Override
-	public void tab(KeyDownEvent event) {
-	}
+	public void tab(KeyDownEvent event) {}
 
 	@Override
-	public void left(KeyDownEvent event) {
-	}
+	public void left(KeyDownEvent event) {}
 
 	@Override
-	public void right(KeyDownEvent event) {
-	}
+	public void right(KeyDownEvent event) {}
 
 	@Override
-	public void down(KeyDownEvent event) {
-	}
+	public void down(KeyDownEvent event) {}
 
 	@Override
-	public void up(KeyDownEvent event) {
-	}
+	public void up(KeyDownEvent event) {}
 
 	@Override
-	public void escape(KeyDownEvent event) {
-	}
+	public void escape(KeyDownEvent event) {}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
-	}
+	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
-	public void shiftTab(KeyDownEvent event) {
+	public void shiftTab(KeyDownEvent event) {}
+
+	@Override
+	public String getName() {
+		return "CheckButton";
 	}
 }

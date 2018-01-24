@@ -7,6 +7,9 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -15,7 +18,7 @@ import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 
-public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
+public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful, IWCAGPresenter, IButton{
 
 	public interface IDisplay extends IModuleView{
 		public void show();
@@ -183,5 +186,33 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful{
 	@Override
 	public void setWorkMode() {
 		// Module is not an activity	
+	}
+
+
+	@Override
+	public IWCAG getWCAGController() {
+		return (IWCAG) this.view;
+	}
+
+
+	@Override
+	public void selectAsActive(String className) {
+		if(className != "ic_active_module") {
+			this.view.getElement().addClassName(className);
+		}
+	}
+
+
+	@Override
+	public void deselectAsActive(String className) {
+		this.view.getElement().removeClassName(className);
+		
+	}
+
+
+	@Override
+	public boolean isSelectable(boolean isTextToSpeechOn) {
+		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
+		return isVisible;
 	}
 }
