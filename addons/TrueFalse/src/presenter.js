@@ -263,6 +263,9 @@ function AddonTrueFalse_create() {
                 row.append('<td class="tf_' + presenter.type + '_image up"></td>');
             }
             var innerElement = document.createElement('div');
+            $(innerElement).css('color','rgba(0,0,0,0.0)');
+            $(innerElement).css('font-size','1px');
+            $(innerElement).html(possibleChoices[i].Choice);
 
             if (presenter.isTabindexEnabled) {
                 presenter.addTabindex($(innerElement), 0);
