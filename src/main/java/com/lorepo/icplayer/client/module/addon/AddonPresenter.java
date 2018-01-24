@@ -261,14 +261,17 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 				addPropertyToJSObject(jsModel, property.getName(), listModel);
 			} else if (property instanceof IStaticListProperty) {
 				IStaticListProperty listProperty = (IStaticListProperty) property;
-				JavaScriptObject listModel = JavaScriptObject.createArray();
+				JavaScriptObject listModel = JavaScriptObject.createObject();
 				for(int j = 0; j < listProperty.getChildrenCount(); j++){
 					IPropertyProvider child = listProperty.getChild(j);
 					JavaScriptObject childModel = createModel(child);
-					addToJSArray(listModel, childModel);
+					String name = this.getStringFromJSObject(childModel, "name");
+					JavaScriptObject object = this.getObjectFromJSObject(childModel, "value");
+					this.addPropertyToJSObject(listModel, name, object);
 				}
 				addPropertyToJSObject(jsModel, property.getName(), listModel);
 			} else if (property instanceof IStaticRowProperty) {
+				jsModel = JavaScriptObject.createObject();
 				IStaticRowProperty listProperty = (IStaticRowProperty) property;
 				JavaScriptObject listModel = JavaScriptObject.createObject();
 				for(int j = 0; j < listProperty.getChildrenCount(); j++){
@@ -276,7 +279,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 						addPropertyToModel(listModel,listProperty.getChild(j).getProperty(0));
 					}
 				}
-				addPropertyToJSObject(jsModel, property.getName(), listModel);
+				addPropertyToJSObject(jsModel, "value", listModel);
+				addPropertyToJSObject(jsModel, "name", property.getName());
 			} else if (property instanceof IEditableSelectProperty) {
 				IEditableSelectProperty castedProperty = (IEditableSelectProperty)property;
 				JavaScriptObject editableSelectModel = JavaScriptObject.createObject();

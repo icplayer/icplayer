@@ -312,29 +312,20 @@ function AddonTrueFalse_create() {
     function getSpeechTexts(model) {
         var speechTexts = model['Speech texts'];
 
-        if (speechTexts !== undefined && speechTexts !== '') {
-            for (var index = 0; index < speechTexts.length; index++) {
-                var text = speechTexts[index];
-                for (var key in text) {
-                    if (text.hasOwnProperty(key)) {
-                        if (text[key]['selected'] !== '' && text[key]['selected'] !== undefined) {
-                            selectedSpeechText = text[key]['selected'];
-                        }
+        if (speechTexts['Selected']['selected'] !== '' && speechTexts['Selected']['selected'] !== undefined) {
+            selectedSpeechText = speechTexts['Selected']['selected'];
+        }
 
-                        if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
-                            deselectedSpeechText = text[key]['deselected'];
-                        }
+        if (speechTexts['Deselected']['deselected'] !== '' && speechTexts['Deselected']['deselected'] !== undefined) {
+            deselectedSpeechText = speechTexts['Deselected']['deselected'];
+        }
 
-                        if (text[key]['correct'] !== '' && text[key]['correct'] !== undefined) {
-                            correctSpeechText = text[key]['correct'];
-                        }
+        if (speechTexts['Correct']['correct'] !== '' && speechTexts['Correct']['correct'] !== undefined) {
+            correctSpeechText = speechTexts['Correct']['correct'];
+        }
 
-                        if (text[key]['incorrect'] !== '' && text[key]['incorrect'] !== undefined) {
-                            incorrectSpeechText = text[key]['incorrect'];
-                        }
-                    }
-                }
-            }
+        if (speechTexts['Incorrect']['incorrect'] !== '' && speechTexts['Incorrect']['incorrect'] !== undefined) {
+            incorrectSpeechText = speechTexts['Incorrect']['incorrect'];
         }
     }
 
