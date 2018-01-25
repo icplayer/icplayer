@@ -2167,11 +2167,11 @@ function AddonPseudoCode_Console_create() {
         },
 
         ReadChar: function (callback) {
-            this.isReadMode = true;
-
-            if (!this.isReadMode) {
+            if (this.isReadMode) {
                 return;
             }
+
+            this.isReadMode = true;
 
             this.addNewLine(true);
 
