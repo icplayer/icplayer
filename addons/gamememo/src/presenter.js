@@ -672,70 +672,14 @@ function Addongamememo_create(){
             keyboardController = new MemoKeyboardController(keyboardNavigationElements, presenter.columnCount);
         }
 
-        var img;
-
         if(presenter.styleAImage != null){
             var frontDivA = $container.find('div.front_A');
-            if(presenter.imageMode == 'Stretch'){
-                frontDivA.css({
-                    'background': 'url(' + encodeURI(presenter.styleAImage) + ')',
-                    'background-size': '100% 100%'
-                });
-            }else if(presenter.imageMode == 'KeepAspect'){
-                img = $('<img>');
-                img.attr('src', encodeURI(presenter.styleAImage));
-                img.css({
-                    'display': 'block',
-                    'max-width': presenter.requestedColumnWidth,
-                    'max-height': presenter.requestedRowHeight,
-                    'width': 'auto',
-                    'height': 'auto'
-                });
-                frontDivA.append(img);
-                frontDivA.css('background', 'transparent');
-            }else{
-                frontDivA.css({
-                    'background': 'url(' + encodeURI(presenter.styleAImage) + ')'
-                });
-            }
-
-            var altText = document.createElement('span');
-            altText.innerText = presenter.configuration.altTextStyleA;
-            altText.className = 'gamememo_alt_text';
-
-            frontDivA.append(altText);
+            presenter.setDivImage(frontDivA, presenter.styleAImage, presenter.configuration.altTextStyleA);
         }
 
         if(presenter.styleBImage != null){
             var frontDivB = $container.find('div.front_B');
-            if(presenter.imageMode == 'Stretch'){
-                frontDivB.css({
-                    'background': 'url(' + encodeURI(presenter.styleBImage) + ')',
-                    'background-size': '100% 100%'
-                });
-            }else if(presenter.imageMode == 'KeepAspect'){
-                img = $('<img>');
-                img.attr('src', encodeURI(presenter.styleBImage));
-                img.css({
-                    'display': 'block',
-                    'max-width': presenter.requestedColumnWidth,
-                    'max-height': presenter.requestedRowHeight,
-                    'width': 'auto',
-                    'height': 'auto'
-                });
-                frontDivB.append(img);
-                frontDivB.css('background', 'transparent');
-            }else{
-                frontDivB.css({
-                    'background': 'url(' + encodeURI(presenter.styleBImage) + ')'
-                });
-            }
-
-            var altText = document.createElement('span');
-            altText.innerText = presenter.configuration.altTextStyleB;
-            altText.className = 'gamememo_alt_text';
-
-            frontDivB.append(altText);
+            presenter.setDivImage(frontDivB, presenter.styleBImage, presenter.configuration.altTextStyleB);
         }
 
         presenter.viewContainer.children('div').append($container);
@@ -786,6 +730,41 @@ function Addongamememo_create(){
                 });
             });
         }
+    };
+
+    presenter.setDivImage = function($div, image, altText) {
+        var encodedURI = encodeURI(image);
+
+        if (presenter.imageMode == 'Stretch') {
+            $div.css({
+                'background': 'url(' + encodedURI + ')',
+                'background-size': '100% 100%'
+            });
+        } else if(presenter.imageMode == 'KeepAspect') {
+            var img = $('<img>');
+            img.attr('src', encodedURI);
+            img.css({
+                'display': 'block',
+                'max-width': presenter.requestedColumnWidth,
+                'max-height': presenter.requestedRowHeight,
+                'width': 'auto',
+                'height': 'auto'
+            });
+            $div.append(img);
+            $div.css('background', 'transparent');
+        } else {
+            $div.css({
+                'background': 'url(' + encodedURI + ')'
+            });
+        }
+
+        if (altText !== undefined) {
+            var altTextSpan = document.createElement('span');
+            altTextSpan.innerText = altText;
+            altTextSpan.className = 'gamememo_alt_text';
+        }
+
+        $div.append(altTextSpan);
     };
 
     function centerImage(element) {
