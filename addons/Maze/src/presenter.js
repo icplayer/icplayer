@@ -533,6 +533,10 @@ function AddonMaze_create () {
 
         for (i = 0; i < questions.length; i += 1) {
             var element = questions[i];
+            if (element.mazeId.trim() === '') {
+                continue;
+            }
+
             var validatedLabyrinthNumber = ModelValidationUtils.validatePositiveInteger(element.mazeId);
             if (!validatedLabyrinthNumber.isValid) {
                 return generateValidationError('WN01');
