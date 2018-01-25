@@ -452,8 +452,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
 	@Override
-	public boolean isSelectable() {
-		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
-		return isVisible;
+	public boolean isSelectable(boolean isTextToSpeechOn) {
+		return !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
 	}
 }

@@ -11,6 +11,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
 
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.user.client.ui.CellPanel;
@@ -28,10 +29,13 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Before
 	public void beforeTest() throws Exception {
 		this.model = Mockito.mock(OrderingModule.class);
+		Mockito.when(this.model.getLangAttribute()).thenReturn("en");
 		this.orderingView = Mockito.mock(OrderingView.class);
+		Mockito.when(this.orderingView.getLang()).thenReturn("en");
 		this.orderingViewPMMock = PowerMockito.spy(Whitebox.newInstance(OrderingView.class));
 		innerCellPanel = new VerticalPanel();
 		Whitebox.setInternalState(this.orderingViewPMMock, "innerCellPanel", this.innerCellPanel);
+		Whitebox.setInternalState(this.orderingViewPMMock, "module", this.model);
 		
 		itemWidget1 = new ItemWidget(new OrderingItem(0, "string", "string"), this.model);
 		itemWidget2 = new ItemWidget(new OrderingItem(1, "string", "string"), this.model);
@@ -40,6 +44,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 		Whitebox.invokeMethod(this.orderingViewPMMock, "addWidget", itemWidget1);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "addWidget", itemWidget2);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "addWidget", itemWidget3);
+
 	}
 	
 	@Test
@@ -93,7 +98,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Test
 	public void escapeWillDeselectCurrentElement () throws Exception {
 		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);		
-		Whitebox.invokeMethod(this.orderingViewPMMock, "escape");
+		Whitebox.invokeMethod(this.orderingViewPMMock, "escape", Mockito.mock(KeyDownEvent.class));
 		
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
 	}
@@ -116,7 +121,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Test
 	public void spaceWillCallClickEventAndSelectNewItem() throws Exception {
 		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);	
-		Whitebox.invokeMethod(this.orderingViewPMMock, "right");
+		Whitebox.invokeMethod(this.orderingViewPMMock, "right", Mockito.mock(KeyDownEvent.class));
 		
 		assertTrue(this.itemWidget2.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
 		class Clicked {
@@ -150,7 +155,7 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 			
 		});
 		
-		Whitebox.invokeMethod(this.orderingViewPMMock, "space");
+		Whitebox.invokeMethod(this.orderingViewPMMock, "space", Mockito.mock(KeyDownEvent.class));
 		
 		assertTrue(clicked.isClicked());
 		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
@@ -183,23 +188,23 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 	@Test
 	public void moveWillSelectFirstElementIfIsAboveElementsCount () throws Exception {
 		Whitebox.setInternalState(this.orderingViewPMMock, "currentWCAGSelectedItemIndex", 2);
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);	
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "move", 1);
 		
-		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
+		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
 		assertTrue(this.itemWidget2.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
-		assertTrue(this.itemWidget3.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);			
+		assertTrue(this.itemWidget3.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
 	}
 	
 	@Test 
 	public void moveWillSelectLastElementIfIsBelowZero () throws Exception {
 		Whitebox.setInternalState(this.orderingViewPMMock, "currentWCAGSelectedItemIndex", 0);
-		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);	
+		Whitebox.invokeMethod(this.orderingViewPMMock, "enter", false);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "move", -1);
 		
-		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
+		assertTrue(this.itemWidget1.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);
 		assertTrue(this.itemWidget2.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
-		assertTrue(this.itemWidget3.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) > -1);			
+		assertTrue(this.itemWidget3.getStyleName().indexOf(OrderingView.WCAG_SELECTED_CLASS_NAME) == -1);
 	}
 
 }

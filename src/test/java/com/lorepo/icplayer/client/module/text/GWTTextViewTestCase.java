@@ -6,12 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.user.client.DOM;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 
@@ -50,7 +47,7 @@ public class GWTTextViewTestCase extends GwtTest {
 		GapInfo gapInfo3 = new GapInfo("sddsf3", 12, false, true, 0);
 		
 		this.gapWidget1 = new GapWidget(gapInfo1, null);
-		this.gapWidget2 = new InlineChoiceWidget(gapInfo2, null);
+		this.gapWidget2 = new InlineChoiceWidget(gapInfo2, null, this.textView);
 		this.gapWidget3 = new DraggableGapWidget(gapInfo3, null);
 		
 		this.textView.addElement(this.gapWidget1);

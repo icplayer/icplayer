@@ -250,4 +250,11 @@ public class PlayerControllerMockup implements IPlayerController {
 		return null;
 	}
 
+
+	@Override
+	public String getLang() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

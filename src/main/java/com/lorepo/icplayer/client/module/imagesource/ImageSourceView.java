@@ -57,6 +57,10 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG {
 		}
 		
 		getElement().setAttribute("alt", this.module.getAlttext());
+		
+		if (this.module.isTabindexEnabled()) {
+			getElement().setTabIndex(0);
+		}
 	}
 	
 	@Override
@@ -178,36 +182,40 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG {
 	}
 
 	@Override
+	public String getName() {
+		return "ImageSource";
+	}
+
 	public void enter(boolean isExiting) {
 		this.listener.onClicked();
 	}
 
 	@Override
-	public void space() {
+	public void space(KeyDownEvent event) {
 	}
 
 	@Override
-	public void tab() {
+	public void tab(KeyDownEvent event) {
 	}
 
 	@Override
-	public void left() {
+	public void left(KeyDownEvent event) {
 	}
 
 	@Override
-	public void right() {
+	public void right(KeyDownEvent event) {
 	}
 
 	@Override
-	public void down() {
+	public void down(KeyDownEvent event) {
 	}
 
 	@Override
-	public void up() {
+	public void up(KeyDownEvent event) {
 	}
 
 	@Override
-	public void escape() {
+	public void escape(KeyDownEvent event) {
 	}
 
 	@Override
@@ -215,6 +223,6 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG {
 	}
 
 	@Override
-	public void shiftTab() {
+	public void shiftTab(KeyDownEvent event) {
 	}
 }

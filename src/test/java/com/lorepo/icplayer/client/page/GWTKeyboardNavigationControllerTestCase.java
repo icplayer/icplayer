@@ -222,10 +222,11 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 		Mockito.when(mock1.presenter.getWCAGController())
 			.thenReturn(Mockito.mock(IWCAG.class));
 		
-		Mockito.when(mock1.presenter.isSelectable())
-			.thenReturn(true);
+		Mockito.when(mock1.presenter.isSelectable(true)).thenReturn(true);
+		Mockito.when(mock1.presenter.isSelectable(false)).thenReturn(true);
 		
 		Whitebox.setInternalState(this.controller, "presenters", presenters);
+		Whitebox.setInternalState(this.controller, "presentersOriginalOrder", presenters);
 		
 		Event event = EventBuilder.create(Event.ONKEYDOWN)
 				.setKeyCode(KeyCodes.KEY_ENTER)
@@ -340,16 +341,16 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 		Browser.dispatchEvent(RootPanel.get(), event);
 		
 		//Then check: 
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).up();
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).down();
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).left();
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).right();
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).escape();
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).tab();
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).space();
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).up(Mockito.any(KeyDownEvent.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).down(Mockito.any(KeyDownEvent.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).left(Mockito.any(KeyDownEvent.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).right(Mockito.any(KeyDownEvent.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).escape(Mockito.any(KeyDownEvent.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).tab(Mockito.any(KeyDownEvent.class));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).space(Mockito.any(KeyDownEvent.class));
 		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(3)).enter(false);
 		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).enter(true);
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).shiftTab();
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).shiftTab(Mockito.any(KeyDownEvent.class));
 		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).customKeyCode(Mockito.any(KeyDownEvent.class));
 	}
 	

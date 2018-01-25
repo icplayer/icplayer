@@ -109,4 +109,9 @@ public class LessonResetView extends PushButton implements IDisplay {
 	public void setShowAnswersMode(boolean isShowAnswersMode) {
 		this.isShowAnswersMode = isShowAnswersMode;		
 	}
+
+	@Override
+	public String getName() {
+		return "LessonReset";
+	}
 }

@@ -25,7 +25,8 @@
 					<right relative="" property="right"/>
 					<bottom relative="" property="bottom"/>
 				</layout>
-			<text draggable="false" math="false" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All">
+			<text draggable="false" math="false" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All"
+			number="" gap="" dropdown="" correct="" wrong="" empty="">
 				
 			</text>
 			</textModule>
@@ -37,7 +38,8 @@
 						<right relative="" property="right"/>
 						<bottom relative="" property="bottom"/>
 					</layout>
-			<text draggable="false" math="false" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All">
+			<text draggable="false" math="false" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All"
+			number="" gap="" dropdown="" correct="" wrong="" empty="">
 				
 			</text>
 		</textModule>

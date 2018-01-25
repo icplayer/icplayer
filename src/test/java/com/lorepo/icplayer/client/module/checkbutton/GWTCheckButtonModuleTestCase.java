@@ -32,7 +32,7 @@ public class GWTCheckButtonModuleTestCase extends GwtTest {
 		module = new CheckButtonModule();
 		module.load(element, "", PAGE_VERSION);
 		
-		assertEquals("check", module.getCheckTitle());
-		assertEquals("unCheck", module.getUnCheckTitle());
+		assertEquals("check<>", module.getCheckTitle());
+		assertEquals("unCheck<>", module.getUnCheckTitle());
 	}
 }

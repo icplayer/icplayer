@@ -1,5 +1,9 @@
 package com.lorepo.icplayer.client.module.checkcounter;
 
+import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -9,11 +13,13 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.google.gwt.dom.client.Element;
 
-public class CheckCounterPresenter implements IPresenter{
+public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButton{
 
 	public interface IDisplay extends IModuleView {
 		public void setData(int value);
+		public Element getElement();
 	}
 	
 	private CheckCounterModule module;
@@ -67,6 +73,10 @@ public class CheckCounterPresenter implements IPresenter{
 		}		
 	}
 	
+	private Element getView(){
+		return view.getElement();
+	}
+	
 	@Override
 	public void addView(IModuleView view) {
 		if(view instanceof IDisplay){
@@ -93,5 +103,28 @@ public class CheckCounterPresenter implements IPresenter{
 	@Override
 	public void reset() {
 		// Module is not an activity
+	}
+
+	@Override
+	public IWCAG getWCAGController() {
+		return (IWCAG) this.view;
+	}
+
+	@Override
+	public void selectAsActive(String className) {
+		if(className != "ic_active_module") {
+			this.view.getElement().addClassName(className);
+		}
+	}
+
+	@Override
+	public void deselectAsActive(String className) {
+		this.view.getElement().removeClassName(className);
+	}
+
+	@Override
+	public boolean isSelectable(boolean isTextToSpeechOn) {
+		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
+		return (isVisible || isTextToSpeechOn);
 	}
 }

@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<limitedCheck checkText='Some text' unCheckText='Some uncheck text' mistakesFromProvidedModules='false'>
+<limitedCheck checkText='Some text&lt;&gt;' unCheckText='Some uncheck text&lt;&gt;' mistakesFromProvidedModules='false'>
 	<![CDATA[Table1;Table1]]>
 </limitedCheck>

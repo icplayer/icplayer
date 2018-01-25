@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.sourcelist;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.dom.client.Element;
@@ -9,7 +10,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DragStartEvent;
 import com.google.gwt.event.dom.client.DragStartHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
@@ -20,17 +20,22 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icf.utils.dom.ElementHTMLUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter.IDisplay;
+import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
+
+public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGModuleView {
 
 	private static final String SELECTED_STYLE = "ic_sourceListItem-selected";
 	private final SourceListModule module;
-	private final HashMap<String, Label>	labels = new HashMap<String, Label>();
+	private final HashMap<String, Label> labels = new HashMap<String, Label>();
 	private IViewListener listener;
 	private boolean isDragged = false;
 	private boolean isTouchSupported = false;
@@ -40,31 +45,24 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 	private String idOfLabelToRemove = null;
 	private int currentLabel = 0;
 	private ArrayList <String> labelsIds = new ArrayList <String>();
+	private PageController pageController;
+	private boolean isWCAGOn = false;
 
 	public SourceListView(SourceListModule module, boolean isPreview){
-
 		this.module = module;
 		createUI(isPreview);
 	}
 
-
 	private void createUI(boolean isPreview) {
-
-        this.isPreview = isPreview;
-		if(module.getStyleClass().isEmpty()){
-			setStyleName("ic_sourceList");
-		}
-		else{
-			setStyleName(module.getStyleClass());
-		}
-
+		this.isPreview = isPreview;
+		setStyleName(module.getStyleClass().isEmpty() ? "ic_sourceList" : module.getStyleClass());
 		StyleUtils.applyInlineStyle(this, module);
-		if(!isPreview){
+		if (!isPreview) {
 			setVisible(module.isVisible());
 		}
 		getElement().setId(module.getId());
+		getElement().setAttribute("lang", this.module.getLangAttribute());
 	}
-
 
 	private void fireClickEvent(String id) {
 		if(!isDragged && listener != null){
@@ -97,19 +95,18 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 
 	@Override
 	public void selectItem(String id) {
-
 		Label label = labels.get(id);
-		if(label != null){
+		if (label != null) {
 			label.addStyleName(SELECTED_STYLE);
 		}
-	}
 
+		this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""));
+	}
 
 	@Override
 	public void addListener(IViewListener l) {
 		this.listener = l;
 	}
-
 
 	@Override
 	public void addItem(final String id, String item, boolean callMathJax) {
@@ -134,7 +131,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 		}
 
 		label.addTouchEndHandler(new TouchEndHandler() {
-
 			@Override
 			public void onTouchEnd(TouchEndEvent event) {
 				isTouchSupported = true;
@@ -144,7 +140,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 		});
 
 		label.addClickHandler(new ClickHandler() {
-
 			@Override
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
@@ -154,7 +149,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 		});
 
 		label.addMouseUpHandler(new MouseUpHandler() {
-
 			@Override
 			public void onMouseUp(MouseUpEvent event) {
 				if (!isTouchSupported) {
@@ -163,7 +157,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 			}
 		});
 		label.addDragStartHandler(new DragStartHandler() {
-
 			@Override
 			public void onDragStart(DragStartEvent event) {
 				itemDragged(id);
@@ -189,7 +182,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 	public Set<String> getCurrentLabels() {
 		return labels.keySet();
 	}
-
 
 	@Override
 	public void removeItem(String id) {
@@ -219,15 +211,18 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 		}
 	}
 
-
 	@Override
-	public void deselectItem(String id) {
+	public void deselectItem (String id, boolean read) {
 		Label label = labels.get(id);
-		if(label != null){
+		if (label != null) {
 			label.removeStyleName(SELECTED_STYLE);
+			
+			if (read) {
+				this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1), ""));
+			}
 		}
 
-		if(module.isVertical()){
+		if (module.isVertical()) {
 			DOMUtils.applyInlineStyle(label.getElement(), "display: block; position: relative");
 		} else {
 			DOMUtils.applyInlineStyle(label.getElement(), "display: inline-block; white-space: nowrap; position: relative");
@@ -307,9 +302,14 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 	    }
 	}-*/;
 
+	@Override
+	public String getName() {
+		return "SourceList";
+	}
+
 	private void unMarkCurrentItem(){
 		Label current = labels.get(labelsIds.get(currentLabel));
-		current.removeStyleName("keyboard_navigation_active_element");		
+		current.removeStyleName("keyboard_navigation_active_element");
 	}
 	
 	private void markCurrentItem(){
@@ -318,96 +318,156 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG {
 	}
 
 	private void enter() {
-		try {
-			unMarkCurrentItem();
-		} catch (Error e) {}
-		currentLabel = 0;
+		markCurrentItem();
+		this.speakOption(currentLabel);
+	}
+	
+	private void switchItem (boolean moveNext) {
+		unMarkCurrentItem();
+		
+		currentLabel += moveNext ? 1 : -1;
+		
+		if (currentLabel < 0) {
+			currentLabel = 0;
+		}
+		
+		if (currentLabel >= labelsIds.size()) {
+			currentLabel = labelsIds.size()-1;
+		}
+		
+		speakOption(currentLabel);
 		markCurrentItem();
 	}
 
-	private void next() {
-		unMarkCurrentItem();
-		currentLabel++;
-		currentLabel = currentLabel % labelsIds.size();
-		markCurrentItem();
+	private void next () {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+		
+		this.switchItem(true);
+	}
+	
+	private void previous () {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+		
+		this.switchItem(false);
 	}
 
 	private void select() {
+		if (labelsIds.size() < 1) {
+			return;
+		}
+		
 		fireClickEvent(labelsIds.get(currentLabel));
 	}
-
 
 	@Override
 	public void enter(boolean isExiting) {
 		if (labelsIds.size() < 1) {
 			return;
 		}
-		
+
 		if (isExiting) {
 			this.unMarkCurrentItem();
 		} else {
 			this.enter();
 		}
-		
 	}
 
-
 	@Override
-	public void space() {
-		if (labelsIds.size() < 1) {
-			return;
-		}
-		
+	public void space(KeyDownEvent event) {
 		select();
 	}
 
-
 	@Override
-	public void tab() {
-		if (labelsIds.size() < 1) {
-			return;
-		}
-		
+	public void tab(KeyDownEvent event) {
 		next();
 	}
 
-
 	@Override
-	public void left() {
+	public void left(KeyDownEvent event) {
+		previous();
 	}
 
-
 	@Override
-	public void right() {
+	public void right(KeyDownEvent event) {
+		next();
 	}
 
-
 	@Override
-	public void down() {
+	public void down(KeyDownEvent event) {
+		next();
 	}
 
-
 	@Override
-	public void up() {
+	public void up(KeyDownEvent event) {
+		previous();
 	}
 
-
 	@Override
-	public void escape() {
+	public void escape(KeyDownEvent event) {
 		if (labelsIds.size() < 1) {
 			return;
 		}
-		
+
 		this.unMarkCurrentItem();
 	}
 
+	@Override
+	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
+	public void shiftTab(KeyDownEvent event) {
+		previous();
+	}
+	
+	private void speak (TextToSpeechVoice t1) {
+		if (this.pageController != null) {
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			textVoices.add(t1);
+			
+			this.pageController.speak(textVoices);
+		}
+	}
+	
+	private void speak (TextToSpeechVoice t1, TextToSpeechVoice t2) {
+		if (this.pageController != null) {
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			textVoices.add(t1);
+			textVoices.add(t2);
+			
+			this.pageController.speak(textVoices);
+		}
+	}
+	
+	private void speakOption (int index) {
+		if (index >= 0 && index < labelsIds.size()) {
+			final Label label = labels.get(labelsIds.get(index));
+			TextToSpeechVoice option = TextToSpeechVoice.create(label.getText(), this.module.getLangAttribute());
+			
+			if (ElementHTMLUtils.hasClass(label.getElement(), SELECTED_STYLE)) {
+				this.speak(option, TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""));
+			} else {
+				this.speak(option);
+			}
+		}
 	}
 
+	@Override
+	public void setWCAGStatus (boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;
+	}
 
 	@Override
-	public void shiftTab() {
+	public void setPageController (PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+	}
+
+	@Override
+	public String getLang () {
+		return this.module.getLangAttribute();
 	}
 }

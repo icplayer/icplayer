@@ -64,8 +64,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String getDroppedElement();
 		String getId();
 		void setFocusGap(boolean focus);
+		String getGapType();
 		void select();
 		void deselect();
+		boolean isWorkingMode();
+		int getGapState();
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -75,7 +78,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectGaps(Iterator<GapInfo> giIterator);
 		void connectFilledGaps(Iterator<GapInfo> giIterator);
 		void connectDraggableGaps(Iterator<GapInfo> giIterator);
-		void connectInlineChoices(Iterator<InlineChoiceInfo> giIterator);
+		void connectInlineChoices(List<InlineChoiceInfo> list);
 		void connectLinks(Iterator<LinkInfo> giIterator);
 		int getChildrenCount();
 		TextElementDisplay getChild(int index);
@@ -88,6 +91,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		HashMap<String, String> getDroppedElements();
 		void setDroppedElements(String id, String element);
 		void connectDOMNodeRemovedEvent(String id);
+		void sortGapsOrder();
+		boolean isWCAGon();
+		void setWorkMode();
+		void setShowErrorsMode();
+		void setValue(String text);
 	}
 
 	private final TextModel module;
@@ -117,7 +125,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		isVisible = module.isVisible();
 		try{
 			connectHandlers();
-		}catch(Exception e){
+		} catch(Exception e) {
 			
 		}
 	}
@@ -251,7 +259,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		view.refreshMath();
 	}
 
-	private void hideAnswers() {
+	private void hideAnswers () {
 		if (!module.isActivity()) {
 			for (int i = 0; i < view.getChildrenCount(); i++) {
 				TextElementDisplay child = view.getChild(i);
@@ -284,7 +292,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			view.getChild(i).setWorkMode();
 		}
-
+		this.view.setWorkMode();
 		this.isShowErrorsMode = false;
 	}
 
@@ -297,7 +305,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
 		}
-
+		this.view.setShowErrorsMode();
 		this.isShowErrorsMode = true;
 	}
 
@@ -315,7 +323,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		HashMap<String, String> state = new HashMap<String, String>();
 		state.put("gapUniqueId", module.getGapUniqueId());
 		state.put("values", JSONUtils.toJSONString(values));
-
 
 		if (enteredText != null) {
 			state.put("enteredText", enteredText);
@@ -433,7 +440,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue)) {
 				errorCount++;
 			}
-		}		
+		}
 		
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
 			enteredValue = getElementText(choice.getId());
@@ -544,7 +551,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	
 	@Override
 	public void addView(IModuleView display) {
-
 		if (display instanceof IDisplay) {
 			view = (IDisplay) display;
 			connectViewListener();
@@ -569,9 +575,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			view.connectGaps(module.getGapInfos().iterator());
 			view.connectFilledGaps(module.getGapInfos().iterator());
 		}
-
-		view.connectInlineChoices(module.getChoiceInfos().iterator());
+		view.connectInlineChoices(module.getChoiceInfos());
 		view.connectLinks(module.getLinkInfos().iterator());
+		view.sortGapsOrder();
 	}
 
 	private void connectViewListener() {
@@ -1117,7 +1123,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private Element getView() {
 		if (isShowAnswers()) {
-			hideAnswers();
+//			hideAnswers();
 		}
 
 		return view.getElement();
@@ -1270,7 +1276,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		enteredText = text;
-		view.setHTML(text);
+		view.setValue(text);
 	}
 
 	private void show() {
@@ -1304,9 +1310,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 	
 	@Override
-	public boolean isSelectable() {
-		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		return view.getChildrenCount() > 0 && isVisible;
+	public boolean isSelectable (boolean isTextToSpeechOn) {
+		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
+		final boolean isWithGaps = view.getChildrenCount() > 0;
+		final boolean isEnabled = !this.module.isDisabled();
+		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled;
 	}
 
 	@Override
@@ -1322,6 +1330,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	@Override
 	public void deselectAsActive(String className) {
 		this.getView().removeClassName(className);
+	}
+	
+	public String getGapType () {
+		return "Text";
 	}
 
 }

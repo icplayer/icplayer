@@ -105,4 +105,5 @@ public class ButtonModuleTestCase {
 		
 		assertEquals("abc", onClickText);
 	}
+	
 }

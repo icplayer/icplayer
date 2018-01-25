@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.button;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -89,6 +90,15 @@ public class ButtonView extends Composite implements IDisplay, IWCAG {
 		setVisible(false);
 	}
 	
+	public boolean isEnabled(){
+		Widget widget = this.getWidget();
+		if (widget instanceof FocusWidget) {
+			return ((FocusWidget) widget).isEnabled();
+		}
+		
+		return true;		
+	}
+	
 	@Override
 	public void setDisabled(boolean isDisabled) {
 		ButtonType type = module.getType();
@@ -124,7 +134,11 @@ public class ButtonView extends Composite implements IDisplay, IWCAG {
 
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter (boolean isExiting) {
+		if (isExiting) {
+			return;
+		}
+		
 		Widget buttonWidget = this.getWidget();
 		if (buttonWidget instanceof ExecutableButton) {
 			((ExecutableButton) buttonWidget).execute();
@@ -133,37 +147,37 @@ public class ButtonView extends Composite implements IDisplay, IWCAG {
 
 
 	@Override
-	public void space() {
+	public void space(KeyDownEvent event) {
 	}
 
 
 	@Override
-	public void tab() {	
+	public void tab(KeyDownEvent event) {	
 	}
 
 
 	@Override
-	public void left() {	
+	public void left(KeyDownEvent event) {	
 	}
 
 
 	@Override
-	public void right() {	
+	public void right(KeyDownEvent event) {	
 	}
 
 
 	@Override
-	public void down() {	
+	public void down(KeyDownEvent event) {	
 	}
 
 
 	@Override
-	public void up() {	
+	public void up(KeyDownEvent event) {	
 	}
 
 
 	@Override
-	public void escape() {	
+	public void escape(KeyDownEvent event) {	
 	}
 
 
@@ -173,6 +187,12 @@ public class ButtonView extends Composite implements IDisplay, IWCAG {
 
 
 	@Override
-	public void shiftTab() {
+	public void shiftTab(KeyDownEvent event) {
+
+	}
+
+	@Override
+	public String getName() {
+		return "Button";
 	}
 }

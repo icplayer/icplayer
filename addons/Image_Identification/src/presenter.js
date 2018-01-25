@@ -144,8 +144,13 @@ function AddonImage_Identification_create(){
             $(innerElement).css({
                 backgroundImage:"url('" + imageSrc + "')",
                 width:$(element).width() + 'px',
-                height:$(element).height() + 'px'
+                height:$(element).height() + 'px',
+                color: 'rgba(0,0,0,0.0)'
             });
+
+            if(presenter.configuration.altText !== undefined) {
+                $(innerElement).html(presenter.configuration.altText);
+            }
 
             $(element).html(innerElement);
             presenter.$view.html(element);
@@ -177,14 +182,13 @@ function AddonImage_Identification_create(){
         }
 
         loadImage(presenter.configuration.imageSrc, preview);
+        presenter.setTabindex(presenter.$view, presenter.configuration.isTabindexEnabled);
 
-        if(presenter.configuration.altText !== undefined) {
-            presenter.$view.attr("alt", presenter.configuration.altText);
-        }
     }
 
     presenter.validateModel = function (model) {
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        var isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
 
         return {
             addonID: model.ID,
@@ -198,6 +202,7 @@ function AddonImage_Identification_create(){
             isBlockedInErrorCheckingMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
             isErrorCheckMode: false,
             blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers),
+            isTabindexEnabled: isTabindexEnabled,
             altText: model["Alt text"]
         };
     };
@@ -532,6 +537,11 @@ function AddonImage_Identification_create(){
         if (keycode === window.KeyboardControllerKeys.ENTER) {
             clickLogic();
         }
+    };
+
+    presenter.setTabindex = function (element, isTabindexEnabled) {
+        var tabindexValue = isTabindexEnabled ? "0" : "-1";
+        element.attr("tabindex", tabindexValue);
     };
 
     return presenter;

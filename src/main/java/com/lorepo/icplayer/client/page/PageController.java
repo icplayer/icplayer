@@ -5,12 +5,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.ScriptParserException;
 import com.lorepo.icf.scripting.ScriptingEngine;
+import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.NavigationModuleIndentifier;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Content;
@@ -21,11 +25,14 @@ import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.properties.OutstretchHeightData;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
+import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.ITextToSpeechPresenter;
+import com.lorepo.icplayer.client.module.api.TextToSpeechPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
@@ -37,7 +44,8 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.Score.Result;
 
-public class PageController {
+
+public class PageController implements ITextToSpeechController {
 
 	public interface IPageDisplay {
 		void addModuleView(IModuleView view, IModuleModel module);
@@ -62,7 +70,8 @@ public class PageController {
 	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
-	private KeyboardNavigationController keyboardController;
+	private final static String PAGE_TTS_MODULE_ID = "Text_To_Speech1";
+	private boolean isReadingOn = false;
 	private Content contentModel;
 
 	public PageController(IPlayerController playerController) {
@@ -119,7 +128,6 @@ public class PageController {
 		this.setViewSize(page);
 		pageView.recalculatePageDimensions();
 		initModules();
-
 		if (playerService.getStateService() != null) {
 			HashMap<String, String> state = playerService.getStateService().getStates();
 			setPageState(state);
@@ -173,21 +181,19 @@ public class PageController {
 		pageView.removeAllModules();
 		scriptingEngine.reset();
 
-		for(IModuleModel module : currentPage.getModules()){
+		for (IModuleModel module : currentPage.getModules()) {
 			String newInlineStyle = deletePositionImportantStyles(module.getInlineStyle());
 			module.setInlineStyle(newInlineStyle);
 			IModuleView moduleView = moduleFactory.createView(module);
 			IPresenter presenter = moduleFactory.createPresenter(module);
 			pageView.addModuleView(moduleView, module);
-			
-			if(presenter != null){
+			if (presenter != null) {
 				presenter.addView(moduleView);
 				presenters.add(presenter);
-				if(presenter instanceof ICommandReceiver){
+				if (presenter instanceof ICommandReceiver) {
 					scriptingEngine.addReceiver((ICommandReceiver) presenter);
 				}
-			}
-			else if(moduleView instanceof IPresenter){
+			} else if (moduleView instanceof IPresenter) {
 				presenters.add((IPresenter) moduleView);
 			}
 		}
@@ -213,7 +219,7 @@ public class PageController {
 
 	public Group findGroup(IModuleModel module) {
 		List<Group> groups = currentPage.getGroupedModules();
-		if(groups != null){
+		if (groups != null) {
 			for (Group group : groups) {
 				if (group.contains(module)) {
 					return group;
@@ -241,8 +247,8 @@ public class PageController {
 	protected Result calculateScoreForEachGroup(Group group, ArrayList<IPresenter> groupPresenters, int groupMaxScore) {
 		Result groupResult = new Result();
 
-		for(IPresenter presenter : groupPresenters){
-			if(presenter instanceof IActivity){
+		for (IPresenter presenter : groupPresenters) {
+			if (presenter instanceof IActivity) {
 				IActivity activity = (IActivity) presenter;
 				if (group.getScoringType() == ScoringGroupType.zeroMaxScore) {
 					groupResult = Score.calculateZeroMaxScore(groupResult, activity);
@@ -353,7 +359,7 @@ public class PageController {
 			result.errorCount = 0;
 
 			groupsResult = calculateScoreModulesOutGroup(result);
-		}else{
+		} else {
 			groupsResult = calculateScoreModulesOutGroup(groupsResult);
 		}
 
@@ -445,8 +451,18 @@ public class PageController {
 
 		return null;
 	}
+	
+	public ITextToSpeechPresenter getPageTextToSpeechModule () {
+		for (IPresenter presenter : presenters) {
+			if (presenter.getModel().getId().compareTo(PAGE_TTS_MODULE_ID) == 0) {
+				return new TextToSpeechPresenter(presenter);
+			}
+		}
 
-	public IPage getPage() {
+		return null;
+	}
+
+	public IPage getPage () {
 		return currentPage;
 	}
 
@@ -488,10 +504,52 @@ public class PageController {
 		this.outstretchHeightWithoutAddingToModifications(y, height, false, dontMoveModules);
 		this.currentPage.heightModifications.addOutstretchHeight(y, height, dontMoveModules);
 		this.playerController.fireOutstretchHeightEvent();
-		
 	}
 
 	public void outstretchHeightWithoutAddingToModifications(int y, int height, boolean isRestore, boolean dontMoveModules) {
 		this.pageView.outstretchHeight(y, height, isRestore, dontMoveModules);
 	}
+
+	public void playTitle (String area, String id, String langTag) {
+		if (this.isReadingOn) {
+			TextToSpeechAPI.playTitle(this.getTextToSpeechAPIJavaScriptObject(), area, id, langTag);
+		}
+	}
+
+	public void speak (List<TextToSpeechVoice> voiceTexts) {
+		if (this.isReadingOn) {
+			TextToSpeechAPI.speak(this.getTextToSpeechAPIJavaScriptObject(), voiceTexts);
+		}
+	}
+	
+	public void readStartText () {
+		TextToSpeechAPI.playEnterText(this.getTextToSpeechAPIJavaScriptObject());
+	}
+	
+	public void readExitText () {
+		TextToSpeechAPI.playExitText(this.getTextToSpeechAPIJavaScriptObject());
+	}
+
+	public List<NavigationModuleIndentifier> getModulesOrder () {
+		return JavaScriptUtils.convertJsArrayObjectsToJavaObjects(TextToSpeechAPI.getModulesOrder(this.getTextToSpeechAPIJavaScriptObject()));
+	}
+	
+	public boolean isTextToSpeechModuleEnable () {
+		return this.getTextToSpeechAPIJavaScriptObject() != null;
+	}
+	
+	private JavaScriptObject getTextToSpeechAPIJavaScriptObject () {
+		AddonPresenter textToSpeechAPIModule = (AddonPresenter) this.findModule("Text_To_Speech1");
+		
+		if (textToSpeechAPIModule != null) {
+			return textToSpeechAPIModule.getJavaScriptObject();
+		}
+		
+		return null;
+	}
+	
+	public void setTextReading (boolean isReadingOn) {
+		this.isReadingOn = isReadingOn;
+	}
+	
 }

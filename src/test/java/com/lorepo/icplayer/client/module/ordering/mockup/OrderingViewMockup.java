@@ -93,6 +93,15 @@ public class OrderingViewMockup implements OrderingPresenter.IDisplay {
 	}
 
 	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void executeOnKeyCode(KeyDownEvent event) {
+
+	}
+
 	public Element getElement() {
 		// TODO Auto-generated method stub
 		return null;

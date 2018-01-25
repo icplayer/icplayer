@@ -44,11 +44,11 @@ function AddonLearnPen_Report_create() {
     function hookToDrawingAreas(addon) {
         var $addon = $('.' + addon);
 
-        $addon.on('mousedown touchstart', 'canvas', function (){
+        $addon.find('canvas').on('mousedown touchstart', function (){
             presenter.addons[addon] = true;
         });
 
-        $addon.on('mouseup mouseleave touchend', 'canvas', function (){
+        $addon.find('canvas').on('mouseup mouseleave touchend', function (){
             presenter.addons[addon] = false;
         });
     }
@@ -700,9 +700,16 @@ function AddonLearnPen_Report_create() {
     };
 
     presenter.reset = function() {
+        var addon;
         presenter.data.sensorsDataHistory = [];
         presenter.displayData(presenter.getData());
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+
+        for (addon in presenter.addons) {
+            if (presenter.addons.hasOwnProperty(addon)) {
+                hookToDrawingAreas(addon);
+            }
+        }
     };
 
     presenter.show = function() {

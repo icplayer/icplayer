@@ -1,9 +1,13 @@
 function AddonConnection_create() {
-    var presenter = function() {};
+
+    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
+
+    var presenter = function () {};
 
     var playerController;
     var eventBus;
     var addonID;
+    var isWCAGOn = false;
 
     presenter.uniqueIDs = [];
     presenter.uniqueElementLeft = [];
@@ -13,6 +17,13 @@ function AddonConnection_create() {
     presenter.lastEvent = null;
     presenter.disabledConnections = [];
     presenter.keyboardControllerObject = null;
+    presenter.langTag = '';
+    presenter.speechTexts = {};
+    presenter.columnSizes = {};
+    presenter.lineStackSA = [];
+
+    presenter.isShowAnswersActive = false;
+    presenter.isCheckActive = false;
 
     var connections;
     var singleMode = false;
@@ -30,6 +41,9 @@ function AddonConnection_create() {
     var connectionThickness = "1px";
     var showAnswersColor = "#0d0";
 
+    var CORRECT_ITEM_CLASS = 'connectionItem-correct';
+    var WRONG_ITEM_CLASS = 'connectionItem-wrong';
+
     presenter.ERROR_MESSAGES = {
         'ID not unique': 'One or more IDs are not unique.'
     };
@@ -37,6 +51,10 @@ function AddonConnection_create() {
     presenter.ELEMENT_SIDE = {
         LEFT: 0,
         RIGHT: 1
+    };
+
+    presenter.getCurrentActivatedElement = function () {
+        return $('.keyboard_navigation_active_element');
     };
 
     presenter.upgradeModel = function (model) {
@@ -270,18 +288,60 @@ function AddonConnection_create() {
         presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
     };
 
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+            connected:  'connected',
+            disconnected: 'disconnected',
+            connectedTo: 'connected to',
+            selected: 'selected',
+            deselected: 'deselected',
+            correct: 'correct',
+            wrong: 'wrong'
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            connected:    getSpeechTextProperty(speechTexts[0]['Connected']['Connected'], presenter.speechTexts.connected),
+            disconnected: getSpeechTextProperty(speechTexts[1]['Disconnected']['Disconnected'], presenter.speechTexts.disconnected),
+            connectedTo:  getSpeechTextProperty(speechTexts[2]['ConnectedTo']['Connected to'], presenter.speechTexts.connectedTo),
+            selected:     getSpeechTextProperty(speechTexts[3]['Selected']['Selected'], presenter.speechTexts.selected),
+            deselected:   getSpeechTextProperty(speechTexts[4]['Deselected']['Deselected'], presenter.speechTexts.deselected),
+            correct:      getSpeechTextProperty(speechTexts[5]['Correct']['Correct'], presenter.speechTexts.correct),
+            wrong:        getSpeechTextProperty(speechTexts[6]['Wrong']['Wrong'], presenter.speechTexts.wrong)
+        };
+    }
+
     presenter.initialize = function (view, model, isPreview) {
         if (isPreview) {
             presenter.lineStack = new LineStack(false);
         }
+
+        presenter.langTag = model['langAttribute'];
+        presenter.$view = $(view);
+        presenter.$view.attr('lang', presenter.langTag);
+
+        setSpeechTexts(model['speechTexts']);
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.setVisibility(presenter.isVisible);
 
-        isRTL = $(view).css('direction').toLowerCase() === 'rtl';
-        connections = $(view).find('.connections:first');
+        isRTL = presenter.$view.css('direction').toLowerCase() === 'rtl';
+        connections = presenter.$view.find('.connections:first');
 
         model = presenter.upgradeModel(model);
 
@@ -364,6 +424,7 @@ function AddonConnection_create() {
                 return presenter.elements[i].element;
             }
         }
+
         return -1;
     }
 
@@ -407,10 +468,12 @@ function AddonConnection_create() {
     };
 
     presenter.sendEvent = function (fromID, toID, value, score) {
-        if(!presenter.isShowAnswersActive) {
-        var eventData = presenter.createEventData(addonID, fromID, toID, presenter.model, value, score);
-        eventBus.sendEvent('ValueChanged', eventData);
-            if (presenter.isAllOK()) sendAllOKEvent();
+        if (!presenter.isShowAnswersActive) {
+            var eventData = presenter.createEventData(addonID, fromID, toID, presenter.model, value, score);
+            eventBus.sendEvent('ValueChanged', eventData);
+            if (presenter.isAllOK()) {
+                sendAllOKEvent();
+            }
         }
     };
 
@@ -484,7 +547,7 @@ function AddonConnection_create() {
 
             if (singleMode) {
                 var usedInLines = presenter.lineStack.isItemUsed(line);
-                if (usedInLines.length == 2) {
+                if (usedInLines.length === 2) {
                     shouldDraw = false
                 }
             }
@@ -732,6 +795,7 @@ function AddonConnection_create() {
     };
 
     presenter.appendElements = function (i, model, columnModel, column, isRightColumn) {
+        presenter.columnSizes[columnModel] = model[columnModel].length;
         var id = model[columnModel][i]['id'];
         if (!this.isIDUnique(id)) {
             return $(this.view).html(this.ERROR_MESSAGES['ID not unique']);
@@ -918,6 +982,7 @@ function AddonConnection_create() {
         if (addLine) {
             presenter.lineStack.push(line);
         }
+        readConnected(addLine);
     }
 
     function redraw() {
@@ -972,7 +1037,8 @@ function AddonConnection_create() {
         });
     }
 
-    presenter.setShowErrorsMode = function() {
+    presenter.setShowErrorsMode = function () {
+        presenter.isCheckActive = true;
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1007,6 +1073,7 @@ function AddonConnection_create() {
     };
 
     presenter.setWorkMode = function () {
+        presenter.isCheckActive = false;
         presenter.gatherCorrectConnections();
         redraw();
         $(presenter.view).find('.connectionItem').each(function () {
@@ -1180,7 +1247,7 @@ function AddonConnection_create() {
         if (presenter.correctConnections.hasLine(line))
             presenter.correctConnections.remove(line);
         if (presenter.lineStack.hasLine(line))
-        drawLine(line, incorrectConnection);
+            drawLine(line, incorrectConnection);
 
     };
 
@@ -1199,7 +1266,6 @@ function AddonConnection_create() {
     presenter.isAttemptedCommand = function () {
         return presenter.isAttempted();
     };
-
 
     presenter.executeCommand = function (name, params) {
         if (!isSelectionPossible) {
@@ -1316,11 +1382,14 @@ function AddonConnection_create() {
             }
         }
 
+        presenter.lineStackSA = {
+            stack: presenter.lineStack ? presenter.lineStack.stack.concat([]) : []
+        };
         redrawShowAnswers();
         presenter.lineStack.clear();
         isSelectionPossible = false;
 
-        for (var element = 0; element <  presenter.tmpElements.length; element++) {
+        for (var element = 0; element < presenter.tmpElements.length; element++) {
             var pairs =  presenter.tmpElements[element].split(':');
             pushConnection(new Line(getElementById(pairs[0]), getElementById(pairs[1])), false);
         }
@@ -1344,25 +1413,176 @@ function AddonConnection_create() {
         KeyboardController.call(this, elements, columnsCount);
     }
 
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function readConnected (isDrawing) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts && presenter.$view.hasClass('ic_active_module')) {
+            speak([getTextVoiceObject(
+                isDrawing ? presenter.speechTexts.connected : presenter.speechTexts.disconnected
+            )]);
+        }
+    }
+
+    function getConnections ($element) {
+        var element = $element[0];
+        var result = [];
+        var lines = presenter.isShowAnswersActive ? presenter.lineStackSA : presenter.lineStack;
+
+        for (var i=0; i<lines.stack.length; i++) {
+            var line = lines.stack[i];
+
+            if (element === line.from[0]) {
+                result.push(line.to);
+            }
+
+            if (element === line.to[0]) {
+                result.push(line.from);
+            }
+        }
+
+        return result;
+    }
+
+    function getConnectionsInfo (connections) {
+        var result = [];
+
+        for (var i=0; i<connections.length; i++) {
+            var $connection = connections[i];
+
+            result.push(getTextVoiceObject($connection.text().trim(), presenter.langTag));
+
+            if ($connection.hasClass(CORRECT_ITEM_CLASS) && presenter.isCheckActive) {
+                result.push(getTextVoiceObject(presenter.speechTexts.correct));
+            }
+
+            if ($connection.hasClass(WRONG_ITEM_CLASS) && presenter.isCheckActive) {
+                result.push(getTextVoiceObject(presenter.speechTexts.wrong));
+            }
+        }
+
+        return result;
+    }
+
+    function readActivatedElementConnections () {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts) {
+            var $active = presenter.getCurrentActivatedElement();
+            var connections = getConnections($active);
+
+            var TextVoiceArray = [getTextVoiceObject($active.text().trim(), presenter.langTag)];
+
+            if ($active.hasClass('selected')) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
+            }
+
+            if (connections.length) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.connectedTo, ''));
+                console.log(TextVoiceArray);
+                TextVoiceArray = TextVoiceArray.concat(getConnectionsInfo(connections));
+            }
+
+            speak(TextVoiceArray);
+        }
+    }
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
+
     ConnectionKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
     ConnectionKeyboardController.prototype.constructor = ConnectionKeyboardController;
 
     ConnectionKeyboardController.prototype.nextRow = function () {
-        this.switchElement(1);
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + 1;
+        if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+        if (new_position_index === presenter.columnSizes['Left column']) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+        this.markCurrentElement(new_position_index);
+        readActivatedElementConnections();
     };
 
     ConnectionKeyboardController.prototype.previousRow = function () {
-        this.switchElement(-1);
+        var new_position_index = this.keyboardNavigationCurrentElementIndex - 1;
+        if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex
+        }
+        if (new_position_index === presenter.columnSizes['Left column']-1) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+        this.markCurrentElement(new_position_index);
+        readActivatedElementConnections();
     };
 
+    function indexesInTheSameColumn (index1, index2) {
+        var leftColumnSize = presenter.columnSizes['Left column'];
+
+        return (index1 < leftColumnSize && index2 < leftColumnSize) || (index1 >= leftColumnSize && index2 >= leftColumnSize);
+    }
+
     ConnectionKeyboardController.prototype.nextElement = function () {
-        this.switchElement(parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + presenter.columnSizes['Left column'];
+
+        if (new_position_index >= this.keyboardNavigationElementsLen) {
+            new_position_index = this.keyboardNavigationElementsLen - 1;
+        }
+
+        if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+
+        this.markCurrentElement(new_position_index);
+        readActivatedElementConnections();
     };
 
     ConnectionKeyboardController.prototype.previousElement = function () {
-        this.switchElement(-parseInt(this.keyboardNavigationElementsLen / this.columnsCount, 10));
+        var new_position_index = this.keyboardNavigationCurrentElementIndex - presenter.columnSizes['Right column'];
+
+        if (new_position_index < 0) {
+            new_position_index = 0;
+        }
+
+        if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+
+        this.markCurrentElement(new_position_index);
+        readActivatedElementConnections();
     };
 
+    ConnectionKeyboardController.prototype.enter = function () {
+        Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
+        readActivatedElementConnections();
+    };
+
+    ConnectionKeyboardController.prototype.select = function () {
+        if (presenter.getCurrentActivatedElement().hasClass('selected')) {
+            speak([getTextVoiceObject(presenter.speechTexts.deselected)]);
+        }
+
+        Object.getPrototypeOf(ConnectionKeyboardController.prototype).select.call(this);
+
+        if (presenter.getCurrentActivatedElement().hasClass('selected')) {
+            speak([getTextVoiceObject(presenter.speechTexts.selected)]);
+        }
+    };
 
     return presenter;
 }

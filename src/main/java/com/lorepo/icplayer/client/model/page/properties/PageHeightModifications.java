@@ -1,11 +1,11 @@
 package com.lorepo.icplayer.client.model.page.properties;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.lorepo.icf.utils.JavaScriptUtils;
+
 
 public class PageHeightModifications {
 	private class ListEntry {

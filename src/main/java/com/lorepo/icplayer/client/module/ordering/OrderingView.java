@@ -8,7 +8,6 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DomEvent;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
@@ -21,14 +20,19 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.RandomUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icf.utils.dom.ElementHTMLUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
+import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
-public class OrderingView extends Composite implements IDisplay, IWCAG{
+
+public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGModuleView {
 
 	private final OrderingModule module;
 	private final IPlayerServices playerServices;
@@ -45,9 +49,14 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	private boolean mathJaxIsLoaded = false;
 	private boolean shouldRefreshMath = false;
 	private int currentWCAGSelectedItemIndex = 0;
-	private boolean wcagIsAvtive = false;
+	private boolean isWCAGActive = false;
 	private boolean isValid = false;
+	private boolean isWCAGOn = false;
+	private PageController pageController;
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
+	
+	private final String ITEM_CORRECT_CLASS = "ic_ordering-item-correct";
+	private final String ITEM_WRONG_CLASS = "ic_ordering-item-wrong";
 
 	public OrderingView(OrderingModule module, IPlayerServices services, boolean isPreview) {
 		this.module = module;
@@ -101,7 +110,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 			    }
 
 				addWidget(itemWidget);
-			}			
+			}
 		} else {
 			ItemWidget error = new ItemWidget( new OrderingItem(0, errorMessage, ""), module );
 			addWidget(error);
@@ -122,6 +131,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 		if(!isPreview){
 			makeSortable(getElement(), jsObject, workMode);
 		}
+		getElement().setAttribute("lang", this.getLang());
 	}
 	
 	private String validate() {
@@ -242,7 +252,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 					return;
 				}
 				isMouseUp = true;
+				
 				onWidgetClicked(widget);
+				selectItem(selectedWidget);
 			}
 
 		});
@@ -265,12 +277,19 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 		}
 	}
 
-	/**
-	 * Zamiana miejscami widgetow
-	 */
 	private void replaceWidgetPositions(int srcIndex, int destIndex) {
+		if (srcIndex != destIndex) {
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			textVoices.add(TextToSpeechVoice.create(this.getWidgetText(destIndex), this.getLang()));
+			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(2)));
+			textVoices.add(TextToSpeechVoice.create(this.getWidgetText(srcIndex), this.getLang()));
 
-		int	loIndex;
+			this.speak(textVoices);
+		} else {
+			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(1)));
+		}
+
+		int loIndex;
 		int hiIndex;
 		Widget firstWidget;
 		Widget secondWidget;
@@ -481,7 +500,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	public void setShowErrorsMode() {
 		workMode = false;
 		makeSortable(getElement(), jsObject, workMode);
-
+		
+		if(selectedWidget!=null){
+			selectedWidget.removeStyleName("ic_drag-source");
+			selectedWidget = null;
+		}
 		if (module.isActivity()) {
 			for (int i = 0; i < getWidgetCount(); i++) {
 
@@ -548,6 +571,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 
 	@Override
 	public void setCorrectAnswer() {
+		if(selectedWidget!=null){
+			selectedWidget.removeStyleName("ic_drag-source");
+			selectedWidget = null;
+		}
 		List<Integer> correctOrder = new ArrayList<Integer>();
 		for (int i=0; i<module.getItemCount(); i++) {
 			correctOrder.add(module.getItem(i).getIndex() - 1);
@@ -581,6 +608,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 		workMode = true;
 		makeSortable(getElement(), jsObject, workMode);
 
+		if(selectedWidget!=null){
+			selectedWidget.removeStyleName("ic_drag-source");
+			selectedWidget = null;
+		}
+		
 		randomizeViewItems();
 		for (int i = 0; i < getWidgetCount(); i++) {
 			Widget widget = getWidget(i);
@@ -651,27 +683,51 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 			this.shouldRefreshMath = true;
 		}
 	}
-	
+
 	@Override
-	public void escape () {
+	public String getName() {
+		return "Ordering";
+	}
+
+	@Override
+	public void escape (KeyDownEvent event) {
 		this.deselectCurrentItem();
-		this.wcagIsAvtive = false;
+		currentWCAGSelectedItemIndex = 0;
+		this.isWCAGActive = false;
+	}
+	
+	private String prepearContentToRead (CellPanel cp) {
+		String result = "";
+		
+		for (int i=0; i<this.innerCellPanel.getWidgetCount(); i++) {
+			final Widget w = this.innerCellPanel.getWidget(i);
+			result += " " + (i+1) + ": " + w.getElement().getInnerHTML();
+			
+			final String lastChar = result.substring(result.length() - 1);
+			if (!".!?".contains(lastChar)) {
+				result += ".";
+			}
+		}
+		
+		return result;
 	}
 	
 	@Override
 	public void enter (boolean isExiting) {
-		this.wcagIsAvtive = !isExiting;
+		this.isWCAGActive = !isExiting;
 		if (isExiting) {
 			this.deselectCurrentItem();
+			currentWCAGSelectedItemIndex = 0;
 		} else {
-			this.selectCurrentItem();		
+			this.selectCurrentItem();
+			this.readItem(this.currentWCAGSelectedItemIndex);
 		}
 	}
 	
 	@Override
-	public void space () {
+	public void space (KeyDownEvent event) {
 		this.deselectCurrentItem();
-		DomEvent.fireNativeEvent(Document.get().createMouseUpEvent(0, 0, 0, 0, 0,false, false, false, false, 0), this.getWidget(this.currentWCAGSelectedItemIndex));
+		DomEvent.fireNativeEvent(Document.get().createMouseUpEvent(0, 0, 0, 0, 0, false, false, false, false, 0), this.getWidget(this.currentWCAGSelectedItemIndex));
 		this.selectCurrentItem();
 	}
 	
@@ -680,41 +736,69 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	}-*/;
 	
 	@Override
-	public void tab() {
+	public void tab (KeyDownEvent event) {
 		this.move(1);
 	}
 	
 	@Override
-	public void left() {
+	public void left (KeyDownEvent event) {
 		this.move(-1);
 	}
 	
 	@Override
-	public void right() {
+	public void right (KeyDownEvent event) {
 		this.move(1);
 	}
 	
 	@Override
-	public void up() {
+	public void up (KeyDownEvent event) {
 		this.move(-1);
 	}
 	
 	@Override
-	public void down() {
+	public void down (KeyDownEvent event) {
 		this.move(1);
+	}
+	
+	private void readItem (int index) {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(TextToSpeechVoice.create(this.getWidgetText(index), this.getLang()));
+		
+		Widget widget = this.innerCellPanel.getWidget(index);
+		if (ElementHTMLUtils.hasClass(widget.getElement(), "ic_drag-source")) {
+			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(0)));
+		}
+		
+		if (ElementHTMLUtils.hasClass(widget.getElement(), ITEM_CORRECT_CLASS)) {
+			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(3)));
+		}
+		
+		if (ElementHTMLUtils.hasClass(widget.getElement(), ITEM_WRONG_CLASS)) {
+			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(4)));
+		}
+		
+		this.speak(textVoices);
+	}
+	
+	private void selectItem (Widget selectedWidget) {
+		if (selectedWidget != null) {
+			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(0)));
+		}
 	}
 	
 	private void move(int delta) {
 		this.deselectCurrentItem();
 		this.currentWCAGSelectedItemIndex += delta;
 		if (this.currentWCAGSelectedItemIndex < 0) {
-			this.currentWCAGSelectedItemIndex = this.getWidgetCount() - 1;
+			this.currentWCAGSelectedItemIndex = 0;
 		}
 		
 		if (this.currentWCAGSelectedItemIndex >= this.getWidgetCount()) {
-			this.currentWCAGSelectedItemIndex = 0;
+			this.currentWCAGSelectedItemIndex = this.getWidgetCount() - 1;
 		}
 		this.selectCurrentItem();
+		
+		this.readItem(currentWCAGSelectedItemIndex);
 	}
 	
 	private void selectCurrentItem () {
@@ -726,7 +810,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	}
 	
 	private void refreshSelection () {
-		if (this.wcagIsAvtive) { 
+		if (this.isWCAGActive) { 
 			int savedWidget = this.currentWCAGSelectedItemIndex;
 			for (int i = 0; i < this.getWidgetCount(); i++) {
 				this.currentWCAGSelectedItemIndex = i;
@@ -739,10 +823,42 @@ public class OrderingView extends Composite implements IDisplay, IWCAG{
 	}
 
 	@Override
-	public void shiftTab() {
+	public void shiftTab (KeyDownEvent event) {}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {}
+
+	@Override
+	public void setWCAGStatus (boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;
 	}
 
 	@Override
-	public void customKeyCode(KeyDownEvent event) {
+	public void setPageController (PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
 	}
+	
+	private String getWidgetText (int index) {
+		return this.innerCellPanel.getWidget(index).getElement().getInnerText();
+	}
+
+	@Override
+	public String getLang () {
+		return this.module.getLangAttribute();
+	}
+	
+	private void speak (TextToSpeechVoice t1) {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(t1);
+		
+		this.speak(textVoices);
+	}
+	
+	private void speak (List<TextToSpeechVoice> textVoices) {
+		if (this.pageController != null) {
+			this.pageController.speak(textVoices);
+		}
+	}
+	
 }

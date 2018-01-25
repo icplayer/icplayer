@@ -11,6 +11,7 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
+import com.lorepo.icplayer.client.xml.RequestFinishedCallback;
 import com.lorepo.icplayer.client.xml.XMLVersionAwareFactory;
 import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
 import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v1;
@@ -19,7 +20,8 @@ import com.lorepo.icplayer.client.xml.content.parsers.IContentParser;
 public class ContentFactory extends XMLVersionAwareFactory {
 	private ArrayList<Integer> pagesSubset;
 	
-	protected ContentFactory() {
+	protected ContentFactory(ArrayList<Integer> pagesSubset) {
+		this.setPagesSubset(pagesSubset);
 		this.addParser(new ContentParser_v0());
 		this.addParser(new ContentParser_v1());
 	}
@@ -34,10 +36,7 @@ public class ContentFactory extends XMLVersionAwareFactory {
 	}
 
 	public static IXMLFactory getInstance(ArrayList<Integer> pagesSubset) {
-		ContentFactory factory = new ContentFactory();
-		factory.setPagesSubset(pagesSubset);
-		
-		return factory;
+		return new ContentFactory(pagesSubset);
 	}
 	
 	public static IXMLFactory getInstanceWithAllPages() {
@@ -45,21 +44,19 @@ public class ContentFactory extends XMLVersionAwareFactory {
 	}
 	
 	@Override
-	protected RequestCallback getContentLoadCallback(final IProducingLoadingListener listener, String fetchUrl) {
-		final String url = fetchUrl;
-		
-		return new RequestCallback() {
+	protected RequestFinishedCallback getContentLoadCallback(final IProducingLoadingListener listener) {
+		return new RequestFinishedCallback() {
 			@Override
-			public void onResponseReceived(Request request, Response response) {
+			public void onResponseReceived(String fetchURL, Request request, Response response) {
 				if (response.getStatusCode() == 200 || response.getStatusCode() == 0) {
-					Content content = produce(response.getText(), url);
+					Content content = produce(response.getText(), fetchURL);
 					listener.onFinishedLoading(content);
 				} else {
 					// Handle the error.  Can get the status text from response.getStatusText()
 					listener.onError("Wrong status: " + response.getText());
 				}
 			}
-
+			
 			@Override
 			public void onError(Request request, Throwable exception) {
 				listener.onFinishedLoading(null);

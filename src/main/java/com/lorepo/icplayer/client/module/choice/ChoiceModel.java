@@ -9,6 +9,7 @@ import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
@@ -23,6 +24,8 @@ public class ChoiceModel extends BasicModuleModel{
 	private boolean isActivity = true;
 	private boolean randomOrder = false;
 	private boolean isHorizontal = false;
+	private String langAttribute = "";
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 
 	public ChoiceModel() {
 		super("Choice", DictionaryWrapper.get("choice_module"));
@@ -36,6 +39,8 @@ public class ChoiceModel extends BasicModuleModel{
 		addPropertyIsActivity();
 		addPropertyRandomOrder();
 		addPropertyHorizontalLayout();
+		addPropertyLangAttribute();
+		addPropertySpeechTexts();
 	}
 	
 	public void addOption(ChoiceOption option) {
@@ -88,6 +93,11 @@ public class ChoiceModel extends BasicModuleModel{
 			isActivity = XMLUtils.getAttributeAsBoolean(choice, "isActivity", true);
 			randomOrder = XMLUtils.getAttributeAsBoolean(choice, "randomOrder", false);
 			isHorizontal = XMLUtils.getAttributeAsBoolean(choice, "isHorizontal", false);
+			langAttribute = XMLUtils.getAttributeAsString(choice, "langAttribute");
+			this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(choice, "selected"));
+			this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(choice, "deselected"));
+			this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(choice, "correct"));
+			this.speechTextItems.get(3).setText(XMLUtils.getAttributeAsString(choice, "incorrect"));
 		}
 		
 		// Read options nodes
@@ -122,7 +132,7 @@ public class ChoiceModel extends BasicModuleModel{
 	 * Convert module into XML
 	 */
 	@Override
-	public String toXML() {
+	public String toXML () {
 		Element choiceModule = XMLUtils.createElement("choiceModule");
 		
 		this.setBaseXMLAttributes(choiceModule);
@@ -134,18 +144,23 @@ public class ChoiceModel extends BasicModuleModel{
 		choice.setAttribute("isActivity", Boolean.toString(isActivity));
 		choice.setAttribute("randomOrder", Boolean.toString(randomOrder));
 		choice.setAttribute("isHorizontal", Boolean.toString(isHorizontal));
+		choice.setAttribute("langAttribute", langAttribute);
+		choice.setAttribute("selected", this.speechTextItems.get(0).getText());
+		choice.setAttribute("deselected", this.speechTextItems.get(1).getText());
+		choice.setAttribute("correct", this.speechTextItems.get(2).getText());
+		choice.setAttribute("incorrect", this.speechTextItems.get(3).getText());
 		
 		choiceModule.appendChild(choice);
 		
 		Element optionsElement = XMLUtils.createElement("options");
-		for(ChoiceOption option : options){
+
+		for (ChoiceOption option : options) {
 			optionsElement.appendChild(option.toXML());
 		}
 		
 		choiceModule.appendChild(optionsElement);
 		return choiceModule.toString();
 	}
-
 	
 	public int calculateMaxScore() {
 		int maxScore = 0;
@@ -156,10 +171,9 @@ public class ChoiceModel extends BasicModuleModel{
 		return maxScore;
 	}
 	
-	public int getMaxScore() {		
+	public int getMaxScore() {
 		return calculateMaxScore();
 	}
-
 
 	private void addPropertyHorizontalLayout() {
 
@@ -475,5 +489,104 @@ public class ChoiceModel extends BasicModuleModel{
 		};
 		
 		addProperty(property);
+	}
+	
+	private void addPropertyLangAttribute() {
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				langAttribute = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return langAttribute;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_lang_attribute");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_lang_attribute");
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	private void addPropertySpeechTexts() {
+		IStaticListProperty property = new IStaticListProperty() {
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(speechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return speechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("selected"));
+				speechTextItems.add(new SpeechTextsStaticListItem("deselected"));
+				speechTextItems.add(new SpeechTextsStaticListItem("correct"));
+				speechTextItems.add(new SpeechTextsStaticListItem("incorrect"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return speechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+
+		};
+
+		addProperty(property);
+		property.addChildren(1);
+	}
+	
+	public String getSpeechTextItem(int index) {
+		return this.speechTextItems.get(index).getText();
+	}
+	
+	public String getLangAttribute() {
+		return langAttribute;
 	}
 }
