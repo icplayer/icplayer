@@ -264,8 +264,10 @@ function AddonTrueFalse_create() {
             }
             var innerElement = document.createElement('div');
             $(innerElement).css('color','rgba(0,0,0,0.0)');
-            $(innerElement).css('font-size','1px');
-            $(innerElement).html(possibleChoices[i].Choice);
+            $(innerElement).css('font-size','0px');
+            var text = $("<div>" + possibleChoices[i].Choice + "</div>").text();
+            var altText = document.createTextNode(text);
+            $(innerElement).append(altText);
 
             if (presenter.isTabindexEnabled) {
                 presenter.addTabindex($(innerElement), 0);
