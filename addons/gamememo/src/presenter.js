@@ -762,9 +762,8 @@ function Addongamememo_create(){
             var altTextSpan = document.createElement('span');
             altTextSpan.innerText = altText;
             altTextSpan.className = 'gamememo_alt_text';
+            $div.append(altTextSpan);
         }
-
-        $div.append(altTextSpan);
     };
 
     function centerImage(element) {

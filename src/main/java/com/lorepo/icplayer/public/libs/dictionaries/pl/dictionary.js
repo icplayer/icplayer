@@ -1601,7 +1601,6 @@
 	"Text_To_Speech_property_title": "Title",
 	"Text_To_Speech_property_description": "Description",
 	"Text_To_Speech_language": "Language",
-	"header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties.",
 	"IFrame_property_allow_fullscreen": "Włącz tryb pełnoekranowy",
 	"IFrame_property_alt_text": "Tekst alternatywny",
 	"Text_use_escape_character_in_gap_property": "Użyj znaku escape w luce",
