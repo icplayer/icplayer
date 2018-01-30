@@ -8,6 +8,7 @@
             <property name="Left" nameLabel="Board_game_property_left" type="string"/>
             <property name="Width" nameLabel="Board_game_property_width" type="string"/>
             <property name="Height" nameLabel="Board_game_property_height" type="string"/>
+            <property name="cssClass" nameLabel="Board_game_property_css_class" type="string"/>
         </property>
         <property name="Images" displayName="Elements" nameLabel="Board_game_property_images" type="list">
             <property name="PawnImage" displayName="Element Image" nameLabel="Board_game_property_pawn_image" type="image"/>
@@ -16,6 +17,8 @@
             <property name="Width" nameLabel="Board_game_property_width" type="string"/>
             <property name="Height" nameLabel="Board_game_property_height" type="string"/>
         </property>
-        <property name="isDisable" nameLabel="Board_game_property_is_disable" type="boolean"/>
+        <property name="isDisabled" nameLabel="Board_game_property_is_disable" type="boolean"/>
+        <property name="disableDragging" displayName="Disable Dragging" nameLabel="Board_game_property_disable_dragging" type="boolean"/>
+        <property name="selectableCounters" displayName="Selectable counters" nameLabel="Board_game_property_selectable_counters" type="boolean"/>
 	</model>
 </addon>

@@ -1,5 +1,6 @@
 /**
  * @module commons
+ * @submodule model-validation
  */
 (function (window) {
     /**
@@ -376,4 +377,215 @@
 
     // Expose utils to the global object
     window.ModelValidationUtils = ModelValidationUtils;
+
+    function generateErrorCode(code) {
+        return {
+            isValid: true,
+            errorCode: code,
+            value: undefined
+        };
+    }
+
+    function generateValidValue(value) {
+        return {
+            isValid: true,
+            value: value,
+            errorCode: ''
+        };
+    }
+
+    //https://github.com/jashkenas/underscore/blob/master/underscore.js
+    function isFunction (fn) {
+        if (typeof /./ != 'function' && typeof Int8Array != 'object' && typeof nodelist != 'function') {
+          return typeof fn == 'function' || false;
+        }
+
+        return toString.call(fn) === '[object ' + Function + ']';
+    }
+
+    /**
+     * Class which can validate model with provided validator.
+     * @class ModelValidator
+     * @constructor
+     */
+    function ModelValidator () {
+        this.validatedModel = {};
+    }
+
+    ModelValidator.prototype = {
+        /**
+         * Validate model with provided configuration
+         * @method validate
+         * @param model {Object}
+         * @param config {Function[]}
+         * @returns {{isValid: Boolean,value: Object,errorCode: String}}
+         */
+        validate: function (model, config) {
+            return this.validateModel(model, config, true);
+        },
+
+        /**
+         * Validate sub model elements. Use it if you want to run validation on sub element of model. See list validator
+         * @method validateModel
+         * @param model {Object}
+         * @param config {Function[]}
+         * @param mainValidation {[Boolean]} OPTIONAL!. True only if it is root of model validation. At default false.
+         * @optional
+         * @returns {{isValid: Boolean,value: Object,errorCode: String}}
+         */
+        validateModel: function (model, config, mainValidation) {
+            var validatedModel = {}, i, modelFieldName;
+
+            if (mainValidation === undefined) {
+                mainValidation = false;
+            }
+
+            for (i = 0; i < config.length; i += 1) {
+                modelFieldName = config[i].fieldName;
+                if (model[modelFieldName] !== undefined) {
+                    var validationResult = config[i].call(this, model[modelFieldName], validatedModel);
+
+                    if (!validationResult.isValid) {
+                        return validationResult;
+                    }
+
+                    if (mainValidation) {
+                        this.validatedModel[modelFieldName] = validationResult.value;
+                    }
+
+                    validatedModel[modelFieldName] = validationResult.value;
+                } else {
+                    return generateErrorCode("UMF01");
+                }
+            }
+
+            return {
+                isValid: true,
+                value: validatedModel,
+                errorCode: ''
+            };
+        },
+
+        generateErrorCode: generateErrorCode,
+        generateValidValue: generateValidValue
+    };
+
+    function validatorDecorator(fn) {
+        /**
+         * Base of validator class. Each validator must be wrapped by validatorDecorator.
+         * @namespace ModelValidators
+         * @class Validator
+         * @constructor
+         * @param {String} name name of field to validate
+         * @param {Validator[]} config configuration as array
+         * @param {Function} shouldValidateFunction function which will tell to validator if he should enter to the validator. If this function returns false, then validator always return undefined value.
+         * shouldValidateFunction will receive as first element validated elements in actual validation scope, and in this.validatedModel contains validated elements from root.
+         */
+        return function(name, config, shouldValidateFunction) {
+            if (isFunction(config)) {
+                shouldValidateFunction = config;
+                config = [];
+            }
+
+            var validationFunction = function (model, validatedModel) {
+                if (shouldValidateFunction && !shouldValidateFunction.call(this, validatedModel)) {
+                    return {
+                        isValid: true,
+                        value: undefined
+                    };
+                }
+
+                return fn.call(this, model, config);
+            };
+
+            validationFunction.fieldName = name;
+
+            return validationFunction;
+        }
+    }
+
+
+    /**
+     * Container for each model validator.
+     * @element ModelValidators
+     */
+    var ModelValidators = {
+        /**
+         * Boolean validator
+         * @namespace ModelValidators
+         * @class Boolean
+         * @extends ModelValidators.Validator
+         */
+        Boolean: validatorDecorator(function (valueToValidate, config) {
+            return this.generateValidValue(valueToValidate === "True");
+        }),
+
+        /**
+         * Unvalidated integer is trying to parse integer by parseInt instruction.
+         * @namespace ModelValidators
+         * @class DumbInteger
+         * @extends ModelValidators.Validator
+         */
+        DumbInteger: validatorDecorator(function (valueToValidate, config) {
+            return this.generateValidValue(parseInt(valueToValidate, 10));
+        }),
+
+        /**
+         * Unvalidated integer is trying to parse integer by parseInt instruction.
+         * @namespace ModelValidators
+         * @class DumpString
+         * @extends ModelValidators.Validator
+         */
+        DumbString: validatorDecorator(function (valueToValidate, config) {
+            return this.generateValidValue(valueToValidate);
+        }),
+
+        /**
+         * Check if provided string is valid css class name
+         * @namespace ModelValidators
+         * @class CSSClass
+         * @extends ModelValidators.Validator
+         * @param {{empty: Boolean}} config if css class can be empty set empty as true
+         */
+        CSSClass: validatorDecorator(function (valueToValidate, config) {
+            valueToValidate = valueToValidate.trim();
+
+            if (config.empty) {
+                if (valueToValidate === '') {
+                    return this.generateValidValue('');
+                }
+            }
+
+            var isCorrect = /^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(valueToValidate);
+
+            if (!isCorrect) {
+                return this.generateErrorCode("CSS01");
+            }
+
+            return this.generateValidValue(valueToValidate);
+        }),
+
+        /**
+         * Validate list. As configuration should receive list of validators for each field in list row.
+         * @namespace ModelValidators
+         * @class List
+         * @extends ModelValidators.Validator
+         */
+        List: validatorDecorator(function (valueToValidate, config) {
+            var validatedList = [];
+            for (var i = 0; i < valueToValidate.length; i++) {
+                var validatedValue = this.validateModel(valueToValidate[i], config);
+                if (!validatedValue.isValid) {
+                    return validatedValue;
+                }
+
+                validatedList.push(validatedValue.value);
+            }
+
+            return this.generateValidValue(validatedList);
+        })
+    };
+
+    window.ModelValidator = ModelValidator;
+    window.ModelValidators = ModelValidators;
 })(window);
