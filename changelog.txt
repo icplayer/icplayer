@@ -1,3 +1,4 @@
+2018-01-30 Fixed Double State Button not activating on keyboard input.
 2018-01-29 Fixed Image gap and multiplegap not getting image source alt text
 2018-01-26 Fixed addon TrueFalse now only adds text as checkbox alt text
 2018-01-24 Fixed addon TrueFalse not being read correctly by NVDA 
