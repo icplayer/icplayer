@@ -1,8 +1,16 @@
 TestCase("[gamememo] Setting image for div", {
     setUp: function () {
         this.presenter = Addongamememo_create();
-        var divElement = document.createElement("div");
-        this.div = $(divElement);
+        this.stubs = {
+            cssStub: sinon.stub(),
+            appendStub: sinon.stub()
+        };
+
+        this.div = {
+            css: this.stubs.cssStub,
+            append: this.stubs.appendStub
+        };
+
         this.image = "image";
     },
 
@@ -11,9 +19,7 @@ TestCase("[gamememo] Setting image for div", {
 
         this.presenter.setDivImage(this.div, this.image);
 
-        var expectedBackground = 'url("image") 0% 0% / 100% 100%';
-
-        assertEquals(expectedBackground, this.div.css('background'));
+        assertTrue(this.stubs.cssStub.called);
     },
 
     'test should set image as img element when imageMode is KeepAspect': function () {
@@ -21,10 +27,8 @@ TestCase("[gamememo] Setting image for div", {
 
         this.presenter.setDivImage(this.div, this.image);
 
-        var imageElement = this.div.find('img');
 
-        assertEquals(1, imageElement.length);
-        assertEquals('image', imageElement.attr('src'));
+        assertTrue(this.stubs.appendStub.called);
     },
 
     'test should set image as img element when imageMode is other': function () {
@@ -32,9 +36,7 @@ TestCase("[gamememo] Setting image for div", {
 
         this.presenter.setDivImage(this.div, this.image);
 
-        var expectedBackground = 'url("image")';
-
-        assertEquals(expectedBackground, this.div.css('background'));
+        assertTrue(this.stubs.cssStub.called);
     },
 
     'test should add span to div when alttext is specified': function () {
@@ -43,18 +45,13 @@ TestCase("[gamememo] Setting image for div", {
 
         this.presenter.setDivImage(this.div, this.image, altText);
 
-        var span = this.div.find('span');
 
-        assertEquals(1, span.length);
-        assertEquals(altText, span.text());
-        assertEquals(spanClass, span.attr('class'));
+        assertTrue(this.stubs.appendStub.called);
     },
 
     'test should not add span to div when alttext is undefined': function () {
         this.presenter.setDivImage(this.div, this.image);
 
-        var span = this.div.find('span');
-
-        assertEquals(0, span.length);
+        assertFalse(this.stubs.appendStub.called);
     },
 });
