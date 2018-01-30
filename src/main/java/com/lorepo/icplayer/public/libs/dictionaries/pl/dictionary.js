@@ -1640,6 +1640,6 @@
 	"Quiz_property_GameWonMessage": "Game won message",
 	"Quiz_property_isActivity": "Is activity",
 	"dont_generate_correct_order": "Nie generuj poprawnej kombinacji",
-	"alternative_text": "Alternative text",
-	"edit_alternative_text": "Edit alternative text"
+	"alternative_text": "Tekst alternatywny",
+	"edit_alternative_text": "Edytuj tekst alternatywny"
 };
