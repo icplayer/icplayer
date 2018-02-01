@@ -21,6 +21,13 @@ function AddonBoard_Game_create(){
     presenter.currentTopValue = [];
     presenter.originalLeftValue = [];
     presenter.originalTopValue = [];
+    presenter.isSelectableCounter = model.selectableCounters;
+    presenter.isDisbaledDraggable = model.disableDragging;
+    presenter.lastSelectedCounter = null;
+    presenter.boardCounters = [];
+    presenter.fields = [];
+    
+
 
     presenter.executeCommand = function(name, params) {
         switch (name.toLowerCase()) {
@@ -61,6 +68,7 @@ function AddonBoard_Game_create(){
         if(model.hasFields){
             for(i = 0; i < presenter.fieldsLength; i++){
                 fig += '<div id="Field' + (i + 1) + '" class="board-game-field" style=""></div>';
+                // fig += '<div class="board-game-field-container" style=""></div>';
             }
         }
         for(i = 0; i < model.Images.length; i++){
@@ -198,8 +206,52 @@ function AddonBoard_Game_create(){
 
     };
 
-    presenter.connectHandlers = function () {
+    presenter.selectCounter = function (element) {
+        presenter.deselectLastCounter();
 
+        presenter.lastSelectedCounter = element;
+
+        element.classList.add('board-game-selected')
+    };
+
+    presenter.deselectLastCounter = function () {
+        if (presenter.lastSelectedCounter === null) {
+            return;
+        }
+
+        presenter.lastSelectedCounter.classList.remove('board-game-selected')
+    };
+
+    presenter.connectHandlers = function () {
+        if (presenter.isSelectableCounter) {
+            presenter.boardCounters.on('click', function () {
+                presenter.selectCounter(this);
+            });
+        }
+
+        if (!presenter.isDisbaledDraggable) {
+            presenter.$view.find('.board-game-field').droppable({
+                drop: function (e, ui) {
+                    presenter.checkRevert(this);
+                }
+            });
+
+            jQuery(function ($) {
+                presenter.boardCounters
+                    .mousedown(function (e) {
+                        presenter.moveCurrentElement(this);
+                    })
+                    .mouseup(function (e) {
+
+                    }).click(function (e) {
+
+                });
+            });
+
+            presenter.boardCounters.draggable({
+                containment: "parent"
+            });
+        }
     };
 
     presenter.init = function(view, model) {
@@ -213,6 +265,10 @@ function AddonBoard_Game_create(){
         presenter.isVisible = model["Is Visible"];
         presenter.fieldsLength = model.Fields.length;
         presenter.imagesLength = model.Images.length;
+        presenter.isSelectableCounter = model.selectableCounters;
+        presenter.isDisbaledDraggable = model.disableDragging;
+
+        presenter.lastSelectedCounter = null;
 
         var myDiv = $(view).find('.board-game-container')[0];
 
@@ -221,20 +277,40 @@ function AddonBoard_Game_create(){
 
         presenter.setVisibility(presenter.wasVisible);
 
+        presenter.boardCounters = presenter.$view.find('.board-game-element');
+        presenter.fields = presenter.$view.find('.board-game-field');
 
         var i;
         if(presenter.hasFields){
             for(i = 0; i < presenter.fieldsLength; i++) {
-                $(presenter.$view.find('.board-game-field')[i]).css({
+                $(presenter.fields[i]).css({
                     'width' : model.Fields[i].Width + "px",
                     'height' : model.Fields[i].Height + "px",
                     'top' : model.Fields[i].Top + "px",
                     'left' : model.Fields[i].Left + "px"
                 });
+                //
+                // $(presenter.$view.find('.board-game-field-container')[i]).css({
+                //     'width' : model.Fields[i].Width + "px",
+                //     'height' : model.Fields[i].Height + "px",
+                //     'top' : model.Fields[i].Top + "px",
+                //     'left' : model.Fields[i].Left + "px"
+                // });
             }
         }
 
         presenter.setElementsPosition(presenter.originalLeftValue, presenter.originalTopValue);
+
+
+        presenter.connectHandlers();
+
+        if (presenter.isSelectableCounter) {
+            presenter.selectCounter(presenter.boardCounters[0]);
+        }
+    };
+
+    presenter.moveSelectedCounter = function (count) {
+
     };
 
     presenter.showErrorMessage = function (view, error) {
@@ -255,32 +331,10 @@ function AddonBoard_Game_create(){
             presenter.eventBus.addEventListener('ShowAnswers', this);
             presenter.eventBus.addEventListener('HideAnswers', this);
 
-            presenter.$view.find('.board-game-element').draggable({
-                containment: "parent"
-            });
-
-
-            presenter.$view.find('.board-game-field').droppable({
-                drop: function(e, ui) {
-                    presenter.checkRevert(this);
-                }
-            });
-
             if(presenter.isDisable){
                 presenter.disable();
             }
 
-            jQuery(function($) {
-                presenter.$view.find('.board-game-element')
-                    .mousedown(function(e) {
-                        presenter.moveCurrentElement(this);
-                    })
-                    .mouseup(function(e) {
-
-                    }).click(function(e) {
-
-                    });
-            });
         } else {
             presenter.showErrorMessage(view, validatedModel);
         }
@@ -395,7 +449,7 @@ function AddonBoard_Game_create(){
         var i;
 
         for(i = 0; i < presenter.imagesLength; i++){
-            $(presenter.$view.find('.board-game-element')[i]).css({
+            $(presenter.boardCounters[i]).css({
                 'left' : arrayLeft[i] + "px",
                 'top' : arrayTop[i] + "px"
             });

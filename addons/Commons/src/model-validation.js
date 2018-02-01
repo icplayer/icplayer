@@ -378,6 +378,8 @@
     // Expose utils to the global object
     window.ModelValidationUtils = ModelValidationUtils;
 
+    //------------------------------------------ MODEL VALIDATOR -------------------
+
     function generateErrorCode(code) {
         return {
             isValid: true,
