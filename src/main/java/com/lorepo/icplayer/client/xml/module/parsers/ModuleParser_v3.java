@@ -12,6 +12,9 @@ public class ModuleParser_v3 extends ModuleParser_v2 {
 	}
 	
 	@Override
+	public void parseModuleStyleAttributes(Element xml) {}
+	
+	@Override
 	protected void parseStyles(Element stylesNode) {
 		StylesDTO result = SemiResponsiveStyles.parseXML(stylesNode);
 		

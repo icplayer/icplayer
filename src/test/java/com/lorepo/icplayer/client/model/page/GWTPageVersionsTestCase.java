@@ -36,7 +36,7 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	}
 		
 	private void loadPageInAwareFactory(Page page, String path) throws SAXException, IOException {
-		PageFactoryMockup factory= new PageFactoryMockup(page);
+		PageFactoryMockup factory = new PageFactoryMockup(page);
 		factory.produce(getFromFile(path), "");
 	}
 	
@@ -273,6 +273,7 @@ public class GWTPageVersionsTestCase extends GwtTest {
 		
 		String secondXML = pageV4.toXML();
 		XMLAssert.assertXMLEqual(firstXML, secondXML);
+		
 	}
 	
 	@Test 
