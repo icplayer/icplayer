@@ -55,7 +55,7 @@ public class SemiResponsiveStyles {
 	
 	public Element toXML() {
 		Element styles = XMLUtils.createElement("styles");
-		if (this.isNonEmpty(this.stylesClasses)) { 
+		if (this.isNonEmpty(this.stylesClasses)) {
 			Element styleClasses = this.hashMapToXMLList(this.stylesClasses, "styleClasses", "styleClass");
 			styles.appendChild(styleClasses);
 		}
@@ -73,11 +73,7 @@ public class SemiResponsiveStyles {
 		
 		for (String key : hashmap.keySet()) {
 			String value = hashmap.get(key);
-			if (value.compareTo("") == 0) {
-				continue;
-			}
 			String escapedValue = StringUtils.escapeXML(value);
-
 			
 			Element child = XMLUtils.createElement(childNodeName);
 			child.setAttribute("value", escapedValue);
@@ -89,17 +85,18 @@ public class SemiResponsiveStyles {
 	}
 	
 	private boolean isNonEmpty(HashMap<String, String> hashMapData) {
-		if (hashMapData.size() == 0) {
+		int length = hashMapData.size();
+		
+		if (length == 0) {
 			return false;
 		}
 		
-		for(String value : hashMapData.values()) {
-			if (value.trim().compareTo("") != 0) {
-				return true;
-			}
+		if (length == 1) {
+			String value = hashMapData.values().iterator().next();
+			return value.trim().compareTo("") != 0;
 		}
 		
-		return false;
+		return true;
 	}
 
 	public void syncStyles(Set<PageLayout> actualSemiResponsiveLayouts, String defaultSemiResponsiveID) {
@@ -203,10 +200,10 @@ public class SemiResponsiveStyles {
 
 		for(int i = 0; i < configuration.getLength(); i++) {
 			Node childNode = configuration.item(i);
-			if (childNode.getNodeName().compareTo("styleClasses") == 0 && childNode instanceof Element) {
+			if (childNode.getNodeName().compareTo("styleClasses") == 0 && childNode instanceof Element && childNode != null) {
 				HashMap<String, String> stylesClasses = SemiResponsiveStyles.parseHashMap(childNode, "styleClass");
 				result.setStylesClasses(stylesClasses);
-			} else if (childNode.getNodeName().compareTo("inlineStyles") == 0 && childNode instanceof Element) {
+			} else if (childNode.getNodeName().compareTo("inlineStyles") == 0 && childNode instanceof Element && childNode != null) {
 				HashMap<String, String> inlineStyles = SemiResponsiveStyles.parseHashMap(childNode, "inlineStyle");
 				result.setInlineStyles(inlineStyles);
 			}
@@ -221,7 +218,7 @@ public class SemiResponsiveStyles {
 		NodeList nodeList = keyValueNode.getChildNodes();
 		for(int i = 0; i < nodeList.getLength(); i++) {
 			Node child = nodeList.item(i);
-			if(child.getNodeName().compareTo(elementName) == 0 && child instanceof Element) {
+			if(child.getNodeName().compareTo(elementName) == 0 && child instanceof Element && child != null) {
 				Element childElement = (Element) child;
 				String layoutID = XMLUtils.getAttributeAsString(childElement, "layoutID");
 				String value = XMLUtils.getAttributeAsString(childElement, "value");
