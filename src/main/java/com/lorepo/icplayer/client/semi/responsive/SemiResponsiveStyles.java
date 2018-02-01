@@ -85,18 +85,17 @@ public class SemiResponsiveStyles {
 	}
 	
 	private boolean isNonEmpty(HashMap<String, String> hashMapData) {
-		int length = hashMapData.size();
-		
-		if (length == 0) {
+		if (hashMapData.size() == 0) {
 			return false;
 		}
-		
-		if (length == 1) {
-			String value = hashMapData.values().iterator().next();
-			return value.trim().compareTo("") != 0;
+
+		for(String value : hashMapData.values()) {
+			if (value.trim().compareTo("") != 0) {
+				return true;
+			}
 		}
-		
-		return true;
+
+		return false;
 	}
 
 	public void syncStyles(Set<PageLayout> actualSemiResponsiveLayouts, String defaultSemiResponsiveID) {
