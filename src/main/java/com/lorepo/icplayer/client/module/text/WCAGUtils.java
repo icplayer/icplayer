@@ -65,7 +65,8 @@ public class WCAGUtils {
 		return TextToSpeechVoice.create();
 	}
 	
-	private static String getCleanText (String text) {
+	public static String getCleanText (String text) {
+		// in old lessons some characters aren't escaped (e.g: > or <), in new lessons they are
 		HTML html = new HTML(text);		
 		final String noHTML = html.getText();
 		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if more than 1
