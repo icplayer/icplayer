@@ -21,8 +21,8 @@ function AddonBoard_Game_create(){
     presenter.currentTopValue = [];
     presenter.originalLeftValue = [];
     presenter.originalTopValue = [];
-    presenter.isSelectableCounter = model.selectableCounters;
-    presenter.isDisbaledDraggable = model.disableDragging;
+    presenter.isSelectableCounter = false;
+    presenter.isDisbaledDraggable = false;
     presenter.lastSelectedCounter = null;
     presenter.boardCounters = [];
     presenter.fields = [];
@@ -162,7 +162,7 @@ function AddonBoard_Game_create(){
                 ModelValidators.DumbInteger("Left"),
                 ModelValidators.DumbInteger("Width"),
                 ModelValidators.DumbInteger("Height"),
-                ModelValidators.CSSClass("cssClass", {empty: true})
+                ModelValidators.CSSClass("cssClass", {optional: true})
             ], function () {
                 return this.validatedModel['hasFields'];
             }),
@@ -357,46 +357,50 @@ function AddonBoard_Game_create(){
         presenter.$view = $(view);
         presenter.model = model;
 
-        if (presenter.validate(view, model)) {
-            presenter.init(view, model);
-            $(view).find('.board-game-element').draggable({ containment: "parent" });
-
-            var coordinations = {x: 0, y: 0};
-
-            var coordinatesContainer = $('<div></div>'),
-                xContainer = $('<div>x: <span class="value"></span></div>'),
-                yContainer = $('<div>y: <span class="value"></span></div>');
-            coordinatesContainer.addClass('coordinates');
-            coordinatesContainer.append(xContainer).append(yContainer);
-            $(view).find('.board-game-container').append(coordinatesContainer);
-
-            function setCalculatedPosition(e) {
-                coordinations.x = e.originalEvent.pageX || e.originalEvent.touches[0].pageX;
-                coordinations.y = e.originalEvent.pageY || e.originalEvent.touches[0].pageY;
-                presenter.mouseSX = parseInt(coordinations.x, 10) - parseInt($(view).find('.board-game-container').offset().left,10);
-                presenter.mouseSY = parseInt(coordinations.y, 10) - parseInt($(view).find('.board-game-container').offset().top,10);
-                xContainer.find('.value').html(presenter.mouseSX);
-                yContainer.find('.value').html(presenter.mouseSY);
-            }
-
-            var doesElementExist = function() {
-                var $moduleSelector = $('.moduleSelector[data-id="' + presenter.modelID + '"]');
-
-                if ($moduleSelector.length > 0) {
-                    $moduleSelector.on('mousemove', function(e) {
-                        setCalculatedPosition(e);
-                    });
-
-                    clearInterval(interval);
-                }
-            };
-
-            var interval = setInterval(function() { doesElementExist(); }, 500);
-
-            $(view).find('.board-game-container').on('mousemove', function(e) {
-                setCalculatedPosition(e);
-            });
+        var validatedModel = presenter.validateModel(model);
+        if (!validatedModel.isValid) {
+            presenter.showErrorMessage(view, validatedModel);
+            return;
         }
+
+        presenter.init(view, model);
+        $(view).find('.board-game-element').draggable({ containment: "parent" });
+
+        var coordinations = {x: 0, y: 0};
+
+        var coordinatesContainer = $('<div></div>'),
+            xContainer = $('<div>x: <span class="value"></span></div>'),
+            yContainer = $('<div>y: <span class="value"></span></div>');
+        coordinatesContainer.addClass('coordinates');
+        coordinatesContainer.append(xContainer).append(yContainer);
+        $(view).find('.board-game-container').append(coordinatesContainer);
+
+        function setCalculatedPosition(e) {
+            coordinations.x = e.originalEvent.pageX || e.originalEvent.touches[0].pageX;
+            coordinations.y = e.originalEvent.pageY || e.originalEvent.touches[0].pageY;
+            presenter.mouseSX = parseInt(coordinations.x, 10) - parseInt($(view).find('.board-game-container').offset().left,10);
+            presenter.mouseSY = parseInt(coordinations.y, 10) - parseInt($(view).find('.board-game-container').offset().top,10);
+            xContainer.find('.value').html(presenter.mouseSX);
+            yContainer.find('.value').html(presenter.mouseSY);
+        }
+
+        var doesElementExist = function() {
+            var $moduleSelector = $('.moduleSelector[data-id="' + presenter.modelID + '"]');
+
+            if ($moduleSelector.length > 0) {
+                $moduleSelector.on('mousemove', function(e) {
+                    setCalculatedPosition(e);
+                });
+
+                clearInterval(interval);
+            }
+        };
+
+        var interval = setInterval(function() { doesElementExist(); }, 500);
+
+        $(view).find('.board-game-container').on('mousemove', function(e) {
+            setCalculatedPosition(e);
+        });
 
     };
 

@@ -382,7 +382,7 @@
 
     function generateErrorCode(code) {
         return {
-            isValid: true,
+            isValid: false,
             errorCode: code,
             value: undefined
         };
@@ -489,6 +489,10 @@
                 config = [];
             }
 
+            if (config === undefined) {
+                config = {};
+            }
+
             var validationFunction = function (model, validatedModel) {
                 if (shouldValidateFunction && !shouldValidateFunction.call(this, validatedModel)) {
                     return {
@@ -497,7 +501,13 @@
                     };
                 }
 
-                return fn.call(this, model, config);
+                var retVal = fn.call(this, model, config);
+                if (!retVal.isValid) {
+                    retVal.fieldName = (retVal.fieldName || []);
+                    retVal.fieldName = [name].concat(retVal.fieldName);
+                }
+
+                return retVal;
             };
 
             validationFunction.fieldName = name;
@@ -518,9 +528,9 @@
          * @class Boolean
          * @extends ModelValidators.Validator
          */
-        Boolean: validatorDecorator(function (valueToValidate, config) {
+        Boolean: function (valueToValidate, config) {
             return this.generateValidValue(valueToValidate === "True");
-        }),
+        },
 
         /**
          * Unvalidated integer is trying to parse integer by parseInt instruction.
@@ -528,9 +538,101 @@
          * @class DumbInteger
          * @extends ModelValidators.Validator
          */
-        DumbInteger: validatorDecorator(function (valueToValidate, config) {
+        DumbInteger: function (valueToValidate, config) {
             return this.generateValidValue(parseInt(valueToValidate, 10));
-        }),
+        },
+
+        /**
+         * Check if passed value is valid integer. Can be checked if value is in <minValue; maxValue>
+         * config: {
+         *      optional?: Boolean
+         *      maxValue?: Number(providedValue > maxValue),
+         *      minValue?: Number(providedValue < minValue,
+         *      default?: Number<Default: 0>
+         * }
+         *
+         * errorCodes:
+         * INT01: Provided value is empty
+         * INT02: Provided value contains non numerical characters
+         * INT03: Provided value is too large
+         * INT04: Provided value it too small
+         * @namespace ModelValidators
+         * @class Integer
+         * @extends ModelValidators.Validator
+         */
+        Integer: function (valueToValidate, config) {
+            var isOptional = config['optional'],
+                minValue = config['minValue'],
+                maxValue = config['maxValue'],
+                defaultValue = config['default'] === undefined ? 0 : config['default'];
+
+            if (maxValue === undefined || maxValue === null) {
+                maxValue = Number.MAX_VALUE;
+            }
+
+            if (minValue === undefined || minValue === null) {
+                minValue = Number.MIN_VALUE;
+            }
+
+            if (isOptional && valueToValidate.trim() === "") {
+                return this.generateValidValue(defaultValue);
+            }
+
+            if (valueToValidate.trim() === "") {
+                return this.generateErrorCode("INT01");
+            }
+
+            if (!/^[-]?[0-9]+$/.test(valueToValidate)) {
+                return this.generateErrorCode("INT02");
+            }
+
+            var value = parseInt(valueToValidate, 10);
+
+            if (value > maxValue) {
+                return this.generateErrorCode("INT03");
+            }
+
+            if (value < minValue) {
+                return this.generateErrorCode("INT04");
+            }
+
+            return this.generateValidValue(value);
+        },
+
+        /**
+         * Check if passed value is valid string.
+         * config: {
+         *      optional?: Boolean,
+         *      trim?: Boolean
+         * }
+         *
+         * errorCodes:
+         * STR01: Provided value is empty
+         * @namespace ModelValidators
+         * @class String
+         * @extends ModelValidators.Validator
+         */
+        String: function (valueToValidate, config) {
+            var isOptional = config['optional'] || false,
+                trim = config['trim'] || true,
+                defaultValue = config['default'] === undefined ? 0 : config['default'];
+
+            var value = valueToValidate;
+
+            if (trim) {
+                value = value.trim();
+            }
+
+            if (!isOptional && value === "") {
+                return this.generateErrorCode("STR01");
+            }
+
+            if (isOptional && value === "") {
+                return this.generateValidValue(defaultValue);
+            }
+
+            return this.generateValidValue(value);
+        },
 
         /**
          * Unvalidated integer is trying to parse integer by parseInt instruction.
@@ -538,22 +640,30 @@
          * @class DumpString
          * @extends ModelValidators.Validator
          */
-        DumbString: validatorDecorator(function (valueToValidate, config) {
+        DumbString: function (valueToValidate, config) {
             return this.generateValidValue(valueToValidate);
-        }),
+        },
 
         /**
          * Check if provided string is valid css class name
+         * config: {
+         *      optional?: Boolean
+         * }
+         *
+         * Error Codes:
+         * CSS01: Provided css is not valid css
+         *
+         *
          * @namespace ModelValidators
          * @class CSSClass
          * @extends ModelValidators.Validator
          * @param {{empty: Boolean}} config if css class can be empty set empty as true
          */
-        CSSClass: validatorDecorator(function (valueToValidate, config) {
+        CSSClass: function (valueToValidate, config) {
             valueToValidate = valueToValidate.trim();
 
-            if (config.empty) {
-                if (valueToValidate === '') {
+            if (config['optional']) {
+                if (valueToValidate.trim() === '') {
                     return this.generateValidValue('');
                 }
             }
@@ -565,7 +675,7 @@
             }
 
             return this.generateValidValue(valueToValidate);
-        }),
+        },
 
         /**
          * Validate list. As configuration should receive list of validators for each field in list row.
@@ -573,7 +683,7 @@
          * @class List
          * @extends ModelValidators.Validator
          */
-        List: validatorDecorator(function (valueToValidate, config) {
+        List: function (valueToValidate, config) {
             var validatedList = [];
             for (var i = 0; i < valueToValidate.length; i++) {
                 var validatedValue = this.validateModel(valueToValidate[i], config);
@@ -585,9 +695,15 @@
             }
 
             return this.generateValidValue(validatedList);
-        })
+        }
     };
 
+    var decoratedValidators = {};
+
+    for (var validatorName in ModelValidators) {
+        decoratedValidators[validatorName] = validatorDecorator(ModelValidators[validatorName]);
+    }
+
     window.ModelValidator = ModelValidator;
-    window.ModelValidators = ModelValidators;
+    window.ModelValidators = decoratedValidators;
 })(window);
