@@ -1,3 +1,4 @@
+2018-02-06 Fixed issues with scaling in Drawing
 2018-02-01 Fixed issue with saving empty inlineStyles or classStyles.
 2018-01-30 Added alt text for images added by RichTextEditor and for Memogame.
 2018-01-30 Fixed Double State Button not activating on keyboard input.
