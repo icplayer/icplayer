@@ -158,7 +158,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	public native static String getElement(String text) /*-{		
 		var isLatex = false;
 		var element;
-		
+		console.log("test 2");
 		if(text.indexOf("\\(") > -1 && text.indexOf("\\)") > -1){
 			var newText = text.replace("\\(", "").replace("\\)", "");
 			text = newText;
