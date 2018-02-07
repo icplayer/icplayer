@@ -158,22 +158,16 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	public native static String getElement(String text) /*-{		
 		var isLatex = false;
 		var element;
-		console.log("test 2");
+
 		if(text.indexOf("\\(") > -1 && text.indexOf("\\)") > -1){
 			var newText = text.replace("\\(", "").replace("\\)", "");
 			text = newText;
 			isLatex = true;
-			element = $wnd.$("#_icplayer").find('*[class*="sourceList"]').children().filter(function(){ return $wnd.$(this).clone().children().remove('.MathJax').end().text() == text;});
+			element = $wnd.$("#_icplayer").find('.ic_sourceListItem').filter(function(){ return $wnd.$(this).clone().children().remove('.MathJax').end().text() == text;});
 		}else{
-			element = $wnd.$("#_icplayer").find('*[class*="sourceList"]').children().filter(function(){ return $wnd.$(this).text() == text;});
+			element = $wnd.$("#_icplayer").find('.ic_sourceListItem').filter(function(){ return $wnd.$(this).text() == text;});
 		}
-		
-		element.each(function () {
-			if($wnd.$(this).hasClass("ic_sourceListItem")){
-				element = $wnd.$(this).clone();
-			}
-		});
-		
+
 		var helper = $wnd.$(element[0]).clone();
 		helper.css("display", "inline-block");
 		helper.addClass("ic_sourceListItem-selected");
@@ -213,8 +207,8 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			answerText = StringUtils.removeAllFormatting(text);
 			droppedElementHelper = getElement(text);
 			setStylePrimaryName(FILLED_GAP_STYLE);
-			if(getElement(text).length() != 0 && !isShowAnswersMode){
-				JavaScriptUtils.makeDroppedDraggableText(getElement(), getAsJavaScript(), getElement(text));
+			if(droppedElementHelper.length() != 0 && !isShowAnswersMode){
+				JavaScriptUtils.makeDroppedDraggableText(this.getElement(), getAsJavaScript(), droppedElementHelper);
 			}
 		}
 
