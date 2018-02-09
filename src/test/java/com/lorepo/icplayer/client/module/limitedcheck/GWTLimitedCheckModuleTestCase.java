@@ -78,7 +78,6 @@ public class GWTLimitedCheckModuleTestCase extends GwtTest {
 		
 		resultXML = module.modelToXML().toString();
 		
-		System.out.println(resultXML);
 		
 		Diff diff = new Diff(testXML, resultXML);
 		

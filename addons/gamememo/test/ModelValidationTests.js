@@ -33,7 +33,7 @@ TestCase("[Gamememo] Model validation tests", {
    },
 
     'test should set isTabindexEnabled to true': function () {
-        var configuration = this.presenter.readConfiguration(this.model);
+        var configuration = this.presenter.validateModel(this.model);
 
         assertFalse(configuration.isError);
         assertTrue(configuration.isTabindexEnabled);
@@ -42,7 +42,7 @@ TestCase("[Gamememo] Model validation tests", {
     'test should set isTabindexEnabled to false': function () {
         this.model['Is Tabindex Enabled'] = "False";
 
-        var configuration = this.presenter.readConfiguration(this.model);
+        var configuration = this.presenter.validateModel(this.model);
 
         assertFalse(configuration.isError);
         assertFalse(configuration.isTabindexEnabled);

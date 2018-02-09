@@ -24,6 +24,7 @@ function AddonZoom_Image_create() {
         $image.attr("width", presenter.configuration.width);
         $image.attr("alt", presenter.configuration.alt);
         presenter.$view.find("div.content").append($image);
+        if ( presenter.configuration.isTabindexEnabled) {$image.attr('tabindex', '0');}
     }
 
     presenter.ERROR_CODES = {
@@ -60,6 +61,8 @@ function AddonZoom_Image_create() {
 
         var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
 
+        var isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
+
         return {
             bigImage: validatedBigImage.value,
             smallImage: validatedSmallImage.value,
@@ -69,7 +72,8 @@ function AddonZoom_Image_create() {
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
             isValid: true,
-            alt: model['Alternative text']
+            alt: model['Alternative text'],
+            isTabindexEnabled: isTabindexEnabled
         }
     };
 

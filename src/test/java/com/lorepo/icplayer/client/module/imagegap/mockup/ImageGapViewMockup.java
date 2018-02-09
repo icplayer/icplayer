@@ -139,4 +139,16 @@ public class ImageGapViewMockup implements IDisplay {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public void setAltText(String alt) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void clearAltText() {
+		// TODO Auto-generated method stub
+		
+	}
 }
