@@ -123,7 +123,7 @@ function AddonText_To_Speech_create() {
         for (var i = 0; i < presenter.configuration.addOnsConfiguration.length; i++) {
             var conf = presenter.configuration.addOnsConfiguration[i];
 
-            if (conf.id === id && conf.area === area) {
+            if (conf.id === id && conf.area.toLowerCase() === area.toLowerCase()) {
                 return conf;
             }
         }
@@ -237,7 +237,15 @@ function AddonText_To_Speech_create() {
 
     }
 
-    presenter.speak = function (texts) {
+    // The speak method is overloaded:
+    // texts argument can be either an array of TextVoiceObjects, or a String
+    // langTag argument is optional and only used when texts is a String
+    presenter.speak = function (texts, langTag) {
+        var class_ = Object.prototype.toString.call(texts);
+        if (class_.indexOf('String') !== -1) {
+            texts = [getTextVoiceObject(texts, langTag)];
+        }
+
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts);
             return;
@@ -296,9 +304,20 @@ function AddonText_To_Speech_create() {
         var commands = {
             "show": presenter.show,
             "hide": presenter.hide,
-
-            "speak": presenter.speak,
-            "playTitle": presenter.playTitle,
+            "speak": function(params) {
+                    if (params.length === 2) {
+                        presenter.speak(params[0], params[1]);
+                    } else if (params.length === 1) {
+                        presenter.speak(params[0]);
+                    }
+                },
+            "playTitle": function(params) {
+                    if (params.length === 3) {
+                        presenter.playTitle(params[0],params[1],params[2]);
+                    } else if (params.length === 2) {
+                        presenter.playTitle(params[0],params[1]);
+                    }
+                },
             "playEnterText": presenter.playEnterText,
             "playExitText": presenter.playExitText,
             "getModulesOrder": presenter.getModulesOrder
