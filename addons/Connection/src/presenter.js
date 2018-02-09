@@ -645,8 +645,13 @@ function AddonConnection_create() {
                     },
                     start: function (event, ui) {
                         ui.helper.css("visibility", "hidden");
-                        presenter.iconTop = $(e).find(".iconWrapper").position().top + ($(e).find(".iconWrapper").height()/2);
-                        presenter.iconLeft = $(e).find(".iconWrapper").position().left + $(e).find(".iconWrapper").width();
+                        var $iconWrapper = $(e).find(".iconWrapper");
+
+                        var scale = MobileUtils.getScale();
+
+                        presenter.iconTop = $iconWrapper.position().top / scale.Y + ($iconWrapper.height()/2);
+                        presenter.iconLeft = $iconWrapper.position().left / scale.X +  $iconWrapper.width();
+
 
                         if (!isSelectionPossible) {
                             event.stopPropagation();
@@ -675,7 +680,9 @@ function AddonConnection_create() {
                         presenter.mouseSX = parseInt(event.pageX,10) - parseInt($(presenter.view).offset().left,10);
                         presenter.mouseSY = parseInt(event.pageY,10) - parseInt($(presenter.view).offset().top,10);
 
-                        presenter.drawTempLine(presenter.mouseSX, presenter.mouseSY);
+                        var scale = MobileUtils.getScale();
+
+                        presenter.drawTempLine(presenter.mouseSX / scale.X, presenter.mouseSY / scale.Y);
                     },
                     stop: function (event, ui) {
                         ui.helper.zIndex(0);
@@ -947,12 +954,12 @@ function AddonConnection_create() {
         var offset = element.offset();
         var snapPoint = [0, 0];
         if (element.parents('.connectionLeftColumn').length > 0) {
-            snapPoint = [offset.left + element.outerWidth(true), offset.top + element.outerHeight() / 2]
+            snapPoint = [offset.left + element.outerWidth(true), offset.top + element.outerHeight() / 2];
         }
         if (element.parents('.connectionRightColumn').length > 0) {
-            snapPoint = [offset.left, offset.top + element.outerHeight() / 2]
+            snapPoint = [offset.left, offset.top + element.outerHeight() / 2];
         }
-        return snapPoint
+        return snapPoint;
     }
 
     function pushConnection(line, isPreview) {
@@ -1488,7 +1495,6 @@ function AddonConnection_create() {
 
             if (connections.length) {
                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.connectedTo, ''));
-                console.log(TextVoiceArray);
                 TextVoiceArray = TextVoiceArray.concat(getConnectionsInfo(connections));
             }
 

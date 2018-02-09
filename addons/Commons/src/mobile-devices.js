@@ -96,6 +96,24 @@
         },
 
         /**
+         Recognizes if window_navigator is Windows mobile device
+         @method getScale
+
+         @return {Object} True if window_navigator is Windows mobile device
+         */
+
+        getScale: function getScale() {
+            var $content = $("#content"); // the div transform css is attached to
+            if($content.size()>0){
+                var contentElem = $content[0];
+                var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+                var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+                return {X:scaleX, Y:scaleY};
+            };
+            return {X:1.0, Y:1.0};
+        },
+
+        /**
          Recognizes if eventName is supported on current device
          @method isEventSupported
 
