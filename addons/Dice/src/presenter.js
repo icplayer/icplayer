@@ -9,6 +9,7 @@ function AddonDice_create() {
         "initialItem_INT04": "Initial length must be positive",
         "initialItem_INI01": "Initial item cant be bigger than elements count",
         "elementsList|number_INT02": "Element value in list is not valid integer"
+
     };
 
     presenter.configuration = {
@@ -32,9 +33,9 @@ function AddonDice_create() {
         view: null,
         rolledElement: -1,
         isVisible: false,
-        disabledByEvent: false
+        disabledByEvent: false,
+        worksWith: null
     };
-
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
@@ -45,6 +46,8 @@ function AddonDice_create() {
         presenter.initialize(view, model);
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
+
+        presenter.diceKeyboardController = new DiceKeyboardController();
     };
 
     presenter.createPreview = function (view, model) {
@@ -62,7 +65,8 @@ function AddonDice_create() {
                 ModelValidators.Integer("number", {optional: true, default: null}),
                 ModelValidators.String("image", {trim: true, optional: true, default: null})
             ]),
-            ModelValidators.Boolean("Is Visible")
+            ModelValidators.Boolean("Is Visible"),
+            ModelValidators.String("worksWith", {optional: true, default: null})
         ]);
 
         if (!validatedModel.isValid) {
@@ -163,6 +167,8 @@ function AddonDice_create() {
     presenter.initialize = function (view, model)  {
         var validatedModel = presenter.validateModel(model);
 
+        console.log(validatedModel);
+
         if (!validatedModel.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.fieldName.join("|") + "_" + validatedModel.errorCode);
             return;
@@ -175,7 +181,6 @@ function AddonDice_create() {
         presenter.state.isDisabled = presenter.configuration.isDisabled;
         presenter.state.view = view;
         presenter.state.isVisible = presenter.configuration['Is Visible'];
-        console.log(presenter.configuration['Is Visible']);
 
         presenter.buildElements();
         presenter.loadImages();
@@ -199,6 +204,15 @@ function AddonDice_create() {
         });
     };
 
+    presenter.callExternalAddon = function (distance) {
+        if (presenter.configuration.worksWith !== null) {
+            var module = presenter.playerController.getModule(presenter.configuration.worksWith);
+            if (module) {
+                module.diceExecute(distance + 1);
+            }
+        }
+    };
+
     presenter.onDiceRoll = function (isLast) {
         var element = presenter.setRandomElement();
 
@@ -209,6 +223,8 @@ function AddonDice_create() {
             presenter.state.elements.forEach(function (element) {
                 element.classList.remove('isRolling');
             });
+
+            presenter.callExternalAddon(element);
         }
     };
 
@@ -357,5 +373,21 @@ function AddonDice_create() {
         };
         Commands.dispatch(commands, name, params, presenter);
     };
+
+    function DiceKeyboardController() {
+        KeyboardController.call(this, $(presenter.state.view), 1);
+    }
+
+    DiceKeyboardController.prototype = Object.create(KeyboardController.prototype);
+    DiceKeyboardController.prototype.constructor = DiceKeyboardController;
+
+    DiceKeyboardController.prototype.selectAction = function () {
+        presenter.roll();
+    };
+
+    presenter.keyboardController = function (keyCode, isShift) {
+        presenter.diceKeyboardController.handle(keyCode, isShift);
+    };
+
     return presenter;
 }

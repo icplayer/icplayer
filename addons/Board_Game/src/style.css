@@ -16,3 +16,14 @@
     background-color:blue;
     opacity: 0.3;
 }
+
+.board-game-field.game {
+    background-color: transparent;
+    opacity: 1;
+}
+
+.board-game-element.game {
+    position: static!important;
+    float: left;
+    box-sizing: border-box;
+}

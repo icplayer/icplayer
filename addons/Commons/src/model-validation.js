@@ -457,7 +457,10 @@
 
                     validatedModel[modelFieldName] = validationResult.value;
                 } else {
-                    return generateErrorCode("UMF01");
+                    var errorCode = generateErrorCode("UMF01");
+                    errorCode.fieldName = [modelFieldName];
+
+                    return errorCode;
                 }
             }
 
@@ -515,7 +518,6 @@
             return validationFunction;
         }
     }
-
 
     /**
      * Container for each model validator.
@@ -695,6 +697,40 @@
             }
 
             return this.generateValidValue(validatedList);
+        },
+
+        /**
+         * Validate possible value in enum.
+         * @namespace ModelValidators
+         * @class Enum
+         * @extends ModelValidators.Validator
+         */
+        Enum: function (valueToValidate, config) {
+            var possibleValues = config.values || [];
+            var useLowerCase = config.useLowerCase || false;
+            var defaultValue = config['default'] || "";
+
+            if (defaultValue === "") {
+                if (possibleValues.length > 0) {
+                    defaultValue = possibleValues[0];
+                }
+            }
+
+            if (useLowerCase) {
+                valueToValidate = valueToValidate.toLowerCase();
+            }
+
+            if (defaultValue !== "" && valueToValidate === "") {
+                return this.generateValidValue(valueToValidate);
+            }
+
+            for (var i = 0; i < possibleValues.length; i++) {
+                if (possibleValues[i] === valueToValidate) {
+                    return this.generateValidValue(valueToValidate);
+                }
+            }
+
+            return this.generateErrorCode("EV01");
         }
     };
 

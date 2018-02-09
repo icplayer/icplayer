@@ -18,7 +18,6 @@
             <property name="Height" nameLabel="Board_game_property_height" type="string"/>
         </property>
         <property name="isDisabled" nameLabel="Board_game_property_is_disable" type="boolean"/>
-        <property name="disableDragging" displayName="Disable Dragging" nameLabel="Board_game_property_disable_dragging" type="boolean"/>
-        <property name="selectableCounters" displayName="Selectable counters" nameLabel="Board_game_property_selectable_counters" type="boolean"/>
+        <property name="gameMode" nameLabel="Board_game_property_game_mode" type="{Free,Game}"/>
 	</model>
 </addon>

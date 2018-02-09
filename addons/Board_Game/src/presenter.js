@@ -6,7 +6,8 @@ function AddonBoard_Game_create(){
     presenter.ERROR_CODES = {
         'F01': 'Field is outside of addon!',
         'I01': 'Element is outside of addon!',
-        "CSS01": "Provided css class name is not valid class name"
+        "CSS01": "Provided css class name is not valid class name",
+        "EV01": "Provided game type is not valid",
     };
 
     presenter.currentElement = 0;
@@ -21,11 +22,14 @@ function AddonBoard_Game_create(){
     presenter.currentTopValue = [];
     presenter.originalLeftValue = [];
     presenter.originalTopValue = [];
-    presenter.isSelectableCounter = false;
-    presenter.isDisbaledDraggable = false;
     presenter.lastSelectedCounter = null;
     presenter.boardCounters = [];
     presenter.fields = [];
+    presenter.gameTypes = {
+        GAME: "Game",
+        FREE: "Free"
+    };
+    presenter.counterPositions = [];
     
 
 
@@ -68,7 +72,6 @@ function AddonBoard_Game_create(){
         if(model.hasFields){
             for(i = 0; i < presenter.fieldsLength; i++){
                 fig += '<div id="Field' + (i + 1) + '" class="board-game-field" style=""></div>';
-                // fig += '<div class="board-game-field-container" style=""></div>';
             }
         }
         for(i = 0; i < model.Images.length; i++){
@@ -99,12 +102,8 @@ function AddonBoard_Game_create(){
             model["isDisabled"] = false;
         }
 
-        if (!model["disableDragging"]) {
-            model["disableDragging"] = false;
-        }
-
-        if (!model["selectableCounters"]) {
-            model["selectableCounters"] = false;
+        if (!model["gameMode"]) {
+            model["gameMode"] = "Free";
         }
 
         model = presenter.upgradeFields(model);
@@ -174,13 +173,12 @@ function AddonBoard_Game_create(){
                 ModelValidators.DumbString("PawnImage")
             ]),
             ModelValidators.Boolean("isDisabled"),
-            ModelValidators.Boolean("disableDragging"),
-            ModelValidators.Boolean("selectableCounters"),
             ModelValidators.DumbInteger("Width"),
             ModelValidators.DumbInteger("Height"),
             ModelValidators.DumbString("ID"),
             ModelValidators.Boolean("Is Visible"),
-            ModelValidators.DumbString("Background")
+            ModelValidators.DumbString("Background"),
+            ModelValidators.String("gameMode", {values: ["Free", "Game"], useLowerCase: false})
         ]);
 
         if (!validatedModel.isValid) {
@@ -206,10 +204,10 @@ function AddonBoard_Game_create(){
 
     };
 
-    presenter.selectCounter = function (element) {
+    presenter.selectCounter = function (element, index) {
         presenter.deselectLastCounter();
 
-        presenter.lastSelectedCounter = element;
+        presenter.lastSelectedCounter = index;
 
         element.classList.add('board-game-selected')
     };
@@ -219,17 +217,24 @@ function AddonBoard_Game_create(){
             return;
         }
 
-        presenter.lastSelectedCounter.classList.remove('board-game-selected')
+        presenter.boardCounters[presenter.lastSelectedCounter].classList.remove('board-game-selected');
     };
 
     presenter.connectHandlers = function () {
-        if (presenter.isSelectableCounter) {
-            presenter.boardCounters.on('click', function () {
-                presenter.selectCounter(this);
+        if (presenter.gameMode === presenter.gameTypes.GAME) {
+            presenter.boardCounters.each(function (index, element) {
+                $(element).on('click', function () {
+                    if (presenter.isDisable || presenter.showErrorsMode || presenter.showAnswersMode) {
+                        return;
+                    }
+
+                    presenter.selectCounter(this, index);
+                });
             });
         }
 
-        if (!presenter.isDisbaledDraggable) {
+        if (presenter.gameMode === presenter.gameTypes.FREE) {
+
             presenter.$view.find('.board-game-field').droppable({
                 drop: function (e, ui) {
                     presenter.checkRevert(this);
@@ -263,10 +268,9 @@ function AddonBoard_Game_create(){
         presenter.hasFields = model.hasFields;
         presenter.wasVisible = model["Is Visible"];
         presenter.isVisible = model["Is Visible"];
-        presenter.fieldsLength = model.Fields.length;
+        presenter.fieldsLength = model.Fields ? model.Fields.length : 0 ;
         presenter.imagesLength = model.Images.length;
-        presenter.isSelectableCounter = model.selectableCounters;
-        presenter.isDisbaledDraggable = model.disableDragging;
+        presenter.gameMode = model.gameMode;
 
         presenter.lastSelectedCounter = null;
 
@@ -279,9 +283,9 @@ function AddonBoard_Game_create(){
 
         presenter.boardCounters = presenter.$view.find('.board-game-element');
         presenter.fields = presenter.$view.find('.board-game-field');
-
         var i;
-        if(presenter.hasFields){
+
+        if(presenter.hasFields || presenter.gameMode === presenter.gameTypes.GAME){
             for(i = 0; i < presenter.fieldsLength; i++) {
                 $(presenter.fields[i]).css({
                     'width' : model.Fields[i].Width + "px",
@@ -289,28 +293,45 @@ function AddonBoard_Game_create(){
                     'top' : model.Fields[i].Top + "px",
                     'left' : model.Fields[i].Left + "px"
                 });
-                //
-                // $(presenter.$view.find('.board-game-field-container')[i]).css({
-                //     'width' : model.Fields[i].Width + "px",
-                //     'height' : model.Fields[i].Height + "px",
-                //     'top' : model.Fields[i].Top + "px",
-                //     'left' : model.Fields[i].Left + "px"
-                // });
             }
         }
 
         presenter.setElementsPosition(presenter.originalLeftValue, presenter.originalTopValue);
 
-
         presenter.connectHandlers();
 
-        if (presenter.isSelectableCounter) {
-            presenter.selectCounter(presenter.boardCounters[0]);
+        if (presenter.gameMode === presenter.gameTypes.GAME) {
+            presenter.selectCounter(presenter.boardCounters[0], 0);
         }
-    };
 
-    presenter.moveSelectedCounter = function (count) {
+        if (presenter.gameMode === presenter.gameTypes.GAME) {
+            for(i = 0; i < presenter.boardCounters.length; i++) {
+                presenter.counterPositions.push(0);
 
+                presenter.boardCounters[i].classList.add('game');
+                presenter.fields[0].appendChild(presenter.boardCounters[i]);
+            }
+
+            for(i = 0; i < presenter.fieldsLength; i++) {
+                presenter.fields[i].classList.add("game");
+            }
+        }
+
+        var elementsToNavigation = [];
+        presenter.boardCounters.each(function (index, element) {
+            elementsToNavigation.push($(element));
+        });
+
+        if (presenter.gameMode === presenter.gameTypes.GAME) {
+            presenter.boardGameKeyboardController = new BoardGameGameModeKeyboardController(elementsToNavigation);
+        } else {
+            presenter.boardGameKeyboardController = new BoardGameFreeModeKeyboardController(elementsToNavigation);
+            presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_LEFT] = presenter.boardGameKeyboardController.left;
+            presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_RIGHT] = presenter.boardGameKeyboardController.right;
+            presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_UP] = presenter.boardGameKeyboardController.up;
+            presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_DOWN] = presenter.boardGameKeyboardController.down;
+            presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.TAB] = presenter.boardGameKeyboardController.tab;
+        }
     };
 
     presenter.showErrorMessage = function (view, error) {
@@ -618,6 +639,124 @@ function AddonBoard_Game_create(){
     presenter.triggerFrameChangeEvent = function(eventItem, eventValue) {
         var eventData = presenter.createEventData(eventItem, eventValue);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.move = function (distance) {
+        if (presenter.isDisable || presenter.showErrorsMode || presenter.showAnswersMode) {
+            return;
+        }
+
+        if (presenter.gameMode !== presenter.gameTypes.GAME) {
+            return;
+        }
+
+        var counterElementToMove = presenter.boardCounters[presenter.lastSelectedCounter],
+            counterPosition = presenter.counterPositions[presenter.lastSelectedCounter],
+            newCounterPosition = Math.min(presenter.fields.length - 1, counterPosition + distance);
+
+        newCounterPosition = Math.max(0, newCounterPosition);
+
+        presenter.counterPositions[presenter.lastSelectedCounter] = newCounterPosition;
+        presenter.fields[newCounterPosition].appendChild(counterElementToMove);
+    };
+
+    presenter.diceExecute = function (distance) {
+        presenter.move(distance);
+    };
+
+    // Game mode controller
+
+    function BoardGameGameModeKeyboardController(elements) {
+        KeyboardController.call(this, elements, elements.length);
+    }
+    BoardGameGameModeKeyboardController.prototype = Object.create(KeyboardController.prototype);
+    BoardGameGameModeKeyboardController.prototype.constructor = BoardGameGameModeKeyboardController;
+
+    //Free mode controller
+
+    /**
+     * Get clientX and clientY positions based on element position
+     * @param {jQuery} $element
+     * @returns {{left: number, top: number}}
+     */
+    function getElementPosition ($element) {
+        var top = $element.offset().top - document.documentElement.scrollTop,
+            left = $element.offset().left - document.documentElement.scrollLeft;
+
+        return {
+            left: left,
+            top: top
+        };
+    }
+
+    /**
+     * Build mouse event for simulating drag n drop
+     * @param {"mousedown"|"mouseup"|"mousemove"} type
+     * @param position {{top: Number, left: Number}}
+     * @returns {MouseEvent}
+     */
+    function buildMouseEvent(type, position) {
+        var event = document.createEvent("MouseEvent");
+        event.initMouseEvent(type, true, true, window, 1, 0, 0, position.left, position.top, false, false, false, false, 0, null);
+
+        return event;
+    }
+
+    function BoardGameFreeModeKeyboardController(elements) {
+        KeyboardController.call(this, elements, elements.length);
+    }
+
+    BoardGameFreeModeKeyboardController.prototype = Object.create(KeyboardController.prototype);
+    BoardGameFreeModeKeyboardController.prototype.constructor = BoardGameFreeModeKeyboardController;
+
+    BoardGameFreeModeKeyboardController.prototype.left = function () {
+        var position = getElementPosition(this.keyboardNavigationCurrentElement);
+        position.left -= 2;
+
+        var event = buildMouseEvent("mousemove", position);
+        this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
+    };
+
+    BoardGameFreeModeKeyboardController.prototype.right = function () {
+        var position = getElementPosition(this.keyboardNavigationCurrentElement);
+        position.left += 2;
+
+        var event = buildMouseEvent("mousemove", position);
+        this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
+    };
+
+    BoardGameFreeModeKeyboardController.prototype.up = function () {
+        var position = getElementPosition(this.keyboardNavigationCurrentElement);
+        position.top -= 2;
+
+        var event = buildMouseEvent("mousemove", position);
+        this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
+    };
+
+    BoardGameFreeModeKeyboardController.prototype.down = function () {
+        var position = getElementPosition(this.keyboardNavigationCurrentElement);
+        position.top += 2;
+
+        var event = buildMouseEvent("mousemove", position);
+        this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
+    };
+
+    BoardGameFreeModeKeyboardController.prototype.tab = function (ev) {
+        var position = getElementPosition(this.keyboardNavigationCurrentElement),
+            event = buildMouseEvent("mouseup", position);
+
+        this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
+
+        KeyboardController.prototype.nextElement.call(this, ev);
+
+        position = getElementPosition(this.keyboardNavigationCurrentElement);
+        event = buildMouseEvent("mousedown", position);
+
+        this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
+    };
+
+    presenter.keyboardController = function (keyCode, isShiftDown, originalEvent) {
+        presenter.boardGameKeyboardController.handle(keyCode, isShiftDown);
     };
 
     return presenter;
