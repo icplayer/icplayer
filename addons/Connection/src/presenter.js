@@ -959,6 +959,8 @@ function AddonConnection_create() {
         if (element.parents('.connectionRightColumn').length > 0) {
             snapPoint = [offset.left, offset.top + element.outerHeight() / 2];
         }
+
+        console.log('snapPoint ' + snapPoint);
         return snapPoint;
     }
 
@@ -1024,7 +1026,6 @@ function AddonConnection_create() {
     }
 
     function redrawShowAnswers () {
-        connections.width = connections.width;
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), showAnswersColor)
@@ -1032,10 +1033,12 @@ function AddonConnection_create() {
     }
 
     function drawLine(line, color) {
-        connections.width = connections.width;
         var from = getElementSnapPoint(line.from);
         var to = getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
+
+        console.log({x1: to[0] - canvasOffset.left, y1: to[1] - canvasOffset.top,
+            x2: from[0] - canvasOffset.left, y2: from[1] - canvasOffset.top});
         connections.drawLine({
             strokeStyle: color,
             strokeWidth: connectionThickness,
@@ -1050,8 +1053,6 @@ function AddonConnection_create() {
             presenter.hideAnswers();
         }
         if (isNotActivity) return 0;
-
-        connections.width = connections.width;
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
