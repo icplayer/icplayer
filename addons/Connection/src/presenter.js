@@ -952,15 +952,19 @@ function AddonConnection_create() {
 
     function getElementSnapPoint(element) {
         var offset = element.offset();
+
+        var scale = MobileUtils.getScale();
+
         var snapPoint = [0, 0];
         if (element.parents('.connectionLeftColumn').length > 0) {
-            snapPoint = [offset.left + element.outerWidth(true), offset.top + element.outerHeight() / 2];
+            snapPoint = [offset.left + element.outerWidth(true) / scale.X, offset.top + element.outerHeight() / 2 / scale.Y];
         }
         if (element.parents('.connectionRightColumn').length > 0) {
-            snapPoint = [offset.left, offset.top + element.outerHeight() / 2];
+            snapPoint = [offset.left, offset.top + element.outerHeight() / 2 / scale.Y];
         }
+        console.log(element);
+        console.log('snapPoint:', snapPoint);
 
-        console.log('snapPoint ' + snapPoint);
         return snapPoint;
     }
 
@@ -1016,7 +1020,7 @@ function AddonConnection_create() {
             });
 
             connections = $(presenter.view).find('.connections');
-        }else{
+        } else{
             connections.clearCanvas();
         }
 
