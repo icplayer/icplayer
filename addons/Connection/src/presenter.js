@@ -647,7 +647,7 @@ function AddonConnection_create() {
                         ui.helper.css("visibility", "hidden");
                         var $iconWrapper = $(e).find(".iconWrapper");
 
-                        var scale = MobileUtils.getScale();
+                        var scale = presenter.getScale();
 
                         presenter.iconTop = $iconWrapper.position().top / scale.Y + ($iconWrapper.height()/2);
                         presenter.iconLeft = $iconWrapper.position().left / scale.X +  $iconWrapper.width();
@@ -680,7 +680,7 @@ function AddonConnection_create() {
                         presenter.mouseSX = parseInt(event.pageX,10) - parseInt($(presenter.view).offset().left,10);
                         presenter.mouseSY = parseInt(event.pageY,10) - parseInt($(presenter.view).offset().top,10);
 
-                        var scale = MobileUtils.getScale();
+                        var scale = presenter.getScale();
 
                         presenter.drawTempLine(presenter.mouseSX / scale.X, presenter.mouseSY / scale.Y);
                     },
@@ -950,23 +950,29 @@ function AddonConnection_create() {
         redraw();
     };
 
-    function getElementSnapPoint(element) {
+    presenter.getElementSnapPoint = function  AddonConnection_getElementSnapPoint(element) {
         var offset = element.offset();
 
-        var scale = MobileUtils.getScale();
+        var scale = presenter.getScale();
 
         var snapPoint = [0, 0];
+
+        var elementWidth = element.outerWidth(true) * scale.X;
+        var elementHeight = element.outerHeight() * scale.Y;
+
         if (element.parents('.connectionLeftColumn').length > 0) {
-            snapPoint = [offset.left + element.outerWidth(true) / scale.X, offset.top + element.outerHeight() / 2 / scale.Y];
+            snapPoint = [offset.left + elementWidth, offset.top + elementHeight / 2];
         }
         if (element.parents('.connectionRightColumn').length > 0) {
-            snapPoint = [offset.left, offset.top + element.outerHeight() / 2 / scale.Y];
+            snapPoint = [offset.left, offset.top + elementHeight / 2];
         }
-        console.log(element);
-        console.log('snapPoint:', snapPoint);
+
+        // snapPoint[0] is x offset, [1] is y offset
+        snapPoint[0] /= scale.X;
+        snapPoint[1] /= scale.Y;
 
         return snapPoint;
-    }
+    };
 
     function pushConnection(line, isPreview) {
         var addLine = true, linesToRemove = [], existingLines;
@@ -1037,12 +1043,14 @@ function AddonConnection_create() {
     }
 
     function drawLine(line, color) {
-        var from = getElementSnapPoint(line.from);
-        var to = getElementSnapPoint(line.to);
+        var from = presenter.getElementSnapPoint(line.from);
+        var to = presenter.getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
+        var scale = presenter.getScale();
 
-        console.log({x1: to[0] - canvasOffset.left, y1: to[1] - canvasOffset.top,
-            x2: from[0] - canvasOffset.left, y2: from[1] - canvasOffset.top});
+        canvasOffset.left /= scale.X;
+        canvasOffset.top /= scale.Y;
+
         connections.drawLine({
             strokeStyle: color,
             strokeWidth: connectionThickness,
@@ -1057,6 +1065,7 @@ function AddonConnection_create() {
             presenter.hideAnswers();
         }
         if (isNotActivity) return 0;
+
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
@@ -1593,6 +1602,11 @@ function AddonConnection_create() {
         if (presenter.getCurrentActivatedElement().hasClass('selected')) {
             speak([getTextVoiceObject(presenter.speechTexts.selected)]);
         }
+    };
+
+    presenter.getScale = function AddonConnection_getScale() {
+        var scale = playerController.getScale();
+        return {X: scale.X, Y: scale.Y};
     };
 
     return presenter;
