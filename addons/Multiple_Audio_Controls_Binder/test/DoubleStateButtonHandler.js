@@ -34,7 +34,7 @@ TestCase("[Multiple_Audio_Controler_Binder] Handling Double State Button selecti
     },
 
     'test should call play with ID Item1': function () {
-       this.connection.Item.ID = 'Item1';
+       this.connection.Item.Digit = 'Item1';
 
        this.presenter.doubleStateButtonSelectionHandler();
 

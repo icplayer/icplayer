@@ -1,3 +1,4 @@
+2018-02-12 Deselecting Double State Button on the end of Multiaudio track connected via Audio Binder.
 2018-02-09 Fixed dragging out elements from Draggable Gap.
 2018-02-09 Fixed speak and playTitle commands in TTS addon
 2018-02-07 Added attribute role in TrueFalse for screen reader apps.
