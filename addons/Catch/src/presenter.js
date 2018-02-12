@@ -8,6 +8,9 @@ function AddonCatch_create() {
     var errors = 0;
     var $plateElement = null;
     var isGameOver = false;
+    var isPaused = false;
+    var pausedTimeInMs = 0;
+    var objects = [];
 
     function getErrorObject (ec) { return { isValid: false, errorCode: ec }; }
     function getCorrectObject (v) { return { isValid: true, value: v }; }
@@ -24,6 +27,12 @@ function AddonCatch_create() {
             isCorrect: isCorrect,     // boolean
             levels: level             // array of levels in range 1 - 3
         };
+    }
+
+    function getElementPositionLeft(element) {
+        // can't use jquery position or offset, because they return values in virtual coordinate system
+        // on high dpi devices such as smartphones, and we need CSS pixels coords
+        return parseInt(element.css("left"), 10);
     }
 
     var levelsParameters = [{
@@ -51,10 +60,6 @@ function AddonCatch_create() {
         P01: 'Property Points to Finish expects number',
         O01: 'Property Items cannot be empty',
         W01: 'Property Width or Height cannot be empty'
-    };
-
-    presenter.setPlayerController = function (controller) {
-        presenter.playerController = controller;
     };
 
     function parseItems (rawItems) {
@@ -181,6 +186,11 @@ function AddonCatch_create() {
         $plateElement.attr('src', getImageUrlFromResources('plate.png'));
 
         presenter.$view.append($plateElement);
+
+        // put the plate in the center of screen
+        var addOnWidth = presenter.$view.width();
+        var centerPos = addOnWidth/2 - $plateElement.width()/2;
+        $plateElement.css('left', centerPos + 'px' );
     }
 
     function makeDescription (description) {
@@ -221,15 +231,14 @@ function AddonCatch_create() {
     function reCreateFallingObject (itemNumber) {
         sendEvent(itemNumber, 0, false);
 
-        makeFallingObject();
+        makeFallingObject(0);
     }
 
-    function makeFallingObject () {
+    function makeFallingObject (yOffset) {
         if (isGameOver) {
             return;
         }
 
-        var isRemoved = false;
         var addOnHeight = presenter.$view.height();
         var itemObject = getRandomItemFromLevel(currentLevel);
 
@@ -247,23 +256,42 @@ function AddonCatch_create() {
         var xPosition = getRandomInt(longestWidth/2, presenter.$view.width() - longestWidth);
 
         $objectElement.css('left', xPosition + 'px');
-        $objectElement.css('top', '-100px');
+        $objectElement.css('top', '-' + (100 + yOffset) + 'px');
         $objectElement.css('width', presenter.configuration.itemWidth);
         $objectElement.css('height', presenter.configuration.itemHeight);
 
-        var speed = getRandomInt(levelsParameters[currentLevel].speedMin, levelsParameters[currentLevel].speedMax);
-        var landingPosition = (addOnHeight + 100) + 'px';
+        var duration = getRandomInt(levelsParameters[currentLevel].speedMin, levelsParameters[currentLevel].speedMax);
+        var landingPosition = (addOnHeight + 10) + 'px';
+        var initialTimeInMs = new Date().getTime();
+
+        startMoving($objectElement, landingPosition, duration, itemObject, xPosition, initialTimeInMs);
+    }
+
+    function removeObject(object) {
+        object.stop();
+        object.remove();
+        objects = objects.filter( function (objectIter) {
+                return objectIter.obj !== object;
+            }
+        );
+    }
+
+    function startMoving($objectElement, landingPosition, duration, itemObject, xPosition, initialTime) {
+        var isRemoved = false;
+
+        objects.push( { obj: $objectElement, duration: duration, landing: landingPosition, item: itemObject, xPos: xPosition, initialTime: initialTime } );
 
         $objectElement.animate({'top': landingPosition}, {
-            duration: speed,
+            duration: duration,
+            easing: 'linear',
             complete: function () {
-                $objectElement.stop();
-                $objectElement.remove();
+                removeObject($objectElement);
                 reCreateFallingObject(itemObject.index + 1);
             },
             step: function (now, tween) {
                 if (isRemoved) return;
 
+                var addOnHeight = presenter.$view.height();
                 now = Math.round(now);
                 var elementBotYPosition = now + $objectElement.height();
                 var isInCatchLevel = elementBotYPosition < addOnHeight && elementBotYPosition > addOnHeight - $plateElement.height();
@@ -272,7 +300,7 @@ function AddonCatch_create() {
                     var elementLeftEdge = xPosition;
                     var elementRightEdge = elementLeftEdge + $objectElement.width();
 
-                    var plateLeftEdge = $plateElement.offset().left - presenter.$view.offset().left;
+                    var plateLeftEdge = getElementPositionLeft($plateElement);
                     var plateRightEdge = plateLeftEdge + $plateElement.width();
 
                     if (!(plateLeftEdge > elementRightEdge || plateRightEdge < elementLeftEdge)) {
@@ -281,9 +309,9 @@ function AddonCatch_create() {
                         } else {
                             onNewError(itemObject.index + 1);
                         }
-                        $objectElement.stop();
-                        $objectElement.remove();
-                        makeFallingObject();
+
+                        removeObject($objectElement);
+                        makeFallingObject(0);
                         isRemoved = true;
                     }
                 }
@@ -297,17 +325,21 @@ function AddonCatch_create() {
 
         var numberOfElements = levelsParameters[level].density;
         for (var i=0; i<numberOfElements; i++) {
-            setTimeout(function () {
-                makeFallingObject();
-            }, 1000 * i);
+            makeFallingObject(150 * i);
         }
     }
 
     function movePlate (isDirectionToRight) {
-        var platePositionLeft = $plateElement.offset().left;
-        var plateWidth = $plateElement.width();
-        var addOnPositionLeft = presenter.$view.position().left;
+
+        if (isPaused) {
+            return;
+        }
+
+        var addOnPositionLeft = getElementPositionLeft(presenter.$view);
         var addOnWidth = presenter.$view.width();
+
+        var platePositionLeft = addOnPositionLeft + getElementPositionLeft($plateElement);
+        var plateWidth = $plateElement.width();
 
         var isPositionZeroLeft = platePositionLeft <= addOnPositionLeft;
         var isPositionZeroRight = platePositionLeft + plateWidth >= addOnPositionLeft + addOnWidth;
@@ -343,25 +375,43 @@ function AddonCatch_create() {
 
     function turnOnEventListeners () {
         presenter.$view.keydown(function (e) {
-            if (e.key === 'ArrowLeft') {
+            if (e.key.localeCompare('ArrowLeft') === 0 || e.key.localeCompare('Left') === 0) {
                 movePlate(false);
             }
-
-            if (e.key === 'ArrowRight') {
+            if (e.key.localeCompare('ArrowRight') === 0 || e.key.localeCompare('Right') === 0) {
                 movePlate(true);
             }
         });
 
-        presenter.$view.on('click', function (e) {
-            var isLeftSide = (e.clientX - presenter.$view.position().left) > Math.round(presenter.$view.width() / 2);
-            movePlate(isLeftSide);
-        });
+        if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            presenter.$view.on('touchstart', function (e) {
+                var isLeftSide = isPointOnLeftSide(e.originalEvent.touches[0].pageX )
+                e.preventDefault();
+                movePlate(isLeftSide);
+            });
+        }
+        else {
+            presenter.$view.on('click', function (e) {
+                var isLeftSide = isPointOnLeftSide(e.clientX);
+                movePlate(isLeftSide);
+            });
+        }
 
         presenter.$view.focus();
     }
 
     function turnOffEventListeners () {
         presenter.$view.off();
+    }
+
+    function isPointOnLeftSide(point) {
+        // we have to obtain the virtual coordinates of addon, because point from touchstart
+        // will come in virtual coords, in case of high dpi devices such as smartphones
+        // getBoundingClientRect will work correctly in css pixels in case of low dpi devices
+        var addonBounds = presenter.$view[0].getBoundingClientRect();
+        var addonHalfWidth = Math.round(addonBounds.width / 2);
+        var addonLeftPos = addonBounds.left;
+        return (point - addonLeftPos) > addonHalfWidth;
     }
 
     function makeWelcomePage () {
@@ -389,6 +439,9 @@ function AddonCatch_create() {
             presenter.$view.append($welcomePage);
 
             $welcomePage.on('click', function () {
+                if (isPaused) {
+                    return;
+                }
                 startGame(currentLevel);
                 turnOnEventListeners();
                 $welcomePage.remove();
@@ -441,6 +494,8 @@ function AddonCatch_create() {
             errors = 0;
             currentLevel = 0;
         }
+        isPaused = false;
+        objects = [];
 
         turnOffEventListeners();
         stopAndRemoveFallingObjects();
@@ -486,7 +541,10 @@ function AddonCatch_create() {
     };
 
     presenter.getMaxScore = function () {
-
+        if (presenter.configuration.pointsToFinish === 0)
+            return 0;
+        else
+            return presenter.configuration.pointsToFinish;
     };
 
     presenter.getScore = function () {
@@ -535,10 +593,70 @@ function AddonCatch_create() {
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         eventBus = controller.getEventBus();
+        eventBus.addEventListener('ShowAnswers', this);
+        eventBus.addEventListener('HideAnswers', this);
     };
 
     function getImageUrlFromResources (fileName) {
         return presenter.playerController.getStaticFilesPath() + 'addons/resources/' + fileName;
+    }
+
+    presenter.setWorkMode = function () {
+        resumeSimulation();
+    };
+
+    presenter.setShowErrorsMode = function () {
+        pauseSimulation();
+    };
+
+    presenter.showAnswers = function () {
+        pauseSimulation();
+    };
+
+    presenter.hideAnswers = function () {
+        resumeSimulation();
+    };
+
+    presenter.onEventReceived = function (eventName) {
+
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+    };
+
+    function pauseSimulation() {
+        if (isPaused)
+            return;
+        isPaused = true;
+        pausedTimeInMs = new Date().getTime();
+
+        for (var i = 0; i < objects.length; i++) {
+            var object = objects[i];
+            object.obj.clearQueue();
+            object.obj.stop();
+        }
+    }
+
+    function resumeSimulation() {
+        if (!isPaused)
+            return;
+        isPaused = false;
+        // copy objects to new array, because it will be edited in startMoving
+        var newObjects = objects.slice();
+        objects = [];
+        var currentTimeInMs = new Date().getTime();
+
+        for (var j = 0; j < newObjects.length; j++) {
+            var obj = newObjects[j];
+
+            // rescale animations
+            var dt = obj.duration - (pausedTimeInMs - obj.initialTime);
+            startMoving(obj.obj, obj.landing, dt, obj.item, obj.xPos, currentTimeInMs);
+        }
     }
 
     return presenter;
