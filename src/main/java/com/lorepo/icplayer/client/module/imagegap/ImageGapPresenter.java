@@ -50,6 +50,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		public boolean getDisabled();
 		public void makeDroppable(ImageGapPresenter imageGapPresenter);
 		public void removeClass(String string);
+		public void setAltText(String alt);
+		public void clearAltText();
 	}
 
 	private final ImageGapModule model;
@@ -211,6 +213,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		}
 		readyToDraggableItem = null;
 		consumedItem = null;
+		view.clearAltText();
 		view.setImageUrl("");
 		view.setDisabled(model.isDisabled());
 
@@ -249,6 +252,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			view.setImageUrl("");
 			fireItemReturnedEvent(consumedItem);
 			consumedItem = null;
+			view.clearAltText();
 			if(shouldSendEvent){
 				ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", "", "0");
 				playerServices.getEventBus().fireEvent(valueEvent);
@@ -258,6 +262,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private void insertItem() {
 		if (readyToDraggableItem != null) {
+			view.setAltText(getImageSourceAltText(readyToDraggableItem.getId()));
 			view.setImageUrl(readyToDraggableItem.getValue());
 			consumedItem = readyToDraggableItem;
 			fireItemConsumedEvent();
@@ -277,8 +282,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private void setCorrectImage() {
 		String[] answers = model.getAnswerId().split(";");
-		ImageSourcePresenter igp = (ImageSourcePresenter) playerServices.getModule(answers[0]);
-		view.setImageUrl(igp.getImageUrl());
+		ImageSourcePresenter imageSourcePresenter = (ImageSourcePresenter) playerServices.getModule(answers[0]);
+		view.setImageUrl(imageSourcePresenter.getImageUrl());
+		view.setAltText(imageSourcePresenter.getAltText());
 	}
 
 	private void fireItemReturnedEvent(DraggableItem previouslyConsumedItem) {
@@ -343,6 +349,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		if (state.containsKey("consumed")) {
 			consumedItem = DraggableItem.createFromString(state.get("consumed"));
 			view.setImageUrl(getImageURL(consumedItem));
+			view.setAltText(getImageSourceAltText(consumedItem.getId()));
 			view.makeDraggable(this);
 		}
 		if (state.containsKey("isVisible")) {
@@ -670,6 +677,15 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		boolean isEnabled = !this.model.isDisabled();
 		return (isVisible || isTextToSpeechOn) && isEnabled;
+	}
+	
+	private String getImageSourceAltText(String id) {
+		IPresenter presenter = playerServices.getModule(id);
+		if(presenter instanceof ImageSourcePresenter) {
+			ImageSourcePresenter imageSourcePresenter = (ImageSourcePresenter) presenter;
+			return imageSourcePresenter.getAltText();
+		}
+		return "";
 	}
 
 }

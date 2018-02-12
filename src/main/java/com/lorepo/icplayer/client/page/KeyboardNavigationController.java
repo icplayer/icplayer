@@ -38,7 +38,6 @@ public final class KeyboardNavigationController {
 	private int actualSelectedModuleIndex = 0;
 
 	private PageController headerController = null;
-	private PageController mainController = null;
 	private PageController footerController = null;
 	
 	private boolean isWCAGSupportOn = false;
@@ -326,9 +325,9 @@ public final class KeyboardNavigationController {
 					
 					if (pageType != null) {
 						IPresenter module = null;
-						
+
 						if (pageType.equals("main")) {
-							module = mainController.findModule(focusedID);
+							module = mainPageController.findModule(focusedID);
 						} else 
 						if (pageType.equals("header")) {
 							module = headerController.findModule(focusedID);
@@ -347,8 +346,8 @@ public final class KeyboardNavigationController {
 			}
 			
 			private void findAndActivateModule(IPresenter module) {
-				for (int i = 0; i < presenters.size(); i++) {
-					IPresenter presenter = (IPresenter) presenters.get(i).presenter;
+				for (int i = 0; i < presentersOriginalOrder.size(); i++) {
+					IPresenter presenter = (IPresenter) presentersOriginalOrder.get(i).presenter;
 		
 					if(presenter.getModel() == module.getModel()) {
 						IWCAGPresenter wcagPresenter = (IWCAGPresenter) presenter;

@@ -17,3 +17,4 @@ src/main/java/com/lorepo/icplayer/public/build/dist
 /src/main/java/com/lorepo/icplayer/public/build/
 /junitvmwatcher*.properties
 /junit*.properties
+/.classpath

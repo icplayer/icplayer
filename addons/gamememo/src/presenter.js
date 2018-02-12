@@ -144,7 +144,7 @@ function Addongamememo_create(){
         return tts
     }
 
-    presenter.readConfiguration = function(model) {
+    presenter.validateModel = function(model) {
         if(model['Pairs'].length == 0) {
             return {
                 isError: true,
@@ -239,7 +239,9 @@ function Addongamememo_create(){
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
-            clickToTurnOverIncorrectPair: ModelValidationUtils.validateBoolean(model["Click to turn over incorrect pair"])
+            clickToTurnOverIncorrectPair: ModelValidationUtils.validateBoolean(model["Click to turn over incorrect pair"]),
+            altTextStyleA: model['Style A cover alt text'],
+            altTextStyleB: model['Style B cover alt text']
         };
     };
 
@@ -358,6 +360,12 @@ function Addongamememo_create(){
 
                 } else {
                     card = $('<img/>').attr({ src: pairs[j][presenter.numberToCardType(n) + ' (image)']});
+
+                    var altText = pairs[j][presenter.numberToCardType(n) + ' (alt text)'];
+                    if (altText !== '' && altText !== undefined) {
+                        card.attr('alt', altText);
+                    }
+
                     serializedCard = { revealed: false, type: "image", content: pairs[j][presenter.numberToCardType(n) + ' (image)'] }
                 }
 
@@ -393,6 +401,11 @@ function Addongamememo_create(){
             } else {
                 src = pairs[savedCards[i].cardId][presenter.numberToCardType(savedCards[i].cardStyle) + ' (image)'];
                 card = $('<img/>').attr({ src: src });
+
+                var altText = pairs[savedCards[i].cardId][presenter.numberToCardType(savedCards[i].cardStyle) + ' (alt text)']
+                if (altText !== undefined && altText !== '') {
+                    card.attr('alt', altText);
+                }
             }
             card.addClass('card').attr({'card_id' : savedCards[i].cardId, 'card_style' : savedCards[i].cardStyle });
             cards.push(card);
@@ -669,56 +682,14 @@ function Addongamememo_create(){
             keyboardController = new MemoKeyboardController(keyboardNavigationElements, presenter.columnCount);
         }
 
-        var img;
-
         if(presenter.styleAImage != null){
-            if(presenter.imageMode == 'Stretch'){
-                $container.find('div.front_A').css({
-                    'background': 'url(' + encodeURI(presenter.styleAImage) + ')',
-                    'background-size': '100% 100%'
-                });
-            }else if(presenter.imageMode == 'KeepAspect'){
-                img = $('<img>');
-                img.attr('src', encodeURI(presenter.styleAImage));
-                img.css({
-                    'display': 'block',
-                    'max-width': presenter.requestedColumnWidth,
-                    'max-height': presenter.requestedRowHeight,
-                    'width': 'auto',
-                    'height': 'auto'
-                });
-                $container.find('div.front_A').append(img);
-                $container.find('div.front_A').css('background', 'transparent');
-            }else{
-                $container.find('div.front_A').css({
-                    'background': 'url(' + encodeURI(presenter.styleAImage) + ')'
-                });
-            }
+            var frontDivA = $container.find('div.front_A');
+            presenter.setDivImage(frontDivA, presenter.styleAImage, presenter.configuration.altTextStyleA);
         }
 
         if(presenter.styleBImage != null){
-            if(presenter.imageMode == 'Stretch'){
-                $container.find('div.front_B').css({
-                    'background': 'url(' + encodeURI(presenter.styleBImage) + ')',
-                    'background-size': '100% 100%'
-                });
-            }else if(presenter.imageMode == 'KeepAspect'){
-                img = $('<img>');
-                img.attr('src', encodeURI(presenter.styleBImage));
-                img.css({
-                    'display': 'block',
-                    'max-width': presenter.requestedColumnWidth,
-                    'max-height': presenter.requestedRowHeight,
-                    'width': 'auto',
-                    'height': 'auto'
-                });
-                $container.find('div.front_B').append(img);
-                $container.find('div.front_B').css('background', 'transparent');
-            }else{
-                $container.find('div.front_B').css({
-                    'background': 'url(' + encodeURI(presenter.styleBImage) + ')'
-                });
-            }
+            var frontDivB = $container.find('div.front_B');
+            presenter.setDivImage(frontDivB, presenter.styleBImage, presenter.configuration.altTextStyleB);
         }
 
         presenter.viewContainer.children('div').append($container);
@@ -771,6 +742,40 @@ function Addongamememo_create(){
         }
     };
 
+    presenter.setDivImage = function($div, image, altText) {
+        var encodedURI = encodeURI(image);
+
+        if (presenter.imageMode == 'Stretch') {
+            $div.css({
+                'background': 'url(' + encodedURI + ')',
+                'background-size': '100% 100%'
+            });
+        } else if(presenter.imageMode == 'KeepAspect') {
+            var img = $('<img>');
+            img.attr('src', encodedURI);
+            img.css({
+                'display': 'block',
+                'max-width': presenter.requestedColumnWidth,
+                'max-height': presenter.requestedRowHeight,
+                'width': 'auto',
+                'height': 'auto'
+            });
+            $div.append(img);
+            $div.css('background', 'transparent');
+        } else {
+            $div.css({
+                'background': 'url(' + encodedURI + ')'
+            });
+        }
+
+        if (altText !== undefined) {
+            var altTextSpan = document.createElement('span');
+            altTextSpan.innerText = altText;
+            altTextSpan.className = 'gamememo_alt_text';
+            $div.append(altTextSpan);
+        }
+    };
+
     function centerImage(element) {
         var imgTop = ($(element).height() - $(element).find('img').height())/2;
         var imgLeft = ($(element).width() - $(element).find('img').width())/2;
@@ -786,7 +791,7 @@ function Addongamememo_create(){
         presenter.viewContainer = $(view);
         presenter.model = model;
 
-        presenter.configuration = presenter.readConfiguration(model);
+        presenter.configuration = presenter.validateModel(model);
         presenter.ID = model.ID;
         if(presenter.configuration.isError) {
             presenter.showErrorMessage(presenter.configuration.errorMessage, presenter.configuration.errorMessageSubstitutions);

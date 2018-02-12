@@ -2,17 +2,16 @@
 <project name="icplayer" default="dist" basedir=".">
     <taskdef name="for" classname="com.icplayer.ac.ForTask" classpath="addons/addon-compiler.jar"/>
 
-    <property file="build.properties" />
-    <property name="src" location="src/main/java" />
-    <property name="src-test" location="src/test/java" />
-    <property name="icfoundation-src" location="../icfoundation/src/main/java" />
-    <property name="jstestdriver.jar" location="addons/tools/JsTestDriver.jar" />
-    <property name="libs" location="src/main/java/com/lorepo/icplayer/public/libs" />
+    <property file="build.properties"/>
+    <property name="src" location="src/main/java"/>
+    <property name="src-test" location="src/test/java"/>
+    <property name="icfoundation-src" location="../icfoundation/src/main/java"/>
+    <property name="jstestdriver.jar" location="addons/tools/JsTestDriver.jar"/>
+    <property name="libs" location="src/main/java/com/lorepo/icplayer/public/libs"/>
     <property name="jsoup-lib" location="libs/jsoup-1.10.3.jar"/>
 
     <!-- Arguments to gwtc and devmode targets -->
-	<!-- <property name="gwt.args" value="" /> -->
-    <property name="gwt.args" value="-style PRETTY" />
+  	<property name="gwt.args" value=""/>
     <import file="build-js-addons-compress.xml"/>
 
     <property name="libs.junit" location="libs/junit-4.9.jar"/>
@@ -48,7 +47,6 @@
     </target>
 
     <target name="gwtc" depends="javac, bundle-libs" description="GWT compile to JavaScript (production mode)">
-
         <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
             <classpath>
                 <pathelement location="${src}"/>
@@ -262,5 +260,4 @@
             <formatter type="plain"/>
         </junit>
     </target>
-
 </project>
