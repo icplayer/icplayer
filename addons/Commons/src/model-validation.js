@@ -417,6 +417,9 @@
     ModelValidator.prototype = {
         /**
          * Validate model with provided configuration
+         *
+         *  If validator can't find field then will returns error code: UMF01
+         *
          * @method validate
          * @param model {Object}
          * @param config {Function[]}
@@ -472,7 +475,8 @@
         },
 
         generateErrorCode: generateErrorCode,
-        generateValidValue: generateValidValue
+        generateValidValue: generateValidValue,
+        __validatorDecorator__: validatorDecorator
     };
 
     function validatorDecorator(fn) {
@@ -489,7 +493,7 @@
         return function(name, config, shouldValidateFunction) {
             if (isFunction(config)) {
                 shouldValidateFunction = config;
-                config = [];
+                config = {};
             }
 
             if (config === undefined) {
@@ -547,10 +551,10 @@
         /**
          * Check if passed value is valid integer. Can be checked if value is in <minValue; maxValue>
          * config: {
-         *      optional?: Boolean
-         *      maxValue?: Number(providedValue > maxValue),
-         *      minValue?: Number(providedValue < minValue,
-         *      default?: Number<Default: 0>
+         *      optional=False: {Boolean}
+         *      maxValue=INF: {Number}(providedValue > maxValue),
+         *      minValue=-INF: [Number}(providedValue < minValue,
+         *      default=0: {Number | null}
          * }
          *
          * errorCodes:
@@ -558,6 +562,7 @@
          * INT02: Provided value contains non numerical characters
          * INT03: Provided value is too large
          * INT04: Provided value it too small
+         *
          * @namespace ModelValidators
          * @class Integer
          * @extends ModelValidators.Validator
@@ -576,11 +581,13 @@
                 minValue = Number.MIN_VALUE;
             }
 
-            if (isOptional && valueToValidate.trim() === "") {
+            valueToValidate = valueToValidate.trim();
+
+            if (isOptional && valueToValidate === "") {
                 return this.generateValidValue(defaultValue);
             }
 
-            if (valueToValidate.trim() === "") {
+            if (valueToValidate === "") {
                 return this.generateErrorCode("INT01");
             }
 
@@ -604,20 +611,22 @@
         /**
          * Check if passed value is valid string.
          * config: {
-         *      optional?: Boolean,
-         *      trim?: Boolean
+         *      optional=False: {Boolean},
+         *      trim=True: {Boolean},
+         *      defaultValue="": {String | null}
          * }
          *
          * errorCodes:
          * STR01: Provided value is empty
+         *
          * @namespace ModelValidators
          * @class String
          * @extends ModelValidators.Validator
          */
         String: function (valueToValidate, config) {
             var isOptional = config['optional'] || false,
-                trim = config['trim'] || true,
-                defaultValue = config['default'] === undefined ? 0 : config['default'];
+                trim = config['trim'] === undefined ? true : config['trim'],
+                defaultValue = config['default'] === undefined ? "" : config['default'];
 
             var value = valueToValidate;
 
@@ -649,12 +658,11 @@
         /**
          * Check if provided string is valid css class name
          * config: {
-         *      optional?: Boolean
+         *      optional=False: {Boolean}
          * }
          *
          * Error Codes:
          * CSS01: Provided css is not valid css
-         *
          *
          * @namespace ModelValidators
          * @class CSSClass
@@ -680,6 +688,7 @@
         },
 
         /**
+         * config: Validator[]
          * Validate list. As configuration should receive list of validators for each field in list row.
          * @namespace ModelValidators
          * @class List
@@ -701,6 +710,17 @@
 
         /**
          * Validate possible value in enum.
+         *
+         * Check if provided string is valid css class name
+         * config: {
+         *      default="": {String | null} if value is "" then return default
+         *      useLowerCase=False: {Boolean} change values to lower case
+         *      possibleValues=[]:{String[]}
+         * }
+         *
+         * Error Codes:
+         * EV01: Provided type is not a valid type
+         *
          * @namespace ModelValidators
          * @class Enum
          * @extends ModelValidators.Validator
@@ -708,7 +728,7 @@
         Enum: function (valueToValidate, config) {
             var possibleValues = config.values || [];
             var useLowerCase = config.useLowerCase || false;
-            var defaultValue = config['default'] || "";
+            var defaultValue = config['default'] === undefined ? "" : config['default'];
 
             if (defaultValue === "") {
                 if (possibleValues.length > 0) {

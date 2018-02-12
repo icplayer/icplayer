@@ -69,7 +69,7 @@ function AddonBoard_Game_create(){
         var fig = '',
             i;
 
-        if(model.hasFields){
+        if(model.hasFields || presenter.gameMode !== presenter.gameTypes.FREE){
             for(i = 0; i < presenter.fieldsLength; i++){
                 fig += '<div id="Field' + (i + 1) + '" class="board-game-field" style=""></div>';
             }
@@ -156,6 +156,7 @@ function AddonBoard_Game_create(){
 
         var validatedModel = modelValidator.validate(model, [
             ModelValidators.Boolean("hasFields"),
+            ModelValidators.Enum("gameMode", {values: ["Free", "Game"], useLowerCase: false}),
             ModelValidators.List("Fields", [
                 ModelValidators.DumbInteger("Top"),
                 ModelValidators.DumbInteger("Left"),
@@ -163,7 +164,7 @@ function AddonBoard_Game_create(){
                 ModelValidators.DumbInteger("Height"),
                 ModelValidators.CSSClass("cssClass", {optional: true})
             ], function () {
-                return this.validatedModel['hasFields'];
+                return this.validatedModel['hasFields'] || this.validatedModel["gameMode"] !== presenter.gameTypes.FREE;
             }),
             ModelValidators.List("Images", [
                 ModelValidators.DumbInteger("Top"),
@@ -178,7 +179,6 @@ function AddonBoard_Game_create(){
             ModelValidators.DumbString("ID"),
             ModelValidators.Boolean("Is Visible"),
             ModelValidators.DumbString("Background"),
-            ModelValidators.String("gameMode", {values: ["Free", "Game"], useLowerCase: false})
         ]);
 
         if (!validatedModel.isValid) {
@@ -188,7 +188,7 @@ function AddonBoard_Game_create(){
         var validatedFields,
             validatedImages;
 
-        if (validatedModel["hasFields"]) {
+        if (validatedModel.value["hasFields"] || validatedModel.value["gameMode"] !== presenter.gameTypes.FREE) {
             validatedFields = presenter.validateFieldsSizes(validatedModel.value);
             if (!validatedFields.isValid) {
                 return validatedFields;
@@ -246,17 +246,68 @@ function AddonBoard_Game_create(){
                     .mousedown(function (e) {
                         presenter.moveCurrentElement(this);
                     })
-                    .mouseup(function (e) {
-
-                    }).click(function (e) {
-
-                });
+                    .mouseup(function (e) {}).click(function (e) {});
             });
 
             presenter.boardCounters.draggable({
                 containment: "parent"
             });
         }
+    };
+
+    presenter.getElementToNavigation = function () {
+        var elementsToNavigation = [];
+        presenter.boardCounters.each(function (index, element) {
+            elementsToNavigation.push($(element));
+        });
+
+        return elementsToNavigation;
+    };
+
+    presenter.setFieldsSizes = function (model) {
+        var i;
+
+        for(i = 0; i < presenter.fieldsLength; i++) {
+            $(presenter.fields[i]).css({
+                'width' : model.Fields[i].Width + "px",
+                'height' : model.Fields[i].Height + "px",
+                'top' : model.Fields[i].Top + "px",
+                'left' : model.Fields[i].Left + "px"
+            });
+        }
+    };
+
+    presenter.initGameMode = function (model) {
+        var i;
+
+        presenter.setFieldsSizes(model);
+        presenter.selectCounter(presenter.boardCounters[0], 0);
+
+        for (i = 0; i < presenter.boardCounters.length; i++) {
+            presenter.counterPositions.push(0);
+
+            presenter.boardCounters[i].classList.add('game');
+            presenter.fields[0].appendChild(presenter.boardCounters[i]);
+        }
+
+        for (i = 0; i < presenter.fieldsLength; i++) {
+            presenter.fields[i].classList.add("game");
+        }
+
+        presenter.boardGameKeyboardController = new BoardGameGameModeKeyboardController(presenter.getElementToNavigation());
+    };
+
+    presenter.initFreeMode = function (model) {
+        if (presenter.hasFields) {
+            presenter.setFieldsSizes(model);
+        }
+
+        presenter.boardGameKeyboardController = new BoardGameFreeModeKeyboardController(presenter.getElementToNavigation());
+        presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_LEFT] = presenter.boardGameKeyboardController.left;
+        presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_RIGHT] = presenter.boardGameKeyboardController.right;
+        presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_UP] = presenter.boardGameKeyboardController.up;
+        presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_DOWN] = presenter.boardGameKeyboardController.down;
+        presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.TAB] = presenter.boardGameKeyboardController.tab;
     };
 
     presenter.init = function(view, model) {
@@ -283,55 +334,16 @@ function AddonBoard_Game_create(){
 
         presenter.boardCounters = presenter.$view.find('.board-game-element');
         presenter.fields = presenter.$view.find('.board-game-field');
-        var i;
-
-        if(presenter.hasFields || presenter.gameMode === presenter.gameTypes.GAME){
-            for(i = 0; i < presenter.fieldsLength; i++) {
-                $(presenter.fields[i]).css({
-                    'width' : model.Fields[i].Width + "px",
-                    'height' : model.Fields[i].Height + "px",
-                    'top' : model.Fields[i].Top + "px",
-                    'left' : model.Fields[i].Left + "px"
-                });
-            }
-        }
 
         presenter.setElementsPosition(presenter.originalLeftValue, presenter.originalTopValue);
 
-        presenter.connectHandlers();
-
         if (presenter.gameMode === presenter.gameTypes.GAME) {
-            presenter.selectCounter(presenter.boardCounters[0], 0);
-        }
-
-        if (presenter.gameMode === presenter.gameTypes.GAME) {
-            for(i = 0; i < presenter.boardCounters.length; i++) {
-                presenter.counterPositions.push(0);
-
-                presenter.boardCounters[i].classList.add('game');
-                presenter.fields[0].appendChild(presenter.boardCounters[i]);
-            }
-
-            for(i = 0; i < presenter.fieldsLength; i++) {
-                presenter.fields[i].classList.add("game");
-            }
-        }
-
-        var elementsToNavigation = [];
-        presenter.boardCounters.each(function (index, element) {
-            elementsToNavigation.push($(element));
-        });
-
-        if (presenter.gameMode === presenter.gameTypes.GAME) {
-            presenter.boardGameKeyboardController = new BoardGameGameModeKeyboardController(elementsToNavigation);
+            presenter.initGameMode(model);
         } else {
-            presenter.boardGameKeyboardController = new BoardGameFreeModeKeyboardController(elementsToNavigation);
-            presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_LEFT] = presenter.boardGameKeyboardController.left;
-            presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_RIGHT] = presenter.boardGameKeyboardController.right;
-            presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_UP] = presenter.boardGameKeyboardController.up;
-            presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.ARROW_DOWN] = presenter.boardGameKeyboardController.down;
-            presenter.boardGameKeyboardController.mapping[KeyboardControllerKeys.TAB] = presenter.boardGameKeyboardController.tab;
+            presenter.initFreeMode(model);
         }
+
+        presenter.connectHandlers();
     };
 
     presenter.showErrorMessage = function (view, error) {
@@ -478,7 +490,6 @@ function AddonBoard_Game_create(){
                 'left' : arrayLeft[i] + "px",
                 'top' : arrayTop[i] + "px"
             });
-
         }
     };
 
