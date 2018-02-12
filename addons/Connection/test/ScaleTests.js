@@ -42,6 +42,7 @@ TestCase("[Connection] Get element snappoint test", {
        var expected = [20, 15];
 
        this.stubs.getScaleStub.returns({X: 1, Y: 1});
+       this.presenter.getScale = this.stubs.getScaleStub;
        var result = this.presenter.getElementSnapPoint(this.element);
 
        assertEquals(expected[0], result[0]);
@@ -49,7 +50,7 @@ TestCase("[Connection] Get element snappoint test", {
     },
 
     'test should return proper value of offset when in right column': function () {
-       var expected = [10, 15];
+       var expected = [20, 25];
 
        this.stubs.parentsStub.withArgs('.connectionLeftColumn').returns({length: 0});
        this.stubs.parentsStub.withArgs('.connectionRightColumn').returns({length: 1});
@@ -61,9 +62,10 @@ TestCase("[Connection] Get element snappoint test", {
     },
 
     'test should return proper value of offset when in right column and without scale': function () {
-       var expected = [20, 15];
+       var expected = [10, 15];
 
        this.stubs.getScaleStub.returns({X: 1, Y: 1});
+       this.presenter.getScale = this.stubs.getScaleStub;
        this.stubs.parentsStub.withArgs('.connectionLeftColumn').returns({length: 0});
        this.stubs.parentsStub.withArgs('.connectionRightColumn').returns({length: 1});
 
@@ -71,5 +73,5 @@ TestCase("[Connection] Get element snappoint test", {
 
        assertEquals(expected[0], result[0]);
        assertEquals(expected[1], result[1]);
-    },
+    }
 });
