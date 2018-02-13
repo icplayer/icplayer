@@ -497,29 +497,91 @@ TestCase("[PseudoCode_Console - language tests] for statement", {
         program test
         variable a
         begin
-            for a from 1 to 5 do
+            for a from 1 to 5 by 1 do
             begin
                 mock()
             end
             mock2()
         end
         */
-        this.test1 = "program test \n variable a \n begin \n for a from 1 to 5 do \n begin \n mock() \n end \n mock2() \n end";
+        this.test1 = "program test \n variable a \n begin \n for a from 1 to 5 by 1 do \n begin \n mock() \n end \n mock2() \n end";
 
         /*
         program test
         variable a, b, c
         begin
             b = 8
-            for a from 1 to b do
+            for a from 1 to b by 1 do
             begin
-                for c from 1 to 2 do
+                for c from 1 to 2 by 1 do
                     mock()
             end
             mock2()
         end
         */
-        this.test2 = "program test \n variable a, b, c \n begin \n b = 8\n for a from 1 to b do \n begin \n for c from 1 to 2 do \n mock() \n end \n mock2() \n end";
+        this.test2 = "program test \n variable a, b, c \n begin \n b = 8\n for a from 1 to b by 1 do \n begin \n for c from 1 to 2 by 1 do \n mock() \n end \n mock2() \n end";
+
+        /*
+        program test
+        variable a, b, c, d, e
+        begin
+            d = 2
+            b = 8
+            e = 1
+
+            for a from 1 to b by 1 do
+            begin
+                for c from e to d by 1 do
+                    mock()
+            end
+            mock2()
+        end
+         */
+        this.test3 = "program test\n" +
+            "variable a, b, c, d, e\n" +
+            "begin\n" +
+            "    d = 2\n" +
+            "    b = 8\n" +
+            "    e = 1\n" +
+            "    \n" +
+            "    for a from 1 to b  by 1 do\n" +
+            "    begin\n" +
+            "        for c from e to d by 1 do\n" +
+            "            mock()\n" +
+            "    end\n" +
+            "    mock2()\n" +
+            "end";
+
+        /*
+        program test
+        variable a, b, c, d, e
+        begin
+            d = 2
+            b = 8
+            e = 1
+
+            for a from 1 to b by 2do
+            begin
+                for c from e to d by 2 do
+                    mock()
+            end
+            mock2()
+        end
+         */
+        this.test4 = "program test\n" +
+            "variable a, b, c, d, e\n" +
+            "begin\n" +
+            "    d = 9\n" +
+            "    b = 8\n" +
+            "    e = 1\n" +
+            "    \n" +
+            "    for a from 1 to b by 2 do\n" +
+            "    begin\n" +
+            "        for c from e to d by 3 do\n" +
+            "            mock()\n" +
+            "    end\n" +
+            "    mock2()\n" +
+            "end";
     },
 
     'test for will be called 5 times' : function () {
@@ -540,6 +602,26 @@ TestCase("[PseudoCode_Console - language tests] for statement", {
         assertTrue(this.afterExecutingObject.data.mockCalled2);
         assertEquals(16, this.afterExecutingObject.data.mockCalled);
         assertEquals(24, this.afterExecutingObject.calledInstructions.for);
+    },
+
+    'test for start value and end value are variables': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test3);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.afterExecutingObject.data.mockCalled2);
+        assertEquals(16, this.afterExecutingObject.data.mockCalled);
+        assertEquals(24, this.afterExecutingObject.calledInstructions.for);
+    },
+
+    'test for can be skipped more than one': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test4);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.afterExecutingObject.data.mockCalled2);
+        assertEquals(12, this.afterExecutingObject.data.mockCalled);
+        assertEquals(16, this.afterExecutingObject.calledInstructions.for);
     }
 });
 

@@ -82,6 +82,8 @@ function AddonPseudoCode_Console_create() {
                 ["|function|",              "return 'FUNCTION';"],
                 ["|return|",                "return 'RETURN';"],
                 ["|array_block|",           "return 'ARRAY_DEF';"],
+                ["|down_to|",               "return 'DOWN_TO';"],
+                ["|by|",                    "return 'BY';"],
                 ["\\n+",                    "return 'NEW_LINE';"],
                 ["$",                       "return 'EOF';"],
                 ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
@@ -320,7 +322,7 @@ function AddonPseudoCode_Console_create() {
             ],
 
             "for_value_header" : [
-                ["FOR STATIC_VALUE FROM NUMBER TO static_value_or_number DO", "$$ = yy.presenterContext.bnf['for_value_header'](yy, $2, $4, $6);"]
+                ["FOR STATIC_VALUE FROM operation TO operation BY NUMBER DO", "$$ = yy.presenterContext.bnf['for_value_header'](yy, $2, $4, $6, $8);"]
             ],
 
             "static_value_or_number" : [
@@ -934,7 +936,7 @@ function AddonPseudoCode_Console_create() {
             return 'actualScope.' + argName + '.value';
         },
 
-        for_value_header: presenter.uidDecorator(function bnf_for_value_header (yy, variableName, from, to) {
+        for_value_header: presenter.uidDecorator(function bnf_for_value_header (yy, variableName, from, to, by) {
             var execElements = [];
 
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(variableName);
@@ -942,10 +944,12 @@ function AddonPseudoCode_Console_create() {
             yy.labelsStack.push(presenter.bnf.uid + '_for');
             yy.labelsStack.push(presenter.bnf.uid + '_for_end');
 
-
-            execElements.push(presenter.generateExecuteObject("actualScope." + variableName + '.value = ' + from + ' - 1;'));
-            execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.for++', presenter.bnf.uid + '_for'));
-            execElements.push(presenter.generateJumpInstruction('!((Boolean(actualScope.' + variableName + '.value += 1) || true) && actualScope.' + variableName + '.value <=' + to + ")", presenter.bnf.uid + '_for_end'));
+            execElements = execElements.concat(from);
+            execElements.push(presenter.generateExecuteObject("actualScope." + variableName + '.value = stack.pop().value - 1;'));
+            execElements.push(presenter.generateExecuteObject('', presenter.bnf.uid + '_for'));
+            execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.for++', ''));
+            execElements = execElements.concat(to);
+            execElements.push(presenter.generateJumpInstruction('!((Boolean(actualScope.' + variableName + '.value += ' + by + ') || true) && actualScope.' + variableName + ".value <= stack.pop().value )", presenter.bnf.uid + '_for_end'));
             return execElements;
 
         }),
@@ -1338,7 +1342,9 @@ function AddonPseudoCode_Console_create() {
             "option": "option",
             "function": "function",
             "return": "return",
-            "array_block": "array"
+            "array_block": "array",
+            "down_to": "downto",
+            "by": "by"
         },
         isValid: false,
         addonID: null,

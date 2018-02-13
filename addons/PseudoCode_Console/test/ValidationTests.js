@@ -198,7 +198,9 @@ TestCase("[PseudoCode_Console - validation tests] validate model", {
             "option": "option",
             "function": "function",
             "return": "return",
-            "array_block": "array"
+            "array_block": "array",
+            "by": "by",
+            "down_to": "downto"
         }
 
 
