@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.dimensions.CalculateModuleDimensions;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
@@ -38,7 +39,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		this.currentPage = newPage;
 		String styles = "position:relative;overflow:hidden;";
 		if(this.currentPage.getInlineStyle() != null){
-			styles += this.currentPage.getInlineStyle();
+			styles += URLUtils.resolveCSSURL(this.currentPage.getBaseURL(), this.currentPage.getInlineStyle());
 		}
 
 		DOMUtils.applyInlineStyle(this.getElement(), styles);
