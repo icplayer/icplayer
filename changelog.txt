@@ -1,3 +1,4 @@
+2018-02-13 Fixed issues with Glossary scaling on mobile devices
 2018-02-13 Fixed problem with resolving url in inline css
 2018-02-12 Fixed Catch addon double click behaviour on mobile devices, paddle is always appearing and can't run past right edge of screen. Also simulation is paused on show answers and checks answers, and it calculates max score.
 2018-02-12 Deselecting Double State Button on the end of Multiaudio track connected via Audio Binder.

@@ -1,8 +1,17 @@
+/*
+    currentScrollTop is used to get around a problem with jQuery-ui, where on opening the dialog
+    it would scroll up to an incorrect position. It is used to store the correct value of scrollTop
+    (before jquery-ui scrolling it up), provide it for the needs of open dialog event handler,
+    and then restore the correct value of scrollTop afterwards.
+ */
+
 function AddonGlossary_create(){
     var presenter = function() {};
     presenter.$ICPage = null;
     presenter.lastReceivedEvent = null;
     presenter.isPinchZoom = false;
+    presenter.isPreview = false;
+    var currentScrollTop = 0;
 
     var playerController;
     var eventBus;
@@ -89,16 +98,19 @@ function AddonGlossary_create(){
             var dialogWidth = $dialog.outerWidth();
             var dialogHeight = $dialog.outerHeight();
             var windowHeight = $(top.window).height();
-            var scrollTop = $(top.window).scrollTop();
+            var scrollTop = currentScrollTop;
             var previewFrame = 0;
             var popupTop = 0;
             var popupLeft = 0;
             var topPosition = 0;
 
-            if (isPreview) {
+            if (presenter.isPreview) {
                 scrollTop = $(presenter.$ICPage).scrollTop();
-                if (scrollTop > 0)
+
+                if (scrollTop > 0) {
                     previewFrame = $(presenter.$ICPage).parent().parent().parent().offset().top - $(".gwt-DialogBox").offset().top;
+                }
+
                 windowHeight = ($(presenter.$ICPage).parent().parent().parent().height());
                 presentationPosition.top = 0;
             }
@@ -119,13 +131,14 @@ function AddonGlossary_create(){
                 });
             }
 
-            function getAndroidVersion(ua) {
-                var ua = ua || navigator.userAgent;
-                var match = ua.match(/Android\s([0-9\.]*)/);
-                return match ? match[1] : false;
-            };
+            // Check if the addon needs to account for transform css
+            var scaleInfo = playerController.getScaleInformation();
+            if(scaleInfo.scaleY!==1.0) {
+                $dialog.css('transform', scaleInfo.transform);
+                $dialog.css('transform-origin', scaleInfo.transformOrigin);
+            }
 
-            if(parseFloat(getAndroidVersion())=='4.1'){
+            if(parseFloat(window.MobileUtils.getAndroidVersion())=='4.1'){
                 if (window !== window.top) {
                     var ancestorData;
                     for (i=0; i<presenter.ancestorsData.length; i++)
@@ -137,7 +150,7 @@ function AddonGlossary_create(){
                 }
             }
 
-            if (isPopup || isPreview) {
+            if (isPopup || presenter.isPreview) {
                 popupLeft = presentationPosition.left;
                 topPosition = parseInt((availableHeight - dialogHeight) / 2, 10);
             }
@@ -145,7 +158,7 @@ function AddonGlossary_create(){
                 topPosition = parseInt(( windowHeight - dialogHeight) / 2, 10) ;
             }
 
-            var presentationHorizontalOffset = parseInt((presentationWidth - dialogWidth) / 2, 10);
+            var presentationHorizontalOffset = parseInt((presentationWidth - dialogWidth) * scaleInfo.scaleY / 2, 10);
             var leftPosition = presentationPosition.left + presentationHorizontalOffset;
 
             // adjust top position if Player was embedded in iframe (i.e. EverTeach)
@@ -179,7 +192,7 @@ function AddonGlossary_create(){
                 color: 'black'
             });
 
-            if(isPopup || isPreview) {
+            if(isPopup || presenter.isPreview) {
                 // For Preview and Popup dialog is moved to appropriate page
                 var $overlay = $(".ui-widget-overlay");
                 $(presenter.$view.closest(".ui-widget-overlay")).remove();
@@ -224,7 +237,9 @@ function AddonGlossary_create(){
 
         dialog.dialog("option", "title", dialogData.title);
         presenter.addDescription(dialog, dialogData.description);
+        currentScrollTop = $(top.window).scrollTop();
         dialog.dialog("open");
+        $(top.window).scrollTop(currentScrollTop);
         presenter.updateLaTeX(dialogData.description);
 
         var openLinkOption = presenter.model["Open external link in"];
@@ -331,6 +346,7 @@ function AddonGlossary_create(){
     };
 
     presenter.createPreview = function(view, model) {
+        presenter.isPreview = true;
         var validated = presenter.validateModel(model);
         if(validated) {
             var dialog = $(view).find(".modal-dialog");
@@ -412,6 +428,7 @@ function AddonGlossary_create(){
     }
 
     presenter.run = function(view, model){
+        presenter.isPreview = false;
         presenter.initializeView(view, model);
         eventBus = playerController.getEventBus();
         eventBus.addEventListener('Definition', this);
