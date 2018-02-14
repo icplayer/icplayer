@@ -3,7 +3,7 @@ var supportedAddons = ["PseudoCode_Console"];
 var entry = {};
 
 supportedAddons.forEach(function (element) {
-  entry[element] = "./addons/" + element + "/src_webpack/presenter.js";
+  entry[element] = "./" + element + "/src_webpack/presenter.jsm";
 });
 
 var debug = false;
@@ -18,15 +18,22 @@ module.exports = {
   entry: entry,
   output: {
     path: __dirname,
-    filename: "addons/[name]/src/presenter.js"
+    filename: "[name]/src/presenter.js"
   },
   plugins: debug ? [] : [
   ],
   module: {
-    loaders: [
+    rules: [
       {
-        test: /\.js$/,
-        use: 'babel-loader?presets[]=es2015'
+        test: /\.jsm$/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ['babel-preset-env'],
+            plugins: [require('babel-plugin-transform-remove-strict-mode')]
+          }
+        }
+
       }
     ]
   }

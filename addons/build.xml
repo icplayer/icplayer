@@ -5,7 +5,13 @@
 	<property name="addons.list.delimiter" value="|" />
 	<property name="addons.list.temp.file" value="addons.list.temp" />
 
-	<target name="copy">
+    <target name="build-webpack" description="Install node dependencies for gulp and less">
+        <exec executable="python" failonerror="true">
+            <arg value="tools/build-webpack.py"/>
+        </exec>
+    </target>
+
+	<target name="copy" depends="build-webpack">
 		<taskdef name="copyAddon" classname="com.icplayer.ac.AddonCompiler" classpath="addon-compiler.jar"/>
 		<taskdef name="for" classname="com.icplayer.ac.ForTask" classpath="addon-compiler.jar"/>
 		<mkdir dir="${addons.dest}" />
@@ -21,7 +27,6 @@
 					   flags="g"
 					   replace="${addons.list.delimiter}">
 		</replaceregexp>
-
 
         <loadfile property="addons.list" srcFile="${addons.list.temp.file}"/>
         <for list="${addons.list}" param="addonid" delimiter="${addons.list.delimiter}">
