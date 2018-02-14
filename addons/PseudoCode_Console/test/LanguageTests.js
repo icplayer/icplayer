@@ -130,7 +130,8 @@ TestCase("[PseudoCode_Console - language tests] variables statement", {
         this.presenter.configuration.functions = {
             mock: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = arguments[0];"}).value.body,
             mock2: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled2 = arguments[0];"}).value.body,
-            mock3: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled3 = arguments[0];"}).value.body
+            mock3: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled3 = arguments[0];"}).value.body,
+            mock4: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled4 = arguments[0];"}).value.body
         };
 
         this.afterExecutingObject = {};
@@ -148,6 +149,27 @@ TestCase("[PseudoCode_Console - language tests] variables statement", {
 
         this.presenter.initializeGrammar();
         this.test1 = "program test \n variable a, b \n begin \n a=1 \n mock2(a) \n mock(b) \n a = \"aaaa\" \n mock3(a) \n end";
+
+        /*
+        program test
+        variable a = 2, b, c = "ok"
+        variable d = ".."
+        begin
+            mock(a)
+            mock2(b)
+            mock3(c)
+            mock4(d)
+        end
+         */
+        this.test2 = "        program test\n" +
+            "        variable a = 2, b, c = \"ok\"\n" +
+            "        variable d = \"..\"\n" +
+            "        begin\n" +
+            "            mock(a)\n" +
+            "            mock2(b)\n" +
+            "            mock3(c)\n" +
+            "            mock4(d)\n" +
+            "        end";
     },
 
     'test variable will have at default value 0': function () {
@@ -165,10 +187,19 @@ TestCase("[PseudoCode_Console - language tests] variables statement", {
 
         assertEquals(1, this.afterExecutingObject.data.mockCalled2.value);
         assertEquals("aaaa", this.afterExecutingObject.data.mockCalled3.value);
+    },
+
+    'test starts values works correctly': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test2);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertEquals(2, this.afterExecutingObject.data.mockCalled.value);
+        assertEquals(0, this.afterExecutingObject.data.mockCalled2.value);
+        assertEquals("ok", this.afterExecutingObject.data.mockCalled3.value);
+        assertEquals("..", this.afterExecutingObject.data.mockCalled4.value);
     }
-
 });
-
 
 TestCase("[PseudoCode_Console - language tests] math statement", {
     setUp: function () {
@@ -582,6 +613,100 @@ TestCase("[PseudoCode_Console - language tests] for statement", {
             "    end\n" +
             "    mock2()\n" +
             "end";
+
+        /*
+        program test
+        variable a, b, c, d, e
+        begin
+            d = 9
+            b = 8
+            e = 1
+
+            for a from 1 to b do
+            begin
+                for c from e to d do
+                    mock()
+            end
+            mock2()
+        end
+         */
+        this.test5 = "program test\n" +
+            "variable a, b, c, d, e\n" +
+            "begin\n" +
+            "    d = 1\n" +
+            "    b = 9\n" +
+            "    e = 1\n" +
+            "    \n" +
+            "    for a from 1 to b do\n" +
+            "    begin\n" +
+            "        for c from e to d do\n" +
+            "            mock()\n" +
+            "    end\n" +
+            "    mock2()\n" +
+            "end";
+
+        /*
+        program test
+        variable a
+        begin
+            for a from 1 to 5 by 8 do
+            begin
+                mock()
+            end
+            mock2()
+        end
+        */
+        this.test6 = "program test\n" +
+            "variable a\n" +
+            "begin\n" +
+            "    for a from 1 to 5 by 8 do\n" +
+            "    begin\n" +
+            "        mock()\n" +
+            "    end\n" +
+            "    mock2()\n" +
+            "end";
+
+        /*
+        program test
+        variable a
+        begin
+            for a from 5 downto 1 by 2 do
+            begin
+                mock()
+            end
+            mock2()
+        end
+        */
+        this.test7 = "program test\n" +
+            "variable a\n" +
+            "begin\n" +
+            "    for a from 5 downto 1 by 2 do\n" +
+            "    begin\n" +
+            "        mock()\n" +
+            "    end\n" +
+            "    mock2()\n" +
+            "end";
+
+        /*
+        program test
+        variable a
+        begin
+            for a from 5 downto 1 do
+            begin
+                mock()
+            end
+            mock2()
+        end
+        */
+        this.test8 = "program test\n" +
+            "variable a\n" +
+            "begin\n" +
+            "    for a from 5 downto 1 do\n" +
+            "    begin\n" +
+            "        mock()\n" +
+            "    end\n" +
+            "    mock2()\n" +
+            "end";
     },
 
     'test for will be called 5 times' : function () {
@@ -622,6 +747,46 @@ TestCase("[PseudoCode_Console - language tests] for statement", {
         assertTrue(this.afterExecutingObject.data.mockCalled2);
         assertEquals(12, this.afterExecutingObject.data.mockCalled);
         assertEquals(16, this.afterExecutingObject.calledInstructions.for);
+    },
+
+    'test in for statement "BY" can be skipped': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test5);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.afterExecutingObject.data.mockCalled2);
+        assertEquals(9, this.afterExecutingObject.data.mockCalled);
+        assertEquals(18, this.afterExecutingObject.calledInstructions.for);
+    },
+
+    'test for statement contains correct start value': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test6);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.afterExecutingObject.data.mockCalled2);
+        assertEquals(1, this.afterExecutingObject.data.mockCalled);
+        assertEquals(1, this.afterExecutingObject.calledInstructions.for);
+    },
+
+    'test for statement with downto statement': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test7);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.afterExecutingObject.data.mockCalled2);
+        assertEquals(3, this.afterExecutingObject.data.mockCalled);
+        assertEquals(3, this.afterExecutingObject.calledInstructions.for);
+    },
+
+    'test in for with downto statement BY can be skipped': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test8);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertTrue(this.afterExecutingObject.data.mockCalled2);
+        assertEquals(5, this.afterExecutingObject.data.mockCalled);
+        assertEquals(5, this.afterExecutingObject.calledInstructions.for);
     }
 });
 
@@ -919,14 +1084,15 @@ TestCase("[PseudoCode_Console - language tests] array statement", {
 
         /*
         program test
-        variable a
+        variable a, c
         array b[3] = [1, 2]
         begin
+            c = 0
             b[1 + 1 + (0 * 5) + 0] = 4 + 4 * 2 + mock2()
-            mock(b[2])
+            mock(b[c + 1 + 1])
         end
          */
-        this.test4 = "program test \n variable a \n array b[3] = [1, 2] \n begin \n b[1 + 1 + (0 * 5) + 0] = 4 + 4 * 2 + mock2() \n mock(b[2]) \n end";
+        this.test4 = "program test \n variable a, c \n array b[3] = [1, 2] \n begin \n b[1 + 1 + (0 * 5) + 0] = 4 + 4 * 2 + mock2() \n mock(b[c + 1 + 1]) \n end";
     },
 
     'test array is correctly passed to function': function () {

@@ -83,6 +83,7 @@
         </property>
         <property name="maxTimeForAnswer" nameLabel="PseudoCode_Console_property_answer_max_timeout" type="string" />
         <property name="answerCode" nameLabel="PseudoCode_Console_property_answer_code" type="text" />
+        <property name="mathRound" nameLabel="PseudoCode_Console_property_math_round" type="string"/>
 
     </model>
 </addon>

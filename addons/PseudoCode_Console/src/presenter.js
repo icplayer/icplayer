@@ -82,7 +82,7 @@ function AddonPseudoCode_Console_create() {
                 ["|function|",              "return 'FUNCTION';"],
                 ["|return|",                "return 'RETURN';"],
                 ["|array_block|",           "return 'ARRAY_DEF';"],
-                ["|down_to|",               "return 'DOWN_TO';"],
+                ["|down_to|",               "return 'DOWNTO';"],
                 ["|by|",                    "return 'BY';"],
                 ["\\n+",                    "return 'NEW_LINE';"],
                 ["$",                       "return 'EOF';"],
@@ -134,7 +134,7 @@ function AddonPseudoCode_Console_create() {
             //entry point
             "expressions" : [
                 //Code executor will stop when will receive undefined to execute.
-                [ "functions program_name section_list code_block",   "return {sections: $3, code: $4.concat(undefined).concat($1).concat(undefined).concat(yy.presenterContext.bnf['getObjectCallManager']())};($2 || '') + ($3 || '');"  ]
+                [ "functions program_name section_list code_block",   "return {sections: '', code: ($3 || []).concat($4).concat(undefined).concat($1).concat(undefined).concat(yy.presenterContext.bnf['getObjectCallManager']())};($2 || '') + ($3 || '');"  ]
             ],
 
             "functions" : [
@@ -175,7 +175,7 @@ function AddonPseudoCode_Console_create() {
 
             "section_list" : [
                 "",
-                ["section_list section", "$$ = ($1 || '') + $2;"]
+                ["section_list section", "$$ = ($1 || []).concat($2);"]
             ],
 
             "section" : [
@@ -184,7 +184,7 @@ function AddonPseudoCode_Console_create() {
             ],
 
             "array_section" : [
-                ["ARRAY_DEF array_list NEW_LINE", "$$ = $2 || ''"]
+                ["ARRAY_DEF array_list NEW_LINE", "$$ = $2 || []"]
             ],
 
             "array_list": [
@@ -202,12 +202,12 @@ function AddonPseudoCode_Console_create() {
             ],
 
             "array_start_entries": [
-                ["array_start_entry", "$$ = $1"],
-                ["array_start_entries COMMA array_start_entry", "$$ = $1.concat($3);"]
+                ["array_start_entry", "$$ = [$1]"],
+                ["array_start_entries COMMA array_start_entry", "$1.push($3); $$ = $1;"]
             ],
 
             "array_start_entry" : [
-                ["number_or_string", "$$ = $1"]
+                ["operation", "$$ = $1"]
             ],
 
             "var_section" : [
@@ -220,7 +220,7 @@ function AddonPseudoCode_Console_create() {
 
             "var_list" : [
                 ["var", "$$ = $1;"],
-                ["var_list comma_separator var", "$$ = $1 + $3;"]
+                ["var_list comma_separator var", "$$ = $1.concat($3);"]
             ],
 
             "comma_separator" : [
@@ -228,7 +228,8 @@ function AddonPseudoCode_Console_create() {
             ],
 
             "var" : [
-                ["STATIC_VALUE", "$$ = yy.presenterContext.bnf['var'](yy, yytext);"]
+                ["STATIC_VALUE", "$$ = [yy.presenterContext.bnf['var'](yy, yytext)];"],
+                ["STATIC_VALUE = operation", "$$ = yy.presenterContext.bnf['var_start_value'](yy, $1, $3);"]
             ],
 
             "code_block" : [
@@ -274,16 +275,16 @@ function AddonPseudoCode_Console_create() {
 
             "case_options" : [
                 ["case_option", "$$ = $1;"],
-                ["case_options case_option", "$$ = $1.concat($2);;"]
+                ["case_options case_option", "$$ = $1.concat($2);"]
             ],
 
             "case_option": [
-                ["OPTION number_or_string THEN end_line code_block_or_instruction", "$$ = yy.presenterContext.bnf['case_option']($2, $5);"]
+                ["OPTION operation THEN end_line code_block_or_instruction", "$$ = yy.presenterContext.bnf['case_option']($2, $5);"]
             ],
 
-            "number_or_string" : [
-                ["number_value", "$$ = $1;"],
-                ["string_value", "$$ = $1;"]
+            "number_with_minus" : [
+                ["number_value", "$$ = $1"],
+                ["- number_value", "$$ = ($2 * -1);"]
             ],
 
             "if_instruction" : [
@@ -322,7 +323,10 @@ function AddonPseudoCode_Console_create() {
             ],
 
             "for_value_header" : [
-                ["FOR STATIC_VALUE FROM operation TO operation BY NUMBER DO", "$$ = yy.presenterContext.bnf['for_value_header'](yy, $2, $4, $6, $8);"]
+                ["FOR STATIC_VALUE FROM operation TO operation BY NUMBER DO", "$$ = yy.presenterContext.bnf['for_value_header'](yy, $2, $4, $6, $8, '<=');"],
+                ["FOR STATIC_VALUE FROM operation TO operation DO", "$$ = yy.presenterContext.bnf['for_value_header'](yy, $2, $4, $6, 1, '<=');"],
+                ["FOR STATIC_VALUE FROM operation DOWNTO operation DO", "$$ = yy.presenterContext.bnf['for_value_header'](yy, $2, $4, $6, -1, '>=');"],
+                ["FOR STATIC_VALUE FROM operation DOWNTO operation BY NUMBER DO", "$$ = yy.presenterContext.bnf['for_value_header'](yy, $2, $4, $6, $8 * -1, '>=');"]
             ],
 
             "static_value_or_number" : [
@@ -390,7 +394,7 @@ function AddonPseudoCode_Console_create() {
                 [ "operation DOT STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['method_call']($3, $5 || [], $1);"],
                 [ "number_value",               "$$ = $1" ],
                 [ "variable_get",               "$$ = $1" ],
-                [ "string_value",               "$$ = $1" ],
+                [ "string_value",               "$$ = $1" ]
             ],
 
             "variable_get": [
@@ -833,24 +837,41 @@ function AddonPseudoCode_Console_create() {
         },
 
         array: function bnf_array (yy, arrayName, arraySize, startValues) {
+            var execCode = [];
+
+
             var code = 'var buff1 = [];';
             
             startValues = startValues || [];
 
             startValues.forEach(function (el) {
-                code += el.code;
                 code += ';buff1.push(stack.pop());';
+                execCode = execCode.concat(el);
             });
+
+            code += 'stack.push(buff1.reverse());';
 
 
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(arrayName);
-            return code + 'actualScope.' + arrayName + '= presenter.objectMocks.Array.__constructor__.call({},' + arraySize + ', buff1);';
+            code =  code + 'actualScope.' + arrayName + '= presenter.objectMocks.Array.__constructor__.call({},' + arraySize + ', stack.pop());';
+
+            execCode.push(presenter.generateExecuteObject(code, ''));
+
+            return execCode;
         },
 
 
         var: function bnf_var (yy, varName) {
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(varName);
-            return 'actualScope.' + varName + ' = presenter.objectMocks.Number.__constructor__.call({}, 0);';
+            return presenter.generateExecuteObject('actualScope.' + varName + ' = presenter.objectMocks.Number.__constructor__.call({}, 0);');
+        },
+
+        var_start_value: function var_start_value(yy, varName, operation) {
+            presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(varName);
+
+            operation.push(presenter.generateExecuteObject('actualScope.' + varName + ' = stack.pop();'));
+
+            return operation;
         },
 
         function_call: function bnf_function_call (yy, functionName, args) {
@@ -880,7 +901,7 @@ function AddonPseudoCode_Console_create() {
         },
 
         array_get: function bnf_array_get (variableName, operations) {
-            return presenter.bnf.method_call("__get__", operations, variableName);
+            return presenter.bnf.method_call("__get__", [operations], variableName);
         },
 
         function: function bnf_function (yy, functionName, functionArgs, sectionsBlock, codeBlock) {
@@ -936,7 +957,7 @@ function AddonPseudoCode_Console_create() {
             return 'actualScope.' + argName + '.value';
         },
 
-        for_value_header: presenter.uidDecorator(function bnf_for_value_header (yy, variableName, from, to, by) {
+        for_value_header: presenter.uidDecorator(function bnf_for_value_header (yy, variableName, from, to, by, comparator) {
             var execElements = [];
 
             presenter.state.variablesAndFunctionsUsage[yy.actualFunctionName].vars.push(variableName);
@@ -945,11 +966,11 @@ function AddonPseudoCode_Console_create() {
             yy.labelsStack.push(presenter.bnf.uid + '_for_end');
 
             execElements = execElements.concat(from);
-            execElements.push(presenter.generateExecuteObject("actualScope." + variableName + '.value = stack.pop().value - 1;'));
+            execElements.push(presenter.generateExecuteObject("actualScope." + variableName + '.value = stack.pop().value - ' + by + ';'));
             execElements.push(presenter.generateExecuteObject('', presenter.bnf.uid + '_for'));
             execElements.push(presenter.generateExecuteObject('presenter.objectForInstructions.calledInstructions.for++', ''));
             execElements = execElements.concat(to);
-            execElements.push(presenter.generateJumpInstruction('!((Boolean(actualScope.' + variableName + '.value += ' + by + ') || true) && actualScope.' + variableName + ".value <= stack.pop().value )", presenter.bnf.uid + '_for_end'));
+            execElements.push(presenter.generateJumpInstruction('!((Boolean(actualScope.' + variableName + '.value += ' + by + ') || true) && actualScope.' + variableName + ".value " + comparator + " stack.pop().value )", presenter.bnf.uid + '_for_end'));
             return execElements;
 
         }),
@@ -1362,7 +1383,10 @@ function AddonPseudoCode_Console_create() {
         "AN01": "Defined alias name must match to ^[A-Za-z_][a-zA-Z0-9_]*$",
         "AN02": "Multiple aliases got the same name",
         "JS01": "Java Script code in mdefined ethod is not valid.",
-        "JS02": "Java Script code in defined function is not valid"
+        "JS02": "Java Script code in defined function is not valid",
+        "ER01": "Round value must be a integer",
+        "ER02": "Round value must be bigger than 0",
+        "ER03": "Round value must be below 100"
     };
 
     presenter.setPlayerController = function presenter_setPlayerController (controller) {
@@ -1805,6 +1829,8 @@ function AddonPseudoCode_Console_create() {
         try {
             presenter.state.console.Reset();
             var executableCode = presenter.state.codeGenerator.parse(code);
+
+            console.log(executableCode);
 
             presenter.checkCode();
 
@@ -2458,6 +2484,45 @@ function AddonPseudoCode_Console_create() {
         }
     };
 
+    presenter.validateRound = function presenter_validateRound (model) {
+        var round = model['mathRound'];
+
+        if (round.trim() === '') {
+            return {
+                isValid: true,
+                value: 100
+            };
+        }
+
+        var parsedRound = parseInt(round, 10);
+
+        if (isNaN(parsedRound)) {
+            return {
+                isValid: false,
+                errorCode: "ER01"
+            };
+        }
+
+        if (parsedRound < 1) {
+            return {
+                isValid: false,
+                errorCode: "ER02"
+            };
+        }
+
+        if (parsedRound > 100) {
+            return {
+                isValid: false,
+                errorCode: "ER03"
+            };
+        }
+
+        return {
+            isValid: true,
+            value: parsedRound
+        };
+    };
+
     presenter.validateModel = function presenter_validateModel (model) {
         var validatedAliases,
             validatedFunctions,
@@ -2492,6 +2557,11 @@ function AddonPseudoCode_Console_create() {
             return validatedMethods;
         }
 
+        var validatedRound = presenter.validateRound(model);
+        if (!validatedRound.isValid) {
+            return validatedRound;
+        }
+
         return {
             isValid: true,
             addonID: model.ID,
@@ -2500,7 +2570,8 @@ function AddonPseudoCode_Console_create() {
             functions: validatedFunctions.value,
             aliases: $.extend(presenter.configuration.aliases, validatedAliases.value),
             answer: validatedAnswer,
-            methods: validatedMethods.methods
+            methods: validatedMethods.methods,
+            round: validatedRound.value
         };
     };
 
