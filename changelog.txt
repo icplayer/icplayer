@@ -1,3 +1,4 @@
+2018-02-15 Fixed issue with scaling in Figure Drawing on mobile devices
 2018-02-14 Fixed issue with reseting module in Catch module
 2018-02-13 Fixed issues with Glossary scaling on mobile devices
 2018-02-13 Fixed problem with resolving url in inline css
