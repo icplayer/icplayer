@@ -7,7 +7,8 @@ TestCase("[Commons - Model Validator] Integer validator", {
             test4: "234.34",
             test5: "",
             test6: "  ",
-            test7: "  213 "
+            test7: "  213 ",
+            test8: "-123"
         };
 
         this.modelValidator = new ModelValidator();
@@ -156,5 +157,14 @@ TestCase("[Commons - Model Validator] Integer validator", {
 
         assertFalse(validatedModel.isValid);
         assertEquals("INT04", validatedModel.errorCode);
+    },
+
+    'test validator works for negative values': function () {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validator("test8")
+        ]);
+
+        assertTrue(validatedModel.isValid);
+        assertEquals(-123, validatedModel.value['test8']);
     }
 });

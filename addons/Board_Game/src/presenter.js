@@ -14,7 +14,6 @@ function AddonBoard_Game_create(){
     presenter.mouseX = 0;
     presenter.mouseY = 0;
     presenter.isElementInMove = false;
-    presenter.isErrorCheckingMode = false;
     presenter.showAnswersMode = false;
     presenter.isDisabled = false;
     presenter.hasFields = false;
@@ -220,7 +219,7 @@ function AddonBoard_Game_create(){
         presenter.boardCounters[presenter.lastSelectedCounter].classList.remove('board-game-selected');
     };
 
-    presenter.connectHandlers = function () {
+    presenter.connectHandlers = function (view) {
         if (presenter.gameMode === presenter.gameTypes.GAME) {
             presenter.boardCounters.each(function (index, element) {
                 $(element).on('click', function () {
@@ -253,6 +252,22 @@ function AddonBoard_Game_create(){
                 containment: "parent"
             });
         }
+
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
+    };
+
+    presenter.destroy = function (event) {
+        if (event.target !== this) {
+            return;
+        }
+
+        presenter.removeHandlers();
+    };
+
+    presenter.removeHandlers = function () {
+        presenter.boardCounters.off();
+        presenter.$view.find('.board-game-field').off();
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
     };
 
     presenter.getElementToNavigation = function () {
@@ -277,11 +292,9 @@ function AddonBoard_Game_create(){
         }
     };
 
-    presenter.initGameMode = function (model) {
+    presenter.moveCountersToFirstField = function () {
         var i;
-
-        presenter.setFieldsSizes(model);
-        presenter.selectCounter(presenter.boardCounters[0], 0);
+        presenter.counterPositions = [];
 
         for (i = 0; i < presenter.boardCounters.length; i++) {
             presenter.counterPositions.push(0);
@@ -289,6 +302,14 @@ function AddonBoard_Game_create(){
             presenter.boardCounters[i].classList.add('game');
             presenter.fields[0].appendChild(presenter.boardCounters[i]);
         }
+    };
+
+    presenter.initGameMode = function (model) {
+        var i;
+
+        presenter.setFieldsSizes(model);
+        presenter.moveCountersToFirstField();
+        presenter.selectCounter(presenter.boardCounters[0], 0);
 
         for (i = 0; i < presenter.fieldsLength; i++) {
             presenter.fields[i].classList.add("game");
@@ -343,7 +364,9 @@ function AddonBoard_Game_create(){
             presenter.initFreeMode(model);
         }
 
-        presenter.connectHandlers();
+        presenter.connectHandlers(view);
+
+        presenter.view = view;
     };
 
     presenter.showErrorMessage = function (view, error) {
@@ -507,12 +530,29 @@ function AddonBoard_Game_create(){
             presenter.hideAnswers();
         }
 
-        presenter.isErrorCheckingMode = false;
         var isVisible = presenter.isVisible;
         var wasVisible = presenter.wasVisible;
         var wasDisable = presenter.wasDisable;
         var isDisable = presenter.isDisable;
 
+        var additionalState = {};
+
+        if (presenter.gameTypes.FREE === presenter.gameMode) {
+            additionalState = presenter.getStateForFreeMode();
+        } else {
+            additionalState = presenter.getStateForGameMode();
+        }
+
+        return JSON.stringify($.extend({
+            isVisible : isVisible,
+            wasVisible : wasVisible,
+            wasDisable : wasDisable,
+            isDisable : isDisable
+        }, additionalState));
+
+    };
+
+    presenter.getStateForFreeMode = function () {
         presenter.getElementsPosition();
 
         var originalLeftValue = presenter.originalLeftValue;
@@ -520,39 +560,66 @@ function AddonBoard_Game_create(){
         var currentLeftValue = presenter.currentLeftValue;
         var currentTopValue = presenter.currentTopValue;
 
-        return JSON.stringify({
+        return {
             originalLeftValue : originalLeftValue,
             originalTopValue : originalTopValue,
             currentLeftValue : currentLeftValue,
             currentTopValue : currentTopValue,
-            isVisible : isVisible,
-            wasVisible : wasVisible,
-            wasDisable : wasDisable,
-            isDisable : isDisable
-        });
+        }
+    };
 
+    presenter.getStateForGameMode = function () {
+        return {
+            counterPositions: presenter.counterPositions,
+            lastSelectedCounter: presenter.lastSelectedCounter
+        };
     };
 
     presenter.setState = function(state) {
         var parsedState = JSON.parse(state), $myDiv = presenter.$view.find('.board-game-container')[0];
-        presenter.originalLeftValue = parsedState.originalLeftValue;
-        presenter.originalTopValue = parsedState.originalTopValue;
-        presenter.currentLeftValue = parsedState.currentLeftValue;
-        presenter.currentTopValue = parsedState.currentTopValue;
+
         presenter.isVisible = parsedState.isVisible;
         presenter.wasVisible = parsedState.wasVisible;
         presenter.wasDisable = parsedState.wasDisable;
         presenter.isDisable = parsedState.isDisable;
         presenter.setVisibility(presenter.isVisible);
-        presenter.setElementsPosition(presenter.currentLeftValue, presenter.currentTopValue);
 
         if(presenter.isDisable){
             $($myDiv).addClass('disable');
-            presenter.$view.find('.board-game-element').draggable("disable");
         } else{
             $($myDiv).removeClass('disable');
+        }
+
+        if (presenter.gameMode === presenter.gameTypes.FREE) {
+            presenter.setStateForFreeMode(parsedState);
+        } else {
+            presenter.setStateForGameMode(parsedState);
+        }
+    };
+
+    presenter.setStateForFreeMode = function (parsedState) {
+        presenter.originalLeftValue = parsedState.originalLeftValue;
+        presenter.originalTopValue = parsedState.originalTopValue;
+        presenter.currentLeftValue = parsedState.currentLeftValue;
+        presenter.currentTopValue = parsedState.currentTopValue;
+
+        if(presenter.isDisable){
+            presenter.$view.find('.board-game-element').draggable("disable");
+        } else{
             presenter.$view.find('.board-game-element').draggable("enable");
         }
+
+        presenter.setElementsPosition(presenter.currentLeftValue, presenter.currentTopValue);
+
+    };
+
+    presenter.setStateForGameMode = function (parsedState) {
+        presenter.boardCounters.each(function (index, element) {
+            presenter.selectCounter(element, index);
+            presenter.move(parsedState.counterPositions[index]);
+        });
+
+        presenter.selectCounter(presenter.boardCounters[parsedState.lastSelectedCounter], parsedState.lastSelectedCounter)
     };
 
     presenter.reset = function() {
@@ -560,24 +627,40 @@ function AddonBoard_Game_create(){
             presenter.hideAnswers();
         }
 
-        var $myDiv = presenter.$view.find('.board-game-container')[0];
 
-        presenter.setElementsPosition(presenter.originalLeftValue, presenter.originalTopValue);
         presenter.setWorkMode();
-        presenter.isErrorCheckingMode = false;
 
-        presenter.setElementsPosition(presenter.originalLeftValue, presenter.originalTopValue);
         presenter.isVisible = presenter.wasVisible;
         presenter.setVisibility(presenter.wasVisible);
         presenter.isDisable = presenter.wasDisable;
 
+        var $myDiv = presenter.$view.find('.board-game-container')[0];
+
         if(presenter.isDisable){
             $($myDiv).addClass('disable');
-            presenter.$view.find('.board-game-element').draggable("disable");
         } else{
             $($myDiv).removeClass('disable');
+        }
+
+        if (presenter.gameMode === presenter.gameTypes.FREE) {
+            presenter.resetFreeGame();
+        } else {
+            presenter.resetGameMode();
+        }
+    };
+
+    presenter.resetFreeGame = function () {
+        presenter.setElementsPosition(presenter.originalLeftValue, presenter.originalTopValue);
+
+        if (presenter.isDisable) {
+            presenter.$view.find('.board-game-element').draggable("disable");
+        } else {
             presenter.$view.find('.board-game-element').draggable("enable");
         }
+    };
+
+    presenter.resetGameMode = function () {
+        presenter.moveCountersToFirstField();
     };
 
     presenter.setShowErrorsMode = function() {
@@ -620,6 +703,8 @@ function AddonBoard_Game_create(){
             if(!presenter.isDisable){
                 presenter.$view.find('.board-game-element').draggable("enable");
             }
+
+            presenter.showAnswersMode = false;
         }
     };
 
@@ -652,6 +737,23 @@ function AddonBoard_Game_create(){
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
+    presenter.sendEventCounterMoved = function (value) {
+        var eventData = presenter.createEventData(presenter.lastSelectedCounter + 1, presenter.counterPositions[presenter.lastSelectedCounter] + 1);
+
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.moveCounter = function (distance) {
+        var counterElementToMove = presenter.boardCounters[presenter.lastSelectedCounter],
+            counterPosition = presenter.counterPositions[presenter.lastSelectedCounter],
+            newCounterPosition = Math.min(presenter.fields.length - 1, counterPosition + distance);
+
+        newCounterPosition = Math.max(0, newCounterPosition);
+
+        presenter.counterPositions[presenter.lastSelectedCounter] = newCounterPosition;
+        presenter.fields[newCounterPosition].appendChild(counterElementToMove);
+    };
+
     presenter.move = function (distance) {
         if (presenter.isDisable || presenter.showErrorsMode || presenter.showAnswersMode) {
             return;
@@ -661,14 +763,9 @@ function AddonBoard_Game_create(){
             return;
         }
 
-        var counterElementToMove = presenter.boardCounters[presenter.lastSelectedCounter],
-            counterPosition = presenter.counterPositions[presenter.lastSelectedCounter],
-            newCounterPosition = Math.min(presenter.fields.length - 1, counterPosition + distance);
+        presenter.moveCounter(distance);
 
-        newCounterPosition = Math.max(0, newCounterPosition);
-
-        presenter.counterPositions[presenter.lastSelectedCounter] = newCounterPosition;
-        presenter.fields[newCounterPosition].appendChild(counterElementToMove);
+        presenter.sendEventCounterMoved();
     };
 
     presenter.diceExecute = function (distance) {

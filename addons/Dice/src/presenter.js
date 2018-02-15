@@ -62,11 +62,12 @@ function AddonDice_create() {
             ModelValidators.Integer("animationLength", {minValue: 0}),
             ModelValidators.Integer("initialItem", {optional: true, minValue: 1, default: null}),
             ModelValidators.List("elementsList", [
-                ModelValidators.Integer("number", {optional: true, default: null}),
+                ModelValidators.String("number", {optional: true, default: null}),
                 ModelValidators.String("image", {trim: true, optional: true, default: null})
             ]),
             ModelValidators.Boolean("Is Visible"),
-            ModelValidators.String("worksWith", {optional: true, default: null})
+            ModelValidators.String("worksWith", {optional: true, default: null}),
+            ModelValidators.DumbString("ID")
         ]);
 
         if (!validatedModel.isValid) {
@@ -167,8 +168,6 @@ function AddonDice_create() {
     presenter.initialize = function (view, model)  {
         var validatedModel = presenter.validateModel(model);
 
-        console.log(validatedModel);
-
         if (!validatedModel.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.fieldName.join("|") + "_" + validatedModel.errorCode);
             return;
@@ -213,6 +212,15 @@ function AddonDice_create() {
         }
     };
 
+    presenter.sendEventDiceRolled = function (value) {
+        var elementText = presenter.configuration.elementsList[value - 1].number;
+        presenter.eventBus.sendEvent('ValueChanged', {
+            source: presenter.configuration.ID,
+            item:  value + '',
+            value : (elementText || value) + ''
+        });
+    };
+
     presenter.onDiceRoll = function (isLast) {
         var element = presenter.setRandomElement();
 
@@ -224,8 +232,28 @@ function AddonDice_create() {
                 element.classList.remove('isRolling');
             });
 
+            presenter.sendEventDiceRolled(element + 1);
             presenter.callExternalAddon(element);
         }
+    };
+
+    presenter.executeRoll = function () {
+        presenter.state.isRolling = true;
+
+        var animationLength = presenter.configuration.animationLength,
+            throwCount = parseInt((Math.random() * 10) + 5 + ""),
+            acceleration = 20,
+            jump = acceleration * animationLength * animationLength / throwCount;
+
+        for (var i = 1; i <= throwCount; i++) {
+            var time = Math.sqrt(i * jump / acceleration);
+
+            setTimeout(presenter.onDiceRoll.bind({}, i === 1), animationLength - time); //Is called in reverse order
+        }
+
+        presenter.state.elements.forEach(function (element) {
+            element.classList.add('isRolling');
+        });
     };
 
     presenter.roll = function () {
@@ -245,21 +273,15 @@ function AddonDice_create() {
             return;
         }
 
-        presenter.state.isRolling = true;
+        presenter.sendDiceRollStartEvent();
+        presenter.executeRoll();
+    };
 
-        var animationLength = presenter.configuration.animationLength,
-            throwCount = parseInt((Math.random() * 10) + 5 + ""),
-            acceleration = 20,
-            jump = acceleration * animationLength * animationLength / throwCount;
-
-        for (var i = 1; i <= throwCount; i++) {
-            var time = Math.sqrt(i * jump / acceleration);
-
-            setTimeout(presenter.onDiceRoll.bind({}, i === 1), animationLength - time); //Is called in reverse order
-        }
-
-        presenter.state.elements.forEach(function (element) {
-            element.classList.add('isRolling');
+    presenter.sendDiceRollStartEvent = function () {
+        presenter.eventBus.sendEvent('ValueChanged', {
+            source: presenter.configuration.ID,
+            item: '',
+            value : 'start'
         });
     };
 

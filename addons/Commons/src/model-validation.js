@@ -578,7 +578,7 @@
             }
 
             if (minValue === undefined || minValue === null) {
-                minValue = Number.MIN_VALUE;
+                minValue = Number.MAX_VALUE * -1;
             }
 
             valueToValidate = valueToValidate.trim();
@@ -715,7 +715,7 @@
          * config: {
          *      default="": {String | null} if value is "" then return default
          *      useLowerCase=False: {Boolean} change values to lower case
-         *      possibleValues=[]:{String[]}
+         *      values=[]:{String[]}
          * }
          *
          * Error Codes:
@@ -736,16 +736,18 @@
                 }
             }
 
+            valueToValidate = valueToValidate.trim();
+
             if (useLowerCase) {
                 valueToValidate = valueToValidate.toLowerCase();
             }
 
             if (defaultValue !== "" && valueToValidate === "") {
-                return this.generateValidValue(valueToValidate);
+                return this.generateValidValue(defaultValue);
             }
 
             for (var i = 0; i < possibleValues.length; i++) {
-                if (possibleValues[i] === valueToValidate) {
+                if (possibleValues[i].trim() === valueToValidate) {
                     return this.generateValidValue(valueToValidate);
                 }
             }
