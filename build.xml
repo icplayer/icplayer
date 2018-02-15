@@ -21,7 +21,7 @@
         <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
         <!-- Add any additional non-server libs (such as JUnit) -->
         <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
-        <pathelement location="${jsoup-lib}" />
+        <pathelement location="${jsoup-lib}"/>
         <pathelement location="../icfoundation/war/WEB-INF/classes"/>
     </path>
 
@@ -180,7 +180,7 @@
         <antcall target="test.addons"/>
     </target>
 
-    <target name="build" depends="clean, test, gwtc" description="Build this project"/>
+    <target name="build" depends="clean, gwtc" description="Build this project"/>
 
     <target name="build.full" depends="clean, test.full, gwtc" description="Build this project with addon tests"/>
 

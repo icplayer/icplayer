@@ -262,4 +262,15 @@ public class SemiResponsivePositions {
 			map.put(this.semiResponsiveID, map.get(lastSeenLayout));
 		}
 	}
+
+	public void translateSemiResponsiveIDs(HashMap<String, String> translationMap) {
+		for(String key : translationMap.keySet()) {
+			if (this.positions.containsKey(key)) {
+				String translatedID = translationMap.get(key);
+				ModuleDimensions positionCopy = ModuleDimensions.copy(this.positions.get(key));
+				this.positions.put(translatedID, positionCopy);
+				this.positions.remove(key);
+			}
+		}
+	}
 }

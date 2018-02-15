@@ -300,4 +300,11 @@ public class ModuleModelMockup implements IModuleModel {
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void translateSemiResponsiveIDs(
+			HashMap<String, String> translationMap) {
+		// TODO Auto-generated method stub
+		
+	}
 }

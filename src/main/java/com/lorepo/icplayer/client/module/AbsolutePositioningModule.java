@@ -547,4 +547,9 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	public void lock(boolean state) {
 		this.semiResponsivePositions.lock(state);
 	}
+
+	@Override
+	public void translateSemiResponsiveIDs(HashMap<String, String> translationMap) {
+		this.semiResponsivePositions.translateSemiResponsiveIDs(translationMap);
+	}
 }

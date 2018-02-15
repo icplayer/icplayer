@@ -12,4 +12,5 @@ public interface SemiResponsiveLayouts {
 	public void addSemiResponsiveDimensions(String name, ModuleDimensions dimensions);
 	public void syncSemiResponsiveLayouts(Set<PageLayout> actualSemiResponsiveLayouts);
 	public void copyConfiguration(String lastSeenLayout);
+	public void translateSemiResponsiveIDs(HashMap<String, String> translationMap);
 }
