@@ -327,6 +327,8 @@ var ice_dictionary_mx = {
 	"popup_left_position": "Ajustar posición izquierda",
 	"popup_top_position": "Ajustar posición arriba",
 	"text_parse_error": "Sintaxis de hueco incorrecta",
+	"text_insert": "Inserted",
+	"text_removed": "Removed",
 	"button_module": "Botón",
 	"standard_button": "Estándar",
 	"next_page_button": "Página siguiente",

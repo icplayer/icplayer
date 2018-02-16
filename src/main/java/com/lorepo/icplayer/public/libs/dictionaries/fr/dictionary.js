@@ -327,6 +327,8 @@ var ice_dictionary_fr = {
 "popup_left_position" : "Popup left position",
 "popup_top_position" : "Popup top position",
 "text_parse_error": "Syntaxe du champ incorrecte",
+"text_insert": "Insterted",
+"text_removed": "Removed",
 "button_module": "Bouton",
 "standard_button" : "Standard",
 "next_page_button" : "Page suivante",

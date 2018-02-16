@@ -22,6 +22,15 @@ import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 
 
 public class TextModel extends BasicModuleModel {
+	public static final int NUMBER_INDEX = 0;
+	public static final int GAP_INDEX = 1;
+	public static final int DROPDOWN_INDEX = 2;
+	public static final int CORRECT_INDEX = 3;
+	public static final int WRONG_INDEX = 4;
+	public static final int EMPTY_INDEX = 5;
+	public static final int INSERT_INDEX = 6;
+	public static final int REMOVED_INDEX = 7;
+	
 	public String parsedText;
 	public List<GapInfo> gapInfos = new ArrayList<GapInfo>();
 	public List<InlineChoiceInfo> choiceInfos = new ArrayList<InlineChoiceInfo>();
@@ -122,12 +131,14 @@ public class TextModel extends BasicModuleModel {
 				userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
 				useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
 				langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
-				this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(textElement, "number"));
-				this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(textElement, "gap"));
-				this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(textElement, "dropdown"));
-				this.speechTextItems.get(3).setText(XMLUtils.getAttributeAsString(textElement, "correct"));
-				this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(textElement, "wrong"));
-				this.speechTextItems.get(5).setText(XMLUtils.getAttributeAsString(textElement, "empty"));
+				this.speechTextItems.get(TextModel.NUMBER_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "number"));
+				this.speechTextItems.get(TextModel.GAP_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "gap"));
+				this.speechTextItems.get(TextModel.DROPDOWN_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "dropdown"));
+				this.speechTextItems.get(TextModel.CORRECT_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "correct"));
+				this.speechTextItems.get(TextModel.WRONG_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "wrong"));
+				this.speechTextItems.get(TextModel.EMPTY_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "empty"));
+				this.speechTextItems.get(TextModel.INSERT_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "insert"));
+				this.speechTextItems.get(TextModel.REMOVED_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "removed"));
 
 				if (rawText == null) {
 					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
@@ -196,12 +207,14 @@ public class TextModel extends BasicModuleModel {
 			text.setAttribute("langAttribute", this.langAttribute);
 		}
 		text.setAttribute("valueType", this.valueType);
-		text.setAttribute("number", this.speechTextItems.get(0).getText());
-		text.setAttribute("gap", this.speechTextItems.get(1).getText());
-		text.setAttribute("dropdown", this.speechTextItems.get(2).getText());
-		text.setAttribute("correct", this.speechTextItems.get(3).getText());
-		text.setAttribute("wrong", this.speechTextItems.get(4).getText());
-		text.setAttribute("empty", this.speechTextItems.get(5).getText());
+		text.setAttribute("number", this.speechTextItems.get(TextModel.NUMBER_INDEX).getText());
+		text.setAttribute("gap", this.speechTextItems.get(TextModel.GAP_INDEX).getText());
+		text.setAttribute("dropdown", this.speechTextItems.get(TextModel.DROPDOWN_INDEX).getText());
+		text.setAttribute("correct", this.speechTextItems.get(TextModel.CORRECT_INDEX).getText());
+		text.setAttribute("wrong", this.speechTextItems.get(TextModel.WRONG_INDEX).getText());
+		text.setAttribute("empty", this.speechTextItems.get(TextModel.EMPTY_INDEX).getText());
+		text.setAttribute("insert", this.speechTextItems.get(TextModel.INSERT_INDEX).getText());
+		text.setAttribute("removed", this.speechTextItems.get(TextModel.REMOVED_INDEX).getText());
 		text.appendChild(XMLUtils.createCDATASection(this.moduleText));
 
 		textModule.appendChild(text);
@@ -856,6 +869,8 @@ public class TextModel extends BasicModuleModel {
 				speechTextItems.add(new SpeechTextsStaticListItem("correct"));
 				speechTextItems.add(new SpeechTextsStaticListItem("wrong"));
 				speechTextItems.add(new SpeechTextsStaticListItem("empty"));
+				speechTextItems.add(new SpeechTextsStaticListItem("insert","text"));
+				speechTextItems.add(new SpeechTextsStaticListItem("removed","text"));
 			}
 
 			@Override
@@ -965,28 +980,36 @@ public class TextModel extends BasicModuleModel {
 		
 		final String text = this.speechTextItems.get(index).getText();
 		if (text.isEmpty()) {
-			if (index == 0) {
+			if (index == TextModel.NUMBER_INDEX) {
 				return "number";
 			}
 			
-			if (index == 1) {
+			if (index == TextModel.GAP_INDEX) {
 				return "gap";
 			}
 			
-			if (index == 2) {
+			if (index == TextModel.DROPDOWN_INDEX) {
 				return "dropdown";
 			}
 			
-			if (index == 3) {
+			if (index == TextModel.CORRECT_INDEX) {
 				return "correct";
 			}
 			
-			if (index == 4) {
+			if (index == TextModel.WRONG_INDEX) {
 				return "wrong";
 			}
 			
-			if (index == 5) {
+			if (index == TextModel.EMPTY_INDEX) {
 				return "empty";
+			}
+			
+			if (index == TextModel.INSERT_INDEX) {
+				return "inserted";
+			}
+			
+			if (index == TextModel.REMOVED_INDEX) {
+				return "removed";
 			}
 			
 			return "";

@@ -327,6 +327,8 @@
 	"popup_left_position" : "Pozycja okna po lewej stronie",
 	"popup_top_position" : "Popup top position",
 	"text_parse_error": "Pozycja okna od góry",
+	"text_insert": "Inserted",
+	"text_removed": "Removed",
 	"button_module" : "Przycisk",
 	"standard_button" : "Standardowy",
 	"next_page_button" : "Następna strona",
