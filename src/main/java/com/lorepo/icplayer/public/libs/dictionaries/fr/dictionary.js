@@ -327,6 +327,8 @@ var ice_dictionary_fr = {
 "popup_left_position" : "Popup left position",
 "popup_top_position" : "Popup top position",
 "text_parse_error": "Syntaxe du champ incorrecte",
+"text_insert": "Insterted",
+"text_removed": "Removed",
 "button_module": "Bouton",
 "standard_button" : "Standard",
 "next_page_button" : "Page suivante",
@@ -1653,5 +1655,7 @@ var ice_dictionary_fr = {
 "header_footer_notification": "New feature! Now you can define and select a different header or footer <br/> for each lesson page. Having set the additional header/footer pages <br/> in Commons, simply check a relevant option in the Page properties.",
 "dont_generate_correct_order": "Don't generate correct order",
 "alternative_text": "Alternative text",
-"edit_alternative_text": "Edit alternative text"
+"edit_alternative_text": "Edit alternative text",
+"check_answers_button_edit_block": "Page edition is blocked",
+"check_answers_button_no_edit_block": "Page edition is not blocked"
 };

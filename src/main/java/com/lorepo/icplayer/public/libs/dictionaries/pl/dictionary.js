@@ -327,6 +327,8 @@
 	"popup_left_position" : "Pozycja okna po lewej stronie",
 	"popup_top_position" : "Popup top position",
 	"text_parse_error": "Pozycja okna od góry",
+	"text_insert": "Inserted",
+	"text_removed": "Removed",
 	"button_module" : "Przycisk",
 	"standard_button" : "Standardowy",
 	"next_page_button" : "Następna strona",
@@ -1652,5 +1654,7 @@
 	"Quiz_property_isActivity": "Is activity",
 	"dont_generate_correct_order": "Nie generuj poprawnej kombinacji",
 	"alternative_text": "Alternative text",
-	"edit_alternative_text": "Edit alternative text"
+	"edit_alternative_text": "Edit alternative text",
+	"check_answers_button_edit_block": "Page edition is blocked",
+	"check_answers_button_no_edit_block": "Page edition is not blocked"
 };

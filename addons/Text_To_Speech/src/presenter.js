@@ -261,7 +261,19 @@ function AddonText_To_Speech_create() {
 
     presenter.playTitle = function (area, id, langTag) {
         if (area && id) {
-            presenter.speak([getTextVoiceObject(getAddOnConfiguration(area, id).title, langTag)]);
+            var textVoices = [getTextVoiceObject(getAddOnConfiguration(area, id).title, langTag)];
+            var module = null;
+            if(0 === area.toLowerCase().localeCompare("main")){
+                module = presenter.playerController.getModule(id);
+            } else if (0 === area.toLowerCase().localeCompare("footer")) {
+                module = presenter.playerController.getFooterModule(id);
+            } else if (0 === area.toLowerCase().localeCompare("header")) {
+                module = presenter.playerController.getHeaderModule(id);
+            }
+            if (module !== undefined && module !== null && module.hasOwnProperty('getTitlePostfix')) {
+                textVoices.push(getTextVoiceObject(module.getTitlePostfix(), langTag));
+            }
+            presenter.speak(textVoices);
         }
     };
 
@@ -334,6 +346,10 @@ function AddonText_To_Speech_create() {
 
             isVisible: presenter.configuration.isVisible
         });
+    };
+
+    presenter.setPlayerController = function(controller) {
+        presenter.playerController = controller;
     };
 
     presenter.setState = function (state) {

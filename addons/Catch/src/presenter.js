@@ -501,8 +501,17 @@ function AddonCatch_create() {
         stopAndRemoveFallingObjects();
 
         if (!isEndGame) {
-            startGame(currentLevel);
-            turnOnEventListeners();
+            var $welcomePage = makeWelcomePage();
+            presenter.$view.append($welcomePage);
+
+            $welcomePage.on('click', function () {
+                if (isPaused) {
+                    return;
+                }
+                startGame(currentLevel);
+                turnOnEventListeners();
+                $welcomePage.remove();
+            });
         }
     };
 
