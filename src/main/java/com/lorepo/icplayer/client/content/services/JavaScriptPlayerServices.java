@@ -12,6 +12,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
@@ -65,10 +66,12 @@ public class JavaScriptPlayerServices {
 	private final Map<String, List<JavaScriptObject>> pageLoadedListeners = new LinkedHashMap<String, List<JavaScriptObject>>();
 	private final Map<String, List<JavaScriptObject>> pageLoadedListenersDelayed = new LinkedHashMap<String, List<JavaScriptObject>>();
 	private final HashMap<String, List<JavaScriptObject>> listenersDelayed = new HashMap<String, List<JavaScriptObject>>();
+	private ScaleInformation scaleInformation;
 
 	public JavaScriptPlayerServices(IPlayerServices playerServices) {
 		this.playerServices = playerServices;
 		jsObject = initJSObject(this);
+		scaleInformation = new ScaleInformation();
 		connectEventHandlers();
 	}
 
@@ -466,6 +469,21 @@ public class JavaScriptPlayerServices {
 		playerServices.iframeScroll = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getIframeScroll()();
 		};
+		
+		playerServices.getScaleInformation = function() {
+			var scaleInfo = x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getScaleInformation()();
+			var jsScaleInfo = {
+				scaleX: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleX,
+				scaleY: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleY,
+				transform: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::transform,
+				transformOrigin: scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::transformOrigin
+			}
+			return jsScaleInfo;
+		};
+		
+		playerServices.setScaleInformation = function(scaleInfo) {
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setScaleInformation(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(scaleInfo.scaleX,scaleInfo.scaleY,scaleInfo.transform,scaleInfo.transformOrigin);
+		};
 
 		return playerServices;
 	}-*/;
@@ -845,5 +863,26 @@ public class JavaScriptPlayerServices {
 
 	private void disableKeyboardNavigation() {
 		playerServices.getCommands().disableKeyboardNavigation();
+	}
+	
+	public ScaleInformation getScaleInformation(){
+		return this.scaleInformation;
+	}
+	
+	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin){
+		ScaleInformation scaleInfo = new ScaleInformation();
+		scaleInfo.scaleX = Double.parseDouble(scaleX);
+		scaleInfo.scaleY = Double.parseDouble(scaleY);
+		if(transform!=null){
+			scaleInfo.transform = transform;
+		}else{
+			throw new NullPointerException("ScaleInformation.transform cannot be null");
+		};
+		if(transformOrigin!=null){
+			scaleInfo.transformOrigin = transformOrigin;
+		}else{
+			throw new NullPointerException("ScaleInformation.transformOrigin cannot be null");
+		}
+		this.scaleInformation = scaleInfo;
 	}
 }

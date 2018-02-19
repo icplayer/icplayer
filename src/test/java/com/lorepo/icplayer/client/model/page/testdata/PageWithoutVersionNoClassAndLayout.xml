@@ -27,7 +27,7 @@
 			    isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" 
 			    isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" blockWrongAnswers="false" 
 			    userActionEvents="false" useEscapeCharacterInGap="false" valueType="All"
-			    number="" gap="" dropdown="" correct="" wrong="" empty="">
+			    number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed="">
 			</text>
 		</textModule>
 		
@@ -43,7 +43,7 @@
 			    isIgnorePunctuation="false" isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" 
 			    isDisabled="false" isCaseSensitive="false" openLinksinNewTab="true" blockWrongAnswers="false" 
 			    userActionEvents="false" useEscapeCharacterInGap="false" valueType="All"
-			    number="" gap="" dropdown="" correct="" wrong="" empty="">
+			    number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed="">
 			</text>
 		</textModule>
 		
