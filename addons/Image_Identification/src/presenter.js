@@ -23,7 +23,8 @@ function AddonImage_Identification_create(){
      */
     function CSS_CLASSESToString() {
         return CSS_CLASSES.ELEMENT + " " + CSS_CLASSES.SELECTED + " " + CSS_CLASSES.CORRECT + " " +
-            CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER + " " + CSS_CLASSES.SHOW_ANSWERS + " " + CSS_CLASSES.MOUSE_HOVER_SELECTED;
+            CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER + " " +
+            CSS_CLASSES.SHOW_ANSWERS + " " + CSS_CLASSES.MOUSE_HOVER_SELECTED;
     }
 
     function clickLogic() {
@@ -48,6 +49,7 @@ function AddonImage_Identification_create(){
         $element.hover(
             function() {
                 if (presenter.configuration.isErrorCheckMode && (presenter.configuration.isActivity || presenter.configuration.isBlockedInErrorCheckingMode)) return;
+
 
                 if (presenter.configuration.isHoverEnabled) {
                     $(this).removeClass(CSS_CLASSESToString());
@@ -183,12 +185,14 @@ function AddonImage_Identification_create(){
 
         loadImage(presenter.configuration.imageSrc, preview);
         presenter.setTabindex(presenter.$view, presenter.configuration.isTabindexEnabled);
+        presenter.setIsDisabled(presenter.$view, presenter.configuration.isDisabled);
 
     }
 
     presenter.validateModel = function (model) {
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
+        var isDisabled = ModelValidationUtils.validateBoolean(model["Is Disabled"]);
 
         return {
             addonID: model.ID,
@@ -203,7 +207,8 @@ function AddonImage_Identification_create(){
             isErrorCheckMode: false,
             blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers),
             isTabindexEnabled: isTabindexEnabled,
-            altText: model["Alt text"]
+            altText: model["Alt text"],
+            isDisabled: isDisabled
         };
     };
 
@@ -239,14 +244,16 @@ function AddonImage_Identification_create(){
 
     presenter.disable = function() {
         presenter.isDisabled = true;
-        var $element = presenter.$view.find('div:first');
+        var $element = presenter.$view.find('div:first')[0];
         $($element).addClass('image-identification-element-disabled');
+        // $($element).attr("isDisabled", true);
     };
 
     presenter.enable = function() {
         presenter.isDisabled = false;
-        var $element = presenter.$view.find('div:first');
+        var $element = presenter.$view.find('div:first')[0];
         $($element).removeClass('image-identification-element-disabled');
+        // $($element).attr("isDisabled", false);
     };
 
     presenter.setVisibility = function(isVisible) {
@@ -542,6 +549,16 @@ function AddonImage_Identification_create(){
     presenter.setTabindex = function (element, isTabindexEnabled) {
         var tabindexValue = isTabindexEnabled ? "0" : "-1";
         element.attr("tabindex", tabindexValue);
+    };
+
+    presenter.setIsDisabled = function (element, isDisabled) {
+        var disabledValue = isDisabled ? true : false;
+        if (disabledValue){
+            presenter.disable();
+        } else {
+            presenter.enable();
+        }
+        element.attr("isDisabled", disabledValue);
     };
 
     return presenter;

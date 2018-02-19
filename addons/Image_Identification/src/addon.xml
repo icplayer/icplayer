@@ -4,6 +4,7 @@
 	<model>
 		<property name='Image' nameLabel="Image_Identification_property_image" type='image' isDefault='true' />
 		<property name="SelectionCorrect" nameLabel="Image_Identification_property_selection_correct" type="boolean" />
+		<property name="Is Disabled" type="boolean" />
 		<property name="Is not an activity" nameLabel="Image_Identification_property_is_not_an_activity" type="boolean" />
 		<property name="Block in error checking mode" nameLabel="Image_Identification_property_block_in_error_checking_mode" type="boolean" />
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="Image_Identification_property_block_wrong_answers" type="boolean" />
