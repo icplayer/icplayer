@@ -76,19 +76,4 @@ public class ModuleDimensions {
 		
 		return false;
 	}
-	
-//	@Override
-//	public int hashCode() {
-//		//https://stackoverflow.com/questions/113511/best-implementation-for-hashcode-method
-//		int result = 10;
-//		
-//		result = result * 37 + this.left;
-//		result = result * 37 + this.right;
-//		result = result * 37 + this.height;
-//		result = result * 37 + this.width;
-//		result = result * 37 + this.top;
-//		result = result * 37 + this.bottom;
-//		
-//		return result;
-//	}
 }
