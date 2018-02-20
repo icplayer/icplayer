@@ -1,3 +1,4 @@
+2018-02-20 Added TTS support for SHow Answers Button
 2018-02-15 Added TTS support for the Text's Draggable Gap
 2018-02-15 Added TTS support for Check Answers Button 
 2018-02-15 Fixed issue with scaling in Figure Drawing on mobile devices
