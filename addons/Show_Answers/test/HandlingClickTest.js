@@ -7,16 +7,23 @@
             increaseMistakeCounter: sinon.stub()
         };
 
+        this.tts = {
+            speak: sinon.spy()
+        };
+
         this.stubs = {
             addClassStub: sinon.stub(),
             removeClassStub: sinon.stub(),
             textStub: sinon.stub(),
             sendEventStub: sinon.stub(this.presenter, 'sendEvent'),
-            getCommandsStubs: sinon.stub().returns(this.commands)
+            getCommandsStubs: sinon.stub().returns(this.commands),
+            getModuleStub: sinon.stub().returns(this.tts)
         };
 
         this.presenter.playerController = {
-            getCommands: this.stubs.getCommandsStubs
+            getCommands: this.stubs.getCommandsStubs,
+            getModule: this.stubs.getModuleStub
+
         };
 
         this.presenter.$wrapper = {
@@ -154,6 +161,52 @@
 
             assertFalse(this.commands.increaseMistakeCounter.calledOnce);
         }
+    });
+
+    TestCase('[Show_Answers] WCAG navigation test', {
+        setUp: setUpPresenter,
+
+        'test press enter when Show Answers not selected': function () {
+            this.presenter.setWCAGStatus(true);
+            this.presenter.speechTexts = {
+                editBlock: 'Page edition is blocked',
+                noEditBlock: 'Page edition is not blocked'
+            };
+            this.presenter.handleClickAction();
+
+            this.presenter.keyboardController(13);
+            var args = this.tts.speak.args[0][0];
+            assertTrue(this.tts.speak.calledOnce);
+            assertTrue(0 === args[0].text.localeCompare('Page edition is blocked'));
+        },
+
+        'test press enter when Show Answers selected': function () {
+            this.presenter.setWCAGStatus(true);
+            this.presenter.speechTexts = {
+                editBlock: 'Page edition is blocked',
+                noEditBlock: 'Page edition is not blocked'
+            };
+            this.presenter.handleClickAction();
+            this.presenter.configuration.isSelected = true;
+
+            this.presenter.keyboardController(13);
+            var args = this.tts.speak.args[0][0];
+            assertTrue(this.tts.speak.calledOnce);
+            assertTrue(0 === args[0].text.localeCompare('Page edition is not blocked'));
+        },
+
+        'test press enter when WCAG not active': function () {
+            this.presenter.setWCAGStatus(false);
+            this.presenter.speechTexts = {
+                editBlock: 'Page edition is blocked',
+                noEditBlock: 'Page edition is not blocked'
+            };
+            this.presenter.handleClickAction();
+
+            this.presenter.keyboardController(13);
+            assertTrue(0 === this.tts.speak.callCount);
+        }
+
     });
 
 })();
