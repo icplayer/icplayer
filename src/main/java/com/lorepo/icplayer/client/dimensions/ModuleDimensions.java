@@ -56,4 +56,39 @@ public class ModuleDimensions {
 			this.height = value;;
 		}
 	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		
+		if (other instanceof ModuleDimensions) {
+			ModuleDimensions otherDimension = (ModuleDimensions) other;
+			return this.left == otherDimension.left
+					&& this.right == otherDimension.right
+					&& this.height == otherDimension.height
+					&& this.width == otherDimension.width
+					&& this.top == otherDimension.top
+					&& this.bottom == otherDimension.bottom;
+			
+		}
+		
+		return false;
+	}
+	
+//	@Override
+//	public int hashCode() {
+//		//https://stackoverflow.com/questions/113511/best-implementation-for-hashcode-method
+//		int result = 10;
+//		
+//		result = result * 37 + this.left;
+//		result = result * 37 + this.right;
+//		result = result * 37 + this.height;
+//		result = result * 37 + this.width;
+//		result = result * 37 + this.top;
+//		result = result * 37 + this.bottom;
+//		
+//		return result;
+//	}
 }

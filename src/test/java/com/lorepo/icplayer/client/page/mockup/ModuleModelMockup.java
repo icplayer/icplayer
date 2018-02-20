@@ -9,6 +9,7 @@ import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.module.LayoutDefinition;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
@@ -306,5 +307,29 @@ public class ModuleModelMockup implements IModuleModel {
 			HashMap<String, String> translationMap) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public HashMap<String, Boolean> getResponsiveVisibility() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HashMap<String, Boolean> getResponsiveVisibilityInEditor() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HashMap<String, Boolean> getResponsiveLocked() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public HashMap<String, LayoutDefinition> getResponsiveRelativeLayouts() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

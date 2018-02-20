@@ -552,4 +552,24 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	public void translateSemiResponsiveIDs(HashMap<String, String> translationMap) {
 		this.semiResponsivePositions.translateSemiResponsiveIDs(translationMap);
 	}
+
+	@Override
+	public HashMap<String, Boolean> getResponsiveVisibility() {
+		return this.semiResponsivePositions.getResponsiveVisibility();
+	}
+
+	@Override
+	public HashMap<String, Boolean> getResponsiveVisibilityInEditor() {
+		return this.semiResponsivePositions.getResponsiveVisibilityInEditor();
+	}
+
+	@Override
+	public HashMap<String, Boolean> getResponsiveLocked() {
+		return this.semiResponsivePositions.getResponsiveLocked();
+	}
+
+	@Override
+	public HashMap<String, LayoutDefinition> getResponsiveRelativeLayouts() {
+		return this.semiResponsivePositions.getResponsiveRelativeLayouts();
+	}
 }

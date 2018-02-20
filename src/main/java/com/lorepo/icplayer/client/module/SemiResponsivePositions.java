@@ -265,12 +265,60 @@ public class SemiResponsivePositions {
 
 	public void translateSemiResponsiveIDs(HashMap<String, String> translationMap) {
 		for(String key : translationMap.keySet()) {
+			String translatedID = translationMap.get(key);
 			if (this.positions.containsKey(key)) {
-				String translatedID = translationMap.get(key);
-				ModuleDimensions positionCopy = ModuleDimensions.copy(this.positions.get(key));
-				this.positions.put(translatedID, positionCopy);
-				this.positions.remove(key);
+				this.translatePositions(key, translatedID);
+			}
+			
+			if (this.isLocked.containsKey(key)) {
+				this.translateBooleanHashMap(this.isLocked, key, translatedID);
+			}
+			
+			if (this.isVisible.containsKey(key)) {
+				this.translateBooleanHashMap(this.isVisible, key, translatedID);
+			}
+			
+			if (this.isModuleVisibleInEditor.containsKey(key)) {
+				this.translateBooleanHashMap(this.isModuleVisibleInEditor, key, translatedID);
+			}
+			
+			if (this.layoutsDefinitions.containsKey(key)) {
+				this.translateLayoutsDefinition(key, translatedID);
 			}
 		}
+	}
+	
+	private void translateLayoutsDefinition(String key, String translatedID) {
+		LayoutDefinition copiedLD = LayoutDefinition.copy(this.layoutsDefinitions.get(key));
+		this.layoutsDefinitions.put(translatedID, copiedLD);
+		this.layoutsDefinitions.remove(key);
+	}
+
+	private void translateBooleanHashMap(HashMap<String, Boolean> map, String key, String translatedID) {
+		boolean value = map.get(key);
+		map.put(translatedID, value);
+		map.remove(key);
+	}
+
+	private void translatePositions(String key, String translatedID) {
+		ModuleDimensions positionCopy = ModuleDimensions.copy(this.positions.get(key));
+		this.positions.put(translatedID, positionCopy);
+		this.positions.remove(key);
+	}
+
+	public HashMap<String, Boolean> getResponsiveVisibility() {
+		return this.isVisible;
+	}
+
+	public HashMap<String, Boolean> getResponsiveVisibilityInEditor() {
+		return this.isModuleVisibleInEditor;
+	}
+
+	public HashMap<String, Boolean> getResponsiveLocked() {
+		return this.isLocked;
+	}
+	
+	public HashMap<String,LayoutDefinition> getResponsiveRelativeLayouts() {
+		return this.layoutsDefinitions;
 	}
 }

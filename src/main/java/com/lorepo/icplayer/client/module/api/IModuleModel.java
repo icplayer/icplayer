@@ -1,8 +1,6 @@
 package com.lorepo.icplayer.client.module.api;
 
 
-import java.util.HashMap;
-
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;

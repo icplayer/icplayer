@@ -23,6 +23,14 @@ public class PageLayout implements PageLayoutBuilder {
 		this.styleID = id;
 	}
 	
+	
+	public PageLayout(String id, String name, int threshold) {
+		this.id = id;
+		this.name = name;
+		this.threshold = threshold;
+		this.styleID = id;
+	}
+	
 	public static PageLayout copy(PageLayout pageLayoutToCopy) {
 		PageLayout copy = new PageLayout(pageLayoutToCopy.getID(), pageLayoutToCopy.getName());
 		copy.setThreshold(pageLayoutToCopy.getThreshold());
