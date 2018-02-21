@@ -271,7 +271,12 @@ function getJISONGrammar () {
             ],
 
             "case_option": [
-                ["OPTION operation THEN end_line code_block_or_instruction", "$$ = yy.presenterContext.bnf['case_option']($2, $5);"]
+                ["OPTION case_operations THEN end_line code_block_or_instruction", "$$ = yy.presenterContext.bnf['case_option']($2, $5);"],
+            ],
+
+            "case_operations": [
+                ["operation", "$$ = [$1]"],
+                ["case_operations COMMA operation", "$1.push($3); $$ = $1"]
             ],
 
             "number_with_minus" : [
@@ -367,20 +372,20 @@ function getJISONGrammar () {
 
             "operation" : [
                 [ "STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['function_call'](yy, $1, $3);"],
-                [ "operation + operation",      "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__add__');" ],
-                [ "operation - operation",      "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__sub__');" ],
-                [ "operation * operation",      "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__mul__');" ],
-                [ "operation DIV_FLOOR operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__div_full__');" ],
-                [ "operation / operation",      "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__div__');" ],
-                [ "operation % operation",      "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__mod__');" ],
-                [ "operation <= operation",     "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__le__');" ],
-                [ "operation >= operation",     "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__ge__');" ],
-                [ "operation > operation",      "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__gt__');" ],
-                [ "operation < operation",      "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__lt__');" ],
-                [ "operation != operation",     "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__neq__');" ],
-                [ "operation == operation",     "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__eq__');" ],
-                [ "operation OR operation",     "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__or__');" ],
-                [ "operation AND operation",    "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__and__');" ],
+                [ "operation + operation",      "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__add__');" ],
+                [ "operation - operation",      "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__sub__');" ],
+                [ "operation * operation",      "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__mul__');" ],
+                [ "operation DIV_FLOOR operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__div_full__');" ],
+                [ "operation / operation",      "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__div__');" ],
+                [ "operation % operation",      "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__mod__');" ],
+                [ "operation <= operation",     "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__le__');" ],
+                [ "operation >= operation",     "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__ge__');" ],
+                [ "operation > operation",      "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__gt__');" ],
+                [ "operation < operation",      "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__lt__');" ],
+                [ "operation != operation",     "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__neq__');" ],
+                [ "operation == operation",     "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__eq__');" ],
+                [ "operation OR operation",     "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__or__');" ],
+                [ "operation AND operation",    "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__and__');" ],
                 [ "( operation )",              "$$ = $2" ],
                 [ "- operation",                "$$ = yy.presenterContext.bnf['generateMinusOperation']($2);", {"prec": "UMINUS"} ],
                 [ "operation DOT STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['method_call']($3, $5 || [], $1);"],

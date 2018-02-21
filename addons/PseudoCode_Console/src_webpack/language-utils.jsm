@@ -3,6 +3,12 @@ export const TYPES = {
     JUMP: 2
 };
 
+/**
+ * Generate code executed by addon.
+ * @param  {String} code
+ * @param  {String} label set label for goto instruction
+ * @param  {Boolean} [isAsync] async instructions cant be merged and is optional
+ */
 export function generateExecuteObject (code, label, isAsync) {
     return {
         code: code,

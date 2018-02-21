@@ -30,7 +30,11 @@ module.exports = {
           loader: "babel-loader",
           options: {
             presets: ['babel-preset-env'],
-            plugins: [require('babel-plugin-transform-remove-strict-mode')]
+            plugins: [
+                require('babel-plugin-transform-remove-strict-mode'),
+                "transform-object-rest-spread",
+                "transform-class-properties"
+            ]
           }
         }
 

@@ -70,48 +70,89 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-var EXCEPTIONS = exports.EXCEPTIONS = {
-    InstructionIsDefinedException: function InstructionIsDefinedException(instrName) {
-        this.message = "Instruction was defined before: \"" + instrName + "\"";
-        this.name = "InstructionIsDefinedException";
-    },
 
-    CastErrorException: function CastErrorException(type, toType) {
-        this.message = "Cast exception \"" + type + "\" to type: \"" + toType + "\"";
-        this.name = "CastErrorException";
-    },
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-    GetErrorException: function GetErrorException(type, index) {
-        this.message = "Exception (" + type + "): Value at index " + index + " is not defined";
-        this.name = "GetErrorException";
-    },
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-    IndexOutOfBoundsException: function IndexOutOfBoundsException(type, index, length) {
-        this.message = "Exception (" + type + "): index " + index + " is out of bounds";
-        this.name = "IndexOutOfBoundsException";
-    },
+var EXCEPTIONS = exports.EXCEPTIONS = function () {
+    function EXCEPTIONS(translations) {
+        _classCallCheck(this, EXCEPTIONS);
 
-    ToFewArgumentsException: function ToFewArgumentsException(functionName, expected) {
-        this.name = "ToFewArgumentsException";
-        this.message = "To few arguments for function " + functionName + " (expected at least: " + expected + " arguments)";
-    },
+        this.translations = {};
 
-    MethodNotFoundException: function MethodNotFoundException(instrName) {
-        this.message = "Undefined method \"" + instrName + "\"";
-        this.name = "MethodNotFoundException";
-    },
-
-    UndefinedVariableNameException: function UndefinedVariableNameException(varName, functionName) {
-        this.message = "Usage of undefined variable '" + varName + "' in function '" + functionName + "'";
-        this.name = "UndefinedVariableNameException";
-    },
-
-    UndefinedFunctionNameException: function UndefinedFunctionNameException(varName, functionName) {
-        this.message = "Usage of undefined function '" + varName + "' in function '" + functionName + "'";
-        this.name = "UndefinedFunctionNameException";
+        this.translations = translations;
     }
 
-};
+    _createClass(EXCEPTIONS, [{
+        key: "InstructionIsDefinedException",
+        value: function InstructionIsDefinedException(instrName) {
+            var defaultTranslation = "The instruction '{0}' has already been defined";
+            this.name = "InstructionIsDefinedException";
+            this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, instrName);
+
+            return this;
+        }
+    }, {
+        key: "CastErrorException",
+        value: function CastErrorException(type, toType) {
+            this.name = "CastErrorException";
+            this.message = "Cast exception \"" + type + "\" to type: \"" + toType + "\"";
+
+            return this;
+        }
+    }, {
+        key: "GetErrorException",
+        value: function GetErrorException(type, index) {
+            this.name = "GetErrorException";
+            this.message = "Exception (" + type + "): Value at index " + index + " is not defined";
+
+            return this;
+        }
+    }, {
+        key: "IndexOutOfBoundsException",
+        value: function IndexOutOfBoundsException(type, index, length) {
+            this.name = "IndexOutOfBoundsException";
+            this.message = "Exception (" + type + "): index " + index + " is out of bounds";
+
+            return this;
+        }
+    }, {
+        key: "ToFewArgumentsException",
+        value: function ToFewArgumentsException(functionName, expected) {
+            this.name = "ToFewArgumentsException";
+            this.message = "To few arguments for function " + functionName + " (expected at least: " + expected + " arguments)";
+
+            return this;
+        }
+    }, {
+        key: "MethodNotFoundException",
+        value: function MethodNotFoundException(instrName) {
+            this.name = "MethodNotFoundException";
+            this.message = "Undefined method \"" + instrName + "\"";
+
+            return this;
+        }
+    }, {
+        key: "UndefinedVariableNameException",
+        value: function UndefinedVariableNameException(varName, functionName) {
+            this.name = "UndefinedVariableNameException";
+            this.message = "Usage of undefined variable '" + varName + "' in function '" + functionName + "'";
+
+            return this;
+        }
+    }, {
+        key: "UndefinedFunctionNameException",
+        value: function UndefinedFunctionNameException(varName, functionName) {
+            this.name = "UndefinedFunctionNameException";
+            this.message = "Usage of undefined function '" + varName + "' in function '" + functionName + "'";
+
+            return this;
+        }
+    }]);
+
+    return EXCEPTIONS;
+}();
 
 /***/ }),
 /* 1 */
@@ -127,6 +168,12 @@ var TYPES = exports.TYPES = {
     JUMP: 2
 };
 
+/**
+ * Generate code executed by addon.
+ * @param  {String} code
+ * @param  {String} label set label for goto instruction
+ * @param  {Boolean} [isAsync] async instructions cant be merged and is optional
+ */
 function generateExecuteObject(code, label, isAsync) {
     return {
         code: code,
@@ -156,7 +203,13 @@ var _definedExceptions = __webpack_require__(0);
 
 var _languageCodeGenerators = __webpack_require__(5);
 
-var _languageUtils = __webpack_require__(1);
+var _console = __webpack_require__(6);
+
+var _machine = __webpack_require__(7);
+
+var _validation = __webpack_require__(8);
+
+var _utils = __webpack_require__(9);
 
 /**
  * Teoria:
@@ -164,28 +217,21 @@ var _languageUtils = __webpack_require__(1);
  * Check comments if you want to add OOP to language.
  */
 function AddonPseudoCode_Console_create() {
-    var presenter = function presenter() {},
-        JISON_GRAMMAR = null;
-
-    // ----------------------- LANGUAGE COMPILER SECTION -----------------------------------
-
+    var presenter = function presenter() {};
 
     /**
      * Each object in pseudocode console must be created by this mock.
      */
-    presenter.objectMocks = _definedObjects.DEFINED_OBJECTS;
-
+    presenter.objectMocks = {};
     presenter.bnf = _languageCodeGenerators.CODE_GENERATORS;
-
-    /**
-     * Generate code executed by addon.
-     * @param  {String} code
-     * @param  {String} label set label for goto instruction
-     * @param  {Boolean} [isAsync] async instructions cant be merged and is optional
-     */
-
-    presenter.exceptions = _definedExceptions.EXCEPTIONS;
-    // ---------------------------------- ADDON SECTION ---------------------------------------------------------------
+    presenter.exceptions = null;
+    presenter.console = _console.UserConsole;
+    presenter.codeExecutor = _machine.codeExecutor;
+    presenter.validateModel = _validation.validateModel;
+    presenter.validateFunction = _validation.validateFunction;
+    presenter.validateAnswer = _validation.validateAnswer;
+    presenter.validateFunctions = _validation.validateFunctions;
+    presenter.validateAliases = _validation.validateAliases;
 
     //This object will be passed to instruction as scope
     presenter.objectForInstructions = {
@@ -240,7 +286,8 @@ function AddonPseudoCode_Console_create() {
         isVisibleByDefault: false,
         functions: [],
         answer: null,
-        methods: []
+        methods: [],
+        round: 100
     };
 
     presenter.ERROR_CODES = {
@@ -251,9 +298,24 @@ function AddonPseudoCode_Console_create() {
         "AN02": "Multiple aliases got the same name",
         "JS01": "Java Script code in mdefined ethod is not valid.",
         "JS02": "Java Script code in defined function is not valid",
-        "ER01": "Round value must be a integer",
+        "ER01": "Round value must be an integer",
         "ER02": "Round value must be bigger than 0",
         "ER03": "Round value must be below 100"
+    };
+
+    presenter.availableInputsInConsole = {
+        "All": function All() {
+            return true;
+        },
+        "Number only": function NumberOnly(value) {
+            return (0, _utils.isDigit)(value);
+        },
+        "Letters only": function LettersOnly(value) {
+            return (0, _utils.isLetter)(value);
+        },
+        "Alphanumeric": function Alphanumeric(value) {
+            return presenter.availableInputsInConsole["Number only"](value) || presenter.availableInputsInConsole["Letters only"](value);
+        }
     };
 
     presenter.setPlayerController = function presenter_setPlayerController(controller) {
@@ -307,15 +369,27 @@ function AddonPseudoCode_Console_create() {
         };
         presenter.objectForInstructions.console = consoleMock || presenter.state.console;
         presenter.state.definedByUserFunctions = [];
+
+        presenter.objectMocks = (0, _definedObjects.getDefinedObjects)({
+            round: presenter.configuration.round,
+            exceptions: presenter.exceptions
+        });
+    };
+
+    presenter.getInputChecker = function () {
+        return presenter.availableInputsInConsole[presenter.configuration.availableConsoleInput];
     };
 
     presenter.initializeConsole = function presenter_initializeConsole() {
-        presenter.state.console = new presenter.console(presenter.state.$view.find(".addon-PseudoCode_Console-wrapper"));
+        presenter.state.console = new presenter.console(presenter.state.$view.find(".addon-PseudoCode_Console-wrapper"), {
+            inputChecker: presenter.getInputChecker()
+        });
+
         var originalReadLine = presenter.state.console.ReadLine,
             originalReadChar = presenter.state.console.ReadChar;
 
         /**
-         * Because console is asynchronous but pseudocode console is synchronous we must wrap user callback  for console.
+         * Because console is asynchronous but pseudocode console is synchronous we must wrap user callback in console.
          * Before executing original console function we must stop machine which is executing this code and when user enters input then we resume machine
          * pauseIns and nextIns are set while executing each command (see dispatchForBuiltInFunctions which is calling wrapMethodOrFunctionWithBuiltInCode code)
          * @param callback {Function}
@@ -353,7 +427,7 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.initialize = function presenter_initialize(view, model, isPreview) {
-        presenter.configuration = presenter.validateModel(model);
+        presenter.configuration = presenter.validateModel(model, presenter.configuration.aliases);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
@@ -361,6 +435,7 @@ function AddonPseudoCode_Console_create() {
         presenter.state.$view = $(view);
         presenter.state.view = view;
         if (!isPreview) {
+            presenter.initializeExceptions();
             presenter.initializeConsole();
             presenter.initializeObjectForCode();
             presenter.initializeGrammar();
@@ -368,6 +443,10 @@ function AddonPseudoCode_Console_create() {
         }
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
+    };
+
+    presenter.initializeExceptions = function () {
+        presenter.exceptions = new _definedExceptions.EXCEPTIONS(presenter.configuration.exceptionTranslations);
     };
 
     presenter.stop = function presenter_stop() {
@@ -503,7 +582,7 @@ function AddonPseudoCode_Console_create() {
             score = void 0;
 
         presenter.initializeObjectForCode(presenter.generateConsoleMock(presenter.configuration.answer.parameters));
-        presenter.codeExecutor(code, true);
+        presenter.codeExecutor(code, true, presenter);
         score = presenter.evaluateScoreFromLastOutput();
 
         presenter.objectForInstructions = objectForInstructionsSaved;
@@ -601,7 +680,7 @@ function AddonPseudoCode_Console_create() {
             if (!excludedNames[userFunctionName]) {
                 excludedNames[userFunctionName] = true;
             } else {
-                throw new presenter.exceptions.InstructionIsDefinedException(userFunctionName);
+                throw presenter.exceptions.InstructionIsDefinedException(userFunctionName);
             }
         }
     };
@@ -620,14 +699,14 @@ function AddonPseudoCode_Console_create() {
         for (i = 0; i < functionData.vars.length; i += 1) {
             usedVariableName = functionData.vars[i];
             if ($.inArray(usedVariableName, functionData.defined) === -1 && $.inArray(usedVariableName, functionData.args) === -1) {
-                throw new presenter.exceptions.UndefinedVariableNameException(usedVariableName, functionName);
+                throw presenter.exceptions.UndefinedVariableNameException(usedVariableName, functionName);
             }
         }
 
         for (i = 0; i < functionData.fn.length; i += 1) {
             usedFunctionName = functionData.fn[i];
             if (!excludedNames[usedFunctionName] && $.inArray(usedFunctionName, presenter.state.definedByUserFunctions) === -1) {
-                throw new presenter.exceptions.UndefinedFunctionNameException(usedFunctionName, functionName);
+                throw presenter.exceptions.UndefinedFunctionNameException(usedFunctionName, functionName);
             }
         }
     };
@@ -664,14 +743,12 @@ function AddonPseudoCode_Console_create() {
             presenter.state.console.Reset();
             var executableCode = presenter.state.codeGenerator.parse(code);
 
-            console.log(executableCode);
-
             presenter.checkCode();
 
             presenter.state.lastUsedCode = executableCode;
             presenter.stop();
 
-            presenter.codeExecutor(executableCode, false);
+            presenter.codeExecutor(executableCode, false, presenter);
         } catch (e) {
             if (e.name !== "Error") {
                 presenter.state.console.Write(e.message + "\n", 'program-error-output');
@@ -679,742 +756,6 @@ function AddonPseudoCode_Console_create() {
                 presenter.state.console.Write("Unexpected identifier\n", 'program-error-output');
             }
         }
-    };
-
-    /**
-     * @param  {Object} parsedData parsed code by jison
-     * @param  {Boolean} getScore if function will be called to get score
-     */
-    presenter.codeExecutor = function presenter_codeExecutor(parsedData, getScore) {
-        var actualIndex = 0,
-            code = parsedData.code,
-            timeoutId = 0,
-            isEnded = false,
-            startTime = new Date().getTime() / 1000,
-            actualScope = {},
-            // There will be saved actual variables
-        stack = [],
-            // Stack contains saved scopes
-        functionsCallPositionStack = [],
-            //Stack which contains information about actual executed code position.
-        retVal = { value: 0 },
-            // value returned by function,
-        eax = { value: 0 },
-            // Helper register used in generated code (used for saving temporary data while executing code)
-        ebx = { value: 0 },
-            // Helper register used in generated code (used for saving temporary data while executing code)
-        id = window.Helpers.uuidv4(); // Each machine contains own unique id which will be saved in presenter
-
-        function getIndexByLabel(label) {
-            var i = void 0;
-            for (i = 0; i < code.length; i += 1) {
-                if (code[i] && code[i].label === label) {
-                    return i;
-                }
-            }
-        }
-
-        /**
-         *  Execute each line of code generated by JISON
-         * @returns {Boolean} false - if code was executed, true if program is ended
-         */
-        function executeLine() {
-            var actualEntry = code[actualIndex];
-            if (actualEntry) {
-                if (actualEntry.type === _languageUtils.TYPES.EXECUTE) {
-                    eval(actualEntry.code);
-                    actualIndex += 1;
-                } else if (actualEntry.type === _languageUtils.TYPES.JUMP) {
-                    if (eval(actualEntry.code)) {
-                        actualIndex = getIndexByLabel(actualEntry.toLabel);
-                    } else {
-                        actualIndex += 1;
-                    }
-                }
-                return false;
-            }
-            return true;
-        }
-
-        function pause() {
-            clearTimeout(timeoutId);
-        }
-
-        function next() {
-            if (!isEnded) {
-                timeoutId = setTimeout(executeAsync, 1);
-            }
-        }
-
-        function executeAsync() {
-            next();
-            try {
-                isEnded = executeLine();
-                if (isEnded) {
-                    pause();
-                }
-            } catch (e) {
-                if (!e.message) {
-                    presenter.state.console.Write(e + "\n", 'program-error-output');
-                } else {
-                    presenter.state.console.Write(e.message + "\n", 'program-error-output');
-                }
-                killMachine();
-            }
-        }
-
-        function killMachine() {
-            pause();
-            delete presenter.killMachine[id];
-            actualScope = null;
-            stack = null;
-            functionsCallPositionStack = null;
-            eax = null;
-            ebx = null;
-            isEnded = true;
-            return true;
-        }
-
-        function executeCodeSyncWithMaxTime() {
-            var actualTime = void 0;
-            while (true) {
-                actualTime = new Date().getTime() / 1000;
-                if (actualTime - startTime > presenter.configuration.answer.maxTimeForAnswer.parsedValue) {
-                    killMachine();
-                    return;
-                }
-                try {
-                    isEnded = executeLine();
-                    if (isEnded) {
-                        killMachine();
-                        return;
-                    }
-                } catch (e) {
-                    killMachine();
-                    return;
-                }
-            }
-        }
-
-        presenter.killMachine[id] = killMachine;
-
-        eval(parsedData.sections);
-
-        if (getScore) {
-            executeCodeSyncWithMaxTime();
-        } else {
-            executeAsync();
-        }
-    };
-    // ----------------------------------CONSOLE----------------------------------------------
-    var consoleClasses = {
-        "LINES_CONTAINER": "pseudoConsole-console-container",
-        "CURSOR": "pseudoConsole-console-cursor",
-        "ACTIVE_CURSOR": "pseudoConsole-console-cursor-active",
-        "RIGHT_ELEMENT": "pseudoConsole-console-right-element",
-        "LEFT_ELEMENT": "pseudoConsole-console-left-element",
-        "TEXT_AREA": "pseudoConsole-console-textarea"
-    };
-
-    function UserConsole($element) {
-        this.container = $("<pre></pre>");
-        this.$textArea = $("<textarea class='pseudoConsole-console-textarea'></textarea>");
-        this.linesContainer = $("<div class='" + consoleClasses.LINES_CONTAINER + "'></div>");
-        this.$parentElement = $element;
-        this.lines = [];
-        this.activeLineIndex = -1;
-        this.isReadMode = false; //Console is waiting for user input
-        this.isDisabled = false;
-
-        $element.append(this.container);
-        $element.append(this.$textArea);
-
-        this.container.append(this.linesContainer);
-
-        this.addNewLine(true);
-    }
-
-    UserConsole.prototype = {
-        generateLine: function generateLine(className) {
-            if (!className) {
-                className = '';
-            }
-
-            var $htmlObject = $("<span></span>"),
-                $left = $("<span class='" + className + " " + consoleClasses.LEFT_ELEMENT + "'></span>"),
-                $right = $("<span class='" + className + " " + consoleClasses.RIGHT_ELEMENT + "'></span>"),
-                $cursor = $("<span class='" + consoleClasses.CURSOR + "'></span>");
-
-            $htmlObject.append($left);
-            $htmlObject.append($cursor);
-            $htmlObject.append($right);
-
-            return {
-                $htmlObject: $htmlObject,
-                elements: {
-                    $left: $left,
-                    $cursor: $cursor,
-                    $right: $right
-                }
-            };
-        },
-
-        /**
-         * @param  {Boolean} isActive Activate this line automatically
-         * @param  {String} [className] set class for that line
-         */
-        addNewLine: function addNewLine(isActive, className) {
-            if (!className) {
-                className = '';
-            }
-
-            var line = this.generateLine(className);
-            this.lines.push(line);
-            this.linesContainer.append(line.$htmlObject);
-
-            if (isActive) {
-                this.selectLineAsActive(this.lines.length - 1);
-            }
-
-            this.$parentElement[0].scrollTop = this.$parentElement[0].scrollHeight;
-        },
-
-        selectLineAsActive: function selectLineAsActive(index) {
-            var activeLine = null;
-            if (this.activeLineIndex > -1) {
-                activeLine = this.getActiveLine();
-                activeLine.elements.$left.text(activeLine.elements.$left.text() + activeLine.elements.$right.text());
-                activeLine.elements.$right.text('');
-                activeLine.elements.$cursor.html('');
-                activeLine.elements.$cursor.removeClass(consoleClasses.ACTIVE_CURSOR);
-            }
-
-            this.activeLineIndex = index;
-            activeLine = this.lines[index];
-            activeLine.elements.$cursor.html('&nbsp;');
-            activeLine.elements.$cursor.addClass(consoleClasses.ACTIVE_CURSOR);
-        },
-        /**
-         * @returns {{$htmlObject: jQuery, elements: {$left: jQuery, $right: jQuery, $cursor: jQuery}}}
-         */
-        getActiveLine: function getActiveLine() {
-            return this.lines[this.activeLineIndex];
-        },
-
-        /**
-         * @param  {String} text
-         * @param  {String} className
-         */
-        Write: function Write(text, className) {
-            if (this.isReadMode) {
-                //Dont write to console if is in read mode.
-                return;
-            }
-
-            text = String(text);
-
-            this.addNewLine(true, className);
-
-            var lines = text.split('\n'),
-                line = void 0,
-                activeLine = this.getActiveLine(),
-                i = void 0;
-
-            for (i = 0; i < lines.length - 1; i += 1) {
-                line = lines[i];
-                activeLine.elements.$left.text(activeLine.elements.$left.text() + line);
-                this.addNewLine(true, className);
-                activeLine = this.getActiveLine();
-                activeLine.elements.$left.text("\n");
-            }
-
-            activeLine = this.getActiveLine();
-            line = lines[i];
-            activeLine.elements.$left.text(activeLine.elements.$left.text() + line);
-        },
-
-        ReadLine: function ReadLine(callback) {
-            if (this.isReadMode) {
-                return;
-            }
-
-            this.isReadMode = true;
-            var self = this;
-
-            this.readLineFunction(function (data) {
-                self.isReadMode = false;
-                callback(data);
-            });
-        },
-
-        readLineFunction: function readLineFunction(onExitCallback) {
-            if (!this.isReadMode) {
-                return;
-            }
-
-            this.addNewLine(true);
-
-            var textAreaElement = this.$textArea,
-                parentElement = this.$parentElement,
-                self = this;
-
-            $(parentElement).on('click', function () {
-                textAreaElement.off();
-                textAreaElement.focus();
-
-                textAreaElement.on('input', function () {
-                    return self.onInputCallback();
-                });
-
-                textAreaElement.on('keydown', function (event) {
-                    return self.onKeyDownCallback(event, onExitCallback);
-                });
-            });
-
-            $(parentElement).click();
-        },
-
-        onInputCallback: function onInputCallback() {
-            if (this.isDisabled) {
-                return;
-            }
-
-            var textAreaElement = this.$textArea,
-                activeLine = this.getActiveLine(),
-                data = textAreaElement.val(),
-                leftText = activeLine.elements.$left.text(),
-                rightText = activeLine.elements.$right.text();
-
-            if (data.length > 0) {
-                if (data[data.length - 1] !== '\n') {
-                    leftText = leftText + data;
-                }
-            }
-
-            activeLine.elements.$left.text(leftText);
-            activeLine.elements.$right.text(rightText);
-            textAreaElement.val('');
-
-            return false;
-        },
-
-        onKeyDownCallback: function onKeyDownCallback(event, onExitCallback) {
-            if (this.isDisabled) {
-                return;
-            }
-
-            var textAreaElement = this.$textArea,
-                activeLine = this.getActiveLine(),
-                keycode = event.which || event.keycode,
-                leftText = activeLine.elements.$left.text(),
-                rightText = activeLine.elements.$right.text(),
-                parentElement = this.$parentElement;
-
-            if (keycode === 39 || keycode === 37 || keycode === 8 || keycode === 13) {
-                if (keycode === 39) {
-                    //Left arrow
-                    if (rightText.length > 0) {
-                        leftText += rightText[0];
-                        rightText = rightText.substring(1);
-                    }
-                } else if (keycode === 37) {
-                    //Right arrow
-                    if (leftText.length > 0) {
-                        rightText = leftText[leftText.length - 1] + rightText;
-                        leftText = leftText.substring(0, leftText.length - 1);
-                    }
-                } else if (keycode === 8) {
-                    //Backspace
-                    leftText = leftText.substring(0, leftText.length - 1);
-                } else if (keycode === 13) {
-                    if ((leftText + rightText).length > 0) {
-                        $(parentElement).off();
-                        textAreaElement.off();
-                        onExitCallback(leftText + rightText);
-                    }
-                }
-
-                activeLine.elements.$left.text(leftText);
-                activeLine.elements.$right.text(rightText);
-                textAreaElement.val('');
-
-                return false;
-            }
-        },
-
-        ReadChar: function ReadChar(callback) {
-            if (this.isReadMode) {
-                return;
-            }
-
-            this.isReadMode = true;
-
-            this.addNewLine(true);
-
-            var activeLine = this.getActiveLine(),
-                textAreaElement = this.$textArea,
-                parentElement = this.$parentElement,
-                data = void 0,
-                leftText = void 0,
-                self = this;
-
-            $(parentElement).on('click', function () {
-                textAreaElement.off();
-                textAreaElement.focus();
-
-                textAreaElement.on('input', function () {
-                    if (self.isDisabled) {
-                        return;
-                    }
-
-                    leftText = activeLine.elements.$left.text();
-                    data = textAreaElement.val();
-                    if (data[data.length - 1] !== "\n") {
-                        $(parentElement).off();
-                        textAreaElement.off();
-                        activeLine.elements.$left.text(leftText + data[data.length - 1]); //Get only last char
-                        self.isReadMode = false;
-                        textAreaElement.val('');
-                        callback(data[data.length - 1]);
-                    }
-                });
-            });
-
-            $(parentElement).click();
-        },
-
-        Reset: function Reset() {
-            var textAreaElement = this.$textArea,
-                parentElement = this.$parentElement;
-
-            parentElement.off();
-            textAreaElement.off();
-
-            this.isReadMode = false;
-
-            this.linesContainer.find('span').remove();
-            this.lines = [];
-
-            this.activeLineIndex = -1;
-
-            this.addNewLine(true);
-
-            this.$textArea.val('');
-        },
-
-        destroy: function destroy() {
-            this.Reset();
-        },
-
-        disable: function disable() {
-            this.isDisabled = true;
-        },
-
-        enable: function enable() {
-            this.isDisabled = false;
-        }
-    };
-
-    presenter.console = UserConsole;
-    // ---------------------------------- VALIDATION SECTION ---------------------------------
-    /**
-     * Wrap each function or method defined by user by this code. It will set default values for function and initialize console for call
-     * Functions pause and next will stop or resume machine which actually executes this code.
-     * @param {String} userCode
-     * @returns {string}
-     */
-    function wrapMethodOrFunctionWithBuiltInCode(userCode) {
-        var code = "var builtIn = {\n";
-        code += "   console: arguments[0].console,\n";
-        code += "   data: arguments[0].data,";
-        code += "   objects: arguments[1],\n";
-        code += "   retVal: arguments[4]\n";
-        code += "};";
-        code += "builtIn.console.nextIns = arguments[2];\n";
-        code += "builtIn.console.pauseIns = arguments[3];\n";
-        code += "arguments = Array.prototype.slice.call(arguments, 5)\n";
-
-        code += userCode;
-
-        return code;
-    }
-
-    function generateValidationError(errorCode) {
-        return {
-            isValid: false,
-            errorCode: errorCode
-        };
-    }
-
-    presenter.validateFunction = function presenter_validateFunction(functionToValidate) {
-        var validatedFunction = void 0;
-
-        if (!/^[A-Za-z_][a-zA-Z0-9_]*$/g.exec(functionToValidate.name)) {
-            return generateValidationError("FN01");
-        }
-
-        try {
-            validatedFunction = new Function(wrapMethodOrFunctionWithBuiltInCode(functionToValidate.body));
-        } catch (e) {
-            return generateValidationError("JS02");
-        }
-
-        return {
-            isValid: true,
-            value: {
-                name: functionToValidate.name,
-                body: validatedFunction
-            }
-        };
-    };
-
-    presenter.validateFunctions = function presenter_validateFunctions(functions) {
-        var validatedFunctions = {},
-            i = void 0,
-            validatedFunction = void 0;
-
-        for (i = 0; i < functions.length; i += 1) {
-            if (functions[i].name.trim().length === 0) {
-                continue;
-            }
-
-            validatedFunction = presenter.validateFunction(functions[i]);
-            if (!validatedFunction.isValid) {
-                return validatedFunction;
-            }
-
-            if (validatedFunctions[validatedFunction.value.name]) {
-                return generateValidationError("FN02");
-            }
-
-            validatedFunctions[validatedFunction.value.name] = validatedFunction.value.body;
-        }
-
-        return {
-            isValid: true,
-            value: validatedFunctions
-        };
-    };
-
-    presenter.validateAliases = function presenter_validateAliases(aliases) {
-        var definedAliases = {},
-            aliasKey = void 0,
-            aliasName = void 0,
-            exists = {};
-
-        for (aliasKey in aliases) {
-            if (aliases.hasOwnProperty(aliasKey)) {
-                if (aliases[aliasKey].name && !ModelValidationUtils.isStringEmpty(aliases[aliasKey].name.trim())) {
-                    aliasName = aliases[aliasKey].name.trim();
-
-                    if (!/^[A-Za-z_][a-zA-Z0-9_]*$/g.exec(aliasName)) {
-                        return generateValidationError("AN01");
-                    }
-
-                    definedAliases[aliasKey] = aliases[aliasKey].name.trim();
-                }
-            }
-        }
-
-        for (aliasKey in definedAliases) {
-            if (definedAliases.hasOwnProperty(aliasKey)) {
-                if (exists[definedAliases[aliasKey]]) {
-                    return generateValidationError("AN02");
-                }
-
-                exists[definedAliases[aliasKey]] = true;
-            }
-        }
-
-        return {
-            isValid: true,
-            value: definedAliases
-        };
-    };
-
-    presenter.validateParameters = function presenter_validateParameters(params) {
-        var parameters = [],
-            i = void 0;
-        for (i = 0; i < params.length; i += 1) {
-            parameters.push(params[i].value);
-        }
-
-        return {
-            isValid: true,
-            value: parameters
-        };
-    };
-
-    presenter.validateAnswer = function presenter_validateAnswer(model) {
-        var runUserCode = ModelValidationUtils.validateBoolean(model.runUserCode),
-            answerCode = model.answerCode,
-            maxTimeForAnswer = ModelValidationUtils.validateFloatInRange(model.maxTimeForAnswer, 10, 0),
-            validatedParameters = void 0;
-
-        if (runUserCode && (!maxTimeForAnswer.isValid || maxTimeForAnswer.parsedValue === 0)) {
-            return generateValidationError("IP01");
-        }
-
-        validatedParameters = presenter.validateParameters(model.runParameters);
-
-        return {
-            isValid: true,
-            runUserCode: runUserCode,
-            answerCode: new Function(answerCode),
-            maxTimeForAnswer: maxTimeForAnswer,
-            parameters: validatedParameters.value
-        };
-    };
-
-    presenter.validateUniquenessAliasesNamesAndFunctions = function presenter_validateUniquenessAliasesNamesAndFunctions(aliases, functions) {
-        var aliasKey = void 0;
-
-        for (aliasKey in aliases) {
-            if (aliases.hasOwnProperty(aliasKey)) {
-                if (functions[aliases[aliasKey]]) {
-                    return generateValidationError("FN03");
-                }
-            }
-        }
-
-        return {
-            isValid: true
-        };
-    };
-
-    /**
-     * @param {{objectName: (Array|Number|String), methodName: String, methodBody: String}} method
-     */
-    presenter.validateMethod = function presenter_validateMethod(method) {
-        var validatedMethod = {};
-
-        try {
-            validatedMethod = {
-                objectName: method.objectName,
-                methodName: method.methodName,
-                function: new Function(wrapMethodOrFunctionWithBuiltInCode(method.methodBody))
-            };
-        } catch (e) {
-            return generateValidationError("JS01");
-        }
-
-        return {
-            isValid: true,
-            method: validatedMethod
-        };
-    };
-
-    /**
-     * @param {{objectName: (Array|Number|String), methodName: String, methodBody: String}[]} methods
-     */
-    presenter.validateMethods = function presenter_validateMethods(methods) {
-        var validatedMethods = [];
-
-        methods.forEach(function (method) {
-            var validatedMethod = presenter.validateMethod(method);
-
-            if (!validatedMethod.isValid) {
-                return validatedMethod;
-            }
-
-            validatedMethods.push(validatedMethod.method);
-        });
-
-        return {
-            isValid: true,
-            methods: validatedMethods
-        };
-    };
-
-    presenter.validateRound = function presenter_validateRound(model) {
-        var round = model['mathRound'];
-
-        if (round.trim() === '') {
-            return {
-                isValid: true,
-                value: 100
-            };
-        }
-
-        var parsedRound = parseInt(round, 10);
-
-        if (isNaN(parsedRound)) {
-            return {
-                isValid: false,
-                errorCode: "ER01"
-            };
-        }
-
-        if (parsedRound < 1) {
-            return {
-                isValid: false,
-                errorCode: "ER02"
-            };
-        }
-
-        if (parsedRound > 100) {
-            return {
-                isValid: false,
-                errorCode: "ER03"
-            };
-        }
-
-        return {
-            isValid: true,
-            value: parsedRound
-        };
-    };
-
-    presenter.validateModel = function presenter_validateModel(model) {
-        var validatedAliases = void 0,
-            validatedFunctions = void 0,
-            validatedAnswer = void 0,
-            isUniqueInAliasesAndFunctions = void 0,
-            validatedMethods = void 0;
-
-        validatedAliases = presenter.validateAliases(model.default_aliases);
-        if (!validatedAliases.isValid) {
-            return validatedAliases;
-        }
-
-        validatedFunctions = presenter.validateFunctions(model.functionsList);
-        if (!validatedFunctions.isValid) {
-            return validatedFunctions;
-        }
-
-        if (validatedAliases.isValid && validatedFunctions.isValid) {
-            isUniqueInAliasesAndFunctions = presenter.validateUniquenessAliasesNamesAndFunctions(validatedAliases.value, validatedFunctions.value);
-            if (!isUniqueInAliasesAndFunctions.isValid) {
-                return isUniqueInAliasesAndFunctions;
-            }
-        }
-
-        validatedAnswer = presenter.validateAnswer(model);
-        if (!validatedAnswer.isValid) {
-            return validatedAnswer;
-        }
-
-        validatedMethods = presenter.validateMethods(model.methodsList);
-        if (!validatedMethods.isValid) {
-            return validatedMethods;
-        }
-
-        var validatedRound = presenter.validateRound(model);
-        if (!validatedRound.isValid) {
-            return validatedRound;
-        }
-
-        return {
-            isValid: true,
-            addonID: model.ID,
-            isActivity: !ModelValidationUtils.validateBoolean(model.isNotActivity),
-            isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            functions: validatedFunctions.value,
-            aliases: $.extend(presenter.configuration.aliases, validatedAliases.value),
-            answer: validatedAnswer,
-            methods: validatedMethods.methods,
-            round: validatedRound.value
-        };
     };
 
     return presenter;
@@ -1560,7 +901,9 @@ function getJISONGrammar() {
 
             "case_options": [["case_option", "$$ = $1;"], ["case_options case_option", "$$ = $1.concat($2);"]],
 
-            "case_option": [["OPTION operation THEN end_line code_block_or_instruction", "$$ = yy.presenterContext.bnf['case_option']($2, $5);"]],
+            "case_option": [["OPTION case_operations THEN end_line code_block_or_instruction", "$$ = yy.presenterContext.bnf['case_option']($2, $5);"]],
+
+            "case_operations": [["operation", "$$ = [$1]"], ["case_operations COMMA operation", "$1.push($3); $$ = $1"]],
 
             "number_with_minus": [["number_value", "$$ = $1"], ["- number_value", "$$ = ($2 * -1);"]],
 
@@ -1600,7 +943,7 @@ function getJISONGrammar() {
 
             "new_line_list": [["EOF", "$$='';"], ["NEW_LINE", "$$='';"], ["new_line_list NEW_LINE", "$$='';"], ["new_line_list EOF", "$$ = '';"]],
 
-            "operation": [["STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['function_call'](yy, $1, $3);"], ["operation + operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__add__');"], ["operation - operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__sub__');"], ["operation * operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__mul__');"], ["operation DIV_FLOOR operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__div_full__');"], ["operation / operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__div__');"], ["operation % operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__mod__');"], ["operation <= operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__le__');"], ["operation >= operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__ge__');"], ["operation > operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__gt__');"], ["operation < operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__lt__');"], ["operation != operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__neq__');"], ["operation == operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__eq__');"], ["operation OR operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__or__');"], ["operation AND operation", "$$ = yy.presenterContext.bnf['generateOperationCode']($1, $3, '__and__');"], ["( operation )", "$$ = $2"], ["- operation", "$$ = yy.presenterContext.bnf['generateMinusOperation']($2);", { "prec": "UMINUS" }], ["operation DOT STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['method_call']($3, $5 || [], $1);"], ["number_value", "$$ = $1"], ["variable_get", "$$ = $1"], ["string_value", "$$ = $1"]],
+            "operation": [["STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['function_call'](yy, $1, $3);"], ["operation + operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__add__');"], ["operation - operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__sub__');"], ["operation * operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__mul__');"], ["operation DIV_FLOOR operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__div_full__');"], ["operation / operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__div__');"], ["operation % operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__mod__');"], ["operation <= operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__le__');"], ["operation >= operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__ge__');"], ["operation > operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__gt__');"], ["operation < operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__lt__');"], ["operation != operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__neq__');"], ["operation == operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__eq__');"], ["operation OR operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__or__');"], ["operation AND operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__and__');"], ["( operation )", "$$ = $2"], ["- operation", "$$ = yy.presenterContext.bnf['generateMinusOperation']($2);", { "prec": "UMINUS" }], ["operation DOT STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['method_call']($3, $5 || [], $1);"], ["number_value", "$$ = $1"], ["variable_get", "$$ = $1"], ["string_value", "$$ = $1"]],
 
             "variable_get": [["STATIC_VALUE", "$$ = yy.presenterContext.bnf['argument'](yy, yytext);"], ["operation [ operation ]", "$$ = yy.presenterContext.bnf['array_get']($1, $3);"]],
 
@@ -1644,16 +987,13 @@ function getLanguageParser(config) {
 
 /***/ }),
 /* 4 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.DEFINED_OBJECTS = undefined;
 exports.objectMocksMethodArgumentsDispatcherDecorator = objectMocksMethodArgumentsDispatcherDecorator;
-
-var _definedExceptions = __webpack_require__(0);
-
+exports.getDefinedObjects = getDefinedObjects;
 /**
  * Arguments dispatcher for methods. Before calling method get object and arguments from stack and convert it to js call with arguments
  * @param fn {Function}
@@ -1677,306 +1017,320 @@ function objectMocksMethodArgumentsDispatcherDecorator(fn) {
     };
 }
 
-var DEFINED_OBJECTS = exports.DEFINED_OBJECTS = {
-    Object: {
-        __constructor__: function object__constructor__() {
-            return {
-                value: null,
-                type: "Object",
-                methods: DEFINED_OBJECTS.Object['__methods__'],
-                parent: null
-            };
-        },
-        __methods__: {
-            __and__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__and__method(toValue) {
+/**
+ *
+ * @param {{round: Number, exceptions: EXCEPTIONS}} config
+ */
+function getDefinedObjects(config) {
+    var DEFINED_OBJECTS = {
+        Object: {
+            __constructor__: function object__constructor__() {
+                return {
+                    value: null,
+                    type: "Object",
+                    methods: DEFINED_OBJECTS.Object['__methods__'],
+                    parent: null
+                };
+            },
+            __methods__: {
+                __and__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__and__method(toValue) {
+                        /** Table which value should be returned
+                         *  Value1 and Value2 -Will Return -> ValueX:
+                         *  -----------------------------
+                         *  False1 and True2  -> False1
+                         *  False1 and False2 -> False1
+                         *  True1  and False2 -> False2
+                         *  True1  and True2  -> True2
+                         */
+                        if (!this.value) {
+                            return this;
+                        }
+
+                        if (toValue.value) {
+                            return toValue;
+                        }
+
+                        return toValue;
+                    })
+                },
+                __or__: {
                     /** Table which value should be returned
                      *  Value1 and Value2 -Will Return -> ValueX:
-                     *  -----------------------------
-                     *  False1 and True2  -> False1
-                     *  False1 and False2 -> False1
-                     *  True1  and False2 -> False2
-                     *  True1  and True2  -> True2
+                     *  --------------------------------
+                     *  False1 and True2  -> True2
+                     *  False1 and False2 -> False2
+                     *  True1  and False2 -> True1
+                     *  True1  and True2  -> True1
                      */
-                    if (!this.value) {
-                        return this;
-                    }
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__or__method(toValue) {
+                        if (this.value) {
+                            return this;
+                        }
 
-                    if (toValue.value) {
                         return toValue;
-                    }
+                    })
+                },
+                __ge__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object_ge__method(toValue) {
+                        if (this.value >= toValue.value) {
+                            return DEFINED_OBJECTS.Boolean.__constructor__(true);
+                        }
 
-                    return toValue;
-                })
+                        return DEFINED_OBJECTS.Boolean.__constructor__(false);
+                    })
+                },
+                __le__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__le__method(toValue) {
+                        if (this.value <= toValue.value) {
+                            return DEFINED_OBJECTS.Boolean.__constructor__(true);
+                        }
+
+                        return DEFINED_OBJECTS.Boolean.__constructor__(false);
+                    })
+                },
+
+                __gt__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__gt__method(toValue) {
+                        if (this.value > toValue.value) {
+                            return DEFINED_OBJECTS.Boolean.__constructor__(true);
+                        }
+
+                        return DEFINED_OBJECTS.Boolean.__constructor__(false);
+                    })
+                },
+
+                __lt__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__lt__method(toValue) {
+                        if (this.value < toValue.value) {
+                            return DEFINED_OBJECTS.Boolean.__constructor__(true);
+                        }
+
+                        return DEFINED_OBJECTS.Boolean.__constructor__(false);
+                    })
+                },
+
+                __neq__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__neq__method(toValue) {
+                        if (this.value !== toValue.value) {
+                            return DEFINED_OBJECTS.Boolean.__constructor__(true);
+                        }
+
+                        return DEFINED_OBJECTS.Boolean.__constructor__(false);
+                    })
+                },
+
+                __eq__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__eq__method(toValue) {
+                        if (this.value === toValue.value) {
+                            return DEFINED_OBJECTS.Boolean.__constructor__(true);
+                        }
+
+                        return DEFINED_OBJECTS.Boolean.__constructor__(false);
+                    })
+                }
+            }
+        },
+
+        Array: {
+            __constructor__: function array__constructor__(count, values) {
+                values = values || [];
+
+                var value = [];
+                var i = 0;
+
+                for (i; i < values.length; i += 1) {
+                    value[i] = values[i];
+                }
+
+                for (; i < count; i += 1) {
+                    value.push(null);
+                }
+
+                return {
+                    value: value,
+                    type: "Array",
+                    methods: DEFINED_OBJECTS.Array['__methods__'],
+                    parent: DEFINED_OBJECTS.Object
+                };
             },
-            __or__: {
-                /** Table which value should be returned
-                 *  Value1 and Value2 -Will Return -> ValueX:
-                 *  --------------------------------
-                 *  False1 and True2  -> True2
-                 *  False1 and False2 -> False2
-                 *  True1  and False2 -> True1
-                 *  True1  and True2  -> True1
-                 */
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__or__method(toValue) {
-                    if (this.value) {
+
+            __methods__: {
+                __get__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function array__get__code(index) {
+                        if (index.type !== "Number") {
+                            throw config.exceptions.CastErrorException(index.type, "Number");
+                        }
+
+                        if (this.value[index.value] === null) {
+                            throw config.exceptions.GetErrorException(this.type, index.value);
+                        }
+
+                        if (this.value[index.value] === undefined) {
+                            throw config.exceptions.IndexOutOfBoundsException(this.type, index.value, this.value.length);
+                        }
+
+                        return this.value[index.value];
+                    })
+                },
+                __set__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function array__set__code(index, value) {
+                        if (index.type !== "Number") {
+                            throw config.exceptions.CastErrorException("String", "Number");
+                        }
+
+                        if (this.value[index.value] === undefined) {
+                            throw config.exceptions.IndexOutOfBoundsException(this.type, index.value, this.value.length);
+                        }
+
+                        this.value[index.value] = value;
+
                         return this;
-                    }
-
-                    return toValue;
-                })
-            },
-            __ge__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object_ge__method(toValue) {
-                    if (this.value >= toValue.value) {
-                        return DEFINED_OBJECTS.Boolean.__constructor__(true);
-                    }
-
-                    return DEFINED_OBJECTS.Boolean.__constructor__(false);
-                })
-            },
-            __le__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__le__method(toValue) {
-                    if (this.value <= toValue.value) {
-                        return DEFINED_OBJECTS.Boolean.__constructor__(true);
-                    }
-
-                    return DEFINED_OBJECTS.Boolean.__constructor__(false);
-                })
-            },
-
-            __gt__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__gt__method(toValue) {
-                    if (this.value > toValue.value) {
-                        return DEFINED_OBJECTS.Boolean.__constructor__(true);
-                    }
-
-                    return DEFINED_OBJECTS.Boolean.__constructor__(false);
-                })
-            },
-
-            __lt__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__lt__method(toValue) {
-                    if (this.value < toValue.value) {
-                        return DEFINED_OBJECTS.Boolean.__constructor__(true);
-                    }
-
-                    return DEFINED_OBJECTS.Boolean.__constructor__(false);
-                })
-            },
-
-            __neq__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__neq__method(toValue) {
-                    if (this.value !== toValue.value) {
-                        return DEFINED_OBJECTS.Boolean.__constructor__(true);
-                    }
-
-                    return DEFINED_OBJECTS.Boolean.__constructor__(false);
-                })
-            },
-
-            __eq__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__eq__method(toValue) {
-                    if (this.value === toValue.value) {
-                        return DEFINED_OBJECTS.Boolean.__constructor__(true);
-                    }
-
-                    return DEFINED_OBJECTS.Boolean.__constructor__(false);
-                })
+                    })
+                }
             }
-        }
-    },
-
-    Array: {
-        __constructor__: function array__constructor__(count, values) {
-            values = values || [];
-
-            var value = [];
-            var i = 0;
-
-            for (i; i < values.length; i += 1) {
-                value[i] = values[i];
-            }
-
-            for (; i < count; i += 1) {
-                value.push(null);
-            }
-
-            return {
-                value: value,
-                type: "Array",
-                methods: DEFINED_OBJECTS.Array['__methods__'],
-                parent: DEFINED_OBJECTS.Object
-            };
         },
 
-        __methods__: {
-            __get__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function array__get__code(index) {
-                    if (index.type !== "Number") {
-                        throw new _definedExceptions.EXCEPTIONS.CastErrorException(index.type, "Number");
-                    }
-
-                    if (this.value[index.value] === null) {
-                        throw new _definedExceptions.EXCEPTIONS.GetErrorException(this.type, index.value);
-                    }
-
-                    if (this.value[index.value] === undefined) {
-                        throw new _definedExceptions.EXCEPTIONS.IndexOutOfBoundsException(this.type, index.value, this.value.length);
-                    }
-
-                    return this.value[index.value];
-                })
+        Boolean: {
+            __constructor__: function boolean__constructor__(val) {
+                return {
+                    value: Boolean(val) || false,
+                    type: "Boolean",
+                    methods: DEFINED_OBJECTS.Boolean['__methods__'],
+                    parent: DEFINED_OBJECTS.Object
+                };
             },
-            __set__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function array__set__code(index, value) {
-                    if (index.type !== "Number") {
-                        throw new _definedExceptions.EXCEPTIONS.CastErrorException("String", "Number");
-                    }
 
-                    if (this.value[index.value] === undefined) {
-                        throw new _definedExceptions.EXCEPTIONS.IndexOutOfBoundsException(this.type, index.value, this.value.length);
-                    }
-
-                    this.value[index.value] = value;
-
-                    return this;
-                })
-            }
-        }
-    },
-
-    Boolean: {
-        __constructor__: function boolean__constructor__(val) {
-            return {
-                value: Boolean(val) || false,
-                type: "Boolean",
-                methods: DEFINED_OBJECTS.Boolean['__methods__'],
-                parent: DEFINED_OBJECTS.Object
-            };
+            __methods__: {}
         },
 
-        __methods__: {}
-    },
+        String: {
+            __constructor__: function string__constructor__(val) {
+                return {
+                    value: String(val) || '',
+                    type: "String",
+                    methods: DEFINED_OBJECTS.String['__methods__'],
+                    parent: DEFINED_OBJECTS.Object
+                };
+            },
 
-    String: {
-        __constructor__: function string__constructor__(val) {
-            return {
-                value: String(val) || '',
-                type: "String",
-                methods: DEFINED_OBJECTS.String['__methods__'],
-                parent: DEFINED_OBJECTS.Object
-            };
+            __methods__: {
+                __add__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function string__add__method__(toValue) {
+                        if (toValue.type === "Number" || toValue.type === "String") {
+                            return DEFINED_OBJECTS.String.__constructor__(this.value + toValue.value);
+                        }
+
+                        throw config.exceptions.CastErrorException(this.type, toValue.type);
+                    })
+                }
+            }
         },
 
-        __methods__: {
-            __add__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function string__add__method__(toValue) {
-                    if (toValue.type === "Number" || toValue.type === "String") {
-                        return DEFINED_OBJECTS.String.__constructor__(this.value + toValue.value);
-                    }
+        Number: {
+            __constructor__: function number__constructor__(value) {
+                return {
+                    constructor: DEFINED_OBJECTS.Number['__constructor__'],
+                    value: Number(value) || 0,
+                    type: "Number",
+                    methods: DEFINED_OBJECTS.Number['__methods__'],
+                    parent: DEFINED_OBJECTS.Object
+                };
+            },
+            __methods__: {
+                __add__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__add__method(toValue) {
+                        if (toValue.type === "Number") {
+                            return DEFINED_OBJECTS.Number.__constructor__(this.value + toValue.value);
+                        } else if (toValue.type === "String") {
+                            return DEFINED_OBJECTS.String.__constructor__(this.value + toValue.value);
+                        }
 
-                    throw new _definedExceptions.EXCEPTIONS.CastErrorException(this.type, toValue.type);
-                })
+                        throw config.exceptions.CastErrorException(this.type, toValue.type);
+                    })
+                },
+                __sub__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__sub__method(toValue) {
+                        if (toValue.type === "Number") {
+                            return DEFINED_OBJECTS.Number.__constructor__(this.value - toValue.value);
+                        }
+
+                        throw config.exceptions.CastErrorException(this.type, toValue.type);
+                    })
+                },
+
+                __mul__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__mul__method(toValue) {
+                        if (toValue.type === "Number") {
+                            var value = this.value * toValue.value;
+                            value = value.toFixed(config.round);
+
+                            return DEFINED_OBJECTS.Number.__constructor__(parseFloat(value));
+                        }
+
+                        throw config.exceptions.CastErrorException(this.type, toValue.type);
+                    })
+                },
+
+                __div__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__div__method(toValue) {
+                        if (toValue.type === "Number") {
+                            var value = this.value / toValue.value;
+                            value = value.toFixed(config.round);
+
+                            return DEFINED_OBJECTS.Number.__constructor__(parseFloat(value));
+                        }
+
+                        throw config.exceptions.CastErrorException(this.type, toValue.type);
+                    })
+                },
+                __div_full__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__div_full__method(toValue) {
+                        if (toValue.type === "Number") {
+                            return DEFINED_OBJECTS.Number.__constructor__(~~(this.value / toValue.value));
+                        }
+
+                        throw config.exceptions.CastErrorException(this.type, toValue.type);
+                    })
+                },
+                __mod__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__mod__method(toValue) {
+                        if (toValue.type === "Number") {
+                            return DEFINED_OBJECTS.Number.__constructor__(this.value % toValue.value);
+                        }
+
+                        throw config.exceptions.CastErrorException(this.type, toValue.type);
+                    })
+                },
+                __minus__: {
+                    native: true,
+                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__minus__method() {
+                        return DEFINED_OBJECTS.Number.__constructor__(this.value * -1);
+                    })
+                }
             }
         }
-    },
+    };
 
-    Number: {
-        __constructor__: function number__constructor__(value) {
-            return {
-                constructor: DEFINED_OBJECTS.Number['__constructor__'],
-                value: Number(value) || 0,
-                type: "Number",
-                methods: DEFINED_OBJECTS.Number['__methods__'],
-                parent: DEFINED_OBJECTS.Object
-            };
-        },
-        __methods__: {
-            __add__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__add__method(toValue) {
-                    if (toValue.type === "Number") {
-                        return DEFINED_OBJECTS.Number.__constructor__(this.value + toValue.value);
-                    } else if (toValue.type === "String") {
-                        return DEFINED_OBJECTS.String.__constructor__(this.value + toValue.value);
-                    }
-
-                    throw new _definedExceptions.EXCEPTIONS.CastErrorException(this.type, toValue.type);
-                })
-            },
-            __sub__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__sub__method(toValue) {
-                    if (toValue.type === "Number") {
-                        return DEFINED_OBJECTS.Number.__constructor__(this.value - toValue.value);
-                    }
-
-                    throw new _definedExceptions.EXCEPTIONS.CastErrorException(this.type, toValue.type);
-                })
-            },
-
-            __mul__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__mul__method(toValue) {
-                    if (toValue.type === "Number") {
-                        return DEFINED_OBJECTS.Number.__constructor__(this.value * toValue.value);
-                    }
-
-                    throw new _definedExceptions.EXCEPTIONS.CastErrorException(this.type, toValue.type);
-                })
-            },
-
-            __div__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__div__method(toValue) {
-                    if (toValue.type === "Number") {
-                        return DEFINED_OBJECTS.Number.__constructor__(this.value / toValue.value);
-                    }
-
-                    throw new _definedExceptions.EXCEPTIONS.CastErrorException(this.type, toValue.type);
-                })
-            },
-            __div_full__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__div_full__method(toValue) {
-                    if (toValue.type === "Number") {
-                        return DEFINED_OBJECTS.Number.__constructor__(~~(this.value / toValue.value));
-                    }
-
-                    throw new _definedExceptions.EXCEPTIONS.CastErrorException(this.type, toValue.type);
-                })
-            },
-            __mod__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__mod__method(toValue) {
-                    if (toValue.type === "Number") {
-                        return DEFINED_OBJECTS.Number.__constructor__(this.value % toValue.value);
-                    }
-
-                    throw new _definedExceptions.EXCEPTIONS.CastErrorException(this.type, toValue.type);
-                })
-            },
-            __minus__: {
-                native: true,
-                jsCode: objectMocksMethodArgumentsDispatcherDecorator(function number__minus__method() {
-                    return DEFINED_OBJECTS.Number.__constructor__(this.value * -1);
-                })
-            }
-        }
-    }
-};
+    return DEFINED_OBJECTS;
+}
 
 /***/ }),
 /* 5 */
@@ -2004,18 +1358,21 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
     case: uidDecorator(
     /**
      * @param  {Object[]} variableDef
-     * @param  {{option:String, code:Object[]}[]} options
+     * @param  {{option:String[], code:Object[]}[]} options
      */
     function bnf_case(variableDef, options) {
+        debugger;
         var i = void 0,
             exitLabel = CODE_GENERATORS.uid + "_case_end",
-            execCode = [(0, _languageUtils.generateExecuteObject)('presenter.objectForInstructions.calledInstructions.case++;', '')];
+            execCode = [(0, _languageUtils.generateExecuteObject)('machineManager.objectForInstructions.calledInstructions.case++;', '')];
 
         execCode = execCode.concat(variableDef); //On stack is variable value
 
         for (i = 0; i < options.length; i += 1) {
-            execCode = execCode.concat(options[i].option); //Now on stack we have option to compare
-            execCode.push((0, _languageUtils.generateJumpInstruction)('stack[stack.length - 2].value === stack.pop().value', CODE_GENERATORS.uid + '_case_option_' + i));
+            options[i].option.forEach(function (option) {
+                execCode = execCode.concat(option); //Now on stack we have option to compare
+                execCode.push((0, _languageUtils.generateJumpInstruction)('stack[stack.length - 2].value === stack.pop().value', CODE_GENERATORS.uid + '_case_option_' + i));
+            });
         }
         execCode.push((0, _languageUtils.generateJumpInstruction)('true', exitLabel));
 
@@ -2035,7 +1392,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
      * @param methodName {String}
      * @returns {Function}
      */
-    getMethodFromObject: function bnf_getMethodFromObject(object, methodName) {
+    getMethodFromObject: function bnf_getMethodFromObject(machineManager, object, methodName) {
         var methods = object.methods;
         while (true) {
             if (methods.hasOwnProperty(methodName)) {
@@ -2043,7 +1400,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
             }
 
             if (object.parent == null) {
-                throw new _definedExceptions.EXCEPTIONS.MethodNotFoundException(methodName);
+                throw machineManager.exceptions.MethodNotFoundException(methodName);
             }
 
             object = object.parent;
@@ -2060,7 +1417,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
      *
      * Objects and inheritance in pseudocode (Concept):
      *  -Add to machine new instruction evaluateJumpLabelAndJump which will execute code in label and will jump to generated label.
-     *  -Add new object to presenter.objectMocks
+     *  -Add new object to machineManager.objectMocks
      *  -Use it in object call manager, if getMethodFromObject(a,b).native is True, then execute original code, if false then use evaluateJumpLabelAndJump to getMethodFromObject(a,b).labelCode where will be code to jump.
      *  -Each class should be saved in precessor code, each method should contains own label to jump, for example MyClass.myMethod should contains MyClass.myMethod label for jump
      *  -Before jump, set scope for this class and jump to method.
@@ -2072,7 +1429,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
         execCode.push((0, _languageUtils.generateExecuteObject)('', '1_get_object_call_manager'));
 
         var code = "";
-        code += "presenter.bnf.builtInMethodCall(stack, presenter.objectForInstructions, presenter.objectMocks, next, pause, retVal);;";
+        code += "machineManager.bnf.builtInMethodCall(machineManager, stack, machineManager.objectForInstructions, machineManager.objectMocks, next, pause, retVal);;";
 
         execCode.push((0, _languageUtils.generateExecuteObject)(code, ''));
 
@@ -2082,7 +1439,6 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
     },
 
     case_option: function bnf_case_option(option, code) {
-
         return [{
             option: option,
             code: code
@@ -2104,7 +1460,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
         code += 'stack.push(buff1.reverse());';
 
         yy.presenterContext.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(arrayName);
-        code = code + 'actualScope.' + arrayName + '= presenter.objectMocks.Array.__constructor__.call({},' + arraySize + ', stack.pop());';
+        code = code + 'actualScope.' + arrayName + '= machineManager.objectMocks.Array.__constructor__.call({},' + arraySize + ', stack.pop());';
 
         execCode.push((0, _languageUtils.generateExecuteObject)(code, ''));
 
@@ -2113,7 +1469,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
 
     var: function bnf_var(yy, varName) {
         yy.presenterContext.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(varName);
-        return (0, _languageUtils.generateExecuteObject)('actualScope.' + varName + ' = presenter.objectMocks.Number.__constructor__.call({}, 0);');
+        return (0, _languageUtils.generateExecuteObject)('actualScope.' + varName + ' = machineManager.objectMocks.Number.__constructor__.call({}, 0);');
     },
 
     var_start_value: function var_start_value(yy, varName, operation) {
@@ -2218,7 +1574,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
         execElements = execElements.concat(from);
         execElements.push((0, _languageUtils.generateExecuteObject)("actualScope." + variableName + '.value = stack.pop().value - ' + by + ';'));
         execElements.push((0, _languageUtils.generateExecuteObject)('', CODE_GENERATORS.uid + '_for'));
-        execElements.push((0, _languageUtils.generateExecuteObject)('presenter.objectForInstructions.calledInstructions.for++', ''));
+        execElements.push((0, _languageUtils.generateExecuteObject)('machineManager.objectForInstructions.calledInstructions.for++', ''));
         execElements = execElements.concat(to);
         execElements.push((0, _languageUtils.generateJumpInstruction)('!((Boolean(actualScope.' + variableName + '.value += ' + by + ') || true) && actualScope.' + variableName + ".value " + comparator + " stack.pop().value )", CODE_GENERATORS.uid + '_for_end'));
         return execElements;
@@ -2230,7 +1586,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
             checkerLabel = yy.labelsStack.pop();
 
         execElements.push((0, _languageUtils.generateJumpInstruction)('true', checkerLabel));
-        execElements.push((0, _languageUtils.generateExecuteObject)('presenter.objectForInstructions.calledInstructions.for--', exitLabel));
+        execElements.push((0, _languageUtils.generateExecuteObject)('machineManager.objectForInstructions.calledInstructions.for--', exitLabel));
         return execElements;
     },
 
@@ -2239,7 +1595,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
      * @param  {Object[]} code
      */
     if_instruction: uidDecorator(function bnf_if_instruction(expression, code) {
-        var executableCode = [(0, _languageUtils.generateExecuteObject)('presenter.objectForInstructions.calledInstructions.if++;')],
+        var executableCode = [(0, _languageUtils.generateExecuteObject)('machineManager.objectForInstructions.calledInstructions.if++;')],
             if_end = CODE_GENERATORS.uid + "_end_if";
 
         executableCode = executableCode.concat(expression);
@@ -2256,7 +1612,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
      * @param  {Object[]} elseCode
      */
     if_else_instruction: uidDecorator(function bnf_if_else_instruction(expression, ifCode, elseCode) {
-        var executableCode = [(0, _languageUtils.generateExecuteObject)('presenter.objectForInstructions.calledInstructions.if++;')],
+        var executableCode = [(0, _languageUtils.generateExecuteObject)('machineManager.objectForInstructions.calledInstructions.if++;')],
             else_start = CODE_GENERATORS.uid + "_else_if",
             if_end = CODE_GENERATORS.uid + "_end_if";
 
@@ -2277,7 +1633,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
 
         var execElements = [];
 
-        execElements.push((0, _languageUtils.generateExecuteObject)('presenter.objectForInstructions.calledInstructions.while++', CODE_GENERATORS.uid + "_while"));
+        execElements.push((0, _languageUtils.generateExecuteObject)('machineManager.objectForInstructions.calledInstructions.while++', CODE_GENERATORS.uid + "_while"));
         execElements = execElements.concat(expression);
         execElements.push((0, _languageUtils.generateJumpInstruction)('!Boolean(stack.pop().value)', CODE_GENERATORS.uid + "_while_end"));
 
@@ -2290,7 +1646,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
             execElements = [];
 
         execElements.push((0, _languageUtils.generateJumpInstruction)('true', startWhileLabel));
-        execElements.push((0, _languageUtils.generateExecuteObject)('presenter.objectForInstructions.calledInstructions.while--', exitLabel));
+        execElements.push((0, _languageUtils.generateExecuteObject)('machineManager.objectForInstructions.calledInstructions.while--', exitLabel));
 
         return execElements;
     },
@@ -2309,7 +1665,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
         var execElements = [],
             enterLabel = CODE_GENERATORS.uid + "_do_while_enter";
 
-        execElements.push((0, _languageUtils.generateExecuteObject)('presenter.objectForInstructions.calledInstructions.doWhile++;', enterLabel));
+        execElements.push((0, _languageUtils.generateExecuteObject)('machineManager.objectForInstructions.calledInstructions.doWhile++;', enterLabel));
         yy.labelsStack.push(enterLabel);
 
         return execElements;
@@ -2336,7 +1692,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
         initialCommand += "eax = stack.pop();\n"; //Size of args array
         initialCommand += "ebx = Math.abs(eax - " + argsList.length + ");\n";
 
-        initialCommand += "if (eax < " + argsList.length + ") throw new presenter.exceptions.ToFewArgumentsException('" + functionName + "'," + argsList.length + ");\n";
+        initialCommand += "if (eax < " + argsList.length + ") throw new machineManager.exceptions.ToFewArgumentsException('" + functionName + "'," + argsList.length + ");\n";
 
         initialCommand += "stack.push(actualScope);\n"; //Save actualScope on stack
         initialCommand += "actualScope = {};\n"; //Reset scope to default
@@ -2355,7 +1711,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
         var execCommands = [],
             exitCommand = "";
 
-        execCommands.push((0, _languageUtils.generateExecuteObject)('retVal.value = presenter.objectMocks.Number.__constructor__(0);', '')); //If code goes there without return, then add to stack default value
+        execCommands.push((0, _languageUtils.generateExecuteObject)('retVal.value = machineManager.objectMocks.Number.__constructor__(0);', '')); //If code goes there without return, then add to stack default value
 
         execCommands.push((0, _languageUtils.generateExecuteObject)('', '1_' + functionName)); //Here return will jump. Define as 1_<function_name>.
 
@@ -2378,13 +1734,13 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
      * @param retVal {{value: Object}}
      * @returns {*|void}
      */
-    builtInMethodCall: function presenter_builtInMethodCall(stack, consoleObj, objects, next, pause, retVal) {
+    builtInMethodCall: function presenter_builtInMethodCall(machineManager, stack, consoleObj, objects, next, pause, retVal) {
         var argsCount = stack.pop();
         var methName = stack.pop();
         var obj = stack.pop();
         var args = [consoleObj, objects, next, pause, retVal];
 
-        var method = CODE_GENERATORS.getMethodFromObject(obj, methName).jsCode;
+        var method = CODE_GENERATORS.getMethodFromObject(machineManager, obj, methName).jsCode;
 
         for (var i = 0; i < argsCount; i++) {
             args.push(stack.pop());
@@ -2394,12 +1750,13 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
     },
 
     /**
+     * @param  {Object} yy
      * @param  {Object[]} firstVal array with calculations first value
      * @param  {Object[]} secVal array with calculations second value
      * @param  {('__add__'|'__sub__'|'__div__'|'__mul__'|'__div_full__'|'__mod__'|'__ge__'|'__le__'|'__gt__'|'__lt__'|'__neq__'|'__eq__'|'__or__'|'__and__')} operationType
      * @return {Object[]}
      */
-    generateOperationCode: function presenter_generateOperationCode(firstVal, secVal, operationType) {
+    generateOperationCode: function presenter_generateOperationCode(yy, firstVal, secVal, operationType) {
         var execObjects = firstVal.concat(secVal),
             code = "",
             exitCode = "",
@@ -2471,7 +1828,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
 
     /**
      * Dispatch for build in function (function declared in properties)
-     * Returned value is executed in machine scope, so next, pause, retVal are locally variable for each machine (function presenter.codeExecutor is scope for this code (eval))
+     * Returned value is executed in machine scope, so next, pause, retVal are locally variable for each machine (function machineManager.codeExecutor is scope for this code (eval))
      * @param  {String} functionName
      * @param  {Array[]} args contains how to resolve each argument
      */
@@ -2486,7 +1843,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
             parsedArgs.unshift("stack[stack.length - " + i + "]");
         }
 
-        code = "presenter.configuration.functions." + functionName + ".call({}, presenter.objectForInstructions, presenter.objectMocks, next, pause, retVal," + parsedArgs.join(",") + ");";
+        code = "machineManager.configuration.functions." + functionName + ".call({}, machineManager.objectForInstructions, machineManager.objectMocks, next, pause, retVal," + parsedArgs.join(",") + ");";
 
         execCode.push((0, _languageUtils.generateExecuteObject)(code, '', true));
 
@@ -2494,13 +1851,933 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
     },
 
     number_value: function presenter_number_value(yy, yytext) {
-        return [(0, _languageUtils.generateExecuteObject)('stack.push(presenter.objectMocks.Number.__constructor__.call({}, Number(' + yytext + ')))', '')];
+        return [(0, _languageUtils.generateExecuteObject)('stack.push(machineManager.objectMocks.Number.__constructor__.call({}, Number(' + yytext + ')))', '')];
     },
 
     string_value: function string_value(yy, chars) {
-        return [(0, _languageUtils.generateExecuteObject)('stack.push(presenter.objectMocks.String.__constructor__.call({},"' + (chars || '') + '"))', '')];
+        return [(0, _languageUtils.generateExecuteObject)('stack.push(machineManager.objectMocks.String.__constructor__.call({},"' + (chars || '') + '"))', '')];
     }
 };
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.UserConsole = UserConsole;
+var consoleClasses = {
+    "LINES_CONTAINER": "pseudoConsole-console-container",
+    "CURSOR": "pseudoConsole-console-cursor",
+    "ACTIVE_CURSOR": "pseudoConsole-console-cursor-active",
+    "RIGHT_ELEMENT": "pseudoConsole-console-right-element",
+    "LEFT_ELEMENT": "pseudoConsole-console-left-element",
+    "TEXT_AREA": "pseudoConsole-console-textarea"
+};
+
+/**
+ *
+ * @param {jQuery} $element
+ * @param {{inputChecker: Function}}config
+ * @constructor
+ */
+function UserConsole($element, config) {
+    this.container = $("<pre></pre>");
+    this.$textArea = $("<textarea class='pseudoConsole-console-textarea'></textarea>");
+    this.linesContainer = $("<div class='" + consoleClasses.LINES_CONTAINER + "'></div>");
+    this.$parentElement = $element;
+    this.lines = [];
+    this.activeLineIndex = -1;
+    this.isReadMode = false; //Console is waiting for user input
+    this.isDisabled = false;
+    this.config = config;
+    this.characterWidth = 0;
+
+    $element.append(this.container);
+    $element.append(this.$textArea);
+
+    this.container.append(this.linesContainer);
+
+    this.addNewLine(true);
+}
+
+UserConsole.prototype = {
+    generateLine: function generateLine(className) {
+        if (!className) {
+            className = '';
+        }
+
+        var $htmlObject = $("<span></span>"),
+            $left = $("<span class='" + className + " " + consoleClasses.LEFT_ELEMENT + "'></span>"),
+            $right = $("<span class='" + className + " " + consoleClasses.RIGHT_ELEMENT + "'></span>"),
+            $cursor = $("<span class='" + consoleClasses.CURSOR + "'></span>");
+
+        $htmlObject.append($left);
+        $htmlObject.append($cursor);
+        $htmlObject.append($right);
+
+        return {
+            $htmlObject: $htmlObject,
+            elements: {
+                $left: $left,
+                $cursor: $cursor,
+                $right: $right
+            }
+        };
+    },
+
+    /**
+     * @param  {Boolean} isActive Activate this line automatically
+     * @param  {String} [className] set class for that line
+     */
+    addNewLine: function addNewLine(isActive, className) {
+        if (!className) {
+            className = '';
+        }
+
+        var line = this.generateLine(className);
+        this.lines.push(line);
+        this.linesContainer.append(line.$htmlObject);
+
+        if (isActive) {
+            this.selectLineAsActive(this.lines.length - 1);
+        }
+
+        this.$parentElement[0].scrollTop = this.$parentElement[0].scrollHeight;
+    },
+
+    selectLineAsActive: function selectLineAsActive(index) {
+        var activeLine = null;
+        if (this.activeLineIndex > -1) {
+            activeLine = this.getActiveLine();
+            activeLine.elements.$left.text(activeLine.elements.$left.text() + activeLine.elements.$right.text());
+            activeLine.elements.$right.text('');
+            activeLine.elements.$cursor.html('');
+            activeLine.elements.$cursor.removeClass(consoleClasses.ACTIVE_CURSOR);
+        }
+
+        this.activeLineIndex = index;
+        activeLine = this.lines[index];
+        activeLine.elements.$cursor.html('&nbsp;');
+        activeLine.elements.$cursor.addClass(consoleClasses.ACTIVE_CURSOR);
+    },
+    /**
+     * @returns {{$htmlObject: jQuery, elements: {$left: jQuery, $right: jQuery, $cursor: jQuery}}}
+     */
+    getActiveLine: function getActiveLine() {
+        return this.lines[this.activeLineIndex];
+    },
+
+    /**
+     * @param  {String} text
+     * @param  {String} className
+     */
+    Write: function Write(text, className) {
+        if (this.isReadMode) {
+            //Dont write to console if is in read mode.
+            return;
+        }
+
+        text = String(text);
+
+        this.addNewLine(true, className);
+
+        var lines = text.split('\n'),
+            line = void 0,
+            activeLine = this.getActiveLine(),
+            i = void 0;
+
+        for (i = 0; i < lines.length - 1; i += 1) {
+            line = lines[i];
+            activeLine.elements.$left.text(activeLine.elements.$left.text() + line);
+            this.addNewLine(true, className);
+            activeLine = this.getActiveLine();
+            activeLine.elements.$left.text("\n");
+        }
+
+        activeLine = this.getActiveLine();
+        line = lines[i];
+        activeLine.elements.$left.text(activeLine.elements.$left.text() + line);
+        this.scrollRight();
+    },
+
+    ReadLine: function ReadLine(callback) {
+        if (this.isReadMode) {
+            return;
+        }
+
+        this.isReadMode = true;
+        var self = this;
+
+        this.readLineFunction(function (data) {
+            self.isReadMode = false;
+            callback(data);
+        });
+    },
+
+    readLineFunction: function readLineFunction(onExitCallback) {
+        if (!this.isReadMode) {
+            return;
+        }
+
+        this.addNewLine(true);
+
+        var textAreaElement = this.$textArea,
+            parentElement = this.$parentElement,
+            self = this;
+
+        $(parentElement).on('click', function () {
+            textAreaElement.off();
+            textAreaElement.focus();
+
+            textAreaElement.on('input', function () {
+                return self.onInputCallback();
+            });
+
+            textAreaElement.on('keydown', function (event) {
+                return self.onKeyDownCallback(event, onExitCallback);
+            });
+        });
+
+        $(parentElement).click();
+    },
+
+    onInputCallback: function onInputCallback() {
+        if (this.isDisabled) {
+            return;
+        }
+
+        var textAreaElement = this.$textArea,
+            activeLine = this.getActiveLine(),
+            data = textAreaElement.val(),
+            leftText = activeLine.elements.$left.text(),
+            rightText = activeLine.elements.$right.text();
+
+        textAreaElement.val('');
+
+        if (!this.config.inputChecker(data)) {
+            return false;
+        }
+
+        if (data.length > 0) {
+            if (data[data.length - 1] !== '\n') {
+                leftText = leftText + data;
+            }
+        }
+
+        activeLine.elements.$left.text(leftText);
+        activeLine.elements.$right.text(rightText);
+
+        this.scrollRight();
+
+        return false;
+    },
+
+    onKeyDownCallback: function onKeyDownCallback(event, onExitCallback) {
+        if (this.isDisabled) {
+            return;
+        }
+
+        var textAreaElement = this.$textArea,
+            activeLine = this.getActiveLine(),
+            keycode = event.which || event.keycode,
+            leftText = activeLine.elements.$left.text(),
+            rightText = activeLine.elements.$right.text(),
+            parentElement = this.$parentElement;
+
+        if (keycode === 39 || keycode === 37 || keycode === 8 || keycode === 13) {
+            if (keycode === 39) {
+                //Left arrow
+                if (rightText.length > 0) {
+                    leftText += rightText[0];
+                    rightText = rightText.substring(1);
+                }
+            } else if (keycode === 37) {
+                //Right arrow
+                if (leftText.length > 0) {
+                    rightText = leftText[leftText.length - 1] + rightText;
+                    leftText = leftText.substring(0, leftText.length - 1);
+                }
+            } else if (keycode === 8) {
+                //Backspace
+                leftText = leftText.substring(0, leftText.length - 1);
+            } else if (keycode === 13) {
+                if ((leftText + rightText).length > 0) {
+                    $(parentElement).off();
+                    textAreaElement.off();
+                    onExitCallback(leftText + rightText);
+                }
+            }
+
+            activeLine.elements.$left.text(leftText);
+            activeLine.elements.$right.text(rightText);
+            textAreaElement.val('');
+
+            this.scrollRight();
+            return false;
+        }
+    },
+
+    ReadChar: function ReadChar(callback) {
+        if (this.isReadMode) {
+            return;
+        }
+
+        this.isReadMode = true;
+
+        this.addNewLine(true);
+
+        var activeLine = this.getActiveLine(),
+            textAreaElement = this.$textArea,
+            parentElement = this.$parentElement,
+            data = void 0,
+            leftText = void 0,
+            self = this;
+
+        $(parentElement).on('click', function () {
+            textAreaElement.off();
+            textAreaElement.focus();
+
+            textAreaElement.on('input', function () {
+                if (self.isDisabled) {
+                    return;
+                }
+
+                leftText = activeLine.elements.$left.text();
+                data = textAreaElement.val();
+
+                if (!this.config.inputChecker(data)) {
+                    return;
+                }
+
+                if (data[data.length - 1] !== "\n") {
+                    $(parentElement).off();
+                    textAreaElement.off();
+                    activeLine.elements.$left.text(leftText + data[data.length - 1]); //Get only last char
+                    self.isReadMode = false;
+                    textAreaElement.val('');
+                    callback(data[data.length - 1]);
+                }
+
+                self.scrollRight();
+            });
+        });
+
+        $(parentElement).click();
+    },
+
+    Reset: function Reset() {
+        var textAreaElement = this.$textArea,
+            parentElement = this.$parentElement;
+
+        parentElement.off();
+        textAreaElement.off();
+
+        this.isReadMode = false;
+
+        this.linesContainer.find('span').remove();
+        this.lines = [];
+
+        this.activeLineIndex = -1;
+
+        this.addNewLine(true);
+
+        this.$textArea.val('');
+    },
+
+    destroy: function destroy() {
+        this.Reset();
+    },
+
+    disable: function disable() {
+        this.isDisabled = true;
+    },
+
+    enable: function enable() {
+        this.isDisabled = false;
+    },
+
+    scrollRight: function scrollRight() {
+        var actualLine = this.getActiveLine();
+        var cursorLeftPosition = actualLine.elements.$cursor.position().left;
+        var actualScroll = this.$parentElement.scrollLeft();
+        var parentWidth = this.$parentElement.width();
+
+        this.$parentElement.scrollLeft(actualScroll + cursorLeftPosition - parentWidth / 2);
+    }
+};
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.codeExecutor = codeExecutor;
+
+var _languageUtils = __webpack_require__(1);
+
+/**
+ * @param  {Object} parsedData parsed code by jison
+ * @param  {Boolean} getScore if function will be called to get score
+ * @param  {Object} machineManager
+ */
+function codeExecutor(parsedData, getScore, machineManager) {
+    var actualIndex = 0,
+        code = parsedData.code,
+        timeoutId = 0,
+        isEnded = false,
+        startTime = new Date().getTime() / 1000,
+        actualScope = {},
+        // There will be saved actual variables
+    stack = [],
+        // Stack contains saved scopes
+    functionsCallPositionStack = [],
+        //Stack which contains information about actual executed code position.
+    retVal = { value: 0 },
+        // value returned by function,
+    eax = { value: 0 },
+        // Helper register used in generated code (used for saving temporary data while executing code)
+    ebx = { value: 0 },
+        // Helper register used in generated code (used for saving temporary data while executing code)
+    id = window.Helpers.uuidv4(); // Each machine contains own unique id which will be saved in presenter
+
+    function getIndexByLabel(label) {
+        var i = void 0;
+        for (i = 0; i < code.length; i += 1) {
+            if (code[i] && code[i].label === label) {
+                return i;
+            }
+        }
+    }
+
+    /**
+     *  Execute each line of code generated by JISON
+     * @returns {Boolean} false - if code was executed, true if program is ended
+     */
+    function executeLine() {
+        var actualEntry = code[actualIndex];
+        if (actualEntry) {
+            if (actualEntry.type === _languageUtils.TYPES.EXECUTE) {
+                eval(actualEntry.code);
+                actualIndex += 1;
+            } else if (actualEntry.type === _languageUtils.TYPES.JUMP) {
+                if (eval(actualEntry.code)) {
+                    actualIndex = getIndexByLabel(actualEntry.toLabel);
+                } else {
+                    actualIndex += 1;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    function pause() {
+        clearTimeout(timeoutId);
+    }
+
+    function next() {
+        if (!isEnded) {
+            timeoutId = setTimeout(executeAsync, 1);
+        }
+    }
+
+    function executeAsync() {
+        next();
+        try {
+            isEnded = executeLine();
+            if (isEnded) {
+                pause();
+            }
+        } catch (e) {
+            if (!e.message) {
+                machineManager.state.console.Write(e + "\n", 'program-error-output');
+            } else {
+                machineManager.state.console.Write(e.message + "\n", 'program-error-output');
+            }
+            killMachine();
+        }
+    }
+
+    function killMachine() {
+        pause();
+        delete machineManager.killMachine[id];
+        actualScope = null;
+        stack = null;
+        functionsCallPositionStack = null;
+        eax = null;
+        ebx = null;
+        isEnded = true;
+        return true;
+    }
+
+    function executeCodeSyncWithMaxTime() {
+        var actualTime = void 0;
+        while (true) {
+            actualTime = new Date().getTime() / 1000;
+            if (actualTime - startTime > machineManager.configuration.answer.maxTimeForAnswer.parsedValue) {
+                killMachine();
+                return;
+            }
+            try {
+                isEnded = executeLine();
+                if (isEnded) {
+                    killMachine();
+                    return;
+                }
+            } catch (e) {
+                killMachine();
+                return;
+            }
+        }
+    }
+
+    machineManager.killMachine[id] = killMachine;
+
+    eval(parsedData.sections);
+
+    if (getScore) {
+        executeCodeSyncWithMaxTime();
+    } else {
+        executeAsync();
+    }
+}
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.validateFunction = validateFunction;
+exports.validateFunctions = validateFunctions;
+exports.validateAliases = validateAliases;
+exports.validateAnswer = validateAnswer;
+exports.validateModel = validateModel;
+/**
+ * Wrap each function or method defined by user by this code. It will set default values for function and initialize console for call
+ * Functions pause and next will stop or resume machine which actually executes this code.
+ * @param {String} userCode
+ * @returns {string}
+ */
+function wrapMethodOrFunctionWithBuiltInCode(userCode) {
+    var code = "var builtIn = {\n";
+    code += "   console: arguments[0].console,\n";
+    code += "   data: arguments[0].data,";
+    code += "   objects: arguments[1],\n";
+    code += "   retVal: arguments[4]\n";
+    code += "};";
+    code += "builtIn.console.nextIns = arguments[2];\n";
+    code += "builtIn.console.pauseIns = arguments[3];\n";
+    code += "arguments = Array.prototype.slice.call(arguments, 5)\n";
+
+    code += userCode;
+
+    return code;
+}
+
+function generateValidationError(errorCode) {
+    return {
+        isValid: false,
+        errorCode: errorCode
+    };
+}
+
+function validateFunction(functionToValidate) {
+    var validatedFunction = void 0;
+
+    if (!/^[A-Za-z_][a-zA-Z0-9_]*$/g.exec(functionToValidate.name)) {
+        return generateValidationError("FN01");
+    }
+
+    try {
+        validatedFunction = new Function(wrapMethodOrFunctionWithBuiltInCode(functionToValidate.body));
+    } catch (e) {
+        return generateValidationError("JS02");
+    }
+
+    return {
+        isValid: true,
+        value: {
+            name: functionToValidate.name,
+            body: validatedFunction
+        }
+    };
+}
+
+function validateFunctions(functions) {
+    var validatedFunctions = {},
+        i = void 0,
+        validatedFunction = void 0;
+
+    for (i = 0; i < functions.length; i += 1) {
+        if (functions[i].name.trim().length === 0) {
+            continue;
+        }
+
+        validatedFunction = validateFunction(functions[i]);
+        if (!validatedFunction.isValid) {
+            return validatedFunction;
+        }
+
+        if (validatedFunctions[validatedFunction.value.name]) {
+            return generateValidationError("FN02");
+        }
+
+        validatedFunctions[validatedFunction.value.name] = validatedFunction.value.body;
+    }
+
+    return {
+        isValid: true,
+        value: validatedFunctions
+    };
+}
+
+function validateAliases(aliases) {
+    var definedAliases = {},
+        aliasKey = void 0,
+        aliasName = void 0,
+        exists = {};
+
+    for (aliasKey in aliases) {
+        if (aliases.hasOwnProperty(aliasKey)) {
+            if (aliases[aliasKey].name && !ModelValidationUtils.isStringEmpty(aliases[aliasKey].name.trim())) {
+                aliasName = aliases[aliasKey].name.trim();
+
+                if (!/^[A-Za-z_][a-zA-Z0-9_]*$/g.exec(aliasName)) {
+                    return generateValidationError("AN01");
+                }
+
+                definedAliases[aliasKey] = aliases[aliasKey].name.trim();
+            }
+        }
+    }
+
+    for (aliasKey in definedAliases) {
+        if (definedAliases.hasOwnProperty(aliasKey)) {
+            if (exists[definedAliases[aliasKey]]) {
+                return generateValidationError("AN02");
+            }
+
+            exists[definedAliases[aliasKey]] = true;
+        }
+    }
+
+    return {
+        isValid: true,
+        value: definedAliases
+    };
+}
+
+function validateParameters(params) {
+    var parameters = [],
+        i = void 0;
+    for (i = 0; i < params.length; i += 1) {
+        parameters.push(params[i].value);
+    }
+
+    return {
+        isValid: true,
+        value: parameters
+    };
+}
+
+function validateAnswer(model) {
+    var runUserCode = ModelValidationUtils.validateBoolean(model.runUserCode),
+        answerCode = model.answerCode,
+        maxTimeForAnswer = ModelValidationUtils.validateFloatInRange(model.maxTimeForAnswer, 10, 0),
+        validatedParameters = void 0;
+
+    if (runUserCode && (!maxTimeForAnswer.isValid || maxTimeForAnswer.parsedValue === 0)) {
+        return generateValidationError("IP01");
+    }
+
+    validatedParameters = validateParameters(model.runParameters);
+
+    return {
+        isValid: true,
+        runUserCode: runUserCode,
+        answerCode: new Function(answerCode),
+        maxTimeForAnswer: maxTimeForAnswer,
+        parameters: validatedParameters.value
+    };
+}
+
+function validateUniquenessAliasesNamesAndFunctions(aliases, functions) {
+    var aliasKey = void 0;
+
+    for (aliasKey in aliases) {
+        if (aliases.hasOwnProperty(aliasKey)) {
+            if (functions[aliases[aliasKey]]) {
+                return generateValidationError("FN03");
+            }
+        }
+    }
+
+    return {
+        isValid: true
+    };
+}
+
+/**
+ * @param {{objectName: (Array|Number|String), methodName: String, methodBody: String}} method
+ */
+function validateMethod(method) {
+    var validatedMethod = {};
+
+    try {
+        validatedMethod = {
+            objectName: method.objectName,
+            methodName: method.methodName,
+            function: new Function(wrapMethodOrFunctionWithBuiltInCode(method.methodBody))
+        };
+    } catch (e) {
+        return generateValidationError("JS01");
+    }
+
+    return {
+        isValid: true,
+        method: validatedMethod
+    };
+}
+
+/**
+ * @param {{objectName: (Array|Number|String), methodName: String, methodBody: String}[]} methods
+ */
+function validateMethods(methods) {
+    var validatedMethods = [];
+
+    methods.forEach(function (method) {
+        var validatedMethod = validateMethod(method);
+
+        if (!validatedMethod.isValid) {
+            return validatedMethod;
+        }
+
+        validatedMethods.push(validatedMethod.method);
+    });
+
+    return {
+        isValid: true,
+        methods: validatedMethods
+    };
+}
+
+function validateRound(model) {
+    var round = model['mathRound'];
+
+    if (round.trim() === '') {
+        return {
+            isValid: true,
+            value: 100
+        };
+    }
+
+    var parsedRound = parseInt(round, 10);
+
+    if (isNaN(parsedRound)) {
+        return {
+            isValid: false,
+            errorCode: "ER01"
+        };
+    }
+
+    if (parsedRound < 1) {
+        return {
+            isValid: false,
+            errorCode: "ER02"
+        };
+    }
+
+    if (parsedRound > 100) {
+        return {
+            isValid: false,
+            errorCode: "ER03"
+        };
+    }
+
+    return {
+        isValid: true,
+        value: parsedRound
+    };
+}
+
+function validateConsoleAvailableInput(model) {
+    var consoleAvailableInput = model.consoleAvailableInput;
+
+    if (consoleAvailableInput === "") {
+        consoleAvailableInput = "All";
+    }
+
+    return {
+        isValid: true,
+        value: consoleAvailableInput
+    };
+}
+
+/**
+ *
+ * @param {{translation: String}} translation
+ */
+function validateExceptionTranslation(translation) {
+    if (translation.translation.trim() === "") {
+        return {
+            isValid: true,
+            value: null
+        };
+    }
+
+    return {
+        isValid: true,
+        value: translation.translation.trim()
+    };
+}
+
+function validateExceptionsTranslation(model) {
+    var translations = model.exceptionsTranslation;
+    var validatedTranslations = {};
+
+    for (var exceptionName in translations) {
+        if (translations.hasOwnProperty(exceptionName)) {
+            var validatedTranslation = validateExceptionTranslation(translations[exceptionName]);
+            if (!validatedTranslation.isValid) {
+                return validatedTranslation;
+            }
+
+            validatedTranslations[exceptionName] = validatedTranslation.value;
+        }
+    }
+
+    return {
+        isValid: true,
+        value: validatedTranslations
+    };
+}
+
+function validateModel(model, aliases) {
+    var validatedAliases = void 0,
+        validatedFunctions = void 0,
+        validatedAnswer = void 0,
+        isUniqueInAliasesAndFunctions = void 0,
+        validatedMethods = void 0;
+
+    validatedAliases = validateAliases(model.default_aliases);
+    if (!validatedAliases.isValid) {
+        return validatedAliases;
+    }
+
+    validatedFunctions = validateFunctions(model.functionsList);
+    if (!validatedFunctions.isValid) {
+        return validatedFunctions;
+    }
+
+    if (validatedAliases.isValid && validatedFunctions.isValid) {
+        isUniqueInAliasesAndFunctions = validateUniquenessAliasesNamesAndFunctions(validatedAliases.value, validatedFunctions.value);
+        if (!isUniqueInAliasesAndFunctions.isValid) {
+            return isUniqueInAliasesAndFunctions;
+        }
+    }
+
+    validatedAnswer = validateAnswer(model);
+    if (!validatedAnswer.isValid) {
+        return validatedAnswer;
+    }
+
+    validatedMethods = validateMethods(model.methodsList);
+    if (!validatedMethods.isValid) {
+        return validatedMethods;
+    }
+
+    var validatedRound = validateRound(model);
+    if (!validatedRound.isValid) {
+        return validatedRound;
+    }
+
+    var validatedAvailableConsoleInput = validateConsoleAvailableInput(model);
+    if (!validatedAvailableConsoleInput.isValid) {
+        return validatedAvailableConsoleInput;
+    }
+
+    var validatedExceptionsTranslation = validateExceptionsTranslation(model);
+    if (!validatedExceptionsTranslation.isValid) {
+        return validatedExceptionsTranslation;
+    }
+
+    return {
+        isValid: true,
+        addonID: model.ID,
+        isActivity: !ModelValidationUtils.validateBoolean(model.isNotActivity),
+        isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
+        functions: validatedFunctions.value,
+        aliases: $.extend(aliases, validatedAliases.value),
+        answer: validatedAnswer,
+        methods: validatedMethods.methods,
+        round: validatedRound.value,
+        availableConsoleInput: validatedAvailableConsoleInput.value,
+        exceptionTranslations: validatedExceptionsTranslation.value
+    };
+}
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.isLetter = isLetter;
+exports.isDigit = isDigit;
+function inRange(value, min, max) {
+    return value <= max & value >= min;
+}
+
+/**
+ * Check if string contains only letters
+ * @param {String} c
+ * @returns {boolean}
+ */
+function isLetter(c) {
+    for (var i = 0; i < c.length; i++) {
+        if (!_isLetter(c.charCodeAt(i))) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Check if string contains only digits
+ * @param {String} c
+ * @returns {boolean}
+ */
+function isDigit(c) {
+    for (var i = 0; i < c.length; i++) {
+        if (!_isDigit(c.charCodeAt(i))) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function _isLetter(character) {
+    return inRange(character, 65, 90) || inRange(character, 97, 122) || inRange(character, 192, 687) || inRange(character, 900, 1159) || // latin letters
+    inRange(character, 1162, 1315) || inRange(character, 1329, 1366) || inRange(character, 1377, 1415) || // cyrillic letters
+    inRange(character, 1425, 1536) || inRange(character, 1569, 1610) || // arabic letters
+    inRange(character, 0x3400, 0x9FFF) || inRange(character, 0x0620, 0x063F) || inRange(character, 0x0641, 0x064A); //chinese and japanese letters
+}
+
+function _isDigit(d) {
+    return inRange(d, 0x0030, 0x0039) //standard european digits
+    || inRange(d, 0x0660, 0x0669) || inRange(d, 0x06F0, 0x06F9) // arabic digits
+    || inRange(d, 0x1040, 0x108F) || inRange(d, 0x5344, 0x5345) // chinese and japanese digits
+    || d === 0x3007 || d === 0x5341 || d === 0x4E00 || d === 0x4E8C || d === 0x4E09 || d === 0x56DB || d === 0x4E94 || d === 0x0516D || d === 0x4E03 || d === 0x516B || d === 0x4E5D || d === 0x5341 || d === 0x767E || d === 0x5343 || d === 0x4E07 || d === 0x842C || d === 0x5104 || d === 0x4EBF || d === 0x5146;
+}
 
 /***/ })
 /******/ ]);

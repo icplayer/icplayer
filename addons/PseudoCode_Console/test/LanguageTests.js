@@ -211,6 +211,8 @@ TestCase("[PseudoCode_Console - language tests] math statement", {
             mock3: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled3 = arguments[0];"}).value.body
         };
 
+        this.presenter.configuration.round = 4;
+
         this.afterExecutingObject = {};
         var self = this;
 
@@ -252,6 +254,39 @@ TestCase("[PseudoCode_Console - language tests] math statement", {
         end
         */
         this.test3 = "program test \n variable a, b \n begin \n a = 60 % 7 /_ 3 \n mock(a) \n end";
+
+        /*
+        program test
+        variable a
+        begin
+            a = 2 / 3
+            mock(a)
+        end
+         */
+        this.test4 = "" +
+            "program test\n" +
+            "variable a\n" +
+            "begin\n" +
+            "    a = 2 / 3\n" +
+            "    mock(a)\n" +
+            "end";
+
+
+        /*
+        program test
+        variable a
+        begin
+            a = 0.0002002 * 2
+            mock(a)
+        end
+         */
+        this.test5 = "" +
+            "program test\n" +
+            "variable a\n" +
+            "begin\n" +
+            "    a = 0.0002002 * 2\n" +
+            "    mock(a)\n" +
+            "end";
     },
 
     'test order of addition, subtraction, multiplication and division': function () {
@@ -276,6 +311,22 @@ TestCase("[PseudoCode_Console - language tests] math statement", {
         this.presenter.evaluateScoreFromUserCode();
 
         assertEquals(1, this.afterExecutingObject.data.mockCalled.value);
+    },
+
+    'test div correctly round number': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test4);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertEquals(0.6667, this.afterExecutingObject.data.mockCalled.value);
+    },
+
+    'test mul correctly round number': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test5);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertEquals(0.0004, this.afterExecutingObject.data.mockCalled.value);
     }
 });
 
@@ -973,33 +1024,33 @@ TestCase("[PseudoCode_Console - language tests] case statement", {
         begin
             a = 1
             case a
-                option 1 then
+                option 1,2 then
                 begin
                     mock(1)
                 end
-                option "1" then
+                option "1","2" then
                     mock("s1")
             mock(2)
         end
         */
-        this.test1 = "program test \n variable a \n begin \n a = 1 \n case a \n option 1 then \n begin \n mock(1) \n end \n option \"1\" then \n mock(\"s1\") \n mock(2) \n end";
+        this.test1 = "program test \n variable a \n begin \n a = 1 \n case a \n option 1,2 then \n begin \n mock(1) \n end \n option \"1\",\"2\" then \n mock(\"s1\") \n mock(2) \n end";
         
         /*
         program test
         variable a
         begin
-            a = "1"
+            a = "2"
             case a
-                option 1 then
+                option 1,2 then
                 begin
                     mock(1)
                 end
-                option "1" then
+                option "1","2" then
                     mock("s1")
             mock(2)
         end
         */
-        this.test2 = "program test \n variable a \n begin \n a = \"1\" \n case a \n option 1 then \n begin \n mock(1) \n end \n option \"1\" then \n mock(\"s1\") \n mock(2) \n end";
+        this.test2 = "program test \n variable a \n begin \n a = \"1\" \n case a \n option 1,2 then \n begin \n mock(1) \n end \n option \"1\",\"2\" then \n mock(\"s1\") \n mock(2) \n end";
         
     },
 
@@ -1134,15 +1185,19 @@ TestCase("[PseudoCode_Console - language tests] array statement", {
 TestCase("[PseudoCode_Console - language tests] exceptions", {
     setUp: function () {
         this.presenter = AddonPseudoCode_Console_create();
+        this.presenter.initializeExceptions();
 
-        for (var exceptionName in this.presenter.exceptions) {
-            if (this.presenter.exceptions.hasOwnProperty(exceptionName)) {
-                sinon.spy(this.presenter.exceptions, exceptionName);
+        var self = this;
+
+        var prototype = Object.getPrototypeOf(this.presenter.exceptions);
+        Object.getOwnPropertyNames(prototype).forEach(function (exceptionName) {
+            if (exceptionName !== "translations" && exceptionName !== "constructor") {
+                sinon.spy(self.presenter.exceptions, exceptionName);
             }
-        }
+        });
+
 
         this.afterExecutingObject = {};
-        var self = this;
 
         this.presenter.configuration.functions = {
             mock2:  this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = arguments[0].value;"}).value.body
@@ -1385,11 +1440,6 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
     },
 
     tearDown: function () {
-        for (var exceptionName in this.presenter.exceptions) {
-            if (this.presenter.exceptions.hasOwnProperty(exceptionName)) {
-                this.presenter.exceptions[exceptionName].restore();
-            }
-        }
     },
 
     'test executing undefined function will throw exception': function () {
@@ -1402,7 +1452,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.UndefinedFunctionNameException.calledWithNew());
+        assertTrue(this.presenter.exceptions.UndefinedFunctionNameException.called);
     },
 
     'test executing undefined variable will throw exception': function () {
@@ -1415,7 +1465,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.UndefinedVariableNameException.calledWithNew());
+        assertTrue(this.presenter.exceptions.UndefinedVariableNameException.called);
     },
 
     'test wrong syntax will throw error': function () {
@@ -1434,7 +1484,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.calledWithNew());
+        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.called);
     },
 
     'test array throw OutOfBounds exception if index is below 0': function () {
@@ -1442,7 +1492,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.calledWithNew());
+        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.called);
     },
 
     'test array throw GetError if is trying to get undefined value': function () {
@@ -1450,7 +1500,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.GetErrorException.calledWithNew());
+        assertTrue(this.presenter.exceptions.GetErrorException.called);
     },
 
     'test if array getter parameter is not a integer then throws Cast exception': function () {
@@ -1458,7 +1508,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+        assertTrue(this.presenter.exceptions.CastErrorException.called);
     },
 
     'test array setter throw OutOfBounds exception if index is above array size': function () {
@@ -1466,7 +1516,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.calledWithNew());
+        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.called);
     },
 
     'test array setter throw OutOfBounds exception if index is below 0': function () {
@@ -1474,7 +1524,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.calledWithNew());
+        assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.called);
     },
 
     'test array setter will throw cast exception if index is not a number': function () {
@@ -1482,7 +1532,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+        assertTrue(this.presenter.exceptions.CastErrorException.called);
     },
 
     'test string will throw exception if is trying to add not a number and not a string': function () {
@@ -1490,7 +1540,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+        assertTrue(this.presenter.exceptions.CastErrorException.called);
     },
 
     'test number will throw exception if is trying to add not a number and not a string': function () {
@@ -1498,7 +1548,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+        assertTrue(this.presenter.exceptions.CastErrorException.called);
     },
 
     'test number will throw exception if is trying to sub not a number': function () {
@@ -1506,7 +1556,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+        assertTrue(this.presenter.exceptions.CastErrorException.called);
     },
 
     'test number will throw exception if is trying to div not a number': function () {
@@ -1514,7 +1564,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+        assertTrue(this.presenter.exceptions.CastErrorException.called);
     },
 
     'test number will throw exception if is trying to mul not a number': function () {
@@ -1522,7 +1572,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+        assertTrue(this.presenter.exceptions.CastErrorException.called);
     },
 
     'test number will throw exception if is trying to div without rest not a number': function () {
@@ -1530,7 +1580,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+        assertTrue(this.presenter.exceptions.CastErrorException.called);
     },
 
     'test number will throw exception if is trying to modulo not a number': function () {
@@ -1538,7 +1588,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.CastErrorException.calledWithNew());
+        assertTrue(this.presenter.exceptions.CastErrorException.called);
     },
 
     'test user defined multiple instructions with the same name': function () {
@@ -1551,7 +1601,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.InstructionIsDefinedException.calledWithNew());
+        assertTrue(this.presenter.exceptions.InstructionIsDefinedException.called);
     },
 
     'test user defined instruction with name which was defined in addon property': function () {
@@ -1564,7 +1614,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.InstructionIsDefinedException.calledWithNew());
+        assertTrue(this.presenter.exceptions.InstructionIsDefinedException.called);
     },
 
     'test user calls method which is not defined': function () {
@@ -1577,6 +1627,6 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
 
         this.presenter.evaluateScoreFromUserCode();
 
-        assertTrue(this.presenter.exceptions.MethodNotFoundException.calledWithNew());
+        assertTrue(this.presenter.exceptions.MethodNotFoundException.called);
     }
 });

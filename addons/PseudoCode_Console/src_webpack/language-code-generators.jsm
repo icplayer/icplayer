@@ -14,18 +14,21 @@ export const CODE_GENERATORS = {
     case: uidDecorator(
         /**
          * @param  {Object[]} variableDef
-         * @param  {{option:String, code:Object[]}[]} options
+         * @param  {{option:String[], code:Object[]}[]} options
          */
         function bnf_case (variableDef, options) {
+            debugger;
             let i,
                 exitLabel = CODE_GENERATORS.uid + "_case_end",
-                execCode = [generateExecuteObject('presenter.objectForInstructions.calledInstructions.case++;', '')];
+                execCode = [generateExecuteObject('machineManager.objectForInstructions.calledInstructions.case++;', '')];
 
             execCode = execCode.concat(variableDef);    //On stack is variable value
 
             for (i = 0; i < options.length; i += 1) {
-                execCode = execCode.concat(options[i].option);  //Now on stack we have option to compare
-                execCode.push(generateJumpInstruction('stack[stack.length - 2].value === stack.pop().value', CODE_GENERATORS.uid + '_case_option_' + i));
+                options[i].option.forEach(option => {
+                    execCode = execCode.concat(option);  //Now on stack we have option to compare
+                    execCode.push(generateJumpInstruction('stack[stack.length - 2].value === stack.pop().value', CODE_GENERATORS.uid + '_case_option_' + i));
+                });
             }
             execCode.push(generateJumpInstruction('true', exitLabel));
 
@@ -47,7 +50,7 @@ export const CODE_GENERATORS = {
      * @param methodName {String}
      * @returns {Function}
      */
-    getMethodFromObject: function bnf_getMethodFromObject (object, methodName) {
+    getMethodFromObject: function bnf_getMethodFromObject (machineManager, object, methodName) {
         let methods = object.methods;
         while(true) {
             if (methods.hasOwnProperty(methodName)) {
@@ -55,7 +58,7 @@ export const CODE_GENERATORS = {
             }
 
             if (object.parent == null) {
-                throw new EXCEPTIONS.MethodNotFoundException(methodName);
+                throw machineManager.exceptions.MethodNotFoundException(methodName);
             }
 
             object = object.parent;
@@ -72,7 +75,7 @@ export const CODE_GENERATORS = {
      *
      * Objects and inheritance in pseudocode (Concept):
      *  -Add to machine new instruction evaluateJumpLabelAndJump which will execute code in label and will jump to generated label.
-     *  -Add new object to presenter.objectMocks
+     *  -Add new object to machineManager.objectMocks
      *  -Use it in object call manager, if getMethodFromObject(a,b).native is True, then execute original code, if false then use evaluateJumpLabelAndJump to getMethodFromObject(a,b).labelCode where will be code to jump.
      *  -Each class should be saved in precessor code, each method should contains own label to jump, for example MyClass.myMethod should contains MyClass.myMethod label for jump
      *  -Before jump, set scope for this class and jump to method.
@@ -84,7 +87,7 @@ export const CODE_GENERATORS = {
         execCode.push(generateExecuteObject('', '1_get_object_call_manager'));
 
         let code = "";
-        code += "presenter.bnf.builtInMethodCall(stack, presenter.objectForInstructions, presenter.objectMocks, next, pause, retVal);;";
+        code += "machineManager.bnf.builtInMethodCall(machineManager, stack, machineManager.objectForInstructions, machineManager.objectMocks, next, pause, retVal);;";
 
 
         execCode.push(generateExecuteObject(code, ''));
@@ -95,7 +98,6 @@ export const CODE_GENERATORS = {
     },
 
     case_option: function bnf_case_option (option, code) {
-
         return [{
             option: option,
             code: code
@@ -119,7 +121,7 @@ export const CODE_GENERATORS = {
 
 
         yy.presenterContext.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(arrayName);
-        code =  code + 'actualScope.' + arrayName + '= presenter.objectMocks.Array.__constructor__.call({},' + arraySize + ', stack.pop());';
+        code =  code + 'actualScope.' + arrayName + '= machineManager.objectMocks.Array.__constructor__.call({},' + arraySize + ', stack.pop());';
 
         execCode.push(generateExecuteObject(code, ''));
 
@@ -129,7 +131,7 @@ export const CODE_GENERATORS = {
 
     var: function bnf_var (yy, varName) {
         yy.presenterContext.state.variablesAndFunctionsUsage[yy.actualFunctionName].defined.push(varName);
-        return generateExecuteObject('actualScope.' + varName + ' = presenter.objectMocks.Number.__constructor__.call({}, 0);');
+        return generateExecuteObject('actualScope.' + varName + ' = machineManager.objectMocks.Number.__constructor__.call({}, 0);');
     },
 
     var_start_value: function var_start_value(yy, varName, operation) {
@@ -234,7 +236,7 @@ export const CODE_GENERATORS = {
         execElements = execElements.concat(from);
         execElements.push(generateExecuteObject("actualScope." + variableName + '.value = stack.pop().value - ' + by + ';'));
         execElements.push(generateExecuteObject('', CODE_GENERATORS.uid + '_for'));
-        execElements.push(generateExecuteObject('presenter.objectForInstructions.calledInstructions.for++', ''));
+        execElements.push(generateExecuteObject('machineManager.objectForInstructions.calledInstructions.for++', ''));
         execElements = execElements.concat(to);
         execElements.push(generateJumpInstruction('!((Boolean(actualScope.' + variableName + '.value += ' + by + ') || true) && actualScope.' + variableName + ".value " + comparator + " stack.pop().value )", CODE_GENERATORS.uid + '_for_end'));
         return execElements;
@@ -247,7 +249,7 @@ export const CODE_GENERATORS = {
             checkerLabel = yy.labelsStack.pop();
 
         execElements.push(generateJumpInstruction('true', checkerLabel));
-        execElements.push(generateExecuteObject('presenter.objectForInstructions.calledInstructions.for--', exitLabel));
+        execElements.push(generateExecuteObject('machineManager.objectForInstructions.calledInstructions.for--', exitLabel));
         return execElements;
     },
 
@@ -256,7 +258,7 @@ export const CODE_GENERATORS = {
      * @param  {Object[]} code
      */
     if_instruction: uidDecorator(function bnf_if_instruction (expression, code) {
-        let executableCode = [generateExecuteObject('presenter.objectForInstructions.calledInstructions.if++;')],
+        let executableCode = [generateExecuteObject('machineManager.objectForInstructions.calledInstructions.if++;')],
             if_end = CODE_GENERATORS.uid + "_end_if";
 
         executableCode = executableCode.concat(expression);
@@ -273,7 +275,7 @@ export const CODE_GENERATORS = {
      * @param  {Object[]} elseCode
      */
     if_else_instruction: uidDecorator(function bnf_if_else_instruction (expression, ifCode, elseCode) {
-        let executableCode = [generateExecuteObject('presenter.objectForInstructions.calledInstructions.if++;')],
+        let executableCode = [generateExecuteObject('machineManager.objectForInstructions.calledInstructions.if++;')],
             else_start = CODE_GENERATORS.uid + "_else_if",
             if_end = CODE_GENERATORS.uid + "_end_if";
 
@@ -294,7 +296,7 @@ export const CODE_GENERATORS = {
 
         let execElements = [];
 
-        execElements.push(generateExecuteObject('presenter.objectForInstructions.calledInstructions.while++', CODE_GENERATORS.uid + "_while"));
+        execElements.push(generateExecuteObject('machineManager.objectForInstructions.calledInstructions.while++', CODE_GENERATORS.uid + "_while"));
         execElements = execElements.concat(expression);
         execElements.push(generateJumpInstruction('!Boolean(stack.pop().value)',  CODE_GENERATORS.uid + "_while_end"));
 
@@ -307,7 +309,7 @@ export const CODE_GENERATORS = {
             execElements = [];
 
         execElements.push(generateJumpInstruction('true', startWhileLabel));
-        execElements.push(generateExecuteObject('presenter.objectForInstructions.calledInstructions.while--', exitLabel));
+        execElements.push(generateExecuteObject('machineManager.objectForInstructions.calledInstructions.while--', exitLabel));
 
         return execElements;
     },
@@ -326,7 +328,7 @@ export const CODE_GENERATORS = {
         let execElements = [],
             enterLabel = CODE_GENERATORS.uid + "_do_while_enter";
 
-        execElements.push(generateExecuteObject('presenter.objectForInstructions.calledInstructions.doWhile++;', enterLabel));
+        execElements.push(generateExecuteObject('machineManager.objectForInstructions.calledInstructions.doWhile++;', enterLabel));
         yy.labelsStack.push(enterLabel);
 
         return execElements;
@@ -353,7 +355,7 @@ export const CODE_GENERATORS = {
         initialCommand += "eax = stack.pop();\n";         //Size of args array
         initialCommand += "ebx = Math.abs(eax - " + argsList.length + ");\n";
 
-        initialCommand += "if (eax < " + argsList.length + ") throw new presenter.exceptions.ToFewArgumentsException('" + functionName + "'," + argsList.length + ");\n";
+        initialCommand += "if (eax < " + argsList.length + ") throw new machineManager.exceptions.ToFewArgumentsException('" + functionName + "'," + argsList.length + ");\n";
 
         initialCommand += "stack.push(actualScope);\n";  //Save actualScope on stack
         initialCommand += "actualScope = {};\n";        //Reset scope to default
@@ -372,7 +374,7 @@ export const CODE_GENERATORS = {
         let execCommands = [],
             exitCommand = "";
 
-        execCommands.push(generateExecuteObject('retVal.value = presenter.objectMocks.Number.__constructor__(0);', ''));   //If code goes there without return, then add to stack default value
+        execCommands.push(generateExecuteObject('retVal.value = machineManager.objectMocks.Number.__constructor__(0);', ''));   //If code goes there without return, then add to stack default value
 
         execCommands.push(generateExecuteObject('', '1_' + functionName));    //Here return will jump. Define as 1_<function_name>.
 
@@ -396,13 +398,13 @@ export const CODE_GENERATORS = {
      * @param retVal {{value: Object}}
      * @returns {*|void}
      */
-    builtInMethodCall: function presenter_builtInMethodCall (stack, consoleObj, objects, next, pause, retVal) {
+    builtInMethodCall: function presenter_builtInMethodCall (machineManager, stack, consoleObj, objects, next, pause, retVal) {
         let argsCount = stack.pop();
         let methName = stack.pop();
         let obj = stack.pop();
         let args = [consoleObj, objects, next, pause, retVal];
 
-        let method = CODE_GENERATORS.getMethodFromObject(obj, methName).jsCode;
+        let method = CODE_GENERATORS.getMethodFromObject(machineManager, obj, methName).jsCode;
 
         for (let i = 0; i < argsCount; i++) {
             args.push(stack.pop());
@@ -412,12 +414,13 @@ export const CODE_GENERATORS = {
     },
 
     /**
+     * @param  {Object} yy
      * @param  {Object[]} firstVal array with calculations first value
      * @param  {Object[]} secVal array with calculations second value
      * @param  {('__add__'|'__sub__'|'__div__'|'__mul__'|'__div_full__'|'__mod__'|'__ge__'|'__le__'|'__gt__'|'__lt__'|'__neq__'|'__eq__'|'__or__'|'__and__')} operationType
      * @return {Object[]}
      */
-    generateOperationCode: function presenter_generateOperationCode (firstVal, secVal, operationType) {
+    generateOperationCode: function presenter_generateOperationCode (yy, firstVal, secVal, operationType) {
         let execObjects = firstVal.concat(secVal),
             code = "",
             exitCode = "",
@@ -489,7 +492,7 @@ export const CODE_GENERATORS = {
 
     /**
      * Dispatch for build in function (function declared in properties)
-     * Returned value is executed in machine scope, so next, pause, retVal are locally variable for each machine (function presenter.codeExecutor is scope for this code (eval))
+     * Returned value is executed in machine scope, so next, pause, retVal are locally variable for each machine (function machineManager.codeExecutor is scope for this code (eval))
      * @param  {String} functionName
      * @param  {Array[]} args contains how to resolve each argument
      */
@@ -504,7 +507,7 @@ export const CODE_GENERATORS = {
             parsedArgs.unshift("stack[stack.length - " + i + "]");
         }
 
-        code = "presenter.configuration.functions." + functionName + ".call({}, presenter.objectForInstructions, presenter.objectMocks, next, pause, retVal," + parsedArgs.join(",") + ");";
+        code = "machineManager.configuration.functions." + functionName + ".call({}, machineManager.objectForInstructions, machineManager.objectMocks, next, pause, retVal," + parsedArgs.join(",") + ");";
 
         execCode.push(generateExecuteObject(code, '', true));
 
@@ -512,10 +515,10 @@ export const CODE_GENERATORS = {
     },
 
     number_value: function presenter_number_value(yy, yytext) {
-        return [generateExecuteObject('stack.push(presenter.objectMocks.Number.__constructor__.call({}, Number(' + yytext + ')))', '')];
+        return [generateExecuteObject('stack.push(machineManager.objectMocks.Number.__constructor__.call({}, Number(' + yytext + ')))', '')];
     },
 
     string_value: function (yy, chars) {
-        return [generateExecuteObject('stack.push(presenter.objectMocks.String.__constructor__.call({},"' +  (chars || '') + '"))', '')];
+        return [generateExecuteObject('stack.push(machineManager.objectMocks.String.__constructor__.call({},"' +  (chars || '') + '"))', '')];
     }
 };
