@@ -1602,6 +1602,8 @@
 	"Text_To_Speech_area": "Area",
 	"Text_To_Speech_property_title": "Title",
 	"Text_To_Speech_property_description": "Description",
+	"Text_To_Speech_property_new_page": "New page",
+	"Text_To_Speech_property_page_lang_tag": "Page title language",
 	"Text_To_Speech_language": "Language",
 	"IFrame_property_allow_fullscreen": "Włącz tryb pełnoekranowy",
 	"IFrame_property_alt_text": "Tekst alternatywny",

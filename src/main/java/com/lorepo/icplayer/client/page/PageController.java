@@ -529,6 +529,10 @@ public class PageController implements ITextToSpeechController {
 	public void readExitText () {
 		TextToSpeechAPI.playExitText(this.getTextToSpeechAPIJavaScriptObject());
 	}
+	
+	public void readPageTitle () {
+		TextToSpeechAPI.playPageTitle(this.getTextToSpeechAPIJavaScriptObject());
+	}
 
 	public List<NavigationModuleIndentifier> getModulesOrder () {
 		return JavaScriptUtils.convertJsArrayObjectsToJavaObjects(TextToSpeechAPI.getModulesOrder(this.getTextToSpeechAPIJavaScriptObject()));

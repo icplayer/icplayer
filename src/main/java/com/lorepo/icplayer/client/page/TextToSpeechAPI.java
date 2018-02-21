@@ -54,6 +54,16 @@ public class TextToSpeechAPI {
 			alert("[TextToSpeech1] Exception in playExitText(): \n" + err);
 		}
 	}-*/;
+	
+	public static native void playPageTitle (JavaScriptObject obj) /*-{
+	try {
+		if (obj && obj.playPageTitle) {
+			obj.playPageTitle();
+		}
+	} catch(err) {
+		alert("[TextToSpeech1] Exception in playPageTitle(): \n" + err);
+	}
+}-*/;
 
 	public static native JsArrayString getModulesOrder (JavaScriptObject obj) /*-{
 		try {

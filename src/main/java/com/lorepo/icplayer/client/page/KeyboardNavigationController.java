@@ -544,6 +544,9 @@ public final class KeyboardNavigationController {
 		if (this.savedEntry == null) {
 			return;
 		}
+		if (this.modeOn && this.isWCAGSupportOn) {
+			this.mainPageController.readPageTitle();
+		}
 
 		for (int i = 0; i < this.getPresenters().size(); i++) {
 			IPresenter presenter = (IPresenter) this.getPresenters().get(i).presenter;

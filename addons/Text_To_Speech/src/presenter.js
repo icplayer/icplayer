@@ -74,7 +74,9 @@ function AddonText_To_Speech_create() {
 
             addOnsConfiguration: validatedConfiguration.value,
             enterText: model['EnterText'],
-            exitText: model['ExitText']
+            exitText: model['ExitText'],
+            newPage: model['NewPage'] ? model['NewPage'] : "New page",
+            pageLangTag: model['PageLangTag']
         }
     };
 
@@ -156,7 +158,7 @@ function AddonText_To_Speech_create() {
         loadVoices();
 
         var languages = {
-            'en': "en-GB",
+            'en': "en-US",
             'pl': 'pl-PL',
             'de': 'de-DE'
         };
@@ -275,6 +277,13 @@ function AddonText_To_Speech_create() {
             }
             presenter.speak(textVoices);
         }
+    };
+
+    presenter.playPageTitle = function () {
+        var textVoices = [];
+        textVoices.push(getTextVoiceObject(presenter.configuration.newPage,''));
+        textVoices.push(getTextVoiceObject(presenter.playerController.getPageTitle(),presenter.configuration.pageLangTag));
+        presenter.speak(textVoices);
     };
 
     presenter.playEnterText = function () {
