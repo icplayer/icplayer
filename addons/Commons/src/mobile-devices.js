@@ -96,6 +96,19 @@
         },
 
         /**
+         Returns the userAgent's version of Android
+         @param ua - userAgent (optional)
+
+         @returns {String or Boolean} String containing Android version
+            or false if ua is not an Android device
+         */
+        getAndroidVersion: function(ua) {
+            var ua = ua || navigator.userAgent;
+            var match = ua.match(/Android\s([0-9\.]*)/);
+            return match ? match[1] : false;
+        },
+
+        /**
          Recognizes if eventName is supported on current device
          @method isEventSupported
 

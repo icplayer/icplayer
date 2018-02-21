@@ -1,3 +1,13 @@
+2018-02-15 Added TTS support for the Text's Draggable Gap
+2018-02-15 Added TTS support for Check Answers Button 
+2018-02-15 Fixed issue with scaling in Figure Drawing on mobile devices
+2018-02-14 Fixed issue with reseting module in Catch module
+2018-02-13 Fixed issues with Glossary scaling on mobile devices
+2018-02-13 Fixed problem with resolving url in inline css
+2018-02-12 Fixed Catch addon double click behaviour on mobile devices, paddle is always appearing and can't run past right edge of screen. Also simulation is paused on show answers and checks answers, and it calculates max score.
+2018-02-12 Deselecting Double State Button on the end of Multiaudio track connected via Audio Binder.
+2018-02-09 Fixed dragging out elements from Draggable Gap.
+2018-02-09 Fixed speak and playTitle commands in TTS addon
 2018-02-07 Added attribute role in TrueFalse for screen reader apps.
 2018-02-06 Fixed issues with scaling in Drawing
 2018-02-01 Fixed issue with saving empty inlineStyles or classStyles.

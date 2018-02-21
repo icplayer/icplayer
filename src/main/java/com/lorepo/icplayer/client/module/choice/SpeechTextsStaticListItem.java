@@ -15,6 +15,12 @@ public class SpeechTextsStaticListItem extends BasicPropertyProvider {
 		dictionaryLabel = "choice_item_" + name;
 	}
 	
+	public SpeechTextsStaticListItem(String name, String prefix) {
+		super(name);
+		addPropertyText();
+		dictionaryLabel = prefix + "_" + name;
+	}
+	
 	public String getText() {
 		return StringUtils.escapeXML(this.text);
 	}

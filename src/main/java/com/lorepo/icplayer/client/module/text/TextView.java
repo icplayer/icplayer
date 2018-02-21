@@ -461,9 +461,28 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	@Override
 	public void space(KeyDownEvent event) {
 		if(!isShowErrorsMode){
+			String oldTextValue = activeGap.getTextValue();
 			this.listener.onGapClicked(activeGap.getId());
+			if (isWCAGon && activeGap.getDroppedElement()!=null) {
+				String elementText = getDroppedElementText(activeGap.getDroppedElement());
+				if (elementText.length()>0) {
+					List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+					textVoices.add(TextToSpeechVoice.create(elementText,this.getLang()));
+					textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.INSERT_INDEX)));
+					this.speak(textVoices);
+				} else if (oldTextValue.length()>0 && activeGap.getTextValue().length()==0) {
+					List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+					textVoices.add(TextToSpeechVoice.create(oldTextValue,this.getLang()));
+					textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.REMOVED_INDEX)));
+					this.speak(textVoices);
+				}
+			}
 		}
 	}
+	
+	private native static String getDroppedElementText(String element) /*-{
+		return $wnd.$(element).text();
+	}-*/;
 
 	@Override
 	public void setWorkMode(){
@@ -498,9 +517,9 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	public String getLang () {
 		return this.module.getLangAttribute();
 	}
-	
+
 	private void readGap (String type, int index, String content, int gapState) {
-		final String gapType = type == "dropdown" ? this.module.getSpeechTextItem(2) : this.module.getSpeechTextItem(1);
+		final String gapType = type == "dropdown" ? this.module.getSpeechTextItem(TextModel.DROPDOWN_INDEX) : this.module.getSpeechTextItem(TextModel.GAP_INDEX);
 
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 		textVoices.add(TextToSpeechVoice.create(gapType + " " + Integer.toString(index + 1)));
@@ -508,11 +527,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		
 		if(this.isShowErrorsMode) {
 			if(gapState==1) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(3)));
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.CORRECT_INDEX)));
 			}else if(gapState==2) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(4)));
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.WRONG_INDEX)));
 			}else if(gapState==3) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(5)));
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX)));
 			}
 		}
 		
