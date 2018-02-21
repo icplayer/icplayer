@@ -71,6 +71,7 @@ function AddonBoard_Game_create(){
         if(model.hasFields || presenter.gameMode !== presenter.gameTypes.FREE){
             for(i = 0; i < presenter.fieldsLength; i++){
                 fig += '<div id="Field' + (i + 1) + '" class="board-game-field" style=""></div>';
+                fig += '<div class="counters-container" style=""></div>';
             }
         }
         for(i = 0; i < model.Images.length; i++){
@@ -223,7 +224,7 @@ function AddonBoard_Game_create(){
         if (presenter.gameMode === presenter.gameTypes.GAME) {
             presenter.boardCounters.each(function (index, element) {
                 $(element).on('click', function () {
-                    if (presenter.isDisable || presenter.showErrorsMode || presenter.showAnswersMode) {
+                    if (presenter.isDisabled || presenter.showErrorsMode || presenter.showAnswersMode) {
                         return;
                     }
 
@@ -283,12 +284,17 @@ function AddonBoard_Game_create(){
         var i;
 
         for(i = 0; i < presenter.fieldsLength; i++) {
-            $(presenter.fields[i]).css({
+            var cssValue = {
                 'width' : model.Fields[i].Width + "px",
                 'height' : model.Fields[i].Height + "px",
                 'top' : model.Fields[i].Top + "px",
                 'left' : model.Fields[i].Left + "px"
-            });
+            };
+
+            $(presenter.fields[i]).css(cssValue);
+            $(presenter.countersContainers[i]).css(cssValue);
+
+
         }
     };
 
@@ -300,7 +306,7 @@ function AddonBoard_Game_create(){
             presenter.counterPositions.push(0);
 
             presenter.boardCounters[i].classList.add('game');
-            presenter.fields[0].appendChild(presenter.boardCounters[i]);
+            presenter.countersContainers[0].appendChild(presenter.boardCounters[i]);
         }
     };
 
@@ -310,10 +316,6 @@ function AddonBoard_Game_create(){
         presenter.setFieldsSizes(model);
         presenter.moveCountersToFirstField();
         presenter.selectCounter(presenter.boardCounters[0], 0);
-
-        for (i = 0; i < presenter.fieldsLength; i++) {
-            presenter.fields[i].classList.add("game");
-        }
 
         presenter.boardGameKeyboardController = new BoardGameGameModeKeyboardController(presenter.getElementToNavigation());
     };
@@ -335,8 +337,8 @@ function AddonBoard_Game_create(){
         presenter.$view = $(view);
         presenter.model = model;
         presenter.modelID = model.ID;
-        presenter.isDisable = model.isDisable;
-        presenter.wasDisable = model.isDisable;
+        presenter.isDisable = model.isDisabled;
+        presenter.wasDisable = model.isDisabled;
         presenter.hasFields = model.hasFields;
         presenter.wasVisible = model["Is Visible"];
         presenter.isVisible = model["Is Visible"];
@@ -355,6 +357,7 @@ function AddonBoard_Game_create(){
 
         presenter.boardCounters = presenter.$view.find('.board-game-element');
         presenter.fields = presenter.$view.find('.board-game-field');
+        presenter.countersContainers = presenter.$view.find('.counters-container');
 
         presenter.setElementsPosition(presenter.originalLeftValue, presenter.originalTopValue);
 
@@ -364,9 +367,18 @@ function AddonBoard_Game_create(){
             presenter.initFreeMode(model);
         }
 
+        presenter.setFieldsClasses(model);
         presenter.connectHandlers(view);
 
         presenter.view = view;
+    };
+
+    presenter.setFieldsClasses = function (model) {
+        model.Fields.forEach(function (element, idx) {
+            if (element.cssClass !== "") {
+                presenter.fields[idx].classList.add(element.cssClass);
+            }
+        });
     };
 
     presenter.showErrorMessage = function (view, error) {
@@ -616,7 +628,7 @@ function AddonBoard_Game_create(){
     presenter.setStateForGameMode = function (parsedState) {
         presenter.boardCounters.each(function (index, element) {
             presenter.selectCounter(element, index);
-            presenter.move(parsedState.counterPositions[index]);
+            presenter.moveCounter(parsedState.counterPositions[index]);
         });
 
         presenter.selectCounter(presenter.boardCounters[parsedState.lastSelectedCounter], parsedState.lastSelectedCounter)
@@ -746,15 +758,20 @@ function AddonBoard_Game_create(){
     presenter.moveCounter = function (distance) {
         var counterElementToMove = presenter.boardCounters[presenter.lastSelectedCounter],
             counterPosition = presenter.counterPositions[presenter.lastSelectedCounter],
-            newCounterPosition = Math.min(presenter.fields.length - 1, counterPosition + distance);
+            newCounterPosition = Math.min(presenter.countersContainers.length - 1, counterPosition + distance);
 
         newCounterPosition = Math.max(0, newCounterPosition);
 
         presenter.counterPositions[presenter.lastSelectedCounter] = newCounterPosition;
-        presenter.fields[newCounterPosition].appendChild(counterElementToMove);
+        presenter.countersContainers[newCounterPosition].appendChild(counterElementToMove);
     };
 
     presenter.move = function (distance) {
+        distance = parseInt(distance, 10);
+        if (isNaN(distance)) {
+            return;
+        }
+
         if (presenter.isDisable || presenter.showErrorsMode || presenter.showAnswersMode) {
             return;
         }
@@ -861,6 +878,24 @@ function AddonBoard_Game_create(){
         event = buildMouseEvent("mousedown", position);
 
         this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
+    };
+
+    BoardGameFreeModeKeyboardController.prototype.enter = function (ev) {
+        KeyboardController.prototype.enter.call(this, ev);
+
+        var position = getElementPosition(this.keyboardNavigationCurrentElement);
+        var event = buildMouseEvent("mousedown", position);
+
+        this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
+    };
+
+    BoardGameFreeModeKeyboardController.prototype.exitWCAGMode = function (ev) {
+        var position = getElementPosition(this.keyboardNavigationCurrentElement),
+            event = buildMouseEvent("mouseup", position);
+
+        this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
+
+        KeyboardController.prototype.exitWCAGMode.call(this, ev);
     };
 
     presenter.keyboardController = function (keyCode, isShiftDown, originalEvent) {

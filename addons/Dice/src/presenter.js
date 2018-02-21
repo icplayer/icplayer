@@ -5,9 +5,9 @@ function AddonDice_create() {
         "animationLength_INT01": "Animation length can't be empty",
         "animationLength_INT02": "Animation length is not a valid integer",
         "animationLength_INT04": "Animation length must be positive",
-        "initialItem_INT02": "Initial length is not a valid integer",
-        "initialItem_INT04": "Initial length must be positive",
-        "initialItem_INI01": "Initial item cant be bigger than elements count",
+        "initialItem_INT02": "Value of initial item is not a valid integer",
+        "initialItem_INT04": "Value of initial item is not positive integer",
+        "initialItem_INI01": "Initial item can't be bigger than elements count",
         "elementsList|number_INT02": "Element value in list is not valid integer"
 
     };
@@ -62,7 +62,7 @@ function AddonDice_create() {
             ModelValidators.Integer("animationLength", {minValue: 0}),
             ModelValidators.Integer("initialItem", {optional: true, minValue: 1, default: null}),
             ModelValidators.List("elementsList", [
-                ModelValidators.String("number", {optional: true, default: null}),
+                ModelValidators.String("name", {optional: true, default: null}),
                 ModelValidators.String("image", {trim: true, optional: true, default: null})
             ]),
             ModelValidators.Boolean("Is Visible"),
@@ -136,7 +136,7 @@ function AddonDice_create() {
 
     presenter.buildElements = function () {
         presenter.configuration.elementsList.forEach(function (element, index) {
-            var text = element.image === null && element.number === null ? index + 1 : element.number;
+            var text = element.image === null && element.name === null ? index + 1 : element.name;
             presenter.state.elements.push(presenter.buildElement(text, element.image));
         });
     };
@@ -159,7 +159,8 @@ function AddonDice_create() {
     };
 
     presenter.initializeStartItem = function () {
-        var initItemIndex = presenter.configuration.initialItem || presenter.randElement();
+        var initItemIndex = presenter.configuration.initialItem;
+        initItemIndex = initItemIndex === null ? presenter.randElement() : initItemIndex;
 
         presenter.state.rolledElement = initItemIndex;
         presenter.setElement(initItemIndex);
@@ -213,7 +214,7 @@ function AddonDice_create() {
     };
 
     presenter.sendEventDiceRolled = function (value) {
-        var elementText = presenter.configuration.elementsList[value - 1].number;
+        var elementText = presenter.configuration.elementsList[value - 1].name;
         presenter.eventBus.sendEvent('ValueChanged', {
             source: presenter.configuration.ID,
             item:  value + '',

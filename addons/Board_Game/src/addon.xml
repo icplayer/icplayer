@@ -3,7 +3,7 @@
 	<model>
         <property name="Background" displayName="Background" nameLabel="Board_game_property_background" type="image"/>
         <property name="hasFields" displayName="has Fields" nameLabel="Board_game_property_has_fields" type="boolean"/>
-        <property name="Fields" nameLabel="Board_game_property_fields" type="list">
+        <property name="Fields" nameLabel="Board_game_property_fields" type="list" isDefault="true">
             <property name="Top" nameLabel="Board_game_property_top" type="string"/>
             <property name="Left" nameLabel="Board_game_property_left" type="string"/>
             <property name="Width" nameLabel="Board_game_property_width" type="string"/>

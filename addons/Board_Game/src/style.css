@@ -11,6 +11,10 @@
     background-color:blue;
 }
 
+.counters-container {
+    position:absolute;
+}
+
 .board-game-field{
     position:absolute;
     background-color:blue;
