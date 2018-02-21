@@ -1,3 +1,4 @@
+2018-02-21 Added TTS support for Reset button
 2018-02-21 Added TTS plays the title of the new page
 2018-02-20 Added Page mapping ids translations, Size and ModuleDimensions equals implementations
 2018-02-20 Added TTS support for SHow Answers Button

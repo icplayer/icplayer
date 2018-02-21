@@ -271,7 +271,6 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		JavaScriptUtils.log(isVisible || isTextToSpeechOn);
 		return (isVisible || isTextToSpeechOn);
 	}
 }

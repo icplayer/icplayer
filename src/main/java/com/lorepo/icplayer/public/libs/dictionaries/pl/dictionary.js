@@ -335,6 +335,7 @@
 	"previous_page_button" : "Poprzednia strona",
 	"check_answers_button" : "Sprawdź odpowiedzi",
 	"reset_button" : "Usuń wyniki",
+	"reset_button_reset" : "Page has been reset",
 	"send_results_button" : "Wyślij wyniki",
 	"open_popup_button" : "Otwórz okno",
 	"close_popup_button" : "Zamknij okno",
