@@ -161,4 +161,9 @@ public class WCAGUtils {
 		return result;
 	}
 	
+	public static boolean hasGaps (TextModel model) {
+		String text = getCleanText(model.getOriginalText());
+		return text.contains(GAP_START) || text.contains(FILLED_GAP_START) || text.contains(DROP_DOWN_GAP_START);
+	}
+	
 }

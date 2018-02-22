@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IEnterable;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -133,6 +134,15 @@ public final class KeyboardNavigationController {
 		}
 		
 		return false;
+	}
+	
+	private boolean isModuleEnterable() {
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof IEnterable) {
+			IEnterable presenter = (IEnterable) this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
+			return presenter.isEnterable();
+		}
+		
+		return true;
 	}
 	
 	private void setWCAGModulesStatus (boolean isOn) {
@@ -285,7 +295,7 @@ public final class KeyboardNavigationController {
 					event.preventDefault();
 				}
 
-				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && (!moduleIsActivated || isModuleButton())) {
+				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && (!moduleIsActivated || isModuleButton() || !isModuleEnterable())) {
 					if (moduleIsActivated) { // If we was in button, and he was clicked then we want to disactivate that button
 						deactivateModule();
 						moduleIsActivated = false;
