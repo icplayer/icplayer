@@ -3,6 +3,24 @@ function AddonShow_Answers_create(){
 
     presenter.playerController = null;
     presenter.eventBus = null;
+    var isWCAGOn = false;
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function getTextVoiceObject (text, lang) {
+        return {
+            text: text,
+            lang: lang
+        };
+    }
 
     presenter.EVENTS = {
         SHOW_ANSWERS: 'ShowAnswers',
@@ -12,6 +30,13 @@ function AddonShow_Answers_create(){
     presenter.keyboardController = function(keycode) {
         if (keycode === 13) {
             presenter.$button.click();
+            if(isWCAGOn) {
+                if (presenter.configuration.isSelected) {
+                    speak([getTextVoiceObject(presenter.speechTexts.editBlock)]);
+                } else {
+                    speak([getTextVoiceObject(presenter.speechTexts.noEditBlock)]);
+                }
+            }
         }
     };
 
@@ -33,6 +58,7 @@ function AddonShow_Answers_create(){
     };
 
     presenter.validateModel = function(model) {
+        presenter.setSpeechTexts(model['speechTexts']);
         return {
             'text' : model.Text,
             'textSelected' : model['Text selected'],
@@ -42,6 +68,24 @@ function AddonShow_Answers_create(){
             'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"]),
             'enableMistakeCounter': ModelValidationUtils.validateBoolean(model["Increment mistake counter"]),
             'isTabindexEnabled': ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
+        };
+    };
+
+    presenter.setSpeechTexts = function(speechTexts){
+        presenter.speechTexts = {
+            selected: 'Selected',
+            editBlock: 'Page edition is blocked',
+            noEditBlock: 'Page edition is not blocked'
+        };
+
+        if(!speechTexts){
+            return;
+        }
+
+        presenter.speechTexts = {
+            selected: getSpeechTextProperty(speechTexts[0]['Selected']['Selected'], presenter.speechTexts.selected),
+            editBlock: getSpeechTextProperty(speechTexts[1]['Block edit']['Block edit'], presenter.speechTexts.editBlock),
+            noEditBlock: getSpeechTextProperty(speechTexts[2]['No block edit']['No block edit'], presenter.speechTexts.noEditBlock)
         };
     };
 
@@ -194,6 +238,33 @@ function AddonShow_Answers_create(){
     presenter.setWorkMode = function () {
         presenter.reset();
     };
+
+    presenter.getTitlePostfix = function () {
+        if(presenter.configuration.isSelected) {
+            return presenter.speechTexts.selected;
+        } else {
+            return ''
+        }
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts) {
+            tts.speak(data);
+        }
+    }
 
     return presenter;
 }

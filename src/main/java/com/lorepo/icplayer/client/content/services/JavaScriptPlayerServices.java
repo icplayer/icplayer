@@ -233,6 +233,10 @@ public class JavaScriptPlayerServices {
 		playerServices.getCurrentPageIndex = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getCurrentPageIndex()();
 		};
+		
+		playerServices.getPageTitle = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageTitle()();
+		};
 
 		playerServices.getCommands = function() {
 			var commands = function() {
@@ -331,7 +335,7 @@ public class JavaScriptPlayerServices {
 			commands.getPageStamp = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageStamp()();
 			}
-
+			
 			return commands;
 		};
 
@@ -499,6 +503,10 @@ public class JavaScriptPlayerServices {
 	
 	private String getPageStamp() {
 		return this.playerServices.getCommands().getPageStamp();
+	}
+	
+	private String getPageTitle() {
+		return this.playerServices.getModel().getPage(getCurrentPageIndex()).getName();
 	}
 
 	private void showPopup(String pageName, String top, String left, String additinalClasses){

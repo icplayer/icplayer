@@ -119,6 +119,8 @@ public class PageProgressModule extends BasicModuleModel{
 				return false;
 			}
 		};
+		
+		addProperty(property);
 	}
 
 	private void addPropertyLangAttribute() {
