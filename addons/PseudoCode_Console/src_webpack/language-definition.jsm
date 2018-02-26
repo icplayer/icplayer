@@ -93,7 +93,7 @@ function getJISONGrammar () {
                 ["%",                       "return '%';"],
                 ["\\(",                     "return '(';"],
                 ["\\)",                     "return ')';"],
-                ["[A-Za-z_][a-zA-Z0-9_]*",  "return 'STATIC_VALUE';"],
+                ["[A-Za-z][a-zA-Z0-9_]*",  "return 'STATIC_VALUE';"],
                 ["\\[",                     "return '[';"],
                 ["\\]",                     "return ']';"],
                 [",",                       "return 'COMMA';"],
