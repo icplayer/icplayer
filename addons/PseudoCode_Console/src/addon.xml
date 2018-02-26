@@ -101,6 +101,9 @@
             <property name="UndefinedFunctionNameException" displayName="Usage of undefined function '{0}' in function '{1}'" type="staticrow">
                 <property name="translation" nameLabel="Pseudo_Console_property_translation_name" type="string" />
             </property>
+            <property name="UnexpectedIdentifier" displayName="Unexpected identifier" type="staticrow">
+                <property name="translation" nameLabel="Pseudo_Console_property_translation_name" type="string" />
+            </property>
         </property>
         <property name="isNotActivity" nameLabel="PseudoCode_Console_property_is_not_activity" type="boolean" />
         <property name="runUserCode" nameLabel="PseudoCode_Console_property_run_user_code" type="boolean" />

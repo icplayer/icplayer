@@ -17,7 +17,6 @@ export const CODE_GENERATORS = {
          * @param  {{option:String[], code:Object[]}[]} options
          */
         function bnf_case (variableDef, options) {
-            debugger;
             let i,
                 exitLabel = CODE_GENERATORS.uid + "_case_end",
                 execCode = [generateExecuteObject('machineManager.objectForInstructions.calledInstructions.case++;', '')];

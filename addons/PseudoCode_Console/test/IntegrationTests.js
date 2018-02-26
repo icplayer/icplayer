@@ -7,7 +7,7 @@ TestCase("[PseudoCode_Console - integration tests] correct run", {
             'Is Visible': "True",
             runUserCode: "True",
             isNotActivity: "True",
-            maxTimeForAnswer: "0.1",
+            maxTimeForAnswer: "10",
             runParameters : [{value: "A"}, {value: "B"}, {value: "C"}],
             answerCode: "return this.data.mockCalled && this.data.mockCalled2 && this.data.mockCalled3 && this.data.mockCalled4 && this.data.mockCalled5;",
             functionsList: [
@@ -38,7 +38,9 @@ TestCase("[PseudoCode_Console - integration tests] correct run", {
                     methodName: "toString2",
                     methodBody: "builtIn.data.mockCalled5 = true;"
                 }
-            ]
+            ],
+            mathRound: " 22  ",
+            consoleAvailableInput: "All"
         };
 
         this.view = $("<div><div class=\"addon-PseudoCode_Console-wrapper\"></div></div>")[0];

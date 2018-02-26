@@ -102,14 +102,6 @@ var EXCEPTIONS = exports.EXCEPTIONS = function () {
             return this;
         }
     }, {
-        key: "GetErrorException",
-        value: function GetErrorException(type, index) {
-            this.name = "GetErrorException";
-            this.message = "Exception (" + type + "): Value at index " + index + " is not defined";
-
-            return this;
-        }
-    }, {
         key: "IndexOutOfBoundsException",
         value: function IndexOutOfBoundsException(type, index, length) {
             this.name = "IndexOutOfBoundsException";
@@ -287,7 +279,9 @@ function AddonPseudoCode_Console_create() {
         functions: [],
         answer: null,
         methods: [],
-        round: 100
+        round: 100,
+        availableConsoleInput: "All",
+        exceptionTranslations: {}
     };
 
     presenter.ERROR_CODES = {
@@ -369,11 +363,6 @@ function AddonPseudoCode_Console_create() {
         };
         presenter.objectForInstructions.console = consoleMock || presenter.state.console;
         presenter.state.definedByUserFunctions = [];
-
-        presenter.objectMocks = (0, _definedObjects.getDefinedObjects)({
-            round: presenter.configuration.round,
-            exceptions: presenter.exceptions
-        });
     };
 
     presenter.getInputChecker = function () {
@@ -416,6 +405,11 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.completeObjectsMethods = function presenter_completeObjectsMethods() {
+        presenter.objectMocks = (0, _definedObjects.getDefinedObjects)({
+            round: presenter.configuration.round,
+            exceptions: presenter.exceptions
+        });
+
         presenter.configuration.methods.forEach(function (method) {
             if (method.objectName !== "" && method.methodName !== "") {
                 presenter.objectMocks[method.objectName].__methods__[method.methodName] = {
@@ -753,7 +747,7 @@ function AddonPseudoCode_Console_create() {
             if (e.name !== "Error") {
                 presenter.state.console.Write(e.message + "\n", 'program-error-output');
             } else {
-                presenter.state.console.Write("Unexpected identifier\n", 'program-error-output');
+                presenter.state.console.Write(presenter.configuration.exceptionTranslations.UnexpectedIdentifier || "Unexpected identifier\n", 'program-error-output');
             }
         }
     };
@@ -1152,7 +1146,7 @@ function getDefinedObjects(config) {
                 }
 
                 for (; i < count; i += 1) {
-                    value.push(null);
+                    value.push(DEFINED_OBJECTS.Number.__constructor__(0));
                 }
 
                 return {
@@ -1169,10 +1163,6 @@ function getDefinedObjects(config) {
                     jsCode: objectMocksMethodArgumentsDispatcherDecorator(function array__get__code(index) {
                         if (index.type !== "Number") {
                             throw config.exceptions.CastErrorException(index.type, "Number");
-                        }
-
-                        if (this.value[index.value] === null) {
-                            throw config.exceptions.GetErrorException(this.type, index.value);
                         }
 
                         if (this.value[index.value] === undefined) {
@@ -1361,7 +1351,6 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
      * @param  {{option:String[], code:Object[]}[]} options
      */
     function bnf_case(variableDef, options) {
-        debugger;
         var i = void 0,
             exitLabel = CODE_GENERATORS.uid + "_case_end",
             execCode = [(0, _languageUtils.generateExecuteObject)('machineManager.objectForInstructions.calledInstructions.case++;', '')];

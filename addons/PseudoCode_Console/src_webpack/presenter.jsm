@@ -84,7 +84,9 @@ function AddonPseudoCode_Console_create() {
         functions: [],
         answer: null,
         methods: [],
-        round: 100
+        round: 100,
+        availableConsoleInput: "All",
+        exceptionTranslations: {}
     };
 
     presenter.ERROR_CODES = {
@@ -160,11 +162,6 @@ function AddonPseudoCode_Console_create() {
         };
         presenter.objectForInstructions.console = consoleMock || presenter.state.console;
         presenter.state.definedByUserFunctions = [];
-
-        presenter.objectMocks = getDefinedObjects({
-            round: presenter.configuration.round,
-            exceptions: presenter.exceptions
-        });
     };
 
     presenter.getInputChecker = function () {
@@ -207,6 +204,11 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.completeObjectsMethods = function presenter_completeObjectsMethods () {
+        presenter.objectMocks = getDefinedObjects({
+            round: presenter.configuration.round,
+            exceptions: presenter.exceptions
+        });
+
         presenter.configuration.methods.forEach(function (method) {
             if (method.objectName !== "" && method.methodName !== "") {
                 presenter.objectMocks[method.objectName].__methods__[method.methodName] = {
@@ -550,7 +552,7 @@ function AddonPseudoCode_Console_create() {
             if (e.name !== "Error") {
                 presenter.state.console.Write(e.message + "\n", 'program-error-output');
             } else {
-                presenter.state.console.Write("Unexpected identifier\n", 'program-error-output');
+                presenter.state.console.Write(presenter.configuration.exceptionTranslations.UnexpectedIdentifier || "Unexpected identifier\n", 'program-error-output');
             }
         }
     };

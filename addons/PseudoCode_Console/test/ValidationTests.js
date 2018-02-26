@@ -28,7 +28,8 @@ TestCase("[PseudoCode_Console - validation tests] validate aliases", {
             "while": "dopoki",
             "or": "lub",
             "and": "i"
-        }
+        };
+
     },
 
     'test validate aliases should return validated model': function () {
@@ -64,8 +65,9 @@ TestCase("[PseudoCode_Console - validation tests] validate functions", {
         this.functions = [
             {name: "function1", body: "asdfghjklmnbvder56tyujndfrtgyh();"},
             {name: "function2", body: "vssdfvfsdvdsvdsvfsdv();"},
-            {name: "function3", body: "ldfsjdikfjdsofnsofnjd();"},
+            {name: "function3", body: "ldfsjdikfjdsofnsofnjd();"}
         ];
+
     },
 
 
@@ -169,28 +171,31 @@ TestCase("[PseudoCode_Console - validation tests] validate model", {
                 {
                     objectName: "Number",
                     methodName: "toString",
-                    methodBody: "console.log('ok');"
+                    methodBody: ""
                 },
                 {
                     objectName: "Number",
                     methodName: "toString2",
-                    methodBody: "console.log('ok2');"
+                    methodBody: ""
                 }
-            ]
+            ],
+
+            mathRound: " 2 ",
+            consoleAvailableInput: "All"
         };
 
         this.expectedAliases = {
-            "begin": "poczatek",
-            "do": "wykonuj",
-            "end": "koniec",
-            "for": "dla",
+            "begin": "poczatek", //
+            "do": "wykonuj",    //
+            "end": "koniec",    //
+            "for": "dla",       //
             "from": "from",
             "to": "to",
-            "variable": "zmienna",
-            "program": "program",
-            "while": "dopoki",
-            "or": "lub",
-            "and": "i",
+            "variable": "zmienna",  //
+            "program": "program",   //
+            "while": "dopoki",      //
+            "or": "lub",            //
+            "and": "i",             //
             "if": "if",
             "then": "then",
             "else": "else",
@@ -201,13 +206,12 @@ TestCase("[PseudoCode_Console - validation tests] validate model", {
             "array_block": "array",
             "by": "by",
             "down_to": "downto"
-        }
-
+        };
 
     },
 
     'test validate model will return validated model' : function () {
-        var validatedModel = this.presenter.validateModel(this.model);
+        var validatedModel = this.presenter.validateModel(this.model, this.presenter.configuration.aliases);
 
         assertTrue(validatedModel.isValid);
         assertEquals(this.model.ID, validatedModel.addonID);
@@ -229,6 +233,9 @@ TestCase("[PseudoCode_Console - validation tests] validate model", {
         assertEquals(validatedModel.methods[0].methodName, 'toString');
         assertEquals(validatedModel.methods[1].objectName, "Number");
         assertEquals(validatedModel.methods[1].methodName, 'toString2');
+
+        assertEquals(2, validatedModel.round);
+        assertEquals("All", validatedModel.availableConsoleInput);
     },
 
 

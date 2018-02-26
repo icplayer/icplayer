@@ -23,6 +23,8 @@ TestCase("[PseudoCode_Console - language tests] if statement", {
         };
 
         this.presenter.initializeGrammar();
+        this.presenter.completeObjectsMethods();
+
         /*
         program test
         variable a, b
@@ -148,6 +150,8 @@ TestCase("[PseudoCode_Console - language tests] variables statement", {
         };
 
         this.presenter.initializeGrammar();
+        this.presenter.completeObjectsMethods();
+
         this.test1 = "program test \n variable a, b \n begin \n a=1 \n mock2(a) \n mock(b) \n a = \"aaaa\" \n mock3(a) \n end";
 
         /*
@@ -227,6 +231,8 @@ TestCase("[PseudoCode_Console - language tests] math statement", {
         };
 
         this.presenter.initializeGrammar();
+        this.presenter.completeObjectsMethods();
+
         /*
         program test
         variable a, b
@@ -352,6 +358,8 @@ TestCase("[PseudoCode_Console - language tests] logical statement", {
         };
 
         this.presenter.initializeGrammar();
+        this.presenter.completeObjectsMethods();
+
         /*
         program test
         variable true, false, a, b
@@ -454,6 +462,7 @@ TestCase("[PseudoCode_Console - language tests] user defined functions", {
         };
 
         this.presenter.initializeGrammar();
+        this.presenter.completeObjectsMethods();
 
         /*
         function testfunc ()
@@ -575,6 +584,8 @@ TestCase("[PseudoCode_Console - language tests] for statement", {
         };
 
         this.presenter.initializeGrammar();
+        this.presenter.completeObjectsMethods();
+
         /*
         program test
         variable a
@@ -864,6 +875,7 @@ TestCase("[PseudoCode_Console - language tests] while statement", {
         };
 
         this.presenter.initializeGrammar();
+        this.presenter.completeObjectsMethods();
 
         /*
         program test
@@ -940,6 +952,7 @@ TestCase("[PseudoCode_Console - language tests] do-while statement", {
         };
 
         this.presenter.initializeGrammar();
+        this.presenter.completeObjectsMethods();
 
         /*
         program test
@@ -1017,6 +1030,7 @@ TestCase("[PseudoCode_Console - language tests] case statement", {
         };
 
         this.presenter.initializeGrammar();
+        this.presenter.completeObjectsMethods();
 
         /*
         program test
@@ -1099,6 +1113,7 @@ TestCase("[PseudoCode_Console - language tests] array statement", {
         };
 
         this.presenter.initializeGrammar();
+        this.presenter.completeObjectsMethods();
 
         /*
         program test
@@ -1186,6 +1201,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
     setUp: function () {
         this.presenter = AddonPseudoCode_Console_create();
         this.presenter.initializeExceptions();
+        this.presenter.completeObjectsMethods();
 
         var self = this;
 
@@ -1493,14 +1509,6 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
         this.presenter.evaluateScoreFromUserCode();
 
         assertTrue(this.presenter.exceptions.IndexOutOfBoundsException.called);
-    },
-
-    'test array throw GetError if is trying to get undefined value': function () {
-        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test6);
-
-        this.presenter.evaluateScoreFromUserCode();
-
-        assertTrue(this.presenter.exceptions.GetErrorException.called);
     },
 
     'test if array getter parameter is not a integer then throws Cast exception': function () {

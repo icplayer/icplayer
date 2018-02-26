@@ -21,13 +21,6 @@ export class EXCEPTIONS {
         return this;
     }
 
-    GetErrorException(type, index) {
-        this.name = "GetErrorException";
-        this.message = "Exception (" + type + "): Value at index " + index + " is not defined";
-
-        return this;
-    }
-
     IndexOutOfBoundsException(type, index, length) {
         this.name = "IndexOutOfBoundsException";
         this.message = "Exception (" + type + "): index " + index + " is out of bounds";

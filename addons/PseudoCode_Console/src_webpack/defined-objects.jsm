@@ -156,7 +156,7 @@ export function getDefinedObjects (config) {
                 }
 
                 for (; i < count; i += 1) {
-                    value.push(null);
+                    value.push(DEFINED_OBJECTS.Number.__constructor__(0));
                 }
 
                 return {
@@ -173,10 +173,6 @@ export function getDefinedObjects (config) {
                     jsCode: objectMocksMethodArgumentsDispatcherDecorator(function array__get__code (index) {
                         if (index.type !== "Number") {
                             throw config.exceptions.CastErrorException(index.type, "Number");
-                        }
-
-                        if (this.value[index.value] === null) {
-                            throw config.exceptions.GetErrorException(this.type, index.value);
                         }
 
                         if (this.value[index.value] === undefined) {
