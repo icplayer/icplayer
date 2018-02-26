@@ -135,6 +135,14 @@ TestCase("[PseudoCode_Console - validation tests] validate answer", {
         var validatedAnswer = this.presenter.validateAnswer(this.model);
 
         assertFalse(validatedAnswer.isValid);
+    },
+
+    'test if answer code is not valid js function then will throw error': function () {
+        this.model.answerCode = "dfskfk sdjfk sdjfksdjfsdfdf;lsdkfsdlkf;dskf;";
+
+        var validatedAnswer = this.presenter.validateAnswer(this.model);
+
+        assertFalse(validatedAnswer.isValid);
     }
 });
 

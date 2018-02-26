@@ -130,7 +130,8 @@ export function validateAnswer (model) {
     let runUserCode = ModelValidationUtils.validateBoolean(model.runUserCode),
         answerCode = model.answerCode,
         maxTimeForAnswer = ModelValidationUtils.validateFloatInRange(model.maxTimeForAnswer, 10, 0),
-        validatedParameters;
+        validatedParameters,
+        answerCodeFunction;
 
     if (runUserCode && (!maxTimeForAnswer.isValid || maxTimeForAnswer.parsedValue === 0)) {
         return generateValidationError("IP01");
@@ -138,10 +139,17 @@ export function validateAnswer (model) {
 
     validatedParameters = validateParameters(model.runParameters);
 
+    try {
+        answerCodeFunction = new Function(answerCode);
+    }
+    catch (e) {
+        return generateValidationError("IP02");
+    }
+
     return {
         isValid: true,
         runUserCode: runUserCode,
-        answerCode: new Function(answerCode),
+        answerCode: answerCodeFunction,
         maxTimeForAnswer: maxTimeForAnswer,
         parameters: validatedParameters.value
     };

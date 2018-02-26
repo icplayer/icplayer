@@ -99,7 +99,9 @@ function AddonPseudoCode_Console_create() {
         "JS02": "Java Script code in defined function is not valid",
         "ER01": "Round value must be an integer",
         "ER02": "Round value must be bigger than 0",
-        "ER03": "Round value must be below 100"
+        "ER03": "Round value must be below 100",
+        "IP01": "Max time for answer must be float number in range 0 to 10",
+        "IP02": "Answer code must be valid JS code"
     };
 
     presenter.availableInputsInConsole = {
@@ -541,7 +543,7 @@ function AddonPseudoCode_Console_create() {
         try {
             presenter.state.console.Reset();
             let executableCode = presenter.state.codeGenerator.parse(code);
-
+            console.log(executableCode);
             presenter.checkCode();
 
             presenter.state.lastUsedCode = executableCode;

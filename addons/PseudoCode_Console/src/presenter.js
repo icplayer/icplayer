@@ -294,7 +294,9 @@ function AddonPseudoCode_Console_create() {
         "JS02": "Java Script code in defined function is not valid",
         "ER01": "Round value must be an integer",
         "ER02": "Round value must be bigger than 0",
-        "ER03": "Round value must be below 100"
+        "ER03": "Round value must be below 100",
+        "IP01": "Max time for answer must be float number in range 0 to 10",
+        "IP02": "Answer code must be valid JS code"
     };
 
     presenter.availableInputsInConsole = {
@@ -736,7 +738,7 @@ function AddonPseudoCode_Console_create() {
         try {
             presenter.state.console.Reset();
             var executableCode = presenter.state.codeGenerator.parse(code);
-
+            console.log(executableCode);
             presenter.checkCode();
 
             presenter.state.lastUsedCode = executableCode;
@@ -2479,7 +2481,8 @@ function validateAnswer(model) {
     var runUserCode = ModelValidationUtils.validateBoolean(model.runUserCode),
         answerCode = model.answerCode,
         maxTimeForAnswer = ModelValidationUtils.validateFloatInRange(model.maxTimeForAnswer, 10, 0),
-        validatedParameters = void 0;
+        validatedParameters = void 0,
+        answerCodeFunction = void 0;
 
     if (runUserCode && (!maxTimeForAnswer.isValid || maxTimeForAnswer.parsedValue === 0)) {
         return generateValidationError("IP01");
@@ -2487,10 +2490,16 @@ function validateAnswer(model) {
 
     validatedParameters = validateParameters(model.runParameters);
 
+    try {
+        answerCodeFunction = new Function(answerCode);
+    } catch (e) {
+        return generateValidationError("IP02");
+    }
+
     return {
         isValid: true,
         runUserCode: runUserCode,
-        answerCode: new Function(answerCode),
+        answerCode: answerCodeFunction,
         maxTimeForAnswer: maxTimeForAnswer,
         parameters: validatedParameters.value
     };
