@@ -188,7 +188,7 @@ UserConsole.prototype = {
 
         textAreaElement.val('');
 
-        if (!this.config.inputChecker(data)) {
+        if (!this.config.inputChecker(data, leftText + data + rightText)) {
             return false;
         }
 
@@ -276,7 +276,7 @@ UserConsole.prototype = {
                 leftText = activeLine.elements.$left.text();
                 data = textAreaElement.val();
 
-                if (!self.config.inputChecker(data)) {
+                if (!self.config.inputChecker(data, data)) {
                     return;
                 }
 

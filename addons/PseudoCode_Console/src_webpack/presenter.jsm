@@ -110,9 +110,9 @@ function AddonPseudoCode_Console_create() {
 
     presenter.availableInputsInConsole = {
         "All": function () { return true; },
-        "Number only": function (value) { return isDigit(value); },
-        "Letters only": function (value) { return isLetter(value);},
-        "Alphanumeric": function (value) { return presenter.availableInputsInConsole["Number only"](value) || presenter.availableInputsInConsole["Letters only"](value); }
+        "Natural numbers": function (value, wholeValue) { return isDigit(value); },
+        "Letters only": function (value, wholeValue) { return isLetter(value);},
+        "Real numbers": function (value, wholeValue) { return presenter.availableInputsInConsole["Number only"](value) || presenter.availableInputsInConsole["Letters only"](value); }
     };
 
     presenter.setPlayerController = function presenter_setPlayerController (controller) {

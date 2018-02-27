@@ -113,7 +113,7 @@
         <property name="maxTimeForAnswer" nameLabel="PseudoCode_Console_property_answer_max_timeout" type="string" />
         <property name="answerCode" nameLabel="PseudoCode_Console_property_answer_code" type="text" />
         <property name="mathRound" nameLabel="PseudoCode_Console_property_math_round" type="string"/>
-        <property name="consoleAvailableInput" nameLabel="PseudoCode_Console_property_console_available_input" type="{All,Number only,Letters only,Alphanumeric}"/>
+        <property name="consoleAvailableInput" nameLabel="PseudoCode_Console_property_console_available_input" type="{All,Natural numbers,Real numbers,Letters only}"/>
 
     </model>
 </addon>
