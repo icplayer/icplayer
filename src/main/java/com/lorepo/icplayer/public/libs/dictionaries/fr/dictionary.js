@@ -1268,7 +1268,7 @@ var ice_dictionary_fr = {
 "Hierarchical_Lesson_Report_property_alternative_page_titles": "Alternative page titles",
 "Hierarchical_Lesson_Report_property_alternative_page_number": "Index",
 "Hierarchical_Lesson_Report_property_show_is_alternative_page_chapter": "Is chapter",
-"Hierarchical_Lesson_Report_property_alternative_page_name": "Alternative name",
+"Hierarchical_Lesson_Report_property_alternative_page_name": "Alternative content",
 "ConnectingDots_info": "Permet de relier des points qui composent un dessin ou une forme. Le module externe peut être utilisé en animation interactive ou en activité à part entière.",
 "ConnectingDots_name": "Relier des points",
 "ConnectingDots_property_dots": "Coordonnées des points",

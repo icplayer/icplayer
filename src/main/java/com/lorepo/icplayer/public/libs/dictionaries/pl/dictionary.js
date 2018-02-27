@@ -1267,7 +1267,7 @@
 	"Hierarchical_Lesson_Report_property_alternative_page_titles": "Alternatywne tytuły stron",
 	"Hierarchical_Lesson_Report_property_alternative_page_number": "Indeks",
 	"Hierarchical_Lesson_Report_property_show_is_alternative_page_chapter": "Jest rozdziałem",
-	"Hierarchical_Lesson_Report_property_alternative_page_name": "Nazwa alternatywna",
+	"Hierarchical_Lesson_Report_property_alternative_page_name": "Alternative content",
 	"ConnectingDots_info" : "Pozwala na utworzenie ćwiczenia, w którym użytkownik ma za zadanie połączenie kropek (punktów) i uformowanie z nich linii. Addon daje możliwość dodania obrazu jako tła.",
 	"ConnectingDots_name" : "Łączenie punktów",
 	"ConnectingDots_property_dots": "Współrzędne punktów",

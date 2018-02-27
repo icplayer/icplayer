@@ -1280,7 +1280,7 @@ var ice_dictionary_en = {
 	"Hierarchical_Lesson_Report_property_alternative_page_titles": "Alternative page titles",
 	"Hierarchical_Lesson_Report_property_alternative_page_number": "Index",
 	"Hierarchical_Lesson_Report_property_show_is_alternative_page_chapter": "Is chapter",
-	"Hierarchical_Lesson_Report_property_alternative_page_name": "Alternative name",
+	"Hierarchical_Lesson_Report_property_alternative_page_name": "Alternative content",
 	"ConnectingDots_info": "Enables to make a puzzle containing a sequence of numbered dots which on selection form a line that connect the points. The addon may be successfully used as an interactive activity or a simulation, with or without an image background of your choice.",
 	"ConnectingDots_name": "Connecting Dots",
 	"ConnectingDots_property_dots": "Dots' coordinates",
