@@ -523,6 +523,35 @@ TestCase("[PseudoCode_Console - language tests] user defined functions", {
         end
         */
         this.test4 = "function testfunc (a, b, c) \n begin \n return a + b \n end \n program test \n variable a \n begin \n a = testfunc(2, 4) \n mock(1, a) \n end";
+
+        /*
+        function testfunc (a, b)
+        variable d = 5
+        array e[2] = [1, 2]
+        begin
+            return a + b + d * e[1]
+        end
+
+        program test
+        variable a
+        begin
+            a = testfunc(2, 4)
+            mock(1, a)
+        end
+        */
+        this.test5 = "function testfunc (a, b)\n" +
+            "        variable d = 5\n" +
+            "        array e[2] = [1, 2]\n" +
+            "        begin\n" +
+            "            return a + b + d * e[1]\n" +
+            "        end\n" +
+            "\n" +
+            "        program test\n" +
+            "        variable a\n" +
+            "        begin\n" +
+            "            a = testfunc(2, 4)\n" +
+            "            mock(1, a)\n" +
+            "        end";
     },
 
     'test function defined by user is called': function () {
@@ -558,6 +587,13 @@ TestCase("[PseudoCode_Console - language tests] user defined functions", {
 
         this.presenter.evaluateScoreFromUserCode();
         assertEquals(undefined, this.afterExecutingObject.data.mockCalled);
+    },
+
+    'test function will work with defined variables in local scope': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test5);
+
+        this.presenter.evaluateScoreFromUserCode();
+        assertEquals(16, this.afterExecutingObject.data.mockCalled[1].value);
     }
 });
 
@@ -1195,6 +1231,64 @@ TestCase("[PseudoCode_Console - language tests] array statement", {
         assertEquals(34, this.afterExecutingObject.data.mockCalled);
     }
 
+});
+
+TestCase("[PseudoCode_Console - language tests] methods", {
+    setUp: function () {
+        this.afterExecutingObject = {};
+
+        this.presenter = AddonPseudoCode_Console_create();
+
+        this.presenter.configuration.methods = [
+            this.presenter.validateMethod({
+                objectName: "Number",
+                methodName: "test1",
+                methodBody: "builtIn.data.mockCalled = arguments"
+            }).method
+        ];
+
+        this.presenter.completeObjectsMethods();
+        this.presenter.initializeExceptions();
+
+
+        var self = this;
+        this.presenter.configuration.answer = {
+            parameters: [],
+            maxTimeForAnswer: {
+                parsedValue: 20
+            },
+            answerCode: function () {
+                self.afterExecutingObject = this;
+            }
+        };
+
+        this.presenter.initializeGrammar();
+
+        /*
+        program test
+        begin
+            23.test1(1, 2, 3, "4", 5, 1==1)
+        end
+         */
+        this.test1 = "" +
+            "        program test\n" +
+            "        begin\n" +
+            "            23.test1(1, 2, 3, \"4\", 5, 1==1)\n" +
+            "        end";
+    },
+
+    'test methods is called with args in correct order': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test1);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertEquals(1, this.afterExecutingObject.data.mockCalled[0].value);
+        assertEquals(2, this.afterExecutingObject.data.mockCalled[1].value);
+        assertEquals(3, this.afterExecutingObject.data.mockCalled[2].value);
+        assertEquals("4", this.afterExecutingObject.data.mockCalled[3].value);
+        assertEquals(5, this.afterExecutingObject.data.mockCalled[4].value);
+        assertEquals(true, this.afterExecutingObject.data.mockCalled[5].value);
+    }
 });
 
 TestCase("[PseudoCode_Console - language tests] exceptions", {

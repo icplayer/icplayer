@@ -176,7 +176,7 @@ function validateUniquenessAliasesNamesAndFunctions (aliases, functions) {
 /**
  * @param {{objectName: (Array|Number|String), methodName: String, methodBody: String}} method
  */
-function validateMethod (method) {
+export function validateMethod (method) {
     let validatedMethod = {};
 
     try {

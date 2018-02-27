@@ -224,6 +224,7 @@ function AddonPseudoCode_Console_create() {
     presenter.validateAnswer = _validation.validateAnswer;
     presenter.validateFunctions = _validation.validateFunctions;
     presenter.validateAliases = _validation.validateAliases;
+    presenter.validateMethod = _validation.validateMethod;
 
     //This object will be passed to instruction as scope
     presenter.objectForInstructions = {
@@ -1480,7 +1481,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
         var execObjects = [];
 
         //Call args code in reverse order to save it on stack
-        for (var i = 0; i < args.length; i++) {
+        for (var i = args.length - 1; i >= 0; i--) {
             execObjects = execObjects.concat(args[i]);
         }
 
@@ -1501,7 +1502,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
     },
 
     function: function bnf_function(yy, functionName, functionArgs, sectionsBlock, codeBlock) {
-        var sections = [(0, _languageUtils.generateExecuteObject)(sectionsBlock || '', '')];
+        var sections = sectionsBlock || [];
 
         yy.presenterContext.state.variablesAndFunctionsUsage[yy.actualFunctionName].args = functionArgs;
         yy.functionNames.pop();
@@ -1532,7 +1533,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
     },
 
     assign_array_value: function bnf_assign_array_value(variableName, operations, value) {
-        return CODE_GENERATORS.method_call("__set__", [value, operations], variableName);
+        return CODE_GENERATORS.method_call("__set__", [operations, value], variableName);
     },
 
     program_name: function bnf_program_name(yy, programName) {
@@ -2347,6 +2348,7 @@ exports.validateFunction = validateFunction;
 exports.validateFunctions = validateFunctions;
 exports.validateAliases = validateAliases;
 exports.validateAnswer = validateAnswer;
+exports.validateMethod = validateMethod;
 exports.validateModel = validateModel;
 /**
  * Wrap each function or method defined by user by this code. It will set default values for function and initialize console for call

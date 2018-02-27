@@ -151,7 +151,7 @@ export const CODE_GENERATORS = {
         let execObjects = [];
 
         //Call args code in reverse order to save it on stack
-        for (let i = 0; i < args.length; i++){
+        for (let i = args.length - 1; i >= 0; i--){
             execObjects = execObjects.concat(args[i]);
         }
 
@@ -172,7 +172,7 @@ export const CODE_GENERATORS = {
     },
 
     function: function bnf_function (yy, functionName, functionArgs, sectionsBlock, codeBlock) {
-        let sections = [generateExecuteObject(sectionsBlock || '', '')];
+        let sections = sectionsBlock || [];
 
         yy.presenterContext.state.variablesAndFunctionsUsage[yy.actualFunctionName].args = functionArgs;
         yy.functionNames.pop();
@@ -203,7 +203,7 @@ export const CODE_GENERATORS = {
     },
 
     assign_array_value: function bnf_assign_array_value (variableName, operations, value) {
-        return CODE_GENERATORS.method_call("__set__", [value, operations], variableName);
+        return CODE_GENERATORS.method_call("__set__", [operations, value], variableName);
     },
 
     program_name: function bnf_program_name (yy, programName) {

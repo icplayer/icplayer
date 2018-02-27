@@ -4,7 +4,10 @@ import { EXCEPTIONS } from './defined-exceptions.jsm';
 import { CODE_GENERATORS } from './language-code-generators.jsm';
 import { UserConsole } from './console.jsm';
 import { codeExecutor } from './machine.jsm';
-import { validateAliases, validateAnswer, validateFunction, validateFunctions, validateModel } from './validation.jsm';
+import {
+    validateAliases, validateAnswer, validateFunction, validateFunctions, validateMethod,
+    validateModel
+} from './validation.jsm';
 import { isLetter, isDigit } from './utils.jsm';
 
 /**
@@ -28,6 +31,7 @@ function AddonPseudoCode_Console_create() {
     presenter.validateAnswer = validateAnswer;
     presenter.validateFunctions = validateFunctions;
     presenter.validateAliases = validateAliases;
+    presenter.validateMethod = validateMethod;
 
     //This object will be passed to instruction as scope
     presenter.objectForInstructions = {
