@@ -295,7 +295,7 @@ function AddonPseudoCode_Console_create() {
         "ER01": "Round value must be an integer",
         "ER02": "Round value must be bigger than 0",
         "ER03": "Round value must be below 100",
-        "IP01": "Max time for answer must be float number in range 0 to 10",
+        "IP01": "Max time for answer must be float number in range 0 to 10 excluding 0",
         "IP02": "Answer code must be valid JS code"
     };
 
@@ -738,7 +738,6 @@ function AddonPseudoCode_Console_create() {
         try {
             presenter.state.console.Reset();
             var executableCode = presenter.state.codeGenerator.parse(code);
-            console.log(executableCode);
             presenter.checkCode();
 
             presenter.state.lastUsedCode = executableCode;
@@ -820,7 +819,7 @@ function getJISONGrammar() {
             ["[\"]", "this.begin('string'); return 'START_STRING'"], [["string"], "[^\"\\\\]", "return 'STRING';"], [["string"], "[\\n]", "return 'NEWLINE_IN_STRING';"], [["string"], "\\\\.", "return 'STRING'"], // match \. <- escaped characters"
             [["string"], "$", "return 'EOF_IN_STRING';"], [["string"], "[\"]", "this.popState(); return 'END_STRING';"],
             //Words between |<name>| will be replaced by values from configuration
-            ["|begin|", "return 'BEGIN_BLOCK';"], ["|end|", "return 'END_BLOCK';"], ["|program|", "return 'PROGRAM';"], ["|variable|", "return 'VARIABLE_DEF';"], ["|for|", "return 'FOR';"], ["|from|", "return 'FROM';"], ["|to|", "return 'TO';"], ["|do|", "return 'DO';"], ["|or|", "return 'OR';"], ["|and|", "return 'AND';"], ["|while|", "return 'WHILE';"], ["|if|", "return 'IF';"], ["|then|", "return 'THEN';"], ["|else|", "return 'ELSE';"], ["|case|", "return 'CASE';"], ["|option|", "return 'OPTION';"], ["|function|", "return 'FUNCTION';"], ["|return|", "return 'RETURN';"], ["|array_block|", "return 'ARRAY_DEF';"], ["|down_to|", "return 'DOWNTO';"], ["|by|", "return 'BY';"], ["\\n+", "return 'NEW_LINE';"], ["$", "return 'EOF';"], ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"], ["<=", "return '<=';"], [">=", "return '>=';"], ["!=", "return '!=';"], ["==", "return '==';"], ["<", "return '<';"], [">", "return '>';"], ["\\*", "return '*';"], ["\\/_", "return 'DIV_FLOOR';"], ["\\/", "return '/';"], ["-", "return '-';"], ["\\+", "return '+';"], ["%", "return '%';"], ["\\(", "return '(';"], ["\\)", "return ')';"], ["[A-Za-z_][a-zA-Z0-9_]*", "return 'STATIC_VALUE';"], ["\\[", "return '[';"], ["\\]", "return ']';"], [",", "return 'COMMA';"], ["\\.", "return 'DOT';"], ["=", "return '=';"], ["[ \f\r\t\x0B\u200B\xA0\u1680\u200B\u180E\u2000\u200B\u2001\u2002\u200B\u2003\u2004\u200B\u2005\u2006\u200B\u2007\u2008\u200B\u2009\u200A\u200B\u2028\u2029\u200B\u2028\u2029\u200B\u202F\u205F\u200B\u3000]", "/* IGNORE SPACES */"], [".", "return 'NOT_MATCH';"]],
+            ["|begin|", "return 'BEGIN_BLOCK';"], ["|end|", "return 'END_BLOCK';"], ["|program|", "return 'PROGRAM';"], ["|variable|", "return 'VARIABLE_DEF';"], ["|for|", "return 'FOR';"], ["|from|", "return 'FROM';"], ["|to|", "return 'TO';"], ["|do|", "return 'DO';"], ["|or|", "return 'OR';"], ["|and|", "return 'AND';"], ["|while|", "return 'WHILE';"], ["|if|", "return 'IF';"], ["|then|", "return 'THEN';"], ["|else|", "return 'ELSE';"], ["|case|", "return 'CASE';"], ["|option|", "return 'OPTION';"], ["|function|", "return 'FUNCTION';"], ["|return|", "return 'RETURN';"], ["|array_block|", "return 'ARRAY_DEF';"], ["|down_to|", "return 'DOWNTO';"], ["|by|", "return 'BY';"], ["\\n+", "return 'NEW_LINE';"], ["$", "return 'EOF';"], ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"], ["<=", "return '<=';"], [">=", "return '>=';"], ["!=", "return '!=';"], ["==", "return '==';"], ["<", "return '<';"], [">", "return '>';"], ["\\*", "return '*';"], ["\\/_", "return 'DIV_FLOOR';"], ["\\/", "return '/';"], ["-", "return '-';"], ["\\+", "return '+';"], ["%", "return '%';"], ["\\(", "return '(';"], ["\\)", "return ')';"], ["[A-Za-z][a-zA-Z0-9_]*", "return 'STATIC_VALUE';"], ["\\[", "return '[';"], ["\\]", "return ']';"], [",", "return 'COMMA';"], ["\\.", "return 'DOT';"], ["=", "return '=';"], ["[ \f\r\t\x0B\u200B\xA0\u1680\u200B\u180E\u2000\u200B\u2001\u2002\u200B\u2003\u2004\u200B\u2005\u2006\u200B\u2007\u2008\u200B\u2009\u200A\u200B\u2028\u2029\u200B\u2028\u2029\u200B\u202F\u205F\u200B\u3000]", "/* IGNORE SPACES */"], [".", "return 'NOT_MATCH';"]],
 
             //Each conditions used by lexer must be defined there
             "startConditions": {
@@ -2138,7 +2137,7 @@ UserConsole.prototype = {
                 leftText = activeLine.elements.$left.text();
                 data = textAreaElement.val();
 
-                if (!this.config.inputChecker(data)) {
+                if (!self.config.inputChecker(data)) {
                     return;
                 }
 
