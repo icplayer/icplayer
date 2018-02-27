@@ -5,13 +5,13 @@
         <property name="workWith" displayName="Work With" nameLabel="eKeyboard_property_work_with" type="text" />
         <property name="layoutType" displayName="Layout Type" nameLabel="eKeyboard_property_layout_type"
                   type="{Numeric, French (Special Characters), German (Special Characters), Italian (Special Characters), Spanish (Special Characters), Custom}" />
-        <property name="customLayout" displayName="Custom Layout" nameLabel="eKeyboard_property_custom_layout" type="text" />
+        <property name="customLayout" displayName="Custom Layout" nameLabel="eKeyboard_property_custom_layout" type="text" isLocalized="true" />
         <property name="positionMy" displayName="Position My" nameLabel="eKeyboard_property_position_my" type="string" />
         <property name="positionAt" displayName="Position At" nameLabel="eKeyboard_property_position_at" type="string" />
         <property name="maxCharacters" displayName="Max Characters" nameLabel="eKeyboard_property_max_characters" type="string" />
         <property name="noOpenOnFocus" displayName="Don't Open On Focus" nameLabel="eKeyboard_property_no_open_on_focus" type="boolean" />
         <property name="lockStandardKeyboardInput" displayName="Lock Standard Keyboard Input" nameLabel="eKeyboard_property_lock_standard_keyboard_input" type="boolean" />
-        <property name="customDisplay" displayName="Custom Display" nameLabel="eKeyboard_property_custom_display" type="text" />
+        <property name="customDisplay" displayName="Custom Display" nameLabel="eKeyboard_property_custom_display" type="text" isLocalized="true"/>
         <property name="showCloseButton" displayName="Show Close Button" nameLabel="eKeyboard_property_show_close_button" type="boolean"/>
 	</model>
 </addon>
