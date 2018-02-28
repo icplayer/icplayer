@@ -112,7 +112,7 @@ function AddonPseudoCode_Console_create() {
         "All": function () { return true; },
         "Natural numbers": function (value, wholeValue) { return isDigit(value); },
         "Letters only": function (value, wholeValue) { return isLetter(value);},
-        "Real numbers": function (value, wholeValue) { return presenter.availableInputsInConsole["Number only"](value) || presenter.availableInputsInConsole["Letters only"](value); }
+        "Real numbers": function (value, wholeValue) { return /^-?[0-9]*\.?[0-9]*$/g.test(wholeValue) }
     };
 
     presenter.setPlayerController = function presenter_setPlayerController (controller) {

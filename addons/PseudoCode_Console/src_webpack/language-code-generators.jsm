@@ -233,11 +233,11 @@ export const CODE_GENERATORS = {
         yy.labelsStack.push(CODE_GENERATORS.uid + '_for_end');
 
         execElements = execElements.concat(from);
-        execElements.push(generateExecuteObject("actualScope." + variableName + '.value = stack.pop().value - ' + by + ';'));
+        execElements.push(generateExecuteObject("actualScope." + variableName + ' = machineManager.objectMocks.Number.__constructor__(stack.pop().value - ' + by + ');'));
         execElements.push(generateExecuteObject('', CODE_GENERATORS.uid + '_for'));
         execElements.push(generateExecuteObject('machineManager.objectForInstructions.calledInstructions.for++', ''));
         execElements = execElements.concat(to);
-        execElements.push(generateJumpInstruction('!((Boolean(actualScope.' + variableName + '.value += ' + by + ') || true) && actualScope.' + variableName + ".value " + comparator + " stack.pop().value )", CODE_GENERATORS.uid + '_for_end'));
+        execElements.push(generateJumpInstruction('!((Boolean(actualScope.' + variableName + ' = machineManager.objectMocks.Number.__constructor__(actualScope.' + variableName + '.value + ' + by + ')) || true) && actualScope.' + variableName + ".value " + comparator + " stack.pop().value )", CODE_GENERATORS.uid + '_for_end'));
         return execElements;
 
     }),

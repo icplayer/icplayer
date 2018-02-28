@@ -304,14 +304,15 @@ function AddonPseudoCode_Console_create() {
         "All": function All() {
             return true;
         },
-        "Number only": function NumberOnly(value) {
+        "Natural numbers": function NaturalNumbers(value, wholeValue) {
             return (0, _utils.isDigit)(value);
         },
-        "Letters only": function LettersOnly(value) {
+        "Letters only": function LettersOnly(value, wholeValue) {
             return (0, _utils.isLetter)(value);
         },
-        "Alphanumeric": function Alphanumeric(value) {
-            return presenter.availableInputsInConsole["Number only"](value) || presenter.availableInputsInConsole["Letters only"](value);
+        "Real numbers": function RealNumbers(value, wholeValue) {
+            return (/^-?[0-9]*\.?[0-9]*$/g.test(wholeValue)
+            );
         }
     };
 
@@ -1563,11 +1564,11 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
         yy.labelsStack.push(CODE_GENERATORS.uid + '_for_end');
 
         execElements = execElements.concat(from);
-        execElements.push((0, _languageUtils.generateExecuteObject)("actualScope." + variableName + '.value = stack.pop().value - ' + by + ';'));
+        execElements.push((0, _languageUtils.generateExecuteObject)("actualScope." + variableName + ' = machineManager.objectMocks.Number.__constructor__(stack.pop().value - ' + by + ');'));
         execElements.push((0, _languageUtils.generateExecuteObject)('', CODE_GENERATORS.uid + '_for'));
         execElements.push((0, _languageUtils.generateExecuteObject)('machineManager.objectForInstructions.calledInstructions.for++', ''));
         execElements = execElements.concat(to);
-        execElements.push((0, _languageUtils.generateJumpInstruction)('!((Boolean(actualScope.' + variableName + '.value += ' + by + ') || true) && actualScope.' + variableName + ".value " + comparator + " stack.pop().value )", CODE_GENERATORS.uid + '_for_end'));
+        execElements.push((0, _languageUtils.generateJumpInstruction)('!((Boolean(actualScope.' + variableName + ' = machineManager.objectMocks.Number.__constructor__(actualScope.' + variableName + '.value + ' + by + ')) || true) && actualScope.' + variableName + ".value " + comparator + " stack.pop().value )", CODE_GENERATORS.uid + '_for_end'));
         return execElements;
     }),
 
@@ -2047,7 +2048,7 @@ UserConsole.prototype = {
 
         textAreaElement.val('');
 
-        if (!this.config.inputChecker(data)) {
+        if (!this.config.inputChecker(data, leftText + data + rightText)) {
             return false;
         }
 
@@ -2138,7 +2139,7 @@ UserConsole.prototype = {
                 leftText = activeLine.elements.$left.text();
                 data = textAreaElement.val();
 
-                if (!self.config.inputChecker(data)) {
+                if (!self.config.inputChecker(data, data)) {
                     return;
                 }
 

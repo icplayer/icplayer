@@ -603,7 +603,8 @@ TestCase("[PseudoCode_Console - language tests] for statement", {
 
         this.presenter.configuration.functions = {
             mock: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = builtIn.data.mockCalled || 0;  builtIn.data.mockCalled++;"}).value.body,
-            mock2: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled2 = true;"}).value.body
+            mock2: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled2 = true;"}).value.body,
+            mock3: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled3 = arguments[0];"}).value.body
         };
 
         this.afterExecutingObject = {};
@@ -805,6 +806,33 @@ TestCase("[PseudoCode_Console - language tests] for statement", {
             "    end\n" +
             "    mock2()\n" +
             "end";
+
+
+        /*
+        program a
+        array b[4]
+        variable c = 0
+        begin
+            for c from 0 to 3 do
+            begin
+                b[c] = c
+            end
+
+            mock3(b)
+        end
+         */
+        this.test9 = "" +
+            "program a\n" +
+            "array b[4]\n" +
+            "variable c = 0\n" +
+            "begin\n" +
+            "    for c from 0 to 3 do\n" +
+            "    begin\n" +
+            "        b[c] = c\n" +
+            "    end\n" +
+            "    \n" +
+            "    mock3(b)\n" +
+            "end";
     },
 
     'test for will be called 5 times' : function () {
@@ -885,6 +913,18 @@ TestCase("[PseudoCode_Console - language tests] for statement", {
         assertTrue(this.afterExecutingObject.data.mockCalled2);
         assertEquals(5, this.afterExecutingObject.data.mockCalled);
         assertEquals(5, this.afterExecutingObject.calledInstructions.for);
+    },
+
+    'test for value returns new objects': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test9);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertEquals(0, this.afterExecutingObject.data.mockCalled3.value[0].value);
+        assertEquals(1, this.afterExecutingObject.data.mockCalled3.value[1].value);
+        assertEquals(2, this.afterExecutingObject.data.mockCalled3.value[2].value);
+        assertEquals(3, this.afterExecutingObject.data.mockCalled3.value[3].value);
+
     }
 });
 
