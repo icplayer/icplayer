@@ -49,6 +49,8 @@ function Addonvideo_create() {
         height: 0
     };
 
+    presenter.addedVideoURLS = {};
+
     presenter.configuration = {
         isValid: false,
         addonSize: {
@@ -1037,7 +1039,8 @@ function Addonvideo_create() {
         var isPaused = presenter.videoObject.paused;
         presenter.videoObject.pause();
         return JSON.stringify({
-            files: presenter.configuration.files,
+            files: "deprecated",        //Removed from state.
+            videoURLS: presenter.addedVideoURLS,
             currentTime : presenter.videoObject.currentTime,
             isCurrentlyVisible : presenter.isCurrentlyVisible,
             isPaused: isPaused,
@@ -1047,12 +1050,19 @@ function Addonvideo_create() {
     };
 
     presenter.setState = function(stateString) {
-        if (ModelValidationUtils.isStringEmpty(stateString)) return;
+        if (ModelValidationUtils.isStringEmpty(stateString)) {
+            return;
+        }
         var state = JSON.parse(stateString);
         var currentTime = state.currentTime;
 
-        if (state.files) {  //This was added later than rest of state
-            presenter.configuration.files = state.files;
+        if (state.videoURLS) {  //This was added later than rest of state
+            for (var i in state.videoURLS) {
+                if (state.videoURLS.hasOwnProperty(i)) {
+                    var element = state.videoURLS[i];
+                    presenter._setVideoURL(element.url, element.index);
+                }
+            }
         }
 
         presenter.isCurrentlyVisible = state.isCurrentlyVisible;
@@ -1369,21 +1379,9 @@ function Addonvideo_create() {
         presenter.setVideoURL(params[0], params[1]);
     };
 
-    /*
-        Set video url and jump to this video.
-        index: video index counted from 1
-        url: object {
-            "oggFormat": "Ogg video",
-            "mp4Format": "MP4 video",
-            "webMFormat": "WebM video",
-            "poster": "Poster",
-            "subtitles": "Subtitles",
-            "id": "ID",
-            "altText": "AlternativeText",
-            "loop": "Loop video"
-        }
-    */
-    presenter.setVideoURL = function (url, index) {
+    presenter._setVideoURL = function (url, index) {
+        var key;
+        var videoFile;
         var mapper = {
             "oggFormat": "Ogg video",
             "mp4Format": "MP4 video",
@@ -1393,10 +1391,7 @@ function Addonvideo_create() {
             "id": "ID",
             "altText": "AlternativeText",
             "loop": "Loop video"
-        },
-        key,
-        videoFile = {},
-        index = (index || 1) - 1;
+        };
 
         if (index >= presenter.configuration.files.length) {
             return false;
@@ -1410,7 +1405,34 @@ function Addonvideo_create() {
             }
         }
 
-        presenter.jumpTo(index + 1);
+        presenter.addedVideoURLS[index] = {
+            url: url,
+            index: index
+        };
+
+        return true;
+    };
+
+    /*
+        Set video url and jump to this video.
+        index: video index counted from 0
+        url: object {
+            "oggFormat": "Ogg video",
+            "mp4Format": "MP4 video",
+            "webMFormat": "WebM video",
+            "poster": "Poster",
+            "subtitles": "Subtitles",
+            "id": "ID",
+            "altText": "AlternativeText",
+            "loop": "Loop video"
+        }
+    */
+    presenter.setVideoURL = function (url, index) {
+        index = (index || 1) - 1;
+
+        if (presenter._setVideoURL(url, index)) {
+            presenter.jumpTo(index + 1);
+        }
     };
 
     presenter.setVisibility = function(isVisible) {

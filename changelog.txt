@@ -1,4 +1,5 @@
-2017-02-28 Fixed problem with hover in iOS
+2018-02-28 Fixed problem with restoring state in video addon
+2018-02-28 Fixed problem with hover in iOS
 2018-02-27 Added localization for alt-text in some modules and layout in eKeyboard
 2018-02-27 Renamed Hierarichal Lesson Report property
 2018-02-23 Readded works with property in Page Progress.
