@@ -165,7 +165,7 @@ function AddonBoard_Game_create(){
                 ModelValidators.DumbInteger("Left"),
                 ModelValidators.DumbInteger("Width"),
                 ModelValidators.DumbInteger("Height"),
-                ModelValidators.CSSClass("cssClass", {optional: true})
+                ModelValidators.CSSClass("cssClass", {default: ""})
             ], function () {
                 return this.validatedModel['hasFields'] || this.validatedModel["gameMode"] !== presenter.gameTypes.FREE;
             }),

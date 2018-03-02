@@ -15,12 +15,22 @@ TestCase("[Commons - Model Validator] Enum validator", {
 
     'test if value is empty then will return first value from available values': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
-            this.validator("test1", {values: ["OK"]}),
-            this.validator("test2", {values: ["A", "B", "C"]})
+            this.validator("test1", {values: ["OK"], default: "OK"}),
+            this.validator("test2", {values: ["A", "B", "C"], default: "A"})
         ]);
 
         assertEquals("OK", validatedModel.value['test1']);
         assertEquals("A", validatedModel.value['test2']);
+    },
+
+    'test if value is empty and default value is not provided, then validator will return error': function () {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validator("test1", {values: ["OK"]}),
+            this.validator("test2", {values: ["A", "B", "C"]})
+        ]);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("EV01", validatedModel.errorCode);
     },
 
     'test if value is empty and default value is passed then will return default value': function () {

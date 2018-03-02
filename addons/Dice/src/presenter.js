@@ -60,13 +60,13 @@ function AddonDice_create() {
         var validatedModel = modelValidator.validate(model, [
             ModelValidators.Boolean("isDisabled"),
             ModelValidators.Integer("animationLength", {minValue: 0}),
-            ModelValidators.Integer("initialItem", {optional: true, minValue: 1, default: null}),
+            ModelValidators.Integer("initialItem", {minValue: 1, default: null}),
             ModelValidators.List("elementsList", [
-                ModelValidators.String("name", {optional: true, default: null}),
-                ModelValidators.String("image", {trim: true, optional: true, default: null})
+                ModelValidators.String("name", {default: null}),
+                ModelValidators.String("image", {trim: true, default: null})
             ]),
             ModelValidators.Boolean("Is Visible"),
-            ModelValidators.String("worksWith", {optional: true, default: null}),
+            ModelValidators.String("worksWith", {default: null}),
             ModelValidators.DumbString("ID")
         ]);
 

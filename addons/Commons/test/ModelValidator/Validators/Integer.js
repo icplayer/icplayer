@@ -59,25 +59,25 @@ TestCase("[Commons - Model Validator] Integer validator", {
         assertEquals("INT01", validatedModel.errorCode);
     },
 
-    'test if is optional then default value will be 0': function () {
+    'test if default value is 0 then value will be 0': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
-            this.validator("test6", {optional: true})
+            this.validator("test6", {default: 0})
         ]);
 
         assertEquals(0, validatedModel.value['test6']);
     },
 
-    'test if is optional and have set default value then will return default value if if empty': function () {
+    'test if default value is set then will return default value if is empty': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
-            this.validator("test6", {optional: true, default: 20})
+            this.validator("test6", {default: 20})
         ]);
 
         assertEquals(20, validatedModel.value['test6']);
     },
 
-    'test if is optional and have set default value as null then will return null value if if empty': function () {
+    'test if default value as null then will return null value if if empty': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
-            this.validator("test6", {optional: true, default: null})
+            this.validator("test6", {default: null})
         ]);
 
         assertEquals(null, validatedModel.value['test6']);

@@ -13,7 +13,7 @@ TestCase("[Dice] Initial item", {
         this.presenter.setRandomElement.restore();
     },
 
-    'test initializeStartElement will set correctly initial item if value if 0': function () {
+    'test initializeStartElement will set first element if initial item value is 0': function () {
         this.presenter.initializeStartItem();
 
         assertFalse(this.presenter.setRandomElement.called);

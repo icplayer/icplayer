@@ -445,7 +445,8 @@
                 mainValidation = false;
             }
 
-            for (i = 0; i < config.length; i += 1) {
+            var len = config.length;
+            for (i = 0; i < len; i += 1) {
                 modelFieldName = config[i].fieldName;
                 if (model[modelFieldName] !== undefined) {
                     var validationResult = config[i].call(this, model[modelFieldName], validatedModel);
@@ -502,10 +503,7 @@
 
             var validationFunction = function (model, validatedModel) {
                 if (shouldValidateFunction && !shouldValidateFunction.call(this, validatedModel)) {
-                    return {
-                        isValid: true,
-                        value: undefined
-                    };
+                    return generateValidValue(undefined);
                 }
 
                 var retVal = fn.call(this, model, config);
@@ -551,10 +549,9 @@
         /**
          * Check if passed value is valid integer. Can be checked if value is in <minValue; maxValue>
          * config: {
-         *      optional=False: {Boolean}
          *      maxValue=INF: {Number}(providedValue > maxValue),
          *      minValue=-INF: [Number}(providedValue < minValue,
-         *      default=0: {Number | null}
+         *      default=undefined: {Number | null}
          * }
          *
          * errorCodes:
@@ -568,10 +565,10 @@
          * @extends ModelValidators.Validator
          */
         Integer: function (valueToValidate, config) {
-            var isOptional = config['optional'],
-                minValue = config['minValue'],
+            var minValue = config['minValue'],
                 maxValue = config['maxValue'],
-                defaultValue = config['default'] === undefined ? 0 : config['default'];
+                defaultValue = config['default'],
+                isOptional = config['default'] !== undefined;
 
             if (maxValue === undefined || maxValue === null) {
                 maxValue = Number.MAX_VALUE;
@@ -611,9 +608,8 @@
         /**
          * Check if passed value is valid string.
          * config: {
-         *      optional=False: {Boolean},
          *      trim=True: {Boolean},
-         *      defaultValue="": {String | null}
+         *      default=undefined: {String | null}
          * }
          *
          * errorCodes:
@@ -624,9 +620,9 @@
          * @extends ModelValidators.Validator
          */
         String: function (valueToValidate, config) {
-            var isOptional = config['optional'] || false,
+            var isOptional = config['default'] !== undefined,
                 trim = config['trim'] === undefined ? true : config['trim'],
-                defaultValue = config['default'] === undefined ? "" : config['default'];
+                defaultValue = config['default'];
 
             var value = valueToValidate;
 
@@ -658,7 +654,7 @@
         /**
          * Check if provided string is valid css class name
          * config: {
-         *      optional=False: {Boolean}
+         *      default=undefined: {String}
          * }
          *
          * Error Codes:
@@ -672,9 +668,9 @@
         CSSClass: function (valueToValidate, config) {
             valueToValidate = valueToValidate.trim();
 
-            if (config['optional']) {
+            if (config['default'] !== undefined) {
                 if (valueToValidate.trim() === '') {
-                    return this.generateValidValue('');
+                    return this.generateValidValue(config['default']);
                 }
             }
 
@@ -713,7 +709,7 @@
          *
          * Check if provided string is valid css class name
          * config: {
-         *      default="": {String | null} if value is "" then return default
+         *      default=undefined {String | null}
          *      useLowerCase=False: {Boolean} change values to lower case
          *      values=[]:{String[]}
          * }
@@ -728,13 +724,7 @@
         Enum: function (valueToValidate, config) {
             var possibleValues = config.values || [];
             var useLowerCase = config.useLowerCase || false;
-            var defaultValue = config['default'] === undefined ? "" : config['default'];
-
-            if (defaultValue === "") {
-                if (possibleValues.length > 0) {
-                    defaultValue = possibleValues[0];
-                }
-            }
+            var defaultValue = config['default'];
 
             valueToValidate = valueToValidate.trim();
 
@@ -742,7 +732,7 @@
                 valueToValidate = valueToValidate.toLowerCase();
             }
 
-            if (defaultValue !== "" && valueToValidate === "") {
+            if (defaultValue !== undefined && valueToValidate === "") {
                 return this.generateValidValue(defaultValue);
             }
 

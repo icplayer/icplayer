@@ -52,25 +52,25 @@ TestCase("[Commons - Model Validator] String validator", {
         assertEquals("122ddf", validatedModel.value['test2']);
     },
 
-    'test if optional value is true and string is empty then will return empty string': function () {
+    'test if default value is empty string and string is empty then will return empty string': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
-            this.validator("test3", {optional: true})
+            this.validator("test3", {default: ""})
         ]);
 
         assertEquals("", validatedModel.value['test3']);
     },
 
-    'test if optional is true and trim false then will return empty string with white spaces': function () {
+    'test if default is empty string and trim false then will return string with white spaces': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
-            this.validator("test3", {optional: true, trim: false})
+            this.validator("test3", {default: "", trim: false})
         ]);
 
         assertEquals(" ", validatedModel.value['test3']);
     },
 
-    'test if optional is false then will return error if string is empty': function () {
+    'test if default is not provided then will return error if string is empty': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
-            this.validator("test3", {optional: false})
+            this.validator("test3")
         ]);
 
         assertFalse(validatedModel.isValid);
@@ -79,7 +79,7 @@ TestCase("[Commons - Model Validator] String validator", {
 
     'test if default value is null then will return null if provided value is empty': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
-            this.validator("test3", {optional: true, trim: true, default: null})
+            this.validator("test3", {trim: true, default: null})
         ]);
 
         assertEquals(null, validatedModel.value['test3']);
@@ -87,7 +87,7 @@ TestCase("[Commons - Model Validator] String validator", {
 
     'test if default is string then this string will be returned if provided value is empty': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
-            this.validator("test3", {optional: true, trim: true, default: "OK"})
+            this.validator("test3", {trim: true, default: "OK"})
         ]);
 
         assertEquals("OK", validatedModel.value['test3']);

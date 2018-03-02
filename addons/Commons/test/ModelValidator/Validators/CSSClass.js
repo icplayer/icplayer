@@ -15,18 +15,18 @@ TestCase("[Commons - Model Validator] CSS validator", {
         this.validator = window.ModelValidators.CSSClass;
     },
 
-    'test is value is optional then will return empty string': function () {
+    'test if value is empty and default value is set then will return default value': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
-            this.validator("test1", {optional: true}),
-            this.validator("test2", {optional: true})
+            this.validator("test1", {default: "OK"}),
+            this.validator("test2", {default: "Ok2"})
         ]);
 
         assertTrue(validatedModel.isValid);
-        assertEquals("", validatedModel.value['test1']);
-        assertEquals("", validatedModel.value['test2']);
+        assertEquals("OK", validatedModel.value['test1']);
+        assertEquals("Ok2", validatedModel.value['test2']);
     },
 
-    'test if value is empty and is not optional then validator will return error': function () {
+    'test if value is empty and dont contains default value then validator will return error': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
             this.validator("test1")
         ]);
