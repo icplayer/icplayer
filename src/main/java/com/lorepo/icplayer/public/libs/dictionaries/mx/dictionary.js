@@ -390,6 +390,7 @@ var ice_dictionary_mx = {
 	"ordering_item": "Ítem",
 	"ordering_item_text": "Texto",
 	"ordering_gradually_score": "Puntuación gradual",
+	"ordering_item_starting_position": "Starting position",
 	"page_progress_module": "Progreso de página",
     "Page_progress_property_works_with" : "Works with",
 	"report_module": "Reporte",

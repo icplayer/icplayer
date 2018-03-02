@@ -389,6 +389,7 @@
 	"ordering_item" : "Element szeregowania",
 	"ordering_item_text" : "Tekst",
 	"ordering_gradually_score": "Punktacja stopniowana",
+	"ordering_item_starting_position": "Starting position",
 	"page_progress_module" : "Wynik strony",
     "Page_progress_property_works_with" : "Współpracuje z",
 	"real_time_calculation_property" : "Oblicz w czasie rzeczywistym",
