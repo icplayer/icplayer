@@ -49,6 +49,9 @@ function AddonBoard_Game_create(){
             case 'reset'.toLowerCase():
                 presenter.reset();
                 break;
+            case 'move'.toLowerCase():
+                presenter.move(params[0]);
+                break;
         }
     };
 
@@ -374,6 +377,10 @@ function AddonBoard_Game_create(){
     };
 
     presenter.setFieldsClasses = function (model) {
+        if (!model.Fields) {
+            return;
+        }
+
         model.Fields.forEach(function (element, idx) {
             if (element.cssClass !== "") {
                 presenter.fields[idx].classList.add(element.cssClass);

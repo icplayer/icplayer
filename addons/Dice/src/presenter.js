@@ -392,7 +392,8 @@ function AddonDice_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'disable': presenter.disable,
-            'enable': presenter.enable
+            'enable': presenter.enable,
+            'roll': presenter.roll
         };
         Commands.dispatch(commands, name, params, presenter);
     };

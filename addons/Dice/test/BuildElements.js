@@ -4,22 +4,22 @@ TestCase("[Dice] Build elements", {
         this.presenter = AddonDice_create();
 
         this.element1 = {
-            number: "A1",
+            name: "A1",
             image: "--B1--"
         };
 
         this.element2 = {
-            number: "A2",
+            name: "A2",
             image: null
         };
 
         this.element3 = {
-            number: null,
+            name: null,
             image: "--B3--"
         };
 
         this.element4 = {
-            number: null,
+            name: null,
             image: null
         };
 
@@ -36,7 +36,7 @@ TestCase("[Dice] Build elements", {
         assertEquals("A1", correctElement.innerText);
     },
 
-    'test elements builder will set only number if image is null': function () {
+    'test elements builder will set only name if image is null': function () {
         this.presenter.buildElements();
 
         var correctElement = this.presenter.state.elements[1];
@@ -46,7 +46,7 @@ TestCase("[Dice] Build elements", {
     },
 
 
-    'test elements builder will set only image if number is null': function () {
+    'test elements builder will set only image if name is null': function () {
         this.presenter.buildElements();
 
         var correctElement = this.presenter.state.elements[2];
@@ -55,7 +55,7 @@ TestCase("[Dice] Build elements", {
         assertEquals("", correctElement.innerText);
     },
 
-    'test elements builder will put index if number and image are null': function () {
+    'test elements builder will put index if name and image are null': function () {
         this.presenter.buildElements();
 
         var correctElement = this.presenter.state.elements[3];

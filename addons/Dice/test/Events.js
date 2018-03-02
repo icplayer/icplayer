@@ -11,7 +11,7 @@ TestCase("[Dice] Events Test Case", {
 
         this.presenter.callExternalAddon = function () {};
         this.presenter.configuration.elementsList = [
-            null, {number: null}, {number: "asdf"}
+            null, {name: null}, {name: "asdf"}
         ];
 
         this.sendEventSpy = sinon.spy();

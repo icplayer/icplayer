@@ -10,11 +10,11 @@ TestCase("[Dice] Build Model Validation", {
             "initialItem": "1",
             "elementsList": [
                 {
-                    "number": "some",
+                    "name": "some",
                     "image": "sImage"
                 },
                 {
-                    "number": "second",
+                    "name": "second",
                     "image": "ssImage"
                 }
             ],
@@ -35,11 +35,11 @@ TestCase("[Dice] Build Model Validation", {
             "initialItem": 0,
             "elementsList": [
                 {
-                    "number": "some",
+                    "name": "some",
                     "image": "sImage"
                 },
                 {
-                    "number": "second",
+                    "name": "second",
                     "image": "ssImage"
                 }
             ],
@@ -72,7 +72,7 @@ TestCase("[Dice] Build Model Validation", {
         assertFalse(validatedModel.isValid);
     },
 
-    'test if initial item is not a number then validator will return error': function () {
+    'test if initial item is not a name then validator will return error': function () {
         this.exampleModel.initialItem = "10aa";
 
         var validatedModel = this.presenter.validateModel(this.exampleModel);
@@ -80,7 +80,7 @@ TestCase("[Dice] Build Model Validation", {
         assertFalse(validatedModel.isValid);
     },
 
-    'test if animation length is not a number then validator will return error': function () {
+    'test if animation length is not a name then validator will return error': function () {
         this.exampleModel.animationLength = "10aa";
 
         var validatedModel = this.presenter.validateModel(this.exampleModel);
