@@ -405,6 +405,21 @@
         return toString.call(fn) === '[object ' + Function + ']';
     }
 
+    //https://github.com/jashkenas/underscore/blob/master/underscore.js
+    function isString (val) {
+        return toString.call(val) === '[object String]';
+    }
+
+    function isArray (val) {
+        function _isArray (val) {
+            return toString.call(val) === '[object Array]';
+        }
+
+        var fnToCheck = Array.isArray || _isArray;
+
+        return fnToCheck(val);
+    }
+
     /**
      * Class which can validate model with provided validator.
      * @class ModelValidator
@@ -439,16 +454,16 @@
          * @returns {{isValid: Boolean,value: Object,errorCode: String}}
          */
         validateModel: function (model, config, mainValidation) {
-            var validatedModel = {}, i, modelFieldName;
+            var validatedModel = {}, modelFieldName;
 
             if (mainValidation === undefined) {
                 mainValidation = false;
             }
 
             var len = config.length;
-            for (i = 0; i < len; i += 1) {
+            for (var i = 0; i < len; i += 1) {
                 modelFieldName = config[i].fieldName;
-                if (model[modelFieldName] !== undefined) {
+                if (model[modelFieldName] !== undefined && model[modelFieldName] !== null) {
                     var validationResult = config[i].call(this, model[modelFieldName], validatedModel);
 
                     if (!validationResult.isValid) {
@@ -527,16 +542,6 @@
      */
     var ModelValidators = {
         /**
-         * Boolean validator
-         * @namespace ModelValidators
-         * @class Boolean
-         * @extends ModelValidators.Validator
-         */
-        Boolean: function (valueToValidate, config) {
-            return this.generateValidValue(valueToValidate === "True");
-        },
-
-        /**
          * Unvalidated integer is trying to parse integer by parseInt instruction.
          * @namespace ModelValidators
          * @class DumbInteger
@@ -544,6 +549,34 @@
          */
         DumbInteger: function (valueToValidate, config) {
             return this.generateValidValue(parseInt(valueToValidate, 10));
+        },
+
+        /**
+         * Unvalidated integer is trying to parse integer by parseInt instruction.
+         * @namespace ModelValidators
+         * @class DumpString
+         * @extends ModelValidators.Validator
+         */
+        DumbString: function (valueToValidate, config) {
+            return this.generateValidValue(valueToValidate);
+        },
+
+        /**
+         * Boolean validator
+         *
+         * Error codes:
+         * BL01: Provided value is not a string
+         *
+         * @namespace ModelValidators
+         * @class Boolean
+         * @extends ModelValidators.Validator
+         */
+        Boolean: function (valueToValidate, config) {
+            if (!isString(valueToValidate)) {
+                return this.generateErrorCode("BL01");
+            }
+
+            return this.generateValidValue(valueToValidate === "True");
         },
 
         /**
@@ -559,12 +592,17 @@
          * INT02: Provided value contains non numerical characters
          * INT03: Provided value is too large
          * INT04: Provided value it too small
+         * INT05: Provided value is not a string
          *
          * @namespace ModelValidators
          * @class Integer
          * @extends ModelValidators.Validator
          */
         Integer: function (valueToValidate, config) {
+            if (!isString(valueToValidate)) {
+                return this.generateErrorCode("INT05");
+            }
+
             var minValue = config['minValue'],
                 maxValue = config['maxValue'],
                 defaultValue = config['default'],
@@ -588,7 +626,8 @@
                 return this.generateErrorCode("INT01");
             }
 
-            if (!/^[-]?[0-9]+$/.test(valueToValidate)) {
+            var isIntegerRegexp = /^[-]?[0-9]+$/;   // -213 -> True, 0340340 -> True, f32r23 -> False, 23423dfdf -> False
+            if (!isIntegerRegexp.test(valueToValidate)) {
                 return this.generateErrorCode("INT02");
             }
 
@@ -614,12 +653,17 @@
          *
          * errorCodes:
          * STR01: Provided value is empty
+         * STR02: Provided value is not a string
          *
          * @namespace ModelValidators
          * @class String
          * @extends ModelValidators.Validator
          */
         String: function (valueToValidate, config) {
+            if (!isString(valueToValidate)) {
+                return this.generateErrorCode("STR02");
+            }
+
             var isOptional = config['default'] !== undefined,
                 trim = config['trim'] === undefined ? true : config['trim'],
                 defaultValue = config['default'];
@@ -642,16 +686,6 @@
         },
 
         /**
-         * Unvalidated integer is trying to parse integer by parseInt instruction.
-         * @namespace ModelValidators
-         * @class DumpString
-         * @extends ModelValidators.Validator
-         */
-        DumbString: function (valueToValidate, config) {
-            return this.generateValidValue(valueToValidate);
-        },
-
-        /**
          * Check if provided string is valid css class name
          * config: {
          *      default=undefined: {String}
@@ -659,13 +693,17 @@
          *
          * Error Codes:
          * CSS01: Provided css is not valid css
+         * CSS02: Provided value is not a string
          *
          * @namespace ModelValidators
          * @class CSSClass
          * @extends ModelValidators.Validator
-         * @param {{empty: Boolean}} config if css class can be empty set empty as true
          */
         CSSClass: function (valueToValidate, config) {
+            if (!isString(valueToValidate)) {
+                return this.generateErrorCode("CSS02");
+            }
+
             valueToValidate = valueToValidate.trim();
 
             if (config['default'] !== undefined) {
@@ -686,11 +724,19 @@
         /**
          * config: Validator[]
          * Validate list. As configuration should receive list of validators for each field in list row.
+         *
+         * Error codes:
+         * ARR01: Provided value is not an array
+         *
          * @namespace ModelValidators
          * @class List
          * @extends ModelValidators.Validator
          */
         List: function (valueToValidate, config) {
+            if (!isArray(valueToValidate)) {
+                return this.generateErrorCode("ARR01");
+            }
+
             var validatedList = [];
             for (var i = 0; i < valueToValidate.length; i++) {
                 var validatedValue = this.validateModel(valueToValidate[i], config);
@@ -716,12 +762,17 @@
          *
          * Error Codes:
          * EV01: Provided type is not a valid type
+         * EV02: Provided value is not a string
          *
          * @namespace ModelValidators
          * @class Enum
          * @extends ModelValidators.Validator
          */
         Enum: function (valueToValidate, config) {
+            if (!isString(valueToValidate)) {
+                return this.generateErrorCode("EV02");
+            }
+
             var possibleValues = config.values || [];
             var useLowerCase = config.useLowerCase || false;
             var defaultValue = config['default'];

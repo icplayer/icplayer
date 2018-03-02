@@ -88,6 +88,18 @@ TestCase("[Commons - Model Validator] List validator", {
                 test2: undefined
             }
         ], validatedModel.value['test1']);
+    },
+
+    'test if provided value is not an array then will return error code': function () {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validator("test2", [
+                this.stringValidator("test1"),
+                this.stringValidator("test2"),
+            ])
+        ]);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("ARR01", validatedModel.errorCode);
     }
 
 });

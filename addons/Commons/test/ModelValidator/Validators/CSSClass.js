@@ -1,14 +1,15 @@
 TestCase("[Commons - Model Validator] CSS validator", {
     setUp: function () {
         this.exampleModel = {
-            test1: "   ",
+            test1: "    ",
             test2: "",
             test3: "adasda",
             test4: "  sdfw3 ",
             test5: "34dfgdgf",
             test6: "fsf223 gr",
             test7: "dg$#RT#$",
-            test8: "-ddgdgdg__dgdg-gdfgdf4t3g-g"
+            test8: "-ddgdgdg__dgdg-gdfgdf4t3g-g",
+            test9: 21312312
         };
 
         this.modelValidator = new ModelValidator();
@@ -82,6 +83,15 @@ TestCase("[Commons - Model Validator] CSS validator", {
 
         assertFalse(validatedModel.isValid);
         assertEquals("CSS01", validatedModel.errorCode);
+    },
+
+    'test if provided value is not a string then validator returns error': function () {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validator("test9")
+        ]);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("CSS02", validatedModel.errorCode);
     }
 
 });

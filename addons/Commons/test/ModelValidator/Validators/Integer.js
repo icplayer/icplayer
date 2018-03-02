@@ -8,7 +8,8 @@ TestCase("[Commons - Model Validator] Integer validator", {
             test5: "",
             test6: "  ",
             test7: "  213 ",
-            test8: "-123"
+            test8: "-123",
+            test9: 213123
         };
 
         this.modelValidator = new ModelValidator();
@@ -166,5 +167,14 @@ TestCase("[Commons - Model Validator] Integer validator", {
 
         assertTrue(validatedModel.isValid);
         assertEquals(-123, validatedModel.value['test8']);
+    },
+
+    'test if provided value is not a string then validator returns error': function () {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validator("test9", {minValue: 290, maxValue: 300})
+        ]);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("INT05", validatedModel.errorCode);
     }
 });

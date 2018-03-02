@@ -6,7 +6,8 @@ TestCase("[Commons - Model Validator] Enum validator", {
             test3: "sdfsf",
             test4: "OK",
             test5: "teeSt",
-            test6: "tEsT2"
+            test6: "tEsT2",
+            test7: 23123
         };
 
         this.modelValidator = new ModelValidator();
@@ -77,6 +78,16 @@ TestCase("[Commons - Model Validator] Enum validator", {
 
         assertEquals("teeSt", validatedModel.value['test5']);
         assertEquals("tEsT2", validatedModel.value['test6']);
+    },
+
+    'test if provided value is not a string then validator returns error': function () {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validator("test7", {values: ["OK"]}),
+        ]);
+
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("EV02", validatedModel.errorCode);
     }
 
 });

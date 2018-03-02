@@ -4,7 +4,8 @@ TestCase("[Commons - Model Validator] String validator", {
             test1: "12",
             test2: " 122ddf ",
             test3: " ",
-            test4: ""
+            test4: "",
+            test5: 34234
         };
 
         this.modelValidator = new ModelValidator();
@@ -100,5 +101,14 @@ TestCase("[Commons - Model Validator] String validator", {
 
         assertFalse(validatedModel.isValid);
         assertEquals("STR01", validatedModel.errorCode);
+    },
+
+    'test if provided value is not a string then will return error code': function () {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validator("test5", {trim: true, default: "OK"})
+        ]);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("STR02", validatedModel.errorCode);
     }
 });

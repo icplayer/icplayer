@@ -20,7 +20,9 @@ TestCase("[Commons - Model Validator] Base structure", {
         this.exampleModel = {
             test1: "__OK__",
             test2: 22131,
-            test3: 2314
+            test3: 2314,
+            test4: null,
+            test5: undefined
         };
 
         this.modelValidator = new ModelValidator();
@@ -191,5 +193,23 @@ TestCase("[Commons - Model Validator] Base structure", {
         assertTrue(validatedModel.isValid);
         assertEquals("VALID_VALUE", validatedModel.value['test1']);
         assertEquals({}, validatedModel.value['test2']);
+    },
+
+    'test if provided value to validator is null then validator automatically return error code': function () {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validatorsStubs.validValue("test4"),
+        ]);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("UMF01", validatedModel.errorCode);
+    },
+
+    'test if provided value to validator is undefined then validator automatically return error code': function () {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validatorsStubs.validValue("test5"),
+        ]);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("UMF01", validatedModel.errorCode);
     }
 });
