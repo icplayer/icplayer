@@ -7,6 +7,6 @@
 		<property name="Is not an activity" nameLabel="Image_Identification_property_is_not_an_activity" type="boolean" />
 		<property name="Block in error checking mode" nameLabel="Image_Identification_property_block_in_error_checking_mode" type="boolean" />
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="Image_Identification_property_block_wrong_answers" type="boolean" />
-		<property name="Alt text" nameLabel="Image_Identification_property_alt_text" type="string" />
+		<property name="Alt text" nameLabel="Image_Identification_property_alt_text" type="string" isLocalized="true" />
 	</model>
 </addon>

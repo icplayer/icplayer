@@ -18,6 +18,7 @@ import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icplayer.client.module.IEnterable;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
@@ -41,7 +42,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 
-public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter {
+public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IEnterable {
 
 	public interface TextElementDisplay {
 		boolean hasId(String id);
@@ -1334,6 +1335,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	
 	public String getGapType () {
 		return "Text";
+	}
+
+	@Override
+	public boolean isEnterable() {
+		return WCAGUtils.hasGaps(this.module);
 	}
 
 }

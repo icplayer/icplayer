@@ -1,3 +1,13 @@
+2018-02-28 Fixed problem with restoring state in video addon
+2018-02-28 Fixed problem with hover in iOS
+2018-02-27 Added localization for alt-text in some modules and layout in eKeyboard
+2018-02-27 Renamed Hierarichal Lesson Report property
+2018-02-23 Readded works with property in Page Progress.
+2018-02-22 Changed when Text has no gaps it does not require escape to deactivate in WCAG navigation
+2018-02-21 Added TTS support for Reset button
+2018-02-21 Added TTS plays the title of the new page
+2018-02-20 Added Page mapping ids translations, Size and ModuleDimensions equals implementations
+2018-02-20 Added TTS support for SHow Answers Button
 2018-02-15 Added TTS support for the Text's Draggable Gap
 2018-02-15 Added TTS support for Check Answers Button 
 2018-02-15 Fixed issue with scaling in Figure Drawing on mobile devices

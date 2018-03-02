@@ -6,5 +6,20 @@
         <property name="Text selected" nameLabel="Show_Answers_property_text_selected" type="string" isLocalized="true" />
         <property name="Increment check counter" nameLabel="Show_Answers_property_increment_check_counter" type="boolean" />
         <property name="Increment mistake counter" nameLabel="Show_Answers_property_increment_mistake_counter" type="boolean" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="choice_speech_texts" type="staticlist">
+
+            <property name="Selected" nameLabel="choice_item_selected" type="staticrow">
+                <property name="Selected" nameLabel="choice_item_selected" type="string"/>
+            </property>
+
+            <property name="Block edit" nameLabel="check_answers_button_edit_block" type="staticrow">
+                <property name="Block edit" nameLabel="check_answers_button_edit_block" type="string"/>
+            </property>
+
+            <property name="No block edit" nameLabel="check_answers_button_no_edit_block" type="staticrow">
+                <property name="No block edit" nameLabel="check_answers_button_no_edit_block" type="string"/>
+            </property>
+
+        </property>
     </model>
 </addon>
