@@ -375,9 +375,6 @@
         return results;
     };
 
-    // Expose utils to the global object
-    window.ModelValidationUtils = ModelValidationUtils;
-
     //------------------------------------------ MODEL VALIDATOR -------------------
 
     function generateErrorCode(code) {
@@ -712,7 +709,9 @@
                 }
             }
 
-            var isCorrect = /^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/.test(valueToValidate);
+            //Match HTML class name which can starts with "-"
+            var isClassNameRegexp = /^-?[_a-zA-Z]+[_a-zA-Z0-9-]*$/;     // -fsdf32332er -> True, --dfsdfs -> False, __e3d23fd -> True
+            var isCorrect = isClassNameRegexp.test(valueToValidate);
 
             if (!isCorrect) {
                 return this.generateErrorCode("CSS01");
@@ -802,6 +801,9 @@
     for (var validatorName in ModelValidators) {
         decoratedValidators[validatorName] = validatorDecorator(ModelValidators[validatorName]);
     }
+
+    // Expose utils to the global object
+    window.ModelValidationUtils = ModelValidationUtils;
 
     window.ModelValidator = ModelValidator;
     window.ModelValidators = decoratedValidators;
