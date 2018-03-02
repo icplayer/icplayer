@@ -210,6 +210,14 @@ function AddonConnection_create() {
     };
 
     presenter.setPlayerController = function (controller) {
+        presenter.registerMathJax();
+
+        playerController = controller;
+
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
+    };
+
+    presenter.registerMathJax = function AddonConnection_registerMathJax() {
         var mathJaxDeferred = new jQuery.Deferred();
         presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
         presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
@@ -222,10 +230,6 @@ function AddonConnection_create() {
                 presenter.mathJaxProcessEndedDeferred.resolve();
             }
         });
-
-        playerController = controller;
-
-        presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
 
     presenter.setColumnsWidth = function (view, columnsWidth) {
@@ -631,6 +635,8 @@ function AddonConnection_create() {
             presenter.lastEvent = e;
         });
 
+        var scale = playerController.getScaleInformation();
+
         var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
         if (["4.1.1", "4.2.2", "4.4.2"].indexOf(android_ver) === -1 || window.navigator.userAgent.indexOf('Chrome') > 0) {
             element.each(function(){
@@ -645,8 +651,11 @@ function AddonConnection_create() {
                     },
                     start: function (event, ui) {
                         ui.helper.css("visibility", "hidden");
-                        presenter.iconTop = $(e).find(".iconWrapper").position().top + ($(e).find(".iconWrapper").height()/2);
-                        presenter.iconLeft = $(e).find(".iconWrapper").position().left + $(e).find(".iconWrapper").width();
+                        var $iconWrapper = $(e).find(".iconWrapper");
+                        scale = playerController.getScaleInformation();
+
+                        presenter.iconTop = $iconWrapper.position().top / scale.scaleY + ($iconWrapper.height()/2);
+                        presenter.iconLeft = $iconWrapper.position().left / scale.scaleX +  $iconWrapper.width();
 
                         if (!isSelectionPossible) {
                             event.stopPropagation();
@@ -675,7 +684,7 @@ function AddonConnection_create() {
                         presenter.mouseSX = parseInt(event.pageX,10) - parseInt($(presenter.view).offset().left,10);
                         presenter.mouseSY = parseInt(event.pageY,10) - parseInt($(presenter.view).offset().top,10);
 
-                        presenter.drawTempLine(presenter.mouseSX, presenter.mouseSY);
+                        presenter.drawTempLine(presenter.mouseSX / scale.scaleX, presenter.mouseSY / scale.scaleY);
                     },
                     stop: function (event, ui) {
                         ui.helper.zIndex(0);
@@ -943,17 +952,27 @@ function AddonConnection_create() {
         redraw();
     };
 
-    function getElementSnapPoint(element) {
+    presenter.getElementSnapPoint = function AddonConnection_getElementSnapPoint(element) {
         var offset = element.offset();
+        var scale = playerController.getScaleInformation();
         var snapPoint = [0, 0];
+
+        var elementWidth = element.outerWidth(true) * scale.scaleX;
+        var elementHeight = element.outerHeight() * scale.scaleY;
+
         if (element.parents('.connectionLeftColumn').length > 0) {
-            snapPoint = [offset.left + element.outerWidth(true), offset.top + element.outerHeight() / 2]
+            snapPoint = [offset.left + elementWidth, offset.top + elementHeight / 2];
         }
         if (element.parents('.connectionRightColumn').length > 0) {
-            snapPoint = [offset.left, offset.top + element.outerHeight() / 2]
+            snapPoint = [offset.left, offset.top + elementHeight / 2];
         }
-        return snapPoint
-    }
+
+        // snapPoint[0] is x offset, [1] is y offset
+        snapPoint[0] /= scale.scaleX;
+        snapPoint[1] /= scale.scaleY;
+
+        return snapPoint;
+    };
 
     function pushConnection(line, isPreview) {
         var addLine = true, linesToRemove = [], existingLines;
@@ -1007,7 +1026,7 @@ function AddonConnection_create() {
             });
 
             connections = $(presenter.view).find('.connections');
-        }else{
+        } else{
             connections.clearCanvas();
         }
 
@@ -1017,7 +1036,6 @@ function AddonConnection_create() {
     }
 
     function redrawShowAnswers () {
-        connections.width = connections.width;
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), showAnswersColor)
@@ -1025,10 +1043,14 @@ function AddonConnection_create() {
     }
 
     function drawLine(line, color) {
-        connections.width = connections.width;
-        var from = getElementSnapPoint(line.from);
-        var to = getElementSnapPoint(line.to);
+        var from = presenter.getElementSnapPoint(line.from);
+        var to = presenter.getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
+        var scale = playerController.getScaleInformation();
+
+        canvasOffset.left /= scale.scaleX;
+        canvasOffset.top /= scale.scaleY;
+
         connections.drawLine({
             strokeStyle: color,
             strokeWidth: connectionThickness,
@@ -1044,7 +1066,6 @@ function AddonConnection_create() {
         }
         if (isNotActivity) return 0;
 
-        connections.width = connections.width;
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
@@ -1488,7 +1509,6 @@ function AddonConnection_create() {
 
             if (connections.length) {
                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.connectedTo, ''));
-                console.log(TextVoiceArray);
                 TextVoiceArray = TextVoiceArray.concat(getConnectionsInfo(connections));
             }
 

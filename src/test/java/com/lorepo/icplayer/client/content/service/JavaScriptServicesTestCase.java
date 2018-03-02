@@ -22,6 +22,7 @@ public class JavaScriptServicesTestCase {
 	public void setUp () {
 		mockedJSPlayerServices = Mockito.mock(JavaScriptPlayerServices.class);
 		Mockito.when(mockedJSPlayerServices.getScaleInformation()).thenCallRealMethod();
+		Mockito.doNothing().when(mockedJSPlayerServices).fixDroppable();
 		Mockito.doCallRealMethod().when(mockedJSPlayerServices).setScaleInformation(Mockito.any(String.class),Mockito.any(String.class),Mockito.any(String.class),Mockito.any(String.class));
 	};
 	
