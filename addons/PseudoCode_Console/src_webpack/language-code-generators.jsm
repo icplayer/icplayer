@@ -8,6 +8,11 @@ function uidDecorator(fn) {
     };
 }
 
+function getuid() {
+    CODE_GENERATORS.uid += 1;
+    return CODE_GENERATORS.uid;
+}
+
 export const CODE_GENERATORS = {
     uid: 0,
 
@@ -440,6 +445,55 @@ export const CODE_GENERATORS = {
         execObjects.push(generateExecuteObject(exitCode, ''));
         return execObjects;
     },
+
+    /**
+     *
+     * @param yy
+     * @param {Object[]} firstVal
+     * @param {Object[]} secVal
+     */
+    generateOptimizedAndOperationCode: function presenter_generateOptimizedAndOperationCode (yy, firstVal, secVal) {
+        let execObjects = firstVal;
+        let code = "";
+        let exitLabel = getuid() + "_optimized_and_exiter";
+
+        code += "eax = stack.pop();";
+        code += "if (!eax.value) stack.push(eax);";
+
+        execObjects.push(generateExecuteObject(code, ''));
+        execObjects.push(generateJumpInstruction('!eax.value', exitLabel));
+
+        execObjects = execObjects.concat(secVal);
+
+        execObjects.push(generateExecuteObject('', exitLabel));
+
+        return execObjects;
+    },
+
+    /**
+     *
+     * @param yy
+     * @param {Object[]} firstVal
+     * @param {Object[]} secVal
+     */
+    generateOptimizedOrOperationCode: function presenter_generateOptimizedAndOperationCode (yy, firstVal, secVal) {
+        let execObjects = firstVal;
+        let code = "";
+        let exitLabel = getuid() + "_optimized_or_exiter";
+
+        code += "eax = stack.pop();";
+        code += "if (eax.value) stack.push(eax);";
+
+        execObjects.push(generateExecuteObject(code, ''));
+        execObjects.push(generateJumpInstruction('eax.value', exitLabel));
+
+        execObjects = execObjects.concat(secVal);
+
+        execObjects.push(generateExecuteObject('', exitLabel));
+
+        return execObjects;
+    },
+
 
     generateMinusOperation: function presenter_generateMinusOperation (execObjects) {
         let retVal = [].concat(execObjects);

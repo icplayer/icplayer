@@ -417,6 +417,7 @@ TestCase("[PseudoCode_Console - language tests] logical statement", {
     },
 
     'test "and" and "or" statements': function () {
+        debugger;
         this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test1);
 
         this.presenter.evaluateScoreFromUserCode();

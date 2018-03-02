@@ -940,7 +940,7 @@ function getJISONGrammar() {
 
             "new_line_list": [["EOF", "$$='';"], ["NEW_LINE", "$$='';"], ["new_line_list NEW_LINE", "$$='';"], ["new_line_list EOF", "$$ = '';"]],
 
-            "operation": [["STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['function_call'](yy, $1, $3);"], ["operation + operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__add__');"], ["operation - operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__sub__');"], ["operation * operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__mul__');"], ["operation DIV_FLOOR operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__div_full__');"], ["operation / operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__div__');"], ["operation % operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__mod__');"], ["operation <= operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__le__');"], ["operation >= operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__ge__');"], ["operation > operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__gt__');"], ["operation < operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__lt__');"], ["operation != operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__neq__');"], ["operation == operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__eq__');"], ["operation OR operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__or__');"], ["operation AND operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__and__');"], ["( operation )", "$$ = $2"], ["- operation", "$$ = yy.presenterContext.bnf['generateMinusOperation']($2);", { "prec": "UMINUS" }], ["operation DOT STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['method_call']($3, $5 || [], $1);"], ["number_value", "$$ = $1"], ["variable_get", "$$ = $1"], ["string_value", "$$ = $1"]],
+            "operation": [["STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['function_call'](yy, $1, $3);"], ["operation + operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__add__');"], ["operation - operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__sub__');"], ["operation * operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__mul__');"], ["operation DIV_FLOOR operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__div_full__');"], ["operation / operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__div__');"], ["operation % operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__mod__');"], ["operation <= operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__le__');"], ["operation >= operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__ge__');"], ["operation > operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__gt__');"], ["operation < operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__lt__');"], ["operation != operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__neq__');"], ["operation == operation", "$$ = yy.presenterContext.bnf['generateOperationCode'](yy, $1, $3, '__eq__');"], ["operation OR operation", "$$ = yy.presenterContext.bnf['generateOptimizedOrOperationCode'](yy, $1, $3);"], ["operation AND operation", "$$ = yy.presenterContext.bnf['generateOptimizedAndOperationCode'](yy, $1, $3);"], ["( operation )", "$$ = $2"], ["- operation", "$$ = yy.presenterContext.bnf['generateMinusOperation']($2);", { "prec": "UMINUS" }], ["operation DOT STATIC_VALUE ( arguments )", "$$ = yy.presenterContext.bnf['method_call']($3, $5 || [], $1);"], ["number_value", "$$ = $1"], ["variable_get", "$$ = $1"], ["string_value", "$$ = $1"]],
 
             "variable_get": [["STATIC_VALUE", "$$ = yy.presenterContext.bnf['argument'](yy, yytext);"], ["operation [ operation ]", "$$ = yy.presenterContext.bnf['array_get']($1, $3);"]],
 
@@ -1343,6 +1343,11 @@ function uidDecorator(fn) {
         CODE_GENERATORS.uid += 1;
         return fn.apply(this, arguments);
     };
+}
+
+function getuid() {
+    CODE_GENERATORS.uid += 1;
+    return CODE_GENERATORS.uid;
 }
 
 var CODE_GENERATORS = exports.CODE_GENERATORS = {
@@ -1767,6 +1772,54 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
         execObjects.push((0, _languageUtils.generateExecuteObject)(code, ""));
         execObjects.push((0, _languageUtils.generateJumpInstruction)('true', '1_get_object_call_manager'));
         execObjects.push((0, _languageUtils.generateExecuteObject)(exitCode, ''));
+        return execObjects;
+    },
+
+    /**
+     *
+     * @param yy
+     * @param {Object[]} firstVal
+     * @param {Object[]} secVal
+     */
+    generateOptimizedAndOperationCode: function presenter_generateOptimizedAndOperationCode(yy, firstVal, secVal) {
+        var execObjects = firstVal;
+        var code = "";
+        var exitLabel = getuid() + "_optimized_and_exiter";
+
+        code += "eax = stack.pop();";
+        code += "if (!eax.value) stack.push(eax);";
+
+        execObjects.push((0, _languageUtils.generateExecuteObject)(code, ''));
+        execObjects.push((0, _languageUtils.generateJumpInstruction)('!eax.value', exitLabel));
+
+        execObjects = execObjects.concat(secVal);
+
+        execObjects.push((0, _languageUtils.generateExecuteObject)('', exitLabel));
+
+        return execObjects;
+    },
+
+    /**
+     *
+     * @param yy
+     * @param {Object[]} firstVal
+     * @param {Object[]} secVal
+     */
+    generateOptimizedOrOperationCode: function presenter_generateOptimizedAndOperationCode(yy, firstVal, secVal) {
+        var execObjects = firstVal;
+        var code = "";
+        var exitLabel = getuid() + "_optimized_or_exiter";
+
+        code += "eax = stack.pop();";
+        code += "if (eax.value) stack.push(eax);";
+
+        execObjects.push((0, _languageUtils.generateExecuteObject)(code, ''));
+        execObjects.push((0, _languageUtils.generateJumpInstruction)('eax.value', exitLabel));
+
+        execObjects = execObjects.concat(secVal);
+
+        execObjects.push((0, _languageUtils.generateExecuteObject)('', exitLabel));
+
         return execObjects;
     },
 
