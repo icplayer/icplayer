@@ -331,6 +331,10 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::reset()();
 		}
 		
+		presenter.getAltText = function() {
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getAltText()();
+		}
+		
 		presenter.getImageUrl = function() {
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getImageUrl()();
 		}
@@ -480,5 +484,9 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		return (isTextToSpeechOn || !this.view.getDisabled()) && isVisible;
+	}
+	
+	public String getAltText(){
+		return this.model.getAlttext();
 	}
 }

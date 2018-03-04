@@ -393,7 +393,7 @@ function Addonmultiplegap_create(){
         if (imageSourceModule == null || !imageSourceModule.hasOwnProperty('getImageUrl')) {
             return '';
         }
-        
+
         return imageSourceModule.getImageUrl();
     };
     
@@ -401,6 +401,14 @@ function Addonmultiplegap_create(){
         MathJax.CallBack.Queue().Push(function () {
             MathJax.Hub.Typeset(element)
         });
+    };
+
+    presenter.getAltText = function (id) {
+        var imageSourceModule = presenter.playerController.getModule(id);
+        if (imageSourceModule == null || !imageSourceModule.hasOwnProperty('getAltText')) {
+            return '';
+        }
+        return imageSourceModule.getAltText();
     };
     
     presenter.calculateElementPositions = function () {
@@ -527,9 +535,9 @@ function Addonmultiplegap_create(){
         
         switch(presenter.configuration.sourceType) {
             case presenter.SOURCE_TYPES.IMAGES:
-                child = $('<img class="contents" alt="" />');
+                child = $('<img class="contents" alt="' + presenter.getAltText(item.item) + '" />');
                 child.attr('src', presenter.getImageURL(item));
-                
+
                 if(presenter.configuration.stretchImages) {
                     child.css({
                         width: presenter.configuration.items.width + 'px',
@@ -615,7 +623,7 @@ function Addonmultiplegap_create(){
                 break;
         }
         
-        handler = $('<div class="handler"></div>');
+        handler = $('<div class="handler" style="color: rgba(0,0,0,0.0); font-size:1px">' + presenter.getAltText(item.item) + '</div>');
         
         // Workaround for IE bug: empty divs in IE are not clickable so let's
         // make them not empty and appear as empty.
@@ -1203,7 +1211,7 @@ function Addonmultiplegap_create(){
                 
                 value = presenter.getElementText(elementId, elementIndex);
             }
-            
+
             presenter.performAcceptDraggable('<div></div>', {type:'string', value: value, item: moduleID}, false, false, false);
         }
     };

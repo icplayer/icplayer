@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IEnterable;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -38,7 +39,6 @@ public final class KeyboardNavigationController {
 	private int actualSelectedModuleIndex = 0;
 
 	private PageController headerController = null;
-	private PageController mainController = null;
 	private PageController footerController = null;
 	
 	private boolean isWCAGSupportOn = false;
@@ -134,6 +134,15 @@ public final class KeyboardNavigationController {
 		}
 		
 		return false;
+	}
+	
+	private boolean isModuleEnterable() {
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof IEnterable) {
+			IEnterable presenter = (IEnterable) this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
+			return presenter.isEnterable();
+		}
+		
+		return true;
 	}
 	
 	private void setWCAGModulesStatus (boolean isOn) {
@@ -286,7 +295,7 @@ public final class KeyboardNavigationController {
 					event.preventDefault();
 				}
 
-				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && (!moduleIsActivated || isModuleButton())) {
+				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && (!moduleIsActivated || isModuleButton() || !isModuleEnterable())) {
 					if (moduleIsActivated) { // If we was in button, and he was clicked then we want to disactivate that button
 						deactivateModule();
 						moduleIsActivated = false;
@@ -326,9 +335,9 @@ public final class KeyboardNavigationController {
 					
 					if (pageType != null) {
 						IPresenter module = null;
-						
+
 						if (pageType.equals("main")) {
-							module = mainController.findModule(focusedID);
+							module = mainPageController.findModule(focusedID);
 						} else 
 						if (pageType.equals("header")) {
 							module = headerController.findModule(focusedID);
@@ -347,8 +356,8 @@ public final class KeyboardNavigationController {
 			}
 			
 			private void findAndActivateModule(IPresenter module) {
-				for (int i = 0; i < presenters.size(); i++) {
-					IPresenter presenter = (IPresenter) presenters.get(i).presenter;
+				for (int i = 0; i < presentersOriginalOrder.size(); i++) {
+					IPresenter presenter = (IPresenter) presentersOriginalOrder.get(i).presenter;
 		
 					if(presenter.getModel() == module.getModel()) {
 						IWCAGPresenter wcagPresenter = (IWCAGPresenter) presenter;
@@ -544,6 +553,9 @@ public final class KeyboardNavigationController {
 	public void restore () {
 		if (this.savedEntry == null) {
 			return;
+		}
+		if (this.modeOn && this.isWCAGSupportOn) {
+			this.mainPageController.readPageTitle();
 		}
 
 		for (int i = 0; i < this.getPresenters().size(); i++) {

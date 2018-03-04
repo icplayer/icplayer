@@ -74,7 +74,9 @@ function AddonText_To_Speech_create() {
 
             addOnsConfiguration: validatedConfiguration.value,
             enterText: model['EnterText'],
-            exitText: model['ExitText']
+            exitText: model['ExitText'],
+            newPage: model['NewPage'] ? model['NewPage'] : "New page",
+            pageLangTag: model['PageLangTag']
         }
     };
 
@@ -123,7 +125,7 @@ function AddonText_To_Speech_create() {
         for (var i = 0; i < presenter.configuration.addOnsConfiguration.length; i++) {
             var conf = presenter.configuration.addOnsConfiguration[i];
 
-            if (conf.id === id && conf.area === area) {
+            if (conf.id === id && conf.area.toLowerCase() === area.toLowerCase()) {
                 return conf;
             }
         }
@@ -156,7 +158,7 @@ function AddonText_To_Speech_create() {
         loadVoices();
 
         var languages = {
-            'en': "en-GB",
+            'en': "en-US",
             'pl': 'pl-PL',
             'de': 'de-DE'
         };
@@ -237,7 +239,15 @@ function AddonText_To_Speech_create() {
 
     }
 
-    presenter.speak = function (texts) {
+    // The speak method is overloaded:
+    // texts argument can be either an array of TextVoiceObjects, or a String
+    // langTag argument is optional and only used when texts is a String
+    presenter.speak = function (texts, langTag) {
+        var class_ = Object.prototype.toString.call(texts);
+        if (class_.indexOf('String') !== -1) {
+            texts = [getTextVoiceObject(texts, langTag)];
+        }
+
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts);
             return;
@@ -253,8 +263,27 @@ function AddonText_To_Speech_create() {
 
     presenter.playTitle = function (area, id, langTag) {
         if (area && id) {
-            presenter.speak([getTextVoiceObject(getAddOnConfiguration(area, id).title, langTag)]);
+            var textVoices = [getTextVoiceObject(getAddOnConfiguration(area, id).title, langTag)];
+            var module = null;
+            if(0 === area.toLowerCase().localeCompare("main")){
+                module = presenter.playerController.getModule(id);
+            } else if (0 === area.toLowerCase().localeCompare("footer")) {
+                module = presenter.playerController.getFooterModule(id);
+            } else if (0 === area.toLowerCase().localeCompare("header")) {
+                module = presenter.playerController.getHeaderModule(id);
+            }
+            if (module !== undefined && module !== null && module.hasOwnProperty('getTitlePostfix')) {
+                textVoices.push(getTextVoiceObject(module.getTitlePostfix(), langTag));
+            }
+            presenter.speak(textVoices);
         }
+    };
+
+    presenter.playPageTitle = function () {
+        var textVoices = [];
+        textVoices.push(getTextVoiceObject(presenter.configuration.newPage,''));
+        textVoices.push(getTextVoiceObject(presenter.playerController.getPageTitle(),presenter.configuration.pageLangTag));
+        presenter.speak(textVoices);
     };
 
     presenter.playEnterText = function () {
@@ -296,9 +325,20 @@ function AddonText_To_Speech_create() {
         var commands = {
             "show": presenter.show,
             "hide": presenter.hide,
-
-            "speak": presenter.speak,
-            "playTitle": presenter.playTitle,
+            "speak": function(params) {
+                    if (params.length === 2) {
+                        presenter.speak(params[0], params[1]);
+                    } else if (params.length === 1) {
+                        presenter.speak(params[0]);
+                    }
+                },
+            "playTitle": function(params) {
+                    if (params.length === 3) {
+                        presenter.playTitle(params[0],params[1],params[2]);
+                    } else if (params.length === 2) {
+                        presenter.playTitle(params[0],params[1]);
+                    }
+                },
             "playEnterText": presenter.playEnterText,
             "playExitText": presenter.playExitText,
             "getModulesOrder": presenter.getModulesOrder
@@ -315,6 +355,10 @@ function AddonText_To_Speech_create() {
 
             isVisible: presenter.configuration.isVisible
         });
+    };
+
+    presenter.setPlayerController = function(controller) {
+        presenter.playerController = controller;
     };
 
     presenter.setState = function (state) {

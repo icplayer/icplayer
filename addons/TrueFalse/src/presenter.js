@@ -221,15 +221,16 @@ function AddonTrueFalse_create() {
             clickLogic(this);
         });
     }
+
     presenter.addTabindex = function (element, value) {
         element.attr("tabindex", value);
     };
 
     function generatePossibleChoicesRow(row) {
-        row.append('<td class="tf_' + presenter.type + '_question first">&nbsp;</td>');
+        row.append('<td class="tf_' + presenter.type + '_question first" role="gridcell">&nbsp;</td>');
 
         for (var k = 0; k < possibleChoices.length; k++) {
-            var td = $('<td class="tf_' + presenter.type + '_text">' + possibleChoices[k].Choice + '</td>');
+            var td = $('<td class="tf_' + presenter.type + '_text" role="gridcell">' + possibleChoices[k].Choice + '</td>');
 
             if (presenter.isTabindexEnabled) {
                 presenter.addTabindex(td, 0);
@@ -245,7 +246,7 @@ function AddonTrueFalse_create() {
         if (textParser !== null) { // Actions performed only in Player mode
             question = textParser.parse(question);
         }
-        var td = $('<td class="tf_' + presenter.type + '_question">' + question + '</td>');
+        var td = $('<td class="tf_' + presenter.type + '_question" role="gridcell">' + question + '</td>');
 
         if (presenter.isTabindexEnabled) {
             presenter.addTabindex(td, 0);
@@ -256,6 +257,7 @@ function AddonTrueFalse_create() {
 
     function generateRowContent(row, rowID) {
         generateQuestionElement(row, rowID);
+
         for (var i = 0; i < possibleChoices.length; i++) {
             if (i === (possibleChoices.length - 1)) {
                 row.append('<td class="tf_' + presenter.type + '_image up last"></td>');
@@ -264,8 +266,11 @@ function AddonTrueFalse_create() {
             }
             var innerElement = document.createElement('div');
             $(innerElement).css('color','rgba(0,0,0,0.0)');
-            $(innerElement).css('font-size','1px');
-            $(innerElement).html(possibleChoices[i].Choice);
+            $(innerElement).css('font-size','0px');
+            var text = $("<div>" + possibleChoices[i].Choice + "</div>").text();
+            var altText = document.createTextNode(text);
+            $(innerElement).append(altText);
+            innerElement.setAttribute('role', 'gridcell');
 
             if (presenter.isTabindexEnabled) {
                 presenter.addTabindex($(innerElement), 0);
@@ -286,9 +291,10 @@ function AddonTrueFalse_create() {
         }, []);
     }
 
-    function generateTableContent(table, view) {
+    presenter.generateTableContent = function AddonTrueFalse_generateTableContent(table, view) {
+        table.setAttribute('role', 'table');
         for (var rowID = 0; rowID < questions.length + 1; rowID++) {
-            $(table).append('<tr class="tf_' + presenter.type + '_row" id=' + rowID + '></tr>');
+            $(table).append('<tr class="tf_' + presenter.type + '_row" id=' + rowID + ' role="row"></tr>');
             var row = $(view).find('#' + rowID);
 
             if (rowID === 0) {
@@ -298,7 +304,7 @@ function AddonTrueFalse_create() {
                 for (var m = 0; m < answers.length; m++) {
                     var answer = parseInt(answers[m]);
                     if (answer > possibleChoices.length || answer <= 0) {
-                        $(view).html(INDEX_OUT_OF_RANGE)
+                        $(view).html(INDEX_OUT_OF_RANGE);
 
                         break;
                     }
@@ -307,7 +313,7 @@ function AddonTrueFalse_create() {
                 generateRowContent(row, rowID);
             }
         }
-    }
+    };
 
     function getSpeechTexts(model) {
         var speechTexts = model['Speech texts'];
@@ -369,7 +375,7 @@ function AddonTrueFalse_create() {
         $(table).attr("cellspacing", 0).attr("cellpadding", 0);
         $(view).append(table);
 
-        generateTableContent(table, view);
+        presenter.generateTableContent(table, view);
 
         if (!preview) {
             handleClickActions(view);

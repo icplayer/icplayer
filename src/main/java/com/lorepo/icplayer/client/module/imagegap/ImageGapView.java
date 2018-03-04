@@ -222,4 +222,16 @@ public class ImageGapView extends Image implements IDisplay, IWCAG {
 	public void shiftTab(KeyDownEvent event) {
 		// TODO Auto-generated method stub
 	}
+
+	@Override
+	public void clearAltText() {
+		getElement().setAttribute("alt", "");	
+	}
+	
+	@Override
+	public void setAltText(String alt){
+		getElement().setAttribute("alt", alt);
+	}
+	
+
 }

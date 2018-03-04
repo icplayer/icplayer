@@ -113,3 +113,11 @@
     box-shadow: inset 0px 0px 0px 2px #00ff44 !important;
   	outline: none;
 }
+
+.gamememo_container span.gamememo_alt_text {
+    clip: rect(1px, 1px, 1px, 1px);
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+    position: absolute !important;
+}

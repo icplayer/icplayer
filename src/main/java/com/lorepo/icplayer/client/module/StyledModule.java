@@ -46,7 +46,7 @@ class StyledModule extends AbsolutePositioningModule implements IStyledModule {
 	@Override
 	public void setInlineStyle(String style){
 		this.semiResponsiveStyles.setInlineStyle(this.getSemiResponsiveID(), style);
-		
+
 		if(styleListener != null){
 			styleListener.onStyleChanged();
 		}

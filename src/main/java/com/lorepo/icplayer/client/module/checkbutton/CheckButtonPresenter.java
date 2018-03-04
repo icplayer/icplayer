@@ -32,6 +32,7 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 		void setDisabled(boolean isDisabled);
 		public Element getElement();
 		public void uncheckAnswers();
+		public String getTitlePostfix();
 	}
 	
 	private CheckButtonModule model;
@@ -201,11 +202,19 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 			return x.@com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter::getView()();
 		}
 		
+		presenter.getTitlePostfix = function() {
+			return x.@com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter::getTitlePostfix()();
+		}
+		
 		return presenter;
 	}-*/;
 	
 	private Element getView() {
 		return view.getElement();
+	}
+	
+	private String getTitlePostfix() {
+		return view.getTitlePostfix();
 	}
 
 	@Override

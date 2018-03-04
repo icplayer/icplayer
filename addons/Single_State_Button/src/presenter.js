@@ -61,6 +61,7 @@ function AddonSingle_State_Button_create() {
     function createElements(wrapper) {
         var $element = $(document.createElement('div'));
         $element.addClass('singlestate-button-element');
+        if (presenter.configuration.isTabindexEnabled) {$element.attr('tabindex', '0');}
 
         switch (presenter.configuration.displayContent) {
             case presenter.DISPLAY_CONTENT_TYPE.TITLE:
@@ -163,6 +164,7 @@ function AddonSingle_State_Button_create() {
         var onClickEvent = presenter.validateString(model.onClick);
         var isDisabled = ModelValidationUtils.validateBoolean(model.Disable);
         var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+        var isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
 
         return {
             displayContent: presenter.determineDisplayContent(title, image),
@@ -173,7 +175,8 @@ function AddonSingle_State_Button_create() {
             isDisabledByDefault: isDisabled,
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
-            isErrorMode: false
+            isErrorMode: false,
+            isTabindexEnabled: isTabindexEnabled
         };
     };
 

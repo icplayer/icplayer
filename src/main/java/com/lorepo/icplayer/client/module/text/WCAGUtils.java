@@ -49,15 +49,15 @@ public class WCAGUtils {
 	private static TextToSpeechVoice getElementStatus (TextElementDisplay element, TextModel model) {
 		if (!element.isWorkingMode()) {
 			if (element.getGapState() == 1) {
-				return TextToSpeechVoice.create(model.getSpeechTextItem(3));
+				return TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.CORRECT_INDEX));
 			}
 			
 			if (element.getGapState() == 2) {
-				return TextToSpeechVoice.create(model.getSpeechTextItem(4));
+				return TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.WRONG_INDEX));
 			}
 			
 			if (element.getGapState() == 3) {
-				return TextToSpeechVoice.create(model.getSpeechTextItem(5));
+				return TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.EMPTY_INDEX));
 			}
 		}
 		
@@ -89,7 +89,7 @@ public class WCAGUtils {
 			
 			if (isClosestGap) {
 				result.add(TextToSpeechVoice.create(text.substring(0, gapIndex), lang));                           // text before gap
-				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(1) + " " + gapNumber++));              // gap type and number
+				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));              // gap type and number
 				result.add(TextToSpeechVoice.create(elementContent, lang));                                        // gap content
 				result.add(getElementStatus(element, model));
 				
@@ -99,7 +99,7 @@ public class WCAGUtils {
 
 			if (isClosestFilledGap) {
 				result.add(TextToSpeechVoice.create(text.substring(0, filledGapIndex), lang));
-				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(1) + " " + gapNumber++));
+				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));
 				result.add(TextToSpeechVoice.create(elementContent, lang));
 				result.add(getElementStatus(element, model));
 				
@@ -109,7 +109,7 @@ public class WCAGUtils {
 
 			if (isClosestDropdown) {
 				result.add(TextToSpeechVoice.create(text.substring(0, dropdownIndex), lang));
-				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(2) + " " + gapNumber++));
+				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.DROPDOWN_INDEX) + " " + gapNumber++));
 				result.add(TextToSpeechVoice.create(elementContent, lang));
 				result.add(getElementStatus(element, model));
 				
@@ -159,6 +159,11 @@ public class WCAGUtils {
 		}
 		
 		return result;
+	}
+	
+	public static boolean hasGaps (TextModel model) {
+		String text = getCleanText(model.getOriginalText());
+		return text.contains(GAP_START) || text.contains(FILLED_GAP_START) || text.contains(DROP_DOWN_GAP_START);
 	}
 	
 }
