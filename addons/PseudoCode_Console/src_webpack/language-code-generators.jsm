@@ -421,7 +421,7 @@ export const CODE_GENERATORS = {
      * @param  {Object} yy
      * @param  {Object[]} firstVal array with calculations first value
      * @param  {Object[]} secVal array with calculations second value
-     * @param  {('__add__'|'__sub__'|'__div__'|'__mul__'|'__div_full__'|'__mod__'|'__ge__'|'__le__'|'__gt__'|'__lt__'|'__neq__'|'__eq__'|'__or__'|'__and__')} operationType
+     * @param  {('__add__'|'__sub__'|'__div__'|'__mul__'|'__div_full__'|'__mod__'|'__ge__'|'__le__'|'__gt__'|'__lt__'|'__neq__'|'__eq__')} operationType
      * @return {Object[]}
      */
     generateOperationCode: function presenter_generateOperationCode (yy, firstVal, secVal, operationType) {

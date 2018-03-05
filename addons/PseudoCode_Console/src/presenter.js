@@ -1030,46 +1030,6 @@ function getDefinedObjects(config) {
                 };
             },
             __methods__: {
-                __and__: {
-                    native: true,
-                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__and__method(toValue) {
-                        /** Table which value should be returned
-                         *  Value1 and Value2 -Will Return -> ValueX:
-                         *  -----------------------------
-                         *  False1 and True2  -> False1
-                         *  False1 and False2 -> False1
-                         *  True1  and False2 -> False2
-                         *  True1  and True2  -> True2
-                         */
-                        if (!this.value) {
-                            return this;
-                        }
-
-                        if (toValue.value) {
-                            return toValue;
-                        }
-
-                        return toValue;
-                    })
-                },
-                __or__: {
-                    /** Table which value should be returned
-                     *  Value1 and Value2 -Will Return -> ValueX:
-                     *  --------------------------------
-                     *  False1 and True2  -> True2
-                     *  False1 and False2 -> False2
-                     *  True1  and False2 -> True1
-                     *  True1  and True2  -> True1
-                     */
-                    native: true,
-                    jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object__or__method(toValue) {
-                        if (this.value) {
-                            return this;
-                        }
-
-                        return toValue;
-                    })
-                },
                 __ge__: {
                     native: true,
                     jsCode: objectMocksMethodArgumentsDispatcherDecorator(function object_ge__method(toValue) {
