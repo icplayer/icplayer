@@ -7,10 +7,12 @@ import java.util.List;
 
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
+import com.google.gwt.dom.client.Style;
 
 
 public class TextParser {
@@ -137,9 +139,11 @@ public class TextParser {
 					}
 					parserResult.parsedText = parseExternalLinks(parserResult.parsedText);
 					parserResult.parsedText = parseLinks(parserResult.parsedText);
+					parserResult.parsedText = parseAltText(parserResult.parsedText);
 				} else {
 					parserResult.parsedText = parseExternalLinks(srcText);
 					parserResult.parsedText = parseLinks(parserResult.parsedText);
+					parserResult.parsedText = parseAltText(parserResult.parsedText);
 				}
 				parserResult.parsedText = parseDefinitions(parserResult.parsedText);	
 			}
@@ -541,13 +545,14 @@ public class TextParser {
 	}
 	
 	private DomElementManipulator createEditorInputElement(String expression, String id) {
+		JavaScriptUtils.log("expression: "+expression+", id: "+id);
 		DomElementManipulator inputElement = new DomElementManipulator("input");
 		inputElement.setHTMLAttribute("value", "\u25BC");
 		inputElement.setHTMLAttribute("style", "text-align: right; width: 80px");
 		inputElement.setHTMLAttribute("data-gap", "dropdown");
 		inputElement.setHTMLAttribute("data-gap-value", "{{" + expression + "}}");
 		inputElement.setHTMLAttribute("id", id);
-		
+		JavaScriptUtils.log("out");
 		return inputElement;
 	}
 	
@@ -638,6 +643,7 @@ public class TextParser {
 				if (replaceText == null) {
 					replaceText = "#ERR#";
 				}
+				JavaScriptUtils.log("replaced: "+replaceText);
 				parsedText = parsedText.replaceFirst(pattern, replaceText);
 			} else {
 				break;
@@ -664,7 +670,7 @@ public class TextParser {
 				if (replaceText == null) {
 					replaceText = "#ERR#";
 				}
-				
+				JavaScriptUtils.log("replace: "+replaceText);
 				literalReplacement = StringUtils.quoteReplacement(matchResult.getGroup(0));
 				parsedText = parsedText.replaceFirst(literalReplacement,
 						replaceText);
@@ -895,6 +901,74 @@ public class TextParser {
 
 		output += input;
 		return output;
+	}
+	
+	private DomElementManipulator getAltTextElement(String visibleText, String altText){
+		DomElementManipulator wrapper = new DomElementManipulator("div");
+		Style wrapperStyle = wrapper.getGWTElement().getStyle();
+		wrapperStyle.setProperty("position", "relative");
+		wrapperStyle.setProperty("display", "inline-block");
+		DomElementManipulator visibleTextElement = new DomElementManipulator("span");
+		visibleTextElement.setHTMLAttribute("aria-hidden", "true");
+		visibleTextElement.setInnerHTMLText(visibleText);
+		DomElementManipulator altTextElement = new DomElementManipulator("div");
+		altTextElement.setInnerHTMLText(altText);
+		Style altStyle = altTextElement.getGWTElement().getStyle();
+		altStyle.setProperty("position", "absolute");
+		altStyle.setPropertyPx("left",0);
+		altStyle.setPropertyPx("top",0);
+		altStyle.setProperty("width","100%");
+		altStyle.setProperty("height","100%");
+		altStyle.setProperty("overflow","hidden");
+		altStyle.setProperty("color","rgba(0,0,0,0.01)");
+		wrapper.appendElement(visibleTextElement);
+		wrapper.appendElement(altTextElement);
+		return wrapper;
+	}
+	
+	private String parseAltText(String srcText) {
+		JavaScriptUtils.log("we're in");
+		final String pattern = "\\\\alt{";
+		String input = srcText;
+		String output = "";
+		String replaceText;
+		int index = -1;
+		boolean isRefactored = false;
+		RegExp regExp = RegExp.compile(pattern);
+		MatchResult matchResult;
+		
+		while ((matchResult = regExp.exec(input)) != null) {
+			JavaScriptUtils.log(matchResult.getGroupCount());
+			if (matchResult.getGroupCount() <= 0) {
+				break;
+			}
+
+			String group = matchResult.getGroup(0);
+			JavaScriptUtils.log(group);
+			output += input.substring(0, matchResult.getIndex());
+			input = input.substring(matchResult.getIndex() + group.length());
+			index = findClosingBracket(input);
+
+			String expression = input.substring(0, index);
+			JavaScriptUtils.log(expression);
+			input = input.substring(index + 1);				
+			int seperatorIndex = expression.indexOf("|");
+			if (seperatorIndex > 0) {				
+				String visible = expression.substring(0, seperatorIndex).trim();
+				String readable = expression.substring(seperatorIndex + 1).trim();
+				JavaScriptUtils.log(visible);
+				JavaScriptUtils.log(readable);
+				replaceText = getAltTextElement(visible, readable).getHTMLCode();
+				JavaScriptUtils.log(replaceText);
+			} else {
+				replaceText = "#ERR";
+			}
+
+			output = output + replaceText;
+		}
+
+
+		return output + input;
 	}
 
 	public void skipGaps() {
