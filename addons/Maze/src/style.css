@@ -83,7 +83,6 @@
     height: 100%;
 }
 
-
 .Maze_room {
     float: left;
     -webkit-transform: rotate(0deg);
@@ -218,6 +217,16 @@
     text-align: center;
 }
 
+.Maze_letters_end_level_answer_letters_end_game {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    width: 100%;
+    text-align: center;
+}
+
 .Maze_letters_end_level {
     background: url('resources/letterEndGame.svg') no-repeat center;
     background-size: 80% 80%;
@@ -242,6 +251,10 @@
     content: "Next maze"
 }
 
+.Maze_end_level_answer_end_game {
+    text-align: center;
+}
+
 .Maze_letters_end_level_answer_wrapper {
     position: absolute;
     width: 100%;
@@ -264,9 +277,8 @@
     float: left;
     margin-right: 5px;
 }
-
-.Maze_letters_end_level_answer_letters_container {
-    position: absolute;
+.Maze_letters_end_level_answer_container {
+     position: absolute;
     left: 50%;
     -webkit-transform: translateX(-50%);
     -ms-transform: translateX(-50%);
