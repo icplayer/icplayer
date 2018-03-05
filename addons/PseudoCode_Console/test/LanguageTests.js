@@ -341,7 +341,9 @@ TestCase("[PseudoCode_Console - language tests] logical statement", {
         this.presenter = AddonPseudoCode_Console_create();
 
         this.presenter.configuration.functions = {
-            mock: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = builtIn.data.mockCalled || {}; builtIn.data.mockCalled[arguments[0].value] = arguments[1]; "}).value.body
+            mock: this.presenter.validateFunction({name: "name", body: "builtIn.data.mockCalled = builtIn.data.mockCalled || {}; builtIn.data.mockCalled[arguments[0].value] = arguments[1]; "}).value.body,
+            mock1: this.presenter.validateFunction({name: "name", body: "builtIn.data.mock1Called = true;"}).value.body,
+            mock2: this.presenter.validateFunction({name: "name", body: "builtIn.data.mock2Called = true;\n"}).value.body
         };
 
         this.afterExecutingObject = {};
@@ -414,10 +416,39 @@ TestCase("[PseudoCode_Console - language tests] logical statement", {
         end
     */
     this.test2 = "program test \n variable a, b, c \n begin \n a = 1 > 2 \n b = 2 > 1 \n mock(1, a) \n mock(2, b) \n a = 1 == 2 \n b = 2 == 2 \n mock(3, a) \n mock(4, b) \n a = 1 >= 2 \n b = 2 >= 1 \n c = 2 >= 2 \n mock(5, a) \n mock(6, b) \n mock(7, c) \n a = 1 <= 2 \n b = 2 <= 1 \n c = 2 <= 2 \n mock(8, a) \n mock(9, b) \n mock(10, c) \n a = 1 != 1 \n b = 1 != 2 \n mock(11, a) \n mock(12, b) \n a = 1 < 2 \n b = 2 < 1 \n mock(13, a) \n mock(14, b) \n end";
+
+    /*
+    program a
+    variable true = 1 == 1, false = 1 != 1
+    begin
+        if true or mock1() then
+        begin
+
+        end
+
+        if false and mock2() then
+        begin
+
+        end
+    end
+     */
+    this.test3 = "" +
+        "    program a\n" +
+        "    variable true = 1 == 1, false = 1 != 1\n" +
+        "    begin\n" +
+        "        if true or mock1() then\n" +
+        "        begin\n" +
+        "        \n" +
+        "        end\n" +
+        "        \n" +
+        "        if false and mock2() then\n" +
+        "        begin\n" +
+        "        \n" +
+        "        end\n" +
+        "    end";
     },
 
     'test "and" and "or" statements': function () {
-        debugger;
         this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test1);
 
         this.presenter.evaluateScoreFromUserCode();
@@ -437,6 +468,15 @@ TestCase("[PseudoCode_Console - language tests] logical statement", {
         for (i = 0; i < expected.length; i += 1) {
             assertEquals(expected[i], this.afterExecutingObject.data.mockCalled[i + 1].value);
         }
+    },
+
+    'test "and" and "or" optimizations are working': function () {
+        this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test3);
+
+        this.presenter.evaluateScoreFromUserCode();
+
+        assertUndefined(this.afterExecutingObject.data.mock1Called);
+        assertUndefined(this.afterExecutingObject.data.mock2Called);
     }
 
 });
