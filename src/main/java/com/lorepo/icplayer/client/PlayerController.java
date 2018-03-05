@@ -466,8 +466,9 @@ public class PlayerController implements IPlayerController{
 		Page page  = this.contentModel.findPageByName(pageName);
 		PageController popupPageControler = new PageController(this);
 		popupPageControler.setContent(this.getModel());
-		this.popupPanel = new PagePopupPanel(this.getView(), popupPageControler, top, left, additionalClasses);
+		this.popupPanel = new PagePopupPanel(this.getView(), popupPageControler, top, left, additionalClasses, this.getPlayerServices());
 		this.popupPanel.setPagePlayerController(this.pageController1);
+		this.popupPanel.setLayoutID(this.contentModel.getActualSemiResponsiveLayoutID());
 		this.popupPanel.showPage(page, this.contentModel.getBaseUrl());
 	}
 
