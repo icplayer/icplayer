@@ -7,6 +7,8 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.ui.HTML;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icplayer.client.module.text.GapInfo;
@@ -161,9 +163,33 @@ public class GWTTextParserTestCase extends GwtTest{
 		
 		parser.setId("xcf");
 		ParserResult parsed = parser.parse(srcText);
-		
+
 		int index = parsed.parsedText.indexOf(">słówko1</a>");
 		assertTrue(index > 0);
+	}
+	
+	@Test
+	public void testAltText() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="\\alt{słówko1|słówko2}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		HTML html = new HTML(parsed.parsedText);
+		Element htmlWidget = html.getElement();
+		System.out.println("htmlWidget");
+		System.out.println(htmlWidget);
+		assertEquals(1, htmlWidget.getChildCount());
+		
+		Element wrapper = (Element) htmlWidget.getChild(0);
+		assertEquals(2, wrapper.getChildCount());
+		
+		Element visibleChild = (Element) wrapper.getChild(0);
+		Element altChild = (Element) wrapper.getChild(1);
+		assertEquals("true",visibleChild.getAttribute("aria-hidden"));
+		assertEquals("słówko1",visibleChild.getInnerText());
+		assertEquals("słówko2",altChild.getInnerText());
 	}
 
 

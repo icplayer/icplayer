@@ -139,12 +139,12 @@ public class TextParser {
 					}
 					parserResult.parsedText = parseExternalLinks(parserResult.parsedText);
 					parserResult.parsedText = parseLinks(parserResult.parsedText);
-					parserResult.parsedText = parseAltText(parserResult.parsedText);
+
 				} else {
 					parserResult.parsedText = parseExternalLinks(srcText);
 					parserResult.parsedText = parseLinks(parserResult.parsedText);
-					parserResult.parsedText = parseAltText(parserResult.parsedText);
 				}
+				parserResult.parsedText = parseAltText(parserResult.parsedText);
 				parserResult.parsedText = parseDefinitions(parserResult.parsedText);	
 			}
 		} catch (Exception e) {
@@ -904,14 +904,15 @@ public class TextParser {
 	}
 	
 	private DomElementManipulator getAltTextElement(String visibleText, String altText){
-		DomElementManipulator wrapper = new DomElementManipulator("div");
+		DomElementManipulator wrapper = new DomElementManipulator("span");
 		Style wrapperStyle = wrapper.getGWTElement().getStyle();
 		wrapperStyle.setProperty("position", "relative");
-		wrapperStyle.setProperty("display", "inline-block");
+		
 		DomElementManipulator visibleTextElement = new DomElementManipulator("span");
 		visibleTextElement.setHTMLAttribute("aria-hidden", "true");
 		visibleTextElement.setInnerHTMLText(visibleText);
-		DomElementManipulator altTextElement = new DomElementManipulator("div");
+		
+		DomElementManipulator altTextElement = new DomElementManipulator("span");
 		altTextElement.setInnerHTMLText(altText);
 		Style altStyle = altTextElement.getGWTElement().getStyle();
 		altStyle.setProperty("position", "absolute");
@@ -921,53 +922,49 @@ public class TextParser {
 		altStyle.setProperty("height","100%");
 		altStyle.setProperty("overflow","hidden");
 		altStyle.setProperty("color","rgba(0,0,0,0.01)");
+		altStyle.setProperty("-webkit-touch-callout","none");
+		altStyle.setProperty("-webkit-user-select", "none");
+		altStyle.setProperty("-khtml-user-select", "none");
+		altStyle.setProperty("-moz-user-select", "none");
+		altStyle.setProperty("-ms-user-select", "none");
+		altStyle.setProperty("user-select", "none");
+		
 		wrapper.appendElement(visibleTextElement);
 		wrapper.appendElement(altTextElement);
 		return wrapper;
 	}
 	
 	private String parseAltText(String srcText) {
-		JavaScriptUtils.log("we're in");
-		final String pattern = "\\\\alt{";
+		final String pattern = "\\\\alt\\{";
 		String input = srcText;
 		String output = "";
 		String replaceText;
 		int index = -1;
-		boolean isRefactored = false;
 		RegExp regExp = RegExp.compile(pattern);
 		MatchResult matchResult;
 		
 		while ((matchResult = regExp.exec(input)) != null) {
-			JavaScriptUtils.log(matchResult.getGroupCount());
 			if (matchResult.getGroupCount() <= 0) {
 				break;
 			}
 
 			String group = matchResult.getGroup(0);
-			JavaScriptUtils.log(group);
 			output += input.substring(0, matchResult.getIndex());
 			input = input.substring(matchResult.getIndex() + group.length());
 			index = findClosingBracket(input);
 
 			String expression = input.substring(0, index);
-			JavaScriptUtils.log(expression);
 			input = input.substring(index + 1);				
 			int seperatorIndex = expression.indexOf("|");
 			if (seperatorIndex > 0) {				
-				String visible = expression.substring(0, seperatorIndex).trim();
-				String readable = expression.substring(seperatorIndex + 1).trim();
-				JavaScriptUtils.log(visible);
-				JavaScriptUtils.log(readable);
-				replaceText = getAltTextElement(visible, readable).getHTMLCode();
-				JavaScriptUtils.log(replaceText);
+				String visibleText = expression.substring(0, seperatorIndex).trim();
+				String altText = expression.substring(seperatorIndex + 1).trim();
+				replaceText = getAltTextElement(visibleText, altText).getHTMLCode();
 			} else {
 				replaceText = "#ERR";
 			}
-
 			output = output + replaceText;
 		}
-
-
 		return output + input;
 	}
 
