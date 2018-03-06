@@ -1,0 +1,3 @@
+.timer-wrapper .separator:after{
+    content: ':';
+}

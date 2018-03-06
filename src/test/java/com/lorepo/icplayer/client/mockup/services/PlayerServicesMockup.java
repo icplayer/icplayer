@@ -7,6 +7,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.ScoreService;
+import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -176,5 +177,20 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public IReportableService getReportableService() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+
+	@Override
+	public ScaleInformation getScaleInformation() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void setScaleInformation(String scaleX, String scaleY,
+			String transform, String transformOrigin) {
+		// TODO Auto-generated method stub
+		
 	}
 }

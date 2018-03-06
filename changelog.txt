@@ -1,3 +1,7 @@
+2018-03-06 Fixed problem with scrolling and page look with static header on
+2018-03-05 Fixed problems with scaling in Popup
+2018-03-05 Better handling of the editor page loading error
+2018-03-05 Added Timer addon
 2018-03-02 Fixed problem with scaling in Connection addon
 2018-03-02 Added property to set ordering items to starting position
 2018-03-01 Fixed problem with gap parsing with opening tag character 

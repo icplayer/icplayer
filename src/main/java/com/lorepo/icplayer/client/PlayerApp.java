@@ -182,6 +182,7 @@ public class PlayerApp {
 
 	public static native void setPageTopAndStaticHeader (int top) /*-{
 		var page = $wnd.$(".ic_page");
+		var pagePanel = page.parent();
 		page.css("top", top);
 
 		$wnd.$(".ic_header").parent().addClass("ic_static_header");
@@ -217,6 +218,8 @@ public class PlayerApp {
 
 		var pageHeight = page.css("height").replace("px", "");
 		var height = parseInt(pageHeight, 10) + parseInt(top, 10);
+		
+		pagePanel.css("height", height);
 		$wnd.$(".ic_content").parent().css("height", height);
 	}-*/;
 
@@ -273,8 +276,12 @@ public class PlayerApp {
 		}
 
 		if (isHeaderStatic) {
+			var pagePanel = page.parent();
 			var contentHeight = $wnd.$(".ic_content").css("height").replace("px", "");
-			$wnd.$(".ic_content").parent().css("height", parseInt(contentHeight, 10)+parseInt(headerHeight, 10));
+			var height = parseInt(contentHeight, 10)+parseInt(headerHeight, 10);
+			
+			pagePanel.css("height", height);
+			$wnd.$(".ic_content").parent().css("height", height);
 		}
 	}-*/;
 
