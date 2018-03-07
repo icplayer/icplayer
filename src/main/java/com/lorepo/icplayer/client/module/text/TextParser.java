@@ -7,11 +7,11 @@ import java.util.List;
 
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 
 
@@ -139,7 +139,6 @@ public class TextParser {
 					}
 					parserResult.parsedText = parseExternalLinks(parserResult.parsedText);
 					parserResult.parsedText = parseLinks(parserResult.parsedText);
-
 				} else {
 					parserResult.parsedText = parseExternalLinks(srcText);
 					parserResult.parsedText = parseLinks(parserResult.parsedText);
@@ -159,7 +158,8 @@ public class TextParser {
 		
 		result.parsedText = parseGaps(srcText);
 		result.parsedText = parseOldSyntax(result.parsedText);
-			
+		
+		result.parsedText = parseAltText(result.parsedText);
 		result.parsedText = parseDefinitions(result.parsedText);
 		return result;
 	}
@@ -545,14 +545,13 @@ public class TextParser {
 	}
 	
 	private DomElementManipulator createEditorInputElement(String expression, String id) {
-		JavaScriptUtils.log("expression: "+expression+", id: "+id);
 		DomElementManipulator inputElement = new DomElementManipulator("input");
 		inputElement.setHTMLAttribute("value", "\u25BC");
 		inputElement.setHTMLAttribute("style", "text-align: right; width: 80px");
 		inputElement.setHTMLAttribute("data-gap", "dropdown");
 		inputElement.setHTMLAttribute("data-gap-value", "{{" + expression + "}}");
 		inputElement.setHTMLAttribute("id", id);
-		JavaScriptUtils.log("out");
+
 		return inputElement;
 	}
 	
@@ -643,7 +642,6 @@ public class TextParser {
 				if (replaceText == null) {
 					replaceText = "#ERR#";
 				}
-				JavaScriptUtils.log("replaced: "+replaceText);
 				parsedText = parsedText.replaceFirst(pattern, replaceText);
 			} else {
 				break;
@@ -670,7 +668,7 @@ public class TextParser {
 				if (replaceText == null) {
 					replaceText = "#ERR#";
 				}
-				JavaScriptUtils.log("replace: "+replaceText);
+
 				literalReplacement = StringUtils.quoteReplacement(matchResult.getGroup(0));
 				parsedText = parsedText.replaceFirst(literalReplacement,
 						replaceText);
@@ -902,36 +900,23 @@ public class TextParser {
 		output += input;
 		return output;
 	}
+
 	
-	private DomElementManipulator getAltTextElement(String visibleText, String altText){
+	public static DomElementManipulator getAltTextElement(String visibleText, String altText, boolean editorMode){
 		DomElementManipulator wrapper = new DomElementManipulator("span");
-		Style wrapperStyle = wrapper.getGWTElement().getStyle();
-		wrapperStyle.setProperty("position", "relative");
-		
+		wrapper.setHTMLAttribute("aria-label", altText);
+		if (editorMode){
+			wrapper.setHTMLAttribute("data-gap", "alt_text");
+			wrapper.setHTMLAttribute("data-gap-value", "\\alt{"+visibleText+"|"+altText+"}");
+			wrapper.getGWTElement().getStyle().setProperty("border", "0px solid");
+		}
 		DomElementManipulator visibleTextElement = new DomElementManipulator("span");
 		visibleTextElement.setHTMLAttribute("aria-hidden", "true");
 		visibleTextElement.setInnerHTMLText(visibleText);
 		
-		DomElementManipulator altTextElement = new DomElementManipulator("span");
-		altTextElement.setInnerHTMLText(altText);
-		Style altStyle = altTextElement.getGWTElement().getStyle();
-		altStyle.setProperty("position", "absolute");
-		altStyle.setPropertyPx("left",0);
-		altStyle.setPropertyPx("top",0);
-		altStyle.setProperty("width","100%");
-		altStyle.setProperty("height","100%");
-		altStyle.setProperty("overflow","hidden");
-		altStyle.setProperty("color","rgba(0,0,0,0.01)");
-		altStyle.setProperty("-webkit-touch-callout","none");
-		altStyle.setProperty("-webkit-user-select", "none");
-		altStyle.setProperty("-khtml-user-select", "none");
-		altStyle.setProperty("-moz-user-select", "none");
-		altStyle.setProperty("-ms-user-select", "none");
-		altStyle.setProperty("user-select", "none");
-		
 		wrapper.appendElement(visibleTextElement);
-		wrapper.appendElement(altTextElement);
 		return wrapper;
+		
 	}
 	
 	private String parseAltText(String srcText) {
@@ -959,7 +944,7 @@ public class TextParser {
 			if (seperatorIndex > 0) {				
 				String visibleText = expression.substring(0, seperatorIndex).trim();
 				String altText = expression.substring(seperatorIndex + 1).trim();
-				replaceText = getAltTextElement(visibleText, altText).getHTMLCode();
+				replaceText = getAltTextElement(visibleText, altText, this.editorMode).getHTMLCode();
 			} else {
 				replaceText = "#ERR";
 			}

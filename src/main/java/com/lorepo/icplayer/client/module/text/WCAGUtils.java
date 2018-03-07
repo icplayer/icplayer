@@ -7,7 +7,6 @@ import java.util.List;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
@@ -91,9 +90,8 @@ public class WCAGUtils {
 			input = input.substring(index + 1);				
 			int seperatorIndex = expression.indexOf("|");
 			if (seperatorIndex > 0) {				
-				replaceText = expression.substring(seperatorIndex + 1).trim();
+				output = output + expression.substring(seperatorIndex + 1).trim();
 			}
-			output = output + replaceText;
 		}
 		return output + input;
 	}

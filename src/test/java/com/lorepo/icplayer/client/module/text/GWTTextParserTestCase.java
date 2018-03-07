@@ -178,18 +178,15 @@ public class GWTTextParserTestCase extends GwtTest{
 		ParserResult parsed = parser.parse(srcText);
 		HTML html = new HTML(parsed.parsedText);
 		Element htmlWidget = html.getElement();
-		System.out.println("htmlWidget");
-		System.out.println(htmlWidget);
 		assertEquals(1, htmlWidget.getChildCount());
 		
 		Element wrapper = (Element) htmlWidget.getChild(0);
-		assertEquals(2, wrapper.getChildCount());
+		assertEquals(1, wrapper.getChildCount());
+		assertEquals("słówko2", wrapper.getAttribute("aria-label"));
 		
 		Element visibleChild = (Element) wrapper.getChild(0);
-		Element altChild = (Element) wrapper.getChild(1);
 		assertEquals("true",visibleChild.getAttribute("aria-hidden"));
 		assertEquals("słówko1",visibleChild.getInnerText());
-		assertEquals("słówko2",altChild.getInnerText());
 	}
 
 
