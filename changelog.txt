@@ -1,3 +1,4 @@
+2018-03-07 Fixed tests for pseudo code console and webpack build script.
 2018-03-07 Static list property returns objects not lists. Added pseudo code console.
 2018-03-06 Fixed problem with & in text selection
 2018-03-06 Fixed problem with scrolling and page look with static header on

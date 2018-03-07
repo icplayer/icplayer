@@ -1,7 +1,21 @@
 import subprocess
+from sys import platform
 
-p = subprocess.Popen(["npm", "install"], shell=True)
-p.wait()
 
-p = subprocess.Popen(["webpack"], shell=True)
+def build_linux():
+    p = subprocess.Popen(["npm install"], shell=True)
+    p.wait()
+
+
+def build_windows():
+    p = subprocess.Popen(["npm", "install"], shell=True)
+    p.wait()
+
+
+if platform == "linux" or platform == "linux2":
+    build_linux()
+else:
+    build_windows()
+
+p = subprocess.Popen(["./node_modules/.bin/webpack"], shell=True)
 p.wait()
