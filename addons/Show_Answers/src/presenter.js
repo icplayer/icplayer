@@ -82,8 +82,6 @@ function AddonShow_Answers_create(){
             return;
         }
 
-        console.log(speechTexts);
-
         presenter.speechTexts = {
             selected: getSpeechTextProperty(speechTexts['Selected']['Selected'], presenter.speechTexts.selected),
             editBlock: getSpeechTextProperty(speechTexts['Block edit']['Block edit'], presenter.speechTexts.editBlock),
