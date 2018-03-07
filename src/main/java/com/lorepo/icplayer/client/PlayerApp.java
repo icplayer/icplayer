@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
+import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -179,12 +181,16 @@ public class PlayerApp {
 			}
 		}
 	}-*/;
+	
+	public void getScrollTop() {
+		JavaScriptUtils.log(this.playerController.getIframeScroll());
+	}
 
 	public static native void setPageTopAndStaticHeader (int top) /*-{
 		var page = $wnd.$(".ic_page");
 		var pagePanel = page.parent();
 		page.css("top", top);
-
+		console.log('test');
 		$wnd.$(".ic_header").parent().addClass("ic_static_header");
 		$wnd.$(".ic_static_header").css("width", page.css("width"));
 		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
@@ -390,10 +396,25 @@ public class PlayerApp {
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
 		DOMInjector.appendStyle(css);
 	}
+	
+	private native void setHeaderMovable() /*-{
+		$wnd.top.onscroll = function (e) {
+			var header = $wnd.top.document.getElementsByClassName('ic_static_header');
+			var scaleY = header[0].getBoundingClientRect().width / header[0].offsetWidth;
+			var top = $wnd.top.pageYOffset / scaleY;
+			header[0].style.top = top + 'px';
+		};
+	}-*/;
 
 	private void makeHeaderStatic() {
 		int headerHeight = getHeaderHeight();
 		setPageTopAndStaticHeader(headerHeight);
+		
+//		ScaleInformation scale = this.playerController.getPlayerServices().getScaleInformation();
+		
+		this.setHeaderMovable();
+		
+		
 		isStaticHeader = true;
 	}
 
