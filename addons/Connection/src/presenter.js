@@ -318,13 +318,13 @@ function AddonConnection_create() {
         }
 
         presenter.speechTexts = {
-            connected:    getSpeechTextProperty(speechTexts[0]['Connected']['Connected'], presenter.speechTexts.connected),
-            disconnected: getSpeechTextProperty(speechTexts[1]['Disconnected']['Disconnected'], presenter.speechTexts.disconnected),
-            connectedTo:  getSpeechTextProperty(speechTexts[2]['ConnectedTo']['Connected to'], presenter.speechTexts.connectedTo),
-            selected:     getSpeechTextProperty(speechTexts[3]['Selected']['Selected'], presenter.speechTexts.selected),
-            deselected:   getSpeechTextProperty(speechTexts[4]['Deselected']['Deselected'], presenter.speechTexts.deselected),
-            correct:      getSpeechTextProperty(speechTexts[5]['Correct']['Correct'], presenter.speechTexts.correct),
-            wrong:        getSpeechTextProperty(speechTexts[6]['Wrong']['Wrong'], presenter.speechTexts.wrong)
+            connected:    getSpeechTextProperty(speechTexts['Connected']['Connected'], presenter.speechTexts.connected),
+            disconnected: getSpeechTextProperty(speechTexts['Disconnected']['Disconnected'], presenter.speechTexts.disconnected),
+            connectedTo:  getSpeechTextProperty(speechTexts['ConnectedTo']['Connected to'], presenter.speechTexts.connectedTo),
+            selected:     getSpeechTextProperty(speechTexts['Selected']['Selected'], presenter.speechTexts.selected),
+            deselected:   getSpeechTextProperty(speechTexts['Deselected']['Deselected'], presenter.speechTexts.deselected),
+            correct:      getSpeechTextProperty(speechTexts['Correct']['Correct'], presenter.speechTexts.correct),
+            wrong:        getSpeechTextProperty(speechTexts['Wrong']['Wrong'], presenter.speechTexts.wrong)
         };
     }
 

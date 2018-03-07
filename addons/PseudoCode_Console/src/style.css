@@ -1,0 +1,32 @@
+.pseudoConsole-console-cursor {
+    background-color: #666;
+}
+
+.addon-PseudoCode_Console-console {
+    width: 100%;
+    height: 100%;
+}
+
+.pseudoConsole-console-right-element {
+    position: relative;
+}
+
+.pseudoConsole-console-textarea {
+    width: 1px;
+    height: 1px;
+    color: transparent;
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    opacity: 0.000001;
+}
+
+.addon-PseudoCode_Console-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+.pseudoConsole-console-cursor-active {
+    margin-right: -0.5em;
+}

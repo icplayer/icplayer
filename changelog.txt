@@ -1,3 +1,4 @@
+2018-03-07 Static list property returns objects not lists. Added pseudo code console.
 2018-03-06 Fixed problem with & in text selection
 2018-03-06 Fixed problem with scrolling and page look with static header on
 2018-03-05 Fixed problems with scaling in Popup

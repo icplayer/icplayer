@@ -556,26 +556,23 @@ function AddonGrid_Scene_create(){
         var excludedCommands = {};
         var argumentsTranslation = {};
         var defaultCommands = model['default_commands'];
-        for (var index = 0; index < defaultCommands.length; index++) {
-            var defaultCommand = defaultCommands[index];
-            for (var key in defaultCommand) {
-                if (defaultCommand.hasOwnProperty(key)) {
-                    var validatedDefaultCommand = presenter.validateDefaultCommand(key, defaultCommand[key]);
-                    if (!validatedDefaultCommand.isValid) {
-                        return validatedDefaultCommand;
-                    }
-                    if (!ModelValidationUtils.isStringEmpty(validatedDefaultCommand.value.validatedTranslation)) {
-                        translations[key] = validatedDefaultCommand.value.validatedTranslation;
-                    }
-                    if (validatedDefaultCommand.value.validatedIsExcluded) {
-                        excludedCommands[key] = true;
-                    }
-                    if (!ModelValidationUtils.isStringEmpty(validatedDefaultCommand.value.validatedArgumentsTranslation)) {
-                        argumentsTranslation[key] = validatedDefaultCommand.value.validatedArgumentsTranslation;
-                    }
+        for (var key in defaultCommands) {
+            if (defaultCommands.hasOwnProperty(key)) {
+                var validatedDefaultCommand = presenter.validateDefaultCommand(key, defaultCommands[key]);
+                if (!validatedDefaultCommand.isValid) {
+                    return validatedDefaultCommand;
+                }
+                if (!ModelValidationUtils.isStringEmpty(validatedDefaultCommand.value.validatedTranslation)) {
+                    translations[key] = validatedDefaultCommand.value.validatedTranslation;
+                }
+                if (validatedDefaultCommand.value.validatedIsExcluded) {
+                    excludedCommands[key] = true;
+                }
+                if (!ModelValidationUtils.isStringEmpty(validatedDefaultCommand.value.validatedArgumentsTranslation)) {
+                    argumentsTranslation[key] = validatedDefaultCommand.value.validatedArgumentsTranslation;
                 }
             }
-        }
+    }
 
         return {
             isValid: true,
