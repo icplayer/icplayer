@@ -67,7 +67,6 @@ var ice_dictionary_en = {
 	"editable": "Editable",
 	"filled": "Filled",
 	"dropdown": "Dropdown",
-	"alt_text": "Alternative Text",
 	"add_gap": "Add gap: ",
 	"add_gap_answers": "Answers: ",
 	"gap_correct": "Correct",
@@ -1667,9 +1666,11 @@ var ice_dictionary_en = {
 	"edit_alternative_text": "Edit alternative text",
 	"check_answers_button_edit_block": "Page edition is blocked",
 	"check_answers_button_no_edit_block": "Page edition is not blocked",
+	"alt_text": "Alternative Text",
 	"visible_text_alt_text":"Visible text",
 	"alt_text_alt_text":"Alternative text",
 	"edit_alt_text": "Edit alternative text",
-	"add_alt_text": "Add alternative text"
+	"add_alt_text_label": "Add alternative text:",
+	"add_alt_text_title": "Add alternative text"
 
 };

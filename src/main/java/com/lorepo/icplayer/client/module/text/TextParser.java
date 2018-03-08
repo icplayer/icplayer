@@ -11,8 +11,6 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style;
 
 
 public class TextParser {
@@ -159,7 +157,6 @@ public class TextParser {
 		result.parsedText = parseGaps(srcText);
 		result.parsedText = parseOldSyntax(result.parsedText);
 		
-		result.parsedText = parseAltText(result.parsedText);
 		result.parsedText = parseDefinitions(result.parsedText);
 		return result;
 	}
@@ -902,14 +899,9 @@ public class TextParser {
 	}
 
 	
-	public static DomElementManipulator getAltTextElement(String visibleText, String altText, boolean editorMode){
+	public static DomElementManipulator getAltTextElement(String visibleText, String altText){
 		DomElementManipulator wrapper = new DomElementManipulator("span");
 		wrapper.setHTMLAttribute("aria-label", altText);
-		if (editorMode){
-			wrapper.setHTMLAttribute("data-gap", "alt_text");
-			wrapper.setHTMLAttribute("data-gap-value", "\\alt{"+visibleText+"|"+altText+"}");
-			wrapper.getGWTElement().getStyle().setProperty("border", "0px solid");
-		}
 		DomElementManipulator visibleTextElement = new DomElementManipulator("span");
 		visibleTextElement.setHTMLAttribute("aria-hidden", "true");
 		visibleTextElement.setInnerHTMLText(visibleText);
@@ -942,9 +934,9 @@ public class TextParser {
 			input = input.substring(index + 1);				
 			int seperatorIndex = expression.indexOf("|");
 			if (seperatorIndex > 0) {				
-				String visibleText = expression.substring(0, seperatorIndex).trim();
-				String altText = expression.substring(seperatorIndex + 1).trim();
-				replaceText = getAltTextElement(visibleText, altText, this.editorMode).getHTMLCode();
+				String visibleText = expression.substring(0, seperatorIndex);
+				String altText = expression.substring(seperatorIndex + 1);
+				replaceText =  StringUtils.unescapeXML(getAltTextElement(visibleText, altText).getHTMLCode());
 			} else {
 				replaceText = "#ERR";
 			}
