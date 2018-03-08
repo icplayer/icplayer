@@ -1,6 +1,8 @@
 package com.lorepo.icplayer.client.module.ordering;
 
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
@@ -18,6 +20,12 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 public class OrderingModule extends BasicModuleModel {
+	public static final String ERROR_NUMBER_OF_ITEMS = "Error - only one item";
+	public static final String ERROR_NO_COMBINATION = "Error - all correct combinations have been used";
+	public static final String ERROR_POSITION_NOT_INTEGER = "Error - starting position not a integer";
+	public static final String ERROR_POSITION_NOT_PROPER = "Error - starting position must be unique positive integer equal to item count or lower";
+	public static final String ERROR_NO_AVAILABLE_COMBINATION = "Error - too few available positions to generate incorrect combination";
+	
 
 	private boolean isVertical = true;
 	private final int maxScore = 1;
@@ -30,13 +38,15 @@ public class OrderingModule extends BasicModuleModel {
 	private boolean dontGenerateCorrectOrder = false;
 	private String langAttribute = "";
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
+	private boolean isValid = true;
+	private String validationError = "";
 
 	public OrderingModule() {
 		super("Ordering", DictionaryWrapper.get("ordering_module"));
-
-		addItem(new OrderingItem(1, "1", getBaseURL()));
-		addItem(new OrderingItem(2, "2", getBaseURL()));
-		addItem(new OrderingItem(3, "3", getBaseURL()));
+		
+		addItem(new OrderingItem(1, "1", getBaseURL(), null));
+		addItem(new OrderingItem(2, "2", getBaseURL(), null));
+		addItem(new OrderingItem(3, "3", getBaseURL(), null));
 
 		addPropertyIsVertical();
 		addPropertyItems();
@@ -49,6 +59,47 @@ public class OrderingModule extends BasicModuleModel {
 		addPropertyLangAttribute();
 	}
 
+	public void validate() {
+		if (this.getItemCount() <= 1) {
+			this.validationError = ERROR_NUMBER_OF_ITEMS;
+			this.isValid = false;
+			return;
+		}
+		
+		String optionalOrder = StringUtils.trimSpacesInside(this.getOptionalOrder());
+		
+		// if we have two items, there are only two combinations. If both are set as correct order,
+		// we can't generate a random incorrect order to show.
+		if (this.getItemCount() == 2 && this.isDontGenerateCorrectOrder() && optionalOrder.length() > 0) {
+			if (optionalOrder != StringUtils.trimSpacesInside(this.getItemsOrder())) {
+				this.validationError = ERROR_NO_COMBINATION;
+				this.isValid = false;
+				return;
+			}
+		}
+		
+		if (!this.validateStartingPositionsString()) {
+			this.validationError = ERROR_POSITION_NOT_INTEGER;
+			this.isValid = false;
+			return;
+		}
+		
+		if (!this.validateStartingPositions()) {
+			this.validationError = ERROR_POSITION_NOT_PROPER;
+			this.isValid = false;
+			return;
+		}
+		
+		if (this.isDontGenerateCorrectOrder() && this.availablePositions() <= 1) {
+			this.validationError = ERROR_NO_AVAILABLE_COMBINATION;
+			this.isValid = false;
+			return;
+		}
+
+		this.isValid = true;
+		this.validationError = "";
+	}
+
 	private void addItem(OrderingItem item) {
 
 		items.add(item);
@@ -58,6 +109,8 @@ public class OrderingModule extends BasicModuleModel {
 				OrderingModule.this.sendPropertyChangedEvent(itemsProperty);
 			}
 		});
+		
+		this.validate();
 	}
 
 	public OrderingItem getItem(int index) {
@@ -107,8 +160,21 @@ public class OrderingModule extends BasicModuleModel {
 			if (text == null) {
 				text = StringUtils.unescapeXML(XMLUtils.getText(element));
 			}
+			
+			OrderingItem item;
 
-			OrderingItem item = new OrderingItem(i + 1, text, getBaseURL());
+			String startingPositionString = XMLUtils.getAttributeAsString(element, "startingPosition");
+			try {
+				Integer startingPosition = startingPositionString.isEmpty() ? null : Integer.parseInt(startingPositionString); 
+				item = new OrderingItem(i + 1, text, getBaseURL(), startingPosition);
+			} catch (NumberFormatException ex) {
+				this.isValid = false;
+				this.validationError = ERROR_POSITION_NOT_INTEGER;
+
+				item = new OrderingItem(i+ 1, text, getBaseURL(), null);
+				item.setStartingPositionString(startingPositionString);
+			}
+			
 			addItem(item);
 		}
 
@@ -190,6 +256,8 @@ public class OrderingModule extends BasicModuleModel {
 		for (OrderingItem item : items) {
 			Element itemElement = XMLUtils.createElement("item");
 			itemElement.appendChild(XMLUtils.createCDATASection(item.getText()));
+			
+			itemElement.setAttribute("startingPosition", item.getStartingPositionString());
 			orderingModule.appendChild(itemElement);
 		}
 
@@ -312,7 +380,7 @@ public class OrderingModule extends BasicModuleModel {
 			for (int i = 0; i < count; i++) {
 				int index = items.size()+1;
 				String name = DictionaryWrapper.get("ordering_new_item");
-				addItem(new OrderingItem(index, name, getBaseURL()));
+				addItem(new OrderingItem(index, name, getBaseURL(), null));
 			}
 		}
 	}
@@ -669,5 +737,82 @@ public class OrderingModule extends BasicModuleModel {
 	public String getLangAttribute () {
 		return this.langAttribute;
 	}
+	
+	public boolean validateStartingPositionsString() {
+		for (OrderingItem item : this.items) {
+			String startingPositionString = item.getStartingPositionString();
+			
+			if (startingPositionString != null) {	
+				if (!startingPositionString.isEmpty()) {
+					try {
+						Integer startingPosition = Integer.parseInt(startingPositionString);
+						item.setStartingPosition(startingPosition);
+					} catch (NumberFormatException ex) {
+						return false;
+					}
+				} else {
+					item.setStartingPosition(null);
+				}
+			}
+		}
+		return true;
+	}
+	
+	// starting positions have to be unique, bigger than 0 and lower than items count
+	public boolean validateStartingPositions() {		
+		Set<Integer> startingPositions = new HashSet<Integer>();
+
+		for (OrderingItem item : this.items) {
+			Integer itemStartingPosition = item.getStartingPosition();
+			
+			if (itemStartingPosition != null && (itemStartingPosition <= 0 || itemStartingPosition > this.items.size()))
+				return false;
+			
+			if (itemStartingPosition != null && startingPositions.contains(itemStartingPosition))
+				return false;
+		
+			if (itemStartingPosition != null) { 
+				startingPositions.add(itemStartingPosition);
+			}
+		}
+		
+		return true;
+	}
+	
+	public int unsetPositions() {
+		int itemsWithPosition = 0;
+		
+		for (OrderingItem item : this.items) {
+			Integer startPosition = item.getStartingPosition();
+			if (startPosition != null) {
+				itemsWithPosition++;
+			}
+		}
+		
+		return this.items.size() - itemsWithPosition;
+	}
+	
+	public int availablePositions() {
+		int itemsInCorrectPlace = 0;
+		
+		for (OrderingItem item : this.items) {
+			Integer startPosition = item.getStartingPosition();
+			if (startPosition != null && item.isCorrect(startPosition)) {
+				itemsInCorrectPlace++;
+			}
+		}
+		
+		return this.items.size() - itemsInCorrectPlace;
+	}
+	
+	public boolean isValid() {
+		return this.isValid;
+	}
+	
+	public String getValidationError() {
+		return this.validationError;
+	}
+	
+	
 
 }

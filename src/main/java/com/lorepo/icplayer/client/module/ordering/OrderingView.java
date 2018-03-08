@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.ordering;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -20,6 +21,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.RandomUtils;
+import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.dom.ElementHTMLUtils;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
@@ -50,7 +52,6 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private boolean shouldRefreshMath = false;
 	private int currentWCAGSelectedItemIndex = 0;
 	private boolean isWCAGActive = false;
-	private boolean isValid = false;
 	private boolean isWCAGOn = false;
 	private PageController pageController;
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
@@ -96,9 +97,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private void createUI(OrderingModule module, boolean isPreview) {
 		createWidgetPanel();
 
-		String errorMessage = validate();
-		
-		if (isValid) {
+		module.validate();
+
+		if (module.isValid()) {
 			Integer itemWidth = module.getWidth() / module.getItemCount();
 
 			for (int index = 0; index < module.getItemCount(); index++ ) {
@@ -112,7 +113,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 				addWidget(itemWidget);
 			}
 		} else {
-			ItemWidget error = new ItemWidget( new OrderingItem(0, errorMessage, ""), module );
+			ItemWidget error = new ItemWidget( new OrderingItem(0, module.getValidationError(), "", null), module );
 			addWidget(error);
 		}
 
@@ -132,33 +133,6 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			makeSortable(getElement(), jsObject, workMode);
 		}
 		getElement().setAttribute("lang", this.getLang());
-	}
-	
-	private String validate() {
-		if (module.getItemCount() <= 1) {
-			isValid = false;
-			return "Error - only one item";
-		}
-		
-		String optionalOrder = trimSpacesInside(module.getOptionalOrder());
-		
-		// if we have two items, there are only two combinations. If both are set as correct order,
-		// we can't generate a random incorrect order to show.
-		if (module.getItemCount() == 2 && module.isDontGenerateCorrectOrder() && optionalOrder.length() > 0) {
-			if (optionalOrder != trimSpacesInside(module.getItemsOrder())) {
-				isValid = false;
-				return "Error - all correct combinations have been used";
-			}
-		}
-		
-		isValid = true;
-		return "OK";
-	}
-	
-	private String trimSpacesInside(String str) {
-		// regex that removes all whitespaces (including tabs etc). 
-		// + is to take care of multiple spaces one after another 
-		return str.replaceAll("\\s+",""); 
 	}
 
 	private native void makeSortable(Element e, JavaScriptObject jsObject, boolean workMode)/*-{
@@ -372,19 +346,23 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	public void randomizeViewItems() {
-		if (!isValid) {
+		if (!module.isValid()) {
 			return;
 		}
 
 		String originalOrder = new String(initialOrder);
-		String correctOrder = trimSpacesInside(module.getItemsOrder());
-		String altCorrectOrder = trimSpacesInside(module.getOptionalOrder());
+		String correctOrder = StringUtils.trimSpacesInside(module.getItemsOrder());
+		String altCorrectOrder = StringUtils.trimSpacesInside(module.getOptionalOrder());
 		int widgetsCount = innerCellPanel.getWidgetCount();
+		int availablePositions = this.module.availablePositions();
+		int unsetPositions = this.module.unsetPositions();
 		
 		if (module.isDontGenerateCorrectOrder()) {
 			do {
 				generateRandomItemOrder();
-			} while (initialOrder.equals(correctOrder) || initialOrder.equals(altCorrectOrder) || (initialOrder.equals(originalOrder) && widgetsCount > 2));
+			} while (initialOrder.equals(correctOrder) || 
+					 initialOrder.equals(altCorrectOrder) ||
+					(initialOrder.equals(originalOrder) && widgetsCount > 2 && unsetPositions > 2 && availablePositions > 2));
 		}
 		else {
 			generateRandomItemOrder();
@@ -394,19 +372,45 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private void generateRandomItemOrder() {
 
 		ArrayList<Widget> widgets = new ArrayList<Widget>();
-		List<Integer> order = RandomUtils.singlePermutation(innerCellPanel.getWidgetCount());
+		HashMap<Integer, Widget> widgetsWithPositions = new HashMap<Integer, Widget>();
 
+		// place items with specified position in hashmap under correct position
 		while (innerCellPanel.getWidgetCount() > 0) {
-			widgets.add(innerCellPanel.getWidget(0));
+			Widget widget = innerCellPanel.getWidget(0);
+			
+			if (widget instanceof ItemWidget) {
+				Integer startingPosition = ((ItemWidget) widget).getStartingPosition();
+				
+				if (startingPosition != null) {
+					widgetsWithPositions.put(startingPosition - 1, widget);
+				} else {
+					widgets.add(widget);
+				}
+			} else {
+				widgets.add(widget);
+			}
+
 			innerCellPanel.remove(0);
 		}
-
-		for (int i = 0; i < order.size(); i++) {
-			Integer index = order.get(i);
-			innerCellPanel.add(widgets.get(index));
+		
+		List<Integer> order = this.getRandomOrder(widgets.size());
+		
+		// insert all items into cell panel 
+		for (int i = 0, itemToPlace = 0; i < widgetsWithPositions.size() + widgets.size(); i++) {
+			if (widgetsWithPositions.containsKey(i)) {
+				innerCellPanel.add(widgetsWithPositions.get(i));
+			} else {
+				int index = order.get(itemToPlace);
+				itemToPlace++;
+				innerCellPanel.add(widgets.get(index));
+			}
 		}
 
 		initialOrder = getState();
+	}
+	
+	public List<Integer> getRandomOrder(int size) {
+		return RandomUtils.singlePermutation(size);
 	}
 
 	public void orderChildren(String[] indexes) {

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project basedir=".">
-    <property file="build.properties" />
+    <property file="build.properties"/>
     <property name="public" location="src/main/java/com/lorepo/icplayer/public"/>
-    <property name="libs" location="${public}/libs" />
+    <property name="libs" location="${public}/libs"/>
     <property name="build.folder" location="${public}/build"/>
     <property name="build.temp.folder" location="${build.folder}/temp"/>
     <property name="build.temp.addons.folder" location="${build.folder}/temp/addons"/>
@@ -20,15 +20,15 @@
     </target>
 
     <target name="clear.temp" depends="clear.addons">
-        <delete dir="${build.temp.folder}" failonerror="false" />
+        <delete dir="${build.temp.folder}" failonerror="false"/>
     </target>
 
     <target name="clear.addons">
-        <delete dir="${build.temp.addons.folder}" failonerror="false" />
+        <delete dir="${build.temp.addons.folder}" failonerror="false"/>
     </target>
 
     <target name="clear.full" depends="clear.temp">
-        <delete dir="${build.folder}" failonerror="false" />
+        <delete dir="${build.folder}" failonerror="false"/>
     </target>
 
     <path id="yuicompressor.classpath">
@@ -43,9 +43,9 @@
                  classname="com.metrosix.yuicompressor.anttask.YuiCompressorTask"
                  classpathref="yuicompressor.classpath"/>
         <yuicompressor todir="${build.temp.folder}"
-        preserveallsemicolons="true"
-        maxcolumnwidth="7500"
-        preservestringliterals="true">
+                       preserveallsemicolons="true"
+                       maxcolumnwidth="7500"
+                       preservestringliterals="true">
             <fileset dir="${libs}">
                 <exclude name="**/dictionaries/com/*"/>
                 <exclude name="**/dictionaries/fr/*"/>
@@ -142,13 +142,17 @@
                 <file name="${build.temp.folder}/ydp/ButtonDecorator.min.js"/>
                 <file name="${build.temp.folder}/ydp/Delegate.min.js"/>
                 <file name="${build.temp.folder}/ydp/Slider.min.js"/>
+
+                <file name="${build.temp.folder}/webtoolkit.js"/>
+                <file name="${build.temp.folder}/jison.min.js"/>
             </filelist>
         </concat>
         <echo>Concanetating success</echo>
     </target>
 
-    <target name="addons.compress" description="Concatenates all addons to build/dist/folder" depends="init, clear.addons">
-		<ant dir="./addons"/>
+    <target name="addons.compress" description="Concatenates all addons to build/dist/folder"
+            depends="init, clear.addons">
+        <ant dir="./addons"/>
         <echo>Concanetate addons files into single xml</echo>
         <concat destfile="${addons.temp.file}" encoding="UTF-8" outputencoding="UTF-8">
             <fileset
@@ -156,8 +160,10 @@
                     includes="*.xml"
             />
         </concat>
-        <replace file="${addons.temp.file}" token="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;" />
-        <echo file="${addons.temp.header.file}" append="true" encoding="UTF-8">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;</echo>
+        <replace file="${addons.temp.file}"
+                 token="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;"/>
+        <echo file="${addons.temp.header.file}" append="true" encoding="UTF-8">&lt;?xml version=&quot;1.0&quot;
+            encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;</echo>
         <echo file="${addons.temp.header.file}" append="true" encoding="UTF-8">&lt;addons&gt;</echo>
         <concat destfile="${addons.destination.file}" encoding="UTF-8" outputencoding="UTF-8">
             <filelist dir="${build.temp.addons.folder}"

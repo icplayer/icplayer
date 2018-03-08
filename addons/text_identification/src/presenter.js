@@ -140,27 +140,20 @@ function Addontext_identification_create() {
        presenter.incorrectSpeechText = "Incorrect";
 
         if (speechTexts !== undefined && speechTexts !== '') {
-            for (var index = 0; index < speechTexts.length; index++) {
-                var text = speechTexts[index];
-                for (var key in text) {
-                    if (text.hasOwnProperty(key)) {
-                        if (text[key]['selected'] !== '' && text[key]['selected'] !== undefined) {
-                            presenter.selectedSpeechText = text[key]['selected'];
-                        }
+            if (speechTexts['Selected']['selected'] !== '' && speechTexts['Selected']['selected'] !== undefined) {
+                presenter.selectedSpeechText = speechTexts['Selected']['selected'];
+            }
 
-                        if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
-                            presenter.deselectedSpeechText = text[key]['deselected'];
-                        }
+            if (speechTexts['Deselected']['deselected'] !== '' && speechTexts['Deselected']['deselected'] !== undefined) {
+                presenter.deselectedSpeechText = speechTexts['Deselected']['deselected'];
+            }
 
-                        if (!ModelValidationUtils.isArrayElementEmpty(text[key]['correct'])) {
-                            presenter.correctSpeechText = text[key]['correct'];
-                        }
+            if (!ModelValidationUtils.isArrayElementEmpty(speechTexts['Correct']['correct'])) {
+                presenter.correctSpeechText = speechTexts['Correct']['correct'];
+            }
 
-                        if (!ModelValidationUtils.isArrayElementEmpty(text[key]['incorrect'])) {
-                            presenter.incorrectSpeechText = text[key]['incorrect'];
-                        }
-                    }
-                }
+            if (!ModelValidationUtils.isArrayElementEmpty(speechTexts['Incorrect']['incorrect'])) {
+                presenter.incorrectSpeechText = speechTexts['Incorrect']['incorrect'];
             }
         }
     };

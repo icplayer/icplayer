@@ -66,12 +66,10 @@ public class JavaScriptPlayerServices {
 	private final Map<String, List<JavaScriptObject>> pageLoadedListeners = new LinkedHashMap<String, List<JavaScriptObject>>();
 	private final Map<String, List<JavaScriptObject>> pageLoadedListenersDelayed = new LinkedHashMap<String, List<JavaScriptObject>>();
 	private final HashMap<String, List<JavaScriptObject>> listenersDelayed = new HashMap<String, List<JavaScriptObject>>();
-	private ScaleInformation scaleInformation;
 
 	public JavaScriptPlayerServices(IPlayerServices playerServices) {
 		this.playerServices = playerServices;
 		jsObject = initJSObject(this);
-		scaleInformation = new ScaleInformation();
 		connectEventHandlers();
 	}
 
@@ -874,23 +872,10 @@ public class JavaScriptPlayerServices {
 	}
 	
 	public ScaleInformation getScaleInformation(){
-		return this.scaleInformation;
+		return this.playerServices.getScaleInformation();
 	}
 	
 	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin){
-		ScaleInformation scaleInfo = new ScaleInformation();
-		scaleInfo.scaleX = Double.parseDouble(scaleX);
-		scaleInfo.scaleY = Double.parseDouble(scaleY);
-		if(transform!=null){
-			scaleInfo.transform = transform;
-		}else{
-			throw new NullPointerException("ScaleInformation.transform cannot be null");
-		};
-		if(transformOrigin!=null){
-			scaleInfo.transformOrigin = transformOrigin;
-		}else{
-			throw new NullPointerException("ScaleInformation.transformOrigin cannot be null");
-		}
-		this.scaleInformation = scaleInfo;
+		this.playerServices.setScaleInformation(scaleX, scaleY, transform, transformOrigin);		
 	}
 }

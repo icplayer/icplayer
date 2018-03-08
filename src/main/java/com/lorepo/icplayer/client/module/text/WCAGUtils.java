@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
@@ -64,9 +65,10 @@ public class WCAGUtils {
 		return TextToSpeechVoice.create();
 	}
 	
-	private static String getCleanText (String text) {
-		final String noHTML = text.replaceAll("\\<.*?>", " ").replaceAll("&nbsp;", " ");
-		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if mare than 1
+	public static String getCleanText (String text) {
+		HTML html = new HTML(text);		
+		final String noHTML = html.getText();
+		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if more than 1
 	}
 
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<TextElementDisplay> textElements, String lang) {
@@ -125,7 +127,7 @@ public class WCAGUtils {
 	public static List<String> getGapsOrder (TextModel model) {
 		String text = getCleanText(model.getOriginalText());
 		ArrayList<String> result = new ArrayList<String>();
-		
+
 		while (text.indexOf(GAP_START) >= 0 || text.indexOf(FILLED_GAP_START) >= 0 || text.indexOf(DROP_DOWN_GAP_START) >= 0) {
 			final int gapIndex = text.indexOf(GAP_START);
 			final int filledGapIndex = text.indexOf(FILLED_GAP_START);
