@@ -1,5 +1,4 @@
 TestCase("[Board Game] Events Test Case", {
-
     setUp: function () {
         this.presenter = AddonBoard_Game_create();
 
@@ -44,5 +43,4 @@ TestCase("[Board Game] Events Test Case", {
             score: ''
         }));
     }
-
 });

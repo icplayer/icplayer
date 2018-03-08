@@ -68,8 +68,8 @@ function AddonBoard_Game_create(){
             'background-image' : 'url('+ model.Background + ')'
         });
 
-        var fig = '',
-            i;
+        var fig = '';
+        var i;
 
         if(model.hasFields || presenter.gameMode !== presenter.gameTypes.FREE){
             for(i = 0; i < presenter.fieldsLength; i++){
@@ -102,7 +102,7 @@ function AddonBoard_Game_create(){
 
     presenter.upgradeModel = function (model) {
         if (!model["isDisabled"]) {
-            model["isDisabled"] = false;
+            model["isDisabled"] = "False";
         }
 
         if (!model["gameMode"]) {
@@ -265,6 +265,8 @@ function AddonBoard_Game_create(){
             return;
         }
 
+        clearInterval(presenter.interval);
+
         presenter.removeHandlers();
     };
 
@@ -296,8 +298,6 @@ function AddonBoard_Game_create(){
 
             $(presenter.fields[i]).css(cssValue);
             $(presenter.countersContainers[i]).css(cssValue);
-
-
         }
     };
 
@@ -314,8 +314,6 @@ function AddonBoard_Game_create(){
     };
 
     presenter.initGameMode = function (model) {
-        var i;
-
         presenter.setFieldsSizes(model);
         presenter.moveCountersToFirstField();
         presenter.selectCounter(presenter.boardCounters[0], 0);
@@ -345,14 +343,14 @@ function AddonBoard_Game_create(){
         presenter.hasFields = model.hasFields;
         presenter.wasVisible = model["Is Visible"];
         presenter.isVisible = model["Is Visible"];
-        presenter.fieldsLength = model.Fields ? model.Fields.length : 0 ;
+        presenter.fieldsLength = model.Fields ? model.Fields.length : 0;
         presenter.imagesLength = model.Images.length;
         presenter.gameMode = model.gameMode;
+        presenter.interval = 0;
 
         presenter.lastSelectedCounter = null;
 
         var myDiv = $(view).find('.board-game-container')[0];
-
         var board = presenter.drawBoard(view, model);
         $(myDiv).append(board);
 
@@ -400,7 +398,6 @@ function AddonBoard_Game_create(){
         var validatedModel = presenter.validateModel(model);
 
         if (validatedModel.isValid) {
-
             presenter.init(view, validatedModel.value);
 
             presenter.eventBus.addEventListener('ShowAnswers', this);
@@ -409,7 +406,6 @@ function AddonBoard_Game_create(){
             if(presenter.isDisable){
                 presenter.disable();
             }
-
         } else {
             presenter.showErrorMessage(view, validatedModel);
         }
@@ -467,11 +463,11 @@ function AddonBoard_Game_create(){
                     setCalculatedPosition(e);
                 });
 
-                clearInterval(interval);
+                clearInterval(presenter.interval);
             }
         };
 
-        var interval = setInterval(function() { doesElementExist(); }, 500);
+        presenter.interval = setInterval(function() { doesElementExist(); }, 500);
 
         $(view).find('.board-game-container').on('mousemove', function(e) {
             setCalculatedPosition(e);
@@ -584,7 +580,7 @@ function AddonBoard_Game_create(){
             originalTopValue : originalTopValue,
             currentLeftValue : currentLeftValue,
             currentTopValue : currentTopValue,
-        }
+        };
     };
 
     presenter.getStateForGameMode = function () {
@@ -638,7 +634,7 @@ function AddonBoard_Game_create(){
             presenter.moveCounter(parsedState.counterPositions[index]);
         });
 
-        presenter.selectCounter(presenter.boardCounters[parsedState.lastSelectedCounter], parsedState.lastSelectedCounter)
+        presenter.selectCounter(presenter.boardCounters[parsedState.lastSelectedCounter], parsedState.lastSelectedCounter);
     };
 
     presenter.reset = function() {
@@ -797,7 +793,6 @@ function AddonBoard_Game_create(){
     };
 
     // Game mode controller
-
     function BoardGameGameModeKeyboardController(elements) {
         KeyboardController.call(this, elements, elements.length);
     }

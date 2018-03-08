@@ -59,7 +59,7 @@ TestCase("[Commons - Model Validator] Base structure", {
         assertEquals("test1", validatedModel.fieldName);
     },
 
-    'test validator will receive valid config': function () {
+    'test model validator must pass unchanged config to validator': function () {
         var config = {"A":"A", "b": 123123},
             config2 = "dsfsf";
 
@@ -182,7 +182,7 @@ TestCase("[Commons - Model Validator] Base structure", {
         assertEquals("VALID_VALUE", validatedModel.value['test2']);
     },
 
-    'test if seconf parameter of validator is function then config will be empty object': function () {
+    'test if second parameter of validator is function then config will be empty object': function () {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
             this.validatorsStubs.validValue("test1"),
             this.validatorsStubs.passedConfig("test2", function () {
