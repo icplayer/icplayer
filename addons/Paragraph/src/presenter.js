@@ -607,9 +607,13 @@ function AddonParagraph_create() {
         } else {
             tinymceState = '';
         }
-        
+
+        // iOS fix to hide keyboard after page change
+        // https://github.com/tinymce/tinymce/issues/3441
         if(isIOSSafari()){
-            $('input').focus();
+            var iframe = presenter.$view.find('iframe');
+            iframe.focus();
+            document.activeElement.blur();
         }
 
         return JSON.stringify({
