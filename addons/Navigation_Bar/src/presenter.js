@@ -199,33 +199,35 @@ function AddonNavigation_Bar_create() {
     };
 
     presenter.playPage = function (index) {
-        var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.goToPage)];
-        TextVoiceArray.push(getTextVoiceObject(index));
         if(presenter.pageTitles.length>index && index>0) {
-            TextVoiceArray.push(getTextVoiceObject(presenter.configuration.speechTexts.titled));
-            TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[index-1],presenter.configuration.langTag));
+            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.goToPageNumber + index + presenter.configuration.speechTexts.titled)];
+            TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[index - 1], presenter.configuration.langTag));
+            speak(TextVoiceArray);
+        } else {
+            speak(getTextVoiceObject(presenter.configuration.speechTexts.goToPageNumber + index));
         }
-        speak(TextVoiceArray);
+
     };
 
     presenter.playNextPage = function () {
-        
-        var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.nextPage)];
+
         if(presenter.pageTitles.length>presenter.currentIndex + 1) {
-            TextVoiceArray.push(getTextVoiceObject(presenter.configuration.speechTexts.titled));
+            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.nextPage+presenter.configuration.speechTexts.titled)];
             TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[presenter.currentIndex + 1],presenter.configuration.langTag));
+            speak(TextVoiceArray);
+        } else {
+            speak(getTextVoiceObject(presenter.configuration.speechTexts.nextPage));
         }
-        speak(TextVoiceArray);
     };
 
     presenter.playPrevPage = function () {
-
-        var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.prevPage)];
         if(0 <= presenter.currentIndex - 1) {
-            TextVoiceArray.push(getTextVoiceObject(presenter.configuration.speechTexts.titled));
+            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.prevPage+presenter.configuration.speechTexts.titled)];
             TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[presenter.currentIndex - 1],presenter.configuration.langTag));
+            speak(TextVoiceArray);
+        } else {
+            speak(getTextVoiceObject(presenter.configuration.speechTexts.prevPage));
         }
-        speak(TextVoiceArray);
     };
 
     presenter.playDottedLeft = function () {
@@ -744,6 +746,32 @@ function AddonNavigation_Bar_create() {
         return true;
     };
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeFrom_01(model);
+    };
+
+    presenter.upgradeFrom_01 = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel['langAttribute']) {
+            upgradedModel['langAttribute'] = '';
+        }
+         if (!upgradedModel['speechTexts']) {
+            upgradedModel['speechTexts'] =
+                {
+                    DottedLeft: {DottedLeft: ''},
+                    DottedRight: {DottedRight: ''},
+                    GoToPageNumber: {GoToPageNumber: ''},
+                    NextPage: {NextPage: ''},
+                    PrevPage: {PrevPage: ''},
+                    Titled: {Titled: ''}
+                };
+        }
+
+        return upgradedModel;
+    };
+
     presenter.validateModel = function (model) {
         var validatedModel = {
             isError: false,
@@ -794,7 +822,7 @@ function AddonNavigation_Bar_create() {
 
     function getSpeechTexts (speechTexts) {
         var speechTextsModel = {
-            goToPage:  'Go to page number',
+            goToPageNumber:  'Go to page number',
             nextPage: 'Go to next page',
             prevPage: 'Go to previous page',
             titled: 'Titled',
@@ -807,7 +835,7 @@ function AddonNavigation_Bar_create() {
         }
 
         speechTextsModel = {
-            goToPage:    getSpeechTextProperty(speechTexts['GoToPage']['GoToPage'], speechTextsModel.goToPage),
+            goToPageNumber:    getSpeechTextProperty(speechTexts['GoToPageNumber']['GoToPageNumber'], speechTextsModel.goToPageNumber),
             nextPage: getSpeechTextProperty(speechTexts['NextPage']['NextPage'], speechTextsModel.nextPage),
             prevPage:  getSpeechTextProperty(speechTexts['PrevPage']['PrevPage'], speechTextsModel.prevPage),
             titled:     getSpeechTextProperty(speechTexts['Titled']['Titled'], speechTextsModel.titled),
@@ -864,6 +892,7 @@ function AddonNavigation_Bar_create() {
         presenter.$wrapper = presenter.$view.find('.navigationbar-wrapper:first');
         var $element = presenter.$view.find('.navigationbar-element-first');
 
+        model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
         var arrowsCount = presenter.getArrowsCount();
 
