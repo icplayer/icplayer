@@ -200,11 +200,11 @@ function AddonNavigation_Bar_create() {
 
     presenter.playPage = function (index) {
         if(presenter.pageTitles.length>index && index>0) {
-            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.goToPageNumber + index + presenter.configuration.speechTexts.titled)];
+            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.goToPageNumber + ' ' + index + ' ' + presenter.configuration.speechTexts.titled)];
             TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[index - 1], presenter.configuration.langTag));
             speak(TextVoiceArray);
         } else {
-            speak(getTextVoiceObject(presenter.configuration.speechTexts.goToPageNumber + index));
+            speak(getTextVoiceObject(presenter.configuration.speechTexts.goToPageNumber + ' ' + index));
         }
 
     };
@@ -212,7 +212,7 @@ function AddonNavigation_Bar_create() {
     presenter.playNextPage = function () {
 
         if(presenter.pageTitles.length>presenter.currentIndex + 1) {
-            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.nextPage+presenter.configuration.speechTexts.titled)];
+            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.nextPage + ' ' + presenter.configuration.speechTexts.titled)];
             TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[presenter.currentIndex + 1],presenter.configuration.langTag));
             speak(TextVoiceArray);
         } else {
@@ -222,7 +222,7 @@ function AddonNavigation_Bar_create() {
 
     presenter.playPrevPage = function () {
         if(0 <= presenter.currentIndex - 1) {
-            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.prevPage+presenter.configuration.speechTexts.titled)];
+            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.prevPage + ' ' + presenter.configuration.speechTexts.titled)];
             TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[presenter.currentIndex - 1],presenter.configuration.langTag));
             speak(TextVoiceArray);
         } else {
