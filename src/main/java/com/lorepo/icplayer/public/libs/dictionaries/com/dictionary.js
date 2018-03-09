@@ -1680,6 +1680,20 @@ var ice_dictionary_en = {
 	"alternative_text": "Alternative text",
 	"edit_alternative_text": "Edit alternative text",
 	"check_answers_button_edit_block": "Page edition is blocked",
-	"check_answers_button_no_edit_block": "Page edition is not blocked"
+	"check_answers_button_no_edit_block": "Page edition is not blocked",
+	"Page_Progress_Panel_name": "Page Progress Panel",
+	"Page_Progress_Panel_info": "Page Progress Panel enables you to insert a ready-made page progress bar",
+	"Page_Progress_Panel_property_show_progress_bar": "Show Progress Bar",
+	"Page_Progress_Panel_property_progress_bar_text": "Progress Bar text",
+	"Page_Progress_Panel_property_show_correct_answer": "Show Correct Answers",
+	"Page_Progress_Panel_property_correct_answers_text": "Correct Answers text",
+	"Page_Progress_Panel_property_show_all_answers": "Show All Answers",
+	"Page_Progress_Panel_property_all_answers_text": "All Answers text",
+	"Page_Progress_Panel_property_show_mistakes": "Show Mistakes",
+	"Page_Progress_Panel_property_mistakes_text": "Mistakes text",
+	"Page_Progress_Panel_property_show_checks": "Show Checks",
+	"Page_Progress_Panel_property_checks_text": "Checks text",
+	"Page_Progress_Panel_property_show_errors": "Show Errors",
+	"Page_Progress_Panel_property_errors_text": "Errors text"
 
 };

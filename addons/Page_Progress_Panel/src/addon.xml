@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<addon id="Page_Progress_Panel" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="Show_Progress_Bar" displayName="Show Progress Bar" nameLabel="Page_Progress_Panel_property_show_progress_bar" type="boolean"/>
+		<property name="Progress_Bar_text" displayName="Progress Bar text" nameLabel="Page_Progress_Panel_property_progress_bar_text" type="string"/>
+		<property name="Show_Correct_Answers" displayName="Show Correct Answers" nameLabel="Page_Progress_Panel_property_show_correct_answer" type="boolean"/>
+		<property name="Correct_Answers_text" displayName="Correct Answers text" nameLabel="Page_Progress_Panel_property_correct_answers_text" type="string"/>
+		<property name="Show_All_Answers" displayName="Show All Answers" nameLabel="Page_Progress_Panel_property_show_all_answers" type="boolean"/>
+		<property name="All_Answers_text" displayName="All Answers text" nameLabel="Page_Progress_Panel_property_all_answers_text" type="string"/>
+		<property name="Show_Mistakes" displayName="Show Mistakes" nameLabel="Page_Progress_Panel_property_show_mistakes" type="boolean"/>
+		<property name="Mistakes_text" displayName="Mistakes text" nameLabel="Page_Progress_Panel_property_mistakes_text" type="string"/>
+		<property name="Show_Checks" displayName="Show Checks" nameLabel="Page_Progress_Panel_property_show_checks" type="boolean"/>
+		<property name="Checks_text" displayName="Checks text" nameLabel="Page_Progress_Panel_property_checks_text" type="string"/>
+		<property name="Show_Errors" displayName="Show Errors" nameLabel="Page_Progress_Panel_property_show_errors" type="boolean"/>
+		<property name="Errors_text" displayName="Errors text" nameLabel="Page_Progress_Panel_property_errors_text" type="string"/>
+	</model>
+</addon>

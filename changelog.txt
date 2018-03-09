@@ -1,3 +1,4 @@
+2018-03-09 Added Page Progress Panel module
 2018-03-08 Fixed problem with zooming after page change in when using Navigation Bar and Paragraph.
 2018-03-07 Fixed tests for pseudo code console and webpack build script.
 2018-03-07 Static list property returns objects not lists. Added pseudo code console.
