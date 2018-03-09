@@ -403,11 +403,36 @@ function AddonTrueFalse_create() {
         presenter.isVisible = true;
     };
 
+    presenter.upgradeModel = function (model) {
+        if (model['Speech texts'] === undefined) {
+            model['Speech texts'] = {
+                'Selected': {
+                    'selected': ''
+                },
+
+                'Deselected': {
+                    'deselected': ''
+                },
+
+                'Correct': {
+                    'correct': ''
+                },
+
+                'Incorrect': {
+                    'incorrect': ''
+                }
+            }
+        }
+
+        return model;
+    };
+
     presenter.validateModel = function(model) {
         presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
     };
 
     presenter.run = function (view, model) {
+        model = presenter.upgradeModel(model);
         presenter.$view = $(view);
         eventBus = playerController.getEventBus();
         textParser = new TextParserProxy(playerController.getTextParser());
@@ -444,6 +469,7 @@ function AddonTrueFalse_create() {
     }
 
     presenter.createPreview = function (view, model) {
+        model = presenter.upgradeModel(model);
         presenter.$view = $(view);
         makeView(view, model, true);
     };
