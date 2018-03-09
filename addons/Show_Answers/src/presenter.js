@@ -83,9 +83,9 @@ function AddonShow_Answers_create(){
         }
 
         presenter.speechTexts = {
-            selected: getSpeechTextProperty(speechTexts[0]['Selected']['Selected'], presenter.speechTexts.selected),
-            editBlock: getSpeechTextProperty(speechTexts[1]['Block edit']['Block edit'], presenter.speechTexts.editBlock),
-            noEditBlock: getSpeechTextProperty(speechTexts[2]['No block edit']['No block edit'], presenter.speechTexts.noEditBlock)
+            selected: getSpeechTextProperty(speechTexts['Selected']['Selected'], presenter.speechTexts.selected),
+            editBlock: getSpeechTextProperty(speechTexts['Block edit']['Block edit'], presenter.speechTexts.editBlock),
+            noEditBlock: getSpeechTextProperty(speechTexts['No block edit']['No block edit'], presenter.speechTexts.noEditBlock)
         };
     };
 

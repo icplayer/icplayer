@@ -9,23 +9,19 @@ TestCase("[Show_Answers] Validating model test", {
             ID : 'Show_Answers1',
             'Increment check counter': 'True',
             'Increment mistake counter': 'True',
-            speechTexts : [
+            speechTexts :
                 {
                     Selected: {
                         Selected: 'is selected'
-                    }
-                },
-                {
+                    },
                     'Block edit': {
                         'Block edit': 'Edition of this page is blocked'
-                    }
-                },
-                {
+                    },
+
                     'No block edit': {
                         'No block edit': 'Edition of this page is not blocked'
                     }
                 }
-            ]
         };
     },
 
