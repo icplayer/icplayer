@@ -68,8 +68,6 @@ function AddonNavigation_Bar_create() {
         isWCAGOn = isOn;
     };
 
-
-
     presenter.keyboardController = function(keycode) {
 
         $(document).on('keydown', function(e) {
@@ -175,7 +173,7 @@ function AddonNavigation_Bar_create() {
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('closePage', this);
 
-        for(var i = 0; i<presenter.pageCount; i++) {
+        for(var i = 0; i < presenter.pageCount; i++) {
             presenter.pageTitles.push(presenter.presentation.getPage(i).getName());
         }
     };
@@ -183,62 +181,30 @@ function AddonNavigation_Bar_create() {
     presenter.playCurrentButton = function(element){
         var $element = $(element);
         if($element.hasClass('navigationbar-element-previous')) {
-            presenter.playPrevPage();
+            presenter.playPage(presenter.currentIndex - 1 , presenter.configuration.speechTexts.prevPage);
         } else if ($element.hasClass('navigationbar-element-next')){
-            presenter.playNextPage();
+            presenter.playPage(presenter.currentIndex + 1 , presenter.configuration.speechTexts.nextPage);
         } else if ($element.hasClass('dotted-element-left')) {
-            presenter.playDottedLeft();
+            speak([getTextVoiceObject(presenter.configuration.speechTexts.dottedLeft)]);
         } else if ($element.hasClass('dotted-element-right')) {
-            presenter.playDottedRight();
+            speak([getTextVoiceObject(presenter.configuration.speechTexts.dottedRight)]);
         } else {
             var pageNumber = $element.attr('data-page-number');
-            if(pageNumber!==null && pageNumber!==undefined && !isNaN(pageNumber)){
-                presenter.playPage(pageNumber);
+            if (pageNumber !== null && pageNumber !== undefined && !isNaN(pageNumber)){
+                presenter.playPage(pageNumber-1 , presenter.configuration.speechTexts.goToPageNumber + ' ' + pageNumber);
             }
         }
     };
 
-    presenter.playPage = function (index) {
-        if(presenter.pageTitles.length>index && index>0) {
-            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.goToPageNumber + ' ' + index + ' ' + presenter.configuration.speechTexts.titled)];
-            TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[index - 1], presenter.configuration.langTag));
+    presenter.playPage = function (index, text) {
+        if (index >= 0 && index < presenter.pageTitles.length) {
+            var TextVoiceArray = [getTextVoiceObject(text + ' ' + presenter.configuration.speechTexts.titled)];
+            TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[index],presenter.configuration.langTag));
             speak(TextVoiceArray);
         } else {
-            speak(getTextVoiceObject(presenter.configuration.speechTexts.goToPageNumber + ' ' + index));
-        }
-
-    };
-
-    presenter.playNextPage = function () {
-
-        if(presenter.pageTitles.length>presenter.currentIndex + 1) {
-            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.nextPage + ' ' + presenter.configuration.speechTexts.titled)];
-            TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[presenter.currentIndex + 1],presenter.configuration.langTag));
-            speak(TextVoiceArray);
-        } else {
-            speak(getTextVoiceObject(presenter.configuration.speechTexts.nextPage));
+            speak(getTextVoiceObject(text));
         }
     };
-
-    presenter.playPrevPage = function () {
-        if(0 <= presenter.currentIndex - 1) {
-            var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.prevPage + ' ' + presenter.configuration.speechTexts.titled)];
-            TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[presenter.currentIndex - 1],presenter.configuration.langTag));
-            speak(TextVoiceArray);
-        } else {
-            speak(getTextVoiceObject(presenter.configuration.speechTexts.prevPage));
-        }
-    };
-
-    presenter.playDottedLeft = function () {
-        speak([getTextVoiceObject(presenter.configuration.speechTexts.dottedLeft)]);
-    };
-
-    presenter.playDottedRight = function () {
-        speak([getTextVoiceObject(presenter.configuration.speechTexts.dottedRight)]);
-    };
-
-
 
     function goToPage(whereTo, index) {
         var currentIndex = presenter.playerController.getCurrentPageIndex(),
