@@ -3,6 +3,8 @@ function AddonNavigation_Bar_create() {
     presenter.eventBus = null;
     presenter.pagesOk = [];
     presenter.allPagesDisplayed = false;
+    presenter.pageTitles = [];
+    var isWCAGOn = false;
 
     presenter.__internalElements = {
         goToPage: goToPage
@@ -43,6 +45,30 @@ function AddonNavigation_Bar_create() {
     	}
     	return Internationalization.WESTERN_ARABIC;
     }
+
+    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+
 
     presenter.keyboardController = function(keycode) {
 
@@ -104,10 +130,12 @@ function AddonNavigation_Bar_create() {
 
         function back() {
             select(elements[getCurrentPosition() - 1]);
+            presenter.playCurrentButton(elements[getCurrentPosition()]);
         }
 
         function forward() {
             select(elements[getCurrentPosition() + 1]);
+            presenter.playCurrentButton(elements[getCurrentPosition()]);
         }
 
         function deselect() {
@@ -146,7 +174,69 @@ function AddonNavigation_Bar_create() {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('closePage', this);
+
+        for(var i = 0; i<presenter.pageCount; i++) {
+            presenter.pageTitles.push(presenter.presentation.getPage(i).getName());
+        }
     };
+
+    presenter.playCurrentButton = function(element){
+        var $element = $(element);
+        if($element.hasClass('navigationbar-element-previous')) {
+            presenter.playPrevPage();
+        } else if ($element.hasClass('navigationbar-element-next')){
+            presenter.playNextPage();
+        } else if ($element.hasClass('dotted-element-left')) {
+            presenter.playDottedLeft();
+        } else if ($element.hasClass('dotted-element-right')) {
+            presenter.playDottedRight();
+        } else {
+            var pageNumber = $element.attr('data-page-number');
+            if(pageNumber!==null && pageNumber!==undefined && !isNaN(pageNumber)){
+                presenter.playPage(pageNumber);
+            }
+        }
+    };
+
+    presenter.playPage = function (index) {
+        var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.goToPage)];
+        TextVoiceArray.push(getTextVoiceObject(index));
+        if(presenter.pageTitles.length>index && index>0) {
+            TextVoiceArray.push(getTextVoiceObject(presenter.configuration.speechTexts.titled));
+            TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[index-1],presenter.configuration.langTag));
+        }
+        speak(TextVoiceArray);
+    };
+
+    presenter.playNextPage = function () {
+        
+        var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.nextPage)];
+        if(presenter.pageTitles.length>presenter.currentIndex + 1) {
+            TextVoiceArray.push(getTextVoiceObject(presenter.configuration.speechTexts.titled));
+            TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[presenter.currentIndex + 1],presenter.configuration.langTag));
+        }
+        speak(TextVoiceArray);
+    };
+
+    presenter.playPrevPage = function () {
+
+        var TextVoiceArray = [getTextVoiceObject(presenter.configuration.speechTexts.prevPage)];
+        if(0 <= presenter.currentIndex - 1) {
+            TextVoiceArray.push(getTextVoiceObject(presenter.configuration.speechTexts.titled));
+            TextVoiceArray.push(getTextVoiceObject(presenter.pageTitles[presenter.currentIndex - 1],presenter.configuration.langTag));
+        }
+        speak(TextVoiceArray);
+    };
+
+    presenter.playDottedLeft = function () {
+        speak([getTextVoiceObject(presenter.configuration.speechTexts.dottedLeft)]);
+    };
+
+    presenter.playDottedRight = function () {
+        speak([getTextVoiceObject(presenter.configuration.speechTexts.dottedRight)]);
+    };
+
+
 
     function goToPage(whereTo, index) {
         var currentIndex = presenter.playerController.getCurrentPageIndex(),
@@ -664,7 +754,9 @@ function AddonNavigation_Bar_create() {
             addClassNBPageOK: model.AddClassNBPageOK === 'True',
             ID: model.ID,
             firstPageAsCover: ModelValidationUtils.validateBoolean(model["firstPageAsCover"]),
-            lastPageSeparated: ModelValidationUtils.validateBoolean(model["lastPageSeparated"])
+            lastPageSeparated: ModelValidationUtils.validateBoolean(model["lastPageSeparated"]),
+            langTag: model['langAttribute'],
+            speechTexts: getSpeechTexts(model['speechTexts'])
         };
 
         if (!model['Styles']) {
@@ -689,6 +781,41 @@ function AddonNavigation_Bar_create() {
 
         return validatedModel;
     };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function getSpeechTexts (speechTexts) {
+        var speechTextsModel = {
+            goToPage:  'Go to page number',
+            nextPage: 'Go to next page',
+            prevPage: 'Go to previous page',
+            titled: 'Titled',
+            dottedRight: 'Show more pages',
+            dottedLeft: 'Show earlier pages'
+        };
+
+        if (!speechTexts) {
+            return speechTextsModel;
+        }
+
+        speechTextsModel = {
+            goToPage:    getSpeechTextProperty(speechTexts['GoToPage']['GoToPage'], speechTextsModel.goToPage),
+            nextPage: getSpeechTextProperty(speechTexts['NextPage']['NextPage'], speechTextsModel.nextPage),
+            prevPage:  getSpeechTextProperty(speechTexts['PrevPage']['PrevPage'], speechTextsModel.prevPage),
+            titled:     getSpeechTextProperty(speechTexts['Titled']['Titled'], speechTextsModel.titled),
+            dottedRight:   getSpeechTextProperty(speechTexts['DottedRight']['DottedRight'], speechTextsModel.dottedRight),
+            dottedLeft:      getSpeechTextProperty(speechTexts['DottedLeft']['DottedLeft'], speechTextsModel.dottedLeft),
+        };
+        return speechTextsModel;
+    }
 
     presenter.getArrowsCount = function () {
         var arrowsCount = 0;

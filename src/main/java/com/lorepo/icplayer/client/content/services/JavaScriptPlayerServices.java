@@ -506,6 +506,10 @@ public class JavaScriptPlayerServices {
 	private String getPageTitle() {
 		return this.playerServices.getModel().getPage(getCurrentPageIndex()).getName();
 	}
+	
+	private String getPageTitleByIndex(int index) {
+		return this.playerServices.getModel().getPage(index).getName();
+	}
 
 	private void showPopup(String pageName, String top, String left, String additinalClasses){
 		playerServices.getCommands().showPopup(pageName, top, left, additinalClasses);

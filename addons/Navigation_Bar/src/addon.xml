@@ -13,5 +13,27 @@
         <property name='AddClassNBPageOK' type='boolean' displayName='Real-time navigationbar-page-ok' nameLabel="Navigation_Bar_property_add_class_nb_page_ok"/>
         <property name='firstPageAsCover' type='boolean' displayName='First page as cover' nameLabel="Navigation_Bar_property_first_page_as_cover"/>
         <property name='lastPageSeparated' type='boolean' displayName='Last page separated' nameLabel="Navigation_Bar_property_last_page_separated"/>
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Navigation_Bar_property_speech_texts" type="staticlist">
+
+            <property name="GoToPage" nameLabel="Navigation_Bar_property_go_to_page_number" type="staticrow">
+                <property name="GoToPage" nameLabel="Navigation_Bar_property_go_to_page_number" type="string"/>
+            </property>
+            <property name="NextPage" nameLabel="Navigation_Bar_property_go_to_next_page" type="staticrow">
+                <property name="NextPage" nameLabel="Navigation_Bar_property_go_to_next_page" type="string"/>
+            </property>
+            <property name="PrevPage" nameLabel="Navigation_Bar_property_go_to_prev_page" type="staticrow">
+                <property name="PrevPage" nameLabel="Navigation_Bar_property_go_to_prev_page" type="string"/>
+            </property>
+            <property name="Titled" nameLabel="Navigation_Bar_property_titled" type="staticrow">
+                <property name="Titled" nameLabel="Navigation_Bar_property_titled" type="string"/>
+            </property>
+            <property name="DottedRight" nameLabel="Navigation_Bar_property_show_more" type="staticrow">
+                <property name="DottedRight" nameLabel="Navigation_Bar_property_show_more" type="string"/>
+            </property>
+            <property name="DottedLeft" nameLabel="Navigation_Bar_property_show_prev" type="staticrow">
+                <property name="DottedLeft" nameLabel="Navigation_Bar_property_show_prev" type="string"/>
+            </property>
+        </property>
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="Navigation_Bar_property_lang_attribute" type="string" />
 	</model>
 </addon>
