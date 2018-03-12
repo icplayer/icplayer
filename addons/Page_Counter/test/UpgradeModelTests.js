@@ -68,7 +68,7 @@ TestCase("[Page Counter] Upgrading langAttribute and speechTexts properties", {
 
         var upgradedModel = this.presenter.upgradeAddTTS(model);
 
-        assertEquals( "pl-PL",upgradedModel.langAttribute);
+        assertEquals( "pl-PL", upgradedModel.langAttribute);
         assertEquals('Page number', upgradedModel.speechTexts['Page']['Page']);
         assertEquals('from the total of', upgradedModel.speechTexts['OutOf']['OutOf']);
     },
@@ -80,7 +80,7 @@ TestCase("[Page Counter] Upgrading langAttribute and speechTexts properties", {
 
         var upgradedModel = this.presenter.upgradeAddTTS(model);
 
-        assertEquals("",upgradedModel.langAttribute);
+        assertEquals("", upgradedModel.langAttribute);
         assertEquals("", upgradedModel.speechTexts['Page']['Page']);
         assertEquals("", upgradedModel.speechTexts['OutOf']['OutOf']);
     }

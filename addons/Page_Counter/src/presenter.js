@@ -327,7 +327,7 @@ function AddonPage_Counter_create() {
                 }
                 var text = presenter.configuration.speechTexts.page + ' ';
                 text += (modifiedPageIndex + 1) + ' ';
-                text += presenter.configuration.speechTexts.outOf+ ' ';
+                text += presenter.configuration.speechTexts.outOf + ' ';
                 text += presenter.getPageCount(pageCount);
                 TextVoices.push(getTextVoiceObject(text));
             }
@@ -346,13 +346,13 @@ function AddonPage_Counter_create() {
         var lessonLangTag = document.documentElement.lang;
         if(0 === lessonLangTag.toLowerCase().localeCompare('pl') || 0 === lessonLangTag.toLowerCase().localeCompare('pl-pl')){
             if(pageCount===2) {
-                return 'dwóch'
+                return 'dwóch';
             }
             if(pageCount===3) {
-                return 'trzech'
+                return 'trzech';
             }
             if(pageCount===4) {
-                return 'czterech'
+                return 'czterech';
             }
         }
         return pageCount;
