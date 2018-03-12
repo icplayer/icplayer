@@ -91,6 +91,7 @@ var ice_dictionary_en = {
 	"defaultScore" : "Default",
 	"zeroMaxScore" : "Zero or Max",
 	"graduallyToMaxScore" : "Gradually to Max",
+	"minusErrors": "Minus Errors",
 	"Group" : "Group",
 	"settings" : "Settings",
 	"edit_css" : "Edit CSS",

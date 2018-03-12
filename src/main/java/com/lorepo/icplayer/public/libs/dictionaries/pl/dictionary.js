@@ -91,6 +91,7 @@
 	"defaultScore" : "Domyślnie",
 	"zeroMaxScore" : "Zero lub max",
 	"graduallyToMaxScore" : "Stopniowo do max",
+	"minusErrors": "Minus Errors",
 	"Group" : "Grupa",
 	"settings" : "Ustawienia",
 	"edit_css" : "Edytuj CSS",

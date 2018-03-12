@@ -91,6 +91,7 @@ var ice_dictionary_mx = {
 	"defaultScore": "Predeterminado",
 	"zeroMaxScore": "Cero o Máximo",
 	"graduallyToMaxScore": "Gradual hasta Máximo",
+	"minusErrors": "Minus Errors",
 	"Group": "Grupo",
 	"settings": "Ajustes",
 	"edit_css": "Editar CSS",
