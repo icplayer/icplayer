@@ -4,9 +4,11 @@ import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.IPlayerController;
+import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -31,6 +33,7 @@ public class PlayerServices implements IPlayerServices {
 	private IJsonServices jsonServices = new JsonServices();
 	private ScaleInformation scaleInformation;
 	private JavaScriptObject jQueryPrepareOffsetsFunction = null;
+	private HandlerRegistration scrollHandler = null;
 
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 		this.playerController = controller;
@@ -179,7 +182,14 @@ public class PlayerServices implements IPlayerServices {
 		}else{
 			throw new NullPointerException("ScaleInformation.transformOrigin cannot be null");
 		}
-		this.scaleInformation = scaleInfo;	
+		this.scaleInformation = scaleInfo;
+		
+		if (scrollHandler != null) {
+			scrollHandler.removeHandler();
+		}
+		
+		scrollHandler = PlayerApp.setStaticElementsMoveableWhenScaled(this.scaleInformation.scaleY);
+		
 		this.fixDroppable();
 	}
 	

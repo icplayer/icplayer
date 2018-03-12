@@ -4,14 +4,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.WindowScrollListener;
+import com.google.gwt.user.client.Window.ScrollEvent;
+import com.google.gwt.user.client.Window.ScrollHandler;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
-import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -181,16 +185,12 @@ public class PlayerApp {
 			}
 		}
 	}-*/;
-	
-	public void getScrollTop() {
-		JavaScriptUtils.log(this.playerController.getIframeScroll());
-	}
 
 	public static native void setPageTopAndStaticHeader (int top) /*-{
 		var page = $wnd.$(".ic_page");
 		var pagePanel = page.parent();
 		page.css("top", top);
-		console.log('test');
+
 		$wnd.$(".ic_header").parent().addClass("ic_static_header");
 		$wnd.$(".ic_static_header").css("width", page.css("width"));
 		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
@@ -231,6 +231,7 @@ public class PlayerApp {
 
 	public static native void setStaticFooter (int headerHeight, boolean isHeaderStatic) /*-{
 		var footer = $wnd.$(".ic_footer");
+		if (footer.length == 0) return;
 		var page = $wnd.$(".ic_page");
 
 		footer.parent().addClass("ic_static_footer");
@@ -290,6 +291,46 @@ public class PlayerApp {
 			$wnd.$(".ic_content").parent().css("height", height);
 		}
 	}-*/;
+	
+	public static HandlerRegistration setStaticElementsMoveableWhenScaled(final double scaleY) {
+		// moves footer to bottom of the page
+		moveElements(scaleY);
+		
+		HandlerRegistration handler = Window.addWindowScrollHandler(new ScrollHandler() {
+			@Override
+			public void onWindowScroll(ScrollEvent event) {
+				moveElements(scaleY);
+			}
+		});
+		
+		return handler;
+	}
+		
+	public static native void moveElements(double scaleY) /*-{
+		//handling player placed in iframe is covered in setStaticFooter/Header
+		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) return;
+
+		var footer = $wnd.document.getElementsByClassName('ic_static_footer');
+		var header = $wnd.document.getElementsByClassName('ic_static_header');
+		var top = $wnd.pageYOffset / scaleY;
+		
+		if (header.length > 0) {
+			header[0].style.top = top + 'px';
+			header[0].style.WebkitOverflowScrolling = 'touch';
+			header[0].style.overflow = 'hidden';
+		}
+			
+		if (footer.length > 0) {
+			var icFooterHeight = parseInt($wnd.$(footer[0]).css('height').replace('px', ''), 10);
+			var footerTop = top + $wnd.innerHeight / scaleY - icFooterHeight;
+			
+			footer[0].style.top = footerTop + 'px';
+			footer[0].style.bottom = 'auto';
+			footer[0].style.WebkitOverflowScrolling = 'touch';
+			footer[0].style.overflow = 'hidden';
+		}			
+	}-*/;
+	
 
 	public static native int getHeaderHeight() /*-{
 		return $wnd.$(".ic_header").css("height");
@@ -396,25 +437,10 @@ public class PlayerApp {
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
 		DOMInjector.appendStyle(css);
 	}
-	
-	private native void setHeaderMovable() /*-{
-		$wnd.top.onscroll = function (e) {
-			var header = $wnd.top.document.getElementsByClassName('ic_static_header');
-			var scaleY = header[0].getBoundingClientRect().width / header[0].offsetWidth;
-			var top = $wnd.top.pageYOffset / scaleY;
-			header[0].style.top = top + 'px';
-		};
-	}-*/;
 
 	private void makeHeaderStatic() {
 		int headerHeight = getHeaderHeight();
 		setPageTopAndStaticHeader(headerHeight);
-		
-//		ScaleInformation scale = this.playerController.getPlayerServices().getScaleInformation();
-		
-		this.setHeaderMovable();
-		
-		
 		isStaticHeader = true;
 	}
 
