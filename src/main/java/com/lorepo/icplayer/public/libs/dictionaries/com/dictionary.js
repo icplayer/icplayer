@@ -829,6 +829,8 @@ var ice_dictionary_en = {
 	"Page_Counter_property_omitted_pages_texts": "Omitted pages texts",
 	"Page_Counter_property_pages": "Pages",
 	"Page_Counter_property_text": "Text",
+	"Page_Counter_property_page": "Page",
+	"Page_Counter_property_out_of": "Out of",
 	"Page_Name_info": "Displays a current page name. Perfect for using in presentation templates.",
 	"Page_Name_name": "Page Name",
 	"Page_Rating_info": "Allows to add rating to a page.",

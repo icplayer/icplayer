@@ -939,6 +939,8 @@ var ice_dictionary_mx = {
 	"Page_Counter_property_omitted_pages_texts": "Textos para páginas omitidas",
 	"Page_Counter_property_pages": "Páginas",
 	"Page_Counter_property_text": "Texto",
+	"Page_Counter_property_page": "Page",
+	"Page_Counter_property_out_of": "Out of",
 	"Page_Name_info": "Muestra el nombre de la página actual. Perfecto para el uso en las plantillas de presentaciones.",
 	"Page_Name_name": "Nombre de la página",
 	"Page_Rating_info": "Permite evaluar la página.",

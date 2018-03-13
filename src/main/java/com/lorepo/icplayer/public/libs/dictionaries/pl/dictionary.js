@@ -938,6 +938,8 @@
 	"Page_Counter_property_omitted_pages_texts": "Teksty pominiętych stron",
 	"Page_Counter_property_pages": "Strony",
 	"Page_Counter_property_text": "Tekst",
+	"Page_Counter_property_page": "Page",
+	"Page_Counter_property_out_of": "Out of",
 	"Page_Name_info" : "Addon służy do wyświetlania nazwy bieżącej strony. Doskonały do wykorzystania w szablonach.",
 	"Page_Name_name" : "Nazwa strony",
 	"Page_Rating_info" : "Umożliwia dodanie do prezentacji modułu oceny danej strony.",
