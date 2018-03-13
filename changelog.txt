@@ -1,3 +1,4 @@
+2018-03-13 Added TTS support for Navigation Bar
 2018-03-13 Added TTS support for Page Counter
 2018-03-13 Added fix in Page Progress Panel
 2018-02-12 Added minus errors scoring type for modules group
