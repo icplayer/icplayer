@@ -761,6 +761,7 @@
 	"Image_Identification_name" : "Wybór obrazków",
 	"Image_Identification_property_image" : "Obraz",
 	"Image_Identification_property_selection_correct" : "Wybór jest poprawny",
+	"Image_Identification_property_is_disabled": "Is Disabled",
 	"Image_Identification_property_is_not_an_activity" : "Nie jest ćwiczeniem",
 	"Image_Identification_property_block_in_error_checking_mode" : "Zablokuj w trybie sprawdzania odpowiedzi",
     "Image_Identification_property_block_wrong_answers" : "Zablokuj niepoprawne odpowiedzi",

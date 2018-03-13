@@ -761,6 +761,7 @@ var ice_dictionary_mx = {
 	"Image_Identification_name": "Identificación de la imagen",
 	"Image_Identification_property_image": "Imagen",
 	"Image_Identification_property_selection_correct": "La selección es correcta",
+	"Image_Identification_property_is_disabled": "Is Disabled",
 	"Image_Identification_property_is_not_an_activity": "No es actividad",
 	"Image_Identification_property_block_in_error_checking_mode": "Bloquear en modo de comprobación de respuestas",
 	"Image_Identification_property_block_wrong_answers": "Bloquear respuestas incorrectas",

@@ -651,6 +651,7 @@ var ice_dictionary_en = {
 	"Image_Identification_name": "Image Identification",
 	"Image_Identification_property_image": "Image",
 	"Image_Identification_property_selection_correct": "Selection is correct",
+	"Image_Identification_property_is_disabled": "Is Disabled",
 	"Image_Identification_property_is_not_an_activity": "Is not an activity",
 	"Image_Identification_property_block_in_error_checking_mode": "Block in error checking mode",
     "Image_Identification_property_block_wrong_answers" : "Block wrong answers",
