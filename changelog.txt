@@ -1,3 +1,4 @@
+2018-03-13 Added fix in Page Progress Panel
 2018-02-12 Added minus errors scoring type for modules group
 2018-03-09 Fixed problem with TrueFalse module and undefined model field.
 2018-03-09 Added Page Progress Panel module
