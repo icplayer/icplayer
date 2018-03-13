@@ -247,7 +247,8 @@ function AddonPseudoCode_Console_create() {
         lastUsedCode: [], //Compiled code which was last used,
         definedByUserFunctions: [], //Functions defined by user
         variablesAndFunctionsUsage: {}, //Functions and variables used by user each element contains: {defined: [], args: [], vars: [], fn: []},
-        addonWrapper: null
+        addonWrapper: null,
+        _disabled: false
     };
 
     presenter.configuration = {
@@ -481,10 +482,13 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.showAnswers = function presenter_showAnswers() {
+        presenter.setWorkMode();
+        presenter.state._disabled = true;
         presenter.state.console.disable();
     };
 
     presenter.hideAnswers = function presenter_hideAnswers() {
+        presenter.state._disabled = false;
         presenter.state.console.enable();
     };
 
@@ -522,6 +526,9 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.setShowErrorsMode = function presenter_setShowErrorsMode() {
+        presenter.hideAnswers();
+        presenter.state._disabled = true;
+
         if (presenter.configuration.isActivity) {
             if (presenter.getScore() === 1) {
                 presenter.state.addonWrapper[0].classList.add(presenter.CLASS_LIST.correct);
@@ -533,6 +540,8 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.setWorkMode = function presenter_setWorkMode() {
+        presenter.state._disabled = false;
+
         presenter.state.addonWrapper[0].classList.remove(presenter.CLASS_LIST.correct);
         presenter.state.addonWrapper[0].classList.remove(presenter.CLASS_LIST.wrong);
         presenter.state.console.enable();
@@ -747,6 +756,10 @@ function AddonPseudoCode_Console_create() {
 
     presenter.executeCode = function presenter_executeCode(code) {
         if (!presenter.configuration.isValid) {
+            return;
+        }
+
+        if (presenter.state._disabled) {
             return;
         }
 
