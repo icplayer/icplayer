@@ -54,7 +54,8 @@ function AddonPseudoCode_Console_create() {
         lastScore: 0,           //Last score, we dont need to recalculate score if user dont run code
         lastUsedCode: [],        //Compiled code which was last used,
         definedByUserFunctions: [], //Functions defined by user
-        variablesAndFunctionsUsage : {} //Functions and variables used by user each element contains: {defined: [], args: [], vars: [], fn: []}
+        variablesAndFunctionsUsage : {}, //Functions and variables used by user each element contains: {defined: [], args: [], vars: [], fn: []},
+        addonWrapper: null
     };
 
     presenter.configuration = {
@@ -113,6 +114,11 @@ function AddonPseudoCode_Console_create() {
         "Natural numbers": function (value, wholeValue) { return isDigit(value); },
         "Letters only": function (value, wholeValue) { return isLetter(value);},
         "Real numbers": function (value, wholeValue) { return /^-?[0-9]*\.?[0-9]*$/g.test(wholeValue) }
+    };
+
+    presenter.CLASS_LIST = {
+        "correct": "pseudo-code-console-correct",
+        "wrong": "pseudo-code-console-wrong"
     };
 
     presenter.setPlayerController = function presenter_setPlayerController (controller) {
@@ -233,6 +239,7 @@ function AddonPseudoCode_Console_create() {
         }
         presenter.state.$view = $(view);
         presenter.state.view = view;
+        presenter.state.addonWrapper = presenter.state.$view.find(".addon-PseudoCode_Console-wrapper");
         if (!isPreview) {
             presenter.initializeExceptions();
             presenter.initializeConsole();
@@ -316,10 +323,19 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.setShowErrorsMode = function presenter_setShowErrorsMode () {
+        if (presenter.configuration.isActivity) {
+            if (presenter.getScore() === 1) {
+                presenter.state.addonWrapper[0].classList.add(presenter.CLASS_LIST.correct);
+            } else {
+                presenter.state.addonWrapper[0].classList.add(presenter.CLASS_LIST.wrong);
+            }
+        }
         presenter.state.console.disable();
     };
 
     presenter.setWorkMode = function presenter_setWorkMode () {
+        presenter.state.addonWrapper[0].classList.remove(presenter.CLASS_LIST.correct);
+        presenter.state.addonWrapper[0].classList.remove(presenter.CLASS_LIST.wrong);
         presenter.state.console.enable();
     };
 
