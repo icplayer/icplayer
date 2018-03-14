@@ -248,7 +248,8 @@ function AddonPseudoCode_Console_create() {
         definedByUserFunctions: [], //Functions defined by user
         variablesAndFunctionsUsage: {}, //Functions and variables used by user each element contains: {defined: [], args: [], vars: [], fn: []},
         addonWrapper: null,
-        _disabled: false
+        _disabled: false,
+        _wasExecuted: false
     };
 
     presenter.configuration = {
@@ -519,6 +520,9 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.reset = function presenter_reset() {
+        presenter.state._wasExecuted = false;
+        presenter.setWorkMode();
+        presenter.hideAnswers();
         presenter.killAllMachines();
         presenter.state.console.Reset();
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
@@ -528,6 +532,10 @@ function AddonPseudoCode_Console_create() {
     presenter.setShowErrorsMode = function presenter_setShowErrorsMode() {
         presenter.hideAnswers();
         presenter.state._disabled = true;
+
+        if (!presenter.state._wasExecuted) {
+            return;
+        }
 
         if (presenter.configuration.isActivity) {
             if (presenter.getScore() === 1) {
@@ -552,12 +560,14 @@ function AddonPseudoCode_Console_create() {
 
         presenter.setVisibility(state.isVisible);
         presenter.state.lastScore = state.score;
+        presenter.state._wasExecuted = state._wasExecuted;
     };
 
     presenter.getState = function presenter_getState() {
         var state = {
             isVisible: presenter.state.isVisible,
-            score: presenter.state.lastScore
+            score: presenter.state.lastScore,
+            _wasExecuted: presenter.state._wasExecuted //Added later and can be false
         };
 
         return JSON.stringify(state);
@@ -765,6 +775,8 @@ function AddonPseudoCode_Console_create() {
 
         presenter.state.variablesAndFunctionsUsage = {};
         presenter.state.wasChanged = true;
+        presenter.state._wasExecuted = true;
+        presenter.state.lastUsedCode = [];
         presenter.initializeObjectForCode();
         try {
             presenter.state.console.Reset();
