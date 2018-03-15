@@ -1697,7 +1697,7 @@ var ice_dictionary_en = {
 	"alt_text_alt_text":"Alternative text",
 	"edit_alt_text": "Edit alternative text",
 	"add_alt_text_label": "Add alternative text:",
-	"add_alt_text_title": "Add alternative text"
+	"add_alt_text_title": "Add alternative text",
 	"Page_Progress_Panel_name": "Page Progress Panel",
 	"Page_Progress_Panel_info": "Page Progress Panel enables you to insert a ready-made page progress bar",
 	"Page_Progress_Panel_property_show_progress_bar": "Show Progress Bar",
