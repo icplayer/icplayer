@@ -142,6 +142,11 @@ public final class KeyboardNavigationController {
 			return presenter.isEnterable();
 		}
 		
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {
+			AddonPresenter presenter = (AddonPresenter) this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
+			return presenter.isEnterable();
+		}
+		
 		return true;
 	}
 	

@@ -8,5 +8,17 @@
 			<property name="pages" type="string" nameLabel="Page_Counter_property_pages"/>
 			<property name="text" type="string" nameLabel="Page_Counter_property_text"/>
 		</property>
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="Page_counter_property_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Page_counter_property_speech_texts" type="staticlist">
+
+            <property name="Page" nameLabel="Page_Counter_property_page" type="staticrow">
+                <property name="Page" nameLabel="Page_Counter_property_page" type="string"/>
+            </property>
+
+            <property name="OutOf" nameLabel="Page_Counter_property_out_of" type="staticrow">
+                <property name="OutOf" nameLabel="Page_Counter_property_out_of" type="string"/>
+            </property>
+
+        </property>
 	</model>
 </addon>

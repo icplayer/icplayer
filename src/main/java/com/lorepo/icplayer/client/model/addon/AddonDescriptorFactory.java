@@ -81,6 +81,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Show_Answers", "reporting_menu");
 		addDescriptor("Submit", "reporting_menu");
 		addDescriptor("Print_Report", "reporting_menu");
+		addDescriptor("Page_Progress_Panel", "reporting_menu");
 
 		// NAVIGATION
 		addDescriptor("External_Link_Button", "navigation_menu");
@@ -140,6 +141,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Grid_Scene", "scripting_menu");
 		addDescriptor("BlocklyCodeEditor", "scripting_menu");
 		addDescriptor("Text_To_Speech", "scripting_menu");
+        addDescriptor("PseudoCode_Console", "scripting_menu");
 		addDescriptor("Timer", "scripting_menu");
 
 		// LEARN PEN

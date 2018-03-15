@@ -802,8 +802,8 @@ function AddonText_Selection_create() {
         var correct = /\\correct{([^}]+)?}/.source;
         var wrong = /\\wrong{([^}]+)?}/.source;
         var tags = /(<[^>]+?>)/.source;
-        var word = /([^\s\.,#!$%\^&\*;:{}=\-_`~\(\)<>]+)/.source;
-        var whiteSpaces = /([\s\.,#!$%\^&\*;:{}=\-_`~\(\)]+)/.source;
+        var word = /([^\s\.,#!$%\^\*:{}=\-_`~\(\)<>]+)/.source;
+        var whiteSpaces = /([\s\.,#!$%\^\*:{}=\-_`~\(\)]+)/.source;
 
         var mainRex = new RegExp([correct, wrong, tags, word, whiteSpaces].join('|'), 'g');
 

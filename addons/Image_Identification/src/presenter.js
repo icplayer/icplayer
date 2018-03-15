@@ -15,7 +15,8 @@ function AddonImage_Identification_create(){
         INCORRECT : "image-identification-element-incorrect",
         MOUSE_HOVER : "image-identification-element-mouse-hover",
         SHOW_ANSWERS : "image-identification-element-show-answers",
-        MOUSE_HOVER_SELECTED: "image-identification-element-selected-mouse-hover"
+        MOUSE_HOVER_SELECTED: "image-identification-element-selected-mouse-hover",
+        IS_DISABLED: "image-identification-element-disabled"
     };
 
     /**
@@ -23,7 +24,8 @@ function AddonImage_Identification_create(){
      */
     function CSS_CLASSESToString() {
         return CSS_CLASSES.ELEMENT + " " + CSS_CLASSES.SELECTED + " " + CSS_CLASSES.CORRECT + " " +
-            CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER + " " + CSS_CLASSES.SHOW_ANSWERS + " " + CSS_CLASSES.MOUSE_HOVER_SELECTED;
+            CSS_CLASSES.EMPTY + " " + CSS_CLASSES.INCORRECT + " " + CSS_CLASSES.MOUSE_HOVER + " " +
+            CSS_CLASSES.SHOW_ANSWERS + " " + CSS_CLASSES.MOUSE_HOVER_SELECTED + " " + CSS_CLASSES.IS_DISABLED;
     }
 
     function clickLogic() {
@@ -55,6 +57,7 @@ function AddonImage_Identification_create(){
                     if(presenter.configuration.isSelected){
                         $(this).addClass('image-identification-element-selected-mouse-hover');
                     }
+                    presenter.isDisabled ? presenter.disable() : presenter.enable();
                 }
             },
             function() {
@@ -63,6 +66,7 @@ function AddonImage_Identification_create(){
                 if (presenter.configuration.isHoverEnabled) {
                     $(this).removeClass(CSS_CLASSESToString());
                     $(this).addClass(presenter.configuration.isSelected ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
+                    presenter.isDisabled ? presenter.disable() : presenter.enable();
                 }
             }
         );
@@ -160,6 +164,8 @@ function AddonImage_Identification_create(){
             if (!isPreview) {
                 presenter.handleMouseActions();
             }
+            
+            presenter.configuration.isDisabled ? presenter.disable() : presenter.enable();
 
             presenter.$view.trigger("onLoadImageCallbackEnd", []);
             presenter.configuration.isImageLoaded = true;
@@ -203,7 +209,8 @@ function AddonImage_Identification_create(){
             isErrorCheckMode: false,
             blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers),
             isTabindexEnabled: isTabindexEnabled,
-            altText: model["Alt text"]
+            altText: model["Alt text"],
+            isDisabled: ModelValidationUtils.validateBoolean(model["Is Disabled"])
         };
     };
 
@@ -287,6 +294,8 @@ function AddonImage_Identification_create(){
         } else {
             presenter.hide();
         }
+        
+        presenter.configuration.isDisabled ? presenter.disable() : presenter.enable();
     };
 
     presenter.setWorkMode = function() {
@@ -295,6 +304,8 @@ function AddonImage_Identification_create(){
         if (!presenter.configuration.isActivity) return;
 
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+        
+        presenter.isDisabled ? presenter.disable() : presenter.enable()
     };
 
     presenter.setShowErrorsMode = function() {
@@ -311,6 +322,8 @@ function AddonImage_Identification_create(){
         } else {
             applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT);
         }
+        
+        presenter.isDisabled ? presenter.disable() : presenter.enable()
     };
 
     presenter.getErrorCount = function() {
@@ -351,6 +364,7 @@ function AddonImage_Identification_create(){
 
     function loadImageEndCallback() {
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
+        presenter.isDisabled ? presenter.disable() : presenter.enable();
         presenter.setVisibility(presenter.configuration.isVisible);
     }
 
@@ -362,15 +376,17 @@ function AddonImage_Identification_create(){
         presenter.configuration.isVisible = state.isVisible;
 
         presenter.$view.bind("onLoadImageCallbackEnd", function () {
+            if(state.isDisabled !== undefined){
+                presenter.isDisabled = state.isDisabled;
+            }
             loadImageEndCallback();
         });
 
         if (presenter.configuration.isImageLoaded) {
+            if(state.isDisabled !== undefined){
+                presenter.isDisabled = state.isDisabled;
+            }
             loadImageEndCallback();
-        }
-
-        if(state.isDisabled != undefined){
-            presenter.isDisabled = state.isDisabled;
         }
     };
 
