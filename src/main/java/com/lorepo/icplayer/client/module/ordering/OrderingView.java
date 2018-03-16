@@ -254,9 +254,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private void replaceWidgetPositions(int srcIndex, int destIndex) {
 		if (srcIndex != destIndex) {
 			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-			textVoices.add(TextToSpeechVoice.create(this.getWidgetText(destIndex), this.getLang()));
+			textVoices.add(TextToSpeechVoice.create(this.getWidgetWCAGText(destIndex), this.getLang()));
 			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(2)));
-			textVoices.add(TextToSpeechVoice.create(this.getWidgetText(srcIndex), this.getLang()));
+			textVoices.add(TextToSpeechVoice.create(this.getWidgetWCAGText(srcIndex), this.getLang()));
 
 			this.speak(textVoices);
 		} else {
@@ -766,7 +766,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	
 	private void readItem (int index) {
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-		textVoices.add(TextToSpeechVoice.create(this.getWidgetText(index), this.getLang()));
+		textVoices.add(TextToSpeechVoice.create(this.getWidgetWCAGText(index), this.getLang()));
 		
 		Widget widget = this.innerCellPanel.getWidget(index);
 		if (ElementHTMLUtils.hasClass(widget.getElement(), "ic_drag-source")) {
@@ -843,8 +843,18 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.pageController = pc;
 	}
 	
-	private String getWidgetText (int index) {
-		return this.innerCellPanel.getWidget(index).getElement().getInnerText();
+	private native String getWidgetWCAGText(Element element)/*-{
+		var $activeClone = $wnd.$(element).clone();
+        $activeClone.find('[aria-hidden="true"]').remove();
+        $activeClone.find('[aria-label]').each(function(){
+        	var $self = $wnd.$(this);
+            $self.append($self.attr('aria-label'));
+        });
+        return $activeClone.text().trim();
+	}-*/;
+	
+	private String getWidgetWCAGText (int index) {
+		return getWidgetWCAGText(this.innerCellPanel.getWidget(index).getElement());
 	}
 
 	@Override

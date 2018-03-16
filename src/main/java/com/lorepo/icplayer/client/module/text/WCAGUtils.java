@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.gwt.regexp.shared.MatchResult;
-import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
@@ -75,9 +72,7 @@ public class WCAGUtils {
 	}
 
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<TextElementDisplay> textElements, String lang) {
-		JavaScriptUtils.log(model.getOriginalText());
 		String text = getCleanText(model.getOriginalText());
-		JavaScriptUtils.log(text);
 		int gapNumber = 1;
 		final List<TextToSpeechVoice> result = new ArrayList<TextToSpeechVoice>();
 		
