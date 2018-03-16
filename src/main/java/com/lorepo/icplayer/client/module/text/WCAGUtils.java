@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
@@ -66,45 +67,17 @@ public class WCAGUtils {
 		
 		return TextToSpeechVoice.create();
 	}
-	
-	private static String removeNonReadableText(String srcText){
-		final String pattern = "\\\\alt\\{";
-		String input = srcText;
-		String output = "";
-		String replaceText = "";
-		int index = -1;
-		RegExp regExp = RegExp.compile(pattern);
-		MatchResult matchResult;
-		
-		while ((matchResult = regExp.exec(input)) != null) {
-			if (matchResult.getGroupCount() <= 0) {
-				break;
-			}
 
-			String group = matchResult.getGroup(0);
-			output += input.substring(0, matchResult.getIndex());
-			input = input.substring(matchResult.getIndex() + group.length());
-			index = TextParser.findClosingBracket(input);
-
-			String expression = input.substring(0, index);
-			input = input.substring(index + 1);				
-			int seperatorIndex = expression.indexOf("|");
-			if (seperatorIndex > 0) {				
-				output = output + expression.substring(seperatorIndex + 1).trim();
-			}
-		}
-		return output + input;
-	}
-	
 	public static String getCleanText (String text) {
-		text = removeNonReadableText(text);
 		HTML html = new HTML(text);		
 		final String noHTML = html.getText();
 		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if more than 1
 	}
 
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<TextElementDisplay> textElements, String lang) {
+		JavaScriptUtils.log(model.getOriginalText());
 		String text = getCleanText(model.getOriginalText());
+		JavaScriptUtils.log(text);
 		int gapNumber = 1;
 		final List<TextToSpeechVoice> result = new ArrayList<TextToSpeechVoice>();
 		

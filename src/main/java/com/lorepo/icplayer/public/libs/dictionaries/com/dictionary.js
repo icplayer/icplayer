@@ -1712,4 +1712,5 @@ var ice_dictionary_en = {
 	"Page_Progress_Panel_property_checks_text": "Checks text",
 	"Page_Progress_Panel_property_show_errors": "Show Errors",
 	"Page_Progress_Panel_property_errors_text": "Errors text"
+
 };
