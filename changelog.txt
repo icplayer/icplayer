@@ -1,3 +1,9 @@
+2018-03-13 Added new property - "Is Disabled" to Image Identification module
+2018-03-13 Added TTS support for Navigation Bar
+2018-03-13 Added TTS support for Page Counter
+2018-03-13 Added fix in Page Progress Panel
+2018-02-12 Added minus errors scoring type for modules group
+2018-03-09 Fixed problem with TrueFalse module and undefined model field.
 2018-03-09 Added Page Progress Panel module
 2018-03-08 Fixed problem with zooming after page change in when using Navigation Bar and Paragraph.
 2018-03-07 Fixed tests for pseudo code console and webpack build script.

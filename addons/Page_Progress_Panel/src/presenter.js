@@ -8,7 +8,6 @@ function AddonPage_Progress_Panel_create(){
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
-		presenter.eventBus.addEventListener('ShowAnswers', this);
     };
 
 	presenter.configuration = {

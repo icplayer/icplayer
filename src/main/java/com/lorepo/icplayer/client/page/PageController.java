@@ -254,6 +254,8 @@ public class PageController implements ITextToSpeechController {
 					groupResult = Score.calculateZeroMaxScore(groupResult, activity);
 				} else if (group.getScoringType() == ScoringGroupType.graduallyToMaxScore) {
 					groupResult = Score.calculateGraduallyScore(groupResult, activity);
+				} else if (group.getScoringType() == ScoringGroupType.minusErrors) {
+					groupResult = Score.calculateMinusScoreForGroup(groupResult, activity);
 				} else {
 					groupResult = Score.calculateDefaultScore(groupResult, activity, currentPage.getScoringType());
 				}
@@ -290,6 +292,8 @@ public class PageController implements ITextToSpeechController {
 					groupsResult = Score.updateZeroMaxGroupResult(groupsResult, groupResult, groupMaxScore);
 				} else if (group.getScoringType() == ScoringGroupType.graduallyToMaxScore) {
 					groupsResult = Score.updateGraduallyToMaxGroupResult(groupsResult, groupResult, groupMaxScore);
+				} else if (group.getScoringType() == ScoringGroupType.minusErrors) {
+					groupsResult = Score.updateMinusErrorsGroupResult(groupsResult, groupResult);
 				}
 			}
 		}

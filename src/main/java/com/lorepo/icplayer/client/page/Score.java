@@ -41,6 +41,14 @@ public class Score {
 
 		return result;
 	}
+	
+	public static Result updateMinusErrorsGroupResult(Result result, Result groupResult) {
+		result.score += Math.max(groupResult.score, 0);
+		result.maxScore += groupResult.maxScore;
+		result.errorCount += groupResult.errorCount;
+		
+		return result;
+	}
 
 	// Calculate default group score in depending of its type.
 	public static Result calculateDefaultScore(Result result, IActivity activity, ScoringType type) {
@@ -109,6 +117,14 @@ public class Score {
 		result.errorCount += activity.getErrorCount();
 
 		return result;
+	}
+	
+	public static Result calculateMinusScoreForGroup(Result result, IActivity activity) {
+		result.score += activity.getScore() - activity.getErrorCount();
+		result.maxScore += activity.getMaxScore();
+		result.errorCount += activity.getErrorCount();
+
+		return result;		
 	}
 
 }
