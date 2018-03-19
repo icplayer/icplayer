@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DomEvent;
@@ -14,9 +15,11 @@ import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.dom.client.TouchEndEvent;
 import com.google.gwt.event.dom.client.TouchEndHandler;
-import com.google.gwt.user.client.Element;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -843,15 +846,22 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.pageController = pc;
 	}
 	
-	private native String getWidgetWCAGText(Element element)/*-{
-		var $activeClone = $wnd.$(element).clone();
-        $activeClone.find('[aria-hidden="true"]').remove();
-        $activeClone.find('[aria-label]').each(function(){
-        	var $self = $wnd.$(this);
-            $self.append($self.attr('aria-label'));
-        });
-        return $activeClone.text().trim();
-	}-*/;
+	private String getWidgetWCAGText(Element element){
+		Element clone = new HTML(element.getInnerHTML()).getElement();
+		NodeList<Element> spans = clone.getElementsByTagName("span");
+		for(int i = 0; i<spans.getLength();i++){
+			Element child = spans.getItem(i);
+			if(child.getAttribute("aria-label").length()>0){
+				Element textNode = DOM.createElement("span");
+				textNode.setInnerHTML(child.getAttribute("aria-label"));
+				child.appendChild(textNode);
+			} else if(child.getAttribute("aria-hidden").equals("true")){
+				child.removeFromParent();
+			}
+		}
+		return clone.getInnerText();
+		
+	}
 	
 	private String getWidgetWCAGText (int index) {
 		return getWidgetWCAGText(this.innerCellPanel.getWidget(index).getElement());
