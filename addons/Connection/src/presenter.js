@@ -1,6 +1,6 @@
 function AddonConnection_create() {
 
-    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
+    function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
 
     var presenter = function () {};
 
@@ -209,6 +209,13 @@ function AddonConnection_create() {
         presenter.textParser.connectLinks($(presenter.view));
     };
 
+    presenter.removeVisibleInnerHTML = function () {
+        $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
+            $(element).html($(element).html().replace(/\\alt{(.*?)\|.*?}/g, '$1')); // replace \alt{a|b} with a
+        });
+
+    };
+
     presenter.setPlayerController = function (controller) {
         presenter.registerMathJax();
 
@@ -400,6 +407,7 @@ function AddonConnection_create() {
 
         if (isPreview) {
             presenter.initializeView(view, model);
+            presenter.removeVisibleInnerHTML();
             presenter.drawConfiguredConnections();
         } else {
             presenter.mathJaxProcessEnded.then(function () {
@@ -1500,8 +1508,12 @@ function AddonConnection_create() {
         if (tts) {
             var $active = presenter.getCurrentActivatedElement();
             var connections = getConnections($active);
-
-            var TextVoiceArray = [getTextVoiceObject($active.text().trim(), presenter.langTag)];
+            var $activeClone = $active.clone();
+            $activeClone.find('[aria-hidden="true"]').remove();
+            $activeClone.find('[aria-label]').each(function(){
+                $(this).append($(this).attr('aria-label'));
+            });
+            var TextVoiceArray = [getTextVoiceObject($activeClone.text().trim(), presenter.langTag)];
 
             if ($active.hasClass('selected')) {
                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));

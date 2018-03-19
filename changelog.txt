@@ -1,3 +1,4 @@
+2018-03-19 Added Alt Text in Text, Ordering, Connection and Choice modules
 2018-03-16 Added current-page class in icon+list display type in Table of Contents module
 2018-03-13 Added new property - "Is Disabled" to Image Identification module
 2018-03-13 Added TTS support for Navigation Bar
