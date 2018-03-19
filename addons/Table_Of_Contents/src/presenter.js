@@ -57,22 +57,31 @@ function AddonTable_Of_Contents_create(){
     }
 
 
-    function generateElement (text) {
+    function generateElement (text, page, isPreview) {
         var $element = $(document.createElement('li')),
             $link = $(document.createElement('a'));
 
         $link.text(text);
         $link.attr('href', '#');
         $element.html($link);
-
+        
+        if (!isPreview){
+            var presentation = presentationController.getPresentation(),
+                currentPageIndex = presentation.getPage(presentationController.getCurrentPageIndex()).getId();
+            
+            if (currentPageIndex == page.index) {
+                $link.addClass('current-page');
+            }
+        }
+        
         return $element;
     }
 
-    function generateListElements () {
+    function generateListElements (isPreview) {
         var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol');
 
         for (var i = 0; i < presenter.pages.length; i++) {
-            $list.append(generateElement(presenter.pages[i].name));
+            $list.append(generateElement(presenter.pages[i].name, presenter.pages[i], isPreview));
         }
 
         return $list.outerHeight();
@@ -337,7 +346,7 @@ function AddonTable_Of_Contents_create(){
         }else if(presenter.configuration.displayType == "icons+list"){
             generateIconsAndList(isPreview);
         }else{
-            var listHeight = generateListElements(),
+            var listHeight = generateListElements(isPreview),
                 spareHeight = elementsHeights.wrapper - elementsHeights.title;
 
             var $list = presenter.$view.find('.table-of-contents .table-of-contents-list ol');

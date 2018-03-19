@@ -561,4 +561,15 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	public String getLang () {
 		return null;
 	}
+	
+	public  boolean isEnterable () {
+		return this.isEnterable(this.getJavaScriptObject());
+	}
+	
+	public native boolean isEnterable (JavaScriptObject obj) /*-{
+		if (obj !== undefined && obj !== null && obj.hasOwnProperty('isEnterable')) {
+			return obj.isEnterable();
+		};
+		return true;
+	}-*/;
 }
