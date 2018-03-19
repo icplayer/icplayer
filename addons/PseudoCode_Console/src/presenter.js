@@ -527,6 +527,8 @@ function AddonPseudoCode_Console_create() {
         presenter.state.console.Reset();
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.state.console.enable();
+        presenter.state.lastUsedCode = [];
+        presenter.state.wasChanged = true;
     };
 
     presenter.setShowErrorsMode = function presenter_setShowErrorsMode() {
