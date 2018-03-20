@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
@@ -211,6 +212,33 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		return -1;
 	}
+	
+	private void setShowAnswersTextInGaps() {
+		List<GapInfo> gapsInfos = module.getGapInfos();
+		Map<String, TextElementDisplay> gapsViewsElements = new HashMap<String, TextElementDisplay>();
+		
+		for (int index = 0; index < view.getChildrenCount(); index++) {
+			TextElementDisplay gap = view.getChild(index);
+			gapsViewsElements.put(gap.getId(), gap);
+		}
+		
+		for (int index = 0; index < gapsInfos.size(); index++) {
+			GapInfo gi = gapsInfos.get(index);
+
+			// show 1st answer
+			Iterator<String> answers = gi.getAnswers();
+			gapsViewsElements.get(gi.getId()).setText(answers.hasNext() ? answers.next() : "");
+		}
+
+		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
+			Element elem = DOM.getElementById(choice.getId());
+			SelectElement sElem = (SelectElement) elem;
+
+			int correctIndex = getOptionIndex(choice, choice.getAnswer());
+			if (correctIndex != -1)
+				sElem.setSelectedIndex(correctIndex + 1);
+		}
+	}
 
 	private void showAnswers() {
 		if (!module.isActivity()) {
@@ -237,25 +265,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			child.setStyleShowAnswers();
 		}
 
-		List<GapInfo> gapsInfos = module.getGapInfos();
-		for (int index = 0; index < gapsInfos.size(); index++) {
-			TextElementDisplay gap = view.getChild(index);
-
-			GapInfo gi = gapsInfos.get(index);
-
-			// show only 1st answer
-			Iterator<String> answers = gi.getAnswers();
-			gap.setText(answers.hasNext() ? answers.next() : "");
-		}
-
-		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
-			Element elem = DOM.getElementById(choice.getId());
-			SelectElement sElem = (SelectElement) elem;
-
-			int correctIndex = getOptionIndex(choice, choice.getAnswer());
-			if (correctIndex != -1)
-				sElem.setSelectedIndex(correctIndex + 1);
-		}
+		this.setShowAnswersTextInGaps();
 
 		view.refreshMath();
 	}

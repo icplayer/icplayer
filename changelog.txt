@@ -1,3 +1,4 @@
+2018-03-20 Fixed problem with showing answers in gaps
 2018-03-20 Added calling show answer on enter press event
 2018-03-20 Added keyboard navigation to Text Selection addon
 2018-03-19 Added Alt Text in Text, Ordering, Connection and Choice modules
