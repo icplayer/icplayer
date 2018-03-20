@@ -260,5 +260,26 @@ TestCase("[PseudoCode_Console - validation tests] validate model", {
         var validatedModel = this.presenter.validateModel(this.model);
 
         assertFalse(validatedModel.isValid);
+    },
+
+    'test validate model will return error if round is 0': function () {
+        this.model.mathRound = "0";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+    },
+
+    'test validate model will return error if round is below 0': function () {
+        this.model.mathRound = "-1";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+    },
+
+    'test validate model will return error if round contains string': function () {
+        this.model.mathRound = "sdfsd";
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
     }
 });
