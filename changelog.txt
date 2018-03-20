@@ -1,3 +1,4 @@
+2018-03-20 Added calling show answer on enter press event
 2018-03-20 Added keyboard navigation to Text Selection addon
 2018-03-19 Added Alt Text in Text, Ordering, Connection and Choice modules
 2018-03-16 Added current-page class in icon+list display type in Table of Contents module
