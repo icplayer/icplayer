@@ -1158,7 +1158,13 @@ function AddonTable_create() {
     };
 
     presenter.GapUtils.prototype.setState = function (value, source, isEnabled, droppedElement) {
-        DraggableDroppableObject.prototype.setState.call(this, value, source, droppedElement);
+        if (presenter.configuration.gapType === "draggable") {
+            DraggableDroppableObject.prototype.setState.call(this, value, source, droppedElement);
+        } else {
+            this.value = value;
+            this.source = source;
+            this.$view.val(value);
+        }
 
         if (isEnabled !== undefined) {
             this.setIsEnabled(isEnabled);

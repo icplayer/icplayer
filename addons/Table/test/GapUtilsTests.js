@@ -369,6 +369,9 @@ TestCase("[Table] [Gap Utils] GetGapState", {
 TestCase("[Table] [Gap Utils] SetState", {
     setUp: function () {
         this.presenter = AddonTable_create();
+        this.presenter.configuration = {
+            gapType: "draggable"
+        };
         this.stubs = {
             connectEvents: sinon.stub(DraggableDroppableObject._internal, 'connectEvents'),
             validateConfiguration: sinon.stub(DraggableDroppableObject._internal, 'validateConfiguration')
@@ -427,6 +430,43 @@ TestCase("[Table] [Gap Utils] SetState", {
 
         assertTrue(this.stubs.setSource.calledOnce);
         assertTrue(this.stubs.setSource.calledWith(this.expectedSource));
+    }
+});
+
+TestCase("[Table] [Gap Utils] SetState of not draggable gaps", {
+    setUp: function () {
+        this.presenter = AddonTable_create();
+        this.presenter.configuration = {
+            gapType: "editable"
+        };
+        this.stubs = {
+            connectEvents: sinon.stub(DraggableDroppableObject._internal, 'connectEvents'),
+            validateConfiguration: sinon.stub(DraggableDroppableObject._internal, 'validateConfiguration'),
+            valStub: sinon.stub()
+        };
+
+        this.expectedValue = 5;
+        this.expectedIsEnabled = false;
+        this.expectedSource = "testSource";
+
+        this.gap = new this.presenter.GapUtils({});
+        this.stubs.setIsEnabled = sinon.stub(this.gap, 'setIsEnabled');
+        this.gap.$view = {
+            val: this.stubs.valStub
+        };
+
+    },
+
+    tearDown: function () {
+        DraggableDroppableObject._internal.connectEvents.restore();
+        DraggableDroppableObject._internal.validateConfiguration.restore();
+    },
+
+    'test should set value of gap with provided value': function () {
+        this.gap.setState(this.expectedValue, this.expectedSource, this.expectedIsEnabled);
+
+        assertTrue(this.stubs.valStub.calledOnce);
+        assertTrue(this.stubs.valStub.calledWith(this.expectedValue));
     }
 });
 
