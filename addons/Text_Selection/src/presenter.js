@@ -7,6 +7,8 @@ function AddonText_Selection_create() {
     presenter.selected_elements = null;
     presenter.isWorkMode = true;
     presenter.markedMathJaxContent = [];
+    presenter._keyboardController = null;
+
     var MATH_JAX_MARKER = 'MATHJAX';
 
     presenter.setPlayerController = function (controller) {
@@ -1131,6 +1133,43 @@ function AddonText_Selection_create() {
         if (eventName == "HideAnswers") {
             presenter.hideAnswers();
         }
+    };
+
+    var TextSelectionKeyboardController = function (elements, elementsCount) {
+        KeyboardController.call(this, elements, elementsCount);
+    };
+
+    TextSelectionKeyboardController.prototype = Object.create(KeyboardController.prototype);
+
+    TextSelectionKeyboardController.prototype.select = function (event) {
+        presenter.startSelection(this.getTarget(this.keyboardNavigationCurrentElement, true));
+        presenter.endSelection(this.getTarget(this.keyboardNavigationCurrentElement, true));
+    };
+
+    TextSelectionKeyboardController.prototype.switchElement = function (move) {
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + move;
+        if (new_position_index < this.keyboardNavigationElementsLen && new_position_index >= 0) {
+            KeyboardController.prototype.switchElement.call(this, move);
+        }
+    };
+
+    presenter.buildKeyboardController = function () {
+        var $text_selection = presenter.$view.find('.text_selection');
+        var toSelect = $text_selection.find('.selectable');
+        var jQueryToSelect = [];
+        for (var i = 0; i < toSelect.length; i++) {
+            jQueryToSelect.push($(toSelect[i]));
+        }
+
+        presenter._keyboardController = new TextSelectionKeyboardController(jQueryToSelect, toSelect.length);
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown) {
+        if (presenter._keyboardController === null) {
+            presenter.buildKeyboardController();
+        }
+
+        presenter._keyboardController.handle(keycode, isShiftKeyDown);
     };
 
     return presenter;
