@@ -141,6 +141,7 @@ public class TextParser {
 					parserResult.parsedText = parseExternalLinks(srcText);
 					parserResult.parsedText = parseLinks(parserResult.parsedText);
 				}
+				parserResult.parsedText = parseAltText(parserResult.parsedText);
 				parserResult.parsedText = parseDefinitions(parserResult.parsedText);	
 			}
 		} catch (Exception e) {
@@ -155,7 +156,7 @@ public class TextParser {
 		
 		result.parsedText = parseGaps(srcText);
 		result.parsedText = parseOldSyntax(result.parsedText);
-			
+		
 		result.parsedText = parseDefinitions(result.parsedText);
 		return result;
 	}
@@ -547,7 +548,7 @@ public class TextParser {
 		inputElement.setHTMLAttribute("data-gap", "dropdown");
 		inputElement.setHTMLAttribute("data-gap-value", "{{" + expression + "}}");
 		inputElement.setHTMLAttribute("id", id);
-		
+
 		return inputElement;
 	}
 	
@@ -664,7 +665,7 @@ public class TextParser {
 				if (replaceText == null) {
 					replaceText = "#ERR#";
 				}
-				
+
 				literalReplacement = StringUtils.quoteReplacement(matchResult.getGroup(0));
 				parsedText = parsedText.replaceFirst(literalReplacement,
 						replaceText);
@@ -895,6 +896,53 @@ public class TextParser {
 
 		output += input;
 		return output;
+	}
+
+	
+	public static DomElementManipulator getAltTextElement(String visibleText, String altText){
+		DomElementManipulator wrapper = new DomElementManipulator("span");
+		wrapper.setHTMLAttribute("aria-label", altText);
+		DomElementManipulator visibleTextElement = new DomElementManipulator("span");
+		visibleTextElement.setHTMLAttribute("aria-hidden", "true");
+		visibleTextElement.setInnerHTMLText(visibleText);
+		
+		wrapper.appendElement(visibleTextElement);
+		return wrapper;
+		
+	}
+	
+	private String parseAltText(String srcText) {
+		final String pattern = "\\\\alt\\{";
+		String input = srcText;
+		String output = "";
+		String replaceText;
+		int index = -1;
+		RegExp regExp = RegExp.compile(pattern);
+		MatchResult matchResult;
+		
+		while ((matchResult = regExp.exec(input)) != null) {
+			if (matchResult.getGroupCount() <= 0) {
+				break;
+			}
+
+			String group = matchResult.getGroup(0);
+			output += input.substring(0, matchResult.getIndex());
+			input = input.substring(matchResult.getIndex() + group.length());
+			index = findClosingBracket(input);
+
+			String expression = input.substring(0, index);
+			input = input.substring(index + 1);				
+			int seperatorIndex = expression.indexOf("|");
+			if (seperatorIndex > 0) {				
+				String visibleText = expression.substring(0, seperatorIndex);
+				String altText = expression.substring(seperatorIndex + 1);
+				replaceText =  StringUtils.unescapeXML(getAltTextElement(visibleText, altText).getHTMLCode());
+			} else {
+				replaceText = "#ERR";
+			}
+			output = output + replaceText;
+		}
+		return output + input;
 	}
 
 	public void skipGaps() {

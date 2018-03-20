@@ -64,7 +64,7 @@ public class WCAGUtils {
 		
 		return TextToSpeechVoice.create();
 	}
-	
+
 	public static String getCleanText (String text) {
 		HTML html = new HTML(text);		
 		final String noHTML = html.getText();
