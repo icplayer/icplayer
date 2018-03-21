@@ -1571,13 +1571,13 @@ function Addonvideo_create() {
             presenter.seek(0); // sets the current time to 0
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
-            presenter.$view.find('.video-poster-play').removeClass('video-poster-pause');
+            presenter.posterPlayButton.removeClass('video-poster-pause');
         }
     });
 
     presenter.pause = deferredSyncQueue.decorate(function () {
         if (!presenter.videoObject.paused) {
-            presenter.$view.find('.video-poster-play').addClass('video-poster-pause');
+            presenter.posterPlayButton.addClass('video-poster-pause');
             presenter.showPlayButton();
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
