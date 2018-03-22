@@ -17,5 +17,5 @@ if platform == "linux" or platform == "linux2":
 else:
     build_windows()
 
-p = subprocess.Popen(["./node_modules/.bin/webpack"], shell=True)
+p = subprocess.Popen(["webpack"], shell=True)
 p.wait()
