@@ -54,7 +54,10 @@ function AddonPseudoCode_Console_create() {
         lastScore: 0,           //Last score, we dont need to recalculate score if user dont run code
         lastUsedCode: [],        //Compiled code which was last used,
         definedByUserFunctions: [], //Functions defined by user
-        variablesAndFunctionsUsage : {} //Functions and variables used by user each element contains: {defined: [], args: [], vars: [], fn: []}
+        variablesAndFunctionsUsage : {}, //Functions and variables used by user each element contains: {defined: [], args: [], vars: [], fn: []},
+        addonWrapper: null,
+        _disabled: false,
+        _wasExecuted: false
     };
 
     presenter.configuration = {
@@ -101,9 +104,9 @@ function AddonPseudoCode_Console_create() {
         "AN02": "Multiple aliases got the same name",
         "JS01": "Java Script code in mdefined ethod is not valid.",
         "JS02": "Java Script code in defined function is not valid",
-        "ER01": "Round value must be an integer",
-        "ER02": "Round value must be bigger than 0",
-        "ER03": "Round value must be below 100",
+        "ER01": "Math precision value must be an integer",
+        "ER02": "Math precision value must be bigger than 0",
+        "ER03": "Math precision value cannot be greater than 20",
         "IP01": "Max time for answer must be float number in range 0 to 10 excluding 0",
         "IP02": "Answer code must be valid JS code"
     };
@@ -113,6 +116,11 @@ function AddonPseudoCode_Console_create() {
         "Natural numbers": function (value, wholeValue) { return isDigit(value); },
         "Letters only": function (value, wholeValue) { return isLetter(value);},
         "Real numbers": function (value, wholeValue) { return /^-?[0-9]*\.?[0-9]*$/g.test(wholeValue) }
+    };
+
+    presenter.CLASS_LIST = {
+        "correct": "pseudo-code-console-correct",
+        "wrong": "pseudo-code-console-wrong"
     };
 
     presenter.setPlayerController = function presenter_setPlayerController (controller) {
@@ -233,6 +241,7 @@ function AddonPseudoCode_Console_create() {
         }
         presenter.state.$view = $(view);
         presenter.state.view = view;
+        presenter.state.addonWrapper = presenter.state.$view.find(".addon-PseudoCode_Console-wrapper");
         if (!isPreview) {
             presenter.initializeExceptions();
             presenter.initializeConsole();
@@ -275,10 +284,13 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.showAnswers = function presenter_showAnswers () {
+        presenter.setWorkMode();
+        presenter.state._disabled = true;
         presenter.state.console.disable();
     };
 
     presenter.hideAnswers = function presenter_hideAnswers () {
+        presenter.state._disabled = false;
         presenter.state.console.enable();
     };
 
@@ -309,17 +321,40 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.reset = function presenter_reset () {
+        presenter.state._wasExecuted = false;
+        presenter.setWorkMode();
+        presenter.hideAnswers();
         presenter.killAllMachines();
         presenter.state.console.Reset();
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.state.console.enable();
+        presenter.state.lastUsedCode = [];
+        presenter.state.wasChanged = true;
     };
 
     presenter.setShowErrorsMode = function presenter_setShowErrorsMode () {
+        presenter.hideAnswers();
+        presenter.state._disabled = true;
+
+        if (!presenter.state._wasExecuted) {
+            return;
+        }
+
+        if (presenter.configuration.isActivity) {
+            if (presenter.getScore() === 1) {
+                presenter.state.addonWrapper[0].classList.add(presenter.CLASS_LIST.correct);
+            } else {
+                presenter.state.addonWrapper[0].classList.add(presenter.CLASS_LIST.wrong);
+            }
+        }
         presenter.state.console.disable();
     };
 
     presenter.setWorkMode = function presenter_setWorkMode () {
+        presenter.state._disabled = false;
+
+        presenter.state.addonWrapper[0].classList.remove(presenter.CLASS_LIST.correct);
+        presenter.state.addonWrapper[0].classList.remove(presenter.CLASS_LIST.wrong);
         presenter.state.console.enable();
     };
 
@@ -328,12 +363,14 @@ function AddonPseudoCode_Console_create() {
 
         presenter.setVisibility(state.isVisible);
         presenter.state.lastScore = state.score;
+        presenter.state._wasExecuted = state._wasExecuted;
     };
 
     presenter.getState = function presenter_getState () {
         let state = {
             isVisible: presenter.state.isVisible,
-            score: presenter.state.lastScore
+            score: presenter.state.lastScore,
+            _wasExecuted: presenter.state._wasExecuted      //Added later and can be false
         };
 
         return JSON.stringify(state);
@@ -541,8 +578,14 @@ function AddonPseudoCode_Console_create() {
             return;
         }
 
+        if (presenter.state._disabled) {
+            return;
+        }
+
         presenter.state.variablesAndFunctionsUsage = {};
         presenter.state.wasChanged = true;
+        presenter.state._wasExecuted = true;
+        presenter.state.lastUsedCode = [];
         presenter.initializeObjectForCode();
         try {
             presenter.state.console.Reset();

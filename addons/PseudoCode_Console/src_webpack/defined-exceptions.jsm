@@ -15,43 +15,48 @@ export class EXCEPTIONS {
     }
 
     CastErrorException(type, toType) {
+        let defaultTranslation = "Cast exception '{0}' to type: '{1}'";
         this.name = "CastErrorException";
-        this.message = "Cast exception \"" + type + "\" to type: \"" + toType + "\"";
-
+        this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, type, toType);
         return this;
     }
 
     IndexOutOfBoundsException(type, index, length) {
+        let defaultTranslation = "Exception ({0}): index {1} is out of bounds";
         this.name = "IndexOutOfBoundsException";
-        this.message = "Exception (" + type + "): index " + index + " is out of bounds";
+        this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, type, index);
 
         return this;
     }
 
     ToFewArgumentsException(functionName, expected) {
+        let defaultTranslation = "To few arguments for function '{0}' (expected at least: {1} arguments)";
         this.name = "ToFewArgumentsException";
-        this.message = "To few arguments for function " + functionName + " (expected at least: " + expected + " arguments)";
+        this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, functionName, expected);
 
         return this;
     }
 
     MethodNotFoundException(instrName) {
+        let defaultTranslation = "Undefined method '{0}'";
         this.name = "MethodNotFoundException";
-        this.message = "Undefined method \"" + instrName + "\"";
+        this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, instrName);
 
         return this;
     }
 
     UndefinedVariableNameException(varName, functionName) {
+        let defaultTranslation = "Usage of undefined variable '{0}' in function '{1}'";
         this.name = "UndefinedVariableNameException";
-        this.message = "Usage of undefined variable '" + varName + "' in function '" + functionName + "'";
+        this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, varName, functionName);
 
         return this;
     }
 
     UndefinedFunctionNameException(varName, functionName) {
+        let defaultTranslation = "Usage of undefined function '{0}' in function '{1}'";
         this.name = "UndefinedFunctionNameException";
-        this.message = "Usage of undefined function '" + varName + "' in function '" + functionName + "'";
+        this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, varName, functionName);
 
         return this;
     }
