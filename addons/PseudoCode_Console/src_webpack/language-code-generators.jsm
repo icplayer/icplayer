@@ -359,7 +359,7 @@ export const CODE_GENERATORS = {
         initialCommand += "eax = stack.pop();\n";         //Size of args array
         initialCommand += "ebx = Math.abs(eax - " + argsList.length + ");\n";
 
-        initialCommand += "if (eax < " + argsList.length + ") throw new machineManager.exceptions.ToFewArgumentsException('" + functionName + "'," + argsList.length + ");\n";
+        initialCommand += "if (eax < " + argsList.length + ") throw machineManager.exceptions.ToFewArgumentsException('" + functionName + "'," + argsList.length + ");\n";
 
         initialCommand += "stack.push(actualScope);\n";  //Save actualScope on stack
         initialCommand += "actualScope = {};\n";        //Reset scope to default

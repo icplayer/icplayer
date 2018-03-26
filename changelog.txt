@@ -1,3 +1,7 @@
+2018-03-26 Added classes while checking answer in Pseduo Code Console. Fixed problem with exceptions translations in pseudo code console.
+2018-03-23 Added game mode to board game. Added new addon dice. Added validation utils.
+2018-03-22 Added "video-poster-pause" CSS class to "video-poster-play" element on pause and removing it on stop
+2018-03-20 Fixed problem with eKeyboard removing event handlers
 2018-03-20 Fixed problem with showing answers in gaps
 2018-03-20 Added calling show answer on enter press event
 2018-03-20 Added keyboard navigation to Text Selection addon

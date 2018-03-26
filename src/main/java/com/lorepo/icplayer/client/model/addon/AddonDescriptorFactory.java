@@ -65,6 +65,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("TrueFalse", "activities_menu");
 		addDescriptor("WritingCalculations", "activities_menu");
 		addDescriptor("Catch", "activities_menu");
+		addDescriptor("Dice", "activities_menu");
 		addDescriptor("Reader", "activities_menu");
 
 		// REPORTING

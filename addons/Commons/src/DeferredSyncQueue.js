@@ -41,7 +41,7 @@
      @method push
      @param {Object} self - scope for calling function.
      @param {Function} func - function which will be added to queue
-     @param {[]} providedArgs - args which will be passed to called function
+     @param {Object[]} providedArgs - args which will be passed to called function
      @return {null}
     */
     DeferredSyncQueue.prototype.push = function (self, func, providedArgs) {

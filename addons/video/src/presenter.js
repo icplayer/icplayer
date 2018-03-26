@@ -999,6 +999,7 @@ function Addonvideo_create() {
             onTimeUpdate(this);
         });
         presenter.removeClassFromView('playing');
+        presenter.posterPlayButton.removeClass('video-poster-pause');
     };
 
     presenter.sendTimeUpdate = function Video_sendTime() {
@@ -1454,6 +1455,9 @@ function Addonvideo_create() {
 
     presenter.seek = deferredSyncQueue.decorate(function (seconds) {
         presenter.videoObject.currentTime = seconds;
+        if(seconds > presenter.videoObject.duration){
+			presenter.posterPlayButton.removeClass('video-poster-pause');
+		}
     });
 
     presenter.seekFromPercent = function (percent) {
@@ -1567,11 +1571,13 @@ function Addonvideo_create() {
             presenter.seek(0); // sets the current time to 0
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
+            presenter.posterPlayButton.removeClass('video-poster-pause');
         }
     });
 
     presenter.pause = deferredSyncQueue.decorate(function () {
         if (!presenter.videoObject.paused) {
+            presenter.posterPlayButton.addClass('video-poster-pause');
             presenter.showPlayButton();
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');

@@ -1222,7 +1222,7 @@ TestCase("[PseudoCode_Console - language tests] array statement", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: 200
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -1308,7 +1308,6 @@ TestCase("[PseudoCode_Console - language tests] array statement", {
         this.presenter.state.lastUsedCode = this.presenter.state.codeGenerator.parse(this.test4);
 
         this.presenter.evaluateScoreFromUserCode();
-
         assertEquals(34, this.afterExecutingObject.data.mockCalled);
     }
 
