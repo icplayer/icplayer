@@ -288,7 +288,7 @@ function AddonPseudoCode_Console_create() {
         functions: [],
         answer: null,
         methods: [],
-        round: 100,
+        round: 20,
         availableConsoleInput: "All",
         exceptionTranslations: {}
     };

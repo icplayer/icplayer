@@ -16,6 +16,7 @@ TestCase("[Board Game] Animate counter", {
         this.presenter.counterPositions = [3, 0, 0, 0, 0];
         this.presenter.selectCounter(this.presenter.boardCounters[0], 0);
         this.presenter.sendEventCounterMoved = function () {};
+        this.presenter.view = document.createElement("div");
     },
 
     tearDown: function () {

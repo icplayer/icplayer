@@ -7,6 +7,7 @@ TestCase("[Board Game] Move counter", {
         this.presenter.counterPositions = [0, 0, 0, 0, 0];
         this.presenter.selectCounter(this.presenter.boardCounters[0], 0);
 
+        this.presenter.view = document.createElement("div");
         this.presenter.animate = sinon.spy();
 
     },

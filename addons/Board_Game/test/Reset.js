@@ -10,6 +10,8 @@ TestCase("[Board Game] Reset", {
             document.createElement("div")
         ];
 
+
+        this.presenter.view = document.createElement("div");
         this.presenter.countersContainers = [document.createElement('div'), document.createElement('div'), document.createElement('div'), document.createElement('div')];
 
         this.presenter.fieldsPositions = [
