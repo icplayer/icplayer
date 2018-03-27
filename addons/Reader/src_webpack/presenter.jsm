@@ -18,6 +18,7 @@ function AddonReader_create () {
 
     presenter.run = function(view, model) {
         presenter.initialize(view, model);
+        presenter.connectHandlers();
     };
 
     presenter.createPreview = function (view, model) {
@@ -25,11 +26,19 @@ function AddonReader_create () {
     };
 
     presenter.initialize = function (view, model) {
-        configuration = validateModel(model);
+        configuration = validateModel(model).value;
 
-        state.manager = new ShowingManager(configuration.imagesList);
+        state.manager = new ShowingManager(configuration.list);
         state.imageWrapper = $(view).find(".reader-wrapper")[0];
+        state.leftArea = $(view).find(".left.area")[0];
+        state.rightArea = $(view).find(".right.area")[0];
+
         presenter.actualizeElement();
+    };
+
+    presenter.connectHandlers = function () {
+        state.leftArea.addEventListener('click', presenter.onLeftClick);
+        state.rightArea.addEventListener('click', presenter.onRightClick);
     };
 
     presenter.actualizeElement = function () {
@@ -59,6 +68,18 @@ function AddonReader_create () {
     };
 
     presenter.setState = function(state){
+    };
+
+    presenter.onRightClick = function (event) {
+        presenter.next();
+        event.stopPropagation();
+        event.preventDefault();
+    };
+
+    presenter.onLeftClick = function (event) {
+        presenter.previous();
+        event.stopPropagation();
+        event.preventDefault();
     };
 
     presenter.next = function () {

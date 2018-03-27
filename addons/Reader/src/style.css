@@ -12,3 +12,13 @@
     width: 100%;
     height: 100%;
 }
+
+.area {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+}
+
+.right {
+    right: 0px;
+}

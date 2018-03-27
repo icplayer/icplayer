@@ -3,5 +3,8 @@
 <addon id='Reader' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
         <property name="imagesList" nameLabel="Reader_property_images_list" type="text" />
+        <property name="list" nameLabel="Reader_property_images_list" type="list">
+            <property name="imageElement" nameLabel="Reader_property_image_element" type="image" />
+        </property>
     </model>
 </addon>

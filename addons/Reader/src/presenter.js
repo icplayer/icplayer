@@ -98,16 +98,25 @@ function AddonReader_create() {
 
     presenter.run = function (view, model) {
         presenter.initialize(view, model);
+        presenter.connectHandlers();
     };
 
     presenter.createPreview = function (view, model) {};
 
     presenter.initialize = function (view, model) {
-        configuration = (0, _validation.validateModel)(model);
+        configuration = (0, _validation.validateModel)(model).value;
 
-        state.manager = new _manager.ShowingManager(configuration.imagesList);
+        state.manager = new _manager.ShowingManager(configuration.list);
         state.imageWrapper = $(view).find(".reader-wrapper")[0];
+        state.leftArea = $(view).find(".left.area")[0];
+        state.rightArea = $(view).find(".right.area")[0];
+
         presenter.actualizeElement();
+    };
+
+    presenter.connectHandlers = function () {
+        state.leftArea.addEventListener('click', presenter.onLeftClick);
+        state.rightArea.addEventListener('click', presenter.onRightClick);
     };
 
     presenter.actualizeElement = function () {
@@ -130,6 +139,18 @@ function AddonReader_create() {
     presenter.getState = function () {};
 
     presenter.setState = function (state) {};
+
+    presenter.onRightClick = function (event) {
+        presenter.next();
+        event.stopPropagation();
+        event.preventDefault();
+    };
+
+    presenter.onLeftClick = function (event) {
+        presenter.previous();
+        event.stopPropagation();
+        event.preventDefault();
+    };
 
     presenter.next = function () {
         state.manager.next();
@@ -156,27 +177,14 @@ Object.defineProperty(exports, "__esModule", {
 exports.validateModel = validateModel;
 /**
  *
- * @param {string} imagesText
- */
-function validateImagesList(imagesText) {
-    var arrayOfLines = imagesText.match(/[^\r\n]+/g);
-
-    return {
-        isValid: true,
-        lines: arrayOfLines || []
-    };
-}
-
-/**
- *
  * @param model {{imagesList: string}}
  * @returns {{imagesList: string[] | Array | *, isValid: boolean}}
  */
 function validateModel(model) {
-    return {
-        imagesList: validateImagesList(model['imagesList']).lines,
-        isValid: true
-    };
+    var modelValidator = new ModelValidator();
+    var validatedModel = modelValidator.validate(model, [ModelValidators.List("list", [ModelValidators.String("imageElement")])]);
+
+    return validatedModel;
 }
 
 /***/ }),
@@ -197,7 +205,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var ShowingManager = exports.ShowingManager = function () {
 
     /**
-     * @param {string[]} imagesList
+     * @param {{imageElement: string}[]} imagesList
      */
     function ShowingManager(imagesList) {
         _classCallCheck(this, ShowingManager);
@@ -261,7 +269,7 @@ var ShowingManager = exports.ShowingManager = function () {
         }
 
         /**
-         * @param {string[]} imagesList
+         * @param {{imageElement: string}[]} imagesList
          */
 
     }, {
@@ -271,7 +279,7 @@ var ShowingManager = exports.ShowingManager = function () {
             imagesList.forEach(function (el, index) {
                 list.push({
                     id: index,
-                    url: el
+                    url: el.imageElement
                 });
             });
 

@@ -12,7 +12,7 @@ export class ShowingManager {
     actualElement = 0;
 
     /**
-     * @param {string[]} imagesList
+     * @param {{imageElement: string}[]} imagesList
      */
     constructor (imagesList) {
         this.__buildImagesList(imagesList);
@@ -56,14 +56,14 @@ export class ShowingManager {
     }
 
     /**
-     * @param {string[]} imagesList
+     * @param {{imageElement: string}[]} imagesList
      */
     __buildImagesList (imagesList) {
         let list = [];
         imagesList.forEach((el, index) => {
             list.push({
                id: index,
-               url: el
+               url: el.imageElement
             });
         });
 
