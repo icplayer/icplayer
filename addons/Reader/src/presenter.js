@@ -60,135 +60,13 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 11);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */,
 /* 1 */,
-/* 2 */,
-/* 3 */,
-/* 4 */,
-/* 5 */,
-/* 6 */,
-/* 7 */,
-/* 8 */,
-/* 9 */,
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _validation = __webpack_require__(11);
-
-var _manager = __webpack_require__(12);
-
-function AddonReader_create() {
-    var presenter = function presenter() {};
-
-    /**
-     * @type {{imagesList: Array[string]}}
-     */
-    var configuration = {
-        imagesList: []
-    };
-
-    var state = {
-        manager: null,
-        imageWrapper: null
-    };
-
-    presenter.run = function (view, model) {
-        presenter.initialize(view, model);
-        presenter.connectHandlers();
-    };
-
-    presenter.createPreview = function (view, model) {};
-
-    presenter.initialize = function (view, model) {
-        configuration = (0, _validation.validateModel)(model).value;
-
-        state.manager = new _manager.ShowingManager(configuration.list);
-        state.imageWrapper = $(view).find(".reader-wrapper")[0];
-        state.leftArea = $(view).find(".left.area")[0];
-        state.rightArea = $(view).find(".right.area")[0];
-
-        presenter.actualizeElement();
-    };
-
-    presenter.connectHandlers = function () {
-        state.leftArea.addEventListener('click', presenter.onLeftClick);
-        state.rightArea.addEventListener('click', presenter.onRightClick);
-    };
-
-    presenter.actualizeElement = function () {
-        state.imageWrapper.innerHTML = '';
-        state.imageWrapper.appendChild(state.manager.getActualElement());
-    };
-
-    presenter.setShowErrorsMode = function () {};
-
-    presenter.setWorkMode = function () {};
-
-    presenter.reset = function () {};
-
-    presenter.getErrorCount = function () {};
-
-    presenter.getMaxScore = function () {};
-
-    presenter.getScore = function () {};
-
-    presenter.getState = function () {};
-
-    presenter.setState = function (state) {};
-
-    presenter.onRightClick = function (event) {
-        presenter.next();
-        event.stopPropagation();
-        event.preventDefault();
-    };
-
-    presenter.onLeftClick = function (event) {
-        presenter.previous();
-        event.stopPropagation();
-        event.preventDefault();
-    };
-
-    presenter.next = function () {
-        state.manager.next();
-        presenter.actualizeElement();
-    };
-
-    presenter.previous = function () {
-        state.manager.previous();
-        presenter.actualizeElement();
-    };
-
-    return presenter;
-}
-
-window.AddonReader_create = AddonReader_create;
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.validateModel = validateModel;
-/**
- *
- * @param model {{imagesList: string}}
- * @returns {{imagesList: string[] | Array | *, isValid: boolean}}
- */
-function validateModel(model) {
-    var modelValidator = new ModelValidator();
-    var validatedModel = modelValidator.validate(model, [ModelValidators.List("list", [ModelValidators.String("imageElement")])]);
-
-    return validatedModel;
-}
-
-/***/ }),
-/* 12 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -206,16 +84,18 @@ var ShowingManager = exports.ShowingManager = function () {
 
     /**
      * @param {{imageElement: string}[]} imagesList
+     * @param {{HTMLDIVElement}[]} imagesWrappers
      */
-    function ShowingManager(imagesList) {
+    function ShowingManager(imagesList, imagesWrappers) {
         _classCallCheck(this, ShowingManager);
 
-        this.ELEMENTS_ON_LEFT = 10;
-        this.ELEMENTS_ON_RIGHT = 10;
+        this.ELEMENTS_ON_LEFT = 5;
+        this.ELEMENTS_ON_RIGHT = 5;
         this.imagesList = [];
-        this.loaderQueue = new _loaderQueue.LoaderQueue();
+        this.loaderQueue = null;
         this.actualElement = 0;
 
+        this.loaderQueue = new _loaderQueue.LoaderQueue(imagesWrappers);
         this.__buildImagesList(imagesList);
         this.__update_queue();
     }
@@ -243,6 +123,8 @@ var ShowingManager = exports.ShowingManager = function () {
                 this.actualElement++;
                 this.__update_queue();
             }
+
+            this.__garbage();
         }
     }, {
         key: 'previous',
@@ -251,6 +133,8 @@ var ShowingManager = exports.ShowingManager = function () {
                 this.actualElement--;
                 this.__update_queue();
             }
+
+            this.__garbage();
         }
     }, {
         key: '__update_queue',
@@ -285,10 +169,146 @@ var ShowingManager = exports.ShowingManager = function () {
 
             this.imagesList = list;
         }
+    }, {
+        key: '__garbage',
+        value: function __garbage() {
+            var loadedElements = this.loaderQueue.getLoadedElements();
+
+            if (loadedElements > 15) {
+                for (var i = 0; i < this.imagesList.length; i++) {
+                    if (i > this.actualElement - this.ELEMENTS_ON_LEFT && i < this.actualElement + this.ELEMENTS_ON_RIGHT) {
+                        continue;
+                    }
+
+                    this.loaderQueue.remove(i);
+                }
+            }
+        }
     }]);
 
     return ShowingManager;
 }();
+
+/***/ }),
+/* 3 */,
+/* 4 */,
+/* 5 */,
+/* 6 */,
+/* 7 */,
+/* 8 */,
+/* 9 */,
+/* 10 */,
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _validation = __webpack_require__(12);
+
+var _manager = __webpack_require__(2);
+
+var _viewer = __webpack_require__(14);
+
+function AddonReader_create() {
+    var presenter = function presenter() {};
+
+    /**
+     * @type {{imagesList: Array[string]}}
+     */
+    var configuration = {
+        imagesList: []
+    };
+
+    var state = {
+        manager: null,
+        imageWrapper: null
+    };
+
+    presenter.run = function (view, model) {
+        presenter.initialize(view, model);
+        presenter.connectHandlers();
+    };
+
+    presenter.createPreview = function (view, model) {};
+
+    presenter.initialize = function (view, model) {
+        configuration = (0, _validation.validateModel)(model).value;
+
+        state.imageWrapper = $(view).find(".reader-wrapper")[0];
+        state.leftArea = $(view).find(".left.area")[0];
+        state.rightArea = $(view).find(".right.area")[0];
+
+        var viewerConfig = {
+            width: configuration.Width,
+            height: configuration.Height
+        };
+
+        state.viewer = new _viewer.Viewer(state.imageWrapper, configuration.list, viewerConfig);
+    };
+
+    presenter.connectHandlers = function () {
+        state.leftArea.addEventListener('click', presenter.onLeftClick);
+        state.rightArea.addEventListener('click', presenter.onRightClick);
+    };
+
+    presenter.setShowErrorsMode = function () {};
+
+    presenter.setWorkMode = function () {};
+
+    presenter.reset = function () {};
+
+    presenter.getErrorCount = function () {};
+
+    presenter.getMaxScore = function () {};
+
+    presenter.getScore = function () {};
+
+    presenter.getState = function () {};
+
+    presenter.setState = function (state) {};
+
+    presenter.onRightClick = function (event) {
+        presenter.next();
+        event.stopPropagation();
+        event.preventDefault();
+    };
+
+    presenter.onLeftClick = function (event) {
+        presenter.previous();
+        event.stopPropagation();
+        event.preventDefault();
+    };
+
+    presenter.next = function () {
+        state.viewer.next();
+    };
+
+    presenter.previous = function () {
+        state.viewer.previous();
+    };
+
+    return presenter;
+}
+
+window.AddonReader_create = AddonReader_create;
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.validateModel = validateModel;
+/**
+ *
+ * @param model {{imagesList: string}}
+ * @returns {{imagesList: string[] | Array | *, isValid: boolean}}
+ */
+function validateModel(model) {
+    var modelValidator = new ModelValidator();
+    var validatedModel = modelValidator.validate(model, [ModelValidators.List("list", [ModelValidators.String("imageElement")]), ModelValidators.Integer("Width"), ModelValidators.Integer("Height")]);
+
+    return validatedModel;
+}
 
 /***/ }),
 /* 13 */
@@ -303,7 +323,10 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var LoaderQueue = exports.LoaderQueue = function () {
-    function LoaderQueue() {
+    /**
+     * @type {HTMLDivElement[]}
+     */
+    function LoaderQueue(imagesWrappers) {
         _classCallCheck(this, LoaderQueue);
 
         this.elements = {};
@@ -311,7 +334,17 @@ var LoaderQueue = exports.LoaderQueue = function () {
         this.toLoadQueue = [];
         this.MAX_ELEMENTS_TO_LOAD = 2;
         this.whileLoadingElements = 0;
+        this.imagesWrappers = [];
+        this.loadedElements = 0;
+
+        this.imagesWrappers = imagesWrappers;
     }
+
+    /**
+     * Add as last element to queue image
+     * @param {{id: Number, url: string}}image
+     */
+
     /**
      * @type {{id: Number, url: string}[]} toLoadQueue
      */
@@ -319,12 +352,6 @@ var LoaderQueue = exports.LoaderQueue = function () {
 
     _createClass(LoaderQueue, [{
         key: "appendToQueue",
-
-
-        /**
-         * Add as last element to queue image
-         * @param {{id: Number, url: string}}image
-         */
         value: function appendToQueue(image) {
             if (!this.elements[image.id]) {
                 var imageWrapper = document.createElement("div");
@@ -365,6 +392,8 @@ var LoaderQueue = exports.LoaderQueue = function () {
 
             var elementToLoad = this.toLoadQueue.shift();
             this.elements[elementToLoad.id].appendChild(this.__create_element(elementToLoad));
+            this.imagesWrappers[elementToLoad.id].appendChild(this.elements[elementToLoad.id]);
+
             this.whileLoadingElements++;
         }
     }, {
@@ -373,6 +402,7 @@ var LoaderQueue = exports.LoaderQueue = function () {
             if (this.whileLoadingElements > 0) {
                 this.whileLoadingElements--;
             }
+            this.loadedElements++;
 
             this.__check_should_load();
         }
@@ -405,9 +435,148 @@ var LoaderQueue = exports.LoaderQueue = function () {
 
             return imageElement;
         }
+    }, {
+        key: "getLoadedElements",
+        value: function getLoadedElements() {
+            return this.loadedElements;
+        }
+    }, {
+        key: "remove",
+        value: function remove(id) {
+            if (!this.elements[id]) {
+                return;
+            }
+
+            this.loadedElements--;
+            this.elements[id].parentNode.removeChild(this.elements[id]);
+            delete this.elements[id];
+            this.isLoadedOrLoadingElements[id] = false;
+        }
     }]);
 
     return LoaderQueue;
+}();
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.Viewer = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _manager = __webpack_require__(2);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * @typedef {{width: Number, height: Number}|{}} ViewerConfig
+ */
+
+var Viewer = exports.Viewer = function () {
+
+    /**
+     * @param {HTMLDivElement} container
+     * @param  {{imageElement: string}[]} imagesList
+     * @param {ViewerConfig} config
+     */
+
+    /**
+     * @type {ViewerConfig}
+     */
+    function Viewer(container, imagesList, config) {
+        _classCallCheck(this, Viewer);
+
+        this.manager = null;
+        this.elementsCount = 0;
+        this.container = null;
+        this.config = {};
+        this.imagesWrapper = document.createElement("div");
+        this.images = [];
+        this.timeoutID = null;
+        this.actualPosition = 0;
+        this.nextPosition = 0;
+
+        this.elementsCount = imagesList.length;
+        this.container = container;
+        this.config = config;
+        this.__build_view();
+
+        this.manager = new _manager.ShowingManager(imagesList, this.images);
+        this.__actualize_view();
+    }
+
+    //Animator
+
+    /**
+     * @type {HTMLDivElement}
+     */
+
+
+    _createClass(Viewer, [{
+        key: "next",
+        value: function next() {
+            this.manager.next();
+            this.nextPosition -= this.config.width;
+            this.nextPosition = Math.max(this.nextPosition, this.elementsCount * this.config.width * -1);
+        }
+    }, {
+        key: "previous",
+        value: function previous() {
+            this.manager.previous();
+            this.nextPosition += this.config.width;
+            this.nextPosition = Math.min(this.nextPosition, 0);
+        }
+    }, {
+        key: "__build_view",
+        value: function __build_view() {
+            for (var i = 0; i < this.elementsCount; i++) {
+                var element = document.createElement("div");
+                element.classList.add("imageElement");
+                element.style.width = this.config.width + "px";
+                element.style.height = this.config.height + "px";
+
+                this.imagesWrapper.appendChild(element);
+                this.images.push(element);
+            }
+
+            this.imagesWrapper.classList.add("imagesWrapper");
+            this.imagesWrapper.style.width = this.elementsCount * this.config.width + "px";
+            this.imagesWrapper.style.height = this.config.height + "px";
+            this.container.appendChild(this.imagesWrapper);
+        }
+    }, {
+        key: "__actualize_view",
+        value: function __actualize_view() {
+            if (this.actualPosition === this.nextPosition) {
+                this.timeoutID = setTimeout(this.__actualize_view.bind(this), 100);
+                return;
+            }
+
+            var diff = Math.abs(this.actualPosition - this.nextPosition);
+            if (diff > this.config.width * 6) {
+                diff = 100;
+            } else if (diff > this.config.width * 3) {
+                diff = 50;
+            } else if (diff > 25) {
+                diff = 25;
+            }
+
+            if (this.nextPosition < this.actualPosition) {
+                this.actualPosition -= diff;
+            } else {
+                this.actualPosition += diff;
+            }
+            this.imagesWrapper.style.left = this.actualPosition + "px";
+
+            this.timeoutID = setTimeout(this.__actualize_view.bind(this), 17);
+        }
+    }]);
+
+    return Viewer;
 }();
 
 /***/ })

@@ -9,6 +9,8 @@ export function validateModel (model) {
         ModelValidators.List("list", [
             ModelValidators.String("imageElement"),
         ]),
+        ModelValidators.Integer("Width"),
+        ModelValidators.Integer("Height")
     ]);
 
     return validatedModel;

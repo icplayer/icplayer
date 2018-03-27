@@ -7,6 +7,15 @@ export class LoaderQueue {
     toLoadQueue = [];
     MAX_ELEMENTS_TO_LOAD = 2;
     whileLoadingElements = 0;
+    /**
+     * @type {HTMLDivElement[]}
+     */
+    imagesWrappers = [];
+    loadedElements = 0;
+
+    constructor (imagesWrappers) {
+        this.imagesWrappers = imagesWrappers;
+    }
 
     /**
      * Add as last element to queue image
@@ -47,6 +56,8 @@ export class LoaderQueue {
 
         let elementToLoad = this.toLoadQueue.shift();
         this.elements[elementToLoad.id].appendChild(this.__create_element(elementToLoad));
+        this.imagesWrappers[elementToLoad.id].appendChild(this.elements[elementToLoad.id]);
+
         this.whileLoadingElements++;
     }
 
@@ -54,6 +65,7 @@ export class LoaderQueue {
         if (this.whileLoadingElements > 0) {
             this.whileLoadingElements--;
         }
+        this.loadedElements++;
 
         this.__check_should_load();
     }
@@ -81,6 +93,22 @@ export class LoaderQueue {
         imageElement.src = image.url;
         imageElement.classList.add("image-element");
 
+
         return imageElement;
+    }
+
+    getLoadedElements () {
+        return this.loadedElements;
+    }
+
+    remove (id) {
+        if (!this.elements[id]) {
+            return;
+        }
+
+        this.loadedElements--;
+        this.elements[id].parentNode.removeChild(this.elements[id]);
+        delete this.elements[id];
+        this.isLoadedOrLoadingElements[id] = false;
     }
 }

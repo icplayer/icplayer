@@ -1,5 +1,6 @@
 import { validateModel } from './validation.jsm';
 import { ShowingManager } from './manager.jsm';
+import { Viewer } from './viewer.jsm';
 
 function AddonReader_create () {
     let presenter = function(){};
@@ -22,28 +23,28 @@ function AddonReader_create () {
     };
 
     presenter.createPreview = function (view, model) {
-
     };
 
     presenter.initialize = function (view, model) {
         configuration = validateModel(model).value;
 
-        state.manager = new ShowingManager(configuration.list);
         state.imageWrapper = $(view).find(".reader-wrapper")[0];
         state.leftArea = $(view).find(".left.area")[0];
         state.rightArea = $(view).find(".right.area")[0];
 
-        presenter.actualizeElement();
+
+        let viewerConfig = {
+            width: configuration.Width,
+            height: configuration.Height
+        };
+
+        state.viewer = new Viewer(state.imageWrapper, configuration.list, viewerConfig);
+
     };
 
     presenter.connectHandlers = function () {
         state.leftArea.addEventListener('click', presenter.onLeftClick);
         state.rightArea.addEventListener('click', presenter.onRightClick);
-    };
-
-    presenter.actualizeElement = function () {
-        state.imageWrapper.innerHTML = '';
-        state.imageWrapper.appendChild(state.manager.getActualElement());
     };
 
     presenter.setShowErrorsMode = function() {
@@ -83,13 +84,11 @@ function AddonReader_create () {
     };
 
     presenter.next = function () {
-        state.manager.next();
-        presenter.actualizeElement();
+        state.viewer.next();
     };
 
     presenter.previous = function () {
-        state.manager.previous();
-        presenter.actualizeElement();
+        state.viewer.previous();
     };
 
     return presenter;

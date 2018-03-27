@@ -1,6 +1,7 @@
 .reader-wrapper {
     width: 100%;
     height: 100%;
+    position: absolute;
 }
 
 .image-element {
@@ -21,4 +22,12 @@
 
 .right {
     right: 0px;
+}
+
+.imageElement {
+    float: left;
+}
+
+.imagesWrapper {
+    position: absolute;
 }

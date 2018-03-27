@@ -1,20 +1,22 @@
 import { LoaderQueue } from './loaderQueue.jsm';
 
 export class ShowingManager {
-    ELEMENTS_ON_LEFT = 10;
-    ELEMENTS_ON_RIGHT = 10;
+    ELEMENTS_ON_LEFT = 5;
+    ELEMENTS_ON_RIGHT = 5;
     /**
      * Container for images
      * @type {{id: Number, url: string}[]}
      */
     imagesList = [];
-    loaderQueue = new LoaderQueue();
+    loaderQueue = null;
     actualElement = 0;
 
     /**
      * @param {{imageElement: string}[]} imagesList
+     * @param {{HTMLDIVElement}[]} imagesWrappers
      */
-    constructor (imagesList) {
+    constructor (imagesList, imagesWrappers) {
+        this.loaderQueue = new LoaderQueue(imagesWrappers);
         this.__buildImagesList(imagesList);
         this.__update_queue();
     }
@@ -32,6 +34,8 @@ export class ShowingManager {
             this.actualElement++;
             this.__update_queue();
         }
+
+        this.__garbage();
     }
 
     previous () {
@@ -39,6 +43,8 @@ export class ShowingManager {
             this.actualElement--;
             this.__update_queue();
         }
+
+        this.__garbage();
     }
 
     __update_queue () {
@@ -68,6 +74,20 @@ export class ShowingManager {
         });
 
         this.imagesList = list;
+    }
+
+    __garbage () {
+        let loadedElements = this.loaderQueue.getLoadedElements();
+
+        if (loadedElements > 15) {
+            for (let i = 0; i < this.imagesList.length; i++) {
+                if (i > this.actualElement - this.ELEMENTS_ON_LEFT && i < this.actualElement + this.ELEMENTS_ON_RIGHT) {
+                    continue;
+                }
+
+                this.loaderQueue.remove(i);
+            }
+        }
     }
 
 
