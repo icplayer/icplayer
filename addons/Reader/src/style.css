@@ -30,4 +30,6 @@
 
 .imagesWrapper {
     position: absolute;
+    transition: left 1s;
+    -webkit-transition: left 1s;
 }

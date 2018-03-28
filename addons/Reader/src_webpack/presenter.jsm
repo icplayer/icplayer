@@ -43,8 +43,14 @@ function AddonReader_create () {
     };
 
     presenter.connectHandlers = function () {
-        state.leftArea.addEventListener('click', presenter.onLeftClick);
-        state.rightArea.addEventListener('click', presenter.onRightClick);
+        if (MobileUtils.isEventSupported('touchstart')) {
+            state.leftArea.addEventListener('touchstart', presenter.onLeftClick);
+            state.rightArea.addEventListener('touchstart', presenter.onRightClick);
+        } else {
+            state.leftArea.addEventListener('click', presenter.onLeftClick);
+            state.rightArea.addEventListener('click', presenter.onRightClick);
+        }
+
     };
 
     presenter.setShowErrorsMode = function() {

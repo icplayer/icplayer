@@ -245,8 +245,13 @@ function AddonReader_create() {
     };
 
     presenter.connectHandlers = function () {
-        state.leftArea.addEventListener('click', presenter.onLeftClick);
-        state.rightArea.addEventListener('click', presenter.onRightClick);
+        if (MobileUtils.isEventSupported('touchstart')) {
+            state.leftArea.addEventListener('touchstart', presenter.onLeftClick);
+            state.rightArea.addEventListener('touchstart', presenter.onRightClick);
+        } else {
+            state.leftArea.addEventListener('click', presenter.onLeftClick);
+            state.rightArea.addEventListener('click', presenter.onRightClick);
+        }
     };
 
     presenter.setShowErrorsMode = function () {};
@@ -556,20 +561,7 @@ var Viewer = exports.Viewer = function () {
                 return;
             }
 
-            var diff = Math.abs(this.actualPosition - this.nextPosition);
-            if (diff > this.config.width * 6) {
-                diff = 100;
-            } else if (diff > this.config.width * 3) {
-                diff = 50;
-            } else if (diff > 25) {
-                diff = 25;
-            }
-
-            if (this.nextPosition < this.actualPosition) {
-                this.actualPosition -= diff;
-            } else {
-                this.actualPosition += diff;
-            }
+            this.actualPosition = this.nextPosition;
             this.imagesWrapper.style.left = this.actualPosition + "px";
 
             this.timeoutID = setTimeout(this.__actualize_view.bind(this), 17);

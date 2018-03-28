@@ -76,22 +76,7 @@ export class Viewer {
             return;
         }
 
-        let diff = Math.abs(this.actualPosition - this.nextPosition);
-        if (diff > this.config.width * 6) {
-            diff = 100;
-        }
-        else if (diff > this.config.width * 3) {
-            diff = 50;
-        }
-        else if (diff > 25) {
-            diff = 25;
-        }
-
-        if (this.nextPosition < this.actualPosition) {
-            this.actualPosition -= diff;
-        } else {
-            this.actualPosition += diff;
-        }
+        this.actualPosition = this.nextPosition;
         this.imagesWrapper.style.left = this.actualPosition + "px";
 
         this.timeoutID = setTimeout(this.__actualize_view.bind(this), 17);
