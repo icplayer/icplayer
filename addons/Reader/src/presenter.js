@@ -224,7 +224,6 @@ function AddonReader_create() {
 
     presenter.run = function (view, model) {
         presenter.initialize(view, model);
-        presenter.connectHandlers();
     };
 
     presenter.createPreview = function (view, model) {};
@@ -242,16 +241,6 @@ function AddonReader_create() {
         };
 
         state.viewer = new _viewer.Viewer(state.imageWrapper, configuration.list, viewerConfig);
-    };
-
-    presenter.connectHandlers = function () {
-        if (MobileUtils.isEventSupported('touchstart')) {
-            state.leftArea.addEventListener('touchstart', presenter.onLeftClick);
-            state.rightArea.addEventListener('touchstart', presenter.onRightClick);
-        } else {
-            state.leftArea.addEventListener('click', presenter.onLeftClick);
-            state.rightArea.addEventListener('click', presenter.onRightClick);
-        }
     };
 
     presenter.setShowErrorsMode = function () {};
@@ -490,7 +479,7 @@ var Viewer = exports.Viewer = function () {
      */
 
     /**
-     * @type {ViewerConfig}
+     * @type {HTMLDivElement}
      */
     function Viewer(container, imagesList, config) {
         _classCallCheck(this, Viewer);
@@ -500,10 +489,17 @@ var Viewer = exports.Viewer = function () {
         this.container = null;
         this.config = {};
         this.imagesWrapper = document.createElement("div");
+        this.imagesScroller = document.createElement("div");
         this.images = [];
         this.timeoutID = null;
-        this.actualPosition = 0;
+        this.actualPosition = -1;
         this.nextPosition = 0;
+        this.hammertime = null;
+        this.actualScale = 1.0;
+        this.leftMove = 0;
+        this.topMove = 0;
+        this.scroll = 0;
+        this.maxScroll = document.body.offsetHeight - window.innerHeight;
 
         this.elementsCount = imagesList.length;
         this.container = container;
@@ -511,29 +507,155 @@ var Viewer = exports.Viewer = function () {
         this.__build_view();
 
         this.manager = new _manager.ShowingManager(imagesList, this.images);
+        this.__connect_handlers();
+        this.__actualize_scale();
         this.__actualize_view();
     }
 
     //Animator
 
     /**
-     * @type {HTMLDivElement}
+     * @type {ViewerConfig}
      */
 
 
     _createClass(Viewer, [{
         key: "next",
         value: function next() {
+            if (this.actualScale !== 1) {
+                return;
+            }
+
+            this.topMove = 0;
+            this.leftMove = 0;
+            this.scroll = 0;
+
             this.manager.next();
             this.nextPosition -= this.config.width;
             this.nextPosition = Math.max(this.nextPosition, this.elementsCount * this.config.width * -1);
+            this.__actualize_view();
         }
     }, {
         key: "previous",
         value: function previous() {
+            if (this.actualScale !== 1) {
+                return;
+            }
+
+            this.topMove = 0;
+            this.leftMove = 0;
+            this.scroll = 0;
+
             this.manager.previous();
             this.nextPosition += this.config.width;
             this.nextPosition = Math.min(this.nextPosition, 0);
+            this.__actualize_view();
+        }
+    }, {
+        key: "__connect_handlers",
+        value: function __connect_handlers() {
+            this.hammertime = new Hammer(this.container);
+            this.hammertime.get('swipe').set({ enable: true, direction: Hammer.DIRECTION_ALL });
+            this.hammertime.get('pinch').set({ enable: true });
+            this.hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL, threshold: 0 });
+
+            var self = this;
+            this.hammertime.on('swiperight', function () {
+                self.previous();
+            });
+
+            this.hammertime.on('swipeleft', function () {
+                self.next();
+            });
+
+            this.hammertime.on('tap', function (ev) {
+                var x = ev.center.x - self.container.getBoundingClientRect().left;
+
+                if (x < self.config.width / 2) {
+                    self.previous();
+                } else {
+                    self.next();
+                }
+            });
+
+            this.hammertime.on('pinchout', function (ev) {
+                if (self.actualScale < 2) {
+                    self.actualScale += 0.02;
+                    self.__actualize_scale();
+                    self.scroll = 0;
+                }
+            });
+
+            this.hammertime.on('pinchin', function (ev) {
+                if (self.actualScale > 1) {
+                    self.actualScale -= 0.02;
+                    self.__actualize_scale();
+                    self.scroll = 0;
+                }
+            });
+
+            var lastPoint = {
+                x: null,
+                y: null
+            };
+
+            this.hammertime.on('panstart', function (ev) {
+                lastPoint.x = ev.deltaX;
+                lastPoint.y = ev.deltaY;
+            });
+
+            this.hammertime.on('panmove', function (ev) {
+                var diffX = ev.deltaX - lastPoint.x;
+                var diffY = ev.deltaY - lastPoint.y;
+                lastPoint.x = ev.deltaX;
+                lastPoint.y = ev.deltaY;
+
+                self.__moveUp(diffY);
+                self.__moveLeft(diffX);
+
+                self.__actualize_view();
+            });
+
+            this.hammertime.on('panend', function (ev) {
+                lastPoint.x = 0;
+                lastPoint.y = 0;
+            });
+        }
+    }, {
+        key: "__moveUp",
+        value: function __moveUp(direction) {
+            console.log("-------------------");
+            console.log("DIRECTION", direction, this.scroll, this.maxScroll);
+
+            this.scroll += direction * -1;
+            direction = 0;
+
+            if (this.scroll < 0) {
+                direction = this.scroll * -1;
+                this.scroll = 0;
+            }
+
+            if (this.scroll >= this.maxScroll) {
+                direction = (this.scroll - this.maxScroll) * -1;
+                this.scroll = this.maxScroll;
+            }
+
+            this.topMove += direction;
+        }
+    }, {
+        key: "__moveLeft",
+        value: function __moveLeft(direction) {
+            this.leftMove += direction;
+        }
+    }, {
+        key: "__actualize_scale",
+        value: function __actualize_scale() {
+            this.hammertime.get('swipe').set({ enable: this.actualScale === 1 });
+
+            this.container.style.webkitTransform = "scale(" + this.actualScale + ") translateZ(0)";
+            this.container.style.transform = "scale(" + this.actualScale + ") translateZ(0)";
+            this.container.style.msTransform = "scale(" + this.actualScale + ") translateZ(0)";
+            this.__actualize_view();
         }
     }, {
         key: "__build_view",
@@ -544,10 +666,12 @@ var Viewer = exports.Viewer = function () {
                 element.style.width = this.config.width + "px";
                 element.style.height = this.config.height + "px";
 
-                this.imagesWrapper.appendChild(element);
+                this.imagesScroller.appendChild(element);
                 this.images.push(element);
             }
 
+            this.imagesScroller.classList.add("imagesScroller");
+            this.imagesWrapper.appendChild(this.imagesScroller);
             this.imagesWrapper.classList.add("imagesWrapper");
             this.imagesWrapper.style.width = this.elementsCount * this.config.width + "px";
             this.imagesWrapper.style.height = this.config.height + "px";
@@ -556,15 +680,29 @@ var Viewer = exports.Viewer = function () {
     }, {
         key: "__actualize_view",
         value: function __actualize_view() {
-            if (this.actualPosition === this.nextPosition) {
-                this.timeoutID = setTimeout(this.__actualize_view.bind(this), 100);
-                return;
-            }
-
             this.actualPosition = this.nextPosition;
-            this.imagesWrapper.style.left = this.actualPosition + "px";
 
-            this.timeoutID = setTimeout(this.__actualize_view.bind(this), 17);
+            var maxLeft = this.config.width * (this.actualScale - 1) / 4;
+            var maxTop = this.config.height * (this.actualScale - 1) / 4;
+
+            var left = this.leftMove;
+            var top = this.topMove;
+
+            left = Math.min(left, maxLeft);
+            left = Math.max(left, -maxLeft);
+
+            top = Math.min(top, maxTop);
+            top = Math.max(top, -maxTop);
+
+            this.leftMove = left;
+            this.topMove = top;
+
+            this.imagesScroller.style.top = top + 'px';
+            this.imagesScroller.style.left = left + 'px';
+
+            window.scroll(0, this.scroll);
+
+            this.imagesWrapper.style.left = this.actualPosition + "px";
         }
     }]);
 

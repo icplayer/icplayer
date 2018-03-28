@@ -19,7 +19,6 @@ function AddonReader_create () {
 
     presenter.run = function(view, model) {
         presenter.initialize(view, model);
-        presenter.connectHandlers();
     };
 
     presenter.createPreview = function (view, model) {
@@ -39,17 +38,6 @@ function AddonReader_create () {
         };
 
         state.viewer = new Viewer(state.imageWrapper, configuration.list, viewerConfig);
-
-    };
-
-    presenter.connectHandlers = function () {
-        if (MobileUtils.isEventSupported('touchstart')) {
-            state.leftArea.addEventListener('touchstart', presenter.onLeftClick);
-            state.rightArea.addEventListener('touchstart', presenter.onRightClick);
-        } else {
-            state.leftArea.addEventListener('click', presenter.onLeftClick);
-            state.rightArea.addEventListener('click', presenter.onRightClick);
-        }
 
     };
 
