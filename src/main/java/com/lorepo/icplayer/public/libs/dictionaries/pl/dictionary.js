@@ -1689,6 +1689,7 @@
 	"Quiz_property_NextLabel": "Next label",
 	"Quiz_property_GameLostMessage": "Game lost message",
 	"Quiz_property_GameWonMessage": "Game won message",
+	"Quiz_property_center_vertically": "Center vertically",
 	"Quiz_property_isActivity": "Is activity",
 	"dont_generate_correct_order": "Nie generuj poprawnej kombinacji",
 	"alternative_text": "Alternative text",

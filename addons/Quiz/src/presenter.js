@@ -82,6 +82,7 @@ function AddonQuiz_create() {
             nextLabel: model['NextLabel'] || '',
             gameLostMessage: model['GameLostMessage'],
             gameWonMessage: model['GameWonMessage'],
+            centerVertically: ModelValidationUtils.validateBoolean(model['Center vertically']),
             isActivity: ModelValidationUtils.validateBoolean(model['isActivity']),
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible'])
         }
@@ -303,8 +304,18 @@ function AddonQuiz_create() {
         for (var i=0; i<answers.length; i++) {
             var $tip = $('<div class="question-tip"></div>');
             var answer = answers[i];
+            
+            var headersOfAnswer = document.createElement('div');
+            var $headersOfAnswer = $(headersOfAnswer);
+            $headersOfAnswer.addClass("headers-of-answers");
+            
+            var divAnswers = document.createElement('div');
+            var $divAnswers = $(divAnswers);
+            $divAnswers.addClass('answers');
+            
             var label = labels[i];
-            $tip.text(label + (answer || ''));
+            $headersOfAnswer.text(label);
+            $divAnswers.text(answer || '');
             if (answer === null) {
                 $tip.addClass('removed');
                 $tip.clickAction = function () {};
@@ -325,7 +336,14 @@ function AddonQuiz_create() {
                 $tip.addClass('wrong');
             }
             $tips.append($tip);
-            presenter.activeElements.push($tip);
+            $tip.append($headersOfAnswer);
+            $tip.append($divAnswers);
+            presenter.activeElements.push($tip)
+            
+            if (presenter.config.centerVertically) {
+                $headersOfAnswer.addClass('center-vertically');
+                $divAnswers.addClass('center-vertically');
+            }
         }
 
         $q.append($title);
