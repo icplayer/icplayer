@@ -193,4 +193,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		// TODO Auto-generated method stub
 		
 	}
+
+
+	@Override
+	public boolean isPlayerInCrossDomain() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

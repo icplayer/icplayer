@@ -141,7 +141,7 @@ function AddonGlossary_create(){
             if(parseFloat(window.MobileUtils.getAndroidVersion())=='4.1'){
                 if (window !== window.top) {
                     var ancestorData;
-                    for (i=0; i<presenter.ancestorsData.length; i++)
+                    for (var i=0; i<presenter.ancestorsData.length; i++)
                     {
                         ancestorData = presenter.ancestorsData[i];
                         $(ancestorData.wnd).scrollTop(ancestorData.offset);
@@ -237,9 +237,15 @@ function AddonGlossary_create(){
 
         dialog.dialog("option", "title", dialogData.title);
         presenter.addDescription(dialog, dialogData.description);
-        currentScrollTop = $(top.window).scrollTop();
+
+        currentScrollTop = playerController.iframeScroll();
+
         dialog.dialog("open");
-        $(top.window).scrollTop(currentScrollTop);
+
+        if (!playerController.isPlayerInCrossDomain()) {
+            $(top.window).scrollTop(currentScrollTop);
+        }
+
         presenter.updateLaTeX(dialogData.description);
 
         var openLinkOption = presenter.model["Open external link in"];
@@ -273,7 +279,7 @@ function AddonGlossary_create(){
         presenter.findICPage();
         presenter.title = "";
         presenter.description = "";
-
+        var position = playerController.isPlayerInCrossDomain() ? window : window.top;
 
         var dialog = presenter.$view.find(".modal-dialog");
         dialog.dialog({
@@ -287,7 +293,7 @@ function AddonGlossary_create(){
             open: presenter.openDialogEventHandler,
             close: presenter.closeDialogEventHandler,
             position: {
-                of: window.top
+                of: position
             }
         });
 

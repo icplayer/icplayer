@@ -263,5 +263,9 @@ public class PlayerServices implements IPlayerServices {
 
 	private native JavaScriptObject getJQueryUIPrepareOffsetFunction() /*-{
 		return $wnd.$.ui.ddmanager.prepareOffsets;
-	}-*/;	
+	}-*/;
+	
+	public boolean isPlayerInCrossDomain() {
+		return this.playerController.isPlayerInCrossDomain();
+	}
 }

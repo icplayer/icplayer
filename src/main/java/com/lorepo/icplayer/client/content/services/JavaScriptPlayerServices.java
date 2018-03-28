@@ -486,6 +486,10 @@ public class JavaScriptPlayerServices {
 		playerServices.setScaleInformation = function(scaleInfo) {
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setScaleInformation(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(scaleInfo.scaleX,scaleInfo.scaleY,scaleInfo.transform,scaleInfo.transformOrigin);
 		};
+		
+		playerServices.isPlayerInCrossDomain = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPlayerInCrossDomain()();
+		}
 
 		return playerServices;
 	}-*/;
@@ -877,5 +881,9 @@ public class JavaScriptPlayerServices {
 	
 	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin){
 		this.playerServices.setScaleInformation(scaleX, scaleY, transform, transformOrigin);		
+	}
+	
+	public boolean isPlayerInCrossDomain() {
+		return this.playerServices.isPlayerInCrossDomain();
 	}
 }
