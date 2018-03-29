@@ -3,6 +3,37 @@ function AddonPage_Counter_create() {
     var presentationController;
     var isWCAGOn = false;
 
+    presenter.executeCommand = function(name, params) {
+        switch(name.toLowerCase()) {
+            case 'hide'.toLowerCase():
+                presenter.hide();
+                break;
+            case 'show'.toLowerCase():
+                presenter.show();
+                break;
+        }
+    };
+	
+    presenter.hide = function() {
+        presenter.isCurrentlyVisible = false;
+        presenter.setVisibility(false);
+    };
+	
+    presenter.show = function() {
+        presenter.isCurrentlyVisible = true;
+        presenter.setVisibility(true);
+    };
+    presenter.setVisibility = function(isVisible) {
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+	
+    presenter.updateVisibility = function() {
+        if (presenter.isCurrentlyVisible) {
+            presenter.show();
+        } else
+            presenter.hide();
+    };
+	
     presenter.ERROR_CODES = {
             "L_01": "No language selected, have to be selected proper language in Numericals property",
             'ST_01': "Start from property have to be a positive integer.",
@@ -185,7 +216,8 @@ function AddonPage_Counter_create() {
     		omittedPagesTexts: validatedOmittedPagesTexts.value,
             Numericals: presenter.validateLanguage(model).value,
             langTag: model['langAttribute'],
-            speechTexts: presenter.getSpeechTexts(model['speechTexts'])
+            speechTexts: presenter.getSpeechTexts(model['speechTexts']),
+		isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"])
     	};
     };
 
@@ -256,10 +288,12 @@ function AddonPage_Counter_create() {
     };
     
     function presenterLogic(view, model, isPreview) {
-
+        presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
     	var validatedModel = presenter.validateModel(upgradedModel);
     	presenter.configuration = validatedModel;
+	presenter.isCurrentlyVisible = presenter.configuration.isVisible;
+	presenter.updateVisibility();
     	
     	if (!validatedModel.isValid) {
     		DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
@@ -361,6 +395,23 @@ function AddonPage_Counter_create() {
         return pageCount;
     };
 
+    presenter.reset = function() {
+	presenter.isCurrentlyVisible = presenter.configuration.isVisible;	
+	presenter.updateVisibility();
+    };
+	
+    presenter.getState = function(){
+	return JSON.stringify({
+            visible : presenter.isCurrentlyVisible
+        });
+    };
+
+    presenter.setState = function(state){
+	var parsedState = JSON.parse(state);
+	presenter.isCurrentlyVisible = parsedState.visible;
+	presenter.updateVisibility();
+    };
+	
     presenter.isEnterable = function() {
         return false;
     };
