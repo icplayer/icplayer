@@ -390,7 +390,7 @@
 
         for (var elementName in this.elements) {
             if (this.elements.hasOwnProperty(elementName)) {
-                if (elementName.startsWith("BURGER_MENU_" + name + "_")) {
+                if (elementName.indexOf("BURGER_MENU_" + name + "_") === 0) {
                     destroyTreeElement.call(this, this.elements[elementName]);
                     this.elements[elementName].element.parentNode.removeChild(this.elements[elementName].element);
                     delete this.elements[elementName];
