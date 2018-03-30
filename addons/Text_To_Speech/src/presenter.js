@@ -239,6 +239,67 @@ function AddonText_To_Speech_create() {
 
     }
 
+     presenter.parseAltTexts = function(texts){
+        for(var i=0; i<texts.length;i++){
+            if(texts[i].text!==null && texts[i].text!==undefined && texts[i].text.trim().length>0)
+            {
+                // altText elements with a langTag need to be isolated into seperate items
+                // in the texts array, so that they can use a different language tag.
+                var match = texts[i].text.match(/\\alt{[^\|{}]*?\|([^\|{}]*?)\|([^\|{}]*?)}/g);
+                if(match && match.length>0) {
+                    // get the first altText element with a lang tag.
+                    // if there are more, they will not be parsed in this iteration
+                    // instead, they will become a part of the tail and will be parsed in future iterations
+                    var matchText = match[0].trim();
+                    var originalMatchText = matchText;
+                    var splitTexts = texts[i].text.split(matchText);
+                    var startIndex = texts[i].text.indexOf(matchText);
+                    
+                    matchText = matchText.replace('\\alt{', '');
+                    matchText = matchText.replace('}', '');
+                    var altTextParts = matchText.split('\|');
+
+                    if (altTextParts && altTextParts.length === 3) {
+                        var altTextVoice = getTextVoiceObject(altTextParts[1], altTextParts[2]);
+
+                        if (splitTexts) {
+                            if (splitTexts.length > 2) {
+                                // It is possible that there will be multiple identical atlText elements
+                                // if that is the case, all elements of the splitTexts array should be merged
+                                // with the exception of the head
+                                var newSplitTexts = splitTexts.splice(0, 1);
+                                newSplitTexts.push(splitTexts.join(originalMatchText));
+                                splitTexts = newSplitTexts;
+                            }
+                            if (splitTexts.length === 1) {
+                                texts[i].text = splitTexts[0];
+                                if (startIndex === 0) {
+                                    texts.splice(i, 0, altTextVoice);
+                                } else {
+                                    texts.splice(i + 1, 0, altTextVoice);
+                                }
+                            }
+                            if (splitTexts.length === 2) {
+                                texts[i].text = splitTexts[0];
+                                texts.splice(i + 1, 0, getTextVoiceObject(splitTexts[1], texts[i].lang));
+                                texts.splice(i + 1, 0, altTextVoice);
+                            }
+                            if(splitTexts.length === 0) {
+                                texts[i] = altTextVoice;
+                            }
+                        }
+                    }
+                }
+
+                // handle altText elements without a langTag
+                texts[i].text = texts[i].text.replace(/\\alt{[^\|{}]*?\|([^\|{}]*?)}/g, '$1');
+            }
+        }
+
+        // splitting matched texts might create elements with an empty text field. This removes them
+        texts = texts.filter(function(el){return el && el.text && el.text.trim().length>0});
+        return texts;
+    }
     // The speak method is overloaded:
     // texts argument can be either an array of TextVoiceObjects, or a String
     // langTag argument is optional and only used when texts is a String
@@ -248,12 +309,7 @@ function AddonText_To_Speech_create() {
             texts = [getTextVoiceObject(texts, langTag)];
         }
 
-        for(var i=0; i<texts.length;i++){
-            if(texts[i].text!==null && texts[i].text!==undefined && texts[i].text.length>0)
-            {
-                texts[i].text = texts[i].text.replace(/\\alt{.*?\|(.*?)}/g, '$1');
-            }
-        }
+        texts = presenter.parseAltTexts(texts);
 
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts);

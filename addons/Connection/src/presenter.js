@@ -1511,7 +1511,13 @@ function AddonConnection_create() {
             var $activeClone = $active.clone();
             $activeClone.find('[aria-hidden="true"]').remove();
             $activeClone.find('[aria-label]').each(function(){
-                $(this).append($(this).attr('aria-label'));
+                var replaceText = $(this).attr('aria-label');
+                var langTag = $(this).attr('langtag');
+                if(langTag){
+                    replaceText = '\\alt{ |'+replaceText+'|'+langTag+'}';
+                }
+                console.log(replaceText);
+                $(this).append(replaceText);
             });
             var TextVoiceArray = [getTextVoiceObject($activeClone.text().trim(), presenter.langTag)];
 

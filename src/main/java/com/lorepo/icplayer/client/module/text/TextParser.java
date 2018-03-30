@@ -911,6 +911,19 @@ public class TextParser {
 		
 	}
 	
+	public static DomElementManipulator getAltTextElement(String visibleText, String altText, String langTag){
+		DomElementManipulator wrapper = new DomElementManipulator("span");
+		wrapper.setHTMLAttribute("aria-label", altText);
+		wrapper.setHTMLAttribute("langtag", langTag);
+		DomElementManipulator visibleTextElement = new DomElementManipulator("span");
+		visibleTextElement.setHTMLAttribute("aria-hidden", "true");
+		visibleTextElement.setInnerHTMLText(visibleText);
+		
+		wrapper.appendElement(visibleTextElement);
+		return wrapper;
+		
+	}
+	
 	private String parseAltText(String srcText) {
 		final String pattern = "\\\\alt\\{";
 		String input = srcText;
@@ -936,7 +949,14 @@ public class TextParser {
 			if (seperatorIndex > 0) {				
 				String visibleText = expression.substring(0, seperatorIndex);
 				String altText = expression.substring(seperatorIndex + 1);
-				replaceText =  StringUtils.unescapeXML(getAltTextElement(visibleText, altText).getHTMLCode());
+				int langSeperatorIndex = altText.indexOf("|");
+				if (langSeperatorIndex > 0) {
+					String langTag = altText.substring(langSeperatorIndex + 1);
+					altText = altText.substring(0, langSeperatorIndex);
+					replaceText =  StringUtils.unescapeXML(getAltTextElement(visibleText, altText, langTag).getHTMLCode());
+				} else {
+					replaceText =  StringUtils.unescapeXML(getAltTextElement(visibleText, altText).getHTMLCode());
+				}
 			} else {
 				replaceText = "#ERR";
 			}
