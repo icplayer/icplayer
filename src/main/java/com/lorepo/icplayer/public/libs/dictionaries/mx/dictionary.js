@@ -1688,6 +1688,7 @@ var ice_dictionary_mx = {
 	"Quiz_property_NextLabel": "Next label",
 	"Quiz_property_GameLostMessage": "Game lost message",
 	"Quiz_property_GameWonMessage": "Game won message",
+	"Quiz_property_center_vertically": "Center vertically",
 	"Quiz_property_isActivity": "Is activity",
 	"Text_use_escape_character_in_gap_property": "Use escape character in gap",
 	"date": "Date",

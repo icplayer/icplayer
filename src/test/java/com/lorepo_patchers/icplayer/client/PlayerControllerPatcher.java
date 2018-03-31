@@ -10,4 +10,9 @@ public class PlayerControllerPatcher {
 	public static int getIFrameScroll (PlayerController a, PlayerController x) {
 		return 0;
 	}
+	
+	@PatchMethod
+	private static boolean checkIsPlayerInCrossDomain(PlayerController a) {
+		return false;
+	}
 }

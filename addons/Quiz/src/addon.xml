@@ -14,6 +14,7 @@
 		<property name="NextLabel" nameLabel="Quiz_property_NextLabel" type="string" isLocalized="true" />
 		<property name="GameLostMessage" nameLabel="Quiz_property_GameLostMessage" type="html" isLocalized="true" />
 		<property name="GameWonMessage" nameLabel="Quiz_property_GameWonMessage" type="html" isLocalized="true" />
+		<property name="Center vertically" nameLabel="Quiz_property_center_vertically" type="boolean" />
         <property name="isActivity" nameLabel="Quiz_property_isActivity" type="boolean" />
 	</model>
 </addon>
