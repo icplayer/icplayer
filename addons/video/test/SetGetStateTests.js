@@ -10,6 +10,7 @@ SetGetStateTests.prototype.setUp = function() {
     this.presenter.videoContainer = $('<div></div>');
     this.presenter.videoContainer.append(this.presenter.videoObject);
     this.presenter.$captionsContainer = $('<div></div>');
+    this.presenter.posterPlayButton = $(document.createElement("div"));
     this.presenter.addedVideoURLS = {
 
     };

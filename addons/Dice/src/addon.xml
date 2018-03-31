@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Dice' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="elementsList" nameLabel="Dice_property_elements_list" type="list" isDefault="true">
+            <property name="name" nameLabel="Dice_property_name" type="string"/>
+            <property name="image" nameLabel="Dice_property_image" type="image"/>
+        </property>
+        <property name="animationLength" nameLabel="Dice_property_animation_length" type="string"/>
+        <property name="isDisabled" nameLabel="Dice_property_is_disabled" type="boolean"/>
+        <property name="initialItem" nameLabel="Dice_property_initial_item" type="string"/>
+        <property name="worksWith" nameLabel="Dice_property_works_with" type="string"/>
+    </model>
+</addon>

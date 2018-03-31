@@ -8,27 +8,28 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-import com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices;
+import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 
-public class JavaScriptServicesTestCase {
+public class PlayerServicesTestCase {
 	
-	private JavaScriptPlayerServices mockedJSPlayerServices;
+	private PlayerServices mockedPlayerServices;
 	
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
 	
 	@Before
 	public void setUp () {
-		mockedJSPlayerServices = Mockito.mock(JavaScriptPlayerServices.class);
-		Mockito.when(mockedJSPlayerServices.getScaleInformation()).thenCallRealMethod();
-		Mockito.doCallRealMethod().when(mockedJSPlayerServices).setScaleInformation(Mockito.any(String.class),Mockito.any(String.class),Mockito.any(String.class),Mockito.any(String.class));
+		mockedPlayerServices = Mockito.mock(PlayerServices.class);
+		Mockito.when(mockedPlayerServices.getScaleInformation()).thenCallRealMethod();
+		Mockito.doNothing().when(mockedPlayerServices).fixDroppable();
+		Mockito.doCallRealMethod().when(mockedPlayerServices).setScaleInformation(Mockito.any(String.class),Mockito.any(String.class),Mockito.any(String.class),Mockito.any(String.class));
 	};
 	
 	@Test
 	public void setCorrectScaleInformation() {
-		mockedJSPlayerServices.setScaleInformation("0.5", "0.5", "scale(0.5)", "top left");
-		ScaleInformation scaleInfo = mockedJSPlayerServices.getScaleInformation();
+		mockedPlayerServices.setScaleInformation("0.5", "0.5", "scale(0.5)", "top left");
+		ScaleInformation scaleInfo = mockedPlayerServices.getScaleInformation();
 		assertTrue(scaleInfo.scaleX==0.5);
 		assertTrue(scaleInfo.scaleY==0.5);
 		assertTrue(scaleInfo.transform.equals("scale(0.5)"));
@@ -39,13 +40,13 @@ public class JavaScriptServicesTestCase {
 	@Test
 	public void setIncorrectTransformScaleInformation() {
 		exception.expect(NullPointerException.class);
-		mockedJSPlayerServices.setScaleInformation("0.5", "0.5", null, null);
+		mockedPlayerServices.setScaleInformation("0.5", "0.5", null, null);
 	};
 	
 	@Test
 	public void setIncorrectScaleXYScaleInformation() {
 		exception.expect(NumberFormatException.class);
-		mockedJSPlayerServices.setScaleInformation("abc", "hello", "scale(0.5)", "top left");
+		mockedPlayerServices.setScaleInformation("abc", "hello", "scale(0.5)", "top left");
 	};
 
 }

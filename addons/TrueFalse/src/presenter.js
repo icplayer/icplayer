@@ -318,29 +318,20 @@ function AddonTrueFalse_create() {
     function getSpeechTexts(model) {
         var speechTexts = model['Speech texts'];
 
-        if (speechTexts !== undefined && speechTexts !== '') {
-            for (var index = 0; index < speechTexts.length; index++) {
-                var text = speechTexts[index];
-                for (var key in text) {
-                    if (text.hasOwnProperty(key)) {
-                        if (text[key]['selected'] !== '' && text[key]['selected'] !== undefined) {
-                            selectedSpeechText = text[key]['selected'];
-                        }
+        if (speechTexts['Selected']['selected'] !== '' && speechTexts['Selected']['selected'] !== undefined) {
+            selectedSpeechText = speechTexts['Selected']['selected'];
+        }
 
-                        if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
-                            deselectedSpeechText = text[key]['deselected'];
-                        }
+        if (speechTexts['Deselected']['deselected'] !== '' && speechTexts['Deselected']['deselected'] !== undefined) {
+            deselectedSpeechText = speechTexts['Deselected']['deselected'];
+        }
 
-                        if (text[key]['correct'] !== '' && text[key]['correct'] !== undefined) {
-                            correctSpeechText = text[key]['correct'];
-                        }
+        if (speechTexts['Correct']['correct'] !== '' && speechTexts['Correct']['correct'] !== undefined) {
+            correctSpeechText = speechTexts['Correct']['correct'];
+        }
 
-                        if (text[key]['incorrect'] !== '' && text[key]['incorrect'] !== undefined) {
-                            incorrectSpeechText = text[key]['incorrect'];
-                        }
-                    }
-                }
-            }
+        if (speechTexts['Incorrect']['incorrect'] !== '' && speechTexts['Incorrect']['incorrect'] !== undefined) {
+            incorrectSpeechText = speechTexts['Incorrect']['incorrect'];
         }
     }
 
@@ -412,11 +403,36 @@ function AddonTrueFalse_create() {
         presenter.isVisible = true;
     };
 
+    presenter.upgradeModel = function (model) {
+        if (model['Speech texts'] === undefined) {
+            model['Speech texts'] = {
+                'Selected': {
+                    'selected': ''
+                },
+
+                'Deselected': {
+                    'deselected': ''
+                },
+
+                'Correct': {
+                    'correct': ''
+                },
+
+                'Incorrect': {
+                    'incorrect': ''
+                }
+            }
+        }
+
+        return model;
+    };
+
     presenter.validateModel = function(model) {
         presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
     };
 
     presenter.run = function (view, model) {
+        model = presenter.upgradeModel(model);
         presenter.$view = $(view);
         eventBus = playerController.getEventBus();
         textParser = new TextParserProxy(playerController.getTextParser());
@@ -453,6 +469,7 @@ function AddonTrueFalse_create() {
     }
 
     presenter.createPreview = function (view, model) {
+        model = presenter.upgradeModel(model);
         presenter.$view = $(view);
         makeView(view, model, true);
     };

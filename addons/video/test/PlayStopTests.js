@@ -4,6 +4,7 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         this.presenter.videoObject = document.createElement('video');
 
         this.presenter.isVideoLoaded = true;
+        this.presenter.posterPlayButton = $(document.createElement("div"));
 
         sinon.stub(this.presenter, 'seek');
         sinon.stub(this.presenter, 'removeWaterMark');

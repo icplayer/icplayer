@@ -20,6 +20,8 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 
+// in old lessons some characters aren't escaped (e.g: > or <), in new lessons they are
+// only after editing and saving text in old lessons characters will be escaped
 
 public class TextModel extends BasicModuleModel {
 	public static final int NUMBER_INDEX = 0;

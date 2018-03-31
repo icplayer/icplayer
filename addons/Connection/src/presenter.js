@@ -1,6 +1,6 @@
 function AddonConnection_create() {
 
-    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
+    function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
 
     var presenter = function () {};
 
@@ -209,7 +209,22 @@ function AddonConnection_create() {
         presenter.textParser.connectLinks($(presenter.view));
     };
 
+    presenter.removeVisibleInnerHTML = function () {
+        $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
+            $(element).html($(element).html().replace(/\\alt{(.*?)\|.*?}/g, '$1')); // replace \alt{a|b} with a
+        });
+
+    };
+
     presenter.setPlayerController = function (controller) {
+        presenter.registerMathJax();
+
+        playerController = controller;
+
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
+    };
+
+    presenter.registerMathJax = function AddonConnection_registerMathJax() {
         var mathJaxDeferred = new jQuery.Deferred();
         presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
         presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
@@ -222,10 +237,6 @@ function AddonConnection_create() {
                 presenter.mathJaxProcessEndedDeferred.resolve();
             }
         });
-
-        playerController = controller;
-
-        presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
 
     presenter.setColumnsWidth = function (view, columnsWidth) {
@@ -314,13 +325,13 @@ function AddonConnection_create() {
         }
 
         presenter.speechTexts = {
-            connected:    getSpeechTextProperty(speechTexts[0]['Connected']['Connected'], presenter.speechTexts.connected),
-            disconnected: getSpeechTextProperty(speechTexts[1]['Disconnected']['Disconnected'], presenter.speechTexts.disconnected),
-            connectedTo:  getSpeechTextProperty(speechTexts[2]['ConnectedTo']['Connected to'], presenter.speechTexts.connectedTo),
-            selected:     getSpeechTextProperty(speechTexts[3]['Selected']['Selected'], presenter.speechTexts.selected),
-            deselected:   getSpeechTextProperty(speechTexts[4]['Deselected']['Deselected'], presenter.speechTexts.deselected),
-            correct:      getSpeechTextProperty(speechTexts[5]['Correct']['Correct'], presenter.speechTexts.correct),
-            wrong:        getSpeechTextProperty(speechTexts[6]['Wrong']['Wrong'], presenter.speechTexts.wrong)
+            connected:    getSpeechTextProperty(speechTexts['Connected']['Connected'], presenter.speechTexts.connected),
+            disconnected: getSpeechTextProperty(speechTexts['Disconnected']['Disconnected'], presenter.speechTexts.disconnected),
+            connectedTo:  getSpeechTextProperty(speechTexts['ConnectedTo']['Connected to'], presenter.speechTexts.connectedTo),
+            selected:     getSpeechTextProperty(speechTexts['Selected']['Selected'], presenter.speechTexts.selected),
+            deselected:   getSpeechTextProperty(speechTexts['Deselected']['Deselected'], presenter.speechTexts.deselected),
+            correct:      getSpeechTextProperty(speechTexts['Correct']['Correct'], presenter.speechTexts.correct),
+            wrong:        getSpeechTextProperty(speechTexts['Wrong']['Wrong'], presenter.speechTexts.wrong)
         };
     }
 
@@ -396,6 +407,7 @@ function AddonConnection_create() {
 
         if (isPreview) {
             presenter.initializeView(view, model);
+            presenter.removeVisibleInnerHTML();
             presenter.drawConfiguredConnections();
         } else {
             presenter.mathJaxProcessEnded.then(function () {
@@ -631,6 +643,8 @@ function AddonConnection_create() {
             presenter.lastEvent = e;
         });
 
+        var scale = playerController.getScaleInformation();
+
         var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
         if (["4.1.1", "4.2.2", "4.4.2"].indexOf(android_ver) === -1 || window.navigator.userAgent.indexOf('Chrome') > 0) {
             element.each(function(){
@@ -645,8 +659,11 @@ function AddonConnection_create() {
                     },
                     start: function (event, ui) {
                         ui.helper.css("visibility", "hidden");
-                        presenter.iconTop = $(e).find(".iconWrapper").position().top + ($(e).find(".iconWrapper").height()/2);
-                        presenter.iconLeft = $(e).find(".iconWrapper").position().left + $(e).find(".iconWrapper").width();
+                        var $iconWrapper = $(e).find(".iconWrapper");
+                        scale = playerController.getScaleInformation();
+
+                        presenter.iconTop = $iconWrapper.position().top / scale.scaleY + ($iconWrapper.height()/2);
+                        presenter.iconLeft = $iconWrapper.position().left / scale.scaleX +  $iconWrapper.width();
 
                         if (!isSelectionPossible) {
                             event.stopPropagation();
@@ -675,7 +692,7 @@ function AddonConnection_create() {
                         presenter.mouseSX = parseInt(event.pageX,10) - parseInt($(presenter.view).offset().left,10);
                         presenter.mouseSY = parseInt(event.pageY,10) - parseInt($(presenter.view).offset().top,10);
 
-                        presenter.drawTempLine(presenter.mouseSX, presenter.mouseSY);
+                        presenter.drawTempLine(presenter.mouseSX / scale.scaleX, presenter.mouseSY / scale.scaleY);
                     },
                     stop: function (event, ui) {
                         ui.helper.zIndex(0);
@@ -943,17 +960,27 @@ function AddonConnection_create() {
         redraw();
     };
 
-    function getElementSnapPoint(element) {
+    presenter.getElementSnapPoint = function AddonConnection_getElementSnapPoint(element) {
         var offset = element.offset();
+        var scale = playerController.getScaleInformation();
         var snapPoint = [0, 0];
+
+        var elementWidth = element.outerWidth(true) * scale.scaleX;
+        var elementHeight = element.outerHeight() * scale.scaleY;
+
         if (element.parents('.connectionLeftColumn').length > 0) {
-            snapPoint = [offset.left + element.outerWidth(true), offset.top + element.outerHeight() / 2]
+            snapPoint = [offset.left + elementWidth, offset.top + elementHeight / 2];
         }
         if (element.parents('.connectionRightColumn').length > 0) {
-            snapPoint = [offset.left, offset.top + element.outerHeight() / 2]
+            snapPoint = [offset.left, offset.top + elementHeight / 2];
         }
-        return snapPoint
-    }
+
+        // snapPoint[0] is x offset, [1] is y offset
+        snapPoint[0] /= scale.scaleX;
+        snapPoint[1] /= scale.scaleY;
+
+        return snapPoint;
+    };
 
     function pushConnection(line, isPreview) {
         var addLine = true, linesToRemove = [], existingLines;
@@ -1007,7 +1034,7 @@ function AddonConnection_create() {
             });
 
             connections = $(presenter.view).find('.connections');
-        }else{
+        } else{
             connections.clearCanvas();
         }
 
@@ -1017,7 +1044,6 @@ function AddonConnection_create() {
     }
 
     function redrawShowAnswers () {
-        connections.width = connections.width;
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), showAnswersColor)
@@ -1025,10 +1051,14 @@ function AddonConnection_create() {
     }
 
     function drawLine(line, color) {
-        connections.width = connections.width;
-        var from = getElementSnapPoint(line.from);
-        var to = getElementSnapPoint(line.to);
+        var from = presenter.getElementSnapPoint(line.from);
+        var to = presenter.getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
+        var scale = playerController.getScaleInformation();
+
+        canvasOffset.left /= scale.scaleX;
+        canvasOffset.top /= scale.scaleY;
+
         connections.drawLine({
             strokeStyle: color,
             strokeWidth: connectionThickness,
@@ -1044,7 +1074,6 @@ function AddonConnection_create() {
         }
         if (isNotActivity) return 0;
 
-        connections.width = connections.width;
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
@@ -1479,8 +1508,12 @@ function AddonConnection_create() {
         if (tts) {
             var $active = presenter.getCurrentActivatedElement();
             var connections = getConnections($active);
-
-            var TextVoiceArray = [getTextVoiceObject($active.text().trim(), presenter.langTag)];
+            var $activeClone = $active.clone();
+            $activeClone.find('[aria-hidden="true"]').remove();
+            $activeClone.find('[aria-label]').each(function(){
+                $(this).append($(this).attr('aria-label'));
+            });
+            var TextVoiceArray = [getTextVoiceObject($activeClone.text().trim(), presenter.langTag)];
 
             if ($active.hasClass('selected')) {
                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
@@ -1488,7 +1521,6 @@ function AddonConnection_create() {
 
             if (connections.length) {
                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.connectedTo, ''));
-                console.log(TextVoiceArray);
                 TextVoiceArray = TextVoiceArray.concat(getConnectionsInfo(connections));
             }
 

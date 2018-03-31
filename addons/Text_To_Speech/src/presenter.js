@@ -248,6 +248,13 @@ function AddonText_To_Speech_create() {
             texts = [getTextVoiceObject(texts, langTag)];
         }
 
+        for(var i=0; i<texts.length;i++){
+            if(texts[i].text!==null && texts[i].text!==undefined && texts[i].text.length>0)
+            {
+                texts[i].text = texts[i].text.replace(/\\alt{.*?\|(.*?)}/g, '$1');
+            }
+        }
+
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts);
             return;

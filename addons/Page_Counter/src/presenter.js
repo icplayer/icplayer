@@ -1,6 +1,7 @@
 function AddonPage_Counter_create() {
     var presenter = function() { };
     var presentationController;
+    var isWCAGOn = false;
 
     presenter.ERROR_CODES = {
             "L_01": "No language selected, have to be selected proper language in Numericals property",
@@ -30,6 +31,28 @@ function AddonPage_Counter_create() {
     	}
     	return true;
     };
+
+    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(presentationController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
     
     presenter.validateLanguage = function (model) {
     	if (model.Numericals == 'Eastern Arabic') {
@@ -160,12 +183,43 @@ function AddonPage_Counter_create() {
     		ID: model.ID,
     		startFrom: validatedStartFrom.value,
     		omittedPagesTexts: validatedOmittedPagesTexts.value,
-            Numericals: presenter.validateLanguage(model).value
+            Numericals: presenter.validateLanguage(model).value,
+            langTag: model['langAttribute'],
+            speechTexts: presenter.getSpeechTexts(model['speechTexts'])
     	};
     };
 
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    presenter.getSpeechTexts = function(speechTexts) {
+        var speechTextsModel = {
+            page:  'Page',
+            outOf: 'Out of'
+        };
+
+        if (!speechTexts) {
+            return speechTextsModel;
+        }
+
+        speechTextsModel = {
+            page: getSpeechTextProperty(speechTexts['Page']['Page'], speechTextsModel.page),
+            outOf: getSpeechTextProperty(speechTexts['OutOf']['OutOf'], speechTextsModel.outOf)
+        };
+
+        return speechTextsModel;
+    };
+
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeStartFromAndOPT(model);
+        var upgradedModel = presenter.upgradeStartFromAndOPT(model);
+        return presenter.upgradeAddTTS(upgradedModel);
     };
 
     presenter.upgradeStartFromAndOPT = function (model) {
@@ -182,11 +236,30 @@ function AddonPage_Counter_create() {
 
         return upgradedModel;
     };
+
+    presenter.upgradeAddTTS = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if(model.langAttribute == undefined) {
+            upgradedModel['langAttribute'] = '';
+        }
+
+        if(model.speechTexts == undefined) {
+            upgradedModel['speechTexts'] = {
+                Page: {Page: ''},
+                OutOf: {OutOf: ''}
+            };
+        }
+
+        return upgradedModel;
+    };
     
     function presenterLogic(view, model, isPreview) {
 
         var upgradedModel = presenter.upgradeModel(model);
     	var validatedModel = presenter.validateModel(upgradedModel);
+    	presenter.configuration = validatedModel;
     	
     	if (!validatedModel.isValid) {
     		DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
@@ -227,6 +300,69 @@ function AddonPage_Counter_create() {
 
     presenter.run = function(view, model) {
         presenterLogic(view, model, false);
+    };
+
+    presenter.keyboardController = function(keyCode, isShift, event) {
+        if (keyCode == 13 || keyCode == 32) {
+            if(event!== null && event !== undefined) {
+                event.preventDefault();
+            }
+            presenter.clickHandler();
+        }
+    };
+
+    presenter.clickHandler = function() {
+        presenter.playContent();
+    };
+
+    presenter.playContent = function() {
+        var currentPageIndex = presentationController.getCurrentPageIndex();
+        var pageCount = presentationController.getPresentation().getPageCount();
+        var TextVoices = [];
+        if (presenter.configuration.startFrom) {
+            var modifiedPageIndex = currentPageIndex - presenter.configuration.startFrom;
+            pageCount = pageCount - presenter.configuration.startFrom;
+            if (presenter.configuration.omittedPagesTexts[currentPageIndex]) {
+                TextVoices.push(getTextVoiceObject(presenter.configuration.omittedPagesTexts[currentPageIndex], presenter.configuration.langTag));
+            } else{
+                if(modifiedPageIndex < 0) {
+                    return;
+                }
+                var text = presenter.configuration.speechTexts.page + ' ';
+                text += (modifiedPageIndex + 1) + ' ';
+                text += presenter.configuration.speechTexts.outOf + ' ';
+                text += presenter.getPageCount(pageCount);
+                TextVoices.push(getTextVoiceObject(text));
+            }
+
+        } else {
+            var text = presenter.configuration.speechTexts.page + ' ';
+            text += (currentPageIndex + 1) + ' ';
+            text += presenter.configuration.speechTexts.outOf + ' ';
+            text += presenter.getPageCount(pageCount);
+            TextVoices.push(getTextVoiceObject(text));
+        }
+        speak(TextVoices);
+    };
+
+    presenter.getPageCount = function(pageCount) {
+        var lessonLangTag = document.documentElement.lang;
+        if(0 === lessonLangTag.toLowerCase().localeCompare('pl') || 0 === lessonLangTag.toLowerCase().localeCompare('pl-pl')){
+            if(pageCount===2) {
+                return 'dwóch';
+            }
+            if(pageCount===3) {
+                return 'trzech';
+            }
+            if(pageCount===4) {
+                return 'czterech';
+            }
+        }
+        return pageCount;
+    };
+
+    presenter.isEnterable = function() {
+        return false;
     };
 
     return presenter;

@@ -1,0 +1,119 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='PseudoCode_Console' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="functionsList" nameLabel="PseudoCode_Console_property_functions_list" type="list" isDefault="true">
+            <property name="name" nameLabel="PseudoCode_Console_property_functions_name" type="string" />
+            <property name="body" nameLabel="PseudoCode_Console_property_functions_body" type="text" />
+        </property>
+        <property name="methodsList" nameLabel="PseudoCode_Console_property_methods_list" type="list">
+            <property name="objectName" nameLabel="PseudoCode_Console_property_object_name" type="{Number,String,Array}"/>
+            <property name="methodName" nameLabel="PseudoCode_Console_property_method_name" type="string"/>
+            <property name="methodBody" nameLabel="PseudoCode_Console_property_method_body" type="text"/>
+        </property>
+        <property name="default_aliases" nameLabel="PseudoCode_Code_property_default_aliases" type="staticlist">
+            <property name="begin" displayName="Begin" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="end" displayName="End" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="variable" displayName="Variable" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="for" displayName="For" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="while" displayName="While" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="from" displayName="From" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="to" displayName="To" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="do" displayName="Do" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="program" displayName="Program" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="or" displayName="Or" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="and" displayName="And" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="if" displayName="If" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="then" displayName="Then" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="else" displayName="Else" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="case" displayName="Case" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="option" displayName="Option" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="function" displayName="Function" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="return" displayName="Return" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="array_block" displayName="Array" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="down_to" displayName="Downto" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+            <property name="by" displayName="By" type="staticrow">
+                <property name="name" nameLabel="Pseudo_Console_property_functions_name" type="string" />
+            </property>
+        </property>
+        <property name="exceptionsTranslation" nameLabel="PseudoCode_Code_property_exception_translations_list" type="staticlist">
+            <property name="InstructionIsDefinedException" displayName="The instruction '{0}' has already been defined" type="staticrow">
+                <property name="translation" nameLabel="Pseudo_Console_property_translation_name" type="string" />
+            </property>
+            <property name="CastErrorException" displayName="Cast exception '{0}' to type: '{1}'" type="staticrow">
+                <property name="translation" nameLabel="Pseudo_Console_property_translation_name" type="string" />
+            </property>
+            <property name="GetErrorException" displayName="Exception ({0}): Value at index {1} is not defined" type="staticrow">
+                <property name="translation" nameLabel="Pseudo_Console_property_translation_name" type="string" />
+            </property>
+            <property name="IndexOutOfBoundsException" displayName="Exception ({0}): index {1} is out of bounds" type="staticrow">
+                <property name="translation" nameLabel="Pseudo_Console_property_translation_name" type="string" />
+            </property>
+            <property name="ToFewArgumentsException" displayName="To few arguments for function '{0}' (expected at least: {1} arguments)" type="staticrow">
+                <property name="translation" nameLabel="Pseudo_Console_property_translation_name" type="string" />
+            </property>
+            <property name="MethodNotFoundException" displayName="Undefined method '{0}'" type="staticrow">
+                <property name="translation" nameLabel="Pseudo_Console_property_translation_name" type="string" />
+            </property>
+            <property name="UndefinedVariableNameException" displayName="Usage of undefined variable '{0}' in function '{1}'" type="staticrow">
+                <property name="translation" nameLabel="Pseudo_Console_property_translation_name" type="string" />
+            </property>
+            <property name="UndefinedFunctionNameException" displayName="Usage of undefined function '{0}' in function '{1}'" type="staticrow">
+                <property name="translation" nameLabel="Pseudo_Console_property_translation_name" type="string" />
+            </property>
+            <property name="UnexpectedIdentifier" displayName="Unexpected identifier" type="staticrow">
+                <property name="translation" nameLabel="Pseudo_Console_property_translation_name" type="string" />
+            </property>
+        </property>
+        <property name="isNotActivity" nameLabel="PseudoCode_Console_property_is_not_activity" type="boolean" />
+        <property name="runUserCode" nameLabel="PseudoCode_Console_property_run_user_code" type="boolean" />
+        <property name="runParameters" nameLabel="PseudoCode_Console_property_run_parameters" type="list">
+            <property name="value" nameLabel="PseudoCode_Console_property_parameters_value" type="string" />
+        </property>
+        <property name="maxTimeForAnswer" nameLabel="PseudoCode_Console_property_answer_max_timeout" type="string" />
+        <property name="answerCode" nameLabel="PseudoCode_Console_property_answer_code" type="text" />
+        <property name="mathRound" nameLabel="PseudoCode_Console_property_math_round" type="string"/>
+        <property name="consoleAvailableInput" nameLabel="PseudoCode_Console_property_console_available_input" type="{All,Natural numbers,Real numbers,Letters only}"/>
+
+    </model>
+</addon>
