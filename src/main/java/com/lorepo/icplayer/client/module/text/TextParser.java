@@ -911,7 +911,7 @@ public class TextParser {
 		
 	}
 	
-	public static DomElementManipulator getAltTextElement(String visibleText, String altText, String langTag){
+	public static DomElementManipulator getAltTextElement(String visibleText, String altText, String langTag) {
 		DomElementManipulator wrapper = new DomElementManipulator("span");
 		wrapper.setHTMLAttribute("aria-label", altText);
 		wrapper.setHTMLAttribute("langtag", langTag);

@@ -1513,10 +1513,10 @@ function AddonConnection_create() {
             $activeClone.find('[aria-label]').each(function(){
                 var replaceText = $(this).attr('aria-label');
                 var langTag = $(this).attr('langtag');
-                if(langTag){
+                if (langTag && langTag.trim().length > 0 ) {
                     replaceText = '\\alt{ |'+replaceText+'|'+langTag+'}';
                 }
-                console.log(replaceText);
+
                 $(this).append(replaceText);
             });
             var TextVoiceArray = [getTextVoiceObject($activeClone.text().trim(), presenter.langTag)];

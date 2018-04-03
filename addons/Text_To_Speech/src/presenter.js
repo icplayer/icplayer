@@ -240,13 +240,13 @@ function AddonText_To_Speech_create() {
     }
 
      presenter.parseAltTexts = function(texts){
-        for(var i=0; i<texts.length;i++){
-            if(texts[i].text!==null && texts[i].text!==undefined && texts[i].text.trim().length>0)
+        for (var i=0; i < texts.length; i++) {
+            if (texts[i].text !== null && texts[i].text !== undefined && texts[i].text.trim().length > 0)
             {
                 // altText elements with a langTag need to be isolated into seperate items
                 // in the texts array, so that they can use a different language tag.
                 var match = texts[i].text.match(/\\alt{[^\|{}]*?\|([^\|{}]*?)\|([^\|{}]*?)}/g);
-                if(match && match.length>0) {
+                if (match && match.length>0) {
                     // get the first altText element with a lang tag.
                     // if there are more, they will not be parsed in this iteration
                     // instead, they will become a part of the tail and will be parsed in future iterations
@@ -271,20 +271,18 @@ function AddonText_To_Speech_create() {
                                 newSplitTexts.push(splitTexts.join(originalMatchText));
                                 splitTexts = newSplitTexts;
                             }
-                            if (splitTexts.length === 1) {
+                            if (splitTexts.length === 2) {
+                                texts[i].text = splitTexts[0];
+                                texts.splice(i + 1, 0, getTextVoiceObject(splitTexts[1], texts[i].lang));
+                                texts.splice(i + 1, 0, altTextVoice);
+                            } else if (splitTexts.length === 1) {
                                 texts[i].text = splitTexts[0];
                                 if (startIndex === 0) {
                                     texts.splice(i, 0, altTextVoice);
                                 } else {
                                     texts.splice(i + 1, 0, altTextVoice);
                                 }
-                            }
-                            if (splitTexts.length === 2) {
-                                texts[i].text = splitTexts[0];
-                                texts.splice(i + 1, 0, getTextVoiceObject(splitTexts[1], texts[i].lang));
-                                texts.splice(i + 1, 0, altTextVoice);
-                            }
-                            if(splitTexts.length === 0) {
+                            } else if(splitTexts.length === 0) {
                                 texts[i] = altTextVoice;
                             }
                         }
@@ -292,12 +290,12 @@ function AddonText_To_Speech_create() {
                 }
 
                 // handle altText elements without a langTag
-                texts[i].text = texts[i].text.replace(/\\alt{[^\|{}]*?\|([^\|{}]*?)}/g, '$1');
+                texts[i].text = texts[i].text.replace(/\\alt{.*?\|(.*?)}/g, '$1');
             }
         }
 
         // splitting matched texts might create elements with an empty text field. This removes them
-        texts = texts.filter(function(el){return el && el.text && el.text.trim().length>0});
+        texts = texts.filter(function(element){return element && element.text && element.text.trim().length>0});
         return texts;
     }
     // The speak method is overloaded:
