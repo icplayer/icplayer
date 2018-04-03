@@ -1,3 +1,4 @@
+2018-04-03 Fixed problem with rotating ruler in IWB Toolbar module.
 2018-03-28 Added property to vertically center the answer in Quiz module. Added headers-of-answers class to posibility to style headers of answers in Quiz module.
 2018-03-28 Added checking for permissions to modify top window in glossary
 2018-03-26 Added classes while checking answer in Pseduo Code Console. Fixed problem with exceptions translations in pseudo code console.
