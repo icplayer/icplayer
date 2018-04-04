@@ -569,10 +569,48 @@ function AddonMaze_create () {
         };
     };
 
+    presenter.validateTranslations = function (translations) {
+        for (var translationName in translations) {
+            if (translations.hasOwnProperty(translationName)) {
+                if (translations[translationName].translation === "") {
+                    translations[translationName].translation = null;
+                }
+            }
+        }
+
+        return {
+            isValid: true,
+            value: translations
+        };
+    };
+
     presenter.validateModel = function (model) {
-        console.log(model);
         if (model.gameMode === '') {
             model.gameMode = 'diamond';
+        }
+
+        var modelValidator = new ModelValidator();
+        var validatedModel = modelValidator.validate(model, [
+            ModelValidators.Boolean('Is Visible'),
+            ModelValidators.DumbString('ID'),
+            ModelValidators.Boolean('hideControlPanel'),
+            ModelValidators.Boolean('isDisabled'),
+            ModelValidators.Enum('gameMode', {values: ['diamond', 'letters'], useLowerCase: true}),
+            ModelValidators.Integer('mazeWidth', {minValue: 6}),
+            ModelValidators.Integer('mazeHeight', {minValue: 6}),
+            ModelValidators.Integer('Width'),
+            ModelValidators.Integer('Height'),
+            ModelValidators.Integer('numberOfMazes', {minValue: 0, default: 1}),
+            ModelValidators.List('questions', [
+                ModelValidators.DumbString("question"),
+                
+            ])
+        ]);
+
+        console.log(validatedModel);
+
+        if (!validatedModel.isValid) {
+            return modelValidator;
         }
 
         var validatedLabyrinthSize = presenter.validateLabyrinthSize(model);
@@ -592,27 +630,32 @@ function AddonMaze_create () {
             return validatedQuestions;
         }
 
+        var validatedTranslations = presenter.validateTranslations(model.translations);
+        if (!validatedTranslations.isValid) {
+            return validatedTranslations;
+        }
+
         return {
             isValid: true,
-            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']), //
             labyrinthSize: {
-                width: validatedLabyrinthSize.width,
-                height: validatedLabyrinthSize.height
+                width: validatedLabyrinthSize.width, //
+                height: validatedLabyrinthSize.height//
             },
 
             addonSize: {
-                width: ModelValidationUtils.validatePositiveInteger(model['Width']).value,
-                height: ModelValidationUtils.validatePositiveInteger(model['Height']).value,
+                width: ModelValidationUtils.validatePositiveInteger(model['Width']).value,//
+                height: ModelValidationUtils.validatePositiveInteger(model['Height']).value,//
             },
 
-            numberOfMazes: validatedNumberOfMazes.value,
+            numberOfMazes: validatedNumberOfMazes.value, //
 
-            gameType: validatedLabyrinthType,
+            gameType: validatedLabyrinthType,//
             questions: validatedQuestions.value,
 
-            addonID: model.ID,
-            hideControlPanel: ModelValidationUtils.validateBoolean(model['hideControlPanel']),
-            isDisabled: ModelValidationUtils.validateBoolean(model['isDisabled'])
+            addonID: model.ID, //
+            hideControlPanel: ModelValidationUtils.validateBoolean(model['hideControlPanel']),//
+            isDisabled: ModelValidationUtils.validateBoolean(model['isDisabled'])//
         };
     };
 
@@ -861,7 +904,7 @@ function AddonMaze_create () {
                 var roomIndex = getRandomIndex(this.maze.rooms);
                 var room = this.maze.rooms[roomIndex];
 
-                if (room == longestPath[0]) {
+                if (room === longestPath[0]) {
                     continue;
                 }
 
@@ -1278,15 +1321,15 @@ function AddonMaze_create () {
      * Build structure of maze in memory
      */
     Maze.prototype.buildStruct = function () {
-            var i;
+        var i;
 
-            for (i = 0; i < this.ySize; i++) {
-                this.buildWallsLine();
-                this.buildRoomsLine();
-            }
-
+        for (i = 0; i < this.ySize; i++) {
             this.buildWallsLine();
-        };
+            this.buildRoomsLine();
+        }
+
+        this.buildWallsLine();
+    };
 
     Maze.prototype.buildWallsLine = function () {
             var i,
