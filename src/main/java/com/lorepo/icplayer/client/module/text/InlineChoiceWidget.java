@@ -148,6 +148,12 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 		int index = getSelectedIndex();
 		return getItemText(index);
 	}
+	
+	@Override
+	public String getWCAGTextValue() {
+		int index = getSelectedIndex();
+		return getValue(index);
+	}
 
 	@Override
 	public void markGapAsCorrect() {

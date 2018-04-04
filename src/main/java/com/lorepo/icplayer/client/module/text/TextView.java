@@ -425,7 +425,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
 		
-		this.readGap(activeGap.getGapType(), clicks, activeGap.getTextValue(),activeGap.getGapState());
+		this.readGap(activeGap.getGapType(), clicks, activeGap.getWCAGTextValue(),activeGap.getGapState());
 	}
 
 	@Override

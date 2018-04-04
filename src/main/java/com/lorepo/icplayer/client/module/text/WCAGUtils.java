@@ -43,7 +43,7 @@ public class WCAGUtils {
 	}
 	
 	private static String getElementTextElementContent (TextElementDisplay element) {
-		return element != null ? element.getTextValue() : "";
+		return element != null ? element.getWCAGTextValue() : "";
 	}
 	
 	// TODO change to ENUM

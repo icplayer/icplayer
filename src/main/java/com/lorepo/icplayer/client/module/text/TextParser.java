@@ -142,7 +142,7 @@ public class TextParser {
 					parserResult.parsedText = parseLinks(parserResult.parsedText);
 				}
 				parserResult.parsedText = parseAltText(parserResult.parsedText);
-				parserResult.parsedText = parseDefinitions(parserResult.parsedText);	
+				parserResult.parsedText = parseDefinitions(parserResult.parsedText);
 			}
 		} catch (Exception e) {
 			parserResult.parsedText = "#ERROR#";
@@ -483,7 +483,10 @@ public class TextParser {
 			if (index > 0) {
 				String value = expression.substring(0, index).trim();
 				String answerValues = StringUtils.removeNewlines(expression.substring(index + 1));
-				String[] answers = answerValues.split("\\|");
+				String[] answers = this.escapeAltText(answerValues).split("\\|");
+				for(int i=0;i<answers.length;i++){
+					answers[i]=this.unescapeAltText(answers[i]);
+				}
 				if (answers.length > 1) {
 
 					String id = baseId + "-" + idCounter;
@@ -526,6 +529,7 @@ public class TextParser {
 							String itemValue = StringUtils.escapeXML(dist);
 							DomElementManipulator optionElement = new DomElementManipulator("option");
 							optionElement.setHTMLAttribute("value", itemValue);
+							optionElement.setHTMLAttribute("aria-label", this.getReadableAltText(itemValue));
 							optionElement.setInnerHTMLText(dist);
 							selectElement.appendElement(optionElement);
 						}
@@ -557,7 +561,10 @@ public class TextParser {
 		
 		int index = expression.indexOf(":");
 		if (index > 0) {
-			String[] answers = expression.split("\\|");
+			String[] answers = this.escapeAltText(expression).split("\\|");
+			for(int i=0;i<answers.length;i++){
+				answers[i]=this.unescapeAltText(answers[i]);
+			}
 			
 			if (answers.length > 1) {
 				String id = baseId + "-" + idCounter;
@@ -598,6 +605,7 @@ public class TextParser {
 							String itemValue = StringUtils.escapeXML(dist);
 							DomElementManipulator optionElement = new DomElementManipulator("option");
 							optionElement.setHTMLAttribute("value", itemValue);
+							optionElement.setHTMLAttribute("aria-label", this.getReadableAltText(itemValue));
 							optionElement.setInnerHTMLText(dist);
 							selectElement.appendElement(optionElement);
 
@@ -898,23 +906,17 @@ public class TextParser {
 		return output;
 	}
 
-	
+
 	public static DomElementManipulator getAltTextElement(String visibleText, String altText){
-		DomElementManipulator wrapper = new DomElementManipulator("span");
-		wrapper.setHTMLAttribute("aria-label", altText);
-		DomElementManipulator visibleTextElement = new DomElementManipulator("span");
-		visibleTextElement.setHTMLAttribute("aria-hidden", "true");
-		visibleTextElement.setInnerHTMLText(visibleText);
-		
-		wrapper.appendElement(visibleTextElement);
-		return wrapper;
-		
+		return getAltTextElement(visibleText, altText, "");
 	}
 	
 	public static DomElementManipulator getAltTextElement(String visibleText, String altText, String langTag) {
 		DomElementManipulator wrapper = new DomElementManipulator("span");
 		wrapper.setHTMLAttribute("aria-label", altText);
-		wrapper.setHTMLAttribute("langtag", langTag);
+		if (langTag.length() > 0) {
+		    wrapper.setHTMLAttribute("langtag", langTag);
+		}
 		DomElementManipulator visibleTextElement = new DomElementManipulator("span");
 		visibleTextElement.setHTMLAttribute("aria-hidden", "true");
 		visibleTextElement.setInnerHTMLText(visibleText);
@@ -925,6 +927,7 @@ public class TextParser {
 	}
 	
 	private String parseAltText(String srcText) {
+		srcText = this.escapeAltTextInTag(srcText);
 		final String pattern = "\\\\alt\\{";
 		String input = srcText;
 		String output = "";
@@ -962,9 +965,50 @@ public class TextParser {
 			}
 			output = output + replaceText;
 		}
-		return output + input;
+		return this.unescapeAltTextInTag(output + input);
+	}	
+	
+	private String escapeAltText(String srcText){
+		String parsedText =  srcText.replaceAll("\\\\alt\\{([^}|]*?)\\|([^}|]*?)\\|([^}|]*?)\\}", "\\\\altEscaped\\{$1&altTextSeperator&$2&altTextSeperator&$3\\}");
+		parsedText = parsedText.replaceAll("\\\\alt\\{([^}|]*?)\\|([^}|]*?)\\}", "\\\\altEscaped\\{$1&altTextSeperator&$2\\}");
+		return parsedText;
 	}
 
+	private String unescapeAltText(String srcText){
+		String parsedText =  srcText.replaceAll("\\\\altEscaped\\{([^}|]*?)&altTextSeperator&([^}|]*?)&altTextSeperator&([^}|]*?)\\}", "\\\\alt\\{$1\\|$2\\|$3\\}");
+		parsedText = parsedText.replaceAll("\\\\altEscaped\\{([^}|]*?)&altTextSeperator&([^}|]*?)\\}", "\\\\alt\\{$1\\|$2\\}");
+		return parsedText;
+	}
+	
+	private String escapeAltTextInTag(String srcText){
+		String parsedText = srcText;
+		String oldParsedText = "";
+		String pattern = "<([^>]*?)\\\\alt\\{([^\\}]*?)\\}([^<]*?)>";
+		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be mutliple alt texts inside one tag, all must be escaped
+			oldParsedText = parsedText;
+			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\altEscaped\\{$2\\}$3>");
+		}
+		return parsedText;
+	}
+	
+	private String unescapeAltTextInTag(String srcText){
+		String pattern = "<([^>]*?)\\\\altEscaped\\{([^\\}]*?)\\}([^<]*?)>";
+		String parsedText = srcText;
+		String oldParsedText = "";
+		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be mutliple alt texts inside one tag, all must be unescaped
+			oldParsedText = parsedText;
+			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\alt\\{$2\\}$3>");
+		}
+		return parsedText;
+	}
+	
+	private String getReadableAltText(String srcText){
+		String parsedText =  srcText.replaceAll("\\\\alt\\{([^}|]*?)\\|([^}|]*?)\\|([^}|]*?)\\}", "$2");
+		parsedText = parsedText.replaceAll("\\\\alt\\{([^}|]*?)\\|([^}|]*?)\\}", "$2");
+		return parsedText;
+	}
+
+	
 	public void skipGaps() {
 		skipGaps = true;
 	}

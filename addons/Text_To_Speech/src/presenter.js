@@ -264,7 +264,7 @@ function AddonText_To_Speech_create() {
 
                         if (splitTexts) {
                             if (splitTexts.length > 2) {
-                                // It is possible that there will be multiple identical atlText elements
+                                // It is possible that there will be multiple identical altText elements
                                 // if that is the case, all elements of the splitTexts array should be merged
                                 // with the exception of the head
                                 var newSplitTexts = splitTexts.splice(0, 1);
@@ -298,6 +298,7 @@ function AddonText_To_Speech_create() {
         texts = texts.filter(function(element){return element && element.text && element.text.trim().length>0});
         return texts;
     }
+
     // The speak method is overloaded:
     // texts argument can be either an array of TextVoiceObjects, or a String
     // langTag argument is optional and only used when texts is a String

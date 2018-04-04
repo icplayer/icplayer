@@ -52,6 +52,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void reset();
 		void setText(String text);
 		String getTextValue();
+		String getWCAGTextValue();
 		void markGapAsCorrect();
 		void markGapAsWrong();
 		void markGapAsEmpty();
