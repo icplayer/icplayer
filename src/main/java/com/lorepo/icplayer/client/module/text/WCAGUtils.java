@@ -74,7 +74,6 @@ public class WCAGUtils {
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<TextElementDisplay> textElements, String lang) {
 		String text = getCleanText(model.getOriginalText());
 		text = removeLangTag(text);
-
 		int gapNumber = 1;
 		final List<TextToSpeechVoice> result = new ArrayList<TextToSpeechVoice>();
 		
@@ -172,8 +171,8 @@ public class WCAGUtils {
 	}
 	
 	private static String removeLangTag(String srcText) {
-		String parsedText = srcText.replaceAll("\\\\gap\\{([^\\}\\{]*?)\\{([^\\}\\{]*?)\\}-\\}", "\\\\gap\\{$1\\}");
-		parsedText = parsedText.replaceAll("\\\\filledGap\\{([^\\}\\{]*?)\\{([^\\}\\{]*?)\\}-\\}", "\\\\filledGap\\{$1\\}");
+		String parsedText = srcText.replaceAll("\\\\gap\\{([^\\}\\{]*?)\\{[^\\}\\{]*?\\}-\\}", "\\\\gap\\{$1\\}");
+		parsedText = parsedText.replaceAll("\\\\filledGap\\{([^\\}\\{]*?)\\{[^\\}\\{]*?\\}-\\}", "\\\\filledGap\\{$1\\}");
 		return parsedText;
 	}
 	

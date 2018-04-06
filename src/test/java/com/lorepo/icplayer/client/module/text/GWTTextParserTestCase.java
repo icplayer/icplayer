@@ -113,6 +113,38 @@ public class GWTTextParserTestCase extends GwtTest{
 		assertEquals(2, parsed.gapInfos.size());
 
 	}
+	
+	@Test
+	public void testGapWithLangTag() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="\\gap{answer1} \\gap{answer1{pl}-} \\gap{answer1|answer2|answer3{de}-}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(3, parsed.gapInfos.size());
+		assertEquals(null,parsed.gapInfos.get(0).getLangTag());
+		assertEquals("pl",parsed.gapInfos.get(1).getLangTag());
+		assertEquals("de",parsed.gapInfos.get(2).getLangTag());
+
+	}
+	
+	@Test
+	public void testFilledGapWithLangTag() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="\\filledGap{default|answer1} \\filledGap{default|answer1{pl}-} \\filledGap{default|answer1|answer2|answer3{de}-}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(3, parsed.gapInfos.size());
+		assertEquals(null,parsed.gapInfos.get(0).getLangTag());
+		assertEquals("pl",parsed.gapInfos.get(1).getLangTag());
+		assertEquals("de",parsed.gapInfos.get(2).getLangTag());
+
+	}
 
 	@Test
 	public void testGap3() {

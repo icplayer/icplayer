@@ -209,7 +209,7 @@ function AddonConnection_create() {
         presenter.textParser.connectLinks($(presenter.view));
     };
 
-    presenter.removeVisibleInnerHTML = function () {
+    presenter.removeNonVisibleInnerHTML = function () {
         $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
             var newInnerHtml = $(element).html().replace(/\\alt{([^|{}]*?)\|[^|{}]*?{[^|{}]*?}-}/g, '$1'); // replace \alt{a|b{c}} with a
             $(element).html(newInnerHtml.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1')); // replace \alt{a|b} with a
@@ -408,7 +408,7 @@ function AddonConnection_create() {
 
         if (isPreview) {
             presenter.initializeView(view, model);
-            presenter.removeVisibleInnerHTML();
+            presenter.removeNonVisibleInnerHTML();
             presenter.drawConfiguredConnections();
         } else {
             presenter.mathJaxProcessEnded.then(function () {

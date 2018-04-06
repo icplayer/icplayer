@@ -195,7 +195,7 @@ public class TextParser {
 				String replaceText = matchVariable(expression);
 				if (replaceText == null) {
 					if (isKeepOriginalOrder) {
-						replaceText = mathInLineChoiceKeepOrder(expression);
+						replaceText = matchInLineChoiceKeepOrder(expression);
 					} else {
 						replaceText = matchInlineChoice(expression);
 					}
@@ -565,7 +565,7 @@ public class TextParser {
 		return inputElement;
 	}
 	
-	private String mathInLineChoiceKeepOrder(String expression) {
+	private String matchInLineChoiceKeepOrder(String expression) {
 		String replaceText = null;
 		
 		int index = expression.indexOf(":");
@@ -992,7 +992,7 @@ public class TextParser {
 		String parsedText = srcText;
 		String oldParsedText = "";
 		String pattern = "<([^>]*?)\\\\alt\\{([^<]*?)>";
-		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be mutliple alt texts inside one tag, all must be escaped
+		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be multiple alt texts inside one tag, all must be escaped
 			oldParsedText = parsedText;
 			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\altEscaped\\{$2>");
 		}
@@ -1003,7 +1003,7 @@ public class TextParser {
 		String pattern = "<([^>]*?)\\\\altEscaped\\{([^<]*?)>";
 		String parsedText = srcText;
 		String oldParsedText = "";
-		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be mutliple alt texts inside one tag, all must be unescaped
+		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be multiple alt texts inside one tag, all must be unescaped
 			oldParsedText = parsedText;
 			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\alt\\{$2>");
 		}
@@ -1011,8 +1011,8 @@ public class TextParser {
 	}
 	
 	private String getReadableAltText(String srcText){
-		String parsedText =  srcText.replaceAll("\\\\alt\\{([^\\|\\{\\}]*?)\\|([^\\|\\{\\}]*?)\\{([^\\|\\{\\}]*?)\\}-\\}", "$2");
-		parsedText = parsedText.replaceAll("\\\\alt\\{([^\\|\\{\\}]*?)\\|([^\\|\\{\\}]*?)\\}", "$2");
+		String parsedText =  srcText.replaceAll("\\\\alt\\{[^\\|\\{\\}]*?\\|([^\\|\\{\\}]*?)\\{[^\\|\\{\\}]*?\\}-\\}", "$1");
+		parsedText = parsedText.replaceAll("\\\\alt\\{[^\\|\\{\\}]*?\\|([^\\|\\{\\}]*?)\\}", "$1");
 		return parsedText;
 	}
 
