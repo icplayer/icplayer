@@ -255,8 +255,6 @@ function AddonText_To_Speech_create() {
                     var splitTexts = texts[i].text.split(matchText);
                     var startIndex = texts[i].text.indexOf(matchText);
 
-                    console.log(matchText.match(/\\alt{([^\|{}]*?)\|([^\|{}]*?){([^\|{}]*?)}-}/g));
-
                     matchText = matchText.replace('\\alt{', '');
                     matchText = matchText.replace('}-}', '');
                     matchText = matchText.replace('{', '\|');

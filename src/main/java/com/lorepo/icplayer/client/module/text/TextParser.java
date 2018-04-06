@@ -484,6 +484,7 @@ public class TextParser {
 	 * @return
 	 */
 	private String matchInlineChoice(String expression) {
+
 		String replaceText = null;
 
 		try {
