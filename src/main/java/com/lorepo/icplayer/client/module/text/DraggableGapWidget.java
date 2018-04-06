@@ -318,6 +318,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	public String getGapType() {
 		return "draggable";
 	}
+	
+	@Override
+	public String getLangTag() {
+		return gapInfo.getLangTag();
+	}
 
 	public void select() {
 		this.addStyleName("keyboard_navigation_active_element");

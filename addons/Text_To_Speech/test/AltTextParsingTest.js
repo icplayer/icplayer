@@ -30,11 +30,11 @@ TestCase('Parsing alternative texts', {
     'test altText with lang tag': function () {
         function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
         var textVoices = [];
-        textVoices.push(getTextVoiceObject('test \\alt{hello|world|pl} test2','en'));
-        textVoices.push(getTextVoiceObject('\\alt{hello2|world2|de}','en'));
-        textVoices.push(getTextVoiceObject('\\alt{hello3|world3|de}\\alt{hello4|world4|pl} test \\alt{hello3|world3|de} test2','en'));
-        textVoices.push(getTextVoiceObject('\\alt{hello4|world4|pl} after','en'));
-        textVoices.push(getTextVoiceObject('before \\alt{hello5|world5|de}','en'));
+        textVoices.push(getTextVoiceObject('test \\alt{hello|world{pl}-} test2','en'));
+        textVoices.push(getTextVoiceObject('\\alt{hello2|world2{de}-}','en'));
+        textVoices.push(getTextVoiceObject('\\alt{hello3|world3{de}-}\\alt{hello4|world4{pl}-} test \\alt{hello3|world3{de}-} test2','en'));
+        textVoices.push(getTextVoiceObject('\\alt{hello4|world4{pl}-} after','en'));
+        textVoices.push(getTextVoiceObject('before \\alt{hello5|world5{de}-}','en'));
         textVoices = this.presenter.parseAltTexts(textVoices);
 
         assertEquals(13, textVoices.length);
@@ -57,8 +57,8 @@ TestCase('Parsing alternative texts', {
         'test altText with and without lang tag mixed together': function () {
         function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
         var textVoices = [];
-        textVoices.push(getTextVoiceObject('\\alt{hello3|world3|de} \\alt{hello|world} test2',''));
-        textVoices.push(getTextVoiceObject('\\alt{hello5|world5|de}\\alt{hello2|world2}\\alt{hello4|world4|en}','pl'));
+        textVoices.push(getTextVoiceObject('\\alt{hello3|world3{de}-} \\alt{hello|world} test2',''));
+        textVoices.push(getTextVoiceObject('\\alt{hello5|world5{de}-}\\alt{hello2|world2}\\alt{hello4|world4{en}-}','pl'));
         textVoices = this.presenter.parseAltTexts(textVoices);
 
         assertEquals(5, textVoices.length);

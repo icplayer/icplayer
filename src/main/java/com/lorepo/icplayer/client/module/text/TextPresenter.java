@@ -72,6 +72,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void deselect();
 		boolean isWorkingMode();
 		int getGapState();
+		String getLangTag();
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -459,7 +460,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			boolean wasValueSelected = !enteredValue.isEmpty() && !enteredValue.equals("---");
 			boolean isValidAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
- 
+
 			if (!isValidAnswer && wasValueSelected) {
 				errorCount++;
 			}

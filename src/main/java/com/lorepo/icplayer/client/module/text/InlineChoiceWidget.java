@@ -93,7 +93,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 			boolean isFilledGap = selectedIndex > 0;
 
 			if (isFilledGap) {
-				boolean isCorrectAnswer = getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
+				boolean isCorrectAnswer = getValue(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
 				addStyleDependentName(isCorrectAnswer ? "correct" : "wrong");
 				this.gapState = (isCorrectAnswer ? 1 : 2);
 			} else {
@@ -278,5 +278,10 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	
 	private TextView getView(){
 		return this.view;
+	}
+	
+	@Override
+	public String getLangTag() {
+		return null;
 	}
 }

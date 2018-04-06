@@ -271,7 +271,7 @@ public class GWTTextParserTestCase extends GwtTest{
 	@Test
 	public void altTextParsing () {
 		TextParser parser = new TextParser();
-		String srcText ="\\alt{visible|readable}\\alt{visible2|readable2|langTag}<span value='\\alt{visible3|readable3}'>\\alt{visible4|readable4|langtag2}</span>";
+		String srcText ="\\alt{visible|readable}\\alt{visible2|readable2{langTag}-}<span value='\\alt{visible3|readable3}'>\\alt{visible4|readable4{langtag2}-}</span>";
 		
 		parser.setId("xcf");
 		ParserResult parsed = parser.parse(srcText);
@@ -297,18 +297,21 @@ public class GWTTextParserTestCase extends GwtTest{
 	@Test
 	public void altTextInsideDropdown () {
 		TextParser parser = new TextParser();
-		String srcText ="{{1:1|\\alt{hello|world|langTag}|3}}";
+		String srcText ="{{1:1|\\alt{hello|world{langTag}-}|3}}";
 		
 		parser.setId("xcf");
+		parser.setKeepOriginalOrder(true);
+		
 		ParserResult parsed = parser.parse(srcText);
+		System.out.println(parsed.parsedText);
 		Element el = (new HTML(parsed.parsedText)).getElement();
 		NodeList<Element> options = el.getElementsByTagName("option");
 		
 		assertTrue(options.getLength()==4);
 		
-		Element child = options.getItem(3);
+		Element child = options.getItem(2);
 		assertTrue(child.getChildCount()==1);
-		assertTrue(child.getAttribute("value").equals("\\alt{hello|world|langTag}"));
+		assertTrue(child.getAttribute("value").equals("\\alt{hello|world{langTag}-}"));
 		assertTrue(child.getAttribute("aria-label").equals("world"));
 		
 		child = (Element) child.getChild(0);

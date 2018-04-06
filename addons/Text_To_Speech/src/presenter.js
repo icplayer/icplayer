@@ -245,7 +245,7 @@ function AddonText_To_Speech_create() {
             {
                 // altText elements with a langTag need to be isolated into seperate items
                 // in the texts array, so that they can use a different language tag.
-                var match = texts[i].text.match(/\\alt{[^\|{}]*?\|([^\|{}]*?)\|([^\|{}]*?)}/g);
+                var match = texts[i].text.match(/\\alt{([^\|{}]*?)\|([^\|{}]*?){([^\|{}]*?)}-}/g);
                 if (match && match.length>0) {
                     // get the first altText element with a lang tag.
                     // if there are more, they will not be parsed in this iteration
@@ -254,9 +254,12 @@ function AddonText_To_Speech_create() {
                     var originalMatchText = matchText;
                     var splitTexts = texts[i].text.split(matchText);
                     var startIndex = texts[i].text.indexOf(matchText);
-                    
+
+                    console.log(matchText.match(/\\alt{([^\|{}]*?)\|([^\|{}]*?){([^\|{}]*?)}-}/g));
+
                     matchText = matchText.replace('\\alt{', '');
-                    matchText = matchText.replace('}', '');
+                    matchText = matchText.replace('}-}', '');
+                    matchText = matchText.replace('{', '\|');
                     var altTextParts = matchText.split('\|');
 
                     if (altTextParts && altTextParts.length === 3) {

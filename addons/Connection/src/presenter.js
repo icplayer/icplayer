@@ -211,7 +211,8 @@ function AddonConnection_create() {
 
     presenter.removeVisibleInnerHTML = function () {
         $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
-            $(element).html($(element).html().replace(/\\alt{(.*?)\|.*?}/g, '$1')); // replace \alt{a|b} with a
+            var newInnerHtml = $(element).html().replace(/\\alt{([^|{}]*?)\|[^|{}]*?{[^|{}]*?}-}/g, '$1'); // replace \alt{a|b{c}} with a
+            $(element).html(newInnerHtml.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1')); // replace \alt{a|b} with a
         });
 
     };
@@ -1514,7 +1515,7 @@ function AddonConnection_create() {
                 var replaceText = $(this).attr('aria-label');
                 var langTag = $(this).attr('langtag');
                 if (langTag && langTag.trim().length > 0 ) {
-                    replaceText = '\\alt{ |'+replaceText+'|'+langTag+'}';
+                    replaceText = '\\alt{ |'+replaceText+'{'+langTag+'}-}';
                 }
 
                 $(this).append(replaceText);

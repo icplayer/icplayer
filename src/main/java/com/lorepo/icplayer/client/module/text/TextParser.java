@@ -133,7 +133,9 @@ public class TextParser {
 				if (!skipGaps) {
 					parserResult.parsedText = parseGaps(srcText);
 					if (!useMathGaps) {
+						parserResult.parsedText = escapeAltText(parserResult.parsedText);
 						parserResult.parsedText = parseOldSyntax(parserResult.parsedText);
+						parserResult.parsedText = unescapeAltText(parserResult.parsedText);
 					}
 					parserResult.parsedText = parseExternalLinks(parserResult.parsedText);
 					parserResult.parsedText = parseLinks(parserResult.parsedText);
@@ -237,7 +239,8 @@ public class TextParser {
 	 * @return
 	 */
 	private String matchGap(String expression) {
-		
+		String langTag = getGapLangTag(expression);
+		expression = removeGapLangTag(expression);
 		int index = expression.indexOf(":");
 		String replaceText = null;
 		
@@ -246,10 +249,10 @@ public class TextParser {
 			String answer = expression.substring(index + 1).trim();
 			String id = baseId + "-" + idCounter;
 			idCounter++;
-			DomElementManipulator inputElement = this.createGapInputElement(id, answer);
+			DomElementManipulator inputElement = this.createGapInputElement(id, answer, langTag);
 			
 			replaceText = inputElement.getHTMLCode();
-			GapInfo gi = new GapInfo(id, Integer.parseInt(value), isCaseSensitive, isIgnorePunctuation, gapMaxLength);
+			GapInfo gi = new GapInfo(id, Integer.parseInt(value), isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
 			String[] answers = answer.split("\\|");
 			for (int i = 0; i < answers.length; i++) {
 				gi.addAnswer(answers[i]);
@@ -260,13 +263,16 @@ public class TextParser {
 		return replaceText;
 	}
 	
-	private DomElementManipulator createGapInputElement(String id, String answer) {
+	private DomElementManipulator createGapInputElement(String id, String answer, String langTag) {
 		DomElementManipulator inputElement = new DomElementManipulator("input");
 		inputElement.setHTMLAttribute("id", id);
 		inputElement.setHTMLAttribute("type", "edit");
 		inputElement.setHTMLAttribute("data-gap", "editable");
+		if(langTag!=null && langTag.length()>0){
+			langTag = "{"+langTag+"}-";
+		}
 		if (this.editorMode) {
-			inputElement.setHTMLAttribute("data-gap-value", "\\gap{" + answer + "}");
+			inputElement.setHTMLAttribute("data-gap-value", "\\gap{" + answer + langTag + "}");
 		}
 		inputElement.setHTMLAttribute("size", "" + answer.length());
 		inputElement.addClass("ic_gap");
@@ -278,7 +284,8 @@ public class TextParser {
 	}
 	
 	private String matchFilledGap(String expression) {
-
+		String langTag = getGapLangTag(expression);
+		expression = removeGapLangTag(expression);
 		String replaceText = null;
 		
 		int index = expression.indexOf("|");
@@ -289,7 +296,7 @@ public class TextParser {
 			String id = baseId + "-" + idCounter;
 			idCounter++;
 			placeholder = StringUtils.unescapeXML(placeholder);
-			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength);
+			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
 			gi.setPlaceHolder(placeholder);
 			String[] answers = answer.split("\\|");
 			int maxValue = 0;
@@ -328,7 +335,8 @@ public class TextParser {
 	}
 	
 	private String matchMathGap(String expression) {
-
+		String langTag = getGapLangTag(expression);
+		expression = removeGapLangTag(expression);
 		String replaceText = null;
 
 		int index = expression.indexOf(":");
@@ -351,7 +359,7 @@ public class TextParser {
 			idCounter++;
 			
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
-					isCaseSensitive, isIgnorePunctuation, gapMaxLength);
+					isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
 			String[] answers = answer.split("\\|");
 			for (int i = 0; i < answers.length; i++) {
 				gi.addAnswer(answers[i]);
@@ -363,7 +371,7 @@ public class TextParser {
 	}
 
 	private String matchDraggableFilledGap(String expression) {
-
+		expression = removeGapLangTag(expression);
 		String replaceText = null;
 		int index = expression.indexOf("|");
 		if (index > 0) {
@@ -393,6 +401,7 @@ public class TextParser {
 	}
 	
 	private String matchDraggableGap(String expression) {
+		expression = removeGapLangTag(expression);
 		String replaceText = null;
 
 		int index = expression.indexOf(":");
@@ -475,7 +484,6 @@ public class TextParser {
 	 * @return
 	 */
 	private String matchInlineChoice(String expression) {
-
 		String replaceText = null;
 
 		try {
@@ -483,9 +491,9 @@ public class TextParser {
 			if (index > 0) {
 				String value = expression.substring(0, index).trim();
 				String answerValues = StringUtils.removeNewlines(expression.substring(index + 1));
-				String[] answers = this.escapeAltText(answerValues).split("\\|");
+				String[] answers = answerValues.split("\\|");
 				for(int i=0;i<answers.length;i++){
-					answers[i]=this.unescapeAltText(answers[i]);
+					answers[i]=unescapeAltText(answers[i]);
 				}
 				if (answers.length > 1) {
 
@@ -561,9 +569,9 @@ public class TextParser {
 		
 		int index = expression.indexOf(":");
 		if (index > 0) {
-			String[] answers = this.escapeAltText(expression).split("\\|");
+			String[] answers = expression.split("\\|");
 			for(int i=0;i<answers.length;i++){
-				answers[i]=this.unescapeAltText(answers[i]);
+				answers[i]=unescapeAltText(answers[i]);
 			}
 			
 			if (answers.length > 1) {
@@ -952,10 +960,9 @@ public class TextParser {
 			if (seperatorIndex > 0) {				
 				String visibleText = expression.substring(0, seperatorIndex);
 				String altText = expression.substring(seperatorIndex + 1);
-				int langSeperatorIndex = altText.indexOf("|");
-				if (langSeperatorIndex > 0) {
-					String langTag = altText.substring(langSeperatorIndex + 1);
-					altText = altText.substring(0, langSeperatorIndex);
+				String langTag = getGapLangTag(altText);
+				if (langTag != null) {
+					altText = removeGapLangTag(altText);
 					replaceText =  StringUtils.unescapeXML(getAltTextElement(visibleText, altText, langTag).getHTMLCode());
 				} else {
 					replaceText =  StringUtils.unescapeXML(getAltTextElement(visibleText, altText).getHTMLCode());
@@ -968,46 +975,60 @@ public class TextParser {
 		return this.unescapeAltTextInTag(output + input);
 	}	
 	
-	private String escapeAltText(String srcText){
-		String parsedText =  srcText.replaceAll("\\\\alt\\{([^}|]*?)\\|([^}|]*?)\\|([^}|]*?)\\}", "\\\\altEscaped\\{$1&altTextSeperator&$2&altTextSeperator&$3\\}");
-		parsedText = parsedText.replaceAll("\\\\alt\\{([^}|]*?)\\|([^}|]*?)\\}", "\\\\altEscaped\\{$1&altTextSeperator&$2\\}");
+	public static String escapeAltText(String srcText){
+		String parsedText =  srcText.replaceAll("\\\\alt\\{([^\\|\\{\\}]*?)\\|([^\\|\\{\\}]*?)\\{([^\\|\\{\\}]*?)\\}-\\}", "\\\\altEscapedLang$1&altTextSeperator&$2&altTextSeperator&$3&altTextEnd&");
+		parsedText = parsedText.replaceAll("\\\\alt\\{([^\\|\\{\\}]*?)\\|([^\\|\\{\\}]*?)\\}", "\\\\altEscaped$1&altTextSeperator&$2&altTextEnd&");
 		return parsedText;
 	}
 
-	private String unescapeAltText(String srcText){
-		String parsedText =  srcText.replaceAll("\\\\altEscaped\\{([^}|]*?)&altTextSeperator&([^}|]*?)&altTextSeperator&([^}|]*?)\\}", "\\\\alt\\{$1\\|$2\\|$3\\}");
-		parsedText = parsedText.replaceAll("\\\\altEscaped\\{([^}|]*?)&altTextSeperator&([^}|]*?)\\}", "\\\\alt\\{$1\\|$2\\}");
+	public static String unescapeAltText(String srcText){
+		String parsedText =  srcText.replaceAll("\\\\altEscapedLang([^\\|\\{\\}]*?)&altTextSeperator&([^\\|\\{\\}]*?)&altTextSeperator&([^\\|\\{\\}]*?)&altTextEnd&", "\\\\alt\\{$1\\|$2\\{$3\\}-\\}");
+		parsedText = parsedText.replaceAll("\\\\altEscaped([^\\|\\{\\}]*?)&altTextSeperator&([^\\|\\{\\}]*?)&altTextEnd&", "\\\\alt\\{$1\\|$2\\}");
 		return parsedText;
 	}
 	
 	private String escapeAltTextInTag(String srcText){
 		String parsedText = srcText;
 		String oldParsedText = "";
-		String pattern = "<([^>]*?)\\\\alt\\{([^\\}]*?)\\}([^<]*?)>";
+		String pattern = "<([^>]*?)\\\\alt\\{([^<]*?)>";
 		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be mutliple alt texts inside one tag, all must be escaped
 			oldParsedText = parsedText;
-			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\altEscaped\\{$2\\}$3>");
+			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\altEscaped\\{$2>");
 		}
 		return parsedText;
 	}
 	
 	private String unescapeAltTextInTag(String srcText){
-		String pattern = "<([^>]*?)\\\\altEscaped\\{([^\\}]*?)\\}([^<]*?)>";
+		String pattern = "<([^>]*?)\\\\altEscaped\\{([^<]*?)>";
 		String parsedText = srcText;
 		String oldParsedText = "";
 		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be mutliple alt texts inside one tag, all must be unescaped
 			oldParsedText = parsedText;
-			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\alt\\{$2\\}$3>");
+			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\alt\\{$2>");
 		}
 		return parsedText;
 	}
 	
 	private String getReadableAltText(String srcText){
-		String parsedText =  srcText.replaceAll("\\\\alt\\{([^}|]*?)\\|([^}|]*?)\\|([^}|]*?)\\}", "$2");
-		parsedText = parsedText.replaceAll("\\\\alt\\{([^}|]*?)\\|([^}|]*?)\\}", "$2");
+		String parsedText =  srcText.replaceAll("\\\\alt\\{([^\\|\\{\\}]*?)\\|([^\\|\\{\\}]*?)\\{([^\\|\\{\\}]*?)\\}-\\}", "$2");
+		parsedText = parsedText.replaceAll("\\\\alt\\{([^\\|\\{\\}]*?)\\|([^\\|\\{\\}]*?)\\}", "$2");
 		return parsedText;
 	}
 
+	private String getGapLangTag(String expression){
+		RegExp regExp = RegExp.compile("\\{(.*?)\\}-$");
+		MatchResult matchResult;
+		while ((matchResult = regExp.exec(expression)) != null) {
+			if (matchResult.getGroupCount() > 0) {
+				return matchResult.getGroup(1);
+			}
+		}
+		return null;
+	}
+
+	private String removeGapLangTag(String expression){
+		return expression.replaceAll("\\{(.*?)\\}-$", "");
+	}
 	
 	public void skipGaps() {
 		skipGaps = true;

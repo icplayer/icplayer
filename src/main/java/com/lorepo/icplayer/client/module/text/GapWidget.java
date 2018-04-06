@@ -279,6 +279,11 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		return "gap";
 	}
 	
+	@Override
+	public String getLangTag() {
+		return gapInfo.getLangTag();
+	}
+	
 	public void select() {
 		this.addStyleName("keyboard_navigation_active_element");
 		this.addStyleName("keyboard_navigation_active_element_text");
