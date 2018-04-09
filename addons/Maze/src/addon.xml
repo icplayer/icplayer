@@ -41,6 +41,12 @@
 			<property name="downButton" nameLabel="Maze_property_translations_down_button_text" type="staticrow">
 				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
 			</property>
+			<property name="loose" nameLabel="Maze_property_translations_loose_text" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
+			<property name="looseButton" nameLabel="Maze_property_translations_retry_button_text" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
 		</property>
 	</model>
 </addon>

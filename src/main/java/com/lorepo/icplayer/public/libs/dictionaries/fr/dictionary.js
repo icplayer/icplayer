@@ -1647,6 +1647,8 @@ var ice_dictionary_fr = {
 "Maze_property_questions_maze_number": "Maze number",
 "Maze_property_is_disabled": "Is disabled",
 "Maze_property_hide_control_panel": "Hide control panel",
+"Maze_property_translations_loose_text": "Loose text",
+"Maze_property_translations_retry_button_text": "Retry button",
 "Iframe_info": "This addon allows users to connection between iframe and addon",
 "Iframe_name": "Iframe",
 "IFrame_property_iframe_url": "Iframe URL",

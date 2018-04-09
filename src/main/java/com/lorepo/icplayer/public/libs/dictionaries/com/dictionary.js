@@ -1666,6 +1666,9 @@ var ice_dictionary_en = {
 	"Maze_property_translations_translation": "Translation",
 	"Maze_property_questions_is_case_sensitive": "Is Case Sensitive",
 	"Maze_property_translations": "Translations",
+	"Maze_property_translations_loose_text": "Loose text",
+	"Maze_property_translations_retry_button_text": "Retry button",
+
 	"Iframe_info": "This addon allows users to connection between iframe and addon",
 	"Iframe_name": "Iframe",
 	"IFrame_property_iframe_url": "Iframe URL",

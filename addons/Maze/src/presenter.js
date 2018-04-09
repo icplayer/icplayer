@@ -2,12 +2,17 @@ function AddonMaze_create () {
     var presenter = function () {};
 
     presenter.ERROR_MESSAGES = {
-        'WW01': 'Width must be positive integer',
-        'WW02': 'Width must be bigger than 5',
-        'WH01': 'Height must be positive integer',
-        'WH02': 'Height must be bigger than 5',
-        'WC01': 'Number of mazes must be positive integer',
-        'WN01': 'Labyrinth number must be positive integer'
+        'mazeWidth_INT01': 'Width can\'t be empty',
+        'mazeWidth_INT02': 'Width must be integer',
+        'mazeWidth_INT04': 'Width must be bigger than 5',
+        'mazeHeight_INT01': 'Height can\'t be empty',
+        'mazeHeight_INT02': 'Height must be integer',
+        'mazeHeight_INT04': 'Height must be bigger than 5',
+        'numberOfMazes_INT01': 'Number of mazes can\'t be empty',
+        'numberOfMazes_INT02': 'Number of mazes must be integer',
+        'numberOfMazes_INT04': 'Number of mazes must be positive integer',
+        'questions_mazeId_INT02': 'Maze id must be integer',
+        'questions_mazeId_INT04': 'Maze id must be positive integer',
     };
 
     presenter.state = {
@@ -28,13 +33,18 @@ function AddonMaze_create () {
             applyButton: null,
             questionText: null,
             answerInput: null,
+            applyButtonText: null,
+            endGameButtonText: null,
             endGame: null,
             menu: null,
             lettersAnswerBackground: null,
             lettersAnswerContainer: null,
             lettersAnswerButton: null,
             lettersContainer: null,
-            lettersEndGameText: null
+            lettersEndGameText: null,
+            looseText: null,
+            looseRetryButton: null,
+            looseWrapper: null
         },
 
         isDisabled: false,
@@ -114,15 +124,20 @@ function AddonMaze_create () {
                 rightButton: 'Maze-wrapper-menu-controls-right',
                 downButton: 'Maze-wrapper-menu-controls-down',
                 applyButton: 'Maze_game_question_container_question_apply',
+                applyButtonText: 'Maze_game_question_container_question_apply_text',
                 questionText: 'Maze_game_question_container_question_text',
                 answerInput: 'Maze_game_question_container_question_input',
                 endGame: 'Maze_game_end',
+                endGameButtonText: 'Maze_game_end_text',
                 menu: 'Maze-wrapper-menu',
                 lettersAnswerBackground: 'Maze_letters_end_level_background',
                 lettersAnswerContainer: 'Maze_letters_end_level_answer_wrapper',
                 lettersAnswerButton: 'Maze_letters_end_level_next_maze_button',
                 lettersContainer: 'Maze_letters_end_level_answer_letters_container',
-                lettersEndGameText: 'Maze_end_level_answer_end_game'
+                lettersEndGameText: 'Maze_end_level_answer_end_game',
+                looseText: 'Maze_game_loose_text',
+                looseRetryButton :'Maze_game_loose_button',
+                looseWrapper: 'Maze_loose'
             },
             i;
 
@@ -143,6 +158,25 @@ function AddonMaze_create () {
         element.style.transform       = 'rotate(' + rotation + 'deg)';
     }
 
+    presenter.initializeTexts = function () {
+        var up = presenter.state.elements.upButton.getElementsByClassName('Maze-wrapper-menu-controls-no-select')[0];
+        var left = presenter.state.elements.leftButton.getElementsByClassName('Maze-wrapper-menu-controls-no-select')[0];
+        var right = presenter.state.elements.rightButton.getElementsByClassName('Maze-wrapper-menu-controls-no-select')[0];
+        var down = presenter.state.elements.downButton.getElementsByClassName('Maze-wrapper-menu-controls-no-select')[0];
+
+        up.innerText = presenter.configuration.translations.upButton.translation;
+        left.innerText = presenter.configuration.translations.leftButton.translation;
+        down.innerText = presenter.configuration.translations.downButton.translation;
+        right.innerText = presenter.configuration.translations.rightButton.translation;
+
+        presenter.state.elements.lettersAnswerButton.innerText = presenter.configuration.translations.nextMazeButton.translation;
+        presenter.state.elements.applyButtonText.innerText = presenter.configuration.translations.applyQuestion.translation;
+        presenter.state.elements.endGameButtonText.innerText = presenter.configuration.translations.endGame.translation;
+        presenter.state.elements.lettersEndGameText.innerText = presenter.configuration.translations.endGame.translation;
+        presenter.state.elements.looseText.innerText = presenter.configuration.translations.loose.translation;
+        presenter.state.elements.looseRetryButton.innerText = presenter.configuration.translations.looseButton.translation;
+    };
+
     /**
      * @param  {HTMLDivElement} view
      * @param  {Object} model
@@ -151,12 +185,14 @@ function AddonMaze_create () {
     presenter.runLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.view = view;
-        presenter.configuration = presenter.validateModel(model);
+        var validatedModel = presenter.validateModel(model);
 
-        if (!presenter.configuration.isValid) {
-            presenter.showErrorMessage(presenter.ERROR_MESSAGES[presenter.configuration.errorCode]);
+        if (!validatedModel.isValid) {
+            presenter.showErrorMessage(presenter.ERROR_MESSAGES[validatedModel.fieldName.join("_") + "_" + validatedModel.errorCode]);
             return;
         }
+
+        presenter.configuration = validatedModel.value;
 
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
@@ -166,6 +202,7 @@ function AddonMaze_create () {
 
         if (!isPreview) {
             presenter.completeState();
+            presenter.initializeTexts();
 
             if (presenter.configuration.hideControlPanel) {
                 presenter.state.elements.menu.style.display = 'none';
@@ -180,6 +217,10 @@ function AddonMaze_create () {
         presenter.setVisibility(presenter.configuration.isVisible);
     };
 
+    presenter.onRetryButtonClick = function () {
+        presenter.hideRetryView();
+    };
+
     presenter.initializeMaze = function () {
             var gameContainer = presenter.state.elements.gameContainer,
                 i,
@@ -188,18 +229,23 @@ function AddonMaze_create () {
 
 
             if (presenter.configuration.hideControlPanel) {
-                minSize = Math.min(presenter.configuration.addonSize.width, presenter.configuration.addonSize.height);
+                minSize = Math.min(presenter.configuration.Width, presenter.configuration.Height);
             }
 
             presenter.state.actualGameIndex = 0;
             presenter.state.games = [];
+            var labirynthSize = {
+                width: presenter.configuration.mazeWidth,
+                height: presenter.configuration.mazeHeight
+            };
+
 
             for (i = 0; i < presenter.configuration.numberOfMazes; i += 1) {
                 if (presenter.configuration.gameType === presenter.GAME_TYPES.DIAMOND) {
-                    game = new DiamondGame(presenter.configuration.labyrinthSize, minSize, presenter.configuration.questions[i] || []);
+                    game = new DiamondGame(labirynthSize, minSize, presenter.configuration.questions[i] || []);
                     presenter.state.games.push(game);
                 } else  {
-                    game = new LetterGame(presenter.configuration.labyrinthSize, minSize, presenter.configuration.questions[i] || []);
+                    game = new LetterGame(labirynthSize, minSize, presenter.configuration.questions[i] || []);
                     presenter.state.games.push(game);
                 }
             }
@@ -292,7 +338,7 @@ function AddonMaze_create () {
 
     presenter.getMistakeEventData = function () {
         return {
-            source : presenter.configuration.addonID,
+            source : presenter.configuration.ID,
             value: presenter.state.mistakes + '',
             item: 'mistake'
         };
@@ -300,7 +346,7 @@ function AddonMaze_create () {
 
     presenter.getOpenedDoorEventData = function (number) {
         return {
-            source : presenter.configuration.addonID,
+            source : presenter.configuration.ID,
             value: number + '',
             item: 'opened'
         };
@@ -312,7 +358,7 @@ function AddonMaze_create () {
 
     presenter.getGatheredLetterEventData = function (letter) {
         return {
-            source : presenter.configuration.addonID,
+            source : presenter.configuration.ID,
             value: letter,
             item: 'gathered'
         };
@@ -324,7 +370,7 @@ function AddonMaze_create () {
 
     presenter.getFinishedMazeEventData = function (mazeNumber) {
         return {
-            source: presenter.configuration.addonID,
+            source: presenter.configuration.ID,
             value: '1',
             item: mazeNumber + '',
             score: 1
@@ -333,7 +379,7 @@ function AddonMaze_create () {
 
     presenter.getFinishedAllMazeEventData = function () {
         return {
-            source: presenter.configuration.addonID,
+            source: presenter.configuration.ID,
             value: '1',
             item: 'all',
             score: 1
@@ -380,6 +426,12 @@ function AddonMaze_create () {
         presenter.state.elements.lettersAnswerContainer.style.display = 'block';
 
         presenter.state.elements.lettersContainer.innerHTML = '';
+
+        var textContainer = document.createElement('div');
+        textContainer.classList.add('Maze_levelSolutionText');
+        textContainer.innerText = presenter.configuration.translations.solutionText.translation;
+        presenter.state.elements.lettersContainer.appendChild(textContainer);
+
         letters.forEach(function (element) {
            var div = document.createElement('div');
            div.classList.add('Maze_letters_letter_element');
@@ -396,6 +448,14 @@ function AddonMaze_create () {
         presenter.state._isDisabled = false;
     };
 
+    presenter.showRetryView = function () {
+        presenter.state.elements.looseWrapper.style.display = 'block';
+    };
+
+    presenter.hideRetryView = function () {
+        presenter.state.elements.looseWrapper.style.display = 'none';
+    };
+
     presenter.playerMistake = function () {
         presenter.state.mistakes += 1;
         presenter.state.errorCount += 1;
@@ -406,6 +466,7 @@ function AddonMaze_create () {
             presenter.getActualGame().destroy();
             presenter.initializeMaze();
             presenter.state.mistakes = 0;
+            presenter.showRetryView();
         }
     };
 
@@ -420,6 +481,7 @@ function AddonMaze_create () {
         presenter.state.elements.rightButton.addEventListener('click', presenter.moveRight);
         presenter.state.elements.applyButton.addEventListener('click', presenter.onQuestionApplyButtonClick);
         presenter.state.elements.lettersAnswerButton.addEventListener('click', presenter.onNextMazeButtonClick);
+        presenter.state.elements.looseRetryButton.addEventListener('click', presenter.onRetryButtonClick);
     };
 
     presenter.disconnectHandlers = function () {
@@ -429,6 +491,7 @@ function AddonMaze_create () {
         presenter.state.elements.rightButton.removeEventListener('click', presenter.moveRight);
         presenter.state.elements.applyButton.removeEventListener('click', presenter.onQuestionApplyButtonClick);
         presenter.state.elements.lettersAnswerButton.removeEventListener('click', presenter.onNextMazeButtonClick);
+        presenter.state.elements.looseRetryButton.removeEventListener('click', presenter.onRetryButtonClick);
     };
 
     presenter.executeCommand = function(name, params) {
@@ -447,13 +510,6 @@ function AddonMaze_create () {
 
         Commands.dispatch(commands, name, params, presenter);
     };
-
-    function generateValidationError(errorCode) {
-        return {
-            isValid: false,
-            errorCode: errorCode
-        };
-    }
 
     presenter.showAnswers = function () {
         presenter.state.isShowingAnswers = true;
@@ -489,99 +545,22 @@ function AddonMaze_create () {
         }
     };
 
-    presenter.validateLabyrinthSize = function (model) {
-        var validatedWidth = ModelValidationUtils.validatePositiveInteger(model.width);
-        var validatedHeight = ModelValidationUtils.validatePositiveInteger(model.height);
-
-        if (!validatedHeight.isValid) {
-            return generateValidationError('WH01');
-        }
-
-        if (!validatedWidth.isValid) {
-            return generateValidationError('WW01');
-        }
-
-        if (validatedWidth.value <= 5) {
-            return generateValidationError('WW02');
-        }
-
-        if (validatedHeight.value <= 5) {
-            return generateValidationError('WH02');
-        }
-
-        return {
-            isValid: true,
-            width: validatedWidth.value,
-            height: validatedHeight.value
-        };
-    };
-
-    presenter.validateNumberOfMazes = function (model) {
-        if (model.numberOfMazes === '') {
-            model.numberOfMazes = '1';
-        }
-
-        var validatedNumberOfMazes = ModelValidationUtils.validatePositiveInteger(model.numberOfMazes);
-
-        if (!validatedNumberOfMazes.isValid) {
-            return generateValidationError('WC01');
-        }
-
-        return {
-            isValid: true,
-            value: validatedNumberOfMazes.value
-        }
-    };
-
     /**
      *
-     * @param {{question:String, answer:String, letter:String, mazeId:String}[]} questions
+     * @param {{question:String, answer:String, letter:String, mazeId:Number}[]} questions
      */
-    presenter.validateQuestions = function (questions) {
-        var validatedQuestions = [],
-            i;
+    presenter.completeQuestions = function (questions) {
+        var questionsObject = [];
 
-        for (i = 0; i < questions.length; i += 1) {
-            var element = questions[i];
-            if (element.mazeId.trim() === '') {
-                continue;
-            }
+        questions.forEach(function (element) {
+           if (element.mazeId !== -1) {
+               questionsObject[element.mazeId - 1] = questionsObject[element.mazeId - 1] || [];
 
-            var validatedLabyrinthNumber = ModelValidationUtils.validatePositiveInteger(element.mazeId);
-            if (!validatedLabyrinthNumber.isValid) {
-                return generateValidationError('WN01');
-            }
+               questionsObject[element.mazeId -1].push(element);
+           }
+        });
 
-            var isCaseSensitive = window.ModelValidationUtils.validateBoolean(element.isCaseSensitive);
-
-            validatedQuestions[validatedLabyrinthNumber.value - 1] = validatedQuestions[validatedLabyrinthNumber.value - 1] || [];
-            validatedQuestions[validatedLabyrinthNumber.value - 1].push({
-                question: element.question,
-                answer: isCaseSensitive ? element.answer : element.answer.toLowerCase(),
-                letter: element.letter,
-                isCaseSensitive: isCaseSensitive
-            });
-        }
-
-        return {
-            isValid: true,
-            value: validatedQuestions
-        };
-    };
-
-    presenter.validateTranslations = function (translations) {
-        for (var translationName in translations) {
-            if (translations.hasOwnProperty(translationName)) {
-                if (translations[translationName].translation === "") {
-                    translations[translationName].translation = null;
-                }
-            }
-        }
-
-        return {
-            isValid: true,
-            value: translations
-        };
+        return questionsObject;
     };
 
     presenter.validateModel = function (model) {
@@ -600,63 +579,37 @@ function AddonMaze_create () {
             ModelValidators.Integer('mazeHeight', {minValue: 6}),
             ModelValidators.Integer('Width'),
             ModelValidators.Integer('Height'),
-            ModelValidators.Integer('numberOfMazes', {minValue: 0, default: 1}),
+            ModelValidators.Integer('numberOfMazes', {minValue: 1, default: 1}),
             ModelValidators.List('questions', [
                 ModelValidators.DumbString("question"),
-                
-            ])
+                ModelValidators.DumbString("answer"),
+                ModelValidators.DumbString("letter"),
+                ModelValidators.Integer('mazeId', {minValue: 1, default: -1}),
+                ModelValidators.Boolean('isCaseSensitive'),
+            ]),
+            ModelValidators.StaticList('translations', {
+                'endGame': [ModelValidators.String('translation', {default: 'End Game'})],
+                'applyQuestion': [ModelValidators.String('translation', {default: 'Apply'})],
+                'nextMazeButton': [ModelValidators.String('translation', {default: 'Next maze'})],
+                'solutionText': [ModelValidators.String('translation', {default: 'Level solution is: '})],
+                'upButton': [ModelValidators.String('translation', {default: 'Up'})],
+                'leftButton': [ModelValidators.String('translation', {default: 'Left'})],
+                'rightButton': [ModelValidators.String('translation', {default: 'Right'})],
+                'downButton': [ModelValidators.String('translation', {default: 'Down'})],
+                'loose': [ModelValidators.String('translation', {default: 'You loose'})],
+                'looseButton': [ModelValidators.String('translation', {default: 'Retry'})]
+            })
         ]);
 
-        console.log(validatedModel);
-
         if (!validatedModel.isValid) {
-            return modelValidator;
+            return validatedModel;
         }
 
-        var validatedLabyrinthSize = presenter.validateLabyrinthSize(model);
-        if (!validatedLabyrinthSize.isValid) {
-            return validatedLabyrinthSize;
-        }
+        validatedModel.value.questions = presenter.completeQuestions(validatedModel.value.questions);
+        validatedModel.value.isVisible = validatedModel.value['Is Visible'];
+        validatedModel.value.gameType = presenter.GAME_TYPES[validatedModel.value.gameMode.toUpperCase()];
 
-        var validatedNumberOfMazes = presenter.validateNumberOfMazes(model);
-        if (!validatedNumberOfMazes.isValid) {
-            return validatedNumberOfMazes;
-        }
-
-        var validatedLabyrinthType = presenter.GAME_TYPES[model.gameMode.toUpperCase()];
-
-        var validatedQuestions = presenter.validateQuestions(model.questions);
-        if (!validatedQuestions.isValid) {
-            return validatedQuestions;
-        }
-
-        var validatedTranslations = presenter.validateTranslations(model.translations);
-        if (!validatedTranslations.isValid) {
-            return validatedTranslations;
-        }
-
-        return {
-            isValid: true,
-            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']), //
-            labyrinthSize: {
-                width: validatedLabyrinthSize.width, //
-                height: validatedLabyrinthSize.height//
-            },
-
-            addonSize: {
-                width: ModelValidationUtils.validatePositiveInteger(model['Width']).value,//
-                height: ModelValidationUtils.validatePositiveInteger(model['Height']).value,//
-            },
-
-            numberOfMazes: validatedNumberOfMazes.value, //
-
-            gameType: validatedLabyrinthType,//
-            questions: validatedQuestions.value,
-
-            addonID: model.ID, //
-            hideControlPanel: ModelValidationUtils.validateBoolean(model['hideControlPanel']),//
-            isDisabled: ModelValidationUtils.validateBoolean(model['isDisabled'])//
-        };
+        return validatedModel;
     };
 
     presenter.getState = function () {
@@ -709,6 +662,7 @@ function AddonMaze_create () {
         presenter.hideQuestionModal();
         presenter.hideEndGame();
         presenter.hideLettersAnswer();
+        presenter.hideRetryView();
 
         presenter.initializeMaze();
     };
@@ -1238,7 +1192,7 @@ function AddonMaze_create () {
         var dotDiv = document.createElement('div');
         dotDiv.classList.add('Maze_room_left_top_dot');
 
-        rotateElement(dotDiv, rotation)
+        rotateElement(dotDiv, rotation);
         this.getElement().appendChild(dotDiv);
     };
 

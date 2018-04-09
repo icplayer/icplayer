@@ -793,6 +793,41 @@
             }
 
             return this.generateErrorCode("EV01");
+        },
+
+        /**
+         * Validate possible value in static list.
+         *
+         * config: {
+         *      <fieldName>: Validator[]
+         * }
+         *
+         * Error Codes:
+         * SL01: Provided field doesnt exists
+         *
+         * @namespace ModelValidators
+         * @class StaticList
+         * @extends ModelValidators.Validator
+         */
+        StaticList: function (valueToValidate, config) {
+            var validatedList = {};
+
+            for (var fieldName in config) {
+                if (config.hasOwnProperty(fieldName)) {
+                    if (valueToValidate[fieldName] === undefined) {
+                        return this.generateErrorCode("SL01");
+                    }
+
+                    var validatedValue = this.validateModel(valueToValidate[fieldName], config[fieldName]);
+                    if (!validatedValue.isValid) {
+                        return validatedValue;
+                    }
+
+                    validatedList[fieldName] = validatedValue.value;
+                }
+            }
+
+            return this.generateValidValue(validatedList);
         }
     };
 
