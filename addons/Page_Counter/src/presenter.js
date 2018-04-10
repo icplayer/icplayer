@@ -2,6 +2,7 @@ function AddonPage_Counter_create() {
     var presenter = function() { };
     var presentationController;
     var isWCAGOn = false;
+    presenter.isCurrentlyVisible = true;
 
     presenter.executeCommand = function(name, params) {
         switch(name.toLowerCase()) {
@@ -23,6 +24,7 @@ function AddonPage_Counter_create() {
         presenter.isCurrentlyVisible = true;
         presenter.setVisibility(true);
     };
+	
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
@@ -30,8 +32,9 @@ function AddonPage_Counter_create() {
     presenter.updateVisibility = function() {
         if (presenter.isCurrentlyVisible) {
             presenter.show();
-        } else
+        } else {
             presenter.hide();
+	}
     };
 	
     presenter.ERROR_CODES = {
@@ -214,9 +217,9 @@ function AddonPage_Counter_create() {
     		ID: model.ID,
     		startFrom: validatedStartFrom.value,
     		omittedPagesTexts: validatedOmittedPagesTexts.value,
-            Numericals: presenter.validateLanguage(model).value,
-            langTag: model['langAttribute'],
-            speechTexts: presenter.getSpeechTexts(model['speechTexts']),
+        	Numericals: presenter.validateLanguage(model).value,
+            	langTag: model['langAttribute'],
+            	speechTexts: presenter.getSpeechTexts(model['speechTexts']),
 		isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"])
     	};
     };
@@ -407,8 +410,12 @@ function AddonPage_Counter_create() {
     };
 
     presenter.setState = function(state){
-	var parsedState = JSON.parse(state);
-	presenter.isCurrentlyVisible = parsedState.visible;
+	if (state === undefined || state === '') {
+	     presenter.isCurrentlyVisible = true;
+	} else {
+	     var parsedState = JSON.parse(state);
+	     presenter.isCurrentlyVisible = parsedState.visible;
+	}
 	presenter.updateVisibility();
     };
 	
