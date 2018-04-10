@@ -899,11 +899,13 @@ function AddonMaze_create () {
 
         var self = this;
         presenter.setOnQuestionApplyCallback(function (value) {
+            var answer = questionObj.answer;
             if (!questionObj.isCaseSensitive) {
                 value = value.toLowerCase();
+                answer = answer.toLowerCase();
             }
 
-            if (value === questionObj.answer) {
+            if (value === answer) {
                 self.gatheredLettersCount += 1;
                 room.removeCallback();
                 var letter = room.element.getElementsByClassName('Maze_letters_room_letter')[0];
@@ -1052,11 +1054,13 @@ function AddonMaze_create () {
 
         var self = this;
         presenter.setOnQuestionApplyCallback(function (value) {
+            var answer = self.questions[self.keysCount].answer;
             if (!self.questions[self.keysCount].isCaseSensitive) {
                 value = value.toLowerCase();
+                answer = answer.toLowerCase();
             }
 
-            if (value === self.questions[self.keysCount].answer) {
+            if (value === answer) {
                 self.openDoor(room);
                 self.keysCount += 1;
 
