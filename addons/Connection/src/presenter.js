@@ -1513,7 +1513,7 @@ function AddonConnection_create() {
             $activeClone.find('[aria-hidden="true"]').remove();
             $activeClone.find('[aria-label]').each(function(){
                 var replaceText = $(this).attr('aria-label');
-                var langTag = $(this).attr('langtag');
+                var langTag = $(this).attr('lang');
                 if (langTag && langTag.trim().length > 0 ) {
                     replaceText = '\\alt{ |'+replaceText+'}'+'[lang ' + langTag + ']';
                 }

@@ -119,7 +119,7 @@ public class WCAGUtils {
 				final int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, dropdownIndex) + DROP_DOWN_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
-			text= TextParser.removeGapOptions(text);
+			text = TextParser.removeGapOptions(text);
 		}
 
 		result.add(TextToSpeechVoice.create(text, lang)); // remaining text

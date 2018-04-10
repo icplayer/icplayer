@@ -357,7 +357,7 @@ public class GWTTextParserTestCase extends GwtTest{
 		if(!root.getAttribute("aria-label").equals(readable)){
 			return false;
 		}
-		if(langTag.length() > 0 && !root.getAttribute("langtag").equals(langTag)){
+		if(langTag.length() > 0 && !root.getAttribute("lang").equals(langTag)){
 			return false;
 		}
 

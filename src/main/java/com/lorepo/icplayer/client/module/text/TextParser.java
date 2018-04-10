@@ -938,7 +938,7 @@ public class TextParser {
 		DomElementManipulator wrapper = new DomElementManipulator("span");
 		wrapper.setHTMLAttribute("aria-label", altText);
 		if (langTag.length() > 0) {
-		    wrapper.setHTMLAttribute("langtag", langTag);
+		    wrapper.setHTMLAttribute("lang", langTag);
 		}
 		DomElementManipulator visibleTextElement = new DomElementManipulator("span");
 		visibleTextElement.setHTMLAttribute("aria-hidden", "true");
