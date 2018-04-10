@@ -855,7 +855,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 				Element textNode = DOM.createElement("span");
 				String innerText = child.getAttribute("aria-label");
 				if (child.getAttribute("langtag").length() > 0) {
-					innerText = "\\alt{ |"+innerText+"{"+child.getAttribute("langtag")+"}-}";
+					innerText = "\\alt{ |"+innerText+"}[lang "+child.getAttribute("langtag")+"]";
 				}
 				textNode.setInnerHTML(innerText);
 				child.appendChild(textNode);

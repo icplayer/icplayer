@@ -537,7 +537,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX)));
 			}
 		}
-		
+
 		this.speak(textVoices);
 	}
 	

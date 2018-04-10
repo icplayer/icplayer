@@ -239,13 +239,28 @@ function AddonText_To_Speech_create() {
 
     }
 
+    function getAltTextOptions(expression) {
+        var options = {};
+        expression = expression.replace(/.*}\[/g, '');
+        expression = expression.replace('\]\[', '|');
+        expression = expression.replace('\]', '');
+        var optionExp = expression.split('\|');
+        for(var i=0;i<optionExp.length;i++) {
+            var optionValues = optionExp[i].split(' ');
+            if(optionValues.length===2){
+                options[optionValues[0]]=optionValues[1];
+            }
+        }
+        return options;
+    }
+
      presenter.parseAltTexts = function(texts){
         for (var i=0; i < texts.length; i++) {
             if (texts[i].text !== null && texts[i].text !== undefined && texts[i].text.trim().length > 0)
             {
                 // altText elements with a langTag need to be isolated into seperate items
                 // in the texts array, so that they can use a different language tag.
-                var match = texts[i].text.match(/\\alt{([^\|{}]*?)\|([^\|{}]*?){([^\|{}]*?)}-}/g);
+                var match = texts[i].text.match(/\\alt{([^{}|]*?)\|([^{}|]*?)}(\[([a-zA-Z0-9_\- ]*?)\])+/g);
                 if (match && match.length>0) {
                     // get the first altText element with a lang tag.
                     // if there are more, they will not be parsed in this iteration
@@ -254,14 +269,15 @@ function AddonText_To_Speech_create() {
                     var originalMatchText = matchText;
                     var splitTexts = texts[i].text.split(matchText);
                     var startIndex = texts[i].text.indexOf(matchText);
+                    var readableText = matchText.replace(/.*\\alt{[^{}|]*?\|([^{}|]*?)}.*/g,"$1");
+                    var options = getAltTextOptions(originalMatchText);
+                    var langTag = "";
+                    if(options.hasOwnProperty('lang')){
+                        langTag = options.lang;
+                    }
 
-                    matchText = matchText.replace('\\alt{', '');
-                    matchText = matchText.replace('}-}', '');
-                    matchText = matchText.replace('{', '\|');
-                    var altTextParts = matchText.split('\|');
-
-                    if (altTextParts && altTextParts.length === 3) {
-                        var altTextVoice = getTextVoiceObject(altTextParts[1], altTextParts[2]);
+                    if (langTag.length!==0) {
+                        var altTextVoice = getTextVoiceObject(readableText, langTag);
 
                         if (splitTexts) {
                             if (splitTexts.length > 2) {
@@ -287,6 +303,9 @@ function AddonText_To_Speech_create() {
                                 texts[i] = altTextVoice;
                             }
                         }
+                    } else {
+                        //if there is no lang option, there is not reason to create a new element in texts array
+                        texts[i].text = texts[i].text.replace(originalMatchText, readableText);
                     }
                 }
 

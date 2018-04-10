@@ -73,7 +73,6 @@ public class WCAGUtils {
 
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<TextElementDisplay> textElements, String lang) {
 		String text = getCleanText(model.getOriginalText());
-		text = removeLangTag(text);
 		int gapNumber = 1;
 		final List<TextToSpeechVoice> result = new ArrayList<TextToSpeechVoice>();
 		
@@ -120,6 +119,7 @@ public class WCAGUtils {
 				final int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, dropdownIndex) + DROP_DOWN_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
+			text= TextParser.removeGapOptions(text);
 		}
 
 		result.add(TextToSpeechVoice.create(text, lang)); // remaining text
@@ -169,11 +169,5 @@ public class WCAGUtils {
 		String text = getCleanText(model.getOriginalText());
 		return text.contains(GAP_START) || text.contains(FILLED_GAP_START) || text.contains(DROP_DOWN_GAP_START);
 	}
-	
-	private static String removeLangTag(String srcText) {
-		String parsedText = srcText.replaceAll("\\\\gap\\{([^\\}\\{]*?)\\{[^\\}\\{]*?\\}-\\}", "\\\\gap\\{$1\\}");
-		parsedText = parsedText.replaceAll("\\\\filledGap\\{([^\\}\\{]*?)\\{[^\\}\\{]*?\\}-\\}", "\\\\filledGap\\{$1\\}");
-		return parsedText;
-	}
-	
+
 }

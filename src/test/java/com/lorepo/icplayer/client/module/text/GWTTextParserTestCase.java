@@ -118,13 +118,13 @@ public class GWTTextParserTestCase extends GwtTest{
 	public void testGapWithLangTag() {
 		
 		TextParser parser = new TextParser();
-		String srcText ="\\gap{answer1} \\gap{answer1{pl}-} \\gap{answer1|answer2|answer3{de}-}";
+		String srcText ="\\gap{answer1} \\gap{answer1}[lang pl] \\gap{answer1|answer2|answer3}[lang de]";
 		
 		parser.setId("xcf");
 		ParserResult parsed = parser.parse(srcText);
 		
 		assertEquals(3, parsed.gapInfos.size());
-		assertEquals(null,parsed.gapInfos.get(0).getLangTag());
+		assertEquals("",parsed.gapInfos.get(0).getLangTag());
 		assertEquals("pl",parsed.gapInfos.get(1).getLangTag());
 		assertEquals("de",parsed.gapInfos.get(2).getLangTag());
 
@@ -134,13 +134,13 @@ public class GWTTextParserTestCase extends GwtTest{
 	public void testFilledGapWithLangTag() {
 		
 		TextParser parser = new TextParser();
-		String srcText ="\\filledGap{default|answer1} \\filledGap{default|answer1{pl}-} \\filledGap{default|answer1|answer2|answer3{de}-}";
+		String srcText ="\\filledGap{default|answer1} \\filledGap{default|answer1}[lang pl] \\filledGap{default|answer1|answer2|answer3}[lang de]";
 		
 		parser.setId("xcf");
 		ParserResult parsed = parser.parse(srcText);
 		
 		assertEquals(3, parsed.gapInfos.size());
-		assertEquals(null,parsed.gapInfos.get(0).getLangTag());
+		assertEquals("",parsed.gapInfos.get(0).getLangTag());
 		assertEquals("pl",parsed.gapInfos.get(1).getLangTag());
 		assertEquals("de",parsed.gapInfos.get(2).getLangTag());
 
@@ -303,7 +303,7 @@ public class GWTTextParserTestCase extends GwtTest{
 	@Test
 	public void altTextParsing () {
 		TextParser parser = new TextParser();
-		String srcText ="\\alt{visible|readable}\\alt{visible2|readable2{langTag}-}<span value='\\alt{visible3|readable3}'>\\alt{visible4|readable4{langtag2}-}</span>";
+		String srcText ="\\alt{visible|readable}\\alt{visible2|readable2}[lang langTag]<span value='\\alt{visible3|readable3}'>\\alt{visible4|readable4}[lang langtag2]</span>";
 		
 		parser.setId("xcf");
 		ParserResult parsed = parser.parse(srcText);
@@ -329,13 +329,12 @@ public class GWTTextParserTestCase extends GwtTest{
 	@Test
 	public void altTextInsideDropdown () {
 		TextParser parser = new TextParser();
-		String srcText ="{{1:1|\\alt{hello|world{langTag}-}|3}}";
+		String srcText ="{{1:1|\\alt{hello|world}[lang langTag]|3}}";
 		
 		parser.setId("xcf");
 		parser.setKeepOriginalOrder(true);
 		
 		ParserResult parsed = parser.parse(srcText);
-		System.out.println(parsed.parsedText);
 		Element el = (new HTML(parsed.parsedText)).getElement();
 		NodeList<Element> options = el.getElementsByTagName("option");
 		
@@ -343,7 +342,7 @@ public class GWTTextParserTestCase extends GwtTest{
 		
 		Element child = options.getItem(2);
 		assertTrue(child.getChildCount()==1);
-		assertTrue(child.getAttribute("value").equals("\\alt{hello|world{langTag}-}"));
+		assertTrue(child.getAttribute("value").equals("\\alt{hello|world}[lang langTag]"));
 		assertTrue(child.getAttribute("aria-label").equals("world"));
 		
 		child = (Element) child.getChild(0);
