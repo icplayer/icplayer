@@ -103,9 +103,10 @@ public final class KeyboardNavigationController {
 			this.modeOn = false;
 			return;
 		}
+		int currentSelectedModuleIndex = this.actualSelectedModuleIndex;
 		if (!this.getPresenters().get(this.actualSelectedModuleIndex).presenter.isSelectable(this.mainPageController.isTextToSpeechModuleEnable())) { //If first is not selectable
 			this.setIndexToNextModule();
-			if (this.actualSelectedModuleIndex == 0) { //And others modules too, then turn off navigation
+			if (this.actualSelectedModuleIndex == currentSelectedModuleIndex) { //And others modules too, then turn off navigation
 				this.modeOn = false;
 				return;
 			}
