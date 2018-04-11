@@ -28,6 +28,64 @@ function Addonfeedback_create() {
         textParser = new TextParserProxy(playerController.getTextParser());
     };
 
+    function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts && playerController.isWCAGOn()) {
+            tts.speak(data);
+        }
+    }
+
+    function getReadableText(text) {
+        var root = document.createElement('div');
+        root.innerHTML = text;
+        var $root = $(root);
+        $root.find('[aria-hidden="true"]').remove();
+        $root.find('[aria-label]').each(function(){
+            $(this).append($(this).attr('aria-label'));
+        });
+        var result = $root.text().trim();
+        return result;
+    }
+
+    presenter.readCurrentMessage = function() {
+        if(presenter.currentStateDefault) {
+            presenter.readDefaultMessage();
+        } else if(presenter.currentStateId) {
+            presenter.readMessageById(presenter.currentStateId);
+        }
+    };
+
+    presenter.readDefaultMessage = function() {
+        var TextVoiceArray = [];
+        TextVoiceArray.push(getTextVoiceObject(getReadableText(presenter.defaultResponse), presenter.configuration.langTag));
+        speak(TextVoiceArray);
+    };
+
+    presenter.readMessageById = function(id) {
+        if(id && presenter.responses[id]) {
+            var TextVoiceArray = [];
+            var response = presenter.responses[id];
+            if ( 0 === response.status.toLowerCase().localeCompare("t")) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.positive));
+            }
+            if ( 0 === response.status.toLowerCase().localeCompare("f")) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.negative));
+            }
+            TextVoiceArray.push(getTextVoiceObject(getReadableText(response.text), presenter.configuration.langTag));
+            speak(TextVoiceArray);
+        }
+    };
+
     presenter.showErrorMessage = function (message, substitutions) {
         var errorContainer;
         if (typeof(substitutions) == 'undefined') {
@@ -64,6 +122,8 @@ function Addonfeedback_create() {
         }
         presenter.currentStateDefault = true;
         presenter.currentStateId = null;
+
+        presenter.readCurrentMessage();
     };
 
     presenter.setResponse = function (id) {
@@ -86,6 +146,8 @@ function Addonfeedback_create() {
 
         presenter.currentStateDefault = false;
         presenter.currentStateId = id;
+
+        presenter.readCurrentMessage();
     };
 
 
@@ -101,9 +163,34 @@ function Addonfeedback_create() {
         return $feedbackTable;
     }
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeFrom_01(model);
+    };
+
+    presenter.upgradeFrom_01 = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = "";
+        }
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["Positive"]) {
+            upgradedModel["speechTexts"]["Positive"] = {Positive: ""};;
+        }
+        if (!upgradedModel["speechTexts"]["Negative"]) {
+            upgradedModel["speechTexts"]["Negative"] = {Negative: ""};
+        }
+        return upgradedModel;
+    };
+
     presenter.initialize = function (view, model, preview) {
         var text;
         var text_inner;
+
+        model = presenter.upgradeModel(model);
 
         presenter.$view = $(view);
         presenter.preview = preview;
@@ -195,8 +282,36 @@ function Addonfeedback_create() {
         }
     };
 
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+            positive:  'positive',
+            negative: 'negative',
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            positive:    getSpeechTextProperty(speechTexts['Positive']['Positive'], presenter.speechTexts.positive),
+            negative: getSpeechTextProperty(speechTexts['Negative']['Negative'], presenter.speechTexts.negative),
+        };
+    }
+
     presenter.validateModel = function (model) {
         var validatedIsVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        setSpeechTexts(model["speechTexts"]);
+
         return {
             resetResponse: ModelValidationUtils.validateBoolean(model['Reset response on page change']),
             fadeTransitions: ModelValidationUtils.validateBoolean(model['Fade transitions']),
@@ -205,7 +320,8 @@ function Addonfeedback_create() {
             isActivity: !ModelValidationUtils.validateBoolean(model['Is not an activity']),
             isVisible: validatedIsVisible,
             isVisibleByDefault: validatedIsVisible,
-            isTabindexEnabled: ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled'])
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']),
+            langTag: model['langAttribute']
         };
     };
 

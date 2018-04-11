@@ -14,5 +14,14 @@
 		<property name="Center horizontally" nameLabel="feedback_property_center_horizontally" type="boolean" />
 		<property name="Center vertically" nameLabel="feedback_property_center_vertically" type="boolean" />
 		<property name="Is not an activity" nameLabel="feedback_property_is_not_an_activity" type="boolean" />
+		<property name="langAttribute"  nameLabel="feedback_property_lang_attribute" type="string" />
+        <property name="speechTexts"  nameLabel="feedback_property_speech_texts" type="staticlist">
+            <property name="Positive" nameLabel="feedback_property_positive" type="staticrow">
+                <property name="Positive" nameLabel="feedback_property_positive" type="string"/>
+            </property>
+            <property name="Negative" nameLabel="feedback_property_negative" type="staticrow">
+                <property name="Negative" nameLabel="feedback_property_negative" type="string"/>
+            </property>
+		</property>
 	</model>
 </addon>
