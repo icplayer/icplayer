@@ -46,14 +46,14 @@ function Addonfeedback_create() {
     }
 
     function getReadableText(text) {
-        var root = document.createElement('div');
-        root.innerHTML = text;
-        var $root = $(root);
-        $root.find('[aria-hidden="true"]').remove();
-        $root.find('[aria-label]').each(function(){
+        var el = document.createElement('div');
+        el.innerHTML = text;
+        var $el = $(el);
+        $el.find('[aria-hidden="true"]').remove();
+        $el.find('[aria-label]').each(function(){
             $(this).append($(this).attr('aria-label'));
         });
-        var result = $root.text().trim();
+        var result = $el.text().trim();
         return result;
     }
 

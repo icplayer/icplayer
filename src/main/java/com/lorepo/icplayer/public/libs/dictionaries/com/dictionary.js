@@ -609,7 +609,6 @@ var ice_dictionary_en = {
 	"feedback_property_center_horizontally": "Center horizontally",
 	"feedback_property_center_vertically": "Center vertically",
 	"feedback_property_is_not_an_activity": "Is not an activity",
-	"feedback_property_is_not_an_activity": "Is not an activity",
 	"feedback_property_lang_attribute": "Lang attribute",
 	"feedback_property_speech_texts": "Speech Texts",
 	"feedback_property_positive": "Positive",
