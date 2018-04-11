@@ -84,7 +84,7 @@ function AddonMaze_create () {
     };
 
     presenter.getScore = function () {
-        return presenter.state.actualGameIndex;
+        return presenter.state.actualGameIndex + presenter.getActualGame().getScore();
     };
 
     presenter.getMaxScore = function () {
@@ -107,7 +107,9 @@ function AddonMaze_create () {
 
     presenter.destroy = function () {
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
-        presenter.getActualGame().destroy();
+        if (presenter.getActualGame()) {
+            presenter.getActualGame().destroy();
+        }
         presenter.disconnectHandlers();
     };
 
@@ -420,6 +422,7 @@ function AddonMaze_create () {
         } else {
             presenter.state.elements.lettersAnswerButton.style.display = 'none';
             presenter.state.elements.lettersEndGameText.style.display = 'block';
+            presenter.sendEvent(presenter.getFinishedAllMazeEventData());
         }
 
         presenter.state.elements.lettersAnswerBackground.style.display = 'block';
@@ -688,7 +691,6 @@ function AddonMaze_create () {
      */
     function Game (size, maxSize) {
         this.maze = new Maze(size, maxSize);
-        this.isStarted = false;
         this.playerElement = document.createElement('div');
         this.playerElement.classList.add('Maze_player_element');
 
@@ -710,17 +712,22 @@ function AddonMaze_create () {
         this.maze.deserialize(obj.maze);
     };
 
+    Game.prototype.getScore = function () {
+        return 0;
+    };
+
     /**
      * @param  {HTMLDivElement} container
      */
     Game.prototype.start = function (container) {
         this.maze.generate();
-
         container.appendChild(this.maze.getElement());
     };
 
     Game.prototype.destroy = function () {
-        this.maze.getElement().parentNode.removeChild(this.maze.getElement());
+        if (this.maze.getElement().parentNode) {
+            this.maze.getElement().parentNode.removeChild(this.maze.getElement());
+        }
         this.maze.mazeElements = [];
         this.maze.rooms = [];
         this.maze.walls = [];
@@ -798,8 +805,10 @@ function AddonMaze_create () {
     function LetterGame (size, maxSize, questions) {
         Game.call(this, size, maxSize);
 
+        this.questionsToAnswer = 0;
         this.questions = questions;
 
+        this.isShowingEndGame = false;
         this.endLevelElement = document.createElement('div');
         this.endLevelElement.classList.add('Maze_letters_end_level');
         this.gatheredLettersCount = 0;
@@ -808,13 +817,18 @@ function AddonMaze_create () {
 
     LetterGame.prototype = Object.create(Game.prototype);
 
+    LetterGame.prototype.getScore = function () {
+        return this.isShowingEndGame? 1 : 0;
+    };
+
     LetterGame.prototype.serialize = function () {
         var gameObj = Game.prototype.serialize.call(this);
 
         return {
             gameObj: gameObj, 
             gatheredLettersCount: this.gatheredLettersCount,
-            questionsPositions: this.questionsPositions
+            questionsPositions: this.questionsPositions,
+            isShowingEndGame: this.isShowingEndGame
         };
     };
 
@@ -835,6 +849,10 @@ function AddonMaze_create () {
         });
 
         this.movePlayerTo(this.maze.mazeElements[this.playerPosition.y][this.playerPosition.x]);
+
+        if (obj.isShowingEndGame) {
+            this.onEnterEndGame();
+        }
     };
 
     LetterGame.prototype.start = function (container) {
@@ -865,11 +883,12 @@ function AddonMaze_create () {
                 if (!room.hasCallback()) {
                     this.setLetterInRoom(room, question);
                     this.questionsPositions[this.questions.indexOf(question)] = roomIndex;
+                    this.questionsToAnswer++;
                     break;
                 }
 
                 //Be sure that there never will be forever while
-                if (counter === 50) {
+                if (counter >= 50) {
                     return;
                 }
             }
@@ -935,10 +954,12 @@ function AddonMaze_create () {
             letters = [],
             promise = $.Deferred();
 
-        if (this.questions.length !== this.gatheredLettersCount) {
+        if (this.questionsToAnswer !== this.gatheredLettersCount) {
             promise.resolve(false);
             return promise;
         }
+
+        this.isShowingEndGame = true;
 
         for (i = 0; i < this.questions.length; i += 1) {
             letters.push(this.questions[i].letter);
@@ -1014,10 +1035,10 @@ function AddonMaze_create () {
      */
     DiamondGame.prototype.createDoors = function (longestPath) {
         var doorsCount = this.questions.length,
-            spaceBetween = Math.floor(longestPath.length / (doorsCount + 1)),
+            spaceBetween = Math.max(1, Math.floor(longestPath.length / (doorsCount + 1))),
             i;
 
-        for(i = 1; i <= doorsCount; i += 1) {
+        for(i = 1; i <= Math.min(doorsCount, longestPath.length - 2); i += 1) {
             this.createDoorElement(longestPath[i * spaceBetween]);
         }
     };
