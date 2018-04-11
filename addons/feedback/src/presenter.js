@@ -58,10 +58,12 @@ function Addonfeedback_create() {
     }
 
     presenter.readCurrentMessage = function() {
-        if(presenter.currentStateDefault) {
-            presenter.readDefaultMessage();
-        } else if(presenter.currentStateId) {
-            presenter.readMessageById(presenter.currentStateId);
+        if (presenter.getTextToSpeechOrNull(playerController) && playerController.isWCAGOn()) {
+            if (presenter.currentStateDefault) {
+                presenter.readDefaultMessage();
+            } else if (presenter.currentStateId) {
+                presenter.readMessageById(presenter.currentStateId);
+            }
         }
     };
 
