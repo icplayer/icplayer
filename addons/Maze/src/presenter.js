@@ -84,7 +84,11 @@ function AddonMaze_create () {
     };
 
     presenter.getScore = function () {
-        return presenter.state.actualGameIndex + presenter.getActualGame().getScore();
+        var actualGameScore = 0;
+        if (presenter.getActualGame()) {
+            actualGameScore = presenter.getActualGame().getScore();
+        }
+        return presenter.state.actualGameIndex + actualGameScore;
     };
 
     presenter.getMaxScore = function () {
@@ -221,6 +225,7 @@ function AddonMaze_create () {
 
     presenter.onRetryButtonClick = function () {
         presenter.hideRetryView();
+        presenter.sendEvent(presenter.getRetryButtonClickedEventData());
     };
 
     presenter.initializeMaze = function () {
@@ -385,6 +390,15 @@ function AddonMaze_create () {
             value: '1',
             item: 'all',
             score: 1
+        };
+    };
+
+    presenter.getRetryButtonClickedEventData = function () {
+        return {
+            source: presenter.configuration.ID,
+            value: '1',
+            item: 'retry',
+            score: 0
         };
     };
 
@@ -792,7 +806,7 @@ function AddonMaze_create () {
     /**
      * Call room callback if exists
      * @param {Room} room
-     * @returns {Boolean} true, if can go, false if something is there
+     * @returns {Object|null} Promise if callback exists or null
      */
     Game.prototype.checkRoomCallback = function (room) {
         if (room.callback) {
