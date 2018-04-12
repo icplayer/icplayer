@@ -1,3 +1,5 @@
+2018-04-11 Fixed problem with video on IE 11
+2018-04-09 Fixed a problem with WCAG mode sometimes turning off on page change.
 2018-04-03 Fixed problem with rotating ruler in IWB Toolbar module.
 2018-03-28 Added property to vertically center the answer in Quiz module. Added headers-of-answers class to posibility to style headers of answers in Quiz module.
 2018-03-28 Added checking for permissions to modify top window in glossary
