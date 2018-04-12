@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
+import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
@@ -964,6 +966,11 @@ public class TextParser {
 	
 	public List<String> getGapsOrder () {
 		return this.gapsOrder;
+	}
+	
+	public static String removeHtmlFormatting( String html) {
+		Element el = (new HTML(html)).getElement();
+		return el.getInnerText();
 	}
 
 }

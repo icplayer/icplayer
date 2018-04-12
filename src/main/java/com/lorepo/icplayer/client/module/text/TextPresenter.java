@@ -221,7 +221,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			TextElementDisplay gap = view.getChild(index);
 			gapsViewsElements.put(gap.getId(), gap);
 		}
-		
+
 		for (int index = 0; index < gapsInfos.size(); index++) {
 			GapInfo gi = gapsInfos.get(index);
 
@@ -692,7 +692,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (newValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
 			newValue = "";
 		}
-		
+
 		values.put(id, newValue);
 		updateScore();
 
@@ -752,8 +752,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	protected void insertToGap(String gapId) {
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
-		String value = StringUtils.removeAllFormatting(draggableItem.getValue());
-		
+		String value = TextParser.removeHtmlFormatting(draggableItem.getValue());
+
 		view.setValue(gapId, draggableItem.getValue());
 		view.refreshMath();
 		

@@ -1,3 +1,4 @@
+2018-04-12 Fixed problem with <> symbols in Text draggable gap
 2018-04-11 Fixed problem with video on IE 11
 2018-04-09 Fixed a problem with WCAG mode sometimes turning off on page change.
 2018-04-03 Fixed problem with rotating ruler in IWB Toolbar module.

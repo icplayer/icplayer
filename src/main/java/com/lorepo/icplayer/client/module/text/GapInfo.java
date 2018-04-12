@@ -75,7 +75,7 @@ public class GapInfo {
 	}
 
 	public boolean isCorrect(String text) {
-		
+
 		boolean correct = false;
 		if(!isCaseSensitive){
 			text = text.toLowerCase();
