@@ -8,6 +8,7 @@ import java.util.Iterator;
 import org.junit.Test;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.ui.HTML;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
@@ -110,6 +111,38 @@ public class GWTTextParserTestCase extends GwtTest{
 		ParserResult parsed = parser.parse(srcText);
 		
 		assertEquals(2, parsed.gapInfos.size());
+
+	}
+	
+	@Test
+	public void testGapWithLangTag() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="\\gap{answer1} \\gap{answer1}[lang pl] \\gap{answer1|answer2|answer3}[lang de]";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(3, parsed.gapInfos.size());
+		assertEquals("",parsed.gapInfos.get(0).getLangTag());
+		assertEquals("pl",parsed.gapInfos.get(1).getLangTag());
+		assertEquals("de",parsed.gapInfos.get(2).getLangTag());
+
+	}
+	
+	@Test
+	public void testFilledGapWithLangTag() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="\\filledGap{default|answer1} \\filledGap{default|answer1}[lang pl] \\filledGap{default|answer1|answer2|answer3}[lang de]";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(3, parsed.gapInfos.size());
+		assertEquals("",parsed.gapInfos.get(0).getLangTag());
+		assertEquals("pl",parsed.gapInfos.get(1).getLangTag());
+		assertEquals("de",parsed.gapInfos.get(2).getLangTag());
 
 	}
 
@@ -265,5 +298,76 @@ public class GWTTextParserTestCase extends GwtTest{
 		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\gap{answer1|answer2|answer3}\"") == -1);
 		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\filledGap{initial text|answer}\"") == -1);
 		assertTrue(parsed.parsedText.indexOf("data-gap-value='\\def{słowko1}'") == -1);		
+	}
+	
+	@Test
+	public void altTextParsing () {
+		TextParser parser = new TextParser();
+		String srcText ="\\alt{visible|readable}\\alt{visible2|readable2}[lang langTag]<span value='\\alt{visible3|readable3}'>\\alt{visible4|readable4}[lang langtag2]</span>";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		Element el = (new HTML(parsed.parsedText)).getElement();
+		
+		assertTrue(el.getChildCount()==3);
+		
+		Element child = (Element)el.getChild(0);
+		assertTrue(checkCorrectAltTextElement(child,"visible","readable",""));
+		
+		child = (Element)el.getChild(1);
+		assertTrue(checkCorrectAltTextElement(child,"visible2","readable2","langTag"));
+		
+		child = (Element)el.getChild(2);
+		assertTrue(child.getChildCount()==1);
+		assertTrue(child.getAttribute("value").equals("\\alt{visible3|readable3}"));
+		
+		child = (Element)child.getChild(0);
+		assertTrue(checkCorrectAltTextElement(child,"visible4","readable4","langtag2"));
+		
+	}
+	
+	@Test
+	public void altTextInsideDropdown () {
+		TextParser parser = new TextParser();
+		String srcText ="{{1:1|\\alt{hello|world}[lang langTag]|3}}";
+		
+		parser.setId("xcf");
+		parser.setKeepOriginalOrder(true);
+		
+		ParserResult parsed = parser.parse(srcText);
+		Element el = (new HTML(parsed.parsedText)).getElement();
+		NodeList<Element> options = el.getElementsByTagName("option");
+		
+		assertTrue(options.getLength()==4);
+		
+		Element child = options.getItem(2);
+		assertTrue(child.getChildCount()==1);
+		assertTrue(child.getAttribute("value").equals("\\alt{hello|world}[lang langTag]"));
+		assertTrue(child.getAttribute("aria-label").equals("world"));
+		
+		child = (Element) child.getChild(0);
+		assertTrue(checkCorrectAltTextElement(child,"hello","world","langTag"));
+		
+	}
+	
+	private boolean checkCorrectAltTextElement(Element root, String visible, String readable, String langTag) {
+		if (root.getChildCount() != 1) {
+			return false;
+		}
+		if(!root.getAttribute("aria-label").equals(readable)){
+			return false;
+		}
+		if(langTag.length() > 0 && !root.getAttribute("lang").equals(langTag)){
+			return false;
+		}
+
+		Element child = (Element)root.getChild(0);
+		if(!child.getAttribute("aria-hidden").equals("true")){
+			return false;
+		}
+		if(!child.getInnerText().equals(visible)){
+			return false;
+		}
+		return true;
 	}
 }

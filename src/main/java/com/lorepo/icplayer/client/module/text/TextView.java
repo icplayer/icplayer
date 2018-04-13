@@ -425,7 +425,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
 		
-		this.readGap(activeGap.getGapType(), clicks, activeGap.getTextValue(),activeGap.getGapState());
+		this.readGap(activeGap.getGapType(), clicks, activeGap.getWCAGTextValue(),activeGap.getGapState(), activeGap.getLangTag());
 	}
 
 	@Override
@@ -518,12 +518,15 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		return this.module.getLangAttribute();
 	}
 
-	private void readGap (String type, int index, String content, int gapState) {
+	private void readGap (String type, int index, String content, int gapState, String langTag) {
+		if(langTag == null){
+			langTag = this.module.getLangAttribute();
+		}
 		final String gapType = type == "dropdown" ? this.module.getSpeechTextItem(TextModel.DROPDOWN_INDEX) : this.module.getSpeechTextItem(TextModel.GAP_INDEX);
 
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 		textVoices.add(TextToSpeechVoice.create(gapType + " " + Integer.toString(index + 1)));
-		textVoices.add(TextToSpeechVoice.create(content, this.module.getLangAttribute()));
+		textVoices.add(TextToSpeechVoice.create(content, langTag));
 		
 		if(this.isShowErrorsMode) {
 			if(gapState==1) {
@@ -534,7 +537,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX)));
 			}
 		}
-		
+
 		this.speak(textVoices);
 	}
 	

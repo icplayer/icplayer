@@ -182,6 +182,11 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	public String getTextValue() {
 		return getText();
 	}
+	
+	@Override
+	public String getWCAGTextValue() {
+		return getText();
+	}
 
 	@Override
 	public void markGapAsCorrect () {
@@ -272,6 +277,11 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	@Override
 	public String getGapType() {
 		return "gap";
+	}
+	
+	@Override
+	public String getLangTag() {
+		return gapInfo.getLangTag();
 	}
 	
 	public void select() {

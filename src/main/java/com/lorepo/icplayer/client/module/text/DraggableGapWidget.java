@@ -226,6 +226,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	}
 	
 	@Override
+	public String getWCAGTextValue() {
+		return answerText;
+	}
+	
+	@Override
 	public String getId() {
 		return gapInfo.getId();
 	}
@@ -312,6 +317,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public String getGapType() {
 		return "draggable";
+	}
+	
+	@Override
+	public String getLangTag() {
+		return gapInfo.getLangTag();
 	}
 
 	public void select() {
