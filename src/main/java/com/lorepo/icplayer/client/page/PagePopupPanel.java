@@ -166,8 +166,7 @@ public class PagePopupPanel extends DialogBox {
 	}
 	
 	private native int getWindowHeight() /*-{
-		var $topWindow = $wnd.$(top.window);
-		return $topWindow[0].innerHeight * $topWindow.width() / $topWindow[0].innerWidth;
+		return $wnd.$($wnd.document).height();
 	}-*/;
 	
 	// This method makes the device use hardware acceleration on the provided element, increasing performance
