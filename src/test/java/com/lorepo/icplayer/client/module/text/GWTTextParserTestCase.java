@@ -115,6 +115,31 @@ public class GWTTextParserTestCase extends GwtTest{
 	}
 	
 	@Test
+	public void testInlineChoice1() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="{{1:answer1|answer2|answer3}}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		System.out.println(parsed.parsedText);
+		
+		Element root = new HTML(parsed.parsedText).getElement();
+		assertEquals(1,root.getChildCount());
+		
+		Element select = (Element)root.getChild(0);
+		assertEquals(4,select.getChildCount());
+		
+		String[] answers = {"---","answer1","answer2","answer3"};
+		String[] values = {"-","answer1","answer2","answer3"};
+		for (int i=0; i<4; i++) {
+			Element option = (Element)select.getChild(i);
+			assertEquals(answers[i],option.getInnerText());
+			assertEquals(values[i],option.getAttribute("value"));
+		}
+	}
+	
+	@Test
 	public void testGapWithLangTag() {
 		
 		TextParser parser = new TextParser();

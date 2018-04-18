@@ -531,7 +531,7 @@ public class TextParser {
 						
 						DomElementManipulator emptyOptionElement = new DomElementManipulator("option");
 						emptyOptionElement.setHTMLAttribute("value", "-");
-						emptyOptionElement.setInnerHTMLText("---");
+						emptyOptionElement.setInnerHTMLText("---"); //Changing these values might cause some addons to function incorrectly, as they assume them to be the default/empty values
 						selectElement.appendElement(emptyOptionElement);
 
 						for (int i = 0; i < answers.length; i++) {

@@ -1,3 +1,4 @@
+2018-04-18 Fixed problem with check answers mode of gaps in the Table addon
 2018-04-17 Fixed problem with empty XML tag in page progress configuration
 2018-04-16 Fixed problem with CORS in popup addon.
 2018-04-13 Added option to select the language used in gaps ant alt texts in Text, Choice, Connection and Ordering modules
