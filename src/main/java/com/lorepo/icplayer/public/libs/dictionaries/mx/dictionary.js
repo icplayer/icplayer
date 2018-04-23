@@ -1215,6 +1215,7 @@ var ice_dictionary_mx = {
 	"Text_Selection_property_text": "Texto",
 	"Text_Selection_property_enable_letters_selections": "Habilitar selección de letras",
 	"Text_Selection_property_is_not_activity": "No es actividad",
+	"Text_Selection_property_enable_scroll": "Enable scroll on mobile devices",
 	"Drawing_info": "Permite a los usuarios a dibujar de forma libre. Para que el addon funcione, simplemente hay que definir el color y el grosor del lápiz en el menú lateral del addon.",
 	"Drawing_name": "Dibujo",
 	"Drawing_property_color": "Color de lápiz",
