@@ -114,7 +114,7 @@ public class PagePopupPanel extends DialogBox {
 		this.getElement().getStyle().setProperty("transform-origin", scale.transformOrigin);
 				
 		int windowWidth = Window.getClientWidth();
-		int windowHeight = Window.getClientHeight() > getWindowHeight() ? Window.getClientHeight() : getWindowHeight();
+		int windowHeight = Window.getClientHeight();
 
 		int popupWidth = page.getWidth();
 		int popupHeight = page.getHeight();
@@ -152,9 +152,11 @@ public class PagePopupPanel extends DialogBox {
 			top = Window.getScrollTop();
 		}
 		
+		int maxHeight = Window.getClientHeight() > getWindowHeight() ? Window.getClientHeight() : getWindowHeight();
+		
 		int height = getElement().getClientHeight();
-		if (height < windowHeight) {
-			height = windowHeight;
+		if (height < maxHeight) {
+			height = maxHeight;
 		}
 			
 		height += top;
