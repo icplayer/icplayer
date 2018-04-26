@@ -335,6 +335,10 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getAltText()();
 		}
 		
+		presenter.getLangAttribute = function() {
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getLangAttribute()();
+		}
+		
 		presenter.getImageUrl = function() {
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getImageUrl()();
 		}
@@ -488,5 +492,9 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	
 	public String getAltText(){
 		return this.model.getAlttext();
+	}
+	
+	public String getLangAttribute(){
+		return this.model.getLangAttribute();
 	}
 }

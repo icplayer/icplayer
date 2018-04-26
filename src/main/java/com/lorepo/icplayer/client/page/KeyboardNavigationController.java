@@ -290,7 +290,7 @@ public final class KeyboardNavigationController {
 					changeKeyboardMode(event, false);
 					return;
 				}
-				
+
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isControlKeyDown()) {
 					event.preventDefault();
 					changeKeyboardMode(event, true);
@@ -298,6 +298,10 @@ public final class KeyboardNavigationController {
 				}
 
 				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && modeOn) { // Disable tab default action if eKeyboard is working
+					event.preventDefault();
+				}
+
+				if (event.getNativeKeyCode() == 32 && modeOn && !moduleIsActivated) { // Disable space default action if eKeyboard is working but a module has not yet been activated
 					event.preventDefault();
 				}
 
@@ -309,7 +313,7 @@ public final class KeyboardNavigationController {
 					changeCurrentModule(event);
 					return;
 				}
-
+				
 				if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER && !event.isControlKeyDown() && !event.isShiftKeyDown()) {
 					event.preventDefault();
 					activateModule();
@@ -328,7 +332,7 @@ public final class KeyboardNavigationController {
 	            	event.preventDefault();
 	            	deactivateModule();
 	            }
-	            
+
 	            restoreClasses();
 	        }
 
