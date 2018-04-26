@@ -165,22 +165,26 @@ public class PlayerServices implements IPlayerServices {
 	}
 
 	@Override
-	public void setScaleInformation(String scaleX, String scaleY,
-			String transform, String transformOrigin) {
+	public void setScaleInformation(String scaleX, 
+									String scaleY,
+									String transform, 
+									String transformOrigin) 
+	{
 		ScaleInformation scaleInfo = new ScaleInformation();
 		scaleInfo.scaleX = Double.parseDouble(scaleX);
 		scaleInfo.scaleY = Double.parseDouble(scaleY);
-		if(transform!=null){
+		if (transform!=null) {
 			scaleInfo.transform = transform;
-		}else{
+		} else {
 			throw new NullPointerException("ScaleInformation.transform cannot be null");
 		};
-		if(transformOrigin!=null){
+		if (transformOrigin!=null) {
 			scaleInfo.transformOrigin = transformOrigin;
-		}else{
+		} else {
 			throw new NullPointerException("ScaleInformation.transformOrigin cannot be null");
 		}
-		this.scaleInformation = scaleInfo;	
+		this.scaleInformation = scaleInfo;
+		
 		this.fixDroppable();
 	}
 	

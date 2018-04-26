@@ -36,6 +36,7 @@ public class PlayerApp {
 	private String analyticsId = null;
 	private ArrayList<Integer> pagesSubset = null;
 	private boolean isStaticHeader = false;
+	private static boolean areStaticScaledElementsFixed = false;
 
 
 	public PlayerApp (String id, PlayerEntryPoint entryPoint) {
@@ -225,6 +226,7 @@ public class PlayerApp {
 
 	public static native void setStaticFooter (int headerHeight, boolean isHeaderStatic) /*-{
 		var footer = $wnd.$(".ic_footer");
+		if (footer.length == 0) return;
 		var page = $wnd.$(".ic_page");
 
 		footer.parent().addClass("ic_static_footer");
@@ -284,6 +286,111 @@ public class PlayerApp {
 			$wnd.$(".ic_content").parent().css("height", height);
 		}
 	}-*/;
+	
+	public static void prepareStaticScaledElements() {
+		if (!areStaticScaledElementsFixed) {
+			moveStaticElementsWhenScaled();
+			areStaticScaledElementsFixed = true;
+		}
+	}
+	
+	/*
+	 * This function move static header and footer when content is scaled - transform scale property
+	 * causes css static position to stop working.  
+	 * It uses requestAnimationFrame and in every possible frame position of header and footer is updated. 
+	 * It also accounts for window height changes (e.g. when navigation bar is hidden/shown on Android)
+	 * When values of scroll and window height are equal to previous ones it doesn't make computation in that tick.
+	 */
+	private static native void moveStaticElementsWhenScaled() /*-{
+		// handling player placed in iframe is covered in setStaticFooter/Header function
+		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) return;
+
+		// some older browsers support requestAnimationFrame as experimental feature
+		if (!$wnd.requestAnimationFrame) {
+		    $wnd.requestAnimationFrame = (
+		        function() {
+		            return  $wnd.webkitRequestAnimationFrame ||
+		                    $wnd.mozRequestAnimationFrame ||
+		                    $wnd.oRequestAnimationFrame ||
+		                    $wnd.msRequestAnimationFrame;
+		        }
+		   )();
+		}
+
+		var previousScroll, previousWindowHeight,
+			footer = $wnd.document.getElementsByClassName('ic_static_footer'),
+			header = $wnd.document.getElementsByClassName('ic_static_header');
+
+		if (header.length > 0) {
+			header[0].style.position = 'absolute';	
+		}
+		
+		if (footer.length > 0) {
+			var icFooterHeight = parseInt($wnd.$(footer[0]).css('height').replace('px', ''), 10);
+			footer[0].style.bottom = 'initial';
+			footer[0].style.position = 'absolute';
+		}
+		
+		
+
+		function step() {
+			var currentScale = $wnd.player.getPlayerServices().getScaleInformation().scaleY,
+				currentScroll = $wnd.pageYOffset,
+				currentWindowHeight = $wnd.innerHeight;	
+			if ($wnd.window.visualViewport) {
+				currentWindowHeight = $wnd.window.visualViewport.height;
+			}
+			// if values didn't change, don't make calculations
+			if (previousScroll === currentScroll && previousWindowHeight === currentWindowHeight) {
+				 $wnd.requestAnimationFrame(step);
+				return false;
+			}
+			
+			// update values
+			previousScroll = currentScroll;
+			previousWindowHeight = currentWindowHeight;
+			
+			var top = currentScroll / currentScale;
+			
+			// on iOS there is 'bounce' area which can hide header and footer
+			// when top is overscrolled it will be lower than 0
+			// when bottom is overscrolled sum of window height and scroll will exceed body height
+			var documentHeight = Math.max($wnd.document.body.scrollHeight, $wnd.document.body.offsetHeight,
+			                              $wnd.document.documentElement.clientHeight, $wnd.document.documentElement.scrollHeight,
+			                              $wnd.document.documentElement.offsetHeight);
+			    isOverscrolledBottom = (currentScroll + currentWindowHeight) > documentHeight,
+				bottomOverscrollValue = 0;
+			
+			if (top < 0) {
+				top = 0;
+			} else if (isOverscrolledBottom) {
+				bottomOverscrollValue = currentScroll + currentWindowHeight - documentHeight;
+			}
+			
+			if (header.length > 0) {
+				header[0].style.top = (top) + 'px';
+			}
+			
+			if (footer.length > 0) {
+				var footerTop = top + (currentWindowHeight / currentScale) - icFooterHeight;
+				
+				// sets footertop to bottom of document when overscrolled
+				if (isOverscrolledBottom) {
+					 footerTop = documentHeight / currentScale - icFooterHeight;
+				}
+				footer[0].style.top = footerTop + 'px';
+			}
+			
+			// next frame
+			 $wnd.requestAnimationFrame(step);
+		}
+		
+		// begin
+		if (footer.length > 0 || header.length > 0) {
+    		 $wnd.requestAnimationFrame(step);
+		}
+	}-*/;
+	
 
 	public static native int getHeaderHeight() /*-{
 		return $wnd.$(".ic_header").css("height");
