@@ -689,4 +689,8 @@ public final class KeyboardNavigationController {
 		return this.isWCAGSupportOn ? this.presenters : this.presentersOriginalOrder;
 	}
 	
+	public boolean isWCAGOn() {
+		return modeOn && isWCAGSupportOn;
+	}
+	
 }

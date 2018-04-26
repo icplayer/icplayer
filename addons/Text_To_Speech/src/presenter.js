@@ -220,6 +220,7 @@ function AddonText_To_Speech_create() {
             var textsObjects = filterTexts(texts, getSpeechSynthesisLanguage);
             if (textsObjects.length === 0) {
                 clearInterval(presenter.intervalId);
+                presenter.intervalId = undefined;
                 return;
             }
             for (var i=0; i<textsObjects.length; i++) {
@@ -230,9 +231,16 @@ function AddonText_To_Speech_create() {
                 msg.pitch = parseFloat(1); // 0 - 2
                 msg.voice = textObject.lang;
                 msg.onstart = function (event) {
-                    clearInterval(presenter.intervalId);
-                    presenter.intervalId = undefined;
+                    if(presenter.intervalId) {
+                        clearInterval(presenter.intervalId);
+                        presenter.intervalId = undefined;
+                    }
                 };
+                if(i+1 == textsObjects.length) {
+                    msg.onend = function(event) {
+                        window.speechSynthesis.cancel();
+                    }
+                }
                 window.speechSynthesis.speak(msg);
             }
         }, 200);

@@ -490,6 +490,10 @@ public class JavaScriptPlayerServices {
 		playerServices.isPlayerInCrossDomain = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPlayerInCrossDomain()();
 		}
+		
+		playerServices.isWCAGOn = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isWCAGOn()();
+		};
 
 		return playerServices;
 	}-*/;
@@ -885,5 +889,9 @@ public class JavaScriptPlayerServices {
 	
 	public boolean isPlayerInCrossDomain() {
 		return this.playerServices.isPlayerInCrossDomain();
+	}
+	
+	public boolean isWCAGOn() {
+		return this.playerServices.isWCAGOn();
 	}
 }
