@@ -460,7 +460,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	
 	@Override
 	public void space(KeyDownEvent event) {
-		if(!isShowErrorsMode){
+		if(!isShowErrorsMode && WCAGUtils.hasGaps(this.module)){
 			String oldTextValue = activeGap.getTextValue();
 			this.listener.onGapClicked(activeGap.getId());
 			if (isWCAGon && activeGap.getDroppedElement()!=null) {
@@ -554,7 +554,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 	
 	private void speak (List<TextToSpeechVoice> textVoices) {
-		if (this.pageController != null) {
+		if (this.pageController != null && this.isWCAGon) {
 			this.pageController.speak(textVoices);
 		}
 	}

@@ -417,8 +417,9 @@ public final class KeyboardNavigationController {
 	private native JavaScriptObject	getInputElement() /*-{
 		var input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
 		if (!input) {
-			input = $wnd.$("<input/>");
+			input = $wnd.$("<div/>");
 			input.attr("id", "input_element_for_focus_to_change_focused_element_by_browser");
+			input.attr("tabindex","0");
 			input.css({
 				"opacity": 0.0001,
 				"pointer-events": "none",
