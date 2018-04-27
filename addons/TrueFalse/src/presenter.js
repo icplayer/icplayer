@@ -816,14 +816,15 @@ function AddonTrueFalse_create() {
     }
 
     function getChoice(index) {
-         return getImageAltTexts(presenter.$view.find('#0').children().eq(index)).text().trim();
+        var $topRowElement = presenter.$view.find('#0');
+        var $choiceElement = $topRowElement.children().eq(index);
+        return getImageAltTexts($choiceElement).text().trim();
     }
 
     function readOption(readSelection) {
         var tts = getTextToSpeech();
         if (tts) {
             var $active = getActivatedElement(),
-                question = getImageAltTexts($active.parent().parent().first()).text().trim(),
                 elementIndex = getElementIndex($active),
                 choice = getChoice(elementIndex);
             

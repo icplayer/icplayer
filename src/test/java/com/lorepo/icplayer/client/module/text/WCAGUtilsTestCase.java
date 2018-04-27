@@ -47,11 +47,10 @@ public class WCAGUtilsTestCase extends GwtTest {
 	
 	@Test
 	public void testGetImageAltTexts() {
-		String html = "<div> <img alt=\"test\"></img> </div>";
-		String expected = "<div> <img alt=\"test\"></img><span> test </span> </div>";
+		String html = "<div> <img src=\"aaa\"/><img src=\"bbb\" alt=\"test\"/> </div>";
+		String expected = "<div> <img src=\"aaa\"/> test  </div>";
 		
 		String result = WCAGUtils.getImageAltTexts(html);
-		System.out.println(result);
 		assertEquals(expected, result);
 	}
 }

@@ -831,7 +831,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
-	public void shiftTab (KeyDownEvent event) {}
+	public void shiftTab (KeyDownEvent event) {
+		this.move(-1);
+	}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {}

@@ -1505,12 +1505,11 @@ function AddonConnection_create() {
     }
 
     function getImageAltTexts ( $element ) {
-        var $elementClone = $element.clone();
-        $elementClone.find('img[alt]').each(function(){
+        $element.find('img[alt]').each(function(){
             var altText = $(this).attr('alt');
             $('<span>'+altText+'</span>').insertAfter($(this));
         });
-        return $elementClone;
+        return $element;
     }
 
     function readActivatedElementConnections () {

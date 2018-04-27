@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -69,18 +66,9 @@ public class WCAGUtils {
 	}
 	
 	public static String getImageAltTexts(String html){
-		Element clone = new HTML(html).getElement();
-		NodeList<Element> images = clone.getElementsByTagName("img");
-		for(int i = 0; i<images.getLength();i++){
-			Element child = images.getItem(i);
-			if(child.getAttribute("alt").length()>0){
-				Element textNode = DOM.createElement("span");
-				String innerText = " "+child.getAttribute("alt")+" ";
-				textNode.setInnerHTML(innerText);
-				child.getParentElement().insertAfter(textNode, child);
-			}
-		}
-		return clone.getInnerHTML();
+		String result = html.replaceAll("<[^>]*?img[^>]*?alt=\"(.*?)\"[^<]*?>", " $1 "); //Replace all img nodes containing an alt with that attribute's value
+		result = result.replaceAll("<[^>]*?img[^>]*?alt='(.*?)'[^<]*?>", " $1 ");
+		return result;
 		
 	}
 
