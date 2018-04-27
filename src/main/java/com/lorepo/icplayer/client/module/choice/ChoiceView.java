@@ -17,6 +17,7 @@ import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
+import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
@@ -285,7 +286,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 		
 		this.speak(
-			TextToSpeechVoice.create(StringUtils.removeAllFormatting(widget.getModel().getText()), this.module.getLangAttribute()),
+			TextToSpeechVoice.create(StringUtils.removeAllFormatting(WCAGUtils.getImageAltTexts(widget.getModel().getText())), this.module.getLangAttribute()),
 			TextToSpeechVoice.create(callbackText)
 		);
 	}

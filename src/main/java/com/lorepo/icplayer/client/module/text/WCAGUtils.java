@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -64,9 +67,25 @@ public class WCAGUtils {
 		
 		return TextToSpeechVoice.create();
 	}
+	
+	public static String getImageAltTexts(String html){
+		Element clone = new HTML(html).getElement();
+		NodeList<Element> images = clone.getElementsByTagName("img");
+		for(int i = 0; i<images.getLength();i++){
+			Element child = images.getItem(i);
+			if(child.getAttribute("alt").length()>0){
+				Element textNode = DOM.createElement("span");
+				String innerText = " "+child.getAttribute("alt")+" ";
+				textNode.setInnerHTML(innerText);
+				child.getParentElement().insertAfter(textNode, child);
+			}
+		}
+		return clone.getInnerHTML();
+		
+	}
 
 	public static String getCleanText (String text) {
-		HTML html = new HTML(text);		
+		HTML html = new HTML(getImageAltTexts(text));
 		final String noHTML = html.getText();
 		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if more than 1
 	}

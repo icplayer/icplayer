@@ -1504,12 +1504,22 @@ function AddonConnection_create() {
         return result;
     }
 
+    function getImageAltTexts ( $element ) {
+        var $elementClone = $element.clone();
+        $elementClone.find('img[alt]').each(function(){
+            var altText = $(this).attr('alt');
+            $('<span>'+altText+'</span>').insertAfter($(this));
+        });
+        return $elementClone;
+    }
+
     function readActivatedElementConnections () {
         var tts = presenter.getTextToSpeechOrNull(playerController);
         if (tts) {
             var $active = presenter.getCurrentActivatedElement();
             var connections = getConnections($active);
             var $activeClone = $active.clone();
+            $activeClone = getImageAltTexts($activeClone);
             $activeClone.find('[aria-hidden="true"]').remove();
             $activeClone.find('[aria-label]').each(function(){
                 var replaceText = $(this).attr('aria-label');

@@ -33,6 +33,7 @@ import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
+import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
@@ -847,7 +848,8 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 	
 	private String getWidgetWCAGText(Element element){
-		Element clone = new HTML(element.getInnerHTML()).getElement();
+		String html = WCAGUtils.getImageAltTexts(element.getInnerHTML());
+		Element clone = new HTML(html).getElement();
 		NodeList<Element> spans = clone.getElementsByTagName("span");
 		for(int i = 0; i<spans.getLength();i++){
 			Element child = spans.getItem(i);

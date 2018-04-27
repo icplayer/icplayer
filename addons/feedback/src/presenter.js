@@ -87,6 +87,10 @@ function Addonfeedback_create() {
                 }
                 $(this).append(replaceText);
         });
+        $el.find('img[alt]').each(function(){
+            var altText = $(this).attr('alt');
+            $('<span>'+altText+'</span>').insertAfter($(this));
+        });
         var result = $el.text().trim();
         return result;
     }

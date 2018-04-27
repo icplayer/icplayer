@@ -806,20 +806,29 @@ function AddonTrueFalse_create() {
         return $(list).index(div);
     }
 
+    function getImageAltTexts ( $element ) {
+        var $elementClone = $element.clone();
+        $elementClone.find('img[alt]').each(function(){
+            var altText = $(this).attr('alt');
+            $('<span>'+altText+'</span>').insertAfter($(this));
+        });
+        return $elementClone;
+    }
+
     function getChoice(index) {
-         return presenter.$view.find('#0').children().eq(index).text().trim();
+         return getImageAltTexts(presenter.$view.find('#0').children().eq(index)).text().trim();
     }
 
     function readOption(readSelection) {
         var tts = getTextToSpeech();
         if (tts) {
             var $active = getActivatedElement(),
-                question = $active.parent().parent().first().text().trim(),
+                question = getImageAltTexts($active.parent().parent().first()).text().trim(),
                 elementIndex = getElementIndex($active),
                 choice = getChoice(elementIndex);
-
+            
             if ($active.hasClass('tf_' + presenter.type + '_question')) {
-                speak([getTextVoiceObject($active.text().trim(), presenter.langAttribute)]);
+                speak([getTextVoiceObject(getImageAltTexts($active).text().trim(), presenter.langAttribute)]);
                 return;
             }
 
