@@ -143,7 +143,12 @@ public class GWTTextParserTestCase extends GwtTest{
 		
 		TextParser parser = new TextParser();
 		String srcText ="{{1:<b>answer1</b>|answer2|answer3}}";
-		String expectedText = "<select class=\"ic_inlineChoice\" id=\"xcf-1\"><option value=\"-\">---</option><option value=\"&lt;b&gt;answer1&lt;/b&gt;\" aria-label=\"&lt;b&gt;answer1&lt;/b&gt;\"><b>answer1</b></option><option value=\"answer2\" aria-label=\"answer2\">answer2</option><option value=\"answer3\" aria-label=\"answer3\">answer3</option></select>";
+		String expectedText = "<select class=\"ic_inlineChoice\" id=\"xcf-1\">" +
+		            "<option value=\"-\">---</option>" +
+		            "<option value=\"&lt;b&gt;answer1&lt;/b&gt;\" aria-label=\"&lt;b&gt;answer1&lt;/b&gt;\"><b>answer1</b></option>" +
+		            "<option value=\"answer2\" aria-label=\"answer2\">answer2</option>" +
+		            "<option value=\"answer3\" aria-label=\"answer3\">answer3</option>" +
+		            "</select>";
 		parser.setId("xcf");
 		ParserResult parsed = parser.parse(srcText);
 		int index = parsed.parsedText.indexOf(expectedText);
