@@ -94,9 +94,8 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 			boolean isFilledGap = selectedIndex > 0;
 
 			if (isFilledGap) {
-				JavaScriptUtils.log(getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0);
-				JavaScriptUtils.log(getValue(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0);
-				boolean isCorrectAnswer = getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
+				String itemTextUnescaped = StringUtils.unescapeXML(getValue(selectedIndex));
+				boolean isCorrectAnswer = itemTextUnescaped.compareTo(choiceInfo.getAnswer()) == 0;
 				addStyleDependentName(isCorrectAnswer ? "correct" : "wrong");
 				this.gapState = (isCorrectAnswer ? 1 : 2);
 			} else {
