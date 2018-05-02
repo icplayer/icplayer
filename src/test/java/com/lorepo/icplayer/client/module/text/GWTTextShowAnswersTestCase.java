@@ -38,8 +38,8 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 		TextView textView4 = new TextView(model, false);
 		
 		List<String> optionsForGap1 = Arrays.asList("---", "correct", "wrong");
-		List<String> optionsForGap2 = Arrays.asList("---", "correct with apostrophe '", "wrong ' 2");
-		List<String> optionsForGap3 = Arrays.asList("---", "correct with less than <", "wrong <");
+		List<String> optionsForGap2 = Arrays.asList("---", "special chars ' < > & \" ", "wrong");
+		List<String> optionsForGap3 = Arrays.asList("---", "special chars &apos; &lt; &gt; &amp; &quot; ", "wrong <");
 		List<String> optionsForGap4 = Arrays.asList("---", "\\alt{correct|test 1}", "\\alt{wrong|test 1}");
 		
 		Document doc = Document.get();
@@ -59,8 +59,8 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 		
 		// id must be same as in select element
 		InlineChoiceInfo gapInfo1 = new InlineChoiceInfo("gap1", "correct", 0);
-		InlineChoiceInfo gapInfo2 = new InlineChoiceInfo("gap2", "correct with apostrophe '", 0);
-		InlineChoiceInfo gapInfo3 = new InlineChoiceInfo("gap3", "correct with less than <", 0);
+		InlineChoiceInfo gapInfo2 = new InlineChoiceInfo("gap2", "special chars ' < > & \" ", 0);
+		InlineChoiceInfo gapInfo3 = new InlineChoiceInfo("gap3", "special chars ' < > & \" ", 0);
 		InlineChoiceInfo gapInfo4 = new InlineChoiceInfo("gap4", "\\alt{correct|test 1}", 0);
 		
 		this.gapWidget1 = new InlineChoiceWidget(gapInfo1, null, textView1);

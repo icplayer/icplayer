@@ -11,7 +11,6 @@ import com.google.gwt.event.dom.client.TouchEndEvent;
 import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.ListBox;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -94,7 +93,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 			boolean isFilledGap = selectedIndex > 0;
 
 			if (isFilledGap) {
-				String itemTextUnescaped = StringUtils.unescapeXML(getValue(selectedIndex));
+				String itemTextUnescaped = StringUtils.unescapeXML(getValue(selectedIndex));				
 				boolean isCorrectAnswer = itemTextUnescaped.compareTo(choiceInfo.getAnswer()) == 0;
 				addStyleDependentName(isCorrectAnswer ? "correct" : "wrong");
 				this.gapState = (isCorrectAnswer ? 1 : 2);
