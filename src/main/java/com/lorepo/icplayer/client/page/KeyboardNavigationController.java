@@ -327,6 +327,15 @@ public final class KeyboardNavigationController {
 	            	manageKey(event);
 	            }
 
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_RIGHT && event.isControlKeyDown()) {
+	            	event.preventDefault();
+	            	mainPageController.getPlayerController().switchToNextPage();
+	            }
+	            
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_LEFT && event.isControlKeyDown()) {
+	            	event.preventDefault();
+	            	mainPageController.getPlayerController().switchToPrevPage();
+	            }
 
 	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
 	            	event.preventDefault();
