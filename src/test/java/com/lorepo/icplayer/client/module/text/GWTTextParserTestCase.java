@@ -122,7 +122,6 @@ public class GWTTextParserTestCase extends GwtTest{
 		
 		parser.setId("xcf");
 		ParserResult parsed = parser.parse(srcText);
-		System.out.println(parsed.parsedText);
 		
 		Element root = new HTML(parsed.parsedText).getElement();
 		assertEquals(1,root.getChildCount());
@@ -140,6 +139,25 @@ public class GWTTextParserTestCase extends GwtTest{
 	}
 	
 	@Test
+	public void testInlineChoiceWithHtmlTags() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="{{1:<b>answer1</b>|answer2|answer3}}";
+		String expectedText = "<select class=\"ic_inlineChoice\" id=\"xcf-1\">" +
+		            "<option value=\"-\">---</option>" +
+		            "<option value=\"&lt;b&gt;answer1&lt;/b&gt;\" aria-label=\"&lt;b&gt;answer1&lt;/b&gt;\"><b>answer1</b></option>" +
+		            "<option value=\"answer2\" aria-label=\"answer2\">answer2</option>" +
+		            "<option value=\"answer3\" aria-label=\"answer3\">answer3</option>" +
+		            "</select>";
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		int index = parsed.parsedText.indexOf(expectedText);
+		assertTrue(index >= 0);
+		
+		
+	}
+	
+	@Test
 	public void testGapWithLangTag() {
 		
 		TextParser parser = new TextParser();
@@ -152,7 +170,40 @@ public class GWTTextParserTestCase extends GwtTest{
 		assertEquals("",parsed.gapInfos.get(0).getLangTag());
 		assertEquals("pl",parsed.gapInfos.get(1).getLangTag());
 		assertEquals("de",parsed.gapInfos.get(2).getLangTag());
-
+	}
+	
+	@Test
+	public void testDropdownGapWithSpecialChars() {
+		TextParser parser = new TextParser();
+		parser.setKeepOriginalOrder(true);
+		String srcText ="{{1:answer 1 &amp; &lt; &gt; &apos; &quot;|answer 2 & < > ' \"}}";
+		parser.setId("xcf");		
+		
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(1, parsed.choiceInfos.size());
+		Iterator<String> iterator = parsed.choiceInfos.get(0).getDistractors();
+		
+		assertEquals("answer 1 & < > ' \"", iterator.next());
+		assertEquals("answer 2 & < > ' \"", iterator.next());
+	}
+	
+	@Test
+	public void testGapWithSpecialChars() {
+		TextParser parser = new TextParser();
+		parser.setKeepOriginalOrder(true);
+		
+		String srcText ="\\gap{answer 1 &amp; &lt; &gt; &apos; &quot;|answer 2 & < > ' \"}}";
+		parser.setId("xcf");		
+		
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(1, parsed.gapInfos.size());
+		
+		Iterator<String> iterator =  parsed.gapInfos.get(0).getAnswers();
+		
+		assertEquals("answer 1 & < > ' \"", iterator.next());
+		assertEquals("answer 2 & < > ' \"", iterator.next());
 	}
 	
 	@Test

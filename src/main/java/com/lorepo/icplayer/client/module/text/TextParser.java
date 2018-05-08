@@ -551,7 +551,7 @@ public class TextParser {
 							DomElementManipulator optionElement = new DomElementManipulator("option");
 							optionElement.setHTMLAttribute("value", itemValue);
 							optionElement.setHTMLAttribute("aria-label", this.getReadableAltText(itemValue));
-							optionElement.setInnerHTMLText(dist);
+							optionElement.getGWTElement().setInnerHTML(dist);
 							selectElement.appendElement(optionElement);
 						}
 
@@ -627,7 +627,7 @@ public class TextParser {
 							DomElementManipulator optionElement = new DomElementManipulator("option");
 							optionElement.setHTMLAttribute("value", itemValue);
 							optionElement.setHTMLAttribute("aria-label", this.getReadableAltText(itemValue));
-							optionElement.setInnerHTMLText(dist);
+							optionElement.getGWTElement().setInnerHTML(dist);
 							selectElement.appendElement(optionElement);
 
 						}
