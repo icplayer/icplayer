@@ -105,6 +105,7 @@ public class PagePopupPanel extends DialogBox {
 		setStyleName(classes);
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
+		setModal(false);
 		setWidget(pageWidget);
 		
 		if (this.icplayer!=null) {

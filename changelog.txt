@@ -1,3 +1,4 @@
+2018-05-08 Fixed issues with eKeyboard in Popup.
 2018-05-07 Fixed issues with special characters in Text module gaps.
 2018-04-27 Fixed problem with saving choice feedback property.
 2018-04-27 Added TTS support for Hierarchical Lesson Report
