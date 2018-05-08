@@ -181,11 +181,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
-				if (event.eventName.equals("ShowAnswers")) {
-					showAnswers();
-				} else if (event.eventName.equals("HideAnswers")) {
-					hideAnswers();
-				}
+				onEventReceived(event.eventName, event.getData());
 			}
 		});
 	}
@@ -1002,6 +998,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		return jsObject;
 	}
+	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
 
 	private native JavaScriptObject initJSObject(TextPresenter x) /*-{
 		var presenter = function() {};
@@ -1094,7 +1094,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		presenter.markConnectionWithMath = function() {
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::markConnectionWithMath()();
-		}
+		};
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
 
 		return presenter;
 	}-*/;
@@ -1352,6 +1356,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	@Override
 	public boolean isEnterable() {
 		return WCAGUtils.hasGaps(this.module);
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName.equals("ShowAnswers")) {
+			showAnswers();
+		} else if (eventName.equals("HideAnswers")) {
+			hideAnswers();
+		}
 	}
 
 }

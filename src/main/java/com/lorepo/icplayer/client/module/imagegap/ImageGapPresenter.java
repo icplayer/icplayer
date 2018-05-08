@@ -8,6 +8,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -127,11 +128,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
-				if (event.eventName.equals("ShowAnswers")) {
-					showAnswers();
-				} else if (event.eventName.equals("HideAnswers")) {
-					hideAnswers();
-				}
+				onEventReceived(event.eventName, event.getData());
 			}
 		});
 	}
@@ -476,6 +473,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	private void markConnectionWithMath() {
 		isConnectedWithMath = true;
 	}
+	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
 
 	private native JavaScriptObject initJSObject(ImageGapPresenter x) /*-{
 
@@ -563,6 +564,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		presenter.isAllOK = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::isAllOK()();
 		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
 
 		return presenter;
 	}-*/;
@@ -686,6 +691,15 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			return imageSourcePresenter.getAltText();
 		}
 		return "";
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName.equals("ShowAnswers")) {
+			showAnswers();
+		} else if (eventName.equals("HideAnswers")) {
+			hideAnswers();
+		}
 	}
 
 }

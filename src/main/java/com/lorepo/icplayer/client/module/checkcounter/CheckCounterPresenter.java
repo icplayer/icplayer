@@ -13,6 +13,9 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+
+import java.util.HashMap;
+
 import com.google.gwt.dom.client.Element;
 
 public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButton{
@@ -57,9 +60,7 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 			playerServices.getEventBus().addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 				@Override
 				public void onCustomEventOccurred(CustomEvent event) {
-					if (event.eventName.equals("ShowAnswers")) {
-						updateDisplay();
-					}
+					onEventReceived(event.eventName, event.getData());
 				}
 			});
 		}
@@ -126,5 +127,12 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		return (isVisible || isTextToSpeechOn);
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName.equals("ShowAnswers")) {
+			updateDisplay();
+		}
 	}
 }

@@ -1,4 +1,4 @@
-function AddonShow_Answers_create(){
+function AddonLimited_Show_Answers_create(){
     var presenter = function(){};
 
     presenter.playerController = null;
@@ -23,8 +23,13 @@ function AddonShow_Answers_create(){
     }
 
     presenter.EVENTS = {
-        SHOW_ANSWERS: 'ShowAnswers',
-        HIDE_ANSWERS: 'HideAnswers'
+        SHOW_ANSWERS: 'LimitedShowAnswers',
+        HIDE_ANSWERS: 'LimitedHideAnswers'
+    };
+
+    presenter.EVENTS_MAP = {
+        LimitedShowAnswers: "ShowAnswers",
+        LimitedHideAnswers: "HideAnswers"
     };
 
     presenter.keyboardController = function(keycode) {
@@ -47,10 +52,19 @@ function AddonShow_Answers_create(){
 
     presenter.sendEvent = function(eventName) {
         var eventData = {
+            'value': eventName,
             'source': presenter.configuration.addonID
         };
 
-        presenter.eventBus.sendEvent(eventName, eventData);
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+
+        presenter.configuration.worksWithModulesList.forEach(function (moduleId) {
+            var module = player.getPlayerServices().getModule(moduleId);
+            if (module && module.onEventReceived) {
+                module.onEventReceived(presenter.EVENTS_MAP[eventName]);
+            }
+        });
+
     };
 
     presenter.createPreview = function(view, model) {
@@ -59,16 +73,35 @@ function AddonShow_Answers_create(){
 
     presenter.validateModel = function(model) {
         presenter.setSpeechTexts(model['speechTexts']);
-        return {
-            'text' : model.Text,
-            'textSelected' : model['Text selected'],
-            'isVisible' : ModelValidationUtils.validateBoolean(model["Is Visible"]),
-            'addonID' : model.ID,
-            'isSelected': false,
-            'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"]),
-            'enableMistakeCounter': ModelValidationUtils.validateBoolean(model["Increment mistake counter"]),
-            'isTabindexEnabled': ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
-        };
+
+        var modelValidator = new ModelValidator();
+        var validatedModel = modelValidator.validate(model, [
+            ModelValidators.utils.FieldRename("Is Visible", "isVisible", ModelValidators.Boolean("isVisible")),
+            ModelValidators.utils.FieldRename("Text", "text", ModelValidators.String("text", {default: ""})),
+            ModelValidators.utils.FieldRename("Text selected", "textSelected", ModelValidators.String("textSelected", {default: ""})),
+            ModelValidators.utils.FieldRename("ID", "addonID", ModelValidators.DumbString("addonID")),
+            ModelValidators.utils.FieldRename("Increment check counter", "enableCheckCounter", ModelValidators.Boolean("enableCheckCounter")),
+            ModelValidators.utils.FieldRename("Increment mistake counter", "enableMistakeCounter", ModelValidators.Boolean("enableMistakeCounter")),
+            ModelValidators.utils.FieldRename("Is Tabindex Enabled", "isTabindexEnabled", ModelValidators.Boolean("isTabindexEnabled")),
+            ModelValidators.String("worksWith", {default: ""})
+        ]);
+
+        if (validatedModel.isValid) {
+            validatedModel.value.isSelected = false;
+            validatedModel.value.worksWithModulesList = validatedModel.value.worksWith.split("\n")
+                .map(function (value) {
+                    return value.trim();
+                })
+                .filter(function (value) {
+                    return value !== "";
+                })
+                .filter(function (value, index, self) { //Unique elements
+                    return self.indexOf(value) === index;
+                });
+        }
+
+        return validatedModel;
+
     };
 
     presenter.setSpeechTexts = function(speechTexts){
@@ -87,24 +120,6 @@ function AddonShow_Answers_create(){
             editBlock: getSpeechTextProperty(speechTexts['Block edit']['Block edit'], presenter.speechTexts.editBlock),
             noEditBlock: getSpeechTextProperty(speechTexts['No block edit']['No block edit'], presenter.speechTexts.noEditBlock)
         };
-    };
-
-    presenter.upgradeModel = function (model) {
-        if (model["Increment mistake counter"] === undefined) {
-            model = presenter.upgradeIncrementMistakeCounter(model);
-        }
-        return model;
-    };
-
-     presenter.upgradeIncrementMistakeCounter = function (model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model);
-
-        if (upgradedModel["Increment mistake counter"] === undefined) {
-            upgradedModel["Increment mistake counter"] = "false";
-        }
-
-        return upgradedModel;
     };
 
     presenter.handleClick = function () {
@@ -132,11 +147,7 @@ function AddonShow_Answers_create(){
 
         presenter.$button.text(text);
         presenter.sendEvent(eventName);
-        presenter.onClick();
     };
-
-    presenter.onClick = function () {
-     };
 
     presenter.connectClickAction = function () {
         presenter.$button.on('click', function (eventData) {
@@ -155,16 +166,14 @@ function AddonShow_Answers_create(){
     };
 
     presenter.presenterLogic = function(view, model, isPreview) {
-        var upgradedModel = presenter.upgradeModel(model);
-
-        presenter.configuration = presenter.validateModel(upgradedModel);
+        presenter.configuration = presenter.validateModel(model).value;
         presenter.$view = $(view);
 
         presenter.setVisibility(presenter.configuration.isVisible);
 
-        presenter.$button = presenter.$view.find('.show-answers-button');
+        presenter.$button = presenter.$view.find('.limited-show-answers-button');
         presenter.$button.text(presenter.configuration.text);
-        presenter.$wrapper = presenter.$view.find('.show-answers-wrapper');
+        presenter.$wrapper = presenter.$view.find('.limited-show-answers-wrapper');
 
         if (presenter.configuration.isTabindexEnabled) {
             presenter.$wrapper.attr('tabindex', '0');
