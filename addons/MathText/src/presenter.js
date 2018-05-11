@@ -77,7 +77,28 @@ function AddonMathText_create() {
     };
 
     presenter.setShowErrorsMode = function () {
-        if (presenter.currentUserText === presenter.configuration.correctAnswer) {
+        presenter.currentUserText = presenter.editor.getMathML();
+        console.log(presenter.currentUserText);
+        console.log(presenter.configuration.correctAnswer);
+        console.log(presenter.currentUserText.localeCompare(presenter.configuration.correctAnswer));
+
+        // if (presenter.currentUserText.localeCompare(presenter.configuration.correctAnswer) === 0) {
+        //     presenter.view.classList.add('correct');
+        // } else {
+        //     presenter.view.classList.add('wrong');
+        // }
+
+        var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
+        var request = builder.newEvalRequest(presenter.configuration.correctAnswer, presenter.currentUserText, null, null);
+        var service = builder.getQuizzesService();
+		var response = service.execute(request);
+		// Get the response into this useful object.
+		var instance = builder.newQuestionInstance();
+		instance.update(response);
+		// Ask for the correctness of the 0th response.
+		var correct = instance.isAnswerCorrect(0);
+
+		 if (correct) {
             presenter.view.classList.add('correct');
         } else {
             presenter.view.classList.add('wrong');

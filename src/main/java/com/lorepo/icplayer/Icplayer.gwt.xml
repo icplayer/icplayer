@@ -17,6 +17,7 @@
     <!--Tiny mce have to be loaded separatly, due to URL finding of themes, if we change the location it will wrongly download themes-->
     <script src="libs/tinymce.min.js"/>
     <!--<script src="http://code.responsivevoice.org/responsivevoice.js"></script>-->
+	<script src="libs/quizzes.js"/>
 
     <entry-point class="com.lorepo.icplayer.client.PlayerEntryPoint"/>
 
