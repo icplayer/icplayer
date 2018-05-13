@@ -991,7 +991,8 @@ function AddonTable_create() {
     };
 
     presenter.GapUtils.prototype.isValueEmpty = function () {
-        return this.getValue().trim() == "";
+        var value = this.getValue().trim();
+        return value.length === 0 || (this.gapType===1 && 0 === value.localeCompare("---")); //gapType===1 is the dropdown gap
     };
 
     presenter.GapUtils.prototype.setCssOnCorrect = function () {
@@ -1560,6 +1561,7 @@ function AddonTable_create() {
     presenter.GapsContainerObject.prototype.setGapsState = function (state) {
         state.map(function (stateData, index) {
             this.gaps[index].setState(stateData.value, "", stateData.isEnabled);
+            this.gaps[index].$view.trigger('change');
         }, this);
     };
 

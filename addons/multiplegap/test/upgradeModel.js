@@ -57,19 +57,43 @@ TestCase("[Multiple Gap] UpgradeModel - Upgrade WrapItems property", {
         this.newValidWrappingModel = {
             "id": 2,
             "someattribute": 5,
-            "wrapItems": true
+            "wrapItems": true,
+            "speechTexts":{
+                Inserted:{Inserted:"Inserted"},
+                Removed:{Removed:"Removed"},
+                Empty:{Empty:"Empty"},
+                Correct:{Correct:"Correct"},
+                Wrong:{Wrong:"Wrong"}
+                },
+            "langAttribute":""
         };
         
         this.newValidNotWrappingModel = {
             "id": 3,
             "someattribute": 5,
-            "wrapItems": false
+            "wrapItems": false,
+            "speechTexts":{
+                Inserted:{Inserted:"Inserted"},
+                Removed:{Removed:"Removed"},
+                Empty:{Empty:"Empty"},
+                Correct:{Correct:"Correct"},
+                Wrong:{Wrong:"Wrong"}
+                },
+            "langAttribute":""
         };
         
         this.upgradedModel = {
             "id": 1,
             "someattribute": 5,
-            "wrapItems": false
+            "wrapItems": false,
+            "speechTexts":{
+                Inserted:{Inserted:"Inserted"},
+                Removed:{Removed:"Removed"},
+                Empty:{Empty:"Empty"},
+                Correct:{Correct:"Correct"},
+                Wrong:{Wrong:"Wrong"}
+                },
+            "langAttribute":""
         };
         
         this.spies = {

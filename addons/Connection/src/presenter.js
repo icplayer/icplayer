@@ -209,9 +209,10 @@ function AddonConnection_create() {
         presenter.textParser.connectLinks($(presenter.view));
     };
 
-    presenter.removeVisibleInnerHTML = function () {
+    presenter.removeNonVisibleInnerHTML = function () {
         $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
-            $(element).html($(element).html().replace(/\\alt{(.*?)\|.*?}/g, '$1')); // replace \alt{a|b} with a
+            var newInnerHtml = $(element).html().replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with a
+            $(element).html(newInnerHtml.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1')); // replace \alt{a|b} with a
         });
 
     };
@@ -407,7 +408,7 @@ function AddonConnection_create() {
 
         if (isPreview) {
             presenter.initializeView(view, model);
-            presenter.removeVisibleInnerHTML();
+            presenter.removeNonVisibleInnerHTML();
             presenter.drawConfiguredConnections();
         } else {
             presenter.mathJaxProcessEnded.then(function () {
@@ -1511,7 +1512,13 @@ function AddonConnection_create() {
             var $activeClone = $active.clone();
             $activeClone.find('[aria-hidden="true"]').remove();
             $activeClone.find('[aria-label]').each(function(){
-                $(this).append($(this).attr('aria-label'));
+                var replaceText = $(this).attr('aria-label');
+                var langTag = $(this).attr('lang');
+                if (langTag && langTag.trim().length > 0 ) {
+                    replaceText = '\\alt{ |'+replaceText+'}'+'[lang ' + langTag + ']';
+                }
+
+                $(this).append(replaceText);
             });
             var TextVoiceArray = [getTextVoiceObject($activeClone.text().trim(), presenter.langTag)];
 

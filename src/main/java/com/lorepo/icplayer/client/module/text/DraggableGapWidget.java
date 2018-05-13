@@ -205,9 +205,9 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 				JavaScriptUtils.destroyDraggable(getElement());
 			}
 		} else {
-			String markup = StringUtils.markup2html(StringUtils.escapeHTML(text));
+			String markup = StringUtils.markup2html(text);
 			super.setHTML(markup);
-			answerText = StringUtils.removeAllFormatting(text);
+			answerText = TextParser.removeHtmlFormatting(text);
 			droppedElementHelper = getElement(text);
 			setStylePrimaryName(FILLED_GAP_STYLE);
 			if(droppedElementHelper.length() != 0 && !isShowAnswersMode){
@@ -222,6 +222,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 
 	@Override
 	public String getTextValue() {
+		return answerText;
+	}
+	
+	@Override
+	public String getWCAGTextValue() {
 		return answerText;
 	}
 	
@@ -312,6 +317,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public String getGapType() {
 		return "draggable";
+	}
+	
+	@Override
+	public String getLangTag() {
+		return gapInfo.getLangTag();
 	}
 
 	public void select() {

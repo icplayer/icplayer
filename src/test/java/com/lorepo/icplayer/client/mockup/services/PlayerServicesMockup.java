@@ -200,4 +200,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+
+	@Override
+	public boolean isWCAGOn() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

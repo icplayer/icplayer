@@ -1,5 +1,8 @@
 package com.lorepo.icplayer.client.module.imagesource;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -13,15 +16,19 @@ import com.google.gwt.event.dom.client.TouchEndEvent;
 import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.user.client.ui.Image;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter.IDisplay;
+import com.lorepo.icplayer.client.page.PageController;
 
-public class ImageSourceView extends Image implements IDisplay, IWCAG {
+public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModuleView {
 
 	private static final String DEFAULT_STYLE = "ic_sourceImage";
 	private static final String SELECTED_STYLE = "selected";
 	private static final String DISABLED_STYLE = "disabled";
+	private static final String ACTIVE_STYLE = "ic_active_module";
 	
 	private ImageSourceModule module;
 	private IViewListener listener;
@@ -31,6 +38,8 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG {
 	private int initialLeft;
 	private int initialTop;
 	private boolean disabled = false;
+	private boolean isWCAGon = false;
+	private PageController pageController;
 	
 	public ImageSourceView(ImageSourceModule module, boolean isPreview) {
 		this.module = module;
@@ -57,6 +66,7 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG {
 		}
 		
 		getElement().setAttribute("alt", this.module.getAlttext());
+		getElement().setAttribute("lang", this.module.getLangAttribute());
 		
 		if (this.module.isTabindexEnabled()) {
 			getElement().setTabIndex(0);
@@ -139,11 +149,40 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG {
 	@Override
 	public void select() {
 		setStyleDependentName(SELECTED_STYLE, true);
+		List<TextToSpeechVoice> voicesArray = new ArrayList<TextToSpeechVoice>();
+		voicesArray.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(ImageSourceModule.SELECTED_INDEX)));
+		speak(voicesArray);
+		
 	}
 
 	@Override
 	public void deselect() {
 		setStyleDependentName(SELECTED_STYLE, false);
+		if(isActive()){
+			List<TextToSpeechVoice> voicesArray = new ArrayList<TextToSpeechVoice>();
+			voicesArray.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(ImageSourceModule.DESELECTED_INDEX)));
+			speak(voicesArray);
+		}
+	}
+
+	private boolean isActive(){
+		String[] classes = this.getElement().getClassName().toLowerCase().split(" ");
+		for(String _class: classes){
+			if(_class.equals(ACTIVE_STYLE)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean isSelected(){
+		String[] classes = this.getElement().getClassName().toLowerCase().split(" ");
+		for(String _class: classes){
+			if(_class.equals((this.getStylePrimaryName()+"-"+SELECTED_STYLE).toLowerCase())){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -187,11 +226,18 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG {
 	}
 
 	public void enter(boolean isExiting) {
-		this.listener.onClicked();
+		List<TextToSpeechVoice> voicesArray = new ArrayList<TextToSpeechVoice>();
+		voicesArray.add(TextToSpeechVoice.create(this.module.getAlttext(),this.module.getLangAttribute()));
+		if (isSelected()) {
+			voicesArray.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(ImageSourceModule.SELECTED_INDEX)));
+		}
+		speak(voicesArray);
 	}
 
 	@Override
 	public void space(KeyDownEvent event) {
+		event.getNativeEvent().preventDefault();
+		this.listener.onClicked();
 	}
 
 	@Override
@@ -224,5 +270,35 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG {
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {
+	}
+
+	@Override
+	public void setPageController(PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+	}
+
+	@Override
+	public void setWCAGStatus(boolean isWCAGOn) {
+		this.isWCAGon = isWCAGOn;
+	}
+
+	@Override
+	public String getLang() {
+		return this.module.getLangAttribute();
+	}
+	
+	private void speak (TextToSpeechVoice textVoice) {
+		if (this.isWCAGon && this.pageController != null) {
+			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+			textVoices.add(textVoice);
+			this.pageController.speak(textVoices);
+		}
+	}
+	
+	private void speak (List<TextToSpeechVoice> textVoices) {
+		if (this.isWCAGon && this.pageController != null) {
+			this.pageController.speak(textVoices);
+		}
 	}
 }

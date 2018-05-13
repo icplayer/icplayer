@@ -49,7 +49,7 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 
 					event.stopPropagation();
 					event.preventDefault();
-					
+
 					toggleAnswers();
 				}
 			});		

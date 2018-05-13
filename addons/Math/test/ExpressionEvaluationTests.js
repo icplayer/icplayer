@@ -184,7 +184,7 @@ TestCase("[Math] Expression evaluation", {
         assertTrue(evaluationResult.isValid);
     },
 
-    'test if in expression is number and string returned value should works': function () {
+    'test if in expression is number and string returned value should work': function () {
         this.variables = [
             { name: 'gap1', value: 'Text4.1' },
             { name: 'gap2', value: 'Text4.2' },
@@ -214,4 +214,12 @@ TestCase("[Math] Expression evaluation", {
 
         assertTrue(evaluationResult.result);
     },
+
+    'test expressions with variables without spaces works correctly': function () {
+        var expression = "(gap1!='' && gap3!=''&& gap1!=gap2 && gap3!=gap4)";
+
+        var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
+
+        assertTrue(evaluationResult.result);
+    }
 });

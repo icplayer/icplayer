@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.imagesource;
 
+import java.util.ArrayList;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -7,10 +9,13 @@ import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 public class ImageSourceModule extends BasicModuleModel {
 
@@ -18,7 +23,12 @@ public class ImageSourceModule extends BasicModuleModel {
 	private boolean removable = true;
 	private boolean isDisabled = false;
 	private String altText = "";
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
+	private String langAttribute = "";
 
+	public static final int SELECTED_INDEX = 0;
+	public static final int DESELECTED_INDEX = 1;
+	
 	public ImageSourceModule() {
 		super("Image source", DictionaryWrapper.get("image_source_module"));
 		
@@ -26,6 +36,8 @@ public class ImageSourceModule extends BasicModuleModel {
 		addPropertyIsDisabled();
 		addPropertyRemovable();
 		addPropertyAltText();
+		addPropertyLangAttribute();
+		addPropertySpeechTexts();
 	}
 
 	public String getUrl() {
@@ -53,6 +65,9 @@ public class ImageSourceModule extends BasicModuleModel {
 					removable = XMLUtils.getAttributeAsBoolean((Element)childNode, "removable", true);
 					isDisabled = XMLUtils.getAttributeAsBoolean((Element)childNode, "isDisabled", false);
 					altText = XMLUtils.getAttributeAsString(childElement, "altText");
+					langAttribute = XMLUtils.getAttributeAsString(childElement, "langAttribute");
+					this.speechTextItems.get(SELECTED_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "selectedWCAG"));
+					this.speechTextItems.get(DESELECTED_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "deselectedWCAG"));
 				}
 			}
 		}
@@ -74,6 +89,9 @@ public class ImageSourceModule extends BasicModuleModel {
 		image.setAttribute("removable", removableString);
 		image.setAttribute("isDisabled", Boolean.toString(this.isDisabled));
 		image.setAttribute("altText", this.altText);
+		image.setAttribute("langAttribute", this.langAttribute);
+		image.setAttribute("selectedWCAG", speechTextItems.get(SELECTED_INDEX).getText());
+		image.setAttribute("deselectedWCAG", speechTextItems.get(DESELECTED_INDEX).getText());
 		imageSourceModule.appendChild(image);
 
 		return imageSourceModule.toString();
@@ -235,6 +253,119 @@ public class ImageSourceModule extends BasicModuleModel {
 
 	public String getAlttext() {
 		return altText;
+	}
+	
+	private void addPropertyLangAttribute() {
+		IProperty property = new IProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				langAttribute = newValue;
+				sendPropertyChangedEvent(this);
+			}
+
+			@Override
+			public String getValue() {
+				return langAttribute;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("text_module_lang_attribute");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_lang_attribute");
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public String getLangAttribute() {
+		return langAttribute;
+	}
+	
+	private void addPropertySpeechTexts() {
+		IStaticListProperty property = new IStaticListProperty() {
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(speechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return speechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("selected","image_source"));
+				speechTextItems.add(new SpeechTextsStaticListItem("deselected","image_source"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return speechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+
+		};
+
+		addProperty(property);
+		property.addChildren(1);
+	}
+	
+	public String getSpeechTextItem (int index) {
+		if (index < 0 || index >= this.speechTextItems.size()) {
+			return "";
+		}
+		final String text = this.speechTextItems.get(index).getText();
+		if (text.isEmpty()) {
+			if (index == SELECTED_INDEX) {
+				return "selected";
+			}
+			
+			if (index == DESELECTED_INDEX) {
+				return "deselected";
+			}
+			
+			
+			return "";
+		}
+		
+		return text;
 	}
 
 }

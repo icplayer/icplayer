@@ -43,7 +43,7 @@ public class WCAGUtils {
 	}
 	
 	private static String getElementTextElementContent (TextElementDisplay element) {
-		return element != null ? element.getTextValue() : "";
+		return element != null ? element.getWCAGTextValue() : "";
 	}
 	
 	// TODO change to ENUM
@@ -88,11 +88,12 @@ public class WCAGUtils {
 			
 			final TextElementDisplay element = getElement(textElements, gapNumber - 1);
 			final String elementContent = getElementTextElementContent(element);
-			
+			String langTag = element.getLangTag()!=null ? element.getLangTag() : lang;
+
 			if (isClosestGap) {
 				result.add(TextToSpeechVoice.create(text.substring(0, gapIndex), lang));                           // text before gap
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));              // gap type and number
-				result.add(TextToSpeechVoice.create(elementContent, lang));                                        // gap content
+				result.add(TextToSpeechVoice.create(elementContent, langTag));                                        // gap content
 				result.add(getElementStatus(element, model));
 				
 				final int endGapIndex = text.indexOf(GAP_END, gapIndex) + GAP_END.length();
@@ -102,7 +103,7 @@ public class WCAGUtils {
 			if (isClosestFilledGap) {
 				result.add(TextToSpeechVoice.create(text.substring(0, filledGapIndex), lang));
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));
-				result.add(TextToSpeechVoice.create(elementContent, lang));
+				result.add(TextToSpeechVoice.create(elementContent, langTag));
 				result.add(getElementStatus(element, model));
 				
 				final int endGapIndex = text.indexOf(FILLED_GAP_END, filledGapIndex) + FILLED_GAP_END.length();
@@ -112,12 +113,13 @@ public class WCAGUtils {
 			if (isClosestDropdown) {
 				result.add(TextToSpeechVoice.create(text.substring(0, dropdownIndex), lang));
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.DROPDOWN_INDEX) + " " + gapNumber++));
-				result.add(TextToSpeechVoice.create(elementContent, lang));
+				result.add(TextToSpeechVoice.create(elementContent, langTag));
 				result.add(getElementStatus(element, model));
 				
 				final int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, dropdownIndex) + DROP_DOWN_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
+			text = TextParser.removeGapOptions(text);
 		}
 
 		result.add(TextToSpeechVoice.create(text, lang)); // remaining text
@@ -167,5 +169,5 @@ public class WCAGUtils {
 		String text = getCleanText(model.getOriginalText());
 		return text.contains(GAP_START) || text.contains(FILLED_GAP_START) || text.contains(DROP_DOWN_GAP_START);
 	}
-	
+
 }

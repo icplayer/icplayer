@@ -1,3 +1,22 @@
+2018-05-11 Added keyboard shortcut for changing the page in player
+2018-05-09 Fixed problems with static footer display when chaning layouts. Fixed problems with footer width after orientation change.
+2018-05-08 Fixed issues with eKeyboard in Popup.
+2018-05-07 Fixed issues with special characters in Text module gaps.
+2018-04-27 Fixed problem with saving choice feedback property.
+2018-04-27 Added TTS support for Hierarchical Lesson Report
+2018-04-26 Fixed issues with spacebar in keyboard navigation
+2018-04-26 Added TTS support for feedback addon
+2018-04-26 Added TTS support for Image Source and Multiple gap
+2018-04-24 Fixed problem with != statement in math module
+2018-04-24 Fixed problems with hovering classes and executing actions in button modules.
+2018-04-24 Added show and hide commands to Page Counter addon.
+2018-04-24 Fixed problem with size of popup
+2018-04-23 Added 'Enable scroll on mobile' property to the Text Selection addon
+2018-04-18 Fixed problem with check answers mode of gaps in the Table addon
+2018-04-17 Fixed problem with empty XML tag in page progress configuration
+2018-04-16 Fixed problem with CORS in popup addon.
+2018-04-13 Added option to select the language used in gaps ant alt texts in Text, Choice, Connection and Ordering modules
+2018-04-12 Fixed problem with <> symbols in Text draggable gap
 2018-04-11 Fixed problem with video on IE 11
 2018-04-09 Fixed a problem with WCAG mode sometimes turning off on page change.
 2018-04-03 Fixed problem with rotating ruler in IWB Toolbar module.

@@ -372,7 +372,7 @@ function AddonMath_create() {
 
     function checkIfCorrectVariable(tempExpression, variable) {
         var lastChar = tempExpression.charAt(tempExpression.indexOf(variable)+variable.length);
-        return lastChar == "." || lastChar == "(" || lastChar == ")" || lastChar == "" || lastChar == " " || lastChar == "/" || lastChar == "*" || lastChar == "=" || lastChar == "+" || lastChar == "-" || lastChar == ">" || lastChar == "<" || lastChar == "%";
+        return lastChar == "." || lastChar == "(" || lastChar == ")" || lastChar == "" || lastChar == " " || lastChar == "/" || lastChar == "*" || lastChar == "=" || lastChar == "+" || lastChar == "-" || lastChar == ">" || lastChar == "<" || lastChar == "%" || lastChar == "!";
     }
 
     presenter.findTextOccurrences = function (expression, variable) {

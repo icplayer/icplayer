@@ -715,5 +715,9 @@ public class PlayerController implements IPlayerController{
 	public String getPageStamp() {
 		return this.pageStamp;
 	}
+	
+	public boolean isWCAGOn() {
+		return this.keyboardController.isWCAGOn();
+	}
 
 }

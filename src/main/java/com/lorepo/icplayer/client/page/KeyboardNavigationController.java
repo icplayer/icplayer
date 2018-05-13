@@ -290,7 +290,7 @@ public final class KeyboardNavigationController {
 					changeKeyboardMode(event, false);
 					return;
 				}
-				
+
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isControlKeyDown()) {
 					event.preventDefault();
 					changeKeyboardMode(event, true);
@@ -298,6 +298,10 @@ public final class KeyboardNavigationController {
 				}
 
 				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && modeOn) { // Disable tab default action if eKeyboard is working
+					event.preventDefault();
+				}
+
+				if (event.getNativeKeyCode() == 32 && modeOn && !moduleIsActivated) { // Disable space default action if eKeyboard is working but a module has not yet been activated
 					event.preventDefault();
 				}
 
@@ -309,7 +313,7 @@ public final class KeyboardNavigationController {
 					changeCurrentModule(event);
 					return;
 				}
-
+				
 				if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER && !event.isControlKeyDown() && !event.isShiftKeyDown()) {
 					event.preventDefault();
 					activateModule();
@@ -323,12 +327,21 @@ public final class KeyboardNavigationController {
 	            	manageKey(event);
 	            }
 
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_RIGHT && event.isShiftKeyDown()) {
+	            	event.preventDefault();
+	            	mainPageController.getPlayerController().switchToNextPage();
+	            }
+	            
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_LEFT && event.isShiftKeyDown()) {
+	            	event.preventDefault();
+	            	mainPageController.getPlayerController().switchToPrevPage();
+	            }
 
 	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
 	            	event.preventDefault();
 	            	deactivateModule();
 	            }
-	            
+
 	            restoreClasses();
 	        }
 
@@ -413,8 +426,9 @@ public final class KeyboardNavigationController {
 	private native JavaScriptObject	getInputElement() /*-{
 		var input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
 		if (!input) {
-			input = $wnd.$("<input/>");
+			input = $wnd.$("<div/>");
 			input.attr("id", "input_element_for_focus_to_change_focused_element_by_browser");
+			input.attr("tabindex","0");
 			input.css({
 				"opacity": 0.0001,
 				"pointer-events": "none",
@@ -683,6 +697,10 @@ public final class KeyboardNavigationController {
 		}
 		
 		return this.isWCAGSupportOn ? this.presenters : this.presentersOriginalOrder;
+	}
+	
+	public boolean isWCAGOn() {
+		return modeOn && isWCAGSupportOn;
 	}
 	
 }

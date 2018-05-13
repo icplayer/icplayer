@@ -268,31 +268,61 @@ function AddonText_Selection_create() {
         if (presenter.configuration.isTabindexEnabled) {$text_selection.attr('tabindex', '0');}
 
         if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
-            $text_selection.on('touchstart', function (e) {
-                e.stopPropagation();
-                e.preventDefault();
-                presenter.startSelection(e.target);
-            });
+            if (presenter.configuration.enableScroll) {
 
-            $text_selection.on('touchend', function (e) {
-                e.stopPropagation();
-                presenter.configuration.isExerciseStarted = true;
-                e.preventDefault();
-                if (lastMoveEvent != null) {
-                    presenter.endSelection(lastMoveEvent);
-                } else {
-                    presenter.endSelection(e.target);
-                }
-                lastMoveEvent = null;
-            });
+                var posDiff = 0;
+                var lastScreenPos = {X:0, Y:0};
+                $text_selection.on('touchstart', function (e) {
+                    e.stopPropagation();
+                    posDiff = 0;
+                    var temp = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
+                    lastScreenPos.X = temp.screenX;
+                    lastScreenPos.Y = temp.screenY;
+                });
 
-            $text_selection.on('touchmove', function (e) {
-                e.stopPropagation();
-                e.preventDefault();
-                var temp = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
+                $text_selection.on('touchend', function (e) {
+                    e.stopPropagation();
+                    if (posDiff<15) {
+                        presenter.startSelection(e.target);
+                        presenter.endSelection(e.target);
+                        presenter.configuration.isExerciseStarted = true;
+                     }
+                });
 
-                lastMoveEvent = $(document.elementFromPoint(temp.pageX - $(document).scrollLeft(), temp.pageY - $(document).scrollTop()));
-            });
+                $text_selection.on('touchmove', function (e) {
+                    e.stopPropagation();
+                    var temp = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
+                    posDiff += Math.abs(lastScreenPos.X - temp.screenX) + Math.abs(lastScreenPos.Y - temp.screenY);
+                    lastScreenPos.X = temp.screenX;
+                    lastScreenPos.Y = temp.screenY;
+                });
+            } else {
+                $text_selection.on('touchstart', function (e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    presenter.startSelection(e.target);
+                });
+
+                $text_selection.on('touchend', function (e) {
+                    e.stopPropagation();
+                    presenter.configuration.isExerciseStarted = true;
+                    e.preventDefault();
+                    if (lastMoveEvent != null) {
+                        presenter.endSelection(lastMoveEvent);
+                    } else {
+                        presenter.endSelection(e.target);
+                    }
+                    lastMoveEvent = null;
+                });
+
+                $text_selection.on('touchmove', function (e) {
+                    e.stopPropagation();
+                   e.preventDefault();
+                    var temp = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
+
+                    lastMoveEvent = $(document.elementFromPoint(temp.pageX - $(document).scrollLeft(), temp.pageY - $(document).scrollTop()));
+                });
+            }
         } else {
             $text_selection.on('mouseup', function (e) {
                 e.stopPropagation();
@@ -343,6 +373,22 @@ function AddonText_Selection_create() {
 
     function getSpecialIfStarted(word) {
         return isLastSpecialSign(word) && (presenter.isStartedWrong(word) || presenter.isStartedCorrect(word)) ? word[word.length - 1] : "";
+    }
+
+    presenter.upgradeModel = function(model) {
+        var upgradedModel = upgradeModelEnableScrollProperty(model);
+        return upgradedModel;
+    };
+
+    function upgradeModelEnableScrollProperty(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(upgradedModel['enableScroll']){
+            upgradedModel['enableScroll'] = false;
+        }
+
+        return upgradedModel;
     }
 
     presenter.presenterLogic = function (view, model, isPreview) {
@@ -431,7 +477,8 @@ function AddonText_Selection_create() {
             areEventListenersOn: true,
             addonID: model['ID'],
             isActivity: !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
-            isTabindexEnabled: isTabindexEnabled
+            isTabindexEnabled: isTabindexEnabled,
+            enableScroll: ModelValidationUtils.validateBoolean(model['enableScroll'])
         };
     };
 

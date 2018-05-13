@@ -7,7 +7,10 @@ function Addonmultiplegap_create(){
      *         properties are only used in CSS. Invalid CSS value set with jQuery will simply not be added to
      *         DOM element, but it won't brake anything. Changing this behaviour will break backward compatibility!
      */
-    
+
+    function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
+    var isWCAGOn = false;
+
     var presenter = function(){};
     
     presenter.ORIENTATIONS = {
@@ -119,7 +122,7 @@ function Addonmultiplegap_create(){
         if (model["wrapItems"] == undefined) {
             upgradedModel = this.upgradeWrapItems(model);
         }
-        
+        upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
         return upgradedModel;
     };
     
@@ -128,9 +131,70 @@ function Addonmultiplegap_create(){
         
         return model;
     };
+
+    presenter.upgradeSpeechTexts = function (model) {
+         var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]['Inserted']) {
+            upgradedModel["speechTexts"]['Inserted'] = {Inserted: 'Inserted'};
+        }
+        if (!upgradedModel["speechTexts"]['Removed']) {
+            upgradedModel["speechTexts"]['Removed'] = {Removed: 'Removed'};
+        }
+        if (!upgradedModel["speechTexts"]['Empty']) {
+            upgradedModel["speechTexts"]['Empty'] = {Empty: 'Empty'};
+        }
+        if (!upgradedModel["speechTexts"]['Correct']) {
+            upgradedModel["speechTexts"]['Correct'] = {Correct: 'Correct'};
+        }
+        if (!upgradedModel["speechTexts"]['Wrong']) {
+            upgradedModel["speechTexts"]['Wrong'] = {Wrong: 'Wrong'};
+        }
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = "";
+        }
+        return upgradedModel;
+    };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+            inserted:  'inserted',
+            removed: 'removed',
+            empty: 'empty',
+            correct: 'correct',
+            wrong: 'wrong'
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            inserted:    getSpeechTextProperty(speechTexts['Inserted']['Inserted'], presenter.speechTexts.inserted),
+            removed: getSpeechTextProperty(speechTexts['Removed']['Removed'], presenter.speechTexts.removed),
+            empty: getSpeechTextProperty(speechTexts['Empty']['Empty'], presenter.speechTexts.empty),
+            correct: getSpeechTextProperty(speechTexts['Correct']['Correct'], presenter.speechTexts.correct),
+            wrong: getSpeechTextProperty(speechTexts['Wrong']['Wrong'], presenter.speechTexts.wrong)
+        };
+    }
     
     
     presenter.validateModel = function (model) {
+        setSpeechTexts(model['speechTexts']);
         var orientation = presenter.ORIENTATIONS.HORIZONTAL;
         if (model['Orientation'] === "vertical") {
             orientation = presenter.ORIENTATIONS.VERTICAL;
@@ -158,11 +222,6 @@ function Addonmultiplegap_create(){
         if (validateRepeatedElement.isError) {
             return validateRepeatedElement;
         }
-
-        var altText = model['Alt text'];
-        if (altText === undefined) {
-            altText = '';
-        }
         
         return {
             isError: false,
@@ -182,7 +241,7 @@ function Addonmultiplegap_create(){
             blockWrongAnswers: ModelValidationUtils.validateBoolean(model["Block wrong answers"]),
             wrapItems: ModelValidationUtils.validateBoolean(model["wrapItems"]),
             isTabindexEnabled: isTabindexEnabled,
-            altText: altText
+            langTag: model['langAttribute']
         };
     };
     
@@ -278,8 +337,6 @@ function Addonmultiplegap_create(){
         }
 
         presenter.buildKeyboardController();
-
-        presenter.$view.attr('alt', presenter.configuration.altText);
     };
     
     presenter.setItemCounterModeValue = function MultipleGap_setItemCounterModeValue () {
@@ -410,6 +467,14 @@ function Addonmultiplegap_create(){
         }
         return imageSourceModule.getAltText();
     };
+
+    presenter.getItemLangAttribute = function (id) {
+        var imageSourceModule = presenter.playerController.getModule(id);
+        if (imageSourceModule == null || !imageSourceModule.hasOwnProperty('getLangAttribute')) {
+            return '';
+        }
+        return imageSourceModule.getLangAttribute();
+    };
     
     presenter.calculateElementPositions = function () {
         var orientation = presenter.configuration.orientation;
@@ -535,7 +600,7 @@ function Addonmultiplegap_create(){
         
         switch(presenter.configuration.sourceType) {
             case presenter.SOURCE_TYPES.IMAGES:
-                child = $('<img class="contents" alt="' + presenter.getAltText(item.item) + '" />');
+                child = $('<img class="contents" alt="' + presenter.getAltText(item.item) + '" lang="'+ presenter.getItemLangAttribute(item.item) +'" />');
                 child.attr('src', presenter.getImageURL(item));
 
                 if(presenter.configuration.stretchImages) {
@@ -647,6 +712,23 @@ function Addonmultiplegap_create(){
         } else {
             presenter.makePlaceholderDraggable(placeholder);
         }
+
+        if(isWCAGOn) {
+            var altText = "";
+            var langTag = "";
+            var voicesArray = [];
+            voicesArray.push(getTextVoiceObject(presenter.speechTexts.inserted));
+            if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES) {
+                altText = child.attr('alt');
+                langTag = child.attr('lang');
+            } else {
+                altText = child.text();
+                langTag = presenter.configuration.langTag;
+            }
+            voicesArray.push(getTextVoiceObject(altText,langTag));
+            presenter.speak(voicesArray);
+        }
+
     };
     
     function sendEvent(item, consumed) {
@@ -789,7 +871,23 @@ function Addonmultiplegap_create(){
     presenter.performRemoveDraggable = function(handler) {
         
         var placeholder = handler.parent();
-        
+        var child = placeholder.find('.contents');
+        if(isWCAGOn) {
+            var altText = "";
+            var langTag = "";
+            var voicesArray = [];
+            voicesArray.push(getTextVoiceObject(presenter.speechTexts.removed));
+            if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES) {
+                altText = child.attr('alt');
+                langTag = child.attr('lang');
+            } else {
+                altText = child.text();
+                langTag = presenter.configuration.langTag;
+            }
+            voicesArray.push(getTextVoiceObject(altText,langTag));
+            presenter.speak(voicesArray);
+        }
+
         if (arguments[1]) {
             placeholder.hide();
             if (placeholder.is(":visible")) {
@@ -1086,6 +1184,8 @@ function Addonmultiplegap_create(){
                 presenter.makePlaceholderDraggable(placeholder);
             }
         });
+
+        presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
     };
     
     presenter.getContainerElement = function () {
@@ -1214,6 +1314,8 @@ function Addonmultiplegap_create(){
 
             presenter.performAcceptDraggable('<div></div>', {type:'string', value: value, item: moduleID}, false, false, false);
         }
+
+        presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
     };
     
     presenter.hideAnswers = function () {
@@ -1226,6 +1328,7 @@ function Addonmultiplegap_create(){
         }
         presenter.$view.find('.placeholder-show-answers').removeClass('placeholder-show-answers');
         presenter.isShowAnswersActive = false;
+        presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
     };
 
     presenter.buildKeyboardController = function () {
@@ -1258,5 +1361,90 @@ function Addonmultiplegap_create(){
 
         return $(element);
     };
+
+    MultipleGapKeyboardController.prototype.switchElement = function (move) {
+        if (this.keyboardNavigationElementsLen < 2) {
+            presenter.speak([getTextVoiceObject(presenter.speechTexts.empty)]);
+            this.markCurrentElement(0);
+        } else {
+            var new_position_index = this.keyboardNavigationCurrentElementIndex + move;
+            if (new_position_index >= this.keyboardNavigationElementsLen) {
+                new_position_index = this.keyboardNavigationElementsLen - 1;
+            } else if ( new_position_index < 1) {
+                new_position_index = 1;
+            }
+            this.markCurrentElement(new_position_index);
+            this.readActiveElement(new_position_index);
+        }
+    };
+
+    MultipleGapKeyboardController.prototype.readActiveElement = function (index) {
+        var voicesArray = [];
+        if(index === 0 ){
+            voicesArray.push(getTextVoiceObject(presenter.speechTexts.empty));
+        } else {
+            var $element = this.getTarget(this.keyboardNavigationElements[index]);
+            voicesArray = voicesArray.concat(presenter.getTextVoicesFromPlaceholder($element));
+        }
+        presenter.speak(voicesArray);
+    };
+
+    MultipleGapKeyboardController.prototype.enter = function (event) {
+        window.KeyboardController.prototype.enter.call(this, event);
+        if(this.keyboardNavigationElementsLen > 1) {
+            var voicesArray = [];
+            for(var i  = 1; i <this.keyboardNavigationElementsLen; i++) {
+                var $element = this.getTarget(this.keyboardNavigationElements[i]);
+                voicesArray = voicesArray.concat(presenter.getTextVoicesFromPlaceholder($element));
+            }
+            presenter.speak(voicesArray);
+        } else {
+            presenter.speak([getTextVoiceObject(presenter.speechTexts.empty)]);
+        }
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.getTextVoicesFromPlaceholder = function($placeholder) {
+        var voicesArray =[];
+
+        if ($placeholder.length===0) return [];
+
+        if ($placeholder.hasClass('placeholder')) {
+            var $child = $placeholder.find("img.contents");
+            if ($child.length > 0) {
+                voicesArray.push(getTextVoiceObject($child.attr('alt'),$child.attr('lang')));
+            } else {
+                $child = $placeholder.find("p.contents");
+                if ($child.length > 0){
+                    voicesArray.push(getTextVoiceObject($child.text(),presenter.configuration.langTag));
+                }
+            }
+            if ($placeholder.hasClass('placeholder_invalid')) {
+                voicesArray.push(getTextVoiceObject(presenter.speechTexts.wrong));
+            } else if ($placeholder.hasClass('placeholder_valid')) {
+                voicesArray.push(getTextVoiceObject(presenter.speechTexts.correct));
+            }
+        }
+        return voicesArray;
+    };
+
+    presenter.speak = function (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
     return presenter;
 }

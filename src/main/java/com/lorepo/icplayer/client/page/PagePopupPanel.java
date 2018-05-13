@@ -105,6 +105,7 @@ public class PagePopupPanel extends DialogBox {
 		setStyleName(classes);
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
+		setModal(false);
 		setWidget(pageWidget);
 		
 		if (this.icplayer!=null) {
@@ -114,7 +115,7 @@ public class PagePopupPanel extends DialogBox {
 		this.getElement().getStyle().setProperty("transform-origin", scale.transformOrigin);
 				
 		int windowWidth = Window.getClientWidth();
-		int windowHeight = Window.getClientHeight() > getWindowHeight() ? Window.getClientHeight() : getWindowHeight();
+		int windowHeight = Window.getClientHeight();
 
 		int popupWidth = page.getWidth();
 		int popupHeight = page.getHeight();
@@ -152,9 +153,11 @@ public class PagePopupPanel extends DialogBox {
 			top = Window.getScrollTop();
 		}
 		
+		int maxHeight = Window.getClientHeight() > getWindowHeight() ? Window.getClientHeight() : getWindowHeight();
+		
 		int height = getElement().getClientHeight();
-		if (height < windowHeight) {
-			height = windowHeight;
+		if (height < maxHeight) {
+			height = maxHeight;
 		}
 			
 		height += top;
@@ -166,8 +169,7 @@ public class PagePopupPanel extends DialogBox {
 	}
 	
 	private native int getWindowHeight() /*-{
-		var $topWindow = $wnd.$(top.window);
-		return $topWindow[0].innerHeight * $topWindow.width() / $topWindow[0].innerWidth;
+		return $wnd.$($wnd.document).height();
 	}-*/;
 	
 	// This method makes the device use hardware acceleration on the provided element, increasing performance

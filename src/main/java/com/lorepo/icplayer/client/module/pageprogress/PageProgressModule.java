@@ -66,6 +66,10 @@ public class PageProgressModule extends BasicModuleModel{
 
 					langAttribute = XMLUtils.getAttributeAsString(childElement, "langAttribute");
 					rawWorksWith = XMLUtils.getCharacterDataFromElement(childElement);
+					
+					if (rawWorksWith == null) {
+						rawWorksWith = "";
+					}
 					modules = ModuleUtils.getListFromRawText(rawWorksWith);
 				}
 			}

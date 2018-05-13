@@ -52,6 +52,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void reset();
 		void setText(String text);
 		String getTextValue();
+		String getWCAGTextValue();
 		void markGapAsCorrect();
 		void markGapAsWrong();
 		void markGapAsEmpty();
@@ -71,6 +72,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void deselect();
 		boolean isWorkingMode();
 		int getGapState();
+		String getLangTag();
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -221,7 +223,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			TextElementDisplay gap = view.getChild(index);
 			gapsViewsElements.put(gap.getId(), gap);
 		}
-		
+
 		for (int index = 0; index < gapsInfos.size(); index++) {
 			GapInfo gi = gapsInfos.get(index);
 
@@ -458,7 +460,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			boolean wasValueSelected = !enteredValue.isEmpty() && !enteredValue.equals("---");
 			boolean isValidAnswer = choice.getAnswer().compareTo(enteredValue) == 0;
- 
+
 			if (!isValidAnswer && wasValueSelected) {
 				errorCount++;
 			}
@@ -692,7 +694,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (newValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
 			newValue = "";
 		}
-		
+
 		values.put(id, newValue);
 		updateScore();
 
@@ -752,8 +754,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	protected void insertToGap(String gapId) {
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
-		String value = StringUtils.removeAllFormatting(draggableItem.getValue());
-		
+		String value = TextParser.removeHtmlFormatting(draggableItem.getValue());
+
 		view.setValue(gapId, draggableItem.getValue());
 		view.refreshMath();
 		

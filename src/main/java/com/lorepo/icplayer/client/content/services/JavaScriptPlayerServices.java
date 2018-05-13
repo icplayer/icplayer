@@ -12,6 +12,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -490,6 +491,10 @@ public class JavaScriptPlayerServices {
 		playerServices.isPlayerInCrossDomain = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPlayerInCrossDomain()();
 		}
+		
+		playerServices.isWCAGOn = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isWCAGOn()();
+		};
 
 		return playerServices;
 	}-*/;
@@ -875,15 +880,20 @@ public class JavaScriptPlayerServices {
 		playerServices.getCommands().disableKeyboardNavigation();
 	}
 	
-	public ScaleInformation getScaleInformation(){
+	public ScaleInformation getScaleInformation() {
 		return this.playerServices.getScaleInformation();
 	}
 	
-	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin){
-		this.playerServices.setScaleInformation(scaleX, scaleY, transform, transformOrigin);		
+	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin) {
+		this.playerServices.setScaleInformation(scaleX, scaleY, transform, transformOrigin);
+		PlayerApp.prepareStaticScaledElements();
 	}
 	
 	public boolean isPlayerInCrossDomain() {
 		return this.playerServices.isPlayerInCrossDomain();
+	}
+	
+	public boolean isWCAGOn() {
+		return this.playerServices.isWCAGOn();
 	}
 }
