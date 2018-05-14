@@ -1488,15 +1488,14 @@ function AddonConnection_create() {
         var result = [];
 
         for (var i=0; i<connections.length; i++) {
-            var $connection = connections[i];
 
-            result.push(getTextVoiceObject($connection.text().trim(), presenter.langTag));
+            result = result.concat(window.TTSUtils.getTextVoiceArrayFromElement(connections[i],presenter.langTag));
 
-            if ($connection.hasClass(CORRECT_ITEM_CLASS) && presenter.isCheckActive) {
+            if (connections[i].hasClass(CORRECT_ITEM_CLASS) && presenter.isCheckActive) {
                 result.push(getTextVoiceObject(presenter.speechTexts.correct));
             }
 
-            if ($connection.hasClass(WRONG_ITEM_CLASS) && presenter.isCheckActive) {
+            if (connections[i].hasClass(WRONG_ITEM_CLASS) && presenter.isCheckActive) {
                 result.push(getTextVoiceObject(presenter.speechTexts.wrong));
             }
         }
@@ -1509,18 +1508,7 @@ function AddonConnection_create() {
         if (tts) {
             var $active = presenter.getCurrentActivatedElement();
             var connections = getConnections($active);
-            var $activeClone = $active.clone();
-            $activeClone.find('[aria-hidden="true"]').remove();
-            $activeClone.find('[aria-label]').each(function(){
-                var replaceText = $(this).attr('aria-label');
-                var langTag = $(this).attr('lang');
-                if (langTag && langTag.trim().length > 0 ) {
-                    replaceText = '\\alt{ |'+replaceText+'}'+'[lang ' + langTag + ']';
-                }
-
-                $(this).append(replaceText);
-            });
-            var TextVoiceArray = [getTextVoiceObject($activeClone.text().trim(), presenter.langTag)];
+            var TextVoiceArray = window.TTSUtils.getTextVoiceArrayFromElement($active, presenter.langTag);
 
             if ($active.hasClass('selected')) {
                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));

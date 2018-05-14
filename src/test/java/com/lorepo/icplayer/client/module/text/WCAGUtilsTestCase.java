@@ -44,4 +44,22 @@ public class WCAGUtilsTestCase extends GwtTest {
 		String result = WCAGUtils.getCleanText(html);
 		assertEquals(expected, result);
 	}
+	
+	@Test
+	public void testGetImageAltTexts() {
+		String html = "<div> <img src=\"aaa\"/><img src=\"bbb\" alt=\"test\"/> </div>";
+		String expected = "<div> <img src=\"aaa\"/> test  </div>";
+		
+		String result = WCAGUtils.getImageAltTexts(html);
+		assertEquals(expected, result);
+	}
+	
+	@Test
+	public void testGetImageAltTextsWithBreaks() {
+		String html = "<div> <img src=\"aaa\"/><img src=\"bbb\" alt=\"test\"/> </div>";
+		String expected = "<div> <img src=\"aaa\"/>&&break&& test &&break&& </div>";
+		
+		String result = WCAGUtils.getImageAltTextsWithBreaks(html);
+		assertEquals(expected, result);
+	}
 }
