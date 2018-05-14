@@ -1022,7 +1022,7 @@ function AddonMaze_create () {
         this.keysCount = obj.keysCount;
         var longestPath = this.maze.getLongestPath(),
             doorsCount = this.questions.length,
-            spaceBetween = ~~(longestPath.length / (doorsCount + 1));
+            spaceBetween = Math.max(1, Math.floor(longestPath.length / (doorsCount + 1)));
         
         this.createTreasureElement(longestPath);
         this.createDoors(longestPath);
