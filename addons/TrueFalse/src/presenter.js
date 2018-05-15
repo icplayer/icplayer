@@ -199,7 +199,15 @@ function AddonTrueFalse_create() {
 
     function handleClickActions(view) {
         var $elements = $(view).find(".tf_" + presenter.type + "_image");
-
+        
+        if (!MobileUtils.isMobileUserAgent(window.navigator.userAgent)){
+            $elements.hover(function(){
+                $(this).addClass('mouse-hover');
+                }, function(){
+                $(this).removeClass('mouse-hover');
+            });
+        }
+        
         $elements.on('touchstart', function (e) {
             e.stopPropagation();
             e.preventDefault();

@@ -1,3 +1,4 @@
+2018-05-15 Added class on hover in TrueFalse addon
 2018-05-14 Added TTS support for alt texts of images in multiple modules/addons
 2018-05-11 Added keyboard shortcut for changing the page in player
 2018-05-09 Fixed problems with static footer display when chaning layouts. Fixed problems with footer width after orientation change.
