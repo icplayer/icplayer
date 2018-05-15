@@ -1163,7 +1163,7 @@ function Addongamememo_create(){
         presenter.isShowAnswersActive = true;
 
         presenter.showCard(presenter.viewContainer.find('.cell'));
-        presenter.viewContainer.find('.cell').addClass('.cell-show-answers');
+        presenter.viewContainer.find('.cell').addClass('cell-show-answers');
         keyboardController.selectEnabled(false);
     };
 
@@ -1172,7 +1172,7 @@ function Addongamememo_create(){
             return;
         }
 
-        presenter.viewContainer.find('.cell').removeClass('.cell-show-answers');
+        presenter.viewContainer.find('.cell').removeClass('cell-show-answers');
         presenter.viewContainer.find('.cell').find('.back').css('visibility', 'hidden');
         presenter.viewContainer.find('.cell').find('.front').css('visibility', 'visible');
 
