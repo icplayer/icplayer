@@ -47,9 +47,8 @@ public class MathTextParam extends StringAddonParam {
 		String rawText = XMLUtils.getCharacterDataFromElement(element);
 		if(rawText == null){
 			rawText = XMLUtils.getText(element);
-			rawText = StringUtils.unescapeXML(rawText);
 		}
-		value = StringUtils.unescapeXML(rawText);
+		value = rawText;
 	}
 
 	

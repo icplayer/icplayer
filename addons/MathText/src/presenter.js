@@ -82,12 +82,6 @@ function AddonMathText_create() {
         console.log(presenter.configuration.correctAnswer);
         console.log(presenter.currentUserText.localeCompare(presenter.configuration.correctAnswer));
 
-        // if (presenter.currentUserText.localeCompare(presenter.configuration.correctAnswer) === 0) {
-        //     presenter.view.classList.add('correct');
-        // } else {
-        //     presenter.view.classList.add('wrong');
-        // }
-
         var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
         var request = builder.newEvalRequest(presenter.configuration.correctAnswer, presenter.currentUserText, null, null);
         var service = builder.getQuizzesService();
