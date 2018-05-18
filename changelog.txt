@@ -1,3 +1,7 @@
+2018-05-15 Fixed several issues with choice module on mobile devices
+2018-05-15 Fixed cell-show-answers class name in gamememo
+2018-05-15 Added class on hover in TrueFalse addon
+2018-05-14 Added TTS support for alt texts of images in multiple modules/addons
 2018-05-11 Added keyboard shortcut for changing the page in player
 2018-05-09 Fixed problems with static footer display when chaning layouts. Fixed problems with footer width after orientation change.
 2018-05-08 Fixed issues with eKeyboard in Popup.
