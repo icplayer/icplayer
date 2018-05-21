@@ -1643,6 +1643,7 @@ var ice_dictionary_mx = {
     "Heading_name": "Heading",
     "Heading_property_heading": "Heading",
     "Heading_property_content": "Content",
+	"Heading_property_lang_attribute": "Lang attribute",
 	"Hierarchical_Table_Of_Contents_info": "Muestra tabla de contenidos de la presentación, que está estructurada jerárquicamente, con los enlaces a las páginas corespondientes.",
 	"Hierarchical_Table_Of_Contents_name": "Índice Jerárquico",
 	"Hierarchical_Table_Of_Contents_property_title_label": "Título",

@@ -3,6 +3,9 @@ function AddonHeading_create () {
     function getErrorObject (ec) { return { isValid: false, errorCode: ec }; }
 
     var isVisibleByDefault = true;
+    var isWCAGOn = false;
+    var playerController = null;
+    var textParser = null;
 
     var presenter = function () {};
 
@@ -31,6 +34,7 @@ function AddonHeading_create () {
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
 
+        model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -39,13 +43,36 @@ function AddonHeading_create () {
 
         var headingString = '<[tag]></[tag]]>'.replace('[tag]', presenter.configuration.heading);
         var $heading = $(headingString);
-        $heading.html(presenter.configuration.content);
+
+        var parsedContent = presenter.configuration.content;
+        if (textParser != null) {
+            parsedContent = textParser.parseAltTexts(parsedContent);
+        } else if (isPreview) {
+            parsedContent = parsedContent.replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with
+            parsedContent = parsedContent.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1'); // replace \alt{a|b} with a
+        }
+        $heading.html(parsedContent);
 
         if (presenter.configuration.isTabindexEnabled) {
             $heading.attr("tabindex", "0");
         }
 
         presenter.$view.append($heading);
+    };
+
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeFrom_01(model);
+    };
+
+    presenter.upgradeFrom_01 = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = "";
+        }
+
+        return upgradedModel;
     };
 
     presenter.validateModel = function (model) {
@@ -60,7 +87,8 @@ function AddonHeading_create () {
             ID: model.ID,
             isValid: true,
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            isTabindexEnabled: ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled'])
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']),
+            langTag: model['langAttribute']
         };
     };
 
@@ -109,6 +137,46 @@ function AddonHeading_create () {
         var isVisible = parsed.isVisible;
         presenter.setVisibility(isVisible);
     };
+
+    presenter.setPlayerController = function (controller) {
+
+        playerController = controller;
+
+        textParser = new TextParserProxy(controller.getTextParser());
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    presenter.keyboardController = function(keyCode, isShift) {
+        if (keyCode == 13 || keyCode == 32) {
+            presenter.readContent();
+        }
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
+
+    presenter.readContent = function() {
+        var ttr = window.TTSUtils.getTextVoiceArrayFromElement(presenter.$view,presenter.configuration.langTag);
+        speak(ttr);
+    };
+
+    presenter.isEnterable = function(){ return false;};
 
     return presenter;
 }

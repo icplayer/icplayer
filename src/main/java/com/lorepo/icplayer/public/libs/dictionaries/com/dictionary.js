@@ -1651,6 +1651,7 @@ var ice_dictionary_en = {
     "Heading_name": "Heading",
     "Heading_property_heading": "Heading",
     "Heading_property_content": "Content",
+	"Heading_property_lang_attribute": "Lang attribute",
     "Hierarchical_Table_Of_Contents_info": "Displays a presentation's hierarchical table of contents together with links to the corresponding pages.",
     "Hierarchical_Table_Of_Contents_name": "Hierarchical Table Of Contents",
     "Hierarchical_Table_Of_Contents_property_title_label": "Title label",

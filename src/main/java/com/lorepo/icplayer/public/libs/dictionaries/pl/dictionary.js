@@ -1642,6 +1642,7 @@
     "Heading_name": "Nagłówek",
     "Heading_property_heading": "Nagłówek",
     "Heading_property_content": "Zawartość",
+	"Heading_property_lang_attribute": "Lang attribute",
     "Hierarchical_Table_Of_Contents_info": "Umożliwia wyświetlenie hierarchicznego spisu treści razem z linkami odwołującymi się do odpowiednich stron.",
     "Hierarchical_Table_Of_Contents_name": "Hierarchiczny spis treści",
     "Hierarchical_Table_Of_Contents_property_title_label": "Etykieta tytułu",

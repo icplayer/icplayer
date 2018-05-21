@@ -363,6 +363,10 @@ public class JavaScriptPlayerServices {
 			commands.parse = function(text) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseText(Ljava/lang/String;)(text);
 			};
+			
+			commands.parseAltTexts = function(text) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseAltTexts(Ljava/lang/String;)(text);
+			};
 
 			commands.parseGaps = function(text, options) {
 				if (typeof options == 'undefined') {
@@ -626,6 +630,11 @@ public class JavaScriptPlayerServices {
 		return model;
 	}
 
+	private String parseAltTexts(String text) {
+		TextParser parser = new TextParser();
+		return parser.parseAltText(text);
+	}
+	
 	private JavaScriptObject getHeaderModule(String id){
 		IPresenter presenter = playerServices.getHeaderModule(id);
 		return getModulePresentationJSObject(presenter);

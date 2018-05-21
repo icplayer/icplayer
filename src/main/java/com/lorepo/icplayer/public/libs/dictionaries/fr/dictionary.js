@@ -1643,6 +1643,7 @@ var ice_dictionary_fr = {
 "Heading_name": "Heading",
 "Heading_property_heading": "Heading",
 "Heading_property_content": "Content",
+"Heading_property_lang_attribute": "Lang attribute",
 "Hierarchical_Table_Of_Contents_info": "Présente la table des matières de manière hiérarchique avec les liens vers les pages correspondantes.",
 "Hierarchical_Table_Of_Contents_name": "Table des matières hiérarchique",
 "Hierarchical_Table_Of_Contents_property_title_label": "Texte du titre",
