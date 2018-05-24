@@ -1,3 +1,4 @@
+2018-05-24 Added TTS support for Zoom Image
 2018-05-21 Added TTS support for Heading
 2018-05-15 Fixed several issues with choice module on mobile devices
 2018-05-15 Fixed cell-show-answers class name in gamememo
