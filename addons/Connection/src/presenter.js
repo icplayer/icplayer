@@ -1594,9 +1594,13 @@ function AddonConnection_create() {
         readActivatedElementConnections();
     };
 
-    ConnectionKeyboardController.prototype.enter = function () {
-        Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
-        readActivatedElementConnections();
+    ConnectionKeyboardController.prototype.enter = function (event) {
+        if (event.shiftKey || event.ctrlKey) {
+            Object.getPrototypeOf(ConnectionKeyboardController.prototype).escape.call(this);
+        } else {
+            Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
+            readActivatedElementConnections();
+        }
     };
 
     ConnectionKeyboardController.prototype.select = function () {

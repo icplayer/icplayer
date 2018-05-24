@@ -175,6 +175,30 @@ public final class KeyboardNavigationController {
 			this.deselectCurrentModule();
 		}
 	}
+
+	// This method is intended to ensure that NVDA doesn't interfere with keyboard control mode
+	private native void setRoleApplication(boolean isSet) /*-{
+		var $_ = $wnd.$;
+		if( isSet ) {
+			$_('#_icplayer').attr("aria-hidden","true");
+			$_('[role]').each(function(){
+				var $self = $_(this);
+				var roleValue = $self.attr('role');
+				$self.attr('ic_role_off',roleValue);
+				$self.attr('role','presentation');
+			});
+			$_('body').attr("role","application");
+		} else {
+			$_('#_icplayer').removeAttr("aria-hidden");
+			$_('[ic_role_off]').each(function(){
+				var $self = $_(this);
+				var roleValue = $self.attr('ic_role_off');
+				$self.attr('role',roleValue);
+				$self.removeAttr('ic_role_off');
+			});
+			$_('body').removeAttr("role");
+		};
+	}-*/;
 	
 	private void changeKeyboardMode (KeyDownEvent event, boolean isWCAGSupportOn) {
 		if (isWCAGSupportOn && !this.mainPageController.isTextToSpeechModuleEnable()) {
@@ -185,6 +209,7 @@ public final class KeyboardNavigationController {
 		if (this.modeOn) {
 			this.isWCAGSupportOn = isWCAGSupportOn;
 		}
+		
 		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);
 		
 		if (this.mainPageController != null) {
@@ -193,10 +218,12 @@ public final class KeyboardNavigationController {
 			
 			if (isWCAGOn) {
 				this.mainPageController.readStartText();
+				this.setRoleApplication(true);
 			}
 			
 			if (isWCAGExit) {
 				this.mainPageController.readExitText();
+				this.setRoleApplication(false);
 			}
 		}
 		
@@ -340,6 +367,7 @@ public final class KeyboardNavigationController {
 	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
 	            	event.preventDefault();
 	            	deactivateModule();
+	            	setFocusOnInvisibleElement();
 	            }
 
 	            restoreClasses();
@@ -426,9 +454,11 @@ public final class KeyboardNavigationController {
 	private native JavaScriptObject	getInputElement() /*-{
 		var input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
 		if (!input) {
-			input = $wnd.$("<div/>");
+			input = $wnd.$("<input/>");
 			input.attr("id", "input_element_for_focus_to_change_focused_element_by_browser");
 			input.attr("tabindex","0");
+			input.attr("aria-hidden","true");
+			input.attr("autocomplete","off");
 			input.css({
 				"opacity": 0.0001,
 				"pointer-events": "none",
