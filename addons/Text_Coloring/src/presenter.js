@@ -1,3 +1,9 @@
+/*
+ KNOWN ISSUES
+    Text parsing:
+        Do not change the space special character support due to backward compatibility
+*/
+
 function AddonText_Coloring_create() {
     var presenter = function () {};
 

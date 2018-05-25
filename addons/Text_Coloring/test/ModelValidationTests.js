@@ -16,6 +16,38 @@ TEXT_FOR_PARSING += "and one colored word with blue: \\color{blue}{Text} \n";
 TEXT_FOR_PARSING += "and two colored words with red: \\color{red}{Text&nbsp;Text} \n";
 TEXT_FOR_PARSING += "and some final text with: \\color{red}{Text}.";
 
+var EXISTING_TEXT_FOR_PARSING = "\\color{red}{fresas&nbsp;y&nbsp;nata.} \n";
+EXISTING_TEXT_FOR_PARSING += "\\color{yellow}{era&nbsp;el&nbsp;de&nbsp;\<em>El&nbsp;mago&nbsp;de&nbsp;Oz</em>.} \n";
+EXISTING_TEXT_FOR_PARSING += "\\color{blue}{fotos&nbsp;al&nbsp;paisaje.}";
+
+var setUpUtils = function () {};
+
+setUpUtils.getWordToken = function (value) {
+    return {
+        "value": value,
+        "type": "word"
+    };
+};
+
+setUpUtils.getNewLineToken = function () {
+    return {
+        "type": "new_line"
+    };
+};
+
+setUpUtils.getSelectableToken = function (value, colorID) {
+    return {
+        "type": "selectable",
+        "value": value,
+        "color": colorID
+    };
+};
+
+setUpUtils.getSpaceToken = function () {
+    return {
+        type: "space"
+    };
+};
 
 TestCase("[Text_Coloring] Validate Colors", {
     setUp: function () {
@@ -99,98 +131,72 @@ TestCase("[Text_Coloring] Validate Colors", {
 
 TestCase("[Text_Coloring] Validate Text", {
     setUp: function () {
-        function getWordToken(value) {
-            return {
-                "value": value,
-                "type": "word"
-            };
-        }
-
-        function getNewLineToken() {
-            return {
-                "type": "new_line"
-            };
-        }
-
-        function getSelectableToken(value, colorID) {
-            return {
-                "type": "selectable",
-                "value": value,
-                "color": colorID
-            };
-        }
-
-        function getSpaceToken() {
-            return {
-                type: "space"
-            };
-        }
 
         this.presenter = AddonText_Coloring_create();
 
         this.expectedResult = [];
-        this.expectedResult.push(getWordToken("This"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("is"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("example"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("text"));
-        this.expectedResult.push(getNewLineToken());
-        this.expectedResult.push(getWordToken("with"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("one"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("colored"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("word"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("with"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("red:"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getSelectableToken("Text", "red"));
-        this.expectedResult.push(getNewLineToken());
-        this.expectedResult.push(getWordToken("and"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("one"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("colored"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("word"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("with"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("blue:"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getSelectableToken("Text", "blue"));
-        this.expectedResult.push(getNewLineToken());
-        this.expectedResult.push(getWordToken("and"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("two"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("colored"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("words"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("with"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("red:"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getSelectableToken("Text&nbsp;Text", "red"));
-        this.expectedResult.push(getNewLineToken());
-        this.expectedResult.push(getWordToken("and"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("some"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("final"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("text"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getWordToken("with:"));
-        this.expectedResult.push(getSpaceToken());
-        this.expectedResult.push(getSelectableToken("Text", "red"));
-        this.expectedResult.push(getWordToken("."));
+        this.expectedResult.push(setUpUtils.getWordToken("This"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("is"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("example"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("text"));
+        this.expectedResult.push(setUpUtils.getNewLineToken());
+        this.expectedResult.push(setUpUtils.getWordToken("with"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("one"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("colored"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("word"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("with"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("red:"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getSelectableToken("Text", "red"));
+        this.expectedResult.push(setUpUtils.getNewLineToken());
+        this.expectedResult.push(setUpUtils.getWordToken("and"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("one"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("colored"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("word"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("with"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("blue:"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getSelectableToken("Text", "blue"));
+        this.expectedResult.push(setUpUtils.getNewLineToken());
+        this.expectedResult.push(setUpUtils.getWordToken("and"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("two"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("colored"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("words"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("with"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("red:"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getSelectableToken("Text&nbsp;Text", "red"));
+        this.expectedResult.push(setUpUtils.getNewLineToken());
+        this.expectedResult.push(setUpUtils.getWordToken("and"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("some"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("final"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("text"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getWordToken("with:"));
+        this.expectedResult.push(setUpUtils.getSpaceToken());
+        this.expectedResult.push(setUpUtils.getSelectableToken("Text", "red"));
+        this.expectedResult.push(setUpUtils.getWordToken("."));
     },
 
     "test should parse text to word tokens, new lines tokens and color tokens": function () {
@@ -203,6 +209,26 @@ TestCase("[Text_Coloring] Validate Text", {
         assertEquals([], this.presenter.parseText(""));
         assertEquals([], this.presenter.parseText("         "));
         assertEquals([], this.presenter.parseText("     \n    "));
+    }
+});
+
+TestCase("[Text_Coloring] parse space special character", {
+    setUp: function () {
+        this.presenter = AddonText_Coloring_create();
+
+        this.expectedResult = [];
+
+        this.expectedResult.push(setUpUtils.getSelectableToken("fresas&nbsp;y&nbsp;nata.", "red"));
+        this.expectedResult.push(setUpUtils.getNewLineToken());
+        this.expectedResult.push(setUpUtils.getSelectableToken("era&nbsp;el&nbsp;de&nbsp;<em>El&nbsp;mago&nbsp;de&nbsp;Oz</em>.", "yellow"));
+        this.expectedResult.push(setUpUtils.getNewLineToken());
+        this.expectedResult.push(setUpUtils.getSelectableToken("fotos&nbsp;al&nbsp;paisaje.", "blue"));
+    },
+
+    "test should parse text with space special character to word tokens, new lines tokens and color tokens": function () {
+        var parsingResult = this.presenter.parseText(EXISTING_TEXT_FOR_PARSING);
+
+        assertEquals(this.expectedResult, parsingResult);
     }
 });
 
@@ -221,7 +247,7 @@ TestCase("[Text_Coloring] Model Validation flow", {
     },
 
     'test should parseColors and text if they are valid': function () {
-        this.stubs.parseText.returns([123, 123, 123, 1231, 321,321]);
+        this.stubs.parseText.returns([123, 123, 123, 1231, 321, 321]);
 
         this.stubs.validateColors.returns({
             isValid: true
@@ -246,8 +272,8 @@ TestCase("[Text_Coloring] Model Validation flow", {
     },
 
     'test should return model with validated values': function () {
-        var colorsValue = [{asdf:5}, "asdflkhdjfafa", 10];
-        var parsedText = [1, 2,3,4,5,6];
+        var colorsValue = [{asdf: 5}, "asdflkhdjfafa", 10];
+        var parsedText = [1, 2, 3, 4, 5, 6];
         var buttonsPosition = "left";
         var showSetEraserButtonMode = "False";
         var hideColorsButtons = "False";
@@ -296,12 +322,12 @@ TestCase("[Text_Coloring] parse Buttons position", {
     setUp: function () {
         this.presenter = new AddonText_Coloring_create();
     },
-    
+
     'test should return default value when value is empty or undefined': function () {
         assertEquals("top", this.presenter.parseButtonsPosition(""));
         assertEquals("top", this.presenter.parseButtonsPosition(undefined));
     },
-    
+
     'test should return position value as is': function () {
         assertEquals("top", this.presenter.parseButtonsPosition("top"));
         assertEquals("left", this.presenter.parseButtonsPosition("left"));
