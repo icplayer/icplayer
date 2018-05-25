@@ -1,3 +1,4 @@
+2018-05-25 Added a test to check for special character handling in text coloring  
 2018-05-24 Fixed conflicts between WCAG mode and NVDA
 2018-05-24 Added TTS support for Zoom Image
 2018-05-21 Added TTS support for Heading

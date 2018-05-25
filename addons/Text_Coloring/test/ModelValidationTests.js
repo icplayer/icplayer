@@ -13,6 +13,7 @@ var DEFAULTS = {
 var TEXT_FOR_PARSING = "This is example text \n";
 TEXT_FOR_PARSING += "with one colored word with red: \\color{red}{Text} \n";
 TEXT_FOR_PARSING += "and one colored word with blue: \\color{blue}{Text} \n";
+TEXT_FOR_PARSING += "and two colored words with red: \\color{red}{Text&nbsp;Text} \n";
 TEXT_FOR_PARSING += "and some final text with: \\color{red}{Text}.";
 
 
@@ -163,6 +164,20 @@ TestCase("[Text_Coloring] Validate Text", {
         this.expectedResult.push(getWordToken("blue:"));
         this.expectedResult.push(getSpaceToken());
         this.expectedResult.push(getSelectableToken("Text", "blue"));
+        this.expectedResult.push(getNewLineToken());
+        this.expectedResult.push(getWordToken("and"));
+        this.expectedResult.push(getSpaceToken());
+        this.expectedResult.push(getWordToken("two"));
+        this.expectedResult.push(getSpaceToken());
+        this.expectedResult.push(getWordToken("colored"));
+        this.expectedResult.push(getSpaceToken());
+        this.expectedResult.push(getWordToken("words"));
+        this.expectedResult.push(getSpaceToken());
+        this.expectedResult.push(getWordToken("with"));
+        this.expectedResult.push(getSpaceToken());
+        this.expectedResult.push(getWordToken("red:"));
+        this.expectedResult.push(getSpaceToken());
+        this.expectedResult.push(getSelectableToken("Text&nbsp;Text", "red"));
         this.expectedResult.push(getNewLineToken());
         this.expectedResult.push(getWordToken("and"));
         this.expectedResult.push(getSpaceToken());
