@@ -214,6 +214,7 @@ function AddonText_To_Speech_create() {
         }
         // Fix for running speak method after cancelling SpeechSynthesis queue
         presenter.intervalId = setInterval(function() {
+
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
             }
@@ -230,21 +231,22 @@ function AddonText_To_Speech_create() {
                 msg.rate = parseFloat(1); // 0 - 10
                 msg.pitch = parseFloat(1); // 0 - 2
                 msg.voice = textObject.lang;
+                var currentIntervalId = presenter.intervalId;
                 msg.onstart = function (event) {
                     if(presenter.intervalId) {
-                        clearInterval(presenter.intervalId);
-                        presenter.intervalId = undefined;
+                        clearInterval(currentIntervalId);
                     }
                 };
                 if(i+1 == textsObjects.length) {
                     msg.onend = function(event) {
-                        window.speechSynthesis.cancel();
+                        if(currentIntervalId == presenter.intervalId) {
+                            window.speechSynthesis.cancel();
+                        }
                     }
                 }
                 window.speechSynthesis.speak(msg);
             }
         }, 200);
-
     }
 
     function getAltTextOptions(expression) {
@@ -337,7 +339,6 @@ function AddonText_To_Speech_create() {
         }
 
         texts = presenter.parseAltTexts(texts);
-
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts);
             return;

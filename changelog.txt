@@ -1,3 +1,4 @@
+2018-05-28 Added TTS support for Image Identification
 2018-05-25 Added a test to check for special character handling in text coloring  
 2018-05-24 Fixed conflicts between WCAG mode and NVDA
 2018-05-24 Added TTS support for Zoom Image
