@@ -310,12 +310,6 @@ public class ModuleModelMockup implements IModuleModel {
 	}
 
 	@Override
-	public HashMap<String, Boolean> getResponsiveVisibility() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public HashMap<String, Boolean> getResponsiveVisibilityInEditor() {
 		// TODO Auto-generated method stub
 		return null;

@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module;
 
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
@@ -94,7 +95,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		String escapedId = StringUtils.escapeXML(this.getId());
 		moduleXML.setAttribute("id", escapedId);
 		XMLUtils.setBooleanAttribute(moduleXML, "isTabindexEnabled", this.isTabindexEnabled);
-
+		
 		if (this.haveStyles()) {
 			moduleXML.appendChild(this.stylesToXML());
 		}

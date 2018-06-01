@@ -14,10 +14,10 @@ import com.lorepo.icplayer.client.model.layout.PageLayout;
 public class SemiResponsivePositions {
 	private HashMap<String, ModuleDimensions> positions = new HashMap<String, ModuleDimensions>();
 	private HashMap<String, LayoutDefinition> layoutsDefinitions = new HashMap<String, LayoutDefinition>();
-	private HashMap<String, Boolean> isVisible = new HashMap<String, Boolean>();
 	private HashMap<String, Boolean> isLocked = new HashMap<String, Boolean>();
 	private HashMap<String, Boolean> isModuleVisibleInEditor = new HashMap<String, Boolean>();
 	
+	private boolean isVisible = true;
 	
 	private String defaultLayoutID = "default";
 	private String semiResponsiveID = "default";
@@ -25,7 +25,6 @@ public class SemiResponsivePositions {
 	public SemiResponsivePositions () {
 		this.positions.put(this.defaultLayoutID, new ModuleDimensions());
 		this.layoutsDefinitions.put(this.defaultLayoutID, new LayoutDefinition());
-		this.isVisible.put(this.semiResponsiveID, true);
 		this.isLocked.put(this.semiResponsiveID, false);
 		this.isModuleVisibleInEditor.put(this.semiResponsiveID, true);
 	}
@@ -96,7 +95,6 @@ public class SemiResponsivePositions {
 		
 		this.removeOldKeysFromHashMap(actualIDs, this.positions);
 		this.removeOldKeysFromHashMap(actualIDs, this.layoutsDefinitions);
-		this.removeOldKeysFromHashMap(actualIDs, this.isVisible);
 		this.removeOldKeysFromHashMap(actualIDs, this.isLocked);
 		this.removeOldKeysFromHashMap(actualIDs, this.isModuleVisibleInEditor);
 	}
@@ -143,7 +141,6 @@ public class SemiResponsivePositions {
 		
 		this.ensureDefaultValueInBooleanHashMap(semiResponsiveLayoutID, this.isLocked);
 		this.ensureDefaultValueInBooleanHashMap(semiResponsiveLayoutID, this.isModuleVisibleInEditor);
-		this.ensureDefaultValueInBooleanHashMap(semiResponsiveLayoutID, this.isVisible);
 	}
 
 	private void ensureDefaultValueInBooleanHashMap(String semiResponsiveLayoutID, HashMap<String, Boolean> hashmap) {
@@ -169,7 +166,7 @@ public class SemiResponsivePositions {
 	}
 
 	public boolean isVisible() {
-		return this.isVisible.get(this.semiResponsiveID);
+		return this.isVisible;
 	}
 
 	public boolean isLocked() {
@@ -177,7 +174,7 @@ public class SemiResponsivePositions {
 	}
 
 	public void setIsVisible(Boolean isVisible) {
-		this.isVisible.put(this.semiResponsiveID, isVisible);
+		this.isVisible = isVisible;
 	}
 
 	public void setIsLocked(Boolean isLocked) {
@@ -186,10 +183,6 @@ public class SemiResponsivePositions {
 
 	public void setIsVisibleInEditor(Boolean isVisibleInEditor) {
 		this.isModuleVisibleInEditor.put(this.semiResponsiveID, isVisibleInEditor);
-	}
-
-	public void setIsVisible(String layoutID, boolean isVisible) {
-		this.isVisible.put(layoutID, isVisible);
 	}
 
 	public void setIsLocked(String layoutID, boolean isLocked) {
@@ -207,19 +200,19 @@ public class SemiResponsivePositions {
 	public Element toXML() {
 		Document doc = XMLParser.createDocument();
 		Element layouts = doc.createElement("layouts");
-		
+		layouts.setAttribute("isVisible", new Boolean(this.isVisible).toString());
+
 		for(String layoutID : this.positions.keySet()) {
 			Element layout = doc.createElement("layout");
 			layout.setAttribute("isLocked", this.isLocked.get(layoutID).toString());
 			layout.setAttribute("isModuleVisibleInEditor", this.isModuleVisibleInEditor.get(layoutID).toString());
 			layout.setAttribute("id", layoutID);
-			layout.setAttribute("isVisible", this.isVisible.get(layoutID).toString());
 			layout.appendChild(this.layoutsDefinitions.get(layoutID).toXML());
 			layout.appendChild(this.getAbsolutePositionsXML(layoutID, doc));
 			
 			layouts.appendChild(layout);
 		}
-		
+
 		return layouts;
 	}
 
@@ -253,7 +246,6 @@ public class SemiResponsivePositions {
 		}
 		
 		this.copyValueInBoolenHashMap(lastSeenLayout, this.isLocked);
-		this.copyValueInBoolenHashMap(lastSeenLayout, this.isVisible);
 		this.copyValueInBoolenHashMap(lastSeenLayout, this.isModuleVisibleInEditor);
 	}
 	
@@ -272,10 +264,6 @@ public class SemiResponsivePositions {
 			
 			if (this.isLocked.containsKey(key)) {
 				this.translateBooleanHashMap(this.isLocked, key, translatedID);
-			}
-			
-			if (this.isVisible.containsKey(key)) {
-				this.translateBooleanHashMap(this.isVisible, key, translatedID);
 			}
 			
 			if (this.isModuleVisibleInEditor.containsKey(key)) {
@@ -304,10 +292,6 @@ public class SemiResponsivePositions {
 		ModuleDimensions positionCopy = ModuleDimensions.copy(this.positions.get(key));
 		this.positions.put(translatedID, positionCopy);
 		this.positions.remove(key);
-	}
-
-	public HashMap<String, Boolean> getResponsiveVisibility() {
-		return this.isVisible;
 	}
 
 	public HashMap<String, Boolean> getResponsiveVisibilityInEditor() {
