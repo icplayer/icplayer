@@ -158,7 +158,11 @@ public class WCAGUtils {
 			if (isClosestDropdown) {
 				result.add(TextToSpeechVoice.create(text.substring(0, dropdownIndex), lang));
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.DROPDOWN_INDEX) + " " + gapNumber++));
-				result.add(TextToSpeechVoice.create(elementContent, langTag));
+				if ( !elementContent.equals("-") && !elementContent.equals("---")) {
+					result.add(TextToSpeechVoice.create(elementContent, langTag));
+				} else {
+					result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.EMPTY_INDEX)));
+				}
 				result.add(getElementStatus(element, model));
 				
 				final int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, dropdownIndex) + DROP_DOWN_GAP_END.length();

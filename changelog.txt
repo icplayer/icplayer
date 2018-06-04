@@ -1,3 +1,4 @@
+2018-06-04 Fixed issues with TTS handling of the Dropdown gap in Text module
 2018-05-28 Fixed issues with hover style in reset button on mobile
 2018-05-28 Fixed issue with TTS in multiplegap after reset
 2018-05-28 Added TTS support for Image Identification
