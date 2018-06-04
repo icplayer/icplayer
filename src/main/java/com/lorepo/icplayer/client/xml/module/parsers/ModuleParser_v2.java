@@ -33,18 +33,21 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 	}
 	
 	private void setDefaultIsVisible(Element layouts){
-		if(layouts.hasAttribute("isVisible")) {
+		if(layouts.getAttribute("isVisible").length() > 0) {
 			Boolean isVisible = XMLUtils.getAttributeAsBoolean(layouts , "isVisible", true);
 			this.module.setIsVisible(isVisible);
 			return;
 		}
 		NodeList layoutChildren = layouts.getChildNodes();
 		for (int i = 0; i < layoutChildren.getLength(); i++){
-			Element child = (Element)layoutChildren.item(i);
-			if(child.getAttribute("id").equals("default")) {
-				Boolean isVisible = XMLUtils.getAttributeAsBoolean(child , "isVisible", true);
-				this.module.setIsVisible(isVisible);
-				return;
+			Node childNode = layoutChildren.item(i);
+			if (childNode instanceof Element) {
+				Element child = (Element) childNode;
+				if(child.getAttribute("id").equals("default")) {
+					Boolean isVisible = XMLUtils.getAttributeAsBoolean(child , "isVisible", true);
+					this.module.setIsVisible(isVisible);
+					return;
+				}
 			}
 		}		
 	}

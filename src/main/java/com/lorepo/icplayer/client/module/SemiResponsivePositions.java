@@ -8,6 +8,7 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.XMLParser;
+import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 
@@ -200,7 +201,7 @@ public class SemiResponsivePositions {
 	public Element toXML() {
 		Document doc = XMLParser.createDocument();
 		Element layouts = doc.createElement("layouts");
-		layouts.setAttribute("isVisible", new Boolean(this.isVisible).toString());
+		XMLUtils.setBooleanAttribute(layouts, "isVisible", this.isVisible);
 
 		for(String layoutID : this.positions.keySet()) {
 			Element layout = doc.createElement("layout");
