@@ -1121,6 +1121,7 @@ function Addonmultiplegap_create(){
         } else {
             presenter.hide();
         }
+        presenter.keyboardControllerObject.setElements(presenter.getElementsForKeyboardNavigation());
     };
     
     presenter.getState = function() {

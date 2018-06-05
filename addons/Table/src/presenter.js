@@ -27,6 +27,7 @@ function AddonTable_create() {
     presenter.gapsSize = [];
     presenter.isSetShowErrorsMode = false;
     presenter.keyboardControllerObject = null;
+    presenter.isWCAGOn = false;
 
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
@@ -643,7 +644,10 @@ function AddonTable_create() {
             newWidthCalculate: ModelValidationUtils.validateBoolean(model["newWidthCalculate"]),
             gapWidth: gapWidth,
             gapType: model["Gap Type"],
-            isTabindexEnabled: isTabindexEnabled
+            isTabindexEnabled: isTabindexEnabled,
+            columnsCount: validatedColumns.value,
+            rowsCount: validatedRows.value,
+            langTag: model["langAttribute"]
         };
     };
 
@@ -673,10 +677,24 @@ function AddonTable_create() {
         return upgradedModel;
     };
 
-    presenter.upgradeModel = function (model) {
-        var modelWithColumnsWidth = presenter.addColumnsWidth(model);
+    presenter.addLangTag = function AddonTable_addLangTag(model) {
+         var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
 
-        return presenter.addRowHeights(modelWithColumnsWidth);
+        if (!model['langAttribute']) {
+            upgradedModel['langAttribute'] =  '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = presenter.addColumnsWidth(model);
+        upgradedModel = presenter.addRowHeights(upgradedModel);
+        upgradedModel = presenter.addLangTag(upgradedModel);
+
+
+        return upgradedModel;
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -1655,8 +1673,9 @@ function AddonTable_create() {
         });
     };
 
-    function TableKeyboardController (elements, columnsCount) {
+    function TableKeyboardController (elements, columnsCount, rowsCount) {
         KeyboardController.call(this, elements, columnsCount);
+        this.rowsCount = rowsCount;
     }
 
     TableKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
@@ -1677,23 +1696,11 @@ function AddonTable_create() {
     };
 
     presenter.buildKeyboardController = function () {
-        presenter.keyboardControllerObject = new TableKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
-
-        var keys = {
-            ARROW_LEFT: 37,
-            ARROW_UP: 38,
-            ARROW_RIGHT: 39,
-            ARROW_DOWN: 40
-        };
-
-        presenter.keyboardControllerObject.mapping[keys.ARROW_UP] = function () {};
-        presenter.keyboardControllerObject.mapping[keys.ARROW_LEFT] = function () {};
-        presenter.keyboardControllerObject.mapping[keys.ARROW_RIGHT] = function () {};
-        presenter.keyboardControllerObject.mapping[keys.ARROW_DOWN] = function () {};
+        presenter.keyboardControllerObject = new TableKeyboardController(presenter.getElementsForKeyboardNavigation(), presenter.configuration.columnsCount, presenter.configuration.rowsCount);
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
-        return presenter.$view.find('.ic_gap, .ic_filled_gap');
+        return presenter.$view.find('td');
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown) {
@@ -1702,6 +1709,92 @@ function AddonTable_create() {
 
     TableKeyboardController.prototype.getTarget = function (element, willBeClicked){
         return $(element);
+    };
+
+    TableKeyboardController.prototype.enter = function (event){
+        KeyboardController.prototype.enter.call(this, event);
+
+        presenter.readCurrentNavigationElement();
+    };
+
+    presenter.readCurrentNavigationElement = function() {
+        var data = window.TTSUtils.getTextVoiceArrayFromElement($(presenter.keyboardControllerObject.keyboardNavigationCurrentElement), presenter.configuration.langTag);
+        presenter.speak(data);
+    };
+
+    // TAB or Right Arrow
+    TableKeyboardController.prototype.nextElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (this.keyboardNavigationCurrentElementIndex % this.columnsCount === this.columnsCount - 1) {
+            presenter.readCurrentNavigationElement();
+        } else {
+            this.switchElement(1);
+            presenter.readCurrentNavigationElement();
+        }
+    };
+
+    // SHIFT+TAB or Left Arrow
+    TableKeyboardController.prototype.previousElement = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (this.keyboardNavigationCurrentElementIndex % this.columnsCount === 0) {
+            presenter.readCurrentNavigationElement();
+        } else {
+            this.switchElement(-1);
+            presenter.readCurrentNavigationElement();
+        }
+    };
+
+    // UP Arrow
+    TableKeyboardController.prototype.previousRow = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (Math.floor(this.keyboardNavigationCurrentElementIndex / this.columnsCount) === 0) {
+            presenter.readCurrentNavigationElement();
+        } else {
+            this.switchElement(-this.columnsCount);
+            presenter.readCurrentNavigationElement();
+        }
+    };
+
+    // DOWN Arrow
+    TableKeyboardController.prototype.nextRow = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (Math.floor(this.keyboardNavigationCurrentElementIndex / this.columnsCount) === this.rowsCount - 1) {
+            presenter.readCurrentNavigationElement();
+        } else {
+            this.switchElement(this.columnsCount);
+            presenter.readCurrentNavigationElement();
+        }
+    };
+
+    presenter.getTextToSpeechOrNull = function AddonTable_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function AddonTable_setWCAGStatus(isOn) {
+        presenter.isWCAGOn = isOn;
+    };
+
+    presenter.speak = function AddonTable_speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
     };
 
     return presenter;

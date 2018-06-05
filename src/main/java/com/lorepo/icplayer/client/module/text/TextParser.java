@@ -951,7 +951,7 @@ public class TextParser {
 		
 	}
 	
-	private String parseAltText(String srcText) {
+	public String parseAltText(String srcText) {
 		srcText = this.escapeAltTextInTag(srcText);
 		final String pattern = 	"\\\\alt\\{";
 		String input = srcText;

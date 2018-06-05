@@ -5,5 +5,11 @@
         <property name="Full Screen image" displayName="Full Screen image" nameLabel="Zoom_Image_property_full_screen_image" type="image" />
         <property name="Page image" displayName="Page image" nameLabel="Zoom_Image_property_page_image" type="image" />
         <property name="Alternative text" nameLabel="Zoom_Image_property_alternative_text" type="string" />
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="Zoom_image_property_lang_attribute" type="string" />
+         <property name="speechTexts" displayName="Speech texts" nameLabel="Zoom_image_property_speech_texts" type="staticlist">
+            <property name="Closed" nameLabel="Zoom_image_property_closed" type="staticrow">
+                <property name="Closed" nameLabel="Zoom_image_property_closed" type="string"/>
+            </property>
+        </property>
     </model>
 </addon>

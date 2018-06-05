@@ -28,7 +28,7 @@ function AddonConnection_create() {
     var connections;
     var singleMode = false;
     var selectedItem = null;
-    var isNotActivity = false;
+    presenter.isNotActivity = false;
 
     presenter.lineStack = new LineStack(true);
     presenter.correctConnections = new LineStack(false);
@@ -266,7 +266,6 @@ function AddonConnection_create() {
         presenter.model = model;
         eventBus = playerController.getEventBus();
         addonID = model.ID;
-        presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
 
         presenter.initialize(presenter.view, presenter.model, false);
 
@@ -347,6 +346,7 @@ function AddonConnection_create() {
 
         setSpeechTexts(model['speechTexts']);
 
+        presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
@@ -399,12 +399,8 @@ function AddonConnection_create() {
             showAnswersColor = model['Show answers line color'];
         }
 
-        if (model['isNotActivity'] != undefined){
-            isNotActivity = (model['isNotActivity'].toLowerCase() === 'true');
-        }
-        else {
-            isNotActivity = false;
-        }
+        // isNotActivty may not exist
+        presenter.isNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity'] || 'False');
 
         if (isPreview) {
             presenter.initializeView(view, model);
@@ -503,7 +499,7 @@ function AddonConnection_create() {
 
     function clickLogic(element) {
         if (basicClickLogic(element)) {
-            redraw();
+            presenter.redraw();
         }
     }
 
@@ -702,7 +698,7 @@ function AddonConnection_create() {
                         } else {
                             ui.helper.remove();
                         }
-                        redraw();
+                        presenter.redraw();
                         if ($(presenter.view).find('#connection_line_tmp').length > 0) {
                             $(presenter.view).find('#connection_line_tmp').remove();
                         }
@@ -958,7 +954,7 @@ function AddonConnection_create() {
         for (var i = 0; i < presenter.correctConnections.length(); i++) {
             pushConnection(presenter.correctConnections.get(i), true)
         }
-        redraw();
+        presenter.redraw();
     };
 
     presenter.getElementSnapPoint = function AddonConnection_getElementSnapPoint(element) {
@@ -1013,7 +1009,7 @@ function AddonConnection_create() {
         readConnected(addLine);
     }
 
-    function redraw() {
+    presenter.redraw = function AddonConnection_redraw() {
         connections.width = connections.width;
 
         var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
@@ -1042,14 +1038,14 @@ function AddonConnection_create() {
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), connectionColor)
         }
-    }
+    };
 
-    function redrawShowAnswers () {
+    presenter.redrawShowAnswers = function AddonConnection_redrawShowAnswers () {
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), showAnswersColor)
         }
-    }
+    };
 
     function drawLine(line, color) {
         var from = presenter.getElementSnapPoint(line.from);
@@ -1073,7 +1069,7 @@ function AddonConnection_create() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        if (isNotActivity) return 0;
+        if (presenter.isNotActivity) return 0;
 
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
@@ -1105,7 +1101,7 @@ function AddonConnection_create() {
     presenter.setWorkMode = function () {
         presenter.isCheckActive = false;
         presenter.gatherCorrectConnections();
-        redraw();
+        presenter.redraw();
         $(presenter.view).find('.connectionItem').each(function () {
             $(this).removeClass('connectionItem-correct');
             $(this).removeClass('connectionItem-wrong');
@@ -1127,14 +1123,14 @@ function AddonConnection_create() {
             $(this).removeClass('connectionItem-wrong');
         });
 
-        redraw();
+        presenter.redraw();
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
         presenter.disabledConnections = [];
     };
 
     presenter.getErrorCount = function () {
-        if (isNotActivity) return 0;
+        if (presenter.isNotActivity) return 0;
 
         var errors = 0;
         for (var i = 0; i < presenter.lineStack.length(); i++) {
@@ -1147,13 +1143,13 @@ function AddonConnection_create() {
     };
 
     presenter.getMaxScore = function () {
-        if (isNotActivity) return 0;
+        if (presenter.isNotActivity) return 0;
 
         return presenter.correctConnections.length();
     };
 
     presenter.getScore = function () {
-        if (isNotActivity) return 0;
+        if (presenter.isNotActivity) return 0;
 
         var score = 0;
         for (var i = 0; i < presenter.lineStack.length(); i++) {
@@ -1198,7 +1194,7 @@ function AddonConnection_create() {
                 }
 
                 presenter.lineStack.setSendEvents(true);
-                redraw();
+                presenter.redraw();
             }
 
             hookExecuted = true;
@@ -1383,7 +1379,7 @@ function AddonConnection_create() {
     };
 
     presenter.showAnswers = function () {
-        if (isNotActivity) {
+        if (presenter.isNotActivity) {
             return;
         }
 
@@ -1395,7 +1391,7 @@ function AddonConnection_create() {
         }
 
         presenter.lineStack.clear();
-        redraw();
+        presenter.redraw();
 
         var elements = presenter.elements;
         for (var i = 0, elementsLength = elements.length; i < elementsLength; i++) {
@@ -1415,7 +1411,7 @@ function AddonConnection_create() {
         presenter.lineStackSA = {
             stack: presenter.lineStack ? presenter.lineStack.stack.concat([]) : []
         };
-        redrawShowAnswers();
+        presenter.redrawShowAnswers();
         presenter.lineStack.clear();
         isSelectionPossible = false;
 
@@ -1426,11 +1422,11 @@ function AddonConnection_create() {
     };
 
     presenter.hideAnswers = function () {
-        if (isNotActivity) {
+        if (presenter.isNotActivity) {
             return;
         }
-        presenter.keyboardControllerObject.selectEnabled(false);
-        redraw();
+        presenter.keyboardControllerObject.selectEnabled(true);
+        presenter.redraw();
         presenter.isShowAnswersActive = false;
         isSelectionPossible = true;
     };
@@ -1594,9 +1590,13 @@ function AddonConnection_create() {
         readActivatedElementConnections();
     };
 
-    ConnectionKeyboardController.prototype.enter = function () {
-        Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
-        readActivatedElementConnections();
+    ConnectionKeyboardController.prototype.enter = function (event) {
+        if (event.shiftKey || event.ctrlKey) {
+            Object.getPrototypeOf(ConnectionKeyboardController.prototype).escape.call(this);
+        } else {
+            Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
+            readActivatedElementConnections();
+        }
     };
 
     ConnectionKeyboardController.prototype.select = function () {

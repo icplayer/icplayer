@@ -9,8 +9,12 @@ import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
@@ -363,6 +367,10 @@ public class JavaScriptPlayerServices {
 			commands.parse = function(text) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseText(Ljava/lang/String;)(text);
 			};
+			
+			commands.parseAltTexts = function(text) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseAltTexts(Ljava/lang/String;)(text);
+			};
 
 			commands.parseGaps = function(text, options) {
 				if (typeof options == 'undefined') {
@@ -495,6 +503,17 @@ public class JavaScriptPlayerServices {
 		playerServices.isWCAGOn = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isWCAGOn()();
 		};
+		
+		playerServices.getKeyboardController = function() {
+			var keyboardController = function() {
+			};
+
+			keyboardController.moveActiveModule = function(reverseDirection) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveActiveModule(Z)(reverseDirection);
+			}
+
+			return keyboardController;
+		}
 
 		return playerServices;
 	}-*/;
@@ -626,6 +645,11 @@ public class JavaScriptPlayerServices {
 		return model;
 	}
 
+	private String parseAltTexts(String text) {
+		TextParser parser = new TextParser();
+		return parser.parseAltText(text);
+	}
+	
 	private JavaScriptObject getHeaderModule(String id){
 		IPresenter presenter = playerServices.getHeaderModule(id);
 		return getModulePresentationJSObject(presenter);
@@ -895,5 +919,12 @@ public class JavaScriptPlayerServices {
 	
 	public boolean isWCAGOn() {
 		return this.playerServices.isWCAGOn();
+	}
+	
+	// Move to the next/previous module in keyboard navigation
+	public void moveActiveModule(boolean reverseDirection){
+		NativeEvent event = Document.get().createKeyDownEvent(false, false, reverseDirection, false, 9);
+		// Send a Tab or Tab+Shift keydown event to the keyboard controller
+		DomEvent.fireNativeEvent(event,  RootPanel.get());
 	}
 }

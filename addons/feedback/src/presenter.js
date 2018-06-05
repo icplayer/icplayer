@@ -74,6 +74,11 @@ function Addonfeedback_create() {
         feedbackSpeakTimeout = setTimeout(function(){setSpeakInterval(data);},300);
     }
 
+    presenter.stopFeedbackTTS = function() {
+        clearTimeout(feedbackSpeakTimeout);
+        clearInterval(feedbackSpeakInterval);
+    };
+
     function getTextVoiceArrayFromText(text) {
         var el = document.createElement('div');
         el.innerHTML = text;
@@ -83,8 +88,12 @@ function Addonfeedback_create() {
 
     presenter.readCurrentMessage = function(readEmptyOnDefault) {
         if (presenter.getTextToSpeechOrNull(playerController) && playerController.isWCAGOn()) {
-            if (presenter.currentStateDefault  && readEmptyOnDefault) {
-                presenter.readDefaultMessage();
+            if (presenter.currentStateDefault) {
+                if(readEmptyOnDefault) {
+                    presenter.readDefaultMessage();
+                } else {
+                    presenter.stopFeedbackTTS();
+                }
             } else if (presenter.currentStateId) {
                 presenter.readMessageById(presenter.currentStateId);
             }
