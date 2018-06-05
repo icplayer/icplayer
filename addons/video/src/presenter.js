@@ -364,6 +364,9 @@ function Addonvideo_create() {
         if (presenter.controlBar !== null) {
             presenter.controlBar.destroy();
         }
+
+        presenter.stop();
+
         presenter.videoView.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.videoObject.removeEventListener('click', presenter.stopPropagationOnClickEvent);
         presenter.videoObject.removeEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
@@ -1038,7 +1041,6 @@ function Addonvideo_create() {
 
     presenter.getState = function() {
         var isPaused = presenter.videoObject.paused;
-        presenter.videoObject.pause();
         return JSON.stringify({
             files: "deprecated",        //Removed from state.
             videoURLS: presenter.addedVideoURLS,
