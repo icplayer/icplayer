@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.xml.module.parsers;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
@@ -33,7 +34,7 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 	}
 	
 	private void setDefaultIsVisible(Element layouts){
-		if(layouts.getAttribute("isVisible").length() > 0) {
+		if(layouts.getAttribute("isVisible") != null && layouts.getAttribute("isVisible").length() > 0) {
 			Boolean isVisible = XMLUtils.getAttributeAsBoolean(layouts , "isVisible", true);
 			this.module.setIsVisible(isVisible);
 			return;
