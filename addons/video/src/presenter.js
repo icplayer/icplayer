@@ -1111,11 +1111,11 @@ function Addonvideo_create() {
      * @param  {HTMLVideoElement} video
      * @param  {String} posterSource
      */
-    presenter.addAttributePoster = presenter.metadataLoadedDecorator(function(video, posterSource) {
+    presenter.addAttributePoster = presenter.metadataLoadedDecorator(function(video, poster) {
         presenter.$posterWrapper.find("img").remove();
         var $video = $(video);
 
-        if (posterSource) {
+        if (poster) {
             if (presenter.configuration.showPlayButton) {
                 presenter.$posterWrapper.one('click', function onPosterWrapperClick(e) {
                     e.stopPropagation();
@@ -1124,7 +1124,7 @@ function Addonvideo_create() {
                 });
             }
 
-            presenter.$posterWrapper.prepend(posterSource);
+            presenter.$posterWrapper.prepend(poster);
 
             presenter.calculatePosterSize(video, presenter.configuration.addonSize);
 
@@ -1172,6 +1172,7 @@ function Addonvideo_create() {
         var files = presenter.configuration.files;
 
         this.videoContainer.find('source').remove();
+        this.addAttributePoster($video[0], files[presenter.currentMovie].Poster);
 
         presenter.setAltText();
         if (presenter.isPreview) {
@@ -1242,8 +1243,6 @@ function Addonvideo_create() {
                 });
             }
         }
-
-        this.addAttributePoster($video[0], files[presenter.currentMovie].Poster);
     };
 
     /**
