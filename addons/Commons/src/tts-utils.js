@@ -34,7 +34,13 @@
             return TextVoiceArray;
         },
 
-        getTextVoiceObject: function (text, lang) {return {text: text, lang: lang};}
+        getTextVoiceObject: function (text, lang) {return {text: text, lang: lang};},
+
+        parsePreviewAltText: function (text) {
+            text = text.replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with a
+            text = text.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1'); // replace \alt{a|b} with a
+            return text;
+        }
 
     }
 })(window);

@@ -4,16 +4,30 @@ function AddonText_Selection_create() {
 
     presenter.eventBus = null;
     presenter.playerController = null;
+    presenter.textParser = null;
     presenter.selected_elements = null;
     presenter.isWorkMode = true;
     presenter.markedMathJaxContent = [];
     presenter._keyboardController = null;
+    var isWCAGOn = false;
+
+    var SELECTED_SECTION_START = "&\n&SELECTED_SECTION_START&\n&";
+    var SELECTED_SECTION_END = "&\n&SELECTED_SECTION_END&\n&";
+    var CORRECT_SECTION_START = "&\n&CORRECT_SECTION_START&\n&";
+    var CORRECT_SECTION_END = "&\n&CORRECT_SECTION_END&\n&";
+    var WRONG_SECTION_START = "&\n&WRONG_SECTION_START&\n&";
+    var WRONG_SECTION_END = "&\n&WRONG_SECTION_END&\n&";
+    var SELECTED ="&\n&SELECTED&\n&";
+    var WRONG = "&\n&WRONG&\n&";
+    var CORRECT = "&\n&CORRECT&\n&";
+    var SPLIT = "&\n&SPLIT&\n&";
 
     var MATH_JAX_MARKER = 'MATHJAX';
 
     presenter.setPlayerController = function (controller) {
         this.playerController = controller;
         presenter.eventBus = controller.getEventBus();
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
 
     function getEventData(it, val, sc) {
@@ -377,6 +391,7 @@ function AddonText_Selection_create() {
 
     presenter.upgradeModel = function(model) {
         var upgradedModel = upgradeModelEnableScrollProperty(model);
+        upgradedModel = presenter.upgradeModelAddTTS(upgradedModel);
         return upgradedModel;
     };
 
@@ -391,9 +406,78 @@ function AddonText_Selection_create() {
         return upgradedModel;
     }
 
+
+    presenter.upgradeModelAddTTS = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = 'pl';
+        }
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {
+                selectedSectionStart: {selectedSectionStart: 'start of selected section'},
+                selectedSectionEnd: {selectedSectionEnd: 'end of selected section'},
+                correctSectionStart: {correctSectionStart: 'start of correct section'},
+                correctSectionEnd: {correctSectionEnd: 'end of correct section'},
+                wrongSectionStart: {wrongSectionStart: 'start of wrong section'},
+                wrongSectionEnd: {wrongSectionEnd: 'end of wrong section'},
+                selected: {selected: 'selected'},
+                deselected: {deselected: 'deselected'},
+                wrong: {wrong: 'wrong'},
+                correct: {correct: 'correct'}
+            };
+        }
+
+        return upgradedModel;
+    };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+                selectedSectionStart: 'start of selected section',
+                selectedSectionEnd: 'end of selected section',
+                correctSectionStart: 'start of correct section',
+                correctSectionEnd: 'end of correct section',
+                wrongSectionStart: 'start of wrong section',
+                wrongSectionEnd: 'end of wrong section',
+                selected: 'selected',
+                deselected: 'deselected',
+                wrong: 'wrong',
+                correct: 'correct'
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            selectedSectionStart:    getSpeechTextProperty(speechTexts['selectedSectionStart']['selectedSectionStart'], presenter.speechTexts.selectedSectionStart),
+            selectedSectionEnd: getSpeechTextProperty(speechTexts['selectedSectionEnd']['selectedSectionEnd'], presenter.speechTexts.selectedSectionEnd),
+            correctSectionStart:  getSpeechTextProperty(speechTexts['correctSectionStart']['correctSectionStart'], presenter.speechTexts.correctSectionStart),
+            correctSectionEnd:     getSpeechTextProperty(speechTexts['correctSectionEnd']['correctSectionEnd'], presenter.speechTexts.correctSectionEnd),
+            wrongSectionStart:   getSpeechTextProperty(speechTexts['wrongSectionStart']['wrongSectionStart'], presenter.speechTexts.wrongSectionStart),
+            wrongSectionEnd:      getSpeechTextProperty(speechTexts['wrongSectionEnd']['wrongSectionEnd'], presenter.speechTexts.wrongSectionEnd),
+            correct:     getSpeechTextProperty(speechTexts['correct']['correct'], presenter.speechTexts.correct),
+            wrong:   getSpeechTextProperty(speechTexts['wrong']['wrong'], presenter.speechTexts.wrong),
+            selected:      getSpeechTextProperty(speechTexts['selected']['selected'], presenter.speechTexts.selected),
+            deselected:      getSpeechTextProperty(speechTexts['deselected']['deselected'], presenter.speechTexts.deselected)
+        };
+    }
+
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
 
+        model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -414,7 +498,8 @@ function AddonText_Selection_create() {
         M02: 'Text cannot be w/o \\correct{} or \\wrong{}',
         M03: 'You cannot use \\wrong{} in "All selectable" mode',
         M04: 'Empty word in marker',
-        M05: 'In single selection you have to mark only one phrase as correct and at least one mark as wrong'
+        M05: 'In single selection you have to mark only one phrase as correct and at least one mark as wrong',
+        M06: '\\alt{} cannot contain \\correct{} or \\wrong{}'
     };
 
     presenter.MODE = {
@@ -446,24 +531,37 @@ function AddonText_Selection_create() {
     presenter.validateModel = function (model) {
         var parsedText;
 
+        setSpeechTexts(model['speechTexts']);
+
         if (ModelValidationUtils.isStringEmpty(model.Text)) {
             return getErrorObject('M01');
         }
+
+        if (presenter.vaildateTagsInAltText(model.Text)){
+            return getErrorObject('M06');
+        }
+        
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
         var mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode);
         var selection_type = ModelValidationUtils.validateOption(presenter.SELECTION_TYPE, model['Selection type']);
 
         var wordSelection = ModelValidationUtils.validateBoolean(model['Enable letters selections']);
 
+        var preparedText = model.Text;
+        if(presenter.textParser) {
+            preparedText = presenter.textParser.parseAltTexts(model.Text);
+        }
         if (wordSelection) {
-            parsedText = presenter.parseCharacters(model.Text, mode, selection_type);
+            parsedText = presenter.parseCharacters(preparedText, mode, selection_type);
         } else {
-            parsedText = presenter.parseWords(model.Text, mode, selection_type);
+            parsedText = presenter.parseWords(preparedText, mode, selection_type);
         }
 
         if (!parsedText.isValid) {
             return getErrorObject(parsedText.errorCode);
         }
+
+        parsedText.renderedPreview = window.TTSUtils.parsePreviewAltText(parsedText.renderedPreview);
 
         return {
             isValid: true,
@@ -478,7 +576,8 @@ function AddonText_Selection_create() {
             addonID: model['ID'],
             isActivity: !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
             isTabindexEnabled: isTabindexEnabled,
-            enableScroll: ModelValidationUtils.validateBoolean(model['enableScroll'])
+            enableScroll: ModelValidationUtils.validateBoolean(model['enableScroll']),
+            langTag: model['langAttribute']
         };
     };
 
@@ -1191,12 +1290,24 @@ function AddonText_Selection_create() {
     TextSelectionKeyboardController.prototype.select = function (event) {
         presenter.startSelection(this.getTarget(this.keyboardNavigationCurrentElement, true));
         presenter.endSelection(this.getTarget(this.keyboardNavigationCurrentElement, true));
+        presenter.configuration.isExerciseStarted = true;
+        presenter.readSelection(this.getTarget(this.keyboardNavigationCurrentElement, true).hasClass('selected'));
     };
 
     TextSelectionKeyboardController.prototype.switchElement = function (move) {
         var new_position_index = this.keyboardNavigationCurrentElementIndex + move;
         if (new_position_index < this.keyboardNavigationElementsLen && new_position_index >= 0) {
             KeyboardController.prototype.switchElement.call(this, move);
+        }
+        presenter.readActiveElement();
+    };
+
+    TextSelectionKeyboardController.prototype.enter = function () {
+        if (event.shiftKey || event.ctrlKey) {
+            Object.getPrototypeOf(TextSelectionKeyboardController.prototype).escape.call(this);
+        } else {
+            Object.getPrototypeOf(TextSelectionKeyboardController.prototype).enter.call(this);
+            presenter.readContent();
         }
     };
 
@@ -1218,6 +1329,205 @@ function AddonText_Selection_create() {
 
         presenter._keyboardController.handle(keycode, isShiftKeyDown);
     };
+
+    presenter.readActiveElement = function() {
+        var $element = presenter.$view.find('.keyboard_navigation_active_element');
+
+        if ($element.length === 0) return;
+
+        var textVoices = [];
+
+        var contentText = '';
+        var langTag = '';
+        var $ariaLabel = $element.closest('span[aria-label]').has('span[aria-hidden]');
+        if ($ariaLabel.length > 0) {
+            contentText = $ariaLabel.attr('aria-label');
+            langTag = $ariaLabel.attr('lang');
+            if (langTag.length === 0) {
+               langTag =  presenter.configuration.langTag;
+            }
+        } else {
+            contentText = presenter.getTextFromElementWithAltTexts($element);
+            langTag = presenter.configuration.langTag;
+        }
+        textVoices.push(window.TTSUtils.getTextVoiceObject(contentText, langTag));
+        if ($element.hasClass('correct') || $element.hasClass('correct-answer')) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correct));
+        } else if ($element.hasClass('wrong')) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrong));
+        } else if ($element.hasClass('selected')) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
+        }
+
+        speak(textVoices);
+
+    };
+
+    presenter.readSelection = function(selected) {
+        var textVoices = [];
+        if (selected) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
+        } else {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.deselected));
+        }
+        speak(textVoices);
+    };
+
+    presenter.readContent = function() {
+        var textVoices = [];
+        if(presenter.configuration.mode == "ALL_SELECTABLE") {
+            textVoices = getPhrasesTextVoices(presenter.$view);
+        } else {
+            textVoices = getSelectableTextVoices(presenter.$view);
+        }
+        speak(textVoices);
+
+    };
+
+    function getSelectableTextVoices ($element) {
+        var $clone = $element.clone();
+        $clone.find('.selected:not(.wrong):not(.correct)').each(function(){
+            var $this = $(this);
+            $this.html(SPLIT + $this.html() + SPLIT + SELECTED + SPLIT);
+        });
+        $clone.find('.correct-answer').each(function(){
+            var $this = $(this);
+            $this.html(SPLIT + $this.html() + SPLIT + CORRECT + SPLIT);
+        });
+        $clone.find('.correct').each(function(){
+            var $this = $(this);
+            $this.html(SPLIT + $this.html() + SPLIT + CORRECT + SPLIT);
+        });
+        $clone.find('.wrong').each(function(){
+            var $this = $(this);
+            $this.html(SPLIT + $this.html() + SPLIT + WRONG + SPLIT);
+        });
+
+        var textArray = presenter.getTextFromElementWithAltTexts($clone).split(SPLIT);
+
+        var textVoices = [];
+
+        for(var i = 0; i < textArray.length; i++) {
+            if(textArray[i].trim().length == 0) continue;
+            if (0 === textArray[i].localeCompare(SELECTED)) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
+            } else if (0 === textArray[i].localeCompare(CORRECT)) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correct));
+            } else if (0 === textArray[i].localeCompare(WRONG)) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrong));
+            } else {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(textArray[i],presenter.configuration.langTag));
+            }
+        }
+
+        return textVoices;
+    }
+
+    function getPhrasesTextVoices ($element) {
+        var $clone = $element.clone();
+        $clone.find('.selected:not(.wrong):not(.correct)').each(function(){
+          var $this = $(this);
+          $this.html(SELECTED_SECTION_START + $this.html() + SELECTED_SECTION_END);
+        });
+        $clone.find('.correct-answer').each(function(){
+          var $this = $(this);
+          $this.html(CORRECT_SECTION_START + $this.html() + CORRECT_SECTION_END);
+        });
+        $clone.find('.correct').each(function(){
+          var $this = $(this);
+          $this.html(CORRECT_SECTION_START + $this.html() + CORRECT_SECTION_END);
+        });
+        $clone.find('.wrong').each(function(){
+          var $this = $(this);
+          $this.html(WRONG_SECTION_START + $this.html() + WRONG_SECTION_END);
+        });
+        
+        var contentText = presenter.getTextFromElementWithAltTexts($clone);
+
+        contentText = contentText.replace(new RegExp(SELECTED_SECTION_END+'([\\s*)'+SELECTED_SECTION_START,"g"),'$1');
+        contentText = contentText.replace(new RegExp(CORRECT_SECTION_END+'(\\s*)'+CORRECT_SECTION_START,"g"),'$1');
+        contentText = contentText.replace(new RegExp(WRONG_SECTION_END+'(\\s*)'+WRONG_SECTION_START,"g"),'$1');
+
+        contentText = replaceAll(contentText, SELECTED_SECTION_START, SPLIT + SELECTED_SECTION_START + SPLIT);
+        contentText = replaceAll(contentText, SELECTED_SECTION_END, SPLIT + SELECTED_SECTION_END + SPLIT);
+        contentText = replaceAll(contentText, CORRECT_SECTION_START, SPLIT + CORRECT_SECTION_START + SPLIT);
+        contentText = replaceAll(contentText, CORRECT_SECTION_END, SPLIT + CORRECT_SECTION_END + SPLIT);
+        contentText = replaceAll(contentText, WRONG_SECTION_START, SPLIT + WRONG_SECTION_START + SPLIT);
+        contentText = replaceAll(contentText, WRONG_SECTION_END, SPLIT + WRONG_SECTION_END + SPLIT);
+
+        var textArray = contentText.split(SPLIT);
+
+        var textVoices = [];
+
+        for(var i = 0; i < textArray.length; i++) {
+            if(textArray[i].trim().length == 0) continue;
+            if (0 === textArray[i].localeCompare(SELECTED_SECTION_START)) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selectedSectionStart));
+            } else if (0 === textArray[i].localeCompare(SELECTED_SECTION_END)) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selectedSectionEnd));
+            } else if (0 === textArray[i].localeCompare(CORRECT_SECTION_START)) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correctSectionStart));
+            } else if (0 === textArray[i].localeCompare(CORRECT_SECTION_END)) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correctSectionEnd));
+            } else if (0 === textArray[i].localeCompare(WRONG_SECTION_START)) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrongSectionStart));
+            } else if (0 === textArray[i].localeCompare(WRONG_SECTION_END)) {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrongSectionEnd));
+            } else {
+                textVoices.push(window.TTSUtils.getTextVoiceObject(textArray[i],presenter.configuration.langTag));
+            }
+        }
+
+        return textVoices;
+
+    }
+
+    presenter.getTextFromElementWithAltTexts = function($element) {
+        /*
+        * This method assumes, that the only things requiring parsing are alt text elements!
+        * Image alt attributes are only partially handled
+        * */
+        var text = '';
+        var textVoices = window.TTSUtils.getTextVoiceArrayFromElement($element,presenter.configuration.langTag);
+        for (var i = 0; i < textVoices.length; i++) {
+            text += textVoices[i].text;
+        }
+        return text;
+    };
+
+    function replaceAll(source, search, replace) {
+        return source.replace(new RegExp(search, 'g'), replace);
+    }
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
+
+    /*
+    * Return true, if it detected an \wrong or \correct tag within alt text, false otherwise
+    * */
+    presenter.vaildateTagsInAltText = function(text) {
+        var correctMatch = text.match(/\\alt{[^}]*?\\correct.*?}/g) != null;
+        var wrongMatch = text.match(/\\alt{[^}]*?\\wrong.*?}/g) != null;
+        return correctMatch || wrongMatch;
+    };
+
 
     return presenter;
 }
