@@ -121,16 +121,20 @@ function Addonvideo_create() {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
-        for (var i = 0; i < model.Files.length; i++) {
-            if (!upgradedModel.Files[i].Poster) {
+        for (let i = 0; i < model.Files.length; i++) {
+            let posterSource = upgradedModel.Files[i].Poster;
+            if (posterSource) {
+                let image = new Image();
+                image.src = posterSource;
+                upgradedModel.Files[i].Poster = image;
+            }
+            else {
                 upgradedModel.Files[i].Poster = "";
             }
         }
 
         return upgradedModel;
     };
-
-
 
     presenter.callMetadataLoadedQueue = function () {
         for (var i = 0; i < presenter.metadataQueue.length; i++) {
@@ -1120,9 +1124,7 @@ function Addonvideo_create() {
                 });
             }
 
-            var $poster = $("<img></img>");
-            $poster.attr('src', posterSource);
-            presenter.$posterWrapper.prepend($poster);
+            presenter.$posterWrapper.prepend(posterSource);
 
             presenter.calculatePosterSize(video, presenter.configuration.addonSize);
 
