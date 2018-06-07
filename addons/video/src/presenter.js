@@ -121,14 +121,13 @@ function Addonvideo_create() {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
-        for (let i = 0; i < model.Files.length; i++) {
-            let posterSource = upgradedModel.Files[i].Poster;
+        for (var i = 0; i < model.Files.length; i++) {
+            var posterSource = upgradedModel.Files[i].Poster;
             if (posterSource) {
-                let image = new Image();
+                var image = new Image();
                 image.src = posterSource;
                 upgradedModel.Files[i].Poster = image;
-            }
-            else {
+            } else {
                 upgradedModel.Files[i].Poster = "";
             }
         }
