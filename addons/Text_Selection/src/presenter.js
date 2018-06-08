@@ -1433,7 +1433,7 @@ function AddonText_Selection_create() {
                 textVoices.push(window.TTSUtils.getTextVoiceObject(textArray[i], presenter.configuration.langTag));
             }
         }
-        
+
         return textVoices;
     };
 
