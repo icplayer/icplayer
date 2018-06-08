@@ -472,7 +472,7 @@ function AddonText_Selection_create() {
             selected:      getSpeechTextProperty(speechTexts['selected']['selected'], presenter.speechTexts.selected),
             deselected:      getSpeechTextProperty(speechTexts['deselected']['deselected'], presenter.speechTexts.deselected)
         };
-    }
+    };
 
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
@@ -1306,7 +1306,7 @@ function AddonText_Selection_create() {
         if (new_position_index < this.keyboardNavigationElementsLen && new_position_index >= 0) {
             KeyboardController.prototype.switchElement.call(this, move);
         }
-        presenter.readActiveElement();
+        presenter.readActiveElement(this.keyboardNavigationElements[this.keyboardNavigationCurrentElementIndex]);
     };
 
     TextSelectionKeyboardController.prototype.enter = function (event) {
@@ -1337,8 +1337,10 @@ function AddonText_Selection_create() {
         presenter._keyboardController.handle(keycode, isShiftKeyDown);
     };
 
-    presenter.readActiveElement = function() {
-        var $element = presenter.$view.find('.keyboard_navigation_active_element');
+    presenter.readActiveElement = function($element) {
+        if (!$element) {
+            $element = presenter.$view.find('.keyboard_navigation_active_element');
+        }
 
         if ($element.length === 0) return;
 
@@ -1553,11 +1555,11 @@ function AddonText_Selection_create() {
     * Return false if detected an alt text where visible text section contains more than one word, true otherwise
     * */
     presenter.validateSingleWordAltText = function(text) {
-        var re = /\\alt{([^{}|]*?)\|[^{}|]*?}+/g;
+        var re = /\\alt{([^{}|]*?)\|[^{}|]*?}+/g; //Find all alt text elements
         do {
-            var match = re.exec(text);
+            var match = re.exec(text); //get the next match
             if(match) {
-                if (/[\s,.]/.test(match[1].trim()) )
+                if (/[\s,.]/.test(match[1].trim()) ) // remove spaces at the beggining and end of visible text, the see if there are any whitespaces
                     return false;
             }
         } while (match);
