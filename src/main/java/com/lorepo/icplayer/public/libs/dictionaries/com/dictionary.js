@@ -1239,6 +1239,8 @@ var ice_dictionary_en = {
 	"Text_Selection_property_enable_letters_selections": "Enable letters selections",
     "Text_Selection_property_is_not_activity": "Is Not Activity",
 	"Text_Selection_property_enable_scroll": "Enable scroll on mobile devices",
+	"Text_Selection_property_speech_texts": "Speech texts",
+    "Text_Selection_property_lang_attribute": "Lang attribute",
 	"Text_Selection_selected_section_start": "Start of selected section",
 	"Text_Selection_selected_section_end": "End of selected section",
 	"Text_Selection_correct_section_start": "Start of correct section",

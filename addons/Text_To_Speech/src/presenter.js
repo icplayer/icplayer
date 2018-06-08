@@ -235,6 +235,7 @@ function AddonText_To_Speech_create() {
                 msg.onstart = function (event) {
                     clearInterval(currentIntervalId);
                 };
+
                 window.speechSynthesis.speak(msg);
             }
         }, 250);

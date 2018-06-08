@@ -442,7 +442,7 @@ function AddonText_Selection_create() {
         return value;
     }
 
-    function setSpeechTexts (speechTexts) {
+    presenter.setSpeechTexts = function(speechTexts) {
         presenter.speechTexts = {
                 selectedSectionStart: 'start of selected section',
                 selectedSectionEnd: 'end of selected section',
@@ -532,7 +532,7 @@ function AddonText_Selection_create() {
     presenter.validateModel = function (model) {
         var parsedText;
 
-        setSpeechTexts(model['speechTexts']);
+        presenter.setSpeechTexts(model['speechTexts']);
 
         if (ModelValidationUtils.isStringEmpty(model.Text)) {
             return getErrorObject('M01');
@@ -548,12 +548,12 @@ function AddonText_Selection_create() {
 
         var wordSelection = ModelValidationUtils.validateBoolean(model['Enable letters selections']);
 
-        if(mode=="ALL_SELECTABLE" && !presenter.validateSingleWordAltText(model.Text)) {
+        if(mode == "ALL_SELECTABLE" && !presenter.validateSingleWordAltText(model.Text)) {
             return getErrorObject('M07');
         }
 
         var preparedText = model.Text;
-        if(presenter.textParser) {
+        if (presenter.textParser) {
             preparedText = presenter.textParser.parseAltTexts(model.Text);
         }
         if (wordSelection) {
@@ -1292,11 +1292,13 @@ function AddonText_Selection_create() {
 
     TextSelectionKeyboardController.prototype = Object.create(KeyboardController.prototype);
 
-    TextSelectionKeyboardController.prototype.select = function (event) {
-        presenter.startSelection(this.getTarget(this.keyboardNavigationCurrentElement, true));
-        presenter.endSelection(this.getTarget(this.keyboardNavigationCurrentElement, true));
-        presenter.configuration.isExerciseStarted = true;
-        presenter.readSelection(this.getTarget(this.keyboardNavigationCurrentElement, true).hasClass('selected'));
+    TextSelectionKeyboardController.prototype.select = function () {
+        if( presenter.isWorkMode && !presenter.isShowAnswers ) {
+            presenter.startSelection(this.getTarget(this.keyboardNavigationCurrentElement, true));
+            presenter.endSelection(this.getTarget(this.keyboardNavigationCurrentElement, true));
+            presenter.configuration.isExerciseStarted = true;
+            presenter.readSelection(this.getTarget(this.keyboardNavigationCurrentElement, true).hasClass('selected'));
+        }
     };
 
     TextSelectionKeyboardController.prototype.switchElement = function (move) {
@@ -1340,21 +1342,29 @@ function AddonText_Selection_create() {
 
         if ($element.length === 0) return;
 
+        var textVoices = presenter.getElementTextVoice($element);
+
+        speak(textVoices);
+
+    };
+
+    presenter.getElementTextVoice = function($element) {
         var textVoices = [];
 
         var contentText = '';
         var langTag = '';
-        var $ariaLabel = $element.closest('span[aria-label]').has('span[aria-hidden]');
+        var $ariaLabel = $element.closest('.addon_Text_Selection span[aria-label]:has(span[aria-hidden="true"])');
         if ($ariaLabel.length > 0) {
             contentText = $ariaLabel.attr('aria-label');
             langTag = $ariaLabel.attr('lang');
-            if (langTag.length === 0) {
+            if (!langTag) {
                langTag =  presenter.configuration.langTag;
             }
         } else {
             contentText = presenter.getTextFromElementWithAltTexts($element);
             langTag = presenter.configuration.langTag;
         }
+
         textVoices.push(window.TTSUtils.getTextVoiceObject(contentText, langTag));
         if ($element.hasClass('correct') || $element.hasClass('correct-answer')) {
             textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.correct));
@@ -1364,8 +1374,7 @@ function AddonText_Selection_create() {
             textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selected));
         }
 
-        speak(textVoices);
-
+        return textVoices;
     };
 
     presenter.readSelection = function(selected) {
@@ -1381,15 +1390,15 @@ function AddonText_Selection_create() {
     presenter.readContent = function() {
         var textVoices = [];
         if(presenter.configuration.mode == "ALL_SELECTABLE") {
-            textVoices = getPhrasesTextVoices(presenter.$view);
+            textVoices = presenter.getPhrasesTextVoices(presenter.$view);
         } else {
-            textVoices = getSelectableTextVoices(presenter.$view);
+            textVoices = presenter.getSelectableTextVoices(presenter.$view);
         }
         speak(textVoices);
 
     };
 
-    function getSelectableTextVoices ($element) {
+    presenter.getSelectableTextVoices = function($element) {
         var $clone = $element.clone();
         $clone.find('.selected:not(.wrong):not(.correct)').each(function(){
             var $this = $(this);
@@ -1421,12 +1430,12 @@ function AddonText_Selection_create() {
             } else if (0 === textArray[i].localeCompare(WRONG)) {
                 textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrong));
             } else {
-                textVoices.push(window.TTSUtils.getTextVoiceObject(textArray[i],presenter.configuration.langTag));
+                textVoices.push(window.TTSUtils.getTextVoiceObject(textArray[i], presenter.configuration.langTag));
             }
         }
-
+        
         return textVoices;
-    }
+    };
 
     function setSectionWrappingText($el, start_text, end_text) {
         var $parent = $el.closest('.addon_Text_Selection  span[aria-label]:has(span[aria-hidden="true"])');
@@ -1437,7 +1446,7 @@ function AddonText_Selection_create() {
         $el.after($('<span>' + end_text + '</span>'));
     }
 
-    function getPhrasesTextVoices ($element) {
+    presenter.getPhrasesTextVoices = function($element) {
 
         var $clone = $element.clone();
         $clone.find('.selected:not(.wrong):not(.correct)').each(function(){
@@ -1455,9 +1464,9 @@ function AddonText_Selection_create() {
 
         var contentText = presenter.getTextFromElementWithAltTexts($clone);
 
-        contentText = replaceAll(contentText, SELECTED_SECTION_END+'([^\\w\\d]*)'+SELECTED_SECTION_START, '$1');
-        contentText = replaceAll(contentText, CORRECT_SECTION_END+'([^\\w\\d]*)'+CORRECT_SECTION_START, '$1');
-        contentText = replaceAll(contentText, WRONG_SECTION_END+'([^\\w\\d]*)'+WRONG_SECTION_START, '$1');
+        contentText = replaceAll(contentText, SELECTED_SECTION_END + '([^\\w\\d]*)' + SELECTED_SECTION_START, '$1');
+        contentText = replaceAll(contentText, CORRECT_SECTION_END + '([^\\w\\d]*)' + CORRECT_SECTION_START, '$1');
+        contentText = replaceAll(contentText, WRONG_SECTION_END + '([^\\w\\d]*)' + WRONG_SECTION_START, '$1');
 
         contentText = replaceAll(contentText, SELECTED_SECTION_START, SPLIT + SELECTED_SECTION_START + SPLIT);
         contentText = replaceAll(contentText, SELECTED_SECTION_END, SPLIT + SELECTED_SECTION_END + SPLIT);
@@ -1492,7 +1501,7 @@ function AddonText_Selection_create() {
 
         return textVoices;
 
-    }
+    };
 
     presenter.getTextFromElementWithAltTexts = function($element) {
         /*
@@ -1532,7 +1541,7 @@ function AddonText_Selection_create() {
     }
 
     /*
-    * Return false, if it detected an \wrong or \correct tag within alt text, true otherwise
+    * Return false if detected a \wrong or \correct tag within alt text, true otherwise
     * */
     presenter.vaildateTagsInAltText = function(text) {
         var correctMatch = text.match(/\\alt{[^}]*?\\correct.*?}/g) != null;
@@ -1540,6 +1549,9 @@ function AddonText_Selection_create() {
         return !(correctMatch || wrongMatch);
     };
 
+    /*
+    * Return false if detected an alt text where visible text section contains more than one word, true otherwise
+    * */
     presenter.validateSingleWordAltText = function(text) {
         var re = /\\alt{([^{}|]*?)\|[^{}|]*?}+/g;
         do {
