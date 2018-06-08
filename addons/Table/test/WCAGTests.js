@@ -2,19 +2,20 @@ TestCase("[Table] WCAG - buildKeyboardController", {
 
     setUp: function () {
         this.presenter = new AddonTable_create();
-        this.presenter.getColumnsCount = sinon.stub().returns(1);
+        this.presenter.configuration = {
+            columnsCount: 1
+        };
 
+        this.presenter.getElementsForKeyboardNavigation = sinon.stub();
+        this.elements = [sinon.spy(), sinon.spy(), sinon.spy()];
+        this.presenter.getElementsForKeyboardNavigation.returns(this.elements);
     },
 
     'test if build keyboard controller will create keyboard controller' : function () {
-        this.presenter.getElementsForKeyboardNavigation = sinon.stub();
-        var elements = [sinon.spy(), sinon.spy(), sinon.spy()];
-        this.presenter.getElementsForKeyboardNavigation.returns(elements);
-
         this.presenter.buildKeyboardController();
 
         assertTrue(this.presenter.keyboardControllerObject !== null);
-        assertEquals(this.presenter.keyboardControllerObject.keyboardNavigationElements, elements);
+        assertEquals(this.presenter.keyboardControllerObject.keyboardNavigationElements, this.elements);
     }
 });
 
@@ -27,13 +28,15 @@ TestCase("[Table] handle keyboard input", {
 
         this.stubs = {
             getElementsStub: sinon.stub(),
-            spaceKeyActionStub: sinon.spy(),
-            getColumnsCountStub: sinon.stub().returns(1)
+            spaceKeyActionStub: sinon.spy()
         };
-        this.presenter.getColumnsCount = this.stubs.getColumnsCountStub;
         var elements = [sinon.spy()];
 
         this.presenter.getElementsForKeyboardNavigation = this.stubs.getElementsStub.returns(elements);
+        this.presenter.configuration = {
+            columnsCount: 1
+        };
+
 
         this.presenter.buildKeyboardController();
 
@@ -90,11 +93,13 @@ TestCase("[Table] select action", {
 
         this.stubs.getTargetStub.returns(this.gapElement);
 
-
-        this.presenter.getColumnsCount = this.stubs.getColumnsCountStub;
         this.presenter.getElementsForKeyboardNavigation = this.stubs.getElementsStub;
         var elements = [sinon.spy()];
         this.presenter.getElementsForKeyboardNavigation.returns(elements);
+
+        this.presenter.configuration = {
+            columnsCount: 1
+        };
 
         this.presenter.enterSpace = this.stubs.enterSpaceStub;
         this.presenter.buildKeyboardController();
@@ -106,4 +111,129 @@ TestCase("[Table] select action", {
 
         assertTrue(this.stubs.clickStub.called);
     }
+});
+
+TestCase("[Table] TTS tests", {
+
+    setUp: function () {
+        this.presenter = new AddonTable_create();
+
+        this.stubs = {
+            eventPreventDefaultStub: sinon.stub(),
+            readCurrentElementStub: sinon.stub(),
+            switchElementStub: sinon.stub(),
+            getElementsStub: sinon.stub()
+        };
+
+        // mocked elements passed to navigation
+        this.presenter.getElementsForKeyboardNavigation = this.stubs.getElementsStub;
+        var elements = [sinon.spy(), sinon.spy(), sinon.spy(), sinon.spy()];
+        this.presenter.getElementsForKeyboardNavigation.returns(elements);
+
+        this.presenter.configuration = {
+            columnsCount: 2,
+            rowsCount: 2
+        };
+
+
+
+        this.presenter.buildKeyboardController();
+        this.presenter.keyboardControllerObject.getTarget = this.stubs.getTargetStub;
+        this.presenter.keyboardControllerObject.switchElement = this.stubs.switchElementStub;
+
+        this.presenter.readCurrentNavigationElement = this.stubs.readCurrentElementStub;
+
+        this.event = {
+            preventDefault: this.stubs.eventPreventDefaultStub
+        };
+    },
+
+    // TAB and RIGHT KEY
+
+    'test element text should be read when in the LAST column and TAB or RIGHT key pressed' : function () {
+        this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 1;
+
+        this.presenter.keyboardControllerObject.nextElement(this.event);
+
+        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertFalse(this.stubs.switchElementStub.called);
+    },
+
+    'test element text should be read and element should be changed when not in the LAST column and TAB or RIGHT key pressed' : function () {
+        this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 0;
+
+        this.presenter.keyboardControllerObject.nextElement(this.event);
+
+        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.switchElementStub.called);
+        assertTrue(this.stubs.switchElementStub.calledWith(1));
+        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentElementStub));
+    },
+
+    // SHIT+TAB and LEFT KEY
+
+    'test element text should read when in FIRST column and SHIFT+TAB or LEFT key pressed' : function () {
+        this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 0;
+
+        this.presenter.keyboardControllerObject.previousElement(this.event);
+
+        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertFalse(this.stubs.switchElementStub.called);
+    },
+
+    'test element text should read and element should be changed when not in FIRST column and SHIFT+TAB or LEFT key pressed' : function () {
+        this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 1;
+
+        this.presenter.keyboardControllerObject.previousElement(this.event);
+
+        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.switchElementStub.called);
+        assertTrue(this.stubs.switchElementStub.calledWith(-1));
+        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentElementStub));
+    },
+
+    // UP KEY
+
+    'test element text should read when in FIRST row and UP key pressed' : function () {
+        this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 0;
+
+        this.presenter.keyboardControllerObject.previousRow(this.event);
+
+        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertFalse(this.stubs.switchElementStub.called);
+    },
+
+    'test element text should read and element should be changed when not in FIRST row and UP key pressed' : function () {
+        this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 2;
+
+        this.presenter.keyboardControllerObject.previousRow(this.event);
+
+        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.switchElementStub.called);
+        assertTrue(this.stubs.switchElementStub.calledWith(-2));
+        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentElementStub));
+    },
+
+     // DOWN KEY
+
+    'test element text should read  when in LAST row and DOWN key pressed' : function () {
+        this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 2;
+
+        this.presenter.keyboardControllerObject.nextRow(this.event);
+
+        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertFalse(this.stubs.switchElementStub.called);
+    },
+
+    'test element text should read and element should be changed when not in LAST row and DOWN key pressed' : function () {
+        this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 0;
+
+        this.presenter.keyboardControllerObject.nextRow(this.event);
+
+        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.switchElementStub.called);
+        assertTrue(this.stubs.switchElementStub.calledWith(2));
+        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentElementStub));
+
+    },
 });

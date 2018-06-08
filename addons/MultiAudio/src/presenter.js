@@ -264,6 +264,16 @@ function AddonMultiAudio_create(){
         }
         this.visible = !!(model['Is Visible'] == 'True');
         this.defaultVisibility = this.visible;
+
+        presenter.view = view;
+
+        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
+    };
+
+    presenter.destroy = function AddonMultiAudio_destroy() {
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+
+        presenter.audio.pause();
     };
 
     presenter.executeCommand = function(name, params) {
@@ -382,7 +392,6 @@ function AddonMultiAudio_create(){
     };
 
     presenter.getState = function() {
-        this.audio.pause();
         var state = {
             'visible' : "" + this.visible,
             'currentAudio' : "" + this.currentAudio,
