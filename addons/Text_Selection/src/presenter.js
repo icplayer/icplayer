@@ -1309,7 +1309,7 @@ function AddonText_Selection_create() {
         presenter.readActiveElement();
     };
 
-    TextSelectionKeyboardController.prototype.enter = function () {
+    TextSelectionKeyboardController.prototype.enter = function (event) {
         if (event.shiftKey || event.ctrlKey) {
             Object.getPrototypeOf(TextSelectionKeyboardController.prototype).escape.call(this);
         } else {
