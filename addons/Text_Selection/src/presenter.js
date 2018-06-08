@@ -499,7 +499,8 @@ function AddonText_Selection_create() {
         M03: 'You cannot use \\wrong{} in "All selectable" mode',
         M04: 'Empty word in marker',
         M05: 'In single selection you have to mark only one phrase as correct and at least one mark as wrong',
-        M06: '\\alt{} cannot contain \\correct{} or \\wrong{}'
+        M06: '\\alt{} cannot contain \\correct{} or \\wrong{}',
+        M07: 'When in All selectable mode \\alt{} visible text section must contain only a single word'
     };
 
     presenter.MODE = {
@@ -537,7 +538,7 @@ function AddonText_Selection_create() {
             return getErrorObject('M01');
         }
 
-        if (presenter.vaildateTagsInAltText(model.Text)){
+        if (!presenter.vaildateTagsInAltText(model.Text)){
             return getErrorObject('M06');
         }
         
@@ -546,6 +547,10 @@ function AddonText_Selection_create() {
         var selection_type = ModelValidationUtils.validateOption(presenter.SELECTION_TYPE, model['Selection type']);
 
         var wordSelection = ModelValidationUtils.validateBoolean(model['Enable letters selections']);
+
+        if(mode=="ALL_SELECTABLE" && !presenter.validateSingleWordAltText(model.Text)) {
+            return getErrorObject('M07');
+        }
 
         var preparedText = model.Text;
         if(presenter.textParser) {
@@ -1423,30 +1428,36 @@ function AddonText_Selection_create() {
         return textVoices;
     }
 
+    function setSectionWrappingText($el, start_text, end_text) {
+        var $parent = $el.closest('.addon_Text_Selection  span[aria-label]:has(span[aria-hidden="true"])');
+        if($parent!=null && $parent.length > 0){
+          $el = $parent;
+        }
+        $el.before($('<span>' + start_text + '</span>'));
+        $el.after($('<span>' + end_text + '</span>'));
+    }
+
     function getPhrasesTextVoices ($element) {
+
         var $clone = $element.clone();
         $clone.find('.selected:not(.wrong):not(.correct)').each(function(){
-          var $this = $(this);
-          $this.html(SELECTED_SECTION_START + $this.html() + SELECTED_SECTION_END);
+            setSectionWrappingText($(this), SELECTED_SECTION_START, SELECTED_SECTION_END);
         });
         $clone.find('.correct-answer').each(function(){
-          var $this = $(this);
-          $this.html(CORRECT_SECTION_START + $this.html() + CORRECT_SECTION_END);
+          setSectionWrappingText($(this), CORRECT_SECTION_START, CORRECT_SECTION_END);
         });
         $clone.find('.correct').each(function(){
-          var $this = $(this);
-          $this.html(CORRECT_SECTION_START + $this.html() + CORRECT_SECTION_END);
+          setSectionWrappingText($(this), CORRECT_SECTION_START, CORRECT_SECTION_END);
         });
         $clone.find('.wrong').each(function(){
-          var $this = $(this);
-          $this.html(WRONG_SECTION_START + $this.html() + WRONG_SECTION_END);
+          setSectionWrappingText($(this), WRONG_SECTION_START, WRONG_SECTION_END);
         });
-        
+
         var contentText = presenter.getTextFromElementWithAltTexts($clone);
 
-        contentText = contentText.replace(new RegExp(SELECTED_SECTION_END+'([\\s*)'+SELECTED_SECTION_START,"g"),'$1');
-        contentText = contentText.replace(new RegExp(CORRECT_SECTION_END+'(\\s*)'+CORRECT_SECTION_START,"g"),'$1');
-        contentText = contentText.replace(new RegExp(WRONG_SECTION_END+'(\\s*)'+WRONG_SECTION_START,"g"),'$1');
+        contentText = replaceAll(contentText, SELECTED_SECTION_END+'([^\\w\\d]*)'+SELECTED_SECTION_START, '$1');
+        contentText = replaceAll(contentText, CORRECT_SECTION_END+'([^\\w\\d]*)'+CORRECT_SECTION_START, '$1');
+        contentText = replaceAll(contentText, WRONG_SECTION_END+'([^\\w\\d]*)'+WRONG_SECTION_START, '$1');
 
         contentText = replaceAll(contentText, SELECTED_SECTION_START, SPLIT + SELECTED_SECTION_START + SPLIT);
         contentText = replaceAll(contentText, SELECTED_SECTION_END, SPLIT + SELECTED_SECTION_END + SPLIT);
@@ -1458,6 +1469,7 @@ function AddonText_Selection_create() {
         var textArray = contentText.split(SPLIT);
 
         var textVoices = [];
+
 
         for(var i = 0; i < textArray.length; i++) {
             if(textArray[i].trim().length == 0) continue;
@@ -1520,14 +1532,25 @@ function AddonText_Selection_create() {
     }
 
     /*
-    * Return true, if it detected an \wrong or \correct tag within alt text, false otherwise
+    * Return false, if it detected an \wrong or \correct tag within alt text, true otherwise
     * */
     presenter.vaildateTagsInAltText = function(text) {
         var correctMatch = text.match(/\\alt{[^}]*?\\correct.*?}/g) != null;
         var wrongMatch = text.match(/\\alt{[^}]*?\\wrong.*?}/g) != null;
-        return correctMatch || wrongMatch;
+        return !(correctMatch || wrongMatch);
     };
 
+    presenter.validateSingleWordAltText = function(text) {
+        var re = /\\alt{([^{}|]*?)\|[^{}|]*?}+/g;
+        do {
+            var match = re.exec(text);
+            if(match) {
+                if (/[\s,.]/.test(match[1].trim()) )
+                    return false;
+            }
+        } while (match);
+        return true;
+    };
 
     return presenter;
 }
