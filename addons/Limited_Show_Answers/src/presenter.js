@@ -53,7 +53,8 @@ function AddonLimited_Show_Answers_create(){
     presenter.sendEvent = function(eventName) {
         var eventData = {
             'value': eventName,
-            'source': presenter.configuration.addonID
+            'source': presenter.configuration.addonID,
+            'item' : JSON.stringify(presenter.configuration.worksWithModulesList)
         };
 
         presenter.eventBus.sendEvent('ValueChanged', eventData);
@@ -88,6 +89,7 @@ function AddonLimited_Show_Answers_create(){
 
         if (validatedModel.isValid) {
             validatedModel.value.isSelected = false;
+            validatedModel.value.isEnabled = true;
             validatedModel.value.worksWithModulesList = validatedModel.value.worksWith.split("\n")
                 .map(function (value) {
                     return value.trim();
@@ -107,8 +109,8 @@ function AddonLimited_Show_Answers_create(){
     presenter.setSpeechTexts = function(speechTexts){
         presenter.speechTexts = {
             selected: 'Selected',
-            editBlock: 'Page edition is blocked',
-            noEditBlock: 'Page edition is not blocked'
+            editBlock: 'Exercise edition is blocked',
+            noEditBlock: 'Exercise edition is not blocked'
         };
 
         if(!speechTexts){
@@ -152,7 +154,8 @@ function AddonLimited_Show_Answers_create(){
     presenter.connectClickAction = function () {
         presenter.$button.on('click', function (eventData) {
             eventData.stopPropagation();
-            presenter.handleClick();
+            if (presenter.configuration.isEnabled)
+                presenter.handleClick();
         });
     };
 
@@ -220,8 +223,10 @@ function AddonLimited_Show_Answers_create(){
         }
         if (eventName == "ShowAnswers") {
             presenter.$button.text(presenter.configuration.textSelected);
+            presenter.$wrapper.removeClass('disabled');
             presenter.$wrapper.addClass('selected');
             presenter.configuration.isSelected = true;
+            presenter.configuration.isEnabled = false;
         }
     };
 
@@ -255,11 +260,15 @@ function AddonLimited_Show_Answers_create(){
     presenter.reset = function () {
         presenter.$button.text(presenter.configuration.text);
         presenter.$wrapper.removeClass('selected');
+        presenter.$wrapper.removeClass("disabled");
+        presenter.configuration.isEnabled = true;
         presenter.configuration.isSelected = false;
     };
 
     presenter.setShowErrorsMode = function () {
         presenter.reset();
+        presenter.$wrapper.addClass("disabled");
+        presenter.configuration.isEnabled = false;
     };
 
     presenter.setWorkMode = function () {
