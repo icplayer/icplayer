@@ -267,6 +267,7 @@ function AddonLimited_Show_Answers_create(){
 
     presenter.setShowErrorsMode = function () {
         presenter.reset();
+        presenter.$wrapper.addClass("selected");
         presenter.$wrapper.addClass("disabled");
         presenter.configuration.isEnabled = false;
     };

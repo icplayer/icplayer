@@ -301,12 +301,8 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
         }
 
         private List<String> deserializeItemsString(String string) {
-            String[] connectedItems = string.replace("[", "")
-                    .replace("]", "")
-                    .replace("\"", "")
-                    .split(",");
-
-            return Arrays.asList(connectedItems);
+            IJsonServices jsonServices = playerServices.getJsonServices();
+            return jsonServices.decodeArrayValues(string);
         }
 
         private boolean isEventItemDependent() {

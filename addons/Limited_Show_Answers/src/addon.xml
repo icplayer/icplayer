@@ -9,16 +9,16 @@
         <property name="worksWith" nameLabel="Limited_Show_Answers_property_works_with" type="text"/>
         <property name="speechTexts" displayName="Speech texts" nameLabel="choice_speech_texts" type="staticlist">
 
-            <property name="Selected" nameLabel="choice_item_selected" type="staticrow">
-                <property name="Selected" nameLabel="choice_item_selected" type="string"/>
+            <property name="Selected" nameLabel="Limited_Show_Answers_speech_text_choice_item_selected" type="staticrow">
+                <property name="Selected" nameLabel="Limited_Show_Answers_speech_text_choice_item_selected" type="string"/>
             </property>
 
-            <property name="Block edit" nameLabel="check_answers_button_edit_block" type="staticrow">
-                <property name="Block edit" nameLabel="check_answers_button_edit_block" type="string"/>
+            <property name="Block edit" nameLabel="Limited_Show_Answers_speech_text_check_answers_button_edit_block" type="staticrow">
+                <property name="Block edit" nameLabel="Limited_Show_Answers_speech_text_check_answers_button_edit_block" type="string"/>
             </property>
 
-            <property name="No block edit" nameLabel="check_answers_button_no_edit_block" type="staticrow">
-                <property name="No block edit" nameLabel="check_answers_button_no_edit_block" type="string"/>
+            <property name="No block edit" nameLabel="Limited_Show_Answers_speech_text_check_answers_button_no_edit_block" type="staticrow">
+                <property name="No block edit" nameLabel="Limited_Show_Answers_speech_text_check_answers_button_no_edit_block" type="string"/>
             </property>
 
         </property>
