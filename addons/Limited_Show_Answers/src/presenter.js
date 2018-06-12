@@ -1,11 +1,12 @@
-function AddonLimited_Show_Answers_create(){
-    var presenter = function(){};
+function AddonLimited_Show_Answers_create() {
+    var presenter = function () {
+    };
 
     presenter.playerController = null;
     presenter.eventBus = null;
     var isWCAGOn = false;
 
-    function getSpeechTextProperty (rawValue, defaultValue) {
+    function getSpeechTextProperty(rawValue, defaultValue) {
         var value = rawValue.trim();
 
         if (value === undefined || value === null || value === '') {
@@ -15,7 +16,7 @@ function AddonLimited_Show_Answers_create(){
         return value;
     }
 
-    function getTextVoiceObject (text, lang) {
+    function getTextVoiceObject(text, lang) {
         return {
             text: text,
             lang: lang
@@ -32,10 +33,10 @@ function AddonLimited_Show_Answers_create(){
         LimitedHideAnswers: "HideAnswers"
     };
 
-    presenter.keyboardController = function(keycode) {
+    presenter.keyboardController = function (keycode) {
         if (keycode === 13) {
             presenter.$button.click();
-            if(isWCAGOn) {
+            if (isWCAGOn) {
                 if (presenter.configuration.isSelected) {
                     speak([getTextVoiceObject(presenter.speechTexts.editBlock)]);
                 } else {
@@ -50,11 +51,11 @@ function AddonLimited_Show_Answers_create(){
         presenter.eventBus = controller.getEventBus();
     };
 
-    presenter.sendEvent = function(eventName) {
+    presenter.sendEvent = function (eventName) {
         var eventData = {
             'value': eventName,
             'source': presenter.configuration.addonID,
-            'item' : JSON.stringify(presenter.configuration.worksWithModulesList)
+            'item': JSON.stringify(presenter.configuration.worksWithModulesList)
         };
 
         presenter.eventBus.sendEvent('ValueChanged', eventData);
@@ -68,11 +69,11 @@ function AddonLimited_Show_Answers_create(){
 
     };
 
-    presenter.createPreview = function(view, model) {
+    presenter.createPreview = function (view, model) {
         presenter.presenterLogic(view, model, true);
     };
 
-    presenter.validateModel = function(model) {
+    presenter.validateModel = function (model) {
         presenter.setSpeechTexts(model['speechTexts']);
 
         var modelValidator = new ModelValidator();
@@ -106,14 +107,14 @@ function AddonLimited_Show_Answers_create(){
 
     };
 
-    presenter.setSpeechTexts = function(speechTexts){
+    presenter.setSpeechTexts = function (speechTexts) {
         presenter.speechTexts = {
             selected: 'Selected',
             editBlock: 'Exercise edition is blocked',
             noEditBlock: 'Exercise edition is not blocked'
         };
 
-        if(!speechTexts){
+        if (!speechTexts) {
             return;
         }
 
@@ -161,14 +162,14 @@ function AddonLimited_Show_Answers_create(){
 
     presenter.connectKeyDownAction = function () {
         presenter.$view.on('keydown', function (eventData) {
-            if(eventData.which === 13) {
+            if (eventData.which === 13) {
                 eventData.stopPropagation();
                 presenter.handleClick();
             }
         });
     };
 
-    presenter.presenterLogic = function(view, model, isPreview) {
+    presenter.presenterLogic = function (view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model).value;
         presenter.$view = $(view);
 
@@ -187,10 +188,11 @@ function AddonLimited_Show_Answers_create(){
             presenter.connectKeyDownAction();
             presenter.eventBus.addEventListener('ShowAnswers', presenter);
             presenter.eventBus.addEventListener('HideAnswers', presenter);
+            presenter.eventBus.addEventListener('LimitedHideAnswers', presenter);
         }
     };
 
-    presenter.run = function(view, model) {
+    presenter.run = function (view, model) {
         presenter.view = view;
         presenter.presenterLogic(view, model, false);
 
@@ -217,7 +219,14 @@ function AddonLimited_Show_Answers_create(){
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, eventData) {
+        if (eventName == "LimitedHideAnswers") {
+            for (var i in eventData) {
+                var eventModule = eventData[i];
+                if(presenter.configuration.worksWithModulesList.includes(eventModule))
+                    presenter.reset();
+            }
+        }
         if (eventName == "HideAnswers") {
             presenter.reset();
         }
@@ -230,15 +239,15 @@ function AddonLimited_Show_Answers_create(){
         }
     };
 
-    presenter.show = function() {
+    presenter.show = function () {
         presenter.setVisibility(true);
     };
 
-    presenter.hide = function() {
+    presenter.hide = function () {
         presenter.setVisibility(false);
     };
 
-    presenter.executeCommand = function(name, params) {
+    presenter.executeCommand = function (name, params) {
         var commands = {
             "show": presenter.show,
             "hide": presenter.hide
@@ -247,13 +256,13 @@ function AddonLimited_Show_Answers_create(){
         return Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.getState = function() {
+    presenter.getState = function () {
         return JSON.stringify({
-            'isVisible' : presenter.configuration.isVisible
+            'isVisible': presenter.configuration.isVisible
         });
     };
 
-    presenter.setState = function(state) {
+    presenter.setState = function (state) {
         presenter.setVisibility(JSON.parse(state).isVisible);
     };
 
@@ -277,7 +286,7 @@ function AddonLimited_Show_Answers_create(){
     };
 
     presenter.getTitlePostfix = function () {
-        if(presenter.configuration.isSelected) {
+        if (presenter.configuration.isSelected) {
             return presenter.speechTexts.selected;
         } else {
             return ''
@@ -296,9 +305,9 @@ function AddonLimited_Show_Answers_create(){
         isWCAGOn = isOn;
     };
 
-    function speak (data) {
+    function speak(data) {
         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
-        if (tts) {
+        if (tts && isWCAGOn) {
             tts.speak(data);
         }
     }

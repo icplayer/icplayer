@@ -175,6 +175,7 @@ function AddonShow_Answers_create(){
             presenter.connectKeyDownAction();
             presenter.eventBus.addEventListener('ShowAnswers', presenter);
             presenter.eventBus.addEventListener('HideAnswers', presenter);
+            presenter.eventBus.addEventListener('LimitedHideAnswers', presenter);
         }
     };
 
@@ -206,6 +207,9 @@ function AddonShow_Answers_create(){
     };
 
     presenter.onEventReceived = function (eventName) {
+        if (eventName == "LimitedHideAnswers") {
+            presenter.reset();
+        }
         if (eventName == "HideAnswers") {
             presenter.reset();
         }
