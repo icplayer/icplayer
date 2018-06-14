@@ -129,7 +129,7 @@ public final class KeyboardNavigationController {
 			return true;
 		}
 		
-		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {	//Addon can be button or not, so AddonPresenter contains list of buttons
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {	//Addon can be button, so AddonPresenter contains list of buttons
 			AddonPresenter presenter = (AddonPresenter) this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
 			return presenter.isButton();
 		}

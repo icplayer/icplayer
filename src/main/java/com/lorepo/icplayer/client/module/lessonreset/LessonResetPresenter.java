@@ -8,6 +8,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -71,12 +72,7 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
-				if (event.eventName.equals("ShowAnswers")) {
-					view.setShowAnswersMode(true);
-					view.setDisabled(false);
-				} else if (event.eventName.equals("HideAnswers")) {
-					view.setShowAnswersMode(false);
-				}
+				onEventReceived(event.eventName, event.getData());
 			}
 		});
 	}
@@ -185,6 +181,10 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 		return jsObject;
 	}
 	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
+	
 	private native JavaScriptObject initJSObject(LessonResetPresenter x) /*-{
 		var presenter = function() {};
 		
@@ -204,6 +204,10 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 			return x.@com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter::execute()();
 		}
 		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+		
 		return presenter;
 	}-*/;
 	
@@ -218,6 +222,16 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 	public void execute () {
 		if (view != null) {
 			view.execute();
+		}
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName.equals("ShowAnswers")) {
+			view.setShowAnswersMode(true);
+			view.setDisabled(false);
+		} else if (eventName.equals("HideAnswers")) {
+			view.setShowAnswersMode(false);
 		}
 	}
 

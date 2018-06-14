@@ -1,0 +1,12 @@
+.limited-show-answers-wrapper,
+.limited-show-answers-wrapper .limited-show-answers-container,
+.limited-show-answers-wrapper .limited-show-answers-container .limited-show-answers-button {
+    width: 100%;
+    height: 100%;
+}
+
+.limited-show-answers-wrapper .limited-show-answers-container .limited-show-answers-button {
+    background: url('resources/show-answers-button.png') no-repeat center;
+    cursor: pointer;
+    text-align: center;
+}

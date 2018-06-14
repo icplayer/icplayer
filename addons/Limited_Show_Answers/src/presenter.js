@@ -1,11 +1,12 @@
-function AddonShow_Answers_create(){
-    var presenter = function(){};
+function AddonLimited_Show_Answers_create() {
+    var presenter = function () {
+    };
 
     presenter.playerController = null;
     presenter.eventBus = null;
     var isWCAGOn = false;
 
-    function getSpeechTextProperty (rawValue, defaultValue) {
+    function getSpeechTextProperty(rawValue, defaultValue) {
         var value = rawValue.trim();
 
         if (value === undefined || value === null || value === '') {
@@ -15,7 +16,7 @@ function AddonShow_Answers_create(){
         return value;
     }
 
-    function getTextVoiceObject (text, lang) {
+    function getTextVoiceObject(text, lang) {
         return {
             text: text,
             lang: lang
@@ -23,14 +24,19 @@ function AddonShow_Answers_create(){
     }
 
     presenter.EVENTS = {
-        SHOW_ANSWERS: 'ShowAnswers',
-        HIDE_ANSWERS: 'HideAnswers'
+        SHOW_ANSWERS: 'LimitedShowAnswers',
+        HIDE_ANSWERS: 'LimitedHideAnswers'
     };
 
-    presenter.keyboardController = function(keycode) {
+    presenter.EVENTS_MAP = {
+        LimitedShowAnswers: "ShowAnswers",
+        LimitedHideAnswers: "HideAnswers"
+    };
+
+    presenter.keyboardController = function (keycode) {
         if (keycode === 13) {
             presenter.$button.click();
-            if(isWCAGOn) {
+            if (isWCAGOn) {
                 if (presenter.configuration.isSelected) {
                     speak([getTextVoiceObject(presenter.speechTexts.editBlock)]);
                 } else {
@@ -45,40 +51,70 @@ function AddonShow_Answers_create(){
         presenter.eventBus = controller.getEventBus();
     };
 
-    presenter.sendEvent = function(eventName) {
+    presenter.sendEvent = function (eventName) {
         var eventData = {
-            'source': presenter.configuration.addonID
+            'value': eventName,
+            'source': presenter.configuration.addonID,
+            'item': JSON.stringify(presenter.configuration.worksWithModulesList)
         };
 
-        presenter.eventBus.sendEvent(eventName, eventData);
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
+
+        presenter.configuration.worksWithModulesList.forEach(function (moduleId) {
+            var module = player.getPlayerServices().getModule(moduleId);
+            if (module && module.onEventReceived) {
+                module.onEventReceived(presenter.EVENTS_MAP[eventName]);
+            }
+        });
+
     };
 
-    presenter.createPreview = function(view, model) {
+    presenter.createPreview = function (view, model) {
         presenter.presenterLogic(view, model, true);
     };
 
-    presenter.validateModel = function(model) {
+    presenter.validateModel = function (model) {
         presenter.setSpeechTexts(model['speechTexts']);
-        return {
-            'text' : model.Text,
-            'textSelected' : model['Text selected'],
-            'isVisible' : ModelValidationUtils.validateBoolean(model["Is Visible"]),
-            'addonID' : model.ID,
-            'isSelected': false,
-            'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"]),
-            'enableMistakeCounter': ModelValidationUtils.validateBoolean(model["Increment mistake counter"]),
-            'isTabindexEnabled': ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
-        };
+
+        var modelValidator = new ModelValidator();
+        var validatedModel = modelValidator.validate(model, [
+            ModelValidators.utils.FieldRename("Is Visible", "isVisible", ModelValidators.Boolean("isVisible")),
+            ModelValidators.utils.FieldRename("Text", "text", ModelValidators.String("text", {default: ""})),
+            ModelValidators.utils.FieldRename("Text selected", "textSelected", ModelValidators.String("textSelected", {default: ""})),
+            ModelValidators.utils.FieldRename("ID", "addonID", ModelValidators.DumbString("addonID")),
+            ModelValidators.utils.FieldRename("Increment check counter", "enableCheckCounter", ModelValidators.Boolean("enableCheckCounter")),
+            ModelValidators.utils.FieldRename("Increment mistake counter", "enableMistakeCounter", ModelValidators.Boolean("enableMistakeCounter")),
+            ModelValidators.utils.FieldRename("Is Tabindex Enabled", "isTabindexEnabled", ModelValidators.Boolean("isTabindexEnabled")),
+            ModelValidators.String("worksWith", {default: ""})
+        ]);
+
+        if (validatedModel.isValid) {
+            validatedModel.value.isSelected = false;
+            validatedModel.value.isEnabled = true;
+            validatedModel.value.worksWithModulesList = validatedModel.value.worksWith.split("\n")
+                .map(function (value) {
+                    return value.trim();
+                })
+                .filter(function (value) {
+                    return value !== "";
+                })
+                .filter(function (value, index, self) { //Unique elements
+                    return self.indexOf(value) === index;
+                });
+        }
+
+        return validatedModel;
+
     };
 
-    presenter.setSpeechTexts = function(speechTexts){
+    presenter.setSpeechTexts = function (speechTexts) {
         presenter.speechTexts = {
             selected: 'Selected',
-            editBlock: 'Page edition is blocked',
-            noEditBlock: 'Page edition is not blocked'
+            editBlock: 'Exercise edition is blocked',
+            noEditBlock: 'Exercise edition is not blocked'
         };
 
-        if(!speechTexts){
+        if (!speechTexts) {
             return;
         }
 
@@ -87,24 +123,6 @@ function AddonShow_Answers_create(){
             editBlock: getSpeechTextProperty(speechTexts['Block edit']['Block edit'], presenter.speechTexts.editBlock),
             noEditBlock: getSpeechTextProperty(speechTexts['No block edit']['No block edit'], presenter.speechTexts.noEditBlock)
         };
-    };
-
-    presenter.upgradeModel = function (model) {
-        if (model["Increment mistake counter"] === undefined) {
-            model = presenter.upgradeIncrementMistakeCounter(model);
-        }
-        return model;
-    };
-
-     presenter.upgradeIncrementMistakeCounter = function (model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model);
-
-        if (upgradedModel["Increment mistake counter"] === undefined) {
-            upgradedModel["Increment mistake counter"] = "false";
-        }
-
-        return upgradedModel;
     };
 
     presenter.handleClick = function () {
@@ -132,39 +150,34 @@ function AddonShow_Answers_create(){
 
         presenter.$button.text(text);
         presenter.sendEvent(eventName);
-        presenter.onClick();
     };
-
-    presenter.onClick = function () {
-     };
 
     presenter.connectClickAction = function () {
         presenter.$button.on('click', function (eventData) {
             eventData.stopPropagation();
-            presenter.handleClick();
+            if (presenter.configuration.isEnabled)
+                presenter.handleClick();
         });
     };
 
     presenter.connectKeyDownAction = function () {
         presenter.$view.on('keydown', function (eventData) {
-            if(eventData.which === 13) {
+            if (eventData.which === 13) {
                 eventData.stopPropagation();
                 presenter.handleClick();
             }
         });
     };
 
-    presenter.presenterLogic = function(view, model, isPreview) {
-        var upgradedModel = presenter.upgradeModel(model);
-
-        presenter.configuration = presenter.validateModel(upgradedModel);
+    presenter.presenterLogic = function (view, model, isPreview) {
+        presenter.configuration = presenter.validateModel(model).value;
         presenter.$view = $(view);
 
         presenter.setVisibility(presenter.configuration.isVisible);
 
-        presenter.$button = presenter.$view.find('.show-answers-button');
+        presenter.$button = presenter.$view.find('.limited-show-answers-button');
         presenter.$button.text(presenter.configuration.text);
-        presenter.$wrapper = presenter.$view.find('.show-answers-wrapper');
+        presenter.$wrapper = presenter.$view.find('.limited-show-answers-wrapper');
 
         if (presenter.configuration.isTabindexEnabled) {
             presenter.$wrapper.attr('tabindex', '0');
@@ -179,7 +192,7 @@ function AddonShow_Answers_create(){
         }
     };
 
-    presenter.run = function(view, model) {
+    presenter.run = function (view, model) {
         presenter.view = view;
         presenter.presenterLogic(view, model, false);
 
@@ -206,29 +219,37 @@ function AddonShow_Answers_create(){
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, eventData) {
         if (eventName == "LimitedHideAnswers") {
-            presenter.reset();
+            for (var i in eventData) {
+                if (eventData.hasOwnProperty(i)) {
+                    var eventModule = eventData[i];
+                    if (presenter.configuration.worksWithModulesList.includes(eventModule))
+                        presenter.reset();
+                }
+            }
         }
         if (eventName == "HideAnswers") {
             presenter.reset();
         }
         if (eventName == "ShowAnswers") {
             presenter.$button.text(presenter.configuration.textSelected);
+            presenter.$wrapper.removeClass('disabled');
             presenter.$wrapper.addClass('selected');
             presenter.configuration.isSelected = true;
+            presenter.configuration.isEnabled = false;
         }
     };
 
-    presenter.show = function() {
+    presenter.show = function () {
         presenter.setVisibility(true);
     };
 
-    presenter.hide = function() {
+    presenter.hide = function () {
         presenter.setVisibility(false);
     };
 
-    presenter.executeCommand = function(name, params) {
+    presenter.executeCommand = function (name, params) {
         var commands = {
             "show": presenter.show,
             "hide": presenter.hide
@@ -237,24 +258,29 @@ function AddonShow_Answers_create(){
         return Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.getState = function() {
+    presenter.getState = function () {
         return JSON.stringify({
-            'isVisible' : presenter.configuration.isVisible
+            'isVisible': presenter.configuration.isVisible
         });
     };
 
-    presenter.setState = function(state) {
+    presenter.setState = function (state) {
         presenter.setVisibility(JSON.parse(state).isVisible);
     };
 
     presenter.reset = function () {
         presenter.$button.text(presenter.configuration.text);
         presenter.$wrapper.removeClass('selected');
+        presenter.$wrapper.removeClass("disabled");
+        presenter.configuration.isEnabled = true;
         presenter.configuration.isSelected = false;
     };
 
     presenter.setShowErrorsMode = function () {
         presenter.reset();
+        presenter.$wrapper.addClass("selected");
+        presenter.$wrapper.addClass("disabled");
+        presenter.configuration.isEnabled = false;
     };
 
     presenter.setWorkMode = function () {
@@ -262,7 +288,7 @@ function AddonShow_Answers_create(){
     };
 
     presenter.getTitlePostfix = function () {
-        if(presenter.configuration.isSelected) {
+        if (presenter.configuration.isSelected) {
             return presenter.speechTexts.selected;
         } else {
             return ''
@@ -281,9 +307,9 @@ function AddonShow_Answers_create(){
         isWCAGOn = isOn;
     };
 
-    function speak (data) {
+    function speak(data) {
         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
-        if (tts) {
+        if (tts && isWCAGOn) {
             tts.speak(data);
         }
     }
