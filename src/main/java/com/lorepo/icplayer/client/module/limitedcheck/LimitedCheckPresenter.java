@@ -274,14 +274,10 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
 
     private class LimitedAnswerHandler {
         private List<String> eventItems;
-        private List<String> worksWith;
 
         LimitedAnswerHandler(ValueChangedEvent event) {
             HashMap<String, String> data = event.getData();
             eventItems = deserializeItemsString(data.get("item"));
-
-            String rawWorksWith = model.getRawWorksWith();
-            worksWith = ModuleUtils.getListFromRawText(rawWorksWith);
         }
 
         void handleShowAnswer() {
@@ -306,8 +302,9 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
         }
 
         private boolean isEventItemDependent() {
+            List<String> modules = model.getModules();
             for (String eventItem : eventItems) {
-                if (worksWith.contains(eventItem))
+                if (modules.contains(eventItem))
                     return true;
             }
             return false;

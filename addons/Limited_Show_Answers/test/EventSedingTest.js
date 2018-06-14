@@ -40,31 +40,41 @@ TestCase('[Limited_Show_Answers] Event sending tests', {
       delete player;
     },
 
-    'test should call sendEvent only once': function () {
+    'test should calls sendEvent only once': function () {
         this.presenter.sendEvent({});
 
         assertTrue(this.stubs.sendEventStub.calledOnce);
     },
 
-    'test should send "Show_Answers1" as source in data': function () {
+    'test should sends "Show_Answers1" as source in data': function () {
         this.presenter.sendEvent({});
         var result = this.stubs.sendEventStub.getCall(0).args;
 
         assertEquals('Show_Answers1', result[1].source);
     },
 
-    'test should send "Event Name" as event name in data': function () {
+    'test should sends "Event Name" as event name in data': function () {
         this.presenter.sendEvent('Data');
         var result = this.stubs.sendEventStub.getCall(0).args;
 
         assertEquals('ValueChanged', result[0]);
     },
 
-    'test should send as value LimitedShowAnswers': function () {
+    'test should sends as value LimitedShowAnswers': function () {
         this.presenter.sendEvent('Data');
         var result = this.stubs.sendEventStub.getCall(0).args;
 
         assertEquals('Data', result[1].value);
+    },
+
+    'test should sends as item serialized modules': function () {
+        this.presenter.sendEvent('Data');
+
+        var result = this.stubs.sendEventStub.getCall(0).args;
+
+        assertTrue(result[1].item.includes("text1"));
+        assertTrue(result[1].item.includes("text2"));
+        assertTrue(result[1].item.includes("text3"));
     },
 
     'test send event should call onEventReceived': function () {

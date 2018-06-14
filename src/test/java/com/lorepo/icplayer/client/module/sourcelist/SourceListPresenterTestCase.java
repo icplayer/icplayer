@@ -254,30 +254,4 @@ public class SourceListPresenterTestCase {
 		
 		assertNotNull(display.getItems().get(id));
 	}
-	
-	@Test
-	public void dontChangeDisableWhenLimitedCheckEventOccurred() throws Exception {
-		HashMap<String, String> data = new HashMap<String, String>();
-		data.put("value", "checked");
-		CustomEvent event = new CustomEvent("limitedcheck", data);
-		Whitebox.invokeMethod(this.presenter, "onCustomEventCallback", event);
-
-		Field field = this.presenter.getClass().getDeclaredField("canDrag");
-
-		field.setAccessible(true);
-
-		boolean canDrag = field.getBoolean(this.presenter);
-
-		assertTrue(canDrag);
-
-		this.presenter.setShowErrorsMode();
-		data = new HashMap<String, String>();
-		data.put("value", "unchecked");
-
-		canDrag = field.getBoolean(this.presenter);
-
-		assertTrue(!canDrag);
-
-	}
-
 }
