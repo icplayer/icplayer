@@ -222,9 +222,11 @@ function AddonLimited_Show_Answers_create() {
     presenter.onEventReceived = function (eventName, eventData) {
         if (eventName == "LimitedHideAnswers") {
             for (var i in eventData) {
-                var eventModule = eventData[i];
-                if(presenter.configuration.worksWithModulesList.includes(eventModule))
-                    presenter.reset();
+                if (eventData.hasOwnProperty(i)) {
+                    var eventModule = eventData[i];
+                    if (presenter.configuration.worksWithModulesList.includes(eventModule))
+                        presenter.reset();
+                }
             }
         }
         if (eventName == "HideAnswers") {

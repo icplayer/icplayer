@@ -72,9 +72,7 @@ TestCase('[Limited_Show_Answers] Event sending tests', {
 
         var result = this.stubs.sendEventStub.getCall(0).args;
 
-        assertTrue(result[1].item.includes("text1"));
-        assertTrue(result[1].item.includes("text2"));
-        assertTrue(result[1].item.includes("text3"));
+        assertTrue(result[1].item == "[\"text1\",\"text2\",\"text3\"]");
     },
 
     'test send event should call onEventReceived': function () {
