@@ -723,20 +723,19 @@ function Addonvideo_create() {
     };
 
     presenter.cachePosters = function () {
-        for (var i = 0; i < presenter.configuration.files.length; i++) {
-            var posterSource = presenter.configuration.files[i].Poster;
-            if (posterSource) {
-                var image = new Image();
-                image.src = posterSource;
-                presenter.configuration.files[i].Poster = image;
-            }
+        for (var fileNumber = 0; fileNumber < presenter.configuration.files.length; fileNumber++) {
+            presenter.cachePoster(fileNumber);
         }
     };
 
-    presenter.cacheFirstPoster = function () {
-        var image = new Image();
-        image.src = presenter.configuration.files[0].Poster;
-        presenter.configuration.files[0].Poster = image;
+    presenter.cachePoster = function(fileNumber){
+        var posterSource = presenter.configuration.files[fileNumber].Poster;
+        if (posterSource) {
+            var image = new Image();
+            image.src = posterSource;
+
+            presenter.configuration.files[fileNumber].Poster = image;
+        }
     };
 
     presenter.posterPlayButton = null;
@@ -978,8 +977,6 @@ function Addonvideo_create() {
         }
 
         presenter.configuration = $.extend(presenter.configuration, validatedModel);
-
-        presenter.cacheFirstPoster();
 
         presenter.$view = $(view);
         presenter.videoContainer = $(view).find('.video-container:first');
