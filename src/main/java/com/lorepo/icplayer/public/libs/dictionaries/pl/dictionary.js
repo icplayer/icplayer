@@ -1760,13 +1760,13 @@
 	"Page_Progress_Panel_property_show_errors": "Show Errors",
 	"Page_Progress_Panel_property_errors_text": "Errors text",
     "Limited_Show_Answers_name" : "Limited Show Answers",
-    "Limited_Show_Answers_info" : "Limited Show Answers",
+    "Limited_Show_Answers_info" : "Allows showing the right answers for defined activities on a page",
     "Limited_Show_Answers_property_text": "Text",
     "Limited_Show_Answers_property_text_selected": "Text selected",
-    "Limited_Show_Answers_property_increment_check_counter": "Increment chech counter",
+    "Limited_Show_Answers_property_increment_check_counter": "Increment check counter",
     "Limited_Show_Answers_property_increment_mistake_counter": "Increment mistake counter",
     "Limited_Show_Answers_property_works_with": "Works with",
     "Limited_Show_Answers_speech_text_choice_item_selected": "Selected",
-    "Limited_Show_Answers_speech_text_check_answers_button_edit_block": "Exercise edition is blocked",
-    "Limited_Show_Answers_speech_text_check_answers_button_no_edit_block": "Exercise edition is not blocked"
+    "Limited_Show_Answers_speech_text_check_answers_button_edit_block": "The exercise edition is blocked",
+    "Limited_Show_Answers_speech_text_check_answers_button_no_edit_block": "The exercise edition is not blocked"
 };
