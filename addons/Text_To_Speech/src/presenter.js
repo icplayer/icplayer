@@ -238,7 +238,7 @@ function AddonText_To_Speech_create() {
 
                 window.speechSynthesis.speak(msg);
             }
-        }, 200);
+        }, 250);
     }
 
     function getAltTextOptions(expression) {
