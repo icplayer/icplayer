@@ -1,3 +1,4 @@
+2018-06-18 Added a caching of the video posters
 2018-06-15 Changed labels for Limited Show Answer addon
 2018-06-15 Added TTS support for Text Selection
 2018-06-14 Added new addon Limited Show Answers
