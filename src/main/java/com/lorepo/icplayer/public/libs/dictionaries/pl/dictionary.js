@@ -139,6 +139,7 @@
 	"module_label" : "Moduł:",
 	"page_label" : "Strona: ",
 	"add" : "Dodaj",
+	"addAll" : "Add all",
 	"use" : "Użyj",
 	"apply" : "Zastosuj",
 	"duplicate" : "Duplikuj",
