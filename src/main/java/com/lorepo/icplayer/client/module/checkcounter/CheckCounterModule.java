@@ -5,11 +5,12 @@ import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 
 
-public class CheckCounterModule extends BasicModuleModel {
+public class CheckCounterModule extends BasicModuleModel implements IWCAGModuleModel {
 
 	private String langAttribute = "";
 	
