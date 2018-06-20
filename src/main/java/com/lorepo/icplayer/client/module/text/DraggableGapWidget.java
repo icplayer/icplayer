@@ -113,7 +113,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			droppedElementHelper = droppedElementToString(droppedElement);
 		}
 	}
-	
+
 	public native static String droppedElementToString(String text) /*-{
 		var element = $wnd.$(text).addClass("ic_sourceListItem-selected");
 		return $wnd.$('<div>').append(element.clone()).html();
@@ -155,7 +155,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		isWorkMode = true;
 	}
 
-	public native static String getElement(String text) /*-{		
+	public native static String getElement(String text) /*-{
 		var isLatex = false;
 		var element;
 		var sourceListItems = $wnd.$("#_icplayer").find(".ic_sourceListItem");
@@ -172,11 +172,12 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		}
 
 		var helper = $wnd.$(element[0]).clone();
-		helper.css("display", "inline-block");
+		helper.css("display", "block");
+		helper.css("visibility", "");
 		helper.addClass("ic_sourceListItem-selected");
 		return $wnd.$('<div>').append(helper.clone()).html();
 	}-*/;
-	
+
 	@Override
 	public void setDroppedElement(String element) {
 		droppedElementHelper = StringUtils.unescapeXML(element);
@@ -184,7 +185,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			JavaScriptUtils.makeDroppedDraggableText(getElement(), getAsJavaScript(), droppedElementHelper);
 		}
 	}
-	
+
 	@Override
 	public String getDroppedElement() {
 		return droppedElementHelper;
