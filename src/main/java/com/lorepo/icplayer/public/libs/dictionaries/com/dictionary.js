@@ -139,6 +139,7 @@ var ice_dictionary_en = {
 	"module_label": "Module:",
 	"page_label": "Page: ",
 	"add" : "Add",
+	"addAll" : "Autofill",
 	"use" : "Use",
 	"apply" : "Apply",
 	"duplicate" : "Duplicate",

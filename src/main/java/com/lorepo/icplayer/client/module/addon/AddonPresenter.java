@@ -57,7 +57,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private IPlayerServices services;
 	private IDisplay view;
 	private IAddonDescriptor addonDescriptor;
-	private Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "limited_show_answers", "text_identification", "image_identification"));
+	private static Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "limited_show_answers", "text_identification", "image_identification"));
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 		this.model = model;
@@ -523,6 +523,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			return true;
 		}
 		return false;
+	}
+	
+	public static boolean isButton(String addonId){
+		return buttonAddons.contains(addonId.toLowerCase());
 	}
 
 	public boolean isDisabled() {

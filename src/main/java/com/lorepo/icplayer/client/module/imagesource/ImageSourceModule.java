@@ -15,9 +15,10 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
-public class ImageSourceModule extends BasicModuleModel {
+public class ImageSourceModule extends BasicModuleModel implements IWCAGModuleModel {
 
 	private String imagePath = "";
 	private boolean removable = true;

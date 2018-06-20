@@ -139,6 +139,7 @@ var ice_dictionary_mx = {
 	"module_label": "Módulo:",
 	"page_label": "Página: ",
 	"add": "Añadir",
+	"addAll": "Autofill",
 	"use": "Utilizar",
 	"apply": "Aplicar",
 	"duplicate": "Duplicar",

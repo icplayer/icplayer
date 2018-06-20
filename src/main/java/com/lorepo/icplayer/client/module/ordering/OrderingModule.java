@@ -17,9 +17,10 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
-public class OrderingModule extends BasicModuleModel {
+public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel {
 	public static final String ERROR_NUMBER_OF_ITEMS = "Error - only one item";
 	public static final String ERROR_NO_COMBINATION = "Error - all correct combinations have been used";
 	public static final String ERROR_POSITION_NOT_INTEGER = "Error - starting position not a integer";

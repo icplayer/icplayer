@@ -7,9 +7,10 @@ import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 
 
-public class ErrorCounterModule extends BasicModuleModel{
+public class ErrorCounterModule extends BasicModuleModel implements IWCAGModuleModel{
 
 	private boolean showErrorCounter = true;
 	private boolean showMistakeCounter = true;
