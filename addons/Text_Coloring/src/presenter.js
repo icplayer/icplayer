@@ -723,34 +723,53 @@ function AddonText_Coloring_create() {
 
     presenter.parseWords = function (word) {
         var result = [];
-        var pattern = /\\color{[^}]+}{[^}]+}/g;
-        var startOfIndexOfSelectablePart = word.search(pattern);
-        
-        var isSelectablePartExists = function (indexOfPart) {
-            return indexOfPart != -1;
+
+        var selectablePart = {
+            pattern: /\\color{[^}]+}{[^}]+}/g,
+
+            getStartOfIndex: function () {
+                return word.search(this.pattern);
+            },
+
+            getStopOfIndex: function () {
+                return this.pattern.lastIndex;
+            },
+
+            getSelectablePhrase: function () {
+                this.pattern.test(word);
+                return word.substring(0, this.getStopOfIndex());
+            },
+
+            isExists: function () {
+                return this.getStartOfIndex() != -1;
+            },
+
+            hasPrecedingWord: function () {
+                return this.getStartOfIndex() > 0;
+            },
+
+            separatePrecedingWord: function () {
+                var precedingWord = word.substring(0, this.getStartOfIndex());
+                return precedingWord;
+            }
         };
 
-        while (isSelectablePartExists(startOfIndexOfSelectablePart)) {
-            if (startOfIndexOfSelectablePart > 0) {
-                var precedingWord = word.substring(0, startOfIndexOfSelectablePart);
-                word = word.substring(startOfIndexOfSelectablePart, word.length);
+        while (selectablePart.isExists()) {
+            if (selectablePart.hasPrecedingWord()) {
+                var precedingWord = selectablePart.separatePrecedingWord();
                 result.push(getWordToken(precedingWord));
+
+                word = word.substring(selectablePart.getStartOfIndex(), word.length);
             }
 
-            pattern.test(word);
-
-            var stopOfIndexOfSelectablePart = pattern.lastIndex;
-            var selectablePhrase = word.substring(0, stopOfIndexOfSelectablePart);
-
-            word = word.substring(stopOfIndexOfSelectablePart, word.length);
-
+            var selectablePhrase = selectablePart.getSelectablePhrase();
             if (selectablePhrase.length > 0) {
                 var selectableWord = presenter.getSelectableWord(selectablePhrase);
                 var selectableColor = presenter.getSelectableColor(selectablePhrase);
                 result.push(getSelectableToken(selectableWord, selectableColor));
             }
 
-            startOfIndexOfSelectablePart = word.search(pattern);
+            word = word.substring(selectablePart.getStopOfIndex(), word.length);
         }
 
         if (word.length > 0)
