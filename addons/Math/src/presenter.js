@@ -212,7 +212,7 @@ function AddonMath_create() {
             run: function (expression, variables) {
                 presenter.assignVariablesToObject(this, variables);
                 var parser = math.parser();
-    
+
                 parser.set('variables', this.variables);
 
                 if ((expression.indexOf("{") > -1) && (expression.indexOf("function") > -1)) {     // There will be probably function declaration
@@ -409,7 +409,7 @@ function AddonMath_create() {
         object.variables = {};
 
         for (var i = 0; i < variables.length; i++) {
-            object.variables[variables[i].name] = variables[i].value;
+            object.variables[variables[i].name] = variables[i].value.toString();
         }
     };
 

@@ -1,3 +1,4 @@
+2018-06-26 Fixed identification of expression variables in math addon
 2018-06-25 Added feature to color individual letters in text coloring addon
 2018-06-25 Fixed visibility of the element dragged from the gap
 2018-06-22 Fixed problem with pseudo code console on IE11
