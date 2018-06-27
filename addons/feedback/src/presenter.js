@@ -7,6 +7,7 @@ function Addonfeedback_create() {
     presenter.feedbackContainer = null;
     presenter.currentStateDefault = false;
     presenter.currentStateId = null;
+    presenter.speechTexts = {};
 
     var playerController = null;
     var textParser = null;
