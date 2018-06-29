@@ -1779,5 +1779,7 @@ var ice_dictionary_en = {
     "Limited_Show_Answers_property_works_with": "Works with",
     "Limited_Show_Answers_speech_text_choice_item_selected": "Selected",
     "Limited_Show_Answers_speech_text_check_answers_button_edit_block": "The exercise edition is blocked",
-    "Limited_Show_Answers_speech_text_check_answers_button_no_edit_block": "The exercise edition is not blocked"
+    "Limited_Show_Answers_speech_text_check_answers_button_no_edit_block": "The exercise edition is not blocked",
+	"Mathtext_property_is_user_activity": "Is activity",
+	"Mathtext_property_text": "Text",
 };
