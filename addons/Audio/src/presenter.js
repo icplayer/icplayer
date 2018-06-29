@@ -702,9 +702,6 @@ function AddonAudio_create(){
     };
 
     presenter.getState = function AddonAudio_getState () {
-
-        presenter.stop();
-
         return JSON.stringify({
             isVisible : presenter.configuration.isVisible
         });

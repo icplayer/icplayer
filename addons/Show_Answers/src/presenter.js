@@ -132,7 +132,11 @@ function AddonShow_Answers_create(){
 
         presenter.$button.text(text);
         presenter.sendEvent(eventName);
+        presenter.onClick();
     };
+
+    presenter.onClick = function () {
+     };
 
     presenter.connectClickAction = function () {
         presenter.$button.on('click', function (eventData) {
@@ -171,6 +175,7 @@ function AddonShow_Answers_create(){
             presenter.connectKeyDownAction();
             presenter.eventBus.addEventListener('ShowAnswers', presenter);
             presenter.eventBus.addEventListener('HideAnswers', presenter);
+            presenter.eventBus.addEventListener('LimitedHideAnswers', presenter);
         }
     };
 
@@ -202,6 +207,9 @@ function AddonShow_Answers_create(){
     };
 
     presenter.onEventReceived = function (eventName) {
+        if (eventName == "LimitedHideAnswers") {
+            presenter.reset();
+        }
         if (eventName == "HideAnswers") {
             presenter.reset();
         }

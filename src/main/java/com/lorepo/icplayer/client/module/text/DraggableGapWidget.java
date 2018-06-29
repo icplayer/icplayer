@@ -172,7 +172,8 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 		}
 
 		var helper = $wnd.$(element[0]).clone();
-		helper.css("display", "inline-block");
+		helper.css("display", "block");
+        helper.css("visibility", "");
 		helper.addClass("ic_sourceListItem-selected");
 		return $wnd.$('<div>').append(helper.clone()).html();
 	}-*/;

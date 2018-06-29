@@ -129,7 +129,7 @@ public final class KeyboardNavigationController {
 			return true;
 		}
 		
-		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {	//Addon can be button or not, so AddonPresenter contains list of buttons
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {	//Addon can be button, so AddonPresenter contains list of buttons
 			AddonPresenter presenter = (AddonPresenter) this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
 			return presenter.isButton();
 		}
@@ -188,6 +188,9 @@ public final class KeyboardNavigationController {
 				$self.attr('role','presentation');
 			});
 			$_('body').attr("role","application");
+			if ($wnd.parent) { 
+				$wnd.parent.postMessage("ic_disableAria","*"); 
+			}
 		} else {
 			$_('#_icplayer').removeAttr("aria-hidden");
 			$_('[ic_role_off]').each(function(){
@@ -197,6 +200,9 @@ public final class KeyboardNavigationController {
 				$self.removeAttr('ic_role_off');
 			});
 			$_('body').removeAttr("role");
+			if ($wnd.parent) { 
+				$wnd.parent.postMessage("ic_enableAria","*"); 			
+			}
 		};
 	}-*/;
 	
@@ -454,11 +460,10 @@ public final class KeyboardNavigationController {
 	private native JavaScriptObject	getInputElement() /*-{
 		var input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
 		if (!input) {
-			input = $wnd.$("<input/>");
+			input = $wnd.$("<div/>");
 			input.attr("id", "input_element_for_focus_to_change_focused_element_by_browser");
 			input.attr("tabindex","0");
 			input.attr("aria-hidden","true");
-			input.attr("autocomplete","off");
 			input.css({
 				"opacity": 0.0001,
 				"pointer-events": "none",
@@ -467,6 +472,8 @@ public final class KeyboardNavigationController {
 			});
 			var body = $wnd.$("body");
 			body.append(input);
+			// the following line has been added for compatibility with NVDA, without it there are issues with AT intercepting Enter button
+			input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
 		}
 		
 		return input;

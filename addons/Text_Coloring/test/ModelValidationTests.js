@@ -20,35 +20,6 @@ var EXISTING_TEXT_FOR_PARSING = "\\color{red}{fresas&nbsp;y&nbsp;nata.} \n";
 EXISTING_TEXT_FOR_PARSING += "\\color{yellow}{era&nbsp;el&nbsp;de&nbsp;\<em>El&nbsp;mago&nbsp;de&nbsp;Oz</em>.} \n";
 EXISTING_TEXT_FOR_PARSING += "\\color{blue}{fotos&nbsp;al&nbsp;paisaje.}";
 
-var setUpUtils = function () {};
-
-setUpUtils.getWordToken = function (value) {
-    return {
-        "value": value,
-        "type": "word"
-    };
-};
-
-setUpUtils.getNewLineToken = function () {
-    return {
-        "type": "new_line"
-    };
-};
-
-setUpUtils.getSelectableToken = function (value, colorID) {
-    return {
-        "type": "selectable",
-        "value": value,
-        "color": colorID
-    };
-};
-
-setUpUtils.getSpaceToken = function () {
-    return {
-        type: "space"
-    };
-};
-
 TestCase("[Text_Coloring] Validate Colors", {
     setUp: function () {
         this.presenter = AddonText_Coloring_create();

@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.mockup.services;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 
@@ -29,6 +30,12 @@ public class JsonMockup implements IJsonServices {
 
 	@Override
 	public ArrayList<Boolean> decodeArray(String jsonText) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<String> decodeArrayValues(String string) {
 		// TODO Auto-generated method stub
 		return null;
 	}
