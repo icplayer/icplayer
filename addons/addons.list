@@ -76,6 +76,7 @@ Print_Report
 SelectableAddonsBinder
 Shape_Tracing
 Show_Answers
+Limited_Show_Answers
 Single_State_Button
 Slider
 Slideshow

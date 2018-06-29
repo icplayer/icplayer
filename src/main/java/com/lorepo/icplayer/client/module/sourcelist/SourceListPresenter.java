@@ -12,6 +12,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -119,7 +120,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
-				onCustomEventCallback(event);
+				onEventReceived(event.eventName, event.getData());
 			}
 		});
 		
@@ -129,43 +130,6 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			}
 		});
 		
-	}
-	
-	private void onCustomEventCallback(CustomEvent event) {
-		if (event.eventName == "ShowAnswers") {
-			canDrag = false;
-			return;
-		} else if (event.eventName == "HideAnswers") {
-			canDrag = true;
-			return;
-		}
-		
-		if (event.eventName.toLowerCase() == "limitedcheck") {
-			return;
-		}
-		
-		if (event.eventName != "itemDragged" && event.eventName != "itemStopped") {
-			return;
-		}
-		
-		String gotItem = event.getData().get("item");
-		
-		if (!gotItem.startsWith(getItemPrefix())) {
-			return;
-		}
-		if (event.eventName == "itemDragged") {
-			selectItem(gotItem);
-			if (model.isRemovable()) {
-				view.hideItem(gotItem);
-			}
-		} else if (event.eventName == "itemStopped") {
-			if (model.isRemovable() && returned) {
-				view.showItem(gotItem);
-			}
-			deselectCurrentItem(true);
-			ItemSelectedEvent removeSelectionEvent = new ItemSelectedEvent(new DraggableText(null, null));
-			playerServices.getEventBus().fireEventFromSource(removeSelectionEvent, this);
-		}		
 	}
 
 	private void itemConsumed(ItemConsumedEvent event) {
@@ -362,6 +326,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 		return jsObject;
 	}
+	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
 
 	private native JavaScriptObject initJSObject(SourceListPresenter x) /*-{
 		var presenter = function() {}
@@ -404,11 +372,16 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		
 		presenter.setDragMode = function(){
 			x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::setDragMode()();
-		}
+		};
 		
 		presenter.unsetDragMode = function(){
 			x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::unsetDragMode()();
-		}
+		};
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+		
 		
 		return presenter;
 	}-*/;
@@ -548,5 +521,43 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
 		return isVisible;
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName == "ShowAnswers") {
+			canDrag = false;
+			return;
+		} else if (eventName == "HideAnswers") {
+			canDrag = true;
+			return;
+		}
+		
+		if (eventName.toLowerCase() == "limitedcheck") {
+			return;
+		}
+		
+		if (eventName != "itemDragged" && eventName != "itemStopped") {
+			return;
+		}
+		
+		String gotItem = data.get("item");
+		
+		if (!gotItem.startsWith(getItemPrefix())) {
+			return;
+		}
+		if (eventName == "itemDragged") {
+			selectItem(gotItem);
+			if (model.isRemovable()) {
+				view.hideItem(gotItem);
+			}
+		} else if (eventName == "itemStopped") {
+			if (model.isRemovable() && returned) {
+				view.showItem(gotItem);
+			}
+			deselectCurrentItem(true);
+			ItemSelectedEvent removeSelectionEvent = new ItemSelectedEvent(new DraggableText(null, null));
+			playerServices.getEventBus().fireEventFromSource(removeSelectionEvent, this);
+		}		
 	}
 }

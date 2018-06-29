@@ -15,11 +15,12 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 
-public class ButtonModule extends BasicModuleModel {
+public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 	
 	public static final int RESET_BUTTON_RESET_INDEX = 0;
 

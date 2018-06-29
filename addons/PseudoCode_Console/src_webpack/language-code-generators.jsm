@@ -1,5 +1,4 @@
 import { generateExecuteObject, generateJumpInstruction } from './language-utils.jsm';
-import { EXCEPTIONS } from './defined-exceptions.jsm';
 
 function uidDecorator(fn) {
     return function () {
@@ -560,7 +559,11 @@ export const CODE_GENERATORS = {
             parsedArgs.unshift("stack[stack.length - " + i + "]");
         }
 
-        code = "machineManager.configuration.functions." + functionName + ".call({}, machineManager.objectForInstructions, machineManager.objectMocks, next, pause, retVal," + parsedArgs.join(",") + ");";
+        if (parsedArgs.length > 0) {
+            code = "machineManager.configuration.functions." + functionName + ".call({}, machineManager.objectForInstructions, machineManager.objectMocks, next, pause, retVal," + parsedArgs.join(",") + ");";
+        } else {
+            code = "machineManager.configuration.functions." + functionName + ".call({}, machineManager.objectForInstructions, machineManager.objectMocks, next, pause, retVal);";
+        }
 
         execCode.push(generateExecuteObject(code, '', true));
 

@@ -11,10 +11,11 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 
-public class ReportModule extends BasicModuleModel {
+public class ReportModule extends BasicModuleModel implements IWCAGModuleModel {
 
 	final public static int resultsWCAGIndex = 0;
 	final public static int percentWCAGIndex = 1;

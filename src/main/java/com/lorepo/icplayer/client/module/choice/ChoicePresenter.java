@@ -9,6 +9,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
@@ -110,11 +111,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 				@Override
 				public void onCustomEventOccurred(CustomEvent event) {
-					if (event.eventName.equals("ShowAnswers")) {
-						showAnswers();
-					} else if (event.eventName.equals("HideAnswers")) {
-						hideAnswers();
-					}
+					onEventReceived(event.eventName, event.getData());
 				}
 			});
 			
@@ -482,6 +479,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	public String getName() {
 		return module.getId();
 	}
+	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
 
 	public JavaScriptObject getAsJavaScript(){
 		
@@ -547,6 +548,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		presenter.isOptionSelected = function(index) {
 			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::isOptionSelected(I)(index);
 		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
 
 		return presenter;
 	}-*/;
@@ -663,5 +668,15 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		boolean isEnabled = !this.module.isDisabled();
 		return (isVisible || isTextToSpeechOn) && isEnabled;
+	}
+
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName.equals("ShowAnswers")) {
+			showAnswers();
+		} else if (eventName.equals("HideAnswers")) {
+			hideAnswers();
+		}
 	}
 }

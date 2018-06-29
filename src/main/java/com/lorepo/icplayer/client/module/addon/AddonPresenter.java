@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.addon;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +57,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private IPlayerServices services;
 	private IDisplay view;
 	private IAddonDescriptor addonDescriptor;
-	private Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "text_identification", "image_identification"));
+	private static Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "limited_show_answers", "text_identification", "image_identification"));
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 		this.model = model;
@@ -523,6 +524,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 		return false;
 	}
+	
+	public static boolean isButton(String addonId){
+		return buttonAddons.contains(addonId.toLowerCase());
+	}
 
 	public boolean isDisabled() {
 		for (IAddonParam propetry : this.model.getParams()){
@@ -572,4 +577,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		};
 		return true;
 	}-*/;
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		
+	}
 }

@@ -141,6 +141,10 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 		return jsObject;
 	}
 	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
+	
 	private native JavaScriptObject initJSObject(ErrorCounterPresenter x) /*-{
 		var presenter = function() {};
 	
@@ -155,6 +159,10 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 		presenter.getView = function() {
 			return x.@com.lorepo.icplayer.client.module.errorcounter.ErrorCounterPresenter::getView()();
 		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.errorcounter.ErrorCounterPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
 	
 		return presenter;
 	}-*/;
@@ -272,5 +280,12 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		return (isVisible || isTextToSpeechOn);
+	}
+
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		// TODO Auto-generated method stub
+		
 	}
 }

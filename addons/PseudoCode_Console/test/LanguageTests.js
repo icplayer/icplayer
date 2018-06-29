@@ -1,3 +1,5 @@
+var MAX_TIME_FOR_TEST = 200;
+
 TestCase("[PseudoCode_Console - language tests] if statement", {
     setUp: function () {
         this.presenter = AddonPseudoCode_Console_create();
@@ -15,7 +17,7 @@ TestCase("[PseudoCode_Console - language tests] if statement", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -142,7 +144,7 @@ TestCase("[PseudoCode_Console - language tests] variables statement", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -223,7 +225,7 @@ TestCase("[PseudoCode_Console - language tests] math statement", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -352,7 +354,7 @@ TestCase("[PseudoCode_Console - language tests] logical statement", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -495,7 +497,7 @@ TestCase("[PseudoCode_Console - language tests] user defined functions", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -654,7 +656,7 @@ TestCase("[PseudoCode_Console - language tests] for statement", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -984,7 +986,7 @@ TestCase("[PseudoCode_Console - language tests] while statement", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -1061,7 +1063,7 @@ TestCase("[PseudoCode_Console - language tests] do-while statement", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -1139,7 +1141,7 @@ TestCase("[PseudoCode_Console - language tests] case statement", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -1222,7 +1224,7 @@ TestCase("[PseudoCode_Console - language tests] array statement", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 200
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -1335,7 +1337,7 @@ TestCase("[PseudoCode_Console - language tests] methods", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;
@@ -1396,7 +1398,7 @@ TestCase("[PseudoCode_Console - language tests] exceptions", {
         this.presenter.configuration.answer = {
             parameters: [],
             maxTimeForAnswer: {
-                parsedValue: 20
+                parsedValue: MAX_TIME_FOR_TEST
             },
             answerCode: function () {
                 self.afterExecutingObject = this;

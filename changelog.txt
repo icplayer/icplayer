@@ -1,3 +1,13 @@
+2018-06-27 Fixed autofill option for TTS
+2018-06-26 Fixed identification of expression variables in math addon
+2018-06-25 Added feature to color individual letters in text coloring addon
+2018-06-25 Fixed visibility of the element dragged from the gap
+2018-06-22 Fixed problem with pseudo code console on IE11
+2018-06-20 Added Autofill option for TTS
+2018-06-18 Added a caching of the video posters
+2018-06-15 Changed labels for Limited Show Answer addon
+2018-06-15 Added TTS support for Text Selection
+2018-06-14 Added new addon Limited Show Answers
 2018-06-05 Added TTS support for Table cells
 2018-06-05 Moved pausing on getState to destroy method in media addons
 2018-06-04 Fixed issues with TTS handling of the Dropdown gap in Text module
