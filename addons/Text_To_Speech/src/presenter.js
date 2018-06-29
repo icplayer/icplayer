@@ -224,6 +224,8 @@ function AddonText_To_Speech_create() {
                 presenter.intervalId = undefined;
                 return;
             }
+            if (presenter.intervalId == null) return;
+
             for (var i=0; i<textsObjects.length; i++) {
                 var textObject = textsObjects[i];
                 var msg = new SpeechSynthesisUtterance(textObject.text);
@@ -232,10 +234,21 @@ function AddonText_To_Speech_create() {
                 msg.pitch = parseFloat(1); // 0 - 2
                 msg.voice = textObject.lang;
                 var currentIntervalId = presenter.intervalId;
-                msg.onstart = function (event) {
-                    clearInterval(currentIntervalId);
-                };
-
+                if (i == 0) {
+                    msg.onstart = function (event) {
+                        clearInterval(currentIntervalId);
+                        if (currentIntervalId != presenter.intervalId) {
+                            window.speechSynthesis.cancel();
+                        }
+                    };
+                }
+                if (i == textsObjects.length - 1) {
+                    msg.onend = function (event) {
+                        if(currentIntervalId == presenter.intervalId){
+                            window.speechSynthesis.cancel();
+                        }
+                    };
+                }
                 window.speechSynthesis.speak(msg);
             }
         }, 250);
