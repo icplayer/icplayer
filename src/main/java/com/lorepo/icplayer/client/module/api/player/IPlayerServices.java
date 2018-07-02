@@ -39,4 +39,8 @@ public interface IPlayerServices {
 	public void outstretchHeight(int y, int height, boolean dontMoveModules);
 	public boolean isPlayerInCrossDomain();
 	public boolean isWCAGOn();
+	
+	public void setAbleChangeLayout(boolean isAbleChangeLayout); 
+	public boolean isAbleChangeLayout();
+	
 }

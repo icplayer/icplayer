@@ -85,6 +85,10 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.forceScoreUpdate = function(listener) {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::forceScoreUpdate()();
 			};
+			
+			player.isAbleChangeLayout = function(){
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::isAbleChangeLayout()(); 
+			}
 		}
 
 		// CreatePlayer
@@ -130,7 +134,11 @@ public class PlayerEntryPoint implements EntryPoint {
 		this.theApplication.showCover(useCover);
 		return JavaScriptObject.createFunction();
 	}
-
+	
+	private boolean isAbleChangeLayout() {
+		return this.theApplication.getPlayerServices().isAbleChangeLayout(); 
+	}
+	
 	private void load(String url, int pageIndex) {
 		if (pageIndex < 0) {
 			pageIndex = 0;
