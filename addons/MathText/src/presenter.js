@@ -41,7 +41,7 @@ function AddonMathText_create() {
         var mathMlParam = model.text;
         var imgTypeParam = 'svg';
 
-        var url = "http://www.wiris.net/demo/editor/render?mml=" + mathMlParam + "&format=" + imgTypeParam;
+        var url = "https://www.wiris.net/demo/editor/render?mml=" + mathMlParam + "&format=" + imgTypeParam;
 
 
         xmlhttp.onreadystatechange = function() {
