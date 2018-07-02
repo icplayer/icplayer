@@ -1780,6 +1780,8 @@ var ice_dictionary_en = {
     "Limited_Show_Answers_speech_text_choice_item_selected": "Selected",
     "Limited_Show_Answers_speech_text_check_answers_button_edit_block": "The exercise edition is blocked",
     "Limited_Show_Answers_speech_text_check_answers_button_no_edit_block": "The exercise edition is not blocked",
-	"Mathtext_property_is_user_activity": "Is activity",
+	"MathText_name": "WIRIS",
+	"MathText_info": "WIRIS description",
 	"Mathtext_property_text": "Text",
+	"Mathtext_property_is_user_activity": "Is activity"
 };

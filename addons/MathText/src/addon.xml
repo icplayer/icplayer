@@ -3,7 +3,6 @@
 <addon id="MathText" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
         <property name="text" nameLabel="Mathtext_property_text" type="mathtext" />
-        <property name="isUserFilled" nameLabel="Mathtext_property_is_user_activity" type="boolean" />
-         <property name="imageType" nameLabel="gamememo_property_image_mode" type="{png, svg}"/>
+        <property name="isActivity" nameLabel="Mathtext_property_is_user_activity" type="boolean" />
     </model>
 </addon>
