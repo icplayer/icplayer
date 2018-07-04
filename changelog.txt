@@ -1,3 +1,4 @@
+2018-07-04 Fixed calculation of popup elements position
 2018-06-29 Fixed several issues between TTS and NVDA on Firefox
 2018-06-27 Fixed autofill option for TTS
 2018-06-26 Fixed identification of expression variables in math addon
