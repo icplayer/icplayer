@@ -217,6 +217,7 @@ function AddonText_To_Speech_create() {
 
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
+                return;
             }
             var textsObjects = filterTexts(texts, getSpeechSynthesisLanguage);
             if (textsObjects.length === 0) {
