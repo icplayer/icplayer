@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.framework.module;
 import java.util.Set;
 
 import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.semi.responsive.SemiResponsiveStyles;
 
 /**
  * 
@@ -17,4 +18,5 @@ public interface IStyledModule {
 	public void setStyleClass(String styleClass);
 	public String getClassNamePrefix();
 	public void syncSemiResponsiveStyles(Set<PageLayout> actualSemiResponsiveLayouts);
+	public SemiResponsiveStyles getSemiResponsiveStyles();
 }
