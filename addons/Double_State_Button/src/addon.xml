@@ -4,12 +4,26 @@
 	<model>
 		<property name='Text' nameLabel="Double_State_Button_property_text" type='string' isLocalized="true" />
 		<property name="Image" nameLabel="Double_State_Button_property_image" type="image" />
+		<property name="imageAlternativeText" nameLabel="Double_State_Button_property_image_alternative_text" type="string" />
 		<property name="onSelected" nameLabel="Double_State_Button_property_on_selected" type="event" isDefault="true"/>
 		<property name='Text selected' nameLabel="Double_State_Button_property_text_selected" type='string' isLocalized="true" />
 		<property name="Image selected" nameLabel="Double_State_Button_property_image_selected" type="image" />
+		<property name="imageSelectedAlternativeText" nameLabel="Double_State_Button_property_image_selected_alternative_text" type="string" />
 		<property name="onDeselected" nameLabel="Double_State_Button_property_on_deselected" type="event" />
 		<property name="isSelected" nameLabel="Double_State_Button_property_is_selected" type="boolean" />
 		<property name="Disable" nameLabel="Double_State_Button_property_disable" type="boolean" />
 		<property name="Do not block in check mode" nameLabel="Double_State_Button_property_do_not_block_in_check_mode" type="boolean"/>
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="Double_state_button_property_lang_attribute" type="string" />
+		<property name="speechTexts" displayName="Speech texts" nameLabel="Double_state_button_speech_texts" type="staticlist">
+			<property name="selectButton" nameLabel="Double_state_button_speech_text_select" type="staticrow">
+				<property name="selectButton" nameLabel="Double_state_button_speech_text_select" type="string"/>
+			</property>
+			<property name="deselectButton" nameLabel="Double_state_button_speech_text_deselect" type="staticrow">
+				<property name="deselectButton" nameLabel="Double_state_button_speech_text_deselect" type="string"/>
+			</property>
+			<property name="speechTextDisabled" nameLabel="Double_state_button_speech_text_disabled" type="staticrow">
+				<property name="speechTextDisabled" nameLabel="Double_state_button_speech_text_disabled" type="boolean"/>
+			</property>
+		</property>
 	</model>
 </addon>

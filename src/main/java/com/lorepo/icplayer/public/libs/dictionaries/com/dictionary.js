@@ -1790,5 +1790,12 @@ var ice_dictionary_en = {
     "Limited_Show_Answers_property_works_with": "Works with",
     "Limited_Show_Answers_speech_text_choice_item_selected": "Selected",
     "Limited_Show_Answers_speech_text_check_answers_button_edit_block": "The exercise edition is blocked",
-    "Limited_Show_Answers_speech_text_check_answers_button_no_edit_block": "The exercise edition is not blocked"
+    "Limited_Show_Answers_speech_text_check_answers_button_no_edit_block": "The exercise edition is not blocked",
+	"Double_state_button_property_lang_attribute": "Lang attribute",
+	"Double_state_button_speech_texts": "Speech texts",
+	"Double_state_button_speech_text_select": "Selected",
+	"Double_state_button_speech_text_deselect": "Deselected",
+	"Double_State_Button_property_image_alternative_text": "Image alternative text",
+	"Double_State_Button_property_image_selected_alternative_text": "Image selected alternative text",
+	"Double_state_button_speech_text_disabled": "Do not read the Speech texts"
 };
