@@ -1000,7 +1000,16 @@ function AddonText_Coloring_create() {
     };
 
     presenter.setWorkMode = function () {
-        presenter.stateMachine.check();
+        presenter.stateMachine.hideAnswers();
+        presenter.stateMachine.onUnCorrect();
+        presenter.stateMachine.notifyEdit();
+
+        if (presenter.configuration.activeColorID !== null) {
+            presenter.configuration.activeColorID = null;
+            presenter.configuration.activeColor = null;
+        }
+        presenter.disconnectWordTokensHandlers();
+        presenter.setColor(presenter.configuration.colors[0].id);
     };
 
     presenter.setShowErrorsMode = function () {

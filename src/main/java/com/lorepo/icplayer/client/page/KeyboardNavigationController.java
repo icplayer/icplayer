@@ -151,6 +151,15 @@ public final class KeyboardNavigationController {
 		return true;
 	}
 	
+	private boolean isModuleDeactivationBlocked() {
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {
+			AddonPresenter presenter = (AddonPresenter) this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
+			return presenter.isDeactivationBlocked();
+		}
+		
+		return false;
+	}
+	
 	private void setWCAGModulesStatus (boolean isOn) {
 		for (PresenterEntry p: this.presenters) {
 			p.presenter.getWCAGController();
@@ -370,7 +379,7 @@ public final class KeyboardNavigationController {
 	            	mainPageController.getPlayerController().switchToPrevPage();
 	            }
 
-	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE && !isModuleDeactivationBlocked()) {
 	            	event.preventDefault();
 	            	deactivateModule();
 	            	setFocusOnInvisibleElement();

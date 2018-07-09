@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.content.services.TimeService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.PageList;
+import com.lorepo.icplayer.client.model.page.PopupPage;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IPage;
@@ -465,7 +466,7 @@ public class PlayerController implements IPlayerController{
 			return;
 		}
 		this.setPopupEnabled(true);
-		Page page  = this.contentModel.findPageByName(pageName);
+		PopupPage page  = new PopupPage(this.contentModel.findPageByName(pageName));
 		PageController popupPageControler = new PageController(this);
 		popupPageControler.setContent(this.getModel());
 		this.popupPanel = new PagePopupPanel(this.getView(), popupPageControler, top, left, additionalClasses, this.getPlayerServices());

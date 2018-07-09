@@ -581,6 +581,17 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		};
 		return true;
 	}-*/;
+	
+	public  boolean isDeactivationBlocked () {
+		return this.isDeactivationBlocked(this.getJavaScriptObject());
+	}
+	
+	public native boolean isDeactivationBlocked (JavaScriptObject obj) /*-{
+		if (obj !== undefined && obj !== null && obj.hasOwnProperty('isDeactivationBlocked')) {
+			return obj.isDeactivationBlocked();
+		};
+		return false;
+	}-*/;
 
 	@Override
 	public void onEventReceived(String eventName, HashMap<String, String> data) {

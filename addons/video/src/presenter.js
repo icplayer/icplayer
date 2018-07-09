@@ -24,6 +24,9 @@ function Addonvideo_create() {
     presenter.areSubtitlesHidden = false;
     presenter.calledFullScreen = false;
     presenter.playTriggered = false;
+    presenter.playerController = null;
+    presenter.posterPlayButton = null;
+    presenter.videoView  = null ;
 
     presenter.stylesBeforeFullscreen = {
         changedStyles: false,
@@ -218,7 +221,7 @@ function Addonvideo_create() {
         var mathJaxDeferred = new jQuery.Deferred();
         presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
         presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
-
+        presenter.playerController = controller;
         presenter.registerHook();
 
         presenter.eventBus = controller.getEventBus();
@@ -442,6 +445,7 @@ function Addonvideo_create() {
         }
 
         presenter.configuration.isFullScreen = true;
+        presenter.playerController.setAbleChangeLayout(false);
         fullScreenChange();
     };
 
@@ -462,6 +466,7 @@ function Addonvideo_create() {
             exitFullscreen();
         }
         presenter.configuration.isFullScreen = false;
+        presenter.playerController.setAbleChangeLayout(true);
         presenter.removeScaleFromCaptionsContainer();
         fullScreenChange();
 
@@ -738,7 +743,6 @@ function Addonvideo_create() {
         }
     };
 
-    presenter.posterPlayButton = null;
 
     presenter.showPlayButton = function () {
         if (presenter.configuration.showPlayButton) {
@@ -853,6 +857,7 @@ function Addonvideo_create() {
     presenter.fullscreenChangedEventReceived = function () {
         if (!isVideoInFullscreen() && presenter.configuration.isFullScreen) {
             presenter.configuration.isFullScreen = false;
+            presenter.playerController.setAbleChangeLayout(true);
             presenter.removeScaleFromCaptionsContainer();
             fullScreenChange();
             presenter.controlBar.showFullscreenButton();
@@ -1092,8 +1097,9 @@ function Addonvideo_create() {
         presenter.reload();
 
         $(presenter.videoObject).on('canplay', function onVideoCanPlay() {
-            if (presenter.currentTime < currentTime) {
+            if (presenter.videoObject.currentTime < currentTime) {
                 presenter.currentTime = currentTime;
+                presenter.videoObject.currentTime = currentTime;
                 presenter.startTime = currentTime;
                 presenter.videoState = presenter.VIDEO_STATE.PAUSED;
                 $(this).off('canplay');
@@ -1555,6 +1561,10 @@ function Addonvideo_create() {
                 presenter.metadadaLoaded = false;
             }
         }
+         if (!presenter.isVideoLoaded) {
+                presenter.videoObject.load();
+                presenter.metadadaLoaded = false;
+            }
     };
 
     presenter.addClassToView = function (className) {
