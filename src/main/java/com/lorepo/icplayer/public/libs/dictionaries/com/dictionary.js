@@ -1034,6 +1034,7 @@ var ice_dictionary_en = {
 	"Table_Of_Contents_property_header": "Header",
 	"Table_Of_Contents_property_dont_show_pages": "Don't show pages",
     "Table_Of_Contents_property_display_type": "Display Type",
+	"Table_cell": "Cell",
 	"Table_property_new_width_calculate": "Fix columns width",
 	"text_identification_info": "Allows to add multiple text selection with HTML content to a presentation, where each element works in a single selection mode.",
 	"text_identification_name": "Text Identification",

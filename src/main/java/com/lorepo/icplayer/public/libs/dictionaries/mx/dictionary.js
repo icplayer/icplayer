@@ -1145,6 +1145,7 @@ var ice_dictionary_mx = {
 	"Table_Of_Contents_property_header": "Cabezal",
 	"Table_Of_Contents_property_dont_show_pages": "No mostrar las páginas",
 	"Table_Of_Contents_property_display_type": "Tipo de visualización",
+	"Table_cell": "Cell",
 	"text_identification_info": "Permite añadir la actividad de selección de varios elementos de texto a la presentación. Cada elemento funciona en modo individual.",
 	"text_identification_name": "Identificación del texto",
 	"text_identification_property_text": "Texto",
