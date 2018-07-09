@@ -390,4 +390,67 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		assertEquals("3Answer", answer3Widget.getTextValue());
 		
 	}
+	
+	@Test
+	public void getingElementTextWithDefaultValue() throws Exception {
+		String placeHolder = "init"; 
+		
+		TextModel module = new TextModel();
+		module.setIsVisible(true);
+		
+		GapInfo gapInfo1 = new GapInfo("1", 1, false, false, 1);
+		gapInfo1.setPlaceHolder(placeHolder);
+		
+		
+		IPlayerServices services = Mockito.mock(IPlayerServices.class);
+		TextPresenter presenter = new TextPresenter(module, services);
+		
+		String res = Whitebox.invokeMethod(presenter, "getElementText", gapInfo1);
+		
+		assertEquals(placeHolder, res); 
+	} 
+	
+	
+	@Test
+	public void checkingFilledGragScore() throws SAXException, IOException {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module5.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+
+		services = new PlayerServicesMockup();
+		display = new TextViewMockup(module);
+		presenter = new TextPresenter(module, services);
+		presenter.addView(display);
+		
+		id1 = module.gapInfos.get(0).getId();
+		id2 = module.gapInfos.get(1).getId();
+		
+		display.getListener().onValueChanged(id1, "error1");
+		display.getListener().onValueChanged(id2, "answer2");
+		assertEquals(1, presenter.getScore());
+	}
+	
+	
+	@Test
+	public void checkingFilledGragErrorCount() throws SAXException, IOException {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module5.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+
+		services = new PlayerServicesMockup();
+		display = new TextViewMockup(module);
+		presenter = new TextPresenter(module, services);
+		presenter.addView(display);
+		
+		id1 = module.gapInfos.get(0).getId();
+		id2 = module.gapInfos.get(1).getId();
+		
+		display.getListener().onValueChanged(id1, "error1");
+		display.getListener().onValueChanged(id2, "error2");
+		assertEquals(2, presenter.getErrorCount());
+	}
 }

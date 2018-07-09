@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<textModule id="text" left='5' top='10' width='80.0' height='40.0' class="myText">
+	<text isIgnorePunctuation="true">
+		&lt;p&gt;This is a filled gap1: \filledGap{PlaceHolder1|answer1}&lt;/p&gt;
+		&lt;p&gt;This is a filled gap2: \filledGap{PlaceHolder2|answer2}&lt;/p&gt;
+	</text>
+</textModule>

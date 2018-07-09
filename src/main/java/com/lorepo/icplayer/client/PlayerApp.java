@@ -469,7 +469,7 @@ public class PlayerApp {
 		playerController.setPlayerConfig(playerConfig);
 		playerController.setFirstPageAsCover(showCover);
 		playerController.setAnalytics(analyticsId);
-		
+
 		EnableTabindex.getInstance().create(contentModel.getMetadataValue("enableTabindex").compareTo("true") == 0);
 
 		playerController.addPageLoadListener(new ILoadListener() {
@@ -494,7 +494,6 @@ public class PlayerApp {
 		});
 
 		contentModel.setPlayerController(getPlayerServices());
-
 		RootPanel.get(divId).add(playerView);
 		this.loadActualLayoutCSSStyles();
 
@@ -669,15 +668,18 @@ public class PlayerApp {
 		return this.contentModel.getSemiResponsiveLayoutsAsJS();
 	}
 
-	public boolean changeLayout(String layoutID) {
-		boolean isLayoutChanged = this.contentModel.setActualLayoutID(layoutID);
-
-		if (isLayoutChanged) {
-			this.loadActualLayoutCSSStyles();
-			int pageIndex = this.playerController.getCurrentPageIndex();
-			this.playerController.switchToPage(pageIndex);
+	
+	public boolean changeLayout(String layoutID) {         
+		boolean isLayoutChanged = false; 
+		boolean isAble = this.playerController.getPlayerServices().isAbleChangeLayout();
+		if(isAble) {
+			isLayoutChanged = this.contentModel.setActualLayoutID(layoutID);
+			if (isLayoutChanged) {
+				this.loadActualLayoutCSSStyles();
+				int pageIndex = this.playerController.getCurrentPageIndex();
+				this.playerController.switchToPage(pageIndex);
+			}
 		}
-
 		return isLayoutChanged;
 	}
 }

@@ -16,7 +16,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TextBox;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
 
@@ -308,5 +307,15 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	
 	public int getGapState () {
 		return this.gapState;
+	}
+	
+	public String getText() {
+		String t = super.getText();
+
+		if(t.isEmpty()){
+			t = DOM.getElementProperty(getElement(), "placeholder");
+		}
+
+		return t; 
 	}
 }

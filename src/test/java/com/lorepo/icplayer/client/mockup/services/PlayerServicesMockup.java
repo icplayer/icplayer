@@ -207,4 +207,18 @@ public class PlayerServicesMockup implements IPlayerServices {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+
+	@Override
+	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public boolean isAbleChangeLayout() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
