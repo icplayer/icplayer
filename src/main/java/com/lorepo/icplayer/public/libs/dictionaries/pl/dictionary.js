@@ -35,7 +35,6 @@
 	"add_new_semi_responsive_layout_success": "Dodawanie nowego układu zostało zakończone powodzeniem.",
 	"delete_semi_responsive_layout_warning_default_cant_be_deleted": "Nie można usunąć domyślnego układu częściowo responsywnego",
 	"delete_semi_responsive_layout_question": "Czy na pewno chcesz usunąć ten układ częściwo responsywny? Zostanie również usunięta konfiguracja wszystkich układów stron.",
-	"delete_semi_responsive_layout_warning_default_cant_be_deleted": "Nie można usunąć domyślnego układu częściowo responsywnego.",
 	"delete_semi_responsive_layout_error_not_enough_layouts": "Nie ma wystarczającej liczby układów do usunięcia.",
 	"delete_semi_responsive_layout_error_does_not_exists": "Układ częściowo responsywny nie istnieje, nie można go usunąć.", 
 	"delete_semi_responsive_layout_success": "Układ został pomyślnie usunięty.",
