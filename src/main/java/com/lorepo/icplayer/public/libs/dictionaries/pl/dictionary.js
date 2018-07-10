@@ -1,4 +1,4 @@
-var ice_dictionary_pl = {
+﻿var ice_dictionary_pl = {
 	"orientation_type_vertical" : "pionowy",
 	"orientation_type_horizontal": "poziomy",
 	"semi_responsive_properties_label": "Układ",
@@ -1748,6 +1748,7 @@ var ice_dictionary_pl = {
 	"Quiz_property_NextLabel": "Następna etykieta",
 	"Quiz_property_GameLostMessage": "Komunikat o przegranej",
 	"Quiz_property_GameWonMessage": "Komunikat o wygranej",
+	"Quiz_property_center_vertically": "Center vertically",
 	"Quiz_property_isActivity": "Jest ćwiczeniem",
 	"dont_generate_correct_order": "Nie generuj poprawnej kombinacji",
 	"alternative_text": "Tekst alternatywny",
