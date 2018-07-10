@@ -1,5 +1,8 @@
 package com.lorepo.icplayer.client.module.imagegap;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -7,11 +10,14 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.Image;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter.IDisplay;
+import com.lorepo.icplayer.client.page.PageController;
 
-public class ImageGapView extends Image implements IDisplay, IWCAG {
+public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IWCAG {
 
 	private static final String HOLLOW_IMAGE = "media/hollow.png";
 	private static final String DEFAULT_STYLE = "ic_imageGap";
@@ -25,6 +31,13 @@ public class ImageGapView extends Image implements IDisplay, IWCAG {
 	private final ImageGapModule module;
 	private IViewListener listener;
 	private boolean disabled = false;
+	
+	private boolean isWCAGOn = false;
+	private PageController pageController = null;
+	private String langTag = "";
+	private String altText = "";
+	private String imageUrl = "";
+	
 
 	public ImageGapView(ImageGapModule module, boolean isPreview) {
 		this.module = module;
@@ -68,6 +81,7 @@ public class ImageGapView extends Image implements IDisplay, IWCAG {
 	public void setImageUrl(String url) {
 		setUrl(url.isEmpty() ? GWT.getModuleBaseURL() + HOLLOW_IMAGE : url);
 		resetStyles();
+		this.imageUrl = url;
 	}
 
 	@Override
@@ -171,16 +185,14 @@ public class ImageGapView extends Image implements IDisplay, IWCAG {
 		return "ImageGap";
 	}
 	
+	@Override
 	public void enter(boolean isExiting) {
-		if (!isExiting) {
-			this.listener.onClicked();
-		}
-		
+		this.readStatus();
 	}
 
 	@Override
 	public void space(KeyDownEvent event) {
-		// TODO Auto-generated method stub
+		this.listener.onClicked();
 	}
 
 	@Override
@@ -226,11 +238,74 @@ public class ImageGapView extends Image implements IDisplay, IWCAG {
 	@Override
 	public void clearAltText() {
 		getElement().setAttribute("alt", "");	
+		this.altText = "";
 	}
 	
 	@Override
 	public void setAltText(String alt){
 		getElement().setAttribute("alt", alt);
+		this.altText = alt;
+	}
+
+	@Override
+	public void setPageController(PageController pc) {
+		this.pageController = pc;
+		this.setWCAGStatus(true);
+		
+	}
+
+	@Override
+	public void setWCAGStatus(boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;
+		
+	}
+
+	@Override
+	public String getLang() {
+		return langTag;
+	}
+	
+	@Override
+	public void setLangTag(String langTag) {
+		this.langTag = langTag;
+		getElement().setAttribute("lang", langTag);
+	}
+
+	@Override
+	public void readInserted() {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(TextToSpeechVoice.create(module.getSpeechTextItem(ImageGapModule.INSERTED_INDEX)));
+		textVoices.add(TextToSpeechVoice.create(this.altText, this.langTag));
+		speak(textVoices);
+	}
+
+	@Override
+	public void readRemoved() {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(TextToSpeechVoice.create(module.getSpeechTextItem(ImageGapModule.REMOVED_INDEX)));
+		textVoices.add(TextToSpeechVoice.create(this.altText, this.langTag));
+		speak(textVoices);
+	}
+
+	public void readStatus() {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		if (this.imageUrl.length() > 0) {
+			textVoices.add(TextToSpeechVoice.create(this.altText, this.langTag));
+			if (getElement().getClassName().contains(CORRECT_STYLE) && !(getElement().getClassName().contains(SHOW_CORRECT_STYLE))) {
+				textVoices.add(TextToSpeechVoice.create(module.getSpeechTextItem(ImageGapModule.CORRECT_INDEX)));
+			} else if (getElement().getClassName().contains(WRONG_STYLE)) {
+				textVoices.add(TextToSpeechVoice.create(module.getSpeechTextItem(ImageGapModule.WRONG_INDEX)));
+			}
+		} else {
+			textVoices.add(TextToSpeechVoice.create(module.getSpeechTextItem(ImageGapModule.EMPTY_INDEX)));
+		}
+		speak(textVoices);
+	}
+	
+	private void speak (List<TextToSpeechVoice> textVoices) {
+		if (this.isWCAGOn && this.pageController != null) {
+			this.pageController.speak(textVoices);
+		}
 	}
 	
 
