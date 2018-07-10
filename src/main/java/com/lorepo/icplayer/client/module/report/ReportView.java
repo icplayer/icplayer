@@ -192,24 +192,39 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	
 	private String getCellText(int x, int y){
 		String cellText = grid.getText(y, x);
-		if (x==3) cellText = cellText.replaceAll("/", ", ");
+		if (x==3) cellText = cellText.replaceAll("/", " " + this.module.getSpeechTextItem(ReportModule.outOfWCAGIndex) + " ");
 		return cellText;
 			
 	}
 
 	private void readCell(int x, int y){
-		String columnName = "";
-		if(x!=0) columnName = this.module.getSpeechTextItem(x);
-		this.speak(TextToSpeechVoice.create(columnName+" "+this.getCellText(x, y)));
+		if(x==0) {
+			if(y == grid.getRowCount()-1) {
+				this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(ReportModule.totalWCAGIndex)));
+			} else {
+				this.speak(TextToSpeechVoice.create(grid.getText(y, 0),this.module.getLangAttribute()));
+			}
+		} else {
+			this.speak(TextToSpeechVoice.create(getColumnSpeechText(x)+" "+this.getCellText(x, y)));
+		};
 	}
 	
 	private void readRow(int x, int y){
-		if(x==0){
-		this.speak(TextToSpeechVoice.create(grid.getText(y, 0)));
-		}else{
-			String columnName = this.module.getSpeechTextItem(x);
-			String pageName = grid.getText(y, 0);
-			this.speak(TextToSpeechVoice.create(pageName+", "+columnName+" "+this.getCellText(x, y)));
+		if (x==0) {
+			if (y == grid.getRowCount()-1) {
+				this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(ReportModule.totalWCAGIndex)));
+			} else {
+				this.speak(TextToSpeechVoice.create(grid.getText(y, 0), this.module.getLangAttribute()));
+			}
+		} else {
+			List<TextToSpeechVoice> voicesArray = new ArrayList<TextToSpeechVoice>();
+			if(y==grid.getRowCount()-1){
+				voicesArray.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(ReportModule.totalWCAGIndex)));			
+			} else {
+				voicesArray.add(TextToSpeechVoice.create(grid.getText(y, 0), this.module.getLangAttribute()));
+			}
+			voicesArray.add(TextToSpeechVoice.create(getColumnSpeechText(x)+" "+this.getCellText(x, y)));	
+			speak(voicesArray);
 		}
 	}
 	
@@ -237,11 +252,11 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	@Override
 	public void enter(boolean isExiting) {
 		this.isWCAGActive = !isExiting;
-		if(isExiting){
+		if (isExiting) {
 			grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
 			currentWCAGSelectedRowIndex = 1;
 			currentWCAGSelectedColumnIndex = 0;
-		}else{
+		} else {
 			this.readRow(currentWCAGSelectedColumnIndex, currentWCAGSelectedRowIndex);
 			grid.getCellFormatter().addStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
 		}
@@ -249,20 +264,26 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {}
+	public void space(KeyDownEvent event) {
+		if (listener != null 
+			&& this.currentWCAGSelectedColumnIndex == 0 
+			&& this.currentWCAGSelectedRowIndex != grid.getRowCount()-1) {
+				String link = pageLinks.get(this.currentWCAGSelectedRowIndex);
+				listener.onClicked(link);
+		}
+	}
 
 	@Override
 	public void tab(KeyDownEvent event) {
-		if(currentWCAGSelectedColumnIndex==this.getColumnCount()-1){
-			if(currentWCAGSelectedRowIndex==lastRow){
+		if (currentWCAGSelectedColumnIndex==this.getColumnCount()-1) {
+			if (currentWCAGSelectedRowIndex==lastRow) {
 				this.readCell(currentWCAGSelectedColumnIndex, currentWCAGSelectedRowIndex);
 				return;
 			}
 			this.move(1-1*this.getColumnCount(),1);
-		}else{
+		} else {
 			this.move(1,0);
 		}
-		
 	}
 
 	@Override
@@ -300,9 +321,15 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {
-		grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
-		currentWCAGSelectedRowIndex = 1;
-		currentWCAGSelectedColumnIndex = 0;
+		if (currentWCAGSelectedColumnIndex==0) {
+			if (currentWCAGSelectedRowIndex==1) {
+				this.readCell(currentWCAGSelectedColumnIndex, currentWCAGSelectedRowIndex);
+				return;
+			}
+			this.move(this.getColumnCount()-1,-1);
+		} else {
+			this.move(-1,0);
+		}
 	}
 	
 	private void speak (TextToSpeechVoice t1) {
@@ -315,6 +342,14 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	private void speak (List<TextToSpeechVoice> textVoices) {
 		if (this.pageController != null) {
 			this.pageController.speak(textVoices);
+		}
+	}
+	
+	private String getColumnSpeechText(int columnIndex) {
+		if (columnIndex<1 || columnIndex>3) {
+			return "";
+		} else {
+			return this.module.getSpeechTextItem(columnIndex);
 		}
 	}
 }

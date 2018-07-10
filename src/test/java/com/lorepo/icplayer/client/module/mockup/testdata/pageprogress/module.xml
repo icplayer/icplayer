@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<pageProgressModule bottom="0" height="100" id="Page_Progress1" isLocked="false" isModuleVisibleInEditor="true" isTabindexEnabled="false" isVisible="true" left="10" right="0" top="10" width="100">
+	<layout type="LTWH">
+		<left property="left" relative=""/>
+		<top property="top" relative=""/>
+		<right property="right" relative=""/>
+		<bottom property="bottom" relative=""/>
+	</layout>
+	<pageProgress/>
+</pageProgressModule>

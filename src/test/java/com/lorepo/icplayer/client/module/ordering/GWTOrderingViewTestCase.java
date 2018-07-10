@@ -37,9 +37,9 @@ public class GWTOrderingViewTestCase extends GWTPowerMockitoTest {
 		Whitebox.setInternalState(this.orderingViewPMMock, "innerCellPanel", this.innerCellPanel);
 		Whitebox.setInternalState(this.orderingViewPMMock, "module", this.model);
 		
-		itemWidget1 = new ItemWidget(new OrderingItem(0, "string", "string"), this.model);
-		itemWidget2 = new ItemWidget(new OrderingItem(1, "string", "string"), this.model);
-		itemWidget3 = new ItemWidget(new OrderingItem(2, "string", "string"), this.model);
+		itemWidget1 = new ItemWidget(new OrderingItem(0, "string", "string", 0), this.model);
+		itemWidget2 = new ItemWidget(new OrderingItem(1, "string", "string", 0), this.model);
+		itemWidget3 = new ItemWidget(new OrderingItem(2, "string", "string", 0), this.model);
 		
 		Whitebox.invokeMethod(this.orderingViewPMMock, "addWidget", itemWidget1);
 		Whitebox.invokeMethod(this.orderingViewPMMock, "addWidget", itemWidget2);

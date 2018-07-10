@@ -1,19 +1,28 @@
 package com.lorepo.icplayer.client.module.button;
 
+import java.util.ArrayList;
+
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEventProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.ITextProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
+import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 
-public class ButtonModule extends BasicModuleModel {
+public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
+	
+	public static final int RESET_BUTTON_RESET_INDEX = 0;
 
 	public enum ButtonType {
 		standard,
@@ -39,10 +48,13 @@ public class ButtonModule extends BasicModuleModel {
 	private String confirmYesInfo = "";
 	private String confirmNoInfo = "";
 	private boolean goToLastVisitedPage = false;
+	private ArrayList<SpeechTextsStaticListItem> resetSpeechTextItems = new ArrayList<SpeechTextsStaticListItem>();
+	private IStaticListProperty resetSpeechTextProperty = null;
 	
 	public ButtonModule() {
 		super("Button", DictionaryWrapper.get("button_module"));
 		addPropertyTitle();
+		initializeResetSpeechTexts();
 	}
 
 	String getAdditionalClasses() {
@@ -69,6 +81,9 @@ public class ButtonModule extends BasicModuleModel {
 					confirmYesInfo = StringUtils.unescapeXML(childElement.getAttribute("confirmYesInfo"));
 					confirmNoInfo = StringUtils.unescapeXML(childElement.getAttribute("confirmNoInfo"));
 					goToLastVisitedPage = XMLUtils.getAttributeAsBoolean(childElement, "goToLastVisitedPage", false);
+					if (type == ButtonType.reset) {
+						this.resetSpeechTextItems.get(ButtonModule.RESET_BUTTON_RESET_INDEX).setText(StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "resetReset")));
+					}
 				}
 			}
 		}
@@ -112,6 +127,7 @@ public class ButtonModule extends BasicModuleModel {
 			button.setAttribute("confirmInfo", StringUtils.escapeXML(confirmInfo));
 			button.setAttribute("confirmYesInfo", StringUtils.escapeXML(confirmYesInfo));
 			button.setAttribute("confirmNoInfo", StringUtils.escapeXML(confirmNoInfo));
+			button.setAttribute("resetReset", StringUtils.escapeXML(this.resetSpeechTextItems.get(ButtonModule.RESET_BUTTON_RESET_INDEX).getText()));
 		}
 		if (type == ButtonType.prevPage) {
 			XMLUtils.setBooleanAttribute(button, "goToLastVisitedPage", this.goToLastVisitedPage);
@@ -171,6 +187,7 @@ public class ButtonModule extends BasicModuleModel {
 			addPropertyConfirmInfo();
 			addPropertyConfirmYesInfo();
 			addPropertyConfirmNoInfo();
+			addPropertyResetSpeechTexts();
 		}
 		else if(type == ButtonType.prevPage){
 			this.addGoToLastPageProperty();
@@ -665,6 +682,82 @@ public class ButtonModule extends BasicModuleModel {
 	@Override
 	public String getClassNamePrefix() {
 		return getType().toString();
+	}
+	
+	private void initializeResetSpeechTexts() {
+		resetSpeechTextProperty = new IStaticListProperty() {
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(resetSpeechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return resetSpeechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				resetSpeechTextItems.add(new SpeechTextsStaticListItem("reset","reset_button"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return resetSpeechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+
+		};
+		resetSpeechTextProperty.addChildren(1);
+	}
+	
+	private void addPropertyResetSpeechTexts(){
+		if(resetSpeechTextProperty == null) {
+		    initializeResetSpeechTexts();
+		}
+		addProperty(resetSpeechTextProperty);
+	}
+	
+	public String getResetSpeechTextItem (int index) {
+		if (index < 0 || index >= this.resetSpeechTextItems.size()) {
+			return "";
+		}
+		
+		final String text = this.resetSpeechTextItems.get(index).getText();
+		if (text.isEmpty()) {
+			if (index == ButtonModule.RESET_BUTTON_RESET_INDEX) {
+				return "Page has been reset";
+			}
+			
+			return "";
+		}
+		
+		return text;
 	}
 
 }

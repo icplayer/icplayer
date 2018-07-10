@@ -3,6 +3,8 @@ function AddonNavigation_Bar_create() {
     presenter.eventBus = null;
     presenter.pagesOk = [];
     presenter.allPagesDisplayed = false;
+    presenter.pageTitles = [];
+    var isWCAGOn = false;
 
     presenter.__internalElements = {
         goToPage: goToPage
@@ -44,8 +46,30 @@ function AddonNavigation_Bar_create() {
     	return Internationalization.WESTERN_ARABIC;
     }
 
-    presenter.keyboardController = function(keycode) {
+    function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
 
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    presenter.keyboardController = function(keycode, isShift) {
+        
         $(document).on('keydown', function(e) {
             e.preventDefault();
             $(this).off('keydown');
@@ -86,16 +110,12 @@ function AddonNavigation_Bar_create() {
         function select(element) {
             if (!element) return;
 
-            presenter.$view.find('span').removeClass('navigationbar-element-mouse-hover');
+            deselect();
 
             $(element).removeClass('navigationbar-element');
             $(element).addClass('navigationbar-element-mouse-hover');
 
             var pageNumber = $(element).attr('data-page-number');
-        }
-
-        function selectFirst() {
-            select(elements[0]);
         }
 
         function skipToPage() {
@@ -104,31 +124,46 @@ function AddonNavigation_Bar_create() {
 
         function back() {
             select(elements[getCurrentPosition() - 1]);
+            presenter.playButton(elements[getCurrentPosition()]);
         }
 
         function forward() {
             select(elements[getCurrentPosition() + 1]);
+            presenter.playButton(elements[getCurrentPosition()]);
         }
 
         function deselect() {
-            presenter.$view.find('span').removeClass('navigationbar-element-mouse-hover');
+            var activeElement = presenter.$view.find('span.navigationbar-element-mouse-hover');
+            activeElement.removeClass('navigationbar-element-mouse-hover');
+            activeElement.addClass('navigationbar-element');
         }
 
         switch(keycode) {
-            case 13:
-                selectFirst();
+            case 13: // enter
+                if(isShift) { // isShift is true when ctrl or shift is pressed
+                    deselect();
+                } else {
+                    presenter.playButton(elements[getCurrentPosition()]);
+                }
                 break;
-            case 32:
+            case 32: // space
                 skipToPage();
                 break;
-            case 37:
+            case 37: // left arrow
                 back();
                 break;
-            case 39:
+            case 39: // right arrow
                 forward();
                 break;
-            case 27:
+            case 27: // escape
                 deselect();
+                break;
+            case 9: // tab
+                if(isShift) {
+                    back();
+                } else {
+                    forward();
+                };
                 break;
         }
     };
@@ -146,6 +181,43 @@ function AddonNavigation_Bar_create() {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('closePage', this);
+
+        for(var i = 0; i < presenter.pageCount; i++) {
+            presenter.pageTitles.push(presenter.presentation.getPage(i).getName());
+        }
+    };
+
+    presenter.playButton = function(element){
+        var $element = $(element);
+        if($element.hasClass('navigationbar-element-previous')) {
+            presenter.playPage(presenter.currentIndex - 1 , presenter.configuration.speechTexts.prevPage);
+        } else if ($element.hasClass('navigationbar-element-next')){
+            presenter.playPage(presenter.currentIndex + 1 , presenter.configuration.speechTexts.nextPage);
+        } else if ($element.hasClass('dotted-element-left')) {
+            speak([getTextVoiceObject(presenter.configuration.speechTexts.dottedLeft)]);
+        } else if ($element.hasClass('dotted-element-right')) {
+            speak([getTextVoiceObject(presenter.configuration.speechTexts.dottedRight)]);
+        } else {
+            var pageNumber = $element.attr('data-page-number');
+            if (pageNumber !== null && pageNumber !== undefined && !isNaN(pageNumber)){
+                presenter.playPage(pageNumber-1 , presenter.configuration.speechTexts.goToPageNumber + ' ' + pageNumber);
+            }
+        }
+    };
+
+    presenter.playPage = function (index, text) {
+        if (index >= 0 && index < presenter.pageTitles.length) {
+            var textVoiceArray = [];
+            if(presenter.configuration.playTitle) {
+                textVoiceArray.push(getTextVoiceObject(text + ' ' + presenter.configuration.speechTexts.titled));
+                textVoiceArray.push(getTextVoiceObject(presenter.pageTitles[index], presenter.configuration.langTag));
+            } else {
+                textVoiceArray.push(getTextVoiceObject(text));
+            }
+            speak(textVoiceArray);
+        } else {
+            speak(getTextVoiceObject(text));
+        }
     };
 
     function goToPage(whereTo, index) {
@@ -263,6 +335,9 @@ function AddonNavigation_Bar_create() {
                 presenter.setPageStyles();
             }
 
+            if(isWCAGOn) {
+                presenter.$view.find(".dotted-element-right:first").addClass('navigationbar-element-mouse-hover');
+            }
             return false;
         });
 
@@ -287,6 +362,9 @@ function AddonNavigation_Bar_create() {
                 presenter.setPageStyles();
             }
 
+            if(isWCAGOn) {
+                presenter.$view.find(".dotted-element-left:first").addClass('navigationbar-element-mouse-hover');
+            }
             return false;
         });
     }
@@ -654,6 +732,36 @@ function AddonNavigation_Bar_create() {
         return true;
     };
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeFrom_01(model);
+    };
+
+    presenter.upgradeFrom_01 = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel['langAttribute']) {
+            upgradedModel['langAttribute'] = '';
+        }
+         if (!upgradedModel['speechTexts']) {
+            upgradedModel['speechTexts'] =
+                {
+                    DottedLeft: {DottedLeft: ''},
+                    DottedRight: {DottedRight: ''},
+                    GoToPageNumber: {GoToPageNumber: ''},
+                    NextPage: {NextPage: ''},
+                    PrevPage: {PrevPage: ''},
+                    Titled: {Titled: ''}
+                };
+        }
+
+        if (!upgradedModel['playTitle']) {
+            upgradedModel['playTitle'] = '';
+        }
+
+        return upgradedModel;
+    };
+
     presenter.validateModel = function (model) {
         var validatedModel = {
             isError: false,
@@ -664,7 +772,10 @@ function AddonNavigation_Bar_create() {
             addClassNBPageOK: model.AddClassNBPageOK === 'True',
             ID: model.ID,
             firstPageAsCover: ModelValidationUtils.validateBoolean(model["firstPageAsCover"]),
-            lastPageSeparated: ModelValidationUtils.validateBoolean(model["lastPageSeparated"])
+            lastPageSeparated: ModelValidationUtils.validateBoolean(model["lastPageSeparated"]),
+            langTag: model['langAttribute'],
+            speechTexts: getSpeechTexts(model['speechTexts']),
+            playTitle: 0 === model['playTitle'].toLowerCase().localeCompare('true')
         };
 
         if (!model['Styles']) {
@@ -689,6 +800,41 @@ function AddonNavigation_Bar_create() {
 
         return validatedModel;
     };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function getSpeechTexts (speechTexts) {
+        var speechTextsModel = {
+            goToPageNumber:  'Go to page number',
+            nextPage: 'Go to next page',
+            prevPage: 'Go to previous page',
+            titled: 'Titled',
+            dottedRight: 'Show more pages',
+            dottedLeft: 'Show earlier pages'
+        };
+
+        if (!speechTexts) {
+            return speechTextsModel;
+        }
+
+        speechTextsModel = {
+            goToPageNumber:    getSpeechTextProperty(speechTexts['GoToPageNumber']['GoToPageNumber'], speechTextsModel.goToPageNumber),
+            nextPage: getSpeechTextProperty(speechTexts['NextPage']['NextPage'], speechTextsModel.nextPage),
+            prevPage:  getSpeechTextProperty(speechTexts['PrevPage']['PrevPage'], speechTextsModel.prevPage),
+            titled:     getSpeechTextProperty(speechTexts['Titled']['Titled'], speechTextsModel.titled),
+            dottedRight:   getSpeechTextProperty(speechTexts['DottedRight']['DottedRight'], speechTextsModel.dottedRight),
+            dottedLeft:      getSpeechTextProperty(speechTexts['DottedLeft']['DottedLeft'], speechTextsModel.dottedLeft),
+        };
+        return speechTextsModel;
+    }
 
     presenter.getArrowsCount = function () {
         var arrowsCount = 0;
@@ -737,6 +883,7 @@ function AddonNavigation_Bar_create() {
         presenter.$wrapper = presenter.$view.find('.navigationbar-wrapper:first');
         var $element = presenter.$view.find('.navigationbar-element-first');
 
+        model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
         var arrowsCount = presenter.getArrowsCount();
 

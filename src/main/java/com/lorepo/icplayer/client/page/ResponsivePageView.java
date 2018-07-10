@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -34,7 +35,7 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 		currentPage = newPage;
 		String styles = "";
 		if(currentPage.getInlineStyle() != null){
-			styles += currentPage.getInlineStyle(); 
+			styles += URLUtils.resolveCSSURL(currentPage.getBaseURL(), currentPage.getInlineStyle()); 
 		}
 		DOMUtils.applyInlineStyle(getElement(), styles);
 		if(!currentPage.getStyleClass().isEmpty()){

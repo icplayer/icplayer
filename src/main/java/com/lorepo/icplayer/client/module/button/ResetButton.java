@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
+import com.lorepo.icplayer.client.utils.DevicesUtils;
 
 
 class ResetButton extends ExecutableButton {
@@ -22,10 +23,10 @@ class ResetButton extends ExecutableButton {
 	private String confInfoNo = "";
 	private boolean confReset;
 	private IPlayerCommands pageService;
-	
+
 	public static native void removeHoveringFromButtons() /*-{
 	  var reset = $wnd.$('[id^="Reset"]');
-	  
+
 	  $wnd.$(reset).each(function () {
 	  	var element = $wnd.$(this),
 			classNames = element.attr("class");
@@ -33,20 +34,20 @@ class ResetButton extends ExecutableButton {
 		element.attr("class", classNames);
 	  });
 	}-*/;
-	
+
 	public ResetButton(final IPlayerCommands pageService, final boolean confirmReset, final String confirmInfo, final String confirmYesInfo, final String confirmNoInfo){
 		super(null);
-		
+
 		setStyleName("ic_button_reset");
-		
+
 		this.confReset = confirmReset;
 		this.confInfo = confirmInfo;
 		this.confInfoYes = confirmYesInfo;
 		this.confInfoNo = confirmNoInfo;
 		this.pageService = pageService;
-		
+
 		addMouseOverHandler(new MouseOverHandler() {
-			
+
 			@Override
 			public void onMouseOver(MouseOverEvent event) {
 				String classNames = getElement().getClassName();
@@ -55,24 +56,24 @@ class ResetButton extends ExecutableButton {
 					getElement().setClassName(classNames);
 				}
 			}
-		});		
+		});
 	}
-	
+
 	public void execute(){
 		if(this.confReset){
-			
+
 			if(this.confInfo == "") {
 				this.confInfo = "Are you sure that you want to reset the modules?";
 			}
-			
+
 			if(this.confInfoYes == "") {
 				this.confInfoYes = "Yes";
 			}
-			
+
 			if(this.confInfoNo == "") {
 				this.confInfoNo = "No";
 			}
-			
+
 			final DialogBox dialogBox = new DialogBox();
 			dialogBox.setStyleName("ic_confim_box");
 	        dialogBox.setHTML("<center>" + confInfo + "</center>");
@@ -82,7 +83,7 @@ class ResetButton extends ExecutableButton {
 	        dialogHPanel.setStyleName("ic_confirm_box_buttons");
 	        yesButton.setStyleName("ic_confirm_box_yes");
 	        noButton.setStyleName("ic_confirm_box_no");
-	        
+
 	        dialogHPanel.setWidth("100%");
 	        dialogHPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 	        dialogHPanel.add(yesButton);
@@ -109,11 +110,15 @@ class ResetButton extends ExecutableButton {
 	              }
 	        });
 
-	        dialogBox.setWidget(dialogHPanel);
-	        dialogBox.setPopupPosition(left, top);
-	        dialogBox.show();
-		} else {
-			this.pageService.reset();
-		}				
-	}
+            dialogBox.setWidget(dialogHPanel);
+            dialogBox.setPopupPosition(left, top);
+            dialogBox.show();
+        } else {
+            this.pageService.reset();
+        }
+
+        if (DevicesUtils.isMobile()) {
+            removeHoveringFromButtons();
+        }
+    }
 }

@@ -8,6 +8,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -189,6 +190,10 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 			this.view.execute();	
 		}
 	}
+	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
 
 	private native JavaScriptObject initJSObject(ButtonPresenter x) /*-{
 		var presenter = function() {}
@@ -208,6 +213,10 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 		presenter.execute = function() {
 			return x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::execute()();
 		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.button.ButtonPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
 		
 		return presenter;
 	}-*/;
@@ -242,5 +251,10 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 		
 		boolean isVisible = !isHidden && !isNone && isEnabled;
 		return isVisible;
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		
 	}
 }

@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.report;
 
+import java.util.HashMap;
+
 import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -144,5 +146,12 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		return !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
+	}
+
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		// TODO Auto-generated method stub
+		
 	}
 }

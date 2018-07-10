@@ -19,6 +19,27 @@
         <property name="Number of repetitions" nameLabel="multiplegap_property_number_of_repetitions" type="string" />
         <property name="ID repeated element" nameLabel="multiplegap_property_id_repeated_element" type="string" />
         <property name="Block wrong answers" displayName="Block wrong answers" nameLabel="multiplegap_property_block_wrong_answers" type="boolean" />
-		<property name="Alt text" nameLabel="multiplegap_property_alt_text" type="string" />
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="multiple_property_lang_attribute" type="string" />
+		<property name="speechTexts" displayName="Speech texts" nameLabel="multiplegap_property_speech_texts" type="staticlist">
+            <property name="Inserted" nameLabel="multiplegap_property_inserted" type="staticrow">
+                <property name="Inserted" nameLabel="multiplegap_property_inserted" type="string"/>
+            </property>
+
+            <property name="Removed" nameLabel="multiplegap_property_removed" type="staticrow">
+                <property name="Removed" nameLabel="multiplegap_property_removed" type="string"/>
+            </property>
+
+			<property name="Empty" nameLabel="multiplegap_property_empty" type="staticrow">
+                <property name="Empty" nameLabel="multiplegap_property_empty" type="string"/>
+            </property>
+
+			<property name="Correct" nameLabel="multiplegap_property_correct" type="staticrow">
+                <property name="Correct" nameLabel="multiplegap_property_correct" type="string"/>
+            </property>
+
+			<property name="Wrong" nameLabel="multiplegap_property_wrong" type="staticrow">
+                <property name="Wrong" nameLabel="multiplegap_property_wrong" type="string"/>
+            </property>
+		</property>
 	</model>
 </addon>

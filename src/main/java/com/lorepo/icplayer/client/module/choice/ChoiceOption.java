@@ -202,8 +202,8 @@ public class ChoiceOption extends BasicPropertyProvider{
 		CDATASection cdataText = XMLUtils.createCDATASection(text);
 		textElement.appendChild(cdataText);
 		
-		Element feedbackElement = XMLUtils.createElement("feedback");
-		feedbackElement.setNodeValue(StringUtils.escapeHTML(feedback));
+		Element feedbackElement = XMLUtils.createElement("feedback");		
+		feedbackElement.appendChild(XMLUtils.createTextNode(StringUtils.escapeHTML(feedback)));
 
 		optionElement.appendChild(textElement);
 		optionElement.appendChild(feedbackElement);

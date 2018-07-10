@@ -249,6 +249,15 @@ TestCase("[Text Selection] Support Functions", {
         assertTrue(result.isValid);
         assertEquals('<div class=\"text_selection\"><span class=\"correct selectable\">some</span> text \\(\\sqrt{x^{10}}\\)</div>', result.renderedPreview);
         assertEquals('<div class=\"text_selection\"><span class=\"selectable\" number=\"0\">some</span><span left=\"0\" right=\"1\"> </span>text<span left=\"1\" right=\"2\"> </span>\\(\\sqrt{x^{10}}\\)</div>'.split('').sort().join(''), result.renderedRun.split('').sort().join(''));
+    },
+
+    'test allselectable works with amp': function () {
+	    var text = 'test&a \n test & b';
+	    var result = this.presenter.parseWords(text, 'ALL_SELECTABLE', 'MULTISELECT');
+        var expectedResult = '<div class="text_selection"><span class="selectable" number="0">test&amp;a</span><span left="0" right="1"> \n' +
+            ' </span><span class="selectable" number="1">test</span><span left="1" right="2"> </span><span class="selectable" number="2">&amp;</span><span left="2" right="3"> </span><span class="selectable" number="3">b</span></div>';
+	    assertTrue(result.isValid);
+	    assertEquals(expectedResult, result.renderedRun);
     }
 
 });

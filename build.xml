@@ -21,7 +21,7 @@
         <fileset dir="${gwt.sdk}" includes="gwt-dev*.jar"/>
         <!-- Add any additional non-server libs (such as JUnit) -->
         <fileset dir="war/WEB-INF/lib" includes="**/*.jar"/>
-        <pathelement location="${jsoup-lib}" />
+        <pathelement location="${jsoup-lib}"/>
         <pathelement location="../icfoundation/war/WEB-INF/classes"/>
     </path>
 
@@ -146,7 +146,7 @@
         </junit>
     </target>
 
-    <target name="test.single.addon">
+    <target name="test.single.addon"  description="Test single addon, -Daddon.id=Addon_Id">
         <echo>Testing addon with ID ${addon.id}</echo>
 
         <mkdir dir="addons/${addon.id}/test-reports"/>

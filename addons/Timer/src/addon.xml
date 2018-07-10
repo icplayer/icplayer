@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<addon id='Timer' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="Mode" nameLabel="Timer_property_mode" type="{Timer, Stopwatch}" />
+        <property name="Time" nameLabel="Timer_property_time" type="string" />
+        <property name="Immediate start" nameLabel="Timer_property_immediate_start" type="boolean" />
+        <property name="Send event every second" nameLabel="Timer_property_send_event_every_second" type="boolean" />
+        <property name="Show hours" nameLabel="Timer_property_show_hours" type="boolean" />
+        <property name="Enable reset" nameLabel="Timer_property_enable_reset" type="boolean" />
+    </model>
+</addon>

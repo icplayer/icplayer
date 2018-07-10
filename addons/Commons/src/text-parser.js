@@ -34,6 +34,20 @@
         return StringUtils.replaceAll(responseText, "href='#'", replacement);
     };
 
+     /**
+     parseAltTexts given text and replace definition \alt{visible|readable}[lang langTag] with
+      <span aria-label='readable' lang='langTag'><span aria-hidden='true'>visible</span></span>
+     [lang langTag] is optional
+
+     @method parse
+     @param {String} text the string which would be processed
+     @return {String} the resulting string
+     */
+
+    window.TextParserProxy.prototype.parseAltTexts = function (text) {
+        return this.parser.parseAltTexts(text);
+    };
+
     /**
      Connect all definition links to event bus. Each link will send Definition event.
      Proxy for textParser from Player Services

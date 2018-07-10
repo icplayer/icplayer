@@ -7,6 +7,8 @@ TestCase("[Basic Math Gaps] States Tests", {
 
         this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
 
+        this.presenter.isDraggable = true;
+
         this.stubs = {
             getSources: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getSources'),
             getValues: sinon.stub(this.presenter.GapsContainerObject.prototype, 'getValues'),

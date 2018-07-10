@@ -810,17 +810,18 @@ function AddonFigureDrawing_create(){
         presenter.$view.on('mousemove touchmove', function(e){
             e.stopPropagation();
             e.preventDefault();
+            var scaleInfo = presenter.playerController.getScaleInformation()
             if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && presenter.drawingMode && presenter.drawingPoint.isDown) {
                 point1 = new Point(presenter.drawingPoint.row, presenter.drawingPoint.column, presenter.drawingPoint.x, presenter.drawingPoint.y);
                 if (e.type == 'mousemove') {
-                    coordinations.x = e.originalEvent.pageX;
-                    coordinations.y = e.originalEvent.pageY;
+                    coordinations.x = e.originalEvent.pageX/scaleInfo.scaleX;
+                    coordinations.y = e.originalEvent.pageY/scaleInfo.scaleY;
                 } else {
-                    coordinations.x = e.originalEvent.touches[0].pageX;
-                    coordinations.y = e.originalEvent.touches[0].pageY;
+                    coordinations.x = e.originalEvent.touches[0].pageX/scaleInfo.scaleX;
+                    coordinations.y = e.originalEvent.touches[0].pageY/scaleInfo.scaleY;
                 };
-                presenter.mouseSX = parseInt(coordinations.x,10) - parseInt(presenter.figure.offset().left,10);
-                presenter.mouseSY = parseInt(coordinations.y,10) - parseInt(presenter.figure.offset().top,10);
+                presenter.mouseSX = parseInt(coordinations.x,10) - parseInt(presenter.figure.offset().left/scaleInfo.scaleX,10);
+                presenter.mouseSY = parseInt(coordinations.y,10) - parseInt(presenter.figure.offset().top/scaleInfo.scaleY,10);
                 if (presenter.mouseSX < 0 || presenter.mouseSX > presenter.figure.width() || presenter.mouseSY < 0 || presenter.mouseSY > presenter.figure.height()) {
                     presenter.drawingPoint.isDown = false;
                     presenter.$view.find('.templine').remove();
