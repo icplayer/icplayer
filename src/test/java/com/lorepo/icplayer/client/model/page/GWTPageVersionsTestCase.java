@@ -438,4 +438,19 @@ public class GWTPageVersionsTestCase extends GwtTest {
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
+	@Test
+	public void updatingVersion4PageManyLayouts() throws IOException, SAXException {
+		String pageXML = getFromFile("testdata/PageVersion5ManyLayouts2.xml");
+
+		this.loadPageInAwareFactory(this.page, "testdata/PageVersion4ManyLayouts2.xml");
+		String result = page.toXML();
+		System.out.println(result);
+		
+		Diff diff = new Diff(pageXML, result);
+		System.out.println(diff);
+		System.out.println(diff.similar());
+		System.out.println(diff.identical());
+		XMLAssert.assertXMLEqual(diff, true);
+	}
+	
 }

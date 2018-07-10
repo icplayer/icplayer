@@ -20,9 +20,7 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 	@Override
 	protected void parseLayouts(Element xml) {
 		NodeList nodes = xml.getChildNodes();
-		
 		setDefaultIsVisible(xml);
-		
 		for(int i = 0; i < nodes.getLength(); i++){
 			Node childNode = nodes.item(i);
 			
@@ -33,11 +31,6 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 	}
 	
 	private void setDefaultIsVisible(Element layouts){
-		if(layouts.getAttribute("isVisible") != null && layouts.getAttribute("isVisible").length() > 0) {
-			Boolean isVisible = XMLUtils.getAttributeAsBoolean(layouts , "isVisible", true);
-			this.module.setIsVisible(isVisible);
-			return;
-		}
 		NodeList layoutChildren = layouts.getChildNodes();
 		for (int i = 0; i < layoutChildren.getLength(); i++){
 			Node childNode = layoutChildren.item(i);
@@ -49,9 +42,10 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 					return;
 				}
 			}
-		}		
+		}
+		this.module.setIsVisible(true);
 	}
-	
+
 	@Override
 	public void parseModuleStyleAttributes(Element xml) {
 		String inlineStyle = StringUtils.unescapeXML(xml.getAttribute("style"));
@@ -61,7 +55,7 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 		this.module.setDefaultStyleClass(styleClass);
 	}
 
-	private void parseSingleLayout(Node xml) {
+	protected void parseSingleLayout(Node xml) {
 		Boolean isModuleVisibleInEditor = XMLUtils.getAttributeAsBoolean((Element) xml, "isModuleVisibleInEditor", true);
 		Boolean isLocked = XMLUtils.getAttributeAsBoolean((Element) xml, "isLocked", false);
 		String id = XMLUtils.getAttributeAsString((Element) xml, "id");
