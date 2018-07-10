@@ -1,7 +1,9 @@
 package com.lorepo.icplayer.client.content.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONBoolean;
@@ -12,7 +14,7 @@ import com.google.gwt.json.client.JSONValue;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 
 public class JsonServices implements IJsonServices{
-	
+
 	@Override
 	public String toJSONString(HashMap<String, String> data){
 		
@@ -76,6 +78,26 @@ public class JsonServices implements IJsonServices{
 			}
 		}
 		
+		return list;
+	}
+
+	@Override
+	public List<String> decodeArrayValues(String string) {
+		JSONValue parsedJsonValue = JSONParser.parseLenient(string);
+		JSONArray parsedJsonArray = parsedJsonValue.isArray();
+
+		if (parsedJsonArray == null) {
+			return Collections.emptyList();
+		}
+
+		List<String> list = new ArrayList<String>();
+		for (int i = 0; i < parsedJsonArray.size(); i++) {
+			JSONValue jsonValue = parsedJsonArray.get(i);
+			JSONString jsonString = jsonValue.isString();
+			String stringValue = (jsonString == null) ? jsonValue.toString() : jsonString.stringValue();
+			list.add(stringValue);
+		}
+
 		return list;
 	}
 }

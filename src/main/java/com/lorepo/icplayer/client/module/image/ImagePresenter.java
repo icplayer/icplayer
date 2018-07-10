@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.image;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -7,6 +8,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -92,6 +94,9 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful, 
 		return jsObject;
 	}
 
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
 	
 	private native JavaScriptObject initJSObject(ImagePresenter x) /*-{
 	
@@ -107,6 +112,10 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful, 
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.image.ImagePresenter::getView()();
 		}
+	
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.image.ImagePresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
 		
 		return presenter;
 	}-*/;
@@ -214,5 +223,12 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful, 
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
 		return isVisible;
+	}
+
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -48,6 +48,17 @@ function AddonDrawing_create() {
         return val;
     }
 
+    function getScale() {
+        var $content = $("#content"); // the div transform css is attached to
+		if($content.size()>0){
+            var contentElem = $content[0];
+            var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+            var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+            return {X:scaleX, Y:scaleY};
+		};
+		return {X:1.0, Y:1.0};
+    }
+
     presenter.hexToRGBA = function(hex, opacity) {
         hex = hex.replace('#', '');
         var r = parseInt(hex.substring(0,2), 16);
@@ -86,6 +97,12 @@ function AddonDrawing_create() {
         if (presenter.zoom !== 1) {
             x = x * (1 / presenter.zoom);
             y = y * (1 / presenter.zoom);
+        }
+
+        var scale = getScale();
+        if(scale.X!==1.0 || scale.Y!==1.0){
+            x = x/scale.X;
+            y = y/scale.Y;
         }
 
         presenter.mouse.x = x;

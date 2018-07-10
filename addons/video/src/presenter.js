@@ -4,7 +4,7 @@
  * @constructor
  */
 function Addonvideo_create() {
-    var presenter = function() {};
+    var presenter = function () {};
 
     var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
 
@@ -24,6 +24,9 @@ function Addonvideo_create() {
     presenter.areSubtitlesHidden = false;
     presenter.calledFullScreen = false;
     presenter.playTriggered = false;
+    presenter.playerController = null;
+    presenter.posterPlayButton = null;
+    presenter.videoView  = null ;
 
     presenter.stylesBeforeFullscreen = {
         changedStyles: false,
@@ -48,6 +51,8 @@ function Addonvideo_create() {
         width: 0,
         height: 0
     };
+
+    presenter.addedVideoURLS = {};
 
     presenter.configuration = {
         isValid: false,
@@ -83,8 +88,8 @@ function Addonvideo_create() {
     presenter.pushToMetadataQueue = function (fn, providedArguments) {
         presenter.metadataQueue.push({
             function: fn,
-                arguments: providedArguments,
-                self: this
+            arguments: providedArguments,
+            self: this
         });
     };
 
@@ -128,8 +133,6 @@ function Addonvideo_create() {
         return upgradedModel;
     };
 
-
-
     presenter.callMetadataLoadedQueue = function () {
         for (var i = 0; i < presenter.metadataQueue.length; i++) {
             var queueElement = presenter.metadataQueue[i];
@@ -140,10 +143,10 @@ function Addonvideo_create() {
     };
 
     presenter.ERROR_CODES = {
-        'MEDIA_ERR_ABORTED' : 1,
-        'MEDIA_ERR_DECODE' : 2,
-        'MEDIA_ERR_NETWORK' : 3,
-        'MEDIA_ERR_SRC_NOT_SUPPORTED' : [4, 'Ups ! Looks like your browser doesn\'t support this codecs. Go <a href="https://tools.google.com/dlpage/webmmf/" > -here- </a> to download WebM plugin'],
+        'MEDIA_ERR_ABORTED': 1,
+        'MEDIA_ERR_DECODE': 2,
+        'MEDIA_ERR_NETWORK': 3,
+        'MEDIA_ERR_SRC_NOT_SUPPORTED': [4, 'Ups ! Looks like your browser doesn\'t support this codecs. Go <a href="https://tools.google.com/dlpage/webmmf/" > -here- </a> to download WebM plugin'],
         'NVT01': "Not valid data format in time labels property"
     };
 
@@ -172,9 +175,9 @@ function Addonvideo_create() {
     };
 
     presenter.videoTypes = [
-        { name : 'MP4 video', type : 'video/mp4'},
-        { name : 'Ogg video', type : 'video/ogg'},
-        { name : 'WebM video', type : 'video/webm'}
+        {name: 'MP4 video', type: 'video/mp4'},
+        {name: 'Ogg video', type: 'video/ogg'},
+        {name: 'WebM video', type: 'video/webm'}
     ];
 
     presenter.VIDEO_STATE = {
@@ -183,7 +186,7 @@ function Addonvideo_create() {
         PAUSED: 2
     };
 
-    function fullScreenChange () {
+    function fullScreenChange() {
         if (presenter.configuration.isFullScreen) {
             $(presenter.videoContainer).css({
                 width: "100%",
@@ -206,7 +209,7 @@ function Addonvideo_create() {
         }
     }
 
-    presenter.registerHook = function() {
+    presenter.registerHook = function () {
         presenter.mathJaxHook = MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
             if ($(message[1]).hasClass('ic_page')) {
                 presenter.mathJaxProcessEndedDeferred.resolve();
@@ -218,7 +221,7 @@ function Addonvideo_create() {
         var mathJaxDeferred = new jQuery.Deferred();
         presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
         presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
-
+        presenter.playerController = controller;
         presenter.registerHook();
 
         presenter.eventBus = controller.getEventBus();
@@ -231,7 +234,7 @@ function Addonvideo_create() {
 
     presenter.onEventReceived = function (eventName, eventData) {
         presenter.pageLoadedDeferred.resolve();
-        if(eventData.value == 'dropdownClicked') {
+        if (eventData.value == 'dropdownClicked') {
             presenter.metadadaLoaded = false;
             presenter.videoObject.load();
         }
@@ -245,7 +248,7 @@ function Addonvideo_create() {
         };
     };
 
-    presenter.formatTime = function addonVideo_formatTime (seconds) {
+    presenter.formatTime = function addonVideo_formatTime(seconds) {
         if (seconds < 0 || isNaN(seconds)) {
             return "00:00";
         }
@@ -260,7 +263,7 @@ function Addonvideo_create() {
         presenter.eventBus.sendEvent('ValueChanged', {
             source: presenter.configuration.addonID,
             item: (presenter.currentMovie + 1),
-            value : formattedTime
+            value: formattedTime
         });
     };
 
@@ -269,11 +272,11 @@ function Addonvideo_create() {
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.stopPropagationOnClickEvent = function(e) {
+    presenter.stopPropagationOnClickEvent = function (e) {
         e.stopPropagation();
     };
 
-    presenter.setMetaDataOnMetaDataLoadedEvent = function() {
+    presenter.setMetaDataOnMetaDataLoadedEvent = function () {
         if (DevicesUtils.isFirefox()) {
             presenter.$view.find(".video-container").prepend(presenter.videoObject);
         }
@@ -301,8 +304,6 @@ function Addonvideo_create() {
         presenter.captionsOffset.left = Math.abs(size.width - videoSize.width) / 2;
         presenter.captionsOffset.top = Math.abs(size.height - videoSize.height) / 2;
 
-
-
         presenter.$captionsContainer.css({
             top: presenter.captionsOffset.top,
             left: presenter.captionsOffset.left,
@@ -328,7 +329,7 @@ function Addonvideo_create() {
         var width = size.width, height = size.height;
         var elementRatio = width / height;
 
-        if( elementRatio > videoRatio ) {
+        if (elementRatio > videoRatio) {
             width = height * videoRatio;
         } else {
             height = width / videoRatio;
@@ -354,14 +355,17 @@ function Addonvideo_create() {
         delete presenter.isHideExecuted;
     }
 
-    presenter.removeMathJaxHook = function() {
+    presenter.removeMathJaxHook = function () {
         MathJax.Hub.signal.hooks["End Process"].Remove(presenter.mathJaxHook);
     };
 
-    presenter.destroy = function() {
+    presenter.destroy = function () {
         if (presenter.controlBar !== null) {
             presenter.controlBar.destroy();
         }
+
+        presenter.stop();
+
         presenter.videoView.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.videoObject.removeEventListener('click', presenter.stopPropagationOnClickEvent);
         presenter.videoObject.removeEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
@@ -420,7 +424,7 @@ function Addonvideo_create() {
             width: $(presenter.videoObject).width(),
             height: $(presenter.videoObject).height()
         };
-        
+
         presenter.calculatePosterSize(presenter.videoObject, size);
     });
 
@@ -441,6 +445,7 @@ function Addonvideo_create() {
         }
 
         presenter.configuration.isFullScreen = true;
+        presenter.playerController.setAbleChangeLayout(false);
         fullScreenChange();
     };
 
@@ -461,34 +466,35 @@ function Addonvideo_create() {
             exitFullscreen();
         }
         presenter.configuration.isFullScreen = false;
+        presenter.playerController.setAbleChangeLayout(true);
         presenter.removeScaleFromCaptionsContainer();
         fullScreenChange();
 
         presenter.calculatePosterSize(presenter.videoObject, presenter.configuration.addonSize);
     };
 
-    presenter.keyboardController = function(keycode, isShift, event) {
-        $(document).on('keydown', function(e) {
+    presenter.keyboardController = function (keycode, isShift, event) {
+        $(document).on('keydown', function (e) {
             e.preventDefault();
             $(this).off('keydown');
         });
 
         function increasedVolume() {
-            var val = Math.round((presenter.videoObject.volume + 0.1)*10)/10;
+            var val = Math.round((presenter.videoObject.volume + 0.1) * 10) / 10;
 
             return val > 1 ? 1 : val;
         }
-        
+
         function decreasedVolume() {
-            var val = Math.round((presenter.videoObject.volume - 0.1)*10)/10;
+            var val = Math.round((presenter.videoObject.volume - 0.1) * 10) / 10;
 
             return val < 0 ? 0 : val;
         }
-        
+
         function forward() {
             presenter.videoObject.currentTime += 15;
         }
-        
+
         function backward() {
             presenter.videoObject.currentTime -= 15;
         }
@@ -501,12 +507,12 @@ function Addonvideo_create() {
             }
         }
 
-        function nextTimeLabel () {
+        function nextTimeLabel() {
             var currentTime = presenter.videoObject.currentTime;
             var currentElement = presenter.configuration.files[presenter.currentMovie],
                 /**
-                * @type {{title: String, time: Number}[]}
-                */
+                 * @type {{title: String, time: Number}[]}
+                 */
                 timeLabels = currentElement.timeLabels;
 
 
@@ -520,12 +526,12 @@ function Addonvideo_create() {
             }
         }
 
-        function previousTimeLabel () {
+        function previousTimeLabel() {
             var currentTime = presenter.videoObject.currentTime - 2;
             var currentElement = presenter.configuration.files[presenter.currentMovie],
                 /**
-                * @type {{title: String, time: Number}[]}
-                */
+                 * @type {{title: String, time: Number}[]}
+                 */
                 timeLabels = currentElement.timeLabels;
 
             for (var i = timeLabels.length - 1; i >= 0; i--) {
@@ -538,7 +544,7 @@ function Addonvideo_create() {
             }
         }
 
-        switch(keycode) {
+        switch (keycode) {
             case 32:
                 playPause();
                 break;
@@ -666,7 +672,7 @@ function Addonvideo_create() {
             timeLabels: validatedTimeLabels.value
         };
 
-        return  {
+        return {
             isValid: true,
             file: fileToReturn
         };
@@ -721,7 +727,22 @@ function Addonvideo_create() {
         }
     };
 
-    presenter.posterPlayButton = null;
+    presenter.cachePosters = function () {
+        for (var fileNumber = 0; fileNumber < presenter.configuration.files.length; fileNumber++) {
+            presenter.cachePoster(fileNumber);
+        }
+    };
+
+    presenter.cachePoster = function(fileNumber){
+        var posterSource = presenter.configuration.files[fileNumber].Poster;
+        if (posterSource) {
+            var image = new Image();
+            image.src = posterSource;
+
+            presenter.configuration.files[fileNumber].Poster = image;
+        }
+    };
+
 
     presenter.showPlayButton = function () {
         if (presenter.configuration.showPlayButton) {
@@ -765,7 +786,7 @@ function Addonvideo_create() {
         presenter.controlBar.addBurgerMenu(BURGER_MENU, elementsForBurger);
     };
 
-    presenter.run = function(view, model) {
+    presenter.run = function (view, model) {
         var upgradedModel = presenter.upgradeModel(model);
         var validatedModel = presenter.validateModel(upgradedModel);
         if (!validatedModel.isValid) {
@@ -774,8 +795,10 @@ function Addonvideo_create() {
         }
 
         presenter.configuration = $.extend(presenter.configuration, validatedModel);
-        presenter.videoState = presenter.VIDEO_STATE.STOPPED;
 
+        presenter.cachePosters();
+
+        presenter.videoState = presenter.VIDEO_STATE.STOPPED;
         presenter.videoView = view;
         presenter.$view = $(view);
 
@@ -832,8 +855,9 @@ function Addonvideo_create() {
     };
 
     presenter.fullscreenChangedEventReceived = function () {
-        if (!isVideoInFullscreen() && presenter.configuration.isFullScreen){
+        if (!isVideoInFullscreen() && presenter.configuration.isFullScreen) {
             presenter.configuration.isFullScreen = false;
+            presenter.playerController.setAbleChangeLayout(true);
             presenter.removeScaleFromCaptionsContainer();
             fullScreenChange();
             presenter.controlBar.showFullscreenButton();
@@ -926,28 +950,28 @@ function Addonvideo_create() {
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.onVideoPlaying = function AddonVideo_onVideoPlaying () {
+    presenter.onVideoPlaying = function AddonVideo_onVideoPlaying() {
         presenter.sendOnPlayingEvent();
 
-        if (presenter.videoObject.currentTime === 0){
+        if (presenter.videoObject.currentTime === 0) {
             presenter.sendTimeUpdateEvent(presenter.formatTime(presenter.videoObject.currentTime))
         }
     };
 
-    presenter.convertTimeStringToNumber = function(timeString) {
+    presenter.convertTimeStringToNumber = function (timeString) {
         timeString = timeString.split(':');
         var minutes = parseInt(timeString[0] * 60, 10);
         var seconds = parseInt(timeString[1], 10);
-        return { isCorrect: true, value: (minutes + seconds) };
+        return {isCorrect: true, value: (minutes + seconds)};
     };
 
-    presenter.handleErrorCode = function(error) {
+    presenter.handleErrorCode = function (error) {
         if (!error) return;
 
         presenter.$view.html(presenter.getVideoErrorMessage(error.code));
     };
 
-    presenter.createPreview = function(view, model) {
+    presenter.createPreview = function (view, model) {
         presenter.isPreview = true;
 
         var upgradedModel = presenter.upgradeModel(model);
@@ -971,7 +995,7 @@ function Addonvideo_create() {
         }
     };
 
-    presenter.showCaptions = function(time) {
+    presenter.showCaptions = function (time) {
         if (!presenter.configuration.dimensions) return; // No captions to show when video wasn't loaded properly
         for (var i = 0; i < presenter.captions.length; i++) {
             var caption = presenter.captions[i];
@@ -985,7 +1009,7 @@ function Addonvideo_create() {
         }
     };
 
-    presenter.reload = function() {
+    presenter.reload = function () {
         presenter.showPlayButton();
         presenter.isVideoLoaded = false;
         $(presenter.videoContainer).find('.captions').remove();
@@ -997,12 +1021,13 @@ function Addonvideo_create() {
             onTimeUpdate(this);
         });
         presenter.removeClassFromView('playing');
+        presenter.posterPlayButton.removeClass('video-poster-pause');
     };
 
     presenter.sendTimeUpdate = function Video_sendTime() {
         var actualVideoTime = parseInt(presenter.videoObject.currentTime, 10);
         if (actualVideoTime !== presenter.lastSentCurrentTime) {
-            var formattedTime = presenter.formatTime(actualVideoTime,10);
+            var formattedTime = presenter.formatTime(actualVideoTime, 10);
             presenter.sendTimeUpdateEvent(formattedTime);
             presenter.lastSentCurrentTime = actualVideoTime;
         }
@@ -1014,8 +1039,8 @@ function Addonvideo_create() {
         presenter.sendTimeUpdate();
 
         var currentTime = Math.round(video.currentTime * 10) / 10,
-          videoDuration = Math.round(video.duration * 10) / 10,
-          isFullScreen = document.mozFullScreen || document.webkitIsFullScreen;
+            videoDuration = Math.round(video.duration * 10) / 10,
+            isFullScreen = document.mozFullScreen || document.webkitIsFullScreen;
 
         if (currentTime >= videoDuration) {
             presenter.sendVideoEndedEvent();
@@ -1033,26 +1058,33 @@ function Addonvideo_create() {
         }
     }
 
-    presenter.getState = function() {
+    presenter.getState = function () {
         var isPaused = presenter.videoObject.paused;
-        presenter.videoObject.pause();
         return JSON.stringify({
-            files: presenter.configuration.files,
-            currentTime : presenter.videoObject.currentTime,
-            isCurrentlyVisible : presenter.isCurrentlyVisible,
+            files: "deprecated",        //Removed from state.
+            videoURLS: presenter.addedVideoURLS,
+            currentTime: presenter.videoObject.currentTime,
+            isCurrentlyVisible: presenter.isCurrentlyVisible,
             isPaused: isPaused,
             currentMovie: presenter.currentMovie,
             areSubtitlesHidden: presenter.areSubtitlesHidden
         });
     };
 
-    presenter.setState = function(stateString) {
-        if (ModelValidationUtils.isStringEmpty(stateString)) return;
+    presenter.setState = function (stateString) {
+        if (ModelValidationUtils.isStringEmpty(stateString)) {
+            return;
+        }
         var state = JSON.parse(stateString);
         var currentTime = state.currentTime;
 
-        if (state.files) {  //This was added later than rest of state
-            presenter.configuration.files = state.files;
+        if (state.videoURLS) {  //This was added later than rest of state
+            for (var i in state.videoURLS) {
+                if (state.videoURLS.hasOwnProperty(i)) {
+                    var element = state.videoURLS[i];
+                    presenter._setVideoURL(element.url, element.index);
+                }
+            }
         }
 
         presenter.isCurrentlyVisible = state.isCurrentlyVisible;
@@ -1065,14 +1097,15 @@ function Addonvideo_create() {
         presenter.reload();
 
         $(presenter.videoObject).on('canplay', function onVideoCanPlay() {
-            if (presenter.currentTime < currentTime) {
+            if (presenter.videoObject.currentTime < currentTime) {
                 presenter.currentTime = currentTime;
+                presenter.videoObject.currentTime = currentTime;
                 presenter.startTime = currentTime;
                 presenter.videoState = presenter.VIDEO_STATE.PAUSED;
                 $(this).off('canplay');
             }
 
-            if(state.areSubtitlesHidden != undefined) {
+            if (state.areSubtitlesHidden != undefined) {
                 if (state.areSubtitlesHidden) {
                     presenter.hideSubtitles();
                 } else {
@@ -1082,23 +1115,23 @@ function Addonvideo_create() {
         });
     };
 
-    presenter.getIOSVersion = function(userAgent) {
+    presenter.getIOSVersion = function (userAgent) {
         var match = /CPU OS ([\d_]+) like Mac OS X/.exec(userAgent);
         return match === null ? '' : match[1];
     };
-    
+
     /**
      * Setting poster for video.
-     * 
+     *
      * Attribute poster is not used because safari wont reload poster while reloading video.
      * @param  {HTMLVideoElement} video
      * @param  {String} posterSource
      */
-    presenter.addAttributePoster = presenter.metadataLoadedDecorator(function(video, posterSource) {
+    presenter.addAttributePoster = presenter.metadataLoadedDecorator(function (video, poster) {
         presenter.$posterWrapper.find("img").remove();
         var $video = $(video);
 
-        if (posterSource) {
+        if (poster) {
             if (presenter.configuration.showPlayButton) {
                 presenter.$posterWrapper.one('click', function onPosterWrapperClick(e) {
                     e.stopPropagation();
@@ -1107,9 +1140,7 @@ function Addonvideo_create() {
                 });
             }
 
-            var $poster = $("<img></img>");
-            $poster.attr('src', posterSource);
-            presenter.$posterWrapper.prepend($poster);
+            presenter.$posterWrapper.prepend(poster);
 
             presenter.calculatePosterSize(video, presenter.configuration.addonSize);
 
@@ -1118,13 +1149,13 @@ function Addonvideo_create() {
             presenter.$posterWrapper.hide();
             $video.attr('poster', '');
         }
-    }); 
+    });
 
     presenter.calculatePosterSize = presenter.metadataLoadedDecorator(function (video, toSize) {
         var $poster = presenter.$posterWrapper.find("img");
 
         var calculatedVideoSize = presenter.getVideoSize(toSize, video);
-        
+
         var left = (toSize.width - calculatedVideoSize.width) / 2;
         var top = (toSize.height - calculatedVideoSize.height) / 2;
 
@@ -1142,7 +1173,7 @@ function Addonvideo_create() {
         presenter.$view.find('.video-container-video').text(files[presenter.currentMovie].AlternativeText);
     };
 
-    presenter.setVideo = function() {
+    presenter.setVideo = function () {
         if (presenter.videoObject) {
             $(presenter.videoObject).unbind("ended");
             $(presenter.videoObject).unbind("error");
@@ -1157,6 +1188,7 @@ function Addonvideo_create() {
         var files = presenter.configuration.files;
 
         this.videoContainer.find('source').remove();
+        this.addAttributePoster($video[0], files[presenter.currentMovie].Poster);
 
         presenter.setAltText();
         if (presenter.isPreview) {
@@ -1204,7 +1236,7 @@ function Addonvideo_create() {
             presenter.videoObject.load();
             presenter.metadadaLoaded = false;
 
-            if(files[presenter.currentMovie]['Loop video']) {
+            if (files[presenter.currentMovie]['Loop video']) {
                 if (typeof presenter.videoObject.loop == 'boolean') {
                     presenter.videoObject.loop = true;
                 } else {
@@ -1216,19 +1248,17 @@ function Addonvideo_create() {
 
                 presenter.isAborted = false;
 
-                $(presenter.videoObject).on('abort', function() {
+                $(presenter.videoObject).on('abort', function () {
                     presenter.isAborted = true;
                 });
 
-                $(presenter.videoObject).on('canplay', function() {
-                    if(presenter.isAborted && presenter.playTriggered) {
+                $(presenter.videoObject).on('canplay', function () {
+                    if (presenter.isAborted && presenter.playTriggered) {
                         presenter.play();
                     }
                 });
             }
         }
-
-        this.addAttributePoster($video[0], files[presenter.currentMovie].Poster);
     };
 
     /**
@@ -1255,19 +1285,19 @@ function Addonvideo_create() {
         return captionElement;
     }
 
-    presenter.convertLinesToCaptions = function(lines) {
+    presenter.convertLinesToCaptions = function (lines) {
         presenter.captions = [];
 
         for (var i = 0; i < lines.length; i++) {
             var parts = lines[i].split('|');
             if (parts.length == 6) {
                 var caption = {
-                    start:parts[0],
-                    end:parts[1],
-                    top:(StringUtils.endsWith(parts[2], 'px') ? parts[2] : parts[2] + 'px'),
-                    left:(StringUtils.endsWith(parts[3], 'px') ? parts[3] : parts[3] + 'px'),
-                    cssClass:parts[4],
-                    text:parts[5]
+                    start: parts[0],
+                    end: parts[1],
+                    top: (StringUtils.endsWith(parts[2], 'px') ? parts[2] : parts[2] + 'px'),
+                    left: (StringUtils.endsWith(parts[3], 'px') ? parts[3] : parts[3] + 'px'),
+                    cssClass: parts[4],
+                    text: parts[5]
                 };
 
                 caption.element = createCaptionElement(caption);
@@ -1278,13 +1308,13 @@ function Addonvideo_create() {
         }
     };
 
-    presenter.loadSubtitles = function() {
+    presenter.loadSubtitles = function () {
         var subtitlesLoadedDeferred = new $.Deferred(),
-          subtitles = presenter.configuration.files[presenter.currentMovie].Subtitles;
+            subtitles = presenter.configuration.files[presenter.currentMovie].Subtitles;
 
         if (subtitles) {
             if (StringUtils.startsWith(subtitles, "/file")) {
-                $.get(subtitles, function(data) {
+                $.get(subtitles, function (data) {
                     subtitlesLoadedDeferred.resolve(data);
                 });
             } else {
@@ -1301,9 +1331,9 @@ function Addonvideo_create() {
 
     presenter.calculateVideoContainerHeight = function ($container, moduleHeight) {
         var borderBottom = $container.css('border-bottom-width'),
-          borderTop = $container.css('border-top-width'),
-          marginTop = $container.css('margin-top'),
-          marginBottom = $container.css('margin-bottom');
+            borderTop = $container.css('border-top-width'),
+            marginTop = $container.css('margin-top'),
+            marginBottom = $container.css('margin-bottom');
 
         if (ModelValidationUtils.isStringEmpty(borderTop)) borderTop = "0px";
         if (ModelValidationUtils.isStringEmpty(borderBottom)) borderBottom = "0px";
@@ -1311,27 +1341,27 @@ function Addonvideo_create() {
         if (ModelValidationUtils.isStringEmpty(marginBottom)) marginBottom = "0px";
 
         return moduleHeight - parseInt(borderBottom, 10) -
-          parseInt(borderTop, 10) -
-          parseInt(marginTop, 10) -
-          parseInt(marginBottom, 10);
+            parseInt(borderTop, 10) -
+            parseInt(marginTop, 10) -
+            parseInt(marginBottom, 10);
     };
 
-    presenter.setDimensions = function() {
+    presenter.setDimensions = function () {
         var video = presenter.getVideo();
 
-        presenter.videoContainer.css('height',  presenter.calculateVideoContainerHeight(presenter.videoContainer, presenter.configuration.height) + 'px');
+        presenter.videoContainer.css('height', presenter.calculateVideoContainerHeight(presenter.videoContainer, presenter.configuration.height) + 'px');
 
         video.css("width", "100%")
-          .attr('height', presenter.videoContainer.height());
+            .attr('height', presenter.videoContainer.height());
 
         presenter.configuration.dimensions = {
-            video:{
-                width:$(video).width(),
-                height:$(video).height()
+            video: {
+                width: $(video).width(),
+                height: $(video).height()
             },
-            container:{
-                width:$(presenter.videoContainer).width(),
-                height:$(presenter.videoContainer).height()
+            container: {
+                width: $(presenter.videoContainer).width(),
+                height: $(presenter.videoContainer).height()
             }
         };
     };
@@ -1346,7 +1376,7 @@ function Addonvideo_create() {
         presenter.areSubtitlesHidden = true;
     };
 
-    presenter.executeCommand = function(name, params) {
+    presenter.executeCommand = function (name, params) {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
@@ -1355,10 +1385,10 @@ function Addonvideo_create() {
             'jumpTo': presenter.jumpToCommand,
             'jumpToID': presenter.jumpToIDCommand,
             'seek': presenter.seekCommand,
-            'play' : presenter.play,
-            'stop' : presenter.stop,
-            'showSubtitles' : presenter.showSubtitles,
-            'hideSubtitles' : presenter.hideSubtitles,
+            'play': presenter.play,
+            'stop': presenter.stop,
+            'showSubtitles': presenter.showSubtitles,
+            'hideSubtitles': presenter.hideSubtitles,
             'setVideoURL': presenter.setVideoURLCommand
         };
 
@@ -1369,21 +1399,9 @@ function Addonvideo_create() {
         presenter.setVideoURL(params[0], params[1]);
     };
 
-    /*
-        Set video url and jump to this video.
-        index: video index counted from 1
-        url: object {
-            "oggFormat": "Ogg video",
-            "mp4Format": "MP4 video",
-            "webMFormat": "WebM video",
-            "poster": "Poster",
-            "subtitles": "Subtitles",
-            "id": "ID",
-            "altText": "AlternativeText",
-            "loop": "Loop video"
-        }
-    */
-    presenter.setVideoURL = function (url, index) {
+    presenter._setVideoURL = function (url, index) {
+        var key;
+        var videoFile;
         var mapper = {
             "oggFormat": "Ogg video",
             "mp4Format": "MP4 video",
@@ -1393,10 +1411,7 @@ function Addonvideo_create() {
             "id": "ID",
             "altText": "AlternativeText",
             "loop": "Loop video"
-        },
-        key,
-        videoFile = {},
-        index = (index || 1) - 1;
+        };
 
         if (index >= presenter.configuration.files.length) {
             return false;
@@ -1410,10 +1425,37 @@ function Addonvideo_create() {
             }
         }
 
-        presenter.jumpTo(index + 1);
+        presenter.addedVideoURLS[index] = {
+            url: url,
+            index: index
+        };
+
+        return true;
     };
 
-    presenter.setVisibility = function(isVisible) {
+    /*
+        Set video url and jump to this video.
+        index: video index counted from 0
+        url: object {
+            "oggFormat": "Ogg video",
+            "mp4Format": "MP4 video",
+            "webMFormat": "WebM video",
+            "poster": "Poster",
+            "subtitles": "Subtitles",
+            "id": "ID",
+            "altText": "AlternativeText",
+            "loop": "Loop video"
+        }
+    */
+    presenter.setVideoURL = function (url, index) {
+        index = (index || 1) - 1;
+
+        if (presenter._setVideoURL(url, index)) {
+            presenter.jumpTo(index + 1);
+        }
+    };
+
+    presenter.setVisibility = function (isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
 
         var $captions = presenter.$view.find('.captions');
@@ -1432,26 +1474,29 @@ function Addonvideo_create() {
 
     presenter.seek = deferredSyncQueue.decorate(function (seconds) {
         presenter.videoObject.currentTime = seconds;
+        if (seconds > presenter.videoObject.duration) {
+            presenter.posterPlayButton.removeClass('video-poster-pause');
+        }
     });
 
     presenter.seekFromPercent = function (percent) {
         presenter.seek(presenter.videoObject.duration * (percent / 100));
     };
 
-    presenter.seekCommand = function(params) {
+    presenter.seekCommand = function (params) {
         presenter.seek(params[0]);
     };
 
-    presenter.show = function() {
+    presenter.show = function () {
         if (presenter.isCurrentlyVisible) return;
-        if(presenter.VIDEO_STATE.PLAYING == presenter.videoState) {
+        if (presenter.VIDEO_STATE.PLAYING == presenter.videoState) {
             presenter.videoObject.play();
         }
         presenter.isCurrentlyVisible = true;
         presenter.setVisibility(true);
     };
 
-    presenter.hide = function() {
+    presenter.hide = function () {
         if (!presenter.isCurrentlyVisible) return;
 
         if (presenter.VIDEO_STATE.PLAYING == presenter.videoState) {
@@ -1463,7 +1508,7 @@ function Addonvideo_create() {
         presenter.setVisibility(false);
     };
 
-    presenter.jumpTo = function(movieNumber) {
+    presenter.jumpTo = function (movieNumber) {
         var newMovie = parseInt(movieNumber, 10) - 1;
         if (0 <= newMovie && newMovie < presenter.configuration.files.length) {
             presenter.currentMovie = newMovie;
@@ -1475,7 +1520,7 @@ function Addonvideo_create() {
         presenter.jumpTo(params[0]);
     };
 
-    presenter.jumpToID = function(id) {
+    presenter.jumpToID = function (id) {
         for (var i = 0; i < presenter.configuration.files.length; i++) {
             if (id === presenter.configuration.files[i].ID) {
                 presenter.jumpTo(i + 1);  // Video numbers are counted from 1 to n
@@ -1511,11 +1556,15 @@ function Addonvideo_create() {
 
     presenter.loadVideoAtPlayOnMobiles = function () {
         if (MobileUtils.isSafariMobile(navigator.userAgent)) {
-            if(!presenter.isVideoLoaded) {
+            if (!presenter.isVideoLoaded) {
                 presenter.videoObject.load();
                 presenter.metadadaLoaded = false;
             }
         }
+         if (!presenter.isVideoLoaded) {
+                presenter.videoObject.load();
+                presenter.metadadaLoaded = false;
+            }
     };
 
     presenter.addClassToView = function (className) {
@@ -1545,11 +1594,13 @@ function Addonvideo_create() {
             presenter.seek(0); // sets the current time to 0
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
+            presenter.posterPlayButton.removeClass('video-poster-pause');
         }
     });
 
     presenter.pause = deferredSyncQueue.decorate(function () {
         if (!presenter.videoObject.paused) {
+            presenter.posterPlayButton.addClass('video-poster-pause');
             presenter.showPlayButton();
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
@@ -1557,14 +1608,14 @@ function Addonvideo_create() {
 
     });
 
-    presenter.previous = function() {
+    presenter.previous = function () {
         if (presenter.currentMovie > 0) {
             presenter.currentMovie--;
             presenter.reload();
         }
     };
 
-    presenter.next = function() {
+    presenter.next = function () {
         if (presenter.currentMovie < presenter.configuration.files.length - 1) {
             presenter.currentMovie++;
             presenter.reload();
@@ -1572,10 +1623,10 @@ function Addonvideo_create() {
     };
 
     presenter.setVolume = function (percent) {
-        presenter.videoObject.volume = percent/100;
+        presenter.videoObject.volume = percent / 100;
     };
 
-    presenter.reset = function() {
+    presenter.reset = function () {
         presenter.configuration.isVisibleByDefault ? presenter.show() : presenter.hide();
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
         presenter.currentMovie = 0;
@@ -1592,7 +1643,7 @@ function Addonvideo_create() {
         }
     };
 
-    presenter.getVideo = function() {
+    presenter.getVideo = function () {
         return presenter.videoContainer.find('video:first');
     };
 
@@ -1610,21 +1661,21 @@ function Addonvideo_create() {
         }
     }
 
-    function requestFullscreen ($element) {
+    function requestFullscreen($element) {
         var DomElement = $element.get(0);
 
         var requestMethod = DomElement.requestFullscreen || DomElement.mozRequestFullScreen ||
-          DomElement.msRequestFullscreen || DomElement.webkitRequestFullScreen ||
-          DomElement.webkitEnterFullscreen || null;
+            DomElement.msRequestFullscreen || DomElement.webkitRequestFullScreen ||
+            DomElement.webkitEnterFullscreen || null;
         if (requestMethod) {
             requestMethod.call(DomElement);
         }
         return requestMethod;
     }
 
-    function exitFullscreen () {
+    function exitFullscreen() {
         var exitMethod = document.exitFullscreen || document.mozCancelFullScreen ||
-          document.msExitFullscreen || document.webkitExitFullscreen || null;
+            document.msExitFullscreen || document.webkitExitFullscreen || null;
 
         if (exitMethod) {
             exitMethod.call(document);

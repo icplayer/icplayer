@@ -89,9 +89,7 @@ public abstract class ContentParserBase implements IContentParser {
 		return content;
 	}
 	
-	protected void onEndParsing(Content content) {
-		
-	}
+	protected void onEndParsing(Content content) {}
 	
 	private void setContentDefaultStyle(Content content) {
 		HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();

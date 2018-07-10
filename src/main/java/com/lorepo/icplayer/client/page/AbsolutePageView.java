@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.dimensions.CalculateModuleDimensions;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
@@ -24,21 +25,19 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	private Page currentPage;
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
 	private PageDimensionsForCalculations pageDimensions;
-	CalculateModuleDimensions calculateModuleDimensions = new CalculateModuleDimensions();
+	private CalculateModuleDimensions calculateModuleDimensions = new CalculateModuleDimensions();
 	private WidgetsPositionsStore widgetsPositions = new WidgetsPositionsStore(); 
-	
-	
+
 	public AbsolutePageView(){
 		this.addStyleName("ic_page");
 	}
 	
 	@Override
 	public void setPage(Page newPage) {
-	
 		this.currentPage = newPage;
 		String styles = "position:relative;overflow:hidden;";
 		if(this.currentPage.getInlineStyle() != null){
-			styles += this.currentPage.getInlineStyle();
+			styles += URLUtils.resolveCSSURL(this.currentPage.getBaseURL(), this.currentPage.getInlineStyle());
 		}
 
 		DOMUtils.applyInlineStyle(this.getElement(), styles);
@@ -51,7 +50,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	}
 	
 	private void createPageDimensions() {
-		this.pageDimensions = PageDimensionsForCalculations.getAbsolutePageViewDimensions(this);
+		this.pageDimensions = PageDimensionsForCalculations.getAbsolutePageViewDimensions(this, currentPage);
 	}
 
 	public void recalculatePageDimensions() {

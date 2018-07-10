@@ -162,7 +162,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         };
     };
 
-    presenter.Connection = function (audioID, doubleStateButtonID, ID, itemID) {
+    presenter.Connection = function (audioID, doubleStateButtonID, ID, item) {
         var self = this;
 
         this.DoubleStateButton = {
@@ -178,7 +178,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         };
 
          this.Item = {
-            ID: itemID
+            Digit: item
         };
 
         this.ID = ID;
@@ -190,9 +190,9 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         for (var i = 0; i < connections.length; i++) {
             var audioID = connections[i].Audio;
             var doubleStateButtonID = connections[i].DoubleStateButton;
-            var itemID = connections[i].Item;
+            var item = connections[i].Item;
 
-            this.connections.push(new presenter.Connection(audioID, doubleStateButtonID, i, itemID));
+            this.connections.push(new presenter.Connection(audioID, doubleStateButtonID, i, item));
         }
 
         this.getConnection = function (connectionID) {
@@ -204,6 +204,14 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         this.getConnectionWithAudio = function (audioID) {
             for (var i = 0; i < this.connections.length; i++) {
                 if (this.connections[i].Audio.ID == audioID) return this.connections[i];
+            }
+
+            return undefined;
+        };
+
+        this.getConnectionWithAudioAndItem = function (audioID, item) {
+            for (var i = 0; i < this.connections.length; i++) {
+                if (this.connections[i].Audio.ID == audioID && this.connections[i].Item.Digit == item) return this.connections[i];
             }
 
             return undefined;
@@ -249,7 +257,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
 
         switch (matchedModule.action) {
             case presenter.EVENT_ACTIONS.AUDIO_END:
-                presenter.audioEndHandler(matchedModule.moduleID);
+                presenter.audioEndHandler(matchedModule.moduleID, eventData.item);
                 break;
             case presenter.EVENT_ACTIONS.DOUBLE_STATE_BUTTON_SELECT:
                 presenter.doubleStateButtonSelectionHandler(matchedModule.moduleID);
@@ -260,12 +268,20 @@ function AddonMultiple_Audio_Controls_Binder_create() {
         }
     };
 
-    presenter.audioEndHandler = function (audioID) {
-        var connection = presenter.configuration.connections.getConnectionWithAudio(audioID);
+    presenter.audioEndHandler = function (audioID, item) {
+        var connection = presenter.getAudioAdapterConnection(audioID, item);
 
         connection.Audio.state = presenter.STATES.AUDIO.STOPPED;
         connection.DoubleStateButton.getModule().deselect();
         connection.DoubleStateButton.state = presenter.STATES.DOUBLE_STATE_BUTTON.DESELECTED;
+    };
+
+    presenter.getAudioAdapterConnection = function (audioID, item) {
+        if (presenter.getModule(audioID).type === 'multiaudio') {
+            return presenter.configuration.connections.getConnectionWithAudioAndItem(audioID, item);
+        }
+
+        return presenter.configuration.connections.getConnectionWithAudio(audioID);
     };
 
     presenter.doubleStateButtonSelectionHandler = function (moduleID) {
@@ -284,7 +300,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
             }
         });
 
-        connection.Audio.getModule().play(connection.Item.ID);
+        connection.Audio.getModule().play(connection.Item.Digit);
         connection.Audio.state = presenter.STATES.AUDIO.PLAYING;
         connection.DoubleStateButton.state = presenter.STATES.DOUBLE_STATE_BUTTON.SELECTED;
     };
@@ -303,7 +319,7 @@ function AddonMultiple_Audio_Controls_Binder_create() {
             eventActions = presenter.EVENT_ACTIONS;
 
         if (connection) {
-            if (eventData.item !== 'end') return { isMatch: false };
+            if (eventData.item !== 'end' && eventData.value !== 'end') return { isMatch: false };
 
             return {
                 isMatch: true,

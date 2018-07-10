@@ -425,7 +425,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
 		
-		this.readGap(activeGap.getGapType(), clicks, activeGap.getTextValue(),activeGap.getGapState());
+		this.readGap(activeGap.getGapType(), clicks, activeGap.getWCAGTextValue(),activeGap.getGapState(), activeGap.getLangTag());
 	}
 
 	@Override
@@ -447,23 +447,65 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 	
 	@Override
-	public void left (KeyDownEvent event) {}
+	public void left (KeyDownEvent event) {
+		inlineChoiceChangeSelected(event, false);
+	}
 
 	@Override
-	public void right (KeyDownEvent event) {}
+	public void right (KeyDownEvent event) {
+		inlineChoiceChangeSelected(event, true);
+	}
 
 	@Override
-	public void down (KeyDownEvent event) {}
+	public void down (KeyDownEvent event) {
+		inlineChoiceChangeSelected(event, true);
+	}
 
 	@Override
-	public void up (KeyDownEvent event) {}
+	public void up (KeyDownEvent event) {
+		inlineChoiceChangeSelected(event, false);
+	}
 	
 	@Override
 	public void space(KeyDownEvent event) {
-		if(!isShowErrorsMode){
+		if(!isShowErrorsMode && WCAGUtils.hasGaps(this.module)){
+			if (isWCAGon && activeGap != null && activeGap.getGapType().equals("dropdown") ) {
+				event.preventDefault(); // Prevent space button from displaying dropdown list when in WCAG mode
+				return;
+			}
+			String oldTextValue = activeGap.getTextValue();
 			this.listener.onGapClicked(activeGap.getId());
+			if (isWCAGon && activeGap.getDroppedElement()!=null) {
+				String elementText = getDroppedElementText(activeGap.getDroppedElement());
+				if (elementText.length()>0) {
+					List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+					textVoices.add(TextToSpeechVoice.create(elementText,this.getLang()));
+					textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.INSERT_INDEX)));
+					this.speak(textVoices);
+				} else if (oldTextValue.length()>0 && activeGap.getTextValue().length()==0) {
+					List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+					textVoices.add(TextToSpeechVoice.create(oldTextValue,this.getLang()));
+					textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.REMOVED_INDEX)));
+					this.speak(textVoices);
+				}
+			}
 		}
 	}
+	
+	private void inlineChoiceChangeSelected (KeyDownEvent event, boolean next) {
+		if (isWCAGon && activeGap!=null && activeGap.getGapType().equals("dropdown")) {
+			InlineChoiceWidget icw = (InlineChoiceWidget) activeGap;
+			if (icw.getPageController() == null){
+				icw.setPageController(this.pageController);
+			};
+			event.preventDefault();
+			icw.changeSelected(next);
+		}
+	}
+	
+	private native static String getDroppedElementText(String element) /*-{
+		return $wnd.$(element).text();
+	}-*/;
 
 	@Override
 	public void setWorkMode(){
@@ -498,25 +540,38 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	public String getLang () {
 		return this.module.getLangAttribute();
 	}
-	
-	private void readGap (String type, int index, String content, int gapState) {
-		final String gapType = type == "dropdown" ? this.module.getSpeechTextItem(2) : this.module.getSpeechTextItem(1);
+
+	private void readGap (String type, int index, String content, int gapState, String langTag) {
+		if(langTag == null){
+			langTag = this.module.getLangAttribute();
+		}
+		final String gapType = type == "dropdown" ? this.module.getSpeechTextItem(TextModel.DROPDOWN_INDEX) : this.module.getSpeechTextItem(TextModel.GAP_INDEX);
 
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 		textVoices.add(TextToSpeechVoice.create(gapType + " " + Integer.toString(index + 1)));
-		textVoices.add(TextToSpeechVoice.create(content, this.module.getLangAttribute()));
+		if ( type.equals("dropdown") && ( content.equals("-") || content.equals("---"))) {
+			if(!this.isShowErrorsMode) {
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX)));
+			}
+		} else {
+			textVoices.add(TextToSpeechVoice.create(content, langTag));
+		}
 		
 		if(this.isShowErrorsMode) {
 			if(gapState==1) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(3)));
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.CORRECT_INDEX)));
 			}else if(gapState==2) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(4)));
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.WRONG_INDEX)));
 			}else if(gapState==3) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(5)));
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX)));
 			}
 		}
-		
+
 		this.speak(textVoices);
+	}
+	
+	public String getSpeechText (int index) {
+		return this.module.getSpeechTextItem(index);
 	}
 	
 	private void readTextContent () {
@@ -532,7 +587,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 	
 	private void speak (List<TextToSpeechVoice> textVoices) {
-		if (this.pageController != null) {
+		if (this.pageController != null && this.isWCAGon) {
 			this.pageController.speak(textVoices);
 		}
 	}

@@ -9,6 +9,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -118,28 +119,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
-				if (event.eventName == "ShowAnswers") {
-					canDrag = false;
-					return;
-				} else if (event.eventName == "HideAnswers") {
-					canDrag = true;
-					return;
-				}
-				String gotItem = event.getData().get("item");
-				if (gotItem != getSerialId()) {
-					return;
-				}
-				if (event.eventName == "itemDragged") {
-					imageSelected();
-					if (model.isRemovable()) {
-						view.hide();
-					}
-				} else if (event.eventName == "itemStopped") {
-					imageDeselected();
-					if (model.isRemovable() && returned) {
-						view.show(true);
-					}
-				}
+				onEventReceived(event.eventName, event.getData());
 			}
 		});
 	}
@@ -311,6 +291,10 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		return jsObject;
 	}
 	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
+	
 	private native JavaScriptObject initJSObject(ImageSourcePresenter x) /*-{
 	
 		var presenter = function() {};
@@ -329,6 +313,14 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		
 		presenter.reset = function() { 
 			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::reset()();
+		}
+		
+		presenter.getAltText = function() {
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getAltText()();
+		}
+		
+		presenter.getLangAttribute = function() {
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::getLangAttribute()();
 		}
 		
 		presenter.getImageUrl = function() {
@@ -362,6 +354,10 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		presenter.unsetDragMode = function() {
 			x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::unsetDragMode()();
 		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
 		
 		return presenter;
 	}-*/;
@@ -480,5 +476,40 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		return (isTextToSpeechOn || !this.view.getDisabled()) && isVisible;
+	}
+	
+	public String getAltText(){
+		return this.model.getAlttext();
+	}
+	
+	public String getLangAttribute(){
+		return this.model.getLangAttribute();
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName == "ShowAnswers") {
+			canDrag = false;
+			return;
+		} else if (eventName == "HideAnswers") {
+			canDrag = true;
+			return;
+		}
+		String gotItem = data.get("item");
+		if (gotItem != getSerialId()) {
+			return;
+		}
+		if (eventName == "itemDragged") {
+			imageSelected();
+			if (model.isRemovable()) {
+				view.hide();
+			}
+		} else if (eventName == "itemStopped") {
+			imageDeselected();
+			if (model.isRemovable() && returned) {
+				view.show(true);
+			}
+		}
+		
 	}
 }

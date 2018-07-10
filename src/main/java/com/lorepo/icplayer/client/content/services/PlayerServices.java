@@ -8,6 +8,8 @@ import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.PlayerConfig;
+import com.lorepo.icplayer.client.PlayerController;
+import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
@@ -28,15 +30,29 @@ public class PlayerServices implements IPlayerServices {
 	private final PageController pageController;
 	private JavaScriptPlayerServices jsServiceImpl;
 	private IJsonServices jsonServices = new JsonServices();
-
+	private ScaleInformation scaleInformation;
+	private JavaScriptObject jQueryPrepareOffsetsFunction = null;
+	private boolean isAbleChangeLayout = true;
+	
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 		this.playerController = controller;
 		this.pageController = pageController;
+		scaleInformation = new ScaleInformation();
 
 		eventBus = new PlayerEventBus(new ResettableEventBus(new SimpleEventBus()));
 		eventBus.setPlayerServices(this);
 
 		playerCommands = new PlayerCommands(pageController, playerController);
+	}
+	
+	@Override
+	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
+		this.isAbleChangeLayout = isAbleChangeLayout;
+	}
+	
+	@Override
+	public boolean isAbleChangeLayout() {
+		return this.isAbleChangeLayout;
 	}
 
 	@Override
@@ -152,5 +168,129 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public IReportableService getReportableService() {
 		return this.playerController.getReportableService();
+	}
+
+	@Override
+	public ScaleInformation getScaleInformation() {
+		return this.scaleInformation;
+	}
+
+	@Override
+	public void setScaleInformation(String scaleX, 
+									String scaleY,
+									String transform, 
+									String transformOrigin) 
+	{
+		ScaleInformation scaleInfo = new ScaleInformation();
+		scaleInfo.scaleX = Double.parseDouble(scaleX);
+		scaleInfo.scaleY = Double.parseDouble(scaleY);
+		if (transform!=null) {
+			scaleInfo.transform = transform;
+		} else {
+			throw new NullPointerException("ScaleInformation.transform cannot be null");
+		};
+		if (transformOrigin!=null) {
+			scaleInfo.transformOrigin = transformOrigin;
+		} else {
+			throw new NullPointerException("ScaleInformation.transformOrigin cannot be null");
+		}
+		this.scaleInformation = scaleInfo;
+		
+		this.fixDroppable();
+	}
+	
+	public void fixDroppable() {
+		if (this.jQueryPrepareOffsetsFunction == null) {
+			this.jQueryPrepareOffsetsFunction = this.getJQueryUIPrepareOffsetFunction();
+		}
+		
+		if (this.scaleInformation.scaleX != 1.0 && this.scaleInformation.scaleY != 1.0) {
+			this.jQueryUiDroppableScaleFix(this.jQueryPrepareOffsetsFunction);
+			this.jQueryUiDroppableIntersectFix();
+		}
+	}
+	
+	
+	private native void jQueryUiDroppableScaleFix(JavaScriptObject originalPrepare)  /*-{
+		function scaleFixDecorator(func) {
+			function prepareOffsetWithScale(t, event) {
+	            func(t, event);
+	            var droppables = $wnd.$.ui.ddmanager.droppables[t.options.scope] || [];
+	
+	            for (var i = 0; i < droppables.length; i++) {	            	
+	                droppables[i].proportions.width = droppables[i].element[0].getBoundingClientRect().width;
+	                droppables[i].proportions.height = droppables[i].element[0].getBoundingClientRect().height;
+	            }
+	        }
+	        
+	        return prepareOffsetWithScale;
+		}
+		
+		$wnd.$.ui.ddmanager.prepareOffsets = scaleFixDecorator(originalPrepare);
+	}-*/;
+
+	private native void jQueryUiDroppableIntersectFix()  /*-{
+		
+		// function from jquery-ui adjusted with scaling (getBoundingClientRect function)
+		// https://github.com/jquery/jquery-ui/blob/1.8.20/ui/jquery.ui.droppable.js
+		$wnd.$.ui.intersect = $wnd.$.ui.intersect = function(draggable, droppable, toleranceMode) {
+			if (!droppable.offset) return false;
+	
+			var x1 = (draggable.positionAbs || draggable.position.absolute).left, x2 = x1 + draggable.element[0].getBoundingClientRect().width,
+				y1 = (draggable.positionAbs || draggable.position.absolute).top, y2 = y1 + draggable.element[0].getBoundingClientRect().height;
+			var l = droppable.offset.left, r = l + droppable.element[0].getBoundingClientRect().width,
+				t = droppable.offset.top, b = t + droppable.element[0].getBoundingClientRect().height;
+		
+			switch (toleranceMode) {
+				case 'fit':
+					return (l <= x1 && x2 <= r
+						&& t <= y1 && y2 <= b);
+					break;
+				case 'intersect':
+					return (l < x1 + (draggable.helperProportions.width / 2) // Right Half
+						&& x2 - (draggable.helperProportions.width / 2) < r // Left Half
+						&& t < y1 + (draggable.helperProportions.height / 2) // Bottom Half
+						&& y2 - (draggable.helperProportions.height / 2) < b ); // Top Half
+					break;
+				case 'pointer':
+					var draggableLeft = ((draggable.positionAbs || draggable.position.absolute).left + (draggable.clickOffset || draggable.offset.click).left),
+						draggableTop = ((draggable.positionAbs || draggable.position.absolute).top + (draggable.clickOffset || draggable.offset.click).top),
+						isOver = $wnd.$.ui.isOver(draggableTop, draggableLeft, t, l, droppable.proportions.height, droppable.proportions.width);
+					return isOver;
+					break;
+				case 'touch':
+					return (
+							(y1 >= t && y1 <= b) ||	// Top edge touching
+							(y2 >= t && y2 <= b) ||	// Bottom edge touching
+							(y1 < t && y2 > b)		// Surrounded vertically
+						) && (
+							(x1 >= l && x1 <= r) ||	// Left edge touching
+							(x2 >= l && x2 <= r) ||	// Right edge touching
+							(x1 < l && x2 > r)		// Surrounded horizontally
+						);
+					break;
+				default:
+					return false;
+					break;
+			}
+		};
+	
+	}-*/;
+
+	private native JavaScriptObject getJQueryUIPrepareOffsetFunction() /*-{
+		return $wnd.$.ui.ddmanager.prepareOffsets;
+	}-*/;
+	
+	public boolean isPlayerInCrossDomain() {
+		return this.playerController.isPlayerInCrossDomain();
+	}
+	
+	@Override
+	public boolean isWCAGOn() {
+		if(playerController instanceof PlayerController) {
+			PlayerController pc = (PlayerController) playerController;
+			return pc.isWCAGOn();
+		}
+		return false;
 	}
 }

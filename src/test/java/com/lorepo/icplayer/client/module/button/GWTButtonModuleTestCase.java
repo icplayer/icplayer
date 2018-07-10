@@ -1,15 +1,19 @@
 package com.lorepo.icplayer.client.module.button;
 
 import org.junit.Before;
+
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.gwt.xml.client.Element;
 import com.googlecode.gwt.test.GwtModule;
@@ -17,6 +21,7 @@ import com.googlecode.gwt.test.GwtTest;
 
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTButtonModuleTestCase extends GwtTest{
@@ -25,6 +30,10 @@ public class GWTButtonModuleTestCase extends GwtTest{
 	@Before
 	public void setUp () {
 		module = new ButtonModule();
+		ArrayList<SpeechTextsStaticListItem> resetSpeechTexts = new ArrayList<SpeechTextsStaticListItem>();
+		SpeechTextsStaticListItem mockSpeechText = mock(SpeechTextsStaticListItem.class);
+		when(mockSpeechText.getText()).thenReturn("<>11");
+		resetSpeechTexts.add(mockSpeechText);
 		
 		Whitebox.setInternalState(module, "id", "<>1");
 		Whitebox.setInternalState(module, "text", "<>2");
@@ -37,6 +46,7 @@ public class GWTButtonModuleTestCase extends GwtTest{
 		Whitebox.setInternalState(module, "confirmInfo", "<>8");
 		Whitebox.setInternalState(module, "confirmYesInfo", "<>9");
 		Whitebox.setInternalState(module, "confirmNoInfo", "<>10");
+		Whitebox.setInternalState(module, "resetSpeechTextItems", resetSpeechTexts);
 		Whitebox.setInternalState(module, "goToLastVisitedPage", true);
 	}
 	
@@ -74,9 +84,9 @@ public class GWTButtonModuleTestCase extends GwtTest{
 	
 	@Test
 	public void testToXMLEscapingXMLReset () {
-		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\"><layouts><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"reset\" text=\"&lt;&gt;2\" confirmReset=\"true\" confirmInfo=\"&lt;&gt;8\" confirmYesInfo=\"&lt;&gt;9\" confirmNoInfo=\"&lt;&gt;10\"/></buttonModule>";
+		String expected = "<buttonModule id=\"&lt;&gt;1\" isTabindexEnabled=\"false\"><layouts><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><button onclick=\"&lt;&gt;3\" type=\"reset\" text=\"&lt;&gt;2\" confirmReset=\"true\" confirmInfo=\"&lt;&gt;8\" confirmYesInfo=\"&lt;&gt;9\" confirmNoInfo=\"&lt;&gt;10\" resetReset=\"&lt;&gt;11\"/></buttonModule>";
 		Whitebox.setInternalState(module, "type", ButtonType.reset);
-		
+
 		assertEquals(expected, module.toXML());
 	}
 	

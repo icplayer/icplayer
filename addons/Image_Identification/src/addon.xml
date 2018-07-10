@@ -4,9 +4,30 @@
 	<model>
 		<property name='Image' nameLabel="Image_Identification_property_image" type='image' isDefault='true' />
 		<property name="SelectionCorrect" nameLabel="Image_Identification_property_selection_correct" type="boolean" />
+		<property name="Is Disabled" nameLabel="Image_Identification_property_is_disabled" type="boolean" />
 		<property name="Is not an activity" nameLabel="Image_Identification_property_is_not_an_activity" type="boolean" />
 		<property name="Block in error checking mode" nameLabel="Image_Identification_property_block_in_error_checking_mode" type="boolean" />
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="Image_Identification_property_block_wrong_answers" type="boolean" />
-		<property name="Alt text" nameLabel="Image_Identification_property_alt_text" type="string" />
+		<property name="Alt text" nameLabel="Image_Identification_property_alt_text" type="string" isLocalized="true" />
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="Image_Identification_property_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Image_Identification_property_speech_texts" type="staticlist">
+
+            <property name="Selected" nameLabel="Image_Identification_selected" type="staticrow">
+                <property name="Selected" nameLabel="Image_Identification_selected" type="string"/>
+            </property>
+
+            <property name="Deselected" nameLabel="Image_Identification_deselected" type="staticrow">
+                <property name="Deselected" nameLabel="Image_Identification_deselected" type="string"/>
+            </property>
+
+            <property name="Correct" nameLabel="Image_Identification_correct" type="staticrow">
+                <property name="Correct" nameLabel="Image_Identification_correct" type="string"/>
+            </property>
+
+            <property name="Wrong" nameLabel="Image_Identification_wrong" type="staticrow">
+                <property name="Wrong" nameLabel="Image_Identification_wrong" type="string"/>
+            </property>
+
+        </property>
 	</model>
 </addon>

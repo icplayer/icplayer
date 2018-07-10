@@ -69,3 +69,30 @@ TestCase("Get connections other than", {
         }
     }
 });
+
+TestCase("[Multiple_Audio_Controls_Binder] Get connection with module ID and item", {
+    setUp: function () {
+        this.presenter = AddonMultiple_Audio_Controls_Binder_create();
+        this.presenter.connections = new this.presenter.Connections([
+            { Audio: 'Audio5', DoubleStateButton: 'Double_State_Button6', Item: "1"},
+            { Audio: 'Audio5', DoubleStateButton: 'Double_State_Button5', Item: "2"},
+            { Audio: 'Audio6', DoubleStateButton: 'Double_State_Button7', Item: "1" },
+            { Audio: 'Audio6', DoubleStateButton: 'Double_State_Button8', Item: "2"}
+        ]);
+    },
+
+    'test get connection with Audio ID': function () {
+        var connection = this.presenter.connections.getConnectionWithAudioAndItem('Audio5', "2");
+
+        assertEquals('1', connection.ID);
+        assertEquals('Audio5', connection.Audio.ID);
+        assertEquals('Double_State_Button5', connection.DoubleStateButton.ID);
+        assertEquals('2', connection.Item.Digit);
+    },
+
+    'test get connection with nonexistent item': function () {
+        var connection = this.presenter.connections.getConnectionWithAudioAndItem('Audio5', "3");
+
+        assertEquals(undefined, connection);
+    },
+});

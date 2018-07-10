@@ -56,4 +56,24 @@ public class ModuleDimensions {
 			this.height = value;;
 		}
 	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		
+		if (other instanceof ModuleDimensions) {
+			ModuleDimensions otherDimension = (ModuleDimensions) other;
+			return this.left == otherDimension.left
+					&& this.right == otherDimension.right
+					&& this.height == otherDimension.height
+					&& this.width == otherDimension.width
+					&& this.top == otherDimension.top
+					&& this.bottom == otherDimension.bottom;
+			
+		}
+		
+		return false;
+	}
 }

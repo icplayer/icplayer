@@ -11,8 +11,23 @@
     background-color:blue;
 }
 
+.counters-container {
+    position:absolute;
+}
+
 .board-game-field{
     position:absolute;
     background-color:blue;
     opacity: 0.3;
+}
+
+.board-game-field.game {
+    background-color: transparent;
+    opacity: 1;
+}
+
+.board-game-element.game {
+    position: static;
+    float: left;
+    box-sizing: border-box;
 }

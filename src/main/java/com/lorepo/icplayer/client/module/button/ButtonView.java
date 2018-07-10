@@ -1,23 +1,31 @@
 package com.lorepo.icplayer.client.module.button;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 import com.lorepo.icplayer.client.module.button.ButtonPresenter.IDisplay;
+import com.lorepo.icplayer.client.page.PageController;
 
-public class ButtonView extends Composite implements IDisplay, IWCAG {
+public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModuleView {
 	private static final String DISABLED_STYLE = "disabled";
 	
 	private ButtonModule module;
 	private boolean isErrorCheckingMode;
 	private IPlayerServices playerServices;
+	private PageController pageController;
+	private boolean isWCAGOn = false;
 
 	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
@@ -142,6 +150,13 @@ public class ButtonView extends Composite implements IDisplay, IWCAG {
 		Widget buttonWidget = this.getWidget();
 		if (buttonWidget instanceof ExecutableButton) {
 			((ExecutableButton) buttonWidget).execute();
+			
+			if (isWCAGOn) {
+				ButtonType type = module.getType();
+				if (ButtonType.reset == type) {
+					speak(TextToSpeechVoice.create(module.getResetSpeechTextItem(ButtonModule.RESET_BUTTON_RESET_INDEX)));
+				}
+			}
 		}
 	}
 
@@ -194,5 +209,40 @@ public class ButtonView extends Composite implements IDisplay, IWCAG {
 	@Override
 	public String getName() {
 		return "Button";
+	}
+	
+	private void speak (TextToSpeechVoice t1) {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(t1);
+		
+		this.speak(textVoices);
+	}
+	
+	private void speak (List<TextToSpeechVoice> textVoices) {
+		if (this.pageController != null) {
+			this.pageController.speak(textVoices);
+		}
+	}
+
+
+	@Override
+	public void setPageController(PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+		
+	}
+
+
+	@Override
+	public void setWCAGStatus(boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;
+		
+	}
+
+
+	@Override
+	public String getLang() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -11,14 +11,15 @@ import com.google.gwt.user.client.Window.ScrollEvent;
 import com.google.gwt.user.client.Window.ScrollHandler;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icf.utils.ILoadListener;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
-import com.lorepo.icf.utils.XMLLoader;
+import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
+import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
-import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.PopupPage;
 
 public class PagePopupPanel extends DialogBox {
 
@@ -31,6 +32,10 @@ public class PagePopupPanel extends DialogBox {
 	private PageController openingPageController;
 	private String popupName = "";
 	private int popupHeightWithoutBorder = 0;
+	private ScaleInformation scale;
+	private IPlayerServices icplayer;
+	private HandlerRegistration scrollHandler = null;
+	private String layoutID = "";
 
 	public PagePopupPanel(Widget parent, PageController pageController, String top, String left, String additionalClasses) {
 		this.pageController = pageController;
@@ -38,10 +43,25 @@ public class PagePopupPanel extends DialogBox {
 		this.additionalClasses = additionalClasses;
 		this.top = top;
 		this.left = left;
+		this.scale = new ScaleInformation();
+		this.icplayer = null;
 	}
 	
+	public PagePopupPanel(Widget parent, PageController pageController, String top, String left, String additionalClasses, IPlayerServices icplayer) {
+		this.pageController = pageController;
+		this.parentWidget = parent;
+		this.additionalClasses = additionalClasses;
+		this.top = top;
+		this.left = left;
+		scale = new ScaleInformation();
+		this.icplayer = icplayer;
+	}
 	
-	public void showPage(Page page, String baseUrl) {
+	public void setLayoutID(String id){
+		this.layoutID = id;
+	}
+	
+	public void showPage(PopupPage page, String baseUrl) {
 		if(page.isLoaded()){
 			initPanel(page);
 		}
@@ -53,15 +73,15 @@ public class PagePopupPanel extends DialogBox {
 	}
 
 
-	private void loadPage(Page page, String baseUrl) {
+	private void loadPage(PopupPage page, String baseUrl) {
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
-		PageFactory factory = new PageFactory((Page) page);
+		PageFactory factory = new PageFactory((PopupPage) page);
 		
 		factory.load(url, new IProducingLoadingListener () {
 
 			@Override
 			public void onFinishedLoading(Object producedItem) {
-				Page page = (Page) producedItem;
+				PopupPage page = (PopupPage) producedItem;
 				initPanel(page);
 			}
 
@@ -69,62 +89,76 @@ public class PagePopupPanel extends DialogBox {
 			public void onError(String error) {
 				JavaScriptUtils.log("Can't load page: " + error);
 			}
-			
 		});
 	}
 
-
-	private void initPanel(Page page){
+	private void initPanel(PopupPage page){
 		pageWidget = new PageView("ic_popup_page");
 		String classes = additionalClasses == "" ? "ic_popup" : "ic_popup " + additionalClasses;
 
+		if(this.layoutID.length()>0 && page.getSizes().containsKey(this.layoutID)) {
+			page.setSemiResponsiveLayoutID(this.layoutID);
+		}
+		
 		setStyleName(classes);
 		setAnimationEnabled(true);
 		setGlassEnabled(true);
+		setModal(false);
 		setWidget(pageWidget);
+		
+		if (this.icplayer!=null) {
+			scale = this.icplayer.getScaleInformation();
+		}
+		this.getElement().getStyle().setProperty("transform", scale.transform);
+		this.getElement().getStyle().setProperty("transform-origin", scale.transformOrigin);
 				
 		int windowWidth = Window.getClientWidth();
 		int windowHeight = Window.getClientHeight();
-		int popupWidth = page.getWidth(); 
+
+		int popupWidth = page.getWidth();
 		int popupHeight = page.getHeight();
-		
-		if (popupWidth > windowWidth){
-			page.setWidth(windowWidth);
+
+		page.setOriginalHeight(popupHeight);
+		page.setOriginalWidth(popupWidth);
+
+		if (scaleInt(popupWidth,scale.scaleX) > windowWidth) {
+			page.setWidth(scaleInt(windowWidth,1.0/scale.scaleX));
 		}
-		
-		if (popupHeight > windowHeight){
-			page.setHeight(windowHeight);
+
+		if (scaleInt(popupHeight,scale.scaleY) > windowHeight){
+			page.setHeight(scaleInt(windowHeight,1.0/scale.scaleY));
 		}
-		
+
 		show();
 		pageController.setView(pageWidget);
 		pageController.setPage(page);
 				
 		Style glassStyle = getGlassElement().getStyle();
 		
-		int popupWidthWithBorder = page.getWidth() + this.getBorderWidth();
-		if (page.getWidth() >= windowWidth){
+		if (scaleInt(popupWidth, scale.scaleX) >= windowWidth){
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowX(Overflow.AUTO);
+			this.forceHardwareAcceleration(this.pageWidget.getWidget().getElement());
 			this.compensateWidthBorder();
 		}
 
-		int popupHeightWithBorder = page.getHeight() + this.getBorderHeight();
-		if (page.getHeight() >= windowHeight){
+		if (scaleInt(popupHeight, scale.scaleY) >= windowHeight){
 			this.pageWidget.getWidget().getElement().getStyle().setOverflowY(Overflow.AUTO);
+			this.forceHardwareAcceleration(this.pageWidget.getWidget().getElement());
 			this.compensateHeightBorder();
 		}
 		
 		int top;
-		if (parentWidget.getAbsoluteTop() > Window.getScrollTop()) {
-			top = parentWidget.getAbsoluteTop();
+		if (Math.abs(parentWidget.getAbsoluteTop()) > Window.getScrollTop()) {
+			top = Math.abs(parentWidget.getAbsoluteTop());
 		} else {
 			top = Window.getScrollTop();
 		}
 		
+		int maxHeight = Window.getClientHeight() > getWindowHeight() ? Window.getClientHeight() : getWindowHeight();
+		
 		int height = getElement().getClientHeight();
-	
-		if (height < Window.getClientHeight()) {
-			height = Window.getClientHeight();
+		if (height < maxHeight) {
+			height = maxHeight;
 		}
 			
 		height += top;
@@ -132,7 +166,17 @@ public class PagePopupPanel extends DialogBox {
 		glassStyle.setProperty("top", 0 + "px");
 		glassStyle.setProperty("height", height + "px");
 		
-		center(page.getHeight() >= windowHeight);
+		center();
+	}
+	
+	private native int getWindowHeight() /*-{
+		return $wnd.$($wnd.document).height();
+	}-*/;
+	
+	// This method makes the device use hardware acceleration on the provided element, increasing performance
+	private void forceHardwareAcceleration(Element e){
+		e.getStyle().setProperty("transform", "translate3d(0,0,0)");
+		e.getStyle().setProperty("-webkit-transform", "translate3d(0,0,0)");
 	}
 	
 	public static native int getParentWindowOffset() /*-{
@@ -167,48 +211,46 @@ public class PagePopupPanel extends DialogBox {
 	 * Center popup
 	 * @param parentWidget
 	 */
-	public void center(boolean shouldRemoveScroll) {		
+	public void center() {	
 		if(parentWidget != null){
 			int left = parentWidget.getAbsoluteLeft();
-			int offsetX = parentWidget.getOffsetWidth() - getOffsetWidth();
+			int offsetX = scaleInt(parentWidget.getOffsetWidth() - getOffsetWidth(), scale.scaleX);
 			left = left+offsetX/2;
+			if (left<0) {
+				left = 0;
+			}
 			
 			int top;
-			if(parentWidget.getAbsoluteTop() > Window.getScrollTop()){
-				top = parentWidget.getAbsoluteTop();
+			if(Math.abs(parentWidget.getAbsoluteTop()) > Window.getScrollTop()){
+				top = Math.abs(parentWidget.getAbsoluteTop());
 			}
 			else{
 				top = Window.getScrollTop();
 			}
-			
+
 			try{
 				top += getParentWindowOffset();
 			}catch(Exception e) {
 				top += 0;
 			}
 			
-			Window.addWindowScrollHandler(new ScrollHandler() {
+			scrollHandler = Window.addWindowScrollHandler(new ScrollHandler() {
 				public void onWindowScroll(ScrollEvent event) {
-					
+
 					restrictScroll();
 				}
 
 			});
-			
-			if(shouldRemoveScroll) {
-				this.pageWidget.setHeight(popupHeightWithoutBorder - top);
-			}
-			
-			
-			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){		
-				int propertyLeft = Integer.parseInt(this.left);
-				int propertyTop = Integer.parseInt(this.top);
+
+			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
+				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.scaleX);
+				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.scaleY);
 				setPopupPosition(propertyLeft, propertyTop);
 			} else if (this.top != null && this.top != "" && isInteger(this.top)) {
-				int propertyTop = Integer.parseInt(this.top);
+				int propertyTop = scaleInt(Integer.parseInt(this.top), scale.scaleY);
 				setPopupPosition(left, propertyTop);
 			}else if (this.left != null && this.left != "" && isInteger(this.left)) {
-				int propertyLeft = Integer.parseInt(this.left);
+				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.scaleX);
 				setPopupPosition(propertyLeft, top);
 			} else {
 				setPopupPosition(left, top);
@@ -227,26 +269,37 @@ public class PagePopupPanel extends DialogBox {
       return isValidInteger;
 	}
 	
-	private void restrictScroll() {
+	private native int getTopWindowScroll()/*-{
+		return $wnd.$(top.window).scrollTop();
+	}-*/;
 	
-		int popupBottom = getAbsoluteTop() + getOffsetHeight();
-		int windowBottom = Window.getScrollTop() + Window.getClientHeight();
-		if(Window.getClientHeight() > getOffsetHeight()){
-			if(Window.getScrollTop() > getAbsoluteTop()){
-				Window.scrollTo(0, getAbsoluteTop());
+	private native void setTopWindowScroll(int scroll)/*-{
+		$wnd.$(top.window).scrollTop(scroll);
+	}-*/;
+	
+	private void restrictScroll() {
+		int windowHeight = Window.getClientHeight() > getWindowHeight() ? Window.getClientHeight() : getWindowHeight();
+		int absoluteTop = Integer.parseInt(this.getElement().getStyle().getProperty("top").replace("px", ""));
+		int offsetHeight = scaleInt(getOffsetHeight(), scale.scaleY);
+		int scrollTop = getTopWindowScroll();
+		int popupBottom = absoluteTop + offsetHeight;
+		int windowBottom = scrollTop + windowHeight;
+		if (windowHeight > offsetHeight) {
+			if (scrollTop > absoluteTop) {
+				setTopWindowScroll(absoluteTop);
 			}
-			else if(popupBottom > windowBottom){
+			else if (popupBottom > windowBottom) {
 				int diff = popupBottom-windowBottom;
-				Window.scrollTo(0, Window.getScrollTop()+diff);
+				setTopWindowScroll(scrollTop + diff);
 			}
 		}
 		else{
-			int top = getAbsoluteTop() + (getOffsetHeight()-Window.getClientHeight());
-			if(Window.getScrollTop() > top){
-				Window.scrollTo(0, top);
+			int top = absoluteTop + (offsetHeight - windowHeight);
+			if(scrollTop > top){
+				setTopWindowScroll(top);
 			}
-			else if(getAbsoluteTop() > Window.getScrollTop()){
-				Window.scrollTo(0, getAbsoluteTop());
+			else if(absoluteTop > scrollTop) {
+				setTopWindowScroll(absoluteTop);
 			}
 		}
 	}
@@ -318,6 +371,9 @@ public class PagePopupPanel extends DialogBox {
 
 	public void close() {
 		removeHoveringFromButtons();
+		if (scrollHandler!=null) {
+			scrollHandler.removeHandler();
+		}
 		hide();
 		pageController.getPlayerController().setPopupEnabled(false);
 		pageController.closePage();
@@ -325,4 +381,9 @@ public class PagePopupPanel extends DialogBox {
 		ValueChangedEvent valueEvent = new ValueChangedEvent("Popup", popupName, "closed", "");
 		this.openingPageController.getPlayerServices().getEventBus().fireEvent(valueEvent);
 	}
+	
+	private int scaleInt(int value, double scale) {
+		return new Double(value * scale).intValue();
+	}
+	
 }

@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.addon;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +57,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private IPlayerServices services;
 	private IDisplay view;
 	private IAddonDescriptor addonDescriptor;
-	private Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "text_identification", "image_identification"));
+	private static Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "limited_show_answers", "text_identification", "image_identification"));
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 		this.model = model;
@@ -261,14 +262,17 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 				addPropertyToJSObject(jsModel, property.getName(), listModel);
 			} else if (property instanceof IStaticListProperty) {
 				IStaticListProperty listProperty = (IStaticListProperty) property;
-				JavaScriptObject listModel = JavaScriptObject.createArray();
+				JavaScriptObject listModel = JavaScriptObject.createObject();
 				for(int j = 0; j < listProperty.getChildrenCount(); j++){
 					IPropertyProvider child = listProperty.getChild(j);
 					JavaScriptObject childModel = createModel(child);
-					addToJSArray(listModel, childModel);
+					String name = this.getStringFromJSObject(childModel, "name");
+					JavaScriptObject object = this.getObjectFromJSObject(childModel, "value");
+					this.addPropertyToJSObject(listModel, name, object);
 				}
 				addPropertyToJSObject(jsModel, property.getName(), listModel);
 			} else if (property instanceof IStaticRowProperty) {
+				jsModel = JavaScriptObject.createObject();
 				IStaticRowProperty listProperty = (IStaticRowProperty) property;
 				JavaScriptObject listModel = JavaScriptObject.createObject();
 				for(int j = 0; j < listProperty.getChildrenCount(); j++){
@@ -276,7 +280,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 						addPropertyToModel(listModel,listProperty.getChild(j).getProperty(0));
 					}
 				}
-				addPropertyToJSObject(jsModel, property.getName(), listModel);
+				addPropertyToJSObject(jsModel, "value", listModel);
+				addPropertyToJSObject(jsModel, "name", property.getName());
 			} else if (property instanceof IEditableSelectProperty) {
 				IEditableSelectProperty castedProperty = (IEditableSelectProperty)property;
 				JavaScriptObject editableSelectModel = JavaScriptObject.createObject();
@@ -307,6 +312,13 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		addPropertyToJSObject(jsModel, property.getName(), value);
 	}
 	
+	private native String getStringFromJSObject (JavaScriptObject model, String name)  /*-{
+		return model[name];
+	}-*/; 
+	
+	private native JavaScriptObject getObjectFromJSObject (JavaScriptObject model, String name)  /*-{
+		return model[name];
+	}-*/; 
 	
 	private native void addPropertyToJSObject(JavaScriptObject model, String name, String value)  /*-{
 		model[name] = value;
@@ -433,11 +445,15 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return this;
 	}
 
+	private boolean isWCAGOn() {
+		return services!=null && services.isWCAGOn();
+	}
+	
 	@Override
 	public void selectAsActive(String className) {
 		this.view.getElement().addClassName(className);
 		
-		if ("ic_selected_module" == className) {
+		if ("ic_selected_module" == className && !services.isWCAGOn()) {
 			this.view.getElement().focus();
 		}
 	}
@@ -445,7 +461,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	@Override
 	public void deselectAsActive(String className) {
 		this.view.getElement().removeClassName(className);
-		if ("ic_selected_module" == className) {
+		if ("ic_selected_module" == className && !services.isWCAGOn()) {
 			this.view.getElement().blur();
 		}
 	}
@@ -455,7 +471,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		boolean isVisible = this.model.isVisible();
 		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible && !isDisabled();
 	}
-
+	
 	@Override
 	public void enter(boolean isExiting) {
 		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting, null);
@@ -512,6 +528,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 		return false;
 	}
+	
+	public static boolean isButton(String addonId){
+		return buttonAddons.contains(addonId.toLowerCase());
+	}
 
 	public boolean isDisabled() {
 		for (IAddonParam propetry : this.model.getParams()){
@@ -549,5 +569,32 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	@Override
 	public String getLang () {
 		return null;
+	}
+	
+	public  boolean isEnterable () {
+		return this.isEnterable(this.getJavaScriptObject());
+	}
+	
+	public native boolean isEnterable (JavaScriptObject obj) /*-{
+		if (obj !== undefined && obj !== null && obj.hasOwnProperty('isEnterable')) {
+			return obj.isEnterable();
+		};
+		return true;
+	}-*/;
+	
+	public  boolean isDeactivationBlocked () {
+		return this.isDeactivationBlocked(this.getJavaScriptObject());
+	}
+	
+	public native boolean isDeactivationBlocked (JavaScriptObject obj) /*-{
+		if (obj !== undefined && obj !== null && obj.hasOwnProperty('isDeactivationBlocked')) {
+			return obj.isDeactivationBlocked();
+		};
+		return false;
+	}-*/;
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		
 	}
 }

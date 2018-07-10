@@ -3,6 +3,7 @@
 <addon id="Heading" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
         <property name="Heading" nameLabel="Heading_property_heading" type="{h1, h2, h3, h4, h5, h6}" />
-        <property name="Content" nameLabel="Heading_property_content" type="html" isDefault="true" />
+        <property name="Content" nameLabel="Heading_property_content" type="html" isDefault="true" isLocalized="true"/>
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="Heading_property_lang_attribute" type="string" />
     </model>
 </addon>

@@ -87,4 +87,8 @@ public class ItemWidget extends HTML {
 	public void setEventBus(EventBus eventBus) {
 		this.eventBus = eventBus;
 	}
+	
+	public Integer getStartingPosition() {
+		return this.item.getStartingPosition();
+	}
 }

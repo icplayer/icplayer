@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.api;
 
+import java.util.HashMap;
+
 import com.google.gwt.core.client.JsArrayString;
 
 
@@ -73,6 +75,12 @@ public class TextToSpeechPresenter implements ITextToSpeechPresenter {
 	@Override
 	public void reset() {
 		presenter.reset();
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

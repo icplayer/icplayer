@@ -7,16 +7,23 @@
             increaseMistakeCounter: sinon.stub()
         };
 
+        this.tts = {
+            speak: sinon.spy()
+        };
+
         this.stubs = {
             addClassStub: sinon.stub(),
             removeClassStub: sinon.stub(),
             textStub: sinon.stub(),
             sendEventStub: sinon.stub(this.presenter, 'sendEvent'),
-            getCommandsStubs: sinon.stub().returns(this.commands)
+            getCommandsStubs: sinon.stub().returns(this.commands),
+            getModuleStub: sinon.stub().returns(this.tts)
         };
 
         this.presenter.playerController = {
-            getCommands: this.stubs.getCommandsStubs
+            getCommands: this.stubs.getCommandsStubs,
+            getModule: this.stubs.getModuleStub
+
         };
 
         this.presenter.$wrapper = {
@@ -41,7 +48,7 @@
         setUp: setUpPresenter,
 
         'test should call sendEvent once': function () {
-            this.presenter.handleClickAction();
+            this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             assertTrue(this.stubs.sendEventStub.calledOnce);
@@ -50,7 +57,7 @@
         'test should send ShowAnswers event when is not selected': function () {
             this.presenter.configuration.isSelected = false;
 
-            this.presenter.handleClickAction();
+            this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             var result = this.stubs.sendEventStub.getCall(0).args;
@@ -61,7 +68,7 @@
         'test should send HideAnswers event when is selected': function () {
             this.presenter.configuration.isSelected = true;
 
-            this.presenter.handleClickAction();
+            this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             var result = this.stubs.sendEventStub.getCall(0).args;
@@ -72,7 +79,7 @@
         'test should call addClass when isSelected is false': function () {
             this.presenter.configuration.isSelected = false;
 
-            this.presenter.handleClickAction();
+            this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             assertTrue(this.stubs.addClassStub.calledOnce);
@@ -81,7 +88,7 @@
         'test should call removeClass when isSelected is true': function () {
             this.presenter.configuration.isSelected = true;
 
-            this.presenter.handleClickAction();
+            this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             assertTrue(this.stubs.removeClassStub.calledOnce);
@@ -95,7 +102,7 @@
             this.presenter.configuration.isSelected = false;
             this.presenter.configuration.enableCheckCounter = true;
 
-            this.presenter.handleClickAction();
+            this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             assertTrue(this.commands.incrementCheckCounter.calledOnce);
@@ -105,7 +112,7 @@
             this.presenter.configuration.isSelected = true;
             this.presenter.configuration.enableCheckCounter = true;
 
-            this.presenter.handleClickAction();
+            this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             assertFalse(this.commands.incrementCheckCounter.calledOnce);
@@ -115,7 +122,7 @@
             this.presenter.configuration.isSelected = true;
             this.presenter.configuration.enableCheckCounter = true;
 
-            this.presenter.handleClickAction();
+            this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             assertFalse(this.commands.incrementCheckCounter.calledOnce);
@@ -129,7 +136,7 @@
             this.presenter.configuration.isSelected = false;
             this.presenter.configuration.enableMistakeCounter = true;
 
-            this.presenter.handleClickAction();
+            this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             assertTrue(this.commands.increaseMistakeCounter.calledOnce);
@@ -139,7 +146,7 @@
             this.presenter.configuration.isSelected = true;
             this.presenter.configuration.enableMistakeCounter = true;
 
-            this.presenter.handleClickAction();
+            this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             assertFalse(this.commands.increaseMistakeCounter.calledOnce);
@@ -149,11 +156,57 @@
             this.presenter.configuration.isSelected = true;
             this.presenter.configuration.enableMistakeCounter = true;
 
-            this.presenter.handleClickAction();
+            this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             assertFalse(this.commands.increaseMistakeCounter.calledOnce);
         }
+    });
+
+    TestCase('[Show_Answers] WCAG navigation test', {
+        setUp: setUpPresenter,
+
+        'test press enter when Show Answers not selected': function () {
+            this.presenter.setWCAGStatus(true);
+            this.presenter.speechTexts = {
+                editBlock: 'Page edition is blocked',
+                noEditBlock: 'Page edition is not blocked'
+            };
+            this.presenter.connectClickAction();
+
+            this.presenter.keyboardController(13);
+            var args = this.tts.speak.args[0][0];
+            assertTrue(this.tts.speak.calledOnce);
+            assertTrue(0 === args[0].text.localeCompare('Page edition is blocked'));
+        },
+
+        'test press enter when Show Answers selected': function () {
+            this.presenter.setWCAGStatus(true);
+            this.presenter.speechTexts = {
+                editBlock: 'Page edition is blocked',
+                noEditBlock: 'Page edition is not blocked'
+            };
+            this.presenter.connectClickAction();
+            this.presenter.configuration.isSelected = true;
+
+            this.presenter.keyboardController(13);
+            var args = this.tts.speak.args[0][0];
+            assertTrue(this.tts.speak.calledOnce);
+            assertTrue(0 === args[0].text.localeCompare('Page edition is not blocked'));
+        },
+
+        'test press enter when WCAG not active': function () {
+            this.presenter.setWCAGStatus(false);
+            this.presenter.speechTexts = {
+                editBlock: 'Page edition is blocked',
+                noEditBlock: 'Page edition is not blocked'
+            };
+            this.presenter.connectClickAction();
+
+            this.presenter.keyboardController(13);
+            assertTrue(0 === this.tts.speak.callCount);
+        }
+
     });
 
 })();

@@ -8,7 +8,20 @@ TestCase("[Show_Answers] Validating model test", {
             'Is Visible' : 'True',
             ID : 'Show_Answers1',
             'Increment check counter': 'True',
-            'Increment mistake counter': 'True'
+            'Increment mistake counter': 'True',
+            speechTexts :
+                {
+                    Selected: {
+                        Selected: 'is selected'
+                    },
+                    'Block edit': {
+                        'Block edit': 'Edition of this page is blocked'
+                    },
+
+                    'No block edit': {
+                        'No block edit': 'Edition of this page is not blocked'
+                    }
+                }
         };
     },
 
@@ -46,5 +59,13 @@ TestCase("[Show_Answers] Validating model test", {
         var result = this.presenter.validateModel(this.model);
 
         assertTrue(result.enableMistakeCounter);
+    },
+
+    'test setSpeechTexts sets provided values': function() {
+        var result = this.presenter.validateModel(this.model);
+
+        assertTrue(0 === this.presenter.speechTexts.selected.localeCompare('is selected'));
+        assertTrue(0 === this.presenter.speechTexts.editBlock.localeCompare('Edition of this page is blocked'));
+        assertTrue(0 === this.presenter.speechTexts.noEditBlock.localeCompare('Edition of this page is not blocked'));
     }
 });

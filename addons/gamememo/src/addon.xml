@@ -5,14 +5,18 @@
 		<property name='Pairs' nameLabel="gamememo_property_pairs" type='list'>
 			<property name="A (text)" nameLabel="gamememo_property_pair_a_text" type="string" isLocalized="true" />
 			<property name="A (image)" nameLabel="gamememo_property_pair_a_image" type="image" />
+			<property name="A (alt text)" nameLabel="gamememo_property_alt_text_style_a" type="string" />
 			<property name="B (text)" nameLabel="gamememo_property_pair_b_text" type="string" isLocalized="true" />
 			<property name="B (image)" nameLabel="gamememo_property_pair_b_image" type="image" />
+			<property name="B (alt text)" nameLabel="gamememo_property_alt_text_style_a" type="string" />
 		</property>
 		<property name="Columns" nameLabel="gamememo_property_columns" type="string" />
 		<property name="Rows" nameLabel="gamememo_property_rows" type="string" />
 		<property name="Use two styles for cards" nameLabel="gamememo_property_use_two_styles_for_cards" type="boolean" />
 		<property name="Image for style A" nameLabel="gamememo_property_image_for_style_a" type="image" />
 		<property name="Image for style B" nameLabel="gamememo_property_image_for_style_b" type="image" />
+		<property name="Style A cover alt text" nameLabel="gamememo_property_alt_text_style_a" type="string" />
+		<property name="Style B cover alt text" nameLabel="gamememo_property_alt_text_style_b" type="string" />
 		<property name="Keep cards aspect ratio" nameLabel="gamememo_property_keep_cards_aspect_ratio" type="boolean" />
 		<property name="Show cards for preview" nameLabel="gamememo_property_show_cards_for_preview" type="boolean" />
         <property name="Is Not Activity" nameLabel="gamememo_property_is_not_activity" type="boolean" />
@@ -21,5 +25,53 @@
         <property name="Time to solve" nameLabel="gamememo_property_time_to_solve" type="string" />
         <property name="Session ended message" nameLabel="gamememo_property_session_ended_message" type="html" />
 		<property name="Click to turn over incorrect pair" nameLabel="gamememo_property_click_to_turn_over_incorrect_pair" type="boolean" />
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="Connection_property_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Connection_property_speech_texts" type="staticlist">
+
+            <property name="Revealed" nameLabel="gamememo_revealed" type="staticrow">
+                <property name="Revealed" nameLabel="gamememo_revealed" type="string"/>
+            </property>
+
+			<property name="Paired" nameLabel="gamememo_paired" type="staticrow">
+                <property name="Paired" nameLabel="gamememo_paired" type="string"/>
+            </property>
+
+			<property name="Value" nameLabel="gamememo_value_of" type="staticrow">
+                <property name="Value" nameLabel="gamememo_value_of" type="string"/>
+            </property>
+
+			<property name="WrongColor" nameLabel="gamememo_wrong_color" type="staticrow">
+                <property name="WrongColor" nameLabel="gamememo_wrong_color" type="string"/>
+            </property>
+
+			<property name="Match" nameLabel="gamememo_match" type="staticrow">
+                <property name="Match" nameLabel="gamememo_match" type="string"/>
+            </property>
+
+			<property name="NotMatch" nameLabel="gamememo_not_match" type="staticrow">
+                <property name="NotMatch" nameLabel="gamememo_not_match" type="string"/>
+            </property>
+
+			<property name="CurrentlySelected" nameLabel="gamememo_currently_selected" type="staticrow">
+                <property name="CurrentlySelected" nameLabel="gamememo_currently_selected" type="string"/>
+            </property>
+
+			<property name="TurnOver" nameLabel="gamememo_turn_over" type="staticrow">
+                <property name="TurnOver" nameLabel="gamememo_turn_over" type="string"/>
+            </property>
+
+			<property name="OutOf" nameLabel="gamememo_out_of" type="staticrow">
+                <property name="OutOf" nameLabel="gamememo_out_of" type="string"/>
+            </property>
+
+			<property name="Found" nameLabel="gamememo_found" type="staticrow">
+                <property name="Found" nameLabel="gamememo_found" type="string"/>
+            </property>
+
+			<property name="RevealedCards" nameLabel="gamememo_revealed_cards" type="staticrow">
+                <property name="RevealedCards" nameLabel="gamememo_revealed_cards" type="string"/>
+            </property>
+
+		</property>
 	</model>
 </addon>

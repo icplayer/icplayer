@@ -158,24 +158,22 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	public native static String getElement(String text) /*-{		
 		var isLatex = false;
 		var element;
-		
+		var sourceListItems = $wnd.$("#_icplayer").find(".ic_sourceListItem");
+
 		if(text.indexOf("\\(") > -1 && text.indexOf("\\)") > -1){
 			var newText = text.replace("\\(", "").replace("\\)", "");
 			text = newText;
 			isLatex = true;
-			element = $wnd.$("#_icplayer").find('*[class*="sourceList"]').children().filter(function(){ return $wnd.$(this).clone().children().remove('.MathJax').end().text() == text;});
+			// element with MathJax class is removed - it contains another node with item text
+			// so calling text() on node would return same text twice
+			element = sourceListItems.filter(function(){ return $wnd.$(this).clone().children().remove('.MathJax').end().text() == text;});
 		}else{
-			element = $wnd.$("#_icplayer").find('*[class*="sourceList"]').children().filter(function(){ return $wnd.$(this).text() == text;});
+			element = sourceListItems.filter(function(){ return $wnd.$(this).text() == text;});
 		}
-		
-		element.each(function () {
-			if($wnd.$(this).hasClass("ic_sourceListItem")){
-				element = $wnd.$(this).clone();
-			}
-		});
-		
+
 		var helper = $wnd.$(element[0]).clone();
-		helper.css("display", "inline-block");
+		helper.css("display", "block");
+        helper.css("visibility", "");
 		helper.addClass("ic_sourceListItem-selected");
 		return $wnd.$('<div>').append(helper.clone()).html();
 	}-*/;
@@ -208,13 +206,13 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 				JavaScriptUtils.destroyDraggable(getElement());
 			}
 		} else {
-			String markup = StringUtils.markup2html(StringUtils.escapeHTML(text));
+			String markup = StringUtils.markup2html(text);
 			super.setHTML(markup);
-			answerText = StringUtils.removeAllFormatting(text);
+			answerText = TextParser.removeHtmlFormatting(text);
 			droppedElementHelper = getElement(text);
 			setStylePrimaryName(FILLED_GAP_STYLE);
-			if(getElement(text).length() != 0 && !isShowAnswersMode){
-				JavaScriptUtils.makeDroppedDraggableText(getElement(), getAsJavaScript(), getElement(text));
+			if(droppedElementHelper.length() != 0 && !isShowAnswersMode){
+				JavaScriptUtils.makeDroppedDraggableText(this.getElement(), getAsJavaScript(), droppedElementHelper);
 			}
 		}
 
@@ -225,6 +223,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 
 	@Override
 	public String getTextValue() {
+		return answerText;
+	}
+	
+	@Override
+	public String getWCAGTextValue() {
 		return answerText;
 	}
 	
@@ -315,6 +318,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public String getGapType() {
 		return "draggable";
+	}
+	
+	@Override
+	public String getLangTag() {
+		return gapInfo.getLangTag();
 	}
 
 	public void select() {

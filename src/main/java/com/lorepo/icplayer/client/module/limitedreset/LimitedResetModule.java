@@ -13,9 +13,10 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.ModuleUtils;
 
-public class LimitedResetModule extends BasicModuleModel {
+public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleModel {
 	
 	private String title = "";
 	private String rawWorksWith = "";

@@ -12,10 +12,11 @@ import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 
-public class SourceListModule extends BasicModuleModel {
+public class SourceListModule extends BasicModuleModel implements IWCAGModuleModel {
 	private ArrayList<String> items = new ArrayList<String>();
 	private boolean removable = true;
 	private boolean vertical = false;
@@ -91,7 +92,7 @@ public class SourceListModule extends BasicModuleModel {
 		XMLUtils.setBooleanAttribute(itemsElement, "vertical", vertical);
 		XMLUtils.setBooleanAttribute(itemsElement, "randomOrder", randomOrder);
 		itemsElement.setAttribute("selected", this.speechTextItems.get(0).getText());
-		itemsElement.setAttribute("deselected", this.speechTextItems.get(0).getText());
+		itemsElement.setAttribute("deselected", this.speechTextItems.get(1).getText());
 		itemsElement.setAttribute("langAttribute", langAttribute);
 
 		for (String item : items) {

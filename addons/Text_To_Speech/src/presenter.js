@@ -74,7 +74,9 @@ function AddonText_To_Speech_create() {
 
             addOnsConfiguration: validatedConfiguration.value,
             enterText: model['EnterText'],
-            exitText: model['ExitText']
+            exitText: model['ExitText'],
+            newPage: model['NewPage'] ? model['NewPage'] : "New page",
+            pageLangTag: model['PageLangTag']
         }
     };
 
@@ -123,7 +125,7 @@ function AddonText_To_Speech_create() {
         for (var i = 0; i < presenter.configuration.addOnsConfiguration.length; i++) {
             var conf = presenter.configuration.addOnsConfiguration[i];
 
-            if (conf.id === id && conf.area === area) {
+            if (conf.id === id && conf.area.toLowerCase() === area.toLowerCase()) {
                 return conf;
             }
         }
@@ -156,7 +158,7 @@ function AddonText_To_Speech_create() {
         loadVoices();
 
         var languages = {
-            'en': "en-GB",
+            'en': "en-US",
             'pl': 'pl-PL',
             'de': 'de-DE'
         };
@@ -206,20 +208,25 @@ function AddonText_To_Speech_create() {
     function speechSynthesisSpeak (texts) {
         window.speechSynthesis.cancel();
 
-        if (presenter.intervalId!==null) {
+        if (presenter.intervalId != null) {
             clearInterval(presenter.intervalId);
             presenter.intervalId = undefined;
         }
         // Fix for running speak method after cancelling SpeechSynthesis queue
         presenter.intervalId = setInterval(function() {
+
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
+                return;
             }
             var textsObjects = filterTexts(texts, getSpeechSynthesisLanguage);
             if (textsObjects.length === 0) {
                 clearInterval(presenter.intervalId);
+                presenter.intervalId = undefined;
                 return;
             }
+            if (presenter.intervalId == null) return;
+
             for (var i=0; i<textsObjects.length; i++) {
                 var textObject = textsObjects[i];
                 var msg = new SpeechSynthesisUtterance(textObject.text);
@@ -227,17 +234,117 @@ function AddonText_To_Speech_create() {
                 msg.rate = parseFloat(1); // 0 - 10
                 msg.pitch = parseFloat(1); // 0 - 2
                 msg.voice = textObject.lang;
-                msg.onstart = function (event) {
-                    clearInterval(presenter.intervalId);
-                    presenter.intervalId = undefined;
-                };
+                var currentIntervalId = presenter.intervalId;
+                if (i == 0) {
+                    msg.onstart = function (event) {
+                        clearInterval(currentIntervalId);
+                        if (currentIntervalId != presenter.intervalId) {
+                            window.speechSynthesis.cancel();
+                        }
+                    };
+                }
+                if (i == textsObjects.length - 1) {
+                    msg.onend = function (event) {
+                        if(currentIntervalId == presenter.intervalId){
+                            window.speechSynthesis.cancel();
+                        }
+                    };
+                }
                 window.speechSynthesis.speak(msg);
             }
-        }, 200);
-
+        }, 250);
     }
 
-    presenter.speak = function (texts) {
+    function getAltTextOptions(expression) {
+        var options = {};
+        expression = expression.replace(/.*}\[/g, '');
+        expression = expression.replace('\]\[', '|');
+        expression = expression.replace('\]', '');
+        var optionExp = expression.split('\|');
+        for(var i=0;i<optionExp.length;i++) {
+            var optionValues = optionExp[i].split(' ');
+            if(optionValues.length===2){
+                options[optionValues[0]]=optionValues[1];
+            }
+        }
+        return options;
+    }
+
+     presenter.parseAltTexts = function(texts){
+        for (var i=0; i < texts.length; i++) {
+            if (texts[i].text !== null && texts[i].text !== undefined && texts[i].text.trim().length > 0)
+            {
+                // altText elements with a langTag need to be isolated into seperate items
+                // in the texts array, so that they can use a different language tag.
+                var match = texts[i].text.match(/\\alt{([^{}|]*?)\|([^{}|]*?)}(\[([a-zA-Z0-9_\- ]*?)\])+/g);
+                if (match && match.length>0) {
+                    // get the first altText element with a lang tag.
+                    // if there are more, they will not be parsed in this iteration
+                    // instead, they will become a part of the tail and will be parsed in future iterations
+                    var matchText = match[0].trim();
+                    var originalMatchText = matchText;
+                    var splitTexts = texts[i].text.split(matchText);
+                    var startIndex = texts[i].text.indexOf(matchText);
+                    var readableText = matchText.replace(/.*\\alt{[^{}|]*?\|([^{}|]*?)}.*/g,"$1");
+                    var options = getAltTextOptions(originalMatchText);
+                    var langTag = "";
+                    if(options.hasOwnProperty('lang')){
+                        langTag = options.lang;
+                    }
+
+                    if (langTag.length!==0) {
+                        var altTextVoice = getTextVoiceObject(readableText, langTag);
+
+                        if (splitTexts) {
+                            if (splitTexts.length > 2) {
+                                // It is possible that there will be multiple identical altText elements
+                                // if that is the case, all elements of the splitTexts array should be merged
+                                // with the exception of the head
+                                var newSplitTexts = splitTexts.splice(0, 1);
+                                newSplitTexts.push(splitTexts.join(originalMatchText));
+                                splitTexts = newSplitTexts;
+                            }
+                            if (splitTexts.length === 2) {
+                                texts[i].text = splitTexts[0];
+                                texts.splice(i + 1, 0, getTextVoiceObject(splitTexts[1], texts[i].lang));
+                                texts.splice(i + 1, 0, altTextVoice);
+                            } else if (splitTexts.length === 1) {
+                                texts[i].text = splitTexts[0];
+                                if (startIndex === 0) {
+                                    texts.splice(i, 0, altTextVoice);
+                                } else {
+                                    texts.splice(i + 1, 0, altTextVoice);
+                                }
+                            } else if(splitTexts.length === 0) {
+                                texts[i] = altTextVoice;
+                            }
+                        }
+                    } else {
+                        //if there is no lang option, there is not reason to create a new element in texts array
+                        texts[i].text = texts[i].text.replace(originalMatchText, readableText);
+                    }
+                }
+
+                // handle altText elements without a langTag
+                texts[i].text = texts[i].text.replace(/\\alt{.*?\|(.*?)}/g, '$1');
+            }
+        }
+
+        // splitting matched texts might create elements with an empty text field. This removes them
+        texts = texts.filter(function(element){return element && element.text && element.text.trim().length>0});
+        return texts;
+    }
+
+    // The speak method is overloaded:
+    // texts argument can be either an array of TextVoiceObjects, or a String
+    // langTag argument is optional and only used when texts is a String
+    presenter.speak = function (texts, langTag) {
+        var class_ = Object.prototype.toString.call(texts);
+        if (class_.indexOf('String') !== -1) {
+            texts = [getTextVoiceObject(texts, langTag)];
+        }
+
+        texts = presenter.parseAltTexts(texts);
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts);
             return;
@@ -253,8 +360,27 @@ function AddonText_To_Speech_create() {
 
     presenter.playTitle = function (area, id, langTag) {
         if (area && id) {
-            presenter.speak([getTextVoiceObject(getAddOnConfiguration(area, id).title, langTag)]);
+            var textVoices = [getTextVoiceObject(getAddOnConfiguration(area, id).title, langTag)];
+            var module = null;
+            if(0 === area.toLowerCase().localeCompare("main")){
+                module = presenter.playerController.getModule(id);
+            } else if (0 === area.toLowerCase().localeCompare("footer")) {
+                module = presenter.playerController.getFooterModule(id);
+            } else if (0 === area.toLowerCase().localeCompare("header")) {
+                module = presenter.playerController.getHeaderModule(id);
+            }
+            if (module !== undefined && module !== null && module.hasOwnProperty('getTitlePostfix')) {
+                textVoices.push(getTextVoiceObject(module.getTitlePostfix(), langTag));
+            }
+            presenter.speak(textVoices);
         }
+    };
+
+    presenter.playPageTitle = function () {
+        var textVoices = [];
+        textVoices.push(getTextVoiceObject(presenter.configuration.newPage,''));
+        textVoices.push(getTextVoiceObject(presenter.playerController.getPageTitle(),presenter.configuration.pageLangTag));
+        presenter.speak(textVoices);
     };
 
     presenter.playEnterText = function () {
@@ -296,9 +422,20 @@ function AddonText_To_Speech_create() {
         var commands = {
             "show": presenter.show,
             "hide": presenter.hide,
-
-            "speak": presenter.speak,
-            "playTitle": presenter.playTitle,
+            "speak": function(params) {
+                    if (params.length === 2) {
+                        presenter.speak(params[0], params[1]);
+                    } else if (params.length === 1) {
+                        presenter.speak(params[0]);
+                    }
+                },
+            "playTitle": function(params) {
+                    if (params.length === 3) {
+                        presenter.playTitle(params[0],params[1],params[2]);
+                    } else if (params.length === 2) {
+                        presenter.playTitle(params[0],params[1]);
+                    }
+                },
             "playEnterText": presenter.playEnterText,
             "playExitText": presenter.playExitText,
             "getModulesOrder": presenter.getModulesOrder
@@ -315,6 +452,10 @@ function AddonText_To_Speech_create() {
 
             isVisible: presenter.configuration.isVisible
         });
+    };
+
+    presenter.setPlayerController = function(controller) {
+        presenter.playerController = controller;
     };
 
     presenter.setState = function (state) {
