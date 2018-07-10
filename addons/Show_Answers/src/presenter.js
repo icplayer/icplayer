@@ -107,34 +107,50 @@ function AddonShow_Answers_create(){
         return upgradedModel;
     };
 
-    presenter.handleClickAction = function () {
-        presenter.$button.on('click', function (eventData) {
-            eventData.stopPropagation();
+    presenter.handleClick = function () {
+        var text, eventName;
 
-            var text, eventName;
+        presenter.configuration.isSelected = !presenter.configuration.isSelected;
 
-            presenter.configuration.isSelected = !presenter.configuration.isSelected;
+        if (presenter.configuration.isSelected) {
+            text = presenter.configuration.textSelected;
+            eventName = presenter.EVENTS.SHOW_ANSWERS;
+            presenter.$wrapper.addClass('selected');
 
-            if (presenter.configuration.isSelected) {
-                text = presenter.configuration.textSelected;
-                eventName = presenter.EVENTS.SHOW_ANSWERS;
-                presenter.$wrapper.addClass('selected');
-
-                if (presenter.configuration.enableCheckCounter) {
-                    presenter.playerController.getCommands().incrementCheckCounter();
-                }
-
-                if (presenter.configuration.enableMistakeCounter) {
-                    presenter.playerController.getCommands().increaseMistakeCounter();
-                }
-            } else {
-                text = presenter.configuration.text;
-                eventName = presenter.EVENTS.HIDE_ANSWERS;
-                presenter.$wrapper.removeClass('selected');
+            if (presenter.configuration.enableCheckCounter) {
+                presenter.playerController.getCommands().incrementCheckCounter();
             }
 
-            presenter.$button.text(text);
-            presenter.sendEvent(eventName);
+            if (presenter.configuration.enableMistakeCounter) {
+                presenter.playerController.getCommands().increaseMistakeCounter();
+            }
+        } else {
+            text = presenter.configuration.text;
+            eventName = presenter.EVENTS.HIDE_ANSWERS;
+            presenter.$wrapper.removeClass('selected');
+        }
+
+        presenter.$button.text(text);
+        presenter.sendEvent(eventName);
+        presenter.onClick();
+    };
+
+    presenter.onClick = function () {
+     };
+
+    presenter.connectClickAction = function () {
+        presenter.$button.on('click', function (eventData) {
+            eventData.stopPropagation();
+            presenter.handleClick();
+        });
+    };
+
+    presenter.connectKeyDownAction = function () {
+        presenter.$view.on('keydown', function (eventData) {
+            if(eventData.which === 13) {
+                eventData.stopPropagation();
+                presenter.handleClick();
+            }
         });
     };
 
@@ -155,9 +171,11 @@ function AddonShow_Answers_create(){
         }
 
         if (!isPreview) {
-            presenter.handleClickAction();
+            presenter.connectClickAction();
+            presenter.connectKeyDownAction();
             presenter.eventBus.addEventListener('ShowAnswers', presenter);
             presenter.eventBus.addEventListener('HideAnswers', presenter);
+            presenter.eventBus.addEventListener('LimitedHideAnswers', presenter);
         }
     };
 
@@ -175,6 +193,7 @@ function AddonShow_Answers_create(){
 
         presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.$button.off();
+        presenter.$view.off();
 
         presenter.$button = null;
         presenter.$wrapper = null;
@@ -188,6 +207,9 @@ function AddonShow_Answers_create(){
     };
 
     presenter.onEventReceived = function (eventName) {
+        if (eventName == "LimitedHideAnswers") {
+            presenter.reset();
+        }
         if (eventName == "HideAnswers") {
             presenter.reset();
         }

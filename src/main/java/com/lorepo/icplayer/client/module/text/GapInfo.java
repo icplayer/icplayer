@@ -16,6 +16,7 @@ public class GapInfo {
 	private boolean isCaseSensitive = false;
 	private boolean isIgnorePunctuation;
 	private String placeHolder = "";
+	private String langTag = null;
 	
 	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength){
 		this.id = id;
@@ -23,6 +24,15 @@ public class GapInfo {
 		this.isCaseSensitive = isCaseSensitive;
 		this.isIgnorePunctuation = isIgnorePunctuation;
 		this.maxLength = maxLength;
+	}
+	
+	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength, String langTag){
+		this.id = id;
+		this.value = value;
+		this.isCaseSensitive = isCaseSensitive;
+		this.isIgnorePunctuation = isIgnorePunctuation;
+		this.maxLength = maxLength;
+		this.langTag = langTag;
 	}
 
 
@@ -75,7 +85,7 @@ public class GapInfo {
 	}
 
 	public boolean isCorrect(String text) {
-		
+
 		boolean correct = false;
 		if(!isCaseSensitive){
 			text = text.toLowerCase();
@@ -106,6 +116,10 @@ public class GapInfo {
 
 	public int getMaxLength() {
 		return maxLength;
+	}
+	
+	public String getLangTag() {
+		return this.langTag;
 	}
 
 	public void setPlaceHolder(String placeHolder) {

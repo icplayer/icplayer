@@ -257,4 +257,11 @@ public class PlayerControllerMockup implements IPlayerController {
 		return null;
 	}
 
+
+	@Override
+	public boolean isPlayerInCrossDomain() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

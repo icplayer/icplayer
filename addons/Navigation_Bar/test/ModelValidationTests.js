@@ -9,7 +9,8 @@ TestCase("Model validation", {
                 Pages: '',
                 Class: '',
                 Style: ''
-            }]
+            }],
+            'playTitle': ''
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -30,7 +31,8 @@ TestCase("Model validation", {
                 Pages: '',
                 Class: '',
                 Style: ''
-            }]
+            }],
+            'playTitle': ''
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -50,7 +52,8 @@ TestCase("Model validation", {
                 Pages: '3,4',
                 Class: '',
                 Style: ''
-            }]
+            }],
+            'playTitle': ''
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -70,7 +73,8 @@ TestCase("Model validation", {
                 Pages: '3,4',
                 Class: 'color-1',
                 Style: ''
-            }]
+            }],
+            'playTitle': ''
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -84,12 +88,12 @@ TestCase("Model validation", {
                 Pages: '1,2',
                 Class: 'color',
                 Style: 'background-color:red'
-            },
-                {
-                    Pages: '3,4',
-                    Class: '',
-                    Style: 'background-color: black;'
-                }]
+            }, {
+                Pages: '3,4',
+                Class: '',
+                Style: 'background-color: black;'
+            }],
+            'playTitle': ''
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -108,7 +112,8 @@ TestCase("Model validation", {
                 Pages: '3,4',
                 Class: 'color-1',
                 Style: 'background-color:green'
-            }]
+            }],
+            'playTitle': ''
         };
 
         var validatedModel = this.presenter.validateModel(model);
@@ -118,7 +123,8 @@ TestCase("Model validation", {
 
     'test model without property Styles': function () {
         var model = {
-            ID: 'Navigation_Bar'
+            ID: 'Navigation_Bar',
+            'playTitle': ''
         };
 
         var validatedModel = this.presenter.validateModel(model);

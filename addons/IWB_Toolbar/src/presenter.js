@@ -1491,9 +1491,21 @@ function AddonIWB_Toolbar_create() {
         this.length = Math.sqrt(this.x * this.x + this.y * this.y);
     }
 
-    function calculateVectorsAngle(v1, v2) {
-        return Math.acos((v1.x * v2.x + v1.y * v2.y) / (v1.length * v2.length));
-    }
+    presenter._calculateVectorsAngle = function (v1, v2) {
+        var angleArg = (v1.x * v2.x + v1.y * v2.y) / (v1.length * v2.length);
+    
+        if (v1.length === 0 || v2.length === 0 || v1.length === v2.length || -1 > angleArg || angleArg >= 1) {
+            /*
+            Comments to loop conditions:
+            - can not be divided by zero  [v1.length === 0 || v2.length === 0]
+            - arccos(1) = 0  [v1.length === v2.length]
+            - range of value: -1 <= cos(x) < 1  [-1 > angleArg || angleArg >= 1]
+            */
+            return {isCorrect: false};
+        }
+        
+        return {isCorrect: true, angleValue: Math.acos(angleArg)};
+    };
 
     function changeCurrentFloatingImage(index) {
         $.when.apply($, presenter.allImagesLoadedPromises).then(function() {
@@ -1543,11 +1555,16 @@ function AddonIWB_Toolbar_create() {
                     };
 
                     var currentVector = new Vector(imageCenter, presenter.floatingImageStage.getPointerPosition());
-                    var angle = calculateVectorsAngle(startingVector, currentVector);
+                    var angle = presenter._calculateVectorsAngle(startingVector, currentVector);
                     var isLeft = presenter.isLeft(imageCenter, previousPosition, currentPosition);
-
-                    getCurrentImage().rotate(isLeft ? angle : -angle);
-                    presenter.floatingImageLayer.draw();
+                    
+                    if (angle.isCorrect == false){
+                        getCurrentImage();
+                        presenter.floatingImageLayer.draw();
+                    } else {
+                        getCurrentImage().rotate(isLeft ? angle.angleValue : -angle.angleValue);
+                        presenter.floatingImageLayer.draw();
+                    }
                 }
 
                 previousPosition = currentPosition;

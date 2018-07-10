@@ -39,7 +39,7 @@ TestCase("[PseudoCode_Console - integration tests] correct run", {
                     methodBody: "builtIn.data.mockCalled5 = true;"
                 }
             ],
-            mathRound: " 22  ",
+            mathRound: " 20  ",
             consoleAvailableInput: "All"
         };
 

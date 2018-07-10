@@ -43,6 +43,11 @@ public final class KeyboardNavigationController {
 	
 	private boolean isWCAGSupportOn = false;
 	private boolean isPresentersInit = false;
+	
+	private boolean receivedParentScrollAndOffset = false;
+	private int parentScrollY = 0;
+	private int iframeOffsetTop = 0;
+	private int parentWindowHeight = 0;
 
 	//state
 	private PresenterEntry savedEntry = null;
@@ -83,6 +88,12 @@ public final class KeyboardNavigationController {
 		function receiveMessage(event) {
 			try {
 				var eventData = JSON.parse(event.data);
+				if (eventData.type == "SCROLL_Y_AND_OFFSET") {
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentScrollY = eventData.scrollTop;
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::iframeOffsetTop = eventData.offsetTop;
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentWindowHeight = eventData.viewHeight;
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::receivedParentScrollAndOffset = true;
+				};
 
 				if (eventData.type !== "EXTERNAL_KEYDOWN_WATCHER") {
 					return;
@@ -103,9 +114,10 @@ public final class KeyboardNavigationController {
 			this.modeOn = false;
 			return;
 		}
+		int currentSelectedModuleIndex = this.actualSelectedModuleIndex;
 		if (!this.getPresenters().get(this.actualSelectedModuleIndex).presenter.isSelectable(this.mainPageController.isTextToSpeechModuleEnable())) { //If first is not selectable
 			this.setIndexToNextModule();
-			if (this.actualSelectedModuleIndex == 0) { //And others modules too, then turn off navigation
+			if (this.actualSelectedModuleIndex == currentSelectedModuleIndex) { //And others modules too, then turn off navigation
 				this.modeOn = false;
 				return;
 			}
@@ -128,7 +140,7 @@ public final class KeyboardNavigationController {
 			return true;
 		}
 		
-		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {	//Addon can be button or not, so AddonPresenter contains list of buttons
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {	//Addon can be button, so AddonPresenter contains list of buttons
 			AddonPresenter presenter = (AddonPresenter) this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
 			return presenter.isButton();
 		}
@@ -150,6 +162,15 @@ public final class KeyboardNavigationController {
 		return true;
 	}
 	
+	private boolean isModuleDeactivationBlocked() {
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {
+			AddonPresenter presenter = (AddonPresenter) this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
+			return presenter.isDeactivationBlocked();
+		}
+		
+		return false;
+	}
+	
 	private void setWCAGModulesStatus (boolean isOn) {
 		for (PresenterEntry p: this.presenters) {
 			p.presenter.getWCAGController();
@@ -161,6 +182,10 @@ public final class KeyboardNavigationController {
 		}
 	}
 
+	private native void sendParentScrollAndOffsetRequest() /*-{
+		$wnd.top.postMessage("REQUEST_SCROLL_Y_AND_OFFSET","*");
+	}-*/;
+	
 	public void switchKeyboard(boolean enable) {
 		this.modeOn = enable;
 		if (this.modeOn) {
@@ -174,6 +199,36 @@ public final class KeyboardNavigationController {
 			this.deselectCurrentModule();
 		}
 	}
+
+	// This method is intended to ensure that NVDA doesn't interfere with keyboard control mode
+	private native void setRoleApplication(boolean isSet) /*-{
+		var $_ = $wnd.$;
+		if( isSet ) {
+			$_('#_icplayer').attr("aria-hidden","true");
+			$_('[role]').each(function(){
+				var $self = $_(this);
+				var roleValue = $self.attr('role');
+				$self.attr('ic_role_off',roleValue);
+				$self.attr('role','presentation');
+			});
+			$_('body').attr("role","application");
+			if ($wnd.parent) { 
+				$wnd.parent.postMessage("ic_disableAria","*"); 
+			}
+		} else {
+			$_('#_icplayer').removeAttr("aria-hidden");
+			$_('[ic_role_off]').each(function(){
+				var $self = $_(this);
+				var roleValue = $self.attr('ic_role_off');
+				$self.attr('role',roleValue);
+				$self.removeAttr('ic_role_off');
+			});
+			$_('body').removeAttr("role");
+			if ($wnd.parent) { 
+				$wnd.parent.postMessage("ic_enableAria","*"); 			
+			}
+		};
+	}-*/;
 	
 	private void changeKeyboardMode (KeyDownEvent event, boolean isWCAGSupportOn) {
 		if (isWCAGSupportOn && !this.mainPageController.isTextToSpeechModuleEnable()) {
@@ -183,7 +238,9 @@ public final class KeyboardNavigationController {
 		final boolean isWCAGExit = !this.modeOn && this.isWCAGSupportOn;
 		if (this.modeOn) {
 			this.isWCAGSupportOn = isWCAGSupportOn;
+			this.sendParentScrollAndOffsetRequest();
 		}
+		
 		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);
 		
 		if (this.mainPageController != null) {
@@ -192,10 +249,12 @@ public final class KeyboardNavigationController {
 			
 			if (isWCAGOn) {
 				this.mainPageController.readStartText();
+				this.setRoleApplication(true);
 			}
 			
 			if (isWCAGExit) {
 				this.mainPageController.readExitText();
+				this.setRoleApplication(false);
 			}
 		}
 		
@@ -289,7 +348,7 @@ public final class KeyboardNavigationController {
 					changeKeyboardMode(event, false);
 					return;
 				}
-				
+
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER && event.isControlKeyDown()) {
 					event.preventDefault();
 					changeKeyboardMode(event, true);
@@ -297,6 +356,10 @@ public final class KeyboardNavigationController {
 				}
 
 				if (event.getNativeKeyCode() == KeyCodes.KEY_TAB && modeOn) { // Disable tab default action if eKeyboard is working
+					event.preventDefault();
+				}
+
+				if (event.getNativeKeyCode() == 32 && modeOn && !moduleIsActivated) { // Disable space default action if eKeyboard is working but a module has not yet been activated
 					event.preventDefault();
 				}
 
@@ -308,7 +371,7 @@ public final class KeyboardNavigationController {
 					changeCurrentModule(event);
 					return;
 				}
-
+				
 				if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ENTER && !event.isControlKeyDown() && !event.isShiftKeyDown()) {
 					event.preventDefault();
 					activateModule();
@@ -322,12 +385,22 @@ public final class KeyboardNavigationController {
 	            	manageKey(event);
 	            }
 
-
-	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_RIGHT && event.isShiftKeyDown()) {
 	            	event.preventDefault();
-	            	deactivateModule();
+	            	mainPageController.getPlayerController().switchToNextPage();
 	            }
 	            
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_LEFT && event.isShiftKeyDown()) {
+	            	event.preventDefault();
+	            	mainPageController.getPlayerController().switchToPrevPage();
+	            }
+
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE && !isModuleDeactivationBlocked()) {
+	            	event.preventDefault();
+	            	deactivateModule();
+	            	setFocusOnInvisibleElement();
+	            }
+
 	            restoreClasses();
 	        }
 
@@ -412,8 +485,10 @@ public final class KeyboardNavigationController {
 	private native JavaScriptObject	getInputElement() /*-{
 		var input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
 		if (!input) {
-			input = $wnd.$("<input/>");
+			input = $wnd.$("<div/>");
 			input.attr("id", "input_element_for_focus_to_change_focused_element_by_browser");
+			input.attr("tabindex","0");
+			input.attr("aria-hidden","true");
 			input.css({
 				"opacity": 0.0001,
 				"pointer-events": "none",
@@ -422,6 +497,8 @@ public final class KeyboardNavigationController {
 			});
 			var body = $wnd.$("body");
 			body.append(input);
+			// the following line has been added for compatibility with NVDA, without it there are issues with AT intercepting Enter button
+			input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
 		}
 		
 		return input;
@@ -497,6 +574,7 @@ public final class KeyboardNavigationController {
 			return;
 		}
 		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_selected_module");
+		scrollToCurrentModule(this);
 	}
 
 	private void deselectCurrentModule () {
@@ -506,6 +584,63 @@ public final class KeyboardNavigationController {
 
 		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_selected_module");
 	}
+	
+	private native void scrollToCurrentModule(KeyboardNavigationController x) /*-{
+		
+		function isWindowAccessible(window) {
+			try{
+				var doc = window.document;
+				return doc != null;
+			} catch (e) {
+				return false;
+			}
+		}
+		
+		var $_ = $wnd.$;		
+		var $selected = $_('.ic_selected_module');
+		if ($selected.size() == 0) return;
+		
+		var frameOffset = 0;
+		var padding = 50;
+		
+		var currentWindow = $wnd;
+		while (currentWindow != currentWindow.top && isWindowAccessible(currentWindow.parent) && currentWindow.frameElement) {
+			frameOffset += $_(currentWindow.frameElement).offset().top;
+			currentWindow = currentWindow.parent;
+		}	
+		
+		var $window = $_(currentWindow);
+		var parentWindow = currentWindow.parent;
+		var isTopWindowAccessible = currentWindow === $wnd.top;
+		var receivedParentScrollAndOffset = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::receivedParentScrollAndOffset;
+		
+		var windowTop = $window.scrollTop();
+		var viewHeight = $window.height();
+		var elementTop = $selected.offset().top + frameOffset;
+		var elementHeight = $selected.outerHeight();
+		
+		if (!isTopWindowAccessible && receivedParentScrollAndOffset) {
+			var parentScrollY = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentScrollY;
+			var iframeOffsetTop = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::iframeOffsetTop;
+			var parentWindowHeight = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentWindowHeight;
+			
+			windowTop = parentScrollY;
+			elementTop += iframeOffsetTop;
+			viewHeight = parentWindowHeight;
+		}
+		
+		var newScrollPosition = null;
+		if ( windowTop > elementTop ) newScrollPosition = elementTop - padding;
+		if ( elementTop + elementHeight > windowTop + viewHeight ) newScrollPosition = elementTop + elementHeight - viewHeight + padding;
+		if (newScrollPosition != null) {
+			if (isTopWindowAccessible) {
+				$window.scrollTop(newScrollPosition);
+			} else if (receivedParentScrollAndOffset) {
+				parentWindow.postMessage("SCROLLTOP:" + newScrollPosition,"*");
+				parentWindow.postMessage("REQUEST_SCROLL_Y_AND_OFFSET","*");
+			}
+		};
+	}-*/;
 	
 	private void deselectAllModules () {
 		if (this.getPresenters().size() == 0) {
@@ -682,6 +817,10 @@ public final class KeyboardNavigationController {
 		}
 		
 		return this.isWCAGSupportOn ? this.presenters : this.presentersOriginalOrder;
+	}
+	
+	public boolean isWCAGOn() {
+		return modeOn && isWCAGSupportOn;
 	}
 	
 }

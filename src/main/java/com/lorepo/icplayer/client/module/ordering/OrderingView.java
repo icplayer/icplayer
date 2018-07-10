@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DomEvent;
@@ -14,9 +15,11 @@ import com.google.gwt.event.dom.client.MouseUpEvent;
 import com.google.gwt.event.dom.client.MouseUpHandler;
 import com.google.gwt.event.dom.client.TouchEndEvent;
 import com.google.gwt.event.dom.client.TouchEndHandler;
-import com.google.gwt.user.client.Element;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -30,6 +33,7 @@ import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
+import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
@@ -254,9 +258,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private void replaceWidgetPositions(int srcIndex, int destIndex) {
 		if (srcIndex != destIndex) {
 			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-			textVoices.add(TextToSpeechVoice.create(this.getWidgetText(destIndex), this.getLang()));
+			textVoices.addAll(getWidgetTextVoicesByIndex(destIndex));
 			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(2)));
-			textVoices.add(TextToSpeechVoice.create(this.getWidgetText(srcIndex), this.getLang()));
+			textVoices.addAll(getWidgetTextVoicesByIndex(srcIndex));
 
 			this.speak(textVoices);
 		} else {
@@ -766,7 +770,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	
 	private void readItem (int index) {
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-		textVoices.add(TextToSpeechVoice.create(this.getWidgetText(index), this.getLang()));
+		textVoices.addAll(getWidgetTextVoicesByIndex(index));
 		
 		Widget widget = this.innerCellPanel.getWidget(index);
 		if (ElementHTMLUtils.hasClass(widget.getElement(), "ic_drag-source")) {
@@ -827,7 +831,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
-	public void shiftTab (KeyDownEvent event) {}
+	public void shiftTab (KeyDownEvent event) {
+		this.move(-1);
+	}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {}
@@ -843,8 +849,44 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.pageController = pc;
 	}
 	
-	private String getWidgetText (int index) {
-		return this.innerCellPanel.getWidget(index).getElement().getInnerText();
+	private String getWidgetWCAGText(Element element, boolean breaks){
+		String html = breaks ? WCAGUtils.getImageAltTextsWithBreaks(element.getInnerHTML()) : WCAGUtils.getImageAltTexts(element.getInnerHTML());
+		Element clone = new HTML(html).getElement();
+		NodeList<Element> spans = clone.getElementsByTagName("span");
+		for (int i = 0; i<spans.getLength(); i++) {
+			Element child = spans.getItem(i);
+			if (child.getAttribute("aria-label").length() > 0) {
+				Element textNode = DOM.createElement("span");
+				String innerText = child.getAttribute("aria-label");
+				if (child.getAttribute("lang").length() > 0) {
+					innerText = "\\alt{ |" + innerText + "}[lang " + child.getAttribute("lang") + "]";
+				}
+				textNode.setInnerHTML(innerText);
+				child.appendChild(textNode);
+			} else if(child.getAttribute("aria-hidden").equals("true")){
+				child.removeFromParent();
+			}
+		}
+		return clone.getInnerText();
+		
+	}
+	
+	private String getWidgetWCAGText (int index) {
+		return getWidgetWCAGText(this.innerCellPanel.getWidget(index).getElement(),false);
+	}
+	
+	private String getWidgetWCAGTextWithBreaks (int index) {
+		return getWidgetWCAGText(this.innerCellPanel.getWidget(index).getElement(),true);
+	}
+	
+	private List<TextToSpeechVoice> getWidgetTextVoicesByIndex(int index) {
+		String fullText = getWidgetWCAGTextWithBreaks (index);
+		String[] textArray = fullText.split(WCAGUtils.BREAK_TEXT);
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		for(String text: textArray){
+			textVoices.add(TextToSpeechVoice.create(text, this.getLang()));
+		}
+		return textVoices;
 	}
 
 	@Override

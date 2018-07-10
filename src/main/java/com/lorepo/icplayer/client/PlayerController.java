@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.content.services.TimeService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.PageList;
+import com.lorepo.icplayer.client.model.page.PopupPage;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IPage;
@@ -63,6 +64,7 @@ public class PlayerController implements IPlayerController{
 	private PlayerEntryPoint entryPoint;
 	private String lang = "en";
 	private int iframeScroll = 0;
+	private boolean isIframeInCrossDomain = false;
 
 	private String pageStamp = "0";
 
@@ -84,6 +86,7 @@ public class PlayerController implements IPlayerController{
 		this.scoreService.setPlayerService(this.pageController1.getPlayerServices());
 		this.timeService = new TimeService();
 		this.keyboardController.run(entryPoint);
+		this.isIframeInCrossDomain = checkIsPlayerInCrossDomain();
 		this.getIFrameScroll(this);
 		this.lang = content.getMetadataValue("lang");
 	}
@@ -463,7 +466,7 @@ public class PlayerController implements IPlayerController{
 			return;
 		}
 		this.setPopupEnabled(true);
-		Page page  = this.contentModel.findPageByName(pageName);
+		PopupPage page  = new PopupPage(this.contentModel.findPageByName(pageName));
 		PageController popupPageControler = new PageController(this);
 		popupPageControler.setContent(this.getModel());
 		this.popupPanel = new PagePopupPanel(this.getView(), popupPageControler, top, left, additionalClasses, this.getPlayerServices());
@@ -603,26 +606,51 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public int getIframeScroll() {
-		return this.iframeScroll;
+		// when true, iframeScroll set by parsing message
+		if (isIframeInCrossDomain) {
+			return this.iframeScroll;
+		}
+		return this.getScrollTop();
 	}
+	
+	private native int getScrollTop() /*-{
+		return $wnd.window.top.pageYOffset;
+	}-*/;
 
 	public void setIframeScroll (int scroll) {
 		this.iframeScroll = scroll;
 	}
 
-
-
+	@Override
+	public boolean isPlayerInCrossDomain() {
+		return this.isIframeInCrossDomain;
+	}
+	
+	private native boolean checkIsPlayerInCrossDomain () /*-{		
+		try {
+	        var doc = $wnd.window.top.document;
+	        if (!doc) {
+	            return true;
+	        }
+        	return false;
+		} catch (e) {
+		    return true;
+		}
+	}-*/;
 
 	public native int getIFrameScroll (PlayerController x) /*-{
 		var iframeScroll = 0;
-		$wnd.addEventListener('message', function (event) {
-			var data = event.data;
-	
-			if ((typeof data == 'string' || data instanceof String) && data.indexOf('I_FRAME_SCROLL:') === 0) {
-				iframeScroll = JSON.parse(data.replace('I_FRAME_SCROLL:', ''));
-				x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(iframeScroll);
-			}
-		}, false);
+		
+		if(x.@com.lorepo.icplayer.client.PlayerController::checkIsPlayerInCrossDomain()()) {		
+			$wnd.addEventListener('message', function (event) {
+				var data = event.data;
+		
+				if ((typeof data == 'string' || data instanceof String) && data.indexOf('I_FRAME_SCROLL:') === 0) {
+					iframeScroll = JSON.parse(data.replace('I_FRAME_SCROLL:', ''));
+					x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(iframeScroll);
+				}
+			}, false);
+		}
 	}-*/;
 
 	@Override
@@ -687,6 +715,10 @@ public class PlayerController implements IPlayerController{
 
 	public String getPageStamp() {
 		return this.pageStamp;
+	}
+	
+	public boolean isWCAGOn() {
+		return this.keyboardController.isWCAGOn();
 	}
 
 }

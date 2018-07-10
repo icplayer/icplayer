@@ -80,6 +80,9 @@
         <echo>Concanetate js files into single one</echo>
         <concat destfile="${libs.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
             <filelist>
+                <!--Polyfills-->
+                <file name="${build.temp.folder}/polyfills/startswith.js"/>
+
                 <file name="${build.temp.folder}/player-utils.js"/>
                 <file name="${build.temp.folder}/buzz.min.js"/>
                 <file name="${build.temp.folder}/jcanvas.min.js"/>

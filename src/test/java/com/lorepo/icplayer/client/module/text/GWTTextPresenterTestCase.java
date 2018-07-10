@@ -10,9 +10,13 @@ import java.io.InputStream;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.powermock.reflect.Whitebox;
 import org.xml.sax.SAXException;
 
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.xml.client.Element;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
@@ -26,6 +30,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
+import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.module.text.TextModel;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
@@ -327,5 +332,125 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		
 		int moduleScore = services.getScoreService().getScore("text");
 		assertEquals(2, moduleScore);
+	}
+	
+	@Test
+	public void showAnswersCorrectlyAddTextToGaps() throws Exception {
+		TextModel module = new TextModel();
+		module.setIsVisible(true);
+		
+		GapInfo gapInfo1 = new GapInfo("1", 1, false, false, 1);
+		gapInfo1.addAnswer("1Answer");
+		
+		GapInfo gapInfo2 = new GapInfo("2", 2, false, false, 1);
+		gapInfo2.addAnswer("2Answer");
+		
+		GapInfo gapInfo3 = new GapInfo("3", 3, false, false, 1);
+		gapInfo3.addAnswer("3Answer");
+		
+		module.gapInfos.add(gapInfo1);
+		module.gapInfos.add(gapInfo2);
+		module.gapInfos.add(gapInfo3);
+		
+		IPlayerServices services = Mockito.mock(IPlayerServices.class);
+		TextPresenter presenter = new TextPresenter(module, services);
+		
+		TextView textView = new TextView(module, false);
+	
+		com.google.gwt.user.client.Element widget1 = DOM.createElement("div");
+		widget1.setId("1");
+		Document.get().getBody().appendChild(widget1);
+		
+		com.google.gwt.user.client.Element widget2 = DOM.createElement("div");
+		widget2.setId("2");
+		Document.get().getBody().appendChild(widget2);
+		
+		com.google.gwt.user.client.Element widget3 = DOM.createElement("div");
+		widget3.setId("3");
+		Document.get().getBody().appendChild(widget3);
+		
+		GapWidget answer2Widget = new GapWidget(gapInfo2, null);
+		
+		GapWidget answer1Widget = new GapWidget(gapInfo1, null);
+		
+		GapWidget answer3Widget = new GapWidget(gapInfo3, null);
+
+		
+		textView.addElement(answer2Widget);
+		textView.addElement(answer1Widget);
+		textView.addElement(answer3Widget);
+		
+		Whitebox.setInternalState(presenter, "view", textView);
+		
+	
+		Whitebox.invokeMethod(presenter, "setShowAnswersTextInGaps");
+		
+		assertEquals("1Answer", answer1Widget.getTextValue());
+		assertEquals("2Answer", answer2Widget.getTextValue());
+		assertEquals("3Answer", answer3Widget.getTextValue());
+		
+	}
+	
+	@Test
+	public void getingElementTextWithDefaultValue() throws Exception {
+		String placeHolder = "init"; 
+		
+		TextModel module = new TextModel();
+		module.setIsVisible(true);
+		
+		GapInfo gapInfo1 = new GapInfo("1", 1, false, false, 1);
+		gapInfo1.setPlaceHolder(placeHolder);
+		
+		
+		IPlayerServices services = Mockito.mock(IPlayerServices.class);
+		TextPresenter presenter = new TextPresenter(module, services);
+		
+		String res = Whitebox.invokeMethod(presenter, "getElementText", gapInfo1);
+		
+		assertEquals(placeHolder, res); 
+	} 
+	
+	
+	@Test
+	public void checkingFilledGragScore() throws SAXException, IOException {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module5.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+
+		services = new PlayerServicesMockup();
+		display = new TextViewMockup(module);
+		presenter = new TextPresenter(module, services);
+		presenter.addView(display);
+		
+		id1 = module.gapInfos.get(0).getId();
+		id2 = module.gapInfos.get(1).getId();
+		
+		display.getListener().onValueChanged(id1, "error1");
+		display.getListener().onValueChanged(id2, "answer2");
+		assertEquals(1, presenter.getScore());
+	}
+	
+	
+	@Test
+	public void checkingFilledGragErrorCount() throws SAXException, IOException {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module5.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+
+		services = new PlayerServicesMockup();
+		display = new TextViewMockup(module);
+		presenter = new TextPresenter(module, services);
+		presenter.addView(display);
+		
+		id1 = module.gapInfos.get(0).getId();
+		id2 = module.gapInfos.get(1).getId();
+		
+		display.getListener().onValueChanged(id1, "error1");
+		display.getListener().onValueChanged(id2, "error2");
+		assertEquals(2, presenter.getErrorCount());
 	}
 }

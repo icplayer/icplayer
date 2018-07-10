@@ -17,13 +17,14 @@ import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 
 // in old lessons some characters aren't escaped (e.g: > or <), in new lessons they are
 // only after editing and saving text in old lessons characters will be escaped
 
-public class TextModel extends BasicModuleModel {
+public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	public static final int NUMBER_INDEX = 0;
 	public static final int GAP_INDEX = 1;
 	public static final int DROPDOWN_INDEX = 2;

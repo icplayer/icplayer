@@ -8,6 +8,7 @@ import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.PlayerConfig;
+import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
@@ -31,7 +32,8 @@ public class PlayerServices implements IPlayerServices {
 	private IJsonServices jsonServices = new JsonServices();
 	private ScaleInformation scaleInformation;
 	private JavaScriptObject jQueryPrepareOffsetsFunction = null;
-
+	private boolean isAbleChangeLayout = true;
+	
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 		this.playerController = controller;
 		this.pageController = pageController;
@@ -41,6 +43,16 @@ public class PlayerServices implements IPlayerServices {
 		eventBus.setPlayerServices(this);
 
 		playerCommands = new PlayerCommands(pageController, playerController);
+	}
+	
+	@Override
+	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
+		this.isAbleChangeLayout = isAbleChangeLayout;
+	}
+	
+	@Override
+	public boolean isAbleChangeLayout() {
+		return this.isAbleChangeLayout;
 	}
 
 	@Override
@@ -164,22 +176,26 @@ public class PlayerServices implements IPlayerServices {
 	}
 
 	@Override
-	public void setScaleInformation(String scaleX, String scaleY,
-			String transform, String transformOrigin) {
+	public void setScaleInformation(String scaleX, 
+									String scaleY,
+									String transform, 
+									String transformOrigin) 
+	{
 		ScaleInformation scaleInfo = new ScaleInformation();
 		scaleInfo.scaleX = Double.parseDouble(scaleX);
 		scaleInfo.scaleY = Double.parseDouble(scaleY);
-		if(transform!=null){
+		if (transform!=null) {
 			scaleInfo.transform = transform;
-		}else{
+		} else {
 			throw new NullPointerException("ScaleInformation.transform cannot be null");
 		};
-		if(transformOrigin!=null){
+		if (transformOrigin!=null) {
 			scaleInfo.transformOrigin = transformOrigin;
-		}else{
+		} else {
 			throw new NullPointerException("ScaleInformation.transformOrigin cannot be null");
 		}
-		this.scaleInformation = scaleInfo;	
+		this.scaleInformation = scaleInfo;
+		
 		this.fixDroppable();
 	}
 	
@@ -263,5 +279,18 @@ public class PlayerServices implements IPlayerServices {
 
 	private native JavaScriptObject getJQueryUIPrepareOffsetFunction() /*-{
 		return $wnd.$.ui.ddmanager.prepareOffsets;
-	}-*/;	
+	}-*/;
+	
+	public boolean isPlayerInCrossDomain() {
+		return this.playerController.isPlayerInCrossDomain();
+	}
+	
+	@Override
+	public boolean isWCAGOn() {
+		if(playerController instanceof PlayerController) {
+			PlayerController pc = (PlayerController) playerController;
+			return pc.isWCAGOn();
+		}
+		return false;
+	}
 }

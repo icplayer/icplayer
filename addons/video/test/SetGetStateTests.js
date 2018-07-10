@@ -7,9 +7,11 @@ SetGetStateTests.prototype.setUp = function() {
     this.presenter.$view = $("<div></div>");
     this.presenter.videoObject = document.createElement("video");
     this.presenter.currentMovie = 1;
+    this.presenter.currentTime = 1;
     this.presenter.videoContainer = $('<div></div>');
     this.presenter.videoContainer.append(this.presenter.videoObject);
     this.presenter.$captionsContainer = $('<div></div>');
+    this.presenter.posterPlayButton = $(document.createElement("div"));
     this.presenter.addedVideoURLS = {
 
     };
@@ -99,10 +101,26 @@ SetGetStateTests.prototype.testSetStateWithoutFileShouldStillWork = function() {
     this.presenter.$view.css('visibility', 'hidden');
     var stateString = '{\"currentTime\":0,\"isCurrentlyVisible\":true,\"isPaused\":true,\"currentMovie\":0}';
 
+
     // When
     this.presenter.setState(stateString);
 
     // Then
     assertTrue(this.presenter.setVisibility.calledOnce);
     assertEquals(this.files, this.presenter.configuration.files);
+};
+
+
+SetGetStateTests.prototype.testSetStateAndGetStateCurrentTime = function () {
+    //Given
+    this.presenter.videoObject.currentTime = 1;
+    var  time = 4;
+    var stateString = '{"files":"deprecated","videoURLS":{},"currentTime":' + time + ',"isCurrentlyVisible":true,"isPaused":false,"currentMovie":1,"areSubtitlesHidden":false}';
+
+     // When
+    this.presenter.setState(stateString);
+    $(this.presenter.videoObject).trigger('canplay');
+
+    // Then
+    assertEquals(this.presenter.videoObject.currentTime, time);
 };

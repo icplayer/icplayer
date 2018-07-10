@@ -8,6 +8,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -52,6 +53,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		public void removeClass(String string);
 		public void setAltText(String alt);
 		public void clearAltText();
+		public void setLangTag(String langTag);
+		public String getLang();
+		public void readInserted();
+		public void readRemoved();
 	}
 
 	private final ImageGapModule model;
@@ -127,11 +132,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
-				if (event.eventName.equals("ShowAnswers")) {
-					showAnswers();
-				} else if (event.eventName.equals("HideAnswers")) {
-					hideAnswers();
-				}
+				onEventReceived(event.eventName, event.getData());
 			}
 		});
 	}
@@ -240,7 +241,13 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	private void viewClicked() {
+		if (this.isShowAnswersActive || this.isShowErrorsMode) {
+			return;
+		}
 		if (consumedItem == null) {
+			insertItem();
+		} else if (readyToDraggableItem != null) {
+			removeItem(false);
 			insertItem();
 		} else {
 			removeItem(true);
@@ -249,6 +256,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private void removeItem(boolean shouldSendEvent) {
 		if (consumedItem != null) {
+			view.readRemoved();
 			view.setImageUrl("");
 			fireItemReturnedEvent(consumedItem);
 			consumedItem = null;
@@ -257,6 +265,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 				ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", "", "0");
 				playerServices.getEventBus().fireEvent(valueEvent);
 			}
+			view.setLangTag("");
 		}
 	}
 
@@ -277,7 +286,18 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			if(getScore() == 0 && model.shouldBlockWrongAnswers()){
 				removeItem(false);
 			}
+			view.setLangTag(getSourceLangTag(consumedItem.getId()));
+			view.readInserted();
 		}
+	}
+	
+	private String getSourceLangTag(String id) {
+		IPresenter presenter = playerServices.getModule(id);
+		if (presenter != null && presenter instanceof ImageSourcePresenter) {
+			ImageSourcePresenter isp = (ImageSourcePresenter) presenter;
+			return isp.getLangAttribute();
+		}
+		return "";
 	}
 
 	private void setCorrectImage() {
@@ -285,6 +305,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		ImageSourcePresenter imageSourcePresenter = (ImageSourcePresenter) playerServices.getModule(answers[0]);
 		view.setImageUrl(imageSourcePresenter.getImageUrl());
 		view.setAltText(imageSourcePresenter.getAltText());
+		view.setLangTag(imageSourcePresenter.getLangAttribute());
 	}
 
 	private void fireItemReturnedEvent(DraggableItem previouslyConsumedItem) {
@@ -322,6 +343,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		HashMap<String, String> state = new HashMap<String, String>();
 		if (consumedItem != null) {
 			state.put("consumed",  consumedItem.toString());
+			state.put("langTag", view.getLang());
 		}
 		state.put("isVisible", Boolean.toString(isVisible));
 		if (isShowErrorsMode) {
@@ -351,6 +373,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			view.setImageUrl(getImageURL(consumedItem));
 			view.setAltText(getImageSourceAltText(consumedItem.getId()));
 			view.makeDraggable(this);
+			if (state.containsKey("langTag")){
+				view.setLangTag(state.get("langTag"));
+			}
 		}
 		if (state.containsKey("isVisible")) {
 			if (Boolean.parseBoolean(state.get("isVisible"))) {
@@ -476,6 +501,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	private void markConnectionWithMath() {
 		isConnectedWithMath = true;
 	}
+	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
 
 	private native JavaScriptObject initJSObject(ImageGapPresenter x) /*-{
 
@@ -563,6 +592,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		presenter.isAllOK = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::isAllOK()();
 		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
 
 		return presenter;
 	}-*/;
@@ -686,6 +719,15 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			return imageSourcePresenter.getAltText();
 		}
 		return "";
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName.equals("ShowAnswers")) {
+			showAnswers();
+		} else if (eventName.equals("HideAnswers")) {
+			hideAnswers();
+		}
 	}
 
 }

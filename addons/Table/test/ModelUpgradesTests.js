@@ -68,3 +68,35 @@ TestCase("[Table] Model upgrades - add rows heights", {
         assertEquals([{ Height: "10px" }, { Height: "120px" }, { Height: "1.25em" }], upgradedModel["Rows height"]);
     }
 });
+
+TestCase("[Table] Model upgrades - add langAttribute", {
+    setUp: function () {
+        this.presenter = AddonTable_create();
+        this.model = {
+            Rows: "",
+            Columns: "",
+            "Table cells": [{
+                Row: "",
+                Column: "",
+                Content: ""
+            }],
+            "Columns width": [ { Width: ""} ]
+        };
+    },
+
+    'test langAttribute undefined': function () {
+        var upgradedModel = this.presenter.addLangTag(this.model);
+
+        assertNotUndefined(upgradedModel["langAttribute"]);
+        assertEquals("", upgradedModel["langAttribute"]);
+    },
+
+    'test langAttribute already defined': function () {
+        this.model["langAttribute"] = "it-IT";
+
+        var upgradedModel = this.presenter.addLangTag(this.model);
+
+        assertNotUndefined(upgradedModel["langAttribute"]);
+        assertEquals("it-IT", upgradedModel["langAttribute"]);
+    }
+});

@@ -1082,7 +1082,7 @@ function AddonTextAudio_create() {
     presenter.stopVocabularyAudioPlaying = function AddonTextAudio_stopVocabularyAudioPlaying() {
         presenter.vocabulary.setTime(0);
         presenter.vocabulary.pause();
-    }
+    };
 
     presenter.createPreview = function AddonTextAudio_createPreview (view, model) {
         presenter.initialize(view, model, true);
@@ -1543,11 +1543,6 @@ function AddonTextAudio_create() {
     };
 
     presenter.getState = function addonTextAudio_getState () {
-        presenter.stop();
-        if (presenter.vocabulary !== undefined) {
-            presenter.vocabulary.stop();
-        }
-
         return JSON.stringify({
             isVisible : presenter.configuration.isVisible
         });
