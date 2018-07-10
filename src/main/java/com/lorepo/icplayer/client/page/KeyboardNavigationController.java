@@ -43,6 +43,11 @@ public final class KeyboardNavigationController {
 	
 	private boolean isWCAGSupportOn = false;
 	private boolean isPresentersInit = false;
+	
+	private boolean receivedParentScrollAndOffset = false;
+	private int parentScrollY = 0;
+	private int iframeOffsetTop = 0;
+	private int parentWindowHeight = 0;
 
 	//state
 	private PresenterEntry savedEntry = null;
@@ -83,6 +88,12 @@ public final class KeyboardNavigationController {
 		function receiveMessage(event) {
 			try {
 				var eventData = JSON.parse(event.data);
+				if (eventData.type == "SCROLL_Y_AND_OFFSET") {
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentScrollY = eventData.scrollTop;
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::iframeOffsetTop = eventData.offsetTop;
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentWindowHeight = eventData.viewHeight;
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::receivedParentScrollAndOffset = true;
+				};
 
 				if (eventData.type !== "EXTERNAL_KEYDOWN_WATCHER") {
 					return;
@@ -171,6 +182,10 @@ public final class KeyboardNavigationController {
 		}
 	}
 
+	private native void sendParentScrollAndOffsetRequest() /*-{
+		$wnd.top.postMessage("REQUEST_SCROLL_Y_AND_OFFSET","*");
+	}-*/;
+	
 	public void switchKeyboard(boolean enable) {
 		this.modeOn = enable;
 		if (this.modeOn) {
@@ -223,6 +238,7 @@ public final class KeyboardNavigationController {
 		final boolean isWCAGExit = !this.modeOn && this.isWCAGSupportOn;
 		if (this.modeOn) {
 			this.isWCAGSupportOn = isWCAGSupportOn;
+			this.sendParentScrollAndOffsetRequest();
 		}
 		
 		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);
@@ -558,6 +574,7 @@ public final class KeyboardNavigationController {
 			return;
 		}
 		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_selected_module");
+		scrollToCurrentModule(this);
 	}
 
 	private void deselectCurrentModule () {
@@ -567,6 +584,63 @@ public final class KeyboardNavigationController {
 
 		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_selected_module");
 	}
+	
+	private native void scrollToCurrentModule(KeyboardNavigationController x) /*-{
+		
+		function isWindowAccessible(window) {
+			try{
+				var doc = window.document;
+				return doc != null;
+			} catch (e) {
+				return false;
+			}
+		}
+		
+		var $_ = $wnd.$;		
+		var $selected = $_('.ic_selected_module');
+		if ($selected.size() == 0) return;
+		
+		var frameOffset = 0;
+		var padding = 50;
+		
+		var currentWindow = $wnd;
+		while (currentWindow != currentWindow.top && isWindowAccessible(currentWindow.parent) && currentWindow.frameElement) {
+			frameOffset += $_(currentWindow.frameElement).offset().top;
+			currentWindow = currentWindow.parent;
+		}	
+		
+		var $window = $_(currentWindow);
+		var parentWindow = currentWindow.parent;
+		var isTopWindowAccessible = currentWindow === $wnd.top;
+		var receivedParentScrollAndOffset = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::receivedParentScrollAndOffset;
+		
+		var windowTop = $window.scrollTop();
+		var viewHeight = $window.height();
+		var elementTop = $selected.offset().top + frameOffset;
+		var elementHeight = $selected.outerHeight();
+		
+		if (!isTopWindowAccessible && receivedParentScrollAndOffset) {
+			var parentScrollY = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentScrollY;
+			var iframeOffsetTop = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::iframeOffsetTop;
+			var parentWindowHeight = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentWindowHeight;
+			
+			windowTop = parentScrollY;
+			elementTop += iframeOffsetTop;
+			viewHeight = parentWindowHeight;
+		}
+		
+		var newScrollPosition = null;
+		if ( windowTop > elementTop ) newScrollPosition = elementTop - padding;
+		if ( elementTop + elementHeight > windowTop + viewHeight ) newScrollPosition = elementTop + elementHeight - viewHeight + padding;
+		if (newScrollPosition != null) {
+			if (isTopWindowAccessible) {
+				$window.scrollTop(newScrollPosition);
+			} else if (receivedParentScrollAndOffset) {
+				parentWindow.postMessage("SCROLLTOP:" + newScrollPosition,"*");
+				parentWindow.postMessage("REQUEST_SCROLL_Y_AND_OFFSET","*");
+			}
+		};
+	}-*/;
 	
 	private void deselectAllModules () {
 		if (this.getPresenters().size() == 0) {
