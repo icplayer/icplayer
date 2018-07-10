@@ -272,6 +272,7 @@ var ice_dictionary_mx = {
 	"navigation_menu": "Navegación",
 	"learn_pen_menu": "Pluma LearnPen",
 	"media_menu": "Media",
+	"games_menu": "Games",
 	"scripting_menu": "Programación",
 	"private_menu": "Privado",
 	"error_counter_menu": "Contador de errores en página",
