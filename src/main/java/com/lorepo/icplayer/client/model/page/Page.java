@@ -993,8 +993,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	@Override
-	public void addSize(String sizeName, Size size) {
-		this.pageSizes.put(sizeName, size);
+	public void addSize(String layoutID, Size size) {
+		this.pageSizes.put(layoutID, size);
 	}
 	
 	@Override 
@@ -1025,7 +1025,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			Set<String> actualIDs) {
 		for (String layoutID : actualIDs) {
 			if(!this.pageSizes.containsKey(layoutID)) {
-				this.pageSizes.put(layoutID, Size.getCopy(layoutID, this.pageSizes.get(defaultLayoutID)));
+				this.pageSizes.put(layoutID, Size.copy(layoutID, this.pageSizes.get(defaultLayoutID)));
 			}
 		}
 	}
@@ -1053,7 +1053,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	private void ensureDefaultLayout(String defaultLayoutID, Size defaultSizeBeforeSync) {
 		if (!this.pageSizes.containsKey(defaultLayoutID)) {
-			Size copyOfDefault = Size.getCopy(defaultLayoutID, defaultSizeBeforeSync);
+			Size copyOfDefault = Size.copy(defaultLayoutID, defaultSizeBeforeSync);
 			this.pageSizes.put(defaultLayoutID, copyOfDefault);
 		}
 	}
@@ -1121,5 +1121,20 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public void setHasFooter(boolean value) {
 		this.hasFooter = value;
 	}
+	
+	public HashMap<String, Size> getSizes() {
+		return this.pageSizes;
+	}
 
+	public void translateSemiResponsiveIDs(HashMap<String, String> translationMap) {
+		for(String key : translationMap.keySet()) {
+			if (this.pageSizes.containsKey(key)) {
+				String translatedID = translationMap.get(key);
+				Size pageSize = this.pageSizes.get(key);
+				Size copiedSize = Size.copy(translatedID, pageSize);
+				this.pageSizes.put(translatedID, copiedSize);
+				this.pageSizes.remove(key);
+			}
+		}
+	}
 }

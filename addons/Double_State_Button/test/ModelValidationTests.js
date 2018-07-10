@@ -80,5 +80,74 @@ TestCase("[Double State Button] Model validation", {
         assertTrue(validationResult.isVisible);
         assertTrue(validationResult.isVisibleByDefault);
         assertFalse(validationResult.isErrorMode);
+    },
+
+    'test validation of the model without defined speechTexts': function () {
+        // arrange
+        var model = {};
+
+        // act
+        this.presenter.validateModel(model);
+
+        // assert
+        assertEquals("selected", this.presenter.speechTexts.selectButton);
+        assertEquals("deselected", this.presenter.speechTexts.deselectButton);
+        assertEquals(false, this.presenter.speechTexts.speechTextDisabled);
+    },
+
+    'test validation of the model with empty values of speechTexts': function () {
+        // arrange
+        var model = {
+            speechTexts: {
+                selectButton: {selectButton: ""},
+                deselectButton: {deselectButton: ""},
+                speechTextDisabled: {deselectButton: ""}
+            }
+        };
+
+        // act
+        this.presenter.validateModel(model);
+
+        // assert
+        assertEquals("selected", this.presenter.speechTexts.selectButton);
+        assertEquals("deselected", this.presenter.speechTexts.deselectButton);
+    },
+
+    'test validation of the model with filled speechTexts values': function () {
+        // arrange
+        var model = {
+            speechTexts: {
+                selectButton: {selectButton: "mySelectButton"},
+                deselectButton: {deselectButton: "myDeselectButton"},
+                speechTextDisabled: {speechTextDisabled: "True"}
+            }
+        };
+
+        // act
+        this.presenter.validateModel(model);
+
+        // assert
+        assertEquals("mySelectButton", this.presenter.speechTexts.selectButton);
+        assertEquals("myDeselectButton", this.presenter.speechTexts.deselectButton);
+        assertEquals(true, this.presenter.speechTexts.speechTextDisabled);
+    },
+
+    'test validation of the model with filled one speechTexts value': function () {
+        // arrange
+        var model = {
+            speechTexts: {
+                selectButton: {selectButton: "mySelected"},
+                deselectButton: {deselectButton: ""},
+                speechTextDisabled: {speechTextDisabled: ""}
+            }
+        };
+
+        // act
+        this.presenter.validateModel(model);
+
+        // assert
+        assertEquals("mySelected", this.presenter.speechTexts.selectButton);
+        assertEquals("deselected", this.presenter.speechTexts.deselectButton);
+        assertEquals(false, this.presenter.speechTexts.speechTextDisabled);
     }
 });

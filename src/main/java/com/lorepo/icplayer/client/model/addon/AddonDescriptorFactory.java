@@ -31,21 +31,16 @@ public class AddonDescriptorFactory {
 
 		// ACTIVITIES
 		addDescriptor("Basic_Math_Gaps", "activities_menu");
-		addDescriptor("Board_Game", "activities_menu");
 		addDescriptor("Clock", "activities_menu");
 		addDescriptor("ConnectingDots", "activities_menu");
 		addDescriptor("Connection", "activities_menu");
 		addDescriptor("Count_and_Graph", "activities_menu");
-		addDescriptor("crossword", "activities_menu");
 		addDescriptor("Fractions", "activities_menu");
 		addDescriptor("FigureDrawing", "activities_menu");
 		addDescriptor("graph", "activities_menu");
-		addDescriptor("Hangman", "activities_menu");
 		addDescriptor("Image_Identification", "activities_menu");
 		addDescriptor("Line_Number", "activities_menu");
 		addDescriptor("Line_Selection", "activities_menu");
-		addDescriptor("Magic_Boxes", "activities_menu");
-		addDescriptor("gamememo", "activities_menu");
 		addDescriptor("Math", "activities_menu");
 		addDescriptor("multiplegap", "activities_menu");
 		addDescriptor("Paragraph", "activities_menu");
@@ -54,17 +49,25 @@ public class AddonDescriptorFactory {
 		addDescriptor("Plot", "activities_menu");
 		addDescriptor("Points_To_Plot", "activities_menu");
 		addDescriptor("PointsLines", "activities_menu");
-		addDescriptor("Puzzle", "activities_menu");
-		addDescriptor("Quiz", "activities_menu");
-        addDescriptor("Shooting_Range", "activities_menu");
-		addDescriptor("Sudoku", "activities_menu");
 		addDescriptor("Table", "activities_menu");
 		addDescriptor("text_identification", "activities_menu");
 		addDescriptor("Text_Coloring", "activities_menu");
 		addDescriptor("Text_Selection", "activities_menu");
 		addDescriptor("TrueFalse", "activities_menu");
 		addDescriptor("WritingCalculations", "activities_menu");
-		addDescriptor("Catch", "activities_menu");
+
+		// GAMES
+		addDescriptor("Board_Game", "games_menu");
+		addDescriptor("Dice", "games_menu");
+		addDescriptor("Catch", "games_menu");
+		addDescriptor("crossword", "games_menu");
+		addDescriptor("Hangman", "games_menu");
+		addDescriptor("Magic_Boxes", "games_menu");
+		addDescriptor("gamememo", "games_menu");
+		addDescriptor("Puzzle", "games_menu");
+		addDescriptor("Quiz", "games_menu");
+		addDescriptor("Shooting_Range", "games_menu");
+		addDescriptor("Sudoku", "games_menu");
 
 		// REPORTING
 		addDescriptor("Animated_Lesson_Progress", "reporting_menu");
@@ -76,11 +79,13 @@ public class AddonDescriptorFactory {
 		addDescriptor("Lesson_Error_Counter", "reporting_menu");
 		addDescriptor("Lesson_Progress", "reporting_menu");
 		addDescriptor("Lesson_Score_Counter", "reporting_menu");
+		addDescriptor("Limited_Show_Answers", "reporting_menu");
 		addDescriptor("Page_Rating", "reporting_menu");
 		addDescriptor("Page_Score_Counter", "reporting_menu");
 		addDescriptor("Show_Answers", "reporting_menu");
 		addDescriptor("Submit", "reporting_menu");
 		addDescriptor("Print_Report", "reporting_menu");
+		addDescriptor("Page_Progress_Panel", "reporting_menu");
 
 		// NAVIGATION
 		addDescriptor("External_Link_Button", "navigation_menu");
@@ -140,6 +145,8 @@ public class AddonDescriptorFactory {
 		addDescriptor("Grid_Scene", "scripting_menu");
 		addDescriptor("BlocklyCodeEditor", "scripting_menu");
 		addDescriptor("Text_To_Speech", "scripting_menu");
+        addDescriptor("PseudoCode_Console", "scripting_menu");
+		addDescriptor("Timer", "scripting_menu");
 
 		// LEARN PEN
 		addDescriptor("LearnPen", "learn_pen_menu");

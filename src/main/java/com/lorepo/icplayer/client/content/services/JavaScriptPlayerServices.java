@@ -9,9 +9,14 @@ import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -66,12 +71,10 @@ public class JavaScriptPlayerServices {
 	private final Map<String, List<JavaScriptObject>> pageLoadedListeners = new LinkedHashMap<String, List<JavaScriptObject>>();
 	private final Map<String, List<JavaScriptObject>> pageLoadedListenersDelayed = new LinkedHashMap<String, List<JavaScriptObject>>();
 	private final HashMap<String, List<JavaScriptObject>> listenersDelayed = new HashMap<String, List<JavaScriptObject>>();
-	private ScaleInformation scaleInformation;
 
 	public JavaScriptPlayerServices(IPlayerServices playerServices) {
 		this.playerServices = playerServices;
 		jsObject = initJSObject(this);
-		scaleInformation = new ScaleInformation();
 		connectEventHandlers();
 	}
 
@@ -233,6 +236,10 @@ public class JavaScriptPlayerServices {
 		playerServices.getCurrentPageIndex = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getCurrentPageIndex()();
 		};
+		
+		playerServices.getPageTitle = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageTitle()();
+		};
 
 		playerServices.getCommands = function() {
 			var commands = function() {
@@ -331,7 +338,7 @@ public class JavaScriptPlayerServices {
 			commands.getPageStamp = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageStamp()();
 			}
-
+			
 			return commands;
 		};
 
@@ -359,6 +366,10 @@ public class JavaScriptPlayerServices {
 
 			commands.parse = function(text) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseText(Ljava/lang/String;)(text);
+			};
+			
+			commands.parseAltTexts = function(text) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseAltTexts(Ljava/lang/String;)(text);
 			};
 
 			commands.parseGaps = function(text, options) {
@@ -403,6 +414,10 @@ public class JavaScriptPlayerServices {
 
 		playerServices.getFooterModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getFooterModule(Ljava/lang/String;)(id);
+		};
+
+		playerServices.setAbleChangeLayout = function(isAbleChangeLayout){
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setAbleChangeLayout(Z)(isAbleChangeLayout); 
 		};
 
 		playerServices.getScore = function() {
@@ -484,6 +499,25 @@ public class JavaScriptPlayerServices {
 		playerServices.setScaleInformation = function(scaleInfo) {
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setScaleInformation(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(scaleInfo.scaleX,scaleInfo.scaleY,scaleInfo.transform,scaleInfo.transformOrigin);
 		};
+		
+		playerServices.isPlayerInCrossDomain = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isPlayerInCrossDomain()();
+		}
+		
+		playerServices.isWCAGOn = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isWCAGOn()();
+		};
+		
+		playerServices.getKeyboardController = function() {
+			var keyboardController = function() {
+			};
+
+			keyboardController.moveActiveModule = function(reverseDirection) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveActiveModule(Z)(reverseDirection);
+			}
+
+			return keyboardController;
+		}
 
 		return playerServices;
 	}-*/;
@@ -499,6 +533,10 @@ public class JavaScriptPlayerServices {
 	
 	private String getPageStamp() {
 		return this.playerServices.getCommands().getPageStamp();
+	}
+	
+	private String getPageTitle() {
+		return this.playerServices.getModel().getPage(getCurrentPageIndex()).getName();
 	}
 
 	private void showPopup(String pageName, String top, String left, String additinalClasses){
@@ -611,6 +649,11 @@ public class JavaScriptPlayerServices {
 		return model;
 	}
 
+	private String parseAltTexts(String text) {
+		TextParser parser = new TextParser();
+		return parser.parseAltText(text);
+	}
+	
 	private JavaScriptObject getHeaderModule(String id){
 		IPresenter presenter = playerServices.getHeaderModule(id);
 		return getModulePresentationJSObject(presenter);
@@ -865,24 +908,31 @@ public class JavaScriptPlayerServices {
 		playerServices.getCommands().disableKeyboardNavigation();
 	}
 	
-	public ScaleInformation getScaleInformation(){
-		return this.scaleInformation;
+	public ScaleInformation getScaleInformation() {
+		return this.playerServices.getScaleInformation();
 	}
 	
-	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin){
-		ScaleInformation scaleInfo = new ScaleInformation();
-		scaleInfo.scaleX = Double.parseDouble(scaleX);
-		scaleInfo.scaleY = Double.parseDouble(scaleY);
-		if(transform!=null){
-			scaleInfo.transform = transform;
-		}else{
-			throw new NullPointerException("ScaleInformation.transform cannot be null");
-		};
-		if(transformOrigin!=null){
-			scaleInfo.transformOrigin = transformOrigin;
-		}else{
-			throw new NullPointerException("ScaleInformation.transformOrigin cannot be null");
-		}
-		this.scaleInformation = scaleInfo;
+	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin) {
+		this.playerServices.setScaleInformation(scaleX, scaleY, transform, transformOrigin);
+		PlayerApp.prepareStaticScaledElements();
+	}
+	
+	public boolean isPlayerInCrossDomain() {
+		return this.playerServices.isPlayerInCrossDomain();
+	}
+	
+	public boolean isWCAGOn() {
+		return this.playerServices.isWCAGOn();
+	}
+	
+	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
+		this.playerServices.setAbleChangeLayout(isAbleChangeLayout);
+	}
+	
+	// Move to the next/previous module in keyboard navigation
+	public void moveActiveModule(boolean reverseDirection){
+		NativeEvent event = Document.get().createKeyDownEvent(false, false, reverseDirection, false, 9);
+		// Send a Tab or Tab+Shift keydown event to the keyboard controller
+		DomEvent.fireNativeEvent(event,  RootPanel.get());
 	}
 }

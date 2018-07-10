@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.imagegap;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
@@ -8,17 +9,27 @@ import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEventProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
-public class ImageGapModule extends BasicModuleModel {
+public class ImageGapModule extends BasicModuleModel implements IWCAGModuleModel {
 
 	public static final String EVENT_CORRECT = "onCorrect";
 	public static final String EVENT_WRONG = "onWrong";
 	public static final String EVENT_EMPTY = "onEmpty";
+	
+	public static final int INSERTED_INDEX = 0;
+	public static final int REMOVED_INDEX = 1;
+	public static final int CORRECT_INDEX = 2;
+	public static final int WRONG_INDEX = 3;
+	public static final int EMPTY_INDEX = 4;
 
 	private String answerId = "";
 	private boolean isActivity = true;
@@ -26,6 +37,7 @@ public class ImageGapModule extends BasicModuleModel {
 	private boolean blockWrongAnswers = false;
 
 	private final HashMap<String, String> events = new HashMap<String, String>();
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 
 	public ImageGapModule() {
 		super("Image gap", DictionaryWrapper.get("image_gap_module"));
@@ -37,6 +49,7 @@ public class ImageGapModule extends BasicModuleModel {
 		addPropertyEvent(EVENT_EMPTY);
 		addPropertyIsDisabled();
 		addPropertyBlockWrongAnswers();
+		addPropertySpeechTexts();
 	}
 
 	public String getAnswerId() {
@@ -57,6 +70,11 @@ public class ImageGapModule extends BasicModuleModel {
 					isActivity = XMLUtils.getAttributeAsBoolean(gapElement, "isActivity", true);
 					isDisabled = XMLUtils.getAttributeAsBoolean(gapElement, "isDisabled", false);
 					blockWrongAnswers = XMLUtils.getAttributeAsBoolean(gapElement, "blockWrongAnswers", false);
+					this.speechTextItems.get(INSERTED_INDEX).setText(XMLUtils.getAttributeAsString(gapElement, "insertedWCAG"));
+					this.speechTextItems.get(REMOVED_INDEX).setText(XMLUtils.getAttributeAsString(gapElement, "removedWCAG"));
+					this.speechTextItems.get(CORRECT_INDEX).setText(XMLUtils.getAttributeAsString(gapElement, "correctWCAG"));
+					this.speechTextItems.get(WRONG_INDEX).setText(XMLUtils.getAttributeAsString(gapElement, "wrongWCAG"));
+					this.speechTextItems.get(EMPTY_INDEX).setText(XMLUtils.getAttributeAsString(gapElement, "emptyWCAG"));
 					break;
 				}
 			}
@@ -105,6 +123,11 @@ public class ImageGapModule extends BasicModuleModel {
 		gap.setAttribute("isActivity", Boolean.toString(isActivity));
 		gap.setAttribute("isDisabled", Boolean.toString(isDisabled));
 		gap.setAttribute("blockWrongAnswers", Boolean.toString(blockWrongAnswers));
+		gap.setAttribute("insertedWCAG", speechTextItems.get(INSERTED_INDEX).getText());
+		gap.setAttribute("removedWCAG", speechTextItems.get(REMOVED_INDEX).getText());
+		gap.setAttribute("correctWCAG", speechTextItems.get(CORRECT_INDEX).getText());
+		gap.setAttribute("wrongWCAG", speechTextItems.get(WRONG_INDEX).getText());
+		gap.setAttribute("emptyWCAG", speechTextItems.get(EMPTY_INDEX).getText());
 		imageGapModule.appendChild(gap);
 
 		return imageGapModule.toString();
@@ -335,6 +358,97 @@ public class ImageGapModule extends BasicModuleModel {
 	
 	public boolean shouldBlockWrongAnswers() {
 		return blockWrongAnswers;
+	}
+	
+	private void addPropertySpeechTexts() {
+		IStaticListProperty property = new IStaticListProperty() {
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(speechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return speechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("inserted","multiplegap_property"));
+				speechTextItems.add(new SpeechTextsStaticListItem("removed","multiplegap_property"));
+				speechTextItems.add(new SpeechTextsStaticListItem("correct","multiplegap_property"));
+				speechTextItems.add(new SpeechTextsStaticListItem("wrong","multiplegap_property"));
+				speechTextItems.add(new SpeechTextsStaticListItem("empty","multiplegap_property"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return speechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+
+		};
+
+		addProperty(property);
+		property.addChildren(1);
+	}
+	
+	public String getSpeechTextItem (int index) {
+		if (index < 0 || index >= this.speechTextItems.size()) {
+			return "";
+		}
+		final String text = this.speechTextItems.get(index).getText();
+		if (text.isEmpty()) {
+			if (index == INSERTED_INDEX) {
+				return "inserted";
+			}
+			
+			if (index == REMOVED_INDEX) {
+				return "removed";
+			}
+			
+			if (index == CORRECT_INDEX) {
+				return "correct";
+			}
+			
+			if (index == WRONG_INDEX) {
+				return "wrong";
+			}
+			
+			if (index == EMPTY_INDEX) {
+				return "empty";
+			}
+			
+			
+			return "";
+		}
+		
+		return text;
 	}
 
 }

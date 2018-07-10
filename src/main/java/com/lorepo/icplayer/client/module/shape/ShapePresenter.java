@@ -7,6 +7,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -82,6 +83,9 @@ public class ShapePresenter implements IPresenter, IStateful, ICommandReceiver {
 		return jsObject;
 	}
 
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
 	
 	private native JavaScriptObject initJSObject(ShapePresenter x) /*-{
 		var presenter = function(){}
@@ -97,6 +101,10 @@ public class ShapePresenter implements IPresenter, IStateful, ICommandReceiver {
 		presenter.hide = function(){ 
 			x.@com.lorepo.icplayer.client.module.shape.ShapePresenter::hide()();
 		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.shape.ShapePresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
 		
 		return presenter;
 	}-*/;
@@ -178,5 +186,11 @@ public class ShapePresenter implements IPresenter, IStateful, ICommandReceiver {
 	@Override
 	public void setWorkMode() {
         // Module is not an activity
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		// TODO Auto-generated method stub
+		
 	}
 }

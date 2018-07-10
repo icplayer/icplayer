@@ -1,3 +1,99 @@
+2018-07-10 Added Games category
+2018-07-10 Added scrolling to the active module in keyboard navigation
+2018-07-10 Added TTS support for Image Gap
+2018-07-09 Added TTS support for gaps in Table
+2018-07-06 Added TTS support for Double State Button
+2018-07-06 Added TTS support for Memo Game
+2018-07-04 Fixed setting of working mode in text coloring addon
+2018-07-04 Fixed calculation of popup elements position
+2018-06-29 Fixed several issues between TTS and NVDA on Firefox
+2018-06-27 Fixed autofill option for TTS
+2018-06-26 Fixed identification of expression variables in math addon
+2018-06-25 Added feature to color individual letters in text coloring addon
+2018-06-25 Fixed visibility of the element dragged from the gap
+2018-06-22 Fixed problem with pseudo code console on IE11
+2018-06-20 Added Autofill option for TTS
+2018-06-18 Added a caching of the video posters
+2018-06-15 Changed labels for Limited Show Answer addon
+2018-06-15 Added TTS support for Text Selection
+2018-06-14 Added new addon Limited Show Answers
+2018-06-05 Added TTS support for Table cells
+2018-06-05 Moved pausing on getState to destroy method in media addons
+2018-06-04 Fixed issues with TTS handling of the Dropdown gap in Text module
+2018-05-28 Fixed issues with hover style in reset button on mobile
+2018-05-28 Fixed issue with TTS in multiplegap after reset
+2018-05-28 Added TTS support for Image Identification
+2018-05-25 Added a test to check for special character handling in text coloring  
+2018-05-24 Fixed conflicts between WCAG mode and NVDA
+2018-05-24 Added TTS support for Zoom Image
+2018-05-21 Added TTS support for Heading
+2018-05-15 Fixed several issues with choice module on mobile devices
+2018-05-15 Fixed cell-show-answers class name in gamememo
+2018-05-15 Added class on hover in TrueFalse addon
+2018-05-14 Added TTS support for alt texts of images in multiple modules/addons
+2018-05-11 Added keyboard shortcut for changing the page in player
+2018-05-09 Fixed problems with static footer display when chaning layouts. Fixed problems with footer width after orientation change.
+2018-05-08 Fixed issues with eKeyboard in Popup.
+2018-05-07 Fixed issues with special characters in Text module gaps.
+2018-04-27 Fixed problem with saving choice feedback property.
+2018-04-27 Added TTS support for Hierarchical Lesson Report
+2018-04-26 Fixed issues with spacebar in keyboard navigation
+2018-04-26 Added TTS support for feedback addon
+2018-04-26 Added TTS support for Image Source and Multiple gap
+2018-04-24 Fixed problem with != statement in math module
+2018-04-24 Fixed problems with hovering classes and executing actions in button modules.
+2018-04-24 Added show and hide commands to Page Counter addon.
+2018-04-24 Fixed problem with size of popup
+2018-04-23 Added 'Enable scroll on mobile' property to the Text Selection addon
+2018-04-18 Fixed problem with check answers mode of gaps in the Table addon
+2018-04-17 Fixed problem with empty XML tag in page progress configuration
+2018-04-16 Fixed problem with CORS in popup addon.
+2018-04-13 Added option to select the language used in gaps ant alt texts in Text, Choice, Connection and Ordering modules
+2018-04-12 Fixed problem with <> symbols in Text draggable gap
+2018-04-11 Fixed problem with video on IE 11
+2018-04-09 Fixed a problem with WCAG mode sometimes turning off on page change.
+2018-04-03 Fixed problem with rotating ruler in IWB Toolbar module.
+2018-03-28 Added property to vertically center the answer in Quiz module. Added headers-of-answers class to posibility to style headers of answers in Quiz module.
+2018-03-28 Added checking for permissions to modify top window in glossary
+2018-03-26 Added classes while checking answer in Pseduo Code Console. Fixed problem with exceptions translations in pseudo code console.
+2018-03-23 Added game mode to board game. Added new addon dice. Added validation utils.
+2018-03-22 Added "video-poster-pause" CSS class to "video-poster-play" element on pause and removing it on stop
+2018-03-20 Fixed problem with eKeyboard removing event handlers
+2018-03-20 Fixed problem with showing answers in gaps
+2018-03-20 Added calling show answer on enter press event
+2018-03-20 Added keyboard navigation to Text Selection addon
+2018-03-19 Added Alt Text in Text, Ordering, Connection and Choice modules
+2018-03-16 Added current-page class in icon+list display type in Table of Contents module
+2018-03-13 Added new property - "Is Disabled" to Image Identification module
+2018-03-13 Added TTS support for Navigation Bar
+2018-03-13 Added TTS support for Page Counter
+2018-03-13 Added fix in Page Progress Panel
+2018-03-12 Added minus errors scoring type for modules group
+2018-03-09 Fixed problem with TrueFalse module and undefined model field.
+2018-03-09 Added Page Progress Panel module
+2018-03-08 Fixed problem with zooming after page change in when using Navigation Bar and Paragraph.
+2018-03-07 Fixed tests for pseudo code console and webpack build script.
+2018-03-07 Static list property returns objects not lists. Added pseudo code console.
+2018-03-06 Fixed problem with & in text selection
+2018-03-06 Fixed problem with scrolling and page look with static header on
+2018-03-05 Fixed problems with scaling in Popup
+2018-03-05 Better handling of the editor page loading error
+2018-03-05 Added Timer addon
+2018-03-02 Fixed problem with scaling in Connection addon
+2018-03-02 Added property to set ordering items to starting position
+2018-03-01 Fixed problem with gap parsing with opening tag character 
+2018-03-01 Fixed problem with opening gaps on mobile devices in eKeyboard module
+2018-02-28 Fixed problem with restoring state in video addon
+2018-02-28 Fixed problem with hover in iOS
+2018-02-27 Added localization for alt-text in some modules and layout in eKeyboard
+2018-02-27 Renamed Hierarichal Lesson Report property
+2018-02-23 Readded works with property in Page Progress.
+2018-02-22 Changed when Text has no gaps it does not require escape to deactivate in WCAG navigation
+2018-02-21 Added TTS support for Reset button
+2018-02-21 Added TTS plays the title of the new page
+2018-02-20 Added Page mapping ids translations, Size and ModuleDimensions equals implementations
+2018-02-20 Added TTS support for SHow Answers Button
+2018-02-15 Added TTS support for the Text's Draggable Gap
 2018-02-15 Added TTS support for Check Answers Button 
 2018-02-15 Fixed issue with scaling in Figure Drawing on mobile devices
 2018-02-14 Fixed issue with reseting module in Catch module

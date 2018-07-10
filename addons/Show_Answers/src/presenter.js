@@ -3,6 +3,24 @@ function AddonShow_Answers_create(){
 
     presenter.playerController = null;
     presenter.eventBus = null;
+    var isWCAGOn = false;
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function getTextVoiceObject (text, lang) {
+        return {
+            text: text,
+            lang: lang
+        };
+    }
 
     presenter.EVENTS = {
         SHOW_ANSWERS: 'ShowAnswers',
@@ -12,6 +30,13 @@ function AddonShow_Answers_create(){
     presenter.keyboardController = function(keycode) {
         if (keycode === 13) {
             presenter.$button.click();
+            if(isWCAGOn) {
+                if (presenter.configuration.isSelected) {
+                    speak([getTextVoiceObject(presenter.speechTexts.editBlock)]);
+                } else {
+                    speak([getTextVoiceObject(presenter.speechTexts.noEditBlock)]);
+                }
+            }
         }
     };
 
@@ -33,6 +58,7 @@ function AddonShow_Answers_create(){
     };
 
     presenter.validateModel = function(model) {
+        presenter.setSpeechTexts(model['speechTexts']);
         return {
             'text' : model.Text,
             'textSelected' : model['Text selected'],
@@ -42,6 +68,24 @@ function AddonShow_Answers_create(){
             'enableCheckCounter': ModelValidationUtils.validateBoolean(model["Increment check counter"]),
             'enableMistakeCounter': ModelValidationUtils.validateBoolean(model["Increment mistake counter"]),
             'isTabindexEnabled': ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
+        };
+    };
+
+    presenter.setSpeechTexts = function(speechTexts){
+        presenter.speechTexts = {
+            selected: 'Selected',
+            editBlock: 'Page edition is blocked',
+            noEditBlock: 'Page edition is not blocked'
+        };
+
+        if(!speechTexts){
+            return;
+        }
+
+        presenter.speechTexts = {
+            selected: getSpeechTextProperty(speechTexts['Selected']['Selected'], presenter.speechTexts.selected),
+            editBlock: getSpeechTextProperty(speechTexts['Block edit']['Block edit'], presenter.speechTexts.editBlock),
+            noEditBlock: getSpeechTextProperty(speechTexts['No block edit']['No block edit'], presenter.speechTexts.noEditBlock)
         };
     };
 
@@ -63,34 +107,50 @@ function AddonShow_Answers_create(){
         return upgradedModel;
     };
 
-    presenter.handleClickAction = function () {
-        presenter.$button.on('click', function (eventData) {
-            eventData.stopPropagation();
+    presenter.handleClick = function () {
+        var text, eventName;
 
-            var text, eventName;
+        presenter.configuration.isSelected = !presenter.configuration.isSelected;
 
-            presenter.configuration.isSelected = !presenter.configuration.isSelected;
+        if (presenter.configuration.isSelected) {
+            text = presenter.configuration.textSelected;
+            eventName = presenter.EVENTS.SHOW_ANSWERS;
+            presenter.$wrapper.addClass('selected');
 
-            if (presenter.configuration.isSelected) {
-                text = presenter.configuration.textSelected;
-                eventName = presenter.EVENTS.SHOW_ANSWERS;
-                presenter.$wrapper.addClass('selected');
-
-                if (presenter.configuration.enableCheckCounter) {
-                    presenter.playerController.getCommands().incrementCheckCounter();
-                }
-
-                if (presenter.configuration.enableMistakeCounter) {
-                    presenter.playerController.getCommands().increaseMistakeCounter();
-                }
-            } else {
-                text = presenter.configuration.text;
-                eventName = presenter.EVENTS.HIDE_ANSWERS;
-                presenter.$wrapper.removeClass('selected');
+            if (presenter.configuration.enableCheckCounter) {
+                presenter.playerController.getCommands().incrementCheckCounter();
             }
 
-            presenter.$button.text(text);
-            presenter.sendEvent(eventName);
+            if (presenter.configuration.enableMistakeCounter) {
+                presenter.playerController.getCommands().increaseMistakeCounter();
+            }
+        } else {
+            text = presenter.configuration.text;
+            eventName = presenter.EVENTS.HIDE_ANSWERS;
+            presenter.$wrapper.removeClass('selected');
+        }
+
+        presenter.$button.text(text);
+        presenter.sendEvent(eventName);
+        presenter.onClick();
+    };
+
+    presenter.onClick = function () {
+     };
+
+    presenter.connectClickAction = function () {
+        presenter.$button.on('click', function (eventData) {
+            eventData.stopPropagation();
+            presenter.handleClick();
+        });
+    };
+
+    presenter.connectKeyDownAction = function () {
+        presenter.$view.on('keydown', function (eventData) {
+            if(eventData.which === 13) {
+                eventData.stopPropagation();
+                presenter.handleClick();
+            }
         });
     };
 
@@ -111,9 +171,11 @@ function AddonShow_Answers_create(){
         }
 
         if (!isPreview) {
-            presenter.handleClickAction();
+            presenter.connectClickAction();
+            presenter.connectKeyDownAction();
             presenter.eventBus.addEventListener('ShowAnswers', presenter);
             presenter.eventBus.addEventListener('HideAnswers', presenter);
+            presenter.eventBus.addEventListener('LimitedHideAnswers', presenter);
         }
     };
 
@@ -131,6 +193,7 @@ function AddonShow_Answers_create(){
 
         presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
         presenter.$button.off();
+        presenter.$view.off();
 
         presenter.$button = null;
         presenter.$wrapper = null;
@@ -144,6 +207,9 @@ function AddonShow_Answers_create(){
     };
 
     presenter.onEventReceived = function (eventName) {
+        if (eventName == "LimitedHideAnswers") {
+            presenter.reset();
+        }
         if (eventName == "HideAnswers") {
             presenter.reset();
         }
@@ -194,6 +260,33 @@ function AddonShow_Answers_create(){
     presenter.setWorkMode = function () {
         presenter.reset();
     };
+
+    presenter.getTitlePostfix = function () {
+        if(presenter.configuration.isSelected) {
+            return presenter.speechTexts.selected;
+        } else {
+            return ''
+        }
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts) {
+            tts.speak(data);
+        }
+    }
 
     return presenter;
 }

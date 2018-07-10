@@ -199,7 +199,15 @@ function AddonTrueFalse_create() {
 
     function handleClickActions(view) {
         var $elements = $(view).find(".tf_" + presenter.type + "_image");
-
+        
+        if (!MobileUtils.isMobileUserAgent(window.navigator.userAgent)){
+            $elements.hover(function(){
+                $(this).addClass('mouse-hover');
+                }, function(){
+                $(this).removeClass('mouse-hover');
+            });
+        }
+        
         $elements.on('touchstart', function (e) {
             e.stopPropagation();
             e.preventDefault();
@@ -318,29 +326,20 @@ function AddonTrueFalse_create() {
     function getSpeechTexts(model) {
         var speechTexts = model['Speech texts'];
 
-        if (speechTexts !== undefined && speechTexts !== '') {
-            for (var index = 0; index < speechTexts.length; index++) {
-                var text = speechTexts[index];
-                for (var key in text) {
-                    if (text.hasOwnProperty(key)) {
-                        if (text[key]['selected'] !== '' && text[key]['selected'] !== undefined) {
-                            selectedSpeechText = text[key]['selected'];
-                        }
+        if (speechTexts['Selected']['selected'] !== '' && speechTexts['Selected']['selected'] !== undefined) {
+            selectedSpeechText = speechTexts['Selected']['selected'];
+        }
 
-                        if (text[key]['deselected'] !== '' && text[key]['deselected'] !== undefined) {
-                            deselectedSpeechText = text[key]['deselected'];
-                        }
+        if (speechTexts['Deselected']['deselected'] !== '' && speechTexts['Deselected']['deselected'] !== undefined) {
+            deselectedSpeechText = speechTexts['Deselected']['deselected'];
+        }
 
-                        if (text[key]['correct'] !== '' && text[key]['correct'] !== undefined) {
-                            correctSpeechText = text[key]['correct'];
-                        }
+        if (speechTexts['Correct']['correct'] !== '' && speechTexts['Correct']['correct'] !== undefined) {
+            correctSpeechText = speechTexts['Correct']['correct'];
+        }
 
-                        if (text[key]['incorrect'] !== '' && text[key]['incorrect'] !== undefined) {
-                            incorrectSpeechText = text[key]['incorrect'];
-                        }
-                    }
-                }
-            }
+        if (speechTexts['Incorrect']['incorrect'] !== '' && speechTexts['Incorrect']['incorrect'] !== undefined) {
+            incorrectSpeechText = speechTexts['Incorrect']['incorrect'];
         }
     }
 
@@ -412,11 +411,36 @@ function AddonTrueFalse_create() {
         presenter.isVisible = true;
     };
 
+    presenter.upgradeModel = function (model) {
+        if (model['Speech texts'] === undefined) {
+            model['Speech texts'] = {
+                'Selected': {
+                    'selected': ''
+                },
+
+                'Deselected': {
+                    'deselected': ''
+                },
+
+                'Correct': {
+                    'correct': ''
+                },
+
+                'Incorrect': {
+                    'incorrect': ''
+                }
+            }
+        }
+
+        return model;
+    };
+
     presenter.validateModel = function(model) {
         presenter.isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
     };
 
     presenter.run = function (view, model) {
+        model = presenter.upgradeModel(model);
         presenter.$view = $(view);
         eventBus = playerController.getEventBus();
         textParser = new TextParserProxy(playerController.getTextParser());
@@ -453,6 +477,7 @@ function AddonTrueFalse_create() {
     }
 
     presenter.createPreview = function (view, model) {
+        model = presenter.upgradeModel(model);
         presenter.$view = $(view);
         makeView(view, model, true);
     };
@@ -790,19 +815,20 @@ function AddonTrueFalse_create() {
     }
 
     function getChoice(index) {
-         return presenter.$view.find('#0').children().eq(index).text().trim();
+        var $topRowElement = presenter.$view.find('#0');
+        var $choiceElement = $topRowElement.children().eq(index);
+        return window.TTSUtils.getTextVoiceArrayFromElement($choiceElement,presenter.langAttribute);
     }
 
     function readOption(readSelection) {
         var tts = getTextToSpeech();
         if (tts) {
             var $active = getActivatedElement(),
-                question = $active.parent().parent().first().text().trim(),
                 elementIndex = getElementIndex($active),
-                choice = getChoice(elementIndex);
-
+                choiceArray = getChoice(elementIndex);
+            
             if ($active.hasClass('tf_' + presenter.type + '_question')) {
-                speak([getTextVoiceObject($active.text().trim(), presenter.langAttribute)]);
+                speak(window.TTSUtils.getTextVoiceArrayFromElement($active,presenter.langAttribute));
                 return;
             }
 
@@ -810,16 +836,16 @@ function AddonTrueFalse_create() {
                 if ($active.parent().hasClass('down')) {
                     if (presenter.isErrorMode) {
                         if ($active.parent().hasClass('correct')) {
-                            speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + correctSpeechText, "")]);
+                            speak(choiceArray.concat([getTextVoiceObject(selectedSpeechText + " " + correctSpeechText, "")]))
                         }
                         if($active.parent().hasClass('wrong')) {
-                            speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + incorrectSpeechText, "")]);
+                            speak(choiceArray.concat([getTextVoiceObject(selectedSpeechText + " " + incorrectSpeechText, "")]))
                         }
                     } else {
-                        speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText, "")]);
+                        speak(choiceArray.concat([getTextVoiceObject(selectedSpeechText, "")]))
                     }
                 } else {
-                    speak([getTextVoiceObject(choice, presenter.langAttribute)]);
+                    speak(choiceArray);
                 }
             } else {
                 if ($active.parent().hasClass('down')) {

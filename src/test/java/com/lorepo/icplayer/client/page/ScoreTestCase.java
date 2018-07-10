@@ -255,4 +255,60 @@ public class ScoreTestCase {
 		assertEquals((int) expectedResult.maxScore, 6); 
 		assertEquals((int) expectedResult.errorCount, 0);
 	}
+	
+	@Test
+	public void calculateScoreForGroupWithMinusError() {
+		Result result = new Result();
+		result.errorCount = 2;
+		result.maxScore = 4;
+		result.score = 3;
+		
+		IActivity activity = (IActivity) Mockito.mock(IActivity.class);
+		
+		Mockito.when(activity.getScore()).thenReturn(6);
+		Mockito.when(activity.getMaxScore()).thenReturn(6);
+		Mockito.when(activity.getErrorCount()).thenReturn(1);
+		
+		result = Score.calculateMinusScoreForGroup(result, activity);
+		
+		assertEquals(8, (int)result.score);
+		assertEquals(10, (int)result.maxScore);
+		assertEquals(3, (int)result.errorCount);
+		
+	}
+	
+	@Test
+	public void updateMinusErrorForGroupReturnsValueEqualsOrAbove0() {
+		Result groupResult = new Result();
+		groupResult.errorCount = 15;
+		groupResult.score = -12;
+		groupResult.maxScore = 18;
+		
+		Result output = new Result();
+		
+		Score.updateMinusErrorsGroupResult(output, groupResult);
+		
+		assertEquals(0, (int)output.score);
+		assertEquals(15, (int)output.errorCount);
+		assertEquals(18, (int)output.maxScore);
+	}
+	
+	@Test
+	public void updateMinusErrorFourGroupCorrectlyAddValues () {
+		Result groupResult = new Result();
+		groupResult.errorCount = 2;
+		groupResult.score = 2;
+		groupResult.maxScore = 4;
+		
+		Result output = new Result();
+		output.errorCount = 2;
+		output.score = 4;
+		output.maxScore = 6;
+		
+		Score.updateMinusErrorsGroupResult(output, groupResult);
+		
+		assertEquals(6, (int)output.score);
+		assertEquals(4, (int)output.errorCount);
+		assertEquals(10, (int)output.maxScore);		
+	}
 }

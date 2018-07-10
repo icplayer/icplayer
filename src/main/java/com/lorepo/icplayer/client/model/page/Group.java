@@ -20,7 +20,8 @@ public class Group extends GroupPropertyProvider {
 	public enum ScoringGroupType {
 		defaultScore,
 		zeroMaxScore,
-		graduallyToMaxScore
+		graduallyToMaxScore,
+		minusErrors
 	}
 
 	public Group(Page page) {
@@ -183,6 +184,9 @@ public class Group extends GroupPropertyProvider {
 						break;
 					case graduallyToMaxScore:
 						type = "Gradually to Max";
+						break;
+					case minusErrors:
+						type = "Minus Errors";
 						break;
 				}
 

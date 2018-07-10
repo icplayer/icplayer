@@ -25,6 +25,8 @@ import com.googlecode.gwt.test.internal.GwtFactory;
 import com.googlecode.gwt.test.internal.GwtTestDataHolder;
 import com.googlecode.gwt.test.utils.events.Browser.BrowserErrorHandler;
 
+
+// Test which should add PowerMockito runner and automatically run with icplayer module. 
 @RunWith(com.googlecode.gwt.test.GwtRunner.class)
 @PowerMockRunnerDelegate(org.powermock.modules.junit4.PowerMockRunner.class)
 @GwtModule("com.lorepo.icplayer.Icplayer")

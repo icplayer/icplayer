@@ -25,5 +25,53 @@
         <property name="Time to solve" nameLabel="gamememo_property_time_to_solve" type="string" />
         <property name="Session ended message" nameLabel="gamememo_property_session_ended_message" type="html" />
 		<property name="Click to turn over incorrect pair" nameLabel="gamememo_property_click_to_turn_over_incorrect_pair" type="boolean" />
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="Connection_property_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Connection_property_speech_texts" type="staticlist">
+
+            <property name="Revealed" nameLabel="gamememo_revealed" type="staticrow">
+                <property name="Revealed" nameLabel="gamememo_revealed" type="string"/>
+            </property>
+
+			<property name="Paired" nameLabel="gamememo_paired" type="staticrow">
+                <property name="Paired" nameLabel="gamememo_paired" type="string"/>
+            </property>
+
+			<property name="Value" nameLabel="gamememo_value_of" type="staticrow">
+                <property name="Value" nameLabel="gamememo_value_of" type="string"/>
+            </property>
+
+			<property name="WrongColor" nameLabel="gamememo_wrong_color" type="staticrow">
+                <property name="WrongColor" nameLabel="gamememo_wrong_color" type="string"/>
+            </property>
+
+			<property name="Match" nameLabel="gamememo_match" type="staticrow">
+                <property name="Match" nameLabel="gamememo_match" type="string"/>
+            </property>
+
+			<property name="NotMatch" nameLabel="gamememo_not_match" type="staticrow">
+                <property name="NotMatch" nameLabel="gamememo_not_match" type="string"/>
+            </property>
+
+			<property name="CurrentlySelected" nameLabel="gamememo_currently_selected" type="staticrow">
+                <property name="CurrentlySelected" nameLabel="gamememo_currently_selected" type="string"/>
+            </property>
+
+			<property name="TurnOver" nameLabel="gamememo_turn_over" type="staticrow">
+                <property name="TurnOver" nameLabel="gamememo_turn_over" type="string"/>
+            </property>
+
+			<property name="OutOf" nameLabel="gamememo_out_of" type="staticrow">
+                <property name="OutOf" nameLabel="gamememo_out_of" type="string"/>
+            </property>
+
+			<property name="Found" nameLabel="gamememo_found" type="staticrow">
+                <property name="Found" nameLabel="gamememo_found" type="string"/>
+            </property>
+
+			<property name="RevealedCards" nameLabel="gamememo_revealed_cards" type="staticrow">
+                <property name="RevealedCards" nameLabel="gamememo_revealed_cards" type="string"/>
+            </property>
+
+		</property>
 	</model>
 </addon>

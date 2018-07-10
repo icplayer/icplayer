@@ -23,4 +23,19 @@ public class KeyboardNavigationControllerPatcher {
 	private static void waitOnMessages (KeyboardNavigationController self, KeyboardNavigationController x) {
 		
 	}
+	
+	@PatchMethod
+	private static void setRoleApplication (KeyboardNavigationController self, boolean isSet) {
+		
+	}
+	
+	@PatchMethod
+	private static void scrollToCurrentModule(KeyboardNavigationController self, KeyboardNavigationController x) {
+
+	}
+	
+	@PatchMethod
+	private static void sendParentScrollAndOffsetRequest(KeyboardNavigationController self) {
+
+	}
 }

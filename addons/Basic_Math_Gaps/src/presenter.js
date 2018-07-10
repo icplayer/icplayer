@@ -974,7 +974,14 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.GapsContainerObject.prototype.setState = function (valuesArray, sourcesArray, droppedElementsArray) {
         this._gapsOrderArray.forEach(function (gapID, index) {
-            this._gaps[gapID].setState(valuesArray[index], sourcesArray[index], droppedElementsArray[index]);
+            if (presenter.isDraggable) {
+                this._gaps[gapID].setState(valuesArray[index], sourcesArray[index], droppedElementsArray[index]);
+            } else {
+                this._gaps[gapID].value = valuesArray[index];
+                this._gaps[gapID].source = sourcesArray[index];
+                this._gaps[gapID].$view.val(valuesArray[index]);
+            }
+
             if (valuesArray[index] == "") {
                 this._gaps[gapID].destroyDraggableProperty();
             }else{
