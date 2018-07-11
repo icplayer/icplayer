@@ -10,10 +10,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
@@ -24,6 +27,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 	TextView textView = null;
 	TextModel model = null;
 	DraggableGapWidget gapWidget = null;
+	InlineChoiceWidget choiceWidget = null;
 	ITextViewListener listenerMock = null;
 	PageController pageControllerMock = null;
 	
@@ -38,6 +42,11 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		div1.setId("sddsf1");
 		div1.addClassName("someName");
 		a1.appendChild(div1);
+		
+		DivElement div2 = doc.createDivElement();
+		div2.setId("sddsf2");
+		div2.addClassName("someOtherName");
+		a1.appendChild(div2);
 
 		this.model = new TextModel();
 		this.textView = new TextView(this.model, false);
@@ -49,6 +58,11 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		this.textView.addListener(listenerMock);
 		pageControllerMock = mock(PageController.class);
 		this.textView.setPageController(pageControllerMock);
+		
+		InlineChoiceInfo choiceInfo = new InlineChoiceInfo("sddsf2", "answer", 1);
+		choiceInfo.addDistractor("option 2");
+		choiceInfo.addDistractor("option 3");
+		this.choiceWidget = new InlineChoiceWidget(choiceInfo, listenerMock, this.textView);
 	}
 	
 	@Test
@@ -99,6 +113,31 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		this.textView.space(eventMock);
 		
 		verify(pageControllerMock, times(1)).speak(any(List.class));
+	}
+	
+	@Test
+	public void testDropdownKeyboardControlsInWCAG() throws Exception {
+		InlineChoiceWidget choiceMock = mock(InlineChoiceWidget.class);
+		when(choiceMock.getGapType()).thenReturn("dropdown");
+		when(choiceMock.getWCAGTextValue()).thenReturn("content");
+		this.textView.addElement(choiceMock);
+		
+		this.textView.setWCAGStatus(true);
+		KeyDownEvent eventMock = mock(KeyDownEvent.class); 
+		
+		this.textView.enter(false);
+		this.textView.tab(eventMock);
+		this.textView.down(eventMock);
+		this.textView.right(eventMock);
+		
+		verify(choiceMock, times(2)).changeSelected(true);
+		verify(choiceMock, times(0)).changeSelected(false);
+		
+		this.textView.up(eventMock);
+		this.textView.left(eventMock);
+		
+		verify(choiceMock, times(2)).changeSelected(true);
+		verify(choiceMock, times(2)).changeSelected(false);
 	}
 	
 }

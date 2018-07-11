@@ -1,3 +1,36 @@
+2018-07-10 Added Games category
+2018-07-10 Added scrolling to the active module in keyboard navigation
+2018-07-10 Added TTS support for Image Gap
+2018-07-09 Added TTS support for gaps in Table
+2018-07-06 Added TTS support for Double State Button
+2018-07-06 Added TTS support for Memo Game
+2018-07-04 Fixed setting of working mode in text coloring addon
+2018-07-04 Fixed calculation of popup elements position
+2018-06-29 Fixed several issues between TTS and NVDA on Firefox
+2018-06-27 Fixed autofill option for TTS
+2018-06-26 Fixed identification of expression variables in math addon
+2018-06-25 Added feature to color individual letters in text coloring addon
+2018-06-25 Fixed visibility of the element dragged from the gap
+2018-06-22 Fixed problem with pseudo code console on IE11
+2018-06-20 Added Autofill option for TTS
+2018-06-18 Added a caching of the video posters
+2018-06-15 Changed labels for Limited Show Answer addon
+2018-06-15 Added TTS support for Text Selection
+2018-06-14 Added new addon Limited Show Answers
+2018-06-05 Added TTS support for Table cells
+2018-06-05 Moved pausing on getState to destroy method in media addons
+2018-06-04 Fixed issues with TTS handling of the Dropdown gap in Text module
+2018-05-28 Fixed issues with hover style in reset button on mobile
+2018-05-28 Fixed issue with TTS in multiplegap after reset
+2018-05-28 Added TTS support for Image Identification
+2018-05-25 Added a test to check for special character handling in text coloring  
+2018-05-24 Fixed conflicts between WCAG mode and NVDA
+2018-05-24 Added TTS support for Zoom Image
+2018-05-21 Added TTS support for Heading
+2018-05-15 Fixed several issues with choice module on mobile devices
+2018-05-15 Fixed cell-show-answers class name in gamememo
+2018-05-15 Added class on hover in TrueFalse addon
+2018-05-14 Added TTS support for alt texts of images in multiple modules/addons
 2018-05-11 Added keyboard shortcut for changing the page in player
 2018-05-09 Fixed problems with static footer display when chaning layouts. Fixed problems with footer width after orientation change.
 2018-05-08 Fixed issues with eKeyboard in Popup.

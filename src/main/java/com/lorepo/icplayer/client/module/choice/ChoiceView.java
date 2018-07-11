@@ -17,6 +17,7 @@ import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
+import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
@@ -284,10 +285,14 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			}
 		}
 		
-		this.speak(
-			TextToSpeechVoice.create(StringUtils.removeAllFormatting(widget.getModel().getText()), this.module.getLangAttribute()),
-			TextToSpeechVoice.create(callbackText)
-		);
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		String fullText = StringUtils.removeAllFormatting(WCAGUtils.getImageAltTextsWithBreaks(widget.getModel().getText()));
+		String[] textsArray = fullText.split(WCAGUtils.BREAK_TEXT);
+		for(String text: textsArray){
+			textVoices.add(TextToSpeechVoice.create(text, this.getLang()));
+		}
+		textVoices.add(TextToSpeechVoice.create(callbackText));
+		this.speak(textVoices);
 	}
 
 	private void textToSpeechSelectOption () {
@@ -439,6 +444,12 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			voiceTexts.add(t1);
 			voiceTexts.add(t2);
 		
+			this.pageController.speak(voiceTexts);
+		}
+	}
+	
+	private void speak (List<TextToSpeechVoice> voiceTexts) {
+		if (this.pageController != null) {	
 			this.pageController.speak(voiceTexts);
 		}
 	}

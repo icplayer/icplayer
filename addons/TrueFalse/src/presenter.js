@@ -199,7 +199,15 @@ function AddonTrueFalse_create() {
 
     function handleClickActions(view) {
         var $elements = $(view).find(".tf_" + presenter.type + "_image");
-
+        
+        if (!MobileUtils.isMobileUserAgent(window.navigator.userAgent)){
+            $elements.hover(function(){
+                $(this).addClass('mouse-hover');
+                }, function(){
+                $(this).removeClass('mouse-hover');
+            });
+        }
+        
         $elements.on('touchstart', function (e) {
             e.stopPropagation();
             e.preventDefault();
@@ -807,19 +815,20 @@ function AddonTrueFalse_create() {
     }
 
     function getChoice(index) {
-         return presenter.$view.find('#0').children().eq(index).text().trim();
+        var $topRowElement = presenter.$view.find('#0');
+        var $choiceElement = $topRowElement.children().eq(index);
+        return window.TTSUtils.getTextVoiceArrayFromElement($choiceElement,presenter.langAttribute);
     }
 
     function readOption(readSelection) {
         var tts = getTextToSpeech();
         if (tts) {
             var $active = getActivatedElement(),
-                question = $active.parent().parent().first().text().trim(),
                 elementIndex = getElementIndex($active),
-                choice = getChoice(elementIndex);
-
+                choiceArray = getChoice(elementIndex);
+            
             if ($active.hasClass('tf_' + presenter.type + '_question')) {
-                speak([getTextVoiceObject($active.text().trim(), presenter.langAttribute)]);
+                speak(window.TTSUtils.getTextVoiceArrayFromElement($active,presenter.langAttribute));
                 return;
             }
 
@@ -827,16 +836,16 @@ function AddonTrueFalse_create() {
                 if ($active.parent().hasClass('down')) {
                     if (presenter.isErrorMode) {
                         if ($active.parent().hasClass('correct')) {
-                            speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + correctSpeechText, "")]);
+                            speak(choiceArray.concat([getTextVoiceObject(selectedSpeechText + " " + correctSpeechText, "")]))
                         }
                         if($active.parent().hasClass('wrong')) {
-                            speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + incorrectSpeechText, "")]);
+                            speak(choiceArray.concat([getTextVoiceObject(selectedSpeechText + " " + incorrectSpeechText, "")]))
                         }
                     } else {
-                        speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText, "")]);
+                        speak(choiceArray.concat([getTextVoiceObject(selectedSpeechText, "")]))
                     }
                 } else {
-                    speak([getTextVoiceObject(choice, presenter.langAttribute)]);
+                    speak(choiceArray);
                 }
             } else {
                 if ($active.parent().hasClass('down')) {

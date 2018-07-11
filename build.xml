@@ -146,7 +146,7 @@
         </junit>
     </target>
 
-    <target name="test.single.addon">
+    <target name="test.single.addon"  description="Test single addon, -Daddon.id=Addon_Id">
         <echo>Testing addon with ID ${addon.id}</echo>
 
         <mkdir dir="addons/${addon.id}/test-reports"/>

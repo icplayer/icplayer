@@ -1,5 +1,12 @@
+/*
+ KNOWN ISSUES
+    Text parsing:
+        Do not change the space special character support due to backward compatibility
+*/
+
 function AddonText_Coloring_create() {
-    var presenter = function () {};
+    var presenter = function () {
+    };
 
     function markAsValidValues(value) {
         value.isValid = true;
@@ -104,7 +111,7 @@ function AddonText_Coloring_create() {
         $buttons.removeClass(presenter.defaults.css.activeButton);
     }
 
-    function TextColoringStateMachine (cssConfiguration) {
+    function TextColoringStateMachine(cssConfiguration) {
         StatefullAddonObject.call(this, cssConfiguration);
         this.notifyEdit();
         this.previousActiveColorID = null;
@@ -115,18 +122,18 @@ function AddonText_Coloring_create() {
     TextColoringStateMachine.prototype = Object.create(StatefullAddonObject.prototype);
     TextColoringStateMachine.constructor = TextColoringStateMachine;
 
-    TextColoringStateMachine.prototype.onBlock = function() {
+    TextColoringStateMachine.prototype.onBlock = function () {
         presenter.disconnectHandlers();
     };
 
-    TextColoringStateMachine.prototype.onUnblock = function() {
+    TextColoringStateMachine.prototype.onUnblock = function () {
         presenter.connectHandlers();
         if (presenter.configuration.activeColorID != null || presenter.configuration.eraserMode != null) {
             presenter.connectWordTokensHandlers();
         }
     };
 
-    TextColoringStateMachine.prototype.onShowAnswers = function() {
+    TextColoringStateMachine.prototype.onShowAnswers = function () {
         this.savePreviousState();
         this.onBlock();
         presenter.unmarkToken(presenter.$wordTokens);
@@ -139,7 +146,7 @@ function AddonText_Coloring_create() {
         });
     };
 
-    TextColoringStateMachine.prototype.onHideAnswers = function() {
+    TextColoringStateMachine.prototype.onHideAnswers = function () {
         this.restorePreviousState();
         this.onUnblock();
         presenter.unmarkToken(presenter.$wordTokens);
@@ -190,7 +197,7 @@ function AddonText_Coloring_create() {
     };
 
     TextColoringStateMachine.prototype.restorePreviousState = function () {
-        presenter.configuration.activeColorID = this.previousActiveColorID ;
+        presenter.configuration.activeColorID = this.previousActiveColorID;
         presenter.configuration.activeColor = this.previousActiveColor;
         presenter.configuration.eraserMode = this.previousEraserMode;
     };
@@ -210,9 +217,11 @@ function AddonText_Coloring_create() {
         }
     };
 
-    TextColoringStateMachine.prototype.addCssClass = function () {};
+    TextColoringStateMachine.prototype.addCssClass = function () {
+    };
 
-    TextColoringStateMachine.prototype.removeCssClass = function () {};
+    TextColoringStateMachine.prototype.removeCssClass = function () {
+    };
 
     TextColoringStateMachine.prototype.onReset = function () {
         presenter.unmarkToken(presenter.$wordTokens);
@@ -304,7 +313,7 @@ function AddonText_Coloring_create() {
         NEW_LINE: "new_line",
         SPACE: "space"
     };
-    
+
     presenter.POSITIONS = {
         LEFT: "left",
         RIGHT: "right",
@@ -312,7 +321,7 @@ function AddonText_Coloring_create() {
         BOTTOM: "bottom"
     };
 
-    presenter.EVENT_TYPES ={
+    presenter.EVENT_TYPES = {
         SELECTING: 1,
         DESELECTING: 0
     };
@@ -442,7 +451,7 @@ function AddonText_Coloring_create() {
 
         var mainContainer = "<div class='{0}'>";
 
-        switch(presenter.configuration.buttonsPosition) {
+        switch (presenter.configuration.buttonsPosition) {
             case presenter.POSITIONS.LEFT:
                 css = presenter.getContainerCssByPosition(presenter.configuration.buttonsPosition);
                 buttonsContainerHTML = presenter.getButtonsContainerHTML(css);
@@ -476,7 +485,7 @@ function AddonText_Coloring_create() {
         mainContainer += "</div>";
         return mainContainer;
     };
-    
+
     presenter.getContainerCssByPosition = function (position) {
         var result = {
             eraserContainer: "",
@@ -485,8 +494,8 @@ function AddonText_Coloring_create() {
             buttonContainer: "",
             tokensContainer: ""
         };
-        
-        switch(position) {
+
+        switch (position) {
             case presenter.POSITIONS.LEFT:
                 result.eraserContainer = presenter.defaults.css.eraserButtonContainer.left;
                 result.colorsContainer = presenter.defaults.css.colorButtonsContainer.left;
@@ -519,7 +528,7 @@ function AddonText_Coloring_create() {
 
         return result;
     };
-    
+
     presenter.getButtonsContainerHTML = function (css) {
         var colorsButtons = presenter.getColorsButtonsHTML(presenter.configuration.colors, css.colorsContainer);
         var eraserButtons = presenter.getEraserModeButtonHTML(css.eraserContainer);
@@ -530,7 +539,7 @@ function AddonText_Coloring_create() {
         var result = StringUtils.format("<div class='{0}'>", containerCssClass);
 
         var colorsLen = colorsDefinitions.length;
-        for(var i = 0; i < colorsLen; i++) {
+        for (var i = 0; i < colorsLen; i++) {
             result = StringUtils.format("{0}{1}", result, presenter.getColorHTMLText(colorsDefinitions[i]));
         }
 
@@ -555,12 +564,12 @@ function AddonText_Coloring_create() {
         var tokensLen = tokens.length;
         var result = StringUtils.format("<div class='{0}'>", containerCssClass);
 
-        for(var i = 0, wordIndex = 0; i < tokensLen; i++) {
+        for (var i = 0, wordIndex = 0; i < tokensLen; i++) {
             if (tokens[i].type == presenter.TOKENS_TYPES.NEW_LINE) {
                 result = StringUtils.format("{0}{1}", result, presenter.getNewLineHTML());
-            } else if (tokens[i].type == presenter.TOKENS_TYPES.SPACE){
+            } else if (tokens[i].type == presenter.TOKENS_TYPES.SPACE) {
                 result = StringUtils.format("{0}{1}", result, presenter.getSpaceHTML());
-            } else if (tokens[i].type == presenter.TOKENS_TYPES.SELECTABLE){
+            } else if (tokens[i].type == presenter.TOKENS_TYPES.SELECTABLE) {
                 result = StringUtils.format("{0}{1}", result, presenter.getWordHTML(tokens[i], wordIndex));
                 wordIndex++;
             } else {
@@ -684,7 +693,10 @@ function AddonText_Coloring_create() {
                 continue;
             }
 
-            var parsedWords = presenter.splitGroupToWords(groups[groupNumber]).map(presenter.parseWords).reduce(flattenArrays, []);
+            var parsedWords = presenter.splitGroupToWords(groups[groupNumber])
+                .map(presenter.parseWords)
+                .reduce(flattenArrays, []);
+
             if (parsedWords[parsedWords.length - 1].type == presenter.TOKENS_TYPES.SPACE) {
                 parsedWords = parsedWords.slice(0, -1);
             }
@@ -699,7 +711,7 @@ function AddonText_Coloring_create() {
         return result;
     };
 
-    presenter.splitGroupToWords = function(group) {
+    presenter.splitGroupToWords = function (group) {
         return group.split(" ").map(function (element) {
             element.trim();
             return element;
@@ -709,79 +721,86 @@ function AddonText_Coloring_create() {
     };
 
     presenter.parseWords = function (word) {
-        var parsedColorID = presenter.getTokenColorID(word);
+        var result = [];
 
-        if (parsedColorID.isError) {
-            return [getWordToken(word), getSpaceToken()];
-        }
+        var selectablePart = {
+            pattern: /\\color{[^}]+}{[^}]+}/g,
 
-        var parsedSelectableWord = presenter.getTokenSelectableWord(word, parsedColorID.enclosingIndex);
-        if (parsedSelectableWord.isError) {
-            return [getWordToken(word), getSpaceToken()];
-        }
+            getStartOfIndex: function () {
+                return word.search(this.pattern);
+            },
 
-        var selectableWord = getSelectableToken(parsedSelectableWord.selectable, parsedColorID.value);
-        var wordBefore = null;
-        if (parsedColorID.wordBefore.trim().length > 0)
-            wordBefore = getWordToken(parsedColorID.wordBefore);
+            getStopOfIndex: function () {
+                return this.pattern.lastIndex;
+            },
 
-        if (parsedSelectableWord.normal === undefined) {
-            return [wordBefore, selectableWord, getSpaceToken()];
-        } else {
-            return [wordBefore, selectableWord, getWordToken(parsedSelectableWord.normal), getSpaceToken()];
-        }
-    };
+            getSelectablePhrase: function () {
+                this.pattern.test(word);
+                return word.substring(0, this.getStopOfIndex());
+            },
 
-    presenter.getTokenColorID = function (word) {
-        var MARKING_START_OF_COLOR_ID = "\\color{";
-        var CHARACTER_NOT_FOUND = -1;
-        var MARKING_LENGTH_OF_COLOR_ID = MARKING_START_OF_COLOR_ID.length;
-        var wordBefore = "";
+            isExists: function () {
+                return this.getStartOfIndex() != -1;
+            },
 
-        if (word.indexOf(MARKING_START_OF_COLOR_ID) !== -1) {
-            wordBefore = word.substring(0, word.indexOf(MARKING_START_OF_COLOR_ID));
-            var enclosingIndexOfColorID = word.indexOf("}", MARKING_LENGTH_OF_COLOR_ID);
-                if (enclosingIndexOfColorID == CHARACTER_NOT_FOUND) {
-                    return {
-                      isError: true
-                    };
-                } else {
-                    return {
-                      isError: false,
-                      value: word.substring(word.indexOf(MARKING_START_OF_COLOR_ID) + MARKING_LENGTH_OF_COLOR_ID, enclosingIndexOfColorID),
-                      enclosingIndex: enclosingIndexOfColorID,
-                      wordBefore: wordBefore
-                    }
-                }
-        }
+            hasPrecedingWord: function () {
+                return this.getStartOfIndex() > 0;
+            },
 
-        return {
-            isError: true
+            separatePrecedingWord: function () {
+                var precedingWord = word.substring(0, this.getStartOfIndex());
+                return precedingWord;
+            }
         };
-    };
 
-    presenter.getTokenSelectableWord = function (word, enclosingIndex) {
-        var openBracketIndexOfWord = enclosingIndex + 1;
+        while (selectablePart.isExists()) {
+            if (selectablePart.hasPrecedingWord()) {
+                var precedingWord = selectablePart.separatePrecedingWord();
+                result.push(getWordToken(precedingWord));
 
-        if (word[openBracketIndexOfWord] == "{") {
-            var endingBracketIndex = word.indexOf("}", openBracketIndexOfWord);
-            var selectableWord = word.substring(openBracketIndexOfWord + 1, endingBracketIndex);
-            var normalWord = undefined;
-
-            if (endingBracketIndex + 1 < word.length) {
-                normalWord = word.substring(endingBracketIndex + 1, word.length);
+                word = word.substring(selectablePart.getStartOfIndex(), word.length);
             }
 
-            return {
-                isError: false,
-                selectable: selectableWord,
-                normal: normalWord
-            };
+            var selectablePhrase = selectablePart.getSelectablePhrase();
+            if (selectablePhrase.length > 0) {
+                var selectableWord = presenter.getSelectableWord(selectablePhrase);
+                var selectableColor = presenter.getSelectableColor(selectablePhrase);
+                result.push(getSelectableToken(selectableWord, selectableColor));
+            }
+
+            word = word.substring(selectablePart.getStopOfIndex(), word.length);
         }
 
-        return {
-            isError: true
-        };
+        if (word.length > 0)
+            result.push(getWordToken(word));
+
+        result.push(getSpaceToken());
+
+        return result;
+    };
+
+    presenter.getSelectableColor = function (phrase) {
+        var pattern = /{[^}]+}/g;
+
+        pattern.test(phrase);
+
+        var startOfIndex = "\\color{".length;
+        var stopOfIndex = pattern.lastIndex - 1;
+
+        var color = phrase.substring(startOfIndex, stopOfIndex);
+
+        return color;
+    };
+
+    presenter.getSelectableWord = function (phrase) {
+        var pattern = /{[^}]+}{/g;
+
+        pattern.test(phrase);
+        phrase = phrase.substring(pattern.lastIndex, phrase.length);
+
+        var word = phrase.substring(0, phrase.length - 1);
+
+        return word;
     };
 
     presenter.connectHandlers = function () {
@@ -798,13 +817,13 @@ function AddonText_Coloring_create() {
     };
 
     presenter.disconnectHandlers = function () {
-          presenter.$colorButtons.off();
-          presenter.$eraserButton.off();
+        presenter.$colorButtons.off();
+        presenter.$eraserButton.off();
 
         if (presenter.configuration.eraserMode) {
             presenter.disconnectWordTokensHandlers();
             presenter.toggleEraserMode();
-        } else  if (presenter.configuration.activeColorID !== null) {
+        } else if (presenter.configuration.activeColorID !== null) {
             presenter.disconnectWordTokensHandlers();
             presenter.configuration.activeColor = null;
             presenter.configuration.activeColorID = null;
@@ -816,7 +835,7 @@ function AddonText_Coloring_create() {
         presenter.$wordTokens.hover(presenter.hoverInAddBackgroundHandler, presenter.hoverOutRemoveBackgroundHandler);
         presenter.$wordTokens.click(presenter.underlineWordHandler);
     };
-    
+
     presenter.disconnectWordTokensHandlers = function () {
         presenter.$wordTokens.off();
     };
@@ -847,7 +866,7 @@ function AddonText_Coloring_create() {
 
     presenter.resetColoredWords = function () {
         presenter.$view.find("[class*='text-coloring-colored-with']").each(function () {
-            $(this).removeClass (function (index, css) {
+            $(this).removeClass(function (index, css) {
                 return (css.match(/\btext-coloring-colored-with\S+/g) || []).join(' ');
             });
         })
@@ -981,7 +1000,16 @@ function AddonText_Coloring_create() {
     };
 
     presenter.setWorkMode = function () {
-        presenter.stateMachine.check();
+        presenter.stateMachine.hideAnswers();
+        presenter.stateMachine.onUnCorrect();
+        presenter.stateMachine.notifyEdit();
+
+        if (presenter.configuration.activeColorID !== null) {
+            presenter.configuration.activeColorID = null;
+            presenter.configuration.activeColor = null;
+        }
+        presenter.disconnectWordTokensHandlers();
+        presenter.setColor(presenter.configuration.colors[0].id);
     };
 
     presenter.setShowErrorsMode = function () {
@@ -1139,11 +1167,11 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getState = function () {
-          return JSON.stringify({
-              isVisible: presenter.configuration.isVisible,
-              tokens: presenter.configuration.filteredTokens,
-              activeColorID: presenter.configuration.activeColorID
-          });
+        return JSON.stringify({
+            isVisible: presenter.configuration.isVisible,
+            tokens: presenter.configuration.filteredTokens,
+            activeColorID: presenter.configuration.activeColorID
+        });
     };
 
     presenter.setState = function (stateString) {
@@ -1161,8 +1189,8 @@ function AddonText_Coloring_create() {
         }
         presenter.colorAllMarkedTokens();
 
-        if(parsedState.activeColorID !== undefined) {
-            if(parsedState.activeColorID == null) {
+        if (parsedState.activeColorID !== undefined) {
+            if (parsedState.activeColorID == null) {
                 presenter.setEraserMode();
             } else {
                 presenter.setColor(parsedState.activeColorID);

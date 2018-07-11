@@ -7,6 +7,7 @@ function Addonfeedback_create() {
     presenter.feedbackContainer = null;
     presenter.currentStateDefault = false;
     presenter.currentStateId = null;
+    presenter.speechTexts = {};
 
     var playerController = null;
     var textParser = null;
@@ -74,27 +75,26 @@ function Addonfeedback_create() {
         feedbackSpeakTimeout = setTimeout(function(){setSpeakInterval(data);},300);
     }
 
-    function getReadableText(text) {
+    presenter.stopFeedbackTTS = function() {
+        clearTimeout(feedbackSpeakTimeout);
+        clearInterval(feedbackSpeakInterval);
+    };
+
+    function getTextVoiceArrayFromText(text) {
         var el = document.createElement('div');
         el.innerHTML = text;
         var $el = $(el);
-        $el.find('[aria-hidden="true"]').remove();
-        $el.find('[aria-label]').each(function(){
-            var replaceText = $(this).attr('aria-label');
-                var langTag = $(this).attr('lang');
-                if (langTag && langTag.trim().length > 0 ) {
-                    replaceText = '\\alt{ |'+replaceText+'}'+'[lang ' + langTag + ']';
-                }
-                $(this).append(replaceText);
-        });
-        var result = $el.text().trim();
-        return result;
+        return window.TTSUtils.getTextVoiceArrayFromElement($el,presenter.configuration.langTag);
     }
 
     presenter.readCurrentMessage = function(readEmptyOnDefault) {
         if (presenter.getTextToSpeechOrNull(playerController) && playerController.isWCAGOn()) {
-            if (presenter.currentStateDefault  && readEmptyOnDefault) {
-                presenter.readDefaultMessage();
+            if (presenter.currentStateDefault) {
+                if(readEmptyOnDefault) {
+                    presenter.readDefaultMessage();
+                } else {
+                    presenter.stopFeedbackTTS();
+                }
             } else if (presenter.currentStateId) {
                 presenter.readMessageById(presenter.currentStateId);
             }
@@ -103,7 +103,7 @@ function Addonfeedback_create() {
 
     presenter.readDefaultMessage = function() {
         var TextVoiceArray = [];
-        TextVoiceArray.push(getTextVoiceObject(getReadableText(presenter.speechTexts.empty)));
+        TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.empty));
         speak(TextVoiceArray);
     };
 
@@ -117,7 +117,7 @@ function Addonfeedback_create() {
             if ( 0 === response.status.toLowerCase().localeCompare("f")) {
                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.negative));
             }
-            TextVoiceArray.push(getTextVoiceObject(getReadableText(response.text), presenter.configuration.langTag));
+            TextVoiceArray = TextVoiceArray.concat(getTextVoiceArrayFromText(response.text));
             speak(TextVoiceArray);
         }
     };

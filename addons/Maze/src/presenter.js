@@ -44,7 +44,8 @@ function AddonMaze_create () {
             lettersEndGameText: null,
             looseText: null,
             looseRetryButton: null,
-            looseWrapper: null
+            looseWrapper: null,
+            addonWrapper: null
         },
 
         isDisabled: false,
@@ -143,7 +144,8 @@ function AddonMaze_create () {
                 lettersEndGameText: 'Maze_end_level_answer_end_game',
                 looseText: 'Maze_game_loose_text',
                 looseRetryButton :'Maze_game_loose_button',
-                looseWrapper: 'Maze_loose'
+                looseWrapper: 'Maze_loose',
+                addonWrapper: 'Maze-wrapper'
             },
             i;
 
@@ -221,6 +223,26 @@ function AddonMaze_create () {
         }
 
         presenter.setVisibility(presenter.configuration.isVisible);
+    };
+
+    presenter.onKeyDown = function (event) {
+        switch (event.keyCode) {
+            case 37:    //Left
+                presenter.moveLeft();
+                break;
+            case 38:    //Up
+                presenter.moveUp();
+                break;
+            case 39:    //Right
+                presenter.moveRight();
+                break;
+            case 40:    //Down
+                presenter.moveDown();
+                break;
+            case 13:    //Enter
+                presenter.onQuestionApplyButtonClick();
+                break;
+        }
     };
 
     presenter.onRetryButtonClick = function () {
@@ -327,6 +349,9 @@ function AddonMaze_create () {
         presenter.state._isDisabled = false;
         presenter.state.elements.questionContainer.style.display = 'none';
         presenter.state.elements.questionBackground.style.display = 'none';
+        presenter.state.elements.answerInput.value = '';
+        presenter.state.applyButtonClickCallback = function () {};
+        presenter.state.elements.addonWrapper.focus();
     };
 
     presenter.sendEvent = function (evData) {
@@ -499,6 +524,7 @@ function AddonMaze_create () {
         presenter.state.elements.applyButton.addEventListener('click', presenter.onQuestionApplyButtonClick);
         presenter.state.elements.lettersAnswerButton.addEventListener('click', presenter.onNextMazeButtonClick);
         presenter.state.elements.looseRetryButton.addEventListener('click', presenter.onRetryButtonClick);
+        presenter.state.elements.addonWrapper.addEventListener('keydown', presenter.onKeyDown);
     };
 
     presenter.disconnectHandlers = function () {
@@ -509,6 +535,7 @@ function AddonMaze_create () {
         presenter.state.elements.applyButton.removeEventListener('click', presenter.onQuestionApplyButtonClick);
         presenter.state.elements.lettersAnswerButton.removeEventListener('click', presenter.onNextMazeButtonClick);
         presenter.state.elements.looseRetryButton.removeEventListener('click', presenter.onRetryButtonClick);
+        presenter.state.elements.addonWrapper.removeEventListener('keydown', presenter.onKeyDown);
     };
 
     presenter.executeCommand = function(name, params) {

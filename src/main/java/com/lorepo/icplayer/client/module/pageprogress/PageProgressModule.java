@@ -12,6 +12,7 @@ import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.ModuleUtils;
 
 
@@ -24,7 +25,7 @@ import com.lorepo.icplayer.client.module.ModuleUtils;
  * 
  *
  */
-public class PageProgressModule extends BasicModuleModel{
+public class PageProgressModule extends BasicModuleModel  implements IWCAGModuleModel{
 
 	private String rawWorksWith = "";
 	private List<String> modules = new LinkedList<String>();

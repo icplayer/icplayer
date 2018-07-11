@@ -446,7 +446,7 @@
          * @method validateModel
          * @param model {Object}
          * @param config {Function[]}
-         * @param mainValidation {[Boolean]} OPTIONAL!. True only if it is root of model validation. At default false.
+         * @param mainValidation {boolean} OPTIONAL!. True only if it is root of model validation. At default false.
          * @optional
          * @returns {{isValid: Boolean,value: Object,errorCode: String}}
          */
@@ -462,16 +462,17 @@
                 modelFieldName = config[i].fieldName;
                 if (model[modelFieldName] !== undefined && model[modelFieldName] !== null) {
                     var validationResult = config[i].call(this, model[modelFieldName], validatedModel);
+                    var validatedFiledName = validationResult.validatedFieldName;
 
                     if (!validationResult.isValid) {
                         return validationResult;
                     }
 
                     if (mainValidation) {
-                        this.validatedModel[modelFieldName] = validationResult.value;
+                        this.validatedModel[validatedFiledName] = validationResult.value;
                     }
 
-                    validatedModel[modelFieldName] = validationResult.value;
+                    validatedModel[validatedFiledName] = validationResult.value;
                 } else {
                     var errorCode = generateErrorCode("UMF01");
                     errorCode.fieldName = [modelFieldName];
@@ -515,7 +516,10 @@
 
             var validationFunction = function (model, validatedModel) {
                 if (shouldValidateFunction && !shouldValidateFunction.call(this, validatedModel)) {
-                    return generateValidValue(undefined);
+                    var undefinedValue =  generateValidValue(undefined);
+                    undefinedValue.validatedFieldName = name;
+
+                    return undefinedValue;
                 }
 
                 var retVal = fn.call(this, model, config);
@@ -524,6 +528,7 @@
                     retVal.fieldName = [name].concat(retVal.fieldName);
                 }
 
+                retVal.validatedFieldName = name;
                 return retVal;
             };
 
@@ -828,13 +833,49 @@
             }
 
             return this.generateValidValue(validatedList);
+        },
+
+        utils: {
+            /**
+             * Rename provided field to another name
+             * @param {String} name old field name
+             * @param {String} newName
+             * @param {Function} next
+             */
+            FieldRename: function (name, newName, next) {
+                if (!isString(name)) {
+                    throw new Error("First argument must be a string");
+                }
+
+                if (!isString(newName)) {
+                    throw new Error("New name must be a string");
+                }
+
+                if (!isFunction(next)) {
+                    throw new Error("Next must be a function");
+                }
+
+                var validationFunction = function (model, validatedModel) {
+                    var retVal = next.call(this, model, validatedModel);
+                    retVal.validatedFieldName = newName;
+
+                    return retVal;
+                };
+
+                validationFunction.fieldName = name;
+                return validationFunction;
+            }
         }
     };
 
     var decoratedValidators = {};
 
     for (var validatorName in ModelValidators) {
-        decoratedValidators[validatorName] = validatorDecorator(ModelValidators[validatorName]);
+        if (isFunction(ModelValidators[validatorName])) {
+            decoratedValidators[validatorName] = validatorDecorator(ModelValidators[validatorName]);
+        } else {
+            decoratedValidators[validatorName] = ModelValidators[validatorName];
+        }
     }
 
     // Expose utils to the global object

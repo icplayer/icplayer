@@ -181,11 +181,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
-				if (event.eventName.equals("ShowAnswers")) {
-					showAnswers();
-				} else if (event.eventName.equals("HideAnswers")) {
-					hideAnswers();
-				}
+				onEventReceived(event.eventName, event.getData());
 			}
 		});
 	}
@@ -449,7 +445,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		int errorCount = 0;
 
 		for (GapInfo gap : module.getGapInfos()) {
-			enteredValue = getElementText(gap.getId()).trim();
+			enteredValue = getElementText(gap).trim();
 			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue)) {
 				errorCount++;
 			}
@@ -540,7 +536,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String enteredValue;
 
 		for (GapInfo gap : module.getGapInfos()) {
-			enteredValue = getElementText(gap.getId());
+			enteredValue = getElementText(gap);
 			if(gap.isCorrect(enteredValue)){
 				score += gap.getValue();
 			}
@@ -560,6 +556,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private String getElementText(String id) {
 		return values.get(id) == null ? "" : values.get(id).trim();
+	}
+
+     private String getElementText(GapInfo gap) {
+		String t =  getElementText(gap.getId());
+		if(t.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
+			t = gap.getPlaceHolder();
+		}
+		return t;
 	}
 	
 	@Override
@@ -691,9 +695,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	protected void valueChangeLogic(String id, String newValue) {
 		GapInfo gap = getGapInfoById(id);
-		if (newValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
-			newValue = "";
-		}
 
 		values.put(id, newValue);
 		updateScore();
@@ -963,7 +964,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		int score = 0;
 
 		GapInfo gap = getGapInfoById(itemID);
-		String enteredValue = getElementText(gap.getId());
+		String enteredValue = getElementText(gap);
 		if (enteredValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
 			enteredValue = "";
 		}
@@ -1001,6 +1002,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		return jsObject;
+	}
+	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}
 
 	private native JavaScriptObject initJSObject(TextPresenter x) /*-{
@@ -1094,7 +1099,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		presenter.markConnectionWithMath = function() {
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::markConnectionWithMath()();
-		}
+		};
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
 
 		return presenter;
 	}-*/;
@@ -1352,6 +1361,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	@Override
 	public boolean isEnterable() {
 		return WCAGUtils.hasGaps(this.module);
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName.equals("ShowAnswers")) {
+			showAnswers();
+		} else if (eventName.equals("HideAnswers")) {
+			hideAnswers();
+		}
 	}
 
 }

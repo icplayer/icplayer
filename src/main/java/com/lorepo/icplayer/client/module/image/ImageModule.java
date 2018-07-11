@@ -12,8 +12,9 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 
-public class ImageModule extends BasicModuleModel {
+public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
 
 	public enum DisplayMode{
 		stretch,
