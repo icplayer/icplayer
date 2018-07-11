@@ -23,7 +23,7 @@
 	"add_new_style_error_same_id": "Style nie mogą mieć tych samych ID",
 	"delete_css_style_question": "Czy na pewno chcesz usunąć ten styl?",
 	"delete_style_error_not_enough_styles_to_delete": "Nie ma wystarczającej liczby stylów do usunięcia.",
-	"delete_style_error_style_does_not_exists": "Styl nie istnieje, nie można go usunąć."
+	"delete_style_error_style_does_not_exists": "Styl nie istnieje, nie można go usunąć.",
 	"delete_style_error_style_is_default": "Nie można usunąć stylu domyślnego",
 	"edit_layouts_menu": "Zarządzaj układami",
 	"add_new_semi_responsive_layout_name_label": "Nazwa:",
