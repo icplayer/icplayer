@@ -12,7 +12,9 @@ function AddonMathText_create() {
         'text_STR02': "Value provided to text property is not a valid string.",
         'Width_INT04': "Value provided to width property must be bigger than 500px",
         'Height_INT04': "Value provided to height property must be bigger than 200px",
-        "formulaColor_PRE01": "Formula color must begin with #"
+        "formulaColor_RGB01": "Formula color is not valid string",
+        "formulaColor_RGB02": "Formula color is too long for hex color",
+        "formulaColor_RGB03": "Formula color is not valid hex color"
     };
 
     presenter.run = function AddonMathText_run (view, model) {
@@ -76,7 +78,8 @@ function AddonMathText_create() {
             ModelValidators.Integer("Width", {minValue: 500}),
             ModelValidators.Integer("Height", {minValue: 200}),
             ModelValidators.utils.EnumChangeValues("language", availableLanugagesCodes, ModelValidators.Enum("language", {"default": "English", values: ["Polish", "English", "Spanish", "Arabic", "French"]})),
-            ModelValidators.utils.StringPrefix("formulaColor", "#", ModelValidators.String("formulaColor", {"default": "#000000"}))
+            ModelValidators.HEXColor("formulaColor", {"default": "#FFFFFF", canBeShort: true}),
+            ModelValidators.HEXColor("backgroundColor", {"default": "#000000", canBeShort: false})
         ]);
 
         return validatedModel;
@@ -131,7 +134,9 @@ function AddonMathText_create() {
             {
                 'language': presenter.configuration.language,
                 'mml': presenter.configuration.text,
-                'readOnly': isPreview
+                'readOnly': isPreview,
+                'color': presenter.configuration.formulaColor,
+                'backgroundColor': presenter.configuration.backgroundColor
             }
         );
 

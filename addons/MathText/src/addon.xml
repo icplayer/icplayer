@@ -6,5 +6,7 @@
         <property name="isActivity" nameLabel="Mathtext_property_is_user_activity" type="boolean" />
 
         <property name="language" displayName="Language" nameLabel="Mathtext_property_language" type="{English, Polish, French, Arabic, Spanish}"/>
+        <property name="formulaColor" type="string" nameLabel="Mathtext_property_formula_color"/>
+        <property name="backgroundColor" type="string" nameLabel="Mathtext_property_background_color"/>
     </model>
 </addon>
