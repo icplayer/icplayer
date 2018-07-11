@@ -8,35 +8,29 @@ function AddonMathText_create() {
 
     presenter.EMPTY_MATHTEXT = '<math xmlns="http://www.w3.org/1998/Math/MathML"/>';
     presenter.ERROR_CODES = {
-        'BL01': "Value provided to boolean property is not a valid string",
-        'STR02': "Value provided in property is not a valid string."
+        'isActivtiy_BL01': "Value provided to isActivity property is not a valid string",
+        'text_STR02': "Value provided to text property is not a valid string.",
+        'Width_INT04': "Value provided to width property must be bigger than 500px",
+        'Height_INT04': "Value provided to height property must be bigger than 200px",
+        "formulaColor_PRE01": "Formula color must begin with #"
     };
 
-    presenter.setPlayerController = function (controller) {
-        presenter.playerController = controller;
+    presenter.run = function AddonMathText_run (view, model) {
+        presenter.presenterLogic(view, model, false);
     };
 
-    presenter.run = function (view, model) {
-        presenter.presenterLogic(view, model);
-    };
-
-    presenter.setPlayerController = function AddonMathText_setPlayerController(playerController) {
+    presenter.setPlayerController = function AddonMathText_setPlayerController (playerController) {
         presenter.playerController = playerController;
         presenter.eventBus = playerController.getEventBus();
     };
 
-    presenter.createPreview = function (view, model) {
-        var $view = $(view);
-        var validatedModel = presenter.validateModel(model);
-        if (!validatedModel.isValid) {
-            $view.html(validatedModel.errorCode + ': ' + presenter.ERROR_CODES[validatedModel.errorCode]);
-        } else {
-            presenter.makeRequestForImage($view, validatedModel.value);
-        }
+    presenter.createPreview = function AddonMathText_createPreview (view, model) {
+        presenter.presenterLogic(view, model, true);
     };
 
-    presenter.makeRequestForImage = function ($view, model) {
+    presenter.makeRequestForImage = function AddonMathText_makeRequestForImage ($view, model) {
         // TODO Optimalize image getting
+        // TODO przenieść do MathTextPropertyProvider, przy zapisywaniu automatyczne pobieranie obrazków?
         var xmlhttp = new XMLHttpRequest();
         var mathMlParam = model.text;
         var imgTypeParam = 'svg';
@@ -66,61 +60,96 @@ function AddonMathText_create() {
     presenter.validateModel = function MathText_validateModel(model) {
         var modelValidator = new ModelValidator();
 
+        var availableLanugagesCodes = {
+            // TODO zmienić na słowniki może
+            'Polish': 'pl',
+            'English': 'en',
+            'Spanish': 'es',
+            'Arabic': 'ar',
+            'French': 'fr'
+        };
+
         var validatedModel = modelValidator.validate(model, [
             ModelValidators.Boolean("isActivity"),
             ModelValidators.String("text", {default: presenter.EMPTY_MATHTEXT}),
-            ModelValidators.utils.FieldRename("Is Visible", "isVisible", ModelValidators.Boolean("isVisible"))
+            ModelValidators.utils.FieldRename("Is Visible", "isVisible", ModelValidators.Boolean("isVisible")),
+            ModelValidators.Integer("Width", {minValue: 500}),
+            ModelValidators.Integer("Height", {minValue: 200}),
+            ModelValidators.utils.EnumChangeValues("language", availableLanugagesCodes, ModelValidators.Enum("language", {"default": "English", values: ["Polish", "English", "Spanish", "Arabic", "French"]})),
+            ModelValidators.utils.StringPrefix("formulaColor", "#", ModelValidators.String("formulaColor", {"default": "#000000"}))
         ]);
 
         return validatedModel;
     };
 
-    presenter.presenterLogic = function (view, model) {
+    presenter.presenterLogic = function AddonMathText_presenterLogic (view, model, isPreview) {
         presenter.view = view;
         presenter.$view = $(view);
+        presenter.wrapper = presenter.view.getElementsByClassName('mathtext-editor-wrapper')[0];
 
         var validatedModel = presenter.validateModel(model);
 
-        if (validatedModel.isValid) {
-            presenter.configuration = validatedModel.value;
-        } else {
-            presenter.$view.html(validatedModel.errorCode);
+        if (!validatedModel.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.fieldName.join("|") + "_" + validatedModel.errorCode);
             return;
         }
+        presenter.configuration = validatedModel.value;
 
+        presenter.initializeView(isPreview);
+    };
+
+    presenter.initializeView = function AddonMathText_initializeView (isPreview) {
+        presenter.wrapper.style.width = presenter.configuration.Width + 'px';
+        presenter.wrapper.style.height = presenter.configuration.Height + 'px';
+
+
+        if (!presenter.configuration.isActivity) {
+            presenter.initializeText(view, model);
+        } else {
+            presenter.initializeEditor(isPreview);
+        }
+    };
+
+    presenter.initializeText = function AddonMathText_initializeText(view, model) {
+        var $view = $(view);
+        presenter.makeRequestForImage($view, model);
+    };
+
+    presenter.initializationState = function AddonMathText_initializationState () {
+        presenter.state.isVisible = presenter.configuration.isVisible;
+    };
+
+    presenter.addHandlers = function AddonMathText_addHandlers () {
         if (presenter.eventBus) {
             presenter.eventBus.addEventListener('ShowAnswers', this);
             presenter.eventBus.addEventListener('HideAnswers', this);
         }
-
-        presenter.state.isVisible = presenter.configuration.isVisible;
-
-        if (!presenter.configuration.isActivity) {
-            presenter.createPreview(view, model);
-        } else {
-            presenter.initializeEditor(presenter.configuration.text);
-        }
     };
 
-    presenter.initializeEditor = function (initialMathML) {
-        presenter.editor = window.com.wiris.jsEditor.JsEditor.newInstance({'display': 'inline', 'mml': initialMathML});
+    presenter.initializeEditor = function AddonMathText_initializeEditor (isPreview) {
+        presenter.editor = window.com.wiris.jsEditor.JsEditor.newInstance(
+            {
+                'language': presenter.configuration.language,
+                'mml': presenter.configuration.text,
+                'readOnly': isPreview
+            }
+        );
 
-        var wrapper = presenter.view.getElementsByClassName('wrapper');
-        presenter.editor.insertInto(wrapper[0]);
+        presenter.editor.insertInto(presenter.wrapper);
     };
 
-    presenter.showAnswers = function () {
+    presenter.showAnswers = function AddonMathText_showAnswers () {
         // TODO in future
         return false;
     };
 
-    presenter.hideAnswers = function () {
+    presenter.hideAnswers = function AddonMathText_hideAnswers () {
         // TODO in future
         return false;
     };
 
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function AddonMathText_onEventReceived (eventName) {
         if (eventName === "ShowAnswers") {
             presenter.showAnswers();
         }
@@ -129,7 +158,7 @@ function AddonMathText_create() {
         }
     };
 
-    presenter.setShowErrorsMode = function () {
+    presenter.setShowErrorsMode = function AddonMathText_setShowErrorsMode () {
         // TODO in future
         return false;
 
@@ -153,19 +182,18 @@ function AddonMathText_create() {
         } */
     };
 
-     presenter.setWorkMode = function () {
+     presenter.setWorkMode = function AddonMathText_setWorkMode () {
         presenter.view.classList.remove('correct');
         presenter.view.classList.remove('wrong');
     };
 
-     presenter.setVisibility = function(isVisible) {
+     presenter.setVisibility = function AddonMathText_setVisibility (isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
         presenter.state.isVisible= isVisible;
     };
 
      presenter.setState = function (state) {
          var parsedState = JSON.parse(state);
-         console.log('a ' + parsedState);
          if (presenter.configuration.isActivity) {
              presenter.editor.setMathML(parsedState.text);
          }

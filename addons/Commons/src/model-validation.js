@@ -829,6 +829,78 @@
 
                 validationFunction.fieldName = name;
                 return validationFunction;
+            },
+
+            /**
+             * Change returned value of Enum to the one specified in config
+             * @param {String} name of property
+             * @param {Object} config - dict which contains map of enum values
+             *      {
+             *          value[]: String
+             *      }
+             * @param {Function} next
+             */
+            EnumChangeValues: function (name, config, next) {
+                if (!isFunction(next)) {
+                    throw new Error("Next must be a function");
+                }
+
+                if (!isString(name)) {
+                    throw new Error("First argument must be a string");
+                }
+
+                var changeFunction = function (model, validatedModel) {
+                    var retValue = next.call(this, model, validatedModel);
+
+                    if (retValue.isValid &&
+                        config.hasOwnProperty(retValue.value) &&
+                        config[retValue.value]
+                    ) {
+                        retValue.value = config[retValue.value];
+                    }
+
+                    return retValue;
+                };
+
+                changeFunction.fieldName = name;
+                return changeFunction;
+            },
+             /**
+             * Checks if value of property begins with prefix
+             * @param {String} name of property
+             * @param {String} prefix
+             * @param {Function} next
+              * errorCodes:
+              * - PRE01: property does not begin with prefix
+             */
+            StringPrefix: function (name, prefix, next) {
+                if (!isFunction(next)) {
+                    throw new Error("Next must be a function");
+                }
+
+                if (!isString(name)) {
+                    throw new Error("First argument must be a string");
+                }
+
+                if (!isString(prefix)) {
+                    throw new Error("Second argument must be a string");
+                }
+
+                var changeFunction = function (model, validatedModel) {
+                    var retValue = next.call(this, model, validatedModel);
+
+                    if (retValue.isValid) {
+                        var startsWith = retValue.value.lastIndexOf(prefix, 0) === 0;
+                        if (!startsWith) {
+                            return this.generateErrorCode("PRE01");
+                        }
+                    }
+
+                    return retValue;
+                };
+
+                changeFunction.fieldName = name;
+                return changeFunction;
             }
         }
     };
