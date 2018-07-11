@@ -19,7 +19,7 @@ import com.lorepo.icplayer.client.module.api.SemiResponsiveLayouts;
  * 
  * @author Krzysztof Langner
  */
-class AbsolutePositioningModule extends BasicPropertyProvider implements IRectangleItem, SemiResponsiveLayouts {
+public class AbsolutePositioningModule extends BasicPropertyProvider implements IRectangleItem, SemiResponsiveLayouts {
 
 	private ILayoutProperty layoutProperty;
 	private IProperty leftProperty;
@@ -185,7 +185,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 		return this.semiResponsivePositions.getSemiResponsiveLayoutID();
 	}
 	
-	protected String getDefaultSemiResponsiveID() {
+	public String getDefaultSemiResponsiveID() {
 		return this.semiResponsivePositions.getDefaultSemiResponsiveLayoutID();
 	}
 
