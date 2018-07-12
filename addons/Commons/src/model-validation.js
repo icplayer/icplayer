@@ -754,6 +754,58 @@
             return this.generateValidValue(validatedList);
         },
 
+         /**
+         * Validate HEX color. It can be represented as hash sign and either 3 or 6 hex numbers.
+         *
+         * Check if provided string is valid hex color
+         * config: {
+         *      default=undefined {String}
+         *      canBeShort=true {boolean} - can validated color be also represented by only 3 numbers
+         * }
+         *
+         * Error Codes:
+         * RGB01: Provided type is not a valid type
+         * RGB02: Provided value is too long
+         * RGB03: Provided value is not a valid hex color
+         *
+         * @namespace ModelValidators
+         * @class HEXColor
+         * @extends ModelValidators.Validator
+         */
+        HEXColor: function (valueToValidate, config) {
+            if (!isString(valueToValidate)) {
+                return this.generateErrorCode("RGB01");
+            }
+
+            var canBeShort = config['canBeShort'] === undefined;
+            var defaultValue = config['default'];
+            var regexp = /^$/;
+
+            if (valueToValidate.length > 7) {
+                return this.generateErrorCode("RGB02");
+            }
+
+            if (defaultValue !== undefined && valueToValidate === "") {
+                return this.generateValidValue(defaultValue);
+            }
+
+            if (canBeShort) {
+                // either #xxx or #xxxxxx
+                regexp = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
+            } else {
+                // only #xxxxxx
+                regexp = /^#[0-9a-fA-F]{6}$/;
+            }
+
+            var isCorrect = regexp.test(valueToValidate);
+
+            if (isCorrect) {
+                return this.generateValidValue(valueToValidate);
+            } else {
+                return this.generateErrorCode("RGB03");
+            }
+        },
+
         /**
          * Validate possible value in enum.
          *
@@ -798,58 +850,6 @@
             }
 
             return this.generateErrorCode("EV01");
-        },
-
-        /**
-         * Validate HEX color. It can be represented as hash sign and either 3 or 6 hex numbers.
-         *
-         * Check if provided string is valid hex color
-         * config: {
-         *      default=undefined {String}
-         *      canBeShort=true {boolean} - can validated color be also represented by only 3 numbers
-         * }
-         *
-         * Error Codes:
-         * RGB01: Provided type is not a valid type
-         * RGB02: Provided value is too long
-         * RGB03: Provided value is not a valid hex color
-         *
-         * @namespace ModelValidators
-         * @class HEXColor
-         * @extends ModelValidators.Validator
-         */
-        HEXColor: function (valueToValidate, config) {
-            if (!isString(valueToValidate)) {
-                return this.generateErrorCode("RGB01");
-            }
-
-            var canBeShort = config.canBeShort === undefined ? true : false;
-            var defaultValue = config.default;
-            var regexp = /^$/;
-
-            if (valueToValidate.length > 7) {
-                return this.generateErrorCode("RGB02");
-            }
-
-            if (defaultValue !== undefined && valueToValidate === "") {
-                return this.generateValidValue(defaultValue);
-            }
-
-            if (canBeShort) {
-                // either #xxx or #xxxxxx
-                regexp = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
-            } else {
-                // only #xxxxxx
-                regexp = /#[0-9a-fA-F]{6}$/;
-            }
-
-            var isCorrect = regexp.test(valueToValidate);
-
-            if (isCorrect) {
-                return this.generateValidValue(valueToValidate);
-            } else {
-                return this.generateErrorCode("RGB03");
-            }
         },
 
         utils: {

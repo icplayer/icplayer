@@ -9,12 +9,16 @@ function AddonMathText_create() {
     presenter.EMPTY_MATHTEXT = '<math xmlns="http://www.w3.org/1998/Math/MathML"/>';
     presenter.ERROR_CODES = {
         'isActivtiy_BL01': "Value provided to isActivity property is not a valid string",
-        'text_STR02': "Value provided to text property is not a valid string.",
-        'Width_INT04': "Value provided to width property must be bigger than 500px",
-        'Height_INT04': "Value provided to height property must be bigger than 200px",
-        "formulaColor_RGB01": "Formula color is not valid string",
-        "formulaColor_RGB02": "Formula color is too long for hex color",
-        "formulaColor_RGB03": "Formula color is not valid hex color"
+        'initialText_STR02': "Value provided to text property is not a valid string.",
+        'correctAnswer_STR02': "Value provided to text property is not a valid string.",
+        'Width_INT04': "Value provided to width property must be bigger than 500px.",
+        'Height_INT04': "Value provided to height property must be bigger than 200px.",
+        "formulaColor_RGB01": "Formula color is not valid string.",
+        "formulaColor_RGB02": "Formula color is too long for hex color.",
+        "formulaColor_RGB03": "Formula color is not valid hex color.",
+        "backgroundColor_RGB01": "Background color is not valid string.",
+        "backgroundColor_RGB02": "Background color is too long for hex color.",
+        "backgroundColor_RGB03": "Background color is not valid hex color."
     };
 
     presenter.run = function AddonMathText_run (view, model) {
@@ -30,11 +34,11 @@ function AddonMathText_create() {
         presenter.presenterLogic(view, model, true);
     };
 
-    presenter.makeRequestForImage = function AddonMathText_makeRequestForImage ($view, model) {
+    presenter.makeRequestForImage = function AddonMathText_makeRequestForImage () {
         // TODO Optimalize image getting
         // TODO przenieść do MathTextPropertyProvider, przy zapisywaniu automatyczne pobieranie obrazków?
         var xmlhttp = new XMLHttpRequest();
-        var mathMlParam = model.text;
+        var mathMlParam = presenter.configuration.initialText;
         var imgTypeParam = 'svg';
 
         var url = "https://www.wiris.net/demo/editor/render?mml=" + mathMlParam + "&format=" + imgTypeParam;
@@ -43,14 +47,14 @@ function AddonMathText_create() {
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == XMLHttpRequest.DONE) {
                 if (xmlhttp.status === 200) {
-                    $view.html(xmlhttp.response);
+                    presenter.$view.html(xmlhttp.response);
                 } else if (xmlhttp.status === 400) {
-                    $view.html("Server returned 400: " + xmlhttp.response);
+                    presenter.$view.html("Server returned 400: " + xmlhttp.response);
                 } else if (xmlhttp.status === 0) {
                     // MDN: It is worth noting that browsers report a status of 0 in case of XMLHttpRequest errors too
-                    $view.html("Request status 0. Problem with request parameters.");
+                    presenter.$view.html("Request status 0. Problem with request parameters.");
                 } else {
-                    $view.html("Server returned: " + xmlhttp.response);
+                    presenter.$view.html("Server returned: " + xmlhttp.response);
                }
             }
         };
@@ -73,13 +77,14 @@ function AddonMathText_create() {
 
         var validatedModel = modelValidator.validate(model, [
             ModelValidators.Boolean("isActivity"),
-            ModelValidators.String("text", {default: presenter.EMPTY_MATHTEXT}),
+            ModelValidators.String("initialText", {default: presenter.EMPTY_MATHTEXT}),
+            ModelValidators.String("correctAnswer", {default: presenter.EMPTY_MATHTEXT}),
             ModelValidators.utils.FieldRename("Is Visible", "isVisible", ModelValidators.Boolean("isVisible")),
-            ModelValidators.Integer("Width", {minValue: 500}),
-            ModelValidators.Integer("Height", {minValue: 200}),
+            ModelValidators.utils.FieldRename("Width", "width", ModelValidators.Integer("width", {minValue: 500})),
+            ModelValidators.utils.FieldRename("Height", "height", ModelValidators.Integer("height", {minValue: 200})),
             ModelValidators.utils.EnumChangeValues("language", availableLanugagesCodes, ModelValidators.Enum("language", {"default": "English", values: ["Polish", "English", "Spanish", "Arabic", "French"]})),
-            ModelValidators.HEXColor("formulaColor", {"default": "#FFFFFF", canBeShort: true}),
-            ModelValidators.HEXColor("backgroundColor", {"default": "#000000", canBeShort: false})
+            ModelValidators.HEXColor("formulaColor", {"default": "#000000", canBeShort: true}),
+            ModelValidators.HEXColor("backgroundColor", {"default": "#FFFFFF", canBeShort: false})
         ]);
 
         return validatedModel;
@@ -102,20 +107,19 @@ function AddonMathText_create() {
     };
 
     presenter.initializeView = function AddonMathText_initializeView (isPreview) {
-        presenter.wrapper.style.width = presenter.configuration.Width + 'px';
-        presenter.wrapper.style.height = presenter.configuration.Height + 'px';
+        presenter.wrapper.style.width = presenter.configuration.width + 'px';
+        presenter.wrapper.style.height = presenter.configuration.height + 'px';
 
 
         if (!presenter.configuration.isActivity) {
-            presenter.initializeText(view, model);
+            presenter.initializeText();
         } else {
             presenter.initializeEditor(isPreview);
         }
     };
 
-    presenter.initializeText = function AddonMathText_initializeText(view, model) {
-        var $view = $(view);
-        presenter.makeRequestForImage($view, model);
+    presenter.initializeText = function AddonMathText_initializeText() {
+        presenter.makeRequestForImage();
     };
 
     presenter.initializationState = function AddonMathText_initializationState () {
@@ -130,10 +134,11 @@ function AddonMathText_create() {
     };
 
     presenter.initializeEditor = function AddonMathText_initializeEditor (isPreview) {
+        console.log(presenter.configuration.formulaColor, presenter.configuration.backgroundColor);
         presenter.editor = window.com.wiris.jsEditor.JsEditor.newInstance(
             {
                 'language': presenter.configuration.language,
-                'mml': presenter.configuration.text,
+                'mml': presenter.configuration.initialText,
                 'readOnly': isPreview,
                 'color': presenter.configuration.formulaColor,
                 'backgroundColor': presenter.configuration.backgroundColor
@@ -144,15 +149,21 @@ function AddonMathText_create() {
     };
 
     presenter.showAnswers = function AddonMathText_showAnswers () {
-        // TODO in future
-        return false;
+        presenter.state.currentAnswer = presenter.editor.getMathML();
+        presenter.editor.setMathML(presenter.configuration.correctAnswer);
     };
 
     presenter.hideAnswers = function AddonMathText_hideAnswers () {
-        // TODO in future
-        return false;
+        presenter.editor.setMathML(presenter.state.currentAnswer);
     };
 
+
+    presenter.reset = function () {
+        presenter.setVisibility(presenter.configuration.isVisible);
+        if (presenter.configuration.isActivity) {
+            presenter.editor.setMathML(presenter.configuration.initialText);
+        }
+    };
 
     presenter.onEventReceived = function AddonMathText_onEventReceived (eventName) {
         if (eventName === "ShowAnswers") {
@@ -164,10 +175,6 @@ function AddonMathText_create() {
     };
 
     presenter.setShowErrorsMode = function AddonMathText_setShowErrorsMode () {
-        // TODO in future
-        return false;
-
-        /*
         presenter.currentUserText = presenter.editor.getMathML();
 
         var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
@@ -184,7 +191,7 @@ function AddonMathText_create() {
             presenter.view.classList.add('correct');
         } else {
             presenter.view.classList.add('wrong');
-        } */
+        }
     };
 
      presenter.setWorkMode = function AddonMathText_setWorkMode () {
@@ -199,16 +206,14 @@ function AddonMathText_create() {
 
      presenter.setState = function (state) {
          var parsedState = JSON.parse(state);
-         if (presenter.configuration.isActivity) {
-             presenter.editor.setMathML(parsedState.text);
-         }
 
+         presenter.editor.setMathML(parsedState.text);
          presenter.setVisibility(parsedState.isVisible);
      };
 
 
     presenter.getState = function() {
-        var currentText = presenter.EMPTY_MATHTEXT;
+        var currentText = presenter.configuration.initialText;
         if (presenter.configuration.isActivity && presenter.editor) {
             currentText = presenter.editor.getMathML();
         }
