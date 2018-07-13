@@ -26,7 +26,7 @@ AddAttributeTests = TestCase("[Video] Calculations",{
         assertTrue(this.presenter.$captionsContainer.css.calledWith({
             top: 10,
             left: 0,
-            position: "relative"
+            position: "absolute"
         }));
 
         assertTrue(this.presenter.$captionsContainer.css.calledOnce);
