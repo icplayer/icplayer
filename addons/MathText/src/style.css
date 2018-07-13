@@ -1,3 +1,11 @@
-.wrapper {
+.mathtext-editor-wrapper {
     border: 1px solid black;
+}
+
+.mathtext-editor-wrapper.wrong {
+    border: 2px solid red;
+}
+
+.mathtext-editor-wrapper.correct {
+    border: 2px solid green;
 }

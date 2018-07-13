@@ -11,8 +11,8 @@ function AddonMathText_create() {
         'isActivtiy_BL01': "Value provided to isActivity property is not a valid string",
         'initialText_STR02': "Value provided to text property is not a valid string.",
         'correctAnswer_STR02': "Value provided to text property is not a valid string.",
-        'Width_INT04': "Value provided to width property must be bigger than 500px.",
-        'Height_INT04': "Value provided to height property must be bigger than 200px.",
+        'width_INT04': "Value provided to width property must be bigger than 500px.",
+        'height_INT04': "Value provided to height property must be bigger than 200px.",
         "formulaColor_RGB01": "Formula color is not valid string.",
         "formulaColor_RGB02": "Formula color is too long for hex color.",
         "formulaColor_RGB03": "Formula color is not valid hex color.",
@@ -188,15 +188,15 @@ function AddonMathText_create() {
 		var correct = instance.isAnswerCorrect(0);
 
 		 if (correct) {
-            presenter.view.classList.add('correct');
+            presenter.wrapper.classList.add('correct');
         } else {
-            presenter.view.classList.add('wrong');
+            presenter.wrapper.classList.add('wrong');
         }
     };
 
      presenter.setWorkMode = function AddonMathText_setWorkMode () {
-        presenter.view.classList.remove('correct');
-        presenter.view.classList.remove('wrong');
+        presenter.wrapper.classList.remove('correct');
+        presenter.wrapper.classList.remove('wrong');
     };
 
      presenter.setVisibility = function AddonMathText_setVisibility (isVisible) {
