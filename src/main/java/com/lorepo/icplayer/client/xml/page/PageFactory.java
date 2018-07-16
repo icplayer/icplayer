@@ -1,6 +1,9 @@
 package com.lorepo.icplayer.client.xml.page;
 
+import java.util.Iterator;
+
 import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.xml.IParser;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.XMLVersionAwareFactory;
 import com.lorepo.icplayer.client.xml.page.parsers.IPageParser;
@@ -13,6 +16,7 @@ import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v4;
 public class PageFactory extends XMLVersionAwareFactory {
 	
 	Page producedPage = null;
+	static String defaultLayoutID = null;
 
 	public PageFactory(Page page) {
 		this.producedPage = page;
@@ -22,12 +26,27 @@ public class PageFactory extends XMLVersionAwareFactory {
 		this.addParser(new PageParser_v2());
 		this.addParser(new PageParser_v3());
 		this.addParser(new PageParser_v4());
+		
+		if (defaultLayoutID != null) {
+			setDefaultLayoutID(defaultLayoutID);
+		}
 	}
 	
 	public void addParser(IPageParser parser) {
 		parser.setPage(this.producedPage);
 		
 		this.parsersMap.put(parser.getVersion(), parser);
+	}
+	
+	public void setDefaultLayoutID (String layoutID) {
+		defaultLayoutID = layoutID;
+		Iterator<String> iter = this.parsersMap.keySet().iterator();
+		while (iter.hasNext()) {
+			IParser parser = this.parsersMap.get(iter.next());
+			if (parser instanceof IPageParser) {
+				((IPageParser) parser).setDefaultLayoutID(layoutID);
+			}
+		}
 	}
 	
 	@Override

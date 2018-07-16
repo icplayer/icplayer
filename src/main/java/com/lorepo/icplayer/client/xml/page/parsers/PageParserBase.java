@@ -22,6 +22,8 @@ public abstract class PageParserBase implements IPageParser{
 
 	protected String version;
 	protected IPageBuilder page;
+	protected String contentDefaultLayoutID = null;
+	protected String defaultLayoutID = null;
 	
 	public PageParserBase() {}
 	
@@ -32,6 +34,11 @@ public abstract class PageParserBase implements IPageParser{
 	@Override
 	public String getVersion() {
 		return this.version;
+	}
+	
+	@Override
+	public void setDefaultLayoutID(String layoutID) {
+		contentDefaultLayoutID = layoutID;
 	}
 	
 	public Object parse(Element xml) {
@@ -135,6 +142,9 @@ public abstract class PageParserBase implements IPageParser{
 				IModuleModel module = moduleFactory.createModel(node.getNodeName());
 
 				if (module != null) {
+					if (defaultLayoutID != null) {
+						module.setContentDefaultLayoutID(defaultLayoutID);
+					}
 					module.load((Element) node, page.getBaseURL(), Integer.toString(pageVersion));
 					page.addModule(module);
 				}

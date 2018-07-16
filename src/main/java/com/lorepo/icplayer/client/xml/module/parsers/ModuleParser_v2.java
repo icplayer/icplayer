@@ -6,7 +6,6 @@ import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
-import com.lorepo.icplayer.client.module.AbsolutePositioningModule;
 import com.lorepo.icplayer.client.module.LayoutDefinition;
 
 public class ModuleParser_v2 extends ModuleModelParser_base {
@@ -32,17 +31,12 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 	}
 	
 	private void setDefaultIsVisible(Element layouts){
-		String defaultId = "default";
-		if (this.module instanceof AbsolutePositioningModule) {
-			AbsolutePositioningModule apModule = (AbsolutePositioningModule) this.module;
-			defaultId = apModule.getDefaultSemiResponsiveID();
-		};
 		NodeList layoutChildren = layouts.getChildNodes();
 		for (int i = 0; i < layoutChildren.getLength(); i++){
 			Node childNode = layoutChildren.item(i);
 			if (childNode instanceof Element) {
 				Element child = (Element) childNode;
-				if(child.getAttribute("id").equals(defaultId)) {
+				if(child.getAttribute("id").equals(this.defaultLayoutID)) {
 					Boolean isVisible = XMLUtils.getAttributeAsBoolean(child , "isVisible", true);
 					this.module.setIsVisible(isVisible);
 					return;

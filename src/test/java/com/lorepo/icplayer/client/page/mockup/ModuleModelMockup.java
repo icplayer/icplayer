@@ -326,4 +326,10 @@ public class ModuleModelMockup implements IModuleModel {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public void setContentDefaultLayoutID(String layoutID) {
+		// TODO Auto-generated method stub
+		
+	}
 }
