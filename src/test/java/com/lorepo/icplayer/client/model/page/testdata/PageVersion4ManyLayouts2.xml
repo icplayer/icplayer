@@ -152,7 +152,7 @@
 					</relative>
 					<absolute left="365" right="0" top="505" bottom="0" width="220" height="220"/>
 				</layout>
-				<layout isLocked="false" isModuleVisibleInEditor="true" id="E38BC2B9-2466-431B-8168-F542CB68EC74" isVisible="true">
+				<layout isLocked="false" isModuleVisibleInEditor="true" id="E38BC2B9-2466-431B-8168-F542CB68EC74" isVisible="false">
 					<relative type="LTWH">
 						<left relative="" property="left"/>
 						<top relative="" property="top"/>
