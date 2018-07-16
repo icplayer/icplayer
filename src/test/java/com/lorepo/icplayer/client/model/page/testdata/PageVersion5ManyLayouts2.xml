@@ -10,13 +10,13 @@
 		</styleClasses>
 	</styles>
 	<layouts>
-		<layout id="default" width="0" height="0" isDefault="true"/>
-		<layout id="E38BC2B9-2466-431B-8168-F542CB68EC75" width="955" height="1254"/>
+		<layout id="default" width="0" height="0"/>
+		<layout id="E38BC2B9-2466-431B-8168-F542CB68EC75" width="955" height="1254" isDefault="true"/>
 		<layout id="E38BC2B9-2466-431B-8168-F542CB68EC74" width="950" height="1204"/>
 	</layouts>
 	<modules>
 	    <imageModule id="Image1" isTabindexEnabled="false">
-			<layouts isVisible="false">
+			<layouts isVisible="true">
 				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
 					<relative type="LTWH">
 						<left relative="" property="left"/>
@@ -54,7 +54,7 @@
 					<styleClass value="text_first_page_title" layoutID="default"/>
 				</styleClasses>
 			</styles>
-			<layouts isVisible="true">
+			<layouts isVisible="false">
 				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
 					<relative type="LTWH">
 						<left relative="" property="left"/>
@@ -96,7 +96,7 @@
 					<styleClass value="text_first_page_title" layoutID="default"/>
 				</styleClasses>
 			</styles>
-			<layouts isVisible="true">
+			<layouts isVisible="false">
 				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
 					<relative type="LTWH">
 						<left relative="" property="left"/>
@@ -133,7 +133,7 @@
 		</textModule>
 		
 		<buttonModule id="NextPage1" isTabindexEnabled="false">
-			<layouts isVisible="false">
+			<layouts isVisible="true">
 				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
 					<relative type="LTWH">
 						<left relative="" property="left"/>

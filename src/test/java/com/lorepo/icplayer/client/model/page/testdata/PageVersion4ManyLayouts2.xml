@@ -10,8 +10,8 @@
 		</styleClasses>
 	</styles>
 	<layouts>
-		<layout id="default" width="0" height="0" isDefault="true"/>
-		<layout id="E38BC2B9-2466-431B-8168-F542CB68EC75" width="955" height="1254"/>
+		<layout id="default" width="0" height="0"/>
+		<layout id="E38BC2B9-2466-431B-8168-F542CB68EC75" width="955" height="1254" isDefault="true"/>
 		<layout id="E38BC2B9-2466-431B-8168-F542CB68EC74" width="950" height="1204"/>
 	</layouts>
 	<modules>
@@ -73,7 +73,7 @@
 					</relative>
 					<absolute left="250" right="0" top="346" bottom="21" width="650" height="150"/>
 				</layout>
-				<layout isLocked="false" isModuleVisibleInEditor="true" id="E38BC2B9-2466-431B-8168-F542CB68EC74" isVisible="false">
+				<layout isLocked="false" isModuleVisibleInEditor="true" id="E38BC2B9-2466-431B-8168-F542CB68EC74" isVisible="true">
 					<relative type="LTWH">
 						<left relative="" property="left"/>
 						<top relative="" property="top"/>
@@ -97,7 +97,7 @@
 				</styleClasses>
 			</styles>
 			<layouts>
-				<layout isLocked="false" isModuleVisibleInEditor="true" id="default" isVisible="true">
+				<layout isLocked="false" isModuleVisibleInEditor="true" id="default" isVisible="false">
 					<relative type="LTWH">
 						<left relative="" property="left"/>
 						<top relative="" property="top"/>
@@ -143,7 +143,7 @@
 					</relative>
 					<absolute left="365" right="0" top="505" bottom="0" width="220" height="220"/>
 				</layout>
-				<layout isLocked="false" isModuleVisibleInEditor="true" id="E38BC2B9-2466-431B-8168-F542CB68EC75" isVisible="false">
+				<layout isLocked="false" isModuleVisibleInEditor="true" id="E38BC2B9-2466-431B-8168-F542CB68EC75" isVisible="true">
 					<relative type="LTWH">
 						<left relative="" property="left"/>
 						<top relative="" property="top"/>
@@ -152,7 +152,7 @@
 					</relative>
 					<absolute left="365" right="0" top="505" bottom="0" width="220" height="220"/>
 				</layout>
-				<layout isLocked="false" isModuleVisibleInEditor="true" id="E38BC2B9-2466-431B-8168-F542CB68EC74" isVisible="false">
+				<layout isLocked="false" isModuleVisibleInEditor="true" id="E38BC2B9-2466-431B-8168-F542CB68EC74" isVisible="true">
 					<relative type="LTWH">
 						<left relative="" property="left"/>
 						<top relative="" property="top"/>

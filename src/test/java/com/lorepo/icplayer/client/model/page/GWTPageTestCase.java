@@ -198,7 +198,7 @@ public class GWTPageTestCase extends GwtTest {
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
 			assertEquals(basicModel.getId(), "Image1");
-			assertFalse(basicModel.isVisible());
+			assertTrue(basicModel.isVisible());
 		}
 		
 		model = page.getModules().get(1);
@@ -206,7 +206,7 @@ public class GWTPageTestCase extends GwtTest {
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
 			assertEquals(basicModel.getId(), "Text1");
-			assertTrue(basicModel.isVisible());
+			assertFalse(basicModel.isVisible());
 		}
 		
 		model = page.getModules().get(2);
@@ -214,7 +214,7 @@ public class GWTPageTestCase extends GwtTest {
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
 			assertEquals(basicModel.getId(), "Text2");
-			assertTrue(basicModel.isVisible());
+			assertFalse(basicModel.isVisible());
 		}
 		
 		model = page.getModules().get(3);
@@ -222,7 +222,7 @@ public class GWTPageTestCase extends GwtTest {
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
 			assertEquals(basicModel.getId(), "NextPage1");
-			assertFalse(basicModel.isVisible());
+			assertTrue(basicModel.isVisible());
 		}
 		
 	}
