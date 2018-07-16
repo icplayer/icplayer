@@ -1,4 +1,9 @@
-2018-07-10 Added  scrolling to the active module in keyboard navigation
+2018-07-13 Fixed next() and previous() methods in MultiAudio addon
+2018-07-13 Fixed fullscreen on iPad
+2018-07-13 Fixed restartGame command in Shooting Range
+2018-07-12 Removed Byte Order Mark from polish dictionary
+2018-07-10 Added Games category
+2018-07-10 Added scrolling to the active module in keyboard navigation
 2018-07-10 Added TTS support for Image Gap
 2018-07-09 Added TTS support for gaps in Table
 2018-07-06 Added TTS support for Double State Button

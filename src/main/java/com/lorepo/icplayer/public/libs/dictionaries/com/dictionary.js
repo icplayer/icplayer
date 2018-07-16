@@ -273,6 +273,7 @@ var ice_dictionary_en = {
 	"navigation_menu" : "Navigation",
 	"learn_pen_menu" : "LearnPen",
 	"media_menu" : "Media",
+	"games_menu" : "Games",
 	"scripting_menu" : "Scripting",
 	"private_menu" : "Private",
 	"error_counter_menu" : "Error Counter",
