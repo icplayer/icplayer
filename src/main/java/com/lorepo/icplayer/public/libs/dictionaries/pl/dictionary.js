@@ -1,4 +1,4 @@
-﻿var ice_dictionary_pl = {
+var ice_dictionary_pl = {
 	"orientation_type_vertical" : "pionowy",
 	"orientation_type_horizontal": "poziomy",
 	"semi_responsive_properties_label": "Układ",

@@ -142,6 +142,7 @@ function AddonShooting_Range_create() {
         presenter.state.actualLevel = 0;
         presenter.actualizeAnswersWrapperHeight();
         presenter.state.isStarted = false;
+        presenter.state.$questionDiv.html("&nbsp;");
 
     };
 
@@ -580,7 +581,6 @@ function AddonShooting_Range_create() {
         presenter.setWorkMode();
         presenter.hideAnswers();
         presenter.state.resultsList = [];
-
         presenter.restartGame();
     };
 
