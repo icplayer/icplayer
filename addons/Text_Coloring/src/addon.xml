@@ -12,5 +12,6 @@
 		<property name="hideColorsButtons" displayName="Hide Color Buttons" nameLabel="Text_Coloring_property_hide_color_buttons" type="boolean" />
 		<property name="showSetEraserModeButton" displayName="Show set eraser mode button" nameLabel="Text_Coloring_property_show_set_eraser_mode_button" type="boolean" />
 		<property name="eraserButtonText" displayName="Eraser button text" nameLabel="Text_Coloring_property_eraser_button_text" type="string" isLocalized="true" />
+		<property name='Mode' nameLabel="Text_Selection_property_mode" type='{All selectable, Mark phrases to select}'/>
 	</model>
 </addon>
