@@ -193,6 +193,7 @@ var ice_dictionary_en = {
     "help_menu": "Help",
     "documentation_menu": "Documentation",
     "video_tutorials_menu": "Video Tutorials",
+	"interactive_tutorials_menu": "Interactive Tutorials",
     "modules_examples": "Modules Examples",
 	"select_template_strong" : "<b>Select template</b>",
 	"select_page" : "Select page",

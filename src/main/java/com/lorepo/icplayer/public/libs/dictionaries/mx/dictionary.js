@@ -192,6 +192,7 @@ var ice_dictionary_mx = {
     "help_menu": "Ayuda",
     "documentation_menu": "Documentación",
     "video_tutorials_menu": "Vídeo tutoriales",
+	"interactive_tutorials_menu": "Interactive Tutorials",
     "modules_examples": "Ejemplos de módulos",
 	"select_template_strong": "<b>Seleccionar plantilla</b>",
 	"select_page": "Seleccionar página",

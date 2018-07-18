@@ -191,6 +191,7 @@ var ice_dictionary_pl = {
     "help_menu": "Pomoc",
     "documentation_menu": "Dokumentacja",
     "video_tutorials_menu": "Filmy instruktażowe",
+	"interactive_tutorials_menu": "Interactive Tutorials",
     "modules_examples": "Przykłady modułów",
 	"select_template_strong" : "<b>Wybierz szablon</b>",
 	"select_page" : "Wybierz stronę",
