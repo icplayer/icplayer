@@ -3,8 +3,8 @@
 <addon id="MathText" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
         <property name="initialText" nameLabel="Mathtext_property_text" type="mathtext" />
+        <property name="correctAnswer" nameLabel="Mathtext_property_correctAnswer" type="mathanswer" />
 
-        <property name="correctAnswer" nameLabel="Mathtext_property_correctAnswer" type="mathtext" />
         <property name="isActivity" nameLabel="Mathtext_property_is_user_activity" type="boolean" />
 
         <property name="language" displayName="Language" nameLabel="Mathtext_property_language" type="{English, Polish, French, Arabic, Spanish}"/>

@@ -38,6 +38,8 @@ public class AddonParamFactory {
 			return new EditableSelectAddonParam(parent, type, this);
 		} else if(lowerCaseType.startsWith("mathtext")) {
 			return new MathTextParam(parent, type);
+		} else if(lowerCaseType.startsWith("mathanswer")) {
+			return new MathAnswerParam(parent, type);
 		}
 		
 		return new StringAddonParam(parent, type);
