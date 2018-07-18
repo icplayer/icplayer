@@ -192,6 +192,7 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 
 	@Override
 	public void space(KeyDownEvent event) {
+		event.preventDefault(); 
 		this.listener.onClicked();
 	}
 
@@ -212,12 +213,12 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 
 	@Override
 	public void down(KeyDownEvent event) {
-		// TODO Auto-generated method stub
+		event.preventDefault(); 
 	}
 
 	@Override
 	public void up(KeyDownEvent event) {
-		// TODO Auto-generated method stub
+		event.preventDefault(); 
 	}
 
 	@Override

@@ -1,3 +1,4 @@
+2018-07-18 Fixed Scrolling on a Page in TTS
 2018-07-17 Added Phrase Selection Mode to Text Coloring
 2018-07-17 Fixed coursor position in GridScene
 2018-07-13 Fixed next() and previous() methods in MultiAudio addon

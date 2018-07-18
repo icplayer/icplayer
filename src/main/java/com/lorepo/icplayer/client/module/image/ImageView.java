@@ -158,7 +158,9 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {}
+	public void space(KeyDownEvent event) {
+		event.preventDefault();
+	}
 
 	@Override
 	public void tab(KeyDownEvent event) {}
@@ -170,13 +172,19 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 	public void right(KeyDownEvent event) {}
 
 	@Override
-	public void down(KeyDownEvent event) {}
+	public void down(KeyDownEvent event) {
+		event.preventDefault(); 
+	}
 
 	@Override
-	public void up(KeyDownEvent event) {}
+	public void up(KeyDownEvent event) {
+		event.preventDefault();
+	}
 
 	@Override
-	public void escape(KeyDownEvent event) {}
+	public void escape(KeyDownEvent event) {
+	    event.preventDefault();
+	}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {}
