@@ -13,7 +13,24 @@ function AddonMaze_create () {
         'numberOfMazes_INT04': 'Number of mazes must be positive integer',
         'questions_mazeId_INT02': 'Maze id must be integer',
         'questions_mazeId_INT04': 'Maze id must be positive integer',
+        'questions_letter_STR01': 'Maze letter can\'t be empty'
     };
+
+    function escape(unsafe) {
+        return unsafe.replace(/[&<"']/g, function (m) {
+            switch (m) {
+                case '&':
+                    return '&amp;';
+                case '<':
+                    return '&lt;';
+                case '"':
+                    return '&quot;';
+                default:
+                    // apostrophe character
+                    return '&#039;';
+            }
+        });
+    }
 
     presenter.state = {
         games: [],
@@ -52,7 +69,8 @@ function AddonMaze_create () {
         nextMazeButtonCallback: function () {},
         isShowingAnswers: false,
         isShowingErrors: false,
-        _isDisabled: false  // is while showing question
+        _isDisabled: false,  // is while showing question,
+        isVisible: false
 
     };
 
@@ -201,12 +219,7 @@ function AddonMaze_create () {
         }
 
         presenter.configuration = validatedModel.value;
-
-        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
-            if (ev.target === this) {
-                presenter.destroy();
-            }
-        });
+        presenter.setVisibility(presenter.configuration['Is Visible']);
 
         if (!isPreview) {
             presenter.completeState();
@@ -217,6 +230,12 @@ function AddonMaze_create () {
                 presenter.state.elements.gameContainer.style.width = '100%';
             }
 
+            presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+                if (ev.target === this) {
+                    presenter.destroy();
+                }
+            });
+
             presenter.connectHandlers();
             presenter.initializeMaze();
 
@@ -226,21 +245,30 @@ function AddonMaze_create () {
     };
 
     presenter.onKeyDown = function (event) {
+        function stopEvent () {
+            event.preventDefault();
+            event.stopPropagation();
+        }
         switch (event.keyCode) {
             case 37:    //Left
                 presenter.moveLeft();
+                stopEvent();
                 break;
             case 38:    //Up
                 presenter.moveUp();
+                stopEvent();
                 break;
             case 39:    //Right
                 presenter.moveRight();
+                stopEvent();
                 break;
             case 40:    //Down
                 presenter.moveDown();
+                stopEvent();
                 break;
             case 13:    //Enter
                 presenter.onQuestionApplyButtonClick();
+                stopEvent();
                 break;
         }
     };
@@ -477,7 +505,7 @@ function AddonMaze_create () {
         letters.forEach(function (element) {
            var div = document.createElement('div');
            div.classList.add('Maze_letters_letter_element');
-           div.innerText = element;
+           div.innerHTML = escape(element).split(' ').join('&nbsp;');
            presenter.state.elements.lettersContainer.appendChild(div);
         });
 
@@ -627,7 +655,7 @@ function AddonMaze_create () {
             ModelValidators.List('questions', [
                 ModelValidators.DumbString("question"),
                 ModelValidators.DumbString("answer"),
-                ModelValidators.DumbString("letter"),
+                ModelValidators.String("letter", {trim: false}, function (localValidated) { return localValidated['question'] !== ''}),
                 ModelValidators.Integer('mazeId', {minValue: 1, default: -1}),
                 ModelValidators.Boolean('isCaseSensitive'),
             ]),
@@ -662,7 +690,8 @@ function AddonMaze_create () {
             actualGameIndex: presenter.state.actualGameIndex,
             mistakes: presenter.state.mistakes,
             errorCount: presenter.state.errorCount,
-            actualGame: presenter.getActualGame()? presenter.getActualGame().serialize(): null
+            actualGame: presenter.getActualGame()? presenter.getActualGame().serialize(): null,
+            isVisible: presenter.state.isVisible
         });
     };
 
@@ -676,6 +705,8 @@ function AddonMaze_create () {
         presenter.state.actualGameIndex = object.actualGameIndex;
         presenter.state.mistakes = object.mistakes;
         presenter.state.errorCount = object.errorCount;
+
+        presenter.setVisibility(object.isVisible);
 
         if (presenter.getActualGame()) {
             if (object.actualGameIndex !== 0) {
@@ -693,6 +724,7 @@ function AddonMaze_create () {
         presenter.state.isDisabled = presenter.configuration.isDisabled;
         presenter.state.isShowingAnswers = false;
         presenter.state.isShowingErrors = false;
+        presenter.setVisibility(presenter.configuration['Is Visible']);
 
         if (presenter.getActualGame()) {
             presenter.getActualGame().destroy();
@@ -720,6 +752,7 @@ function AddonMaze_create () {
     };
 
     presenter.setVisibility = function (isVisible) {
+        presenter.state.isVisible = isVisible;
         presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
     };
 

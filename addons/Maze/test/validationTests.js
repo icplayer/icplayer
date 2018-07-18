@@ -1,5 +1,5 @@
 // No tests yet. Test case added for consistency purposes
-TestCase("Model validation", {
+TestCase("[Maze] Model validation", {
     setUp: function() {
         this.presenter = AddonMaze_create();
 
