@@ -1769,5 +1769,8 @@ var ice_dictionary_fr = {
 "Limited_Show_Answers_property_works_with": "Works with",
 "Limited_Show_Answers_speech_text_choice_item_selected": "Selected",
 "Limited_Show_Answers_speech_text_check_answers_button_edit_block": "The exercise edition is blocked",
-"Limited_Show_Answers_speech_text_check_answers_button_no_edit_block": "The exercise edition is not blocked"
+"Limited_Show_Answers_speech_text_check_answers_button_no_edit_block": "The exercise edition is not blocked",
+"copy_page_layout": "Copy page layout",
+"copy_page_layout_question": "Are you sure?",
+"select_source_layout": "Select layout"
 };
