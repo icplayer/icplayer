@@ -43,6 +43,11 @@ public final class KeyboardNavigationController {
 	
 	private boolean isWCAGSupportOn = false;
 	private boolean isPresentersInit = false;
+	
+	private boolean receivedParentScrollAndOffset = false;
+	private int parentScrollY = 0;
+	private int iframeOffsetTop = 0;
+	private int parentWindowHeight = 0;
 
 	//state
 	private PresenterEntry savedEntry = null;
@@ -83,6 +88,12 @@ public final class KeyboardNavigationController {
 		function receiveMessage(event) {
 			try {
 				var eventData = JSON.parse(event.data);
+				if (eventData.type == "SCROLL_Y_AND_OFFSET") {
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentScrollY = eventData.scrollTop;
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::iframeOffsetTop = eventData.offsetTop;
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentWindowHeight = eventData.viewHeight;
+					x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::receivedParentScrollAndOffset = true;
+				};
 
 				if (eventData.type !== "EXTERNAL_KEYDOWN_WATCHER") {
 					return;
@@ -151,10 +162,19 @@ public final class KeyboardNavigationController {
 		return true;
 	}
 	
+	private boolean isModuleDeactivationBlocked() {
+		if (this.getPresenters().get(this.actualSelectedModuleIndex).presenter instanceof AddonPresenter) {
+			AddonPresenter presenter = (AddonPresenter) this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
+			return presenter.isDeactivationBlocked();
+		}
+		
+		return false;
+	}
+	
 	private void setWCAGModulesStatus (boolean isOn) {
 		for (PresenterEntry p: this.presenters) {
 			p.presenter.getWCAGController();
-			
+
 			if (p.presenter.getWCAGController() instanceof IWCAGModuleView) {
 				IWCAGModuleView view = (IWCAGModuleView) p.presenter.getWCAGController();
 				view.setWCAGStatus(isOn);
@@ -162,6 +182,10 @@ public final class KeyboardNavigationController {
 		}
 	}
 
+	private native void sendParentScrollAndOffsetRequest() /*-{
+		$wnd.top.postMessage("REQUEST_SCROLL_Y_AND_OFFSET","*");
+	}-*/;
+	
 	public void switchKeyboard(boolean enable) {
 		this.modeOn = enable;
 		if (this.modeOn) {
@@ -188,6 +212,9 @@ public final class KeyboardNavigationController {
 				$self.attr('role','presentation');
 			});
 			$_('body').attr("role","application");
+			if ($wnd.parent) { 
+				$wnd.parent.postMessage("ic_disableAria","*"); 
+			}
 		} else {
 			$_('#_icplayer').removeAttr("aria-hidden");
 			$_('[ic_role_off]').each(function(){
@@ -197,9 +224,12 @@ public final class KeyboardNavigationController {
 				$self.removeAttr('ic_role_off');
 			});
 			$_('body').removeAttr("role");
+			if ($wnd.parent) { 
+				$wnd.parent.postMessage("ic_enableAria","*"); 			
+			}
 		};
 	}-*/;
-	
+
 	private void changeKeyboardMode (KeyDownEvent event, boolean isWCAGSupportOn) {
 		if (isWCAGSupportOn && !this.mainPageController.isTextToSpeechModuleEnable()) {
 			return;
@@ -208,6 +238,7 @@ public final class KeyboardNavigationController {
 		final boolean isWCAGExit = !this.modeOn && this.isWCAGSupportOn;
 		if (this.modeOn) {
 			this.isWCAGSupportOn = isWCAGSupportOn;
+			this.sendParentScrollAndOffsetRequest();
 		}
 		
 		this.setWCAGModulesStatus(this.modeOn && this.isWCAGSupportOn);
@@ -215,7 +246,7 @@ public final class KeyboardNavigationController {
 		if (this.mainPageController != null) {
 			final boolean isWCAGOn = this.modeOn && this.isWCAGSupportOn;
 			this.mainPageController.setTextReading(isWCAGOn);
-			
+
 			if (isWCAGOn) {
 				this.mainPageController.readStartText();
 				this.setRoleApplication(true);
@@ -241,7 +272,7 @@ public final class KeyboardNavigationController {
 			this.deselectAllModules();
 			this.actualSelectedModuleIndex = 0;
 		}
-		
+
 	}
 
 	private void changeCurrentModule(KeyDownEvent event) {
@@ -364,10 +395,9 @@ public final class KeyboardNavigationController {
 	            	mainPageController.getPlayerController().switchToPrevPage();
 	            }
 
-	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE) {
+	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE && !isModuleDeactivationBlocked()) {
 	            	event.preventDefault();
 	            	deactivateModule();
-	            	setFocusOnInvisibleElement();
 	            }
 
 	            restoreClasses();
@@ -376,7 +406,7 @@ public final class KeyboardNavigationController {
 			// for DoubleStateButton we want to activate it also when not in WCAG navigation mode, but during browsers tab navigation
 			private void handleDoubleStateButton() {
 				String focusedID = getActiveElementParentId();
-				
+
 				if (focusedID != "") {
 					String pageType = getPageTypeOfActiveElement();
 					
@@ -392,7 +422,7 @@ public final class KeyboardNavigationController {
 						if (pageType.equals("footer")) {
 							module = footerController.findModule(focusedID);
 						}
-						
+
 						if (module != null) {
 							if (module.getModel().getModuleTypeName().equals("Double_State_Button")) {
 								findAndActivateModule(module);
@@ -454,11 +484,10 @@ public final class KeyboardNavigationController {
 	private native JavaScriptObject	getInputElement() /*-{
 		var input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
 		if (!input) {
-			input = $wnd.$("<input/>");
+			input = $wnd.$("<div/>");
 			input.attr("id", "input_element_for_focus_to_change_focused_element_by_browser");
 			input.attr("tabindex","0");
 			input.attr("aria-hidden","true");
-			input.attr("autocomplete","off");
 			input.css({
 				"opacity": 0.0001,
 				"pointer-events": "none",
@@ -467,6 +496,8 @@ public final class KeyboardNavigationController {
 			});
 			var body = $wnd.$("body");
 			body.append(input);
+			// the following line has been added for compatibility with NVDA, without it there are issues with AT intercepting Enter button
+			input = $wnd.$("#input_element_for_focus_to_change_focused_element_by_browser").get(0);
 		}
 		
 		return input;
@@ -542,6 +573,7 @@ public final class KeyboardNavigationController {
 			return;
 		}
 		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_selected_module");
+		scrollToCurrentModule(this);
 	}
 
 	private void deselectCurrentModule () {
@@ -551,6 +583,63 @@ public final class KeyboardNavigationController {
 
 		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_selected_module");
 	}
+	
+	private native void scrollToCurrentModule(KeyboardNavigationController x) /*-{
+		
+		function isWindowAccessible(window) {
+			try{
+				var doc = window.document;
+				return doc != null;
+			} catch (e) {
+				return false;
+			}
+		}
+		
+		var $_ = $wnd.$;		
+		var $selected = $_('.ic_selected_module');
+		if ($selected.size() == 0) return;
+		
+		var frameOffset = 0;
+		var padding = 50;
+		
+		var currentWindow = $wnd;
+		while (currentWindow != currentWindow.top && isWindowAccessible(currentWindow.parent) && currentWindow.frameElement) {
+			frameOffset += $_(currentWindow.frameElement).offset().top;
+			currentWindow = currentWindow.parent;
+		}	
+		
+		var $window = $_(currentWindow);
+		var parentWindow = currentWindow.parent;
+		var isTopWindowAccessible = currentWindow === $wnd.top;
+		var receivedParentScrollAndOffset = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::receivedParentScrollAndOffset;
+		
+		var windowTop = $window.scrollTop();
+		var viewHeight = $window.height();
+		var elementTop = $selected.offset().top + frameOffset;
+		var elementHeight = $selected.outerHeight();
+		
+		if (!isTopWindowAccessible && receivedParentScrollAndOffset) {
+			var parentScrollY = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentScrollY;
+			var iframeOffsetTop = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::iframeOffsetTop;
+			var parentWindowHeight = x.@com.lorepo.icplayer.client.page.KeyboardNavigationController::parentWindowHeight;
+			
+			windowTop = parentScrollY;
+			elementTop += iframeOffsetTop;
+			viewHeight = parentWindowHeight;
+		}
+		
+		var newScrollPosition = null;
+		if ( windowTop > elementTop ) newScrollPosition = elementTop - padding;
+		if ( elementTop + elementHeight > windowTop + viewHeight ) newScrollPosition = elementTop + elementHeight - viewHeight + padding;
+		if (newScrollPosition != null) {
+			if (isTopWindowAccessible) {
+				$window.scrollTop(newScrollPosition);
+			} else if (receivedParentScrollAndOffset) {
+				parentWindow.postMessage("SCROLLTOP:" + newScrollPosition,"*");
+				parentWindow.postMessage("REQUEST_SCROLL_Y_AND_OFFSET","*");
+			}
+		};
+	}-*/;
 	
 	private void deselectAllModules () {
 		if (this.getPresenters().size() == 0) {

@@ -416,6 +416,10 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getFooterModule(Ljava/lang/String;)(id);
 		};
 
+		playerServices.setAbleChangeLayout = function(isAbleChangeLayout){
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setAbleChangeLayout(Z)(isAbleChangeLayout); 
+		};
+
 		playerServices.getScore = function() {
 			var score = function() {
 			};
@@ -919,6 +923,10 @@ public class JavaScriptPlayerServices {
 	
 	public boolean isWCAGOn() {
 		return this.playerServices.isWCAGOn();
+	}
+	
+	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
+		this.playerServices.setAbleChangeLayout(isAbleChangeLayout);
 	}
 	
 	// Move to the next/previous module in keyboard navigation

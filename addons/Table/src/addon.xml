@@ -25,5 +25,40 @@
         <property name="Gap Type" nameLabel="Table_property_gap_type" type="{editable, draggable, math}" />
 		<property name="newWidthCalculate" nameLabel="Table_property_new_width_calculate" type="boolean"/>
 		<property name="langAttribute" displayName="Lang attribute" nameLabel="Table_property_lang_attribute" type="string"/>
+		<property name="speechTexts" displayName="Speech texts" nameLabel="Hierarchical_Lesson_Report_property_speech_texts" type="staticlist">
+
+            <property name="Correct" nameLabel="choice_item_correct" type="staticrow">
+                <property name="Correct" nameLabel="choice_item_correct" type="string"/>
+            </property>
+
+			<property name="Wrong" nameLabel="choice_item_wrong" type="staticrow">
+                <property name="Wrong" nameLabel="choice_item__wrong" type="string"/>
+            </property>
+
+			<property name="Empty" nameLabel="choice_item_empty" type="staticrow">
+                <property name="Empty" nameLabel="choice_item_empty" type="string"/>
+            </property>
+
+			<property name="Gap" nameLabel="choice_item_gap" type="staticrow">
+                <property name="Gap" nameLabel="choice_item_gap" type="string"/>
+            </property>
+
+			<property name="Dropdown" nameLabel="choice_item_dropdown" type="staticrow">
+                <property name="Dropdown" nameLabel="choice_item_dropdown" type="string"/>
+            </property>
+
+			<property name="Inserted" nameLabel="text_insert" type="staticrow">
+                <property name="Inserted" nameLabel="text_insert" type="string"/>
+            </property>
+
+			<property name="Removed" nameLabel="text_removed" type="staticrow">
+                <property name="Removed" nameLabel="text_removed" type="string"/>
+            </property>
+
+			<property name="Cell" nameLabel="Table_cell" type="staticrow">
+                <property name="Cell" nameLabel="Table_cell" type="string"/>
+            </property>
+
+		</property>
 	</model>
 </addon>

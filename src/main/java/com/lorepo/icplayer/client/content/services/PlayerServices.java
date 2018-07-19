@@ -32,7 +32,8 @@ public class PlayerServices implements IPlayerServices {
 	private IJsonServices jsonServices = new JsonServices();
 	private ScaleInformation scaleInformation;
 	private JavaScriptObject jQueryPrepareOffsetsFunction = null;
-
+	private boolean isAbleChangeLayout = true;
+	
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 		this.playerController = controller;
 		this.pageController = pageController;
@@ -42,6 +43,16 @@ public class PlayerServices implements IPlayerServices {
 		eventBus.setPlayerServices(this);
 
 		playerCommands = new PlayerCommands(pageController, playerController);
+	}
+	
+	@Override
+	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
+		this.isAbleChangeLayout = isAbleChangeLayout;
+	}
+	
+	@Override
+	public boolean isAbleChangeLayout() {
+		return this.isAbleChangeLayout;
 	}
 
 	@Override

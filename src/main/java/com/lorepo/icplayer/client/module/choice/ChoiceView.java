@@ -52,7 +52,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	 * @param isPreview 
 	 */
 	private void createUI(boolean isPreview){
-		
+
 		optionsPanel = new VerticalPanel();
 		optionsPanelHorizontal = new HorizontalPanel();
 
@@ -367,6 +367,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	@Override
 	public void space(KeyDownEvent event) {
+		event.preventDefault(); 
 		select();
 		textToSpeechSelectOption();
 	}
@@ -391,18 +392,21 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	@Override
 	public void down(KeyDownEvent event) {
-        skip();
+		event.preventDefault(); 
+		skip();
         textToSpeechCurrentOption();
 	}
 
 	@Override
 	public void up(KeyDownEvent event) {
+		event.preventDefault(); 
 	    previous();
 		textToSpeechCurrentOption();
 	}
 
 	@Override
 	public void escape(KeyDownEvent event) {
+		event.preventDefault();
 		removeBorder();
 		position = -1;
 	}

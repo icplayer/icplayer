@@ -4,6 +4,7 @@ function AddonZoom_Image_create() {
     var eventBus;
     var playerController = null;
     var isWCAGOn = false;
+    var oldFocus = null;
     presenter.isOpened = false;
 
     function setup_presenter() {
@@ -256,6 +257,17 @@ function AddonZoom_Image_create() {
         var dialogSize = calculateImageSize(this);
 
         presenter.$image.appendTo(presenter.$view);
+
+        if(!oldFocus && isWCAGOn && $.browser.mozilla) {
+            // This hack is meant to prevent issues between TTS and NVDA on Firefox
+            // When the dialog is created, jquery.ui changes browser focus, causing NVDA to speak
+            // simultaneously with TTS. In order to prevent that, jQuery.focus() function is temporarily disabled
+            // and then restored after dialog has been created
+            oldFocus = $.fn.focus;
+            $.fn.focus = function () {
+                return this;
+            };
+        }
         presenter.$image.dialog({
             height: dialogSize.height,
             width: dialogSize.width,
@@ -278,6 +290,12 @@ function AddonZoom_Image_create() {
         });
         presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
         presenter.$image.on(presenter.eventType, presenter.removeOpenedDialog);
+
+        if(oldFocus) {
+            // Restoring jQuery.focus() after the hack meant to prevent issues between TTS and NVDA on Firefox
+            $.fn.focus = oldFocus;
+            oldFocus = null;
+        }
     };
 
     presenter.createPopUp = function createPopUp(e) {
@@ -340,8 +358,17 @@ function AddonZoom_Image_create() {
         presenter.setVisibility(upgradedState.isVisible);
     };
 
+     presenter.handleSpace = function(keyCode){
+        $(document).on('keydown', function(e){
+           if(keyCode == 32 || keyCode == 27 || keyCode == 38 || keyCode == 40) { // Space, esc, up, down buttons
+               e.preventDefault();
+           }$(this).off('keydown');
+        });
+    };
+
     presenter.keyboardController = function(keyCode, isShift) {
-        if (keyCode === 13 && !isShift) { // Enter button
+         presenter.handleSpace(keyCode);
+         if (keyCode === 13 && !isShift) { // Enter button
             if (!presenter.isOpened) {
                 presenter.createPopUp();
             }

@@ -254,10 +254,12 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModu
 
 	@Override
 	public void down(KeyDownEvent event) {
+		event.preventDefault(); 
 	}
 
 	@Override
 	public void up(KeyDownEvent event) {
+		event.preventDefault(); 
 	}
 
 	@Override

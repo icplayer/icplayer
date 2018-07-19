@@ -121,8 +121,11 @@ TestCase("[Table] TTS tests", {
         this.stubs = {
             eventPreventDefaultStub: sinon.stub(),
             readCurrentElementStub: sinon.stub(),
+            readCurrentCellStub: sinon.stub(),
             switchElementStub: sinon.stub(),
-            getElementsStub: sinon.stub()
+            getElementsStub: sinon.stub(),
+            selectGapStub: sinon.stub(),
+            markCurrentElementStub: sinon.stub()
         };
 
         // mocked elements passed to navigation
@@ -134,50 +137,53 @@ TestCase("[Table] TTS tests", {
             columnsCount: 2,
             rowsCount: 2
         };
-
+        this.presenter.setSpeechTexts();
 
 
         this.presenter.buildKeyboardController();
         this.presenter.keyboardControllerObject.getTarget = this.stubs.getTargetStub;
         this.presenter.keyboardControllerObject.switchElement = this.stubs.switchElementStub;
+        this.presenter.keyboardControllerObject.markCurrentElement = this.stubs.markCurrentElementStub;
 
         this.presenter.readCurrentNavigationElement = this.stubs.readCurrentElementStub;
+        this.presenter.readCurrentCellTitle = this.stubs.readCurrentCellStub;
+        this.presenter.selectGap = this.stubs.selectGapStub;
 
         this.event = {
             preventDefault: this.stubs.eventPreventDefaultStub
         };
     },
 
-    // TAB and RIGHT KEY
+    // RIGHT KEY
 
-    'test element text should be read when in the LAST column and TAB or RIGHT key pressed' : function () {
+    'test element text should be read when in the LAST column and RIGHT key pressed' : function () {
         this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 1;
 
         this.presenter.keyboardControllerObject.nextElement(this.event);
 
-        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.readCurrentCellStub.called);
         assertFalse(this.stubs.switchElementStub.called);
     },
 
-    'test element text should be read and element should be changed when not in the LAST column and TAB or RIGHT key pressed' : function () {
+    'test element text should be read and element should be changed when not in the LAST column and RIGHT key pressed' : function () {
         this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 0;
 
         this.presenter.keyboardControllerObject.nextElement(this.event);
 
-        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.readCurrentCellStub.called);
         assertTrue(this.stubs.switchElementStub.called);
         assertTrue(this.stubs.switchElementStub.calledWith(1));
-        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentElementStub));
+        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentCellStub));
     },
 
-    // SHIT+TAB and LEFT KEY
+    // LEFT KEY
 
-    'test element text should read when in FIRST column and SHIFT+TAB or LEFT key pressed' : function () {
+    'test element text should read when in FIRST column and LEFT key pressed' : function () {
         this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 0;
 
         this.presenter.keyboardControllerObject.previousElement(this.event);
 
-        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.readCurrentCellStub.called);
         assertFalse(this.stubs.switchElementStub.called);
     },
 
@@ -186,10 +192,10 @@ TestCase("[Table] TTS tests", {
 
         this.presenter.keyboardControllerObject.previousElement(this.event);
 
-        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.readCurrentCellStub.called);
         assertTrue(this.stubs.switchElementStub.called);
         assertTrue(this.stubs.switchElementStub.calledWith(-1));
-        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentElementStub));
+        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentCellStub));
     },
 
     // UP KEY
@@ -199,7 +205,7 @@ TestCase("[Table] TTS tests", {
 
         this.presenter.keyboardControllerObject.previousRow(this.event);
 
-        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.readCurrentCellStub.called);
         assertFalse(this.stubs.switchElementStub.called);
     },
 
@@ -208,10 +214,10 @@ TestCase("[Table] TTS tests", {
 
         this.presenter.keyboardControllerObject.previousRow(this.event);
 
-        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.readCurrentCellStub.called);
         assertTrue(this.stubs.switchElementStub.called);
         assertTrue(this.stubs.switchElementStub.calledWith(-2));
-        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentElementStub));
+        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentCellStub));
     },
 
      // DOWN KEY
@@ -221,7 +227,7 @@ TestCase("[Table] TTS tests", {
 
         this.presenter.keyboardControllerObject.nextRow(this.event);
 
-        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.readCurrentCellStub.called);
         assertFalse(this.stubs.switchElementStub.called);
     },
 
@@ -230,10 +236,36 @@ TestCase("[Table] TTS tests", {
 
         this.presenter.keyboardControllerObject.nextRow(this.event);
 
-        assertTrue(this.stubs.readCurrentElementStub.called);
+        assertTrue(this.stubs.readCurrentCellStub.called);
         assertTrue(this.stubs.switchElementStub.called);
         assertTrue(this.stubs.switchElementStub.calledWith(2));
-        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentElementStub));
+        assertTrue(this.stubs.switchElementStub.calledBefore(this.stubs.readCurrentCellStub));
 
     },
+
+    // ENTER KEY
+    'test enter press activates gap navigation and reads cell content' : function () {
+        this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 0;
+        this.presenter.addonKeyboardNavigationActive = true;
+
+        this.presenter.keyboardControllerObject.enter(this.event);
+
+        assertTrue(this.stubs.selectGapStub.called);
+        assertTrue(this.presenter.gapNavigation);
+        assertTrue(this.stubs.readCurrentElementStub.called);
+
+    },
+
+    'test first enter press activates keyboard navigation and reads cell title' : function () {
+        this.presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex = 0;
+
+        this.presenter.keyboardControllerObject.enter(this.event);
+
+        assertFalse(this.stubs.selectGapStub.called);
+        assertFalse(this.presenter.gapNavigation);
+        assertTrue(this.presenter.addonKeyboardNavigationActive);
+        assertTrue(this.stubs.readCurrentCellStub.called);
+        assertFalse(this.stubs.readCurrentElementStub.called);
+
+    }
 });

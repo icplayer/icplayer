@@ -19,7 +19,7 @@ import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
-import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.PopupPage;
 
 public class PagePopupPanel extends DialogBox {
 
@@ -61,7 +61,7 @@ public class PagePopupPanel extends DialogBox {
 		this.layoutID = id;
 	}
 	
-	public void showPage(Page page, String baseUrl) {
+	public void showPage(PopupPage page, String baseUrl) {
 		if(page.isLoaded()){
 			initPanel(page);
 		}
@@ -73,15 +73,15 @@ public class PagePopupPanel extends DialogBox {
 	}
 
 
-	private void loadPage(Page page, String baseUrl) {
+	private void loadPage(PopupPage page, String baseUrl) {
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
-		PageFactory factory = new PageFactory((Page) page);
+		PageFactory factory = new PageFactory((PopupPage) page);
 		
 		factory.load(url, new IProducingLoadingListener () {
 
 			@Override
 			public void onFinishedLoading(Object producedItem) {
-				Page page = (Page) producedItem;
+				PopupPage page = (PopupPage) producedItem;
 				initPanel(page);
 			}
 
@@ -89,12 +89,10 @@ public class PagePopupPanel extends DialogBox {
 			public void onError(String error) {
 				JavaScriptUtils.log("Can't load page: " + error);
 			}
-			
 		});
 	}
 
-
-	private void initPanel(Page page){
+	private void initPanel(PopupPage page){
 		pageWidget = new PageView("ic_popup_page");
 		String classes = additionalClasses == "" ? "ic_popup" : "ic_popup " + additionalClasses;
 
@@ -119,15 +117,18 @@ public class PagePopupPanel extends DialogBox {
 
 		int popupWidth = page.getWidth();
 		int popupHeight = page.getHeight();
-		
+
+		page.setOriginalHeight(popupHeight);
+		page.setOriginalWidth(popupWidth);
+
 		if (scaleInt(popupWidth,scale.scaleX) > windowWidth) {
 			page.setWidth(scaleInt(windowWidth,1.0/scale.scaleX));
 		}
-		
+
 		if (scaleInt(popupHeight,scale.scaleY) > windowHeight){
 			page.setHeight(scaleInt(windowHeight,1.0/scale.scaleY));
 		}
-		
+
 		show();
 		pageController.setView(pageWidget);
 		pageController.setPage(page);

@@ -445,7 +445,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		int errorCount = 0;
 
 		for (GapInfo gap : module.getGapInfos()) {
-			enteredValue = getElementText(gap.getId()).trim();
+			enteredValue = getElementText(gap).trim();
 			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue)) {
 				errorCount++;
 			}
@@ -536,7 +536,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String enteredValue;
 
 		for (GapInfo gap : module.getGapInfos()) {
-			enteredValue = getElementText(gap.getId());
+			enteredValue = getElementText(gap);
 			if(gap.isCorrect(enteredValue)){
 				score += gap.getValue();
 			}
@@ -556,6 +556,14 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	private String getElementText(String id) {
 		return values.get(id) == null ? "" : values.get(id).trim();
+	}
+
+     private String getElementText(GapInfo gap) {
+		String t =  getElementText(gap.getId());
+		if(t.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
+			t = gap.getPlaceHolder();
+		}
+		return t;
 	}
 	
 	@Override
@@ -687,9 +695,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	protected void valueChangeLogic(String id, String newValue) {
 		GapInfo gap = getGapInfoById(id);
-		if (newValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
-			newValue = "";
-		}
 
 		values.put(id, newValue);
 		updateScore();
@@ -959,7 +964,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		int score = 0;
 
 		GapInfo gap = getGapInfoById(itemID);
-		String enteredValue = getElementText(gap.getId());
+		String enteredValue = getElementText(gap);
 		if (enteredValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
 			enteredValue = "";
 		}

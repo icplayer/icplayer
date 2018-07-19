@@ -5,8 +5,10 @@ function AddonDouble_State_Button_create(){
     var isMouseDown = false;
     var isTouchDown = false;
     var isMouseBlocked = false;
+    var isWCAGOn = false;
 
     presenter.lastEvent = null;
+    presenter.speechTexts = {};
 
     var CSS_CLASSES = {
         ELEMENT : "doublestate-button-element",
@@ -15,6 +17,11 @@ function AddonDouble_State_Button_create(){
         SELECTED : "doublestate-button-element-selected",
         SELECTED_MOUSE_HOVER : "doublestate-button-element-selected-mouse-hover",
         SELECTED_MOUSE_CLICK : "doublestate-button-element-selected-mouse-click"
+    };
+
+    var DEFAULT_TTS_PHRASES = {
+        SELECT_BUTTON: "selected",
+        DESELECT_BUTTON: "deselected"
     };
 
     function CSS_CLASSESToString() {
@@ -30,7 +37,12 @@ function AddonDouble_State_Button_create(){
     };
 
     presenter.upgradeModel = function(model) {
-        return presenter.upgradeDisable(model);
+        var upgradedModel = presenter.upgradeDisable(model);
+        upgradedModel = presenter.addImageAlternativeText(upgradedModel);
+        upgradedModel = presenter.addLangTag(upgradedModel);
+        upgradedModel = presenter.addTTS(upgradedModel);
+
+        return upgradedModel;
     };
 
     presenter.upgradeDisable = function (model) {
@@ -39,6 +51,45 @@ function AddonDouble_State_Button_create(){
 
         if (!upgradedModel["Disable"]) {
             upgradedModel["Disable"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.addImageAlternativeText = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model["imageAlternativeText"])
+            upgradedModel["imageAlternativeText"] = "";
+
+        if (!model["imageSelectedAlternativeText"])
+            upgradedModel["imageSelectedAlternativeText"] = "";
+
+        return upgradedModel;
+    };
+
+    presenter.addLangTag = function AddonTable_addLangTag(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model['langAttribute']) {
+            upgradedModel['langAttribute'] =  '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.addTTS = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model["speechTexts"]) {
+            upgradedModel["speechTexts"] = {
+                selectButton: {selectButton: DEFAULT_TTS_PHRASES.SELECT_BUTTON},
+                deselectButton: {deselectButton: DEFAULT_TTS_PHRASES.DESELECT_BUTTON},
+                speechTextDisabled: {speechTextDisabled: "False"}
+            };
         }
 
         return upgradedModel;
@@ -93,7 +144,7 @@ function AddonDouble_State_Button_create(){
 
     function handleMouseActions() {
         var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
-		        
+
         element.on('mousedown', function(e) {
             if (!isMouseBlocked) {
                 e.preventDefault();
@@ -172,7 +223,9 @@ function AddonDouble_State_Button_create(){
 
     function presenterLogic(view, model, preview) {
         presenter.$view = $(view);
-        presenter.configuration = presenter.validateModel(model);
+
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
 
         var wrapper = $(presenter.$view.find('.doublestate-button-wrapper:first')[0]);
         var element = createElements(wrapper);
@@ -434,6 +487,9 @@ function AddonDouble_State_Button_create(){
         var image = presenter.validateString(model.Image);
         var selectedText = presenter.validateString(model["Text selected"]);
         var selectedImage = presenter.validateString(model["Image selected"]);
+        var imageAlternativeText = presenter.validateString(model["imageAlternativeText"]);
+        var imageSelectedAlternativeText = presenter.validateString(model["imageSelectedAlternativeText"]);
+        var langTag = presenter.validateString(model["langAttribute"]);
 
         var isDisabled = ModelValidationUtils.validateBoolean(model.Disable);
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
@@ -441,17 +497,21 @@ function AddonDouble_State_Button_create(){
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
         var enableCheckMode = ModelValidationUtils.validateBoolean(model["Do not block in check mode"]);
 
+        presenter.setSpeechTexts(model['speechTexts']);
+
         return {
             addonID: model.ID,
             selected: {
                 text: selectedText.value,
                 image: selectedImage.value,
+                imageAlternativeText: imageSelectedAlternativeText.value,
                 event: model.onSelected,
                 displayContent: presenter.determineDisplayContent(selectedText, selectedImage)
             },
             deselected: {
                 text: text.value,
                 image: image.value,
+                imageAlternativeText: imageAlternativeText.value,
                 event: model.onDeselected,
                 displayContent: presenter.determineDisplayContent(text, image)
             },
@@ -463,9 +523,32 @@ function AddonDouble_State_Button_create(){
             isVisibleByDefault: isVisible,
             isErrorMode: false,
             isTabindexEnabled: isTabindexEnabled,
-            enableCheckMode: enableCheckMode
+            enableCheckMode: enableCheckMode,
+            langTag: langTag
         };
     };
+
+    presenter.setSpeechTexts = function (speechTexts) {
+        if (!speechTexts) {
+            speechTexts = {
+                selectButton: {selectButton: DEFAULT_TTS_PHRASES.SELECT_BUTTON},
+                deselectButton: {deselectButton: DEFAULT_TTS_PHRASES.DESELECT_BUTTON},
+                speechTextDisabled: {speechTextDisabled: "False"}
+            };
+        }
+
+        presenter.speechTexts = {
+            selectButton: getSpeechTextProperty(speechTexts.selectButton.selectButton, DEFAULT_TTS_PHRASES.SELECT_BUTTON),
+            deselectButton: getSpeechTextProperty(speechTexts.deselectButton.deselectButton, DEFAULT_TTS_PHRASES.DESELECT_BUTTON),
+            speechTextDisabled: ModelValidationUtils.validateBoolean(speechTexts.speechTextDisabled.speechTextDisabled)
+        };
+    };
+
+    function getSpeechTextProperty(value, defaultValue) {
+        if (value === undefined || value === null || value.trim() === '')
+            return defaultValue;
+        return value.trim();
+    }
 
     presenter.createEventData = function() {
         return {
@@ -501,15 +584,97 @@ function AddonDouble_State_Button_create(){
         }
     };
 
-    presenter.keyboardController = function(keyCode, isShift) {
-        if (keyCode == 13 || keyCode == 32) {
-            presenter.clickHandler();
+
+    presenter.handleSpace = function(keyCode){
+        $(document).on('keydown', function(e){
+           if(keyCode == 32 || keyCode == 38 || keyCode == 40 || keyCode == 27) {
+               e.preventDefault();
+           }$(this).off('keydown');
+        });
+    };
+
+    presenter.keyboardController = function (keyCode, isShift) {
+        presenter.handleSpace(keyCode);
+        if (keyCode == 13) {
+            if(isWCAGOn)
+                presenter.speakEnterAction();
         }
+
+        if (keyCode == 32) {
+            presenter.clickHandler();
+            if(presenter.canSpeakSpaceAction())
+                presenter.speakSpaceAction();
+        }
+    };
+
+    presenter.canSpeakSpaceAction = function() {
+        return isWCAGOn && !presenter.configuration.isErrorMode && !presenter.configuration.enableCheckMode && !presenter.speechTexts.speechTextDisabled;
+    };
+
+    presenter.speakEnterAction = function() {
+        var textVoices = [];
+        var lang = presenter.configuration.langTag.value;
+
+        if (presenter.configuration.isSelected) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.selected.text, lang));
+
+            var imageAlternativeText = presenter.configuration.selected.imageAlternativeText;
+            if (imageAlternativeText)
+                textVoices.push(window.TTSUtils.getTextVoiceObject(imageAlternativeText));
+
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selectButton));
+        } else {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.deselected.text, lang));
+
+            var imageAlternativeText = presenter.configuration.deselected.imageAlternativeText;
+            if (imageAlternativeText)
+                textVoices.push(window.TTSUtils.getTextVoiceObject(imageAlternativeText))
+        }
+
+        speak(textVoices);
+    };
+
+    presenter.speakSpaceAction = function() {
+        var textVoices = [];
+        if (presenter.configuration.isSelected) {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.selectButton));
+        } else {
+            textVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.deselectButton));
+        }
+
+        speak(textVoices);
     };
 
     presenter.setTabindex = function (element, isTabindexEnabled) {
         var tabindexValue = isTabindexEnabled ? "0" : "-1";
         element.attr("tabindex", tabindexValue);
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts) {
+            tts.speak(data);
+        }
+    }
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.getTitlePostfix = function () {
+        if(presenter.configuration.isSelected) {
+            return presenter.speechTexts.selected;
+        } else {
+            return ''
+        }
     };
 
     return presenter;

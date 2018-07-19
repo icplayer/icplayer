@@ -163,6 +163,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public void space(KeyDownEvent event) {
+		event.preventDefault(); 
 	}
 
 
@@ -183,16 +184,19 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 	@Override
 	public void down(KeyDownEvent event) {	
+		event.preventDefault(); 
 	}
 
 
 	@Override
-	public void up(KeyDownEvent event) {	
+	public void up(KeyDownEvent event) {
+		event.preventDefault(); 
 	}
 
 
 	@Override
 	public void escape(KeyDownEvent event) {	
+		event.preventDefault(); 
 	}
 
 

@@ -2,8 +2,13 @@ function Addongamememo_create(){
     var presenter = function(){};
 
     var playerController;
+    var textParser;
     var eventBus;
     var keyboardController = null;
+    var isWCAGOn = false;
+    var screenLocked = false;
+
+    presenter.isShowErrorsMode = false;
 
     function MemoKeyboardController(elements, columnsCount) {
         KeyboardController.call(this, elements, columnsCount);
@@ -21,8 +26,389 @@ function Addongamememo_create(){
         }
     };
 
+    MemoKeyboardController.prototype.nextElement = function (event) {
+        if (screenLocked) return;
+        if (event.keyCode == 9) {
+            return this.handleTab(event);
+        }
+        if ((this.keyboardNavigationCurrentElementIndex + 1) % presenter.columnCount !== 0) {
+            KeyboardController.prototype.nextElement.call(this, event);
+            presenter.readCurrentCell(false);
+        }
+    };
+
+    MemoKeyboardController.prototype.previousElement = function (event) {
+        if (screenLocked) return;
+        if (event.keyCode == 9) {
+            return this.handleTab(event);
+        }
+         if (this.keyboardNavigationCurrentElementIndex % presenter.columnCount !== 0) {
+             KeyboardController.prototype.previousElement.call(this, event);
+             presenter.readCurrentCell(false);
+         }
+
+    };
+
+    MemoKeyboardController.prototype.nextRow = function (event) {
+        event.preventDefault();
+        if (screenLocked) return;
+        if (this.keyboardNavigationCurrentElementIndex + presenter.columnCount < this.keyboardNavigationElementsLen) {
+             KeyboardController.prototype.nextRow.call(this, event);
+             presenter.readCurrentCell(false);
+         }
+    };
+
+    MemoKeyboardController.prototype.previousRow = function (event) {
+        event.preventDefault();
+        if (screenLocked) return;
+        if (this.keyboardNavigationCurrentElementIndex - presenter.columnCount >= 0) {
+             KeyboardController.prototype.previousRow.call(this, event);
+             presenter.readCurrentCell(false);
+         }
+    };
+
+    MemoKeyboardController.prototype.enter = function (event) {
+        var wasActive = this.keyboardNavigationActive;
+        KeyboardController.prototype.enter.call(this, event);
+        if(event) {
+            if (!event.shiftKey) {
+                if (!screenLocked) {
+                    if (!wasActive && presenter.isShowErrorsMode) {
+                        var TextVoices = presenter.getCellTextVoices(this.keyboardNavigationCurrentElementIndex, {prefix: true, color: true});
+                        TextVoices = TextVoices.concat(presenter.getCompletionTextVoices());
+                        presenter.speak(TextVoices);
+                    } else {
+                        presenter.readCurrentCell(true);
+                    }
+                } else {
+                    var $container = $('<div></div>');
+                    $container.html(presenter.sessionEndedMessage);
+                    var TextVoices = window.TTSUtils.getTextVoiceArrayFromElement($container, presenter.configuration.langTag);
+                    presenter.speak(TextVoices);
+                }
+            }
+        }
+    };
+
+    MemoKeyboardController.prototype.handleTab = function (event) {
+        if (event) {
+            if (!event.shiftKey) {
+                var nextIndex = this.getNextActiveElementIndex();
+                if (nextIndex != null && nextIndex != this.keyboardNavigationCurrentElementIndex) {
+                    this.switchElement(nextIndex - this.keyboardNavigationCurrentElementIndex);
+                    presenter.readCurrentCell(false);
+                }
+            } else {
+                var prevIndex = this.getPreviousActiveElementIndex();
+                if (prevIndex != null && prevIndex != this.keyboardNavigationCurrentElementIndex) {
+                    this.switchElement(prevIndex - this.keyboardNavigationCurrentElementIndex);
+                    presenter.readCurrentCell(false);
+                }
+            }
+        }
+    };
+
+    MemoKeyboardController.prototype.getPreviousActiveElementIndex = function () {
+      var currentIndex = this.keyboardNavigationCurrentElementIndex - 1;
+      while ( currentIndex >= 0) {
+          if (presenter.isCardActive(currentIndex)) {
+              return currentIndex;
+          } else {
+              currentIndex = currentIndex - 1;
+          }
+      }
+      return null;
+    };
+
+    MemoKeyboardController.prototype.getNextActiveElementIndex = function () {
+      var currentIndex = this.keyboardNavigationCurrentElementIndex + 1;
+      while ( currentIndex < this.keyboardNavigationElementsLen) {
+          if (presenter.isCardActive(currentIndex)) {
+              return currentIndex;
+          } else {
+              currentIndex = currentIndex + 1;
+          }
+      }
+      return null;
+    };
+
+    MemoKeyboardController.prototype.resetPosition = function () {
+        this.switchElement(0 - this.keyboardNavigationCurrentElementIndex);
+    };
+
+    presenter.isCardActive = function(index) {
+        if (index < 0 || index >= keyboardController.keyboardNavigationElementsLen) return false;
+
+        if (presenter.isShowAnswersActive) return true;
+
+        // test if card is already revealed
+        var $card = $(keyboardController.keyboardNavigationElements[index]);
+        if ($card.is('.was-clicked') || $card.find('.was-clicked').length > 0) return false;
+
+        // test if card has the same style as the one currently clicked
+        if (presenter.useTwoStyles && presenter.state == presenter.STATES.CLICKED_FIRST) {
+            var serializedCard = presenter.serializedCards[index];
+            var clickedStyle = 0;
+            if (presenter.cardClickedStyle == 'B') clickedStyle = 1;
+            if (serializedCard.cardStyle == clickedStyle) return false;
+        }
+
+        return true;
+    };
+
+    presenter.readCurrentCell = function (extraData) {
+        var index = keyboardController.keyboardNavigationCurrentElementIndex;
+
+        // SHOW ANSWERS MODE
+        if(presenter.isShowAnswersActive) {
+            var serializedFirstCard = presenter.serializedCards[index];
+            var secondIndex = -1;
+            for (var i = 0; i < presenter.serializedCards.length; i++) {
+                if(i != index && presenter.serializedCards[i].cardId == serializedFirstCard.cardId) {
+                    secondIndex = i;
+                    break;
+                }
+            }
+            if (secondIndex < 0) {
+                presenter.speak(presenter.getCellTextVoices(index, {prefix: true, color: true, value: true}));
+                return;
+            }
+            var TextVoices = presenter.getCellTextVoices(index, {prefix: false, color: false, value: extraData});
+            TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.match));
+            TextVoices = TextVoices.concat(presenter.getCellTextVoices(secondIndex, {prefix: false, color: false, value: extraData}));
+            presenter.speak(TextVoices);
+            return;
+        }
+
+        // SHOW ERRORS MODE
+        if (presenter.isShowErrorsMode) {
+            var readValue = extraData || !presenter.serializedCards[index].revealed;
+
+            var TextVoices = presenter.getCellTextVoices(index, {prefix: true, color: true, value: readValue});
+            var serializedFirstCard = presenter.serializedCards[index];
+            if (serializedFirstCard.revealed) {
+                var secondIndex = -1;
+                for (var i = 0; i < presenter.serializedCards.length; i++) {
+                    if (i != index && presenter.serializedCards[i].cardId == serializedFirstCard.cardId) {
+                        secondIndex = i;
+                        break;
+                    }
+                }
+                if (secondIndex < 0) {
+                    presenter.speak(presenter.getCellTextVoices(index, {prefix: true, color: true, value: true}));
+                    return;
+                }
+                TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.match));
+                TextVoices = TextVoices.concat(presenter.getCellTextVoices(secondIndex, {prefix: false, color: extraData, value: extraData}));
+            }
+            if (extraData) {
+                if (presenter.state == presenter.STATES.CLICKED_SECOND) {
+                    if (!presenter.serializedCards[index].revealed) {
+                        var $card = $(keyboardController.keyboardNavigationElements[index]);
+                        if (($card.is('.was-clicked') || $card.find('.was-clicked').length > 0)) {
+                            var revealedCards = presenter.getRevealedCards();
+                            var secondIndex = -1;
+                            if (revealedCards[0] === index) {
+                                secondIndex = revealedCards[1];
+                            } else {
+                                secondIndex = revealedCards[0];
+                            }
+                            TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.notMatch));
+                            TextVoices = TextVoices.concat(presenter.getCellTextVoices(secondIndex, {prefix: false, color: true, value: true}));
+                        }
+                    }
+                }
+                TextVoices = TextVoices.concat(presenter.getCompletionTextVoices());
+            }
+
+            presenter.speak(TextVoices);
+            return;
+        }
+
+        // WORK MODE
+
+        // read the value when providing extra data or when the cell is revealed, but not paired
+        var readValue = extraData || !presenter.serializedCards[index].revealed;
+
+        TextVoices = presenter.getCellTextVoices(index, {prefix: true, color: true, value: readValue});
+        if (presenter.serializedCards[index].revealed) {
+            var secondIndex = -1;
+                for (var i = 0; i < presenter.serializedCards.length; i++) {
+                    if (i != index && presenter.serializedCards[i].cardId == presenter.serializedCards[index].cardId) {
+                        secondIndex = i;
+                        break;
+                    }
+                }
+                if (secondIndex > -1) {
+                    TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.match));
+                    TextVoices = TextVoices.concat(presenter.getCellTextVoices(secondIndex, {prefix: false, color: extraData, value: extraData}));
+                }
+        }
+        if (extraData) {
+            if (presenter.state == presenter.STATES.CLICKED_FIRST) {
+                var selectedIndex = presenter.getCardIndex(presenter.cardClickedFirst);
+                if (index != selectedIndex) {
+                    TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.currentlySelected));
+                    var currentlySelectedVoiceIndex = TextVoices.length - 1;
+                    TextVoices = TextVoices.concat(presenter.getCellTextVoices(presenter.getCardIndex(presenter.cardClickedFirst), {prefix: false, color: true, value: true}));
+                    if (TextVoices.length > currentlySelectedVoiceIndex+1) {
+                        TextVoices[currentlySelectedVoiceIndex].text += " " + TextVoices[currentlySelectedVoiceIndex+ 1 ].text;
+                        TextVoices.splice(currentlySelectedVoiceIndex + 1, 1);
+                    }
+                }
+            } else if (presenter.state == presenter.STATES.CLICKED_SECOND) {
+                if (!presenter.serializedCards[index].revealed) {
+                    var $card = $(keyboardController.keyboardNavigationElements[index]);
+                    if (($card.is('.was-clicked') || $card.find('.was-clicked').length > 0)) {
+                        var revealedCards = presenter.getRevealedCards();
+                        var secondIndex = -1;
+                        if (revealedCards[0] === index) {
+                            secondIndex = revealedCards[1];
+                        } else {
+                            secondIndex = revealedCards[0];
+                        }
+                        TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.notMatch));
+                        TextVoices = TextVoices.concat(presenter.getCellTextVoices(secondIndex, {prefix: false, color: true, value: true}));
+                    }
+                }
+            }
+            TextVoices = TextVoices.concat(presenter.getCompletionTextVoices());
+        }
+        presenter.speak(TextVoices);
+    };
+
+    /*
+    * Returns an array of numbers, each indicating the index of a card that is revealed, but not paired
+    * */
+    presenter.getRevealedCards = function() {
+        var foundCards = [];
+        for (var i = 0; i < keyboardController.keyboardNavigationElementsLen; i++) {
+            var $card = $(keyboardController.keyboardNavigationElements[i]);
+            if (!presenter.serializedCards[i].revealed && ($card.is('.was-clicked') || $card.find('.was-clicked').length > 0)) {
+                foundCards.push(i);
+            }
+        }
+        return foundCards;
+    };
+
+    presenter.getCardIndex = function($card) {
+        var query = '';
+        if ($card.hasClass('cell')) {
+            query = '.cell';
+        } else if ($card.hasClass('card')) {
+            query = '.card';
+        } else {
+            return null;
+        }
+        var cardIndex = -1;
+        presenter.viewContainer.find(query).each(function(index){
+            if ($(this).is($card)) cardIndex = index;
+        });
+        if (cardIndex >= 0) return cardIndex;
+        return null;
+    };
+
+    /*
+    * get TextVoice array for a specified cell
+    *
+    * Parameters
+    *   index - cell index in keyboardNavigationElements array ( it should be the same in cards and serializedCards )
+    *   args - an object specifying any additional information that should be passed to the TextVoices array. It can
+    *       have following fields:
+    *       prefix - add 'revealed' or 'paired' at the beginning where applicable
+    *       color - if using two colors, read the color alt text before cell's coordinates
+    *       value - read the value of the cell
+    *
+    * Returns
+    *   an Array of TextVoiceObjects
+    * */
+    presenter.getCellTextVoices = function(index, args) {
+        if (args == null) args = {};
+        if(args.prefix == null) {
+            args.prefix = false;
+        }
+        if(args.color == null) {
+            args.color = false;
+        }
+        if(args.value == null) {
+            args.value = false;
+        }
+        if (index == null || index < 0 || index >= keyboardController.keyboardNavigationElementsLen) return [];
+
+        var row = Math.floor(index / presenter.columnCount) + 1;
+        var alphabet = "ABCDEFGHIJKLMNOPRSTQWXYZ";
+        var columnIndex = index % presenter.columnCount;
+        var columnLetter = alphabet[columnIndex % alphabet.length];
+        var serializedCard = presenter.serializedCards[index];
+        var styleAlt = '';
+        if(args.color  && presenter.useTwoStyles) {
+            if (serializedCard.cardStyle == 1) {
+                styleAlt = presenter.configuration.altTextStyleB;
+            } else {
+                styleAlt = presenter.configuration.altTextStyleA;
+            }
+        }
+        var title = styleAlt + ' ' + columnLetter + row;
+
+        var $card = $(keyboardController.keyboardNavigationElements[index]);
+        var revealed = ($card.is('.was-clicked') || $card.find('.was-clicked').length > 0);
+
+        var TextVoices = [];
+
+        if (args.prefix && revealed) {
+            if (serializedCard.revealed) {
+                TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.paired));
+            } else {
+                TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.revealed));
+            }
+        }
+
+        TextVoices.push(window.TTSUtils.getTextVoiceObject(title));
+
+        if (args.value && (revealed || $card.hasClass('cell-show-answers'))) {
+            TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.value));
+
+            var content = '';
+            if (serializedCard.type == "text") {
+                content = serializedCard.content;
+            } else {
+                content = presenter.cards[index].attr('alt');
+            }
+            TextVoices.push(window.TTSUtils.getTextVoiceObject(content, presenter.configuration.langTag));
+        }
+
+        return TextVoices;
+    };
+
+    presenter.getCompletionTextVoices = function() {
+       var total = presenter.serializedCards.length / 2;
+       var found = 0;
+       for ( var i = 0; i < presenter.serializedCards.length; i++) {
+           if (presenter.serializedCards[i].revealed) found += 1;
+       }
+       found = found / 2;
+
+       var revealed = presenter.getRevealedCards().length;
+
+       var TextVoices = [];
+       TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.found));
+       TextVoices.push(window.TTSUtils.getTextVoiceObject(String(found)));
+       TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.outOf));
+       TextVoices.push(window.TTSUtils.getTextVoiceObject(String(total)));
+       if (!presenter.isShowAnswersActive) {
+           TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.revealedCards));
+           TextVoices.push(window.TTSUtils.getTextVoiceObject(String(revealed)));
+       }
+       return TextVoices;
+    };
+
     presenter.setPlayerController = function (controller) {
         playerController = controller;
+        textParser = new TextParserProxy(controller.getTextParser());
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
     };
 
     presenter.numberToCardType = function(n) {
@@ -144,7 +530,85 @@ function Addongamememo_create(){
         return tts
     }
 
+    presenter.upgradeModel = function(model) {
+        var upgradedModel = presenter.upgradeModelAddTTS(model);
+        return upgradedModel;
+    };
+
+    presenter.upgradeModelAddTTS = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel['langAttribute']) {
+            upgradedModel['langAttribute'] = '';
+        }
+
+        if (!upgradedModel['speechTexts']) {
+            upgradedModel['speechTexts'] = {
+                Revealed: {Revealed: "Revealed"},
+                Paired: {Paired: "Paired"},
+                Value: {Value: "with a value of"},
+                WrongColor: {WrongColor: "Incorrect card color"},
+                Match: {Match: "Matches"},
+                NotMatch: {NotMatch: "Doesn't match"},
+                CurrentlySelected: {CurrentlySelected: "Currently selected"},
+                TurnOver: {TurnOver: "Incorrect pair was turned over"},
+                OutOf: {OutOf: "Out of"},
+                Found: {Found: "Found"},
+                RevealedCards: {RevealedCards: "Number of revealed cards"}
+            }
+        }
+
+        return upgradedModel;
+    };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            revealed:  'Revealed',
+            paired: 'Paired',
+            value: 'with a value of',
+            wrongColor: 'Incorrect card color',
+            match: 'Matches',
+            notMatch: 'Doesn\'t match',
+            currentlySelected: 'Currently selected',
+            turnOver: 'Incorrect pair was turned over',
+            outOf: 'out of',
+            found: 'found',
+            revealedCards: 'Number of revealed cards'
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            revealed:    getSpeechTextProperty(speechTexts['Revealed']['Revealed'], presenter.speechTexts.revealed),
+            paired: getSpeechTextProperty(speechTexts['Paired']['Paired'], presenter.speechTexts.paired),
+            value:  getSpeechTextProperty(speechTexts['Value']['Value'], presenter.speechTexts.value),
+            wrongColor:     getSpeechTextProperty(speechTexts['WrongColor']['WrongColor'], presenter.speechTexts.wrongColor),
+            match:   getSpeechTextProperty(speechTexts['Match']['Match'], presenter.speechTexts.match),
+            notMatch:      getSpeechTextProperty(speechTexts['NotMatch']['NotMatch'], presenter.speechTexts.notMatch),
+            currentlySelected:        getSpeechTextProperty(speechTexts['CurrentlySelected']['CurrentlySelected'], presenter.speechTexts.currentlySelected),
+            turnOver:        getSpeechTextProperty(speechTexts['TurnOver']['TurnOver'], presenter.speechTexts.turnOver),
+            outOf:        getSpeechTextProperty(speechTexts['OutOf']['OutOf'], presenter.speechTexts.outOf),
+            found:        getSpeechTextProperty(speechTexts['Found']['Found'], presenter.speechTexts.found),
+            revealedCards:        getSpeechTextProperty(speechTexts['RevealedCards']['RevealedCards'], presenter.speechTexts.revealedCards)
+        };
+    };
+
     presenter.validateModel = function(model) {
+        presenter.setSpeechTexts(model['speechTexts']);
+
         if(model['Pairs'].length == 0) {
             return {
                 isError: true,
@@ -241,7 +705,8 @@ function Addongamememo_create(){
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
             clickToTurnOverIncorrectPair: ModelValidationUtils.validateBoolean(model["Click to turn over incorrect pair"]),
             altTextStyleA: model['Style A cover alt text'],
-            altTextStyleB: model['Style B cover alt text']
+            altTextStyleB: model['Style B cover alt text'],
+            langTag: model['langAttribute']
         };
     };
 
@@ -432,6 +897,13 @@ function Addongamememo_create(){
             presenter.cardClickedStyle = presenter.numberToCardType(parseInt(presenter.cardClickedFirst.find('.card').attr('card_style')));
             presenter.viewContainer.find("div.front_" + presenter.cardClickedStyle).css('cursor', 'default');
         }
+
+        if (keyboardController) {
+            var TextVoices = [];
+            TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.revealed));
+            TextVoices = TextVoices.concat(presenter.getCellTextVoices(keyboardController.keyboardNavigationCurrentElementIndex, {prefix: false, color: true, value: true}));
+            presenter.speak(TextVoices);
+        }
     };
 
     presenter.cardReveal = function () {
@@ -509,6 +981,7 @@ function Addongamememo_create(){
             var clickedStyle;
             clickedStyle = presenter.numberToCardType(parseInt(numberToCardType($(e.target))));
             if(clickedStyle == presenter.cardClickedStyle) {
+                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.wrongColor)]);
                 return;
             }
         }
@@ -540,6 +1013,12 @@ function Addongamememo_create(){
                 presenter.cardClickedFirstId = presenter.cardClickedFirst.find('.card').attr('card_id');
                 presenter.cardClickedSecondId = presenter.cardClickedSecond.find('.card').attr('card_id');
 
+                var firstIndex = presenter.getCardIndex(presenter.cardClickedFirst);
+
+                var TextVoices = [];
+                TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.revealed));
+                TextVoices = TextVoices.concat(presenter.getCellTextVoices(keyboardController.keyboardNavigationCurrentElementIndex, {prefix: false, color: true, value: true}));
+
                 if(presenter.cardClickedFirstId != presenter.cardClickedSecondId) {
                     presenter.errorCount++;
                     presenter.markCardMismatch(presenter.cardClickedFirst.find(".card"), presenter.cardClickedFirst.find(".card"));
@@ -548,6 +1027,7 @@ function Addongamememo_create(){
                     eventData = presenter.createItemEventData(presenter.cardClickedFirstId, presenter.cardClickedSecondId,  false);
                     presenter.sendEventData(eventData);
                     presenter.isCorrectMark = false;
+                    TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.notMatch));
                 } else {
                     presenter.markCardTick(presenter.cardClickedFirst.find(".card"), presenter.cardClickedFirst.find(".card"));
                     presenter.markCardTick(presenter.cardClickedSecond.find(".card"), presenter.cardClickedFirst.find(".card"));
@@ -557,7 +1037,10 @@ function Addongamememo_create(){
 
                     presenter.addScoreAndSentEvent();
                     presenter.isCorrectMark = true;
+                    TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.match));
                 }
+                TextVoices = TextVoices.concat(presenter.getCellTextVoices(firstIndex, {prefix: false, color: true, value: true}));
+                presenter.speak(TextVoices);
 
                 if(presenter.useTwoStyles) {
                     presenter.viewContainer.find("div.front_" + presenter.cardClickedStyle).css('cursor', '');
@@ -575,6 +1058,7 @@ function Addongamememo_create(){
                 if(presenter.configuration.clickToTurnOverIncorrectPair && !presenter.isCorrectMark) {
                     presenter.cardClickedFirst = null;
                     presenter.state = presenter.STATES.READY;
+                    presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.turnOver)]);
                 } else {
                     presenter.handleCardClickedFirst($(e.target).parent());
                 }
@@ -789,6 +1273,7 @@ function Addongamememo_create(){
 
     presenter.initializeLogic = function(view, model) {
         presenter.viewContainer = $(view);
+        model = presenter.upgradeModel(model);
         presenter.model = model;
 
         presenter.configuration = presenter.validateModel(model);
@@ -884,17 +1369,26 @@ function Addongamememo_create(){
         var gamememo_container = presenter.viewContainer.find('.gamememo_container');
         var lockScreen = $('<div class="memo-lock-screen"></div>'),
             lockScreenInfo = $('<div class="memo-lock-screen-info"></div>');
-        lockScreenInfo.html(presenter.sessionEndedMessage);
+
+        var sessionEndedMessage = presenter.sessionEndedMessage;
+        if (textParser) {
+            sessionEndedMessage = textParser.parse(sessionEndedMessage);
+        }
+        lockScreenInfo.html(sessionEndedMessage);
         gamememo_container.append(lockScreen);
         gamememo_container.append(lockScreenInfo);
         sendSessionEvent('endSession');
         removeTimers();
+        var TextVoices = window.TTSUtils.getTextVoiceArrayFromElement(lockScreenInfo,presenter.configuration.langTag);
+        presenter.speak(TextVoices);
+        screenLocked = true;
     };
 
     presenter.removeLockScreen = function AddonMemo_removeLockScreen() {
         var gamememo_container = presenter.viewContainer.find('.gamememo_container');
         gamememo_container.find('.memo-lock-screen').remove();
         gamememo_container.find('.memo-lock-screen-info').remove();
+        screenLocked = false;
     };
 
     presenter.getState = function() {
@@ -970,6 +1464,8 @@ function Addongamememo_create(){
         presenter.cardClickedFirstId = null;
         presenter.cardClickedSecondId = null;
 
+        presenter.isShowErrorsMode = false;
+
         presenter.prepareGrid();
         presenter.createGrid();
         presenter.concealAllCards();
@@ -983,6 +1479,9 @@ function Addongamememo_create(){
             presenter.sessionStarted = null;
             presenter.removeLockScreen();
             removeTimers()
+        }
+        if (keyboardController && keyboardController.keyboardNavigationActive) {
+            keyboardController.resetPosition();
         }
     };
 
@@ -1044,6 +1543,7 @@ function Addongamememo_create(){
 
             markCardsWithCorrectWrongStyle(filterClickedCards(getClickedCards()), true);
         }
+        presenter.isShowErrorsMode = true;
     };
 
     function getClickedCards() {
@@ -1143,6 +1643,7 @@ function Addongamememo_create(){
             presenter.turnOnUserInteraction();
             markCardsWithCorrectWrongStyle(getClickedCards(), false);
         }
+        presenter.isShowErrorsMode = false;
     };
 
     presenter.onEventReceived = function (eventName) {
@@ -1161,6 +1662,7 @@ function Addongamememo_create(){
         }
 
         presenter.isShowAnswersActive = true;
+        presenter.isShowErrorsMode = false;
 
         presenter.showCard(presenter.viewContainer.find('.cell'));
         presenter.viewContainer.find('.cell').addClass('cell-show-answers');
@@ -1200,6 +1702,22 @@ function Addongamememo_create(){
 
     presenter.keyboardController = function(keycode, isShiftKeyDown) {
         keyboardController.handle(keycode, isShiftKeyDown)
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function(data) {
+      var tts = presenter.getTextToSpeechOrNull(playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
     };
 
 
