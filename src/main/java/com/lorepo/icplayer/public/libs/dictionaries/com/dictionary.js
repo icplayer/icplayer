@@ -1799,5 +1799,12 @@ var ice_dictionary_en = {
 	"Double_state_button_speech_text_deselect": "Deselected",
 	"Double_State_Button_property_image_alternative_text": "Image alternative text",
 	"Double_State_Button_property_image_selected_alternative_text": "Image selected alternative text",
-	"Double_state_button_speech_text_disabled": "Do not read the Speech texts"
+	"Double_state_button_speech_text_disabled": "Do not read the Speech texts",
+    "Media_Recorder_name": "Media_Recorder_name",
+    "Media_Recorder_info": "Media_Recorder_info",
+    "Media_Recorder_property_type": "Media_Recorder_property_type",
+    "Media_Recorder_property_max_time": "Media_Recorder_property_max_time",
+    "Media_Recorder_property_default_recording": "Media_Recorder_property_default_recording",
+    "Media_Recorder_property_start_recording_sound": "Media_Recorder_property_start_recording_sound",
+    "Media_Recorder_property_stop_recording_sound": "Media_Recorder_property_stop_recording_sound"
 };

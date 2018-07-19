@@ -1,0 +1,70 @@
+.media-recorder-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.media-recorder-player-wrapper {
+    flex: 1;
+    margin-bottom: 5px;
+}
+
+.media-recorder-player-video {
+    width: 100%;
+    height: 100%;
+}
+
+.media-recorder-interface-wrapper {
+    width: 100%;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    background-color: #EBEFF0;
+    border-radius: 20px;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+}
+
+.media-recorder-recording-button {
+    width: 20px;
+    height: 20px;
+    margin: 0px 3px 0px 10px;
+    background: url('resources/004-record.svg') no-repeat center;
+}
+
+.media-recorder-recording-button.selected {
+    background: url('resources/003-stop.svg') no-repeat center;
+}
+
+.media-recorder-play-button {
+    width: 20px;
+    height: 20px;
+    margin: 0px 3px;
+    background: url('resources/002-play-button.svg') no-repeat center;
+}
+
+.media-recorder-play-button.selected {
+    background: url('resources/001-backward.svg') no-repeat center;
+}
+
+.media-recorder-timer {
+    width: 100px;
+    height: 30px;
+    line-height: 30px;
+    margin: 0px 10px;
+    z-index: 100;
+    size: 5px;
+    text-align: center;
+    font-size: 14px;
+    color: grey;
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+.media-recorder-sound-intensity {
+    width: 30px;
+    height: 30px;
+    margin: 0px 10px;
+    background-color: green;
+}
