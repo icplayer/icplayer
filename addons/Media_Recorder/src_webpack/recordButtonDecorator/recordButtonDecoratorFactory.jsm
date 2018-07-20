@@ -2,7 +2,7 @@ import {SoundEffect} from "../soundEffect.jsm";
 import {RecordButtonStartSoundDecorator} from "./recordButtonStartSoundDecorator.jsm";
 import {RecordButtonStopSoundDecorator} from "./recordButtonStopSoundDecorator.jsm";
 
-export class RecordButtonDecorator {
+export class RecordButtonDecoratorFactory {
 
     constructor(startRecordingSound, stopRecordingSound, $recordingWrapper) {
         this.startRecordingSound = startRecordingSound;

@@ -11,7 +11,8 @@ export class AudioRecorder extends Recorder {
         };
     }
 
-    startRecording() {
+    startRecording(startRecordingCallback) {
+        this.startRecordingCallback = startRecordingCallback;
         this.captureMicrophone();
     }
 
@@ -31,6 +32,7 @@ export class AudioRecorder extends Recorder {
             self.recorder = RecordRTC(self.microphone, self.options);
             self.recorder.startRecording();
             self.callbackResources(self.microphone);
+            self.startRecordingCallback();
         }).catch(function (error) {
             console.error("captureMicrophone error");
             console.error(error);

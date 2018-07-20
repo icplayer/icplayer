@@ -28,15 +28,13 @@ export class RecordButton {
     }
 
     onStartRecording(event) {
-        this.recorder.onAvailableResources = () => {
+        this.recorder.startRecording(() => {
             $(event.target).addClass("selected");
             this.state.setRecording();
             this.timer.reset();
             this.timer.startCountdown();
             this.recordTimerLimiter.startCountdown();
-        };
-
-        this.recorder.startRecording();
+        });
     }
 
     onStopRecording(event) {

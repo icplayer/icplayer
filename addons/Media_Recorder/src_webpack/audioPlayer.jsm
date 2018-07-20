@@ -28,7 +28,7 @@ export class AudioPlayer extends Player {
         this.audioNode.onended = () => callback();
     }
 
-    set onDurationChange(callback) {
+    set onDurationChanged(callback) {
         // faster resolution then
         // this.audioNode.ondurationchange = () => callback(this.audioNode.duration)
         this.audioNode.ondurationchange = () => {
