@@ -4,15 +4,19 @@ export class Recorder {
             throw new Error("Cannot create an instance of abstract class");
     }
 
-    record(mediaRecorderPlayerWrapper) {
-        throw new Error("Record method is not implemented");
+    startRecording(mediaRecorderPlayerWrapper) {
+        throw new Error("StartRecording method is not implemented");
     }
 
     stopRecording(mediaRecorderPlayerWrapper) {
-        throw new Error("Stop Recording method is not implemented");
+        throw new Error("StopRecording Recording method is not implemented");
     }
 
     set onAvailableResources(callback){
         throw new Error("OnAvailableResources mutator is not implemented");
+    }
+
+    set onAvailableRecording(callback){
+        throw new Error("OnAvailableRecording mutator is not implemented");
     }
 }

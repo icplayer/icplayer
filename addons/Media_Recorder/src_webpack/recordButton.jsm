@@ -28,17 +28,21 @@ export class RecordButton {
     }
 
     onStartRecording(event) {
-        $(event.target).addClass("selected");
-        this.state.setRecording();
-        this.timer.startRecording();
-        this.recorder.record();
-        this.recordTimerLimiter.startCountdown();
+        this.recorder.onAvailableResources = () => {
+            $(event.target).addClass("selected");
+            this.state.setRecording();
+            this.timer.reset();
+            this.timer.startCountdown();
+            this.recordTimerLimiter.startCountdown();
+        };
+
+        this.recorder.startRecording();
     }
 
     onStopRecording(event) {
         $(event.target).removeClass("selected");
         this.state.setLoaded();
-        this.timer.stopRecording();
+        this.timer.stopCountdown();
         this.recorder.stopRecording();
         this.recordTimerLimiter.stopCountdown();
     }

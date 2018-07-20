@@ -10,9 +10,9 @@ export class DefaultRecordingLoader {
     }
 
     loadDefaultRecording(recording) {
-        // todo set timer
-        this.player.setResources(recording);
-        this.state.setLoaded();
-        debugger;
+        if (this.isValid(recording)) {
+            this.player.setRecording(recording);
+            this.state.setLoaded();
+        }
     }
 }

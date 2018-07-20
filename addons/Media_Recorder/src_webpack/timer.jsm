@@ -1,50 +1,40 @@
 export class Timer {
     constructor($timer) {
-        this.wrapper = $timer;
+        this.$timer = $timer;
         this.interval = null;
         this.currentMinutes = 0;
         this.currentSeconds = 0;
         this.loadedMinutes = 0;
         this.loadedSeconds = 0;
         this.isLoaded = false;
+    }
 
+    startCountdown() {
+        this.clearCurrentTime();
+        this.interval = setInterval(() => {
+            this.incrementTimer();
+            this.updateText();
+        }, 1000);
+    }
+
+    stopCountdown() {
+        clearInterval(this.interval);
+        this.clearCurrentTime();
         this.updateText();
     }
 
-    startRecording() {
+    reset() {
+        clearInterval(this.interval);
+        this.isLoaded = false;
         this.clearCurrentTime();
         this.clearLoadedTime();
-        this.isLoaded = false;
-        this.updateText();
-
-        this.interval = setInterval(() => {
-            this.incrementTimer();
-            this.updateText();
-        }, 1000);
-    }
-
-    stopRecording() {
-        clearInterval(this.interval);
-
-        this.setLoadedTime(this.currentMinutes, this.currentSeconds);
-        this.clearCurrentTime();
         this.updateText();
     }
 
-    startPlaying() {
-        this.clearCurrentTime();
-        this.updateText();
-
-        this.interval = setInterval(() => {
-            this.incrementTimer();
-            this.updateText();
-        }, 1000);
-    }
-
-    stopPlaying() {
-        clearInterval(this.interval);
-
-        this.clearCurrentTime();
+    setDuration(duration) {
+        this.loadedMinutes = parseInt(duration / 60);
+        this.loadedSeconds = parseInt(duration % 60);
+        this.isLoaded = true;
         this.updateText();
     }
 
@@ -58,12 +48,6 @@ export class Timer {
         this.loadedSeconds = 0;
     }
 
-    setLoadedTime(currentMinutes, currentSeconds) {
-        this.loadedMinutes = currentMinutes;
-        this.loadedSeconds = currentSeconds;
-        this.isLoaded = true;
-    }
-
     incrementTimer() {
         this.currentSeconds++;
 
@@ -74,7 +58,7 @@ export class Timer {
     }
 
     updateText() {
-        this.wrapper[0].innerText = this.isLoaded
+        this.$timer[0].innerText = this.isLoaded
             ? this.generateTextTime(this.currentMinutes, this.currentSeconds) + " / " + this.generateTextTime(this.loadedMinutes, this.loadedSeconds)
             : this.generateTextTime(this.currentMinutes, this.currentSeconds);
     }

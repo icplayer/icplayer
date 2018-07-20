@@ -28,14 +28,14 @@ export class PlayButton {
 
     onStartPlaying(event) {
         this.state.setPlaying();
-        this.timer.startPlaying();
+        this.timer.startCountdown();
         this.player.play();
         $(event.target).addClass("selected");
     }
 
     onStopPlaying(event) {
         this.state.setLoaded();
-        this.timer.stopPlaying();
+        this.timer.stopCountdown();
         this.player.stop();
         $(event.target).removeClass("selected");
     }

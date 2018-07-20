@@ -55,8 +55,9 @@ export class MediaRecorder {
         this.state = new State();
 
         this.recorderFactory = new RecorderFactory(this.ERROR_CODES);
-        this.playerFactory = new PlayerFactory($(this.view).find(".media-recorder-player-wrapper"), this.ERROR_CODES);
         this.recorder = this.recorderFactory.createRecorder(this.configuration.type);
+
+        this.playerFactory = new PlayerFactory($(this.view).find(".media-recorder-player-wrapper"), this.ERROR_CODES);
         this.player = this.playerFactory.createPlayer(this.configuration.type);
 
         this.timer = new Timer($(this.view).find(".media-recorder-timer"));
@@ -69,11 +70,12 @@ export class MediaRecorder {
         this.recordButton = this.recordButtonDecorator.decorateStartRecordingSoundEffect(this.recordButton);
         this.recordButton = this.recordButtonDecorator.decorateStopRecordingSoundEffect(this.recordButton);
 
+        this.player.onEndedPlaying = () => this.playButton.forceClick();
+        this.recorder.onAvailableRecording = blob => this.player.setRecording(URL.createObjectURL(blob));
+        this.player.onDurationChange = duration => this.timer.setDuration(duration);
+        this.recordTimeLimiter.onTimeExpired = () => this.recordButton.forceClick();
+
         this.defaultRecordingLoader = new DefaultRecordingLoader(this.player, this.timer, this.state);
         this.defaultRecordingLoader.loadDefaultRecording(this.configuration.defaultRecording);
-
-        this.player.onEndedPlaying = () => this.playButton.forceClick();
-        this.recorder.onAvailableResources = blob => this.player.setResources(URL.createObjectURL(blob));
-        this.recordTimeLimiter.onTimeExpired = () => this.recordButton.forceClick();
     }
 }

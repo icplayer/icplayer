@@ -1,31 +1,24 @@
 import {Recorder} from "./recorder.jsm";
 
 export class AudioRecorder extends Recorder {
-
     constructor() {
         super();
-        this.microphone = null;
-        this.recorder = null;
         this.options = {
             type: 'audio',
             numberOfAudioChannels: 2,
             checkForInactiveTracks: true,
             bufferSize: 16384
         };
-        this.resources = new Promise(resolve => resolve(null));
-        this.callback;
     }
 
-    record() {
+    startRecording() {
         this.captureMicrophone();
     }
 
     stopRecording() {
-        this.recorder.stopRecording(() => {
-                let blob = this.recorder.getBlob();
-                this.callback(blob)
-            }
-        )
+        this.recorder.stopRecording(() =>
+            this.callbackRecording(this.recorder.getBlob())
+        );
     }
 
     captureMicrophone() {
@@ -37,7 +30,9 @@ export class AudioRecorder extends Recorder {
             self.clearRecorder();
             self.recorder = RecordRTC(self.microphone, self.options);
             self.recorder.startRecording();
+            self.callbackResources(self.microphone);
         }).catch(function (error) {
+            console.error("captureMicrophone error");
             console.error(error);
         });
     }
@@ -49,7 +44,11 @@ export class AudioRecorder extends Recorder {
         }
     }
 
-    set onAvailableResources(callback) {
-        this.callback = callback;
+    set onAvailableResources(callbackResources) {
+        this.callbackResources = callbackResources;
+    }
+
+    set onAvailableRecording(callbackRecording) {
+        this.callbackRecording = callbackRecording;
     }
 }

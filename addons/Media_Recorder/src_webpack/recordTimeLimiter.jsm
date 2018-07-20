@@ -1,6 +1,7 @@
 export class RecordTimeLimiter {
     constructor(maxTime) {
-        this.maxTime = maxTime;
+        this.workingDelay = 0.2;
+        this.maxTime = maxTime + this.workingDelay;
         this.counter = 0;
         this.interval;
         this.callback;
@@ -8,7 +9,7 @@ export class RecordTimeLimiter {
 
     startCountdown() {
         if (this.maxTime || this.callback)
-            this.interval = setInterval(() => this.incrementTimer(), 1000);
+            this.interval = setInterval(() => this.incrementTimer(), this.workingDelay * 1000);
     }
 
     stopCountdown() {
@@ -17,7 +18,7 @@ export class RecordTimeLimiter {
     }
 
     incrementTimer() {
-        this.counter++;
+        this.counter += this.workingDelay;
         if (this.counter >= this.maxTime) {
             this.stopCountdown();
             this.callback();

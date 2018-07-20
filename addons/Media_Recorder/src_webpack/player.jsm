@@ -12,11 +12,15 @@ export class Player {
         throw new Error("Stop method is not implemented");
     }
 
-    setResources(resources){
-        throw new Error("SetResources method is not implemented");
+    setRecording(recording){
+        throw new Error("SetRecording method is not implemented");
     }
 
     set onEndedPlaying(callback){
         throw new Error("OnEndedPlaying mutator is not implemented");
+    }
+
+    set onDurationChange(callback){
+        throw new Error("OnDurationChange mutator is not implemented");
     }
 }
