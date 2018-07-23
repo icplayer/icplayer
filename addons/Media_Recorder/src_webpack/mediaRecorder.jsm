@@ -65,7 +65,7 @@ export class MediaRecorder {
         this.soundIntensity = new SoundIntensity($(this.view).find(".media-recorder-sound-intensity"));
 
         this.recordTimeLimiter = new RecordTimeLimiter(this.configuration.maxTime);
-        this.playButton = new PlayButton($(this.view).find(".media-recorder-play-button"), this.state, this.timer, this.player);
+        this.playButton = new PlayButton($(this.view).find(".media-recorder-play-button"), this.state, this.timer, this.player, this.soundIntensity);
 
         this.recordButton = new RecordButton($(this.view).find(".media-recorder-recording-button"), this.state, this.timer, this.recorder, this.recordTimeLimiter, this.soundIntensity);
         this.recordButtonDecoratorFactory = new RecordButtonDecoratorFactory(this.configuration.startRecordingSound, this.configuration.stopRecordingSound, $(this.view).find(".media-recorder-player-wrapper"));
@@ -73,6 +73,7 @@ export class MediaRecorder {
 
         this.recordButton = this.recordButtonDecoratorFactory.decorateStopRecordingSoundEffect(this.recordButton);
 
+        this.player.onStartPlaying = audioNode => this.soundIntensity.openStream(audioNode.captureStream());
         this.player.onEndedPlaying = () => this.playButton.forceClick();
         this.player.onDurationChanged = duration => this.timer.setDuration(duration);
         this.recorder.onAvailableResources = stream => this.soundIntensity.openStream(stream);

@@ -12,15 +12,19 @@ export class Player {
         throw new Error("Stop method is not implemented");
     }
 
-    setRecording(recording){
+    setRecording(recording) {
         throw new Error("SetRecording method is not implemented");
     }
 
-    set onEndedPlaying(callback){
+    set onStartPlaying(callback) {
+        throw new Error("OnStartPlaying mutator is not implemented");
+    }
+
+    set onEndedPlaying(callback) {
         throw new Error("OnEndedPlaying mutator is not implemented");
     }
 
-    set onDurationChanged(callback){
+    set onDurationChanged(callback) {
         throw new Error("OnDurationChange mutator is not implemented");
     }
 }

@@ -8,10 +8,12 @@ export class AudioPlayer extends Player {
         this.audioNode.controls = true;
         this.audioNode.style.display = "none";
         this.mediaRecorderPlayerWrapper.append(this.audioNode);
+        this.startPlayingCallback = null;
     }
 
 
     play() {
+        this.startPlayingCallback(this.audioNode);
         this.audioNode.play();
     }
 
@@ -24,6 +26,10 @@ export class AudioPlayer extends Player {
         this.audioNode.src = source;
     }
 
+    set onStartPlaying(startPlayingCallback){
+        this.startPlayingCallback = startPlayingCallback;
+    }
+
     set onEndedPlaying(callback) {
         this.audioNode.onended = () => callback();
     }
@@ -32,16 +38,16 @@ export class AudioPlayer extends Player {
         // faster resolution then
         // this.audioNode.ondurationchange = () => callback(this.audioNode.duration)
         this.audioNode.ondurationchange = () => {
-            let _player = new Audio(this.audioNode.src);
-            _player.addEventListener("durationchange", function (e) {
+            let playerMock = new Audio(this.audioNode.src);
+            playerMock.addEventListener("durationchange", function (e) {
                 if (this.duration != Infinity) {
                     callback(this.duration);
-                    _player.remove();
+                    playerMock.remove();
                 }
             }, false);
-            _player.load();
-            _player.currentTime = 24 * 60 * 60; // fake big time
-            _player.volume = 0;
+            playerMock.load();
+            playerMock.currentTime = 24 * 60 * 60; // fake big time
+            playerMock.volume = 0;
         }
     }
 }

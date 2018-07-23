@@ -1,10 +1,11 @@
 export class PlayButton {
 
-    constructor($button, state, timer, player) {
+    constructor($button, state, timer, player, soundIntensity) {
         this.$button = $button;
         this.state = state;
         this.timer = timer;
         this.player = player;
+        this.soundIntensity = soundIntensity;
     }
 
     activate() {
@@ -37,6 +38,7 @@ export class PlayButton {
         this.state.setLoaded();
         this.timer.stopCountdown();
         this.player.stop();
+        this.soundIntensity.closeStream();
         $(event.target).removeClass("selected");
     }
 }
