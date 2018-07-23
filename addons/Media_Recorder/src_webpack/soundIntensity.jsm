@@ -1,27 +1,57 @@
 export class SoundIntensity {
-    constructor($soundIntensity, recorder) {
+    constructor($soundIntensity) {
         this.$soundIntensity = $soundIntensity;
         this.volumeLevels = 6;
+        this.audioContext;
+        this.audioStream;
+        this.interval;
+    }
 
-        recorder.onAvailableResources = stream => {
-            return;
-            // todo
+    openStream(stream) {
+        this.audioContext = new AudioContext();
+        this.audioStream = this.audioContext.createMediaStreamSource(stream);
 
-            window.persistAudioStream = stream;
-            var audioContent = new AudioContext();
-            var audioStream = audioContent.createMediaStreamSource(stream);
-            var analyser = audioContent.createAnalyser();
-            audioStream.connect(analyser);
-            analyser.fftSize = 1024;
-            var frequencyArray = new Uint8Array(analyser.frequencyBinCount);
+        let analyser = this.createAnalyser(this.audioContext);
+        this.audioStream.connect(analyser);
 
-            var self = this;
+        this.interval = setInterval(() => this.updateIntensity(analyser), 200);
+    }
 
-            setInterval(() => {
-                analyser.getByteFrequencyData(frequencyArray);
-                console.log(frequencyArray)
-            }, 100);
-        }
+    closeStream() {
+        clearInterval(this.interval);
+        this.clearIntensity();
+
+        this.audioStream.disconnect();
+        this.audioContext.close();
+    }
+
+    updateIntensity(analyser) {
+        let frequencyArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(frequencyArray);
+        let avgVolume = this.calculateAvgVolume(frequencyArray);
+        let alignedVolume = this.alignVolume(avgVolume);
+
+        this.setIntensity(alignedVolume * this.volumeLevels);
+    }
+
+    createAnalyser(audioContext) {
+        let analyser = audioContext.createAnalyser();
+        analyser.fftSize = 1024;
+        analyser.smoothingTimeConstant = 0.3;
+        return analyser;
+    }
+
+    calculateAvgVolume(volumeArray) {
+        let sum = 0;
+        for (let i of volumeArray)
+            sum += i;
+        return sum / volumeArray.length;
+    }
+
+    alignVolume(volume) {
+        volume = volume > 0 ? volume : 0;
+        volume = volume < 128 ? volume : 128;
+        return volume / 128;
     }
 
     setIntensity(intensity) {

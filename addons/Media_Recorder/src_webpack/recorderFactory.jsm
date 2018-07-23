@@ -1,7 +1,6 @@
 import {AudioRecorder} from "./audioRecorder.jsm";
 
 export class RecorderFactory {
-
     constructor(ERROR_CODES) {
         this.ERROR_CODES = ERROR_CODES;
     }

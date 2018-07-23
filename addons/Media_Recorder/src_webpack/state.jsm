@@ -1,5 +1,4 @@
 export class State {
-
     constructor() {
         this.NEW = 0;
         this.RECORDING = 1;

@@ -1,11 +1,12 @@
 export class RecordButton {
 
-    constructor($button, state, timer, recorder, recordTimerLimiter) {
+    constructor($button, state, timer, recorder, recordTimerLimiter, soundIntensity) {
         this.$button = $button;
         this.state = state;
         this.timer = timer;
         this.recorder = recorder;
         this.recordTimerLimiter = recordTimerLimiter;
+        this.soundIntensity = soundIntensity;
     }
 
     activate() {
@@ -43,5 +44,6 @@ export class RecordButton {
         this.timer.stopCountdown();
         this.recorder.stopRecording();
         this.recordTimerLimiter.stopCountdown();
+        this.soundIntensity.closeStream();
     }
 }
