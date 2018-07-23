@@ -13,9 +13,11 @@
     <stylesheet src="theme/player.css"/>
     <stylesheet src="libs/jquery-ui.css"/>
     <stylesheet src="libs/TreeGrid/css/jquery.treegrid.css"/>
+
     <script src="build/dist/libs.min.js"/>
     <!--Tiny mce have to be loaded separatly, due to URL finding of themes, if we change the location it will wrongly download themes-->
     <script src="libs/tinymce.min.js"/>
+    <script src="libs/wiris/quizzes.js"/>
     <!--<script src="http://code.responsivevoice.org/responsivevoice.js"></script>-->
 
     <entry-point class="com.lorepo.icplayer.client.PlayerEntryPoint"/>

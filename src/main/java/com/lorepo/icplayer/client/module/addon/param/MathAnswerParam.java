@@ -21,11 +21,11 @@ public class MathAnswerParam extends StringAddonParam {
 	public Element toXML() {
 		
 		Element property = XMLUtils.createElement("property");
-		property.setAttribute("name", name);
-		property.setAttribute("displayName", displayName);
-		property.setAttribute("type", type);
+		property.setAttribute("name", this.name);
+		property.setAttribute("displayName", this.displayName);
+		property.setAttribute("type", this.type);
 		
-		Text xmlValue = XMLUtils.createTextNode(StringUtils.escapeXML(value));
+		Text xmlValue = XMLUtils.createTextNode(StringUtils.escapeXML(this.value));
 		
 		property.appendChild(xmlValue);
 		
@@ -35,16 +35,11 @@ public class MathAnswerParam extends StringAddonParam {
 
 	@Override
 	public void load(Element element, String baseUrl) {
-		name = XMLUtils.getAttributeAsString(element, "name");
-		displayName = XMLUtils.getAttributeAsString(element, "displayName");
-		type = XMLUtils.getAttributeAsString(element, "type");
+		this.name = XMLUtils.getAttributeAsString(element, "name");
+		this.displayName = XMLUtils.getAttributeAsString(element, "displayName");
+		this.type = XMLUtils.getAttributeAsString(element, "type");
 		
-		String rawText = StringUtils.unescapeXML(XMLUtils.getText(element));
-		JavaScriptUtils.log(rawText);
-		if (rawText == null) {
-			rawText = XMLUtils.getText(element);
-		}
-		value = rawText;
+		this.value = StringUtils.unescapeXML(XMLUtils.getText(element));
 	}
 	
 	@Override

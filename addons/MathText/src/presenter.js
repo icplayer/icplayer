@@ -5,13 +5,12 @@ function AddonMathText_create() {
         isVisible: false,
         isShowAnswers: false,
         isCheckAnswers: false,
-        currentText: "",
-        isCurrentTextCorrectAnswer: false
+        currentAnswer: presenter.EMPTY_MATHTEXT
     };
     presenter.editor = null;
     presenter.answerObject = null;
 
-    presenter.EMPTY_MATHTEXT = '<math xmlns="http://www.w3.org/1998/Math/MathML"/>';
+    presenter.EMPTY_MATHTEXT = '<math xmlns="http://www.w3.org/1998/Math/MathML"></math>';
     presenter.ERROR_CODES = {
         'isActivtiy_BL01': "Value provided to isActivity property is not a valid string",
         'initialText_STR02': "Value provided to text property is not a valid string.",
@@ -39,14 +38,13 @@ function AddonMathText_create() {
         presenter.presenterLogic(view, model, true);
     };
 
-    presenter.makeRequestForImage = function AddonMathText_makeRequestForImage () {
+    presenter.makeRequestForImage = function AddonMathText_makeRequestForImage (text) {
         var xmlhttp = new XMLHttpRequest();
-        var mathMlParam = presenter.configuration.initialText;
+        var mathMlParam = encodeURIComponent(text);
         var imgTypeParam = 'svg';
 
-        var url = "https://www.wiris.net/demo/editor/render?mml=" +  encodeURIComponent(mathMlParam) + "&format=" + imgTypeParam;
+        var url = "https://www.wiris.net/demo/editor/render?mml=" +  mathMlParam + "&format=" + imgTypeParam;
 
-        console.log("abc");
         if (presenter.loadingImageView) {
             var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
             if (loadingSrc ) {
@@ -109,6 +107,7 @@ function AddonMathText_create() {
         };
 
         var validatedModel = modelValidator.validate(model, [
+            ModelValidators.String("ID"),
             ModelValidators.Boolean("isActivity"),
             ModelValidators.String("initialText", {default: presenter.EMPTY_MATHTEXT}),
             ModelValidators.String("correctAnswer", {default: presenter.EMPTY_MATHTEXT}),
@@ -140,9 +139,11 @@ function AddonMathText_create() {
         // when preview, addon always should be visible, when in lesson it should depend on configuration
         presenter.setVisibility(isPreview || presenter.configuration.isVisible);
 
-        presenter.addHandlers();
-
         presenter.initializeView(isPreview);
+
+        if (!isPreview) {
+            presenter.addHandlers();
+        }
     };
 
     presenter.initializeView = function AddonMathText_initializeView (isPreview) {
@@ -158,7 +159,7 @@ function AddonMathText_create() {
     };
 
     presenter.initializeText = function AddonMathText_initializeText() {
-        presenter.makeRequestForImage();
+        presenter.makeRequestForImage(presenter.configuration.initialText);
     };
 
     presenter.initializationState = function AddonMathText_initializationState () {
@@ -170,6 +171,28 @@ function AddonMathText_create() {
             presenter.eventBus.addEventListener('ShowAnswers', this);
             presenter.eventBus.addEventListener('HideAnswers', this);
         }
+
+        if (presenter.configuration.isActivity) {
+            presenter.editorListener = {
+                caretPositionChanged: function(){},
+                clipboardChanged: function () {},
+                styleChanged: function () {},
+                transformationReceived: function(){},
+                contentChanged: presenter.sendValueChangedEvent
+            };
+
+            presenter.editor.getEditorModel().addEditorListener(presenter.editorListener);
+        }
+
+        presenter.view.addEventListener("DOMNodeRemoved", presenter.removeHandlers);
+    };
+
+    presenter.destroy = function AddonMathText_removeHandler () {
+        if (presenter.configuration.isActivity) {
+            presenter.editor.getEditorModel().addEditorListener(presenter.editorListener);
+        }
+
+        presenter.view.removeEventListener("DOMNodeRemoved", presenter.removeHandlers);
     };
 
     presenter.initializeEditor = function AddonMathText_initializeEditor (isPreview) {
@@ -188,33 +211,79 @@ function AddonMathText_create() {
         if (isPreview) {
             presenter.$view.find('.wrs_focusElementContainer').css('display', 'none');
             presenter.$view.find('.wrs_handWrapper').css('display', 'none');
+        } else {
+            var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
+            var conf = builder.getConfiguration();
+            conf.set(window.com.wiris.quizzes.api.ConfigurationKeys.RESOURCES_URL, '/media/icplayer/addons/resources/');
+            presenter.answerObject = builder.readQuestion(presenter.configuration.correctAnswer);
         }
     };
 
     presenter.showAnswers = function AddonMathText_showAnswers () {
-        presenter.state.isShowAnswers = true;
-        if (presenter.configuration.isActivity) {
+        if (presenter.state.isCheckAnswers) {
+            presenter.setWorkMode();
+        }
+
+        if (presenter.configuration.isActivity && !presenter.state.isShowAnswers) {
+            presenter.state.isShowAnswers = true;
             presenter.$view.find('input').attr('disabled', true);
             presenter.state.currentAnswer = presenter.editor.getMathML();
-            presenter.editor.setMathML(presenter.getAnswerObject().getCorrectAnswer());
+            presenter.editor.setMathML(presenter.answerObject.getCorrectAnswer(0));
+            presenter.editor.setToolbarHidden(true);
         }
     };
 
     presenter.hideAnswers = function AddonMathText_hideAnswers () {
-        presenter.state.isShowAnswers = false;
-        if (presenter.configuration.isActivity) {
+        if (presenter.configuration.isActivity && presenter.state.isShowAnswers) {
+            presenter.state.isShowAnswers = false;
             presenter.$view.find('input').removeAttr('disabled');
             presenter.editor.setMathML(presenter.state.currentAnswer);
+            presenter.editor.setToolbarHidden(false);
         }
     };
 
+     presenter.setShowErrorsMode = function AddonMathText_setShowErrorsMode () {
+        if (presenter.state.isShowAnswers) {
+            presenter.hideAnswers();
+        }
+        if (presenter.configuration.isActivity && !presenter.state.isCheckAnswers) {
+            presenter.state.isCheckAnswers = true;
+            presenter.state.currentAnswer = presenter.editor.getMathML();
+
+            presenter.$view.find('input').attr('disabled', true);
+
+            presenter.editor.setToolbarHidden(true);
+            var correct = presenter.checkIfAnswerIsCorrect();
+
+            if (correct) {
+                presenter.wrapper.classList.add('correct');
+            } else {
+                presenter.wrapper.classList.add('wrong');
+            }
+        }
+    };
+
+    presenter.setWorkMode = function AddonMathText_setWorkMode () {
+        if (presenter.state.isCheckAnswers) {
+            presenter.state.isCheckAnswers = false;
+
+            presenter.wrapper.classList.remove('correct');
+            presenter.wrapper.classList.remove('wrong');
+
+            if (presenter.configuration.isActivity) {
+                presenter.$view.find('input').removeAttr('disabled');
+                presenter.editor.setMathML(presenter.state.currentAnswer);
+                presenter.editor.setToolbarHidden(false);
+            }
+        }
+    };
 
     presenter.reset = function () {
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.hideAnswers();
-        if (presenter.configuration.isActivity) {
-            presenter.editor.setMathML(presenter.configuration.initialText);
-        }
+
+        presenter.state.isShowAnswers = false;
+        presenter.setWorkMode();
     };
 
     presenter.onEventReceived = function AddonMathText_onEventReceived (eventName) {
@@ -226,33 +295,6 @@ function AddonMathText_create() {
         }
     };
 
-    presenter.getAnswerObject = function () {
-        if (!presenter.answerObject) {
-            var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
-            presenter.answerObject = builder.readQuestion(presenter.configuration.correctAnswer);
-        }
-        return presenter.answerObject;
-    };
-
-    presenter.setShowErrorsMode = function AddonMathText_setShowErrorsMode () {
-        if (presenter.isShowAnswers) {
-            presenter.hideAnswers();
-        }
-        if (presenter.configuration.isActivity) {
-            presenter.state.isCheckAnswers = true;
-
-            presenter.$view.find('input').attr('disabled', true);
-
-            var correct = presenter.checkIfAnswerIsCorrect();
-
-            if (correct) {
-                presenter.wrapper.classList.add('correct');
-            } else {
-                presenter.wrapper.classList.add('wrong');
-            }
-        }
-    };
-
     presenter.checkIfAnswerIsCorrect = function() {
         if (!presenter.configuration.isActivity) {
             return false;
@@ -260,19 +302,12 @@ function AddonMathText_create() {
 
         var currentText = presenter.editor.getMathML();
 
-        var hasTextChanged = presenter.state.currentText !== currentText;
-
-        if (hasTextChanged) {
-            presenter.state.currentText = currentText;
-            presenter.state.isCurrentTextCorrectAnswer = presenter.requestForQuizzesCorrectness();
-        }
-
-        return presenter.state.isCurrentTextCorrectAnswer;
+        return presenter.requestForQuizzesCorrectness(currentText);
     };
 
-    presenter.requestForQuizzesCorrectness = function () {
+    presenter.requestForQuizzesCorrectness = function (text) {
         var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
-        var request = builder.newEvalRequest(presenter.getAnswerObject().getCorrectAnswer(), presenter.state.currentText, presenter.getAnswerObject(), null);
+        var request = builder.newEvalRequest(presenter.answerObject.getCorrectAnswer(0), text, presenter.answerObject, null);
         var service = builder.getQuizzesService();
         var response = service.execute(request);
         // Get the response into this useful object.
@@ -280,14 +315,6 @@ function AddonMathText_create() {
         instance.update(response);
         // Ask for the correctness of the 0th response.
         return instance.isAnswerCorrect(0);
-    };
-
-
-     presenter.setWorkMode = function AddonMathText_setWorkMode () {
-         presenter.state.isCheckAnswers = false;
-         presenter.$view.find('input').removeAttr('disabled');
-         presenter.wrapper.classList.remove('correct');
-         presenter.wrapper.classList.remove('wrong');
     };
 
      presenter.setVisibility = function AddonMathText_setVisibility (isVisible) {
@@ -300,6 +327,7 @@ function AddonMathText_create() {
 
          if (presenter.configuration.isActivity) {
              presenter.editor.setMathML(parsedState.text);
+             presenter.state.currentAnswer = parsedState.text;
          }
 
          presenter.setVisibility(parsedState.isVisible);
@@ -323,18 +351,29 @@ function AddonMathText_create() {
         if (presenter.configuration.isActivity) {
             return presenter.checkIfAnswerIsCorrect() ? 1 : 0;
         }
+        return 0;
     };
 
     presenter.getErrorCount = function () {
-        if (!presenter.isActivity) {
-            return 0;
-        } else {
+        if (presenter.isActivity) {
             return presenter.checkIfAnswerIsCorrect() ? 0 : 1;
         }
+        return 0;
     };
 
     presenter.getMaxScore = function () {
         return presenter.configuration.isActivity ? 1 : 0;
+    };
+
+    presenter.sendValueChangedEvent = function () {
+        if (!presenter.state.isCheckAnswers && !presenter.state.isShowAnswers) {
+            presenter.eventBus.sendEvent('ValueChanged', {
+                source: presenter.configuration.ID,
+                item: '0',
+                value: '',
+                score: presenter.getScore()
+            });
+        }
     };
 
 

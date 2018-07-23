@@ -515,6 +515,10 @@
             }
 
             var validationFunction = function (model, validatedModel) {
+                if (config && config.isConfigurationGenerator) {
+                    config = config.generate(this, validatedModel);
+                }
+
                 if (shouldValidateFunction && !shouldValidateFunction.call(this, validatedModel)) {
                     var undefinedValue =  generateValidValue(undefined);
                     undefinedValue.validatedFieldName = name;
@@ -537,6 +541,20 @@
             return validationFunction;
         }
     }
+
+    /**
+     * Class to generate dynamic configuration based on already validated properties.
+     * @constructor
+     * @param {Function} generator - function which will generate config. First argument is an object containing already validated properties.
+     */
+    function ConfigurationGenerator (generator) {
+        this.isConfigurationGenerator = true;
+        this.generator = generator;
+    }
+
+    ConfigurationGenerator.prototype.generate = function(validatedModel, localValidatedModel)  {
+        return this.generator.call(validatedModel, localValidatedModel);
+    };
 
     /**
      * Container for each model validator.
@@ -777,7 +795,7 @@
                 return this.generateErrorCode("RGB01");
             }
 
-            var canBeShort = config['canBeShort'] === undefined;
+            var canBeShort = config['canBeShort'] === true;
             var defaultValue = config['default'];
             var regexp = /^$/;
 
@@ -886,7 +904,7 @@
             /**
              * Change returned value of Enum to the one specified in config
              * @param {String} name of property
-             * @param {Object} config - dict which contains map of enum values
+             * @param {Object} config - object which contains map of enum values
              *      {
              *          value[]: String
              *      }
@@ -935,4 +953,5 @@
 
     window.ModelValidator = ModelValidator;
     window.ModelValidators = decoratedValidators;
+    window.ConfigurationGenerator = ConfigurationGenerator;
 })(window);

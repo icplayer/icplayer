@@ -26,17 +26,42 @@ TestCase('[Commons - Model Validator] Hex color validator', {
         var validatedModel = this.modelValidator.validate(this.exampleModel, [
             this.validator('validLongColor1', {}),
             this.validator('validLongColor2', {}),
-            this.validator('validLongColor3', {}),
-            this.validator('validShortColor1', {}),
-            this.validator('validShortColor2', {})
+            this.validator('validLongColor3', {})
         ]);
 
         assertTrue(validatedModel.isValid);
         assertEquals(this.exampleModel.validLongColor1, validatedModel.value['validLongColor1']);
         assertEquals(this.exampleModel.validLongColor2, validatedModel.value['validLongColor2']);
         assertEquals(this.exampleModel.validLongColor3, validatedModel.value['validLongColor3']);
+    },
+
+    'test short color when no canBeShortSet': function() {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validator('validShortColor1', {}),
+            this.validator('validShortColor2', {})
+        ]);
+
+        assertFalse(validatedModel.isValid);
+    },
+
+    'test short valid color': function () {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validator('validShortColor1', {canBeShort: true}),
+            this.validator('validShortColor2', {canBeShort: true})
+        ]);
+
+        assertTrue(validatedModel.isValid);
         assertEquals(this.exampleModel.validShortColor1, validatedModel.value['validShortColor1']);
         assertEquals(this.exampleModel.validShortColor2, validatedModel.value['validShortColor2']);
+    },
+
+    'test short valid color with all options specified': function () {
+        var validatedModel = this.modelValidator.validate(this.exampleModel, [
+            this.validator('validShortColor1', {"default": "#000000", canBeShort: true})
+        ]);
+
+        assertTrue(validatedModel.isValid);
+        assertEquals(this.exampleModel.validShortColor1, validatedModel.value['validShortColor1']);
     },
 
     'test shortened color validation when shortened hex is not allowed': function () {
