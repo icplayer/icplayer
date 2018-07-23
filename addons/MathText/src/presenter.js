@@ -280,10 +280,17 @@ function AddonMathText_create() {
 
     presenter.reset = function () {
         presenter.setVisibility(presenter.configuration.isVisible);
-        presenter.hideAnswers();
-
+        presenter.state.isCheckAnswers = false;
         presenter.state.isShowAnswers = false;
-        presenter.setWorkMode();
+
+        presenter.wrapper.classList.remove('correct');
+        presenter.wrapper.classList.remove('wrong');
+
+        if (presenter.configuration.isActivity) {
+            presenter.editor.setMathML(presenter.configuration.initialText);
+            presenter.$view.find('input').removeAttr('disabled');
+            presenter.editor.setToolbarHidden(false);
+        }
     };
 
     presenter.onEventReceived = function AddonMathText_onEventReceived (eventName) {
