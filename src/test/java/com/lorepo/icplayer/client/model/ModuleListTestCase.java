@@ -85,4 +85,22 @@ public class ModuleListTestCase {
 		assertEquals(foundModule, module);
 	}
 	
+	@Test
+	public void moveToIndex() {
+		
+		ModuleList modules = new ModuleList();
+		ShapeModule module = new ShapeModule();
+		
+		modules.add(new ShapeModule());
+		modules.add(new ShapeModule());
+		modules.add(new ShapeModule());
+		modules.add(module);
+		modules.add(new ShapeModule());
+
+		modules.moveModuleToIndex(module, 1);
+		IModuleModel foundModule = modules.get(1);
+		
+		assertEquals(foundModule, module);
+	}
+	
 }

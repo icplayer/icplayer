@@ -139,6 +139,15 @@ public class ModuleList extends ArrayList<IModuleModel> {
 			fireModuleChangedEvent(module);
 		}
 	}
+	
+	public void moveModuleToIndex(IModuleModel module, int index) {
+		if(index >= 0 && index < size()){
+			remove(module);
+			add(index, module);
+			
+			fireModuleChangedEvent(module);
+		}
+	}
 
 	
 	public IModuleModel getModuleById(String name){
