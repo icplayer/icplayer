@@ -1,18 +1,7 @@
 export class Player {
     constructor() {
-        this.onPlayCallback = () => {};
-        this.onStopCallback = () => {};
-
         if (this.constructor === Player)
             throw new Error("Cannot create an instance of abstract class");
-    }
-
-    set onPlay(callback){
-        this.onPlayCallback = callback;
-    }
-
-    set onStop(callback){
-        this.onStopCallback = callback;
     }
 
     play() {
@@ -23,11 +12,19 @@ export class Player {
         throw new Error("Stop method is not implemented");
     }
 
+    set onStartPlaying(callback){
+        throw new Error("OnStartPlaying mutator is not implemented");
+    }
+
+    set onStopPlaying(callback){
+        throw new Error("OnStopPlaying mutator is not implemented");
+    }
+
     set recording(recording) {
         throw new Error("Recording mutator is not implemented");
     }
 
-    set onEndedPlaying(callback){
-        throw new Error("OnEndedPlaying mutator is not implemented");
+    set onDurationChange(callback){
+        throw new Error("OnDurationChange mutator is not implemented");
     }
 }

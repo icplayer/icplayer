@@ -1,4 +1,5 @@
 import {VideoMediaMediator} from "./videoMediaMediator.jsm";
+import {AudioMediaMediator} from "./audioMediaMediator.jsm";
 
 export class MediaMediatorFactory {
     constructor(player, recorder, timer, soundIntensity, ERROR_MESSAGE) {
@@ -11,7 +12,7 @@ export class MediaMediatorFactory {
 
     createMediaMediator(type) {
         if (type === "audio") {
-            throw Error(this.ERROR_MESSAGE);
+            return new AudioMediaMediator(this.player, this.recorder, this.timer, this.soundIntensity);
         } else if (type === "video") {
             return new VideoMediaMediator(this.player, this.recorder, this.timer, this.soundIntensity);
         } else {

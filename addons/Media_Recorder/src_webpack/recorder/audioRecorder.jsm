@@ -1,14 +1,16 @@
 import {Recorder} from "./recorder.jsm";
 
-export class VideoRecorder extends Recorder {
+export class AudioRecorder extends Recorder {
     constructor() {
         super();
         this.recorderOptions = {
-            type: 'video'
+            type: 'audio',
+            numberOfAudioChannels: 2,
+            checkForInactiveTracks: true,
+            bufferSize: 16384
         };
         this.resourcesOptions = {
-            audio: true,
-            video: true
+            audio: true
         };
     }
 
@@ -17,8 +19,8 @@ export class VideoRecorder extends Recorder {
         navigator.mediaDevices.getUserMedia(this.resourcesOptions)
             .then(stream => {
                 startRecordingCallback();
-                self.onAvailableResourcesCallback(stream);
-                self.record(stream)
+                self.onAvailableResourcesCallback(self.microphone);
+                self.record(stream);
             })
             .catch(error => console.error(error));
     }
@@ -42,5 +44,13 @@ export class VideoRecorder extends Recorder {
             this.recorder.destroy();
             this.recorder = null;
         }
+    }
+
+    set onAvailableResources(callback) {
+        this.onAvailableResourcesCallback = callback;
+    }
+
+    set onAvailableRecording(callback) {
+        this.onAvailableRecordingCallback = callback;
     }
 }

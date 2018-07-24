@@ -28,7 +28,15 @@ export class VideoPlayer extends Player {
         this.videoNode.src = source;
     }
 
-    set onEndedPlaying(callback) {
+    set onStartPlaying(callback){
+        this.onPlayCallback = callback;
+    }
+
+    set onStopPlaying(callback){
+        this.onStopCallback = callback;
+    }
+
+    set onEndedPlaying(callback){
         this.videoNode.onended = () => callback();
     }
 

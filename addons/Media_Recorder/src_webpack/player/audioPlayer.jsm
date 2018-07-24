@@ -1,16 +1,15 @@
 import {Player} from "./player.jsm";
 
 export class AudioPlayer extends Player {
-    constructor(mediaRecorderPlayerWrapper) {
+    constructor($player) {
         super();
-        this.mediaRecorderPlayerWrapper = mediaRecorderPlayerWrapper;
+        this.$player = $player;
+
         this.audioNode = document.createElement("audio");
         this.audioNode.controls = true;
         this.audioNode.style.display = "none";
-        this.mediaRecorderPlayerWrapper.append(this.audioNode);
-        this.startPlayingCallback = null;
+        this.$player.append(this.audioNode);
     }
-
 
     play() {
         this.startPlayingCallback(this.audioNode);
@@ -20,18 +19,21 @@ export class AudioPlayer extends Player {
     stop() {
         this.audioNode.pause();
         this.audioNode.currentTime = 0;
+        this.videoNode.muted = false;
+        this.onStopCallback();
     }
 
-    setRecording(source) {
+    set recording(source) {
         this.audioNode.src = source;
     }
 
-    set onStartPlaying(startPlayingCallback){
-        this.startPlayingCallback = startPlayingCallback;
+    set onStartPlaying(callback) {
+        this.onPlayCallback = callback;
     }
 
-    set onEndedPlaying(callback) {
-        this.audioNode.onended = () => callback();
+    set onStopPlaying(callback) {
+        this.videoNode.onended = () => callback();
+        this.onStopCallback = callback;
     }
 
     set onDurationChanged(callback) {

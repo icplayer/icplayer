@@ -1,4 +1,4 @@
-export class VideoMediaMediator {
+export class AudioMediaMediator {
     constructor(player, recorder, timer, soundIntensity) {
         this.player = player;
         this.recorder = recorder;

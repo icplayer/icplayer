@@ -2,8 +2,8 @@ import {PlayButton} from "./playButton.jsm";
 import {State} from "./state.jsm";
 import {RecordButton} from "./recordButton.jsm";
 import {Timer} from "./timer.jsm";
-import {RecorderFactory} from "./recorderFactory.jsm";
-import {PlayerFactory} from "./playerFactory.jsm";
+import {RecorderFactory} from "./recorder/recorderFactory.jsm";
+import {PlayerFactory} from "./player/playerFactory.jsm";
 import {RecordTimeLimiter} from "./recordTimeLimiter.jsm";
 import {SoundEffect} from "./recordButtonDecorator/soundEffect.jsm";
 import {RecordButtonStartSoundDecorator} from "./recordButtonDecorator/recordButtonStartSoundDecorator.jsm";
@@ -12,7 +12,7 @@ import {validateModel} from "./validator.jsm";
 import {RecordButtonDecoratorFactory} from "./recordButtonDecorator/recordButtonDecoratorFactory.jsm";
 import {DefaultRecordingLoader} from "./defaultRecordingLoader.jsm";
 import {SoundIntensity} from "./soundIntensity.jsm";
-import {MediaMediatorFactory} from "./mediaMediatorFactory.jsm";
+import {MediaMediatorFactory} from "./mediaMediator/mediaMediatorFactory.jsm";
 
 export class MediaRecorder {
 
