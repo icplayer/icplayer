@@ -74,8 +74,10 @@ function AddonMaze_create () {
 
     };
 
+    presenter.configuration = {};
+
     presenter.GAME_TYPES = {
-        'DIAMOND': 1,
+        'DOORS': 1,
         'LETTERS': 2
     };
 
@@ -111,7 +113,11 @@ function AddonMaze_create () {
     };
 
     presenter.getMaxScore = function () {
-        return presenter.configuration.numberOfMazes;
+        if (presenter.configuration.isValid) {
+            return presenter.configuration.numberOfMazes;
+        } else {
+            return 0;
+        }
     };
 
     presenter.getErrorCount = function () {
@@ -214,11 +220,14 @@ function AddonMaze_create () {
         var validatedModel = presenter.validateModel(model);
 
         if (!validatedModel.isValid) {
+            presenter.configuration.isValid = false;
             presenter.showErrorMessage(presenter.ERROR_MESSAGES[validatedModel.fieldName.join("_") + "_" + validatedModel.errorCode]);
             return;
         }
 
         presenter.configuration = validatedModel.value;
+        presenter.configuration.isValid = true;
+
         presenter.setVisibility(presenter.configuration['Is Visible']);
 
         if (!isPreview) {
@@ -268,6 +277,7 @@ function AddonMaze_create () {
                 break;
             case 13:    //Enter
                 presenter.onQuestionApplyButtonClick();
+                presenter.onNextMazeButtonClick();
                 stopEvent();
                 break;
         }
@@ -298,8 +308,8 @@ function AddonMaze_create () {
 
 
             for (i = 0; i < presenter.configuration.numberOfMazes; i += 1) {
-                if (presenter.configuration.gameType === presenter.GAME_TYPES.DIAMOND) {
-                    game = new DiamondGame(labirynthSize, minSize, presenter.configuration.questions[i] || []);
+                if (presenter.configuration.gameType === presenter.GAME_TYPES.DOORS) {
+                    game = new DoorsGame(labirynthSize, minSize, presenter.configuration.questions[i] || []);
                     presenter.state.games.push(game);
                 } else  {
                     game = new LetterGame(labirynthSize, minSize, presenter.configuration.questions[i] || []);
@@ -542,6 +552,7 @@ function AddonMaze_create () {
 
     presenter.onNextMazeButtonClick = function () {
         presenter.state.nextMazeButtonCallback.call(presenter.getActualGame());
+        presenter.setNextMazeButtonCallback(function (){});
     };
 
     presenter.connectHandlers = function () {
@@ -636,8 +647,12 @@ function AddonMaze_create () {
     };
 
     presenter.validateModel = function (model) {
+        function shouldValidateLetter(localValidated) {
+            return localValidated['question'] !== '' && this.validatedModel['gameMode'] === 'letters';
+        }
+
         if (model.gameMode === '') {
-            model.gameMode = 'diamond';
+            model.gameMode = 'doors';
         }
 
         var modelValidator = new ModelValidator();
@@ -646,7 +661,7 @@ function AddonMaze_create () {
             ModelValidators.DumbString('ID'),
             ModelValidators.Boolean('hideControlPanel'),
             ModelValidators.Boolean('isDisabled'),
-            ModelValidators.Enum('gameMode', {values: ['diamond', 'letters'], useLowerCase: true}),
+            ModelValidators.Enum('gameMode', {values: ['doors', 'letters'], useLowerCase: true}),
             ModelValidators.Integer('mazeWidth', {minValue: 6}),
             ModelValidators.Integer('mazeHeight', {minValue: 6}),
             ModelValidators.Integer('Width'),
@@ -655,7 +670,7 @@ function AddonMaze_create () {
             ModelValidators.List('questions', [
                 ModelValidators.DumbString("question"),
                 ModelValidators.DumbString("answer"),
-                ModelValidators.String("letter", {trim: false}, function (localValidated) { return localValidated['question'] !== ''}),
+                ModelValidators.String("letter", {trim: false}, shouldValidateLetter),
                 ModelValidators.Integer('mazeId', {minValue: 1, default: -1}),
                 ModelValidators.Boolean('isCaseSensitive'),
             ]),
@@ -720,6 +735,7 @@ function AddonMaze_create () {
     };
 
     presenter.reset = function () {
+        presenter.setNextMazeButtonCallback(function () {});
         presenter.state.mistakes = 0;
         presenter.state.isDisabled = presenter.configuration.isDisabled;
         presenter.state.isShowingAnswers = false;
@@ -1041,8 +1057,10 @@ function AddonMaze_create () {
 
         presenter.showLettersAnswer(letters);
         presenter.setNextMazeButtonCallback(function () {
-            presenter.finishedMaze();
-            presenter.hideLettersAnswer();
+            if (presenter.state.games[presenter.state.actualGameIndex + 1]) {
+                presenter.finishedMaze();
+                presenter.hideLettersAnswer();
+            }
             promise.resolve(true);
         });
 
@@ -1056,7 +1074,7 @@ function AddonMaze_create () {
      * @param {{}[]}questions
      * @constructor
      */
-    function DiamondGame (size, maxSize, questions) {
+    function DoorsGame (size, maxSize, questions) {
         Game.call(this, size, maxSize);
 
         this.treasureElement = document.createElement('div');
@@ -1065,9 +1083,9 @@ function AddonMaze_create () {
         this.keysCount = 0;
     }
 
-    DiamondGame.prototype = Object.create(Game.prototype);
+    DoorsGame.prototype = Object.create(Game.prototype);
 
-    DiamondGame.prototype.serialize = function () {
+    DoorsGame.prototype.serialize = function () {
         var gameObj = Game.prototype.serialize.call(this);
 
         return {
@@ -1076,7 +1094,7 @@ function AddonMaze_create () {
         };
     };
 
-    DiamondGame.prototype.deserialize = function (obj) {
+    DoorsGame.prototype.deserialize = function (obj) {
         Game.prototype.deserialize.call(this, obj.gameObj);
 
         this.keysCount = obj.keysCount;
@@ -1094,7 +1112,7 @@ function AddonMaze_create () {
         this.movePlayerTo(this.maze.mazeElements[this.playerPosition.y][this.playerPosition.x]);        
     };
 
-    DiamondGame.prototype.start = function (container) {
+    DoorsGame.prototype.start = function (container) {
         Game.prototype.start.call(this, container);
         var longestPath = this.maze.getLongestPath();
         this.movePlayerTo(longestPath[0]);
@@ -1104,10 +1122,10 @@ function AddonMaze_create () {
     };
 
     /**
-     *
+     *val
      * @param {Room[]} longestPath
      */
-    DiamondGame.prototype.createDoors = function (longestPath) {
+    DoorsGame.prototype.createDoors = function (longestPath) {
         var doorsCount = this.questions.length,
             spaceBetween = Math.max(1, Math.floor(longestPath.length / (doorsCount + 1))),
             i;
@@ -1117,7 +1135,7 @@ function AddonMaze_create () {
         }
     };
 
-    DiamondGame.prototype.createDoorElement = function (room) {
+    DoorsGame.prototype.createDoorElement = function (room) {
         var element = document.createElement('div');
         element.classList.add('Maze_door');
 
@@ -1129,7 +1147,7 @@ function AddonMaze_create () {
      *
      * @param {Room} room
      */
-    DiamondGame.prototype.createOpenedDoorElement = function (room) {
+    DoorsGame.prototype.createOpenedDoorElement = function (room) {
         var element = document.createElement('div');
         element.classList.add('Maze_door_opened');
 
@@ -1141,7 +1159,7 @@ function AddonMaze_create () {
      * @param {Room} room
      * @returns {boolean}
      */
-    DiamondGame.prototype.onEnterDoor = function (room) {
+    DoorsGame.prototype.onEnterDoor = function (room) {
         var promise = $.Deferred();
 
         presenter.setQuestionHTML(this.questions[this.keysCount].question);
@@ -1172,19 +1190,19 @@ function AddonMaze_create () {
         return promise;
     };
 
-    DiamondGame.prototype.openDoor = function (room) {
+    DoorsGame.prototype.openDoor = function (room) {
         var door = room.element.getElementsByClassName('Maze_door')[0];
         door.parentNode.removeChild(door);
         this.createOpenedDoorElement(room);
         room.removeCallback();
     };
 
-    DiamondGame.prototype.createTreasureElement = function (longestPath) {
+    DoorsGame.prototype.createTreasureElement = function (longestPath) {
         longestPath[longestPath.length - 1].element.appendChild(this.treasureElement);
         longestPath[longestPath.length - 1].setCallback(this.onEnterTreasure);
     };
 
-    DiamondGame.prototype.onEnterTreasure = function () {
+    DoorsGame.prototype.onEnterTreasure = function () {
         var promise = $.Deferred();
 
         presenter.finishedMaze(promise);

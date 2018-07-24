@@ -9,7 +9,7 @@ TestCase("[Maze] Model validation", {
             Width: "100",
             Height: "200",
             numberOfMazes: "2",
-            gameMode: 'Diamond',
+            gameMode: 'doors',
             "Is Visible": "False",
             questions: [
                 {
@@ -52,7 +52,7 @@ TestCase("[Maze] Model validation", {
     
     'test validate model returns valid model': function() {
         var expected = {
-            "gameMode": "diamond",
+            "gameMode": "doors",
             "isVisible": false,
             "Is Visible": false,
             "mazeWidth": 20,
@@ -65,20 +65,20 @@ TestCase("[Maze] Model validation", {
                 [{
                     "question": "question 1",
                     "answer": "answer 1",
-                    "letter": "A",
+                    "letter": undefined,
                     "isCaseSensitive": false,
                     "mazeId": 1
                 }, {
                     "question": "question 2",
                     "answer": "answer 2",
-                    "letter": "B",
+                    "letter": undefined,
                     "isCaseSensitive": false,
                     "mazeId": 1
                 }],
                 [{
                     "question": "question 1a",
                     "answer": "answer 1a",
-                    "letter": "A",
+                    "letter": undefined,
                     "isCaseSensitive": true,
                     "mazeId": 2
                 }]
@@ -150,6 +150,7 @@ TestCase("[Maze] Model validation", {
 
         var conf = this.presenter.validateModel(this.validModel);
 
+        assertTrue(conf.isValid);
         assertEquals(1, conf.value.numberOfMazes);
     },
 

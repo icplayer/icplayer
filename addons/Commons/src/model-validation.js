@@ -399,17 +399,17 @@
           return typeof fn == 'function' || false;
         }
 
-        return toString.call(fn) === '[object ' + Function + ']';
+        return Object.prototype.toString.call(fn) === '[object ' + Function + ']';
     }
 
     //https://github.com/jashkenas/underscore/blob/master/underscore.js
     function isString (val) {
-        return toString.call(val) === '[object String]';
+        return Object.prototype.toString.call(val) === '[object String]';
     }
 
     function isArray (val) {
         function _isArray (val) {
-            return toString.call(val) === '[object Array]';
+            return Object.prototype.toString.call(val) === '[object Array]';
         }
 
         var fnToCheck = Array.isArray || _isArray;
