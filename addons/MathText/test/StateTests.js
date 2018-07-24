@@ -62,6 +62,22 @@ TestCase("[MathText] State tests", {
         assertFalse(parsedState.isVisible);
     },
 
+     'test should get true as hasUserInteracted': function(){
+        this.presenter.state.hasUserInteracted = true;
+        var state = this.presenter.getState();
+        var parsedState = JSON.parse(state);
+
+        assertTrue(parsedState.hasUserInteracted);
+    },
+
+     'test should get false as hasUserInteracted': function(){
+        this.presenter.state.hasUserInteracted = false;
+        var state = this.presenter.getState();
+        var parsedState = JSON.parse(state);
+
+        assertFalse(parsedState.hasUserInteracted);
+    },
+
     // setState
     'test should set false as isVisible': function(){
         var state = '{"text": "testText", "isVisible": false}';
@@ -95,6 +111,15 @@ TestCase("[MathText] State tests", {
         this.presenter.setState(state);
 
         assertFalse(this.stubs.setMathMLStub.called);
+    },
+
+    'test should set hasUserInteracted': function(){
+        var state = '{"text": "testText", "isVisible": true, "hasUserInteracted": true}';
+        this.presenter.state.hasUserInteracted = false;
+
+        this.presenter.setState(state);
+
+        assertTrue(this.presenter.state.hasUserInteracted);
     }
 
 });

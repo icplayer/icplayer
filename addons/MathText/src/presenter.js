@@ -5,12 +5,16 @@ function AddonMathText_create() {
         isVisible: false,
         isShowAnswers: false,
         isCheckAnswers: false,
-        currentAnswer: presenter.EMPTY_MATHTEXT
+        currentAnswer: presenter.EMPTY_MATHTEXT,
+        wasChanged: false, // for checking if user has made changes since last answer check
+        lastScore: 0,
+        hasUserInteracted: false //
     };
     presenter.editor = null;
     presenter.answerObject = null;
 
-    presenter.EMPTY_MATHTEXT = '<math xmlns="http://www.w3.org/1998/Math/MathML"></math>';
+    presenter.EMPTY_MATHTEXT = '<math xmlns="http://www.w3.org/1998/Math/MathML"/>';
+    presenter.WIRIS_RENDER_URL = "https://www.wiris.net/demo/editor/render?";
     presenter.ERROR_CODES = {
         'isActivtiy_BL01': "Value provided to isActivity property is not a valid string",
         'initialText_STR02': "Value provided to text property is not a valid string.",
@@ -43,7 +47,7 @@ function AddonMathText_create() {
         var mathMlParam = encodeURIComponent(text);
         var imgTypeParam = 'svg';
 
-        var url = "https://www.wiris.net/demo/editor/render?mml=" +  mathMlParam + "&format=" + imgTypeParam;
+        var url = presenter.WIRIS_RENDER_URL + "mml=" +  mathMlParam + "&format=" + imgTypeParam;
 
         if (presenter.loadingImageView) {
             var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
@@ -98,7 +102,6 @@ function AddonMathText_create() {
         });
 
         var availableLanugagesCodes = {
-            // TODO zmienić na słowniki może
             'Polish': 'pl',
             'English': 'en',
             'Spanish': 'es',
@@ -174,11 +177,16 @@ function AddonMathText_create() {
 
         if (presenter.configuration.isActivity) {
             presenter.editorListener = {
-                caretPositionChanged: function(){},
+                caretPositionChanged: function() {},
                 clipboardChanged: function () {},
                 styleChanged: function () {},
                 transformationReceived: function(){},
-                contentChanged: presenter.sendValueChangedEvent
+                contentChanged: function() {
+                    if (!presenter.state.isShowAnswers && !presenter.state.isCheckAnswers) {
+                        presenter.state.wasChanged = true;
+                        presenter.state.hasUserInteracted = true;
+                    }
+                }
             };
 
             presenter.editor.getEditorModel().addEditorListener(presenter.editorListener);
@@ -213,9 +221,10 @@ function AddonMathText_create() {
             presenter.$view.find('.wrs_handWrapper').css('display', 'none');
         } else {
             var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
-            var conf = builder.getConfiguration();
-            conf.set(window.com.wiris.quizzes.api.ConfigurationKeys.RESOURCES_URL, '/media/icplayer/addons/resources/');
             presenter.answerObject = builder.readQuestion(presenter.configuration.correctAnswer);
+
+            // when initial text is correct answer
+            presenter.state.lastScore = presenter.checkIfAnswerIsCorrect(presenter.configuration.initialText) ? 1 : 0;
         }
     };
 
@@ -225,20 +234,20 @@ function AddonMathText_create() {
         }
 
         if (presenter.configuration.isActivity && !presenter.state.isShowAnswers) {
-            presenter.state.isShowAnswers = true;
             presenter.$view.find('input').attr('disabled', true);
             presenter.state.currentAnswer = presenter.editor.getMathML();
             presenter.editor.setMathML(presenter.answerObject.getCorrectAnswer(0));
             presenter.editor.setToolbarHidden(true);
+            presenter.state.isShowAnswers = true;
         }
     };
 
     presenter.hideAnswers = function AddonMathText_hideAnswers () {
         if (presenter.configuration.isActivity && presenter.state.isShowAnswers) {
-            presenter.state.isShowAnswers = false;
             presenter.$view.find('input').removeAttr('disabled');
             presenter.editor.setMathML(presenter.state.currentAnswer);
             presenter.editor.setToolbarHidden(false);
+            presenter.state.isShowAnswers = false;
         }
     };
 
@@ -246,35 +255,36 @@ function AddonMathText_create() {
         if (presenter.state.isShowAnswers) {
             presenter.hideAnswers();
         }
+
         if (presenter.configuration.isActivity && !presenter.state.isCheckAnswers) {
-            presenter.state.isCheckAnswers = true;
             presenter.state.currentAnswer = presenter.editor.getMathML();
 
-            presenter.$view.find('input').attr('disabled', true);
+            if (presenter.state.hasUserInteracted) {
+                presenter.$view.find('input').attr('disabled', true);
+                presenter.editor.setToolbarHidden(true);
+                var score = presenter.getScore();
 
-            presenter.editor.setToolbarHidden(true);
-            var correct = presenter.checkIfAnswerIsCorrect();
-
-            if (correct) {
-                presenter.wrapper.classList.add('correct');
-            } else {
-                presenter.wrapper.classList.add('wrong');
+                if (score === 1) {
+                    presenter.wrapper.classList.add('correct');
+                } else {
+                    presenter.wrapper.classList.add('wrong');
+                }
             }
         }
+
+        presenter.state.isCheckAnswers = true;
     };
 
     presenter.setWorkMode = function AddonMathText_setWorkMode () {
         if (presenter.state.isCheckAnswers) {
-            presenter.state.isCheckAnswers = false;
-
             presenter.wrapper.classList.remove('correct');
             presenter.wrapper.classList.remove('wrong');
 
             if (presenter.configuration.isActivity) {
                 presenter.$view.find('input').removeAttr('disabled');
-                presenter.editor.setMathML(presenter.state.currentAnswer);
                 presenter.editor.setToolbarHidden(false);
             }
+            presenter.state.isCheckAnswers = false;
         }
     };
 
@@ -302,19 +312,25 @@ function AddonMathText_create() {
         }
     };
 
-    presenter.checkIfAnswerIsCorrect = function() {
+    presenter.checkIfAnswerIsCorrect = function(userText) {
         if (!presenter.configuration.isActivity) {
             return false;
         }
 
-        var currentText = presenter.editor.getMathML();
 
-        return presenter.requestForQuizzesCorrectness(currentText);
+        // special case - user defined empty text as correct answer and userText is string equal to empty mathml
+        var correctAnswerText = presenter.answerObject.getCorrectAnswer(0);
+        if (correctAnswerText === '' && userText === presenter.EMPTY_MATHTEXT) {
+            return true;
+        }
+
+        return presenter.requestForQuizzesCorrectness(correctAnswerText, userText);
     };
 
-    presenter.requestForQuizzesCorrectness = function (text) {
+    presenter.requestForQuizzesCorrectness = function (correctAnwser, userText) {
         var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
-        var request = builder.newEvalRequest(presenter.answerObject.getCorrectAnswer(0), text, presenter.answerObject, null);
+
+        var request = builder.newEvalRequest(correctAnswerText, userText, presenter.answerObject, null);
         var service = builder.getQuizzesService();
         var response = service.execute(request);
         // Get the response into this useful object.
@@ -337,6 +353,7 @@ function AddonMathText_create() {
              presenter.state.currentAnswer = parsedState.text;
          }
 
+         presenter.state.hasUserInteracted = parsedState.hasUserInteracted;
          presenter.setVisibility(parsedState.isVisible);
      };
 
@@ -350,20 +367,34 @@ function AddonMathText_create() {
 
         return JSON.stringify({
             'text': currentText,
-            'isVisible': presenter.state.isVisible
+            'isVisible': presenter.state.isVisible,
+            'hasUserInteracted': presenter.state.hasUserInteracted
         })
     };
 
     presenter.getScore = function() {
-        if (presenter.configuration.isActivity) {
-            return presenter.checkIfAnswerIsCorrect() ? 1 : 0;
+        if (presenter.state.isShowAnswers) {
+            presenter.hideAnswers();
         }
-        return 0;
+
+        var score = 0;
+        if (presenter.configuration.isActivity) {
+            if (presenter.state.wasChanged) {
+                score = presenter.checkIfAnswerIsCorrect(presenter.editor.getMathML()) ? 1 : 0;
+                presenter.state.wasChanged = false;
+                presenter.state.lastScore = score;
+                presenter.sendScoreChangedEvent(score);
+            } else {
+                score = presenter.state.lastScore;
+            }
+        }
+
+        return score;
     };
 
     presenter.getErrorCount = function () {
-        if (presenter.isActivity) {
-            return presenter.checkIfAnswerIsCorrect() ? 0 : 1;
+        if (presenter.configuration.isActivity) {
+            return 1 - presenter.getScore();
         }
         return 0;
     };
@@ -372,15 +403,19 @@ function AddonMathText_create() {
         return presenter.configuration.isActivity ? 1 : 0;
     };
 
-    presenter.sendValueChangedEvent = function () {
-        if (!presenter.state.isCheckAnswers && !presenter.state.isShowAnswers) {
-            presenter.eventBus.sendEvent('ValueChanged', {
+    presenter.sendScoreChangedEvent = function (score) {
+        var eventData = {
                 source: presenter.configuration.ID,
                 item: '0',
-                value: '',
-                score: presenter.getScore()
-            });
-        }
+                value: 1,
+                score: score
+        };
+
+        presenter.sendValueChangedEvent(eventData);
+    };
+
+    presenter.sendValueChangedEvent = function (eventData) {
+        presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
 

@@ -7,7 +7,7 @@ TestCase("[MathText] Check answers tests", {
             getMathMLStub: sinon.stub(),
             setMathMLStub: sinon.stub(),
             setToolbarHiddenStub: sinon.stub(),
-            checkIfAnswerIsCorrectStub: sinon.stub(),
+            getScoreStub: sinon.stub(),
             hideAnswersStub: sinon.stub(),
             findStub: sinon.stub(),
             attrStub: sinon.stub(),
@@ -16,7 +16,7 @@ TestCase("[MathText] Check answers tests", {
             addStub: sinon.stub()
         };
 
-        this.stubs.checkIfAnswerIsCorrectStub.returns(true);
+        this.stubs.getScoreStub.returns(1);
         this.stubs.getMathMLStub.returns('MathML');
         this.stubs.findStub.returns({
             attr: this.stubs.attrStub,
@@ -27,7 +27,8 @@ TestCase("[MathText] Check answers tests", {
         this.presenter.state = {
             isShowAnswers: false,
             isCheckAnswers: false,
-            currentAnswer: 'current'
+            currentAnswer: 'current',
+            hasUserInteracted: true
         };
 
         this.presenter.configuration = {
@@ -54,7 +55,7 @@ TestCase("[MathText] Check answers tests", {
             }
         };
 
-        this.presenter.checkIfAnswerIsCorrect = this.stubs.checkIfAnswerIsCorrectStub;
+        this.presenter.getScore = this.stubs.getScoreStub;
         this.presenter.hideAnswers = this.stubs.hideAnswersStub;
 
     },
@@ -105,11 +106,29 @@ TestCase("[MathText] Check answers tests", {
     },
 
     'test should add wrong class when answer is not correct': function(){
-        this.stubs.checkIfAnswerIsCorrectStub.returns(false);
+        this.stubs.getScoreStub.returns(0);
         this.presenter.setShowErrorsMode();
 
         assertTrue(this.stubs.addStub.called);
         assertEquals('wrong', this.stubs.addStub.getCall(0).args[0]);
+    },
+
+    'test should not add wrong class when answer is not correct but user hasnt interacted with addon': function(){
+        this.stubs.getScoreStub.returns(0);
+        this.presenter.state.hasUserInteracted = false;
+
+        this.presenter.setShowErrorsMode();
+
+        assertFalse(this.stubs.addStub.called);
+    },
+
+    'test should not add correct class when answer is correct but user hasnt interacted with addon': function(){
+        this.stubs.getScoreStub.returns(1);
+        this.presenter.state.hasUserInteracted = false;
+
+        this.presenter.setShowErrorsMode();
+
+        assertFalse(this.stubs.addStub.called);
     },
 
 
@@ -131,27 +150,5 @@ TestCase("[MathText] Check answers tests", {
         assertEquals(2, this.stubs.removeStub.callCount);
         assertTrue(this.stubs.removeStub.calledWith('correct'));
         assertTrue(this.stubs.removeStub.calledWith('wrong'));
-    },
-
-    'test should set editor text to user previous answer': function(){
-        this.presenter.state.isCheckAnswers = true;
-
-        this.presenter.setWorkMode();
-
-        assertEquals(2, this.stubs.removeStub.callCount);
-        assertTrue(this.stubs.removeStub.calledWith('correct'));
-        assertTrue(this.stubs.removeStub.calledWith('wrong'));
-    },
-
-    'test should set editor text to answer in presenter state': function(){
-        this.presenter.state.currentAnswer = 'current_answer';
-        this.presenter.configuration.isActivity = true;
-        this.presenter.state.isCheckAnswers = true;
-
-        this.presenter.setWorkMode();
-
-        assertTrue(this.stubs.setMathMLStub.called);
-        assertTrue(this.stubs.setMathMLStub.calledWith('current_answer'));
-    },
-
+    }
 });
