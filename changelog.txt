@@ -1,3 +1,4 @@
+2018-07-23 Added module sorting in editor
 2018-07-20 Fixed issues with invalid model in Crossword addon
 2018-07-18 Replaced Video Tutorials button with Interactive Tutorials
 2018-07-18 Fixed Scrolling on a Page in TTS
