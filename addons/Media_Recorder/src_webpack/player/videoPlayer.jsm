@@ -40,12 +40,12 @@ export class VideoPlayer extends Player {
         this.videoNode.onended = () => callback();
     }
 
-    set onDurationChange(callback){
+    set onDurationChanged(callback){
         this.videoNode.ondurationchange = () =>{
             // faster resolution then
             // this.videoNode.ondurationchange = () => callback(this.videoNode.duration)
             let playerMock = new Audio(this.videoNode.src);
-            playerMock.addEventListener("durationchange", function (e) {
+            playerMock.addEventListener("durationchange", function () {
                 if (this.duration != Infinity) {
                     callback(this.duration);
                     playerMock.remove();

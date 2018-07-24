@@ -12,14 +12,14 @@ export class AudioPlayer extends Player {
     }
 
     play() {
-        this.startPlayingCallback(this.audioNode);
+        this.onPlayCallback(this.audioNode);
         this.audioNode.play();
     }
 
     stop() {
         this.audioNode.pause();
         this.audioNode.currentTime = 0;
-        this.videoNode.muted = false;
+        this.audioNode.muted = false;
         this.onStopCallback();
     }
 
@@ -32,8 +32,11 @@ export class AudioPlayer extends Player {
     }
 
     set onStopPlaying(callback) {
-        this.videoNode.onended = () => callback();
         this.onStopCallback = callback;
+    }
+
+    set onEndedPlaying(callback){
+        this.audioNode.onended = () => callback();
     }
 
     set onDurationChanged(callback) {
@@ -41,7 +44,7 @@ export class AudioPlayer extends Player {
         // this.audioNode.ondurationchange = () => callback(this.audioNode.duration)
         this.audioNode.ondurationchange = () => {
             let playerMock = new Audio(this.audioNode.src);
-            playerMock.addEventListener("durationchange", function (e) {
+            playerMock.addEventListener("durationchange", function () {
                 if (this.duration != Infinity) {
                     callback(this.duration);
                     playerMock.remove();

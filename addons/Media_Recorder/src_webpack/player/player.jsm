@@ -24,7 +24,7 @@ export class Player {
         throw new Error("Recording mutator is not implemented");
     }
 
-    set onDurationChange(callback){
+    set onDurationChanged(callback){
         throw new Error("OnDurationChange mutator is not implemented");
     }
 }

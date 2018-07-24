@@ -1,4 +1,4 @@
-export class AudioMediaMediator {
+export class MediaMediator {
     constructor(player, recorder, timer, soundIntensity) {
         this.player = player;
         this.recorder = recorder;
@@ -18,17 +18,17 @@ export class AudioMediaMediator {
             this.player.recording = recording;
         };
 
-        this.player.onDurationChange = duration => {
-            this.timer.duration = duration;
-        };
-
-        this.player.onPlay = videoNode => {
-            let stream = videoNode.captureStream();
+        this.player.onStartPlaying = mediaNode => {
+            let stream = mediaNode.captureStream();
             this.soundIntensity.openStream(stream);
         };
 
-        this.player.onStop = () => {
+        this.player.onStopPlaying = () => {
             this.soundIntensity.closeStream();
-        }
+        };
+
+        this.player.onDurationChanged = duration => {
+            this.timer.duration = duration;
+        };
     }
 }

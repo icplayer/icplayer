@@ -19,7 +19,7 @@ export class AudioRecorder extends Recorder {
         navigator.mediaDevices.getUserMedia(this.resourcesOptions)
             .then(stream => {
                 startRecordingCallback();
-                self.onAvailableResourcesCallback(self.microphone);
+                self.onAvailableResourcesCallback(stream);
                 self.record(stream);
             })
             .catch(error => console.error(error));

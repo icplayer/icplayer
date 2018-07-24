@@ -5,9 +5,6 @@ import {Timer} from "./timer.jsm";
 import {RecorderFactory} from "./recorder/recorderFactory.jsm";
 import {PlayerFactory} from "./player/playerFactory.jsm";
 import {RecordTimeLimiter} from "./recordTimeLimiter.jsm";
-import {SoundEffect} from "./recordButtonDecorator/soundEffect.jsm";
-import {RecordButtonStartSoundDecorator} from "./recordButtonDecorator/recordButtonStartSoundDecorator.jsm";
-import {RecordButtonStopSoundDecorator} from "./recordButtonDecorator/recordButtonStopSoundDecorator.jsm";
 import {validateModel} from "./validator.jsm";
 import {RecordButtonDecoratorFactory} from "./recordButtonDecorator/recordButtonDecoratorFactory.jsm";
 import {DefaultRecordingLoader} from "./defaultRecordingLoader.jsm";
@@ -72,7 +69,7 @@ export class MediaRecorder {
         this.recorder = this.recorderFactory.createRecorder(this.configuration.type);
 
         this.mediaMediatorFactory = new MediaMediatorFactory(this.player, this.recorder, this.timer, this.soundIntensity, this.ERROR_CODES.type_EV01);
-        this.mediaMediator = this.mediaMediatorFactory.createMediaMediator(this.configuration.type);
+        this.mediaMediator = this.mediaMediatorFactory.createMediaMediator();
         this.mediaMediator.runMediation();
 
         this.recordTimeLimiter = new RecordTimeLimiter(this.configuration.maxTime);
