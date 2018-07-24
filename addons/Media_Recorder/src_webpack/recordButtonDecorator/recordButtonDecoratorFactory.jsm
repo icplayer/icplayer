@@ -1,13 +1,13 @@
-import {SoundEffect} from "../soundEffect.jsm";
+import {SoundEffect} from "./soundEffect.jsm";
 import {RecordButtonStartSoundDecorator} from "./recordButtonStartSoundDecorator.jsm";
 import {RecordButtonStopSoundDecorator} from "./recordButtonStopSoundDecorator.jsm";
 
 export class RecordButtonDecoratorFactory {
 
-    constructor(startRecordingSound, stopRecordingSound, $recordingWrapper) {
+    constructor($recordingWrapper, startRecordingSound, stopRecordingSound) {
+        this.$recordingWrapper = $recordingWrapper;
         this.startRecordingSound = startRecordingSound;
         this.stopRecordingSound = stopRecordingSound;
-        this.$recordingWrapper = $recordingWrapper;
     }
 
     decorateStartRecordingSoundEffect(recordButton) {

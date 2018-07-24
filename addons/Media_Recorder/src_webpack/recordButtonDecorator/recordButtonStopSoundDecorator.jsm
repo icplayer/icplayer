@@ -3,7 +3,7 @@ import {RecordButton} from "../recordButton.jsm";
 export class RecordButtonStopSoundDecorator extends RecordButton {
 
     constructor(button, stopRecordingSoundEffect) {
-        super(button.$button, button.state, button.timer, button.recorder, button.recordTimerLimiter);
+        super(button.$button, button.state, button.timer, button.recorder, button.recordTimerLimiter, button.soundIntensity, button.player);
         this.stopRecordingSoundEffect = stopRecordingSoundEffect;
         this.state = button.state;
     }

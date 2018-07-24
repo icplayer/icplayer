@@ -5,13 +5,14 @@ import {Timer} from "./timer.jsm";
 import {RecorderFactory} from "./recorderFactory.jsm";
 import {PlayerFactory} from "./playerFactory.jsm";
 import {RecordTimeLimiter} from "./recordTimeLimiter.jsm";
-import {SoundEffect} from "./soundEffect.jsm";
+import {SoundEffect} from "./recordButtonDecorator/soundEffect.jsm";
 import {RecordButtonStartSoundDecorator} from "./recordButtonDecorator/recordButtonStartSoundDecorator.jsm";
 import {RecordButtonStopSoundDecorator} from "./recordButtonDecorator/recordButtonStopSoundDecorator.jsm";
 import {validateModel} from "./validator.jsm";
 import {RecordButtonDecoratorFactory} from "./recordButtonDecorator/recordButtonDecoratorFactory.jsm";
 import {DefaultRecordingLoader} from "./defaultRecordingLoader.jsm";
 import {SoundIntensity} from "./soundIntensity.jsm";
+import {MediaMediatorFactory} from "./mediaMediatorFactory.jsm";
 
 export class MediaRecorder {
 
@@ -55,29 +56,35 @@ export class MediaRecorder {
         this.configuration = validatedModel.value;
         this.state = new State();
 
-        this.recorderFactory = new RecorderFactory(this.ERROR_CODES);
-        this.recorder = this.recorderFactory.createRecorder(this.configuration.type);
+        let $player = $(this.view).find(".media-recorder-player-wrapper");
+        let $timer = $(this.view).find(".media-recorder-timer");
+        let $soundIntensity = $(this.view).find(".media-recorder-sound-intensity");
+        let $recordButton = $(this.view).find(".media-recorder-recording-button");
+        let $playButton = $(this.view).find(".media-recorder-play-button");
 
-        this.playerFactory = new PlayerFactory($(this.view).find(".media-recorder-player-wrapper"), this.ERROR_CODES);
+        this.timer = new Timer($timer);
+        this.soundIntensity = new SoundIntensity($soundIntensity);
+
+        this.playerFactory = new PlayerFactory($player, this.timer, this.soundIntensity, this.ERROR_CODES.type_EV01);
         this.player = this.playerFactory.createPlayer(this.configuration.type);
 
-        this.timer = new Timer($(this.view).find(".media-recorder-timer"));
-        this.soundIntensity = new SoundIntensity($(this.view).find(".media-recorder-sound-intensity"));
+        this.recorderFactory = new RecorderFactory(this.ERROR_CODES.type_EV01);
+        this.recorder = this.recorderFactory.createRecorder(this.configuration.type);
+
+        this.mediaMediatorFactory = new MediaMediatorFactory(this.player, this.recorder, this.timer, this.soundIntensity, this.ERROR_CODES.type_EV01);
+        this.mediaMediator = this.mediaMediatorFactory.createMediaMediator(this.configuration.type);
+        this.mediaMediator.runMediation();
 
         this.recordTimeLimiter = new RecordTimeLimiter(this.configuration.maxTime);
-        this.playButton = new PlayButton($(this.view).find(".media-recorder-play-button"), this.state, this.timer, this.player, this.soundIntensity);
 
-        this.recordButton = new RecordButton($(this.view).find(".media-recorder-recording-button"), this.state, this.timer, this.recorder, this.recordTimeLimiter, this.soundIntensity);
-        this.recordButtonDecoratorFactory = new RecordButtonDecoratorFactory(this.configuration.startRecordingSound, this.configuration.stopRecordingSound, $(this.view).find(".media-recorder-player-wrapper"));
+        this.playButton = new PlayButton($playButton, this.state, this.timer, this.player, this.soundIntensity);
+
+        this.recordButton = new RecordButton($recordButton, this.state, this.timer, this.recorder, this.recordTimeLimiter);
+        this.recordButtonDecoratorFactory = new RecordButtonDecoratorFactory($player, this.configuration.startRecordingSound, this.configuration.stopRecordingSound);
         this.recordButton = this.recordButtonDecoratorFactory.decorateStartRecordingSoundEffect(this.recordButton);
-
         this.recordButton = this.recordButtonDecoratorFactory.decorateStopRecordingSoundEffect(this.recordButton);
 
-        this.player.onStartPlaying = audioNode => this.soundIntensity.openStream(audioNode.captureStream());
         this.player.onEndedPlaying = () => this.playButton.forceClick();
-        this.player.onDurationChanged = duration => this.timer.setDuration(duration);
-        this.recorder.onAvailableResources = stream => this.soundIntensity.openStream(stream);
-        this.recorder.onAvailableRecording = blob => this.player.setRecording(URL.createObjectURL(blob));
         this.recordTimeLimiter.onTimeExpired = () => this.recordButton.forceClick();
 
         this.defaultRecordingLoader = new DefaultRecordingLoader(this.player, this.timer, this.state);

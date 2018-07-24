@@ -1,7 +1,18 @@
 export class Recorder {
     constructor() {
+        this.onAvailableResourcesCallback = () => {};
+        this.onAvailableRecordingCallback = () => {};
+
         if (this.constructor === Recorder)
             throw new Error("Cannot create an instance of abstract class");
+    }
+
+    set onAvailableResources(callback) {
+        this.onAvailableResourcesCallback = callback;
+    }
+
+    set onAvailableRecording(callback) {
+        this.onAvailableRecordingCallback = callback;
     }
 
     startRecording(mediaRecorderPlayerWrapper) {
@@ -10,13 +21,5 @@ export class Recorder {
 
     stopRecording(mediaRecorderPlayerWrapper) {
         throw new Error("StopRecording Recording method is not implemented");
-    }
-
-    set onAvailableResources(callback){
-        throw new Error("OnAvailableResources mutator is not implemented");
-    }
-
-    set onAvailableRecording(callback){
-        throw new Error("OnAvailableRecording mutator is not implemented");
     }
 }

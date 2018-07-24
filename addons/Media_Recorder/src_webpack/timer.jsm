@@ -31,7 +31,7 @@ export class Timer {
         this.updateText();
     }
 
-    setDuration(duration) {
+    set duration(duration) {
         this.loadedMinutes = parseInt(duration / 60);
         this.loadedSeconds = parseInt(duration % 60);
         this.isLoaded = true;

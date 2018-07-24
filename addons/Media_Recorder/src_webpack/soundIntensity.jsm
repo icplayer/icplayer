@@ -8,6 +8,7 @@ export class SoundIntensity {
     }
 
     openStream(stream) {
+        console.log("OPEN STREAM");
         this.audioContext = new AudioContext();
         this.audioStream = this.audioContext.createMediaStreamSource(stream);
 
@@ -18,6 +19,8 @@ export class SoundIntensity {
     }
 
     closeStream() {
+        console.log("CLOSE STREAM");
+
         clearInterval(this.interval);
         this.clearIntensity();
 
