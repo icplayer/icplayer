@@ -8,7 +8,7 @@ function AddonMathText_create() {
         currentAnswer: presenter.EMPTY_MATHTEXT,
         wasChanged: false, // for checking if user has made changes since last answer check
         lastScore: 0,
-        hasUserInteracted: false //
+        hasUserInteracted: false // for checking if user has interacted with addon
     };
     presenter.editor = null;
     presenter.answerObject = null;
@@ -177,12 +177,16 @@ function AddonMathText_create() {
 
         if (presenter.configuration.isActivity) {
             presenter.editorListener = {
-                caretPositionChanged: function() {},
+                caretPositionChanged: function() {
+                    if (presenter.editor.isReady() && !presenter.state.isShowAnswers && !presenter.state.isCheckAnswers) {
+                        presenter.state.hasUserInteracted = true;
+                    }
+                },
                 clipboardChanged: function () {},
                 styleChanged: function () {},
                 transformationReceived: function(){},
                 contentChanged: function() {
-                    if (!presenter.state.isShowAnswers && !presenter.state.isCheckAnswers) {
+                    if (presenter.editor.isReady() && !presenter.state.isShowAnswers && !presenter.state.isCheckAnswers) {
                         presenter.state.wasChanged = true;
                         presenter.state.hasUserInteracted = true;
                     }
@@ -197,7 +201,7 @@ function AddonMathText_create() {
 
     presenter.destroy = function AddonMathText_removeHandler () {
         if (presenter.configuration.isActivity) {
-            presenter.editor.getEditorModel().addEditorListener(presenter.editorListener);
+            presenter.editor.getEditorModel().removeEditorListener(presenter.editorListener);
         }
 
         presenter.view.removeEventListener("DOMNodeRemoved", presenter.removeHandlers);
@@ -259,6 +263,7 @@ function AddonMathText_create() {
         if (presenter.configuration.isActivity && !presenter.state.isCheckAnswers) {
             presenter.state.currentAnswer = presenter.editor.getMathML();
 
+            console.log(presenter.state.hasUserInteracted);
             if (presenter.state.hasUserInteracted) {
                 presenter.$view.find('input').attr('disabled', true);
                 presenter.editor.setToolbarHidden(true);
@@ -330,7 +335,7 @@ function AddonMathText_create() {
     presenter.requestForQuizzesCorrectness = function (correctAnwser, userText) {
         var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
 
-        var request = builder.newEvalRequest(correctAnswerText, userText, presenter.answerObject, null);
+        var request = builder.newEvalRequest(correctAnwser, userText, presenter.answerObject, null);
         var service = builder.getQuizzesService();
         var response = service.execute(request);
         // Get the response into this useful object.
