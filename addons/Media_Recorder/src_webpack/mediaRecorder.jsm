@@ -6,10 +6,10 @@ import {RecorderFactory} from "./recorder/recorderFactory.jsm";
 import {PlayerFactory} from "./player/playerFactory.jsm";
 import {RecordTimeLimiter} from "./recordTimeLimiter.jsm";
 import {validateModel} from "./validator.jsm";
-import {RecordButtonDecoratorFactory} from "./recordButtonDecorator/recordButtonDecoratorFactory.jsm";
 import {DefaultRecordingLoader} from "./defaultRecordingLoader.jsm";
 import {SoundIntensity} from "./soundIntensity.jsm";
 import {MediaMediatorFactory} from "./mediaMediator/mediaMediatorFactory.jsm";
+import {SoundEffect} from "./soundEffect.jsm";
 
 export class MediaRecorder {
 
@@ -76,10 +76,9 @@ export class MediaRecorder {
 
         this.playButton = new PlayButton($playButton, this.state, this.timer, this.player, this.soundIntensity);
 
-        this.recordButton = new RecordButton($recordButton, this.state, this.timer, this.recorder, this.recordTimeLimiter);
-        this.recordButtonDecoratorFactory = new RecordButtonDecoratorFactory($player, this.configuration.startRecordingSound, this.configuration.stopRecordingSound);
-        this.recordButton = this.recordButtonDecoratorFactory.decorateStartRecordingSoundEffect(this.recordButton);
-        this.recordButton = this.recordButtonDecoratorFactory.decorateStopRecordingSoundEffect(this.recordButton);
+        this.startRecordingSoundEffect = new SoundEffect(this.configuration.startRecordingSound, $player);
+        this.stopRecordingSoundEffect = new SoundEffect(this.configuration.stopRecordingSound, $player);
+        this.recordButton = new RecordButton($recordButton, this.state, this.timer, this.recorder, this.recordTimeLimiter, this.startRecordingSoundEffect, this.stopRecordingSoundEffect);
 
         this.player.onEndedPlaying = () => this.playButton.forceClick();
         this.recordTimeLimiter.onTimeExpired = () => this.recordButton.forceClick();

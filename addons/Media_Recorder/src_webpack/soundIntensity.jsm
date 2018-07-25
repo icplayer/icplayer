@@ -8,7 +8,6 @@ export class SoundIntensity {
     }
 
     openStream(stream) {
-        console.log("OPEN STREAM");
         this.audioContext = new AudioContext();
         this.audioStream = this.audioContext.createMediaStreamSource(stream);
 
@@ -19,8 +18,6 @@ export class SoundIntensity {
     }
 
     closeStream() {
-        console.log("CLOSE STREAM");
-
         clearInterval(this.interval);
         this.clearIntensity();
 
@@ -33,8 +30,9 @@ export class SoundIntensity {
         analyser.getByteFrequencyData(frequencyArray);
         let avgVolume = this.calculateAvgVolume(frequencyArray);
         let alignedVolume = this.alignVolume(avgVolume);
+        let intensity = alignedVolume * this.volumeLevels;
 
-        this.setIntensity(alignedVolume * this.volumeLevels);
+        this.setIntensity(intensity);
     }
 
     createAnalyser(audioContext) {
@@ -53,8 +51,8 @@ export class SoundIntensity {
 
     alignVolume(volume) {
         volume = volume > 0 ? volume : 0;
-        volume = volume < 128 ? volume : 128;
-        return volume / 128;
+        volume = volume < 64 ? volume : 64;
+        return volume / 64;
     }
 
     setIntensity(intensity) {

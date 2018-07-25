@@ -11,7 +11,7 @@ export class DefaultRecordingLoader {
 
     loadDefaultRecording(recording) {
         if (this.isValid(recording)) {
-            this.player.setRecording(recording);
+            this.player.recording = recording;
             this.state.setLoaded();
         }
     }

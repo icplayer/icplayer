@@ -1,8 +1,11 @@
 export class SoundEffect {
-
     constructor(sound, $wrapper) {
         this.sound = sound;
         this.$wrapper = $wrapper;
+        this.audioNode = document.createElement("audio");
+        this.audioNode.src = this.sound;
+        this.audioNode.style.display = "none";
+        this.$wrapper.append(this.audioNode);
         this.startCallback;
         this.stopCallback;
     }
@@ -12,15 +15,12 @@ export class SoundEffect {
     }
 
     playSound() {
-        let audioNode = document.createElement("audio");
-        audioNode.src = this.sound;
-        audioNode.style.display = "none";
-
         if (this.stopCallback)
-            audioNode.onended = () => this.stopCallback();
+            this.audioNode.onended = () => {
+                this.stopCallback();
+            };
 
-        this.$wrapper.append(audioNode);
-        audioNode.play();
+        this.audioNode.play();
 
         if (this.startCallback)
             this.startCallback();
