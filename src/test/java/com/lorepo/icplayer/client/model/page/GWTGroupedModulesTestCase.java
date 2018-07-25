@@ -65,51 +65,74 @@ public class GWTGroupedModulesTestCase extends GwtTest {
 
 	@Test
 	public void savingGroupToXML() throws SAXException, IOException {
-		loadPage("testdata/modulesOnThePage.xml");
+		loadPage("testdata/modulesOnThePage2.xml");
 
 		Group group = new Group(page);
+		group.setId("Group1");
 		group.add(page.getModules().getModuleById("PrevPage"));
 		group.add(page.getModules().getModuleById("NextPage"));
+		group.initGroupPropertyProvider();
 
 		String groupXML = group.toXML();
-
-		assertEquals("<group id='" + group.getId() + "'>"
-				+ "<scoring type='defaultScore' max='1'/>"
+		String xml = "<group id=\"" + group.getId() + "\">" 
+				+ "<scoring type=\"defaultScore\" max=\"1\"/>"
 				+ "<groupedModulesList>"
-				+ "<groupModule moduleID='PrevPage'/><groupModule moduleID='NextPage'/>"
+				+ "<groupModule moduleID=\"PrevPage\"/><groupModule moduleID=\"NextPage\"/>"
 				+ "</groupedModulesList>"
-				+ "</group>", groupXML);
+				+ "<layouts>"
+				+ "<layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\" isDiv=\"false\">"
+				+ "<relative type=\"LTWH\">"
+				+ "<left relative=\"\" property=\"left\"/>"
+				+ "<top relative=\"\" property=\"top\"/>"
+				+ "<right relative=\"\" property=\"right\"/>"
+				+ "<bottom relative=\"\" property=\"bottom\"/>"
+				+ "</relative>"
+				+ "<absolute left=\"7\" right=\"0\" top=\"343\" bottom=\"0\" width=\"0\" height=\"0\"/>"
+				+ "</layout>"
+				+ "</layouts>"
+				+ "<styles/>"
+				+ "</group>"; 
+		assertEquals(xml, groupXML); 
 	}
-
+	
+	@Test
+	public void loadGroupIntoDiv() {
+		loadPage("testdata/modulesAndGroups2.xml");
+		Group group = page.getGroupedModules().get(3); 
+		group.initGroupPropertyProvider();
+		assertTrue(group.isDiv()); 
+	}
+	
 	@Test
 	public void countingGroups() throws SAXException, IOException {
-		loadPage("testdata/modulesAndGroups.xml");
+		loadPage("testdata/modulesAndGroups2.xml");
 		
 		assertEquals(4, page.getGroupedModules().size());
 	}
 
 	@Test
 	public void areCountedGroupsCorrect() throws SAXException, IOException {
-		loadPage("testdata/modulesAndGroups.xml");
+		loadPage("testdata/modulesAndGroups2.xml");
 		
-		assertTrue(page.getGroupedModules().get(0).contains(page.getModules().getModuleById("Choice5")));
+		assertTrue(page.getGroupedModules().get(0).contains(page.getModules().getModuleById("Audio1")));
+		assertTrue(page.getGroupedModules().get(0).contains(page.getModules().getModuleById("Text2")));
 
-		assertTrue(page.getGroupedModules().get(1).contains(page.getModules().getModuleById("Audio1")));
-		assertTrue(page.getGroupedModules().get(1).contains(page.getModules().getModuleById("Choice4")));
-		assertTrue(page.getGroupedModules().get(1).contains(page.getModules().getModuleById("Basic_Math_Gaps1")));
+		assertTrue(page.getGroupedModules().get(1).contains(page.getModules().getModuleById("Choice1")));
+		
 
 		assertTrue(page.getGroupedModules().get(2).contains(page.getModules().getModuleById("Title")));
-		assertTrue(page.getGroupedModules().get(3).contains(page.getModules().getModuleById("Fractions1")));
+		assertTrue(page.getGroupedModules().get(2).contains(page.getModules().getModuleById("NextPage")));
 
-		assertTrue(page.getGroupedModules().get(3).contains(page.getModules().getModuleById("TrueFalse1")));
+		assertTrue(page.getGroupedModules().get(3).contains(page.getModules().getModuleById("PrevPage")));
+		assertTrue(page.getGroupedModules().get(3).contains(page.getModules().getModuleById("Text1")));
 	}
 
 	@Test
 	public void isIdUniqueWhenIdJustExists() throws SAXException, IOException {
-		loadPage("testdata/modulesAndGroups.xml");
+		loadPage("testdata/modulesAndGroups2.xml");
 		
-		String groupName1 = "Group0";
-		String groupName2 = "Group5";
+		String groupName1 = "Group5";
+		String groupName2 = "Group4";
 
 		assertTrue(page.getGroupedModules().get(0).isIDUnique(groupName1));
 		assertTrue(page.getGroupedModules().get(0).isIDUnique(groupName2));
@@ -117,8 +140,8 @@ public class GWTGroupedModulesTestCase extends GwtTest {
 
 	@Test
 	public void isIdUniqueWhenIdNotExists() throws SAXException, IOException {
-		loadPage("testdata/modulesAndGroups.xml");
-		String[] groupNames = {"Group1", "Group2", "Group3", "Group4"};
+		loadPage("testdata/modulesAndGroups2.xml");
+		String[] groupNames = {"Group1", "Group2", "Group3"};
 
 		for (String i : groupNames) {
 			assertFalse(page.getGroupedModules().get(0).isIDUnique(i));
@@ -127,18 +150,18 @@ public class GWTGroupedModulesTestCase extends GwtTest {
 
 	@Test
 	public void setScoreFromStringIfScoreTypeExists() throws SAXException, IOException {
-		loadPage("testdata/modulesAndGroups.xml");
+		loadPage("testdata/modulesAndGroups2.xml");
 		
 		assertEquals("zeroMaxScore", page.getGroupedModules().get(0).getScoringType().toString());
 	}
 
 	@Test
 	public void setScoreFromStringIfScoreTypeNotExists() throws SAXException, IOException {
-		loadPage("testdata/modulesAndGroups.xml");
+		loadPage("testdata/modulesAndGroups2.xml");
 
-		page.getGroupedModules().get(1).setScoreFromString("someUndefinedScoreType");
-
-		assertEquals("defaultScore", page.getGroupedModules().get(1).getScoringType().toString());
+		page.getGroupedModules().get(2).setScoreFromString("someUndefinedScoreType");
+		
+		assertEquals("defaultScore", page.getGroupedModules().get(2).getScoringType().toString());
 	}
 
 	@Test

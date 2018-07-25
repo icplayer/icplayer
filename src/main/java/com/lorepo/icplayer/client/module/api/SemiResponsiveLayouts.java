@@ -18,4 +18,5 @@ public interface SemiResponsiveLayouts {
 	public void syncSemiResponsiveLayouts(Set<PageLayout> actualSemiResponsiveLayouts);
 	public void copyConfiguration(String lastSeenLayout);
 	public void translateSemiResponsiveIDs(HashMap<String, String> translationMap);
+	public LayoutDefinition getCurrentLayoutDefinition();
 }
