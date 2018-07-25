@@ -49,6 +49,7 @@ TestCase("[Commons - Controls-bar] Adding/Removing burger menu", {
 
         this.controlsBar.elements[this.burgerName].element.dispatchEvent(eventObj);
 
+        eventObj = document.createEvent('Events');
         eventObj.initEvent('mouseleave', true, false);
 
         this.controlsBar.elements[this.burgerName].element.dispatchEvent(eventObj);
