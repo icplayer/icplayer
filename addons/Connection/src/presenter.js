@@ -1504,8 +1504,8 @@ function AddonConnection_create() {
             var connections = getConnections($active);
             var TextVoiceArray = window.TTSUtils.getTextVoiceArrayFromElement($active, presenter.langTag);
 
-            if ($active.hasClass('selected')) {
-                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
+            if ($active.hasClass('selected') && !presenter.isShowAnswersActive) {
+                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
             }
 
             if (connections.length) {
