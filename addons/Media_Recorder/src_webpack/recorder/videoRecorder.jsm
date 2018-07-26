@@ -12,21 +12,21 @@ export class VideoRecorder extends Recorder {
         };
     }
 
-    startRecording(startRecordingCallback) {
+    startRecording() {
         let self = this;
         navigator.mediaDevices.getUserMedia(this.resourcesOptions)
             .then(stream => {
-                startRecordingCallback();
+                self.onStartRecordingCallback();
                 self.onAvailableResourcesCallback(stream);
                 self.record(stream)
             })
             .catch(error => console.error(error));
     }
 
-    stopRecording(stopRecordingCallback) {
+    stopRecording() {
         let self = this;
         this.recorder.stopRecording(() => {
-            stopRecordingCallback();
+            self.onStopRecordingCallback();
             self.onAvailableRecordingCallback(this.recorder.getBlob());
         });
     }
@@ -42,6 +42,14 @@ export class VideoRecorder extends Recorder {
             this.recorder.destroy();
             this.recorder = null;
         }
+    }
+
+    set onStartRecording(callback){
+        this.onStartRecordingCallback = callback;
+    }
+
+    set onStopRecording(callback){
+        this.onStopRecordingCallback = callback;
     }
 
     set onAvailableResources(callback) {

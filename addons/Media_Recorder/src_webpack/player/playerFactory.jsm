@@ -8,12 +8,13 @@ export class PlayerFactory {
     }
 
     createPlayer(type) {
-        if (type === "audio") {
-            return new AudioPlayer(this.$player);
-        } else if (type === "video") {
-            return new VideoPlayer(this.$player);
-        } else {
-            throw Error(this.ERROR_MESSAGE);
+        switch (type) {
+            case "audio":
+                return new AudioPlayer(this.$player);
+            case "video":
+                return new VideoPlayer(this.$player);
+            default:
+                throw Error(this.ERROR_MESSAGE);
         }
     }
 }

@@ -7,12 +7,13 @@ export class RecorderFactory {
     }
 
     createRecorder(type) {
-        if (type === "audio") {
-            return new AudioRecorder();
-        } else if (type === "video") {
-            return new VideoRecorder();
-        } else {
-            throw Error(this.ERROR_MESSAGE);
+        switch (type) {
+            case "audio":
+                return new AudioRecorder();
+            case "video":
+                return new VideoRecorder();
+            default:
+                throw Error(this.ERROR_MESSAGE);
         }
     }
 }

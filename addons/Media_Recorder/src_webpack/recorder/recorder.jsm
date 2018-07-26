@@ -12,6 +12,14 @@ export class Recorder {
         throw new Error("StopRecording Recording method is not implemented");
     }
 
+    set onStartRecording(callback){
+        throw new Error("OnStartRecording mutator is not implemented");
+    }
+
+    set onStopRecording(callback){
+        throw new Error("OnStopRecording mutator is not implemented");
+    }
+
     set onAvailableResources(callback) {
         throw new Error("OnAvailableResources mutator is not implemented");
     }

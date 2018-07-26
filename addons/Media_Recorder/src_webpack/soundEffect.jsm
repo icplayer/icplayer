@@ -3,11 +3,9 @@ export class SoundEffect {
         this.sound = sound;
         this.$wrapper = $wrapper;
         this.audioNode = document.createElement("audio");
-        this.audioNode.src = this.sound;
+        this.audioNode.src = sound;
         this.audioNode.style.display = "none";
         this.$wrapper.append(this.audioNode);
-        this.startCallback;
-        this.stopCallback;
     }
 
     isValid() {
@@ -16,9 +14,7 @@ export class SoundEffect {
 
     playSound() {
         if (this.stopCallback)
-            this.audioNode.onended = () => {
-                this.stopCallback();
-            };
+            this.audioNode.onended = () => this.stopCallback();
 
         this.audioNode.play();
 

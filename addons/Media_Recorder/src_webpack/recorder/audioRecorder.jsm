@@ -18,7 +18,7 @@ export class AudioRecorder extends Recorder {
         let self = this;
         navigator.mediaDevices.getUserMedia(this.resourcesOptions)
             .then(stream => {
-                startRecordingCallback();
+                self.onStartRecordingCallback();
                 self.onAvailableResourcesCallback(stream);
                 self.record(stream);
             })
@@ -28,7 +28,7 @@ export class AudioRecorder extends Recorder {
     stopRecording(stopRecordingCallback) {
         let self = this;
         this.recorder.stopRecording(() => {
-            stopRecordingCallback();
+            self.onStopRecordingCallback();
             self.onAvailableRecordingCallback(this.recorder.getBlob());
         });
     }
@@ -44,6 +44,14 @@ export class AudioRecorder extends Recorder {
             this.recorder.destroy();
             this.recorder = null;
         }
+    }
+
+    set onStartRecording(callback){
+        this.onStartRecordingCallback = callback;
+    }
+
+    set onStopRecording(callback){
+        this.onStopRecordingCallback = callback;
     }
 
     set onAvailableResources(callback) {

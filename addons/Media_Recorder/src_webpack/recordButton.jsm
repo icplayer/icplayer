@@ -1,33 +1,10 @@
 export class RecordButton {
-    constructor($button, state, timer, recorder, recordTimerLimiter, startRecordingSoundEffect, stopRecordingSoundEffect) {
+    constructor($button, state, timer, recorder, recordTimerLimiter) {
         this.$button = $button;
         this.state = state;
         this.timer = timer;
         this.recorder = recorder;
         this.recordTimerLimiter = recordTimerLimiter;
-        this.startRecordingSoundEffect = startRecordingSoundEffect;
-        this.stopRecordingSoundEffect = stopRecordingSoundEffect;
-
-        this.startRecordingSoundEffect.onStartCallback = () => {
-            this.deactivate();
-            this.state.setRecording();
-        };
-
-        this.startRecordingSoundEffect.onStopCallback = () => {
-            this.activate();
-            this.startRecording(event);
-        };
-
-        this.stopRecordingSoundEffect.onStartCallback = () => {
-            this.deactivate();
-            this.stopRecording(event);
-            this.state.setRecording();
-        };
-
-        this.stopRecordingSoundEffect.onStopCallback = () => {
-            this.activate();
-            this.state.setLoaded();
-        };
     }
 
     activate() {
@@ -50,37 +27,30 @@ export class RecordButton {
     }
 
     onStartRecording() {
-        if (this.startRecordingSoundEffect.isValid())
-            this.startRecordingSoundEffect.playSound();
-        else
-            this.startRecording();
+        this.recorder.onStartRecording = () => this.startRecordingCallback();
+
+        console.log("START RECORDING");
+        this.recorder.startRecording();
     }
 
     onStopRecording() {
-        console.log("CLICK");
+        this.recorder.onStopRecording = () => this.stopRecordingCallback();
+        this.recorder.stopRecording()
+    };
 
-        if (this.stopRecordingSoundEffect.isValid())
-            this.stopRecordingSoundEffect.playSound();
-        else
-            this.stopRecording();
+    startRecordingCallback() {
+        console.log("START RECORDING CALLBACK");
+        this.$button.addClass("selected");
+        this.state.setRecording();
+        this.timer.reset();
+        this.timer.startCountdown();
+        this.recordTimerLimiter.startCountdown();
     }
 
-    stopRecording() {
-        this.recorder.stopRecording(() => {
-            this.$button.removeClass("selected");
-            this.state.setLoaded();
-            this.timer.stopCountdown();
-            this.recordTimerLimiter.stopCountdown();
-        });
-    }
-
-    startRecording() {
-        this.recorder.startRecording(() => {
-            this.$button.addClass("selected");
-            this.state.setRecording();
-            this.timer.reset();
-            this.timer.startCountdown();
-            this.recordTimerLimiter.startCountdown();
-        });
+    stopRecordingCallback() {
+        this.$button.removeClass("selected");
+        this.state.setLoaded();
+        this.timer.stopCountdown();
+        this.recordTimerLimiter.stopCountdown();
     }
 }
