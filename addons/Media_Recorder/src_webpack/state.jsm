@@ -4,34 +4,53 @@ export class State {
         this.RECORDING = 1;
         this.LOADED = 2;
         this.PLAYING = 3;
-        this._state = 0;
+        this.state = 0;
+        this.mediaSource;
     };
 
-    isNew(){
-        return this._state === this.NEW;
+    isNew() {
+        return this.state === this.NEW;
     }
 
-    isRecording(){
-        return this._state === this.RECORDING;
+    isRecording() {
+        return this.state === this.RECORDING;
     }
 
-    isLoaded(){
-        return this._state === this.LOADED;
+    isLoaded() {
+        return this.state === this.LOADED;
     }
 
-    isPlaying(){
-        return this._state === this.PLAYING;
+    isPlaying() {
+        return this.state === this.PLAYING;
     }
 
-    setRecording(){
-        this._state = this.RECORDING;
+    setRecording() {
+        this.state = this.RECORDING;
     }
 
-    setLoaded(){
-        this._state = this.LOADED;
+    setLoaded() {
+        this.state = this.LOADED;
     }
 
-    setPlaying(){
-        this._state = this.PLAYING;
+    setPlaying() {
+        this.state = this.PLAYING;
+    }
+
+    setMediaSource(mediaSource) {
+        this.mediaSource = mediaSource;
+    }
+
+    serialize() {
+        return JSON.stringify({
+            state : this.state,
+            mediaSource : this.mediaSource
+        })
+    }
+
+    deserialize(state) {
+        let deserializedState = JSON.parse(state);
+        if (deserializedState.mediaSource) {
+            this.mediaSource = deserializedState.mediaSource;
+        }
     }
 }

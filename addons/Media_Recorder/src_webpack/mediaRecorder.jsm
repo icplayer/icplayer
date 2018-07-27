@@ -11,8 +11,12 @@ import {SoundIntensity} from "./soundIntensity.jsm";
 import {MediaMediatorFactory} from "./mediaMediator/mediaMediatorFactory.jsm";
 import {SoundEffect} from "./soundEffect.jsm";
 import {RecordButtonSoundEffect} from "./recordButtonSoundEffect.jsm";
+import {AssetService} from "./assetService.jsm";
 
 export class MediaRecorder {
+    constructor() {
+        this.playerController;
+    }
 
     DEFAULT_VALUES = {
         MAX_TIME: 60,
@@ -69,7 +73,8 @@ export class MediaRecorder {
         this.recorderFactory = new RecorderFactory(this.ERROR_CODES.type_EV01);
         this.recorder = this.recorderFactory.createRecorder(this.configuration.type);
 
-        this.mediaMediatorFactory = new MediaMediatorFactory(this.player, this.recorder, this.timer, this.soundIntensity, this.ERROR_CODES.type_EV01);
+        this.assetSerice = new AssetService(this.playerController, this.state);
+        this.mediaMediatorFactory = new MediaMediatorFactory(this.player, this.recorder, this.timer, this.soundIntensity, this.assetSerice, this.ERROR_CODES.type_EV01);
         this.mediaMediator = this.mediaMediatorFactory.createMediaMediator();
         this.mediaMediator.runMediation();
 
@@ -87,5 +92,22 @@ export class MediaRecorder {
 
         this.defaultRecordingLoader = new DefaultRecordingLoader(this.player, this.timer, this.state);
         this.defaultRecordingLoader.loadDefaultRecording(this.configuration.defaultRecording);
+    }
+
+    setPlayerController(playerController){
+        this.playerController = playerController;
+    }
+
+    getState(){
+        return this.state.serialize();
+    }
+
+    setState(state){
+        this.state.deserialize(state);
+
+        if(this.state.mediaSource){
+            this.state.setLoaded();
+            this.player.recording = this.state.mediaSource;
+        }
     }
 }

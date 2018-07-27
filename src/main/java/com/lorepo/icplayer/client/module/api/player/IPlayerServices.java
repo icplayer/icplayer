@@ -14,33 +14,32 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
  */
 public interface IPlayerServices {
 
-	public IContent getModel();
-	public PlayerConfig getPlayerConfig();
-	public EventBus	getEventBus();
-	public int getCurrentPageIndex();
-	public IPlayerCommands	getCommands();
-	public IScoreService	getScoreService();
-	public ITimeService		getTimeService();
-	public IAssetsService	getAssetsService();
-	public IStateService 	getStateService();
-	public IJsonServices	getJsonServices();
-	public IReportableService getReportableService();
-	public JavaScriptObject getAsJSObject();
-	public IPresenter getModule(String moduleName);
-	public boolean isBookMode();
-	public boolean hasCover();
-	public void sendAnalytics(String event, HashMap<String,String> params);
-	public IPresenter getHeaderModule(String name);
-	public IPresenter getFooterModule(String name);
-	public int getPageWeight();
-	public ScaleInformation getScaleInformation();
-	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin);
+	IContent getModel();
+	PlayerConfig getPlayerConfig();
+	EventBus	getEventBus();
+	int getCurrentPageIndex();
+	IPlayerCommands	getCommands();
+	IScoreService	getScoreService();
+	ITimeService		getTimeService();
+	IAssetsService	getAssetsService();
+	IStateService 	getStateService();
+	IJsonServices	getJsonServices();
+	IReportableService getReportableService();
+	JavaScriptObject getAsJSObject();
+	IPresenter getModule(String moduleName);
+	boolean isBookMode();
+	boolean hasCover();
+	void sendAnalytics(String event, HashMap<String,String> params);
+	IPresenter getHeaderModule(String name);
+	IPresenter getFooterModule(String name);
+	int getPageWeight();
+	ScaleInformation getScaleInformation();
+	void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin);
 	
-	public void outstretchHeight(int y, int height, boolean dontMoveModules);
-	public boolean isPlayerInCrossDomain();
-	public boolean isWCAGOn();
+	void outstretchHeight(int y, int height, boolean dontMoveModules);
+	boolean isPlayerInCrossDomain();
+	boolean isWCAGOn();
 	
-	public void setAbleChangeLayout(boolean isAbleChangeLayout); 
-	public boolean isAbleChangeLayout();
-	
+	void setAbleChangeLayout(boolean isAbleChangeLayout);
+	boolean isAbleChangeLayout();
 }

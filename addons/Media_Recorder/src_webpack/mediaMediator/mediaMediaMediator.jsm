@@ -1,9 +1,10 @@
 export class MediaMediator {
-    constructor(player, recorder, timer, soundIntensity) {
+    constructor(player, recorder, timer, soundIntensity, assetService) {
         this.player = player;
         this.recorder = recorder;
         this.timer = timer;
         this.soundIntensity = soundIntensity;
+        this.assetService = assetService;
     }
 
     runMediation() {
@@ -16,6 +17,7 @@ export class MediaMediator {
             let recording = URL.createObjectURL(blob);
             this.player.stop();
             this.player.recording = recording;
+            this.assetService.storeAsset(blob);
         };
 
         this.player.onStartPlaying = mediaNode => {

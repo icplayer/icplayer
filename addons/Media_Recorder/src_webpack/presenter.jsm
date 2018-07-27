@@ -6,10 +6,9 @@ function AddonMedia_Recorder_create() {
     };
 
     let mediaRecorder = new MediaRecorder();
-    let playerController;
 
     presenter.setPlayerController = function (controller) {
-        playerController = controller;
+        mediaRecorder.setPlayerController(controller)
     };
 
     presenter.run = function (view, model) {
@@ -32,13 +31,13 @@ function AddonMedia_Recorder_create() {
     //     presenter.setVisibility(true);
     // };
     //
-    // presenter.getState = function () {
-    //     console.log("getState");
-    // };
-    //
-    // presenter.setState = function (gotState) {
-    //     console.log("setState");
-    // };
+    presenter.getState = function () {
+        return mediaRecorder.getState();
+    };
+
+    presenter.setState = function (state) {
+        mediaRecorder.setState(state);
+    };
     //
     // presenter.setWorkMode = function () {
     //     console.log("setWorkMode");
