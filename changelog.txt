@@ -1,3 +1,11 @@
+2018-07-26 Removed reading "connected" when in Show Answer Mode in TTS
+2018-07-25 Added test mode in quiz
+2018-07-23 Added module sorting in editor
+2018-07-20 Fixed issues with invalid model in Crossword addon
+2018-07-18 Replaced Video Tutorials button with Interactive Tutorials
+2018-07-18 Fixed Scrolling on a Page in TTS
+2018-07-17 Added Phrase Selection Mode to Text Coloring
+2018-07-17 Fixed coursor position in GridScene
 2018-07-13 Fixed next() and previous() methods in MultiAudio addon
 2018-07-13 Fixed fullscreen on iPad
 2018-07-13 Fixed restartGame command in Shooting Range

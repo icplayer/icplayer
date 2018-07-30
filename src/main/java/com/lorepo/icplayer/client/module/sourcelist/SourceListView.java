@@ -378,6 +378,7 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 
 	@Override
 	public void space(KeyDownEvent event) {
+		event.preventDefault(); 
 		select();
 	}
 
@@ -398,12 +399,14 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 
 	@Override
 	public void down(KeyDownEvent event) {
+		event.preventDefault();
 		next();
 	}
 
 	@Override
 	public void up(KeyDownEvent event) {
-		previous();
+	    event.preventDefault();
+	    previous();
 	}
 
 	@Override

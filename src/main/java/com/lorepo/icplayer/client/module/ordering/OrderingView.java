@@ -699,6 +699,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 	@Override
 	public void escape (KeyDownEvent event) {
+		event.preventDefault(); 
 		this.deselectCurrentItem();
 		currentWCAGSelectedItemIndex = 0;
 		this.isWCAGActive = false;
@@ -734,6 +735,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	
 	@Override
 	public void space (KeyDownEvent event) {
+	    event.preventDefault();
 		this.deselectCurrentItem();
 		DomEvent.fireNativeEvent(Document.get().createMouseUpEvent(0, 0, 0, 0, 0, false, false, false, false, 0), this.getWidget(this.currentWCAGSelectedItemIndex));
 		this.selectCurrentItem();
@@ -760,11 +762,13 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	
 	@Override
 	public void up (KeyDownEvent event) {
+		event.preventDefault(); 
 		this.move(-1);
 	}
 	
 	@Override
 	public void down (KeyDownEvent event) {
+		event.preventDefault(); 
 		this.move(1);
 	}
 	

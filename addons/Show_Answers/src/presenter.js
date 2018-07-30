@@ -27,7 +27,15 @@ function AddonShow_Answers_create(){
         HIDE_ANSWERS: 'HideAnswers'
     };
 
+    presenter.handleSpace = function(keyCode){
+        $(document).on('keydown', function(e){
+           if(keyCode == 32 || keyCode == 38 || keyCode == 40 || keyCode == 27) {
+               e.preventDefault();
+           }$(this).off('keydown');
+        });
+    };
     presenter.keyboardController = function(keycode) {
+        presenter.handleSpace(keycode);
         if (keycode === 13) {
             presenter.$button.click();
             if(isWCAGOn) {
