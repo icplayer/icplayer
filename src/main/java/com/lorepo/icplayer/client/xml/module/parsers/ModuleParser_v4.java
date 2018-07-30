@@ -25,12 +25,9 @@ public class ModuleParser_v4 extends ModuleParser_v3 {
 	}
 	
 	private void setDefaultIsVisible(Element layouts){
-		if(layouts.getAttribute("isVisible") != null && layouts.getAttribute("isVisible").length() > 0) {
-			Boolean isVisible = XMLUtils.getAttributeAsBoolean(layouts , "isVisible", true);
-			this.module.setIsVisible(isVisible);
-			return;
-		}
-		this.module.setIsVisible(true);
+		Boolean isVisible = XMLUtils.getAttributeAsBoolean(layouts , "isVisible", true);
+		this.module.setIsVisible(isVisible);
+		return;
 	}
 
 }

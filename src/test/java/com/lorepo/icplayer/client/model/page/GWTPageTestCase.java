@@ -195,13 +195,13 @@ public class GWTPageTestCase extends GwtTest {
 
 		Page page = this.loadFromFile(new Page("Page 1", ""), "testdata/PageVersion5ManyLayouts2.xml");
 		
-		assertEquals(page.getModules().size(), 4);
+		assertEquals(4, page.getModules().size());
 		
 		IModuleModel model = page.getModules().get(0);
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "Image1");
+			assertEquals("Image1", basicModel.getId());
 			assertTrue(basicModel.isVisible());
 		}
 		
@@ -209,7 +209,7 @@ public class GWTPageTestCase extends GwtTest {
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "Text1");
+			assertEquals("Text1", basicModel.getId());
 			assertFalse(basicModel.isVisible());
 		}
 		
@@ -217,7 +217,7 @@ public class GWTPageTestCase extends GwtTest {
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "Text2");
+			assertEquals("Text2", basicModel.getId());
 			assertFalse(basicModel.isVisible());
 		}
 		
@@ -225,7 +225,7 @@ public class GWTPageTestCase extends GwtTest {
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "NextPage1");
+			assertEquals("NextPage1", basicModel.getId());
 			assertTrue(basicModel.isVisible());
 		}
 		
@@ -238,13 +238,13 @@ public class GWTPageTestCase extends GwtTest {
 
 		Page page = this.loadFromFile(new Page("Page 1", ""), "testdata/PageVersion4ManyLayouts2.xml");
 		
-		assertEquals(page.getModules().size(), 4);
+		assertEquals(4, page.getModules().size());
 		
 		IModuleModel model = page.getModules().get(0);
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "Image1");
+			assertEquals("Image1", basicModel.getId());
 			assertTrue(basicModel.isVisible());
 		}
 		
@@ -252,7 +252,7 @@ public class GWTPageTestCase extends GwtTest {
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "Text1");
+			assertEquals("Text1", basicModel.getId());
 			assertFalse(basicModel.isVisible());
 		}
 		
@@ -260,7 +260,7 @@ public class GWTPageTestCase extends GwtTest {
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "Text2");
+			assertEquals("Text2", basicModel.getId());
 			assertFalse(basicModel.isVisible());
 		}
 		
@@ -268,7 +268,7 @@ public class GWTPageTestCase extends GwtTest {
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "NextPage1");
+			assertEquals("NextPage1", basicModel.getId());
 			assertTrue(basicModel.isVisible());
 		}
 		
@@ -286,13 +286,13 @@ public class GWTPageTestCase extends GwtTest {
 		Element xml = xmlParser.parser(xmlStream);
 		pageParser.parse(xml);
 			
-		assertEquals(page.getModules().size(), 4);
+		assertEquals(4, page.getModules().size());
 		
 		IModuleModel model = page.getModules().get(0);
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "Image1");
+			assertEquals("Image1", basicModel.getId());
 			assertTrue(basicModel.isVisible());
 		}
 		
@@ -300,7 +300,7 @@ public class GWTPageTestCase extends GwtTest {
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "Text1");
+			assertEquals("Text1", basicModel.getId());
 			assertTrue(basicModel.isVisible());
 		}
 		
@@ -308,7 +308,7 @@ public class GWTPageTestCase extends GwtTest {
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "Text2");
+			assertEquals("Text2", basicModel.getId());
 			assertTrue(basicModel.isVisible());
 		}
 		
@@ -316,7 +316,7 @@ public class GWTPageTestCase extends GwtTest {
 		assertTrue(model instanceof BasicModuleModel);
 		if(model instanceof BasicModuleModel) {
 			BasicModuleModel basicModel = (BasicModuleModel) model;
-			assertEquals(basicModel.getId(), "NextPage1");
+			assertEquals("NextPage1", basicModel.getId());
 			assertFalse(basicModel.isVisible());
 		}
 	}

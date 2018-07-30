@@ -12,7 +12,6 @@ import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v1;
 import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v2;
 import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v3;
 import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v4;
-import com.lorepo.icplayer.client.xml.page.parsers.IPageParser;
 
 public class ModuleXMLParsersFactory {
 
