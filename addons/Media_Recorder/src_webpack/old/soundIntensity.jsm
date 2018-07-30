@@ -1,74 +1,73 @@
 export class SoundIntensity {
-
-    constructor($view) {
-        this.$view = $view;
+    constructor($soundIntensity) {
+        this.$soundIntensity = $soundIntensity;
         this.volumeLevels = 6;
-        this.audioContext = null;
-        this.audioStream = null;
-        this.interval = null;
+        this.audioContext;
+        this.audioStream;
+        this.interval;
     }
 
     openStream(stream) {
         this.audioContext = new AudioContext();
         this.audioStream = this.audioContext.createMediaStreamSource(stream);
 
-        let analyser = this._createAnalyser(this.audioContext);
+        let analyser = this.createAnalyser(this.audioContext);
         this.audioStream.connect(analyser);
 
-        this.interval = setInterval(() => this._updateIntensity(analyser), 200);
+        this.interval = setInterval(() => this.updateIntensity(analyser), 200);
     }
 
     closeStream() {
         clearInterval(this.interval);
-        this._clearIntensity();
+        this.clearIntensity();
 
         this.audioStream.disconnect();
         this.audioContext.close();
     }
 
-    _updateIntensity(analyser) {
+    updateIntensity(analyser) {
         let frequencyArray = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(frequencyArray);
-        let avgVolume = this._calculateAvgVolume(frequencyArray);
-        let alignedVolume = this._alignVolume(avgVolume);
+        let avgVolume = this.calculateAvgVolume(frequencyArray);
+        let alignedVolume = this.alignVolume(avgVolume);
         let intensity = alignedVolume * this.volumeLevels;
 
-        this._setIntensity(intensity);
+        this.setIntensity(intensity);
     }
 
-    _createAnalyser(audioContext) {
+    createAnalyser(audioContext) {
         let analyser = audioContext.createAnalyser();
         analyser.fftSize = 1024;
         analyser.smoothingTimeConstant = 0.3;
         return analyser;
     }
 
-    _calculateAvgVolume(volumeArray) {
+    calculateAvgVolume(volumeArray) {
         let sum = 0;
         for (let i of volumeArray)
             sum += i;
         return sum / volumeArray.length;
     }
 
-    _alignVolume(volume) {
+    alignVolume(volume) {
         volume = volume > 0 ? volume : 0;
         volume = volume < 64 ? volume : 64;
         return volume / 64;
     }
 
-    _setIntensity(intensity) {
-        this._clearIntensity();
+    setIntensity(intensity) {
+        this.clearIntensity();
         for (let currentLevel = 1; currentLevel <= intensity; currentLevel++) {
             let levelId = "#sound-intensity-" + currentLevel;
-            let $level = this.$view.find(levelId);
+            let $level = this.$soundIntensity.find(levelId);
             $level.addClass("selected");
         }
     }
 
-    _clearIntensity() {
+    clearIntensity() {
         for (let currentLevel = 1; currentLevel <= this.volumeLevels; currentLevel++) {
             let levelId = "#sound-intensity-" + currentLevel;
-            let $level = this.$view.find(levelId);
+            let $level = this.$soundIntensity.find(levelId);
             $level.removeClass("selected");
         }
     }

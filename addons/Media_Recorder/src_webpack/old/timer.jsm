@@ -1,5 +1,4 @@
 export class Timer {
-
     constructor($view) {
         this.$view = $view;
         this.interval = null;
@@ -8,8 +7,6 @@ export class Timer {
         this.loadedMinutes = 0;
         this.loadedSeconds = 0;
         this.isLoaded = false;
-
-        this._updateText();
     }
 
     startCountdown() {

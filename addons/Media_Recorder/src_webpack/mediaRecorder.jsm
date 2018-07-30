@@ -1,25 +1,27 @@
-import {PlayButton} from "./playButton.jsm";
-import {RecordButton} from "./recordButton.jsm";
-import {Timer} from "./timer.jsm";
-import {RecorderFactory} from "./recorder/recorderFactory.jsm";
-import {PlayerFactory} from "./player/playerFactory.jsm";
-import {RecordTimeLimiter} from "./recordTimeLimiter.jsm";
-import {validateModel} from "./validator.jsm";
-import {DefaultRecordingLoader} from "./defaultRecordingLoader.jsm";
-import {SoundIntensity} from "./soundIntensity.jsm";
-import {SoundEffect} from "./soundEffect.jsm";
-import {RecordButtonSoundEffect} from "./recordButtonSoundEffect.jsm";
-import {AssetService} from "./assetService.jsm";
-import {RecordingState} from "./recordingState.jsm";
+import {validateModel} from "./modelValidator.jsm";
 import {State} from "./state.jsm";
+import {Timer} from "./timer.jsm";
+import {SoundIntensity} from "./soundIntensity.jsm";
+import {VideoRecorder} from "./videoRecorder.jsm";
+import {VideoMediaResources} from "./videoMediaResources.jsm";
+import {VideoPlayer} from "./videoPlayer.jsm";
+import {RecordButton} from "./recordButton.jsm";
+import {PlayButton} from "./playButton.jsm";
+import {RecordingTimer} from "./recordingTimer.jsm";
+import {SoundEffect} from "./old/soundEffect.jsm";
+import {RecordButtonSoundEffect} from "./recordButtonSoundEffect.jsm";
+import {LoadRecordingService} from "./loadRecordingService.jsm";
+import {RecordingState} from "./recordingState.jsm";
+import {AssetService} from "./assetService.jsm";
 
 export class MediaRecorder {
-    constructor() {
-    }
 
     DEFAULT_VALUES = {
         MAX_TIME: 60,
-        SUPPORTED_TYPES: ['audio', 'video']
+        SUPPORTED_TYPES: {
+            AUDIO: "audio",
+            VIDEO: "video",
+        }
     };
 
     ERROR_CODES = {
@@ -28,106 +30,132 @@ export class MediaRecorder {
         "type_EV01": "Selected type is not supported"
     };
 
+    constructor() {
+        this.playerController = null;
+        this.recordButton = null;
+        this.playButton = null;
+        this.recordingState = null;
+    }
+
     run(view, model) {
-        this.view = view;
-        this.model = model;
+        this._initialize(view, model);
+        this._activeButtons();
 
-        this.initialize();
-
-        this.playButton.activate();
-        this.recordButton.activate();
     }
 
     createPreview(view, model) {
-        this.view = view;
-        this.model = model;
 
-        this.initialize();
     }
 
-    initialize() {
-        this.validateModel = validateModel;
-        let validatedModel = this.validateModel(this.model, this.DEFAULT_VALUES);
+    getState() {
+        return this.recordingState.serialize();
+    }
 
-        if (!validatedModel.isValid) {
-            DOMOperationsUtils.showErrorMessage(this.view, this.ERROR_CODES, this.validateModel.fieldName.join("|") + "_" + this.validateModel.errorCode);
-            return;
-        }
-
-        this.configuration = validatedModel.value;
-        this.state = new State();
-        this.recordingState = new RecordingState();
-
-        let $playerView = $(this.view).find(".media-recorder-player-wrapper");
-        let $timerView = $(this.view).find(".media-recorder-timer");
-        let $soundIntensityView = $(this.view).find(".media-recorder-sound-intensity");
-        let $recordButtonView = $(this.view).find(".media-recorder-recording-button");
-        let $playButtonView = $(this.view).find(".media-recorder-play-button");
-
-        this.timer = new Timer($timerView);
-        this.soundIntensity = new SoundIntensity($soundIntensityView);
-
-        this.playerFactory = new PlayerFactory($playerView, this.timer, this.soundIntensity, this.ERROR_CODES.type_EV01);
-        this.player = this.playerFactory.createPlayer(this.configuration.type);
-
-        this.recorderFactory = new RecorderFactory(this.ERROR_CODES.type_EV01);
-        this.recorder = this.recorderFactory.createRecorder(this.configuration.type);
-
-        this.assetService = new AssetService(this.playerController, this.state);
-        this.recordTimeLimiter = new RecordTimeLimiter(this.configuration.maxTime);
-
-        this.playButton = new PlayButton($playButtonView, this.recordingState, this.timer, this.player, this.soundIntensity);
-        this.recordButton = new RecordButton($recordButtonView, this.recordingState, this.timer, this.recorder, this.recordTimeLimiter);
-
-        this.startRecordingSoundEffect = new SoundEffect(this.configuration.startRecordingSound, $playerView);
-        this.stopRecordingSoundEffect = new SoundEffect(this.configuration.stopRecordingSound, $playerView);
-        this.recordButton = new RecordButtonSoundEffect(this.recordButton, this.startRecordingSoundEffect, this.stopRecordingSoundEffect);
-
-        this.player.onEndedPlaying = () => this.playButton.forceClick();
-        this.recordTimeLimiter.onTimeExpired = () => this.recordButton.forceClick();
-
-        this.recorder.onAvailableResources = stream => {
-            this.player.stream = stream;
-            this.soundIntensity.openStream(stream);
-        };
-
-        this.recorder.onAvailableRecording = blob => {
-            let recording = URL.createObjectURL(blob);
-            this.player.stop();
-            this.player.recording = recording;
-            this.assetService.storeAsset(blob);
-        };
-
-        this.player.onStartPlaying = mediaNode => {
-            let stream = mediaNode.captureStream();
-            this.soundIntensity.openStream(stream);
-        };
-
-        this.player.onStopPlaying = () => {
-            this.soundIntensity.closeStream();
-        };
-
-        this.player.onDurationChanged = duration => {
-            this.timer.duration = duration;
-        };
-
-        this.defaultRecordingLoader = new DefaultRecordingLoader(this.player, this.timer, this.recordingState);
-        this.defaultRecordingLoader.loadDefaultRecording(this.configuration.defaultRecording);
+    setState(state) {
+        this.recordingState.deserialize(state);
+        if(this.recordingState.mediaSource)
+            this.loadRecordingService.loadRecording(this.recordingState.mediaSource);
     }
 
     setPlayerController(playerController) {
         this.playerController = playerController;
     }
 
-    getState() {
-        return this.state.serialize();
+    _initialize(view, model) {
+        let validatedModel = validateModel(model, this.DEFAULT_VALUES);
+
+        if (validatedModel.isValid)
+            this._loadAddon(view, validatedModel.value);
+        else
+            this._showError(view, validatedModel);
     }
 
-    setState(state) {
-        this.state.deserialize(state);
-        if (this.state.mediaSource) {
-            this.recordingState.setLoaded();
-            this.player.recording = this.state.mediaSource;
-        }
+    _loadAddon(view, model) {
+        this.viewHandlers = this._loadViewHandlers(view);
+
+        this.state = new State();
+        this.timer = new Timer(this.viewHandlers.$timerView);
+        this.soundIntensity = new SoundIntensity(this.viewHandlers.$soundIntensityView);
+
+        this.recordingTimer = new RecordingTimer(model.maxTime);
+        this.mediaResources = new VideoMediaResources();
+        this.recorder = new VideoRecorder(this.mediaResources);
+        this.player = new VideoPlayer(this.viewHandlers.$playerView);
+
+        this.startRecordingSoundEffect = new SoundEffect(model.startRecordingSound, this.viewHandlers.$playerView);
+        this.stopRecordingSoundEffect = new SoundEffect(model.stopRecordingSound, this.viewHandlers.$playerView);
+        this.recordButton = new RecordButton(this.viewHandlers.$recordButtonView, this.state, this.mediaResources, this.recorder, this.player, this.timer, this.soundIntensity, this.recordingTimer);
+        this.recordButton = new RecordButtonSoundEffect(this.recordButton, this.startRecordingSoundEffect, this.stopRecordingSoundEffect);
+
+        this.playButton = new PlayButton(this.viewHandlers.$playButtonView, this.state, this.player, this.timer);
+
+        this.recordingState = new RecordingState();
+        this.assetService = new AssetService(this.playerController, this.recordingState);
+
+        // RECORDER
+
+        this.recorder.onAvailableRecording = blob => {
+            let recording = URL.createObjectURL(blob);
+            this.player.setRecording(recording);
+            this.assetService.storeAsset(blob);
+        };
+
+        // PLAYER
+
+        this.player.onStartPlaying = stream => {
+            console.log('onStartPlaying');
+            this.soundIntensity.openStream(stream);
+        };
+
+        this.player.onStopPlaying = () => {
+            console.log('onStopPlaying');
+            this.soundIntensity.closeStream();
+        };
+
+        this.player.onDurationChange = duration => {
+            console.log('onDurationChange ' + duration);
+            this.timer.setDuration(duration);
+        };
+
+        this.player.onEndedPlaying = () => {
+            console.log('onEndedPlaying');
+            this.playButton.forceClick();
+        };
+
+        this.player.onStartLoading = () => {
+            console.log('onStartLoading');
+            this.state.setLoading();
+            this.viewHandlers.$loaderView.removeClass("hidden");
+
+        };
+
+        this.player.onEndLoading = () => {
+            console.log('onEndLoading');
+            this.state.setLoaded();
+            this.viewHandlers.$loaderView.addClass("hidden");
+        };
+
+        this.loadRecordingService = new LoadRecordingService(this.player, this.state);
+        this.loadRecordingService.loadRecording(model.defaultRecording);
+    }
+
+    _loadViewHandlers(view) {
+        return {
+            $playerView: $(view).find(".media-recorder-player-wrapper"),
+            $loaderView: $(view).find(".media-recorder-player-loader"),
+            $recordButtonView: $(view).find(".media-recorder-recording-button"),
+            $playButtonView: $(view).find(".media-recorder-play-button"),
+            $timerView: $(view).find(".media-recorder-timer"),
+            $soundIntensityView: $(view).find(".media-recorder-sound-intensity")
+        };
+    }
+
+    _showError(view, validatedModel) {
+        DOMOperationsUtils.showErrorMessage(view, this.ERROR_CODES, validatedModel.fieldName.join("|") + "_" + validatedModel.errorCode);
+    }
+
+    _activeButtons() {
+        this.recordButton.activate();
+        this.playButton.activate();
     }
 }

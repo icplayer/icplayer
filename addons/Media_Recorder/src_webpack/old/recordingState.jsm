@@ -1,4 +1,4 @@
-export class State {
+export class RecordingState {
     constructor() {
         this.values = {
             NEW: 0,

@@ -19,6 +19,14 @@ function AddonMedia_Recorder_create() {
         mediaRecorder.createPreview(view, model);
     };
 
+    presenter.getState = function () {
+        return mediaRecorder.getState();
+    };
+
+    presenter.setState = function (state) {
+        mediaRecorder.setState(state);
+    };
+
     // presenter.setVisibility = function (isVisible) {
     //     console.log("setVisibility");
     // };
@@ -31,13 +39,6 @@ function AddonMedia_Recorder_create() {
     //     presenter.setVisibility(true);
     // };
     //
-    presenter.getState = function () {
-        return mediaRecorder.getState();
-    };
-
-    presenter.setState = function (state) {
-        mediaRecorder.setState(state);
-    };
     //
     // presenter.setWorkMode = function () {
     //     console.log("setWorkMode");

@@ -1,39 +1,39 @@
 import {RecordButton} from "./recordButton.jsm";
 
 export class RecordButtonSoundEffect extends RecordButton {
-
     constructor(recordButton, startRecordingSoundEffect, stopRecordingSoundEffect) {
-        super(recordButton.$view, recordButton.state, recordButton.mediaResources, recordButton.recorder, recordButton.player, recordButton.timer, recordButton.soundIntensity, recordButton.recordingTimer);
+        super(recordButton.$button, recordButton.state, recordButton.timer, recordButton.recorder, recordButton.recordTimerLimiter);
         this.startRecordingSoundEffect = startRecordingSoundEffect;
         this.stopRecordingSoundEffect = stopRecordingSoundEffect;
-        this._initSoundEffectLogic();
+        this.initSoundEffectLogic();
     }
 
-    _record(stream) {
-        if (this.startRecordingSoundEffect.isValid()) {
+    startRecordingCallback() {
+        if (this.startRecordingSoundEffect.isValid()){
             this.startRecordingSoundEffect.playSound();
-            super._record(stream);
+            super.startRecordingCallback();
         }
         else
-            super._record(stream);
+            super.startRecordingCallback();
     }
 
-    _onStopRecording() {
+    stopRecordingCallback(){
         if (this.stopRecordingSoundEffect.isValid())
             this.stopRecordingSoundEffect.playSound();
         else
-            super._onStopRecording();
+            super.stopRecordingCallback();
     }
 
-    _initSoundEffectLogic() {
+    initSoundEffectLogic() {
         this.startRecordingSoundEffect.onStartCallback = () => {
         };
+
         this.startRecordingSoundEffect.onStopCallback = () => {
         };
 
         this.stopRecordingSoundEffect.onStartCallback = () => {
             this.deactivate();
-            super._onStopRecording();
+            super.stopRecordingCallback();
             this.state.setRecording();
         };
 

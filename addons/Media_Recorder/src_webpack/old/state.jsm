@@ -1,5 +1,4 @@
-export class RecordingState{
-
+export class State {
     constructor() {
         this.mediaSource = null;
     }

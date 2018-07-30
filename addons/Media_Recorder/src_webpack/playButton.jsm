@@ -1,42 +1,41 @@
 export class PlayButton {
-
-    constructor($button, state, timer, player) {
-        this.$button = $button;
+    constructor($view, state, player, timer) {
+        this.$view = $view;
         this.state = state;
-        this.timer = timer;
         this.player = player;
+        this.timer = timer;
     }
 
     activate() {
-        this.$button.click(event => this.eventHandler(event));
+        this.$view.click(() => this._eventHandler());
     }
 
     deactivate() {
-        this.$button.unbind();
+        this.$view.unbind();
     }
 
     forceClick(){
-        this.$button.click();
+        this.$view.click();
     }
 
-    eventHandler(event) {
+    _eventHandler() {
         if (this.state.isLoaded())
-            this.onStartPlaying(event);
+            this._onStartPlaying();
         else if (this.state.isPlaying())
-            this.onStopPlaying(event)
+            this._onStopPlaying()
     }
 
-    onStartPlaying(event) {
-        $(event.target).addClass("selected");
+    _onStartPlaying() {
+        this.$view.addClass("selected");
         this.state.setPlaying();
+        this.player.startPlaying();
         this.timer.startCountdown();
-        this.player.play();
     }
 
-    onStopPlaying(event) {
-        $(event.target).removeClass("selected");
+    _onStopPlaying() {
+        this.$view.removeClass("selected");
         this.state.setLoaded();
+        this.player.stopPlaying();
         this.timer.stopCountdown();
-        this.player.stop();
     }
 }

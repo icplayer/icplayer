@@ -1,56 +1,59 @@
 export class RecordButton {
-    constructor($button, state, timer, recorder, recordTimerLimiter) {
-        this.$button = $button;
+
+    constructor($view, state, mediaResources, recorder, player, timer, soundIntensity, recordingTimer) {
+        this.$view = $view;
         this.state = state;
-        this.timer = timer;
+        this.mediaResources = mediaResources;
         this.recorder = recorder;
-        this.recordTimerLimiter = recordTimerLimiter;
+        this.player = player;
+        this.timer = timer;
+        this.soundIntensity = soundIntensity;
+        this.recordingTimer = recordingTimer;
+
+        this.recordingTimer.onTimeExpired = () => this.forceClick();
     }
 
     activate() {
-        this.$button.click(() => this.eventHandler());
+        this.$view.click(() => this._eventHandler());
     }
 
     deactivate() {
-        this.$button.unbind();
+        this.$view.unbind();
     }
 
     forceClick() {
-        this.$button.click();
+        this.$view.click();
     }
 
-    eventHandler() {
+    _eventHandler() {
         if (this.state.isNew() || this.state.isLoaded())
-            this.onStartRecording();
+            this._onStartRecording();
         else if (this.state.isRecording())
-            this.onStopRecording()
+            this._onStopRecording()
     }
 
-    onStartRecording() {
-        this.recorder.onStartRecording = () => this.startRecordingCallback();
-
-        console.log("START RECORDING");
-        this.recorder.startRecording();
+    _onStartRecording() {
+        this.mediaResources.getMediaResources(stream => this._record(stream));
     }
 
-    onStopRecording() {
-        this.recorder.onStopRecording = () => this.stopRecordingCallback();
-        this.recorder.stopRecording()
-    };
-
-    startRecordingCallback() {
-        console.log("START RECORDING CALLBACK");
-        this.$button.addClass("selected");
-        this.state.setRecording();
+    _record(stream) {
+        this.recorder.startRecording(stream);
+        this.player.startStreaming(stream);
+        this.$view.addClass("selected");
         this.timer.reset();
         this.timer.startCountdown();
-        this.recordTimerLimiter.startCountdown();
+        this.recordingTimer.startCountdown();
+        this.state.setRecording();
+        this.soundIntensity.openStream(stream);
     }
 
-    stopRecordingCallback() {
-        this.$button.removeClass("selected");
-        this.state.setLoaded();
+    _onStopRecording() {
+        this.recorder.stopRecording();
+        this.player.stopStreaming();
+        this.$view.removeClass("selected");
         this.timer.stopCountdown();
-        this.recordTimerLimiter.stopCountdown();
+        this.recordingTimer.stopCountdown();
+        this.state.setLoading();
+        this.soundIntensity.closeStream();
     }
 }
