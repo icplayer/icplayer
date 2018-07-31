@@ -1813,6 +1813,6 @@ var ice_dictionary_pl = {
     "Double_State_Button_property_image_selected_alternative_text": "Tekst alternatywny dla zaznaczonego obrazu",
     "Double_state_button_speech_text_disabled": "Nie czytaj tekstów mowy",
     "copy_page_layout": "Copy page settings",
-    "copy_page_layout_question": "You are going to copy page setings from layout: "
+    "copy_page_layout_question": "You are going to copy page settings from layout: "
 };
 
