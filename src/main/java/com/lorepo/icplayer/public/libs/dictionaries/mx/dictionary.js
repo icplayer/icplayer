@@ -1793,7 +1793,6 @@ var ice_dictionary_mx = {
     "Double_State_Button_property_image_alternative_text": "Image alternative text",
     "Double_State_Button_property_image_selected_alternative_text": "Image selected alternative text",
     "Double_state_button_speech_text_disabled": "Do not read the Speech texts",
-    "copy_page_layout": "Copy page layout",
-    "copy_page_layout_question": "Are you sure?",
-    "select_source_layout": "Select layout"
+    "copy_page_layout": "Copy page settings",
+    "copy_page_layout_question": "You are going to copy page setings from layout: "
 };
