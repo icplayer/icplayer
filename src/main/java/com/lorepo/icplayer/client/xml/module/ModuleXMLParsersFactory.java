@@ -1,10 +1,9 @@
 package com.lorepo.icplayer.client.xml.module;
 
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Map.Entry;
 
 import com.google.gwt.xml.client.Element;
-import com.lorepo.icplayer.client.xml.IParser;
 import com.lorepo.icplayer.client.xml.module.parsers.IModuleModelBuilder;
 import com.lorepo.icplayer.client.xml.module.parsers.IModuleModelParser;
 import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v0;
@@ -35,13 +34,9 @@ public class ModuleXMLParsersFactory {
 	
 	public void setDefaultLayoutID (String layoutID) {
 		defaultLayoutID = layoutID;
-		Iterator<String> iter = this.parsersMap.keySet().iterator();
-		while (iter.hasNext()) {
-			IParser parser = this.parsersMap.get(iter.next());
-			if (parser instanceof IModuleModelParser) {
-				((IModuleModelParser) parser).setDefaultLayoutID(layoutID);
-			}
-		}
+	     for(Entry<String, IModuleModelParser> entry: this.parsersMap.entrySet()) {
+	           entry.getValue().setDefaultLayoutID(layoutID);
+	     }
 	}
 	
 	public void produce(Element node, String version) {

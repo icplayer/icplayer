@@ -189,7 +189,7 @@ public class GWTPageTestCase extends GwtTest {
 	}
 	
 	@Test
-	public void isVisiblityFromXML() throws Exception {
+	public void isVisibilityFromXML() throws Exception {
 		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
 		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
 
@@ -232,7 +232,7 @@ public class GWTPageTestCase extends GwtTest {
 	}
 	
 	@Test
-	public void isVisiblityFromXMLVersion4() throws Exception {
+	public void isVisibilityFromXMLVersion4() throws Exception {
 		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
 		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
 
@@ -275,7 +275,7 @@ public class GWTPageTestCase extends GwtTest {
 	}
 	
 	@Test
-	public void isVisiblityFromXMLVersion4WithSetDefaultLayout() throws Exception {
+	public void isVisibilityFromXMLVersion4WithSetDefaultLayout() throws Exception {
 		PageParser_v3 pageParser = new PageParser_v3();
 		pageParser.setDefaultLayoutID("E38BC2B9-2466-431B-8168-F542CB68EC74");
 		Page page = new Page("Page 1", "");

@@ -30,7 +30,7 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 		}
 	}
 	
-	private void setDefaultIsVisible(Element layouts){
+	protected void setDefaultIsVisible(Element layouts){
 		NodeList layoutChildren = layouts.getChildNodes();
 		for (int i = 0; i < layoutChildren.getLength(); i++){
 			Node childNode = layoutChildren.item(i);
