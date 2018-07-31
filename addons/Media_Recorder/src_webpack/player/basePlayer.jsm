@@ -8,11 +8,8 @@ export class BasePlayer extends Player {
             throw new Error("Cannot create an instance of BasePlayer abstract class");
 
         this.$view = $view;
-
-        this.$view.css("background-color", "black");
-        this.mediaNode = this._getMediaNode();
+        this.mediaNode = this._createMediaNode();
         this.mediaNode.controls = false;
-        this.mediaNode.style.display = "visible";
         this.$view.append(this.mediaNode);
 
         this._enableEventsHandling();
@@ -51,11 +48,12 @@ export class BasePlayer extends Player {
 
         this.mediaNode.ondurationchange = () => {
             // faster resolution then
-            // this.mediaNode.ondurationchange = () => callback(this.mediaNode.duration)
+            // this.mediaNode.ondurationchange = () => this.onDurationChangeCallback(this.mediaNode.duration)
             let playerMock = new Audio(this.mediaNode.src);
             playerMock.addEventListener("durationchange", function () {
                 if (this.duration != Infinity) {
                     self.onDurationChangeCallback(this.duration);
+                    playerMock.src = "";
                     playerMock.remove();
                 }
             }, false);
@@ -76,7 +74,7 @@ export class BasePlayer extends Player {
         this.mediaNode.oncanplay = () => {};
     }
 
-    _getMediaNode() {
+    _createMediaNode() {
         throw new Error("GetMediaNode accessor is not implemented");
     }
 }

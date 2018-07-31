@@ -46,7 +46,7 @@ export class MediaRecorder {
     }
 
     createPreview(view, model) {
-
+        this._initialize(view, model);
     }
 
     getState() {

@@ -27,6 +27,18 @@ function AddonMedia_Recorder_create() {
         mediaRecorder.setState(state);
     };
 
+    presenter.getErrorCount = function(){
+        return 0;
+    };
+
+    presenter.getMaxScore = function(){
+        return 0;
+    };
+
+    presenter.getScore = function(){
+        return 0;
+    };
+
     // presenter.setVisibility = function (isVisible) {
     //     console.log("setVisibility");
     // };
@@ -39,6 +51,9 @@ function AddonMedia_Recorder_create() {
     //     presenter.setVisibility(true);
     // };
     //
+    // presenter.setShowErrorsMode = function () {
+    //     console.log("setShowErrorsMode");
+    // };
     //
     // presenter.setWorkMode = function () {
     //     console.log("setWorkMode");
@@ -55,6 +70,34 @@ function AddonMedia_Recorder_create() {
     // presenter.executeCommand = function (name, params) {
     //     console.log("executeCommand");
     // };
+    //
+    // presenter.isAllOk = function(){
+    //
+    // };
+    //
+    // presenter.disable= function(){
+    //
+    // };
+    // presenter.enable= function(){
+    //
+    // };
+
+
+    // isDisabled
+    // Oznacza, że addon jest praktycznie wyłączony.
+    // nie wysyła eventów
+    // nie koloruje ( nie nadaje klas ) poprawnych/złych odpowiedzi
+    // jest nieklikalny i/lub nie można wprowadzać do niego żadnych wartości
+    // powinien dostać klasę disable
+
+    // isActivity lub isNotActivity
+    // W tym stanie addon nie jest brany pod uwagę podczas sprawdzania wyników.
+    // metody getScore, getMaxScore, getErrorsCount powinny zwracać 0
+    // kolorowanie ( nadawanie klas ) poprawnych/złych odpowiedzi nie jest wykonywane
+    // eventy powinny być wysyłane!
+
+    // Tryb Sprawdzania (setShowErrorsMode)
+    // W tym trybie addon powinien być disabled.
 
     return presenter;
 }

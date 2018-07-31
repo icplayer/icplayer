@@ -4,9 +4,10 @@ export class AudioPlayer extends BasePlayer {
 
     constructor($view) {
         super($view);
+        this.mediaNode.style.display = "hidden";
     }
 
-    _getMediaNode() {
+    _createMediaNode() {
         return document.createElement("audio");
     }
 }

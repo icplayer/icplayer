@@ -4,9 +4,11 @@ export class VideoPlayer extends BasePlayer {
 
     constructor($view) {
         super($view);
+        this.$view.css("background-color", "black");
+        this.mediaNode.style.display = "visible";
     }
 
-    _getMediaNode() {
+    _createMediaNode() {
         return document.createElement("video");
     }
 }
