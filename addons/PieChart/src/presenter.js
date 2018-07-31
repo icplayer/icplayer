@@ -389,12 +389,14 @@ function AddonPieChart_create(){
             }
             presenter.isLineInMove = false;
         });
-        presenter.$view.find('.piechart').on('touchmove', function(e){
+        presenter.$view.find('.piechart').on('touchmove', function (e) {
+            var scale = presenter.playerController.getScaleInformation();
+            var center_scaled = presenter.center * scale.scaleX;
             e.stopPropagation();
             e.preventDefault();
-            x = parseInt(e.originalEvent.touches[0].pageX,10) - presenter.piechart.offset().left - presenter.center;
-            y = presenter.piechart.offset().top - parseInt(e.originalEvent.touches[0].pageY,10) + presenter.center;
-            if (presenter.isLineInMove && (x < -presenter.center || y < -presenter.center || x >presenter.center || y > presenter.center) && !presenter.disabled && !presenter.isErrorCheckingMode && !presenter.isShowAnswersActive) {
+            x = (parseInt(e.originalEvent.touches[0].pageX, 10) / scale.scaleX - presenter.piechart.offset().left / scale.scaleX - presenter.center);
+            y = (presenter.piechart.offset().top / scale.scaleY - parseInt(e.originalEvent.touches[0].pageY, 10) / scale.scaleY + presenter.center);
+            if (presenter.isLineInMove && (x < -center_scaled || y < -center_scaled || x > center_scaled || y > center_scaled) && !presenter.disabled && !presenter.isErrorCheckingMode && !presenter.isShowAnswersActive) {
                 presenter.isLineInMove = false;
                 (presenter.isAllOK()) ? (score=1) : (score=0);
                 if (!presenter.activity) score ='';
@@ -414,7 +416,8 @@ function AddonPieChart_create(){
         presenter.eventBus.addEventListener('HideAnswers', this);
     };
     presenter.doTheMove = function(i,x,y) {
-        var angle, angle2, angleTmp, previousItem, nextItem;
+        var scale = presenter.playerController.getScaleInformation();
+        var angle, angle2, angleTmp, previousItem, nextItem, smallerAngle, isAcute, greaterAngle, isAcTwo;
 
         if (i === presenter.numberOfItems) {
             nextItem = 1;
@@ -432,10 +435,14 @@ function AddonPieChart_create(){
         }
         presenter.move = false;
         angle = (angle + 360) % 360;
-        if (angle >= (presenter.angles[i-1] + presenter.step/100*360 + 1)%360 - 1 && (angle - presenter.angles[i-1] +360)%360 < 90) {
+        smallerAngle = (presenter.angles[i-1] + presenter.step * (1/scale.scaleX)/100*360 + 1)%360 - 1 ;
+        isAcute = (angle - presenter.angles[i-1] +360)%360;
+        greaterAngle = (presenter.angles[i-1] - presenter.step * (1/scale.scaleX)/100*360 + 359) % 360+1 ;
+        isAcTwo = (presenter.angles[i-1] -angle + 360)%360;
+        if (isAcute < 90 && ((angle >= smallerAngle ) || angle <= greaterAngle)){
             angle = presenter.angles[i-1] + presenter.step/100*360;
             presenter.move = 'plus';
-        } else if (angle <= (presenter.angles[i-1] - presenter.step/100*360 + 359) % 360+1 && (presenter.angles[i-1] -angle + 360)%360 < 90) {
+        } else if ((isAcTwo < 90) && ((angle >= smallerAngle ) || angle <= greaterAngle)){
             angle = presenter.angles[i-1] - presenter.step/100*360;
             presenter.move = 'minus';
         }
