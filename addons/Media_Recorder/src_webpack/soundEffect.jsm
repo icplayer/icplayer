@@ -6,6 +6,7 @@ export class SoundEffect {
         this.audioNode.src = sound;
         this.audioNode.style.display = "none";
         this.$wrapper.append(this.audioNode);
+        this.startCallback = () => {};
     }
 
     isValid() {
@@ -13,20 +14,15 @@ export class SoundEffect {
     }
 
     playSound() {
-        if (this.stopCallback)
-            this.audioNode.onended = () => this.stopCallback();
-
+        this.startCallback();
         this.audioNode.play();
-
-        if (this.startCallback)
-            this.startCallback();
     }
 
-    set onStartCallback(startCallback) {
-        this.startCallback = startCallback;
+    set onStartCallback(callback) {
+        this.startCallback = callback;
     }
 
-    set onStopCallback(stopCallback) {
-        this.stopCallback = stopCallback;
+    set onStopCallback(callback) {
+        this.audioNode.onended = () => callback;
     }
 }

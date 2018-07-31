@@ -1,34 +1,33 @@
-export class VideoPlayer {
+import {Player} from "./player.jsm";
+
+export class BasePlayer extends Player {
 
     constructor($view) {
+        super();
+        if (this.constructor === BasePlayer)
+            throw new Error("Cannot create an instance of BasePlayer abstract class");
+
         this.$view = $view;
 
         this.$view.css("background-color", "black");
-        this.mediaNode = document.createElement("video");
+        this.mediaNode = this._getMediaNode();
         this.mediaNode.controls = false;
         this.mediaNode.style.display = "visible";
         this.$view.append(this.mediaNode);
-
-        this.onStartPlaying = stream => {};
-        this.onStopPlaying = () => {};
-        this.onDurationChange = duration => {};
-        this.onEndedPlaying = () => {};
-        this.onStartLoading = () => {};
-        this.onEndLoading = () => {};
 
         this._enableEventsHandling();
     }
 
     startPlaying() {
         this.mediaNode.play();
-        this.onStartPlaying(this.mediaNode.captureStream());
+        this.onStartPlayingCallback(this.mediaNode.captureStream());
     }
 
     stopPlaying() {
         this.mediaNode.pause();
         this.mediaNode.currentTime = 0;
         this.mediaNode.muted = false;
-        this.onStopPlaying();
+        this.onStopPlayingCallback();
     }
 
     setRecording(source) {
@@ -56,7 +55,7 @@ export class VideoPlayer {
             let playerMock = new Audio(this.mediaNode.src);
             playerMock.addEventListener("durationchange", function () {
                 if (this.duration != Infinity) {
-                    self.onDurationChange(this.duration);
+                    self.onDurationChangeCallback(this.duration);
                     playerMock.remove();
                 }
             }, false);
@@ -65,9 +64,9 @@ export class VideoPlayer {
             playerMock.volume = 0;
         };
 
-        this.mediaNode.onended = () => this.onEndedPlaying();
-        this.mediaNode.onloadstart = () => this.onStartLoading();
-        this.mediaNode.oncanplay = () => this.onEndLoading();
+        this.mediaNode.onended = () => this.onEndedPlayingCallback();
+        this.mediaNode.onloadstart = () => this.onStartLoadingCallback();
+        this.mediaNode.oncanplay = () => this.onEndLoadingCallback();
     }
 
     _disableEventsHandling(){
@@ -75,5 +74,9 @@ export class VideoPlayer {
         this.mediaNode.onended = () => {};
         this.mediaNode.onloadstart = () => {};
         this.mediaNode.oncanplay = () => {};
+    }
+
+    _getMediaNode() {
+        throw new Error("GetMediaNode accessor is not implemented");
     }
 }

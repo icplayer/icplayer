@@ -1,10 +1,8 @@
 import {validateModel} from "./modelValidator.jsm";
+import {createMediaResources} from "./resources/mediaResourcesFactory.jsm";
 import {State} from "./state.jsm";
 import {Timer} from "./timer.jsm";
 import {SoundIntensity} from "./soundIntensity.jsm";
-import {VideoRecorder} from "./videoRecorder.jsm";
-import {VideoMediaResources} from "./videoMediaResources.jsm";
-import {VideoPlayer} from "./videoPlayer.jsm";
 import {RecordButton} from "./recordButton.jsm";
 import {PlayButton} from "./playButton.jsm";
 import {RecordingTimer} from "./recordingTimer.jsm";
@@ -13,6 +11,10 @@ import {RecordButtonSoundEffect} from "./recordButtonSoundEffect.jsm";
 import {LoadRecordingService} from "./loadRecordingService.jsm";
 import {RecordingState} from "./recordingState.jsm";
 import {AssetService} from "./assetService.jsm";
+import {createRecorder} from "./recorder/recorderFactory.jsm";
+import {createPlayer} from "./player/playerFactory.jsm";
+import {RecorderEventHandlingImplementation} from "./recorder/recorderEventHandlingImplementation.jsm";
+import {PlayerEventHandlingImplementation} from "./player/playerEventHandlingImplementation.jsm";
 
 export class MediaRecorder {
 
@@ -53,7 +55,7 @@ export class MediaRecorder {
 
     setState(state) {
         this.recordingState.deserialize(state);
-        if(this.recordingState.mediaSource)
+        if (this.recordingState.mediaSource)
             this.loadRecordingService.loadRecording(this.recordingState.mediaSource);
     }
 
@@ -78,9 +80,9 @@ export class MediaRecorder {
         this.soundIntensity = new SoundIntensity(this.viewHandlers.$soundIntensityView);
 
         this.recordingTimer = new RecordingTimer(model.maxTime);
-        this.mediaResources = new VideoMediaResources();
-        this.recorder = new VideoRecorder(this.mediaResources);
-        this.player = new VideoPlayer(this.viewHandlers.$playerView);
+        this.mediaResources = createMediaResources(model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01);
+        this.recorder = createRecorder(model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01);
+        this.player = createPlayer(model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01, this.viewHandlers.$playerView);
 
         this.startRecordingSoundEffect = new SoundEffect(model.startRecordingSound, this.viewHandlers.$playerView);
         this.stopRecordingSoundEffect = new SoundEffect(model.stopRecordingSound, this.viewHandlers.$playerView);
@@ -92,48 +94,11 @@ export class MediaRecorder {
         this.recordingState = new RecordingState();
         this.assetService = new AssetService(this.playerController, this.recordingState);
 
-        // RECORDER
+        this.recorderEventHandlingImplementation = new RecorderEventHandlingImplementation(this.recorder, this.player, this.assetService);
+        this.recorderEventHandlingImplementation.handleEvents();
 
-        this.recorder.onAvailableRecording = blob => {
-            let recording = URL.createObjectURL(blob);
-            this.player.setRecording(recording);
-            this.assetService.storeAsset(blob);
-        };
-
-        // PLAYER
-
-        this.player.onStartPlaying = stream => {
-            console.log('onStartPlaying');
-            this.soundIntensity.openStream(stream);
-        };
-
-        this.player.onStopPlaying = () => {
-            console.log('onStopPlaying');
-            this.soundIntensity.closeStream();
-        };
-
-        this.player.onDurationChange = duration => {
-            console.log('onDurationChange ' + duration);
-            this.timer.setDuration(duration);
-        };
-
-        this.player.onEndedPlaying = () => {
-            console.log('onEndedPlaying');
-            this.playButton.forceClick();
-        };
-
-        this.player.onStartLoading = () => {
-            console.log('onStartLoading');
-            this.state.setLoading();
-            this.viewHandlers.$loaderView.removeClass("hidden");
-
-        };
-
-        this.player.onEndLoading = () => {
-            console.log('onEndLoading');
-            this.state.setLoaded();
-            this.viewHandlers.$loaderView.addClass("hidden");
-        };
+        this.playerEventHandlingImplementation = new PlayerEventHandlingImplementation(this.player, this.soundIntensity, this.timer, this.playButton, this.state, this.viewHandlers.$loaderView);
+        this.playerEventHandlingImplementation.handleEvents();
 
         this.loadRecordingService = new LoadRecordingService(this.player, this.state);
         this.loadRecordingService.loadRecording(model.defaultRecording);

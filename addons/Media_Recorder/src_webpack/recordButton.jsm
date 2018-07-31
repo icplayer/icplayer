@@ -33,27 +33,30 @@ export class RecordButton {
     }
 
     _onStartRecording() {
+        this.state.setBlocked();
+        debugger;
         this.mediaResources.getMediaResources(stream => this._record(stream));
     }
 
     _record(stream) {
+        debugger;
         this.recorder.startRecording(stream);
         this.player.startStreaming(stream);
+        this.state.setRecording();
         this.$view.addClass("selected");
         this.timer.reset();
         this.timer.startCountdown();
         this.recordingTimer.startCountdown();
-        this.state.setRecording();
         this.soundIntensity.openStream(stream);
     }
 
     _onStopRecording() {
         this.recorder.stopRecording();
         this.player.stopStreaming();
+        this.state.setLoading();
         this.$view.removeClass("selected");
         this.timer.stopCountdown();
         this.recordingTimer.stopCountdown();
-        this.state.setLoading();
         this.soundIntensity.closeStream();
     }
 }

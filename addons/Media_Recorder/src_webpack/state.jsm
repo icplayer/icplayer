@@ -5,7 +5,8 @@ export class State {
             RECORDING: 1,
             LOADING: 2,
             LOADED: 3,
-            PLAYING: 4
+            PLAYING: 4,
+            BLOCKED: 5
         };
         this.value = this.values.NEW;
     };
@@ -30,6 +31,10 @@ export class State {
         return this.value === this.values.PLAYING;
     }
 
+    isBlocked() {
+        return this.value === this.values.BLOCKED;
+    }
+
     setRecording() {
         this.value = this.values.RECORDING;
     }
@@ -46,5 +51,7 @@ export class State {
         this.value = this.values.PLAYING;
     }
 
-
+    setBlocked(){
+        this.value = this.values.BLOCKED;
+    }
 }
