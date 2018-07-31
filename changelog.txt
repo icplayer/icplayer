@@ -1,3 +1,4 @@
+2018-07-31 Fixed PieChart's display on Desktop devices
 2018-07-26 Removed reading "connected" when in Show Answer Mode in TTS
 2018-07-25 Added test mode in quiz
 2018-07-23 Added module sorting in editor
