@@ -14,12 +14,10 @@ export class RecordButton {
     }
 
     activate() {
-        console.log("ACTIVATE RECORD BUTTON");
         this.$view.click(() => this._eventHandler());
     }
 
     deactivate() {
-        console.log("DEACTIVATE RECORD BUTTON");
         this.$view.unbind();
     }
 
