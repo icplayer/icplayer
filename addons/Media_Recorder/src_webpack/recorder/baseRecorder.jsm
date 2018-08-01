@@ -23,6 +23,15 @@ export class BaseRecorder extends Recorder {
         });
     }
 
+    destroy() {
+        this.onAvailableRecordingCallback = blob => {};
+
+        if(this.recorder){
+            this.recorder.stopRecording();
+            this._clearRecorder();
+        }
+    }
+
     _clearRecorder() {
         if (this.recorder) {
             this.recorder.destroy();
@@ -30,7 +39,7 @@ export class BaseRecorder extends Recorder {
         }
     }
 
-    _getOptions(){
+    _getOptions() {
         throw new Error("GetOptions accessor is not implemented");
     }
 }

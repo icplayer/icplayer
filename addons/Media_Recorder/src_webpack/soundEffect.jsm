@@ -18,6 +18,15 @@ export class SoundEffect {
         this.audioNode.play();
     }
 
+    destroy() {
+        this.audioNode.pause();
+        this.audioNode.src = "";
+        this.audioNode.remove();
+        this.audioNode = null;
+        this.$wrapper.remove();
+        this.$wrapper = null;
+    }
+
     set onStartCallback(callback) {
         this.startCallback = callback;
     }

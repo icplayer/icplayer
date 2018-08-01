@@ -25,6 +25,20 @@ export class RecordButton {
         this.$view.click();
     }
 
+    destroy() {
+        this.deactivate();
+        this.$view.remove();
+        this.$view = null;
+        this.state = null;
+        this.mediaResources = null;
+        this.recorder = null;
+        this.player = null;
+        this.timer = null;
+        this.soundIntensity = null;
+        this.recordingTimer.onTimeExpired = null;
+        this.recordingTimer = null;
+    }
+
     _eventHandler() {
         if (this.state.isNew() || this.state.isLoaded())
             this._onStartRecording();
@@ -34,12 +48,10 @@ export class RecordButton {
 
     _onStartRecording() {
         this.state.setBlocked();
-        debugger;
         this.mediaResources.getMediaResources(stream => this._record(stream));
     }
 
     _record(stream) {
-        debugger;
         this.recorder.startRecording(stream);
         this.player.startStreaming(stream);
         this.state.setRecording();

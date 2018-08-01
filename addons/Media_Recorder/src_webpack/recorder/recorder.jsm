@@ -16,6 +16,10 @@ export class Recorder {
         throw new Error("StopRecording method is not implemented");
     }
 
+    destroy(){
+        throw new Error("Destroy method is not implemented");
+    }
+
     set onAvailableRecording(callback) {
         this.onAvailableRecordingCallback = blob => callback(blob);
     }

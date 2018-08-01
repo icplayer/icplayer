@@ -26,6 +26,16 @@ export class SoundIntensity {
         this.audioContext.close();
     }
 
+    destroy(){
+        if(this.audioStream)
+            this.closeStream();
+        this.interval = null;
+        this.$view.remove();
+        this.$view = null;
+        this.audioContext = null;
+        this.audioStream = null;
+    }
+
     _updateIntensity(analyser) {
         let frequencyArray = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(frequencyArray);

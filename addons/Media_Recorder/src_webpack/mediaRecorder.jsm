@@ -6,7 +6,6 @@ import {SoundIntensity} from "./soundIntensity.jsm";
 import {RecordButton} from "./recordButton.jsm";
 import {PlayButton} from "./playButton.jsm";
 import {RecordingTimer} from "./recordingTimer.jsm";
-import {SoundEffect} from "./old/soundEffect.jsm";
 import {RecordButtonSoundEffect} from "./recordButtonSoundEffect.jsm";
 import {LoadRecordingService} from "./loadRecordingService.jsm";
 import {RecordingState} from "./recordingState.jsm";
@@ -15,6 +14,7 @@ import {createRecorder} from "./recorder/recorderFactory.jsm";
 import {createPlayer} from "./player/playerFactory.jsm";
 import {RecorderEventHandlingImplementation} from "./recorder/recorderEventHandlingImplementation.jsm";
 import {PlayerEventHandlingImplementation} from "./player/playerEventHandlingImplementation.jsm";
+import {SoundEffect} from "./soundEffect.jsm";
 
 export class MediaRecorder {
 
@@ -31,13 +31,6 @@ export class MediaRecorder {
         "maxTime_INT04": "Time in seconds cannot be negative value",
         "type_EV01": "Selected type is not supported"
     };
-
-    constructor() {
-        this.playerController = null;
-        this.recordButton = null;
-        this.playButton = null;
-        this.recordingState = null;
-    }
 
     run(view, model) {
         this._initialize(view, model);
@@ -61,6 +54,40 @@ export class MediaRecorder {
 
     setPlayerController(playerController) {
         this.playerController = playerController;
+    }
+
+    destroy(){
+        this.recorder.destroy();
+        this.player.destroy();
+        this.mediaResources.destroy();
+        this.recordingTimer.destroy();
+        this.soundIntensity.destroy();
+        this.timer.destroy();
+        this.playButton.destroy();
+        this.startRecordingSoundEffect.destroy();
+        this.stopRecordingSoundEffect.destroy();
+        this.recordButton.destroy();
+
+        this.state = null;
+        this.viewHandlers = null;
+        this.recorder = null;
+        this.player = null;
+        this.mediaResources = null;
+        this.recordingTimer = null;
+        this.soundIntensity = null;
+        this.timer = null;
+        this.recordButton = null;
+        this.playButton = null;
+
+        this.stopRecordingSoundEffect = null;
+        this.startRecordingSoundEffect = null;
+        this.assetService = null;
+        this.recordingState = null;
+        this.recorderEventHandlingImplementation = null;
+        this.playerEventHandlingImplementation = null;
+        this.loadRecordingService = null;
+
+        this.playerController = null;
     }
 
     _initialize(view, model) {

@@ -41,6 +41,13 @@ export class Timer {
         this._updateText();
     }
 
+    destroy() {
+        clearInterval(this.interval);
+        this.interval = null;
+        this.$view.remove();
+        this.$view = null;
+    }
+
     _clearCurrentTime() {
         this.currentMinutes = 0;
         this.currentSeconds = 0;

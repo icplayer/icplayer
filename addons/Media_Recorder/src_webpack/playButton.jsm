@@ -14,8 +14,17 @@ export class PlayButton {
         this.$view.unbind();
     }
 
-    forceClick(){
+    forceClick() {
         this.$view.click();
+    }
+
+    destroy() {
+        this.deactivate();
+        this.$view.remove();
+        this.$view = null;
+        this.state = null;
+        this.player = null;
+        this.timer = null;
     }
 
     _eventHandler() {

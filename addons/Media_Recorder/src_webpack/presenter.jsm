@@ -13,10 +13,12 @@ function AddonMedia_Recorder_create() {
 
     presenter.run = function (view, model) {
         mediaRecorder.run(view, model);
+        handleDestroy(view);
     };
 
     presenter.createPreview = function (view, model) {
         mediaRecorder.createPreview(view, model);
+        handleDestroy(view);
     };
 
     presenter.getState = function () {
@@ -27,17 +29,28 @@ function AddonMedia_Recorder_create() {
         mediaRecorder.setState(state);
     };
 
-    presenter.getErrorCount = function(){
+    presenter.getErrorCount = function () {
         return 0;
     };
 
-    presenter.getMaxScore = function(){
+    presenter.getMaxScore = function () {
         return 0;
     };
 
-    presenter.getScore = function(){
+    presenter.getScore = function () {
         return 0;
     };
+
+    presenter.destroy = function(event) {
+        event.target.removeEventListener('DOMNodeRemoved', presenter.destroy);
+        mediaRecorder.destroy();
+        event.target = null;
+        mediaRecorder = null;
+    };
+
+    function handleDestroy (view) {
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
+    }
 
     // presenter.setVisibility = function (isVisible) {
     //     console.log("setVisibility");

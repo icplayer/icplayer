@@ -43,6 +43,17 @@ export class BasePlayer extends Player {
         this._enableEventsHandling();
     }
 
+    destroy(){
+        this._disableCallbacks();
+        this._disableEventsHandling();
+        this.stopPlaying();
+        this.mediaNode.src = "";
+        this.mediaNode.remove();
+        this.$view.remove();
+        this.mediaNode = null;
+        this.$view = null;
+    }
+
     _enableEventsHandling(){
         let self = this;
 
@@ -72,6 +83,15 @@ export class BasePlayer extends Player {
         this.mediaNode.onended = () => {};
         this.mediaNode.onloadstart = () => {};
         this.mediaNode.oncanplay = () => {};
+    }
+
+    _disableCallbacks() {
+        this.onStartPlayingCallback = stream => {};
+        this.onStopPlayingCallback = () => {};
+        this.onDurationChangeCallback = duration => {};
+        this.onEndedPlayingCallback = () => {};
+        this.onStartLoadingCallback = () => {};
+        this.onEndLoadingCallback = () => {};
     }
 
     _createMediaNode() {

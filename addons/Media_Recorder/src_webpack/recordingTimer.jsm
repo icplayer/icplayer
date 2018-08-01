@@ -18,6 +18,13 @@ export class RecordingTimer {
         this.counter = 0;
     }
 
+    destroy(){
+        this.callback = () => {};
+        clearInterval(this.interval);
+        this.interval = null;
+        this.callback = null;
+    }
+
     _incrementTimer() {
         this.counter += this.workingDelay;
         if (this.counter >= this.maxTime) {

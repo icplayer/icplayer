@@ -32,6 +32,10 @@ export class Player {
         throw new Error("StopStreaming method is not implemented");
     }
 
+    destroy(){
+        throw new Error("Destroy method is not implemented");
+    }
+
     set onStartPlaying(callback) {
         this.onStartPlayingCallback = stream => callback(stream);
     }
