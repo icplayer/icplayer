@@ -112,11 +112,14 @@
 }
 
 .media-recorder-player-loader {
+    width: 4vw;
+    height: 4vw;
+}
+
+.video-loader {
     border: 5px solid #f3f3f3;
     border-top: 5px solid #1d2830;
     border-radius: 50%;
-    width: 5vw;
-    height: 5vw;
     animation: spin 0.7s linear infinite;
     position: absolute;
     margin: auto;
@@ -129,8 +132,4 @@
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-}
-
-.hidden{
-    visibility: hidden;
 }

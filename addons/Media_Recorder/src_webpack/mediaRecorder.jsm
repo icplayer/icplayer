@@ -15,6 +15,7 @@ import {createPlayer} from "./player/playerFactory.jsm";
 import {RecorderEventHandlingImplementation} from "./recorder/recorderEventHandlingImplementation.jsm";
 import {PlayerEventHandlingImplementation} from "./player/playerEventHandlingImplementation.jsm";
 import {SoundEffect} from "./soundEffect.jsm";
+import {createLoader} from "./loader/loaderFactory.jsm";
 
 export class MediaRecorder {
 
@@ -39,7 +40,8 @@ export class MediaRecorder {
     }
 
     createPreview(view, model) {
-        this._initialize(view, model);
+        this.viewHandlers = this._loadViewHandlers(view);
+        this.player = createPlayer(model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01, this.viewHandlers.$playerView);
     }
 
     getState() {
@@ -67,6 +69,7 @@ export class MediaRecorder {
         this.startRecordingSoundEffect.destroy();
         this.stopRecordingSoundEffect.destroy();
         this.recordButton.destroy();
+        this.loader.destroy();
 
         this.state = null;
         this.viewHandlers = null;
@@ -78,7 +81,6 @@ export class MediaRecorder {
         this.timer = null;
         this.recordButton = null;
         this.playButton = null;
-
         this.stopRecordingSoundEffect = null;
         this.startRecordingSoundEffect = null;
         this.assetService = null;
@@ -86,6 +88,7 @@ export class MediaRecorder {
         this.recorderEventHandlingImplementation = null;
         this.playerEventHandlingImplementation = null;
         this.loadRecordingService = null;
+        this.loader = null;
 
         this.playerController = null;
     }
@@ -121,10 +124,12 @@ export class MediaRecorder {
         this.recordingState = new RecordingState();
         this.assetService = new AssetService(this.playerController, this.recordingState);
 
+        this.loader = createLoader(model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01, this.viewHandlers.$loaderView);
+
         this.recorderEventHandlingImplementation = new RecorderEventHandlingImplementation(this.recorder, this.player, this.assetService);
         this.recorderEventHandlingImplementation.handleEvents();
 
-        this.playerEventHandlingImplementation = new PlayerEventHandlingImplementation(this.player, this.soundIntensity, this.timer, this.playButton, this.state, this.viewHandlers.$loaderView);
+        this.playerEventHandlingImplementation = new PlayerEventHandlingImplementation(this.player, this.soundIntensity, this.timer, this.playButton, this.state, this.loader);
         this.playerEventHandlingImplementation.handleEvents();
 
         this.loadRecordingService = new LoadRecordingService(this.player, this.state);

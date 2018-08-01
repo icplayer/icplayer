@@ -1,12 +1,12 @@
 export class PlayerEventHandlingImplementation {
 
-    constructor(player, soundIntensity, timer, playButton, state, $loaderView) {
+    constructor(player, soundIntensity, timer, playButton, state, loader) {
         this.player = player;
         this.soundIntensity = soundIntensity;
         this.timer = timer;
         this.playButton = playButton;
         this.state = state;
-        this.$loaderView = $loaderView;
+        this.loader = loader;
     }
 
     handleEvents() {
@@ -28,12 +28,12 @@ export class PlayerEventHandlingImplementation {
 
         this.player.onStartLoading = () => {
             this.state.setLoading();
-            this.$loaderView.removeClass("hidden");
+            this.loader.show()
         };
 
         this.player.onEndLoading = () => {
             this.state.setLoaded();
-            this.$loaderView.addClass("hidden");
+            this.loader.hide();
         };
     }
 }

@@ -32,6 +32,6 @@ export class SoundEffect {
     }
 
     set onStopCallback(callback) {
-        this.audioNode.onended = () => callback;
+        this.audioNode.onended = () => callback();
     }
 }

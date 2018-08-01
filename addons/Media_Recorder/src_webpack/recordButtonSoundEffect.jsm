@@ -32,7 +32,9 @@ export class RecordButtonSoundEffect extends RecordButton {
             super._onStopRecording();
             this.deactivate();
         };
-        this.stopRecordingSoundEffect.onStopCallback = () => this.activate();
+        this.stopRecordingSoundEffect.onStopCallback = () => {
+            this.activate()
+        };
         this.stopRecordingSoundEffect.playSound();
     }
 }
