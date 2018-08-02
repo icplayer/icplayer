@@ -25,7 +25,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	
 	private Page currentPage;
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
-	private HashMap<String, AbsolutePanel> groupsPanel = new HashMap<String, AbsolutePanel>(); 
+	private HashMap<String, AbsolutePanel> groupsPanel = new HashMap<String, AbsolutePanel>();
 	private PageDimensionsForCalculations pageDimensions;
 	private CalculateModuleDimensions calculateModuleDimensions = new CalculateModuleDimensions();
 	private WidgetsPositionsStore widgetsPositions = new WidgetsPositionsStore(); 
@@ -79,36 +79,42 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		    this.widgetsPositions.add(moduleView, moduleDimensions);
 		}
 	}
-	
+
 	@Override
 	public void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId) {
 		if(view instanceof Widget){
 			Widget moduleView = (Widget) view;
-			AbsolutePanel groupPanel = groupsPanel.get(groupId); 
-			
+			AbsolutePanel groupPanel = groupsPanel.get(groupId);
+
 			ModuleDimensions moduleDimensions = this.calculateModuleDimensions.setPageDimensions(this.pageDimensions)
 					.setModule(module)
 					.compute(this.widgets);
-			
+
 			moduleView.setPixelSize(moduleDimensions.width, moduleDimensions.height);
 			groupPanel.add(moduleView, moduleDimensions.left, moduleDimensions.top);
 		    this.widgets.put(module.getId(), moduleView);
 		    this.widgetsPositions.add(moduleView, moduleDimensions);
 		}
 	}
-	
+
 	@Override
 	public void addGroupView(Group group) {
 		if(group.isDiv()) {
-			AbsolutePanel groupWidget = new AbsolutePanel(); 
+			AbsolutePanel groupWidget = new AbsolutePanel();
 			groupWidget.getElement().setClassName("modules_group");
 			String styleClass = group.getStyleClass();
+			String inlineStyle = group.getInlineStyle();
+			groupWidget.setVisible(group.isVisible());
+
+			if(inlineStyle != null) {
+				DOMUtils.applyInlineStyle(groupWidget.getElement(), inlineStyle);
+			}
             if(styleClass != null && !styleClass.isEmpty()){
                 groupWidget.addStyleName(styleClass);
             }
 			groupWidget.getElement().setId(group.getId());
 			groupWidget.setPixelSize(group.getWidth()+2, group.getHeight()+2);
-			add(groupWidget, group.getLeft(), group.getTop()); 
+			add(groupWidget, group.getLeft(), group.getTop());
 			groupsPanel.put(group.getId(), groupWidget);
 		}
 	}

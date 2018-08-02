@@ -9,20 +9,20 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 
 public class GroupPropertyProvider extends ModulesPropertyProvider{
 
-	private boolean isVisible = true; 
+	private boolean isVisible = true;
 
 	public GroupPropertyProvider(String name){
-		super(name); 
+		super(name);
 	}
 	
 	public void initGroupPropertyProvider() {
 		for(IModuleModel model: moduleModels) {
 			model.setGroupPropertyProvider(this);
 		}
-		registerLeftAndTopProperties(); 
+		registerLeftAndTopProperties();
 		update();
-	} 
-	
+	}
+
 	public void closeGroupPropertyProvider() {
 		for(IModuleModel model: moduleModels) {
 			model.setGroupPropertyProvider(null);
@@ -32,37 +32,26 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 		}
 	   super.setIsDiv(false);
 	}
-	
+
 	protected void registerLeftAndTopProperties() {
 		addPropertyLeft();
 		addPropertyTop();
 		addPropertyWidth();
 		addPropertyHeight();
 		addPropertyGroupToDiv();
-		addPropertyIsVisible(); 
-	}
-	
-	
-	@Override
-	public int getLeft() {
-		return super.getLeft(); 
-	}
-
-	@Override
-	public int getTop() {
-		return super.getTop(); 
+		addPropertyIsVisible();
 	}
 
 	@Override
 	public int getWidth() {
 		if(isDiv()) {
-			return super.getWidth(); 
+			return super.getWidth();
 		}else {
-			int max = 0; 
+			int max = 0;
 			for(IModuleModel model : moduleModels) {
-				int w = (model.getLeft() - super.getLeft()) + model.getWidth(); 
+				int w = (model.getLeft() - super.getLeft()) + model.getWidth();
 				if(max < w) {
-					max = w; 
+					max = w;
 				}
 			}
 			super.setWidth(max);
@@ -73,13 +62,13 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 	@Override
 	public int getHeight() {
 		if(isDiv()) {
-			return super.getHeight(); 
+			return super.getHeight();
 		}else {
-			int max = 0; 
+			int max = 0;
 			for(IModuleModel model : moduleModels) {
-				int h = (model.getTop() - super.getTop()) + model.getHeight(); 
+				int h = (model.getTop() - super.getTop()) + model.getHeight();
 				if(max < h) {
-						max = h; 
+						max = h;
 				}
 			}
 			super.setHeight(max);
@@ -89,7 +78,7 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 
 	@Override
 	public void setLeft(int left) {
-		int num = left - super.getLeft(); 
+		int num = left - super.getLeft();
 		super.setLeft(left);
 		if(!isDiv()){
 			for(IModuleModel model : moduleModels) {
@@ -127,27 +116,27 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 		sendPropertyChangedEvent(heightProperty);
 	}
 
-	
+
 	private void addPropertyLeft() {
 
 		this.leftProperty = new IProperty() {
-			
+
 			public String ATTRIBUTE_KEY = DimensionName.LEFT;
 			public String ATTRIBUTE_NAME = "Left";
-			
+
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					setLeft(Integer.parseInt(newValue)); 
+					setLeft(Integer.parseInt(newValue));
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
-				update(); 
+				update();
 				return Integer.toString(getLeft());
 			}
-			
+
 			@Override
 			public String getName() {
 				return ATTRIBUTE_NAME;
@@ -163,30 +152,30 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 				return false;
 			}
 		};
-		
+
 		addProperty(this.leftProperty);
 	}
-	
+
 	private void addPropertyTop() {
 
 		topProperty = new IProperty() {
-			
+
 			public String ATTRIBUTE_KEY = DimensionName.TOP;
 			public String ATTRIBUTE_NAME = "Top";
-			
+
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					setTop(Integer.parseInt(newValue)); 
+					setTop(Integer.parseInt(newValue));
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				update();
 				return Integer.toString(getTop());
 			}
-			
+
 			@Override
 			public String getName() {
 				return ATTRIBUTE_NAME;
@@ -202,30 +191,30 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 				return false;
 			}
 		};
-		
+
 		addProperty(topProperty);
 	}
 	
 	private void addPropertyWidth() {
 
 		widthProperty = new IProperty() {
-			
+
 			public String ATTRIBUTE_KEY = DimensionName.WIDTH;
 			public String ATTRIBUTE_NAME = "Width";
-			
+
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
-					setWidth(Integer.parseInt(newValue)); 
+					setWidth(Integer.parseInt(newValue));
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return Integer.toString(getWidth());
 			}
-			
+
 			@Override
 			public String getName() {
 				return ATTRIBUTE_NAME;
@@ -241,17 +230,17 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 				return false;
 			}
 		};
-		
+
 		addProperty(widthProperty);
 	}
 
 	private void addPropertyHeight() {
 
 		heightProperty = new IProperty() {
-			
+
 			public String ATTRIBUTE_KEY = DimensionName.HEIGHT;
 			public String ATTRIBUTE_NAME = "Height";
-			
+
 			@Override
 			public void setValue(String newValue) {
 				if(newValue.length() > 0){
@@ -259,12 +248,12 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 					sendPropertyChangedEvent(this);
 				}
 			}
-			
+
 			@Override
 			public String getValue() {
 				return Integer.toString(getHeight());
 			}
-			
+
 			@Override
 			public String getName() {
 				return ATTRIBUTE_NAME;
@@ -280,10 +269,10 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 				return false;
 			}
 		};
-		
+
 		addProperty(heightProperty);
 	}
-	
+
 	private void addPropertyGroupToDiv() {
 		IProperty property = new IBooleanProperty() {
 
@@ -320,7 +309,7 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 
 		addProperty(property);
 	}
-	
+
 	private void addPropertyIsVisible() {
 		IProperty property = new IBooleanProperty() {
 
@@ -330,7 +319,9 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 
 				if (value != isVisible()) {
 					setIsVisible(value);
-					updateVisible();
+					if(!isDiv()) {
+						updateVisible(value);
+					}
 					sendPropertyChangedEvent(this);
 				}
 			}
@@ -359,29 +350,29 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 
 		addProperty(property);
 	}
-	 
-	
-	private void updateVisible() {
+
+
+	private void updateVisible(boolean isVisible) {
 		for(IModuleModel m : moduleModels) {
 			m.setIsVisible(isVisible);
 		}
 	}
-	
+
 	private void updatePoint() {
-		int minLeft = moduleModels.get(0).getLeft(); 
-		int minTop = moduleModels.get(0).getTop(); 
+		int minLeft = moduleModels.get(0).getLeft();
+		int minTop = moduleModels.get(0).getTop();
 		for(IModuleModel model : moduleModels) {
 			if(minLeft > model.getLeft()) {
-				minLeft = model.getLeft(); 
+				minLeft = model.getLeft();
 			}
 			if(minTop > model.getTop()) {
-				minTop = model.getTop(); 
+				minTop = model.getTop();
 			}
 		}
 		super.setLeft(minLeft);
 		super.setTop(minTop);
 	}
-	
+
 	public void update() {
 		if(!isDiv()) {
 			if(moduleModels.size() > 0) {
@@ -389,60 +380,49 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 			}
 		}
 	}
-	
+
 	public void updatePointleft(int delta) {
 		if(isDiv()) {
 			super.setLeft(super.getLeft() + delta);
 		}
 	}
-	
+
 	public void updatePointTop(int delta) {
 		if(isDiv()) {
 			super.setTop(super.getTop() + delta);
 		}
 	}
-	
-	
-	public void change(boolean isDiv) {
+
+	public void setDiv(boolean isDiv) {
 		if(isDiv()!= isDiv) {
-			if(isDiv == true) {
-				changeAbsoluteToRelative(); 
+			if(isDiv) {
+				changeAbsoluteToRelative();
 			}
 			else {
-				changeRelativeToAbsolute(); 
+				changeRelativeToAbsolute();
 			}
 			super.setIsDiv(isDiv);
 		}
 	}
-	
-	public void setDiv(boolean isDiv) {
-		change(isDiv); 
-	}
-	
+
 	public void changeAbsoluteToRelative() {
 		for(IModuleModel m : moduleModels) {
 			m.changeAbsoluteToRelative(super.getLeft(), super.getTop());
 		}
 	}
-	
+
 	public void changeRelativeToAbsolute() {
 		for(IModuleModel m : moduleModels) {
 			m.changeRelativeToAbsolute(super.getLeft(), super.getTop());
 		}
 	}
-	
-	
-	public boolean isDiv() {
-		return super.isDiv();
-	}
-	
-	
+
 	public void setIsVisible(boolean isVisible) {
 		semiResponsivePositions.setIsVisible(isVisible);
 	}
-	
+
 	public boolean isVisible() {
-		return semiResponsivePositions.isVisible(); 
+		return semiResponsivePositions.isVisible();
 	}
 
 }

@@ -5,9 +5,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
-import com.lorepo.icplayer.client.module.AbsolutePositioningGroup;
-import com.lorepo.icplayer.client.module.AbsolutePositioningModule;
 import com.lorepo.icplayer.client.module.StyledGroup;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 
@@ -133,7 +130,4 @@ public abstract class ModulesPropertyProvider extends StyledGroup implements Lis
 		return moduleModels.toArray(arg0); 
 	}
 
-	public List<IModuleModel> getModules() {
-		return moduleModels;
-	}
 }

@@ -16,23 +16,14 @@ public class GroupSemiResponsivePositions extends SemiResponsivePositions{
 	private HashMap<String, Boolean> isDiv = new HashMap<String, Boolean>(); 
 	
 	public GroupSemiResponsivePositions () {
-		this.positions.put(this.defaultLayoutID, new ModuleDimensions());
-		this.layoutsDefinitions.put(this.defaultLayoutID, new LayoutDefinition());
-		this.isVisible.put(this.semiResponsiveID, true);
-		this.isLocked.put(this.semiResponsiveID, false);
-		this.isModuleVisibleInEditor.put(this.semiResponsiveID, true);
+		super();
 		this.isDiv.put(this.semiResponsiveID, false); 
 	}
 	
 	
 	protected void deleteOldLayouts(Set<PageLayout> actualSemiResponsiveLayouts) {
+		super.deleteOldLayouts(actualSemiResponsiveLayouts);
 		Set<String> actualIDs = this.convertToActualLayoutsIDs(actualSemiResponsiveLayouts);
-		
-		this.removeOldKeysFromHashMap(actualIDs, this.positions);
-		this.removeOldKeysFromHashMap(actualIDs, this.layoutsDefinitions);
-		this.removeOldKeysFromHashMap(actualIDs, this.isVisible);
-		this.removeOldKeysFromHashMap(actualIDs, this.isLocked);
-		this.removeOldKeysFromHashMap(actualIDs, this.isModuleVisibleInEditor);
 		this.removeOldKeysFromHashMap(actualIDs, this.isDiv);
 	}
 	

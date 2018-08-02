@@ -917,19 +917,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public List<Group> getGroupedModules() {
 		return groupedModules;
 	}
-	
-	public void addGroupedModules(Group group) {
-		boolean isIntoList = false; 
-		for(Group g : groupedModules) {
-			if(g.getId().equals(group.getId())) {
-				isIntoList = true; 
-				break; 
-			}
-		}
-		if(isIntoList ==false) {
-			groupedModules.add(group);
-		}
-	}
 
 	public void setRulers(List<Ruler> verticals, List<Ruler> horizontals) {
 		rulers.put("verticals", verticals);
@@ -972,7 +959,16 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	@Override
 	public void addGroupModules(Group group) {
-		this.groupedModules.add(group);
+		boolean groupAlreadyInList = false;
+		for(Group g : groupedModules) {
+			if(g.getId().equals(group.getId())) {
+				groupAlreadyInList = true;
+				break;
+			}
+		}
+		if(groupAlreadyInList ==false) {
+			groupedModules.add(group);
+		}
 	}
 
 	@Override
@@ -1152,12 +1148,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	public Group getGroupById(String id) {
-		Group found = null;
 		for(Group g : groupedModules) {
 			if(g.getId().equals(id)) {
-				found = g;
+				return g;
 			}
 		}
-		return found;
+		return null;
 	}
 }
