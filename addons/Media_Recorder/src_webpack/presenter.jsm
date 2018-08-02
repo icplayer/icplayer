@@ -1,4 +1,5 @@
 import {MediaRecorder} from "./mediaRecorder.jsm";
+import {validateModel} from "./modelValidator.jsm";
 
 function AddonMedia_Recorder_create() {
 
@@ -51,6 +52,8 @@ function AddonMedia_Recorder_create() {
             mediaRecorder.destroy();
             event.target = null;
             mediaRecorder = null;
+
+            presenter.validateModel = null;
         }
     };
 
@@ -117,6 +120,8 @@ function AddonMedia_Recorder_create() {
 
     // Tryb Sprawdzania (setShowErrorsMode)
     // W tym trybie addon powinien być disabled.
+
+    presenter.validateModel = validateModel;
 
     return presenter;
 }

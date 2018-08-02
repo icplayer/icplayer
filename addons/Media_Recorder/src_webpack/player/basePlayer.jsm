@@ -1,4 +1,5 @@
 import {Player} from "./player.jsm";
+import {createMediaStream} from "../media/mediaStreamCreator.jsm";
 
 export class BasePlayer extends Player {
 
@@ -17,7 +18,8 @@ export class BasePlayer extends Player {
 
     startPlaying() {
         this.mediaNode.play();
-        this.onStartPlayingCallback(this.mediaNode.captureStream());
+        let mediaStream = createMediaStream(this.mediaNode);
+        this.onStartPlayingCallback(mediaStream);
     }
 
     stopPlaying() {

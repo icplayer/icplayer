@@ -1,3 +1,5 @@
+import {createAudioAnalyser} from "./media/audioAnalyserCreator.jsm";
+
 export class SoundIntensity {
 
     constructor($view) {
@@ -12,10 +14,10 @@ export class SoundIntensity {
         this.audioContext = new AudioContext();
         this.audioStream = this.audioContext.createMediaStreamSource(stream);
 
-        let analyser = this._createAnalyser(this.audioContext);
+        let analyser = createAudioAnalyser(this.audioContext);
         this.audioStream.connect(analyser);
 
-        this.interval = setInterval(() => this._updateIntensity(analyser), 200);
+        this.interval = setInterval(() => this._updateIntensity(analyser), 100);
     }
 
     closeStream() {
@@ -26,8 +28,8 @@ export class SoundIntensity {
         this.audioContext.close();
     }
 
-    destroy(){
-        if(this.audioStream)
+    destroy() {
+        if (this.audioStream)
             this.closeStream();
         this.interval = null;
         this.$view.remove();
@@ -40,17 +42,11 @@ export class SoundIntensity {
         let frequencyArray = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(frequencyArray);
         let avgVolume = this._calculateAvgVolume(frequencyArray);
-        let alignedVolume = this._alignVolume(avgVolume);
+        let raisedVolume = this._raiseVolume(avgVolume);
+        let alignedVolume = this._alignVolume(raisedVolume);
         let intensity = alignedVolume * this.volumeLevels;
 
         this._setIntensity(intensity);
-    }
-
-    _createAnalyser(audioContext) {
-        let analyser = audioContext.createAnalyser();
-        analyser.fftSize = 1024;
-        analyser.smoothingTimeConstant = 0.3;
-        return analyser;
     }
 
     _calculateAvgVolume(volumeArray) {
@@ -58,6 +54,12 @@ export class SoundIntensity {
         for (let i of volumeArray)
             sum += i;
         return sum / volumeArray.length;
+    }
+
+    _raiseVolume(volume) {
+        return volume > 0
+            ? volume * 1.2
+            : volume;
     }
 
     _alignVolume(volume) {
