@@ -1,3 +1,4 @@
+2018-08-03 Added Copy Page Settings to Page properties
 2018-08-03 Changed is visible property so that it's common for all layouts
 2018-07-31 Fixed PieChart's display on Desktop devices
 2018-07-26 Removed reading "connected" when in Show Answer Mode in TTS

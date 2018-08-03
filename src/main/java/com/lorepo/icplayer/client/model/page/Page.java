@@ -551,6 +551,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	public void addStyleListener(IStyleListener listener) {
 		styleListener = listener;
 	}
+	
+	@Override
+	public SemiResponsiveStyles getSemiResponsiveStyles() {
+		return this.semiResponsiveStyles;
+	}
 
 	@Override
 	public String getInlineStyle() {
