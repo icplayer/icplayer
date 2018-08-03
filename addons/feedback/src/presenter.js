@@ -433,7 +433,7 @@ function Addonfeedback_create() {
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
-    
+
     presenter.show = function () {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
@@ -492,7 +492,7 @@ function Addonfeedback_create() {
         } else {
             presenter.setResponse(state['currentStateId']);
         }
-        
+
         presenter.configuration.isVisible = state['isVisible'];
         presenter.setVisibility(state['isVisible']);
     };
@@ -518,7 +518,17 @@ function Addonfeedback_create() {
         $element.attr('tabindex', value);
     };
 
-    presenter.keyboardController = function(keyCode, isShift) {
+    presenter.handleSpace = function (keyCode) {
+            $(document).on('keydown', function (event) {
+                if (keyCode == 32 || keyCode == 38 || keyCode == 40 || keyCode == 27) { // space OR up/down buttons pressed
+                    event.preventDefault();
+                }
+                $(this).off('keydown');
+            });
+    };
+
+    presenter.keyboardController = function(keyCode, isShift) { //every time keyboard is pressed
+      presenter.handleSpace(keyCode);
         if (keyCode == 13) {
             presenter.readCurrentMessage(true);
         }

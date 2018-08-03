@@ -24,7 +24,7 @@ public class GWTLessonResetTestCase extends GwtTest {
 	
 	@Test
 	public void testToXML () throws SAXException, IOException {
-		String expected = "<lessonResetModule id=\"some &lt;&gt; id\" isTabindexEnabled=\"false\"><layouts><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\" isVisible=\"true\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><lessonReset title=\"some&lt;&gt; stitle\" resetMistakes=\"false\" resetChecks=\"false\"/></lessonResetModule>";
+		String expected = "<lessonResetModule id=\"some &lt;&gt; id\" isTabindexEnabled=\"false\"><layouts isVisible=\"true\"><layout isLocked=\"false\" isModuleVisibleInEditor=\"true\" id=\"default\"><relative type=\"LTWH\"><left relative=\"\" property=\"left\"/><top relative=\"\" property=\"top\"/><right relative=\"\" property=\"right\"/><bottom relative=\"\" property=\"bottom\"/></relative><absolute left=\"0\" right=\"0\" top=\"0\" bottom=\"0\" width=\"0\" height=\"0\"/></layout></layouts><lessonReset title=\"some&lt;&gt; stitle\" resetMistakes=\"false\" resetChecks=\"false\"/></lessonResetModule>";
 		Whitebox.setInternalState(module, "title", "some<> stitle");
 		Whitebox.setInternalState(module, "id", "some <> id");
 		

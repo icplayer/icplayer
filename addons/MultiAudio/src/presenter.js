@@ -367,14 +367,14 @@ function AddonMultiAudio_create(){
     presenter.previous = function() {
         if (this.currentAudio > 0) {
             this.currentAudio--;
-            this.initialize(this.globalView, this.globalModel);
+            this.initialize(this.globalView[0], this.globalModel);
         }
     };
 
     presenter.next = function() {
         if (this.currentAudio < this.files.length - 1) {
             this.currentAudio++;
-            this.initialize(this.globalView, this.globalModel);
+            this.initialize(this.globalView[0], this.globalModel);
         }
     };
 

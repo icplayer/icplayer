@@ -22,6 +22,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private INameValidator nameValidator;
 	private String buttonType;
 	private boolean isTabindexEnabled = false;
+	private String contentDefaultLayoutID = null;
 
 	protected BasicModuleModel(String typeName, String name) {
 		super(name);
@@ -68,6 +69,11 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		String css = URLUtils.resolveCSSURL(this.baseURL, style);
 		super.setInlineStyle(css);
 	}
+	
+	@Override
+	public void setContentDefaultLayoutID(String layoutID) {
+		this.contentDefaultLayoutID = layoutID;
+	}
 
 	/**
 	 * Load attributes common to all modules: - position - style
@@ -76,6 +82,9 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	public void load(Element element, String baseUrl, String version) {
 		this.baseURL = baseUrl;
 		ModuleXMLParsersFactory factory = new ModuleXMLParsersFactory(this);
+		if (this.contentDefaultLayoutID != null) {
+			factory.setDefaultLayoutID(contentDefaultLayoutID);
+		}
 		factory.produce(element, version);
 		this.parseModuleNode(element);
 	}
@@ -94,7 +103,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		String escapedId = StringUtils.escapeXML(this.getId());
 		moduleXML.setAttribute("id", escapedId);
 		XMLUtils.setBooleanAttribute(moduleXML, "isTabindexEnabled", this.isTabindexEnabled);
-
+		
 		if (this.haveStyles()) {
 			moduleXML.appendChild(this.stylesToXML());
 		}

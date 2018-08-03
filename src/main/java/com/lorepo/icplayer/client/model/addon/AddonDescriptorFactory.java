@@ -69,6 +69,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Quiz", "games_menu");
 		addDescriptor("Shooting_Range", "games_menu");
 		addDescriptor("Sudoku", "games_menu");
+		addDescriptor("Maze", "games_menu");
 
 		// REPORTING
 		addDescriptor("Animated_Lesson_Progress", "reporting_menu");

@@ -230,7 +230,7 @@
     };
 
     /**
-     If addon will exit from WCAG mode, then exitWCAGMode callback will be called.
+     If addon exits from WCAG mode, then exitWCAGMode callback will be called.
      If you want to override that method, be sure to call this method too.
      @method exitWCAGMode
     */

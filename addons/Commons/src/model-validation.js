@@ -399,17 +399,17 @@
           return typeof fn == 'function' || false;
         }
 
-        return toString.call(fn) === '[object ' + Function + ']';
+        return Object.prototype.toString.call(fn) === '[object ' + Function + ']';
     }
 
     //https://github.com/jashkenas/underscore/blob/master/underscore.js
     function isString (val) {
-        return toString.call(val) === '[object String]';
+        return Object.prototype.toString.call(val) === '[object String]';
     }
 
     function isArray (val) {
         function _isArray (val) {
-            return toString.call(val) === '[object Array]';
+            return Object.prototype.toString.call(val) === '[object Array]';
         }
 
         var fnToCheck = Array.isArray || _isArray;
@@ -868,6 +868,41 @@
             }
 
             return this.generateErrorCode("EV01");
+        },
+
+        /**
+         * Validate possible value in static list.
+         *
+         * config: {
+         *      <fieldName>: Validator[]
+         * }
+         *
+         * Error Codes:
+         * SL01: Provided field doesnt exists
+         *
+         * @namespace ModelValidators
+         * @class StaticList
+         * @extends ModelValidators.Validator
+         */
+        StaticList: function (valueToValidate, config) {
+            var validatedList = {};
+
+            for (var fieldName in config) {
+                if (config.hasOwnProperty(fieldName)) {
+                    if (valueToValidate[fieldName] === undefined) {
+                        return this.generateErrorCode("SL01");
+                    }
+
+                    var validatedValue = this.validateModel(valueToValidate[fieldName], config[fieldName]);
+                    if (!validatedValue.isValid) {
+                        return validatedValue;
+                    }
+
+                    validatedList[fieldName] = validatedValue.value;
+                }
+            }
+
+            return this.generateValidValue(validatedList);
         },
 
         utils: {

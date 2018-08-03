@@ -1,20 +1,27 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 
-<addon id='Quiz' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
-	<model>
-		<property name="Questions" nameLabel="Quiz_property_Questions" type="list" isDefault="true">
-			<property name="Question" nameLabel="Quiz_property_Question" type="html" isLocalized="true" />
-			<property name="CorrectAnswer" nameLabel="Quiz_property_CorrectAnswer" type="string" />
-			<property name="WrongAnswer1" nameLabel="Quiz_property_WrongAnswer1" type="string" />
-			<property name="WrongAnswer2" nameLabel="Quiz_property_WrongAnswer2" type="string" />
-			<property name="WrongAnswer3" nameLabel="Quiz_property_WrongAnswer3" type="string" />
-			<property name="Hint" nameLabel="Quiz_property_hint" type="html" isLocalized="true" />
-		</property>
-		<property name="ShowHelpButtons" nameLabel="Quiz_property_ShowHelpButtons" type="boolean" />
-		<property name="NextLabel" nameLabel="Quiz_property_NextLabel" type="string" isLocalized="true" />
-		<property name="GameLostMessage" nameLabel="Quiz_property_GameLostMessage" type="html" isLocalized="true" />
-		<property name="GameWonMessage" nameLabel="Quiz_property_GameWonMessage" type="html" isLocalized="true" />
-		<property name="Center vertically" nameLabel="Quiz_property_center_vertically" type="boolean" />
-        <property name="isActivity" nameLabel="Quiz_property_isActivity" type="boolean" />
-	</model>
+<addon id='Quiz' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="Questions" nameLabel="Quiz_property_Questions" type="list" isDefault="true">
+            <property name="Question" nameLabel="Quiz_property_Question" type="html" isLocalized="true"/>
+            <property name="CorrectAnswer" nameLabel="Quiz_property_CorrectAnswer" type="string"/>
+            <property name="WrongAnswer1" nameLabel="Quiz_property_WrongAnswer1" type="string"/>
+            <property name="WrongAnswer2" nameLabel="Quiz_property_WrongAnswer2" type="string"/>
+            <property name="WrongAnswer3" nameLabel="Quiz_property_WrongAnswer3" type="string"/>
+            <property name="Hint" nameLabel="Quiz_property_hint" type="html" isLocalized="true"/>
+        </property>
+        <property name="TestMode" nameLabel="Quiz_property_TestMode" type="boolean"/>
+        <property name="ShowHelpButtons" nameLabel="Quiz_property_ShowHelpButtons" type="boolean"/>
+        <property name="NextAfterSelect" nameLabel="Quiz_property_NextAfterSelect" type="boolean"/>
+        <property name="NextLabel" nameLabel="Quiz_property_NextLabel" type="string" isLocalized="true"/>
+        <property name="GameLostMessage" nameLabel="Quiz_property_GameLostMessage" type="html" isLocalized="true"/>
+        <property name="GameWonMessage" nameLabel="Quiz_property_GameWonMessage" type="html" isLocalized="true"/>
+        <property name="ShowSummary" nameLabel="Quiz_property_Summary" type="boolean"/>
+        <property name="GameSummaryMessage" nameLabel="Quiz_property_GameSummaryMessage" type="html" isLocalized="true"/>
+        <property name="CorrectGameMessage" nameLabel="Quiz_property_CorrectGameMessage" type="html" isLocalized="true"/>
+        <property name="WrongGameMessage" nameLabel="Quiz_property_WrongGameMessage" type="html" isLocalized="true"/>
+        <property name="Center vertically" nameLabel="Quiz_property_center_vertically" type="boolean"/>
+        <property name="isActivity" nameLabel="Quiz_property_isActivity" type="boolean"/>
+    </model>
 </addon>

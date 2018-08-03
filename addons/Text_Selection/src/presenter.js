@@ -1340,7 +1340,16 @@ function AddonText_Selection_create() {
         presenter._keyboardController = new TextSelectionKeyboardController(jQueryToSelect, toSelect.length);
     };
 
+    presenter.handleEsc = function(keyCode){
+        $(document).on('keydown', function(e){
+           if(keyCode == 27) {
+               e.preventDefault();
+           }$(this).off('keydown');
+        });
+    };
+
     presenter.keyboardController = function(keycode, isShiftKeyDown) {
+        presenter.handleEsc(keycode);
         if (presenter._keyboardController === null) {
             presenter.buildKeyboardController();
         }

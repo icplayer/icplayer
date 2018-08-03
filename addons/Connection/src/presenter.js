@@ -510,15 +510,13 @@ function AddonConnection_create() {
         var delta = current - presenter.lastClickTime;
         if (!isSelectionPossible || delta < 50) return;
         presenter.lastClickTime = current;
-        if (!$(element).hasClass('selected') && selectedItem == null) {
-            // zaznaczony pierwszy element
+        if (!$(element).hasClass('selected') && selectedItem == null) { // first element selected
             $(element).parent().find('.connectionItem').removeClass('selected');
             $(element).addClass('selected');
             selectedItem = $(element);
             return;
         }
-        if (selectedItem != null && $(element).get(0) == selectedItem.get(0)) {
-            // ponownie kliknięty już zaznaczony element
+        if (selectedItem != null && $(element).get(0) == selectedItem.get(0)) { // clicking the selected element again
             $(element).removeClass('selected');
             selectedItem = null;
             return;
@@ -526,7 +524,7 @@ function AddonConnection_create() {
         if (selectedItem != null &&
             ($(element).parents('.connectionLeftColumn').get(0) == selectedItem.parents('.connectionLeftColumn').get(0) ||
                 $(element).parents('.connectionRightColumn').get(0) == selectedItem.parents('.connectionRightColumn').get(0))) {
-            // kliknięty element w tej samej kolumnie
+            // element clicked in the same column
             var linesToSwitch = [];
             if (singleMode) {
                 for (var i = 0; i < presenter.lineStack.length(); i++) {
@@ -1506,8 +1504,8 @@ function AddonConnection_create() {
             var connections = getConnections($active);
             var TextVoiceArray = window.TTSUtils.getTextVoiceArrayFromElement($active, presenter.langTag);
 
-            if ($active.hasClass('selected')) {
-                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
+            if ($active.hasClass('selected') && !presenter.isShowAnswersActive) {
+                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
             }
 
             if (connections.length) {
@@ -1530,7 +1528,8 @@ function AddonConnection_create() {
     ConnectionKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
     ConnectionKeyboardController.prototype.constructor = ConnectionKeyboardController;
 
-    ConnectionKeyboardController.prototype.nextRow = function () {
+    ConnectionKeyboardController.prototype.nextRow = function (event) {
+         event.preventDefault();
         var new_position_index = this.keyboardNavigationCurrentElementIndex + 1;
         if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
             new_position_index = this.keyboardNavigationCurrentElementIndex;
@@ -1542,7 +1541,8 @@ function AddonConnection_create() {
         readActivatedElementConnections();
     };
 
-    ConnectionKeyboardController.prototype.previousRow = function () {
+    ConnectionKeyboardController.prototype.previousRow = function (event) {
+        event.preventDefault();
         var new_position_index = this.keyboardNavigationCurrentElementIndex - 1;
         if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
             new_position_index = this.keyboardNavigationCurrentElementIndex
@@ -1599,7 +1599,8 @@ function AddonConnection_create() {
         }
     };
 
-    ConnectionKeyboardController.prototype.select = function () {
+    ConnectionKeyboardController.prototype.select = function (event) {
+        event.preventDefault();
         if (presenter.getCurrentActivatedElement().hasClass('selected')) {
             speak([getTextVoiceObject(presenter.speechTexts.deselected)]);
         }

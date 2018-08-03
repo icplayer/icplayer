@@ -174,7 +174,7 @@ public final class KeyboardNavigationController {
 	private void setWCAGModulesStatus (boolean isOn) {
 		for (PresenterEntry p: this.presenters) {
 			p.presenter.getWCAGController();
-			
+
 			if (p.presenter.getWCAGController() instanceof IWCAGModuleView) {
 				IWCAGModuleView view = (IWCAGModuleView) p.presenter.getWCAGController();
 				view.setWCAGStatus(isOn);
@@ -229,7 +229,7 @@ public final class KeyboardNavigationController {
 			}
 		};
 	}-*/;
-	
+
 	private void changeKeyboardMode (KeyDownEvent event, boolean isWCAGSupportOn) {
 		if (isWCAGSupportOn && !this.mainPageController.isTextToSpeechModuleEnable()) {
 			return;
@@ -246,7 +246,7 @@ public final class KeyboardNavigationController {
 		if (this.mainPageController != null) {
 			final boolean isWCAGOn = this.modeOn && this.isWCAGSupportOn;
 			this.mainPageController.setTextReading(isWCAGOn);
-			
+
 			if (isWCAGOn) {
 				this.mainPageController.readStartText();
 				this.setRoleApplication(true);
@@ -272,7 +272,7 @@ public final class KeyboardNavigationController {
 			this.deselectAllModules();
 			this.actualSelectedModuleIndex = 0;
 		}
-		
+
 	}
 
 	private void changeCurrentModule(KeyDownEvent event) {
@@ -398,7 +398,6 @@ public final class KeyboardNavigationController {
 	            if (modeOn && event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE && !isModuleDeactivationBlocked()) {
 	            	event.preventDefault();
 	            	deactivateModule();
-	            	setFocusOnInvisibleElement();
 	            }
 
 	            restoreClasses();
@@ -407,7 +406,7 @@ public final class KeyboardNavigationController {
 			// for DoubleStateButton we want to activate it also when not in WCAG navigation mode, but during browsers tab navigation
 			private void handleDoubleStateButton() {
 				String focusedID = getActiveElementParentId();
-				
+
 				if (focusedID != "") {
 					String pageType = getPageTypeOfActiveElement();
 					
@@ -423,7 +422,7 @@ public final class KeyboardNavigationController {
 						if (pageType.equals("footer")) {
 							module = footerController.findModule(focusedID);
 						}
-						
+
 						if (module != null) {
 							if (module.getModel().getModuleTypeName().equals("Double_State_Button")) {
 								findAndActivateModule(module);

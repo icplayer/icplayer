@@ -1,3 +1,18 @@
+2018-08-03 Fixed playing Video without controls bar
+2018-08-03 Added Copy Page Settings to Page properties
+2018-08-03 Changed is visible property so that it's common for all layouts
+2018-07-31 Fixed PieChart's display on Desktop devices
+2018-07-26 Removed reading "connected" when in Show Answer Mode in TTS
+2018-07-25 Added test mode in quiz
+2018-07-23 Added module sorting in editor
+2018-07-20 Fixed issues with invalid model in Crossword addon
+2018-07-18 Replaced Video Tutorials button with Interactive Tutorials
+2018-07-18 Fixed Scrolling on a Page in TTS
+2018-07-17 Added Phrase Selection Mode to Text Coloring
+2018-07-17 Fixed coursor position in GridScene
+2018-07-13 Fixed next() and previous() methods in MultiAudio addon
+2018-07-13 Fixed fullscreen on iPad
+2018-07-13 Fixed restartGame command in Shooting Range
 2018-07-12 Removed Byte Order Mark from polish dictionary
 2018-07-10 Added Games category
 2018-07-10 Added scrolling to the active module in keyboard navigation

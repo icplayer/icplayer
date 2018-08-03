@@ -498,6 +498,7 @@ public class PlayerApp {
 		this.loadActualLayoutCSSStyles();
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
+		loader.setDefaultLayoutID(contentModel.getActualSemiResponsiveLayoutID());
 
 		loader.addAddons(contentModel.getAddonDescriptors().values());
 		

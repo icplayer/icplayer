@@ -398,7 +398,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 					moduleHasFocus = true;
 				}
 			}
-			
+
 			this.readTextContent();
 		}
 	}
@@ -424,6 +424,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
+		moduleHasFocus = true;
 		
 		this.readGap(activeGap.getGapType(), clicks, activeGap.getWCAGTextValue(),activeGap.getGapState(), activeGap.getLangTag());
 	}
@@ -435,6 +436,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 	@Override
 	public void escape(KeyDownEvent event) {
+	    event.preventDefault();
 		this.removeAllSelections();
 		moduleHasFocus = false;
 		clicks = -1;
@@ -458,16 +460,31 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 	@Override
 	public void down (KeyDownEvent event) {
-		inlineChoiceChangeSelected(event, true);
+		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
+			event.preventDefault(); 
+		}
+				
+	inlineChoiceChangeSelected(event, true);
 	}
 
 	@Override
-	public void up (KeyDownEvent event) {
+	public void up (KeyDownEvent event) {		
+		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
+			event.preventDefault(); 
+		}
+		
 		inlineChoiceChangeSelected(event, false);
 	}
-	
+
 	@Override
 	public void space(KeyDownEvent event) {
+		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
+			event.preventDefault(); 
+		}
+				
+	    if(!WCAGUtils.hasGaps(this.module)){ // text without gaps
+	        event.preventDefault();
+	    }
 		if(!isShowErrorsMode && WCAGUtils.hasGaps(this.module)){
 			if (isWCAGon && activeGap != null && activeGap.getGapType().equals("dropdown") ) {
 				event.preventDefault(); // Prevent space button from displaying dropdown list when in WCAG mode
@@ -491,7 +508,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			}
 		}
 	}
-	
+
 	private void inlineChoiceChangeSelected (KeyDownEvent event, boolean next) {
 		if (isWCAGon && activeGap!=null && activeGap.getGapType().equals("dropdown")) {
 			InlineChoiceWidget icw = (InlineChoiceWidget) activeGap;

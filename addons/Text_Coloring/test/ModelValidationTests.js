@@ -171,15 +171,15 @@ TestCase("[Text_Coloring] Validate Text", {
     },
 
     "test should parse text to word tokens, new lines tokens and color tokens": function () {
-        var parsingResult = this.presenter.parseText(TEXT_FOR_PARSING);
+        var parsingResult = this.presenter.parseText(TEXT_FOR_PARSING, "ALL_SELECTABLE");
 
         assertEquals(this.expectedResult, parsingResult);
     },
 
     "test should parse empty text to empty array - no tokens": function () {
-        assertEquals([], this.presenter.parseText(""));
-        assertEquals([], this.presenter.parseText("         "));
-        assertEquals([], this.presenter.parseText("     \n    "));
+        assertEquals([], this.presenter.parseText("","ALL_SELECTABLE"));
+        assertEquals([], this.presenter.parseText("         ","ALL_SELECTABLE"));
+        assertEquals([], this.presenter.parseText("     \n    ","ALL_SELECTABLE"));
     }
 });
 
@@ -197,7 +197,7 @@ TestCase("[Text_Coloring] parse space special character", {
     },
 
     "test should parse text with space special character to word tokens, new lines tokens and color tokens": function () {
-        var parsingResult = this.presenter.parseText(EXISTING_TEXT_FOR_PARSING);
+        var parsingResult = this.presenter.parseText(EXISTING_TEXT_FOR_PARSING, "ALL_SELECTABLE");
 
         assertEquals(this.expectedResult, parsingResult);
     }
@@ -261,7 +261,8 @@ TestCase("[Text_Coloring] Model Validation flow", {
             buttonsPosition: buttonsPosition,
             showSetEraserButtonMode: false,
             hideColorsButtons: false,
-            eraserButtonText: eraserButtonText
+            eraserButtonText: eraserButtonText,
+            mode: "MARK_PHRASES"
 
         };
 
@@ -279,7 +280,8 @@ TestCase("[Text_Coloring] Model Validation flow", {
             buttonsPosition: buttonsPosition,
             hideColorsButtons: hideColorsButtons,
             showSetEraserModeButton: showSetEraserButtonMode,
-            eraserButtonText: eraserButtonText
+            eraserButtonText: eraserButtonText,
+            Mode: "Mark phrases to select"
         });
 
 

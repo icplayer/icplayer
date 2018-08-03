@@ -51,7 +51,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		custom
 	}
 
-	public static final String version = "4";
+	public static final String version = "5";
 	
 	private String id;
 	private String name;
@@ -550,6 +550,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	@Override
 	public void addStyleListener(IStyleListener listener) {
 		styleListener = listener;
+	}
+	
+	@Override
+	public SemiResponsiveStyles getSemiResponsiveStyles() {
+		return this.semiResponsiveStyles;
 	}
 
 	@Override

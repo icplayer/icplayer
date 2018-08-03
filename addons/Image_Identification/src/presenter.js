@@ -165,7 +165,7 @@ function AddonImage_Identification_create(){
             if (!isPreview) {
                 presenter.handleMouseActions();
             }
-            
+
             presenter.configuration.isDisabled ? presenter.disable() : presenter.enable();
 
             presenter.$view.trigger("onLoadImageCallbackEnd", []);
@@ -355,7 +355,7 @@ function AddonImage_Identification_create(){
         } else {
             presenter.hide();
         }
-        
+
         presenter.configuration.isDisabled ? presenter.disable() : presenter.enable();
     };
 
@@ -365,7 +365,7 @@ function AddonImage_Identification_create(){
         if (!presenter.configuration.isActivity) return;
 
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
-        
+
         presenter.isDisabled ? presenter.disable() : presenter.enable()
     };
 
@@ -383,7 +383,7 @@ function AddonImage_Identification_create(){
         } else {
             applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT);
         }
-        
+
         presenter.isDisabled ? presenter.disable() : presenter.enable()
     };
 
@@ -619,8 +619,15 @@ function AddonImage_Identification_create(){
 
         presenter.isShowAnswersActive = false;
     };
+    presenter.handleSpace = function(keyCode){
+        $(document).on('keydown', function (event) {
+            event.preventDefault();
+            $(this).off('keydown');
+        });
+    };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown) {
+        presenter.handleSpace(keycode);
         if (keycode === window.KeyboardControllerKeys.SPACE) {
             clickLogic();
         } else if (keycode === window.KeyboardControllerKeys.ENTER) {

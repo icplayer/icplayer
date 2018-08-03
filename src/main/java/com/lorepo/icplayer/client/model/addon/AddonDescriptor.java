@@ -161,8 +161,7 @@ public class AddonDescriptor implements IAddonDescriptor, IXMLSerializable{
 		if(optionNodes.getLength() > 0){
 			Element viewElement = (Element)optionNodes.item(0);
 			String rawCode = XMLUtils.getText(viewElement);
-			rawCode = rawCode.trim();
-			code = StringUtils.unescapeXML(rawCode);
+			code = rawCode.trim();
 		}
 	}
 

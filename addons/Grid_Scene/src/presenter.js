@@ -364,6 +364,7 @@ function AddonGrid_Scene_create(){
 
         presenter.saveAnswer(isPreview);
 
+        presenter.actualCursorPosition = [1,1];
         presenter.startCursorPosition = presenter.actualCursorPosition;
     };
 
@@ -838,6 +839,8 @@ function AddonGrid_Scene_create(){
     };
 
     presenter.reset = function(){
+        console.log("Reset");
+        console.log(this);
         presenter.$view.find('.grid-scene-cell-element').each(function () {
             $(this).removeClass('grid-scene-wrong').removeClass('grid-scene-cell-element-wrapper');
             if($(this).attr('colored') == 'true'){

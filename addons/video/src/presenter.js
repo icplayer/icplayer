@@ -4,9 +4,11 @@
  * @constructor
  */
 function Addonvideo_create() {
-    var presenter = function () {};
+    var presenter = function () {
+    };
 
     var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
+    var currentTime;
 
     presenter.currentMovie = 0;
     presenter.videoContainer = null;
@@ -26,7 +28,7 @@ function Addonvideo_create() {
     presenter.playTriggered = false;
     presenter.playerController = null;
     presenter.posterPlayButton = null;
-    presenter.videoView  = null ;
+    presenter.videoView = null;
 
     presenter.stylesBeforeFullscreen = {
         changedStyles: false,
@@ -195,18 +197,39 @@ function Addonvideo_create() {
 
             $(presenter.videoObject).css({
                 width: "100%",
-                height: "100%"
+                height: "100%",
+                position: 'fixed',
+                left: '0px',
+                top: '0px'
             });
+
+            $(presenter.controlBar.getMainElement()).css('position', "fixed");
+
+            presenter.$posterWrapper.hide();
+            //presenter.$mask.hide();
+
         } else {
             $(presenter.videoContainer).css({
                 width: presenter.configuration.dimensions.container.width + 'px',
-                height: presenter.configuration.dimensions.container.height + 'px'
+                height: presenter.configuration.dimensions.container.height + 'px',
+                position: 'relative'
             });
-            $(presenter.video).css({
+            $(presenter.videoObject).css({
                 width: presenter.configuration.dimensions.video.width + 'px',
-                height: presenter.configuration.dimensions.video.height + 'px'
-            })
+                height: presenter.configuration.dimensions.video.height + 'px',
+                position: 'relative'
+            });
+
+            $(presenter.controlBar.getMainElement()).css('position', "absolute");
+
+            //presenter.$posterWrapper.show();
+            //presenter.$mask.show();
         }
+
+        $(presenter.videoObject).on("canplay", function onCanPlay() {
+            presenter.videoObject.currentTime = currentTime;
+            $(presenter.videoObject).off("canplay");
+        });
     }
 
     presenter.registerHook = function () {
@@ -307,7 +330,7 @@ function Addonvideo_create() {
         presenter.$captionsContainer.css({
             top: presenter.captionsOffset.top,
             left: presenter.captionsOffset.left,
-            position: "relative"
+            position: "absolute"
         });
 
         if (changeWidth) {
@@ -414,7 +437,6 @@ function Addonvideo_create() {
         body.appendChild(video);
         presenter.metadadaLoaded = false;
         presenter.videoObject.load();
-
         presenter.scalePosterToWindowSize();
         presenter.scaleCaptionsContainerToVideoNewVideoSize();
     };
@@ -429,6 +451,7 @@ function Addonvideo_create() {
     });
 
     presenter.fullScreen = function () {
+        currentTime = presenter.videoObject.currentTime;
         var requestMethod = requestFullscreen(presenter.videoContainer);
         presenter.stylesBeforeFullscreen.moduleWidth = presenter.$view.width();
         presenter.stylesBeforeFullscreen.moduleHeight = presenter.$view.height();
@@ -450,6 +473,7 @@ function Addonvideo_create() {
     };
 
     presenter.closeFullscreen = function () {
+        currentTime = presenter.videoObject.currentTime;
         if (presenter.stylesBeforeFullscreen.changedStyles === true) {
             presenter.stylesBeforeFullscreen.actualTime = presenter.videoObject.currentTime;
             presenter.stylesBeforeFullscreen.changedStyles = false;
@@ -733,7 +757,7 @@ function Addonvideo_create() {
         }
     };
 
-    presenter.cachePoster = function(fileNumber){
+    presenter.cachePoster = function (fileNumber) {
         var posterSource = presenter.configuration.files[fileNumber].Poster;
         if (posterSource) {
             var image = new Image();
@@ -806,6 +830,7 @@ function Addonvideo_create() {
         presenter.videoContainer = $(view).find('.video-container:first');
         presenter.$captionsContainer = presenter.$view.find(".captions-container:first");
         presenter.$posterWrapper = presenter.$view.find('.poster-wrapper');
+        presenter.$mask = presenter.$view.find('.video-container-mask');
 
         presenter.videoObject = presenter.videoContainer.find('video')[0];
         presenter.$videoObject = $(presenter.videoObject);
@@ -816,6 +841,14 @@ function Addonvideo_create() {
 
         if (presenter.configuration.defaultControls) {
             presenter.buildControlsBars();
+        } else {
+            presenter.videoContainer.on("click", function () {
+                if (presenter.videoObject.paused) {
+                    presenter.play();
+                } else {
+                    presenter.pause();
+                }
+            });
         }
 
         presenter.addTabindex(presenter.configuration.isTabindexEnabled);
@@ -835,11 +868,16 @@ function Addonvideo_create() {
             presenter.showSubtitles();
         }
 
+        presenter.videoObject.setAttribute('webkit-playsinline', 'webkit-playsinline');
+        presenter.videoObject.setAttribute('playsinline', 'playsinline');
+
     };
 
     presenter.connectHandlers = function () {
         presenter.videoObject.addEventListener('click', presenter.stopPropagationOnClickEvent);
-        presenter.videoObject.addEventListener('error', function() { presenter.handleErrorCode(this.error); }, true);
+        presenter.videoObject.addEventListener('error', function () {
+            presenter.handleErrorCode(this.error);
+        }, true);
         presenter.videoObject.addEventListener('loadedmetadata', presenter.setMetaDataOnMetaDataLoadedEvent);
         presenter.videoObject.addEventListener('play', setVideoStateOnPlayEvent);
         presenter.videoObject.addEventListener('pause', setVideoStateOnPauseEvent);
@@ -1045,14 +1083,38 @@ function Addonvideo_create() {
         if (currentTime >= videoDuration) {
             presenter.sendVideoEndedEvent();
             presenter.showWaterMark();
-
-            if (isFullScreen && document.webkitExitFullscreen) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            } else if (presenter.configuration.isFullScreen) {
+                presenter.configuration.isFullScreen = false;
+                presenter.playerController.setAbleChangeLayout(true);
+                presenter.removeScaleFromCaptionsContainer();
+                presenter.controlBar.showFullscreenButton();
+                presenter.closeFullscreen();
+
             }
 
-            if (presenter.configuration.isFullScreen) {
-                fullScreenChange();
+            if (!presenter.configuration.defaultControls) {
+                presenter.seek(0); // sets the current time to 0
+                presenter.$posterWrapper.show();
+                if (presenter.configuration.showPlayButton) {
+                    presenter.posterPlayButton.show();
+                }
+                presenter.videoObject.pause();
             }
+
+            $(presenter.videoObject).on("canplay", function onCanPlay() {
+                currentTime = 0;
+                presenter.videoObject.currentTime = currentTime;
+                presenter.pause();
+                $(presenter.videoObject).off("canplay");
+            });
 
             presenter.lastSentCurrentTime = 0;
         }
@@ -1132,14 +1194,6 @@ function Addonvideo_create() {
         var $video = $(video);
 
         if (poster) {
-            if (presenter.configuration.showPlayButton) {
-                presenter.$posterWrapper.one('click', function onPosterWrapperClick(e) {
-                    e.stopPropagation();
-                    $(this).hide();
-                    presenter.videoObject.play();
-                });
-            }
-
             presenter.$posterWrapper.prepend(poster);
 
             presenter.calculatePosterSize(video, presenter.configuration.addonSize);
@@ -1220,7 +1274,6 @@ function Addonvideo_create() {
 
             $(presenter.videoObject).bind("canplay", function onCanPlay() {
                 presenter.isVideoLoaded = true;
-
                 presenter.callTasksFromDeferredQueue();
 
                 $(this).unbind("canplay");
@@ -1561,10 +1614,10 @@ function Addonvideo_create() {
                 presenter.metadadaLoaded = false;
             }
         }
-         if (!presenter.isVideoLoaded) {
-                presenter.videoObject.load();
-                presenter.metadadaLoaded = false;
-            }
+        if (!presenter.isVideoLoaded) {
+            presenter.videoObject.load();
+            presenter.metadadaLoaded = false;
+        }
     };
 
     presenter.addClassToView = function (className) {

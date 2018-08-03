@@ -26,6 +26,11 @@ class StyledModule extends AbsolutePositioningModule implements IStyledModule {
 	}
 	
 	@Override
+	public SemiResponsiveStyles getSemiResponsiveStyles() {
+		return this.semiResponsiveStyles;
+	}
+	
+	@Override
 	public String getInlineStyle() {
 		return this.semiResponsiveStyles.getInlineStyle(this.getSemiResponsiveID(), this.getDefaultSemiResponsiveID());
 	}

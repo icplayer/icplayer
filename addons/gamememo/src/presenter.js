@@ -50,6 +50,7 @@ function Addongamememo_create(){
     };
 
     MemoKeyboardController.prototype.nextRow = function (event) {
+        event.preventDefault();
         if (screenLocked) return;
         if (this.keyboardNavigationCurrentElementIndex + presenter.columnCount < this.keyboardNavigationElementsLen) {
              KeyboardController.prototype.nextRow.call(this, event);
@@ -58,6 +59,7 @@ function Addongamememo_create(){
     };
 
     MemoKeyboardController.prototype.previousRow = function (event) {
+        event.preventDefault();
         if (screenLocked) return;
         if (this.keyboardNavigationCurrentElementIndex - presenter.columnCount >= 0) {
              KeyboardController.prototype.previousRow.call(this, event);

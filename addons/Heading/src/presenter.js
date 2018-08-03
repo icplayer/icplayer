@@ -157,7 +157,15 @@ function AddonHeading_create () {
         isWCAGOn = isOn;
     };
 
+    presenter.handleSpace = function (keyCode) {
+        $(document).on('keydown', function (event) {
+            event.preventDefault();
+            $(this).off('keydown');
+            });
+    };
+
     presenter.keyboardController = function(keyCode, isShift) {
+        presenter.handleSpace(keyCode);
         if (keyCode == 13 || keyCode == 32) {
             presenter.readContent();
         }

@@ -521,6 +521,7 @@ function Addontext_identification_create() {
     };
 
     TextIdentificationKeyboardController.prototype.select = function (event) {
+        event.preventDefault();
         presenter.clickHandler(event);
 
         if (!presenter.isShowAnswersActive && !presenter.configuration.isErrorCheckMode) {

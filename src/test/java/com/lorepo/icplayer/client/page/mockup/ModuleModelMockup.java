@@ -13,6 +13,7 @@ import com.lorepo.icplayer.client.module.LayoutDefinition;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
+import com.lorepo.icplayer.client.semi.responsive.SemiResponsiveStyles;
 
 public class ModuleModelMockup implements IModuleModel {
 	
@@ -310,12 +311,6 @@ public class ModuleModelMockup implements IModuleModel {
 	}
 
 	@Override
-	public HashMap<String, Boolean> getResponsiveVisibility() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public HashMap<String, Boolean> getResponsiveVisibilityInEditor() {
 		// TODO Auto-generated method stub
 		return null;
@@ -329,6 +324,18 @@ public class ModuleModelMockup implements IModuleModel {
 
 	@Override
 	public HashMap<String, LayoutDefinition> getResponsiveRelativeLayouts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setContentDefaultLayoutID(String layoutID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public SemiResponsiveStyles getSemiResponsiveStyles() {
 		// TODO Auto-generated method stub
 		return null;
 	}
