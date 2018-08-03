@@ -841,6 +841,14 @@ function Addonvideo_create() {
 
         if (presenter.configuration.defaultControls) {
             presenter.buildControlsBars();
+        } else {
+            presenter.videoContainer.on("click", function () {
+                if (presenter.videoObject.paused) {
+                    presenter.play();
+                } else {
+                    presenter.pause();
+                }
+            });
         }
 
         presenter.addTabindex(presenter.configuration.isTabindexEnabled);
@@ -1092,6 +1100,15 @@ function Addonvideo_create() {
 
             }
 
+            if (!presenter.configuration.defaultControls) {
+                presenter.seek(0); // sets the current time to 0
+                presenter.$posterWrapper.show();
+                if (presenter.configuration.showPlayButton) {
+                    presenter.posterPlayButton.show();
+                }
+                presenter.videoObject.pause();
+            }
+
             $(presenter.videoObject).on("canplay", function onCanPlay() {
                 currentTime = 0;
                 presenter.videoObject.currentTime = currentTime;
@@ -1177,14 +1194,6 @@ function Addonvideo_create() {
         var $video = $(video);
 
         if (poster) {
-            if (presenter.configuration.showPlayButton) {
-                presenter.$posterWrapper.one('click', function onPosterWrapperClick(e) {
-                    e.stopPropagation();
-                    $(this).hide();
-                    presenter.videoObject.play();
-                });
-            }
-
             presenter.$posterWrapper.prepend(poster);
 
             presenter.calculatePosterSize(video, presenter.configuration.addonSize);
