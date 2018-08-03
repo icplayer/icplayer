@@ -51,7 +51,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		custom
 	}
 
-	public static final String version = "4";
+	public static final String version = "5";
 	
 	private String id;
 	private String name;

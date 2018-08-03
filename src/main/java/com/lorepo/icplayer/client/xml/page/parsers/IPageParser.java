@@ -5,4 +5,5 @@ import com.lorepo.icplayer.client.xml.IParser;
 
 public interface IPageParser extends IParser {
 	public void setPage(Page page);
+	public void setDefaultLayoutID(String layoutID);
 }

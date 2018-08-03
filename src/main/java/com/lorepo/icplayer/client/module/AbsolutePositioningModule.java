@@ -19,7 +19,7 @@ import com.lorepo.icplayer.client.module.api.SemiResponsiveLayouts;
  * 
  * @author Krzysztof Langner
  */
-class AbsolutePositioningModule extends BasicPropertyProvider implements IRectangleItem, SemiResponsiveLayouts {
+public class AbsolutePositioningModule extends BasicPropertyProvider implements IRectangleItem, SemiResponsiveLayouts {
 
 	private ILayoutProperty layoutProperty;
 	private IProperty leftProperty;
@@ -185,7 +185,7 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 		return this.semiResponsivePositions.getSemiResponsiveLayoutID();
 	}
 	
-	protected String getDefaultSemiResponsiveID() {
+	public String getDefaultSemiResponsiveID() {
 		return this.semiResponsivePositions.getDefaultSemiResponsiveLayoutID();
 	}
 
@@ -536,10 +536,6 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 		this.semiResponsivePositions.setIsVisibleInEditor(name, isVisibleInEditor);
 	}
 	
-	public void setIsVisible(String name, boolean isVisible) {
-		this.semiResponsivePositions.setIsVisible(name, isVisible);
-	}
-	
 	public void setIsLocked(String name, boolean isLocked) {
 		this.semiResponsivePositions.setIsLocked(name, isLocked);
 	}
@@ -551,11 +547,6 @@ class AbsolutePositioningModule extends BasicPropertyProvider implements IRectan
 	@Override
 	public void translateSemiResponsiveIDs(HashMap<String, String> translationMap) {
 		this.semiResponsivePositions.translateSemiResponsiveIDs(translationMap);
-	}
-
-	@Override
-	public HashMap<String, Boolean> getResponsiveVisibility() {
-		return this.semiResponsivePositions.getResponsiveVisibility();
 	}
 
 	@Override
