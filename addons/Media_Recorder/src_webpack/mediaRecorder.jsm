@@ -16,6 +16,8 @@ import {RecorderEventHandlingImplementation} from "./recorder/recorderEventHandl
 import {PlayerEventHandlingImplementation} from "./player/playerEventHandlingImplementation.jsm";
 import {SoundEffect} from "./soundEffect.jsm";
 import {createLoader} from "./loader/loaderFactory.jsm";
+import {AddonWrapper} from "./addonWrapper.jsm";
+import {ActivationState} from "./activationState.jsm";
 
 export class MediaRecorder {
 
@@ -35,7 +37,7 @@ export class MediaRecorder {
 
     run(view, model) {
         this._initialize(view, model);
-        this._activeButtons();
+        this._activateButtons();
 
     }
 
@@ -58,7 +60,29 @@ export class MediaRecorder {
         this.playerController = playerController;
     }
 
-    destroy(){
+    activate() {
+        if (this.activationState.isInactive()) {
+            this.activationState.setActive();
+            this._activateButtons();
+            this.addonWrapper.activate();
+        }
+    }
+
+    deactivate() {
+        this._stopActions();
+        this._deactivateButtons();
+        this.activationState.setInactive();
+        this.addonWrapper.deactivate();
+    }
+
+    reset() {
+        this.deactivate();
+        this.activate();
+        this.loadRecordingService.loadRecording(this.model.defaultRecording);
+        this.recordingState.reset();
+    }
+
+    destroy() {
         this.recorder.destroy();
         this.player.destroy();
         this.mediaResources.destroy();
@@ -70,8 +94,10 @@ export class MediaRecorder {
         this.stopRecordingSoundEffect.destroy();
         this.recordButton.destroy();
         this.loader.destroy();
+        this.addonWrapper.destroy();
 
         this.state = null;
+        this.activationState = null;
         this.viewHandlers = null;
         this.recorder = null;
         this.player = null;
@@ -89,8 +115,11 @@ export class MediaRecorder {
         this.playerEventHandlingImplementation = null;
         this.loadRecordingService = null;
         this.loader = null;
+        this.addonWrapper = null;
 
         this.playerController = null;
+        this.view = null;
+        this.model = null;
     }
 
     _initialize(view, model) {
@@ -103,19 +132,25 @@ export class MediaRecorder {
     }
 
     _loadAddon(view, model) {
-        this.viewHandlers = this._loadViewHandlers(view);
+        this.view = view;
+        this.model = model;
+
+        this.viewHandlers = this._loadViewHandlers(this.view);
+
+        this.addonWrapper = new AddonWrapper(this.viewHandlers.$wrapperView);
 
         this.state = new State();
+        this.activationState = new ActivationState();
         this.timer = new Timer(this.viewHandlers.$timerView);
         this.soundIntensity = new SoundIntensity(this.viewHandlers.$soundIntensityView);
 
-        this.recordingTimer = new RecordingTimer(model.maxTime);
-        this.mediaResources = createMediaResources(model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01);
-        this.recorder = createRecorder(model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01);
-        this.player = createPlayer(model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01, this.viewHandlers.$playerView);
+        this.recordingTimer = new RecordingTimer(this.model.maxTime);
+        this.mediaResources = createMediaResources(this.model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01);
+        this.recorder = createRecorder(this.model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01);
+        this.player = createPlayer(this.model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01, this.viewHandlers.$playerView);
 
-        this.startRecordingSoundEffect = new SoundEffect(model.startRecordingSound, this.viewHandlers.$playerView);
-        this.stopRecordingSoundEffect = new SoundEffect(model.stopRecordingSound, this.viewHandlers.$playerView);
+        this.startRecordingSoundEffect = new SoundEffect(this.model.startRecordingSound, this.viewHandlers.$playerView);
+        this.stopRecordingSoundEffect = new SoundEffect(this.model.stopRecordingSound, this.viewHandlers.$playerView);
         this.recordButton = new RecordButton(this.viewHandlers.$recordButtonView, this.state, this.mediaResources, this.recorder, this.player, this.timer, this.soundIntensity, this.recordingTimer);
         this.recordButton = new RecordButtonSoundEffect(this.recordButton, this.startRecordingSoundEffect, this.stopRecordingSoundEffect);
 
@@ -124,7 +159,7 @@ export class MediaRecorder {
         this.recordingState = new RecordingState();
         this.assetService = new AssetService(this.playerController, this.recordingState);
 
-        this.loader = createLoader(model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01, this.viewHandlers.$loaderView);
+        this.loader = createLoader(this.model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01, this.viewHandlers.$loaderView);
 
         this.recorderEventHandlingImplementation = new RecorderEventHandlingImplementation(this.recorder, this.player, this.assetService);
         this.recorderEventHandlingImplementation.handleEvents();
@@ -133,11 +168,12 @@ export class MediaRecorder {
         this.playerEventHandlingImplementation.handleEvents();
 
         this.loadRecordingService = new LoadRecordingService(this.player, this.state);
-        this.loadRecordingService.loadRecording(model.defaultRecording);
+        this.loadRecordingService.loadRecording(this.model.defaultRecording);
     }
 
     _loadViewHandlers(view) {
         return {
+            $wrapperView: $(view).find(".media-recorder-wrapper"),
             $playerView: $(view).find(".media-recorder-player-wrapper"),
             $loaderView: $(view).find(".media-recorder-player-loader"),
             $recordButtonView: $(view).find(".media-recorder-recording-button"),
@@ -151,8 +187,20 @@ export class MediaRecorder {
         DOMOperationsUtils.showErrorMessage(view, this.ERROR_CODES, validatedModel.fieldName.join("|") + "_" + validatedModel.errorCode);
     }
 
-    _activeButtons() {
+    _activateButtons() {
         this.recordButton.activate();
         this.playButton.activate();
+    }
+
+    _deactivateButtons() {
+        this.recordButton.deactivate();
+        this.playButton.deactivate();
+    }
+
+    _stopActions() {
+        if (this.state.isRecording())
+            this.recordButton.forceClick();
+        if (this.state.isPlaying())
+            this.playButton.forceClick();
     }
 }

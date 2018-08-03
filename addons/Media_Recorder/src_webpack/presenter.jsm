@@ -6,53 +6,53 @@ function AddonMedia_Recorder_create() {
     let presenter = function () {
     };
 
-    let mediaRecorder = new MediaRecorder();
+    presenter.validateModel = validateModel;
+    presenter.mediaRecorder = new MediaRecorder();
 
     presenter.setPlayerController = function (controller) {
-        mediaRecorder.setPlayerController(controller)
+        presenter.mediaRecorder.setPlayerController(controller)
     };
 
-    presenter.run = function (view, model) {
+    presenter.run = function run(view, model) {
         presenter.view = view;
 
-        mediaRecorder.run(view, model);
+        presenter.mediaRecorder.run(view, model);
         handleDestroy(view);
     };
 
-    presenter.createPreview = function (view, model) {
+    presenter.createPreview = function createPreview(view, model) {
         presenter.view = view;
 
-        mediaRecorder.createPreview(view, model);
+        presenter.mediaRecorder.createPreview(view, model);
         handleDestroy(view);
     };
 
-    presenter.getState = function () {
-        return mediaRecorder.getState();
+    presenter.getState = function getState() {
+        return presenter.mediaRecorder.getState();
     };
 
-    presenter.setState = function (state) {
-        mediaRecorder.setState(state);
+    presenter.setState = function setState(state) {
+        presenter.mediaRecorder.setState(state);
     };
 
-    presenter.getErrorCount = function () {
+    presenter.getErrorCount = function getErrorCount() {
         return 0;
     };
 
-    presenter.getMaxScore = function () {
+    presenter.getMaxScore = function getMaxScore() {
         return 0;
     };
 
-    presenter.getScore = function () {
+    presenter.getScore = function getScore() {
         return 0;
     };
 
-    presenter.destroy = function (event) {
+    presenter.destroy = function destroy(event) {
         if (event.target == presenter.view) {
             event.target.removeEventListener('DOMNodeRemoved', presenter.destroy);
-            mediaRecorder.destroy();
+            presenter.mediaRecorder.destroy();
             event.target = null;
-            mediaRecorder = null;
-
+            presenter.mediaRecorder = null;
             presenter.validateModel = null;
         }
     };
@@ -73,17 +73,19 @@ function AddonMedia_Recorder_create() {
     //     presenter.setVisibility(true);
     // };
     //
-    // presenter.setShowErrorsMode = function () {
-    //     console.log("setShowErrorsMode");
-    // };
-    //
-    // presenter.setWorkMode = function () {
-    //     console.log("setWorkMode");
-    // };
-    //
-    // presenter.reset = function () {
-    //     console.log("reset");
-    // };
+
+    presenter.setShowErrorsMode = function setShowErrorsMode() {
+        presenter.mediaRecorder.deactivate();
+    };
+
+    presenter.setWorkMode = function setWorkMode() {
+        presenter.mediaRecorder.activate();
+    };
+
+    presenter.reset = function reset() {
+        presenter.mediaRecorder.reset();
+    };
+
     //
     // presenter.onEventReceived = function (eventData) {
     //     console.log("onEventReceived");
@@ -120,8 +122,6 @@ function AddonMedia_Recorder_create() {
 
     // Tryb Sprawdzania (setShowErrorsMode)
     // W tym trybie addon powinien być disabled.
-
-    presenter.validateModel = validateModel;
 
     return presenter;
 }

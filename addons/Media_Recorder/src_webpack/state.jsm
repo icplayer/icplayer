@@ -1,57 +1,58 @@
 export class State {
+
     constructor() {
-        this.values = {
+        this._values = {
             NEW: 0,
-            RECORDING: 1,
-            LOADING: 2,
-            LOADED: 3,
-            PLAYING: 4,
-            BLOCKED: 5
+            BLOCKED: 1,         // waiting for a resources permit
+            RECORDING: 2,
+            LOADING: 3,
+            LOADED: 4,
+            PLAYING: 5
         };
-        this.value = this.values.NEW;
+        this._value = this._values.NEW;
     };
 
     isNew() {
-        return this.value === this.values.NEW;
+        return this._value === this._values.NEW;
     }
 
     isRecording() {
-        return this.value === this.values.RECORDING;
+        return this._value === this._values.RECORDING;
     }
 
     isLoading() {
-        return this.value === this.values.LOADING;
+        return this._value === this._values.LOADING;
     }
 
     isLoaded() {
-        return this.value === this.values.LOADED;
+        return this._value === this._values.LOADED;
     }
 
     isPlaying() {
-        return this.value === this.values.PLAYING;
+        return this._value === this._values.PLAYING;
     }
 
     isBlocked() {
-        return this.value === this.values.BLOCKED;
+        return this._value === this._values.BLOCKED;
     }
 
     setRecording() {
-        this.value = this.values.RECORDING;
+        this._value = this._values.RECORDING;
     }
 
     setLoading(){
-        this.value = this.values.LOADING;
+        this._value = this._values.LOADING;
     }
 
     setLoaded() {
-        this.value = this.values.LOADED;
+        this._value = this._values.LOADED;
     }
 
     setPlaying() {
-        this.value = this.values.PLAYING;
+        this._value = this._values.PLAYING;
     }
 
     setBlocked(){
-        this.value = this.values.BLOCKED;
+        this._value = this._values.BLOCKED;
     }
 }

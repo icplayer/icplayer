@@ -8,6 +8,10 @@ export class RecordingState{
         this.mediaSource = mediaSource;
     }
 
+    reset(){
+        this.mediaSource = null;
+    }
+
     serialize() {
         return JSON.stringify({
             mediaSource: this.mediaSource
