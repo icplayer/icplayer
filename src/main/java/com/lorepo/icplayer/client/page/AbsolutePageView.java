@@ -104,7 +104,6 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 			groupWidget.getElement().setClassName("modules_group");
 			String styleClass = group.getStyleClass();
 			String inlineStyle = group.getInlineStyle();
-			groupWidget.setVisible(group.isVisible());
 
 			if(inlineStyle != null) {
 				DOMUtils.applyInlineStyle(groupWidget.getElement(), inlineStyle);
@@ -112,6 +111,8 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
             if(styleClass != null && !styleClass.isEmpty()){
                 groupWidget.addStyleName(styleClass);
             }
+            groupWidget.setVisible(group.isVisible());
+
 			groupWidget.getElement().setId(group.getId());
 			groupWidget.setPixelSize(group.getWidth()+2, group.getHeight()+2);
 			add(groupWidget, group.getLeft(), group.getTop());
