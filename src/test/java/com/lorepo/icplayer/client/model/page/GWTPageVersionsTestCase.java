@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import org.custommonkey.xmlunit.Diff;
@@ -15,6 +17,10 @@ import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import org.xml.sax.SAXException;
 
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icplayer.client.mockup.xml.PageFactoryMockup;
@@ -444,9 +450,30 @@ public class GWTPageVersionsTestCase extends GwtTest {
 
 		this.loadPageInAwareFactory(this.page, "testdata/PageVersion4ManyLayouts2.xml");
 		String result = page.toXML();
-		
-		Diff diff = new Diff(pageXML, result);
+
+		Diff diff = new Diff(sortLayouts(pageXML), sortLayouts(result));
 		XMLAssert.assertXMLEqual(diff, true);
 	}
 	
+	private String sortLayouts(String xml) {
+		Document doc = XMLParser.parse(xml);
+		NodeList layoutsNodes = doc.getElementsByTagName("layouts");
+		for(int j=0; j < layoutsNodes.getLength(); j++){
+			Node layoutsNode = layoutsNodes.item(j);
+			NodeList layoutNodes = layoutsNode.getChildNodes();
+			HashMap<String,Node> nodeMap = new HashMap<String,Node>();
+			ArrayList<String> ids = new ArrayList<String>();
+			for (int i = 0; i < layoutNodes.getLength(); i++) {
+				Node child = layoutNodes.item(i);
+				String id = child.getAttributes().getNamedItem("id").getNodeValue();
+				ids.add(id);
+				nodeMap.put(id, child);	
+			}
+			java.util.Collections.sort(ids);
+			for (int i=0; i < ids.size(); i++){
+				layoutsNode.appendChild(nodeMap.get(ids.get(i)));
+			}
+		}
+		return doc.toString();
+	}
 }
