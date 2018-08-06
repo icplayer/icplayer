@@ -773,12 +773,12 @@
         },
 
          /**
-         * Validate HEX color. It can be represented as hash sign and either 3 or 6 hex numbers.
+         * Validate HEX color. It can be represented as hash sign and sequence of 6 numbers.
          *
          * Check if provided string is valid hex color
          * config: {
          *      default=undefined {String}
-         *      canBeShort=true {boolean} - can validated color be also represented by only 3 numbers
+         *      canBeShort=true {boolean} - can validated color be also represented by 3 numbers
          * }
          *
          * Error Codes:

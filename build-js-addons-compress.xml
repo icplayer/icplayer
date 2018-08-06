@@ -129,7 +129,7 @@
                 <file name="${build.temp.folder}/eKeyboard_layouts/spanish.js"/>
 
                 <file name="${build.temp.folder}/wiris/editor.js"/>
-                <!--  <file name="${build.temp.folder}/wiris/quizzes.js"/> -->
+                <file name="${build.temp.folder}/wiris/quizzes.js"/>
 
                 <file name="${build.temp.folder}/jqplot/jquery.jqplot.min.js"/>
                 <file name="${build.temp.folder}/jqplot/jqplot.barRenderer.min.js"/>
