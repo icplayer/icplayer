@@ -18,6 +18,8 @@ import {SoundEffect} from "./soundEffect.jsm";
 import {createLoader} from "./loader/loaderFactory.jsm";
 import {AddonWrapper} from "./addonWrapper.jsm";
 import {ActivationState} from "./activationState.jsm";
+import {AudioLoader} from "./loader/audioLoader";
+import {VideoLoader} from "./loader/videoLoader";
 
 export class MediaRecorder {
 
@@ -202,5 +204,18 @@ export class MediaRecorder {
             this.recordButton.forceClick();
         if (this.state.isPlaying())
             this.playButton.forceClick();
+    }
+
+    _internalElements() {
+        return {
+            Timer: Timer,
+            State: State,
+            ActivationState: ActivationState,
+            SoundIntensity: SoundIntensity,
+            RecordingTimer: RecordingTimer,
+            AudioLoader: AudioLoader,
+            VideoLoader: VideoLoader,
+            PlayButton: PlayButton
+        }
     }
 }

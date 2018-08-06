@@ -25,15 +25,15 @@ export class RecordingTimer {
         this.callback = null;
     }
 
+    set onTimeExpired(callback) {
+        this.callback = callback;
+    }
+
     _incrementTimer() {
         this.counter += this.workingDelay;
         if (this.counter >= this.maxTime) {
             this.stopCountdown();
             this.callback();
         }
-    }
-
-    set onTimeExpired(callback) {
-        this.callback = callback;
     }
 }

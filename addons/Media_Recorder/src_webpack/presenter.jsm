@@ -123,6 +123,10 @@ function AddonMedia_Recorder_create() {
     // Tryb Sprawdzania (setShowErrorsMode)
     // W tym trybie addon powinien być disabled.
 
+    presenter._internalElements = function () {
+        return this.mediaRecorder._internalElements();
+    };
+
     return presenter;
 }
 
