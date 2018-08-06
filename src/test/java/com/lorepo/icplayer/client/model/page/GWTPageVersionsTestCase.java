@@ -457,19 +457,22 @@ public class GWTPageVersionsTestCase extends GwtTest {
 	
 	private String sortLayouts(String xml) {
 		Document doc = XMLParser.parse(xml);
-		Node layoutsNode = doc.getElementsByTagName("layouts").item(0);
-		NodeList layoutNodes = layoutsNode.getChildNodes();
-		HashMap<String,Node> nodeMap = new HashMap<String,Node>();
-		ArrayList<String> ids = new ArrayList<String>();
-		for (int i = 0; i < layoutNodes.getLength(); i++) {
-			Node child = layoutNodes.item(i);
-			String id = child.getAttributes().getNamedItem("id").getNodeValue();
-			ids.add(id);
-			nodeMap.put(id, child);	
-		}
-		java.util.Collections.sort(ids);
-		for (int i=0; i < ids.size(); i++){
-			layoutsNode.appendChild(nodeMap.get(ids.get(i)));
+		NodeList layoutsNodes = doc.getElementsByTagName("layouts");
+		for(int j=0; j < layoutsNodes.getLength(); j++){
+			Node layoutsNode = layoutsNodes.item(j);
+			NodeList layoutNodes = layoutsNode.getChildNodes();
+			HashMap<String,Node> nodeMap = new HashMap<String,Node>();
+			ArrayList<String> ids = new ArrayList<String>();
+			for (int i = 0; i < layoutNodes.getLength(); i++) {
+				Node child = layoutNodes.item(i);
+				String id = child.getAttributes().getNamedItem("id").getNodeValue();
+				ids.add(id);
+				nodeMap.put(id, child);	
+			}
+			java.util.Collections.sort(ids);
+			for (int i=0; i < ids.size(); i++){
+				layoutsNode.appendChild(nodeMap.get(ids.get(i)));
+			}
 		}
 		return doc.toString();
 	}
