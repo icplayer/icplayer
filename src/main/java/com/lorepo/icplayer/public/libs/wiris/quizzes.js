@@ -5744,7 +5744,6 @@ com.wiris.quizzes.JsQuizzesFilter.prototype = {
 	}
 	,loadCSS: function() {
 		var styles = js.Lib.document.createElement("link");
-		console.log(window.location.pathname);
 		styles.setAttribute("type","text/css");
 		styles.setAttribute("rel","stylesheet");
 		styles.setAttribute("href",com.wiris.quizzes.api.QuizzesBuilder.getInstance().getResourceUrl("wirisquizzes.css"));
@@ -21038,7 +21037,7 @@ com.wiris.quizzes.impl.ConfigurationImpl.DEF_HAND_LOGTRACES = "false";
 com.wiris.quizzes.impl.ConfigurationImpl.DEF_SERVICE_OFFLINE = "false";
 com.wiris.quizzes.impl.ConfigurationImpl.DEF_CROSSORIGINCALLS_ENABLED = "false";
 com.wiris.quizzes.impl.ConfigurationImpl.DEF_RESOURCES_STATIC = "false";
-com.wiris.quizzes.impl.ConfigurationImpl.DEF_RESOURCES_URL = "quizzes/resources";
+com.wiris.quizzes.impl.ConfigurationImpl.DEF_RESOURCES_URL = getBaseURL();
 com.wiris.quizzes.impl.ConfigurationImpl.DEF_GRAPH_URL = "http://www.wiris.net/demo/graph";
 com.wiris.quizzes.impl.ConfigurationImpl.DEF_VERSION = "";
 com.wiris.quizzes.impl.ConfigurationImpl.config = null;
@@ -21321,7 +21320,7 @@ function getBaseURL() {
     for (var i = 0; i < scripts.length; i++) {
         var src = scripts[i].src;
         if (/quizzes\.js/.test(src)) {
-            return src.substring(0, src.lastIndexOf('/'));;
+            return src.substring(0, src.lastIndexOf('/'));
         }
     }
 }

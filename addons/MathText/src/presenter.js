@@ -263,7 +263,6 @@ function AddonMathText_create() {
         if (presenter.configuration.isActivity && !presenter.state.isCheckAnswers) {
             presenter.state.currentAnswer = presenter.editor.getMathML();
 
-            console.log(presenter.state.hasUserInteracted);
             if (presenter.state.hasUserInteracted) {
                 presenter.$view.find('input').attr('disabled', true);
                 presenter.editor.setToolbarHidden(true);
