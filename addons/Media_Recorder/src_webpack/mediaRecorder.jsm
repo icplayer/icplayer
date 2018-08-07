@@ -215,7 +215,9 @@ export class MediaRecorder {
             RecordingTimer: RecordingTimer,
             AudioLoader: AudioLoader,
             VideoLoader: VideoLoader,
-            PlayButton: PlayButton
+            PlayButton: PlayButton,
+            RecordButton: RecordButton,
+            RecordingState: RecordingState,
         }
     }
 }
