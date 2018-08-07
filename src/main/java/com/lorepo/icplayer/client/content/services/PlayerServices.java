@@ -7,6 +7,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.IPlayerController;
+import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
@@ -33,6 +34,7 @@ public class PlayerServices implements IPlayerServices {
 	private ScaleInformation scaleInformation;
 	private JavaScriptObject jQueryPrepareOffsetsFunction = null;
 	private boolean isAbleChangeLayout = true;
+	private PlayerApp application = null;
 	
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 		this.playerController = controller;
@@ -47,7 +49,16 @@ public class PlayerServices implements IPlayerServices {
 	
 	@Override
 	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
+		boolean oldIsAbleChangeLayout = this.isAbleChangeLayout;
 		this.isAbleChangeLayout = isAbleChangeLayout;
+		if (!oldIsAbleChangeLayout && isAbleChangeLayout && application != null) {
+			this.application.updateLayout();
+		}
+	}
+	
+	@Override
+	public void setApplication(PlayerApp application) {
+		this.application = application;
 	}
 	
 	@Override
