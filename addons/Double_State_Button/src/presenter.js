@@ -136,7 +136,7 @@ function AddonDouble_State_Button_create(){
     }
 
     function touchEndEventHandler(e) {
-        e && e.preventDefault();
+        e.preventDefault();
         if (isTouchDown) {
             if ( presenter.lastEvent.type != e.type ) {
                 presenter.clickHandler(e);
