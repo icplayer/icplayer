@@ -1,6 +1,8 @@
 TestCase("[Media Recorder] Model validation", {
     setUp: function () {
         this.presenter = AddonMedia_Recorder_create();
+        let internalElements = this.presenter._internalElements();
+        this.validateModel = internalElements.validateModel;
 
         this.model = {
             ID: "mediaRecorder_1",
@@ -22,7 +24,7 @@ TestCase("[Media Recorder] Model validation", {
     },
 
     "test model is valid when the whole data is correct": function () {
-        var validatedModel = this.presenter.validateModel(this.model, this.DEFAULT_VALUES);
+        var validatedModel = this.validateModel(this.model, this.DEFAULT_VALUES);
 
         assertTrue(validatedModel.isValid);
     },
@@ -30,7 +32,7 @@ TestCase("[Media Recorder] Model validation", {
     "test 'Is Visible' is set up to false value when it is not a boolean": function () {
         this.model["Is Visible"] = "none";
 
-        var validatedModel = this.presenter.validateModel(this.model, this.DEFAULT_VALUES);
+        var validatedModel = this.validateModel(this.model, this.DEFAULT_VALUES);
 
         assertTrue(validatedModel.isValid);
         assertEquals(false, validatedModel.value["Is Visible"]);
@@ -39,7 +41,7 @@ TestCase("[Media Recorder] Model validation", {
     "test model is invalid when maxTime is not a number": function () {
         this.model.maxTime = "none";
 
-        var validatedModel = this.presenter.validateModel(this.model, this.DEFAULT_VALUES);
+        var validatedModel = this.validateModel(this.model, this.DEFAULT_VALUES);
 
         assertFalse(validatedModel.isValid);
     },
@@ -47,7 +49,7 @@ TestCase("[Media Recorder] Model validation", {
     "test maxTime is set up by default value when it is not defined": function () {
         this.model.maxTime = "";
 
-        var validatedModel = this.presenter.validateModel(this.model, this.DEFAULT_VALUES);
+        var validatedModel = this.validateModel(this.model, this.DEFAULT_VALUES);
 
         assertTrue(validatedModel.isValid);
         assertEquals(this.DEFAULT_VALUES.MAX_TIME, validatedModel.value.maxTime);
@@ -56,7 +58,7 @@ TestCase("[Media Recorder] Model validation", {
     "test model is invalid when maxTime is a negative number": function () {
         this.model.maxTime = "none";
 
-        var validatedModel = this.presenter.validateModel(this.model, this.DEFAULT_VALUES);
+        var validatedModel = this.validateModel(this.model, this.DEFAULT_VALUES);
 
         assertFalse(validatedModel.isValid);
     },
@@ -64,7 +66,7 @@ TestCase("[Media Recorder] Model validation", {
     "test model is invalid when type is not in the defined range": function () {
         this.model.type = "none";
 
-        var validatedModel = this.presenter.validateModel(this.model, this.DEFAULT_VALUES);
+        var validatedModel = this.validateModel(this.model, this.DEFAULT_VALUES);
 
         assertFalse(validatedModel.isValid);
     }

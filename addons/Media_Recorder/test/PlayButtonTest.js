@@ -20,6 +20,12 @@ TestCase("[Media Recorder] Play Button", {
         this.playButton = new internalElements.PlayButton(this.$view, this.state, this.player, this.timer);
     },
 
+    "test view has correct style when button is initialized": function () {
+        let zIndexStyle = "100";
+
+        assertEquals(zIndexStyle, this.$view[0].style.zIndex);
+    },
+
     "test nothing happens when deactivated button has been triggered": function () {
         this.state.isLoaded = () => true;
 
@@ -33,10 +39,10 @@ TestCase("[Media Recorder] Play Button", {
         assertTrue(this.player.stopPlaying.notCalled);
         assertTrue(this.timer.startCountdown.notCalled);
         assertTrue(this.timer.stopCountdown.notCalled);
+        assertEquals("", this.$view[0].className);
     },
 
     "test start playing when button has been triggered and media is loaded": function () {
-        let styleClass = "selected";
         this.state.isLoaded = () => true;
 
         this.playButton.activate();
@@ -45,11 +51,19 @@ TestCase("[Media Recorder] Play Button", {
         assertTrue(this.state.setPlaying.calledOnce);
         assertTrue(this.player.startPlaying.calledOnce);
         assertTrue(this.timer.startCountdown.calledOnce);
+    },
+
+    "test view style is correct when button has been triggered and media is loaded": function () {
+        let styleClass = "selected";
+        this.state.isLoaded = () => true;
+
+        this.playButton.activate();
+        this.$view.trigger("click");
+
         assertEquals(styleClass, this.$view[0].className);
     },
 
     "test stop playing when button has been triggered and media is playing": function () {
-        this.$view[0].className = "selected";
         this.state.isLoaded = () => false;
         this.state.isPlaying = () => true;
 
@@ -59,6 +73,16 @@ TestCase("[Media Recorder] Play Button", {
         assertTrue(this.state.setLoaded.calledOnce);
         assertTrue(this.player.stopPlaying.calledOnce);
         assertTrue(this.timer.stopCountdown.calledOnce);
+    },
+
+    "test view style is correct when button has been triggered and media is playing": function () {
+        this.$view[0].className = "selected";
+        this.state.isLoaded = () => false;
+        this.state.isPlaying = () => true;
+
+        this.playButton.activate();
+        this.$view.trigger("click");
+
         assertEquals("", this.$view[0].className);
     }
 });

@@ -45,7 +45,11 @@ export class BasePlayer extends Player {
         this._enableEventsHandling();
     }
 
-    destroy(){
+    reset() {
+        this.mediaNode.src = "";
+    }
+
+    destroy() {
         this._disableCallbacks();
         this._disableEventsHandling();
         this.stopPlaying();
@@ -56,7 +60,7 @@ export class BasePlayer extends Player {
         this.$view = null;
     }
 
-    _enableEventsHandling(){
+    _enableEventsHandling() {
         let self = this;
 
         this.mediaNode.ondurationchange = () => {
@@ -80,20 +84,30 @@ export class BasePlayer extends Player {
         this.mediaNode.oncanplay = () => this.onEndLoadingCallback();
     }
 
-    _disableEventsHandling(){
-        this.mediaNode.ondurationchange = () => {};
-        this.mediaNode.onended = () => {};
-        this.mediaNode.onloadstart = () => {};
-        this.mediaNode.oncanplay = () => {};
+    _disableEventsHandling() {
+        this.mediaNode.ondurationchange = () => {
+        };
+        this.mediaNode.onended = () => {
+        };
+        this.mediaNode.onloadstart = () => {
+        };
+        this.mediaNode.oncanplay = () => {
+        };
     }
 
     _disableCallbacks() {
-        this.onStartPlayingCallback = stream => {};
-        this.onStopPlayingCallback = () => {};
-        this.onDurationChangeCallback = duration => {};
-        this.onEndedPlayingCallback = () => {};
-        this.onStartLoadingCallback = () => {};
-        this.onEndLoadingCallback = () => {};
+        this.onStartPlayingCallback = stream => {
+        };
+        this.onStopPlayingCallback = () => {
+        };
+        this.onDurationChangeCallback = duration => {
+        };
+        this.onEndedPlayingCallback = () => {
+        };
+        this.onStartLoadingCallback = () => {
+        };
+        this.onEndLoadingCallback = () => {
+        };
     }
 
     _createMediaNode() {

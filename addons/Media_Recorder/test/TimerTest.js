@@ -6,12 +6,18 @@ TestCase("[Media Recorder] Timer", {
 
         this.clock = sinon.useFakeTimers();
 
-        this.$view = [$('<div></div>')];
+        this.$view = $('<div></div>');
         this.timer = new internalElements.Timer(this.$view);
     },
 
     tearDown: function () {
         this.clock.restore();
+    },
+
+    "test view has correct style when timer is initialized": function () {
+        let zIndexStyle = "100";
+
+        assertEquals(zIndexStyle, this.$view[0].style.zIndex);
     },
 
     "test view displays zeroed time when timer is initialized": function () {

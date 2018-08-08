@@ -1,12 +1,10 @@
 import {MediaRecorder} from "./mediaRecorder.jsm";
-import {validateModel} from "./modelValidator.jsm";
 
 function AddonMedia_Recorder_create() {
 
     let presenter = function () {
     };
 
-    presenter.validateModel = validateModel;
     presenter.mediaRecorder = new MediaRecorder();
 
     presenter.setPlayerController = function (controller) {
@@ -61,18 +59,9 @@ function AddonMedia_Recorder_create() {
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
     }
 
-    // presenter.setVisibility = function (isVisible) {
-    //     console.log("setVisibility");
-    // };
-    //
-    // presenter.hide = function () {
-    //     presenter.setVisibility(false);
-    // };
-    //
-    // presenter.show = function () {
-    //     presenter.setVisibility(true);
-    // };
-    //
+    presenter.setVisibility = function (isVisible) {
+        $(presenter.view).css('visibility', isVisible ? 'visible' : 'hidden');
+    };
 
     presenter.setShowErrorsMode = function setShowErrorsMode() {
         presenter.mediaRecorder.deactivate();
@@ -85,43 +74,6 @@ function AddonMedia_Recorder_create() {
     presenter.reset = function reset() {
         presenter.mediaRecorder.reset();
     };
-
-    //
-    // presenter.onEventReceived = function (eventData) {
-    //     console.log("onEventReceived");
-    // };
-    //
-    // presenter.executeCommand = function (name, params) {
-    //     console.log("executeCommand");
-    // };
-    //
-    // presenter.isAllOk = function(){
-    //
-    // };
-    //
-    // presenter.disable= function(){
-    //
-    // };
-    // presenter.enable= function(){
-    //
-    // };
-
-
-    // isDisabled
-    // Oznacza, że addon jest praktycznie wyłączony.
-    // nie wysyła eventów
-    // nie koloruje ( nie nadaje klas ) poprawnych/złych odpowiedzi
-    // jest nieklikalny i/lub nie można wprowadzać do niego żadnych wartości
-    // powinien dostać klasę disable
-
-    // isActivity lub isNotActivity
-    // W tym stanie addon nie jest brany pod uwagę podczas sprawdzania wyników.
-    // metody getScore, getMaxScore, getErrorsCount powinny zwracać 0
-    // kolorowanie ( nadawanie klas ) poprawnych/złych odpowiedzi nie jest wykonywane
-    // eventy powinny być wysyłane!
-
-    // Tryb Sprawdzania (setShowErrorsMode)
-    // W tym trybie addon powinien być disabled.
 
     presenter._internalElements = function () {
         return this.mediaRecorder._internalElements();

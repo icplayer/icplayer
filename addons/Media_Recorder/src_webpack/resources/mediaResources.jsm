@@ -1,9 +1,12 @@
 export class MediaResources {
 
-    constructor() {
+    RESOURCES_ERROR_MESSAGE = "Multimedia resources not available";
+
+    constructor($view) {
         if (this.constructor === MediaResources)
             throw new Error("Cannot create an instance of MediaResources abstract class");
 
+        this.$view = $view;
         this.stream = null;
     }
 
@@ -13,7 +16,10 @@ export class MediaResources {
                 this.stream = stream;
                 callback(stream)
             })
-            .catch(error => console.error(error));
+            .catch(error => {
+                console.error(error);
+                DOMOperationsUtils.showErrorMessage(this.$view, [this.RESOURCES_ERROR_MESSAGE], "0")
+            });
     }
 
     destroy() {

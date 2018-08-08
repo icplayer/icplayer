@@ -38,6 +38,12 @@ TestCase("[Media Recorder] Record Button", {
         this.recordButton = new internalElements.RecordButton(this.$view, this.state, this.mediaResources, this.recorder, this.player, this.timer, this.soundIntensity, this.recordingTimer);
     },
 
+    "test view style is correct when button is initialized": function () {
+        let zIndexStyle = "100";
+
+        assertEquals(zIndexStyle, this.$view[0].style.zIndex);
+    },
+
     "test start recording when button has been triggered and media state is set to new": function () {
         this.state.isNew = () => true;
         this.state.isLoaded = () => false;
@@ -126,7 +132,7 @@ TestCase("[Media Recorder] Record Button", {
         assertTrue(this.soundIntensity.closeStream.notCalled);
     },
 
-    "test view style is correctly when button has been triggered and media state is set to new": function () {
+    "test view style is correct when button has been triggered and media state is set to new": function () {
         let styleClass = "selected";
         this.state.isNew = () => true;
         this.state.isLoaded = () => false;
@@ -137,7 +143,7 @@ TestCase("[Media Recorder] Record Button", {
         assertEquals(styleClass, this.$view[0].className);
     },
 
-    "test view style is correctly when button has been triggered and media state is set to loaded": function () {
+    "test view style is correct when button has been triggered and media state is set to loaded": function () {
         let styleClass = "selected";
         this.state.isNew = () => false;
         this.state.isLoaded = () => true;
@@ -182,7 +188,7 @@ TestCase("[Media Recorder] Record Button", {
         assertTrue(this.soundIntensity.openStream.notCalled);
     },
 
-    "test view style is correctly when button has been triggered and media state is set to recording": function () {
+    "test view style is correct when button has been triggered and media state is set to recording": function () {
         this.state.isNew = () => false;
         this.state.isLoaded = () => false;
         this.state.isRecording = () => true;

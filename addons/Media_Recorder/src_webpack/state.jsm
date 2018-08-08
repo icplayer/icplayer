@@ -36,6 +36,10 @@ export class State {
         return this._value === this._values.BLOCKED;
     }
 
+    setNew(){
+        this._value = this._values.NEW;
+    }
+
     setRecording() {
         this._value = this._values.RECORDING;
     }

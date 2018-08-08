@@ -32,6 +32,10 @@ export class Player {
         throw new Error("StopStreaming method is not implemented");
     }
 
+    reset(){
+        throw new Error("Reset method is not implemented");
+    }
+
     destroy(){
         throw new Error("Destroy method is not implemented");
     }

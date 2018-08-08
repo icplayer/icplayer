@@ -9,6 +9,7 @@ export class Timer {
         this.loadedSeconds = 0;
         this.isLoaded = false;
 
+        this.$view.css("z-index","100");
         this._updateText();
     }
 

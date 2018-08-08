@@ -10,6 +10,7 @@ export class RecordButton {
         this.soundIntensity = soundIntensity;
         this.recordingTimer = recordingTimer;
 
+        this.$view.css("z-index", "100");
         this.recordingTimer.onTimeExpired = () => this.forceClick();
     }
 

@@ -40,7 +40,6 @@ export class MediaRecorder {
     run(view, model) {
         this._initialize(view, model);
         this._activateButtons();
-
     }
 
     createPreview(view, model) {
@@ -80,8 +79,10 @@ export class MediaRecorder {
     reset() {
         this.deactivate();
         this.activate();
-        this.loadRecordingService.loadRecording(this.model.defaultRecording);
+        this.player.reset();
+        this.state.setNew();
         this.recordingState.reset();
+        this.loadRecordingService.loadRecording(this.model.defaultRecording);
     }
 
     destroy() {
@@ -147,7 +148,7 @@ export class MediaRecorder {
         this.soundIntensity = new SoundIntensity(this.viewHandlers.$soundIntensityView);
 
         this.recordingTimer = new RecordingTimer(this.model.maxTime);
-        this.mediaResources = createMediaResources(this.model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01);
+        this.mediaResources = createMediaResources(this.model.type, this.viewHandlers.$wrapperView, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01);
         this.recorder = createRecorder(this.model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01);
         this.player = createPlayer(this.model.type, this.DEFAULT_VALUES.SUPPORTED_TYPES, this.ERROR_CODES.type_EV01, this.viewHandlers.$playerView);
 
@@ -208,6 +209,7 @@ export class MediaRecorder {
 
     _internalElements() {
         return {
+            validateModel : validateModel,
             Timer: Timer,
             State: State,
             ActivationState: ActivationState,

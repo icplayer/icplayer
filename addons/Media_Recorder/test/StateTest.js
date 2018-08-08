@@ -71,6 +71,17 @@ TestCase("[Media Recorder] State", {
         assertTrue(this.state.isBlocked());
     },
 
+    "test state is set up to new when mutator is called": function () {
+        this.state.setNew();
+
+        assertTrue(this.state.isNew());
+        assertFalse(this.state.isRecording());
+        assertFalse(this.state.isLoading());
+        assertFalse(this.state.isLoaded());
+        assertFalse(this.state.isPlaying());
+        assertFalse(this.state.isBlocked());
+    },
+
     "test state is set up correctly when many mutators is called": function () {
         this.state.setRecording();
         this.state.setBlocked();

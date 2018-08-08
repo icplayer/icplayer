@@ -4,6 +4,8 @@ export class PlayButton {
         this.state = state;
         this.player = player;
         this.timer = timer;
+
+        this.$view.css("z-index", "100");
     }
 
     activate() {
