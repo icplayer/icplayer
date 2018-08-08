@@ -498,7 +498,7 @@ function Addonvideo_create() {
     };
 
     presenter.keyboardController = function (keycode, isShift, event) {
-        event && event.preventDefault();
+        event.preventDefault();
 
         function increasedVolume() {
             var val = Math.round((presenter.videoObject.volume + 0.1) * 10) / 10;

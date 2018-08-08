@@ -519,7 +519,6 @@ function Addonfeedback_create() {
     };
 
     presenter.keyboardController = function(keyCode, isShift, event) { //every time keyboard is pressed
-        // space, up/down arrow, esc
         if (keyCode == window.KeyboardControllerKeys.SPACE ||
             keyCode == window.KeyboardControllerKeys.ARROW_UP ||
             keyCode == window.KeyboardControllerKeys.ARROW_DOWN ||

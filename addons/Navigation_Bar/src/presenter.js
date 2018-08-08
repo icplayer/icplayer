@@ -69,7 +69,7 @@ function AddonNavigation_Bar_create() {
     };
 
     presenter.keyboardController = function(keycode, isShift, event) {
-        event && event.preventDefault();
+        event.preventDefault();
 
         var elements = presenter.$view.find("span").not("[class*='inactive']");
 

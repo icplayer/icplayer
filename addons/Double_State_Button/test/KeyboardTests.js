@@ -20,7 +20,7 @@ TestCase("[Double_State_Button] Navigating with keyboard test case", {
         assertTrue(this.stubs.clickHandlerStub.called);
     },
 
-    'test when event keycode is enter it should execute click lgoic': function () {
+    'test when event keycode is enter it should execute click logic': function () {
         var event = {
             'keyCode': 13,
             'preventDefault': function(){}
@@ -28,6 +28,16 @@ TestCase("[Double_State_Button] Navigating with keyboard test case", {
         this.presenter.handleKeyboardEvents(event);
 
         assertTrue(this.stubs.clickHandlerStub.called);
+    },
+
+    'test when event keycode is not enter nor space it should not execute click logic': function () {
+        var event = {
+            'keyCode': 12,
+            'preventDefault': function(){}
+        };
+        this.presenter.handleKeyboardEvents(event);
+
+        assertFalse(this.stubs.clickHandlerStub.called);
     }
 
 });

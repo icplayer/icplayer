@@ -1746,7 +1746,7 @@ function AddonTable_create() {
     TableKeyboardController.prototype.constructor = TableKeyboardController;
 
     TableKeyboardController.prototype.select = function (event) {
-        event && event.preventDefault();
+        event.preventDefault();
         if (presenter.gapNavigation && presenter.configuration.gapType == 'draggable' && presenter.getCurrentGapsNumber() > 0) {
             var $gap = presenter.getGap(presenter.gapIndex);
 

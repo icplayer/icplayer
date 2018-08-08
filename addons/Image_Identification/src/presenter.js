@@ -621,7 +621,7 @@ function AddonImage_Identification_create(){
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
-        event && event.preventDefault();
+        event.preventDefault();
 
         if (keycode === window.KeyboardControllerKeys.SPACE) {
             clickLogic();
