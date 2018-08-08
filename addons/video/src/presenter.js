@@ -22,6 +22,8 @@ function Addonvideo_create() {
     presenter.isPreview = false;
     presenter.captions = [];
     presenter.captionDivs = [];
+    presenter.speechTexts = [];
+    presenter.speechTextDivs = [];
     presenter.metadataQueue = [];
     presenter.areSubtitlesHidden = false;
     presenter.calledFullScreen = false;
@@ -29,6 +31,7 @@ function Addonvideo_create() {
     presenter.playerController = null;
     presenter.posterPlayButton = null;
     presenter.videoView = null;
+    presenter.
 
     presenter.stylesBeforeFullscreen = {
         changedStyles: false,
@@ -119,6 +122,7 @@ function Addonvideo_create() {
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradePoster(model);
         upgradedModel = presenter.upgradeTimeLabels(upgradedModel);
+        upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
         return presenter.upgradeShowPlayButton(upgradedModel);
     };
 
@@ -129,6 +133,19 @@ function Addonvideo_create() {
         for (var i = 0; i < model.Files.length; i++) {
             if (!upgradedModel.Files[i].Poster) {
                 upgradedModel.Files[i].Poster = "";
+            }
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeSpeechTexts = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        for (var i = 0; i < model.Files.length; i++) {
+            if (!upgradedModel.Files[i]["Speech Texts"]) {
+                upgradedModel.Files[i]["Speech Texts"] = "";
             }
         }
 
@@ -570,6 +587,8 @@ function Addonvideo_create() {
             }
         }
 
+        console.log(keycode+" : isShift - "+isShift);
+
         switch (keycode) {
             case 32:
                 playPause();
@@ -691,6 +710,7 @@ function Addonvideo_create() {
             "MP4 video": file['MP4 video'],
             "WebM video": file['WebM video'],
             "Subtitles": file['Subtitles'],
+            "SpeechTexts": file['Speech Texts'],
             "Poster": file['Poster'],
             "ID": file['ID'],
             "AlternativeText": file['AlternativeText'],
@@ -1036,7 +1056,7 @@ function Addonvideo_create() {
     };
 
     presenter.showCaptions = function (time) {
-        if (!presenter.configuration.dimensions) return; // No captions to show when video wasn't loaded properly
+        if (!presenter.configuration.dimensions) return ; // No captions to show when video wasn't loaded properly
         for (var i = 0; i < presenter.captions.length; i++) {
             var caption = presenter.captions[i];
             if (caption.start <= time && caption.end >= time) {
@@ -1049,12 +1069,86 @@ function Addonvideo_create() {
         }
     };
 
+    var prevTime = 0;
+    presenter.readSpeechTexts = function (time) {
+        if (!presenter.configuration.dimensions) return false;
+        if (!presenter.playerController || !presenter.playerController.isWCAGOn()) return false;
+        if (time < prevTime || time - prevTime > 1.0) {
+            prevTime = time;
+            return false;
+        }
+
+        var isSpeaking = false;
+        for ( var i = 0; i < presenter.speechTexts.length; i++) {
+            var speechText = presenter.speechTexts[i];
+            if (prevTime <= speechText.start && speechText.start <= time) {
+                isSpeaking = true;
+                presenter.videoObject.pause();
+                $(speechText.element).attr('visibility', 'visible');
+                $(speechText.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
+                speak([window.TTSUtils.getTextVoiceObject(speechText.text,speechText.langTag)]);
+                presenter.playAfterTTS();
+            } else {
+                $(speechText.element).css('visibility', 'hidden');
+                $(speechText.element).attr('visibility', 'hidden');
+            }
+
+        }
+        prevTime = time;
+
+        if (isSpeaking) {
+            for (var i = 0; i < presenter.captions.length; i++) {
+                var caption = presenter.captions[i];
+                $(caption.element).css('visibility', 'hidden');
+                $(caption.element).attr('visibility', 'hidden');
+            }
+        }
+        return isSpeaking;
+    };
+
+    var playTimeout = null;
+    var playTestInterval = null;
+    presenter.playAfterTTS = function() {
+        if(playTimeout) {
+            clearTimeout(playTimeout);
+            playTimeout = null;
+        }
+        playTimeout = setTimeout(function(){
+            if(playTestInterval) {
+                clearInterval(playTestInterval);
+                playTestInterval = null;
+            }
+            playTestInterval = setInterval(function () {
+                var speechSynthSpeaking = false;
+            var responsiveVoiceSpeaking = false;
+            if ('speechSynthesis' in window) {
+                speechSynthSpeaking = window.speechSynthesis.speaking;
+            }
+            if (window.responsiveVoice) {
+                responsiveVoiceSpeaking = window.responsiveVoice.isPlaying();
+            }
+            if (!speechSynthSpeaking && !responsiveVoiceSpeaking) {
+                clearInterval(playTestInterval);
+                for ( var i = 0; i < presenter.speechTexts.length; i++) {
+                    var speechText = presenter.speechTexts[i];
+                    $(speechText.element).css('visibility', 'hidden');
+                    $(speechText.element).attr('visibility', 'hidden');
+                }
+                if (presenter.videoObject.paused && presenter.playerController && presenter.playerController.isWCAGOn()) {
+                    presenter.videoObject.play();
+                }
+            }
+            },200);
+        },300);
+    };
+
     presenter.reload = function () {
         presenter.showPlayButton();
         presenter.isVideoLoaded = false;
         $(presenter.videoContainer).find('.captions').remove();
         presenter.setVideo();
         presenter.loadSubtitles();
+        presenter.loadSpeechTexts();
         presenter.setBurgerMenu();
         $(presenter.videoObject).unbind('timeupdate');
         $(presenter.videoObject).bind("timeupdate", function () {
@@ -1074,7 +1168,12 @@ function Addonvideo_create() {
     };
 
     function onTimeUpdate(video) {
-        presenter.showCaptions(presenter.videoObject.currentTime);
+        if (!presenter.videoObject.paused) {
+            var isSpeaking = presenter.readSpeechTexts(presenter.videoObject.currentTime);
+            if (!isSpeaking) {
+                presenter.showCaptions(presenter.videoObject.currentTime);
+            }
+        }
 
         presenter.sendTimeUpdate();
 
@@ -1386,6 +1485,50 @@ function Addonvideo_create() {
                 presenter.convertLinesToCaptions(Helpers.splitLines(data));
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, presenter.captionDivs])();
             });
+        }
+    };
+
+    presenter.loadSpeechTexts = function () {
+        var speechTextsLoadedDeferred = new $.Deferred(),
+            speechTexts = presenter.configuration.files[presenter.currentMovie].SpeechTexts;
+
+        if (speechTexts) {
+            if (StringUtils.startsWith(speechTexts, "/file")) {
+                $.get(speechTexts, function (data) {
+                    speechTextsLoadedDeferred.resolve(data);
+                });
+            } else {
+                speechTextsLoadedDeferred.resolve(speechTexts);
+            }
+
+            presenter.convertLinesToCaptions(Helpers.splitLines(speechTexts));
+            $.when(speechTextsLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function onSpeechTextsLoaded(data) {
+                presenter.convertLinesToSpeechTexts(Helpers.splitLines(data));
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, presenter.speechTextDivs])();
+            });
+        }
+    };
+
+    presenter.convertLinesToSpeechTexts = function (lines) {
+        presenter.speechTexts = [];
+
+        for (var i = 0; i < lines.length; i++) {
+            var parts = lines[i].split('|');
+            if (parts.length == 6) {
+                var speechText = {
+                    start: parts[0],
+                    top: (StringUtils.endsWith(parts[2], 'px') ? parts[1] : parts[1] + 'px'),
+                    left: (StringUtils.endsWith(parts[3], 'px') ? parts[2] : parts[2] + 'px'),
+                    cssClass: parts[3],
+                    langTag: parts[4],
+                    text: parts[5]
+                };
+
+                speechText.element = createCaptionElement(speechText);
+                presenter.speechTexts.push(speechText);
+
+                presenter.speechTextDivs.push(speechText.element);
+            }
         }
     };
 
@@ -1761,6 +1904,21 @@ function Addonvideo_create() {
         var value = isTabindexEnabled ? "0" : "-1";
         presenter.videoContainer.attr("tabindex", value);
     };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (presenter.playerController) {
+            return presenter.playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.playerController.isWCAGOn()) {
+            tts.speak(data);
+        }
+    }
 
     return presenter;
 }
