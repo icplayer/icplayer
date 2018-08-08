@@ -106,7 +106,7 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 	}
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		speak();
 	}
 

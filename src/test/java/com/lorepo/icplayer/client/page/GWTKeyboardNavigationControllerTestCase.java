@@ -348,8 +348,8 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).escape(Mockito.any(KeyDownEvent.class));
 		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).tab(Mockito.any(KeyDownEvent.class));
 		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).space(Mockito.any(KeyDownEvent.class));
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(3)).enter(false);
-		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).enter(true);
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(3)).enter(Mockito.any(KeyDownEvent.class), Mockito.eq(false));
+		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).enter((Mockito.any(KeyDownEvent.class)), Mockito.eq(true));
 		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).shiftTab(Mockito.any(KeyDownEvent.class));
 		Mockito.verify(mock1.presenter.getWCAGController(), Mockito.times(1)).customKeyCode(Mockito.any(KeyDownEvent.class));
 	}

@@ -68,12 +68,8 @@ function AddonNavigation_Bar_create() {
         isWCAGOn = isOn;
     };
 
-    presenter.keyboardController = function(keycode, isShift) {
-        
-        $(document).on('keydown', function(e) {
-            e.preventDefault();
-            $(this).off('keydown');
-        });
+    presenter.keyboardController = function(keycode, isShift, event) {
+        event && event.preventDefault();
 
         var elements = presenter.$view.find("span").not("[class*='inactive']");
 

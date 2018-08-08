@@ -46,29 +46,13 @@ TestCase("[Table] handle keyboard input", {
     'test action should be called when mapping for keycode exists' : function () {
         var keycodeSpace = 32;
         var isShiftDown = false;
-
-        $(document).on('keydown', this.presenter.keyboardController(keycodeSpace, isShiftDown));
-
         var event = jQuery.Event('keydown');
         event.which = keycodeSpace;
-        $(document).trigger(event);
+
+        this.presenter.keyboardController(keycodeSpace, isShiftDown, event);
+
 
         assertTrue(this.stubs.spaceKeyActionStub.called);
-    },
-
-    'test action shouldnt be called when mapping for keycode doesnt exist' : function () {
-        var keycodeSpace = 32;
-        var isShiftDown = false;
-        this.presenter.keyboardControllerObject.mapping = {};
-        this.presenter.keyboardControllerObject.shiftKeysMapping = {};
-
-        $(document).on('keydown', this.presenter.keyboardController(keycodeSpace, isShiftDown));
-
-        var event = jQuery.Event('keydown');
-        event.which = keycodeSpace;
-        $(document).trigger(event);
-
-        assertTrue(this.stubs.spaceKeyActionStub.notCalled);
     }
 });
 
@@ -267,5 +251,34 @@ TestCase("[Table] TTS tests", {
         assertTrue(this.stubs.readCurrentCellStub.called);
         assertFalse(this.stubs.readCurrentElementStub.called);
 
+    },
+
+    'test addonKeyboardNavigationActive must be set to false in escape when gap navigation not activated': function() {
+        this.presenter.addonKeyboardNavigationActive = true;
+        this.presenter.gapNavigation = false;
+
+        var keycode = 27;
+        var event = {
+            preventDefault: sinon.stub()
+        };
+
+        this.presenter.keyboardController(keycode, false, event);
+
+        assertFalse(this.presenter.addonKeyboardNavigationActive);
+    },
+
+    'test addonKeyboardNavigationActive must be set to true in escape when gap navigation is activated': function() {
+        this.presenter.addonKeyboardNavigationActive = true;
+        this.presenter.gapNavigation = true;
+
+        var keycode = 27;
+        var event = {
+            stopPropagation: sinon.stub(),
+            preventDefault: sinon.stub()
+        };
+
+        this.presenter.keyboardController(keycode, false, event);
+
+        assertTrue(this.presenter.addonKeyboardNavigationActive);
     }
 });

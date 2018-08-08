@@ -292,8 +292,9 @@ function AddonSingle_State_Button_create() {
         }
     };
 
-    presenter.keyboardController = function(keyCode) {
-        if (keyCode == 13) {
+    presenter.keyboardController = function(keyCode, isShiftDown, event) {
+        event && event.preventDefault();
+        if (keyCode == window.KeyboardControllerKeys.ENTER) {
             presenter.clickHandler();
         }
     };

@@ -116,7 +116,7 @@ public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDi
 
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		speak();
 	}
 

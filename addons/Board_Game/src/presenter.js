@@ -976,7 +976,8 @@ function AddonBoard_Game_create(){
     BoardGameFreeModeKeyboardController.prototype = Object.create(KeyboardController.prototype);
     BoardGameFreeModeKeyboardController.prototype.constructor = BoardGameFreeModeKeyboardController;
 
-    BoardGameFreeModeKeyboardController.prototype.left = function () {
+    BoardGameFreeModeKeyboardController.prototype.left = function (e) {
+        e && e.preventDefault();
         var position = getElementPosition(this.keyboardNavigationCurrentElement);
         position.left -= 2;
 
@@ -984,7 +985,8 @@ function AddonBoard_Game_create(){
         this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
     };
 
-    BoardGameFreeModeKeyboardController.prototype.right = function () {
+    BoardGameFreeModeKeyboardController.prototype.right = function (e) {
+        e && e.preventDefault();
         var position = getElementPosition(this.keyboardNavigationCurrentElement);
         position.left += 2;
 
@@ -992,7 +994,8 @@ function AddonBoard_Game_create(){
         this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
     };
 
-    BoardGameFreeModeKeyboardController.prototype.up = function () {
+    BoardGameFreeModeKeyboardController.prototype.up = function (e) {
+        e && e.preventDefault();
         var position = getElementPosition(this.keyboardNavigationCurrentElement);
         position.top -= 2;
 
@@ -1000,7 +1003,8 @@ function AddonBoard_Game_create(){
         this.keyboardNavigationCurrentElement[0].dispatchEvent(event);
     };
 
-    BoardGameFreeModeKeyboardController.prototype.down = function () {
+    BoardGameFreeModeKeyboardController.prototype.down = function (e) {
+        e && e.preventDefault();
         var position = getElementPosition(this.keyboardNavigationCurrentElement);
         position.top += 2;
 
@@ -1041,7 +1045,7 @@ function AddonBoard_Game_create(){
     };
 
     presenter.keyboardController = function (keyCode, isShiftDown, originalEvent) {
-        presenter.boardGameKeyboardController.handle(keyCode, isShiftDown);
+        presenter.boardGameKeyboardController.handle(keyCode, isShiftDown, originalEvent);
     };
 
     return presenter;

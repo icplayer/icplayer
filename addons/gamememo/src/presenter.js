@@ -1700,8 +1700,8 @@ function Addongamememo_create(){
         presenter.viewContainer.css("display", isVisible ? "block" : "none");
     };
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        keyboardController.handle(keycode, isShiftKeyDown)
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        keyboardController.handle(keycode, isShiftKeyDown, event)
     };
 
     presenter.getTextToSpeechOrNull = function (playerController) {

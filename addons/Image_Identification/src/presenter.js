@@ -619,15 +619,10 @@ function AddonImage_Identification_create(){
 
         presenter.isShowAnswersActive = false;
     };
-    presenter.handleSpace = function(keyCode){
-        $(document).on('keydown', function (event) {
-            event.preventDefault();
-            $(this).off('keydown');
-        });
-    };
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        presenter.handleSpace(keycode);
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        event && event.preventDefault();
+
         if (keycode === window.KeyboardControllerKeys.SPACE) {
             clickLogic();
         } else if (keycode === window.KeyboardControllerKeys.ENTER) {

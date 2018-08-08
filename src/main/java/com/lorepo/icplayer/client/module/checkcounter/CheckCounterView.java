@@ -76,7 +76,7 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 	}
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		speak();
 	}
 

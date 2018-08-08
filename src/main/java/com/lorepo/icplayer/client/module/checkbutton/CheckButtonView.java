@@ -119,7 +119,7 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 	}
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		if (!isExiting) {
 			this.enter();
 			if (this.isWCAGOn) {
