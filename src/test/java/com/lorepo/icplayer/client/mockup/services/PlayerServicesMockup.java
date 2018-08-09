@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
@@ -220,5 +221,12 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public boolean isAbleChangeLayout() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+
+	@Override
+	public void setApplication(PlayerApp application) {
+		// TODO Auto-generated method stub
+		
 	}
 }

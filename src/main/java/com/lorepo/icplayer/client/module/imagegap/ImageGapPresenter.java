@@ -283,10 +283,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 				playerServices.getEventBus().fireEvent(isAllOKevent);
 			}
 			view.makeDraggable(this);
+			String langAtribute = getSourceLangTag(consumedItem.getId()); 
 			if(getScore() == 0 && model.shouldBlockWrongAnswers()){
 				removeItem(false);
 			}
-			view.setLangTag(getSourceLangTag(consumedItem.getId()));
+			view.setLangTag(langAtribute);
 			view.readInserted();
 		}
 	}
