@@ -1537,7 +1537,7 @@ function Addonvideo_create() {
                 descriptionsLoadedDeferred.resolve(descriptions);
             }
 
-            presenter.convertLinesToAudioDescriptions(Helpers.splitLines(descriptions));
+            presenter.convertLinesToCaptions(Helpers.splitLines(descriptions));
             $.when(descriptionsLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function onDescriptionsLoaded(data) {
                 presenter.convertLinesToAudioDescriptions(Helpers.splitLines(data));
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, presenter.descriptionsDivs])();
