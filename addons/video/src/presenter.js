@@ -579,7 +579,7 @@ function Addonvideo_create() {
 
         function switchAudioDescriptionEnabled() {
             if (presenter.isAudioDescriptionEnabled == null) {
-                presenter.isAudioDescriptionEnabled = true;
+                presenter.isAudioDescriptionEnabled = false;
             } else {
                 presenter.isAudioDescriptionEnabled = !presenter.isAudioDescriptionEnabled;
             }
@@ -587,6 +587,11 @@ function Addonvideo_create() {
                 speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionEnabled)]);
             } else {
                 speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionDisabled)]);
+                for ( var i = 0; i < presenter.descriptions.length; i++) {
+                    var description = presenter.descriptions[i];
+                    $(description.element).css('visibility', 'hidden');
+                    $(description.element).attr('visibility', 'hidden');
+                }
             }
         }
 
@@ -1145,8 +1150,13 @@ function Addonvideo_create() {
                 presenter.videoObject.pause();
                 $(description.element).attr('visibility', 'visible');
                 $(description.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
-                speak([window.TTSUtils.getTextVoiceObject(description.text,description.langTag)]);
-                presenter.playAfterTTS();
+
+                function callbackFunction() {
+                    if (presenter && presenter.videoObject.paused && getAudioDescriptionEnabled()) {
+                        presenter.videoObject.play();
+                    }
+                }
+                speakWithCallback([window.TTSUtils.getTextVoiceObject(description.text,description.langTag)], callbackFunction);
             } else {
                 $(description.element).css('visibility', 'hidden');
                 $(description.element).attr('visibility', 'hidden');
@@ -1163,44 +1173,6 @@ function Addonvideo_create() {
             }
         }
         return isSpeaking;
-    };
-
-    var playTestTimeout = null;
-    var playTestInterval = null;
-    // Resume playing the video after TTS is no longer speaking
-    presenter.playAfterTTS = function() {
-        if (playTestTimeout) {
-            clearTimeout(playTestTimeout);
-            playTestTimeout = null;
-        }
-
-        playTestTimeout = setTimeout(function () {
-            if (playTestInterval) {
-                clearInterval(playTestInterval);
-                playTestInterval = null;
-            }
-            playTestInterval = setInterval(function () {
-                var speechSynthSpeaking = false;
-                var responsiveVoiceSpeaking = false;
-                if ('speechSynthesis' in window) {
-                    speechSynthSpeaking = window.speechSynthesis.speaking;
-                }
-                if (window.responsiveVoice) {
-                    responsiveVoiceSpeaking = window.responsiveVoice.isPlaying();
-                }
-                if (!speechSynthSpeaking && !responsiveVoiceSpeaking) {
-                    clearInterval(playTestInterval);
-                    for ( var i = 0; i < presenter.descriptions.length; i++) {
-                        var description = presenter.descriptions[i];
-                        $(description.element).css('visibility', 'hidden');
-                        $(description.element).attr('visibility', 'hidden');
-                    }
-                    if (presenter.videoObject.paused && getAudioDescriptionEnabled()) {
-                        presenter.videoObject.play();
-                    }
-                }
-            },200);
-        },300);
     };
 
     presenter.reload = function () {
@@ -1978,6 +1950,13 @@ function Addonvideo_create() {
         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
         if (tts) {
             tts.speak(data);
+        }
+    }
+
+    function speakWithCallback (data, callbackFunction) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts) {
+            tts.speakWithCallback(data, callbackFunction);
         }
     }
 

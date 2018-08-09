@@ -183,10 +183,11 @@ function AddonText_To_Speech_create() {
     }
 
     // https://responsivevoice.org/
-    function responsiveVoiceSpeak (texts) {
+    function responsiveVoiceSpeak (texts, finalCallback) {
         var textsObjects = filterTexts(texts, getResponsiveVoiceLanguage);
+        if (finalCallback === undefined) finalCallback = null;
 
-        var onEndStack = { onend: null };
+        var onEndStack = { onend: finalCallback };
         for (var i=textsObjects.length-1; i>=0; i--) {
             var textObject = textsObjects[i];
 
@@ -205,7 +206,7 @@ function AddonText_To_Speech_create() {
     presenter.intervalId = null;
 
     // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
-    function speechSynthesisSpeak (texts) {
+    function speechSynthesisSpeak (texts, finalCallback) {
         window.speechSynthesis.cancel();
 
         if (presenter.intervalId != null) {
@@ -248,6 +249,7 @@ function AddonText_To_Speech_create() {
                         if(currentIntervalId == presenter.intervalId){
                             window.speechSynthesis.cancel();
                         }
+                        if (finalCallback != null) finalCallback();
                     };
                 }
                 window.speechSynthesis.speak(msg);
@@ -356,6 +358,27 @@ function AddonText_To_Speech_create() {
         }
 
         console.log(texts);
+    };
+
+    presenter.speakWithCallback = function (texts, callback) {
+      var class_ = Object.prototype.toString.call(texts);
+        if (class_.indexOf('String') !== -1) {
+            texts = [getTextVoiceObject(texts, langTag)];
+        }
+
+        texts = presenter.parseAltTexts(texts);
+        if (window.responsiveVoice) {
+            responsiveVoiceSpeak(texts, callback);
+            return;
+        }
+
+        if ('speechSynthesis' in window) {
+            speechSynthesisSpeak(texts, callback);
+            return;
+        }
+
+        console.log(texts);
+        callback();
     };
 
     presenter.playTitle = function (area, id, langTag) {
