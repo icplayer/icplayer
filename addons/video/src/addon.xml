@@ -12,12 +12,20 @@
             <property name="Loop video" nameLabel="video_property_loop_video" type="boolean" />
 			<property name="AlternativeText" nameLabel="video_property_alternative_text" type="string" />
 			<property name="time_labels" nameLabel="video_property_time_labels" type="text"/>
-			<property name="Speech Texts" nameLabel="video_property_speech_texts" type="text" isLocalized="true" />
+			<property name="Audio Description" nameLabel="video_property_audiodescription" type="text" isLocalized="true" />
 		</property>
 		<property name="Show video" nameLabel="video_property_show_video" type="string" />
 		<property name="Narration" nameLabel="video_property_narration" type="narration" isLocalized="true" />
         <property name="Hide default controls" nameLabel="video_property_hide_default_controls" type="boolean" />
         <property name="Hide subtitles" nameLabel="video_property_hide_subtitles" type="boolean" />
 		<property name="Show play button" nameLabel="video_property_show_play_button" type="boolean"/>
+		<property name="speechTexts"  nameLabel="feedback_property_speech_texts" type="staticlist">
+            <property name="AudioDescriptionEnabled" nameLabel="video_property_description_enabled" type="staticrow">
+                <property name="AudioDescriptionEnabled" nameLabel="video_property_description_enabled" type="string"/>
+            </property>
+            <property name="AudioDescriptionDisabled" nameLabel="video_property_description_disabled" type="staticrow">
+                <property name="AudioDescriptionDisabled" nameLabel="video_property_description_disabled" type="string"/>
+            </property>
+		</property>
 	</model>
 </addon>

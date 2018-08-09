@@ -22,8 +22,9 @@ function Addonvideo_create() {
     presenter.isPreview = false;
     presenter.captions = [];
     presenter.captionDivs = [];
+    presenter.descriptions = [];
+    presenter.descriptionsDivs = [];
     presenter.speechTexts = [];
-    presenter.speechTextDivs = [];
     presenter.metadataQueue = [];
     presenter.areSubtitlesHidden = false;
     presenter.calledFullScreen = false;
@@ -31,7 +32,7 @@ function Addonvideo_create() {
     presenter.playerController = null;
     presenter.posterPlayButton = null;
     presenter.videoView = null;
-    presenter.
+    presenter.isAudioDescriptionEnabled = null;
 
     presenter.stylesBeforeFullscreen = {
         changedStyles: false,
@@ -144,8 +145,15 @@ function Addonvideo_create() {
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
         for (var i = 0; i < model.Files.length; i++) {
-            if (!upgradedModel.Files[i]["Speech Texts"]) {
-                upgradedModel.Files[i]["Speech Texts"] = "";
+            if (!upgradedModel.Files[i]["Audio Description"]) {
+                upgradedModel.Files[i]["Audio Description"] = "";
+            }
+        }
+
+        if (!model.speechTexts) {
+            upgradedModel.speechTexts = {
+                AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled"},
+                AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled"}
             }
         }
 
@@ -569,6 +577,19 @@ function Addonvideo_create() {
             }
         }
 
+        function switchAudioDescriptionEnabled() {
+            if (presenter.isAudioDescriptionEnabled == null) {
+                presenter.isAudioDescriptionEnabled = true;
+            } else {
+                presenter.isAudioDescriptionEnabled = !presenter.isAudioDescriptionEnabled;
+            }
+            if (presenter.isAudioDescriptionEnabled) {
+                speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionEnabled)]);
+            } else {
+                speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionDisabled)]);
+            }
+        }
+
         function previousTimeLabel() {
             var currentTime = presenter.videoObject.currentTime - 2;
             var currentElement = presenter.configuration.files[presenter.currentMovie],
@@ -586,8 +607,6 @@ function Addonvideo_create() {
                 }
             }
         }
-
-        console.log(keycode+" : isShift - "+isShift);
 
         switch (keycode) {
             case 32:
@@ -618,6 +637,9 @@ function Addonvideo_create() {
                 break;
             case 70:
                 presenter.fullScreen();
+                break;
+            case 65:
+                switchAudioDescriptionEnabled();
                 break;
         }
     };
@@ -710,7 +732,7 @@ function Addonvideo_create() {
             "MP4 video": file['MP4 video'],
             "WebM video": file['WebM video'],
             "Subtitles": file['Subtitles'],
-            "SpeechTexts": file['Speech Texts'],
+            "Audiodescription": file['Audio Description'],
             "Poster": file['Poster'],
             "ID": file['ID'],
             "AlternativeText": file['AlternativeText'],
@@ -744,8 +766,35 @@ function Addonvideo_create() {
         };
     };
 
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+            audioDescriptionEnabled:  'Audio description enabled',
+            audioDescriptionDisabled: 'Audio description disabled'
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            audioDescriptionEnabled: getSpeechTextProperty(speechTexts['AudioDescriptionEnabled']['AudioDescriptionEnabled'], presenter.speechTexts.audioDescriptionEnabled),
+            audioDescriptionDisabled: getSpeechTextProperty(speechTexts['AudioDescriptionDisabled']['AudioDescriptionDisabled'], presenter.speechTexts.audioDescriptionDisabled)
+        };
+    }
+
     presenter.validateModel = function (model) {
         var validatedFiles = presenter.validateFiles(model);
+        setSpeechTexts(model["speechTexts"]);
         if (!validatedFiles.isValid) {
             return validatedFiles;
         }
@@ -1069,28 +1118,38 @@ function Addonvideo_create() {
         }
     };
 
+    function getAudioDescriptionEnabled() {
+        if (presenter.isAudioDescriptionEnabled != null) {
+            return presenter.isAudioDescriptionEnabled;
+        }
+        if (presenter.playerController && presenter.playerController.isWCAGOn()) {
+            return presenter.playerController.isWCAGOn();
+        }
+        return false;
+    }
+
     var prevTime = 0;
     presenter.readSpeechTexts = function (time) {
         if (!presenter.configuration.dimensions) return false;
-        if (!presenter.playerController || !presenter.playerController.isWCAGOn()) return false;
+        if (!presenter.playerController || !getAudioDescriptionEnabled()) return false;
         if (time < prevTime || time - prevTime > 1.0) {
             prevTime = time;
             return false;
         }
 
         var isSpeaking = false;
-        for ( var i = 0; i < presenter.speechTexts.length; i++) {
-            var speechText = presenter.speechTexts[i];
-            if (prevTime <= speechText.start && speechText.start <= time) {
+        for ( var i = 0; i < presenter.descriptions.length; i++) {
+            var description = presenter.descriptions[i];
+            if (prevTime <= description.start && description.start <= time) {
                 isSpeaking = true;
                 presenter.videoObject.pause();
-                $(speechText.element).attr('visibility', 'visible');
-                $(speechText.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
-                speak([window.TTSUtils.getTextVoiceObject(speechText.text,speechText.langTag)]);
+                $(description.element).attr('visibility', 'visible');
+                $(description.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
+                speak([window.TTSUtils.getTextVoiceObject(description.text,description.langTag)]);
                 presenter.playAfterTTS();
             } else {
-                $(speechText.element).css('visibility', 'hidden');
-                $(speechText.element).attr('visibility', 'hidden');
+                $(description.element).css('visibility', 'hidden');
+                $(description.element).attr('visibility', 'hidden');
             }
 
         }
@@ -1106,38 +1165,40 @@ function Addonvideo_create() {
         return isSpeaking;
     };
 
-    var playTimeout = null;
+    var playTestTimeout = null;
     var playTestInterval = null;
+    // Resume playing the video after TTS is no longer speaking
     presenter.playAfterTTS = function() {
-        if(playTimeout) {
-            clearTimeout(playTimeout);
-            playTimeout = null;
+        if (playTestTimeout) {
+            clearTimeout(playTestTimeout);
+            playTestTimeout = null;
         }
-        playTimeout = setTimeout(function(){
-            if(playTestInterval) {
+
+        playTestTimeout = setTimeout(function () {
+            if (playTestInterval) {
                 clearInterval(playTestInterval);
                 playTestInterval = null;
             }
             playTestInterval = setInterval(function () {
                 var speechSynthSpeaking = false;
-            var responsiveVoiceSpeaking = false;
-            if ('speechSynthesis' in window) {
-                speechSynthSpeaking = window.speechSynthesis.speaking;
-            }
-            if (window.responsiveVoice) {
-                responsiveVoiceSpeaking = window.responsiveVoice.isPlaying();
-            }
-            if (!speechSynthSpeaking && !responsiveVoiceSpeaking) {
-                clearInterval(playTestInterval);
-                for ( var i = 0; i < presenter.speechTexts.length; i++) {
-                    var speechText = presenter.speechTexts[i];
-                    $(speechText.element).css('visibility', 'hidden');
-                    $(speechText.element).attr('visibility', 'hidden');
+                var responsiveVoiceSpeaking = false;
+                if ('speechSynthesis' in window) {
+                    speechSynthSpeaking = window.speechSynthesis.speaking;
                 }
-                if (presenter.videoObject.paused && presenter.playerController && presenter.playerController.isWCAGOn()) {
-                    presenter.videoObject.play();
+                if (window.responsiveVoice) {
+                    responsiveVoiceSpeaking = window.responsiveVoice.isPlaying();
                 }
-            }
+                if (!speechSynthSpeaking && !responsiveVoiceSpeaking) {
+                    clearInterval(playTestInterval);
+                    for ( var i = 0; i < presenter.descriptions.length; i++) {
+                        var description = presenter.descriptions[i];
+                        $(description.element).css('visibility', 'hidden');
+                        $(description.element).attr('visibility', 'hidden');
+                    }
+                    if (presenter.videoObject.paused && getAudioDescriptionEnabled()) {
+                        presenter.videoObject.play();
+                    }
+                }
             },200);
         },300);
     };
@@ -1148,7 +1209,7 @@ function Addonvideo_create() {
         $(presenter.videoContainer).find('.captions').remove();
         presenter.setVideo();
         presenter.loadSubtitles();
-        presenter.loadSpeechTexts();
+        presenter.loadAudioDescription();
         presenter.setBurgerMenu();
         $(presenter.videoObject).unbind('timeupdate');
         $(presenter.videoObject).bind("timeupdate", function () {
@@ -1488,34 +1549,34 @@ function Addonvideo_create() {
         }
     };
 
-    presenter.loadSpeechTexts = function () {
-        var speechTextsLoadedDeferred = new $.Deferred(),
-            speechTexts = presenter.configuration.files[presenter.currentMovie].SpeechTexts;
+    presenter.loadAudioDescription = function () {
+        var descriptionsLoadedDeferred = new $.Deferred(),
+            descriptions = presenter.configuration.files[presenter.currentMovie].Audiodescription;
 
-        if (speechTexts) {
-            if (StringUtils.startsWith(speechTexts, "/file")) {
-                $.get(speechTexts, function (data) {
-                    speechTextsLoadedDeferred.resolve(data);
+        if (descriptions) {
+            if (StringUtils.startsWith(descriptions, "/file")) {
+                $.get(descriptions, function (data) {
+                    descriptionsLoadedDeferred.resolve(data);
                 });
             } else {
-                speechTextsLoadedDeferred.resolve(speechTexts);
+                descriptionsLoadedDeferred.resolve(descriptions);
             }
 
-            presenter.convertLinesToCaptions(Helpers.splitLines(speechTexts));
-            $.when(speechTextsLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function onSpeechTextsLoaded(data) {
-                presenter.convertLinesToSpeechTexts(Helpers.splitLines(data));
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, presenter.speechTextDivs])();
+            presenter.convertLinesToCaptions(Helpers.splitLines(descriptions));
+            $.when(descriptionsLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function onDescriptionsLoaded(data) {
+                presenter.convertLinesToAudioDescriptions(Helpers.splitLines(data));
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, presenter.descriptionsDivs])();
             });
         }
     };
 
-    presenter.convertLinesToSpeechTexts = function (lines) {
-        presenter.speechTexts = [];
+    presenter.convertLinesToAudioDescriptions = function (lines) {
+        presenter.descriptions = [];
 
         for (var i = 0; i < lines.length; i++) {
             var parts = lines[i].split('|');
             if (parts.length == 6) {
-                var speechText = {
+                var description = {
                     start: parts[0],
                     top: (StringUtils.endsWith(parts[2], 'px') ? parts[1] : parts[1] + 'px'),
                     left: (StringUtils.endsWith(parts[3], 'px') ? parts[2] : parts[2] + 'px'),
@@ -1524,10 +1585,10 @@ function Addonvideo_create() {
                     text: parts[5]
                 };
 
-                speechText.element = createCaptionElement(speechText);
-                presenter.speechTexts.push(speechText);
+                description.element = createCaptionElement(description);
+                presenter.descriptions.push(description);
 
-                presenter.speechTextDivs.push(speechText.element);
+                presenter.descriptionsDivs.push(description.element);
             }
         }
     };
@@ -1906,8 +1967,8 @@ function Addonvideo_create() {
     };
 
     presenter.getTextToSpeechOrNull = function (playerController) {
-        if (presenter.playerController) {
-            return presenter.playerController.getModule('Text_To_Speech1');
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
         }
 
         return null;
@@ -1915,7 +1976,7 @@ function Addonvideo_create() {
 
     function speak (data) {
         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
-        if (tts && presenter.playerController.isWCAGOn()) {
+        if (tts) {
             tts.speak(data);
         }
     }
