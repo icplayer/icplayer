@@ -1268,7 +1268,8 @@ function Addonvideo_create() {
             isCurrentlyVisible: presenter.isCurrentlyVisible,
             isPaused: isPaused,
             currentMovie: presenter.currentMovie,
-            areSubtitlesHidden: presenter.areSubtitlesHidden
+            areSubtitlesHidden: presenter.areSubtitlesHidden,
+            isAudioDescriptionEnabled: presenter.isAudioDescriptionEnabled
         });
     };
 
@@ -1314,6 +1315,8 @@ function Addonvideo_create() {
                 }
             }
         });
+
+        presenter.isAudioDescriptionEnabled = state.isAudioDescriptionEnabled;
     };
 
     presenter.getIOSVersion = function (userAgent) {
