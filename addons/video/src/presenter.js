@@ -1963,5 +1963,9 @@ function Addonvideo_create() {
         }
     }
 
+    presenter.isWCAGOn = function(isWCAGOn) {
+        //This method has been added to enable the addon's detection by the autofill option of TTS
+    };
+
     return presenter;
 }
