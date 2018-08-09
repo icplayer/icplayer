@@ -346,25 +346,10 @@ function AddonText_To_Speech_create() {
             texts = [getTextVoiceObject(texts, langTag)];
         }
 
-        texts = presenter.parseAltTexts(texts);
-        if (window.responsiveVoice) {
-            responsiveVoiceSpeak(texts);
-            return;
-        }
-
-        if ('speechSynthesis' in window) {
-            speechSynthesisSpeak(texts);
-            return;
-        }
-
-        console.log(texts);
+        presenter.speakWithCallback(texts, null);
     };
 
     presenter.speakWithCallback = function (texts, callback) {
-      var class_ = Object.prototype.toString.call(texts);
-        if (class_.indexOf('String') !== -1) {
-            texts = [getTextVoiceObject(texts, langTag)];
-        }
 
         texts = presenter.parseAltTexts(texts);
         if (window.responsiveVoice) {
@@ -378,7 +363,9 @@ function AddonText_To_Speech_create() {
         }
 
         console.log(texts);
-        callback();
+        if (callback) {
+            callback();
+        }
     };
 
     presenter.playTitle = function (area, id, langTag) {
