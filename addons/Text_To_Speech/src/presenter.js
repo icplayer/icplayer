@@ -249,7 +249,7 @@ function AddonText_To_Speech_create() {
                         if(currentIntervalId == presenter.intervalId){
                             window.speechSynthesis.cancel();
                         }
-                        if (finalCallback != null) finalCallback();
+                        if (finalCallback) finalCallback();
                     };
                 }
                 window.speechSynthesis.speak(msg);
@@ -335,7 +335,7 @@ function AddonText_To_Speech_create() {
         // splitting matched texts might create elements with an empty text field. This removes them
         texts = texts.filter(function(element){return element && element.text && element.text.trim().length>0});
         return texts;
-    }
+    };
 
     // The speak method is overloaded:
     // texts argument can be either an array of TextVoiceObjects, or a String

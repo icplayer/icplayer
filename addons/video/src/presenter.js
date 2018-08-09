@@ -643,7 +643,7 @@ function Addonvideo_create() {
             case 70:
                 presenter.fullScreen();
                 break;
-            case 65:
+            case 65: // A
                 switchAudioDescriptionEnabled();
                 break;
         }
@@ -1134,7 +1134,7 @@ function Addonvideo_create() {
     }
 
     var prevTime = 0;
-    presenter.readSpeechTexts = function (time) {
+    presenter.readAudioDescriptions = function (time) {
         if (!presenter.configuration.dimensions) return false;
         if (!presenter.playerController || !getAudioDescriptionEnabled()) return false;
         if (time < prevTime || time - prevTime > 1.0) {
@@ -1202,7 +1202,7 @@ function Addonvideo_create() {
 
     function onTimeUpdate(video) {
         if (!presenter.videoObject.paused) {
-            var isSpeaking = presenter.readSpeechTexts(presenter.videoObject.currentTime);
+            var isSpeaking = presenter.readAudioDescriptions(presenter.videoObject.currentTime);
             if (!isSpeaking) {
                 presenter.showCaptions(presenter.videoObject.currentTime);
             }
