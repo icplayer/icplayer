@@ -198,7 +198,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 		for (IOptionDisplay optionView : optionWidgets) {
 			OptionView widget = (OptionView) optionView;
-			widget.setIsEnabled(b);
+			widget.setEnabled(b);
 		}
 	}
 	
