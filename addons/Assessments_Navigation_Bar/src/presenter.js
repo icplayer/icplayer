@@ -265,7 +265,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.NavigationButtonLeft = function () {
-        presenter.Button.call(this, "&lt;");
+        presenter.Button.call(this, "<");
         this.$view.removeClass("button");
         this.$view.addClass("previous");
         this.setCommand(function () {
@@ -277,7 +277,7 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.NavigationButtonLeft.constructor = presenter.NavigationButtonLeft;
 
     presenter.NavigationButtonRight = function () {
-        presenter.Button.call(this, "&gt;");
+        presenter.Button.call(this, ">");
         this.$view.addClass("next");
         this.$view.removeClass("button");
         this.setCommand(function () {
