@@ -17,6 +17,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ToggleButton;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.text.LinkInfo;
@@ -30,6 +31,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	private ChoiceOption 	choiceOption;
 	private ParserResult parserResult;
 	private EventBus eventBus;
+	private boolean isEnabled = true; 
 	
 	private boolean isTouched = false;
 	
@@ -55,12 +57,20 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		}
 	}
 	
+	public boolean isEnable() {
+		return isEnabled; 
+	}
+	
 	private native void setListener(Element el)/*-{
 		var $el = $wnd.$(el);
 		var self = this;
 		$el.on('touchend',function(e){ //onBrowserEvent is not used to avoid visible delay
 			e.preventDefault();
-			self.@com.lorepo.icplayer.client.module.choice.OptionView::onClick()();
+			var isEnable = self.@com.lorepo.icplayer.client.module.choice.OptionView::isEnable()();
+			console.log(isEnable); 
+			if(isEnable){
+				self.@com.lorepo.icplayer.client.module.choice.OptionView::onClick()();
+			}
 		});
 	}-*/;
 	
@@ -114,7 +124,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	public void reset() {
 		resetStyles();
 		setDown(false);
-		setEnabled(true);
+		setIsEnabled(true);
 	}
 
 	public float getMaxScore() {
@@ -279,5 +289,10 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 			};
 		}
 		super.addStyleDependentName(styleSuffix);
+	}
+	
+	public void setIsEnabled(boolean isEnabled) {
+		this.isEnabled = isEnabled; 
+		setEnabled(isEnabled);
 	}
 }

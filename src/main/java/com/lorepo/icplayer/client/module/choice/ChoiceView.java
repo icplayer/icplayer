@@ -198,7 +198,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 		for (IOptionDisplay optionView : optionWidgets) {
 			OptionView widget = (OptionView) optionView;
-			widget.setEnabled(b);
+			widget.setIsEnabled(b);
 		}
 	}
 	
@@ -319,7 +319,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		
 		OptionView optionView = (OptionView) option;
 		if (!optionView.isEnabled()) return;
-		
+
 		if (!module.isMulti()) {
 			for (IOptionDisplay widget : optionWidgets) {
 				if(option != widget) {
