@@ -1649,13 +1649,11 @@ function Addonvideo_create() {
     });
 
     presenter.stop = deferredSyncQueue.decorate(function () {
-        if (!presenter.videoObject.paused) {
             presenter.showPlayButton();
-            presenter.seek(0); // sets the current time to 0
+            presenter.seek(0);
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
             presenter.posterPlayButton.removeClass('video-poster-pause');
-        }
     });
 
     presenter.pause = deferredSyncQueue.decorate(function () {
@@ -1689,6 +1687,7 @@ function Addonvideo_create() {
     presenter.reset = function () {
         presenter.configuration.isVisibleByDefault ? presenter.show() : presenter.hide();
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
+        presenter.videoObject.currentTime = 0;
         presenter.currentMovie = 0;
         if (presenter.metadadaLoaded) {
             presenter.videoObject.pause();
