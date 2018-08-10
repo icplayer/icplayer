@@ -48,6 +48,28 @@ UpgradeModelTests.prototype.testUpgradeTimeLabels = function () {
     assertTrue(this.model != upgradedModel);  //Different object, this is copy
 };
 
+UpgradeModelTests.prototype.testUpgradeSpeechTexts = function () {
+    var expectedModelAfterUpgrade = {
+        "Files": [{
+            "Ogg video": "",
+            "MP4 video": "",
+            "WebM video": "",
+            "Subtitles": "",
+            ID : "",
+            "Audio Description": ""
+        }],
+        "Show video": "",
+        "speechTexts": {
+            AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled"},
+            AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled"}
+        }
+    };
+
+    var upgradedModel = this.presenter.upgradeSpeechTexts(this.model);
+    assertEquals(expectedModelAfterUpgrade, upgradedModel);
+    assertTrue(this.model != upgradedModel);  //Different object, this is copy
+};
+
 UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
     var expectedModel = {
         "Files": [{
@@ -57,10 +79,15 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
             "Subtitles": "",
             "Poster": "",
             ID : "",
-            "time_labels": ""
+            "time_labels": "",
+            "Audio Description": ""
         }],
         "Show video": "",
-        'Show play button': 'False'
+        'Show play button': 'False',
+        "speechTexts": {
+            AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled"},
+            AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled"}
+        }
     };
 
     var upgradedModel = this.presenter.upgradeModel(this.model);
