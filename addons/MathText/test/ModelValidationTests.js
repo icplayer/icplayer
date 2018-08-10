@@ -4,6 +4,7 @@ TestCase("[MathText] Model validation", {
         this.model = {
             'ID': 'ID',
             'isActivity': 'True',
+            'isDisabled': 'True',
             'initialText': 'initial',
             'correctAnswer': 'correct',
             'Is Visible': 'True',
@@ -20,6 +21,7 @@ TestCase("[MathText] Model validation", {
 
         assertTrue(validatedModel.isValid);
         assertTrue(validatedModel.value.isActivity);
+        assertTrue(validatedModel.value.isDisabled);
         assertTrue(validatedModel.value.isVisible);
         assertEquals("initial", validatedModel.value.initialText);
         assertEquals("correct", validatedModel.value.correctAnswer);

@@ -3,6 +3,7 @@ function AddonMathText_create() {
 
     presenter.state = {
         isVisible: false,
+        isDisabled: false,
         isShowAnswers: false,
         isCheckAnswers: false,
         currentAnswer: presenter.EMPTY_MATHTEXT,
@@ -112,6 +113,7 @@ function AddonMathText_create() {
         var validatedModel = modelValidator.validate(model, [
             ModelValidators.String("ID"),
             ModelValidators.Boolean("isActivity"),
+            ModelValidators.Boolean("isDisabled"),
             ModelValidators.String("initialText", {default: presenter.EMPTY_MATHTEXT}),
             ModelValidators.String("correctAnswer", {default: presenter.EMPTY_MATHTEXT}),
             ModelValidators.utils.FieldRename("Is Visible", "isVisible", ModelValidators.Boolean("isVisible")),
@@ -141,6 +143,8 @@ function AddonMathText_create() {
 
         // when preview, addon always should be visible, when in lesson it should depend on configuration
         presenter.setVisibility(isPreview || presenter.configuration.isVisible);
+        presenter.setDisabled(presenter.configuration.isDisabled);
+
 
         presenter.initializeView(isPreview);
 
@@ -345,8 +349,25 @@ function AddonMathText_create() {
     };
 
      presenter.setVisibility = function AddonMathText_setVisibility (isVisible) {
-         presenter.state.isVisible= isVisible;
+         presenter.state.isVisible = isVisible;
          presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+
+     presenter.setDisabled = function(value) {
+         if (presenter.configuration.isActivity) {
+             presenter.setWorkMode();
+             presenter.hideAnswers();
+
+             presenter.state.isDisabled = value;
+
+             if (value) {
+                 presenter.$view.find('input').attr('disabled', true);
+                 presenter.editor.setToolbarHidden(true);
+             } else {
+                 presenter.$view.find('input').removeAttr('disabled');
+                 presenter.editor.setToolbarHidden(false);
+             }
+         }
     };
 
      presenter.setState = function (state) {
@@ -420,6 +441,35 @@ function AddonMathText_create() {
 
     presenter.sendValueChangedEvent = function (eventData) {
         presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.show = function () {
+        presenter.setVisibility(true);
+    };
+
+    presenter.hide = function () {
+        presenter.setVisibility(false);
+    };
+
+    presenter.disable = function() {
+        presenter.setDisabled(true);
+    };
+
+    presenter.enable = function() {
+        presenter.setDisabled(false);
+    };
+
+    presenter.executeCommand = function(name, params) {
+        var commands = {
+            'show': presenter.show,
+            'hide': presenter.hide,
+            'showAnswers' : presenter.showAnswers,
+            'hideAnswers' : presenter.hideAnswers,
+            'enable': presenter.enable,
+            'disable': presenter.disable
+        };
+
+        Commands.dispatch(commands, name, params, presenter);
     };
 
 
