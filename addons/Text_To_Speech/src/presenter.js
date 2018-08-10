@@ -183,10 +183,11 @@ function AddonText_To_Speech_create() {
     }
 
     // https://responsivevoice.org/
-    function responsiveVoiceSpeak (texts) {
+    function responsiveVoiceSpeak (texts, finalCallback) {
         var textsObjects = filterTexts(texts, getResponsiveVoiceLanguage);
+        if (finalCallback === undefined) finalCallback = null;
 
-        var onEndStack = { onend: null };
+        var onEndStack = { onend: finalCallback };
         for (var i=textsObjects.length-1; i>=0; i--) {
             var textObject = textsObjects[i];
 
@@ -205,7 +206,7 @@ function AddonText_To_Speech_create() {
     presenter.intervalId = null;
 
     // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
-    function speechSynthesisSpeak (texts) {
+    function speechSynthesisSpeak (texts, finalCallback) {
         window.speechSynthesis.cancel();
 
         if (presenter.intervalId != null) {
@@ -248,6 +249,7 @@ function AddonText_To_Speech_create() {
                         if(currentIntervalId == presenter.intervalId){
                             window.speechSynthesis.cancel();
                         }
+                        if (finalCallback) finalCallback();
                     };
                 }
                 window.speechSynthesis.speak(msg);
@@ -333,7 +335,7 @@ function AddonText_To_Speech_create() {
         // splitting matched texts might create elements with an empty text field. This removes them
         texts = texts.filter(function(element){return element && element.text && element.text.trim().length>0});
         return texts;
-    }
+    };
 
     // The speak method is overloaded:
     // texts argument can be either an array of TextVoiceObjects, or a String
@@ -344,18 +346,26 @@ function AddonText_To_Speech_create() {
             texts = [getTextVoiceObject(texts, langTag)];
         }
 
+        presenter.speakWithCallback(texts, null);
+    };
+
+    presenter.speakWithCallback = function (texts, callback) {
+
         texts = presenter.parseAltTexts(texts);
         if (window.responsiveVoice) {
-            responsiveVoiceSpeak(texts);
+            responsiveVoiceSpeak(texts, callback);
             return;
         }
 
         if ('speechSynthesis' in window) {
-            speechSynthesisSpeak(texts);
+            speechSynthesisSpeak(texts, callback);
             return;
         }
 
         console.log(texts);
+        if (callback) {
+            callback();
+        }
     };
 
     presenter.playTitle = function (area, id, langTag) {
