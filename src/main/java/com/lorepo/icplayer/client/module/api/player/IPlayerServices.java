@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
+import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -35,6 +36,7 @@ public interface IPlayerServices {
 	public int getPageWeight();
 	public ScaleInformation getScaleInformation();
 	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin);
+	public void setApplication(PlayerApp application);
 	
 	public void outstretchHeight(int y, int height, boolean dontMoveModules);
 	public boolean isPlayerInCrossDomain();

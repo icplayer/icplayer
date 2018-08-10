@@ -206,7 +206,6 @@ function Addonvideo_create() {
             $(presenter.controlBar.getMainElement()).css('position', "fixed");
 
             presenter.$posterWrapper.hide();
-            //presenter.$mask.hide();
 
         } else {
             $(presenter.videoContainer).css({
@@ -222,9 +221,12 @@ function Addonvideo_create() {
 
             $(presenter.controlBar.getMainElement()).css('position', "absolute");
 
-            //presenter.$posterWrapper.show();
-            //presenter.$mask.show();
         }
+
+        $(presenter.videoObject).on("loadedmetadata", function onLoadedMeta() {
+            presenter.$view.find(".poster-wrapper").show();
+            $(presenter.videoObject).off("loadedmetadata");
+        });
 
         $(presenter.videoObject).on("canplay", function onCanPlay() {
             presenter.videoObject.currentTime = currentTime;
@@ -490,11 +492,11 @@ function Addonvideo_create() {
             exitFullscreen();
         }
         presenter.configuration.isFullScreen = false;
-        presenter.playerController.setAbleChangeLayout(true);
         presenter.removeScaleFromCaptionsContainer();
         fullScreenChange();
 
         presenter.calculatePosterSize(presenter.videoObject, presenter.configuration.addonSize);
+        presenter.playerController.setAbleChangeLayout(true);
     };
 
     presenter.keyboardController = function (keycode, isShift, event) {
@@ -895,12 +897,12 @@ function Addonvideo_create() {
     presenter.fullscreenChangedEventReceived = function () {
         if (!isVideoInFullscreen() && presenter.configuration.isFullScreen) {
             presenter.configuration.isFullScreen = false;
-            presenter.playerController.setAbleChangeLayout(true);
             presenter.removeScaleFromCaptionsContainer();
             fullScreenChange();
             presenter.controlBar.showFullscreenButton();
 
             presenter.calculatePosterSize(presenter.videoObject, presenter.configuration.addonSize);
+            presenter.playerController.setAbleChangeLayout(true);
         }
     };
 
@@ -1080,6 +1082,7 @@ function Addonvideo_create() {
             videoDuration = Math.round(video.duration * 10) / 10,
             isFullScreen = document.mozFullScreen || document.webkitIsFullScreen;
 
+        var shouldSetAbleChangeLayout = false;
         if (currentTime >= videoDuration) {
             presenter.sendVideoEndedEvent();
             presenter.showWaterMark();
@@ -1093,10 +1096,10 @@ function Addonvideo_create() {
                 document.msExitFullscreen();
             } else if (presenter.configuration.isFullScreen) {
                 presenter.configuration.isFullScreen = false;
-                presenter.playerController.setAbleChangeLayout(true);
                 presenter.removeScaleFromCaptionsContainer();
                 presenter.controlBar.showFullscreenButton();
                 presenter.closeFullscreen();
+                shouldSetAbleChangeLayout = true;
 
             }
 
@@ -1117,6 +1120,10 @@ function Addonvideo_create() {
             });
 
             presenter.lastSentCurrentTime = 0;
+
+            if(shouldSetAbleChangeLayout) {
+                presenter.playerController.setAbleChangeLayout(true);
+            }
         }
     }
 
@@ -1642,13 +1649,11 @@ function Addonvideo_create() {
     });
 
     presenter.stop = deferredSyncQueue.decorate(function () {
-        if (!presenter.videoObject.paused) {
             presenter.showPlayButton();
-            presenter.seek(0); // sets the current time to 0
+            presenter.seek(0);
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
             presenter.posterPlayButton.removeClass('video-poster-pause');
-        }
     });
 
     presenter.pause = deferredSyncQueue.decorate(function () {
@@ -1682,6 +1687,7 @@ function Addonvideo_create() {
     presenter.reset = function () {
         presenter.configuration.isVisibleByDefault ? presenter.show() : presenter.hide();
         presenter.videoState = presenter.VIDEO_STATE.STOPPED;
+        presenter.videoObject.currentTime = 0;
         presenter.currentMovie = 0;
         if (presenter.metadadaLoaded) {
             presenter.videoObject.pause();

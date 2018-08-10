@@ -10,6 +10,7 @@ import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
+import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -37,6 +38,7 @@ public class PlayerApp {
 	private ArrayList<Integer> pagesSubset = null;
 	private boolean isStaticHeader = false;
 	private static boolean isAnimationRunning = false;
+	private String lastSentLayoutID = "";
 
 
 	public PlayerApp (String id, PlayerEntryPoint entryPoint) {
@@ -469,6 +471,7 @@ public class PlayerApp {
 		playerController.setPlayerConfig(playerConfig);
 		playerController.setFirstPageAsCover(showCover);
 		playerController.setAnalytics(analyticsId);
+		playerController.getPlayerServices().setApplication(this);
 
 		EnableTabindex.getInstance().create(contentModel.getMetadataValue("enableTabindex").compareTo("true") == 0);
 
@@ -670,9 +673,10 @@ public class PlayerApp {
 	}
 
 	
-	public boolean changeLayout(String layoutID) {         
+	public boolean changeLayout(String layoutID) {
 		boolean isLayoutChanged = false; 
 		boolean isAble = this.playerController.getPlayerServices().isAbleChangeLayout();
+		this.lastSentLayoutID = layoutID;
 		if(isAble) {
 			isLayoutChanged = this.contentModel.setActualLayoutID(layoutID);
 			if (isLayoutChanged) {
@@ -683,4 +687,9 @@ public class PlayerApp {
 		}
 		return isLayoutChanged;
 	}
+
+	public void updateLayout() {
+		changeLayout(this.lastSentLayoutID);
+	}
+
 }

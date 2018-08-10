@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
+import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 
@@ -47,6 +48,20 @@ public class PlayerServicesTestCase {
 	public void setIncorrectScaleXYScaleInformation() {
 		exception.expect(NumberFormatException.class);
 		mockedPlayerServices.setScaleInformation("abc", "hello", "scale(0.5)", "top left");
+	};
+	
+	@Test
+	public void testLayoutChangeEnabledLayoutUpdate() {
+		PlayerApp applicationMock = Mockito.mock(PlayerApp.class);
+		Mockito.doCallRealMethod().when(mockedPlayerServices).setAbleChangeLayout(Mockito.anyBoolean());
+		Mockito.doCallRealMethod().when(mockedPlayerServices).setApplication(Mockito.any(PlayerApp.class));
+		mockedPlayerServices.setApplication(applicationMock);
+		mockedPlayerServices.setAbleChangeLayout(false);
+		mockedPlayerServices.setAbleChangeLayout(false);
+		mockedPlayerServices.setAbleChangeLayout(true);
+		mockedPlayerServices.setAbleChangeLayout(true);
+		mockedPlayerServices.setAbleChangeLayout(false);
+		Mockito.verify(applicationMock, Mockito.times(1)).updateLayout();
 	};
 
 }

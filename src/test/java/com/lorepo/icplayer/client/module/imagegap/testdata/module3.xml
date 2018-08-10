@@ -1,0 +1,3 @@
+<imageGapModule id="ig1" left="5" top="5" width="30" height="30">
+	<gap answerId="si1" isActivity="true" blockWrongAnswers="true"/>
+</imageGapModule>
