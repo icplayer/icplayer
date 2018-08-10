@@ -524,6 +524,37 @@ function Addonvideo_create() {
         presenter.playerController.setAbleChangeLayout(true);
     };
 
+    presenter.switchAudioDescriptionEnabled = function() {
+        if (presenter.isAudioDescriptionEnabled == null) {
+            setAudioDescriptionEnabled(false);
+        } else {
+            setAudioDescriptionEnabled(!presenter.isAudioDescriptionEnabled);
+        }
+    };
+
+    function setAudioDescriptionEnabled(isEnabled) {
+        presenter.isAudioDescriptionEnabled = isEnabled;
+        if (presenter.isAudioDescriptionEnabled) {
+            speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionEnabled)]);
+        } else {
+            speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionDisabled)]);
+            for ( var i = 0; i < presenter.descriptions.length; i++) {
+                var description = presenter.descriptions[i];
+                $(description.element).css('visibility', 'hidden');
+                $(description.element).attr('visibility', 'hidden');
+            }
+        }
+    };
+
+    presenter.showAudioDescription = function() {
+        setAudioDescriptionEnabled(true);
+    };
+
+    presenter.hideAudioDescription = function() {
+        setAudioDescriptionEnabled(false);
+    };
+
+
     presenter.keyboardController = function (keycode, isShift, event) {
         $(document).on('keydown', function (e) {
             e.preventDefault();
@@ -577,24 +608,6 @@ function Addonvideo_create() {
             }
         }
 
-        function switchAudioDescriptionEnabled() {
-            if (presenter.isAudioDescriptionEnabled == null) {
-                presenter.isAudioDescriptionEnabled = false;
-            } else {
-                presenter.isAudioDescriptionEnabled = !presenter.isAudioDescriptionEnabled;
-            }
-            if (presenter.isAudioDescriptionEnabled) {
-                speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionEnabled)]);
-            } else {
-                speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionDisabled)]);
-                for ( var i = 0; i < presenter.descriptions.length; i++) {
-                    var description = presenter.descriptions[i];
-                    $(description.element).css('visibility', 'hidden');
-                    $(description.element).attr('visibility', 'hidden');
-                }
-            }
-        }
-
         function previousTimeLabel() {
             var currentTime = presenter.videoObject.currentTime - 2;
             var currentElement = presenter.configuration.files[presenter.currentMovie],
@@ -644,7 +657,7 @@ function Addonvideo_create() {
                 presenter.fullScreen();
                 break;
             case 65: // A
-                switchAudioDescriptionEnabled();
+                presenter.switchAudioDescriptionEnabled();
                 break;
         }
     };
@@ -1628,6 +1641,8 @@ function Addonvideo_create() {
             'stop': presenter.stop,
             'showSubtitles': presenter.showSubtitles,
             'hideSubtitles': presenter.hideSubtitles,
+            'showAudioDescription': presenter.showAudioDescription,
+            'hideAudioDescription': presenter.hideAudioDescription,
             'setVideoURL': presenter.setVideoURLCommand
         };
 
@@ -1951,7 +1966,7 @@ function Addonvideo_create() {
 
     function speak (data) {
         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
-        if (tts) {
+        if (tts && presenter.playerController.isWCAGOn()) {
             tts.speak(data);
         }
     }
