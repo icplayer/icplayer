@@ -1,3 +1,4 @@
+2018-08-10 Fixed displaying of < > buttons in assessments navigation bar
 2018-08-07 Fixed layout change issue after quiting fullscreen mode
 2018-08-06 Fixed issues with tests for page version update
 2018-08-03 Fixed playing Video without controls bar
