@@ -538,13 +538,20 @@ function Addonvideo_create() {
             speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionEnabled)]);
         } else {
             speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionDisabled)]);
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            if (window.responsiveVoice && window.responsiveVoice.isPlaying()) {
+                audioDescriptionEndedCallback();
+                window.responsiveVoice.cancel();
+            }
             for ( var i = 0; i < presenter.descriptions.length; i++) {
                 var description = presenter.descriptions[i];
                 $(description.element).css('visibility', 'hidden');
                 $(description.element).attr('visibility', 'hidden');
             }
         }
-    };
+    }
 
     presenter.showAudioDescription = function() {
         setAudioDescriptionEnabled(true);
@@ -1146,6 +1153,12 @@ function Addonvideo_create() {
         return false;
     }
 
+    function audioDescriptionEndedCallback() {
+        if (presenter && presenter.videoObject.paused) {
+            presenter.videoObject.play();
+        }
+    }
+
     var prevTime = 0;
     presenter.readAudioDescriptions = function (time) {
         if (!presenter.configuration.dimensions) return false;
@@ -1163,20 +1176,18 @@ function Addonvideo_create() {
                 presenter.videoObject.pause();
                 $(description.element).attr('visibility', 'visible');
                 $(description.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
-
-                function callbackFunction() {
-                    if (presenter && presenter.videoObject.paused && getAudioDescriptionEnabled()) {
-                        presenter.videoObject.play();
-                    }
-                }
-                speakWithCallback([window.TTSUtils.getTextVoiceObject(description.text,description.langTag)], callbackFunction);
+                speakWithCallback([window.TTSUtils.getTextVoiceObject(description.text,description.langTag)], audioDescriptionEndedCallback);
             } else {
                 $(description.element).css('visibility', 'hidden');
                 $(description.element).attr('visibility', 'hidden');
             }
 
         }
-        prevTime = time;
+        if (prevTime == time) {
+            prevTime += 0.001;
+        } else {
+            prevTime = time;
+        }
 
         if (isSpeaking) {
             for (var i = 0; i < presenter.captions.length; i++) {
