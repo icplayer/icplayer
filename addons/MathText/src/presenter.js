@@ -141,12 +141,11 @@ function AddonMathText_create() {
         }
         presenter.configuration = validatedModel.value;
 
+        presenter.initializeView(isPreview);
+
         // when preview, addon always should be visible, when in lesson it should depend on configuration
         presenter.setVisibility(isPreview || presenter.configuration.isVisible);
         presenter.setDisabled(presenter.configuration.isDisabled);
-
-
-        presenter.initializeView(isPreview);
 
         if (!isPreview) {
             presenter.addHandlers();
