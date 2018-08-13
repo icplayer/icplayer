@@ -319,7 +319,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		
 		OptionView optionView = (OptionView) option;
 		if (!optionView.isEnabled()) return;
-		
+
 		if (!module.isMulti()) {
 			for (IOptionDisplay widget : optionWidgets) {
 				if(option != widget) {

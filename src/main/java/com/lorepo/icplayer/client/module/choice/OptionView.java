@@ -55,12 +55,19 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		}
 	}
 	
+	public boolean isEnable() {
+		return super.isEnabled(); 
+	}
+	
 	private native void setListener(Element el)/*-{
 		var $el = $wnd.$(el);
 		var self = this;
 		$el.on('touchend',function(e){ //onBrowserEvent is not used to avoid visible delay
 			e.preventDefault();
-			self.@com.lorepo.icplayer.client.module.choice.OptionView::onClick()();
+			var isEnabled = self.@com.lorepo.icplayer.client.module.choice.OptionView::isEnable()();
+			if(isEnabled){
+				self.@com.lorepo.icplayer.client.module.choice.OptionView::onClick()();
+			}
 		});
 	}-*/;
 	
