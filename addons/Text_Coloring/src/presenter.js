@@ -147,7 +147,7 @@ function AddonText_Coloring_create() {
             var colorDefinition = presenter.getColorDefinitionById(token.color);
             if (colorDefinition !== undefined) {
                 var $tokenElement = presenter.getWordTokenByIndex(token.index);
-                presenter.addShowAnswerClass($tokenElement, colorDefinition.description);
+                presenter.addShowAnswerClass($tokenElement, colorDefinition.id);
                 presenter.markToken($tokenElement, colorDefinition.color);
             }
         });
@@ -161,7 +161,7 @@ function AddonText_Coloring_create() {
     presenter.removeShowAnswerClasses = function ($element) {
         var classToRemoveRegexp = /text-coloring-show-answers-.+/;
 
-        // function in removeClass should return space separated classes
+        // function in removeClass should return space separated classes to remove
         $element.removeClass(function(index, classes) {
                 var classNames = classes.split(' ');
                 var classesToRemove = '';
