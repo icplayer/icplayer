@@ -245,7 +245,7 @@ function AddonLayered_Image_create() {
         } else {
             prepareLoadingScreen(width, height);
             preloadImages(preview);
-            if (!isPreview && !presenter.configuration.isVisibleByDefault) {
+            if (!preview && !presenter.configuration.isVisibleByDefault) {
                 presenter.hide();
             }
         }
