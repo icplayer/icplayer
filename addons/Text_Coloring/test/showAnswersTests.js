@@ -2,7 +2,7 @@ function getElementClassesAsArray($element) {
     return $element[0].className.split(/\s+/);
 }
 
-TestCase("[TextColoring]", {
+TestCase("[TextColoring] Adding and removing show answers classes test", {
     setUp: function () {
         this.presenter = AddonText_Coloring_create();
 
@@ -12,59 +12,18 @@ TestCase("[TextColoring]", {
     'test should remove class text-coloring-show-answers-red from element': function () {
         this.$element.addClass('text-coloring-show-answers-red');
 
-        this.presenter.removeShowAnswerClasses(this.$element);
-        var expected = [''];
-        var result = getElementClassesAsArray(this.$element);
-        assertEquals(expected, result);
-    },
-
-    'test should remove class text-coloring-show-answers-red and ...-blue from element': function () {
-        this.$element.addClass('text-coloring-show-answers-red');
-        this.$element.addClass('text-coloring-show-answers-blue');
-
-        this.presenter.removeShowAnswerClasses(this.$element);
+        this.presenter.removeShowAnswerClass(this.$element, 'red');
         var expected = [''];
         var result = getElementClassesAsArray(this.$element);
         assertEquals(expected, result);
     },
 
     'test should remove only class text-coloring-show-answers-red from element': function () {
+        this.$element.addClass('not-removable');
         this.$element.addClass('text-coloring-show-answers-red');
-        this.$element.addClass('text_coloring_class');
 
-        this.presenter.removeShowAnswerClasses(this.$element);
-        var expected = ['text_coloring_class'];
-        var result = getElementClassesAsArray(this.$element);
-        assertEquals(expected, result);
-    },
-
-    'test should not remove any from element': function () {
-        this.$element.addClass('text_coloring_show');
-        this.$element.addClass('text_coloring_class');
-
-        this.presenter.removeShowAnswerClasses(this.$element);
-        var expected = ['text_coloring_show', 'text_coloring_class'];
-        var result = getElementClassesAsArray(this.$element);
-        assertEquals(expected, result);
-    },
-
-    'test should not remove any from element': function () {
-        this.$element.addClass('text_coloring_show');
-        this.$element.addClass('text_coloring_class');
-
-        this.presenter.removeShowAnswerClasses(this.$element);
-        var expected = ['text_coloring_show', 'text_coloring_class'];
-        var result = getElementClassesAsArray(this.$element);
-        assertEquals(expected, result);
-    },
-
-    'test should remove text-coloring-show-answers-blue class from element': function () {
-        this.$element.addClass('text_coloring_show');
-        this.$element.addClass('text-coloring-show-answers-blue');
-        this.$element.addClass('text_coloring_class');
-
-        this.presenter.removeShowAnswerClasses(this.$element);
-        var expected = ['text_coloring_show', 'text_coloring_class'];
+        this.presenter.removeShowAnswerClass(this.$element, 'red');
+        var expected = ['not-removable'];
         var result = getElementClassesAsArray(this.$element);
         assertEquals(expected, result);
     },
@@ -84,6 +43,81 @@ TestCase("[TextColoring]", {
         var expected = ['test_class', 'text-coloring-show-answers-blue'];
         var result = getElementClassesAsArray(this.$element);
         assertEquals(expected, result);
+    },
+
+    'test should add text-coloring-show-answers-\\port.,; class to element': function () {
+        this.$element.addClass('test_class');
+        this.presenter.addShowAnswerClass(this.$element, '\\port.,');
+
+        var expected = ['test_class', 'text-coloring-show-answers-\\port.,'];
+        var result = getElementClassesAsArray(this.$element);
+        assertEquals(expected, result);
     }
+
+});
+
+TestCase("[TextColoring] hideAnswers flow", {
+    setUp: function () {
+        this.presenter = AddonText_Coloring_create();
+
+        this.stubs = {
+            restorePreviousStateStub: sinon.stub(),
+            onUnblockStub: sinon.stub(),
+            unmarkTokenStub: sinon.stub(),
+            getWordTokenByIndexStub: sinon.stub(),
+            removeShowAnswerClassStub: sinon.stub()
+        };
+
+        this.presenter.configuration.filteredTokens = [
+            {index: 1, isSelected: false, type: this.presenter.TOKENS_TYPES.SELECTABLE, color: 'red'},
+            {index: 2, isSelected: false, type: this.presenter.TOKENS_TYPES.WORD},
+            {index: 3, isSelected: false, type: this.presenter.TOKENS_TYPES.SELECTABLE, color: 'green'},
+            {index: 4, isSelected: false, type: this.presenter.TOKENS_TYPES.SPACE}
+        ];
+
+        this.stubs.getWordTokenByIndexStub.withArgs(1).returns('1');
+        this.stubs.getWordTokenByIndexStub.withArgs(2).returns('2');
+        this.stubs.getWordTokenByIndexStub.withArgs(3).returns('3');
+        this.stubs.getWordTokenByIndexStub.withArgs(4).returns('4');
+
+        this.presenter.createStateMachine();
+        this.presenter.stateMachine.restorePreviousState = this.stubs.restorePreviousStateStub;
+        this.presenter.stateMachine.onUnblock = this.stubs.onUnblockStub;
+        this.presenter.stateMachine.previousActiveColor = null;
+        this.presenter.stateMachine.previousEraserMode = false;
+
+        this.presenter.unmarkToken = this.stubs.unmarkTokenStub;
+        this.presenter.getWordTokenByIndex = this.stubs.getWordTokenByIndexStub;
+        this.presenter.removeShowAnswerClass = this.stubs.removeShowAnswerClassStub;
+    },
+
+    'test should call removeShowAnswersStub twice with proper arguments': function () {
+        this.presenter.stateMachine.onHideAnswers();
+
+        var expectedFirstCallArgs = {arg1: '1', arg2: 'red'};
+        var expectedSecondCallArgs = {arg1: '3', arg2: 'green'};
+
+        assertTrue(this.stubs.removeShowAnswerClassStub.calledTwice);
+        assertTrue(this.stubs.removeShowAnswerClassStub.calledWithExactly(expectedFirstCallArgs.arg1, expectedFirstCallArgs.arg2));
+        assertTrue(this.stubs.removeShowAnswerClassStub.calledWithExactly(expectedSecondCallArgs.arg1, expectedSecondCallArgs.arg2));
+    },
+
+    'test should call removeShowAnswersStub once with proper arguments': function () {
+        this.presenter.configuration.filteredTokens = [
+            {index: 1, isSelected: false, type: this.presenter.TOKENS_TYPES.SPACE},
+            {index: 2, isSelected: false, type: this.presenter.TOKENS_TYPES.WORD},
+            {index: 3, isSelected: false, type: this.presenter.TOKENS_TYPES.NEW_LINE},
+            {index: 4, isSelected: false, type: this.presenter.TOKENS_TYPES.SELECTABLE, color: 'black'}
+        ];
+
+        this.presenter.stateMachine.onHideAnswers();
+
+        var expectedFirstCallArgs = {arg1: '4', arg2: 'black'};
+
+        assertTrue(this.stubs.removeShowAnswerClassStub.calledOnce);
+        assertTrue(this.stubs.removeShowAnswerClassStub.calledWithExactly(expectedFirstCallArgs.arg1, expectedFirstCallArgs.arg2));
+    }
+
+
 
 });

@@ -158,30 +158,23 @@ function AddonText_Coloring_create() {
         $element.addClass(className);
     };
 
-    presenter.removeShowAnswerClasses = function ($element) {
-        var classToRemoveRegexp = /text-coloring-show-answers-.+/;
-
-        // function in removeClass should return space separated classes to remove
-        $element.removeClass(function(index, classes) {
-                var classNames = classes.split(' ');
-                var classesToRemove = '';
-
-                for (var i = 0; i < classNames.length; i++) {
-                    if (classToRemoveRegexp.test(classNames[i])) {
-                        classesToRemove += classNames[i] + ' ';
-                    }
-                }
-
-                return classesToRemove;
-            }
-        );
+    presenter.removeShowAnswerClass = function ($element, colorName) {
+        var className = StringUtils.format(presenter.defaults.css.showAnswer, colorName);
+        $element.removeClass(className);
     };
+
+    presenter.remove
 
     TextColoringStateMachine.prototype.onHideAnswers = function () {
         this.restorePreviousState();
         this.onUnblock();
-        presenter.removeShowAnswerClasses(presenter.$wordTokens);
         presenter.unmarkToken(presenter.$wordTokens);
+
+        presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
+            var $tokenElement = presenter.getWordTokenByIndex(token.index);
+            presenter.removeShowAnswerClass($tokenElement, token.color);
+        });
+
         presenter.configuration.filteredTokens.filter(function (token) {
             return token.isSelected == true;
         }).forEach(function (token) {
@@ -437,7 +430,7 @@ function AddonText_Coloring_create() {
         }
     };
 
-    presenter.createStateMachine = function () {
+    presenter.createStateMachine = function() {
         presenter.stateMachine = new TextColoringStateMachine({});
     };
 
