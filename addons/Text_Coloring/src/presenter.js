@@ -147,14 +147,40 @@ function AddonText_Coloring_create() {
             var colorDefinition = presenter.getColorDefinitionById(token.color);
             if (colorDefinition !== undefined) {
                 var $tokenElement = presenter.getWordTokenByIndex(token.index);
+                presenter.addShowAnswerClass($tokenElement, colorDefinition.description);
                 presenter.markToken($tokenElement, colorDefinition.color);
             }
         });
     };
 
+    presenter.addShowAnswerClass = function ($element, colorName) {
+        var className = StringUtils.format(presenter.defaults.css.showAnswer, colorName);
+        $element.addClass(className);
+    };
+
+    presenter.removeShowAnswerClasses = function ($element) {
+        var classToRemoveRegexp = /text-coloring-show-answers-.+/;
+
+        // function in removeClass should return space separated classes
+        $element.removeClass(function(index, classes) {
+                var classNames = classes.split(' ');
+                var classesToRemove = '';
+
+                for (var i = 0; i < classNames.length; i++) {
+                    if (classToRemoveRegexp.test(classNames[i])) {
+                        classesToRemove += classNames[i] + ' ';
+                    }
+                }
+
+                return classesToRemove;
+            }
+        );
+    };
+
     TextColoringStateMachine.prototype.onHideAnswers = function () {
         this.restorePreviousState();
         this.onUnblock();
+        presenter.removeShowAnswerClasses(presenter.$wordTokens);
         presenter.unmarkToken(presenter.$wordTokens);
         presenter.configuration.filteredTokens.filter(function (token) {
             return token.isSelected == true;
@@ -297,7 +323,8 @@ function AddonText_Coloring_create() {
                 wrong: 'text-coloring-token-wrong-marking'
             },
             activeButton: 'text-coloring-active-button',
-            coloredWord: 'text-coloring-colored-with-{0}'
+            coloredWord: 'text-coloring-colored-with-{0}',
+            showAnswer: 'text-coloring-show-answers-{0}'
         }
     };
 
@@ -393,7 +420,7 @@ function AddonText_Coloring_create() {
             }
         });
 
-        presenter.stateMachine = new TextColoringStateMachine({});
+        presenter.createStateMachine();
         presenter.setFilteredTokensData();
         presenter.setView(presenter.createView());
 
@@ -408,6 +435,10 @@ function AddonText_Coloring_create() {
             presenter.setColor(presenter.configuration.colors[0].id);
             presenter.stateMachine.notifyEdit();
         }
+    };
+
+    presenter.createStateMachine = function () {
+        presenter.stateMachine = new TextColoringStateMachine({});
     };
 
     presenter.colorTokensInPreview = function () {
