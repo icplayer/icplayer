@@ -163,8 +163,6 @@ function AddonText_Coloring_create() {
         $element.removeClass(className);
     };
 
-    presenter.remove
-
     TextColoringStateMachine.prototype.onHideAnswers = function () {
         this.restorePreviousState();
         this.onUnblock();
