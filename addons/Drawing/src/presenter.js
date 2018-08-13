@@ -352,7 +352,7 @@ function AddonDrawing_create() {
             presenter.turnOnEventListeners();
         }
 
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
     };
 
     presenter.setColor = function(color) {

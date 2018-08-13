@@ -349,7 +349,6 @@ function AddonTrueFalse_create() {
         presenter.langAttribute = model['Lang attribute'];
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-        presenter.setVisibility(presenter.isVisible);
         presenter.$view.attr('lang', presenter.langAttribute);
 
         getSpeechTexts(model);
@@ -378,6 +377,7 @@ function AddonTrueFalse_create() {
 
         if (!preview) {
             handleClickActions(view);
+            presenter.setVisibility(presenter.isVisible);
         }
 
         if (textParser !== null) { // Actions performed only in Player mode

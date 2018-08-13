@@ -88,7 +88,7 @@ function AddonShooting_Range_create() {
            presenter.connectHandlers();
         }
 
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
 
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };

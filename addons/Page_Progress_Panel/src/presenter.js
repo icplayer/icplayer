@@ -72,7 +72,9 @@ function AddonPage_Progress_Panel_create(){
         presenter.configuration = presenter.validateModel(model);
 		presenter.displayText();
 		presenter.state.isVisible = presenter.configuration.isVisible;
-		presenter.updateVisibility();
+		if (!isPreview) {
+            presenter.updateVisibility();
+        }
 
         removeHidden(presenter.configuration.showProgressBar, presenter.$progressBarContainer);
         removeHidden(presenter.configuration.showChecks, presenter.$checks);

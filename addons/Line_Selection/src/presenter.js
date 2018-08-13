@@ -1,5 +1,5 @@
 function AddonLine_Selection_create(){
-    var presenter = function(){}
+    var presenter = function(){};
     presenter.error = false;
     presenter.isErrorMode = false;
     presenter.isStarted = false;
@@ -35,11 +35,13 @@ function AddonLine_Selection_create(){
                 break;
         }
     };
+
     presenter.ERROR_CODES = {
         'lines_error' : "Error in lines' defition.",
         'lines_empty' : 'Property Lines cannot be empty!',
         'points_out' : 'Ending points are outside  the addon!'
     };
+
     presenter.disable = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         if (!(presenter.$view.find('.disabled').length > 0)) {
@@ -47,36 +49,43 @@ function AddonLine_Selection_create(){
             presenter.$view.find('.lines_selection').addClass('disabled');
         }
     };
+
     presenter.enable = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.disabled = false;
         presenter.$view.find('.disabled').removeClass('disabled');
     };
+
     presenter.updateDisability = function(){
         if (presenter.disabled)
             presenter.disable();
         else
             presenter.enable();
     };
+
     presenter.hide = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.isVisible = false;
         presenter.setVisibility(false);
     };
+
     presenter.show = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.isVisible = true;
         presenter.setVisibility(true);
     };
+
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
+
     presenter.updateVisibility = function() {
         if (presenter.isVisible) {
             presenter.show();
         } else
             presenter.hide();
     };
+
     presenter.isAllOK = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         if (presenter.getScore() == presenter.getMaxScore() && presenter.getErrorCount() == 0)
@@ -84,10 +93,12 @@ function AddonLine_Selection_create(){
         else
             return false;
     };
+
     presenter.isAttempted = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         return presenter.isStarted;
     };
+
     presenter.select = function(index) {
         index--;
         presenter.isStarted = true;
@@ -100,7 +111,8 @@ function AddonLine_Selection_create(){
             line.attr('class','line selected');
             presenter.selected.push(index);
         }
-    }
+    };
+
     presenter.deselect = function(index) {
         index--;
         presenter.isStarted = true;
@@ -112,9 +124,9 @@ function AddonLine_Selection_create(){
                 presenter.selected.splice(presenter.selected.indexOf(index),1);
             line.attr('class','line');
         }
-    }
+    };
 
-    presenter.initiate = function(view, model){
+    presenter.initiate = function(view, model, isPreview){
         presenter.$view = $(view);
         presenter.model = model;
         presenter.addonID = model.ID;
@@ -129,9 +141,12 @@ function AddonLine_Selection_create(){
             presenter.wrapper.text(presenter.ERROR_CODES[presenter.error])
         } else {
             presenter.updateDisability();
-            presenter.updateVisibility();
+            if (!isPreview) {
+                presenter.updateVisibility();
+            }
         }
-    }
+    };
+
     presenter.drawLines = function(string) {
         if (string == '' || string == undefined) {
             presenter.error = 'lines_empty';
@@ -162,7 +177,8 @@ function AddonLine_Selection_create(){
         }
         $svg += '</svg>';
         presenter.wrapper.prepend($svg);
-    }
+    };
+
     presenter.run = function(view, model){
         presenter.answers = [];
         presenter.selected = [];
@@ -200,15 +216,18 @@ function AddonLine_Selection_create(){
         });
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
-    }
+    };
+
     presenter.onEventReceived = function (eventName) {
         if (eventName == "ShowAnswers") presenter.showAnswers();
         if (eventName == "HideAnswers") presenter.hideAnswers();
     };
+
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
     };
+
     presenter.createEventData = function(item,value,score) {
         return {
             source : presenter.addonID,
@@ -217,6 +236,7 @@ function AddonLine_Selection_create(){
             score : score
         };
     };
+
     presenter.triggerEvent = function(item, value, score) {
         var eventData = presenter.createEventData(item, value, score);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
@@ -225,10 +245,11 @@ function AddonLine_Selection_create(){
             presenter.eventBus.sendEvent('ValueChanged', eventData);
         }
     };
+
     presenter.createPreview = function(view, model){
         presenter.answers = [];
         presenter.selected = [];
-        presenter.initiate(view, model);
+        presenter.initiate(view, model, true);
         var coordinations = {x:0, y:0};
         if (!presenter.error) {
             var coordinatesContainer = $('<div></div>'),
@@ -265,6 +286,7 @@ function AddonLine_Selection_create(){
             });
         }
     };
+
     presenter.setShowErrorsMode = function(){
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.isErrorMode = true;
@@ -277,13 +299,15 @@ function AddonLine_Selection_create(){
             }
         } else
             return 0;
-    }
+    };
+
     presenter.setWorkMode = function(){
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.isErrorMode = false;
         presenter.$view.find('.correct').removeClass('correct');
         presenter.$view.find('.wrong').removeClass('wrong');
-    }
+    };
+
     presenter.showAnswers = function () {
         presenter.setWorkMode();
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
@@ -306,7 +330,8 @@ function AddonLine_Selection_create(){
                 presenter.$view.find('#line_'+presenter.selected[i]).addClass('selected');
             }
         }
-    }
+    };
+
     presenter.reset = function(){
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.setWorkMode();
@@ -317,7 +342,8 @@ function AddonLine_Selection_create(){
         presenter.updateDisability();
         presenter.updateVisibility();
         presenter.isStarted = false;
-    }
+    };
+
     presenter.getErrorCount = function(){
         var error = 0;
         if (presenter.activity) {
@@ -328,7 +354,8 @@ function AddonLine_Selection_create(){
             return error;
         } else
             return 0;
-    }
+    };
+
     presenter.getMaxScore = function(){
         var maxscore = 0;
         if (presenter.activity) {
@@ -337,7 +364,8 @@ function AddonLine_Selection_create(){
             return maxscore;
         } else
             return 0;
-    }
+    };
+
     presenter.getScore = function(){
         var score = 0;
         if (presenter.activity) {
@@ -348,7 +376,8 @@ function AddonLine_Selection_create(){
             return score;
         } else
             return 0;
-    }
+    };
+
     presenter.getState = function(){
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         return JSON.stringify({
@@ -357,7 +386,8 @@ function AddonLine_Selection_create(){
             lines : presenter.selected,
             isStarted : presenter.isStarted
         });
-    }
+    };
+
     presenter.setState = function(state){
         presenter.isVisible = JSON.parse(state).visible;
         presenter.disabled = JSON.parse(state).disabled;
@@ -368,6 +398,6 @@ function AddonLine_Selection_create(){
         }
         presenter.updateDisability();
         presenter.updateVisibility();
-    }
+    };
     return presenter;
 }

@@ -67,7 +67,7 @@ function AddonCompletion_Progress_create() {
             presenter.model = model;
             presenter.configuration = presenter.validateModel(model);
 
-            presenter.setVisibility(presenter.configuration.isVisible);
+            presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
             if (!isPreview && presenter.configuration.automaticCounting) {
                 eventBus.addEventListener('ValueChanged', this);

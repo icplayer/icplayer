@@ -1122,11 +1122,6 @@ function Addonvideo_create() {
 
         presenter.setVideo();
         presenter.setDimensions();
-
-        presenter.isCurrentlyVisible = true;
-        if (!presenter.configuration.isVisibleByDefault) {
-            presenter.hide();
-        }
     };
 
     presenter.showCaptions = function (time) {

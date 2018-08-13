@@ -146,18 +146,18 @@ function AddonProgrammed_Drawing_create(){
     };
 
     presenter.run = function(view, model){
-        presenterLogic(view, model);
+        presenterLogic(view, model, false);
     };
 
     presenter.createPreview = function(view, model){
-        presenterLogic(view, model);
+        presenterLogic(view, model, true);
     };
 
     function returnErrorObject(errorCode) {
         return { isError: true, errorCode: errorCode };
     }
 
-    function presenterLogic(view, model) {
+    function presenterLogic(view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
 
         if (presenter.configuration.isError) {
@@ -176,7 +176,7 @@ function AddonProgrammed_Drawing_create(){
             presenter.validateInstructions(presenter.configuration.initialDesign);
         }
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
     }
 
     presenter.setPlayerController = function(controller) {

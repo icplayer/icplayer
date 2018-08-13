@@ -68,7 +68,7 @@ function AddonLesson_Score_Counter_create(){
         }
 
         presenter.$view = $(view);
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
         presenter.$fractionWrapper = presenter.$view.find('.lesson-score-counter-wrapper > .fraction');
         presenter.$scoreWrapper = presenter.$view.find('.lesson-score-counter-wrapper > .score');
         presenter.$maxScoreWrapper = presenter.$view.find('.lesson-score-counter-wrapper > .max-score');

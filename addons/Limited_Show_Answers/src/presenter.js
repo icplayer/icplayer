@@ -173,7 +173,7 @@ function AddonLimited_Show_Answers_create() {
         presenter.configuration = presenter.validateModel(model).value;
         presenter.$view = $(view);
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         presenter.$button = presenter.$view.find('.limited-show-answers-button');
         presenter.$button.text(presenter.configuration.text);

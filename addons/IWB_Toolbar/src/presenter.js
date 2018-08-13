@@ -2604,7 +2604,6 @@ function AddonIWB_Toolbar_create() {
         presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         presenter.isKeepStateAndPosition = ModelValidationUtils.validateBoolean(model['keepStateAndPosition']);
 
-        presenter.setVisibility(presenter.isVisible, true, view);
         $(view).find('.iwb-toolbar-panel').width(model['Width'] - 50 + 'px');
 
         var moduleClasses = $(view).attr('class');
@@ -3316,21 +3315,17 @@ function AddonIWB_Toolbar_create() {
     }
 
     presenter.show = function() {
-        presenter.setVisibility(true, false, presenter.$view);
+        presenter.setVisibility(true);
         presenter.isVisible = true;
     };
 
     presenter.hide = function() {
-        presenter.setVisibility(false, false, presenter.$view);
+        presenter.setVisibility(false);
         presenter.isVisible = false;
     };
 
-    presenter.setVisibility = function (isVisible, isPreview, view) {
-        if (!isPreview) {
-            presenter.$panel.css('visibility', isVisible ? 'visible' : 'hidden');
-        } else {
-            $(view).css('visibility', isVisible ? 'visible' : 'hidden');
-        }
+    presenter.setVisibility = function (isVisible) {
+        presenter.$panel.css('visibility', isVisible ? 'visible' : 'hidden');
     };
 
     presenter.executeCommand = function(name, params) {

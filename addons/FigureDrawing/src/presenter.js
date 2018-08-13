@@ -1,10 +1,11 @@
 function AddonFigureDrawing_create(){
-    var presenter = function(){}
+    var presenter = function(){};
     presenter.error = false;
     presenter.isEraser = false;
     presenter.isStarted = false;
     presenter.isErrorMode = false;
     presenter.isShowAnswersActive = false;
+
     presenter.executeCommand = function(name, params) {
         switch(name.toLowerCase()) {
             case 'hide'.toLowerCase():
@@ -60,6 +61,7 @@ function AddonFigureDrawing_create(){
                 break;
         }
     };
+
     presenter.markAsCorrect = function() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
@@ -134,14 +136,16 @@ function AddonFigureDrawing_create(){
             }
             if (counter != numberOfAnswers || errorCounter != 0)
                 answer = false;
-        };
+        }
         return answer;
     };
+
     presenter.setDrawMode = function() {
         presenter.drawingMode = true;
         presenter.$view.find('.figure').addClass('drawing_mode');
         presenter.$view.find('.figure').removeClass('coloring_mode');
     };
+
     presenter.setColorMode = function() {
         if (presenter.coloring && (!presenter.blockColoring || presenter.allLinesDrawn() || !presenter.drawingMode)) {
             presenter.drawingMode = false;
@@ -151,24 +155,29 @@ function AddonFigureDrawing_create(){
             presenter.selected.isSelected = false;
         }
     };
+
     presenter.setColor = function(color) {
         presenter.isEraser = false;
         var color = validateColor(color,false,false);
         if (color != false)
             presenter.currentColor = color;
     };
+
     presenter.setEraserOn = function() {
         presenter.isEraser = true;
         presenter.currentColor = [255,255,255,0];
     };
+
     presenter.isAttempted = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         return presenter.isStarted;
     };
+
     presenter.isAllOK = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         return ((presenter.getScore() == presenter.getMaxScore()) && (presenter.getErrorCount() === 0));
     };
+
     presenter.disable = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         if (!(presenter.$view.find('.disabled').length > 0)) {
@@ -177,25 +186,30 @@ function AddonFigureDrawing_create(){
             presenter.$view.find('.chart').addClass('disabled');
         }
     };
+
     presenter.enable = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.disabled = false;
         presenter.$view.find('.disabled').removeClass('disabled');
     };
+
     presenter.hide = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.isVisible = false;
         presenter.setVisibility(false);
     };
+
     presenter.show = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.isVisible = true;
         presenter.setVisibility(true);
     };
+
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
         if (presenter.coloring) presenter.$view.find('.canvas').css("visibility", isVisible ? "visible" : "hidden");
     };
+
     presenter.updateVisibility = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         if (presenter.isVisible) {
@@ -203,6 +217,7 @@ function AddonFigureDrawing_create(){
         } else
             presenter.hide();
     };
+
     function validateRadius(radius){
         if (radius == '' || radius == 0) {
             return 5;
@@ -213,6 +228,7 @@ function AddonFigureDrawing_create(){
             return 5;
         }
     };
+
     function validateStartingColor(params){
         var answer = [], point;
         if (params == '' || params == undefined) return '';
@@ -237,6 +253,7 @@ function AddonFigureDrawing_create(){
         });
         return answer;
     }
+
     function validateLines(lines, draw, coloranswers){
         presenter.tmpLine = [];
         if (lines == '' || lines == undefined) return true;
@@ -287,6 +304,7 @@ function AddonFigureDrawing_create(){
             }
         });
     }
+
     function validateAnswersColor(list) {
         presenter.answersColors = [];
         var points, color = [], tmpPoint, helpString, tmpData, i, j, k;
@@ -332,6 +350,7 @@ function AddonFigureDrawing_create(){
             presenter.answersColors.push(tmpData);
         }
     }
+
     function validateColor(color,isDefault,isEditor){
         var rgb = color.split(' ');
         if (isNaN(rgb[0]) || isNaN(rgb[1]) || isNaN(rgb[2]) || rgb[0] < 0 || rgb[0] > 255 || rgb[1]<0 || rgb[1]>255 || rgb[2]<0 || rgb[2]>255 || rgb.length != 3) {
@@ -343,45 +362,52 @@ function AddonFigureDrawing_create(){
         rgb.push('255');
         return rgb;
     };
+
     function Point (row, column, x, y) {
         this.row = row;
         this.column = column;
         this.x = x;
         this.y = y;
     }
+
     presenter.selected = {
         row: 0,
         column: 0,
         x: 0,
         y: 0,
         isSelected: false
-    }
+    };
+
     presenter.drawingPoint = {
         row: 0,
         column: 0,
         x: 0,
         y: 0,
         isDown: false
-    }
+    };
     var gcd = function(a, b) {
         if (!b) {
             return a;
         }
         return gcd(b, a % b);
-    }
+    };
+
     var countX = function(column) {
         if (presenter.grid3D) return (0.5 * column * presenter.grid)
         else return ((parseInt(column)-0.5) * presenter.grid);
     };
+
     var countY = function(row) {
         if (presenter.grid3D) return ((1/3*(parseInt(row)-1) + 0.5) * presenter.grid)
         else return ((parseInt(row)-0.5) * presenter.grid);
     };
+
     function uniq(a) {
         return a.sort().filter(function(item, pos) {
             return !pos || item != a[pos - 1];
         })
     }
+
     function drawOneLine(point1, point2, nonremovable) {
         var newLine = document.createElementNS("http://www.w3.org/2000/svg", 'line');
         newLine.setAttribute("y1",point1.y);
@@ -394,6 +420,7 @@ function AddonFigureDrawing_create(){
         presenter.$view.find('.chart')[0].insertBefore(newLine,firstPoint);
         if (!presenter.isShowAnswersActive && presenter.coloring) drawLineOnCanvas(point1.x,point1.y,point2.x,point2.y);
     }
+
     function drawTempLine(point1, point2) {
         line = presenter.$view.find('.templine');
         if (line.length > 0) {
@@ -412,6 +439,7 @@ function AddonFigureDrawing_create(){
             presenter.$view.find('.chart')[0].insertBefore(newLine,firstPoint);
         }
     }
+
     function drawLineOnCanvas(x1,y1,x2,y2) {
         presenter.ctx.beginPath();
         presenter.ctx.moveTo(x1,y1);
@@ -420,6 +448,7 @@ function AddonFigureDrawing_create(){
         presenter.ctx.strokeStyle="rgba(5,5,5,0.8)";
         presenter.ctx.stroke();
     }
+
     presenter.redrawCanvas = function(showAnswers) {
         //	presenter.canvas.getContext('2d').clearRect(0,0,presenter.canvasWidth,presenter.canvasHeight);
         presenter.canvas.width += 0;
@@ -453,7 +482,8 @@ function AddonFigureDrawing_create(){
             }
             checkColors();
         }
-    }
+    };
+
     presenter.drawLine = function(point1, point2, nonremovable, draw, coloranswers, trigger){
         var firstPoint, secondPoint, column1, row1, row, column, column2, row2, tmpPoint;
         var x1, x2, y1, y2, x1N, y1N, x2N, y2N, x, y;
@@ -480,7 +510,7 @@ function AddonFigureDrawing_create(){
             if (!draw && (line.length > 0) && line.attr('class') == 'line nonremovable' && !coloranswers) {
                 presenter.error = 'nonremanswer';
                 return false;
-            };
+            }
             column1 = column2;
             row1 = row2;
         }
@@ -531,7 +561,8 @@ function AddonFigureDrawing_create(){
             var value = 1;
             if (trigger) presenter.triggerEvent(item,value,score);
         }
-    }
+    };
+
     presenter.initiate = function(view, model){
         presenter.$view = $(view);
         presenter.model = model;
@@ -557,9 +588,10 @@ function AddonFigureDrawing_create(){
         if (presenter.coloring && !presenter.error) {
             presenter.defaultColor = validateColor(presenter.model['DefColor'],true,true);
             presenter.startingColors = validateStartingColor(presenter.model['StartingColors']);
-        };
+        }
         return true;
-    }
+    };
+
     presenter.drawGrid = function() {
         var Width = presenter.figure.width();
         var Height = presenter.figure.parent().height();
@@ -644,7 +676,8 @@ function AddonFigureDrawing_create(){
                 presenter.$view.find('.canvas').parents("*").css("overflow", "visible");
             }
         }
-    }
+    };
+
     presenter.run = function(view, model){
         var row, column, x, y;
         var timeClick = true, abandon = false;
@@ -654,7 +687,9 @@ function AddonFigureDrawing_create(){
         if (!presenter.error) {
             presenter.drawGrid();
             validateLines(presenter.StartingLines,true,false);
-            presenter.updateVisibility();
+            if (!isPreview) {
+                presenter.updateVisibility();
+            }
 
             var coordinations = {x:0, y:0};
             var tmpColor, i;
@@ -679,7 +714,7 @@ function AddonFigureDrawing_create(){
             presenter.figure.addClass(presenter.error);
             presenter.$view.find('.chart').remove();
             presenter.$view.find('.canvas').remove();
-        };
+        }
         var point1, point2;
         presenter.$view.find('.point').on('mouseup touchend', function(e){
             if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && presenter.drawingMode && timeClick) {
@@ -765,6 +800,7 @@ function AddonFigureDrawing_create(){
             presenter.$view.find('.templine').remove();
             presenter.drawingPoint.isDown = false;
         });
+
         presenter.$view.find('.point').on('mousedown touchstart', function(e){
             presenter.$view.find('.templine').remove();
             if (!presenter.isErrorMode && !presenter.disabled && !presenter.isShowAnswersActive && presenter.drawingMode) {
@@ -781,6 +817,7 @@ function AddonFigureDrawing_create(){
                 }
             };
         });
+
         presenter.$view.on('mousedown touchstart', function(e){
             e.stopPropagation();
             e.preventDefault();
@@ -807,6 +844,7 @@ function AddonFigureDrawing_create(){
                 }
             }
         });
+
         presenter.$view.on('mousemove touchmove', function(e){
             e.stopPropagation();
             e.preventDefault();
@@ -837,7 +875,8 @@ function AddonFigureDrawing_create(){
         });
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
-    }
+    };
+
     function checkColors() {
         for(var i = 0; i < presenter.coloredAreas.length; i++) {
             var tmpColor = getClickedAreaColor(presenter.coloredAreas[i][0],presenter.coloredAreas[i][1]);
@@ -845,14 +884,17 @@ function AddonFigureDrawing_create(){
                 presenter.coloredAreas.splice(i,1);
         }
     }
+
     presenter.onEventReceived = function (eventName) {
         if (eventName == "ShowAnswers") presenter.showAnswers();
         if (eventName == "HideAnswers") presenter.hideAnswers();
     };
+
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
     };
+
     presenter.createPreview = function(view, model){
         presenter.initiate(view, model);
         presenter.coloredAreas = [];
@@ -867,7 +909,7 @@ function AddonFigureDrawing_create(){
                     if (presenter.model['AnswerColors'].length != 1 || presenter.model['AnswerColors'][0]['Figure'] != '' || presenter.model['AnswerColors'][0]['Color'] != '')
                         validateAnswersColor(presenter.model['AnswerColors']);
             }
-            presenter.updateVisibility();
+
             if (presenter.disabled) presenter.disable();
             if (presenter.coloring && presenter.startingColors != '') {
                 presenter.coloredAreas = presenter.startingColors;
@@ -911,13 +953,14 @@ function AddonFigureDrawing_create(){
                     setCalculatedPosition(e);
                 });
             }
-        };
+        }
         if (presenter.error) {
             presenter.figure.addClass(presenter.error);
             presenter.$view.find('.chart').remove();
             presenter.$view.find('.canvas').remove();
         }
-    }
+    };
+
     presenter.reset = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         presenter.coloredAreas = [];
@@ -942,6 +985,7 @@ function AddonFigureDrawing_create(){
         presenter.currentColor = presenter.defaultColor;
         presenter.setDrawMode();
     };
+
     presenter.getErrorCount = function(){
         var errorCounter = 0, i, lineCounter, color;
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
@@ -967,7 +1011,8 @@ function AddonFigureDrawing_create(){
             }
         }
         return errorCounter;
-    }
+    };
+
     presenter.getMaxScore = function(){
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         if (presenter.activity && !presenter.error && presenter.coloring)
@@ -976,7 +1021,8 @@ function AddonFigureDrawing_create(){
             return (presenter.AnswerLines.length)
         else
             return 0;
-    }
+    };
+
     presenter.getScore = function(){
         if (presenter.activity && !presenter.error && presenter.isStarted) {
             var i, j, line, lineCounter, color, counter = 0, numberOfAnswers = presenter.AnswerLines.length;
@@ -999,7 +1045,8 @@ function AddonFigureDrawing_create(){
             return counter;
         } else
             return 0;
-    }
+    };
+
     presenter.setWorkMode = function() {
         presenter.isErrorMode = false;
         presenter.$view.find('.line').removeClass('correct');
@@ -1008,6 +1055,7 @@ function AddonFigureDrawing_create(){
         presenter.$view.find('.figure').removeClass('correct');
         presenter.$view.find('.figure').removeClass('wrong');
     };
+
     presenter.setShowErrorsMode = function() {
         var i, j, line, color, lineCounter;
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
@@ -1039,6 +1087,7 @@ function AddonFigureDrawing_create(){
             }
         }
     };
+
     presenter.displayIcon = function(x,y,isCorrect) {
         var iconContainer = $('<div class="icon-container"></div>');
         iconContainer.css({
@@ -1047,14 +1096,15 @@ function AddonFigureDrawing_create(){
         });
         iconContainer.addClass(isCorrect ? 'correct' : 'wrong');
         presenter.figure.append(iconContainer);
-    }
+    };
+
     presenter.getState = function() {
         if (presenter.isShowAnswersActive) presenter.hideAnswers();
         var Lines = presenter.$view.find('.line').not('.nonremovable');
         var LinesIds = new Array();
         for (i = 0; i < Lines.length; i++) {
             LinesIds.push(Lines[i].id);
-        };
+        }
         return JSON.stringify({
             isStarted : presenter.isStarted,
             disabled : presenter.disabled,
@@ -1066,6 +1116,7 @@ function AddonFigureDrawing_create(){
             mode: presenter.drawingMode
         });
     };
+
     presenter.setState = function(state) {
         var point1, point2, x, y, i;
         presenter.disabled = JSON.parse(state).disabled;
@@ -1074,11 +1125,11 @@ function AddonFigureDrawing_create(){
         presenter.coloredAreas = JSON.parse(state).coloredAreas;
         presenter.drawingMode = JSON.parse(state).mode;
         if (presenter.drawingMode)
-            presenter.setDrawMode()
+            presenter.setDrawMode();
         else
             presenter.setColorMode();
         if (presenter.disabled)
-            presenter.disable()
+            presenter.disable();
         else
             presenter.enable();
         presenter.isVisible = JSON.parse(state).visible;
@@ -1097,6 +1148,7 @@ function AddonFigureDrawing_create(){
         }
         if (presenter.coloring) presenter.redrawCanvas(false);
     };
+
     presenter.showAnswers = function () {
         if (presenter.activity) {
             var i, x, y, point1, point2;
@@ -1124,6 +1176,7 @@ function AddonFigureDrawing_create(){
             if (presenter.coloring) presenter.redrawCanvas(true);
         }
     };
+
     presenter.hideAnswers = function () {
         if (presenter.activity) {
             var i, x, y, point1, point2;
@@ -1140,7 +1193,8 @@ function AddonFigureDrawing_create(){
             }
             if (presenter.coloring) presenter.redrawCanvas(false);
         }
-    }
+    };
+
     function findClosestPoint(x,y) {
         if (presenter.grid3D) {
             var column = parseInt((x * 2 + 0.25 * presenter.grid)/presenter.grid);
@@ -1154,6 +1208,7 @@ function AddonFigureDrawing_create(){
         point = new Point(row, column, x, y);
         return point;
     }
+
     function floodFill(startingPixel,fillColor) {
         var imgData = presenter.ctx.getImageData(0, 0, presenter.canvasWidth, presenter.canvasHeight);
         var pixelStack = [];
@@ -1199,6 +1254,7 @@ function AddonFigureDrawing_create(){
         }
         presenter.ctx.putImageData(imgData, 0, 0);
     }
+
     function matchStartColor(imgData,pixelPos,start) {
         var r = imgData.data[pixelPos];
         var g = imgData.data[pixelPos+1];
@@ -1206,12 +1262,14 @@ function AddonFigureDrawing_create(){
         var a = imgData.data[pixelPos+3];
         return (r == start[0] && g == start[1] && b == start[2] && a == start[3]);
     }
+
     function colorPixel(imgData,pixelPos,fillColor) {
         imgData.data[pixelPos] = fillColor[0];
         imgData.data[pixelPos+1] = fillColor[1];
         imgData.data[pixelPos+2] = fillColor[2];
         imgData.data[pixelPos+3] = fillColor[3];
     }
+
     function getClickedAreaColor(x, y) {
         var data = presenter.ctx.getImageData(x, y, 1, 1).data, color = [];
         for (var i = 0; i < data.length; i++) {
@@ -1219,10 +1277,12 @@ function AddonFigureDrawing_create(){
         }
         return color;
     }
+
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
     };
+
     presenter.createEventData = function(item,value,score) {
         return {
             source : presenter.addonID,
@@ -1231,6 +1291,7 @@ function AddonFigureDrawing_create(){
             score : score
         };
     };
+
     presenter.triggerEvent = function(item, state, score) {
         var eventData = presenter.createEventData(item, state, score);
         presenter.eventBus.sendEvent('ValueChanged', eventData);

@@ -1508,7 +1508,7 @@ function Addongraph_create(){
         var validRows = presenter.configuration.validRows;
         var columnsCount = presenter.configuration.columnsCount;
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         var showXAxisBarsDescriptions = presenter.configuration.showXAxisBarsDescriptions;
         var showXAxisSeriesDescriptions = presenter.configuration.showXAxisSeriesDescriptions;

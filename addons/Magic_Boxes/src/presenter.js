@@ -543,7 +543,7 @@ function AddonMagic_Boxes_create() {
         gridContainer = gridContainerWrapper.find(".magicGrid:first");
         presenter.configuration = presenter.validateModel(model);
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || preview);
 
         if(presenter.configuration.answers){
             for(var i = 0; i< presenter.configuration.answers.length; i++){

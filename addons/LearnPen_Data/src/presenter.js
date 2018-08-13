@@ -276,7 +276,7 @@ function AddonLearnPen_Data_create() {
             isIntervalOn = true;
         }
 
-        setVisibility(presenter.configuration.isVisible);
+        setVisibility(presenter.configuration.isVisible || isPreview);
 
         return true;
     };

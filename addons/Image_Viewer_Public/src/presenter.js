@@ -646,7 +646,7 @@ function AddonImage_Viewer_Public_create() {
             }else{
                 loadImage(preview);
             }
-            presenter.setVisibility(presenter.configuration.defaultVisibility);
+            presenter.setVisibility(presenter.configuration.defaultVisibility || preview);
             if (presenter.configuration.defaultVisibility) {
                 presenter.displayLabels(1);
             }

@@ -101,7 +101,7 @@ function AddonBasic_Math_Gaps_create(){
 
         presenter.setWrapperCss();
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
     }
 
     presenter.createGaps = function () {

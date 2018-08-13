@@ -1037,7 +1037,7 @@ function AddonShape_Tracing_create() {
             turnOnEventListeners();
         }
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
         presenter.visibleByDefault = presenter.configuration.isVisible;
 
         presenter.$view.find('div.correctImage').css('display', 'none');

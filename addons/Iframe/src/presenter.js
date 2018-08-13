@@ -60,13 +60,13 @@ function AddonIframe_create() {
     };
 
     presenter.run = function AddonIFrame_Communication_run (view, model) {
-        presenter.initialize(view, model);
+        presenter.initialize(view, model, false);
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function AddonIFrame_Communication_create_preview (view, model) {
-        presenter.initialize(view, model);
+        presenter.initialize(view, model, true);
     };
 
     presenter.getIframeIndexSource = function () {
@@ -79,7 +79,7 @@ function AddonIframe_create() {
         return source;
     };
 
-    presenter.initialize = function AddonIFrame_Communication_initialize (view, model)  {
+    presenter.initialize = function AddonIFrame_Communication_initialize (view, model, isPreview)  {
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -104,7 +104,7 @@ function AddonIframe_create() {
 
         presenter.$view = $(view);
         presenter.view = view;
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
         presenter.iframeContent = iframe.get(0).contentWindow;
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
 

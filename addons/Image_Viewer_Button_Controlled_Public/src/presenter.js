@@ -427,7 +427,7 @@ function AddonImage_Viewer_Button_Controlled_Public_create(){
             }
         }
 
-        presenter.setVisibility(presenter.configuration.defaultVisibility);
+        presenter.setVisibility(presenter.configuration.defaultVisibility || isPreview);
 
         presenter.imageLoadedDeferred.resolve();
     }

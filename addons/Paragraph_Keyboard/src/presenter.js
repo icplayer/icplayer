@@ -66,13 +66,13 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.createPreview = function AddonParagraph_Keyboard_createPreview(view, model) {
-        presenter.initializeEditor(view, model);
+        presenter.initializeEditor(view, model, true);
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': '100%', 'height': '100%', 'position':'absolute', 'top':0, 'left':0});
         presenter.$view.append(clickhandler);
     };
 
     presenter.run = function AddonParagraph_Keyboard_run(view, model) {
-        presenter.initializeEditor(view, model);
+        presenter.initializeEditor(view, model, false);
     };
 
     presenter.validateToolbar = function AddonParagraph_validateToolbar(controls, width) {
@@ -362,7 +362,7 @@ function AddonParagraph_Keyboard_create() {
             presenter.onInit();
         });
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
     };
 
     presenter.destroy = function AddonParagraph_Keyboard_destroy(event) {

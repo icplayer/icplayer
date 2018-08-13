@@ -160,7 +160,7 @@ function AddonImage_Identification_create(){
             $(element).html(innerElement);
             presenter.$view.html(element);
 
-            presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+            presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
 
             if (!isPreview) {
                 presenter.handleMouseActions();

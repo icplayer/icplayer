@@ -1756,7 +1756,8 @@ function AddonPlot_create(){
         } else {
             presenter.hide();
         }
-    }
+    };
+
     presenter.initialize = function(view, model, interactive) {
         var v, p, el;
         this._model = model;
@@ -1766,7 +1767,9 @@ function AddonPlot_create(){
         if(presenter.decimalSeparator != '.' && presenter.decimalSeparator != ',') {
             presenter.decimalSeparator = '.';
         };
-        presenter.updateVisibility();
+        if (interactive) {
+            presenter.updateVisibility();
+        }
         plot.interactive = interactive;
         plot.width = parseInt(model['Width']);
         plot.height = parseInt(model['Height']);

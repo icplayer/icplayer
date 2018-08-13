@@ -96,7 +96,7 @@ function AddonDone_create(){
         }
 
         presenter.$view = $(view);
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
         presenter.submitButton = presenter.$view.find('.done-button');
         presenter.submitButton.html(presenter.configuration.buttonText);
         presenter.doneWrapper = presenter.$view.find('.done-wrapper');

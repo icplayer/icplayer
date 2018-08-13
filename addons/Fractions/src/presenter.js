@@ -706,10 +706,6 @@ function AddonFractions_create(){
             $counter.text('');
             presenter.init(view, model, true);
         }
-
-        presenter.isVisible = model["Is Visible"] == 'True';
-        presenter.setVisibility(presenter.isVisible);
-
     };
 
     presenter.clear = function(){

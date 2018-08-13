@@ -96,7 +96,7 @@ function AddonSingle_State_Button_create() {
 
         setElementsDimensions(upgradedModel, $wrapper, $element);
         presenter.toggleDisable(presenter.configuration.isDisabledByDefault);
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || preview);
 
         if (!preview) {
             handleMouseActions();

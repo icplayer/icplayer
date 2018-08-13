@@ -168,7 +168,7 @@ function AddonShow_Answers_create(){
         presenter.configuration = presenter.validateModel(upgradedModel);
         presenter.$view = $(view);
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         presenter.$button = presenter.$view.find('.show-answers-button');
         presenter.$button.text(presenter.configuration.text);

@@ -50,10 +50,10 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.createPreview = function(view, model) {
-        presenterLogic(view, model);
+        presenterLogic(view, model, false);
     };
 
-    function presenterLogic(view, model) {
+    function presenterLogic(view, model, isPreview) {
         presenter.array = presenter.convertStringToArray(model.Value);
         presenter.isCommutativity = ModelValidationUtils.validateBoolean(model['Commutativity']) || false;
         presenter.$view = $(view);
@@ -67,7 +67,7 @@ function AddonWritingCalculations_create() {
         presenter.bindValueChangeEvent();
         presenter.setContainerWidth();
         presenter.addAdditionalStyles();
-        presenter.setVisibility(presenter.isVisible);
+        presenter.setVisibility(presenter.isVisible || isPreview);
     }
 
     presenter.readSigns = function( signs ) {

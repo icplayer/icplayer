@@ -53,14 +53,13 @@
 
         presenter.$view = $(view);
 
-        presenter.setVisibility(presenter.isVisible);
-
         if (decodedVideoID.isError) {
             showErrorMessage(viewContainer, decodedVideoID.errorMessage);
         } else {
             if (preview) {
                 createVideoThumbnailAsync(decodedVideoID.videoID, viewContainer, width, height);
             } else {
+                presenter.setVisibility(presenter.isVisible);
                 var src = '${protocol}://www.youtube.com/embed/${video_id}';
                 src = src.replace("${video_id}", decodedVideoID.videoID);
 
