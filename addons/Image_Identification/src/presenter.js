@@ -131,6 +131,8 @@ function AddonImage_Identification_create(){
         $(image).addClass(presenter.configuration.isSelected ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
         presenter.$view.html(image);
 
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
+
         $(image).load(function () {
             var elementDimensions = DOMOperationsUtils.getOuterDimensions(this);
             var elementDistances = DOMOperationsUtils.calculateOuterDistances(elementDimensions);
@@ -159,8 +161,6 @@ function AddonImage_Identification_create(){
 
             $(element).html(innerElement);
             presenter.$view.html(element);
-
-            presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
 
             if (!isPreview) {
                 presenter.handleMouseActions();

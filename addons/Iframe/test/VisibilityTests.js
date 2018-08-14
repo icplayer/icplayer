@@ -1,57 +1,51 @@
-TestCase('[Graph] Visibility tests', {
+function getValidModel(isVisible) {
+    return {
+        isVisibleByDefault: isVisible,
+        isValid: true,
+        haveURL: true,
+        allowFullScreen: false
+    }
+}
+
+TestCase('[Iframe] Visibility tests', {
     setUp: function () {
-        this.presenter = Addongraph_create();
+        this.presenter = AddonIframe_create();
 
         this.stubs = {
             validateModelStub: sinon.stub(),
-            setVisibilityStub: sinon.stub(),
-            upgradeModelStub: sinon.stub(),
-            drawGraphStub: sinon.stub()
+            setVisibilityStub: sinon.stub()
         };
 
         this.presenter.validateModel = this.stubs.validateModelStub;
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
-        this.presenter.upgradeModel = this.stubs.upgradeModelStub;
-        this.presenter.drawGraph = this.stubs.drawGraphStub;
 
         this.view = document.createElement('div');
+        this.view.append(document.createElement('iframe'));
     },
 
     'test when in preview mode, setVisibility should be called with true': function () {
-        this.stubs.validateModelStub.returns({
-            isValid: true,
-            isVisible: true
-        });
+        this.stubs.validateModelStub.returns(getValidModel(true));
         this.presenter.initialize(this.view, {}, true);
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
     'test when in preview mode and addon is not visible, setVisibility should be called with true': function () {
-        this.stubs.validateModelStub.returns({
-            isValid: true,
-            isVisible: false
-        });
+        this.stubs.validateModelStub.returns(getValidModel(false));
         this.presenter.initialize(this.view, {}, true);
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
     'test when not in preview mode and addon is visible, setVisibility should be called with true': function () {
-        this.stubs.validateModelStub.returns({
-            isValid: true,
-            isVisible: true
-        });
+        this.stubs.validateModelStub.returns(getValidModel(true));
         this.presenter.initialize(this.view, {}, false);
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
     'test when not in preview mode and addon is not visible, setVisibility should be called with false': function () {
-        this.stubs.validateModelStub.returns({
-            isValid: true,
-            isVisible: false
-        });
+        this.stubs.validateModelStub.returns(getValidModel(false));
         this.presenter.initialize(this.view, {}, false);
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(false));
