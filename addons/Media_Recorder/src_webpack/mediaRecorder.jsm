@@ -53,8 +53,9 @@ export class MediaRecorder {
 
     setState(state) {
         this.recordingState.deserialize(state);
-        if (this.recordingState.mediaSource)
-            this.loadRecordingService.loadRecording(this.recordingState.mediaSource);
+        let loadedBlob = this.assetService.loadAsset();
+        if (loadedBlob)
+            this.loadRecordingService.loadRecording(URL.createObjectURL(loadedBlob));
     }
 
     setPlayerController(playerController) {
@@ -209,7 +210,7 @@ export class MediaRecorder {
 
     _internalElements() {
         return {
-            validateModel : validateModel,
+            validateModel: validateModel,
             Timer: Timer,
             State: State,
             ActivationState: ActivationState,

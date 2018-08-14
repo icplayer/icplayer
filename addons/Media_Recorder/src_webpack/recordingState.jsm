@@ -8,6 +8,10 @@ export class RecordingState{
         this.mediaSource = mediaSource;
     }
 
+    getMediaSource() {
+        return this.mediaSource;
+    }
+
     reset(){
         this.mediaSource = null;
     }

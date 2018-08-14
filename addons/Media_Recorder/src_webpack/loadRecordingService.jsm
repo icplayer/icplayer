@@ -1,4 +1,5 @@
-export class LoadRecordingService{
+export class LoadRecordingService {
+
     constructor(player, state) {
         this.player = player;
         this.state = state;
