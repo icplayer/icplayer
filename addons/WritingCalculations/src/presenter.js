@@ -43,14 +43,14 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.run = function(view, model) {
-        presenterLogic(view, model);
+        presenterLogic(view, model, false);
         eventBus = presenter.playerController.getEventBus();
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function(view, model) {
-        presenterLogic(view, model, false);
+        presenterLogic(view, model, true);
     };
 
     function presenterLogic(view, model, isPreview) {

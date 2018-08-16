@@ -28,9 +28,9 @@ function AddonLearnPen_Data_create() {
         isIntervalOn = on;
     }
 
-    function setVisibility(isVisible) {
+    presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
-    }
+    };
 
     function getCurrentDataFromSensor() {
         function toPercent(val) { return Math.round(val / 1024 * 100); }
@@ -276,7 +276,7 @@ function AddonLearnPen_Data_create() {
             isIntervalOn = true;
         }
 
-        setVisibility(presenter.configuration.isVisible || isPreview);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         return true;
     };

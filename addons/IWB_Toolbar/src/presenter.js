@@ -2601,7 +2601,6 @@ function AddonIWB_Toolbar_create() {
 
     presenter.createPreview = function(view, model) {
         presenter.model = model;
-        presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         presenter.isKeepStateAndPosition = ModelValidationUtils.validateBoolean(model['keepStateAndPosition']);
 
         $(view).find('.iwb-toolbar-panel').width(model['Width'] - 50 + 'px');

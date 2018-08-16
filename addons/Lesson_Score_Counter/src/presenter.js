@@ -35,7 +35,7 @@ function AddonLesson_Score_Counter_create(){
     };
 
     presenter.createPreview = function(view, model) {
-        runLogic(view, model, false);
+        runLogic(view, model, true);
     };
 
     presenter.validateModel = function(model) {
