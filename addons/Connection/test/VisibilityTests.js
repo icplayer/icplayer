@@ -1,4 +1,4 @@
-TestCase('[Basic_Math_Gap] Preview tests', {
+TestCase('[Connection] Visibility tests', {
     setUp: function () {
         this.presenter = AddonConnection_create();
 

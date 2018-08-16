@@ -1,35 +1,29 @@
 function getValidModel(isVisible) {
     return {
         isVisible: isVisible,
-        isError: false
+        isValid: true
     }
 }
 
-TestCase('[Basic_Math_Gap] Visibility tests', {
+TestCase('[Viewer_3D] Visibility tests', {
     setUp: function () {
-        this.presenter = AddonBasic_Math_Gaps_create();
+        this.presenter = AddonViewer_3D_create();
 
         this.stubs = {
-            upgradeModelStub: sinon.stub(),
-            validateModelStub: sinon.stub(),
-            createGapsStub: sinon.stub(),
-            addFocusOutEventListenerStub: sinon.stub(),
-            setWrapperCssStub: sinon.stub(),
+            parseModelStub: sinon.stub(),
             setVisibilityStub: sinon.stub(),
-            setOnEventListenersStub: sinon.stub()
+            setCanvasDimensionsStub: sinon.stub(),
+            renderObjectStub: sinon.stub()
         };
 
-        this.presenter.upgradeModel = this.stubs.upgradeModelStub;
-        this.presenter.validateModel = this.stubs.validateModelStub;
-        this.presenter.createGaps = this.stubs.createGapsStub;
-        this.presenter.addFocusOutEventListener = this.stubs.addFocusOutEventListenerStub;
-        this.presenter.setWrapperCss = this.stubs.setWrapperCssStub;
+        this.presenter.parseModel = this.stubs.parseModelStub;
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
-        this.presenter.setOnEventListeners = this.stubs.setOnEventListenersStub;
+        this.presenter.setCanvasDimensions = this.stubs.setCanvasDimensionsStub;
+        this.presenter.renderObject = this.stubs.renderObjectStub;
     },
 
     'test when in preview mode, setVisibility should be called with true': function () {
-        this.stubs.validateModelStub.returns(getValidModel(true));
+        this.stubs.parseModelStub.returns(getValidModel(true));
 
         this.presenter.createPreview('', {});
 
@@ -37,21 +31,21 @@ TestCase('[Basic_Math_Gap] Visibility tests', {
     },
 
     'test when in preview mode and addon is not visible, setVisibility should be called with true': function () {
-        this.stubs.validateModelStub.returns(getValidModel(false));
+        this.stubs.parseModelStub.returns(getValidModel(false));
         this.presenter.createPreview('', {});
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
     'test when not in preview mode and addon is visible, setVisibility should be called with true': function () {
-        this.stubs.validateModelStub.returns(getValidModel(true));
+        this.stubs.parseModelStub.returns(getValidModel(true));
         this.presenter.run('', {});
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
     'test when not in preview mode and addon is not visible, setVisibility should be called with false': function () {
-        this.stubs.validateModelStub.returns(getValidModel(false));
+        this.stubs.parseModelStub.returns(getValidModel(false));
 
         this.presenter.run('', {});
 

@@ -1,4 +1,4 @@
-TestCase('[Basic_Math_Gap] Preview tests', {
+TestCase('[Blockly_Code_Editor] Visibility tests', {
     setUp: function () {
         this.presenter = AddonBlocklyCodeEditor_create();
 

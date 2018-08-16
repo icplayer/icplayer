@@ -1,4 +1,4 @@
-TestCase('[Basic_Math_Gap] Visibility tests', {
+TestCase('[Coloring] Visibility tests', {
     setUp: function () {
         this.presenter = AddonColoring_create();
 

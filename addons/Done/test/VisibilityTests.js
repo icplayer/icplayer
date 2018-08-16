@@ -1,4 +1,4 @@
-TestCase('[Basic_Math_Gap] Preview tests', {
+TestCase('[Done] Visibility tests', {
     setUp: function () {
         this.presenter = AddonDone_create();
 

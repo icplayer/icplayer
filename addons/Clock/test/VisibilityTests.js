@@ -1,4 +1,4 @@
-TestCase('[Basic_Math_Gap] Preview tests', {
+TestCase('[Clock] Visibility tests', {
     setUp: function () {
         this.presenter = AddonClock_create();
 

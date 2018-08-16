@@ -1,4 +1,4 @@
-TestCase('[Basic_Math_Gap] Preview tests', {
+TestCase('[Count_and_graph] Visibility tests', {
     setUp: function () {
         this.presenter = AddonCount_and_Graph_create();
 

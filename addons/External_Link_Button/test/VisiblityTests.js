@@ -1,4 +1,4 @@
-TestCase('[Basic_Math_Gap] Preview tests', {
+TestCase('[External_Link_Button] Visibility tests', {
     setUp: function () {
         this.presenter = AddonExternal_Link_Button_create();
 
