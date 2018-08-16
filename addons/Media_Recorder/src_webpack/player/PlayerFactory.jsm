@@ -1,4 +1,4 @@
-import {SupportedTypes} from "../SupportedTypes.jsm";
+import {SupportedTypes} from "../confiuration/SupportedTypes.jsm";
 import {Errors} from "../validation/Errors.jsm";
 import {AudioPlayer} from "./AudioPlayer.jsm";
 import {VideoPlayer} from "./VideoPlayer.jsm";

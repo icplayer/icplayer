@@ -1,4 +1,4 @@
-import {SupportedTypes} from "../SupportedTypes.jsm";
+import {SupportedTypes} from "../confiuration/SupportedTypes.jsm";
 import {Errors} from "../validation/Errors.jsm";
 import {AudioRecorder} from "./AudioRecorder.jsm";
 import {VideoRecorder} from "./VideoRecorder.jsm";
