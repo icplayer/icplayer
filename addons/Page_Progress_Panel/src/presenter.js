@@ -72,9 +72,6 @@ function AddonPage_Progress_Panel_create(){
         presenter.configuration = presenter.validateModel(model);
 		presenter.displayText();
 		presenter.state.isVisible = presenter.configuration.isVisible;
-		if (!isPreview) {
-            presenter.updateVisibility();
-        }
 
         removeHidden(presenter.configuration.showProgressBar, presenter.$progressBarContainer);
         removeHidden(presenter.configuration.showChecks, presenter.$checks);
@@ -83,6 +80,7 @@ function AddonPage_Progress_Panel_create(){
         removeHidden(presenter.configuration.showMaxScore, presenter.$maxScore);
         removeHidden(presenter.configuration.showCorrectAnswers, presenter.$correctAnswers);
 		if (!isPreview) {
+		    presenter.updateVisibility();
 			var currentPageIndex = presenter.playerController.getCurrentPageIndex();
 			var pageId = presenter.playerController.getPresentation().getPage(currentPageIndex).getId();
 			var score = presenter.playerController.getScore().getPageScoreById(pageId);

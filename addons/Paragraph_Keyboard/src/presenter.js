@@ -273,7 +273,7 @@ function AddonParagraph_Keyboard_create() {
      * for prototype purpose. Also the set of controls is static and it could be be moved to
      * configuration.
      */
-    presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model) {
+    presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model, isPreview) {
         presenter.view = view;
         presenter.$view = $(view);
         presenter.configuration = presenter.parseModel(model);
