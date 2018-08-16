@@ -146,7 +146,7 @@ function AddonShape_Tracing_create() {
     }
 
     function initCanvasData() {
-        canvasData.main.canvas = presenter.$view.find('.drawing-main')[0];
+        canvasData.main.canvacs = presenter.$view.find('.drawing-main')[0];
         canvasData.main.context = canvasData.main.canvas.getContext('2d');
         canvasData.temp.canvas = presenter.$view.find('.drawing')[0];
         canvasData.temp.context = canvasData.temp.canvas.getContext('2d');
@@ -1000,6 +1000,21 @@ function AddonShape_Tracing_create() {
             return false;
         }
 
+        presenter.initializeCanvas();
+
+        if (!isPreview) {
+            turnOnEventListeners();
+        }
+
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
+        presenter.visibleByDefault = presenter.configuration.isVisible;
+
+        presenter.$view.find('div.correctImage').css('display', 'none');
+
+        return false;
+    };
+
+    presenter.initializeCanvas = function() {
         initPointsArray();
 
         presenter.data.isAllPointsChecked = presenter.configuration.points.length === 0;
@@ -1032,17 +1047,6 @@ function AddonShape_Tracing_create() {
                 drawCorrectAnswerImage(isPreview);
             }
         });
-
-        if (!isPreview) {
-            turnOnEventListeners();
-        }
-
-        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
-        presenter.visibleByDefault = presenter.configuration.isVisible;
-
-        presenter.$view.find('div.correctImage').css('display', 'none');
-
-        return false;
     };
 
     presenter.run = function(view, model) {
