@@ -153,7 +153,7 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 	}
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		this.speak(this.module.getAltText());
 	}
 

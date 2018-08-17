@@ -10,13 +10,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-
 import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.event.dom.client.DomEvent;
+
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
@@ -71,7 +69,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		
 		this.textView.setWCAGStatus(true);
 	
-		this.textView.enter(false);
+		this.textView.enter(mock(KeyDownEvent.class), false);
 		
 		verify(pageControllerMock, times(1)).speak(any(List.class));
 	}
@@ -83,7 +81,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		this.textView.setWCAGStatus(true);
 		KeyDownEvent eventMock = mock(KeyDownEvent.class); 
 		
-		this.textView.enter(false);
+		this.textView.enter(mock(KeyDownEvent.class), false);
 		this.textView.tab(eventMock);
 		
 		verify(pageControllerMock, times(2)).speak(any(List.class));
@@ -96,7 +94,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		this.textView.setWCAGStatus(false);
 		KeyDownEvent eventMock = mock(KeyDownEvent.class); 
 		
-		this.textView.enter(false);
+		this.textView.enter(mock(KeyDownEvent.class), false);
 		this.textView.tab(eventMock);
 		
 		verify(pageControllerMock, times(0)).speak(any(List.class));
@@ -109,7 +107,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		this.textView.setWCAGStatus(true);
 		KeyDownEvent eventMock = mock(KeyDownEvent.class); 
 		
-		this.textView.enter(false);
+		this.textView.enter(mock(KeyDownEvent.class), false);
 		this.textView.space(eventMock);
 		
 		verify(pageControllerMock, times(1)).speak(any(List.class));
@@ -125,7 +123,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		this.textView.setWCAGStatus(true);
 		KeyDownEvent eventMock = mock(KeyDownEvent.class); 
 		
-		this.textView.enter(false);
+		this.textView.enter(mock(KeyDownEvent.class), false);
 		this.textView.tab(eventMock);
 		this.textView.down(eventMock);
 		this.textView.right(eventMock);

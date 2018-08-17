@@ -530,8 +530,8 @@ function Addontext_identification_create() {
     };
 
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        this.keyboardControllerObject.handle(keycode, isShiftKeyDown);
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        this.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
     };
 
     presenter.buildKeyboardController = function () {

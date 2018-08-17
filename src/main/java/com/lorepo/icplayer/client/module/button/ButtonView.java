@@ -142,7 +142,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 
 	@Override
-	public void enter (boolean isExiting) {
+	public void enter (KeyDownEvent event, boolean isExiting) {
 		if (isExiting) {
 			return;
 		}

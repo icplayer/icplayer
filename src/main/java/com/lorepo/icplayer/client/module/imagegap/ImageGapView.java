@@ -186,7 +186,7 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 	}
 	
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		this.readStatus();
 	}
 
