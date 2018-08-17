@@ -1,3 +1,4 @@
+2018-08-17 Added show answer class for individual words in Text Coloring.
 2018-08-17 Fixed Double_State_Button native navigation.
 2018-08-13 Fixed Choice disable command on mobiles
 2018-08-10 Added audio descriptions to the video addon
