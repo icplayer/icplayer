@@ -23,28 +23,28 @@ TestCase('[Layered_Image] Visiblity tests', {
         this.view = document.createElement('div');
     },
 
-    'test when in preview mode, setVisibility should be called with true': function () {
+    'test when in preview mode, hide should not be called': function () {
         this.stubs.validateModelStub.returns(getValidModel(true));
         this.presenter.createPreview(this.view, {});
 
         assertFalse(this.stubs.hideStub.called);
     },
 
-    'test when in preview mode and addon is not visible, setVisibility should be called with true': function () {
+    'test when in preview mode and addon is not visible, hide should not be': function () {
         this.stubs.validateModelStub.returns(getValidModel(false));
         this.presenter.createPreview(this.view, {});
 
         assertFalse(this.stubs.hideStub.called);
     },
 
-    'test when not in preview mode and addon is visible, setVisibility should be called with true': function () {
+    'test when not in preview mode and addon is visible, hide should not be called': function () {
         this.stubs.validateModelStub.returns(getValidModel(true));
         this.presenter.run(this.view, {});
 
         assertFalse(this.stubs.hideStub.called);
     },
 
-    'test when not in preview mode and addon is not visible, setVisibility should be called with false': function () {
+    'test when not in preview mode and addon is not visible, hide should be called': function () {
         this.stubs.validateModelStub.returns(getValidModel(false));
         this.presenter.run(this.view, {});
 

@@ -146,7 +146,7 @@ function AddonShape_Tracing_create() {
     }
 
     function initCanvasData() {
-        canvasData.main.canvacs = presenter.$view.find('.drawing-main')[0];
+        canvasData.main.canvas = presenter.$view.find('.drawing-main')[0];
         canvasData.main.context = canvasData.main.canvas.getContext('2d');
         canvasData.temp.canvas = presenter.$view.find('.drawing')[0];
         canvasData.temp.context = canvasData.temp.canvas.getContext('2d');
@@ -1000,7 +1000,7 @@ function AddonShape_Tracing_create() {
             return false;
         }
 
-        presenter.initializeCanvas();
+        presenter.initializeCanvas(isPreview);
 
         if (!isPreview) {
             turnOnEventListeners();
@@ -1014,7 +1014,7 @@ function AddonShape_Tracing_create() {
         return false;
     };
 
-    presenter.initializeCanvas = function() {
+    presenter.initializeCanvas = function(isPreview) {
         initPointsArray();
 
         presenter.data.isAllPointsChecked = presenter.configuration.points.length === 0;
