@@ -1816,6 +1816,13 @@ var ice_dictionary_pl = {
     "Double_State_Button_property_image_selected_alternative_text": "Tekst alternatywny dla zaznaczonego obrazu",
     "Double_state_button_speech_text_disabled": "Nie czytaj tekstów mowy",
     "copy_page_layout": "Copy page settings",
-    "copy_page_layout_question": "You are going to copy page settings from layout: "
+    "copy_page_layout_question": "You are going to copy page settings from layout: ",
+	"Media_Recorder_name": "Media Recorder",
+    "Media_Recorder_info": "Media Recorder",
+    "Media_Recorder_property_type": "Media type",
+    "Media_Recorder_property_max_time": "Maximum recording duration",
+    "Media_Recorder_property_default_recording": "Default recording",
+    "Media_Recorder_property_start_recording_sound": "Recording start sound",
+    "Media_Recorder_property_stop_recording_sound": "Recording stop sound"
 };
 
