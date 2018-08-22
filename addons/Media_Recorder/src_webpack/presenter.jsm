@@ -32,6 +32,7 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.startRecording = function startRecording() {
+        console.log("startRecording");
         presenter.mediaRecorder.startRecording();
     };
 
@@ -73,6 +74,21 @@ function AddonMedia_Recorder_create() {
 
     presenter.reset = function reset() {
         presenter.mediaRecorder.reset();
+    };
+
+    presenter.executeCommand = function executeCommand(name, params) {
+        let commands = {
+            'startRecording': presenter.startRecording,
+            'stopRecording': presenter.stopRecording,
+            'startPlaying': presenter.startPlaying,
+            'stopPlaying': presenter.stopPlaying,
+            'setVisibility': presenter.setVisibility,
+            'setShowErrorsMode': presenter.setShowErrorsMode,
+            'setWorkMode': presenter.setWorkMode,
+            'reset': presenter.reset
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
     };
 
     presenter.destroy = function destroy(event) {
