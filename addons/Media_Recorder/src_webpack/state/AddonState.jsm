@@ -1,4 +1,4 @@
-import {BlobService} from "../service/BlobService.jsm";
+import {BlobService} from "./service/BlobService.jsm";
 
 export class AddonState {
 

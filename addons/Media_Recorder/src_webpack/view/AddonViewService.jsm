@@ -4,6 +4,10 @@ export class AddonViewService {
         this.$view = $wrapperView;
     }
 
+    setVisibility(isVisible){
+        this.$view.css('visibility', isVisible ? 'visible' : 'hidden');
+    }
+
     activate() {
         this.$view.removeClass("disabled");
     }

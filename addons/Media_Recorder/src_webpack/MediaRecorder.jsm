@@ -9,7 +9,7 @@ import {RecordButton} from "./view/button/RecordButton.jsm";
 import {ResourcesProviderFactory} from "./resources/ResourcesProviderFactory.jsm";
 import {Timer} from "./view/Timer.jsm";
 import {AddonState} from "./state/AddonState.jsm";
-import {RecordingTimeLimiter} from "./service/RecordinTimerLimiter.jsm";
+import {RecordingTimeLimiter} from "./RecordingTimeLimiter.jsm";
 import {SoundIntensity} from "./view/SoundIntensity.jsm";
 import {MediaAnalyserService} from "./analyser/MediaAnalyserService.jsm";
 import {LoaderFactory} from "./view/loader/LoaderFactory.jsm";
@@ -31,8 +31,10 @@ export class MediaRecorder {
     }
 
     createPreview(view, model) {
-        this.view = view;
-        this.model = model;
+        let validatedModel = validateModel(model);
+
+        if (!validatedModel.isValid)
+            this._showError(view, validatedModel);
     }
 
     setPlayerController(playerController) {
@@ -52,6 +54,26 @@ export class MediaRecorder {
                 this.player.setRecording(recording);
             })
     }
+
+    startRecording() {
+        if (this.mediaState.isNew() || this.mediaState.isLoaded())
+            this.recordButton.forceClick();
+    };
+
+    stopRecording() {
+        if (this.mediaState.isRecording())
+            this.recordButton.forceClick();
+    };
+
+    startPlaying() {
+        if (this.mediaState.isLoaded())
+            this.playButton.forceClick();
+    };
+
+    stopPlaying() {
+        if (this.mediaState.isPlaying())
+            this.playButton.forceClick();
+    };
 
     destroy() {
         this.playButton.destroy();
@@ -123,6 +145,7 @@ export class MediaRecorder {
         this._loadLogic();
         this._loadRecording(this.model.defaultRecording);
         this._activateButtons();
+        this.setVisibility(model);
     }
 
     _loadAddon(view, model) {
@@ -311,5 +334,11 @@ export class MediaRecorder {
 
     _showError(view, validatedModel) {
         DOMOperationsUtils.showErrorMessage(view, Errors, validatedModel.fieldName.join("|") + "_" + validatedModel.errorCode);
+    }
+
+    setVisibility(model) {
+        let isVisible = model["Is Visible"];
+        console.log(isVisible);
+        this.addonViewService.setVisibility(isVisible);
     }
 }

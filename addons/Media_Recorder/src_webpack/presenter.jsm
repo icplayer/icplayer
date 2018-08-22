@@ -13,16 +13,14 @@ function AddonMedia_Recorder_create() {
 
     presenter.run = function run(view, model) {
         presenter.view = view;
-
         presenter.mediaRecorder.run(view, model);
-        handleDestroy(view);
+        handleDestroyEvent(view);
     };
 
     presenter.createPreview = function createPreview(view, model) {
         presenter.view = view;
-
         presenter.mediaRecorder.createPreview(view, model);
-        handleDestroy(view);
+        handleDestroyEvent(view);
     };
 
     presenter.getState = function getState() {
@@ -31,6 +29,22 @@ function AddonMedia_Recorder_create() {
 
     presenter.setState = function setState(state) {
         presenter.mediaRecorder.setState(state);
+    };
+
+    presenter.startRecording = function startRecording() {
+        presenter.mediaRecorder.startRecording();
+    };
+
+    presenter.stopRecording = function stopRecording() {
+        presenter.mediaRecorder.stopRecording();
+    };
+
+    presenter.startPlaying = function startPlaying() {
+        presenter.mediaRecorder.startPlaying();
+    };
+
+    presenter.stopPlaying = function stopPlaying() {
+        presenter.mediaRecorder.stopPlaying;
     };
 
     presenter.getErrorCount = function getErrorCount() {
@@ -45,22 +59,8 @@ function AddonMedia_Recorder_create() {
         return 0;
     };
 
-    presenter.destroy = function destroy(event) {
-        if (event.target == presenter.view) {
-            event.target.removeEventListener('DOMNodeRemoved', presenter.destroy);
-            presenter.mediaRecorder.destroy();
-            event.target = null;
-            presenter.mediaRecorder = null;
-            presenter.validateModel = null;
-        }
-    };
-
-    function handleDestroy(view) {
-        view.addEventListener('DOMNodeRemoved', presenter.destroy);
-    }
-
     presenter.setVisibility = function (isVisible) {
-        $(presenter.view).css('visibility', isVisible ? 'visible' : 'hidden');
+        presenter.mediaRecorder.setVisibility(isVisible);
     };
 
     presenter.setShowErrorsMode = function setShowErrorsMode() {
@@ -75,9 +75,23 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.reset();
     };
 
+    presenter.destroy = function destroy(event) {
+        if (event.target == presenter.view) {
+            event.target.removeEventListener('DOMNodeRemoved', presenter.destroy);
+            presenter.mediaRecorder.destroy();
+            event.target = null;
+            presenter.mediaRecorder = null;
+            presenter.validateModel = null;
+        }
+    };
+
     presenter._internalElements = function () {
         return this.mediaRecorder._internalElements();
     };
+
+    function handleDestroyEvent(view) {
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
+    }
 
     return presenter;
 }

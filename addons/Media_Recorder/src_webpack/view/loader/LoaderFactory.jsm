@@ -1,6 +1,6 @@
 import {AudioLoader} from "./AudioLoader.jsm";
 import {VideoLoader} from "./VideoLoader.jsm";
-import {SupportedTypes as SUPPORTED_TYPES} from "../../confiuration/SupportedTypes.jsm";
+import {SupportedTypes as SUPPORTED_TYPES} from "../../configuration/SupportedTypes.jsm";
 import {Errors} from "../../validation/Errors.jsm";
 
 export class LoaderFactory {

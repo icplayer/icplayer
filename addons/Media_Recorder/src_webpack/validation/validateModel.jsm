@@ -1,5 +1,5 @@
 import {DefaultValues} from "./DefaultValues.jsm";
-import {SupportedTypes} from "../confiuration/SupportedTypes.jsm";
+import {SupportedTypes} from "../configuration/SupportedTypes.jsm";
 
 export function validateModel(model) {
     let modelValidator = new ModelValidator();
