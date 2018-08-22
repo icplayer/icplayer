@@ -338,7 +338,6 @@ export class MediaRecorder {
 
     setVisibility(model) {
         let isVisible = model["Is Visible"];
-        console.log(isVisible);
         this.addonViewService.setVisibility(isVisible);
     }
 }
