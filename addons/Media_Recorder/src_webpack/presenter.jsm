@@ -32,6 +32,7 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.startRecording = function startRecording() {
+        console.log("startRecording");
         presenter.mediaRecorder.startRecording();
     };
 
