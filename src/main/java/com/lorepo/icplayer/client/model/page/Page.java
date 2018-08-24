@@ -552,7 +552,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		styleListener = listener;
 	}
 	
-	@Override
 	public SemiResponsiveStyles getSemiResponsiveStyles() {
 		return this.semiResponsiveStyles;
 	}
@@ -964,7 +963,16 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	@Override
 	public void addGroupModules(Group group) {
-		this.groupedModules.add(group);
+		boolean groupAlreadyInList = false;
+		for(Group g : groupedModules) {
+			if(g.getId().equals(group.getId())) {
+				groupAlreadyInList = true;
+				break;
+			}
+		}
+		if(groupAlreadyInList ==false) {
+			groupedModules.add(group);
+		}
 	}
 
 	@Override
@@ -1141,5 +1149,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 				this.pageSizes.remove(key);
 			}
 		}
+	}
+
+	public Group getGroupById(String id) {
+		for(Group g : groupedModules) {
+			if(g.getId().equals(id)) {
+				return g;
+			}
+		}
+		return null;
 	}
 }

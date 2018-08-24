@@ -48,6 +48,8 @@ import com.lorepo.icplayer.client.page.Score.Result;
 public class PageController implements ITextToSpeechController {
 
 	public interface IPageDisplay {
+		void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId);
+		void addGroupView(Group group);
 		void addModuleView(IModuleView view, IModuleModel module);
 		void setPage(Page page);
 		void refreshMathJax();
@@ -159,6 +161,12 @@ public class PageController implements ITextToSpeechController {
 			module.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
 			module.setSemiResponsiveLayoutID(layoutID);
 		}
+		
+		for(Group group : this.currentPage.getGroupedModules()) {
+		    group.syncSemiResponsiveStyles(actualSemiResponsiveLayouts);
+			group.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
+			group.setSemiResponsiveLayoutID(layoutID);
+		}
 
 		this.currentPage.setSemiResponsiveLayoutID(layoutID);
 	}
@@ -181,12 +189,25 @@ public class PageController implements ITextToSpeechController {
 		pageView.removeAllModules();
 		scriptingEngine.reset();
 
+		for(Group group : currentPage.getGroupedModules()) {
+			if(group.isDiv()) {
+				pageView.addGroupView(group);
+			}
+		}
+		
 		for (IModuleModel module : currentPage.getModules()) {
 			String newInlineStyle = deletePositionImportantStyles(module.getInlineStyle());
 			module.setInlineStyle(newInlineStyle);
 			IModuleView moduleView = moduleFactory.createView(module);
 			IPresenter presenter = moduleFactory.createPresenter(module);
-			pageView.addModuleView(moduleView, module);
+			Group group = findGroup(module);
+
+			if(group != null && group.isDiv()) {
+				pageView.addModuleViewIntoGroup(moduleView, module, group.getId());
+			} else {
+				pageView.addModuleView(moduleView, module);
+			}
+
 			if (presenter != null) {
 				presenter.addView(moduleView);
 				presenters.add(presenter);

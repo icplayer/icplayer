@@ -9,6 +9,7 @@ import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.model.page.GroupPropertyProvider;
 import com.lorepo.icplayer.client.module.LayoutDefinition;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -338,5 +339,41 @@ public class ModuleModelMockup implements IModuleModel {
 	public SemiResponsiveStyles getSemiResponsiveStyles() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void changeAbsoluteToRelative(int deltaLeft, int deltaTop) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void changeRelativeToAbsolute(int deltaLeft, int deltaTop) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setGroupPropertyProvider(GroupPropertyProvider group) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean hasGroup() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public LayoutDefinition getCurrentLayoutDefinition() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setIsVisible(Boolean isVisible) {
+		// TODO Auto-generated method stub
+		
 	}
 }

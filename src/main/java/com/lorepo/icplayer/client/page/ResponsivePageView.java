@@ -2,9 +2,12 @@ package com.lorepo.icplayer.client.page;
 
 import java.util.HashMap;
 
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.URLUtils;
+import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
+import com.lorepo.icplayer.client.model.page.Group;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -23,7 +26,8 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 
 	private Page currentPage;
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
-
+	private HashMap<String, FlowPanel> groupsPanel = new HashMap<String, FlowPanel>(); 
+	
 	public ResponsivePageView(){
 		addStyleName("ic_flowPage");
 	}
@@ -61,6 +65,25 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 		    add(moduleView);
 		    widgets.put(module.getId(), moduleView);
 		}
+	}
+	
+	
+	public void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId) {
+		if(view instanceof Widget){
+			Widget moduleView = (Widget) view;
+			FlowPanel groupPanel = groupsPanel.get(groupId); 		 
+			groupPanel.add(moduleView);
+		    this.widgets.put(module.getId(), moduleView);
+		}
+	}
+	
+	public void addGroupView(Group group) {
+		FlowPanel groupWidget = new FlowPanel(); 
+		groupWidget.getElement().setClassName("modules_group");
+		groupWidget.getElement().setId(group.getId());
+		groupWidget.setPixelSize(group.getWidth()+2, group.getHeight()+2);
+		add(groupWidget); 
+		groupsPanel.put(group.getId(), groupWidget);
 	}
 
 

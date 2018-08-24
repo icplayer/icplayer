@@ -1,14 +1,12 @@
 package com.lorepo.icplayer.client.model.page;
 
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
-import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.module.SemiResponsivePositions;
+import com.lorepo.icplayer.client.xml.group.parsers.GroupParser;
 
-@SuppressWarnings("serial")
 public class Group extends GroupPropertyProvider {
 
 	private Page page;
@@ -49,50 +47,38 @@ public class Group extends GroupPropertyProvider {
 		return scoringType;
 	}
 
+	public void setScoringGroupType(ScoringGroupType scoringType) {
+		this.scoringType = scoringType;
+	}
+
 	public int getMaxScore() {
 		return maxScore;
 	}
 
+	public void setMaxScore(int maxScore) {
+		this.maxScore = maxScore;
+	}
+
+	public SemiResponsivePositions getSemiResponsivePositions() {
+		return semiResponsivePositions;
+	}
+
+	public Page getPage() {
+		return this.page;
+	}
+
+	public Element stylesToXML() {
+		return super.stylesToXML();
+	}
+
 	public Group loadGroupFromXML(Element groupNode) {
-		NodeList groupModuleElements = groupNode.getElementsByTagName("groupModule");
-		NodeList scoringNode = groupNode.getElementsByTagName("scoring");
-		Element scoring = (Element)scoringNode.item(0);
-		setScoreFromString(DictionaryWrapper.get(scoring.getAttribute("type")));
-		maxScore = Integer.parseInt(scoring.getAttribute("max"));
-		id = groupNode.getAttribute("id");
-
-		Group group = new Group(page);
-
-		for (int j = 0; j < groupModuleElements.getLength(); j++) {
-			Element groupModule = (Element) groupModuleElements.item(j);
-			String moduleID = groupModule.getAttribute("moduleID");
-			group.add(page.getModules().getModuleById(moduleID));
-		}
-
-		group.maxScore = maxScore;
-		group.scoringType = scoringType;
-		group.id = id;
-
+		Group group = GroupParser.loadGroupFromXML(groupNode, page);
+		group.initGroupPropertyProvider();
 		return group;
 	}
 
 	public String toXML() {
-		Group group = this;
-		String xml;
-
-		xml = "<group id='" + id + "'>";
-		xml += "<scoring type='" + scoringType + "' max='" + maxScore + "'/>";
-		xml += "<groupedModulesList>";
-
-		for(IModuleModel module : group) {
-			if (module != null) {
-				xml += "<groupModule moduleID='" + StringUtils.escapeXML(module.getId()) + "'/>";
-			}
-		}
-
-		xml += "</groupedModulesList>";
-		xml += "</group>";
-		return xml;
+		return GroupParser.toXML(this).toString();
 	}
 
 	protected boolean isIdCorrect(String newValue) {
