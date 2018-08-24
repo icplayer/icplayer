@@ -518,9 +518,17 @@ public class JavaScriptPlayerServices {
 
 			return keyboardController;
 		}
+		
+		playerServices.changeSemiResponsiveLayout = function (layoutID) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeSemiResponsiveLayout(Ljava/lang/String;)(layoutID);
+		}
 
 		return playerServices;
 	}-*/;
+	
+	private boolean changeSemiResponsiveLayout(String layoutID) {
+		return this.playerServices.changeSemiResponsiveLayout(layoutID);
+	}
 	
 	private void changeFooterVisibility(boolean isVisible) {
 		this.playerServices.getCommands().changeFooterVisibility(isVisible);

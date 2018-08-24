@@ -460,6 +460,21 @@ public class GWTContentTestCase extends GwtTest {
 	}
 	
 	@Test
+	public void getLayoutByNameHaveToReturnItsName() throws SAXException, IOException {
+		Content content = initContentFactoryFromFileWithAllPages("testdata/contentV1Parser.xml");
+		
+		assertEquals("320", content.getLayoutIDByName("320"));
+		assertEquals("default", content.getLayoutIDByName("default"));
+	}
+	
+	@Test
+	public void getLayoutByNameHaveToReturnEmptyStringIfDontExists() throws SAXException, IOException {
+		Content content = initContentFactoryFromFileWithAllPages("testdata/contentV1Parser.xml");
+		
+		assertEquals("", content.getLayoutIDByName("f;x.dkjsa;fdjska"));
+	}
+	
+	@Test
 	public void loadToXMLHaveToPreserverModulesMaxScoresNonSemiResponsive() throws SAXException, IOException {
 		Content content = initContentFactoryFromFileWithAllPages("testdata/contentWithModulesMaxScores.xml");
 		

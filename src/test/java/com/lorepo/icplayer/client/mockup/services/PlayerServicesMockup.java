@@ -229,4 +229,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		// TODO Auto-generated method stub
 		
 	}
+
+
+	@Override
+	public boolean changeSemiResponsiveLayout(String layoutID) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
