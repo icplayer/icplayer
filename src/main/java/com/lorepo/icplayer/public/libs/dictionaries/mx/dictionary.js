@@ -1158,6 +1158,7 @@ var ice_dictionary_mx = {
 	"text_identification_property_on_deselected": "Cuando deseleccionado",
 	"text_identification_property_block_wrong_answers": "Bloquear respuestas incorrectas",
 	"text_identification_property_send_event_on_command": "Send event on select/deselect",
+	"text_identification_property_enable_scroll": "Enable scrolling on mobile",
 	"TrueFalse_info": "Es una alternativa para el módulo la Opción, que permite insertar una lista de preguntas que se pueden marcar en modo simple o múltiple. En el addon Verdadero-Falso, es necesario seleccionar al menos una pregunta y dos opciones para elegir.",
 	"TrueFalse_name": "Verdadero-Falso",
 	"TrueFalse_property_is_not_activity": "No es actividad",

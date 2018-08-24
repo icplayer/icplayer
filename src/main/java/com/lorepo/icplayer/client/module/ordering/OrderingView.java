@@ -722,7 +722,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 	
 	@Override
-	public void enter (boolean isExiting) {
+	public void enter (KeyDownEvent event, boolean isExiting) {
 		this.isWCAGActive = !isExiting;
 		if (isExiting) {
 			this.deselectCurrentItem();

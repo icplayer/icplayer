@@ -1340,8 +1340,8 @@ function Addonmultiplegap_create(){
         return $.merge($(presenter.container), presenter.$view.find('.placeholder:visible').not('.ui-draggable-dragging'));
     };
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown)
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event)
     };
 
     function MultipleGapKeyboardController (elements, columnsCount) {

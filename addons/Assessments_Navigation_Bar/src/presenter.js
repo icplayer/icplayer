@@ -1446,8 +1446,8 @@ function AddonAssessments_Navigation_Bar_create(){
         return elements;
     };
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown)
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event)
     };
 
     return presenter;

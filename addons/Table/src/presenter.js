@@ -1746,6 +1746,7 @@ function AddonTable_create() {
     TableKeyboardController.prototype.constructor = TableKeyboardController;
 
     TableKeyboardController.prototype.select = function (event) {
+        event.preventDefault();
         if (presenter.gapNavigation && presenter.configuration.gapType == 'draggable' && presenter.getCurrentGapsNumber() > 0) {
             var $gap = presenter.getGap(presenter.gapIndex);
 
@@ -1787,8 +1788,8 @@ function AddonTable_create() {
         return presenter.$view.find('td');
     };
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown);
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
     };
 
     TableKeyboardController.prototype.getTarget = function (element, willBeClicked){
@@ -1805,6 +1806,7 @@ function AddonTable_create() {
             presenter.clearCurrentCell();
             presenter.readCurrentCellTitle();
         } else {
+            // must be set to false, otherwise module won't exit navigation
             presenter.addonKeyboardNavigationActive = false;
             KeyboardController.prototype.escape.call(this, event);
         }
@@ -1971,7 +1973,7 @@ function AddonTable_create() {
     };
 
     presenter.isDeactivationBlocked = function() {
-        return presenter.gapNavigation;
+        return presenter.addonKeyboardNavigationActive || presenter.gapNavigation;
     };
 
     presenter.getCurrentGapsNumber = function() {
