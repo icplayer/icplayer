@@ -519,15 +519,15 @@ public class JavaScriptPlayerServices {
 			return keyboardController;
 		}
 		
-		playerServices.changeSemiResponsiveLayout = function (layoutID) {
-			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeSemiResponsiveLayout(Ljava/lang/String;)(layoutID);
+		playerServices.changeSemiResponsiveLayout = function (layoutIDOrName) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeSemiResponsiveLayout(Ljava/lang/String;)(layoutIDOrName);
 		}
 
 		return playerServices;
 	}-*/;
 	
-	private boolean changeSemiResponsiveLayout(String layoutID) {
-		return this.playerServices.changeSemiResponsiveLayout(layoutID);
+	private boolean changeSemiResponsiveLayout(String layoutIDOrName) {
+		return this.playerServices.changeSemiResponsiveLayout(layoutIDOrName);
 	}
 	
 	private void changeFooterVisibility(boolean isVisible) {

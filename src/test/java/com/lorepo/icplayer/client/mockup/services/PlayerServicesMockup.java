@@ -31,7 +31,6 @@ public class PlayerServicesMockup implements IPlayerServices {
 	private final IJsonServices	jsonMockup;
 
 	public PlayerServicesMockup() {
-
 		contentModel = new Content();
 		eventBus = new SimpleEventBus();
 		commands = new CommandsMockup();
@@ -52,18 +51,15 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return commands;
 	}
 
-
 	@Override
 	public EventBus getEventBus() {
 		return eventBus;
 	}
 
-
 	@Override
 	public IContent getModel() {
 		return contentModel;
 	}
-
 
 	@Override
 	public int getCurrentPageIndex() {
@@ -71,11 +67,9 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return 0;
 	}
 
-
 	public void setModel(IContent content){
 		this.contentModel = content;
 	}
-
 
 	@Override
 	public JavaScriptObject getAsJSObject() {
@@ -83,19 +77,16 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return null;
 	}
 
-
 	@Override
 	public IPresenter getModule(String moduleId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-
 	@Override
 	public IJsonServices getJsonServices() {
 		return jsonMockup;
 	}
-
 
 	@Override
 	public IStateService getStateService() {
@@ -103,13 +94,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return null;
 	}
 
-
 	@Override
 	public void sendAnalytics(String event, HashMap<String, String> params) {
 		// TODO Auto-generated method stub
 
 	}
-
 
 	@Override
 	public boolean isBookMode() {
@@ -117,13 +106,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return false;
 	}
 
-
 	@Override
 	public boolean hasCover() {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
 
 	@Override
 	public IPresenter getHeaderModule(String id) {
@@ -131,13 +118,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return null;
 	}
 
-
 	@Override
 	public IPresenter getFooterModule(String id) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	@Override
 	public IAssetsService getAssetsService() {
@@ -145,13 +130,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return null;
 	}
 
-
 	@Override
 	public PlayerConfig getPlayerConfig() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	@Override
 	public ITimeService getTimeService() {
@@ -159,13 +142,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return null;
 	}
 
-
 	@Override
 	public int getPageWeight() {
 		// TODO Auto-generated method stub
 		return 1;
 	}
-
 
 	@Override
 	public void outstretchHeight(int y, int height, boolean dontChangeModules) {
@@ -173,13 +154,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		
 	}
 
-
 	@Override
 	public IReportableService getReportableService() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 
 	@Override
 	public ScaleInformation getScaleInformation() {
@@ -187,14 +166,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return null;
 	}
 
-
 	@Override
 	public void setScaleInformation(String scaleX, String scaleY,
 			String transform, String transformOrigin) {
 		// TODO Auto-generated method stub
-		
 	}
-
 
 	@Override
 	public boolean isPlayerInCrossDomain() {
@@ -202,13 +178,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return false;
 	}
 
-
 	@Override
 	public boolean isWCAGOn() {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
 
 	@Override
 	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
@@ -216,20 +190,17 @@ public class PlayerServicesMockup implements IPlayerServices {
 		
 	}
 
-
 	@Override
 	public boolean isAbleChangeLayout() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-
 	@Override
 	public void setApplication(PlayerApp application) {
 		// TODO Auto-generated method stub
 		
 	}
-
 
 	@Override
 	public boolean changeSemiResponsiveLayout(String layoutID) {

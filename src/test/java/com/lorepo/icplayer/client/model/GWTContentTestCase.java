@@ -468,6 +468,13 @@ public class GWTContentTestCase extends GwtTest {
 	}
 	
 	@Test
+	public void getLayoutByNameHaveToReturnItsNameIfIDIsDifferentThanName() throws SAXException, IOException {
+		Content content = initContentFactoryFromFileWithAllPages("testdata/contentV1ParserWithDifferentNameAndID.xml");
+		
+		assertEquals("default", content.getLayoutIDByName("testDefaultLayout"));
+	}
+	
+	@Test
 	public void getLayoutByNameHaveToReturnEmptyStringIfDontExists() throws SAXException, IOException {
 		Content content = initContentFactoryFromFileWithAllPages("testdata/contentV1Parser.xml");
 		

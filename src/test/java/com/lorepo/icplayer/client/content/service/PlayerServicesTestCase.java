@@ -88,7 +88,6 @@ public class PlayerServicesTestCase {
 	
 	@Test
 	public void changingLayoutHaveToTryByNameIfUserPassedLayoutNameInsteadID() {
-		System.out.println("CHANGELAYOUTNAME");
 		String layoutName = "testLayoutName";
 		
 		Mockito.doReturn(false).when(this.mockedApplication).changeLayout(Mockito.any(String.class));
