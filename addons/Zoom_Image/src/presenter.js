@@ -6,7 +6,8 @@ function AddonZoom_Image_create() {
     var isWCAGOn = false;
     var oldFocus = null;
     presenter.isOpened = false;
-
+    var backgroundColorStyle;
+    var opacity;
     function setup_presenter() {
         presenter.$player = null;
         presenter.view = null;
@@ -219,6 +220,8 @@ function AddonZoom_Image_create() {
     }
 
     presenter.removeOpenedDialog = function (e) {
+        $('.ui-widget-overlay').css("opacity", opacity);
+        $('.ui-widget-overlay').css("background", backgroundColorStyle);
         if(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -268,6 +271,7 @@ function AddonZoom_Image_create() {
                 return this;
             };
         }
+
         presenter.$image.dialog({
             height: dialogSize.height,
             width: dialogSize.width,
@@ -285,12 +289,12 @@ function AddonZoom_Image_create() {
             },
             create: presenter.bigImageCreated,
             open: function() {
-                $(".ui-widget-overlay").css({
-                    background: "black",
-                    opacity: 0.7,
-                });
+                opacity =  $('.ui-widget-overlay').css("opacity");
+                backgroundColorStyle = $('.ui-widget-overlay').css("background-color");
+                $('.ui-widget-overlay').css("background", "black");
+                $('.ui-widget-overlay').css("opacity", "0.7");
                 $('.ui-widget-overlay').on(presenter.eventType, presenter.removeOpenedDialog);
-            }
+            },
         });
         presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
         presenter.$image.on(presenter.eventType, presenter.removeOpenedDialog);
