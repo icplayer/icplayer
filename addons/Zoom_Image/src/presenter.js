@@ -285,6 +285,10 @@ function AddonZoom_Image_create() {
             },
             create: presenter.bigImageCreated,
             open: function() {
+                $(".ui-widget-overlay").css({
+                    background: "black",
+                    opacity: 0.7,
+                });
                 $('.ui-widget-overlay').on(presenter.eventType, presenter.removeOpenedDialog);
             }
         });
