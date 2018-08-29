@@ -271,7 +271,6 @@ function AddonZoom_Image_create() {
                 return this;
             };
         }
-
         presenter.$image.dialog({
             height: dialogSize.height,
             width: dialogSize.width,
@@ -294,7 +293,7 @@ function AddonZoom_Image_create() {
                 $('.ui-widget-overlay').css("background", "black");
                 $('.ui-widget-overlay').css("opacity", "0.7");
                 $('.ui-widget-overlay').on(presenter.eventType, presenter.removeOpenedDialog);
-            },
+            }
         });
         presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
         presenter.$image.on(presenter.eventType, presenter.removeOpenedDialog);
