@@ -24,7 +24,8 @@ export class BasePlayer extends Player {
     startPlaying() {
         return new Promise(resolve => {
             this.mediaNode.muted = false;
-            resolve(this.mediaNode);
+            if (this._isNotOnlineResources(this.mediaNode.src))
+                resolve(this.mediaNode);
             this.mediaNode.play();
         });
     }
@@ -91,6 +92,12 @@ export class BasePlayer extends Player {
                 playerMock.volume = 0;
             }
         )
+    }
+
+    _isNotOnlineResources(source) {
+        return !(source.startsWith("www.")
+            || source.startsWith("http://")
+            || source.startsWith("https://"));
     }
 
     _createMediaNode() {

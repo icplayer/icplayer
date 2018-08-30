@@ -1,23 +1,21 @@
 import {validateModel} from "./validation/validateModel.jsm";
 import {ActivationState} from "./state/ActivationState.jsm";
 import {MediaState} from "./state/MediaState.jsm";
-import {PlayerFactory} from "./player/PlayerFactory.jsm";
 import {Errors} from "./validation/Errors.jsm";
 import {PlayButton} from "./view/button/PlayButton.jsm";
-import {RecorderFactory} from "./recorder/RecorderFactory.jsm";
 import {RecordButton} from "./view/button/RecordButton.jsm";
-import {ResourcesProviderFactory} from "./resources/ResourcesProviderFactory.jsm";
 import {Timer} from "./view/Timer.jsm";
 import {AddonState} from "./state/AddonState.jsm";
 import {RecordingTimeLimiter} from "./RecordingTimeLimiter.jsm";
 import {SoundIntensity} from "./view/SoundIntensity.jsm";
 import {MediaAnalyserService} from "./analyser/MediaAnalyserService.jsm";
-import {LoaderFactory} from "./view/loader/LoaderFactory.jsm";
 import {AudioLoader} from "./view/loader/AudioLoader.jsm";
-import {VideoLoader} from "./view/loader/VideoLoader.jsm";
 import {SoundEffect} from "./view/button/sound/SoundEffect.jsm";
 import {RecordButtonSoundEffect} from "./view/button/sound/RecordButtonSoundEffect.jsm";
 import {AddonViewService} from "./view/AddonViewService.jsm";
+import {AudioResourcesProvider} from "./resources/AudioResourcesProvider.jsm";
+import {AudioRecorder} from "./recorder/AudioRecorder.jsm";
+import {AudioPlayer} from "./player/AudioPlayer.jsm";
 
 export class MediaRecorder {
 
@@ -182,19 +180,9 @@ export class MediaRecorder {
 
 
     _loadMediaElements() {
-        this.recorder = RecorderFactory.create({
-            type: this.model.type
-        });
-
-        this.player = PlayerFactory.create({
-            $view: this.viewHandlers.$playerView,
-            type: this.model.type
-        });
-
-        this.resourcesProvider = ResourcesProviderFactory.create({
-            $view: this.viewHandlers.$wrapperView,
-            type: this.model.type
-        });
+        this.recorder = new AudioRecorder();
+        this.player = new AudioPlayer(this.viewHandlers.$playerView);
+        this.resourcesProvider = new AudioResourcesProvider(this.viewHandlers.$wrapperView);
     }
 
     _loadViewElements() {
@@ -206,10 +194,7 @@ export class MediaRecorder {
             state: this.mediaState
         });
 
-        this.loader = LoaderFactory.create({
-            $view: this.viewHandlers.$loaderView,
-            type: this.model.type
-        });
+        this.loader = new AudioLoader(this.viewHandlers.$loaderView);
 
         this.timer = new Timer(this.viewHandlers.$timerView);
         this.soundIntensity = new SoundIntensity(this.viewHandlers.$soundIntensityView);
@@ -323,7 +308,6 @@ export class MediaRecorder {
             validateModel: validateModel,
             ActivationState: ActivationState,
             AudioLoader: AudioLoader,
-            VideoLoader: VideoLoader,
             PlayButton: PlayButton,
             RecordButton: RecordButton,
             RecordingTimeLimiter: RecordingTimeLimiter,

@@ -1,5 +1,4 @@
 import {DefaultValues} from "./DefaultValues.jsm";
-import {SupportedTypes} from "../configuration/SupportedTypes.jsm";
 
 export function validateModel(model) {
     let modelValidator = new ModelValidator();
@@ -11,10 +10,6 @@ export function validateModel(model) {
             minValue: 0,
             maxValue: DefaultValues.MAX_TIME,
             default: DefaultValues.DEFAULT_MAX_TIME
-        }),
-        ModelValidators.Enum("type", {
-            values: Object.values(SupportedTypes),
-            default: Object.values(SupportedTypes)[0]
         }),
         ModelValidators.String("defaultRecording", {
             trim: true,

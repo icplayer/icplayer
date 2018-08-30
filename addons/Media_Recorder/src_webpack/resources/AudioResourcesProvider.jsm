@@ -1,4 +1,4 @@
-import {ResourcesProvider} from "./ResourcesProider.jsm";
+import {ResourcesProvider} from "./ResourcesProvider.jsm";
 
 export class AudioResourcesProvider extends ResourcesProvider {
 

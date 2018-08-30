@@ -12,9 +12,11 @@ TestCase("[Media Recorder] Audio Loader", {
     },
 
     "test view has not any style classes when show method is called": function () {
+        let styleClassName = "audio-loader";
+
         this.audioLoader.show();
 
-        assertEquals("", this.$view[0].className);
+        assertEquals(styleClassName, this.$view[0].className);
     },
 
     "test view has not any style classes when hide method is called": function () {

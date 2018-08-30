@@ -24,7 +24,6 @@ function createModel() {
         ID: "mediaRecorder_1",
         "Is Visible": "True",
         maxTime: "10",
-        type: "audio",
         defaultRecording: "/file/666666666",
         startRecordingSound: "/file/666666666",
         stopRecordingSound: "/file/666666666"

@@ -1,14 +1,16 @@
 import {Loader} from "./Loader.jsm";
 
-export class AudioLoader extends Loader{
+export class AudioLoader extends Loader {
 
     constructor($view) {
         super($view);
     }
 
-    show(){
+    show() {
+        this.$view.addClass("audio-loader");
     }
 
-    hide(){
+    hide() {
+        this.$view.removeClass("audio-loader");
     }
 }

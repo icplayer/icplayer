@@ -66,13 +66,5 @@ TestCase("[Media Recorder] Model validation", {
         var validatedModel = this.validateModel(this.model);
 
         assertFalse(validatedModel.isValid);
-    },
-
-    "test model is invalid when type is not in the defined range": function () {
-        this.model.type = "none";
-
-        var validatedModel = this.validateModel(this.model);
-
-        assertFalse(validatedModel.isValid);
     }
 });
