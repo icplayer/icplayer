@@ -141,6 +141,12 @@ public class GWTGroupedModulesTestCase extends GwtTest {
 	}
 
 	@Test
+	public void loadOldXml() throws SAXException, IOException {
+		loadPage("testdata/modulesAndGroups.xml");
+		assertFalse(page.getGroupedModules().get(0).isDiv()); 
+	}
+	
+	@Test
 	public void isIdUniqueWhenIdNotExists() throws SAXException, IOException {
 		loadPage("testdata/modulesAndGroups2.xml");
 		String[] groupNames = {"Group1", "Group2", "Group3"};

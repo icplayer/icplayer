@@ -50,9 +50,9 @@ public class GroupParser {
 		for (int j = 0; j < groupModuleElements.getLength(); j++) {
 			Element groupModule = (Element) groupModuleElements.item(j);
 			String moduleID = groupModule.getAttribute("moduleID");
-			IModuleModel m = page.getModules().getModuleById(moduleID); 
-			if(m != null) {
-				group.add(m);
+			IModuleModel module = page.getModules().getModuleById(moduleID); 
+			if(module != null) {
+				group.add(module);
 			}
 		}
 		

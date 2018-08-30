@@ -99,25 +99,23 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 
 	@Override
 	public void addGroupView(Group group) {
-		if(group.isDiv()) {
-			AbsolutePanel groupWidget = new AbsolutePanel();
-			groupWidget.getElement().setClassName("modules_group");
-			String styleClass = group.getStyleClass();
-			String inlineStyle = group.getInlineStyle();
+		AbsolutePanel groupWidget = new AbsolutePanel();
+		groupWidget.getElement().setClassName("modules_group");
+		String styleClass = group.getStyleClass();
+		String inlineStyle = group.getInlineStyle();
 
-			if(inlineStyle != null) {
-				DOMUtils.applyInlineStyle(groupWidget.getElement(), inlineStyle);
-			}
-            if(styleClass != null && !styleClass.isEmpty()){
-                groupWidget.addStyleName(styleClass);
-            }
-            groupWidget.setVisible(group.isVisible());
-
-			groupWidget.getElement().setId(group.getId());
-			groupWidget.setPixelSize(group.getWidth()+2, group.getHeight()+2);
-			add(groupWidget, group.getLeft(), group.getTop());
-			groupsPanel.put(group.getId(), groupWidget);
+		if(inlineStyle != null) {
+			DOMUtils.applyInlineStyle(groupWidget.getElement(), inlineStyle);
 		}
+        if(styleClass != null && !styleClass.isEmpty()){
+            groupWidget.addStyleName(styleClass);
+        }
+        groupWidget.setVisible(group.isVisible());
+
+        groupWidget.getElement().setId(group.getId());
+		groupWidget.setPixelSize(group.getWidth()+2, group.getHeight()+2);
+		add(groupWidget, group.getLeft(), group.getTop());
+		groupsPanel.put(group.getId(), groupWidget);
 	}
 
 	@Override
