@@ -151,6 +151,17 @@ function AddonSlider_create () {
 
     };
 
+    function getScale() {
+        var $content = $("#content"); // the div transform css is attached to
+		if($content.size()>0){
+            var contentElem = $content[0];
+            var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+            var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+            return {X:scaleX, Y:scaleY};
+		};
+		return {X:1.0, Y:1.0};
+    }
+
     function mouseDownCallback (eventData) {
         if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
 
@@ -168,6 +179,14 @@ function AddonSlider_create () {
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
         
         var touch = event.touches[0] || touchPoints[0];
+
+        var scale = getScale();
+        console.log(scale.X, scale.Y);
+        if(scale.X!==1.0 || scale.Y!==1.0){
+            touch.pageX = touch.pageX/scale.X;
+            touch.pageY = touch.pageY/scale.Y;
+        }
+
         mouseDownCallback(touch);
     }
 
@@ -329,6 +348,14 @@ function AddonSlider_create () {
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
 
         var touch = event.touches[0] || touchPoints[0];
+
+        var scale = getScale();
+        console.log(scale.X, scale.Y);
+        if(scale.X!==1.0 || scale.Y!==1.0){
+            touch.pageX = touch.pageX/scale.X;
+            touch.pageY = touch.pageY/scale.Y;
+        }
+
         mouseMoveCallback(touch);
     }
 
