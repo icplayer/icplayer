@@ -14,12 +14,12 @@ function AddonMenuPanel_create(){
 
     presenter.run = function(view, model){
         presenterLogic(view, model);
-        presenter.setVisibility(true);
+        presenter.setVisibility(presenter.isVisibleByDefault);
     };
 
     presenter.createPreview = function(view, model) {
         presenterLogic(view, model);
-        presenter.setVisibility(presenter.isVisibleByDefault);
+        presenter.setVisibility(true);
     };
 
     function presenterLogic(view, model) {

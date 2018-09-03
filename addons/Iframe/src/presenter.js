@@ -60,15 +60,19 @@ function AddonIframe_create() {
     };
 
     presenter.run = function AddonIFrame_Communication_run (view, model) {
-        presenter.initialize(view, model, false);
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.initialize(view, model);
+        if (presenter.configuration.isValid) {
+            presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+            presenter.eventBus.addEventListener('ShowAnswers', this);
+            presenter.eventBus.addEventListener('HideAnswers', this);
+        }
     };
 
     presenter.createPreview = function AddonIFrame_Communication_create_preview (view, model) {
         presenter.initialize(view, model);
-        presenter.setVisibility(true);
+        if (presenter.configuration.isValid) {
+            presenter.setVisibility(true);
+        }
     };
 
     presenter.getIframeIndexSource = function () {
