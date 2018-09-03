@@ -1813,6 +1813,15 @@ var ice_dictionary_pl = {
     "Double_State_Button_property_image_selected_alternative_text": "Tekst alternatywny dla zaznaczonego obrazu",
     "Double_state_button_speech_text_disabled": "Nie czytaj tekstów mowy",
     "copy_page_layout": "Copy page settings",
-    "copy_page_layout_question": "You are going to copy page settings from layout: "
+    "copy_page_layout_question": "You are going to copy page settings from layout: ",
+	"mathText_editor": "WIRIS editor",
+	"mathAnswer_editor": "WIRIS quizzes editor",
+    "Mathtext_property_text": "Initial text",
+    "Mathtext_property_correctAnswer": "Correct answer",
+    "Mathtext_property_is_user_activity": "Is Activity",
+    "Mathtext_property_is_disabled": "Is disabled",
+    "Mathtext_property_language": "Language",
+    "Mathtext_property_formula_color": "Formula color",
+    "Mathtext_property_background_color": "Background color"
 };
 
