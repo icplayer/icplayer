@@ -27,11 +27,13 @@ function AddonViewer_3D_create(){
     };
 
     presenter.run = function (view, model) {
-        presenter.presenterLogic(view, model, false);
+        presenter.presenterLogic(view, model);
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.createPreview = function (view, model) {
-        presenter.presenterLogic(view, model, true);
+        presenter.presenterLogic(view, model);
+        presenter.setVisibility(true);
     };
 
     presenter.setCanvasDimensions = function (width, height) {
@@ -229,7 +231,7 @@ function AddonViewer_3D_create(){
         });
     };
 
-    presenter.presenterLogic = function (view, model, isPreview) {
+    presenter.presenterLogic = function (view, model) {
         presenter.$view = $(view);
         presenter.model = model;
         presenter.isLoaded = false;
@@ -242,7 +244,6 @@ function AddonViewer_3D_create(){
             return;
         }
 
-        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
         presenter.renderObject();
 
         presenter.$view.click(function(e){

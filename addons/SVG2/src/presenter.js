@@ -11,10 +11,11 @@ function AddonSVG2_create(){
     };
 
     presenter.run = function(view, model){
-        presenter.presenterLogic(view, model, false);
+        presenter.presenterLogic(view, model);
+        presenter.setVisibility(presenter.isVisibleByDefault);
     };
 
-    presenter.presenterLogic = function (view, model, isPreview) {
+    presenter.presenterLogic = function (view, model) {
         presenter.$view = $(view);
         svgContainer = $(view).find('.svgContainer:first');
         errorContainer = $(view).find('.errorContainer');
@@ -33,11 +34,11 @@ function AddonSVG2_create(){
         } else {
             this.onError(errorMessages.svgSupportMissing);
         }
-        presenter.setVisibility(presenter.isVisible || isPreview);
     };
 
     presenter.createPreview = function(view, model) {
-        presenter.presenterLogic(view, model, true);
+        presenter.presenterLogic(view, model);
+        presenter.setVisibility(true);
     };
 
     //detection based on Modernizer library

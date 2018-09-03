@@ -13,14 +13,16 @@ function AddonMenuPanel_create(){
     };
 
     presenter.run = function(view, model){
-        presenterLogic(view, model, false);
+        presenterLogic(view, model);
+        presenter.setVisibility(true);
     };
 
     presenter.createPreview = function(view, model) {
-        presenterLogic(view, model, true);
+        presenterLogic(view, model);
+        presenter.setVisibility(presenter.isVisibleByDefault);
     };
 
-    function presenterLogic(view, model, isPreview) {
+    function presenterLogic(view, model) {
         presenter.view = view;
         presenter.$view = $(view);
         presenter.model = model;
@@ -33,7 +35,6 @@ function AddonMenuPanel_create(){
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = presenter.isVisible;
-        presenter.setVisibility(presenter.isVisibleByDefault || isPreview);
 
         presenter.isDisabled = ModelValidationUtils.validateBoolean(model["Disable"]);
         presenter.isDisabledByDefault = presenter.isDisabled;

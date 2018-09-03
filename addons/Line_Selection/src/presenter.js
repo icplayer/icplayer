@@ -114,7 +114,7 @@ function AddonLine_Selection_create(){
         }
     }
 
-    presenter.initiate = function(view, model, isPreview){
+    presenter.initiate = function(view, model){
         presenter.$view = $(view);
         presenter.model = model;
         presenter.addonID = model.ID;
@@ -129,9 +129,6 @@ function AddonLine_Selection_create(){
             presenter.wrapper.text(presenter.ERROR_CODES[presenter.error])
         } else {
             presenter.updateDisability();
-            if (!isPreview) {
-                presenter.updateVisibility();
-            }
         }
     }
     presenter.drawLines = function(string) {
@@ -169,7 +166,8 @@ function AddonLine_Selection_create(){
         presenter.answers = [];
         presenter.selected = [];
         var presentId, item, value, score;
-        presenter.initiate(view, model, false);
+        presenter.initiate(view, model);
+        presenter.updateVisibility();
         presenter.$view.find('.line').on('click', function(e){
             e.stopPropagation();
             e.preventDefault();
@@ -230,7 +228,7 @@ function AddonLine_Selection_create(){
     presenter.createPreview = function(view, model){
         presenter.answers = [];
         presenter.selected = [];
-        presenter.initiate(view, model, true);
+        presenter.initiate(view, model);
         var coordinations = {x:0, y:0};
         if (!presenter.error) {
             var coordinatesContainer = $('<div></div>'),

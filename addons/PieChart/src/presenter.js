@@ -154,7 +154,7 @@ function AddonPieChart_create(){
             return true;
         }
     };
-    presenter.initiate = function(view, model, isPreview){
+    presenter.initiate = function(view, model){
         presenter.$view = $(view);
         presenter.model = model;
         presenter.addonID = model.ID;
@@ -165,9 +165,6 @@ function AddonPieChart_create(){
         if (presenter.disabled) presenter.disable();
         presenter.isVisible = ModelValidationUtils.validateBoolean(presenter.model["Is Visible"]);
         presenter.initIsVisible = presenter.isVisible;
-        if (!isPreview) {
-            presenter.updateVisibility();
-        }
         presenter.values = ModelValidationUtils.validateBoolean(presenter.model['Show values']);
         presenter.names = ModelValidationUtils.validateBoolean(presenter.model['Show names']);
         presenter.step = presenter.model['Step'];
@@ -310,10 +307,11 @@ function AddonPieChart_create(){
     };
     presenter.run = function(view, model){
         var x, y, angle, k, angle2, percent, angleTmp, previousItem, nextItem;
-        if (!presenter.initiate(view, model, false)) {
+        if (!presenter.initiate(view, model)) {
             presenter.piechart.text(presenter.ERROR_CODES[presenter.error]);
             return false;
         }
+        presenter.updateVisibility();
         var Width = presenter.piechart.width();
         var Height = presenter.piechart.height();
         presenter.drawGraph();
@@ -518,7 +516,7 @@ function AddonPieChart_create(){
         presenter.$view.find('#Text'+id)[0].textContent = presenter.currentPercents[id-1]+'%';
     };
     presenter.createPreview = function(view, model) {
-        if (!presenter.initiate(view, model, true)) {
+        if (!presenter.initiate(view, model)) {
             presenter.piechart.text(presenter.ERROR_CODES[presenter.error]);
             return false;
         }

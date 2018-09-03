@@ -25,13 +25,13 @@ TestCase('[Sudoku] Visibility tests', {
     },
 
     'test when in preview mode, setVisibility should be called with true': function () {
-        this.presenter.init(this.view, getValidModel("True"), true);
+        this.presenter.createPreview(this.view, getValidModel("True"), true);
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
     'test when in preview mode and addon is not visible, setVisibility should be called with true': function () {
-        this.presenter.init(this.view, getValidModel("false"), true);
+        this.presenter.createPreview(this.view, getValidModel("false"), true);
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },

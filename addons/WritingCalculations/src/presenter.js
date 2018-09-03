@@ -43,17 +43,19 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.run = function(view, model) {
-        presenterLogic(view, model, false);
+        presenterLogic(view, model);
+        presenter.setVisibility(presenter.isVisible);
         eventBus = presenter.playerController.getEventBus();
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createPreview = function(view, model) {
-        presenterLogic(view, model, true);
+        presenterLogic(view, model);
+        presenter.setVisibility(true);
     };
 
-    function presenterLogic(view, model, isPreview) {
+    function presenterLogic(view, model) {
         presenter.array = presenter.convertStringToArray(model.Value);
         presenter.isCommutativity = ModelValidationUtils.validateBoolean(model['Commutativity']) || false;
         presenter.$view = $(view);
@@ -67,7 +69,6 @@ function AddonWritingCalculations_create() {
         presenter.bindValueChangeEvent();
         presenter.setContainerWidth();
         presenter.addAdditionalStyles();
-        presenter.setVisibility(presenter.isVisible || isPreview);
     }
 
     presenter.readSigns = function( signs ) {

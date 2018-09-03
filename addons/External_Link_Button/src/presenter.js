@@ -103,7 +103,7 @@ function AddonExternal_Link_Button_create() {
         presenter.configuration.URI = pageBaseURL + presenter.configuration.URI;
     };
 
-    presenter.presenterLogic = function (view, model, isPreview) {
+    presenter.presenterLogic = function (view, model) {
         presenter.addonID = model.ID;
         presenter.$view = $(view);
 
@@ -121,16 +121,18 @@ function AddonExternal_Link_Button_create() {
         var $element = presenter.createElements($wrapper);
         
         presenter.setElementsDimensions(model, $wrapper, $element);
-        
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
     };
 
     presenter.createPreview = function(view, model) {
-    	presenter.presenterLogic(view, model, true);
+    	presenter.presenterLogic(view, model);
+
+        presenter.setVisibility(true);
     };
 
     presenter.run = function(view, model){
-    	presenter.presenterLogic(view, model, false);
+    	presenter.presenterLogic(view, model);
+
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
     presenter.validateString = function (imageSrc) {

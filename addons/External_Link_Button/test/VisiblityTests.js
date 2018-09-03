@@ -29,7 +29,7 @@ TestCase('[External_Link_Button] Visibility tests', {
     'test when in preview mode, setVisibility should be called with true': function () {
         this.stubs.validateModelStub.returns({
             isValid: true,
-            isVisible: true
+            isVisibleByDefault: true
         });
         this.presenter.createPreview(this.view, {});
 
@@ -39,7 +39,7 @@ TestCase('[External_Link_Button] Visibility tests', {
     'test when in preview mode and addon is not visible, setVisibility should be called with true': function () {
         this.stubs.validateModelStub.returns({
             isValid: true,
-            isVisible: false
+            isVisibleByDefault: false
         });
         this.presenter.createPreview(this.view, {});
 
@@ -49,17 +49,17 @@ TestCase('[External_Link_Button] Visibility tests', {
     'test when not in preview mode and addon is visible, setVisibility should be called with true': function () {
         this.stubs.validateModelStub.returns({
             isValid: true,
-            isVisible: true
+            isVisibleByDefault: true
         });
         this.presenter.run(this.view, {});
 
-        assertTrue(this.stubs.setVisibilityStub.calledWith(false));
+        assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
     'test when not in preview mode and addon is not visible, setVisibility should be called with false': function () {
         this.stubs.validateModelStub.returns({
             isValid: true,
-            isVisible: false
+            isVisibleByDefault: false
         });
         this.presenter.run(this.view, {});
 

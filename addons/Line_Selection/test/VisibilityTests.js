@@ -19,6 +19,11 @@ TestCase('[Line_Selection] Visiblity tests', {
         this.presenter.updateVisibility = this.stubs.updateVisibilityStub;
         this.presenter.drawLines = this.stubs.drawLinesStub;
 
+
+        this.presenter.eventBus = {
+            addEventListener: function(){}
+        };
+
         this.stubs.drawLinesStub.returns(false);
 
         this.view = document.createElement('div');
@@ -26,28 +31,28 @@ TestCase('[Line_Selection] Visiblity tests', {
 
     'test when in preview mode, setVisibility should not be called': function () {
         this.stubs.validateModelStub.returns(getValidModel(true));
-        this.presenter.initiate(this.view, {}, true);
+        this.presenter.createPreview(this.view, {});
 
         assertFalse(this.stubs.updateVisibilityStub.called);
     },
 
     'test when in preview mode and addon is not visible, setVisibility should not be called': function () {
         this.stubs.validateModelStub.returns(getValidModel(false));
-        this.presenter.initiate(this.view, {}, true);
+        this.presenter.createPreview(this.view, {});
 
         assertFalse(this.stubs.updateVisibilityStub.called);
     },
 
     'test when not in preview mode and addon is visible, setVisibility should be called with true': function () {
         this.stubs.validateModelStub.returns(getValidModel(true));
-        this.presenter.initiate(this.view, {}, false);
+        this.presenter.run(this.view, {});
 
         assertTrue(this.stubs.updateVisibilityStub.called);
     },
 
     'test when not in preview mode and addon is not visible, setVisibility should be called with false': function () {
         this.stubs.validateModelStub.returns(getValidModel(false));
-        this.presenter.initiate(this.view, {}, false);
+        this.presenter.run(this.view, {});
 
         assertTrue(this.stubs.updateVisibilityStub.called);
     }

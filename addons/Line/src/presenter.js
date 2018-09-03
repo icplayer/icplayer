@@ -27,7 +27,7 @@ function AddonLine_create() {
         return degrees * Math.PI / 180;
     }
 
-    function presenterLogic(view, model, isPreview) {
+    function presenterLogic(view, model) {
         presenter.$view = $(view);
         var containerDimensions = DOMOperationsUtils.getOuterDimensions(presenter.$view);
         var containerDistances = DOMOperationsUtils.calculateOuterDistances(containerDimensions);
@@ -56,7 +56,6 @@ function AddonLine_create() {
 
         var angle = parseInt(presenter.configuration.rotation);
         presenter.drawLine(canvasWrapper, canvasWrapperWidth, canvasWrapperHeight, angle);
-        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
     }
 
     presenter.applyStyles = function (element) {
@@ -298,11 +297,13 @@ function AddonLine_create() {
     };
 
     presenter.createPreview = function (view, model) {
-        presenterLogic(view, model, true);
+        presenterLogic(view, model);
+        presenter.setVisibility(true);
     };
 
     presenter.run = function (view, model) {
-        presenterLogic(view, model, false);
+        presenterLogic(view, model);
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.validateModel = function (model) {

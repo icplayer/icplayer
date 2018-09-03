@@ -82,16 +82,18 @@ function AddonParagraph_create() {
     };
 
     presenter.createPreview = function AddonParagraph_createPreview(view, model) {
-        presenter.initializeEditor(view, model, true);
+        presenter.initializeEditor(view, model);
+        presenter.setVisibility(true);
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': '100%', 'height': '100%', 'position':'absolute', 'top':0, 'left':0});
         presenter.$view.append(clickhandler);
     };
 
     presenter.run = function AddonParagraph_run(view, model) {
         presenter.initializeEditor(view, model, false);
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
-    presenter.initializeEditor = function AddonParagraph_initializeEditor(view, model, isPreview) {
+    presenter.initializeEditor = function AddonParagraph_initializeEditor(view, model) {
         presenter.view = view;
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
@@ -122,8 +124,6 @@ function AddonParagraph_create() {
                 presenter.sendOnBlurEvent();
             });
         });
-
-        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
         
         if(isIOSSafari()) {
             var input = document.createElement("input");
