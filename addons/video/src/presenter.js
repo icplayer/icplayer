@@ -22,6 +22,9 @@ function Addonvideo_create() {
     presenter.isPreview = false;
     presenter.captions = [];
     presenter.captionDivs = [];
+    presenter.descriptions = [];
+    presenter.descriptionsDivs = [];
+    presenter.speechTexts = [];
     presenter.metadataQueue = [];
     presenter.areSubtitlesHidden = false;
     presenter.calledFullScreen = false;
@@ -29,6 +32,7 @@ function Addonvideo_create() {
     presenter.playerController = null;
     presenter.posterPlayButton = null;
     presenter.videoView = null;
+    presenter.isAudioDescriptionEnabled = null;
 
     presenter.stylesBeforeFullscreen = {
         changedStyles: false,
@@ -119,6 +123,7 @@ function Addonvideo_create() {
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradePoster(model);
         upgradedModel = presenter.upgradeTimeLabels(upgradedModel);
+        upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
         return presenter.upgradeShowPlayButton(upgradedModel);
     };
 
@@ -129,6 +134,26 @@ function Addonvideo_create() {
         for (var i = 0; i < model.Files.length; i++) {
             if (!upgradedModel.Files[i].Poster) {
                 upgradedModel.Files[i].Poster = "";
+            }
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeSpeechTexts = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        for (var i = 0; i < model.Files.length; i++) {
+            if (!upgradedModel.Files[i]["Audio Description"]) {
+                upgradedModel.Files[i]["Audio Description"] = "";
+            }
+        }
+
+        if (!model.speechTexts) {
+            upgradedModel.speechTexts = {
+                AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled"},
+                AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled"}
             }
         }
 
@@ -499,11 +524,46 @@ function Addonvideo_create() {
         presenter.playerController.setAbleChangeLayout(true);
     };
 
+    presenter.switchAudioDescriptionEnabled = function() {
+        if (presenter.isAudioDescriptionEnabled == null) {
+            setAudioDescriptionEnabled(false);
+        } else {
+            setAudioDescriptionEnabled(!presenter.isAudioDescriptionEnabled);
+        }
+    };
+
+    function setAudioDescriptionEnabled(isEnabled) {
+        presenter.isAudioDescriptionEnabled = isEnabled;
+        if (presenter.isAudioDescriptionEnabled) {
+            speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionEnabled)]);
+        } else {
+            speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionDisabled)]);
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            if (window.responsiveVoice && window.responsiveVoice.isPlaying()) {
+                audioDescriptionEndedCallback();
+                window.responsiveVoice.cancel();
+            }
+            for ( var i = 0; i < presenter.descriptions.length; i++) {
+                var description = presenter.descriptions[i];
+                $(description.element).css('visibility', 'hidden');
+                $(description.element).attr('visibility', 'hidden');
+            }
+        }
+    }
+
+    presenter.showAudioDescription = function() {
+        setAudioDescriptionEnabled(true);
+    };
+
+    presenter.hideAudioDescription = function() {
+        setAudioDescriptionEnabled(false);
+    };
+
+
     presenter.keyboardController = function (keycode, isShift, event) {
-        $(document).on('keydown', function (e) {
-            e.preventDefault();
-            $(this).off('keydown');
-        });
+        event.preventDefault();
 
         function increasedVolume() {
             var val = Math.round((presenter.videoObject.volume + 0.1) * 10) / 10;
@@ -600,6 +660,9 @@ function Addonvideo_create() {
             case 70:
                 presenter.fullScreen();
                 break;
+            case 65: // A
+                presenter.switchAudioDescriptionEnabled();
+                break;
         }
     };
 
@@ -691,6 +754,7 @@ function Addonvideo_create() {
             "MP4 video": file['MP4 video'],
             "WebM video": file['WebM video'],
             "Subtitles": file['Subtitles'],
+            "Audiodescription": file['Audio Description'],
             "Poster": file['Poster'],
             "ID": file['ID'],
             "AlternativeText": file['AlternativeText'],
@@ -724,8 +788,35 @@ function Addonvideo_create() {
         };
     };
 
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+            audioDescriptionEnabled:  'Audio description enabled',
+            audioDescriptionDisabled: 'Audio description disabled'
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            audioDescriptionEnabled: getSpeechTextProperty(speechTexts['AudioDescriptionEnabled']['AudioDescriptionEnabled'], presenter.speechTexts.audioDescriptionEnabled),
+            audioDescriptionDisabled: getSpeechTextProperty(speechTexts['AudioDescriptionDisabled']['AudioDescriptionDisabled'], presenter.speechTexts.audioDescriptionDisabled)
+        };
+    }
+
     presenter.validateModel = function (model) {
         var validatedFiles = presenter.validateFiles(model);
+        setSpeechTexts(model["speechTexts"]);
         if (!validatedFiles.isValid) {
             return validatedFiles;
         }
@@ -1036,7 +1127,7 @@ function Addonvideo_create() {
     };
 
     presenter.showCaptions = function (time) {
-        if (!presenter.configuration.dimensions) return; // No captions to show when video wasn't loaded properly
+        if (!presenter.configuration.dimensions) return ; // No captions to show when video wasn't loaded properly
         for (var i = 0; i < presenter.captions.length; i++) {
             var caption = presenter.captions[i];
             if (caption.start <= time && caption.end >= time) {
@@ -1049,12 +1140,69 @@ function Addonvideo_create() {
         }
     };
 
+    function getAudioDescriptionEnabled() {
+        if (presenter.isAudioDescriptionEnabled != null) {
+            return presenter.isAudioDescriptionEnabled;
+        }
+        if (presenter.playerController && presenter.playerController.isWCAGOn()) {
+            return presenter.playerController.isWCAGOn();
+        }
+        return false;
+    }
+
+    function audioDescriptionEndedCallback() {
+        if (presenter && presenter.videoObject.paused) {
+            presenter.videoObject.play();
+        }
+    }
+
+    var prevTime = 0;
+    presenter.readAudioDescriptions = function (time) {
+        if (!presenter.configuration.dimensions) return false;
+        if (!presenter.playerController || !getAudioDescriptionEnabled()) return false;
+        if (time < prevTime || time - prevTime > 1.0) {
+            prevTime = time;
+            return false;
+        }
+
+        var isSpeaking = false;
+        for ( var i = 0; i < presenter.descriptions.length; i++) {
+            var description = presenter.descriptions[i];
+            if (prevTime <= description.start && description.start <= time) {
+                isSpeaking = true;
+                presenter.videoObject.pause();
+                $(description.element).attr('visibility', 'visible');
+                $(description.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
+                speakWithCallback([window.TTSUtils.getTextVoiceObject(description.text,description.langTag)], audioDescriptionEndedCallback);
+            } else {
+                $(description.element).css('visibility', 'hidden');
+                $(description.element).attr('visibility', 'hidden');
+            }
+
+        }
+        if (prevTime == time) {
+            prevTime += 0.001;
+        } else {
+            prevTime = time;
+        }
+
+        if (isSpeaking) {
+            for (var i = 0; i < presenter.captions.length; i++) {
+                var caption = presenter.captions[i];
+                $(caption.element).css('visibility', 'hidden');
+                $(caption.element).attr('visibility', 'hidden');
+            }
+        }
+        return isSpeaking;
+    };
+
     presenter.reload = function () {
         presenter.showPlayButton();
         presenter.isVideoLoaded = false;
         $(presenter.videoContainer).find('.captions').remove();
         presenter.setVideo();
         presenter.loadSubtitles();
+        presenter.loadAudioDescription();
         presenter.setBurgerMenu();
         $(presenter.videoObject).unbind('timeupdate');
         $(presenter.videoObject).bind("timeupdate", function () {
@@ -1074,7 +1222,12 @@ function Addonvideo_create() {
     };
 
     function onTimeUpdate(video) {
-        presenter.showCaptions(presenter.videoObject.currentTime);
+        if (!presenter.videoObject.paused) {
+            var isSpeaking = presenter.readAudioDescriptions(presenter.videoObject.currentTime);
+            if (!isSpeaking) {
+                presenter.showCaptions(presenter.videoObject.currentTime);
+            }
+        }
 
         presenter.sendTimeUpdate();
 
@@ -1136,7 +1289,8 @@ function Addonvideo_create() {
             isCurrentlyVisible: presenter.isCurrentlyVisible,
             isPaused: isPaused,
             currentMovie: presenter.currentMovie,
-            areSubtitlesHidden: presenter.areSubtitlesHidden
+            areSubtitlesHidden: presenter.areSubtitlesHidden,
+            isAudioDescriptionEnabled: presenter.isAudioDescriptionEnabled
         });
     };
 
@@ -1182,6 +1336,8 @@ function Addonvideo_create() {
                 }
             }
         });
+
+        presenter.isAudioDescriptionEnabled = state.isAudioDescriptionEnabled;
     };
 
     presenter.getIOSVersion = function (userAgent) {
@@ -1327,10 +1483,13 @@ function Addonvideo_create() {
      * @param caption - used text, top and left properties
      * @return reference do newly created element
      */
-    function createCaptionElement(caption) {
+    function createCaptionElement(caption, isAudioDescription) {
         var captionElement = document.createElement('div');
 
         $(captionElement).addClass('captions');
+        if(isAudioDescription) {
+            $(captionElement).addClass('audio-description');
+        }
         $(captionElement).addClass(caption.cssClass);
         $(captionElement).html(caption.text);
         $(captionElement).css({
@@ -1360,7 +1519,7 @@ function Addonvideo_create() {
                     text: parts[5]
                 };
 
-                caption.element = createCaptionElement(caption);
+                caption.element = createCaptionElement(caption, false);
                 presenter.captions.push(caption);
 
                 presenter.captionDivs.push(caption.element);
@@ -1386,6 +1545,50 @@ function Addonvideo_create() {
                 presenter.convertLinesToCaptions(Helpers.splitLines(data));
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, presenter.captionDivs])();
             });
+        }
+    };
+
+    presenter.loadAudioDescription = function () {
+        var descriptionsLoadedDeferred = new $.Deferred(),
+            descriptions = presenter.configuration.files[presenter.currentMovie].Audiodescription;
+
+        if (descriptions) {
+            if (StringUtils.startsWith(descriptions, "/file")) {
+                $.get(descriptions, function (data) {
+                    descriptionsLoadedDeferred.resolve(data);
+                });
+            } else {
+                descriptionsLoadedDeferred.resolve(descriptions);
+            }
+
+            presenter.convertLinesToAudioDescriptions(Helpers.splitLines(descriptions));
+            $.when(descriptionsLoadedDeferred.promise(), presenter.mathJaxProcessEnded, presenter.pageLoaded).then(function onDescriptionsLoaded(data) {
+                presenter.convertLinesToAudioDescriptions(Helpers.splitLines(data));
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, presenter.descriptionsDivs])();
+            });
+        }
+    };
+
+    presenter.convertLinesToAudioDescriptions = function (lines) {
+        presenter.descriptions = [];
+
+        for (var i = 0; i < lines.length; i++) {
+            var parts = lines[i].split('|');
+            if (parts.length == 6) {
+                var description = {
+                    start: parts[0],
+                    top: (StringUtils.endsWith(parts[2], 'px') ? parts[1] : parts[1] + 'px'),
+                    left: (StringUtils.endsWith(parts[3], 'px') ? parts[2] : parts[2] + 'px'),
+                    cssClass: parts[3],
+                    langTag: parts[4],
+                    text: parts[5]
+                };
+
+                description.element = createCaptionElement(description, true);
+                presenter.descriptions.push(description);
+
+                presenter.descriptionsDivs.push(description.element);
+            }
         }
     };
 
@@ -1427,12 +1630,12 @@ function Addonvideo_create() {
     };
 
     presenter.showSubtitles = function () {
-        presenter.$view.find('.captions').show();
+        presenter.$view.find('.captions:not(.audio-description)').show();
         presenter.areSubtitlesHidden = false;
     };
 
     presenter.hideSubtitles = function () {
-        presenter.$view.find('.captions').hide();
+        presenter.$view.find('.captions:not(.audio-description)').hide();
         presenter.areSubtitlesHidden = true;
     };
 
@@ -1449,6 +1652,8 @@ function Addonvideo_create() {
             'stop': presenter.stop,
             'showSubtitles': presenter.showSubtitles,
             'hideSubtitles': presenter.hideSubtitles,
+            'showAudioDescription': presenter.showAudioDescription,
+            'hideAudioDescription': presenter.hideAudioDescription,
             'setVideoURL': presenter.setVideoURLCommand
         };
 
@@ -1759,6 +1964,32 @@ function Addonvideo_create() {
     presenter.addTabindex = function (isTabindexEnabled) {
         var value = isTabindexEnabled ? "0" : "-1";
         presenter.videoContainer.attr("tabindex", value);
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.playerController.isWCAGOn()) {
+            tts.speak(data);
+        }
+    }
+
+    function speakWithCallback (data, callbackFunction) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts) {
+            tts.speakWithCallback(data, callbackFunction);
+        }
+    }
+
+    presenter.isWCAGOn = function(isWCAGOn) {
+        //This method has been added to enable the addon's detection by the autofill option of TTS
     };
 
     return presenter;

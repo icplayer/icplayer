@@ -1429,8 +1429,8 @@ function AddonConnection_create() {
         isSelectionPossible = true;
     };
 
-    presenter.keyboardController = function(keycode) {
-        presenter.keyboardControllerObject.handle(keycode);
+    presenter.keyboardController = function(keycode, isShiftDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
     };
 
     function ConnectionKeyboardController (elements, columnsCount) {

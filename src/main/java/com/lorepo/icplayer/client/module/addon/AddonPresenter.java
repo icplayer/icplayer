@@ -473,8 +473,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 	
 	@Override
-	public void enter(boolean isExiting) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting, null);
+	public void enter(KeyDownEvent event, boolean isExiting) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting, event.getNativeEvent());
 	}
 
 	@Override

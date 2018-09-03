@@ -225,7 +225,7 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModu
 		return "ImageSource";
 	}
 
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		List<TextToSpeechVoice> voicesArray = new ArrayList<TextToSpeechVoice>();
 		voicesArray.add(TextToSpeechVoice.create(this.module.getAlttext(),this.module.getLangAttribute()));
 		if (isSelected()) {

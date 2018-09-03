@@ -518,18 +518,16 @@ function Addonfeedback_create() {
         $element.attr('tabindex', value);
     };
 
-    presenter.handleSpace = function (keyCode) {
-            $(document).on('keydown', function (event) {
-                if (keyCode == 32 || keyCode == 38 || keyCode == 40 || keyCode == 27) { // space OR up/down buttons pressed
-                    event.preventDefault();
-                }
-                $(this).off('keydown');
-            });
-    };
+    presenter.keyboardController = function(keyCode, isShift, event) { //every time keyboard is pressed
+        if (keyCode == window.KeyboardControllerKeys.SPACE ||
+            keyCode == window.KeyboardControllerKeys.ARROW_UP ||
+            keyCode == window.KeyboardControllerKeys.ARROW_DOWN ||
+            keyCode == window.KeyboardControllerKeys.ESC)
+        {
+            event.preventDefault();
+        }
 
-    presenter.keyboardController = function(keyCode, isShift) { //every time keyboard is pressed
-      presenter.handleSpace(keyCode);
-        if (keyCode == 13) {
+        if (keyCode == window.KeyboardControllerKeys.ENTER) {
             presenter.readCurrentMessage(true);
         }
     };
