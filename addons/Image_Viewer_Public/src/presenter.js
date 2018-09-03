@@ -591,19 +591,19 @@ function AddonImage_Viewer_Public_create() {
         presenter.changeFrame(presenter.changeFrameData.isPreview, presenter.changeFrameData.isReverseOrder, presenter.changeFrameData.triggerEvent);
     }
 
-    function presenterLogic(view, model, preview) {
+    function presenterLogic(view, model, isPreview) {
         presenter.imageLoadedDeferred = new jQuery.Deferred();
         presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
         presenter.addonId = model.ID;
         presenter.$view = $(view);
         presenter.model = model;
-        presenter.preview = preview;
+        presenter.isPreview = isPreview;
         presenter.$element = $(presenter.$view.find('.image-viewer:first')[0]);
         presenter.$elementHelper = $(presenter.$view.find('.image-viewer-helper:first')[0]);
         loadingScreen.element = presenter.$view.find('.image-viewer-loading-image:first')[0];
         watermarkElement = presenter.$view.find('.image-viewer-watermark:first')[0];
 
-        if (!preview) {
+        if (!isPreview) {
             var loadingSrc = DOMOperationsUtils.getResourceFullPath(playerController, "media/loading.gif");
             if (loadingSrc) $(loadingScreen.element).attr('src', loadingSrc);
         }
@@ -625,7 +625,7 @@ function AddonImage_Viewer_Public_create() {
                 isMouseDragged : false
             };
 
-            if (preview) {
+            if (isPreview) {
                 presenter.configuration.currentFrame = presenter.configuration.showFrame <= presenter.configuration.frames ? presenter.configuration.showFrame - 1 : 0;
             } else {
                 presenter.setCurrentFrame();
@@ -639,14 +639,14 @@ function AddonImage_Viewer_Public_create() {
             presenter.$view.bind("onLoadImageEnd", function (event, isPreview) {
                 loadImagesCallback(isPreview);
             });
-            if(!preview){
+            if(!isPreview){
                 presenter.pageLoaded.then(function() {
-                    loadImage(preview);
+                    loadImage(isPreview);
                 });
             }else{
-                loadImage(preview);
+                loadImage(isPreview);
             }
-            presenter.setVisibility(presenter.configuration.defaultVisibility || preview);
+            presenter.setVisibility(presenter.configuration.defaultVisibility || isPreview);
             if (presenter.configuration.defaultVisibility) {
                 presenter.displayLabels(1);
             }

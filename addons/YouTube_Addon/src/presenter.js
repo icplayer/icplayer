@@ -41,7 +41,7 @@
          }
      }
 
-    function presenterLogic(view, model, preview) {
+    function presenterLogic(view, model, isPreview) {
         var width = model.Width;
         var height = model.Height;
         presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
@@ -56,7 +56,7 @@
         if (decodedVideoID.isError) {
             showErrorMessage(viewContainer, decodedVideoID.errorMessage);
         } else {
-            if (preview) {
+            if (isPreview) {
                 createVideoThumbnailAsync(decodedVideoID.videoID, viewContainer, width, height);
             } else {
                 presenter.setVisibility(presenter.isVisible);
