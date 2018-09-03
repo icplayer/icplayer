@@ -323,9 +323,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 			if (callRefreshMath) {
 				refreshMath();
-				if (!(module.hasMathGaps() || module.hasDraggableGaps())){
-					rerenderMathJax();
-				}
+				rerenderMathJax();
 			}
 		}
 	}

@@ -403,7 +403,7 @@ function AddonText_Selection_create() {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
-        if(upgradedModel['enableScroll']){
+        if(!upgradedModel['enableScroll']){
             upgradedModel['enableScroll'] = false;
         }
 

@@ -1048,6 +1048,7 @@ var ice_dictionary_en = {
 	"text_identification_property_on_deselected": "On deselected",
     "text_identification_property_block_wrong_answers": "Block wrong answers",
 	"text_identification_property_send_event_on_command": "Send event on select/deselect",
+	"text_identification_property_enable_scroll": "Enable scrolling on mobile",
 	"TrueFalse_info": "It is an alternative for a Choice module, which enables to insert a single or multiple choice activity into a presentation. In the TrueFalse addon, it is necessary to select at least one question and two choice options.",
 	"TrueFalse_name": "True False",
 	"TrueFalse_property_is_not_activity": "Is not an activity",
