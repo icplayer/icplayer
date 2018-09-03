@@ -151,6 +151,17 @@ function AddonSlider_create () {
 
     };
 
+    function getScale() {
+        var $content = $("#content"); // the div transform css is attached to
+		if($content.size()>0){
+            var contentElem = $content[0];
+            var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+            var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+            return {X:scaleX, Y:scaleY};
+		};
+		return {X:1.0, Y:1.0};
+    }
+
     function mouseDownCallback (eventData) {
         if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
 
@@ -168,6 +179,16 @@ function AddonSlider_create () {
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
         
         var touch = event.touches[0] || touchPoints[0];
+
+        var scale = getScale();
+        console.log(scale.X, scale.Y);
+        if(scale.X!==1.0 || scale.Y!==1.0){
+            touch.pageX = touch.pageX/scale.X;
+            touch.pageY = touch.pageY/scale.Y;
+            console.log("start -- touch.pageX: " + touch.pageX);
+            console.log("start -- touch.pageY: " + touch.pageY);
+        }
+
         mouseDownCallback(touch);
     }
 
@@ -263,23 +284,30 @@ function AddonSlider_create () {
             if ( presenter.configuration.orientation == presenter.ORIENTATION.LANDSCAPE ) {
                 relativeDistance = presenter.calculateRelativeDistanceX(imageElement, addonContainer, eventData, presenter.mouseData, imageElementData);
                 presenter.mouseData.oldPosition.x = eventData.pageX;
-
+                console.log("presenter.mouseData.oldPosition.x" + presenter.mouseData.oldPosition.x );
                 var minimumXPosition = ($(imageElement).width() / 2);
                 var maximumXPosition = imageElementData.maxLeft + ($(imageElement).width() / 2);
-
+                console.log("minimumXPosition" + minimumXPosition);
+                console.log("maximumXPosition" + maximumXPosition);
                 mousePositions.x = mousePositions.x > minimumXPosition ? mousePositions.x : minimumXPosition;
+                console.log("1 - mousePositions.x " + mousePositions.x );
                 mousePositions.x = mousePositions.x < maximumXPosition? mousePositions.x : maximumXPosition;
+                console.log("2 - mousePositions.x " + mousePositions.x );
 
                 if(!presenter.continuousEvents || (presenter.continuousEvents && presenter.continuousEventsSteps == "Smooth")){
                     $(imageElement).css({
                         left: (mousePositions.x + relativeDistance.horizontal - ($(imageElement).width() / 2)) + 'px'
                     });
+                    console.log("relativeDistance.horizontal: " +  relativeDistance.horizontal);
+                     console.log("($(imageElement).width() / 2): " +  ($(imageElement).width() / 2));
+                    console.log("left: " + mousePositions.x + relativeDistance.horizontal - ($(imageElement).width() / 2));
                 }
 
                 if (presenter.configuration.newStep !== presenter.configuration.currentStep && presenter.continuousEvents) {
                     presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
 
                     presenter.configuration.currentStep = presenter.configuration.newStep;
+                    console.log(presenter.configuration.newStep);
                     presenter.triggerOnStepChangeUserEvent();
 
                     presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
@@ -320,7 +348,10 @@ function AddonSlider_create () {
 
             //presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
         }
-        eventData.preventDefault();
+        if(eventData.preventDefault) {
+            console.log("rabotajet funkcyja");
+            eventData.preventDefault();
+        }
     }
 
     function touchMoveCallback (event) {
@@ -329,7 +360,16 @@ function AddonSlider_create () {
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
 
         var touch = event.touches[0] || touchPoints[0];
+
+        var scale = getScale();
+        console.log(scale.X, scale.Y);
+        if(scale.X!==1.0 || scale.Y!==1.0){
+            touch.pageX = touch.pageX/scale.X;
+            touch.pageY = touch.pageY/scale.Y
+        }
+
         mouseMoveCallback(touch);
+        event.preventDefault();
     }
 
     function handleMouseDrag(addonContainer) {
