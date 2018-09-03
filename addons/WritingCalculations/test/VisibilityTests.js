@@ -31,8 +31,6 @@ TestCase('[WritingCalculations] Visibility tests', {
         this.presenter.addAdditionalStyles = this.stubs.addAdditionalStylesStub;
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
 
-        // this.stubs.upgradeModelStub.returnsArg(0);
-
         this.stubs.getEventBusStub.returns({
             addEventListener: function(){}
         });

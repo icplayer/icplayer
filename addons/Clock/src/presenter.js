@@ -610,7 +610,7 @@ function AddonClock_create() {
             $(myDiv).addClass('disable');
         }
 
-        presenter.setVisibility(presenter.wasVisible || isPreview);
+        presenter.setVisibility(presenter.isVisible || isPreview);
     };
 
     presenter.run = function(view, model) {

@@ -247,10 +247,8 @@ function AddonSudoku_create(){
             }
         }
 
-        presenter.setVisibility(presenter.wasVisible || isPreview);
+        presenter.setVisibility(presenter.isVisible || isPreview);
         presenter.drawInitial(model.Values);
-
-
     };
 
     presenter.run = function(view, model){

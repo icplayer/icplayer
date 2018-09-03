@@ -661,7 +661,7 @@ function AddonFractions_create(){
 
             presenter.isVisible = model["Is Visible"] == 'True';
             presenter.wasVisible = model["Is Visible"] == 'True';
-            presenter.setVisibility(presenter.wasVisible);
+            presenter.setVisibility(presenter.isVisible);
 
             presenter.eventBus.addEventListener('ShowAnswers', this);
             presenter.eventBus.addEventListener('HideAnswers', this);
