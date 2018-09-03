@@ -1,7 +1,8 @@
 function getValidModel(isVisible) {
     return {
         "Is Visible": isVisible,
-        isValid: true
+        isValid: true,
+        "Values": [' ']
     }
 }
 
@@ -21,29 +22,33 @@ TestCase('[Sudoku] Visibility tests', {
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
         this.presenter.drawInitial = this.stubs.drawInitialStub;
 
+        this.presenter.eventBus = {
+            addEventListener: function(){}
+        };
+
 		this.view = document.createElement('div');
     },
 
     'test when in preview mode, setVisibility should be called with true': function () {
-        this.presenter.createPreview(this.view, getValidModel("True"), true);
+        this.presenter.createPreview(this.view, getValidModel("True"));
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
     'test when in preview mode and addon is not visible, setVisibility should be called with true': function () {
-        this.presenter.createPreview(this.view, getValidModel("false"), true);
+        this.presenter.createPreview(this.view, getValidModel("false"));
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
     'test when not in preview mode and addon is visible, setVisibility should be called with true': function () {
-        this.presenter.init(this.view, getValidModel("True"), false);
+        this.presenter.run(this.view, getValidModel("True"));
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
     'test when not in preview mode and addon is not visible, setVisibility should be called with false': function () {
-        this.presenter.init(this.view, getValidModel("false"), false);
+        this.presenter.run(this.view, getValidModel("false"));
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(false));
     }
