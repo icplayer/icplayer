@@ -27,16 +27,16 @@ function AddonShow_Answers_create(){
         HIDE_ANSWERS: 'HideAnswers'
     };
 
-    presenter.handleSpace = function(keyCode){
-        $(document).on('keydown', function(e){
-           if(keyCode == 32 || keyCode == 38 || keyCode == 40 || keyCode == 27) {
-               e.preventDefault();
-           }$(this).off('keydown');
-        });
-    };
-    presenter.keyboardController = function(keycode) {
-        presenter.handleSpace(keycode);
-        if (keycode === 13) {
+    presenter.keyboardController = function(keycode, isShiftDown, event) {
+        if (keycode == window.KeyboardControllerKeys.SPACE ||
+            keycode == window.KeyboardControllerKeys.ARROW_UP ||
+            keycode == window.KeyboardControllerKeys.ARROW_DOWN ||
+            keycode == window.KeyboardControllerKeys.ESC)
+        {
+            event.preventDefault();
+        }
+
+        if (keycode === window.KeyboardControllerKeys.ENTER) {
             presenter.$button.click();
             if(isWCAGOn) {
                 if (presenter.configuration.isSelected) {

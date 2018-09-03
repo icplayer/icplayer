@@ -123,53 +123,34 @@ function AddonDouble_State_Button_create(){
     function handleTouchActions() {
         var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
 
-        element.on('touchstart', function (e) {
-            isMouseBlocked = true;
-            e.preventDefault();
-            e.stopPropagation();
-            presenter.lastEvent = e;
-            isTouchDown = true;
-        });
+        element.on('touchstart', touchStartEventHandler);
+        element.on('touchend', touchEndEventHandler);
+    }
 
-        element.on('touchend', function (e) {
-            e.preventDefault();
-            if (isTouchDown) {
-                if ( presenter.lastEvent.type != e.type ) {
-                    presenter.clickHandler(e);
-                }
-                isTouchDown = false;
+    function touchStartEventHandler(e) {
+        isMouseBlocked = true;
+        e.preventDefault();
+        e.stopPropagation();
+        presenter.lastEvent = e;
+        isTouchDown = true;
+    }
+
+    function touchEndEventHandler(e) {
+        e.preventDefault();
+        if (isTouchDown) {
+            if ( presenter.lastEvent.type != e.type ) {
+                presenter.clickHandler(e);
             }
-        });
+            isTouchDown = false;
+        }
     }
 
     function handleMouseActions() {
         var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
 
-        element.on('mousedown', function(e) {
-            if (!isMouseBlocked) {
-                e.preventDefault();
-                e.stopPropagation();
-                presenter.lastEvent = e;
-                isMouseDown = true;
-            }
-		});
-
-        element.on('click', function(e){
-            e.stopPropagation();
-        });
-
-		element.on('mouseup', function(e) {
-            if (!isMouseBlocked) {
-                e.preventDefault();
-                e.stopPropagation();
-                if (isMouseDown) {
-                    if (presenter.lastEvent.type != e.type) {
-                        presenter.clickHandler(e);
-                    }
-                    isMouseDown = false;
-                }
-            }
-		});
+        element.on('mousedown', mouseDownEventHandler);
+        element.on('click', clickEventHandler);
+		element.on('mouseup', mouseUpEventHandler);
 
         element.hover(
             function() {
@@ -181,6 +162,32 @@ function AddonDouble_State_Button_create(){
                 $(this).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
             }
         );
+    }
+
+    function mouseDownEventHandler(e) {
+        if (!isMouseBlocked) {
+            e.preventDefault();
+            e.stopPropagation();
+            presenter.lastEvent = e;
+            isMouseDown = true;
+        }
+    }
+
+    function clickEventHandler(e){
+        e.stopPropagation();
+    }
+
+    function mouseUpEventHandler(e) {
+        if (!isMouseBlocked) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (isMouseDown) {
+                if (presenter.lastEvent.type != e.type) {
+                    presenter.clickHandler(e);
+                }
+                isMouseDown = false;
+            }
+        }
     }
 
     function setElementsDimensions(model, wrapper, element) {
@@ -223,24 +230,43 @@ function AddonDouble_State_Button_create(){
 
     function presenterLogic(view, model, preview) {
         presenter.$view = $(view);
+        presenter.view = view;
+        presenter.wrapper = presenter.$view.find('.doublestate-button-wrapper:first')[0];
+        presenter.$wrapper = $(presenter.wrapper);
+
 
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
 
-        var wrapper = $(presenter.$view.find('.doublestate-button-wrapper:first')[0]);
-        var element = createElements(wrapper);
+        var element = createElements(presenter.$wrapper);
 
-        setElementsDimensions(model, wrapper, element);
+        setElementsDimensions(model, presenter.$wrapper, element);
         presenter.setElementSelection();
         presenter.toggleDisable(presenter.configuration.isDisabled);
         presenter.setVisibility(presenter.configuration.isVisible);
-        presenter.setTabindex(wrapper, presenter.configuration.isTabindexEnabled);
+        presenter.setTabindex(presenter.$wrapper, presenter.configuration.isTabindexEnabled);
 
         if (!preview) {
             handleTouchActions();
             handleMouseActions();
+            presenter.addKeyboardListeners();
+            presenter.view.addEventListener("DOMNodeRemoved", presenter.destroy);
         }
     }
+
+    presenter.addKeyboardListeners = function () {
+        presenter.wrapper.addEventListener("keydown", presenter.handleKeyboardEvents);
+    };
+
+    presenter.handleKeyboardEvents = function AddonDouble_State_Button_handleKeyboardEvents(event) {
+        if (window.KeyboardControllerKeys.ENTER === event.keyCode ||
+            window.KeyboardControllerKeys.SPACE === event.keyCode
+        )   {
+            event.preventDefault();
+            presenter.clickHandler();
+        }
+    };
+
 
     function applySelectionStyle(className) {
         var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
@@ -584,23 +610,25 @@ function AddonDouble_State_Button_create(){
         }
     };
 
+    presenter.keyboardController = function (keyCode, isShift, event) {
+        if (event) {
+            event.stopPropagation();
 
-    presenter.handleSpace = function(keyCode){
-        $(document).on('keydown', function(e){
-           if(keyCode == 32 || keyCode == 38 || keyCode == 40 || keyCode == 27) {
-               e.preventDefault();
-           }$(this).off('keydown');
-        });
-    };
+            if (keyCode === window.KeyboardControllerKeys.SPACE ||
+                keyCode === window.KeyboardControllerKeys.ARROW_UP ||
+                keyCode === window.KeyboardControllerKeys.ARROW_DOWN ||
+                keyCode === window.KeyboardControllerKeys.ESCAPE
+            ) {
+                event.preventDefault();
+            }
+        }
 
-    presenter.keyboardController = function (keyCode, isShift) {
-        presenter.handleSpace(keyCode);
-        if (keyCode == 13) {
-            if(isWCAGOn)
+        if (keyCode === window.KeyboardControllerKeys.ENTER) {
+            if (isWCAGOn)
                 presenter.speakEnterAction();
         }
 
-        if (keyCode == 32) {
+        if (keyCode == window.KeyboardControllerKeys.SPACE) {
             presenter.clickHandler();
             if(presenter.canSpeakSpaceAction())
                 presenter.speakSpaceAction();
@@ -674,6 +702,21 @@ function AddonDouble_State_Button_create(){
             return presenter.speechTexts.selected;
         } else {
             return ''
+        }
+    };
+
+    presenter.destroy = function(event) {
+        if (event.target === this) {
+            presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
+            presenter.wrapper.removeEventListener("keydown", presenter.handleKeyboardEvents);
+
+            var element = presenter.$view.find('div[class*=doublestate-button-element]:first');
+            element.off("touchstart", touchStartEventHandler);
+            element.off("touchend", touchEndEventHandler);
+
+            element.off("mousedown", mouseDownEventHandler);
+            element.off("click", clickEventHandler);
+            element.off("mouseup", mouseUpEventHandler);
         }
     };
 

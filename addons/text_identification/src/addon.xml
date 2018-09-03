@@ -8,6 +8,7 @@
 		<property name="onDeselected" nameLabel="text_identification_property_on_deselected" type="event" />
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="text_identification_property_block_wrong_answers" type="boolean" />
 		<property name="shouldSendEventsOnCommands" displayName="Send event on select/deselect" nameLabel="text_identification_property_send_event_on_command" type="boolean" />
+		<property name="enableScroll" displayName="Enable scrolling on mobile" nameLabel="text_identification_property_enable_scroll" type="boolean" />
 		<property name="Speech texts" nameLabel="Text_identification_property_speech_texts" type="staticlist">
 			<property name="Selected" displayName="selected" type="staticrow">
                 <property name="selected" nameLabel="Text_identification_property_selected" type="string"/>

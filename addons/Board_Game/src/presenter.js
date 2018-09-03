@@ -1041,7 +1041,7 @@ function AddonBoard_Game_create(){
     };
 
     presenter.keyboardController = function (keyCode, isShiftDown, originalEvent) {
-        presenter.boardGameKeyboardController.handle(keyCode, isShiftDown);
+        presenter.boardGameKeyboardController.handle(keyCode, isShiftDown, originalEvent);
     };
 
     return presenter;

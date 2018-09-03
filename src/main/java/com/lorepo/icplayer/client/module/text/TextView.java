@@ -323,9 +323,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 			if (callRefreshMath) {
 				refreshMath();
-				if (!(module.hasMathGaps() || module.hasDraggableGaps())){
-					rerenderMathJax();
-				}
+				rerenderMathJax();
 			}
 		}
 	}
@@ -382,7 +380,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		return "Text";
 	}
 	
-	public void enter (boolean isExiting) {
+	public void enter (KeyDownEvent event, boolean isExiting) {
 		if (isExiting) {
 			this.removeAllSelections();
 			clicks = -1;

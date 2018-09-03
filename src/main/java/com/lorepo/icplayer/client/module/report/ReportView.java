@@ -250,7 +250,7 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 	
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		this.isWCAGActive = !isExiting;
 		if (isExiting) {
 			grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);

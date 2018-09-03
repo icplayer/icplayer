@@ -357,16 +357,15 @@ function AddonZoom_Image_create() {
         presenter.setVisibility(upgradedState.isVisible);
     };
 
-     presenter.handleSpace = function(keyCode){
-        $(document).on('keydown', function(e){
-           if(keyCode == 32 || keyCode == 27 || keyCode == 38 || keyCode == 40) { // Space, esc, up, down buttons
-               e.preventDefault();
-           }$(this).off('keydown');
-        });
-    };
+    presenter.keyboardController = function(keyCode, isShift, event) {
+         if (keyCode == window.KeyboardControllerKeys.SPACE ||
+             keyCode == window.KeyboardControllerKeys.ESC ||
+             keyCode == window.KeyboardControllerKeys.ARROW_UP ||
+             keyCode == window.KeyboardControllerKeys.ARROW_DOWN)
+         {
+             event.preventDefault();
+         }
 
-    presenter.keyboardController = function(keyCode, isShift) {
-         presenter.handleSpace(keyCode);
          if (keyCode === 13 && !isShift) { // Enter button
             if (!presenter.isOpened) {
                 presenter.createPopUp();

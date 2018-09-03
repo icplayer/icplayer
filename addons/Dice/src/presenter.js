@@ -441,8 +441,8 @@ function AddonDice_create() {
         presenter.roll();
     };
 
-    presenter.keyboardController = function (keyCode, isShift) {
-        presenter.diceKeyboardController.handle(keyCode, isShift);
+    presenter.keyboardController = function (keyCode, isShift, event) {
+        presenter.diceKeyboardController.handle(keyCode, isShift, event);
     };
 
     return presenter;

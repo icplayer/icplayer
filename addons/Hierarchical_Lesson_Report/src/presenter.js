@@ -858,12 +858,9 @@ function AddonHierarchical_Lesson_Report_create() {
             return presenter.$view.find('tr:eq(0) > td').size();
         }
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        $(document).on('keydown', function(e) {
-            e.preventDefault();
-            presenter.shiftPressed = e.shiftKey;
-            $(this).off('keydown');
-        });
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        event.preventDefault();
+        presenter.shiftPressed = event.shiftKey;
 
         var keys = {
             ENTER: 13,

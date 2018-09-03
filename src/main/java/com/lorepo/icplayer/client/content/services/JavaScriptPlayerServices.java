@@ -924,7 +924,7 @@ public class JavaScriptPlayerServices {
 	public boolean isWCAGOn() {
 		return this.playerServices.isWCAGOn();
 	}
-	
+
 	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
 		this.playerServices.setAbleChangeLayout(isAbleChangeLayout);
 	}

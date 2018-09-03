@@ -868,12 +868,9 @@ function AddonTrueFalse_create() {
         }
     }
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        $(document).on('keydown', function(e) {
-            e.preventDefault();
-            presenter.shiftPressed = e.shiftKey;
-            $(this).off('keydown');
-        });
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        event.preventDefault();
+        presenter.shiftPressed = event.shiftKey;
 
         var keys = {
             ENTER: 13,

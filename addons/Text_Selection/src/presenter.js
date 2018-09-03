@@ -403,7 +403,7 @@ function AddonText_Selection_create() {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
-        if(upgradedModel['enableScroll']){
+        if(!upgradedModel['enableScroll']){
             upgradedModel['enableScroll'] = false;
         }
 
@@ -1339,21 +1339,16 @@ function AddonText_Selection_create() {
         presenter._keyboardController = new TextSelectionKeyboardController(jQueryToSelect, toSelect.length);
     };
 
-    presenter.handleEsc = function(keyCode){
-        $(document).on('keydown', function(e){
-           if(keyCode == 27) {
-               e.preventDefault();
-           }$(this).off('keydown');
-        });
-    };
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        if (keycode === window.KeyboardControllerKeys.ESC) {
+            event.preventDefault();
+        }
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        presenter.handleEsc(keycode);
         if (presenter._keyboardController === null) {
             presenter.buildKeyboardController();
         }
 
-        presenter._keyboardController.handle(keycode, isShiftKeyDown);
+        presenter._keyboardController.handle(keycode, isShiftKeyDown, event);
     };
 
     presenter.readActiveElement = function($element) {
