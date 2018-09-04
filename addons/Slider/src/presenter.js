@@ -4,6 +4,7 @@ function AddonSlider_create () {
     presenter.$view = null;
     presenter.savedState = null;
     presenter.counter = 0;
+    presenter.isTouch = false;
 
     var playerController, onStepChangeEvent;
 
@@ -173,22 +174,13 @@ function AddonSlider_create () {
     }
 
     function touchStartCallback (event) {
+        presenter.isTouch = true;
         event.preventDefault();
         event.stopPropagation();
 
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
         
         var touch = event.touches[0] || touchPoints[0];
-
-        var scale = getScale();
-        console.log(scale.X, scale.Y);
-        if(scale.X!==1.0 || scale.Y!==1.0){
-            touch.pageX = touch.pageX/scale.X;
-            touch.pageY = touch.pageY/scale.Y;
-            console.log("start -- touch.pageX: " + touch.pageX);
-            console.log("start -- touch.pageY: " + touch.pageY);
-        }
-
         mouseDownCallback(touch);
     }
 
@@ -226,6 +218,7 @@ function AddonSlider_create () {
     };
 
     function touchEndCallback (event) {
+        presenter.isTouch = false;
         event.preventDefault();
         event.stopPropagation();
 
@@ -274,6 +267,13 @@ function AddonSlider_create () {
             var mousePositions = getMousePositions(eventData);
             var relativeDistance;
 
+            if(presenter.isTouch) {
+                var scale = getScale();
+                if (scale.X !== 1.0 || scale.Y !== 1.0) {
+                    mousePositions.x = mousePositions.x / scale.X;
+                    mousePositions.y = mousePositions.y / scale.Y;
+                }
+            }
 
             if(presenter.continuousEvents && presenter.continuousEventsSteps == "Smooth"){
                 presenter.configuration.newStep = presenter.whichStepZoneSmooth(mousePositions, presenter.configuration);
@@ -284,30 +284,23 @@ function AddonSlider_create () {
             if ( presenter.configuration.orientation == presenter.ORIENTATION.LANDSCAPE ) {
                 relativeDistance = presenter.calculateRelativeDistanceX(imageElement, addonContainer, eventData, presenter.mouseData, imageElementData);
                 presenter.mouseData.oldPosition.x = eventData.pageX;
-                console.log("presenter.mouseData.oldPosition.x" + presenter.mouseData.oldPosition.x );
+
                 var minimumXPosition = ($(imageElement).width() / 2);
                 var maximumXPosition = imageElementData.maxLeft + ($(imageElement).width() / 2);
-                console.log("minimumXPosition" + minimumXPosition);
-                console.log("maximumXPosition" + maximumXPosition);
+
                 mousePositions.x = mousePositions.x > minimumXPosition ? mousePositions.x : minimumXPosition;
-                console.log("1 - mousePositions.x " + mousePositions.x );
                 mousePositions.x = mousePositions.x < maximumXPosition? mousePositions.x : maximumXPosition;
-                console.log("2 - mousePositions.x " + mousePositions.x );
 
                 if(!presenter.continuousEvents || (presenter.continuousEvents && presenter.continuousEventsSteps == "Smooth")){
                     $(imageElement).css({
                         left: (mousePositions.x + relativeDistance.horizontal - ($(imageElement).width() / 2)) + 'px'
                     });
-                    console.log("relativeDistance.horizontal: " +  relativeDistance.horizontal);
-                     console.log("($(imageElement).width() / 2): " +  ($(imageElement).width() / 2));
-                    console.log("left: " + mousePositions.x + relativeDistance.horizontal - ($(imageElement).width() / 2));
                 }
 
                 if (presenter.configuration.newStep !== presenter.configuration.currentStep && presenter.continuousEvents) {
                     presenter.triggerStepChangeEvent(presenter.configuration.currentStep, false);
 
                     presenter.configuration.currentStep = presenter.configuration.newStep;
-                    console.log(presenter.configuration.newStep);
                     presenter.triggerOnStepChangeUserEvent();
 
                     presenter.triggerStepChangeEvent(presenter.configuration.currentStep, true);
@@ -349,7 +342,6 @@ function AddonSlider_create () {
             //presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
         }
         if(eventData.preventDefault) {
-            console.log("rabotajet funkcyja");
             eventData.preventDefault();
         }
     }
@@ -360,16 +352,7 @@ function AddonSlider_create () {
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
 
         var touch = event.touches[0] || touchPoints[0];
-
-        var scale = getScale();
-        console.log(scale.X, scale.Y);
-        if(scale.X!==1.0 || scale.Y!==1.0){
-            touch.pageX = touch.pageX/scale.X;
-            touch.pageY = touch.pageY/scale.Y
-        }
-
         mouseMoveCallback(touch);
-        event.preventDefault();
     }
 
     function handleMouseDrag(addonContainer) {
