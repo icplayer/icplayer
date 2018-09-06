@@ -92,15 +92,15 @@ function AddonAdvanced_Graphic_Connector_create() {
     presenter.blocklyToCode = function(blocks_text) {
         window.BlocklyCustomBlocks.AGC.addBlocks();
         try {
-        var xml = Blockly.Xml.textToDom(blocks_text)
-          } catch (e) {
+            var xml = Blockly.Xml.textToDom(blocks_text)
+        } catch (e) {
             alert(e);
             return;
-          }
-          var workspace = new Blockly.Workspace();
-          Blockly.Xml.domToWorkspace(xml, workspace);
-          var code = Blockly.JavaScript.workspaceToCode(workspace);
-          return code;
+        }
+        var workspace = new Blockly.Workspace();
+        Blockly.Xml.domToWorkspace(xml, workspace);
+        var code = Blockly.JavaScript.workspaceToCode(workspace);
+        return code;
     };
 
     presenter.checkScriptsResources = function(script) {
@@ -124,15 +124,14 @@ function AddonAdvanced_Graphic_Connector_create() {
 
     presenter.ERROR_CODES = {
         'SV_01': "Script source must be provided and cannot be empty!",
-        'SV_02': "Missing EVENTSTART keyword or new line after it!",
-        'SV_03': "Missing EVENTEND keyword or new line after it!",
+        'SV_02': "All blocks must be contained within a source module block!",
+        'SV_03': "All blocks must be contained within a source module block!",
         'SV_04': "Missing SCRIPTSTART keyword or new line after it!",
         'SV_05': "Missing SCRIPTEND keyword or new line after it!",
         'SV_06': "Repeated event field value declaration!",
         'SV_07': "Repeated keyword!",
         'SV_08': "Invalid identification. Should be Source,Item, Value or Score!",
-        'SV_09': "Please pay attention to the correct linking resources",
-        'SV_10': "Blocks have been connected incorrectly"
+        'SV_09': "Please pay attention to the correct linking resources"
     };
 
     function returnErrorResult(errorCode) {
