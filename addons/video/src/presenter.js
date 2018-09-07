@@ -33,7 +33,7 @@ function Addonvideo_create() {
     presenter.posterPlayButton = null;
     presenter.videoView = null;
     presenter.isAudioDescriptionEnabled = null;
-
+    presenter.prevTime = -0.001;
     presenter.stylesBeforeFullscreen = {
         changedStyles: false,
         style: null,
@@ -1151,26 +1151,25 @@ function Addonvideo_create() {
     }
 
     function audioDescriptionEndedCallback() {
-        if (presenter && presenter.videoObject.paused) {
-            presenter.videoObject.play();
+        if (presenter) {
+            presenter.play();
         }
     }
 
-    var prevTime = 0;
     presenter.readAudioDescriptions = function (time) {
         if (!presenter.configuration.dimensions) return false;
         if (!presenter.playerController || !getAudioDescriptionEnabled()) return false;
-        if (time < prevTime || time - prevTime > 1.0) {
-            prevTime = time;
+        if ((time < presenter.prevTime) || ((time - presenter.prevTime) > 1.0)) {
+            presenter.prevTime = time - 0.001;
             return false;
         }
 
         var isSpeaking = false;
         for ( var i = 0; i < presenter.descriptions.length; i++) {
             var description = presenter.descriptions[i];
-            if (prevTime <= description.start && description.start <= time) {
+           if (presenter.prevTime < description.start && description.start <= time) {
                 isSpeaking = true;
-                presenter.videoObject.pause();
+                presenter.pause();
                 $(description.element).attr('visibility', 'visible');
                 $(description.element).css('visibility', presenter.isCurrentlyVisible ? 'visible' : 'hidden');
                 speakWithCallback([window.TTSUtils.getTextVoiceObject(description.text,description.langTag)], audioDescriptionEndedCallback);
@@ -1180,11 +1179,8 @@ function Addonvideo_create() {
             }
 
         }
-        if (prevTime == time) {
-            prevTime += 0.001;
-        } else {
-            prevTime = time;
-        }
+
+        presenter.prevTime = time;
 
         if (isSpeaking) {
             for (var i = 0; i < presenter.captions.length; i++) {
@@ -1239,6 +1235,7 @@ function Addonvideo_create() {
         if (currentTime >= videoDuration) {
             presenter.sendVideoEndedEvent();
             presenter.showWaterMark();
+            presenter.prevTime = -0.001;
             if (document.exitFullscreen) {
                 document.exitFullscreen();
             } else if (document.webkitExitFullscreen) {
@@ -1856,6 +1853,7 @@ function Addonvideo_create() {
     presenter.stop = deferredSyncQueue.decorate(function () {
             presenter.showPlayButton();
             presenter.seek(0);
+            presenter.prevTime = -0.001;
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
             presenter.posterPlayButton.removeClass('video-poster-pause');
