@@ -312,7 +312,8 @@ export class MediaRecorder {
             RecordButton: RecordButton,
             RecordingTimeLimiter: RecordingTimeLimiter,
             MediaState: MediaState,
-            Timer: Timer
+            Timer: Timer,
+            AudioPlayer: AudioPlayer
         }
     }
 
