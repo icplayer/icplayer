@@ -10,7 +10,6 @@ import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
-import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -692,4 +691,8 @@ public class PlayerApp {
 		changeLayout(this.lastSentLayoutID);
 	}
 
+	public boolean changeLayoutByName(String layoutName) {
+		String layoutID = this.contentModel.getLayoutIDByName(layoutName);
+		return this.changeLayout(layoutID);
+	}
 }
