@@ -255,6 +255,10 @@ function AddonText_To_Speech_create() {
                         };
                     };
                 }
+
+                //this list and "push" is solving the problem on
+                //'end' event of SpeechSynthesisUtterance object is not dispatched sometimes
+                //https://www.e-learn.cn/content/wangluowenzhang/603510
                 presenter.utterances.push(msg);
                 window.speechSynthesis.speak(msg);
             }
