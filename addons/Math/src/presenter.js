@@ -409,7 +409,12 @@ function AddonMath_create() {
         object.variables = {};
 
         for (var i = 0; i < variables.length; i++) {
-            object.variables[variables[i].name] = Number(variables[i].value.toString().replace(',',''));
+            var value = variables[i].value;
+            if (isNaN(value) || value.toString().indexOf('.') == -1) {
+                object.variables[variables[i].name] = value.toString();
+            } else {
+                object.variables[variables[i].name] = value;
+            }
         }
     };
 
