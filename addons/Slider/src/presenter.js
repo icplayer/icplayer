@@ -4,7 +4,7 @@ function AddonSlider_create () {
     presenter.$view = null;
     presenter.savedState = null;
     presenter.counter = 0;
-    presenter.isTouch = false;
+    presenter.isTouched = false;
 
     var playerController, onStepChangeEvent;
 
@@ -174,7 +174,7 @@ function AddonSlider_create () {
     }
 
     function touchStartCallback (event) {
-        presenter.isTouch = true;
+        presenter.isTouched = true;
         event.preventDefault();
         event.stopPropagation();
 
@@ -218,7 +218,7 @@ function AddonSlider_create () {
     };
 
     function touchEndCallback (event) {
-        presenter.isTouch = false;
+        presenter.isTouched = false;
         event.preventDefault();
         event.stopPropagation();
 
@@ -267,7 +267,7 @@ function AddonSlider_create () {
             var mousePositions = getMousePositions(eventData);
             var relativeDistance;
 
-            if(presenter.isTouch) {
+            if(presenter.isTouched) {
                 var scale = getScale();
                 if (scale.X !== 1.0 || scale.Y !== 1.0) {
                     mousePositions.x = mousePositions.x / scale.X;
