@@ -20,7 +20,6 @@ export class MediaAnalyserService {
     }
 
     createAnalyserFromElement(htmlMediaElement) {
-        console.log("createAnalyserFromElement");
         return new Promise(resolve => {
             if (!this.mediaElementSource)
                 this.mediaElementSource = this.audioContext.createMediaElementSource(htmlMediaElement);
