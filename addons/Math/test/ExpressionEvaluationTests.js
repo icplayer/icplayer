@@ -92,7 +92,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-//        assertTrue(evaluationResult.result);
     },
 
     'test simple mathematical expression without variables': function () {
