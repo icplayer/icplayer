@@ -21,11 +21,11 @@ public class ConnectorBlocksAddonParam extends StringAddonParam{
 		
 		String xml;
 		
-		xml = "<property";
-		xml += " name='" + StringUtils.escapeXML(name) + "'";
-		xml += " displayName='" + StringUtils.escapeXML(displayName) + "'";
-		xml += " type='" + StringUtils.escapeXML(type) + "'";
-		xml += ">";
+		xml = "<property" + 
+			" name='" + StringUtils.escapeXML(name) + "'" +
+			" displayName='" + StringUtils.escapeXML(displayName) + "'" +
+			" type='" + StringUtils.escapeXML(type) + "'" +
+			">";
 		
 		String singleLine = value.replace("\\", "\\:");
 		singleLine = singleLine.replace("\n", "\\n");
