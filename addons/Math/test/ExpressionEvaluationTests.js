@@ -50,9 +50,11 @@ TestCase("[Math] Expression evaluation", {
             getGapValue: function (index) {
                 switch (index) {
                     case '1':
-                        return '10.5';
+                        return '10.2';
                     case '2':
-                        return '1000';
+                        return '73500';
+                    case '3':
+                        return '18375';
                 }
             }
         };
@@ -247,10 +249,11 @@ TestCase("[Math] Expression evaluation", {
     'test expressions with variables being compared to numbers and strings': function () {
         this.variables = [
             { name: 'gap1', value: 'Text5.2' },
-            { name: 'gap2', value: 'Text5.1' }
+            { name: 'gap2', value: 'Text5.3'}
         ];
 
-        var expression = "gap1 == 1000 || gap1 == '1,000'";
+        var expression = "((gap1 == 73500 || gap1 == '73,500') && (gap2 == 18375 || gap2 == '18,375')) " +
+            "|| ((gap2 == 73500 || gap2 == '73,500') && (gap1 == 18375 || gap1 == '18,375'))";
 
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
