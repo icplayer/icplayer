@@ -413,6 +413,7 @@ function AddonMath_create() {
         }
 
         for (var i = 0; i < variables.length; i++) {
+            var name = variables[i].name;
             if (parsedExpression != null && (parsedExpression.indexOf('"='+name) != -1 || parsedExpression.indexOf(name+'="') != -1)) {
                 object.variables[variables[i].name] = variables[i].value.toString();
             } else {

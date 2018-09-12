@@ -258,5 +258,19 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.result);
+    },
+
+        'test expressions with variables being compared to numbers (including decimals) and strings': function () {
+        this.variables = [
+            { name: 'gap1', value: 'Text5.1' },
+            { name: 'gap3', value: 'Text5.2' },
+            { name: 'gap2', value: 'Text5.3'}
+        ];
+
+        var expression = "(((gap3 == 73500 || gap3 == '73,500') && (gap2 == 18375 || gap2 == '18,375')) " +
+            "|| ((gap2 == 73500 || gap2 == '73,500') && (gap3 == 18375 || gap3 == '18,375')))" +
+            " && (gap1>9.2 && gap1<10.8)";
+        var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
+        assertTrue(evaluationResult.result);
     }
 });
