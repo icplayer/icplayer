@@ -1,6 +1,6 @@
 TestCase("Event declaration validation", {
     setUp: function() {
-        this.presenter = AddonAdvanced_Graphic_Connector_create();
+        this.presenter = AddonVisual_Feedback_Creator_create();
     },
 
     'test missing SCRIPTSTART keyword': function() {

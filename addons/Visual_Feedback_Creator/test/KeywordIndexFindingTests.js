@@ -1,6 +1,6 @@
 TestCase("EVENTEND keyword finding", {
     setUp: function() {
-        this.presenter = AddonAdvanced_Graphic_Connector_create();
+        this.presenter = AddonVisual_Feedback_Creator_create();
     },
 
     'test keyword at the bottom of script': function() {

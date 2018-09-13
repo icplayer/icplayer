@@ -1,6 +1,6 @@
 TestCase("Events emulation", {
     setUp: function () {
-        this.presenter = AddonAdvanced_Graphic_Connector_create();
+        this.presenter = AddonVisual_Feedback_Creator_create();
 
         sinon.stub(this.presenter, 'onEventReceived');
     },

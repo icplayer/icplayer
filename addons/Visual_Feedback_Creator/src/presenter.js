@@ -1,4 +1,4 @@
-function AddonAdvanced_Graphic_Connector_create() {
+function AddonVisual_Feedback_Creator_create() {
     var presenter = function () {};
     var event;
 

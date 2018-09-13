@@ -1,6 +1,6 @@
 TestCase("Event data filling", {
     setUp: function () {
-        this.presenter = AddonAdvanced_Graphic_Connector_create();
+        this.presenter = AddonVisual_Feedback_Creator_create();
     },
 
     'test ValueChanged event data received': function () {

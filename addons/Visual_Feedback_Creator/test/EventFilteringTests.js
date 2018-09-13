@@ -1,6 +1,6 @@
 TestCase("Fields matching", {
     setUp: function() {
-        this.presenter = AddonAdvanced_Graphic_Connector_create();
+        this.presenter = AddonVisual_Feedback_Creator_create();
     },
 
     'test field matches its rule': function() {
@@ -18,7 +18,7 @@ TestCase("Fields matching", {
 
 TestCase("Events filtering", {
     setUp: function() {
-        this.presenter = AddonAdvanced_Graphic_Connector_create();
+        this.presenter = AddonVisual_Feedback_Creator_create();
 
         this.eventsDeclaration = [{
             Source: 'ImageViewer1',
