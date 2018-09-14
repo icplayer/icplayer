@@ -67,7 +67,11 @@
         "Visual_Feedback_Creator_source_event": "Source Event",
         "Visual_Feedback_Creator_check": "Check",
         "Visual_Feedback_Creator_uncheck": "Uncheck",
-        "Visual_Feedback_Creator_reset": "Reset"
+        "Visual_Feedback_Creator_page_loaded": "Page loaded",
+        "Visual_Feedback_Creator_hide_answers": "Hide answers",
+        "Visual_Feedback_Creator_show_answers": "Show answers",
+        "Visual_Feedback_Creator_changed_value": "Changed value",
+        "Visual_Feedback_Creator_event": "Event:"
 
     };
 
@@ -129,6 +133,17 @@
             this.appendDummyInput()
                 .appendField(labels.Visual_Feedback_Creator_custom_event);
             this.appendDummyInput()
+                .appendField(labels.Visual_Feedback_Creator_event)
+                .appendField(new Blockly.FieldDropdown([
+                    [labels.Visual_Feedback_Creator_changed_value,"ValueChanged"],
+                    [labels.Visual_Feedback_Creator_page_loaded,"PageLoaded"],
+                    [labels.Visual_Feedback_Creator_reset,"Reset"],
+                    [labels.Visual_Feedback_Creator_show_answers,"ShowAnswers"],
+                    [labels.Visual_Feedback_Creator_hide_answers,"HideAnswers"],
+                    [labels.Visual_Feedback_Creator_check,"Check"],
+                    [labels.Visual_Feedback_Creator_uncheck,"Uncheck"]]),
+                    "eventName");
+            this.appendDummyInput()
                 .appendField(labels.Visual_Feedback_Creator_item)
                 .appendField(new Blockly.FieldTextInput(""), "item");
             this.appendDummyInput()
@@ -153,6 +168,7 @@
         };
 
         Blockly.JavaScript['vfc_custom_event'] = function (block) {
+            var dropdown_event = block.getFieldValue('eventName');
             var text_item = block.getFieldValue('item');
             var text_value = block.getFieldValue('value');
             var text_score = block.getFieldValue('score');
@@ -160,6 +176,7 @@
             var text_word = block.getFieldValue('word');
             var statements_action = Blockly.JavaScript.statementToCode(block, 'Action');
             var code = '';
+            code += 'Name:' + dropdown_event + '\n';
             if(text_item.trim().length > 0) {
                 code += 'Item:' + text_item + '\n';
             }
@@ -188,10 +205,15 @@
             this.appendDummyInput()
                 .appendField(labels.Visual_Feedback_Creator_source_event);
             this.appendDummyInput()
-                .appendField(new Blockly.FieldDropdown(
-                    [[labels.Visual_Feedback_Creator_check,"check"],
-                    [labels.Visual_Feedback_Creator_uncheck,"uncheck"],
-                    [labels.Visual_Feedback_Creator_reset,"reset"]]), "event");
+                .appendField(labels.Visual_Feedback_Creator_event)
+                .appendField(new Blockly.FieldDropdown([
+                    [labels.Visual_Feedback_Creator_page_loaded,"PageLoaded"],
+                    [labels.Visual_Feedback_Creator_reset,"Reset"],
+                    [labels.Visual_Feedback_Creator_show_answers,"ShowAnswers"],
+                    [labels.Visual_Feedback_Creator_hide_answers,"HideAnswers"],
+                    [labels.Visual_Feedback_Creator_check,"Check"],
+                    [labels.Visual_Feedback_Creator_uncheck,"Uncheck"]]),
+                    "eventName");
             this.appendStatementInput("action")
                 .setCheck("vfc_feedback");
             this.setColour(230);
@@ -201,21 +223,11 @@
         };
 
         Blockly.JavaScript['vfc_source_event'] = function(block) {
-            var dropdown_event = block.getFieldValue('event');
+            var dropdown_event = block.getFieldValue('eventName');
             var statements_action = Blockly.JavaScript.statementToCode(block, 'action');
 
             var code = '\nEVENTSTART\n';
-            switch (dropdown_event) {
-                case 'check':
-                    code += 'Name:Check\n';
-                    break;
-                case 'uncheck':
-                    code += 'Name:Uncheck\n';
-                    break;
-                case 'reset':
-                    code += 'Name:Reset\n';
-                    break;
-            }
+            code += 'Name:' + dropdown_event + '\n';
             code += 'SCRIPTSTART\n';
             code += statements_action;
             code += 'SCRIPTEND\n';
@@ -481,6 +493,7 @@
         Blockly.JavaScript['vfc_true_false_correct_row'] = function(block) {
             var number_row = block.getFieldValue('row');
             var statements_action = Blockly.JavaScript.statementToCode(block, 'action');
+
             var code = 'Item:'+number_row+'-all\n';
             code += 'SCRIPTSTART\n';
             code += statements_action;
@@ -613,6 +626,7 @@
           init: function() {
             this.appendDummyInput()
                 .appendField(blockTitle);
+
             var argumentKeys = Object.keys(argumentDict);
             for (var i = 0; i < argumentKeys.length; i++) {
                 var key = argumentKeys[i];
