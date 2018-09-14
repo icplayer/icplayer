@@ -6,6 +6,7 @@
     flex-direction: column;
 }
 
+.media-recorder-wrapper
 .media-recorder-player-wrapper {
     flex: 1;
     margin-bottom: 5px;
@@ -13,11 +14,13 @@
     position: relative;
 }
 
+.media-recorder-wrapper
 .media-recorder-player-wrapper video {
     width: 100%;
     height: 100%;
 }
 
+.media-recorder-wrapper
 .media-recorder-interface-wrapper {
     width: 100%;
     height: 35px;
@@ -29,6 +32,7 @@
     -moz-border-radius: 20px;
 }
 
+.media-recorder-wrapper
 .media-recorder-recording-button {
     width: 20px;
     height: 20px;
@@ -36,10 +40,12 @@
     background: url('resources/004-record.svg') no-repeat center;
 }
 
+.media-recorder-wrapper
 .media-recorder-recording-button.selected {
     background: url('resources/003-stop.svg') no-repeat center;
 }
 
+.media-recorder-wrapper
 .media-recorder-play-button {
     width: 20px;
     height: 20px;
@@ -47,10 +53,12 @@
     background: url('resources/002-play-button.svg') no-repeat center;
 }
 
+.media-recorder-wrapper
 .media-recorder-play-button.selected {
     background: url('resources/001-backward.svg') no-repeat center;
 }
 
+.media-recorder-wrapper
 .media-recorder-timer {
     width: 100px;
     height: 30px;
@@ -62,6 +70,7 @@
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
 
+.media-recorder-wrapper
 .media-recorder-sound-intensity {
     width: 20px;
     margin: 0px 10px;
@@ -69,10 +78,12 @@
     flex-direction: column;
 }
 
+.media-recorder-wrapper
 .sound-intensity-large:first-child {
     border-top: 1px solid;
 }
 
+.media-recorder-wrapper
 .sound-intensity-large {
     width: 100%;
     height: 3px;
@@ -81,10 +92,12 @@
     margin: auto;
 }
 
+.media-recorder-wrapper
 .sound-intensity-large.selected {
     background-color: #FF0000;
 }
 
+.media-recorder-wrapper
 .sound-intensity-medium {
     width: 100%;
     height: 3px;
@@ -93,10 +106,12 @@
     margin: auto;
 }
 
+.media-recorder-wrapper
 .sound-intensity-medium.selected {
     background-color: #E4E400;
 }
 
+.media-recorder-wrapper
 .sound-intensity-low {
     width: 100%;
     height: 3px;
@@ -105,15 +120,18 @@
     margin: auto;
 }
 
+.media-recorder-wrapper
 .sound-intensity-low.selected {
     background-color: #71E200;
 }
 
+.media-recorder-wrapper
 .media-recorder-player-loader {
     width: 4vw;
     height: 4vw;
 }
 
+.media-recorder-wrapper
 .video-loader {
     border: 5px solid #f3f3f3;
     border-top: 5px solid #1d2830;
@@ -127,6 +145,7 @@
     bottom: 0;
 }
 
+.media-recorder-wrapper
 .disabled {
     opacity: 0.5;
 }
