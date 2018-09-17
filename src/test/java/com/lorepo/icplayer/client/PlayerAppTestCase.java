@@ -52,6 +52,5 @@ public class PlayerAppTestCase {
 		Whitebox.setInternalState(appMock, "lastSentLayoutID", lastSentLayout);
 		appMock.updateLayout();
 		Mockito.verify(appMock, Mockito.times(1)).changeLayout(lastSentLayout);
-		
 	}
 }
