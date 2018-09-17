@@ -518,9 +518,21 @@ public class JavaScriptPlayerServices {
 
 			return keyboardController;
 		}
+		
+		playerServices.changeSemiResponsiveLayout = function (layoutIDOrName) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeSemiResponsiveLayout(Ljava/lang/String;)(layoutIDOrName);
+		}
+		
+		playerServices.changeResponsiveLayout = function (layoutIDOrName) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeSemiResponsiveLayout(Ljava/lang/String;)(layoutIDOrName);
+		}
 
 		return playerServices;
 	}-*/;
+	
+	private boolean changeSemiResponsiveLayout(String layoutIDOrName) {
+		return this.playerServices.changeSemiResponsiveLayout(layoutIDOrName);
+	}
 	
 	private void changeFooterVisibility(boolean isVisible) {
 		this.playerServices.getCommands().changeFooterVisibility(isVisible);
