@@ -63,6 +63,14 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.setVisibility(isVisible);
     };
 
+    presenter.show = function() {
+        presenter.setVisibility(true);
+    }
+
+    presenter.hide = function() {
+        presenter.setVisibility(false);
+    }
+
     presenter.setShowErrorsMode = function setShowErrorsMode() {
         presenter.mediaRecorder.deactivate();
     };
@@ -81,10 +89,11 @@ function AddonMedia_Recorder_create() {
             'stopRecording': presenter.stopRecording,
             'startPlaying': presenter.startPlaying,
             'stopPlaying': presenter.stopPlaying,
-            'setVisibility': presenter.setVisibility,
             'setShowErrorsMode': presenter.setShowErrorsMode,
             'setWorkMode': presenter.setWorkMode,
-            'reset': presenter.reset
+            'reset': presenter.reset,
+            'show': presenter.show,
+            'hide': presenter.hide
         };
 
         return Commands.dispatch(commands, name, params, presenter);

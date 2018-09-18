@@ -145,8 +145,7 @@
     bottom: 0;
 }
 
-.media-recorder-wrapper
-.disabled {
+.media-recorder-wrapper.disabled {
     opacity: 0.5;
 }
 
