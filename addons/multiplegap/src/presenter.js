@@ -776,9 +776,11 @@ function Addonmultiplegap_create(){
                     event.preventDefault();
                     return;
                 }
+                placeholder.addClass('dragging');
                 ui.helper.zIndex(100);
             },
             stop : function(event, ui) {
+                placeholder.removeClass('dragging');
                 ui.helper.zIndex(0);
                 ui.helper.remove();
                 presenter.itemStopped(placeholder);
@@ -1000,7 +1002,7 @@ function Addonmultiplegap_create(){
     };
     
     function getItemsCount() {
-        return presenter.$view.find('.placeholder').length;
+        return presenter.$view.find('.placeholder').not('.dragging').length;
     }
     
     function isAllCorrect () {
@@ -1059,7 +1061,7 @@ function Addonmultiplegap_create(){
         var remainingItems = presenter.configuration.itemsAnswersID.slice(0), currentItem;
         var redundantItems = [];
 
-        presenter.$view.find('.placeholder').each(function(index, placeholder) {
+        presenter.$view.find('.placeholder').not('.dragging').each(function(index, placeholder) {
             
             // To get updated score during dragged element which is still in DOM we must break out of each
             if (!$(placeholder).find('.handler').filter(':visible').length) {
