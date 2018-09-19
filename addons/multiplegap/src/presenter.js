@@ -842,14 +842,25 @@ function Addonmultiplegap_create(){
     };
     
     presenter.itemStopped = function(placeholder) {
+        var value = placeholder.attr('draggableValue') + '';
+        var item = placeholder.attr('draggableItem') + '';
+        var type = placeholder.attr('draggableType') + '';
+        placeholder.remove();
+
+        presenter.eventBus.sendEvent('ValueChanged', {
+            'source': presenter.configuration.ID,
+            'item'  : item,
+            'value' : 'remove',
+            'score' : presenter.getScore()
+        });
+
         var evnt = {
             source: presenter.configuration.ID,
-            value: placeholder.attr('draggableValue'),
-            item: placeholder.attr('draggableItem'),
-            type: placeholder.attr('draggableType')
+            value: value,
+            item: item,
+            type: type
         };
         presenter.eventBus.sendEvent('itemStopped', evnt);
-        placeholder.remove();
         presenter.$view.find('.placeholder').each(presenter.movePlaceholdersAfterRemove);
     };
     
@@ -1002,10 +1013,18 @@ function Addonmultiplegap_create(){
         }
         if (presenter.itemCounterMode) {
             var score = isAllCorrect() ? 1 : 0;
-            
+
             return presenter.configuration.isActivity ? score : 0;
         }
-        return presenter.configuration.isActivity ? presenter.configuration.itemsAnswersID.length - presenter.getInvalidItems().length : 0;
+        var invalidAndRedundantItems = presenter.getInvalidItems();
+        var invalidItems = invalidAndRedundantItems[0];
+        var redundantItems = invalidAndRedundantItems[1];
+
+        if (redundantItems.length > 0) {
+            return 0;
+        } else {
+            return presenter.configuration.isActivity ? presenter.configuration.itemsAnswersID.length - invalidItems.length : 0;
+        }
     };
     
     presenter.getErrorCount = function() {
@@ -1019,10 +1038,10 @@ function Addonmultiplegap_create(){
             if (!isAllCorrect() && !isEmpty) {
                 result = 1;
             }
-            
+
             return presenter.configuration.isActivity ? result : 0;
         }
-        
+
         return presenter.configuration.isActivity ? presenter.countItems() - presenter.getScore() : 0;
     };
     
@@ -1032,13 +1051,14 @@ function Addonmultiplegap_create(){
         if (presenter.itemCounterMode) {
             return isAllCorrect() ? 1 : 0;
         }
-        
+
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
     
     presenter.getInvalidItems = function() {
         var remainingItems = presenter.configuration.itemsAnswersID.slice(0), currentItem;
-        
+        var redundantItems = [];
+
         presenter.$view.find('.placeholder').each(function(index, placeholder) {
             
             // To get updated score during dragged element which is still in DOM we must break out of each
@@ -1050,10 +1070,12 @@ function Addonmultiplegap_create(){
             
             if (currentItemIndex !== -1) {
                 remainingItems.splice(currentItemIndex, 1);
+            } else {
+                redundantItems.push(currentItem);
             }
         });
         
-        return remainingItems;
+        return [remainingItems, redundantItems];
     };
     
     function markInactive () {
