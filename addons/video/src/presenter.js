@@ -1867,7 +1867,7 @@ function Addonvideo_create() {
     presenter.stop = deferredSyncQueue.decorate(function () {
             presenter.showPlayButton();
             presenter.seek(0);
-            presenter.prevTime = -0.001
+            presenter.prevTime = -0.001;
             presenter.videoObject.pause();
             presenter.usedStop = true;
             presenter.removeClassFromView('playing');
@@ -1881,7 +1881,7 @@ function Addonvideo_create() {
             presenter.videoObject.pause();
             presenter.removeClassFromView('playing');
         }
-        presenter.usedStop = false
+        presenter.usedStop = false;
     });
 
     presenter.previous = function () {
