@@ -1,4 +1,4 @@
-var supportedAddons = ["PseudoCode_Console", "Media_Recorder"];
+var supportedAddons = ["PseudoCode_Console"];
 
 var entry = {};
 

@@ -148,8 +148,6 @@
 
                 <file name="${build.temp.folder}/webtoolkit.js"/>
                 <file name="${build.temp.folder}/jison.min.js"/>
-
-                <file name="${build.temp.folder}/recorder/RecordRTC.js"/>
             </filelist>
         </concat>
         <echo>Concanetating success</echo>
