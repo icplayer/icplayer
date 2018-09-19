@@ -1018,6 +1018,9 @@ function Addonmultiplegap_create(){
 
             return presenter.configuration.isActivity ? score : 0;
         }
+
+        if (!presenter.configuration.isActivity) return 0;
+
         var invalidAndRedundantItems = presenter.getInvalidItems();
         var invalidItems = invalidAndRedundantItems[0];
         var redundantItems = invalidAndRedundantItems[1];
@@ -1025,7 +1028,7 @@ function Addonmultiplegap_create(){
         if (redundantItems.length > 0) {
             return 0;
         } else {
-            return presenter.configuration.isActivity ? presenter.configuration.itemsAnswersID.length - invalidItems.length : 0;
+            return presenter.configuration.itemsAnswersID.length - invalidItems.length;
         }
     };
     
