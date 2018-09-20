@@ -1195,7 +1195,6 @@ function AddonSlideshow_create() {
 	            isMouseDragged : false
 	        };
 
-        	presenter.setVisibility(presenter.configuration.isVisible);
             hideLoadingScreen();
         }
 

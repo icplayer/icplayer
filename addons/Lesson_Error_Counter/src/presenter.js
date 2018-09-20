@@ -38,7 +38,7 @@ function AddonLesson_Error_Counter_create() {
         presenter.$view = $(view);
         presenter.configuration = presenter.sanitizeModel(model);
 
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
 
         if (!isPreview) {
             presenter.countErrors();

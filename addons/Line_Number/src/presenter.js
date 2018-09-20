@@ -119,7 +119,7 @@ function AddonLine_Number_create() {
             addInitPoints();
         }
 
-        if ( !presenter.configuration.isVisibleByDefault ) {
+        if ( !presenter.configuration.isVisibleByDefault && !isPreview) {
             presenter.hide();
         }
 
