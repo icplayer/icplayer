@@ -696,6 +696,14 @@ function AddoneKeyboard_create(){
                         document.addEventListener('mousedown', presenter.clickedOutsideCallback);
                     },
                     change: function (e, keyboard, el) {
+                        var api = $(lastClickedElement).data('keyboard');
+
+                        //Fixing the issue where if a key contains word 'meta' it will be treated as a meta key
+                        if (api.last.key && api.last.key.indexOf('meta') != -1
+                            && presenter.configuration.customLayout[api.last.key] == null) {
+                            keyboard.insertText(api.last.key);
+                        }
+
                         var event = new Event('change');
                         el.dispatchEvent(event);
 
@@ -704,17 +712,7 @@ function AddoneKeyboard_create(){
                         document.removeEventListener('mousedown', presenter.clickedOutsideCallback);
                         $(closeButtonElement).hide();
                     },
-                    accepted: function(e, keyboard, el) {
-                        var api = $(lastClickedElement).data('keyboard');
-                        var $el = $(el);
-
-                        //Fixing the issue where if a key contains word 'meta' it will be treated as a meta key
-                        if (!api.last.val && api.last.key && api.last.key.indexOf('meta') != -1
-                            && presenter.configuration.customLayout[api.last.key] == null) {
-                            api.last.val = api.last.key;
-                            $el.val(api.last.key);
-                        }
-                    },
+                    accepted: function(e, keyboard, el) {},
                     canceled: function(e, keyboard, el) {},
                     hidden: function(e, keyboard, el) {},
 
