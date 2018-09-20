@@ -1022,8 +1022,8 @@ function Addonmultiplegap_create(){
         if (!presenter.configuration.isActivity) return 0;
 
         var invalidAndRedundantItems = presenter.getInvalidItems();
-        var invalidItems = invalidAndRedundantItems[0];
-        var redundantItems = invalidAndRedundantItems[1];
+        var invalidItems = invalidAndRedundantItems.remainingItems;
+        var redundantItems = invalidAndRedundantItems.redundantItems;
 
         if (redundantItems.length > 0) {
             return 0;
@@ -1080,7 +1080,7 @@ function Addonmultiplegap_create(){
             }
         });
         
-        return [remainingItems, redundantItems];
+        return {remainingItems: remainingItems, redundantItems: redundantItems};
     };
     
     function markInactive () {
