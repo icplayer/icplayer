@@ -100,9 +100,8 @@ function AddonZoom_Image_create() {
         if (!isPreview) {
             presenter.eventType = MobileUtils.isMobileUserAgent(navigator.userAgent) ? "touchend" : "click";
             presenter.$view.find(".icon").on(presenter.eventType, presenter.createPopUp);
+            presenter.setVisibility(presenter.configuration.isVisible);
         }
-
-        presenter.setVisibility(presenter.configuration.isVisible);
 
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
