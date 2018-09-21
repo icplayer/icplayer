@@ -532,6 +532,7 @@ function AddonFigureDrawing_create(){
             if (trigger) presenter.triggerEvent(item,value,score);
         }
     }
+
     presenter.initiate = function(view, model){
         presenter.$view = $(view);
         presenter.model = model;
@@ -560,6 +561,7 @@ function AddonFigureDrawing_create(){
         };
         return true;
     }
+
     presenter.drawGrid = function() {
         var Width = presenter.figure.width();
         var Height = presenter.figure.parent().height();
@@ -644,7 +646,8 @@ function AddonFigureDrawing_create(){
                 presenter.$view.find('.canvas').parents("*").css("overflow", "visible");
             }
         }
-    }
+    };
+
     presenter.run = function(view, model){
         var row, column, x, y;
         var timeClick = true, abandon = false;
@@ -867,7 +870,7 @@ function AddonFigureDrawing_create(){
                     if (presenter.model['AnswerColors'].length != 1 || presenter.model['AnswerColors'][0]['Figure'] != '' || presenter.model['AnswerColors'][0]['Color'] != '')
                         validateAnswersColor(presenter.model['AnswerColors']);
             }
-            presenter.updateVisibility();
+
             if (presenter.disabled) presenter.disable();
             if (presenter.coloring && presenter.startingColors != '') {
                 presenter.coloredAreas = presenter.startingColors;

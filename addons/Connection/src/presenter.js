@@ -350,7 +350,7 @@ function AddonConnection_create() {
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-        presenter.setVisibility(presenter.isVisible);
+        presenter.setVisibility(presenter.isVisible || isPreview);
 
         isRTL = presenter.$view.css('direction').toLowerCase() === 'rtl';
         connections = presenter.$view.find('.connections:first');

@@ -247,10 +247,7 @@ function AddonSudoku_create(){
             }
         }
 
-        presenter.setVisibility(presenter.wasVisible);
         presenter.drawInitial(model.Values);
-
-
     };
 
     presenter.run = function(view, model){
@@ -266,6 +263,7 @@ function AddonSudoku_create(){
 
         if(presenter.validate(view,model)){
             presenter.init(view, model);
+            presenter.setVisibility(presenter.isVisible);
 
             if(model.isActivity == "True"){
                 presenter.correctAnswer = presenter.checkSudoku(view);
@@ -330,6 +328,8 @@ function AddonSudoku_create(){
 
         if(presenter.validate(view,model)){
             presenter.init(view, model);
+
+            presenter.setVisibility(true);
 
             if(model.isActivity == "True"){
                 presenter.checkSudoku(view);

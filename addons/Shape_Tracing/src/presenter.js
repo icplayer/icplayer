@@ -1000,6 +1000,21 @@ function AddonShape_Tracing_create() {
             return false;
         }
 
+        presenter.initializeCanvas(isPreview);
+
+        if (!isPreview) {
+            turnOnEventListeners();
+        }
+
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
+        presenter.visibleByDefault = presenter.configuration.isVisible;
+
+        presenter.$view.find('div.correctImage').css('display', 'none');
+
+        return false;
+    };
+
+    presenter.initializeCanvas = function(isPreview) {
         initPointsArray();
 
         presenter.data.isAllPointsChecked = presenter.configuration.points.length === 0;
@@ -1032,17 +1047,6 @@ function AddonShape_Tracing_create() {
                 drawCorrectAnswerImage(isPreview);
             }
         });
-
-        if (!isPreview) {
-            turnOnEventListeners();
-        }
-
-        presenter.setVisibility(presenter.configuration.isVisible);
-        presenter.visibleByDefault = presenter.configuration.isVisible;
-
-        presenter.$view.find('div.correctImage').css('display', 'none');
-
-        return false;
     };
 
     presenter.run = function(view, model) {
