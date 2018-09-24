@@ -1,4 +1,4 @@
-TestCase("[MathText] Check answers tests", {
+TestCase("[MathText] Disable tests", {
     setUp: function () {
         this.presenter = AddonMathText_create();
 
@@ -26,16 +26,20 @@ TestCase("[MathText] Check answers tests", {
 
         this.presenter.configuration = {
             isActivity: true,
+            showEditor: true
         };
 
         // presenter mocking
         this.presenter.editor = {
-            setToolbarHidden: this.stubs.setToolbarHiddenStub,
+            setToolbarHidden: this.stubs.setToolbarHiddenStub
         };
 
         this.presenter.$view = {
             find: this.stubs.findStub
         };
+
+        this.presenter.setWorkMode = this.stubs.setWorkModeStub;
+        this.presenter.hideAnswers = this.stubs.hideAnswersStub;
     },
 
     'test setDisabled should unset check answers and show answers': function(){
@@ -70,6 +74,4 @@ TestCase("[MathText] Check answers tests", {
         assertTrue(this.stubs.removeAttrStub.calledWith('disabled'));
         assertTrue(this.stubs.setToolbarHiddenStub.calledWith(false));
     }
-
-
 });

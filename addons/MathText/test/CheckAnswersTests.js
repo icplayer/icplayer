@@ -33,6 +33,7 @@ TestCase("[MathText] Check answers tests", {
 
         this.presenter.configuration = {
             isActivity: true,
+            showEditor: true,
             initialText: 'initial',
             correctAnswer: 'correct'
         };

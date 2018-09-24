@@ -5,12 +5,14 @@ TestCase("[MathText] State tests", {
         this.stubs = {
             setVisibilityStub: sinon.stub(),
             setMathMLStub: sinon.stub(),
-            getMathMLStub: sinon.stub()
+            getMathMLStub: sinon.stub(),
+            setDisabledStub: sinon.stub()
         };
 
         this.presenter.configuration = {
             isVisible: true,
             isActivity: true,
+            showEditor: true,
             initialText: 'initial'
         };
 
@@ -24,6 +26,7 @@ TestCase("[MathText] State tests", {
         };
 
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
+        this.presenter.setDisabled = this.stubs.setDisabledStub;
 
         this.stubs.getMathMLStub.returns('currentText');
     },
@@ -88,11 +91,19 @@ TestCase("[MathText] State tests", {
     },
 
     'test should set true as isVisible': function(){
-        var state = '{"text": "testText", "isVisible": true}';
+        var state = '{"text": "testText", "isVisible": true, "isDisabled": true}';
 
         this.presenter.setState(state);
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
+    },
+
+    'test should set true as isDisabled': function(){
+        var state = '{"text": "testText", "isVisible": true, "isDisabled": true}';
+
+        this.presenter.setState(state);
+
+        assertTrue(this.stubs.setDisabledStub.calledWith(true));
     },
 
     'test should set text to editor when activity': function(){

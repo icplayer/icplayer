@@ -8,7 +8,8 @@ TestCase("[MathText] Reset tests", {
             setMathMLStub: sinon.stub(),
             findStub: sinon.stub(),
             removeAttrStub: sinon.stub(),
-            setToolbarHiddenStub: sinon.stub()
+            setToolbarHiddenStub: sinon.stub(),
+            setDisabledStub: sinon.stub()
         };
 
         this.stubs.findStub.returns({
@@ -37,11 +38,16 @@ TestCase("[MathText] Reset tests", {
 
         this.presenter.configuration = {
             isVisible: true,
+            showEditor: true,
             isActivity: true,
+            isDisabled: false,
             initialText: 'initial'
         };
 
+        this.stubs.findStub.returns($('span'));
+
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
+        this.presenter.setDisabled = this.stubs.setDisabledStub;
     },
 
     'test set isCheckAnswers ans isShowAnswers state to false': function(){
@@ -72,11 +78,9 @@ TestCase("[MathText] Reset tests", {
         assertTrue(this.stubs.setMathMLStub.calledWith('initial'));
     },
 
-    'test remove disabled attribute and should restore visibility of toolbar': function(){
+    'test reset should restore visibility of toolbar': function(){
         this.presenter.reset();
 
-        assertTrue(this.stubs.removeAttrStub.called);
-        assertTrue(this.stubs.removeAttrStub.calledWith('disabled'));
         assertTrue(this.stubs.setToolbarHiddenStub.called);
         assertTrue(this.stubs.setToolbarHiddenStub.calledWith(false));
     },
@@ -87,5 +91,13 @@ TestCase("[MathText] Reset tests", {
 
         assertFalse(this.stubs.setToolbarHiddenStub.called);
         assertFalse(this.stubs.setMathMLStub.called);
+    },
+
+    'test reset should call setDisabled with parameter from config': function () {
+        this.presenter.configuration.isDisabled = true;
+        this.presenter.reset();
+
+        assertTrue(this.stubs.setDisabledStub.called);
+        assertTrue(this.stubs.setDisabledStub.calledWith(true));
     }
 });

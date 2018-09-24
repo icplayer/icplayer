@@ -3,7 +3,7 @@ TestCase("[MathText] Model validation", {
         this.presenter = AddonMathText_create();
         this.model = {
             'ID': 'ID',
-            'isActivity': 'True',
+            'type': 'activity',
             'isDisabled': 'True',
             'initialText': 'initial',
             'correctAnswer': 'correct',
@@ -20,9 +20,9 @@ TestCase("[MathText] Model validation", {
         var validatedModel = this.presenter.validateModel(this.model);
 
         assertTrue(validatedModel.isValid);
-        assertTrue(validatedModel.value.isActivity);
         assertTrue(validatedModel.value.isDisabled);
         assertTrue(validatedModel.value.isVisible);
+        assertEquals(this.presenter.TYPES_DEFINITIONS.ACTIVITY, validatedModel.value.type);
         assertEquals("initial", validatedModel.value.initialText);
         assertEquals("correct", validatedModel.value.correctAnswer);
         assertEquals(500, validatedModel.value.width);
@@ -110,8 +110,5 @@ TestCase("[MathText] Model validation", {
 
         assertTrue(validatedModel.isValid);
         assertEquals('fr', validatedModel.value.language);
-    },
-
-
-
+    }
 });
