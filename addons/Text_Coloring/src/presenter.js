@@ -415,7 +415,7 @@ function AddonText_Coloring_create() {
         presenter.setFilteredTokensData();
         presenter.setView(presenter.createView());
 
-        if (!presenter.configuration.isVisible) {
+        if (!presenter.configuration.isVisible && !isPreview) {
             presenter.hide();
         }
 

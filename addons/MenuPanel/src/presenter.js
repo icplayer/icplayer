@@ -14,14 +14,15 @@ function AddonMenuPanel_create(){
 
     presenter.run = function(view, model){
         presenterLogic(view, model);
+        presenter.setVisibility(presenter.isVisibleByDefault);
     };
 
     presenter.createPreview = function(view, model) {
         presenterLogic(view, model);
-    }
+        presenter.setVisibility(true);
+    };
 
     function presenterLogic(view, model) {
-        presenter.log('********* ver 1.2 *********');
         presenter.view = view;
         presenter.$view = $(view);
         presenter.model = model;
@@ -34,7 +35,6 @@ function AddonMenuPanel_create(){
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = presenter.isVisible;
-        presenter.setVisibility(presenter.isVisibleByDefault);
 
         presenter.isDisabled = ModelValidationUtils.validateBoolean(model["Disable"]);
         presenter.isDisabledByDefault = presenter.isDisabled;
@@ -127,7 +127,6 @@ function AddonMenuPanel_create(){
     presenter.clickHandler = function(e){
         if(!presenter.isDisabled && !presenter.menuItems[e.data.item].isDisabled){
             var value;
-            presenter.log(presenter.menuItems[e.data.item].id+' clicked');
 
             if(presenter.menuItems[e.data.item].isSelected){
                 presenter.menuItems[e.data.item].isSelected = false;
@@ -354,8 +353,6 @@ function AddonMenuPanel_create(){
     };
 
     presenter.enable = function(item) {
-        presenter.log('typeof item: '+typeof item);
-
         if(typeof item === 'undefined'){
             presenter.setAbilityAll(true);
         }else{
@@ -368,10 +365,7 @@ function AddonMenuPanel_create(){
         presenter.enable(params[0]);
     };
     presenter.disable = function(item){
-        presenter.log('typeof item: '+typeof item);
-
         if(typeof item === 'undefined'){
-            presenter.log('disable; item is undefined');
             presenter.setAbilityAll(false);
         }else{
             var i = getItemById(item);
@@ -441,10 +435,6 @@ function AddonMenuPanel_create(){
     presenter.setWorkMode = function(){ };
     presenter.showAnswers = function(){ };
     presenter.hideAnswers = function(){ };
-
-    presenter.log = function(msg){
-        //console.log(msg);
-    };
 
     return presenter;
 }

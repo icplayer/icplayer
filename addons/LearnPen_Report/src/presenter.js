@@ -446,7 +446,7 @@ function AddonLearnPen_Report_create() {
             return;
         }
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         presenter.data.$img = presenter.$view.find('img');
         presenter.data.$canvas = presenter.$view.find('canvas');

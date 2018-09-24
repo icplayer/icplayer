@@ -41,7 +41,7 @@
          }
      }
 
-    function presenterLogic(view, model, preview) {
+    function presenterLogic(view, model, isPreview) {
         var width = model.Width;
         var height = model.Height;
         presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
@@ -53,14 +53,13 @@
 
         presenter.$view = $(view);
 
-        presenter.setVisibility(presenter.isVisible);
-
         if (decodedVideoID.isError) {
             showErrorMessage(viewContainer, decodedVideoID.errorMessage);
         } else {
-            if (preview) {
+            if (isPreview) {
                 createVideoThumbnailAsync(decodedVideoID.videoID, viewContainer, width, height);
             } else {
+                presenter.setVisibility(presenter.isVisible);
                 var src = '${protocol}://www.youtube.com/embed/${video_id}';
                 src = src.replace("${video_id}", decodedVideoID.videoID);
 

@@ -163,7 +163,7 @@ function AddonBlocklyCodeEditor_create () {
         presenter.createWorkspace(view, isPreview);
         presenter.addUserBlocks();
 
-        presenter.setVisibility(presenter.configuration.visibleByDefault);
+        presenter.setVisibility(presenter.configuration.visibleByDefault || isPreview);
 
         isPreviewDecorator(presenter.connectHandlers)();
 

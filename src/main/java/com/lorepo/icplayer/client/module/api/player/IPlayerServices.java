@@ -44,5 +44,6 @@ public interface IPlayerServices {
 	
 	public void setAbleChangeLayout(boolean isAbleChangeLayout); 
 	public boolean isAbleChangeLayout();
-	
+	public boolean changeSemiResponsiveLayout(String layoutID);
+
 }
