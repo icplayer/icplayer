@@ -486,9 +486,8 @@ function AddonText_Selection_create() {
             presenter.$view.append($(presenter.configuration.renderedPreview));
         } else {
             presenter.$view.append($(presenter.configuration.renderedRun));
+            presenter.setVisibility(presenter.configuration.isVisible);
         }
-
-        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.ERROR_CODES = {

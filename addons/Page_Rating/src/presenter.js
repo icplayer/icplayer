@@ -163,7 +163,7 @@ function AddonPage_Rating_create() {
             return;
         }
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
         presenter.updateView(isPreview);
     };
 

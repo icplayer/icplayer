@@ -297,7 +297,9 @@ function AddonPage_Counter_create() {
         var validatedModel = presenter.validateModel(upgradedModel);
         presenter.configuration = validatedModel;
         presenter.isCurrentlyVisible = presenter.configuration.isVisible;
-        presenter.updateVisibility();
+        if (!isPreview) {
+            presenter.updateVisibility();
+        }
         
         if (!validatedModel.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);

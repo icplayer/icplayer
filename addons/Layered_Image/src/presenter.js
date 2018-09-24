@@ -221,7 +221,7 @@ function AddonLayered_Image_create() {
         presenter.playerController = controller;
     };
 
-    function presenterLogic(view, model, preview) {
+    function presenterLogic(view, model, isPreview) {
         presenter.imageLoadedDeferred = new jQuery.Deferred();
         presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
 
@@ -230,7 +230,7 @@ function AddonLayered_Image_create() {
 
         setDOMElementsHrefAndSelectors(view);
 
-        if (!preview) {
+        if (!isPreview) {
             var loadingSrc = DOMOperationsUtils.getResourceFullPath(presenter.playerController, "media/loading.gif");
             if (loadingSrc) $(DOMElements.loading).attr('src', loadingSrc);
         }
@@ -244,8 +244,8 @@ function AddonLayered_Image_create() {
             DOMOperationsUtils.showErrorMessage(DOMElements.$view, presenter.ERROR_CODES, presenter.configuration.errorCode);
         } else {
             prepareLoadingScreen(width, height);
-            preloadImages(preview);
-            if (!presenter.configuration.isVisibleByDefault) {
+            preloadImages(isPreview);
+            if (!isPreview && !presenter.configuration.isVisibleByDefault) {
                 presenter.hide();
             }
         }
