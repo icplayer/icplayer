@@ -6,7 +6,7 @@ export class AudioRecorder extends BaseRecorder {
         return {
             type: 'audio',
             numberOfAudioChannels: 2,
-            checkForInactiveTracks: true,
+            sampleRate: 48000,
             bufferSize: 16384,
             disableLogs: true
         }

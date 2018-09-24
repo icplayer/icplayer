@@ -242,9 +242,10 @@ export class MediaRecorder {
             this.player.stopStreaming();
             this.recorder.stopRecording()
                 .then(blob => {
-                    let recording = URL.createObjectURL(blob);
-                    this.player.setRecording(recording);
                     this.addonState.setRecordingBlob(blob);
+                    let recording = URL.createObjectURL(blob);
+                    this.player.reset();
+                    this.player.setRecording(recording);
                 });
             this.resourcesProvider.destroy();
         };
@@ -267,7 +268,7 @@ export class MediaRecorder {
 
         this.player.onStartLoading = () => {
             this.mediaState.setLoading();
-            this.loader.show()
+            this.loader.show();
         };
 
         this.player.onEndLoading = () => {
