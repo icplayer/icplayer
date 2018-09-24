@@ -22,6 +22,7 @@ export function validateModel(model) {
         ModelValidators.String("stopRecordingSound", {
             trim: true,
             default: ""
-        })
+        }),
+        ModelValidators.Boolean("isResetRemovesRecording")
     ]);
 }

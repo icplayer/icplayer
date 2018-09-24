@@ -134,11 +134,13 @@ export class MediaRecorder {
     reset() {
         this.deactivate();
         this.activate();
-        this.player.reset();
-        this.addonState.reset();
-        this.timer.reset();
-        this.mediaState.setNew();
-        this._loadRecording(this.model.defaultRecording);
+        if (this.model.isResetRemovesRecording) {
+            this.player.reset();
+            this.addonState.reset();
+            this.timer.reset();
+            this.mediaState.setNew();
+            this._loadRecording(this.model.defaultRecording);
+        }
     }
 
     _runAddon(view, model) {

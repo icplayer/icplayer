@@ -6,5 +6,6 @@
         <property name="defaultRecording" nameLabel="Media_Recorder_property_default_recording" type="audio"/>
         <property name="startRecordingSound" nameLabel="Media_Recorder_property_start_recording_sound" type="audio"/>
         <property name="stopRecordingSound" nameLabel="Media_Recorder_property_stop_recording_sound" type="audio"/>
+        <property name="isResetRemovesRecording" nameLabel="Media_Recorder_property_is_reset_removes_recording" type="boolean" />
     </model>
 </addon>

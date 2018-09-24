@@ -1824,6 +1824,7 @@ var ice_dictionary_pl = {
     "Media_Recorder_property_max_time": "Maximum recording duration",
     "Media_Recorder_property_default_recording": "Default recording",
     "Media_Recorder_property_start_recording_sound": "Recording start sound",
-    "Media_Recorder_property_stop_recording_sound": "Recording stop sound"
+    "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
+    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording"
 };
 
