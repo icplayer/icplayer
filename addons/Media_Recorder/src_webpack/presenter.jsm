@@ -65,11 +65,11 @@ function AddonMedia_Recorder_create() {
 
     presenter.show = function() {
         presenter.setVisibility(true);
-    }
+    };
 
     presenter.hide = function() {
         presenter.setVisibility(false);
-    }
+    };
 
     presenter.setShowErrorsMode = function setShowErrorsMode() {
         presenter.mediaRecorder.deactivate();

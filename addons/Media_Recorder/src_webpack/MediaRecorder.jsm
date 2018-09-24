@@ -22,7 +22,9 @@ export class MediaRecorder {
     run(view, model) {
         let validatedModel = validateModel(model);
 
-        if (validatedModel.isValid)
+        if (window.DevicesUtils.isInternetExplorer()) {
+            this._showBrowserError(view)
+        } else if (validatedModel.isValid)
             this._runAddon(view, validatedModel.value);
         else
             this._showError(view, validatedModel);
@@ -133,8 +135,9 @@ export class MediaRecorder {
         this.deactivate();
         this.activate();
         this.player.reset();
-        this.mediaState.setNew();
         this.addonState.reset();
+        this.timer.reset();
+        this.mediaState.setNew();
         this._loadRecording(this.model.defaultRecording);
     }
 
@@ -143,7 +146,7 @@ export class MediaRecorder {
         this._loadLogic();
         this._loadRecording(this.model.defaultRecording);
         this._activateButtons();
-        this.setVisibility(model);
+        this.setVisibility(model["Is Visible"]);
     }
 
     _loadAddon(view, model) {
@@ -321,8 +324,11 @@ export class MediaRecorder {
         DOMOperationsUtils.showErrorMessage(view, Errors, validatedModel.fieldName.join("|") + "_" + validatedModel.errorCode);
     }
 
-    setVisibility(model) {
-        let isVisible = model["Is Visible"];
+    setVisibility(isVisible) {
         this.addonViewService.setVisibility(isVisible);
+    }
+
+    _showBrowserError(view) {
+        DOMOperationsUtils.showErrorMessage(view, {unsupportedBrowser: "Your browser is not supported."}, "unsupportedBrowser");
     }
 }

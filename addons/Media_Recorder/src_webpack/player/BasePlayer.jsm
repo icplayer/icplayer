@@ -51,10 +51,18 @@ export class BasePlayer extends Player {
     }
 
     reset() {
+        this._disableEventsHandling();
         this.mediaNode.src = "";
+        this.mediaNode.remove();
+
+        this.mediaNode = this._createMediaNode();
+        this.mediaNode.controls = false;
+        this.$view.append(this.mediaNode);
+        this._enableEventsHandling();
     }
 
     destroy() {
+        this._disableEventsHandling();
         this.stopPlaying();
         this.mediaNode.src = "";
         this.mediaNode.remove();

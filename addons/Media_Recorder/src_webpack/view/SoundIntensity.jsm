@@ -16,6 +16,7 @@ export class SoundIntensity {
     }
 
     destroy() {
+        this.stopAnalyzing();
         this.interval = null;
         this.$view.remove();
         this.$view = null;
