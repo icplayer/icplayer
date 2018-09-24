@@ -44,16 +44,8 @@ TestCase("[Multiple Gap] Scoring", {
         this.presenter.isShowAnswersActive = false;
         this.presenter.itemCounterMode = false;
 
-        //mocking jQuery.filter so as to get around filter(':visible') query
-        var oldFilter = $.fn.filter;
-        $.fn.filter = function (query) {
-            return this;
-        };
-
         assertEquals(1, this.presenter.getScore());
 
-        //restoring jQuery.filter
-        $.fn.filter = oldFilter;
     },
 
     'test score should be 0 when redundant items are present': function() {
@@ -79,16 +71,8 @@ TestCase("[Multiple Gap] Scoring", {
         this.presenter.isShowAnswersActive = false;
         this.presenter.itemCounterMode = false;
 
-        //mocking jQuery.filter so as to get around filter(':visible') query
-        var oldFilter = $.fn.filter;
-        $.fn.filter = function (query) {
-            return this;
-        };
-
         assertEquals(0, this.presenter.getScore());
 
-        //restoring jQuery.filter
-        $.fn.filter = oldFilter;
     }
 });
 

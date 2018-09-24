@@ -742,7 +742,7 @@ function Addonmultiplegap_create(){
         }else{
             score = 0;
         }
-        
+
         presenter.eventBus.sendEvent('ValueChanged', {
             'source': presenter.configuration.ID,
             'item'  : '' + item.item, // ensure that we send string
@@ -761,6 +761,7 @@ function Addonmultiplegap_create(){
         placeholder.draggable({
             revert : false,
             helper: function() {
+                placeholder.addClass('dragging');
                 if (!presenter.isDragPossible()) {
                     return $('<div></div>');
                 }
@@ -776,7 +777,6 @@ function Addonmultiplegap_create(){
                     event.preventDefault();
                     return;
                 }
-                placeholder.addClass('dragging');
                 ui.helper.zIndex(100);
             },
             stop : function(event, ui) {
@@ -968,7 +968,7 @@ function Addonmultiplegap_create(){
             top: positions.top + 'px'
         });
     };
-    
+
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
@@ -1065,11 +1065,6 @@ function Addonmultiplegap_create(){
         var redundantItems = [];
 
         presenter.$view.find('.placeholder').not('.dragging').each(function(index, placeholder) {
-            
-            // To get updated score during dragged element which is still in DOM we must break out of each
-            if (!$(placeholder).find('.handler').filter(':visible').length) {
-                return true;
-            }
             currentItem = $(placeholder).attr('draggableItem');
             var currentItemIndex = remainingItems.indexOf(currentItem);
             
@@ -1079,7 +1074,7 @@ function Addonmultiplegap_create(){
                 redundantItems.push(currentItem);
             }
         });
-        
+
         return {remainingItems: remainingItems, redundantItems: redundantItems};
     };
     
