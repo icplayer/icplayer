@@ -210,8 +210,17 @@ function AddonMathText_create() {
                 clipboardChanged: function () {},
                 styleChanged: function () {},
                 transformationReceived: function(){},
-                contentChanged: function() {
-                    if (presenter.editor.isReady() && !presenter.state.isShowAnswers && !presenter.state.isCheckAnswers) {
+                contentChanged: function(editor) {
+                    // comparing texts fixes problem with userInteraction and hideAnswer
+                    // when using setMathML WIRIS editor needs to make request to WIRIS API,
+                    // so this callback will be called asynchronusly after request response,
+                    // but after state.isShowAnswers was already changed in normal execution
+                    var currentText = editor.getMathML();
+                    if (presenter.editor.isReady() &&
+                        !presenter.state.isShowAnswers &&
+                        !presenter.state.isCheckAnswers &&
+                        currentText !== presenter.state.currentAnswer
+                    ) {
                         presenter.state.wasChanged = true;
                         presenter.state.hasUserInteracted = true;
                     }
@@ -273,19 +282,19 @@ function AddonMathText_create() {
         }
 
         if (presenter.configuration.isActivity && presenter.configuration.showEditor && !presenter.state.isShowAnswers) {
+            presenter.state.isShowAnswers = true;
             presenter.$view.find('input').attr('disabled', true);
             presenter.state.currentAnswer = presenter.editor.getMathML();
             presenter.editor.setMathML(presenter.answerObject.getCorrectAnswer(0));
             presenter.editor.setToolbarHidden(true);
-            presenter.state.isShowAnswers = true;
         }
     };
 
     presenter.hideAnswers = function AddonMathText_hideAnswers () {
         if (presenter.configuration.isActivity && presenter.configuration.showEditor && presenter.state.isShowAnswers) {
-            presenter.$view.find('input').removeAttr('disabled');
             presenter.editor.setMathML(presenter.state.currentAnswer);
             presenter.editor.setToolbarHidden(false);
+            presenter.$view.find('input').removeAttr('disabled');
             presenter.state.isShowAnswers = false;
             presenter.setDisabled(presenter.state.isDisabled);
         }
@@ -297,6 +306,8 @@ function AddonMathText_create() {
         }
 
         if (presenter.configuration.isActivity && presenter.configuration.showEditor && !presenter.state.isCheckAnswers) {
+            presenter.state.isCheckAnswers = true;
+
             presenter.state.currentAnswer = presenter.editor.getMathML();
 
             if (presenter.state.hasUserInteracted) {
@@ -311,8 +322,6 @@ function AddonMathText_create() {
                 }
             }
         }
-
-        presenter.state.isCheckAnswers = true;
     };
 
     presenter.setWorkMode = function AddonMathText_setWorkMode () {

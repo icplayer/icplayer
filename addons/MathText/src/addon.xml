@@ -5,8 +5,8 @@
         <property name="initialText" nameLabel="Mathtext_property_text" type="mathtext" />
         <property name="correctAnswer" nameLabel="Mathtext_property_correctAnswer" type="mathanswer" />
 
-        <property name="type" nameLabel="Mathtext_property_should_show_editor" type="{text, editor, activity}" />
-
+        <property name="type" nameLabel="Mathtext_property_type" type="{text, editor, activity}" />
+        <property name="isDisabled" nameLabel="Mathtext_property_is_disabled" type="boolean" />
         <property name="language" displayName="Language" nameLabel="Mathtext_property_language" type="{English, Polish, French, Arabic, Spanish}"/>
 
         <property name="formulaColor" type="string" nameLabel="Mathtext_property_formula_color" />
