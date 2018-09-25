@@ -284,22 +284,29 @@ function AddonMathText_create() {
             presenter.setWorkMode();
         }
 
-        if (presenter.configuration.isActivity && presenter.configuration.showEditor && !presenter.state.isShowAnswers) {
+        if (presenter.configuration.showEditor && !presenter.state.isShowAnswers) {
             presenter.state.isShowAnswers = true;
             presenter.$view.find('input').attr('disabled', true);
-            presenter.state.currentAnswer = presenter.editor.getMathML();
-            presenter.editor.setMathML(presenter.answerObject.getCorrectAnswer(0));
             presenter.editor.setToolbarHidden(true);
+
+            if (presenter.configuration.isActivity) {
+                presenter.state.currentAnswer = presenter.editor.getMathML();
+                presenter.editor.setMathML(presenter.answerObject.getCorrectAnswer(0));
+            }
         }
     };
 
     presenter.hideAnswers = function AddonMathText_hideAnswers () {
-        if (presenter.configuration.isActivity && presenter.configuration.showEditor && presenter.state.isShowAnswers) {
-            presenter.editor.setMathML(presenter.state.currentAnswer);
+        if (presenter.configuration.showEditor && presenter.state.isShowAnswers) {
             presenter.editor.setToolbarHidden(false);
-            presenter.$view.find('input').removeAttr('disabled');
-            presenter.state.isShowAnswers = false;
+                presenter.$view.find('input').removeAttr('disabled');
+
+            if (presenter.configuration.isActivity) {
+                presenter.editor.setMathML(presenter.state.currentAnswer);
+            }
+
             presenter.setDisabled(presenter.state.isDisabled);
+            presenter.state.isShowAnswers = false;
         }
     };
 
@@ -308,20 +315,23 @@ function AddonMathText_create() {
             presenter.hideAnswers();
         }
 
-        if (presenter.configuration.isActivity && presenter.configuration.showEditor && !presenter.state.isCheckAnswers) {
+        if (presenter.configuration.showEditor && !presenter.state.isCheckAnswers) {
             presenter.state.isCheckAnswers = true;
+            presenter.$view.find('input').attr('disabled', true);
+            presenter.editor.setToolbarHidden(true);
 
-            presenter.state.currentAnswer = presenter.editor.getMathML();
+            if (presenter.configuration.isActivity) {
 
-            if (presenter.state.hasUserInteracted) {
-                presenter.$view.find('input').attr('disabled', true);
-                presenter.editor.setToolbarHidden(true);
-                var score = presenter.getScore();
+                presenter.state.currentAnswer = presenter.editor.getMathML();
 
-                if (score === 1) {
-                    presenter.wrapper.classList.add('correct');
-                } else {
-                    presenter.wrapper.classList.add('wrong');
+                if (presenter.state.hasUserInteracted) {
+                    var score = presenter.getScore();
+
+                    if (score === 1) {
+                        presenter.wrapper.classList.add('correct');
+                    } else {
+                        presenter.wrapper.classList.add('wrong');
+                    }
                 }
             }
         }
@@ -332,7 +342,7 @@ function AddonMathText_create() {
             presenter.wrapper.classList.remove('correct');
             presenter.wrapper.classList.remove('wrong');
 
-            if (presenter.configuration.isActivity && presenter.configuration.showEditor) {
+            if (presenter.configuration.showEditor) {
                 presenter.$view.find('input').removeAttr('disabled');
                 presenter.editor.setToolbarHidden(false);
             }
