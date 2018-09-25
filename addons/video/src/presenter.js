@@ -1119,11 +1119,6 @@ function Addonvideo_create() {
 
         presenter.setVideo();
         presenter.setDimensions();
-
-        presenter.isCurrentlyVisible = true;
-        if (!presenter.configuration.isVisibleByDefault) {
-            presenter.hide();
-        }
     };
 
     presenter.showCaptions = function (time) {
@@ -1483,10 +1478,13 @@ function Addonvideo_create() {
      * @param caption - used text, top and left properties
      * @return reference do newly created element
      */
-    function createCaptionElement(caption) {
+    function createCaptionElement(caption, isAudioDescription) {
         var captionElement = document.createElement('div');
 
         $(captionElement).addClass('captions');
+        if(isAudioDescription) {
+            $(captionElement).addClass('audio-description');
+        }
         $(captionElement).addClass(caption.cssClass);
         $(captionElement).html(caption.text);
         $(captionElement).css({
@@ -1516,7 +1514,7 @@ function Addonvideo_create() {
                     text: parts[5]
                 };
 
-                caption.element = createCaptionElement(caption);
+                caption.element = createCaptionElement(caption, false);
                 presenter.captions.push(caption);
 
                 presenter.captionDivs.push(caption.element);
@@ -1581,7 +1579,7 @@ function Addonvideo_create() {
                     text: parts[5]
                 };
 
-                description.element = createCaptionElement(description);
+                description.element = createCaptionElement(description, true);
                 presenter.descriptions.push(description);
 
                 presenter.descriptionsDivs.push(description.element);
@@ -1627,12 +1625,12 @@ function Addonvideo_create() {
     };
 
     presenter.showSubtitles = function () {
-        presenter.$view.find('.captions').show();
+        presenter.$view.find('.captions:not(.audio-description)').show();
         presenter.areSubtitlesHidden = false;
     };
 
     presenter.hideSubtitles = function () {
-        presenter.$view.find('.captions').hide();
+        presenter.$view.find('.captions:not(.audio-description)').hide();
         presenter.areSubtitlesHidden = true;
     };
 

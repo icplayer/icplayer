@@ -514,8 +514,7 @@ function AddonConnectingDots_create(){
                 $(image1).addClass('image-start');
                 presenter.$view.find('.connectingdots').prepend(image1);
             }
-            presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-            presenter.updateVisibility();
+
             var coordinatesContainer = $('<div></div>'),
                 xContainer = $('<div>x: <span class="value"></span></div>'),
                 yContainer = $('<div>y: <span class="value"></span></div>'),

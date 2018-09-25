@@ -229,6 +229,15 @@ public class PlayerServices implements IPlayerServices {
 		}
 	}
 	
+	public boolean changeSemiResponsiveLayout(String layoutIDOrName) {
+		boolean result = this.application.changeLayout(layoutIDOrName);
+		if (result) {
+			return result;
+		} 
+		
+		return this.application.changeLayoutByName(layoutIDOrName);
+	}
+	
 	
 	private native void jQueryUiDroppableScaleFix(JavaScriptObject originalPrepare)  /*-{
 		function scaleFixDecorator(func) {

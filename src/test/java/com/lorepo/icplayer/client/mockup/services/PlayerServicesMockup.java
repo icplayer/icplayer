@@ -32,7 +32,6 @@ public class PlayerServicesMockup implements IPlayerServices {
 	private final IJsonServices	jsonMockup;
 
 	public PlayerServicesMockup() {
-
 		contentModel = new Content();
 		eventBus = new SimpleEventBus();
 		commands = new CommandsMockup();
@@ -229,6 +228,12 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public void setApplication(PlayerApp application) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public boolean changeSemiResponsiveLayout(String layoutID) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 

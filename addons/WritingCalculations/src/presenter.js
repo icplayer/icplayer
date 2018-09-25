@@ -44,6 +44,7 @@ function AddonWritingCalculations_create() {
 
     presenter.run = function(view, model) {
         presenterLogic(view, model);
+        presenter.setVisibility(presenter.isVisible);
         eventBus = presenter.playerController.getEventBus();
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
@@ -51,6 +52,7 @@ function AddonWritingCalculations_create() {
 
     presenter.createPreview = function(view, model) {
         presenterLogic(view, model);
+        presenter.setVisibility(true);
     };
 
     function presenterLogic(view, model) {
@@ -67,7 +69,6 @@ function AddonWritingCalculations_create() {
         presenter.bindValueChangeEvent();
         presenter.setContainerWidth();
         presenter.addAdditionalStyles();
-        presenter.setVisibility(presenter.isVisible);
     }
 
     presenter.readSigns = function( signs ) {

@@ -305,7 +305,7 @@ function AddonColoring_create(){
 
         presenter.$view = $(view);
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         var imageElement = $('<img>');
 

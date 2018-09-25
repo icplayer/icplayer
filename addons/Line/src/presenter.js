@@ -56,7 +56,6 @@ function AddonLine_create() {
 
         var angle = parseInt(presenter.configuration.rotation);
         presenter.drawLine(canvasWrapper, canvasWrapperWidth, canvasWrapperHeight, angle);
-        presenter.setVisibility(presenter.configuration.isVisible);
     }
 
     presenter.applyStyles = function (element) {
@@ -299,10 +298,12 @@ function AddonLine_create() {
 
     presenter.createPreview = function (view, model) {
         presenterLogic(view, model);
+        presenter.setVisibility(true);
     };
 
     presenter.run = function (view, model) {
         presenterLogic(view, model);
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.validateModel = function (model) {
