@@ -23,8 +23,6 @@ function AddonMathText_create() {
     presenter.EMPTY_MATHTEXT = '<math xmlns="http://www.w3.org/1998/Math/MathML"/>';
     presenter.WIRIS_RENDER_URL = "https://www.wiris.net/demo/editor/render?";
     presenter.ERROR_CODES = {
-        'isActivtiy_BL01': "Value provided to isActivity property is not a valid string.",
-        'isActivtiy_WW01': "When isActivity is selected, showEditor property must be checked.",
         'initialText_STR02': "Value provided to text property is not a valid string.",
         'correctAnswer_STR02': "Value provided to text property is not a valid string.",
         'width_INT04': "Value provided to width property must be bigger than 500px.",
