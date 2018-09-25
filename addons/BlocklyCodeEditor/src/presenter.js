@@ -176,6 +176,10 @@ function AddonBlocklyCodeEditor_create () {
                 presenter.destroy();
             }
         });
+
+        if (isPreview) {
+            presenter.$view.css('z-index','0');
+        }
     };
 
     presenter.setConfiguration = function(configuration) {
