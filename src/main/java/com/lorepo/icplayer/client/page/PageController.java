@@ -19,9 +19,11 @@ import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
-import com.lorepo.icplayer.client.model.page.Group;
-import com.lorepo.icplayer.client.model.page.Group.ScoringGroupType;
 import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.group.Group;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
+import com.lorepo.icplayer.client.model.page.group.GroupView;
+import com.lorepo.icplayer.client.model.page.group.Group.ScoringGroupType;
 import com.lorepo.icplayer.client.model.page.properties.OutstretchHeightData;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
@@ -49,7 +51,7 @@ public class PageController implements ITextToSpeechController {
 
 	public interface IPageDisplay {
 		void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId);
-		void addGroupView(Group group);
+		void addGroupView(Group group, GroupView groupView);
 		void addModuleView(IModuleView view, IModuleModel module);
 		void setPage(Page page);
 		void refreshMathJax();
@@ -188,11 +190,12 @@ public class PageController implements ITextToSpeechController {
 		presenters.clear();
 		pageView.removeAllModules();
 		scriptingEngine.reset();
-
+		
 		for(Group group : currentPage.getGroupedModules()) {
-			if(group.isDiv()) {
-				pageView.addGroupView(group);
-			}
+			GroupView groupView = moduleFactory.createView(group);
+			IPresenter presenter = moduleFactory.createPresenter(group);
+			pageView.addGroupView(group,groupView);
+			addPresenter(presenter, groupView);
 		}
 		
 		for (IModuleModel module : currentPage.getModules()) {
@@ -208,18 +211,22 @@ public class PageController implements ITextToSpeechController {
 				pageView.addModuleView(moduleView, module);
 			}
 
-			if (presenter != null) {
-				presenter.addView(moduleView);
-				presenters.add(presenter);
-				if (presenter instanceof ICommandReceiver) {
-					scriptingEngine.addReceiver((ICommandReceiver) presenter);
-				}
-			} else if (moduleView instanceof IPresenter) {
-				presenters.add((IPresenter) moduleView);
-			}
+			addPresenter(presenter, moduleView);
 		}
 	}
 
+	private void addPresenter(IPresenter presenter, IModuleView moduleView) {
+		if (presenter != null) {
+			presenter.addView(moduleView);
+			presenters.add(presenter);
+			if (presenter instanceof ICommandReceiver) {
+				scriptingEngine.addReceiver((ICommandReceiver) presenter);
+			}
+		} else if (moduleView instanceof IPresenter) {
+			presenters.add((IPresenter) moduleView);
+		}
+	}
+	
 	public String deletePositionImportantStyles (String inlineStyle) {
 		String[] attributes = inlineStyle.split(";");
 		StringBuilder strBuilder = new StringBuilder();
@@ -248,6 +255,18 @@ public class PageController implements ITextToSpeechController {
 			}
 		}
 
+		return null;
+	}
+	
+	public GroupPresenter findGroup(String id) {
+		for (IPresenter presenter : presenters) {
+			if( presenter instanceof GroupPresenter) {
+				GroupPresenter p = (GroupPresenter) presenter; 
+				if (p.getId().compareTo(id) == 0) {
+					return p;
+				}
+			}
+		}
 		return null;
 	}
 

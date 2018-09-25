@@ -9,7 +9,7 @@ import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
-import com.lorepo.icplayer.client.model.page.GroupPropertyProvider;
+import com.lorepo.icplayer.client.model.page.group.GroupPropertyProvider;
 import com.lorepo.icplayer.client.module.LayoutDefinition;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IModuleModel;

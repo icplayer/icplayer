@@ -1,9 +1,10 @@
-package com.lorepo.icplayer.client.model.page;
+package com.lorepo.icplayer.client.model.page.group;
 
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.SemiResponsivePositions;
 import com.lorepo.icplayer.client.xml.group.parsers.GroupParser;
 
@@ -81,7 +82,7 @@ public class Group extends GroupPropertyProvider {
 		return GroupParser.toXML(this).toString();
 	}
 
-	protected boolean isIdCorrect(String newValue) {
+	public boolean isIdCorrect(String newValue) {
 		return !newValue.trim().equals("");
 	}
 
@@ -122,7 +123,7 @@ public class Group extends GroupPropertyProvider {
 		addProperty(propertyId);
 	}
 
-	protected boolean isIDUnique(String newId) {
+	public boolean isIDUnique(String newId) {
 		for (Group group : page.getGroupedModules()) {
 			if (group.getId().equals(newId)) {
 				return false;
@@ -193,7 +194,7 @@ public class Group extends GroupPropertyProvider {
 		addProperty(property);
 	}
 
-	protected boolean isNewValueMaxScoreValid(String newValue, IProperty property) {
+	public boolean isNewValueMaxScoreValid(String newValue, IProperty property) {
 		try {
 			maxScore = Integer.parseInt(newValue);
 			sendPropertyChangedEvent(property);

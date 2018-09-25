@@ -10,7 +10,7 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.dimensions.DimensionName;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
-import com.lorepo.icplayer.client.model.page.GroupPropertyProvider;
+import com.lorepo.icplayer.client.model.page.group.GroupPropertyProvider;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IRectangleItem;
 import com.lorepo.icplayer.client.module.api.SemiResponsiveLayouts;

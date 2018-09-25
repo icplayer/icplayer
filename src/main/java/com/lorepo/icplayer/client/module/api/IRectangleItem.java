@@ -1,6 +1,6 @@
 package com.lorepo.icplayer.client.module.api;
 
-import com.lorepo.icplayer.client.model.page.GroupPropertyProvider;
+import com.lorepo.icplayer.client.model.page.group.GroupPropertyProvider;
 
 public interface IRectangleItem{
 

@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.model.page;
+package com.lorepo.icplayer.client.model.page.group;
 
 import java.util.ArrayList;
 import java.util.Collection;

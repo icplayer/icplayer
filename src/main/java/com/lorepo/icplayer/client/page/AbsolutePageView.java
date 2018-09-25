@@ -10,8 +10,9 @@ import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.dimensions.CalculateModuleDimensions;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.dimensions.PageDimensionsForCalculations;
-import com.lorepo.icplayer.client.model.page.Group;
 import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.group.Group;
+import com.lorepo.icplayer.client.model.page.group.GroupView;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -98,24 +99,11 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	}
 
 	@Override
-	public void addGroupView(Group group) {
-		AbsolutePanel groupWidget = new AbsolutePanel();
-		groupWidget.getElement().setClassName("modules_group");
-		String styleClass = group.getStyleClass();
-		String inlineStyle = group.getInlineStyle();
-
-		if(inlineStyle != null) {
-			DOMUtils.applyInlineStyle(groupWidget.getElement(), inlineStyle);
+	public void addGroupView(Group group, GroupView groupWidget) {
+		if(group.isDiv()) {
+			add(groupWidget, group.getLeft(), group.getTop());
+			groupsPanel.put(group.getId(), groupWidget);
 		}
-        if(styleClass != null && !styleClass.isEmpty()){
-            groupWidget.addStyleName(styleClass);
-        }
-        groupWidget.setVisible(group.isVisible());
-
-        groupWidget.getElement().setId(group.getId());
-		groupWidget.setPixelSize(group.getWidth()+2, group.getHeight()+2);
-		add(groupWidget, group.getLeft(), group.getTop());
-		groupsPanel.put(group.getId(), groupWidget);
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.model.page;
+package com.lorepo.icplayer.client.model.page.group;
 
 
 import com.lorepo.icf.properties.IBooleanProperty;
@@ -10,7 +10,7 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 public class GroupPropertyProvider extends ModulesPropertyProvider{
 	
 	private boolean isModificatedWidth = true; 
-	private boolean isModificatedHeight = true; 
+	private boolean isModificatedHeight = true;
 	
 	public GroupPropertyProvider(String name){
 		super(name);
