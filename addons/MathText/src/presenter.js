@@ -132,6 +132,7 @@ function AddonMathText_create() {
     };
 
     presenter.setAdditionalConfigBasedOnType = function(type) {
+        // only when type is activity set isActivity to true - addon will return scores and react to commands like show/hide/check/uncheck answers
         if (type === presenter.TYPES_DEFINITIONS.TEXT) {
             presenter.configuration.isActivity = false;
             presenter.configuration.showEditor = false;
@@ -202,7 +203,7 @@ function AddonMathText_create() {
             presenter.eventBus.addEventListener('HideAnswers', this);
         }
 
-        if (presenter.configuration.showEditor) {
+        if (presenter.configuration.isActivity) {
             presenter.editorListener = {
                 caretPositionChanged: function() {},
                 clipboardChanged: function () {},
