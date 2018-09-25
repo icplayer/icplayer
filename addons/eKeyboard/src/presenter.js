@@ -452,7 +452,7 @@ function AddoneKeyboard_create(){
             }
             showOpenButton();
         } else {
-            if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            if (MobileUtils.isMobileUserAgent(navigator.userAgent) && presenter.configuration.lockInput) {
                 // hides native keyboard
                 document.activeElement.blur();
             }
@@ -547,7 +547,7 @@ function AddoneKeyboard_create(){
                     alwaysOpen: false,
 
                     // give the preview initial focus when the keyboard becomes visible
-                    initialFocus: true,
+                    initialFocus: presenter.configuration.lockInput,
 
                     // if true, keyboard will remain open even if the input loses focus.
                     stayOpen: true,
