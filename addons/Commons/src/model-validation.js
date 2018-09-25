@@ -543,9 +543,15 @@
     }
 
     /**
-     * Class to generate dynamic configuration based on already validated properties.
+     * Generate a configuration of a field validation.
+     *
+     * This function allows to generate config dynamically.
+     * This is useful, when for example configuration for one field depends on already validated field.
+     * ConfigurationGenerator has a flag, which is checked during field validation and generate function is then called with proper arguments.
+     *
      * @constructor
-     * @param {Function} generator - function which will generate config. First argument is an object containing already validated properties.
+     * @param {Function} generator - function which will generate config. First argument of this function is an object containing already validated properties.
+     * Second argument is local validation scope, for example current item when validating list.
      */
     function ConfigurationGenerator (generator) {
         this.isConfigurationGenerator = true;
@@ -969,7 +975,9 @@
 
                 changeFunction.fieldName = name;
                 return changeFunction;
-            }
+            },
+
+            FieldConfigGenerator: ConfigurationGenerator
         }
     };
 
@@ -988,5 +996,4 @@
 
     window.ModelValidator = ModelValidator;
     window.ModelValidators = decoratedValidators;
-    window.ConfigurationGenerator = ConfigurationGenerator;
 })(window);

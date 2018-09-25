@@ -94,13 +94,13 @@ function AddonMathText_create() {
         var modelValidator = new ModelValidator();
 
         // when not showing wiris editor, width/height can be any value
-        var widthConfig = new ConfigurationGenerator(function (validatedModel) {
+        var widthConfig = new ModelValidators.utils.FieldConfigGenerator(function (validatedModel) {
             return {
                 minValue: validatedModel["type"] !== presenter.TYPES_DEFINITIONS.TEXT ? 500 : 0
             };
         });
 
-        var heightConfig = new ConfigurationGenerator(function (validatedModel) {
+        var heightConfig = new ModelValidators.utils.FieldConfigGenerator(function (validatedModel) {
             return {
                 minValue: validatedModel["type"] !== presenter.TYPES_DEFINITIONS.TEXT ? 200 : 0
             };
@@ -128,20 +128,26 @@ function AddonMathText_create() {
             ModelValidators.HEXColor("backgroundColor", {"default": "#FFFFFF", canBeShort: false})
         ]);
 
+        if (!validatedModel.isValid) {
+            return validatedModel;
+        }
+
+        presenter.setAdditionalConfigBasedOnType(validatedModel.value, validatedModel.value['type']);
+
         return validatedModel;
     };
 
-    presenter.setAdditionalConfigBasedOnType = function(type) {
+    presenter.setAdditionalConfigBasedOnType = function(configuration, type) {
         // only when type is activity set isActivity to true - addon will return scores and react to commands like show/hide/check/uncheck answers
         if (type === presenter.TYPES_DEFINITIONS.TEXT) {
-            presenter.configuration.isActivity = false;
-            presenter.configuration.showEditor = false;
+            configuration.isActivity = false;
+            configuration.showEditor = false;
         } else if (type === presenter.TYPES_DEFINITIONS.EDITOR) {
-            presenter.configuration.isActivity = false;
-            presenter.configuration.showEditor = true;
+            configuration.isActivity = false;
+            configuration.showEditor = true;
         } else if (type === presenter.TYPES_DEFINITIONS.ACTIVITY){
-            presenter.configuration.isActivity = true;
-            presenter.configuration.showEditor = true;
+            configuration.isActivity = true;
+            configuration.showEditor = true;
         }
     };
 
@@ -158,8 +164,6 @@ function AddonMathText_create() {
             return;
         }
         presenter.configuration = validatedModel.value;
-
-        presenter.setAdditionalConfigBasedOnType(presenter.configuration['type']);
 
         presenter.initializeView(isPreview);
 
@@ -205,11 +209,11 @@ function AddonMathText_create() {
 
         if (presenter.configuration.isActivity) {
             presenter.editorListener = {
-                caretPositionChanged: function() {},
+                caretPositionChanged: function () {},
                 clipboardChanged: function () {},
                 styleChanged: function () {},
-                transformationReceived: function(){},
-                contentChanged: function(editor) {
+                transformationReceived: function () {},
+                contentChanged: function (editor) {
                     // comparing texts fixes problem with userInteraction and hideAnswer
                     // when using setMathML WIRIS editor needs to make request to WIRIS API,
                     // so this callback will be called asynchronusly after request response,
@@ -351,7 +355,7 @@ function AddonMathText_create() {
         presenter.state.wasChanged = false;
         presenter.state.hasUserInteracted = false;
 
-        if (presenter.configuration.isActivity && presenter.configuration.showEditor) {
+        if (presenter.configuration.showEditor) {
             presenter.editor.setMathML(presenter.configuration.initialText);
             presenter.editor.setToolbarHidden(false);
         }
@@ -422,7 +426,7 @@ function AddonMathText_create() {
      presenter.setState = function (state) {
          var parsedState = JSON.parse(state);
 
-         if (presenter.configuration.isActivity) {
+         if (presenter.configuration.showEditor) {
              presenter.editor.setMathML(parsedState.text);
              presenter.state.currentAnswer = parsedState.text;
          }
@@ -436,7 +440,7 @@ function AddonMathText_create() {
     presenter.getState = function() {
         var currentText = presenter.configuration.initialText;
 
-        if (presenter.configuration.isActivity) {
+        if (presenter.configuration.showEditor) {
             currentText = presenter.editor.getMathML();
         }
 
