@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
-import com.lorepo.icplayer.client.model.page.group.Group;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
@@ -687,7 +687,11 @@ public class JavaScriptPlayerServices {
 	}
 	
 	private JavaScriptObject getGroup(String id) {
-		return playerServices.getGroup(id).getAsJavaScript(); 
+		GroupPresenter group = playerServices.getGroup(id); 
+		if(group!=null) {
+			return group.getAsJavaScript(); 
+		}
+		return null; 
 	}
 
 	private JavaScriptObject getModulePresentationJSObject(IPresenter presenter) {

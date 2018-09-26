@@ -9,8 +9,6 @@ import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-import com.lorepo.icplayer.client.module.image.ImageModule;
-import com.lorepo.icplayer.client.module.image.ImagePresenter.IDisplay;
 
 public class GroupPresenter implements IPresenter{
 

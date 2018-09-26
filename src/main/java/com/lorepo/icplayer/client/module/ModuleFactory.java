@@ -285,7 +285,7 @@ public class ModuleFactory implements IModuleFactory{
 	}
 	
 	@Override
-	public IPresenter createPresenter(Group group){
+	public GroupPresenter createPresenter(Group group){
 		return new GroupPresenter(group, services); 
 	}
 }

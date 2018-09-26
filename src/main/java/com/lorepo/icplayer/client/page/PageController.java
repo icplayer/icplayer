@@ -71,6 +71,7 @@ public class PageController implements ITextToSpeechController {
 	private IPlayerServices playerService;
 	private IModuleFactory moduleFactory;
 	private ArrayList<IPresenter> presenters;
+	private ArrayList<GroupPresenter> groupPresenters;
 	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
@@ -90,6 +91,7 @@ public class PageController implements ITextToSpeechController {
 
 	private void init(IPlayerServices playerServices) {
 		presenters = new ArrayList<IPresenter>();
+		groupPresenters = new ArrayList<GroupPresenter>();
 		this.playerService = playerServices;
 		moduleFactory = new ModuleFactory(playerService);
 	}
@@ -193,9 +195,10 @@ public class PageController implements ITextToSpeechController {
 		
 		for(Group group : currentPage.getGroupedModules()) {
 			GroupView groupView = moduleFactory.createView(group);
-			IPresenter presenter = moduleFactory.createPresenter(group);
+			GroupPresenter presenter = moduleFactory.createPresenter(group);
 			pageView.addGroupView(group,groupView);
-			addPresenter(presenter, groupView);
+			presenter.addView(groupView);
+			groupPresenters.add(presenter);
 		}
 		
 		for (IModuleModel module : currentPage.getModules()) {
@@ -211,11 +214,11 @@ public class PageController implements ITextToSpeechController {
 				pageView.addModuleView(moduleView, module);
 			}
 
-			addPresenter(presenter, moduleView);
+			addPresenter(presenter, moduleView, presenters);
 		}
 	}
 
-	private void addPresenter(IPresenter presenter, IModuleView moduleView) {
+	private void addPresenter(IPresenter presenter, IModuleView moduleView, ArrayList<IPresenter> presenters) {
 		if (presenter != null) {
 			presenter.addView(moduleView);
 			presenters.add(presenter);
@@ -259,12 +262,9 @@ public class PageController implements ITextToSpeechController {
 	}
 	
 	public GroupPresenter findGroup(String id) {
-		for (IPresenter presenter : presenters) {
-			if( presenter instanceof GroupPresenter) {
-				GroupPresenter p = (GroupPresenter) presenter; 
-				if (p.getId().compareTo(id) == 0) {
-					return p;
-				}
+		for (GroupPresenter presenter : groupPresenters) {
+			if (presenter.getId().compareTo(id) == 0) {
+				return presenter;
 			}
 		}
 		return null;
