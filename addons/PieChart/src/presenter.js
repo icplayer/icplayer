@@ -165,7 +165,6 @@ function AddonPieChart_create(){
         if (presenter.disabled) presenter.disable();
         presenter.isVisible = ModelValidationUtils.validateBoolean(presenter.model["Is Visible"]);
         presenter.initIsVisible = presenter.isVisible;
-        presenter.updateVisibility();
         presenter.values = ModelValidationUtils.validateBoolean(presenter.model['Show values']);
         presenter.names = ModelValidationUtils.validateBoolean(presenter.model['Show names']);
         presenter.step = presenter.model['Step'];
@@ -312,6 +311,7 @@ function AddonPieChart_create(){
             presenter.piechart.text(presenter.ERROR_CODES[presenter.error]);
             return false;
         }
+        presenter.updateVisibility();
         var Width = presenter.piechart.width();
         var Height = presenter.piechart.height();
         presenter.drawGraph();

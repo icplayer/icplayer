@@ -129,7 +129,6 @@ function AddonLine_Selection_create(){
             presenter.wrapper.text(presenter.ERROR_CODES[presenter.error])
         } else {
             presenter.updateDisability();
-            presenter.updateVisibility();
         }
     }
     presenter.drawLines = function(string) {
@@ -168,6 +167,7 @@ function AddonLine_Selection_create(){
         presenter.selected = [];
         var presentId, item, value, score;
         presenter.initiate(view, model);
+        presenter.updateVisibility();
         presenter.$view.find('.line').on('click', function(e){
             e.stopPropagation();
             e.preventDefault();

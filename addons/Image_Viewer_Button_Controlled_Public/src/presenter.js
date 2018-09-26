@@ -425,9 +425,9 @@ function AddonImage_Viewer_Button_Controlled_Public_create(){
                 handleTouchAction(shiftValue, percentage);
                 handleMouseDragActions(shiftValue, percentage);
             }
-        }
 
-        presenter.setVisibility(presenter.configuration.defaultVisibility);
+            presenter.setVisibility(presenter.configuration.defaultVisibility);
+        }
 
         presenter.imageLoadedDeferred.resolve();
     }

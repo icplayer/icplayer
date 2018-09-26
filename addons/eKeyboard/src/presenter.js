@@ -452,7 +452,7 @@ function AddoneKeyboard_create(){
             }
             showOpenButton();
         } else {
-            if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            if (MobileUtils.isMobileUserAgent(navigator.userAgent) && presenter.configuration.lockInput) {
                 // hides native keyboard
                 document.activeElement.blur();
             }
@@ -547,7 +547,7 @@ function AddoneKeyboard_create(){
                     alwaysOpen: false,
 
                     // give the preview initial focus when the keyboard becomes visible
-                    initialFocus: true,
+                    initialFocus: presenter.configuration.lockInput,
 
                     // if true, keyboard will remain open even if the input loses focus.
                     stayOpen: true,
@@ -696,6 +696,14 @@ function AddoneKeyboard_create(){
                         document.addEventListener('mousedown', presenter.clickedOutsideCallback);
                     },
                     change: function (e, keyboard, el) {
+                        var api = $(lastClickedElement).data('keyboard');
+
+                        //Fixing the issue where if a key contains word 'meta' it will be treated as a meta key
+                        if (api.last.key && api.last.key.indexOf('meta') != -1
+                            && presenter.configuration.customLayout[api.last.key] == null) {
+                            keyboard.insertText(api.last.key);
+                        }
+
                         var event = new Event('change');
                         el.dispatchEvent(event);
 
