@@ -214,11 +214,11 @@ public class PageController implements ITextToSpeechController {
 				pageView.addModuleView(moduleView, module);
 			}
 
-			addPresenter(presenter, moduleView, presenters);
+			addPresenter(presenter, moduleView);
 		}
 	}
 
-	private void addPresenter(IPresenter presenter, IModuleView moduleView, ArrayList<IPresenter> presenters) {
+	private void addPresenter(IPresenter presenter, IModuleView moduleView) {
 		if (presenter != null) {
 			presenter.addView(moduleView);
 			presenters.add(presenter);
