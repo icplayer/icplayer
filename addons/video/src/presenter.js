@@ -538,7 +538,12 @@ function Addonvideo_create() {
         if (presenter.isAudioDescriptionEnabled) {
             speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionEnabled)]);
         } else {
-            speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionDisabled)]);
+           setAudioDescriptionDisabled();
+        }
+    }
+
+    function setAudioDescriptionDisabled(){
+        speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionDisabled)]);
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
             }
@@ -551,7 +556,6 @@ function Addonvideo_create() {
                 $(description.element).css('visibility', 'hidden');
                 $(description.element).attr('visibility', 'hidden');
             }
-        }
     }
 
     presenter.showAudioDescription = function() {
@@ -1158,9 +1162,6 @@ function Addonvideo_create() {
         if (presenter) {
             if(!presenter.usedStop) {
                 presenter.play();
-            }
-            if(presenter.descriptions.length > 0){
-                closeDescription();
             }
         }
     }
@@ -1865,6 +1866,9 @@ function Addonvideo_create() {
             presenter.prevTime = -0.001;
             presenter.videoObject.pause();
             presenter.usedStop = true;
+            if(presenter.descriptions.length > 0){
+                setAudioDescriptionDisabled();
+            }
             presenter.removeClassFromView('playing');
             presenter.posterPlayButton.removeClass('video-poster-pause');
     });
