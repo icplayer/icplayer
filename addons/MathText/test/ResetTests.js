@@ -7,13 +7,15 @@ TestCase("[MathText] Reset tests", {
             removeStub: sinon.stub(),
             setMathMLStub: sinon.stub(),
             findStub: sinon.stub(),
+            attrStub: sinon.stub(),
             removeAttrStub: sinon.stub(),
             setToolbarHiddenStub: sinon.stub(),
             setDisabledStub: sinon.stub()
         };
 
         this.stubs.findStub.returns({
-           removeAttr: this.stubs.removeAttrStub
+            attr: this.stubs.attrStub,
+            removeAttr: this.stubs.removeAttrStub
         });
 
         this.presenter.wrapper = {
@@ -45,10 +47,7 @@ TestCase("[MathText] Reset tests", {
             initialText: 'initial'
         };
 
-        this.stubs.findStub.returns($('span'));
-
         this.presenter.setVisibility = this.stubs.setVisibilityStub;
-        this.presenter.setDisabled = this.stubs.setDisabledStub;
     },
 
     'test set isCheckAnswers ans isShowAnswers state to false': function(){
@@ -79,6 +78,13 @@ TestCase("[MathText] Reset tests", {
         assertTrue(this.stubs.setMathMLStub.calledWith('initial'));
     },
 
+    'test reset should restore visibility of toolbar': function(){
+        this.presenter.reset();
+
+        assertTrue(this.stubs.setToolbarHiddenStub.called);
+        assertTrue(this.stubs.setToolbarHiddenStub.calledWith(false));
+    },
+
     'test should not try to call functions on editor, when not activity': function () {
         this.presenter.configuration.isActivity = false;
         this.presenter.configuration.showEditor = false;
@@ -92,7 +98,7 @@ TestCase("[MathText] Reset tests", {
         this.presenter.configuration.isDisabled = true;
         this.presenter.reset();
 
-        assertTrue(this.stubs.setDisabledStub.called);
-        assertTrue(this.stubs.setDisabledStub.calledWith(true));
+        assertTrue(this.stubs.attrStub.called);
+        assertTrue(this.stubs.attrStub.calledWith("disabled", true));
     }
 });
