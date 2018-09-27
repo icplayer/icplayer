@@ -538,24 +538,24 @@ function Addonvideo_create() {
         if (presenter.isAudioDescriptionEnabled) {
             speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionEnabled)]);
         } else {
-           setAudioDescriptionDisabled();
+            speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionDisabled)]);
+            setAudioDescriptionDisabled();
         }
     }
 
     function setAudioDescriptionDisabled(){
-        speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.audioDescriptionDisabled)]);
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-            }
-            if (window.responsiveVoice && window.responsiveVoice.isPlaying()) {
-                audioDescriptionEndedCallback();
-                window.responsiveVoice.cancel();
-            }
-            for ( var i = 0; i < presenter.descriptions.length; i++) {
-                var description = presenter.descriptions[i];
-                $(description.element).css('visibility', 'hidden');
-                $(description.element).attr('visibility', 'hidden');
-            }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+        if (window.responsiveVoice && window.responsiveVoice.isPlaying()) {
+            audioDescriptionEndedCallback();
+            window.responsiveVoice.cancel();
+        }
+        for ( var i = 0; i < presenter.descriptions.length; i++) {
+            var description = presenter.descriptions[i];
+            $(description.element).css('visibility', 'hidden');
+            $(description.element).attr('visibility', 'hidden');
+        }
     }
 
     presenter.showAudioDescription = function() {
@@ -1148,14 +1148,6 @@ function Addonvideo_create() {
             return presenter.playerController.isWCAGOn();
         }
         return false;
-    }
-
-    function closeDescription() {
-      for ( var i = 0; i < presenter.descriptions.length; i++) {
-            var description = presenter.descriptions[i];
-            $(description.element).css('visibility', 'hidden');
-            $(description.element).attr('visibility', 'hidden');
-       }
     }
 
     function audioDescriptionEndedCallback() {
