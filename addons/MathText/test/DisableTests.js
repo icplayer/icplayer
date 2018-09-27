@@ -42,13 +42,6 @@ TestCase("[MathText] Disable tests", {
         this.presenter.hideAnswers = this.stubs.hideAnswersStub;
     },
 
-    'test setDisabled should unset check answers and show answers': function(){
-        this.presenter.setDisabled(true);
-
-        assertTrue(this.stubs.setWorkModeStub.called);
-        assertTrue(this.stubs.hideAnswersStub.called);
-    },
-
      'test should set isDisabled state to true': function(){
         this.presenter.setDisabled(true);
 

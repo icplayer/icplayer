@@ -43,6 +43,7 @@ TestCase("[MathText] State tests", {
 
     'test when not activity addon should return initial text from config': function(){
         this.presenter.configuration.isActivity = false;
+        this.presenter.configuration.showEditor = false;
         var state = this.presenter.getState();
         var parsedState = JSON.parse(state);
 
@@ -118,6 +119,7 @@ TestCase("[MathText] State tests", {
     'test should not set text to editor when not activity': function(){
         var state = '{"text": "testText", "isVisible": true}';
         this.presenter.configuration.isActivity = false;
+        this.presenter.configuration.showEditor = false;
 
         this.presenter.setState(state);
 

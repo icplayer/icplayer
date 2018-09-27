@@ -33,7 +33,8 @@ TestCase("[MathText] Reset tests", {
 
         this.presenter.state = {
             isCheckAnswers: false,
-            isShowAnswers: false
+            isShowAnswers: false,
+            isDisabled: false
         };
 
         this.presenter.configuration = {
@@ -78,15 +79,9 @@ TestCase("[MathText] Reset tests", {
         assertTrue(this.stubs.setMathMLStub.calledWith('initial'));
     },
 
-    'test reset should restore visibility of toolbar': function(){
-        this.presenter.reset();
-
-        assertTrue(this.stubs.setToolbarHiddenStub.called);
-        assertTrue(this.stubs.setToolbarHiddenStub.calledWith(false));
-    },
-
     'test should not try to call functions on editor, when not activity': function () {
         this.presenter.configuration.isActivity = false;
+        this.presenter.configuration.showEditor = false;
         this.presenter.reset();
 
         assertFalse(this.stubs.setToolbarHiddenStub.called);

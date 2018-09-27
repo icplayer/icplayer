@@ -7,7 +7,7 @@ function AddonMathText_create() {
         isShowAnswers: false,
         isCheckAnswers: false,
         currentAnswer: presenter.EMPTY_MATHTEXT,
-        wasChanged: false, // for checking if user has made changes since last answer check
+        wasChanged: true, // for checking if user has made changes since last answer check
         lastScore: 0,
         hasUserInteracted: false // for checking if user has interacted with addon
     };
@@ -299,14 +299,14 @@ function AddonMathText_create() {
     presenter.hideAnswers = function AddonMathText_hideAnswers () {
         if (presenter.configuration.showEditor && presenter.state.isShowAnswers) {
             presenter.editor.setToolbarHidden(false);
-                presenter.$view.find('input').removeAttr('disabled');
+            presenter.$view.find('input').removeAttr('disabled');
 
             if (presenter.configuration.isActivity) {
                 presenter.editor.setMathML(presenter.state.currentAnswer);
             }
 
-            presenter.setDisabled(presenter.state.isDisabled);
             presenter.state.isShowAnswers = false;
+            presenter.setDisabled(presenter.state.isDisabled);
         }
     };
 
@@ -353,21 +353,21 @@ function AddonMathText_create() {
     };
 
     presenter.reset = function () {
-        presenter.setVisibility(presenter.configuration.isVisible);
-        presenter.setDisabled(presenter.configuration.isDisabled);
-
         presenter.state.isCheckAnswers = false;
         presenter.state.isShowAnswers = false;
 
         presenter.wrapper.classList.remove('correct');
         presenter.wrapper.classList.remove('wrong');
 
-        presenter.state.wasChanged = false;
+        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setDisabled(presenter.configuration.isDisabled);
+
+        presenter.state.wasChanged = true;
         presenter.state.hasUserInteracted = false;
 
         if (presenter.configuration.showEditor) {
+            presenter.state.currentAnswer = presenter.configuration.initialText;
             presenter.editor.setMathML(presenter.configuration.initialText);
-            presenter.editor.setToolbarHidden(false);
         }
     };
 
@@ -415,21 +415,21 @@ function AddonMathText_create() {
     };
 
      presenter.setDisabled = function(value) {
-         if (presenter.configuration.isActivity) {
-             presenter.setWorkMode();
-             presenter.hideAnswers();
+         presenter.state.isDisabled = value;
 
-             presenter.state.isDisabled = value;
+         // that means input is disabled, and toolbar is hidden
+         if (presenter.state.isShowAnswers || presenter.state.isCheckAnswers) {
+             return;
+         }
 
+         if (presenter.configuration.showEditor) {
              if (value) {
                  presenter.$view.find('input').attr('disabled', true);
              } else {
                  presenter.$view.find('input').removeAttr('disabled');
              }
 
-             if (presenter.configuration.showEditor) {
-                 presenter.editor.setToolbarHidden(value);
-             }
+             presenter.editor.setToolbarHidden(value);
          }
     };
 
