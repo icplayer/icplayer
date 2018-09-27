@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.page.mockup;
 
 import com.lorepo.icplayer.client.model.page.group.Group;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupView;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -55,14 +56,12 @@ public class ModuleFactoryMockup implements IModuleFactory {
 
 	@Override
 	public GroupView createView(Group group) {
-		// TODO Auto-generated method stub
-		return null;
+		return new GroupView(group, true); 
 	}
 
 
 	@Override
-	public IPresenter createPresenter(Group group) {
-		// TODO Auto-generated method stub
-		return null;
+	public GroupPresenter createPresenter(Group group) {
+		return new GroupPresenter(group, services); 
 	}
 }
