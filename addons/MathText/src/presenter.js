@@ -483,7 +483,7 @@ function AddonMathText_create() {
     };
 
     presenter.getErrorCount = function () {
-        if (presenter.configuration.isActivity) {
+        if (presenter.configuration.isActivity && presenter.state.hasUserInteracted) {
             return 1 - presenter.getScore();
         }
         return 0;
