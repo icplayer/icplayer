@@ -45,10 +45,11 @@ function AddonParagraph_create() {
             'hide': presenter.hide,
             'isVisible': presenter.isVisible,
             'getText': presenter.getText,
+            'setText': presenter.setText,
             'isAttempted': presenter.isAttempted
         };
 
-        Commands.dispatch(commands, name, params, presenter);
+        return Commands.dispatch(commands, name, params, presenter);
     };
 
     presenter.isAttempted = function () {
@@ -659,6 +660,14 @@ function AddonParagraph_create() {
 
     presenter.isVisible = function AddonParagraph_isVisible() {
         return presenter.configuration.isVisible;
+    };
+
+    presenter.setText = function(text) {
+        if( Array.isArray(text) ) {
+            presenter.editor.setContent(text[0]);
+        } else if (typeof text === 'string' || text instanceof String) {
+            presenter.editor.setContent(text);
+        }
     };
 
     return presenter;
