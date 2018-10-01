@@ -1,4 +1,5 @@
 2019-09-27 Changed mouse and touch control scheme in Catch addon
+2018-09-24 Added missing split page label
 2018-09-19 Fixed issue with decimals in Math
 2018-09-19 Unifed visiblity settings in preview for multiple addons
 2018-09-17 Fixed issue with Audio progress bard

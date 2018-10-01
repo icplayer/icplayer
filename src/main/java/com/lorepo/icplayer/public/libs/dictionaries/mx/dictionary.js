@@ -235,6 +235,7 @@ var ice_dictionary_mx = {
 	"delete_chapter_confirmation": "Vas a eliminar el capítulo:\n ",
     "delete_chapter_pages_confirmation" : "¿Deseas eliminar todos los elementos del capítulo?",
 	"split_page_confirmation": "¿Quieres dividir esta página?",
+	"split_page_not_possible" : "Split page is not possible",
 	"delete_module_confirmation": "¿Quieres eliminar los módulos seleccionados?",
 	"cant_remove_last_page": "No se puede eliminar la página \n. La presentación debe tener al menos una página.",
 	"rename_page": "Renombrar página",

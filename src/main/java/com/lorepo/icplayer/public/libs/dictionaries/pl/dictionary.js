@@ -235,6 +235,7 @@ var ice_dictionary_pl = {
 	"delete_chapter_confirmation" : "Zamierzasz usunąć rozdział:\n ",
 	"delete_chapter_pages_confirmation" : "Czy usunąć wszystkie elementy zawarte w rozdziale?",
 	"split_page_confirmation" : "Czy chcesz podzielić tę stronę?",
+	"split_page_not_possible" : "Split page is not possible",
 	"delete_module_confirmation" : "Czy chcesz usunąć zaznaczone moduły?",
 	"cant_remove_last_page" : "Nie można usunąć strony.\nPrezentacja musi zawierać co najmniej jedną stronę.",
 	"rename_page" : "Zmień nazwę strony",

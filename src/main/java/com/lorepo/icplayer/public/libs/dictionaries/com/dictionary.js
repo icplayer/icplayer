@@ -235,6 +235,7 @@ var ice_dictionary_en = {
 	"delete_chapter_confirmation" : "You are going to delete chapter:\n ",
 	"delete_chapter_pages_confirmation" : "Do you want to delete all elements in chapter?",
 	"split_page_confirmation" : "Do you want to split this page?",
+	"split_page_not_possible" : "Split page is not possible",
 	"delete_module_confirmation" : "Do you want to remove selected modules?",
 	"cant_remove_last_page" : "Can't remove page.\nYou need at least one page in presentation",
 	"rename_page" : "Rename page",
