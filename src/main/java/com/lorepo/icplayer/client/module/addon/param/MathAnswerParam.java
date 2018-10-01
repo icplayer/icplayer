@@ -1,11 +1,9 @@
 package com.lorepo.icplayer.client.module.addon.param;
 
 import com.google.gwt.xml.client.Text;
-import com.google.gwt.xml.client.CDATASection;
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IMathTextAnswerProperty;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.addon.AddonModel;
