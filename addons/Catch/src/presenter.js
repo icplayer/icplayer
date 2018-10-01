@@ -385,15 +385,21 @@ function AddonCatch_create() {
 
         if (MobileUtils.isMobileUserAgent(navigator.userAgent)) {
             presenter.$view.on('touchstart', function (e) {
-                var isLeftSide = isPointOnLeftSide(e.originalEvent.touches[0].pageX )
+                var point = e.originalEvent.touches[0].pageX;
                 e.preventDefault();
-                movePlate(isLeftSide);
+
+                if (!isAbovePlateCenter(point)) {
+                    var isLeftSide = isPointOnLeftSide(point);
+                    movePlate(isLeftSide);
+                }
             });
         }
         else {
             presenter.$view.on('click', function (e) {
-                var isLeftSide = isPointOnLeftSide(e.clientX);
-                movePlate(isLeftSide);
+                if (!isAbovePlateCenter(e.clientX)) {
+                    var isLeftSide = isPointOnLeftSide(e.clientX);
+                    movePlate(isLeftSide);
+                }
             });
         }
 
@@ -404,14 +410,24 @@ function AddonCatch_create() {
         presenter.$view.off();
     }
 
+    function isAbovePlateCenter(point) {
+        var addonBounds = presenter.$view[0].getBoundingClientRect();
+        var addonLeftPos = addonBounds.left;
+        var relativePoint = point - addonLeftPos;
+        var quarterWidth =  Math.round($plateElement.width() / 4);
+        var plateLeft = getElementPositionLeft($plateElement) + quarterWidth;
+        var plateRight = plateLeft + quarterWidth*2;
+        return relativePoint > plateLeft && relativePoint < plateRight;
+    }
+
     function isPointOnLeftSide(point) {
         // we have to obtain the virtual coordinates of addon, because point from touchstart
         // will come in virtual coords, in case of high dpi devices such as smartphones
         // getBoundingClientRect will work correctly in css pixels in case of low dpi devices
         var addonBounds = presenter.$view[0].getBoundingClientRect();
-        var addonHalfWidth = Math.round(addonBounds.width / 2);
         var addonLeftPos = addonBounds.left;
-        return (point - addonLeftPos) > addonHalfWidth;
+        var plateCenterPos = getElementPositionLeft($plateElement) + Math.round($plateElement.width() / 2);
+        return (point - addonLeftPos) > plateCenterPos;
     }
 
     function makeWelcomePage () {

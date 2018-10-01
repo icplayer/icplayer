@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Visual_Feedback_Creator' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name='ScriptBlocks' nameLabel="Advanced_Connector_property_scripts" type='connectorblocks' isDefault="true" />
+        <property name="Is disabled" nameLabel="Advanced_Connector_property_is_disabled" type="boolean"/>
+	</model>
+</addon>

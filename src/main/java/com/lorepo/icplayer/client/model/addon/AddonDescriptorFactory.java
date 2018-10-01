@@ -128,6 +128,7 @@ public class AddonDescriptorFactory {
 
 		// SCRIPTING
 		addDescriptor("Advanced_Connector", "scripting_menu");
+		addDescriptor("Visual_Feedback_Creator", "scripting_menu");
 		addDescriptor("Connector", "scripting_menu");
 		addDescriptor("Double_State_Button", "scripting_menu");
 		addDescriptor("eKeyboard", "scripting_menu");

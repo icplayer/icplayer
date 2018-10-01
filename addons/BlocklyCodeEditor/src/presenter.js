@@ -160,8 +160,8 @@ function AddonBlocklyCodeEditor_create () {
 
         presenter.setRunButton();
         presenter.setEditorCss();
-        presenter.createWorkspace(view, isPreview);
         presenter.addUserBlocks();
+        presenter.createWorkspace(view, isPreview);
 
         presenter.setVisibility(presenter.configuration.visibleByDefault || isPreview);
 
@@ -176,6 +176,10 @@ function AddonBlocklyCodeEditor_create () {
                 presenter.destroy();
             }
         });
+
+        if (isPreview) {
+            presenter.$view.css('z-index','0');
+        }
     };
 
     presenter.setConfiguration = function(configuration) {
