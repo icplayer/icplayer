@@ -29,9 +29,9 @@ TestCase("[Paragraph] getText and setText method", {
     },
 
     'test when getText is called directly it returns correct value': function () {
-        this.presenter.setText("hello world");
+        var result = this.presenter.getText();
 
-        assertEquals("hello world", this.spies.setContent.getCall(0).args[0]);
+        assertEquals("hello world", result);
     },
 
     'test when getText is called as a command it returns correct value': function () {
