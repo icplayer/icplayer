@@ -52,6 +52,10 @@ export class MediaRecorder {
                 this.mediaState.setLoading();
                 let recording = URL.createObjectURL(blob);
                 this.player.setRecording(recording);
+            });
+        this.addonState.getVisibility()
+            .then(isVisible => {
+                this.setVisibility(isVisible);
             })
     }
 
@@ -134,6 +138,7 @@ export class MediaRecorder {
     reset() {
         this.deactivate();
         this.activate();
+        this.setVisibility(this.model["Is Visible"]);
         if (this.model.isResetRemovesRecording) {
             this.player.reset();
             this.addonState.reset();
@@ -141,6 +146,20 @@ export class MediaRecorder {
             this.mediaState.setNew();
             this._loadRecording(this.model.defaultRecording);
         }
+    }
+
+    show() {
+        this.setVisibility(true);
+        this.addonState.setVisibility(true);
+    }
+
+    hide() {
+        this.setVisibility(false);
+        this.addonState.setVisibility(false);
+    }
+
+    setVisibility(isVisible) {
+        this.addonViewService.setVisibility(isVisible);
     }
 
     _runAddon(view, model) {
@@ -182,7 +201,6 @@ export class MediaRecorder {
             $soundIntensityView: $(view).find(".media-recorder-sound-intensity")
         };
     }
-
 
     _loadMediaElements() {
         this.recorder = new AudioRecorder();
@@ -327,11 +345,9 @@ export class MediaRecorder {
         DOMOperationsUtils.showErrorMessage(view, Errors, validatedModel.fieldName.join("|") + "_" + validatedModel.errorCode);
     }
 
-    setVisibility(isVisible) {
-        this.addonViewService.setVisibility(isVisible);
-    }
-
     _showBrowserError(view) {
-        DOMOperationsUtils.showErrorMessage(view, {unsupportedBrowser: "Your browser is not supported."}, "unsupportedBrowser");
+        let $wrapper = $(view).find(".media-recorder-wrapper");
+        $wrapper.addClass("media-recorder-wrapper-browser-not-supported");
+        $wrapper.text("Your browser is not supported.");
     }
 }

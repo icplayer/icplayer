@@ -4,6 +4,7 @@ export class AddonState {
 
     constructor() {
         this.recording = null;
+        this.visibility = null;
     }
 
     setRecordingBlob(blob) {
@@ -18,11 +19,25 @@ export class AddonState {
         });
     }
 
+    setVisibility(isVisible) {
+        this.visibility = isVisible ? true : false;
+    }
+
+    getVisibility() {
+        debugger;
+        return new Promise(resolve => {
+            if (this.visibility != null)
+                resolve(this.visibility);
+        });
+    }
+
     reset() {
         this.recording = null;
+        this.visibility = null;
     }
 
     destroy() {
         this.recording = null;
+        this.visibility = null;
     }
 }

@@ -7,7 +7,8 @@ export class SoundEffect {
         this.audioNode.src = sound;
         this.audioNode.style.display = "none";
         this.$wrapper.append(this.audioNode);
-        this.startCallback = () => {};
+        this.startCallback = () => {
+        };
     }
 
     isValid() {
@@ -16,7 +17,13 @@ export class SoundEffect {
 
     playSound() {
         this.startCallback();
-        this.audioNode.play();
+        let playPromise = this.audioNode.play();
+        if (playPromise !== undefined) {
+            playPromise
+                .catch(error => {
+                    console.log(error);
+                });
+        }
     }
 
     destroy() {

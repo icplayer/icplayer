@@ -16,6 +16,10 @@ export class RecordButtonSoundEffect extends RecordButton {
     }
 
     _recordWithSoundEffect() {
+        this.startRecordingSoundEffect.onStartCallback = () => {
+        };
+        this.startRecordingSoundEffect.onStopCallback = () => {
+        };
         super._startRecording();
         this.startRecordingSoundEffect.playSound();
     }
