@@ -21,7 +21,14 @@ export class RecordButtonSoundEffect extends RecordButton {
         this.startRecordingSoundEffect.onStopCallback = () => {
         };
         super._startRecording();
-        this.startRecordingSoundEffect.playSound();
+        this._playStartRecordingSoundEffect();
+    }
+
+    _playStartRecordingSoundEffect() {
+        if (this.startRecordingSoundEffect.isBrowserRequiredReloadNode())
+            setTimeout(() => this.startRecordingSoundEffect.playSound(), 1000);
+        else
+            this.startRecordingSoundEffect.playSound()
     }
 
     _stopRecording() {

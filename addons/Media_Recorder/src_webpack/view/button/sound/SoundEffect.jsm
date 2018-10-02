@@ -9,6 +9,8 @@ export class SoundEffect {
         this.$wrapper.append(this.audioNode);
         this.startCallback = () => {
         };
+        this.stopCallback = () => {
+        };
     }
 
     isValid() {
@@ -40,6 +42,25 @@ export class SoundEffect {
     }
 
     set onStopCallback(callback) {
-        this.audioNode.onended = () => callback();
+        this.stopCallback = callback;
+        this.audioNode.onended = () => {
+            callback();
+            if (this.isBrowserRequiredReloadNode())
+                this._reloadAudioNode();
+        }
+    }
+
+    isBrowserRequiredReloadNode() {
+        const navU = window.navigator.userAgent;
+        return navU.indexOf('Android') > -1 && navU.indexOf('Mozilla/5.0') > -1 && navU.indexOf('AppleWebKit') > -1;
+    }
+
+    _reloadAudioNode() {
+        this.audioNode.remove();
+        this.audioNode = document.createElement("audio");
+        this.audioNode.src = this.sound;
+        this.audioNode.style.display = "none";
+        this.$wrapper.append(this.audioNode);
+        this.onStopCallback = this.stopCallback;
     }
 }
