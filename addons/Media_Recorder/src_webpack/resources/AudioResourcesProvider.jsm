@@ -4,7 +4,9 @@ export class AudioResourcesProvider extends ResourcesProvider {
 
     _getOptions() {
         return {
-            audio: true
+            audio: DevicesUtils.isEdge() ? true : {
+                echoCancellation: false
+            }
         }
     }
 }

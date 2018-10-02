@@ -5,9 +5,9 @@
     /**
      @class BrowsersDevicesUtils
      */
-        // Expose utils to the global object
+    // Expose utils to the global object
     window.DevicesUtils = {
-         isInternetExplorer: function () {
+        isInternetExplorer: function () {
             var ua = window.navigator.userAgent;
             var msie = ua.indexOf("MSIE ");
 
@@ -18,7 +18,9 @@
         },
         isFirefox: function () {
             return ('netscape' in window) && / rv:/.test(navigator.userAgent);
+        },
+        isEdge: function () {
+            return navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob);
         }
-
     }
 })(window);
