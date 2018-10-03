@@ -348,6 +348,6 @@ export class MediaRecorder {
     _showBrowserError(view) {
         let $wrapper = $(view).find(".media-recorder-wrapper");
         $wrapper.addClass("media-recorder-wrapper-browser-not-supported");
-        $wrapper.text("Your browser is not supported.");
+        $wrapper.text(Errors["not_supported_browser"]);
     }
 }
