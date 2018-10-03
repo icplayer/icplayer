@@ -960,6 +960,7 @@ var ice_dictionary_en = {
 	"Paragraph_property_custom_toolbar": "Custom toolbar",
 	"Paragraph_property_custom_css": "Custom CSS",
     "Paragraph_property_placeholder_text": "Placeholder text",
+	"Paragraph_property_editable_placeholder": "Editable placeholder",
     "Paragraph_Keyboard_info": "Allows a user to enter a free form text with basic WYSIWYG formatting and diacritical characters.",
 	"Paragraph_Keyboard_name": "Paragraph eKeyboard",
 	"Paragraph_Keyboard_property_default_font_family": "Default font family",

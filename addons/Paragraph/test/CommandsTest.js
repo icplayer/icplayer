@@ -11,7 +11,8 @@ TestCase("[Paragraph] getText and setText method", {
         this.presenter.editor = {
             id: "mce_1",
             setContent: this.spies.setContent,
-            getContent: function getContentMock(params) {return 'hello world';}
+            getContent: function getContentMock(params) {return 'hello world';},
+            initialized: true
         };
 
     },

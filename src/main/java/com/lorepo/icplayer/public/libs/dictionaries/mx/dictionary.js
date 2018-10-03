@@ -1074,6 +1074,7 @@ var ice_dictionary_mx = {
 	"Paragraph_property_custom_toolbar": "Barra de herramientas personalizada",
 	"Paragraph_property_custom_css": "CSS personalizado",
 	"Paragraph_property_placeholder_text": "Texto del marcador de posición",
+	"Paragraph_property_editable_placeholder": "Editable placeholder",
 	"Paragraph_Keyboard_info": "Permite a los usuarios a introducir un texto con el formateo básico y con los signos diacríticos.",
 	"Paragraph_Keyboard_name": "Párrafo con teclado",
 	"Paragraph_Keyboard_property_default_font_family": "Familia de fuentes predeterminada",

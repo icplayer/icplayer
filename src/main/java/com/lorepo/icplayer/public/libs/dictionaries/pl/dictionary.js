@@ -1073,6 +1073,7 @@ var ice_dictionary_pl = {
 	"Paragraph_property_custom_toolbar": "Niestandardowy pasek narzędzi",
 	"Paragraph_property_custom_css": "Niestandardowy CSS",
     "Paragraph_property_placeholder_text": "Tekst domyślny",
+	"Paragraph_property_editable_placeholder": "Editable placeholder",
 	"Paragraph_Keyboard_info" : "Pozwala użytkownikowi na wprowadzenie tekstu w dowolnej formie z zachowaniem formatowania WYSIWYG i wykorzystaniem znaków diakrytycznych.",
 	"Paragraph_Keyboard_name" : "Paragraf z e-Klawiaturą",
 	"Paragraph_Keyboard_property_default_font_family": "Domyślna rodzina czcionek",

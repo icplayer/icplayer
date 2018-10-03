@@ -239,6 +239,7 @@ function AddonParagraph_create() {
         var fontFamily = model['Default font family'],
             fontSize = model['Default font size'],
             isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
+            isPlaceholderEditable = ModelValidationUtils.validateBoolean(model['Editable placeholder']),
             toolbar = presenter.validateToolbar(model['Custom toolbar'], model.Width),
             height = model.Height,
             hasDefaultFontFamily = false,
@@ -274,7 +275,8 @@ function AddonParagraph_create() {
             pluginName: presenter.makePluginName(model["ID"]),
             width: model['Width'],
             height: parseInt(height, 10),
-            layoutType: layoutType
+            layoutType: layoutType,
+            isPlaceholderEditable: isPlaceholderEditable
         };
     };
 
@@ -300,7 +302,8 @@ function AddonParagraph_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradePlaceholderText(model);
+        var upgradedModel = presenter.upgradePlaceholderText(model);
+        return presenter.upgradeEditablePlaceholder(upgradedModel);
     };
 
     presenter.upgradePlaceholderText = function (model) {
@@ -309,6 +312,17 @@ function AddonParagraph_create() {
 
         if (model["Placeholder Text"] == undefined) {
             upgradedModel["Placeholder Text"] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeEditablePlaceholder = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (model["Editable placeholder"] == undefined) {
+            upgradedModel["Editable placeholder"] = "";
         }
 
         return upgradedModel;
@@ -393,7 +407,7 @@ function AddonParagraph_create() {
     presenter.placeholderElement = function AddonParagraph_placeholderElement() {
         this.isSet = true;
         this.shouldBeSet = false;
-        this.placeholderText = presenter.configuration.placeholderText;
+        this.placeholderText = presenter.configuration.isPlaceholderEditable ? "" : presenter.configuration.placeholderText;
         this.contentAreaContainer = null;
         this.el = null;
         this.attrs = {style: {position: 'absolute', top:'5px', left:0, color: '#888', padding: '1%', width:'98%', overflow: 'hidden'} };
@@ -590,6 +604,10 @@ function AddonParagraph_create() {
         if (presenter.configuration.layoutType !== "Default") {
             presenter.addStylesToButton();
         }
+
+        if (presenter.configuration.isPlaceholderEditable && presenter.state == null) {
+            presenter.setText(presenter.configuration.placeholderText);
+        }
     };
 
     presenter.setPlayerController = function AddonParagraph_setPlayerController(controller) {
@@ -644,7 +662,11 @@ function AddonParagraph_create() {
     presenter.reset = function AddonParagraph_reset() {
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.placeholder.removePlaceholder();
-        presenter.editor.setContent('');
+        if (presenter.configuration.isPlaceholderEditable) {
+            presenter.setText(presenter.configuration.placeholderText);
+        } else {
+            presenter.editor.setContent('');
+        }
         presenter.placeholder.addPlaceholder();
     };
 
@@ -663,10 +685,12 @@ function AddonParagraph_create() {
     };
 
     presenter.setText = function(text) {
-        if( Array.isArray(text) ) {
-            presenter.editor.setContent(text[0]);
-        } else if (typeof text === 'string' || text instanceof String) {
-            presenter.editor.setContent(text);
+        if (presenter.editor != null && presenter.editor.initialized) {
+            if (Array.isArray(text)) {
+                presenter.editor.setContent(text[0]);
+            } else if (typeof text === 'string' || text instanceof String) {
+                presenter.editor.setContent(text);
+            }
         }
     };
 
