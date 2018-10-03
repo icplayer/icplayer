@@ -694,6 +694,8 @@ function AddonTrueFalse_create() {
     };
 
     presenter.isAttempted = function () {
+        if (isNotActivity) return true;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
