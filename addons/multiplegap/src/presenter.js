@@ -742,7 +742,7 @@ function Addonmultiplegap_create(){
         }else{
             score = 0;
         }
-        
+
         presenter.eventBus.sendEvent('ValueChanged', {
             'source': presenter.configuration.ID,
             'item'  : '' + item.item, // ensure that we send string
@@ -761,6 +761,7 @@ function Addonmultiplegap_create(){
         placeholder.draggable({
             revert : false,
             helper: function() {
+                placeholder.addClass('dragging');
                 if (!presenter.isDragPossible()) {
                     return $('<div></div>');
                 }
@@ -779,6 +780,7 @@ function Addonmultiplegap_create(){
                 ui.helper.zIndex(100);
             },
             stop : function(event, ui) {
+                placeholder.removeClass('dragging');
                 ui.helper.zIndex(0);
                 ui.helper.remove();
                 presenter.itemStopped(placeholder);
@@ -842,14 +844,25 @@ function Addonmultiplegap_create(){
     };
     
     presenter.itemStopped = function(placeholder) {
+        var value = placeholder.attr('draggableValue') + '';
+        var item = placeholder.attr('draggableItem') + '';
+        var type = placeholder.attr('draggableType') + '';
+        placeholder.remove();
+
+        presenter.eventBus.sendEvent('ValueChanged', {
+            'source': presenter.configuration.ID,
+            'item'  : item,
+            'value' : 'remove',
+            'score' : presenter.getScore()
+        });
+
         var evnt = {
             source: presenter.configuration.ID,
-            value: placeholder.attr('draggableValue'),
-            item: placeholder.attr('draggableItem'),
-            type: placeholder.attr('draggableType')
+            value: value,
+            item: item,
+            type: type
         };
         presenter.eventBus.sendEvent('itemStopped', evnt);
-        placeholder.remove();
         presenter.$view.find('.placeholder').each(presenter.movePlaceholdersAfterRemove);
     };
     
@@ -955,7 +968,7 @@ function Addonmultiplegap_create(){
             top: positions.top + 'px'
         });
     };
-    
+
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
@@ -989,7 +1002,7 @@ function Addonmultiplegap_create(){
     };
     
     function getItemsCount() {
-        return presenter.$view.find('.placeholder').length;
+        return presenter.$view.find('.placeholder').not('.dragging').length;
     }
     
     function isAllCorrect () {
@@ -1002,10 +1015,21 @@ function Addonmultiplegap_create(){
         }
         if (presenter.itemCounterMode) {
             var score = isAllCorrect() ? 1 : 0;
-            
+
             return presenter.configuration.isActivity ? score : 0;
         }
-        return presenter.configuration.isActivity ? presenter.configuration.itemsAnswersID.length - presenter.getInvalidItems().length : 0;
+
+        if (!presenter.configuration.isActivity) return 0;
+
+        var invalidAndRedundantItems = presenter.getInvalidItems();
+        var invalidItems = invalidAndRedundantItems.remainingItems;
+        var redundantItems = invalidAndRedundantItems.redundantItems;
+
+        if (redundantItems.length > 0) {
+            return 0;
+        } else {
+            return presenter.configuration.itemsAnswersID.length - invalidItems.length;
+        }
     };
     
     presenter.getErrorCount = function() {
@@ -1019,10 +1043,10 @@ function Addonmultiplegap_create(){
             if (!isAllCorrect() && !isEmpty) {
                 result = 1;
             }
-            
+
             return presenter.configuration.isActivity ? result : 0;
         }
-        
+
         return presenter.configuration.isActivity ? presenter.countItems() - presenter.getScore() : 0;
     };
     
@@ -1032,28 +1056,26 @@ function Addonmultiplegap_create(){
         if (presenter.itemCounterMode) {
             return isAllCorrect() ? 1 : 0;
         }
-        
+
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
     
     presenter.getInvalidItems = function() {
         var remainingItems = presenter.configuration.itemsAnswersID.slice(0), currentItem;
-        
-        presenter.$view.find('.placeholder').each(function(index, placeholder) {
-            
-            // To get updated score during dragged element which is still in DOM we must break out of each
-            if (!$(placeholder).find('.handler').filter(':visible').length) {
-                return true;
-            }
+        var redundantItems = [];
+
+        presenter.$view.find('.placeholder').not('.dragging').each(function(index, placeholder) {
             currentItem = $(placeholder).attr('draggableItem');
             var currentItemIndex = remainingItems.indexOf(currentItem);
             
             if (currentItemIndex !== -1) {
                 remainingItems.splice(currentItemIndex, 1);
+            } else {
+                redundantItems.push(currentItem);
             }
         });
-        
-        return remainingItems;
+
+        return {remainingItems: remainingItems, redundantItems: redundantItems};
     };
     
     function markInactive () {

@@ -16,11 +16,6 @@ img.big {
     margin: auto;
 }
 
-.ui-widget-overlay {
-    background: black !important;
-    opacity: 0.7 !important;
-}
-
 .close-button-ui-dialog {
     display: table;
     top: 0;

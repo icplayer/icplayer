@@ -1756,8 +1756,9 @@ function AddonPlot_create(){
         } else {
             presenter.hide();
         }
-    }
-    presenter.initialize = function(view, model, interactive) {
+    };
+
+    presenter.initialize = function(view, model, isInteractive) {
         var v, p, el;
         this._model = model;
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
@@ -1766,8 +1767,12 @@ function AddonPlot_create(){
         if(presenter.decimalSeparator != '.' && presenter.decimalSeparator != ',') {
             presenter.decimalSeparator = '.';
         };
-        presenter.updateVisibility();
-        plot.interactive = interactive;
+        if (isInteractive) {
+            presenter.updateVisibility();
+        } else {
+            presenter.show();
+        }
+        plot.interactive = isInteractive;
         plot.width = parseInt(model['Width']);
         plot.height = parseInt(model['Height']);
         plot.xMin = (model['xMin'] == '' && model['xMin'] != '0' ? -10 : parseFloat(this.toDotSeparator(model['xMin'])));

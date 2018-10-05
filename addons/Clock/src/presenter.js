@@ -609,8 +609,6 @@ function AddonClock_create() {
         if (presenter.isDisable) {
             $(myDiv).addClass('disable');
         }
-
-        presenter.setVisibility(presenter.wasVisible);
     };
 
     presenter.run = function(view, model) {
@@ -620,6 +618,8 @@ function AddonClock_create() {
         if (presenter.validate(view, model)) {
 
             presenter.init(view, model);
+            presenter.setVisibility(presenter.isVisible);
+
             presenter.setClockTime(model.InitialTime);
 
             presenter.eventBus.addEventListener('ShowAnswers', this);
@@ -953,6 +953,8 @@ function AddonClock_create() {
 
         if (presenter.validate(view, model)) {
             presenter.init(view, model);
+
+            presenter.setVisibility(true);
             presenter.setClockTime(model.InitialTime);
         }
 

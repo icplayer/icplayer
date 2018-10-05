@@ -49,6 +49,10 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.getSemiResponsiveLayouts = function () {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getSemiResponsiveLayouts()();
 			}
+			
+			player.getResponsiveLayouts = function () {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getSemiResponsiveLayouts()();
+			}
 
 			player.getState = function() {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getState()();
