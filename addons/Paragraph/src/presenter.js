@@ -307,22 +307,19 @@ function AddonParagraph_create() {
     };
 
     presenter.upgradePlaceholderText = function (model) {
-        var upgradedModel = {};
-        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
-
-        if (model["Placeholder Text"] == undefined) {
-            upgradedModel["Placeholder Text"] = "";
-        }
-
-        return upgradedModel;
+        return presenter.upgradeAttribute(model, "Placeholder Text", "");
     };
 
     presenter.upgradeEditablePlaceholder = function (model) {
+        return presenter.upgradeAttribute(model, "Editable placeholder", "");
+    };
+
+    presenter.upgradeAttribute = function (model, attrName, defaultValue) {
         var upgradedModel = {};
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (model["Editable placeholder"] == undefined) {
-            upgradedModel["Editable placeholder"] = "";
+        if (model[attrName] == undefined) {
+            upgradedModel[attrName] = defaultValue;
         }
 
         return upgradedModel;

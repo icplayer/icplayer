@@ -36,7 +36,7 @@ TestCase("[Paragraph] getText and setText method", {
     },
 
     'test when getText is called as a command it returns correct value': function () {
-        var result = this.presenter.getText();
+        var result = this.presenter.executeCommand("gettext",[""]);
 
         assertEquals("hello world", result);
     }
