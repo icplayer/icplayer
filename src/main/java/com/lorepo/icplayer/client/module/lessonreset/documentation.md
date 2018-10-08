@@ -1,15 +1,5 @@
 ## Description
-
-Limited Reset is a module that allows you to add a button clicking on which will reset answers given in the specified modules.
-
-<div style="border:1px solid Tomato; padding:5px; margin-bottom:21px;">
-Note: This module should not be used when a lesson has the Score type defined as first (more about score types can be found in <a href="/doc/page/Saving-user's-result">documentation</a>)!
-</div>
-
-The Limited Reset module is based on the <a href="/doc/page/Check-and-Reset-buttons">Reset module</a>. In addition to the base module, Limited Reset has additional rules and functions:
-
-* when the Check module is selected, all Limited Reset modules are disabled during the error checking mode
-* when the Show Answers module is selected and a user selects the Limited Reset module, the Show Answers module will be disabled and deselected
+The Lesson Reset module allows you to reset the lesson score and optionally the number of mistakes and checks.
 
 ## Properties
 
@@ -19,16 +9,16 @@ The Limited Reset module is based on the <a href="/doc/page/Check-and-Reset-butt
         <th>Description</th>
     </tr>
     <tr>
-        <td>Check text</td>
-        <td>Text displayed on the button.</td>
+        <td>Title</td>
+        <td>Text that appears as a module title.</td>
     </tr>
     <tr>
-        <td>Uncheck text</td>
-        <td>Text displayed on the button when it's selected.</td>
+        <td>Reset mistakes</td>
+        <td>When this option is selected, the number of mistakes will be reset.</td>
     </tr>
-	<tr>
-        <td>Works with</td>
-        <td>List of modules connected to the Limited Check module. Each line should consist of a separate module ID.</td>
+    <tr>
+        <td>Reset checks</td>
+        <td>When this option is selected,the number of checks will be reset.</td>
     </tr>
 </table>
 
@@ -50,19 +40,24 @@ The Limited Reset module is based on the <a href="/doc/page/Check-and-Reset-butt
         <td>---</td>
         <td>Shows the module.</td>
     </tr>
+    <tr>
+        <td>execute</td>
+        <td>---</td>
+        <td>Allows calling the module's function by command.</td>
+    </tr>
 </table>
 
 ## Advanced Connector integration
 
-Each command supported by the Limited Reset module can be used in the Advanced Connector's scripts. The below example shows how it interacts with the Single Stare Button module.
+Each command supported by the Lesson Reset module can be used in the Advanced Connector's scripts. The below example shows how it interacts with the Single State Button module.
 
     EVENTSTART
     Name:ValueChanged
 	Source:SingleStateButton1
     SCRIPTSTART
-        var limitedReset = presenter.playerController.getModule('LimitedReset1');
+        var lessonReset = presenter.playerController.getModule('LessonReset1');
 
-		limitedReset.show();
+		lessonReset.show();
     SCRIPTEND
     EVENTEND
 	
@@ -70,59 +65,47 @@ Each command supported by the Limited Reset module can be used in the Advanced C
     Name:ValueChanged
 	Source:SingleStateButton2
     SCRIPTSTART
-        var limitedReset = presenter.playerController.getModule('LimitedReset1');
+        var lessonReset = presenter.playerController.getModule('LessonReset1');
 
-		limitedReset.hide();
+		lessonReset.hide();
     SCRIPTEND
     EVENTEND
 
 ## Events
-Limited Reset does not send any events.
+Lesson Reset does not send any events.
 
-## CSS Classes
+## CSS classes
 
-<table border="1">
-	<tbody>
-		<tr>
-			<th>Class name</th>
-			<th>Description</th>
-		</tr>
-		<tr>
-			<td>.ic_button_limited_reset</td>
-			<td>indicates the look of the Limited Reset button</td>
-		</tr>
-		<tr>
-			<td>.ic_button_limited_reset-up-hovering</td>
-			<td>indicates the look of the Limited Reset button while putting a mouse cursor on it.</td>
-		</tr>
-		<tr>
-			<td>.ic_button_limited_reset-down-hovering</td>
-			<td>indicates the look of the Limited Reset button while clicking on it.</td>
-		</tr>
-	</tbody>
+<table border='1'>
+    <tr>
+        <th>Class name</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>ic_button_lesson_reset</td>
+        <td>indicates the look of the Lesson Reset button</td>
+    </tr>
+    <tr>
+        <td>.ic_button_lesson_reset-up-hovering</td>
+        <td>indicates the look of the Lesson Reset button while putting a mouse cursor on it</td>
+    </tr>
+    <tr>
+        <td>.ic_button_lesson_reset-down-hovering</td>
+        <td>indicates the look of the Lesson Reset button while clicking on it</td>
+    </tr>
+
 </table>
 
 ### Default Styling
 
 <pre>
-.ic_button_limited_reset{
+.ic_button_lesson_reset {
 	background-image	:url('images/reset.png');
 	background-repeat	:no-repeat;
 	background-position	:center;
 	cursor: pointer; 	
 }
-</pre>
-
-### Custom Styling Example
-
-<pre>
-.LimitedReset_MyClass{
-	background-color: #fefefe;
-	border-radius: 2px;
-	cursor: pointer; 	
-}
-</pre>
-
+</pre>   
 
 ## Demo presentation
-[Demo presentation](/embed/5169063738212352"Demo presentation") contains examples of how to use this module.                      
+[Demo presentation](/embed/6102884622532608"Demo presentation") contains examples of how to use this module.              
