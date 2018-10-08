@@ -12,6 +12,9 @@ function getMockForConiguration() {
                 show: sinon.spy(),
                 hide: sinon.spy()
             },
+            $levelDiv:{
+                html: sinon.spy()
+            },
             $answersWrapper: {
                 append: sinon.spy()
             },
@@ -128,11 +131,11 @@ TestCase("[Shooting_Range - Level] events", {
         assertEquals(1, this.mock.onWrongAnswerCallback.getCall(0).args[1]);
     },
 
-    'test onClick will set isClicked and class name': function () {
+    'test onClick will set isClicked': function () {
         this.level.onClick(0, true, 1, this.eventMock);
 
         assertTrue(this.level.answers[1].isClicked);
-        assertTrue(this.level.answers[1].element.hasClass('clicked'));
+        //assertTrue(this.level.answers[1].element.hasClass('clicked'));
         assertEquals(1, this.level.clickedElements);
 
     },

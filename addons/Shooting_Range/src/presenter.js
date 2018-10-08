@@ -7,6 +7,7 @@ function AddonShooting_Range_create() {
         view: null,
         $view: null,
         $questionDiv: null,
+        $levelDiv: null,
         $answersWrapper: null,
         $playButton: null,
         levels: [],
@@ -79,6 +80,7 @@ function AddonShooting_Range_create() {
         presenter.state.$view = $(view);
         presenter.state.view = view;
         presenter.state.$questionDiv = $(view).find(".addon-Shooting_Range-wrapper-question");
+        presenter.state.$levelDiv = $(view).find(".addon-Shooting_Range-wrapper-level");
         presenter.state.$answersWrapper = $(view).find(".addon-Shooting_Range-wrapper-answers-wrapper");
         presenter.state.$playButton = $(view).find(".addon-Shooting_Range-play-button-wrapper");
 
@@ -192,7 +194,7 @@ function AddonShooting_Range_create() {
 
     presenter.actualizeAnswersWrapperHeight = function () {
         presenter.state.$answersWrapper.css({
-            'top': presenter.state.$questionDiv.height(),
+            'top': presenter.state.$questionDiv.height() + presenter.state.$levelDiv.height(),
             'height': presenter.state.$view.height() - presenter.state.$questionDiv.height()
         });
     };
@@ -215,6 +217,8 @@ function AddonShooting_Range_create() {
                 definition: presenter.configuration.definitions[i],
                 timeForAnswer: initialTimerForAnswer + (diffOnLevel * i),
                 questionNumber: i,
+                numberOfLevel: (i+1) + "/" + presenter.configuration.definitions.length,
+                $levelDiv: presenter.state.$levelDiv,
                 $questionDiv: presenter.state.$questionDiv,
                 $answersWrapper: presenter.state.$answersWrapper,
                 onCorrectAnswerCallback: presenter.onCorrectAnswerCallback.bind(this),
@@ -729,6 +733,8 @@ function AddonShooting_Range_create() {
         this.questionNumber = configuration.questionNumber;
         this.$answersWrapper = configuration.$answersWrapper;
         this.$questionDiv = configuration.$questionDiv;
+        this.$levelDiv = configuration.$levelDiv;
+        this.numberOfLevel = configuration.numberOfLevel;
         this.timeForAnswer = configuration.timeForAnswer;
         this.callbacks = {
             onCorrectAnswerCallback: configuration.onCorrectAnswerCallback,
@@ -755,6 +761,7 @@ function AddonShooting_Range_create() {
             this.startTime = new Date().getTime() / 1000;
             this.generateAnswers();
             this.$questionDiv.html(this.definition["definition"]);
+            this.$levelDiv.html(this.numberOfLevel);
             this.destroyed = false;
             this.initialElapsedTime = 0;
             this.pauseTime = 0;
@@ -858,11 +865,12 @@ function AddonShooting_Range_create() {
 
             if (isCorrect) {
                 this.callbacks.onCorrectAnswerCallback(questionNumber, answerNumber);
+                this.answers[answerNumber].element.addClass("correct");
             } else {
                 this.callbacks.onWrongAnswerCallback(questionNumber, answerNumber);
+                 this.answers[answerNumber].element.addClass("wrong");
             }
-
-            this.answers[answerNumber].element.addClass("clicked");
+            //this.answers[answerNumber].element.addClass("clicked");
             this.answers[answerNumber].isClicked = true;
             this.clickedElements++;
 

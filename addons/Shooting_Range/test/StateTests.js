@@ -34,6 +34,10 @@ TestCase("[Shooting_Range - state tests] set state", {
             height: sinon.spy()
         };
 
+        this.presenter.state.$levelDiv = {
+            height: sinon.spy()
+        };
+
         this.presenter.state.$view = {
             height: sinon.spy(),
             css: sinon.spy()
