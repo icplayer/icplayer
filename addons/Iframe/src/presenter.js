@@ -13,6 +13,7 @@ function AddonIframe_create() {
     presenter.configuration = null;
     presenter.$view = null;
     presenter.eventBus = null;
+    presenter.isEditor = false;
 
     presenter.actionID = {
         SET_WORK_MODE : "SET_WORK_MODE",
@@ -69,6 +70,7 @@ function AddonIframe_create() {
     };
 
     presenter.createPreview = function AddonIFrame_Communication_create_preview (view, model) {
+        presenter.isEditor = true;
         presenter.initialize(view, model);
         if (presenter.configuration.isValid) {
             presenter.setVisibility(true);
@@ -221,7 +223,9 @@ function AddonIframe_create() {
 
     presenter.setVisibility = function (isVisible) {
         presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
-        presenter.$view.css('display', isVisible ? 'block' : 'none');
+        if(!presenter.isEditor) {
+            presenter.$view.css('display', isVisible ? 'block' : 'none');
+        }
     };
 
     presenter.show = function AddonIFrame_Communication_show () {
