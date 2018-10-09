@@ -173,7 +173,7 @@ function AddonExternal_Link_Button_create() {
         	isValid: true,
             title: model.Title,
             image: image.value,
-            URI: model.URI,
+            URI: model.URI.trim(),
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
             targetType: model['targetType']
