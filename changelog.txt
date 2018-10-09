@@ -1,3 +1,4 @@
+2019-10-09 Shooting range impoving the game.
 2019-10-02 Fixed isAttempted method in not activity mode in True False module
 2019-09-27 Changed mouse and touch control scheme in Catch addon
 2018-09-24 Fixed issues with scoring in multiplegap

@@ -96,7 +96,9 @@ TestCase("[Shooting_Range - state tests] get state", {
         this.mocks = {
             level1: {
                 getElapsedTime: sinon.stub(),
-                getClicked: sinon.stub()
+                getClicked: sinon.stub(),
+                getCorrected: sinon.stub(),
+                getWronged: sinon.stub(),
             }
         };
 
