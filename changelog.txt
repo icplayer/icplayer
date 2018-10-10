@@ -1,3 +1,4 @@
+2019-10-08 Fixed issue with show answers in Text Selection when Limited Check is used
 2019-10-05 Fixed issue with MathJax in eKeyboard and Text when the first layout is not default
 2019-10-02 Fixed isAttempted method in not activity mode in True False module
 2019-09-27 Changed mouse and touch control scheme in Catch addon
