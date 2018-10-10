@@ -999,7 +999,7 @@ function AddoneKeyboard_create(){
 
 
     presenter.destroy = function destroy_addon_eKeyboard_function () {
-        if (presenter.isPreview) {
+        if (presenter.isPreview || !presenter.configuration) {
             return;
         }
 
