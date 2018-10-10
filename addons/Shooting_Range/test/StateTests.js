@@ -41,8 +41,8 @@ TestCase("[Shooting_Range - state tests] set state", {
 
         this.presenter.state.actualLevel = 0;
 
-        this.state1 = "{\"actualLevel\":1,\"actualLevelTimeElapsed\":23,\"isFinished\":false,\"isVisible\":false,\"score\":5,\"errorCount\":2,\"clickedElements\":[1,2], \"isStarted\":true, \"resultsList\":[{\"score\":3,\"errors\":4},{\"score\":2,\"errors\":4}]}";
-        this.state2 = "{\"actualLevel\":1,\"actualLevelTimeElapsed\":23,\"isFinished\":true,\"isVisible\":false,\"score\":5,\"errorCount\":2,\"clickedElements\":[1,2], \"isStarted\":true, \"resultsList\":[{\"score\":3,\"errors\":4},{\"score\":2,\"errors\":4}]}";
+        this.state1 = "{\"actualLevel\":1,\"actualLevelTimeElapsed\":23,\"isFinished\":false,\"isVisible\":false,\"score\":5,\"wholeErrorCount\": 2,\"errorCount\":2,\"clickedElements\":[1,2], \"isStarted\":true, \"resultsList\":[{\"score\":3,\"errors\":4},{\"score\":2,\"errors\":4}]}";
+        this.state2 = "{\"actualLevel\":1,\"actualLevelTimeElapsed\":2000,\"isFinished\":true,\"isVisible\":false,\"score\":5,\"wholeErrorCount\": 2,\"errorCount\":2,\"clickedElements\":[1,2], \"isStarted\":true, \"resultsList\":[{\"score\":3,\"errors\":4},{\"score\":2,\"errors\":4}]}";
 
     },
 
@@ -80,6 +80,22 @@ TestCase("[Shooting_Range - state tests] set state", {
 
         assertTrue(this.mocks.level2.destroy.calledOnce);
         assertEquals(2, this.presenter.state.actualLevel);
+    },
+
+    'test given results in state field and level was finished when calling set state then set the results to the addon state': function () {
+        this.presenter.setState(this.state2);
+
+        assertEquals([
+            {"score":3,"errors":4},
+            {"score":2,"errors":4}
+        ], this.presenter.state.resultsList);
+    },
+
+    'test given finished as true in state field when calling set state then the addon wont call actualize and pause methods': function () {
+        this.presenter.setState(this.state2);
+
+        assertTrue(this.mocks.level2.actualize.notCalled);
+        assertTrue(this.mocks.level2.pause.notCalled);
     }
 });
 
