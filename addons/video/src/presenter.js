@@ -10,6 +10,8 @@ function Addonvideo_create() {
     var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
     var currentTime;
 
+    var escapedSeparator = '&&separator&&';
+
     presenter.currentMovie = 0;
     presenter.videoContainer = null;
     presenter.$view = null;
@@ -1490,7 +1492,7 @@ function Addonvideo_create() {
             $(captionElement).addClass('audio-description');
         }
         $(captionElement).addClass(caption.cssClass);
-        $(captionElement).html(caption.text);
+        $(captionElement).html(window.TTSUtils.parsePreviewAltText(caption.text));
         $(captionElement).css({
             top: caption.top,
             left: caption.left
@@ -1568,11 +1570,33 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.escapeAltText = function(text) {
+        function replacer(match, p1, offset, string) {
+          return '[' + p1.replace(/\|/g, escapedSeparator) + ']';
+        }
+        return text.replace(/\[(.*?)\]/g, replacer);
+    };
+    
+    presenter.unescapeAndConvertAltText = function(text) {
+        function replacer(match, p1, offset, string) {
+          var parts = p1.split(escapedSeparator);
+          if (parts.length === 2) {
+              return '\\alt{' + parts[0] + '|' + parts[1] + '}';
+          }
+          if (parts.length === 3) {
+              return '\\alt{' + parts[0] + '|' + parts[1] + '}[lang ' + parts[2] + ']';
+          }
+          return '[' + parts.join('|') + ']';
+        }
+        return text.replace(/\[(.*?)\]/g, replacer);
+    };
+
     presenter.convertLinesToAudioDescriptions = function (lines) {
         presenter.descriptions = [];
 
         for (var i = 0; i < lines.length; i++) {
-            var parts = lines[i].split('|');
+            var line = presenter.escapeAltText(lines[i]);
+            var parts = line.split('|');
             if (parts.length == 6) {
                 var description = {
                     start: parts[0],
@@ -1580,7 +1604,7 @@ function Addonvideo_create() {
                     left: (StringUtils.endsWith(parts[3], 'px') ? parts[2] : parts[2] + 'px'),
                     cssClass: parts[3],
                     langTag: parts[4],
-                    text: parts[5]
+                    text: presenter.unescapeAndConvertAltText(parts[5])
                 };
 
                 description.element = createCaptionElement(description, true);
