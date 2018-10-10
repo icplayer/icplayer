@@ -139,16 +139,26 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		getElement().setAttribute("lang", this.getLang());
 	}
 	
+	private boolean isDisableDragging() {
+		return module.isDisableDragging();
+	}
+	
+	private boolean isPreview() {
+		return isPreview;
+	}
+	
 	private void makeSortable() {
-		if(!isPreview && !this.module.isDisableDragging()){
-			makeSortable(getElement(), jsObject, workMode);
-		}
+		makeSortable(this, getElement(), jsObject, workMode);
 	};
 
-	private native void makeSortable(Element e, JavaScriptObject jsObject, boolean workMode)/*-{
+	private native void makeSortable(OrderingView x, Element e, JavaScriptObject jsObject, boolean workMode)/*-{
 		var selector = jsObject.axis == "y" ? "tbody" : "tbody tr";
 		var displayType = jsObject.axis == "y" ? "table-row" : "table-cell";
 		var forceHide = false;
+		var isPreview = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isPreview()();
+		var isDisableDragging = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isDisableDragging()();
+		
+		if (isPreview || isDisableDragging) return;
 		
 		if (!workMode) {
 			$wnd.$(e).find(selector).sortable("disable");
