@@ -38,9 +38,8 @@ TestCase("[Multiple Gap] Draggable", {
 
         this.presenter.itemStopped(placeholder);
 
-        assertTrue(stubs.sendEvent.calledTwice);
-        assertEquals('ValueChanged', stubs.sendEvent.getCall(0).args[0]);
-        assertEquals('itemStopped', stubs.sendEvent.getCall(1).args[0]);
+        assertTrue(stubs.sendEvent.calledOnce);
+        assertEquals('itemStopped', stubs.sendEvent.getCall(0).args[0]);
     },
 
     'test dragging class added on helper creation': function() {
