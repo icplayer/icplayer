@@ -397,6 +397,7 @@ var ice_dictionary_en = {
 	"ordering_item" : "Ordering item",
 	"ordering_item_text" : "Text",
 	"ordering_gradually_score": "Gradually Score",
+	"ordering_disable_dragging": "Disable dragging",
 	"ordering_item_starting_position": "Starting position",
 	"page_progress_module" : "Page Progress",
     "Page_progress_property_works_with" : "Works with",
