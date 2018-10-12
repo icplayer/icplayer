@@ -1,3 +1,4 @@
+2019-10-12 Shooting range impoving the game.
 2019-10-11 Removed sending ValueChanged with value removed on stopping item drag in multiplegap
 2019-10-09 Fixed problem with setState in shooting range module
 2019-10-08 Fixed issue with show answers in Text Selection when Limited Check is used
