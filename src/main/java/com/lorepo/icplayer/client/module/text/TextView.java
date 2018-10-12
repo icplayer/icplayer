@@ -54,6 +54,24 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		}
 		
 		getElement().setAttribute("lang", this.module.getLangAttribute());
+		if (this.module.hasMathGaps()) {
+			setCallbackForMathJaxLoaded(this, getElement());
+		}
+	}
+	
+	private native void setCallbackForMathJaxLoaded(TextView x, Element e) /*-{
+		var $e = $wnd.$(e);
+		$e.css('display','none');
+		$wnd.MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
+	        if ($wnd.$(message[1]).hasClass('ic_page')) {
+	            x.@com.lorepo.icplayer.client.module.text.TextView::mathJaxIsLoadedCallback()();
+	            $e.css('display','');
+	        }
+	    });
+	}-*/;
+	
+	void mathJaxIsLoadedCallback() {
+		this.refreshMath();
 	}
 
 	public ITextViewListener getListener() {
@@ -303,7 +321,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	public void refreshMath () {
 		MathJax.refreshMathJax(getElement());
 	}
-	
+
 	public void rerenderMathJax () {
 		MathJax.rerenderMathJax(getElement());
 	}
