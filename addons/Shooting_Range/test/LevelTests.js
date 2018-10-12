@@ -72,7 +72,6 @@ TestCase("[Shooting_Range - Level] start", {
     },
 
     'test if start will set properly values': function () {
-        this.level.droppedElements = 22;
         this.level.clickedElements = 1;
         this.level.startTime = 50;
         this.level.destroyed = true;
@@ -87,7 +86,6 @@ TestCase("[Shooting_Range - Level] start", {
         assertTrue(this.mock.$questionDiv.html.calledOnce);
         assertEquals('def', this.mock.$questionDiv.html.getCall(0).args[0]);
 
-        assertEquals(0, this.level.droppedElements);
         assertEquals(0, this.level.clickedElements);
         assertEquals(new Date().getTime() / 1000, this.level.startTime);
         assertEquals(false, this.level.destroyed);

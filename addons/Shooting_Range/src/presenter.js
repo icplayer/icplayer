@@ -620,11 +620,7 @@ function AddonShooting_Range_create() {
 
         if (state.isStarted) {
             presenter.changeLevel(state['actualLevel']);
-            presenter.getActualLevel().start(
-                state['actualLevelTimeElapsed'],
-                state['clickedElements'],
-                state['wrongedElements'],
-                state['correctedElements']);
+            presenter.getActualLevel().start(state['actualLevelTimeElapsed'], state['clickedElements']);
 
             presenter.actualizeAnswersWrapperHeight();
             presenter.getActualLevel().actualize();
@@ -653,8 +649,6 @@ function AddonShooting_Range_create() {
         var isFinished = true;
         var actualLevel = presenter.state.levels.length - 1;
         var clickedElements = [];
-        var correctedElements = [];
-        var wrongedElements = [];
         var isStarted = presenter.state.isStarted;
 
         if (presenter.state.actualLevel < presenter.state.levels.length) {
@@ -662,8 +656,6 @@ function AddonShooting_Range_create() {
             isFinished = false;
             actualLevel = presenter.state.actualLevel;
             clickedElements = presenter.getActualLevel().getClicked();
-            correctedElements = presenter.getActualLevel().getCorrected();
-            wrongedElements = presenter.getActualLevel().getWronged();
         }
 
         var state = {
@@ -675,8 +667,6 @@ function AddonShooting_Range_create() {
             errorCount: presenter.state.errorCount,
             wholeErrorCount: presenter.state.wholeErrorCount,
             clickedElements: clickedElements,
-            correctedElements: correctedElements,
-            wrongedElements: wrongedElements,
             isStarted: isStarted,
             resultsList: presenter.state.resultsList
         };
@@ -765,11 +755,8 @@ function AddonShooting_Range_create() {
     }
 
     Level.prototype = {
-        start: function (elapsedTime, clickedElements, wrongedElements, correctedElements) {
-            this.droppedElements = 0;
+        start: function (elapsedTime, clickedElements) {
             this.clickedElements = 0;
-            this.wrongedElements = 0;
-            this.correctedElements = 0;
             this.startTime = new Date().getTime() / 1000;
             this.generateAnswers();
             this.$questionDiv.html(this.definition["definition"]);
@@ -792,14 +779,6 @@ function AddonShooting_Range_create() {
 
             if (clickedElements) {
                 this.setClicked(clickedElements);
-            }
-
-            if (wrongedElements) {
-                this.setWronged(wrongedElements);
-            }
-
-            if (correctedElements) {
-                this.setCorrected(correctedElements);
             }
         },
 
@@ -937,15 +916,11 @@ function AddonShooting_Range_create() {
         },
 
         setWrongAnswer(answerNumber) {
-            this.answers[answerNumber].isWronged = true;
             this.answers[answerNumber].element.addClass("wrong");
-            this.wrongedElements++;
         },
 
         setCorrectAnswer(answerNumber) {
-            this.answers[answerNumber].isCorrected = true;
             this.answers[answerNumber].element.addClass("correct");
-            this.correctedElements++;
         },
 
         setClickedAnswer(answerNumber) {
@@ -954,71 +929,32 @@ function AddonShooting_Range_create() {
             this.clickedElements++;
         },
 
-        setWronged: function (wrongedArray) {
-            for (var i = 0; i < wrongedArray.length; i++) {
-                this.setWrongAnswer(wrongedArray[i]);
-            }
-        },
-
-        setCorrected: function (correctedArray) {
-            for (var i = 0; i < correctedArray.length; i++) {
-                this.setCorrectAnswer(correctedArray[i]);
-            }
-        },
 
         setClicked: function (clickedArray) {
             for (var i = 0; i < clickedArray.length; i++) {
                 this.setClickedAnswer(clickedArray[i]);
-            }
-        },
-
-        isWronged(element){
-            if(element.isWronged){
-                return true;
-            }
-            return false;
-        },
-
-        isCorrected(element){
-            if(element.isCorrected){
-                return true;
-            }
-            return false;
-        },
-
-        isClicked(element){
-            if(element.isClicked){
-                return true;
-            }
-            return false;
-        },
-
-        getArray(isElement){
-            var array = [];
-
-            if (this.destroyed) {
-                return array;
-            }
-
-            for (var i = 0; i < 3; i++) {
-                if (isElement(this.answers[i])) {
-                    array.push(i);
+                if(this.answers[clickedArray[i]].isCorrect){
+                    this.setCorrectAnswer(clickedArray[i]);
+                }else{
+                    this.setWrongAnswer(clickedArray[i]);
                 }
             }
-
-            return array;
-        },
-
-        getWronged: function () {
-            return this.getArray(this.isWronged);
-        },
-
-        getCorrected: function () {
-            return this.getArray(this.isCorrected);
         },
 
         getClicked: function () {
-            return this.getArray(this.isClicked);
+            var clicked = [];
+
+            if (this.destroyed) {
+                return clicked;
+            }
+
+            for (var  i = 0; i < 3; i++) {
+                if (this.answers[i].isClicked) {
+                    clicked.push(i);
+                }
+            }
+
+            return clicked;
         },
 
         showAnswers: function () {
