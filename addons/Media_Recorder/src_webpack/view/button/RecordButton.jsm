@@ -12,8 +12,13 @@ export class RecordButton extends Button {
         this.state = null;
     }
 
+    reset() {
+        this.$view.removeClass("selected");
+        this.onResetCallback();
+    }
+
     _eventHandler() {
-        if (this.state.isNew() || this.state.isLoaded())
+        if (this.state.isNew() || this.state.isLoaded() || this.state.isLoadedDefaultRecording())
             this._startRecording();
         else if (this.state.isRecording())
             this._stopRecording()
@@ -35,5 +40,9 @@ export class RecordButton extends Button {
 
     set onStopRecording(callback) {
         this.onStopRecordingCallback = callback;
+    }
+
+    set onReset(callback) {
+        this.onResetCallback = callback;
     }
 }

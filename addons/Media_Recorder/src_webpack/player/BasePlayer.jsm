@@ -8,6 +8,8 @@ export class BasePlayer extends Player {
             throw new Error("Cannot create an instance of BasePlayer abstract class");
 
         this.$view = $view;
+        this.hasRecording = false;
+        this.duration = null;
         this.mediaNode = this._createMediaNode();
         this.mediaNode.controls = false;
         this.$view.append(this.mediaNode);
@@ -18,7 +20,11 @@ export class BasePlayer extends Player {
     setRecording(source) {
         this.mediaNode.src = source;
         this._getDuration()
-            .then(duration => this.onDurationChangeCallback(duration));
+            .then(duration => {
+                this.onDurationChangeCallback(duration);
+                this.duration = duration;
+                this.hasRecording = true;
+            });
     }
 
     startPlaying() {
@@ -54,7 +60,8 @@ export class BasePlayer extends Player {
         this._disableEventsHandling();
         this.mediaNode.src = "";
         this.mediaNode.remove();
-
+        this.hasRecording = false;
+        this.duration = null;
         this.mediaNode = this._createMediaNode();
         this.mediaNode.controls = false;
         this.$view.append(this.mediaNode);
@@ -66,6 +73,8 @@ export class BasePlayer extends Player {
         this.stopPlaying();
         this.mediaNode.src = "";
         this.mediaNode.remove();
+        this.hasRecording = null;
+        this.duration = null;
         this.$view.remove();
         this.mediaNode = null;
         this.$view = null;

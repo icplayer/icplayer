@@ -9,7 +9,7 @@ export class Timer {
         this.loadedSeconds = 0;
         this.isLoaded = false;
 
-        this.$view.css("z-index","100");
+        this.$view.css("z-index", "100");
         this._updateText();
     }
 
@@ -17,6 +17,18 @@ export class Timer {
         this._clearCurrentTime();
         this.interval = setInterval(() => {
             this._incrementTimer();
+            this._updateText();
+        }, 1000);
+    }
+
+    startDecrementalCountdown(duration) {
+        this._clearCurrentTime();
+        this.setDuration(duration);
+        this.currentMinutes = this.loadedMinutes;
+        this.currentSeconds = this.loadedSeconds;
+        this._updateText();
+        this.interval = setInterval(() => {
+            this._decrementTimer();
             this._updateText();
         }, 1000);
     }
@@ -61,6 +73,15 @@ export class Timer {
 
     _incrementTimer() {
         this.currentSeconds++;
+
+        if (this.currentSeconds >= 60) {
+            this.currentSeconds = 0;
+            this.currentMinutes++;
+        }
+    }
+
+    _decrementTimer() {
+        this.currentSeconds--;
 
         if (this.currentSeconds >= 60) {
             this.currentSeconds = 0;
