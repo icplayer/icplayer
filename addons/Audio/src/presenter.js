@@ -127,7 +127,7 @@ function AddonAudio_create(){
     };
 
     function AddonAudio_onTimeUpdateCallback() {
-        var bar_width, duration = parseInt(presenter.audio.duration, 10);
+        var bar_width, duration = presenter.audio.duration;
         duration = isNaN(duration) ? 0 : duration;
         var currentTime = presenter.audio.currentTime;
         if (presenter.configuration.displayTime) {

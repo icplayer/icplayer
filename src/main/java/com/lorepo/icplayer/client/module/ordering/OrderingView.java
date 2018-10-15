@@ -54,6 +54,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private boolean wasChanged = false;
 	private boolean mathJaxIsLoaded = false;
 	private boolean shouldRefreshMath = false;
+	private boolean isPreview = false;
 	private int currentWCAGSelectedItemIndex = 0;
 	private boolean isWCAGActive = false;
 	private boolean isWCAGOn = false;
@@ -99,6 +100,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}-*/;
 
 	private void createUI(OrderingModule module, boolean isPreview) {
+		this.isPreview = isPreview;
 		createWidgetPanel();
 
 		module.validate();
@@ -133,16 +135,30 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 		getElement().setId(module.getId());
 		getAsJavaScript();
-		if(!isPreview){
-			makeSortable(getElement(), jsObject, workMode);
-		}
+		makeSortable();
 		getElement().setAttribute("lang", this.getLang());
 	}
+	
+	private boolean isDisableDragging() {
+		return module.isDisableDragging();
+	}
+	
+	private boolean isPreview() {
+		return isPreview;
+	}
+	
+	private void makeSortable() {
+		makeSortable(this, getElement(), jsObject, workMode);
+	};
 
-	private native void makeSortable(Element e, JavaScriptObject jsObject, boolean workMode)/*-{
+	private native void makeSortable(OrderingView x, Element e, JavaScriptObject jsObject, boolean workMode)/*-{
 		var selector = jsObject.axis == "y" ? "tbody" : "tbody tr";
 		var displayType = jsObject.axis == "y" ? "table-row" : "table-cell";
 		var forceHide = false;
+		var isPreview = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isPreview()();
+		var isDisableDragging = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isDisableDragging()();
+		
+		if (isPreview || isDisableDragging) return;
 		
 		if (!workMode) {
 			$wnd.$(e).find(selector).sortable("disable");
@@ -507,7 +523,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void setShowErrorsMode() {
 		workMode = false;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 		
 		if(selectedWidget!=null){
 			selectedWidget.removeStyleName("ic_drag-source");
@@ -533,7 +549,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void setWorkMode() {
 		workMode = true;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 
 		if (module.isActivity()) {
 			for (int i = 0; i < getWidgetCount(); i++) {
@@ -574,7 +590,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void setWorkStatus(boolean isWorkOn) {
 		workMode = isWorkOn;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 	}
 
 	@Override
@@ -614,7 +630,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void reset() {
 		workMode = true;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 
 		if(selectedWidget!=null){
 			selectedWidget.removeStyleName("ic_drag-source");

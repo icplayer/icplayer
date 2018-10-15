@@ -210,7 +210,7 @@ function AddonMath_create() {
              * @param  {} variables
              */
             run: function (expression, variables) {
-                presenter.assignVariablesToObject(this, variables);
+                presenter.assignVariablesToObject(this, variables, expression);
                 var parser = math.parser();
 
                 parser.set('variables', this.variables);
@@ -405,11 +405,20 @@ function AddonMath_create() {
         return fixedExpression;
     };
 
-    presenter.assignVariablesToObject = function (object, variables) {
+    presenter.assignVariablesToObject = function (object, variables, expression) {
         object.variables = {};
+        if (expression != null) {
+            var parsedExpression = expression.replace(/[\s]/g, '').replace(/'/g, '"').replace(/[<>+\-]/g, '=');
+            parsedExpression = parsedExpression.replace(/===?/g, '=').replace(/variables\["(.*?)"]/g, '$1');
+        }
 
         for (var i = 0; i < variables.length; i++) {
-            object.variables[variables[i].name] = variables[i].value.toString();
+            var name = variables[i].name;
+            if (parsedExpression != null && (parsedExpression.indexOf('"='+name) != -1 || parsedExpression.indexOf(name+'="') != -1)) {
+                object.variables[variables[i].name] = variables[i].value.toString();
+            } else {
+                object.variables[variables[i].name] = variables[i].value;
+            }
         }
     };
 

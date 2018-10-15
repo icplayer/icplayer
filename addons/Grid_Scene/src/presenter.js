@@ -348,7 +348,7 @@ function AddonGrid_Scene_create(){
         gridContainer = gridContainerWrapper.find(".grid-scene-cell:first");
 
         initGrid(model);
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {

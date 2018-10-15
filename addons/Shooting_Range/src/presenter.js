@@ -88,7 +88,7 @@ function AddonShooting_Range_create() {
            presenter.connectHandlers();
         }
 
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
 
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
@@ -290,7 +290,11 @@ function AddonShooting_Range_create() {
         presenter.state.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.onEndLevelCallback = function () {
+    /**
+     * If all elements dropped then call this function
+     * @param {boolean} dontPushResults Don't push results to the resultsList. It is used while loading state
+     */
+    presenter.onEndLevelCallback = function (dontPushResults) {
         presenter.state.actualLevel++;
         if (presenter.state.actualLevel < presenter.state.levels.length) {
             presenter.getActualLevel().start();
@@ -299,10 +303,12 @@ function AddonShooting_Range_create() {
             }
             presenter.actualizeAnswersWrapperHeight();
         } else {
-            presenter.state.resultsList.push({
-                score: presenter.state.score,
-                errors: presenter.state.wholeErrorCount
-            });
+            if (!dontPushResults) {
+                presenter.state.resultsList.push({
+                    score: presenter.state.score,
+                    errors: presenter.state.wholeErrorCount
+                });
+            }
         }
     };
 
@@ -619,8 +625,10 @@ function AddonShooting_Range_create() {
             presenter.getActualLevel().start(state['actualLevelTimeElapsed'], state['clickedElements']);
 
             presenter.actualizeAnswersWrapperHeight();
-            presenter.getActualLevel().actualize();
-            presenter.getActualLevel().pause(true);
+            if (!state.isFinished) {
+                presenter.getActualLevel().actualize();
+                presenter.getActualLevel().pause(true);
+            }
             presenter.state.isStarted = true;
         }
         presenter.state.errorCount = state.errorCount;
@@ -630,7 +638,7 @@ function AddonShooting_Range_create() {
 
         if (state.isFinished) {
             presenter.getActualLevel().destroy();
-            presenter.onEndLevelCallback();
+            presenter.onEndLevelCallback(true);
         }
 
         presenter.setVisibility(state.isVisible);

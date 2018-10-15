@@ -69,7 +69,7 @@ function AddonPage_Score_Counter_create(){
         presenter.configuration = presenter.validateModel(model);
         presenter.isPreview = isPreview;
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         presenter.$fractionWrapper = presenter.$view.find('.page-score-counter-wrapper > .fraction');
         presenter.$scoreWrapper = presenter.$view.find('.page-score-counter-wrapper > .score');

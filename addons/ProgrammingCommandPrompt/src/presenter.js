@@ -69,7 +69,7 @@ function AddonProgrammingCommandPrompt_create () {
             presenter.connectHandlers();
         }
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
     };
     
     presenter.connectHandlers = function () {
