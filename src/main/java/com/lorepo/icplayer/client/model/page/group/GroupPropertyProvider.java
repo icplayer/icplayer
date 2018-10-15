@@ -9,9 +9,6 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 
 public class GroupPropertyProvider extends ModulesPropertyProvider{
 	
-	private boolean isModificatedWidth = true; 
-	private boolean isModificatedHeight = true;
-	
 	public GroupPropertyProvider(String name){
 		super(name);
 	}
@@ -322,9 +319,7 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 
 				if (value != isVisible()) {
 					setIsVisible(value);
-					if(!isDiv()) {
-						updateVisible(value);
-					}
+					updateVisible(value);
 					sendPropertyChangedEvent(this);
 				}
 			}

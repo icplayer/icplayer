@@ -26,7 +26,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	
 	private Page currentPage;
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
-	private HashMap<String, AbsolutePanel> groupsPanel = new HashMap<String, AbsolutePanel>();
+	private HashMap<String, GroupView> groupsPanel = new HashMap<String, GroupView>();
 	private PageDimensionsForCalculations pageDimensions;
 	private CalculateModuleDimensions calculateModuleDimensions = new CalculateModuleDimensions();
 	private WidgetsPositionsStore widgetsPositions = new WidgetsPositionsStore(); 
@@ -85,12 +85,12 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	public void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId) {
 		if(view instanceof Widget){
 			Widget moduleView = (Widget) view;
-			AbsolutePanel groupPanel = groupsPanel.get(groupId);
-
+			GroupView groupPanel = groupsPanel.get(groupId);
+		
 			ModuleDimensions moduleDimensions = this.calculateModuleDimensions.setPageDimensions(this.pageDimensions)
 					.setModule(module)
 					.compute(this.widgets);
-
+			
 			moduleView.setPixelSize(moduleDimensions.width, moduleDimensions.height);
 			groupPanel.add(moduleView, moduleDimensions.left, moduleDimensions.top);
 		    this.widgets.put(module.getId(), moduleView);
@@ -99,10 +99,10 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	}
 
 	@Override
-	public void addGroupView(Group group, GroupView groupWidget) {
-		if(group.isDiv()) {
-			add(groupWidget, group.getLeft(), group.getTop());
-			groupsPanel.put(group.getId(), groupWidget);
+	public void addGroupView(GroupView groupWidget) {
+		if(groupWidget.getGroup().isDiv()) {
+			add(groupWidget, groupWidget.getLeft(), groupWidget.getTop());
+			groupsPanel.put(groupWidget.getId(), groupWidget);
 		}
 	}
 

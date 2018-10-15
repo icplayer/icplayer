@@ -1,14 +1,12 @@
 package com.lorepo.icplayer.client.model.page.group;
 
-import java.util.Random;
-
-
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter.IDisplay;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 
 
 public class GroupView extends AbsolutePanel implements IDisplay{
+	
 	
 	private Group group = null; 
 	
@@ -47,12 +45,34 @@ public class GroupView extends AbsolutePanel implements IDisplay{
 	@Override
 	public void hide() {
 		setVisible(false);
-	
 	}
 
 	@Override
 	public String getName() {
 		return "Group";
+	}
+	
+	public int getLeft() {
+		if(this.group != null) {
+			return group.getLeft(); 
+		}
+		return 0; 
+	}
+	
+	
+	public int getTop() {
+		if(this.group != null) {
+			return group.getTop(); 
+		}
+		return 0; 
+	}
+	
+	public String getId() {
+		return group.getId(); 
+	}
+	
+	public Group getGroup() {
+		return group; 
 	}
 	
 }

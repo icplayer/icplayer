@@ -51,7 +51,7 @@ public class PageController implements ITextToSpeechController {
 
 	public interface IPageDisplay {
 		void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId);
-		void addGroupView(Group group, GroupView groupView);
+		void addGroupView(GroupView groupView);
 		void addModuleView(IModuleView view, IModuleModel module);
 		void setPage(Page page);
 		void refreshMathJax();
@@ -71,14 +71,14 @@ public class PageController implements ITextToSpeechController {
 	private IPlayerServices playerService;
 	private IModuleFactory moduleFactory;
 	private ArrayList<IPresenter> presenters;
-	private ArrayList<GroupPresenter> groupPresenters;
+	private ArrayList<GroupPresenter> groupPresenters; 
 	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
 	private final static String PAGE_TTS_MODULE_ID = "Text_To_Speech1";
 	private boolean isReadingOn = false;
 	private Content contentModel;
-
+	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
@@ -196,7 +196,7 @@ public class PageController implements ITextToSpeechController {
 		for(Group group : currentPage.getGroupedModules()) {
 			GroupView groupView = moduleFactory.createView(group);
 			GroupPresenter presenter = moduleFactory.createPresenter(group);
-			pageView.addGroupView(group,groupView);
+			pageView.addGroupView(groupView);
 			presenter.addView(groupView);
 			groupPresenters.add(presenter);
 		}
@@ -206,10 +206,15 @@ public class PageController implements ITextToSpeechController {
 			module.setInlineStyle(newInlineStyle);
 			IModuleView moduleView = moduleFactory.createView(module);
 			IPresenter presenter = moduleFactory.createPresenter(module);
-			Group group = findGroup(module);
-
-			if(group != null && group.isDiv()) {
-				pageView.addModuleViewIntoGroup(moduleView, module, group.getId());
+			GroupPresenter groupPresenter = findGroupPresenter(module); 
+			
+			if(groupPresenter != null) {
+				if(groupPresenter.getGroup().isDiv()) {
+					pageView.addModuleViewIntoGroup(moduleView, module, groupPresenter.getGroup().getId());
+				}else {
+					pageView.addModuleView(moduleView, module);
+				}
+				groupPresenter.addPresenter(presenter);
 			} else {
 				pageView.addModuleView(moduleView, module);
 			}
@@ -246,6 +251,16 @@ public class PageController implements ITextToSpeechController {
 
 		String newAttributes = strBuilder.toString();
 		return newAttributes;
+	}
+	
+	public GroupPresenter findGroupPresenter(IModuleModel module) {
+		GroupPresenter groupPresenter = null; 
+		for (GroupPresenter g :groupPresenters) {
+			if (g.getGroup().contains(module)) {
+				groupPresenter = g; 
+			}
+		}
+		return groupPresenter; 
 	}
 
 	public Group findGroup(IModuleModel module) {
@@ -590,7 +605,7 @@ public class PageController implements ITextToSpeechController {
 		AddonPresenter textToSpeechAPIModule = (AddonPresenter) this.findModule("Text_To_Speech1");
 		
 		if (textToSpeechAPIModule != null) {
-			return textToSpeechAPIModule.getJavaScriptObject();
+			return textToSpeechAPIModule.getAsJavaScript();
 		}
 		
 		return null;

@@ -58,8 +58,8 @@ public class PageView extends SimplePanel implements IPageDisplay {
 		display.addModuleViewIntoGroup(view, module, groupId);
 	}
 
-	public void addGroupView(Group group, GroupView groupView) {
-		display.addGroupView(group, groupView);
+	public void addGroupView(GroupView groupView) {
+		display.addGroupView(groupView);
 	}
 	
 	@Override

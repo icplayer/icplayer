@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.page.Page;
-import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.model.page.group.GroupView;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -105,7 +104,7 @@ public class PageViewMockup implements IPageDisplay {
 
 
 	@Override
-	public void addGroupView(Group group, GroupView groupView) {
+	public void addGroupView(GroupView groupView) {
 		// TODO Auto-generated method stub
 		
 	}

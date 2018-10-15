@@ -696,7 +696,7 @@ public class JavaScriptPlayerServices {
 
 	private JavaScriptObject getModulePresentationJSObject(IPresenter presenter) {
 		if (presenter instanceof AddonPresenter) {
-			return ((AddonPresenter) presenter).getJavaScriptObject();
+			return ((AddonPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof TextPresenter) {
 			return ((TextPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof ImagePresenter) {

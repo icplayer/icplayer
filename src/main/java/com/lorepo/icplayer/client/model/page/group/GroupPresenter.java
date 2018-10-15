@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.model.page.group;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
@@ -18,6 +20,8 @@ public class GroupPresenter implements IPresenter{
 		public void hide();
 		public Element getElement();
 	}
+	
+	private List<IPresenter> presenters = new ArrayList<IPresenter>(); 
 	
 	private IDisplay view;
 	private IPlayerServices playerServices;
@@ -95,11 +99,17 @@ public class GroupPresenter implements IPresenter{
 		if(view != null){
 			view.hide();
 		}
+		for(IPresenter p : presenters) {
+			setVisible(p, false);
+		}
 	}
 	
 	public void show() {
 		if(view != null){
 			view.show();
+		}
+		for(IPresenter p : presenters) {
+			setVisible(p, true);
 		}
 	}
 
@@ -117,6 +127,19 @@ public class GroupPresenter implements IPresenter{
 		return jsObject;
 	}
 	
+	public void addPresenter(IPresenter p) {
+		presenters.add(p); 
+	}
+	
+	private native void setVisible(IPresenter p, boolean isVisible) /*-{
+		var presenter = p.@com.lorepo.icplayer.client.module.api.IPresenter::getAsJavaScript()(); 
+		if(isVisible && presenter.show){
+			presenter.show(); 
+		}else if (!isVisible && presenter.hide){
+			presenter.hide(); 
+		}
+	}-*/;
+	
 	
 	private native JavaScriptObject initJSObject(GroupPresenter g) /*-{
 		var presenter = function() {};
@@ -132,4 +155,8 @@ public class GroupPresenter implements IPresenter{
 		return presenter;
 	}-*/;
 
+	
+	public Group getGroup() {
+		return group; 
+	}
 }

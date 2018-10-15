@@ -2,11 +2,9 @@ package com.lorepo.icplayer.client.page;
 
 import java.util.HashMap;
 
-import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.URLUtils;
-import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.model.page.group.GroupView;
@@ -27,7 +25,6 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 
 	private Page currentPage;
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
-	private HashMap<String, FlowPanel> groupsPanel = new HashMap<String, FlowPanel>(); 
 	
 	public ResponsivePageView(){
 		addStyleName("ic_flowPage");
@@ -68,17 +65,13 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 		}
 	}
 	
-	
+	@Override
 	public void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId) {
-		if(view instanceof Widget){
-			Widget moduleView = (Widget) view;
-			FlowPanel groupPanel = groupsPanel.get(groupId); 		 
-			groupPanel.add(moduleView);
-		    this.widgets.put(module.getId(), moduleView);
-		}
+		// TODO Auto-generated method stub
 	}
 	
-	public void addGroupView(Group group, GroupView groupView) {
+	@Override
+	public void addGroupView(GroupView groupView) {
 		// TODO Auto-generated method stub
 	}
 
