@@ -14,6 +14,7 @@ function AddonIframe_create() {
     presenter.$view = null;
     presenter.eventBus = null;
     presenter.isEditor = false;
+    presenter.isVisible = true;
 
     presenter.actionID = {
         SET_WORK_MODE : "SET_WORK_MODE",
@@ -222,6 +223,7 @@ function AddonIframe_create() {
     };
 
     presenter.setVisibility = function (isVisible) {
+        presenter.isVisible = isVisible;
         presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
         if(!presenter.isEditor) {
             presenter.$view.css('display', isVisible ? 'block' : 'none');
@@ -271,6 +273,12 @@ function AddonIframe_create() {
             var parsedState = JSON.parse(state);
             presenter.iframeState = parsedState.iframeState;
             presenter.iframeScore = parsedState.iframeScore;
+            if(typeof(parsedState.isVisible) === "boolean") {
+                presenter.isVisible = parsedState.isVisible;
+            }else{
+                presenter.isVisible = presenter.configuration.isVisibleByDefault;
+            }
+            presenter.setVisibility(presenter.isVisible);
         }
         catch (error) {
             presenter.iframeState = undefined;
@@ -278,7 +286,11 @@ function AddonIframe_create() {
     };
 
     presenter.getState = function AddonIFrame_Communication_get_state () {
-        return JSON.stringify({iframeState: presenter.iframeState, iframeScore: presenter.iframeScore } );
+        return JSON.stringify({
+            iframeState: presenter.iframeState,
+            iframeScore: presenter.iframeScore,
+            isVisible:presenter.isVisible,
+        });
     };
 
     presenter.getScore = function AddonIFrame_Communication_get_score () {
@@ -357,6 +369,11 @@ function AddonIframe_create() {
                 presenter.iframeState = state.iframeState;
             }
             presenter.iframeScore = state.iframeScore;
+            if(typeof(presenter.isVisible) === "boolean") {
+                presenter.isVisible = state.isVisible
+            }else{
+                presenter.isVisible = presenter.configuration.isVisibleByDefault;
+            }
         }
     };
 

@@ -3,7 +3,8 @@ function getValidModel(isVisible) {
         isVisibleByDefault: isVisible,
         isValid: true,
         haveURL: true,
-        allowFullScreen: false
+        allowFullScreen: false,
+        isVisible: isVisible
     }
 }
 
