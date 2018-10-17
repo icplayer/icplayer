@@ -1075,6 +1075,7 @@ var ice_dictionary_fr = {
     "Paragraph_property_custom_toolbar": "Personnaliser la barre d'outils",
     "Paragraph_property_custom_css": "Personnaliser le CSS",
     "Paragraph_property_placeholder_text": "Texte emplacement réservé",
+	"Paragraph_property_editable_placeholder": "Editable placeholder",
     "Paragraph_Keyboard_info": "Permet à un utilisateur de saisir un texte libre qui s'affichera tel quel et avec les caractères diacritiques.",
     "Paragraph_Keyboard_name": "Clavier de caractères spéciaux",
     "Paragraph_Keyboard_property_default_font_family": "Famille de police par défaut",
