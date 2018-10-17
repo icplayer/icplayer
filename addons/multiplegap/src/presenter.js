@@ -849,13 +849,6 @@ function Addonmultiplegap_create(){
         var type = placeholder.attr('draggableType') + '';
         placeholder.remove();
 
-        presenter.eventBus.sendEvent('ValueChanged', {
-            'source': presenter.configuration.ID,
-            'item'  : item,
-            'value' : 'remove',
-            'score' : presenter.getScore()
-        });
-
         var evnt = {
             source: presenter.configuration.ID,
             value: value,
@@ -882,7 +875,7 @@ function Addonmultiplegap_create(){
     };
     
     presenter.performRemoveDraggable = function(handler) {
-        
+
         var placeholder = handler.parent();
         var child = placeholder.find('.contents');
         if(isWCAGOn) {
@@ -1023,13 +1016,9 @@ function Addonmultiplegap_create(){
 
         var invalidAndRedundantItems = presenter.getInvalidItems();
         var invalidItems = invalidAndRedundantItems.remainingItems;
-        var redundantItems = invalidAndRedundantItems.redundantItems;
 
-        if (redundantItems.length > 0) {
-            return 0;
-        } else {
-            return presenter.configuration.itemsAnswersID.length - invalidItems.length;
-        }
+        return presenter.configuration.itemsAnswersID.length - invalidItems.length;
+
     };
     
     presenter.getErrorCount = function() {
