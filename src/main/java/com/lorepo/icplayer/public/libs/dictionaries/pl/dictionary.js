@@ -1899,6 +1899,8 @@ var ice_dictionary_pl = {
     "Media_Recorder_property_default_recording": "Default recording",
     "Media_Recorder_property_start_recording_sound": "Recording start sound",
     "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
-    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording"
+    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording",
+	"Media_Recorder_property_hide_play_default_button": "Hide play default button",
+	"Media_Recorder_property_hide_timer": "Hide timer"
 };
 

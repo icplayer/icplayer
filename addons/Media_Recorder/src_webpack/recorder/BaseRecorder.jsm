@@ -2,6 +2,9 @@ import {Recorder} from "./Recorder.jsm";
 
 export class BaseRecorder extends Recorder {
 
+    sourceID = '';
+    eventBus = null;
+
     constructor() {
         super();
         if (this.constructor === BaseRecorder)
@@ -14,13 +17,39 @@ export class BaseRecorder extends Recorder {
         this._clearRecorder();
         this.recorder = RecordRTC(stream, this._getOptions());
         this.recorder.startRecording();
+        this._onStartRecordingCallback();
     }
 
     stopRecording() {
-        return new Promise(
+        var promise = new Promise(
             resolve => this.recorder.stopRecording(
                 () => resolve(this.recorder.getBlob()))
         )
+        var self = this;
+        promise.then(function() {
+            self._onStopRecordingCallback(self);
+        });
+        return promise;
+    }
+
+    _onStartRecordingCallback() {
+        this._sendEventCallback(this, 'start');
+    }
+
+    _onStopRecordingCallback(self) {
+        self._sendEventCallback(self, 'stop');
+    }
+
+    _sendEventCallback(self, value) {
+        if (self.eventBus) {
+            var eventData = {
+                'source': self.sourceID,
+                'item': 'recorder',
+                'value': value,
+                'score': ''
+            };
+            self.eventBus.sendEvent('ValueChanged', eventData);
+        }
     }
 
     destroy() {
@@ -42,5 +71,10 @@ export class BaseRecorder extends Recorder {
 
     _getOptions() {
         throw new Error("GetOptions accessor is not implemented");
+    }
+
+    setEventBus(sourceID, eventBus) {
+        this.sourceID = sourceID;
+        this.eventBus = eventBus;
     }
 }

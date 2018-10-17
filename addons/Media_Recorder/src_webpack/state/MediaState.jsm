@@ -6,7 +6,8 @@ export class MediaState {
         RECORDING: 2,
         LOADING: 3,
         LOADED: 4,
-        PLAYING: 5
+        PLAYING: 5,
+        PLAYING_DEFAULT: 6
     };
 
     constructor() {
@@ -33,6 +34,10 @@ export class MediaState {
         return this._value === this.values.PLAYING;
     }
 
+    isPlayingDefault() {
+        return this._value === this.values.PLAYING_DEFAULT;
+    }
+
     isBlocked() {
         return this._value === this.values.BLOCKED;
     }
@@ -55,6 +60,10 @@ export class MediaState {
 
     setPlaying() {
         this._value = this.values.PLAYING;
+    }
+
+    setPlayingDefault() {
+        this._value = this.values.PLAYING_DEFAULT;
     }
 
     setBlocked() {

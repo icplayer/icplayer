@@ -17,4 +17,9 @@ export class Recorder {
     destroy() {
         throw new Error("Destroy method is not implemented");
     }
+
+    setEventBus(sourceID, eventBus) {
+        throw new Error("setEventBus method is not implemented");
+    }
+
 }

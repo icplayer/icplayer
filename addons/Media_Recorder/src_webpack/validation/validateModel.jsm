@@ -23,6 +23,8 @@ export function validateModel(model) {
             trim: true,
             default: ""
         }),
-        ModelValidators.Boolean("isResetRemovesRecording")
+        ModelValidators.Boolean("isResetRemovesRecording"),
+        ModelValidators.Boolean("hideDefaultPlayButton"),
+        ModelValidators.Boolean("hideTimer")
     ]);
 }

@@ -2,9 +2,10 @@ import {Button} from "./Button.jsm";
 
 export class PlayButton extends Button {
 
-    constructor({$view, state}) {
+    constructor({$view, state, isDefault}) {
         super($view);
         this.state = state;
+        this.isDefault = isDefault;
     }
 
     destroy() {
@@ -15,7 +16,7 @@ export class PlayButton extends Button {
     _eventHandler() {
         if (this.state.isLoaded())
             this._startPlaying();
-        else if (this.state.isPlaying())
+        else if ((this.state.isPlaying() && !this.isDefault) || (this.state.isPlayingDefault() && this.isDefault))
             this._stopPlaying()
     }
 

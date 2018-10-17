@@ -33,6 +33,14 @@ export class Player {
         throw new Error("Destroy method is not implemented");
     }
 
+    setEventBus(sourceID, itemName, eventBus) {
+        throw new Error("setEventBus method is not implemented");
+    }
+
+    getDuration() {
+        throw new Error("getDuration method is not implemented");
+    }
+
     set onStartLoading(callback) {
         this.onStartLoadingCallback = () => callback();
     }

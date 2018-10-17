@@ -2,6 +2,11 @@ import {Player} from "./Player.jsm";
 
 export class BasePlayer extends Player {
 
+    eventBus = null;
+    sourceID = '';
+    mediaDuration = 0;
+    playerName = '';
+
     constructor($view) {
         super();
         if (this.constructor === BasePlayer)
@@ -17,8 +22,9 @@ export class BasePlayer extends Player {
 
     setRecording(source) {
         this.mediaNode.src = source;
-        this._getDuration()
-            .then(duration => this.onDurationChangeCallback(duration));
+        var promise = this._getDuration();
+        promise.then(duration => this.onDurationChangeCallback(duration));
+        promise.then(duration => this.mediaDuration = duration);
     }
 
     startPlaying() {
@@ -46,6 +52,8 @@ export class BasePlayer extends Player {
     }
 
     stopStreaming() {
+        if (!this.mediaNode.paused)
+            this.stopNextStopEvent = true;
         this.stopPlaying();
         this._enableEventsHandling();
     }
@@ -102,6 +110,10 @@ export class BasePlayer extends Player {
         )
     }
 
+    getDuration() {
+        return this.mediaDuration;
+    }
+
     _isNotOnlineResources(source) {
         return !(source.startsWith("www.")
             || source.startsWith("http://")
@@ -110,5 +122,11 @@ export class BasePlayer extends Player {
 
     _createMediaNode() {
         throw new Error("GetMediaNode accessor is not implemented");
+    }
+
+    setEventBus(sourceID, itemName, eventBus) {
+        this.eventBus = eventBus;
+        this.sourceID = sourceID;
+        this.playerName = itemName;
     }
 }

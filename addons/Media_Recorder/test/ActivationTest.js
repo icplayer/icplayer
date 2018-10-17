@@ -18,13 +18,21 @@ TestCase("[Media Recorder] Activation Test", {
             deactivate: sinon.stub(),
             forceClick: sinon.stub()
         };
+
+        this.mediaRecorder.playDefButton = {
+            activate: sinon.stub(),
+            deactivate: sinon.stub(),
+            forceClick: sinon.stub()
+        };
+
         this.mediaRecorder.addonViewService = {
             activate: sinon.stub(),
             deactivate: sinon.stub()
         };
         this.mediaRecorder.mediaState = {
             isRecording: sinon.stub(),
-            isPlaying: sinon.stub()
+            isPlaying: sinon.stub(),
+            isPlayingDefault: sinon.stub()
         };
     },
 
