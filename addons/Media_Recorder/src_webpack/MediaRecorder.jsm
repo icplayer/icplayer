@@ -51,16 +51,17 @@ export class MediaRecorder {
     }
 
     setState(state) {
-        Object.assign(this.addonState, JSON.parse(state));
-        this.addonState.getRecordingBlob()
-            .then(blob => {
-                this.mediaState.setLoading();
+            Object.assign(this.addonState, JSON.parse(state));
+            var self = this;
+            this.addonState.getRecordingBlob()
+                .then(blob => {
+                self.mediaState.setLoading();
                 let recording = URL.createObjectURL(blob);
-                this.player.setRecording(recording);
+                self.player.setRecording(recording);
             });
-        this.addonState.getVisibility()
-            .then(isVisible => {
-                this.setVisibility(isVisible);
+            this.addonState.getVisibility()
+                .then(isVisible => {
+                self.setVisibility(isVisible);
             })
     }
 
