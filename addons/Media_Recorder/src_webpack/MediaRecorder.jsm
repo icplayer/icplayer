@@ -299,8 +299,7 @@ export class MediaRecorder {
 
         this.playButton.onStartPlaying = () => {
             this.mediaState.setPlaying();
-            this.timer.setDuration(this.player.getDuration());
-            this.timer.startCountdown();
+            this.timer.startDecrementalCountdown(this.player.getDuration());
             this.player.startPlaying()
                 .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
                     .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
@@ -329,8 +328,7 @@ export class MediaRecorder {
 
         this.playDefButton.onStartPlaying = () => {
             this.mediaState.setPlayingDefault();
-            this.timer.setDuration(this.playerDefault.getDuration());
-            this.timer.startCountdown();
+            this.timer.startDecrementalCountdown(this.playerDefault.getDuration());
             this.playerDefault.startPlaying();
         };
 
@@ -338,6 +336,7 @@ export class MediaRecorder {
             this.mediaState.setLoaded();
             this.playerDefault.stopPlaying();
             this.timer.stopCountdown();
+            this.timer.setDuration(this.player.getDuration());
         };
 
         this.playerDefault.onStartLoading = () => {};

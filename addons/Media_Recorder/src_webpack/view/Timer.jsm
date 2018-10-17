@@ -27,6 +27,26 @@ export class Timer {
         this._updateText();
     }
 
+    startDecrementalCountdown(duration) {
+        this._clearCurrentTime();
+        this.setDuration(duration);
+        this.currentMinutes = this.loadedMinutes;
+        this.currentSeconds = this.loadedSeconds;
+        this._updateText();
+        this.interval = setInterval(() => {
+            this._decrementTimer();
+            this._updateText();
+        }, 1000);
+    }
+
+    _decrementTimer() {
+        this.currentSeconds--;
+         if (this.currentSeconds >= 60) {
+            this.currentSeconds = 0;
+            this.currentMinutes++;
+        }
+    }
+
     setDuration(duration) {
         this.loadedMinutes = parseInt(duration / 60);
         this.loadedSeconds = parseInt(duration % 60);
