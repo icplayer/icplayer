@@ -1772,6 +1772,7 @@ var ice_dictionary_pl = {
     "Catch_property_count_errors": "Policz błędy",
     "Catch_property_item_width": "Szerokość pozycji",
     "Catch_property_item_height": "Wysokość pozycji",
+	"Catch_property_plate_image": "Plate image",
 	"Maze_info": "Resolve questions and complete maze",
     "Maze_name": "Maze",
 	"Maze_property_width": "Rows",

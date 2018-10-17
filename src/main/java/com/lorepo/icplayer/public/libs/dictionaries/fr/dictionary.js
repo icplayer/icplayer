@@ -1773,6 +1773,7 @@ var ice_dictionary_fr = {
     "Catch_property_count_errors": "Count errors",
     "Catch_property_item_width": "Item width",
     "Catch_property_item_height": "Item height",
+    "Catch_property_plate_image": "Plate image",
     "Maze_info": "Resolve questions and complete maze",
     "Maze_name": "Maze",
     "Maze_property_width": "Rows",
