@@ -33,8 +33,15 @@ export class MediaRecorder {
     createPreview(view, model) {
         let validatedModel = validateModel(model);
 
-        if (!validatedModel.isValid)
+        if (!validatedModel.isValid) {
             this._showError(view, validatedModel);
+        } else {
+            var $view = $(view);
+            var valid_model = validatedModel.value;
+            if (valid_model.hideTimer) $view.find('.media-recorder-timer').addClass('hidden');
+            if (valid_model.hideDefaultPlayButton) $view.find('.media-recorder-play-default-button').addClass('hidden');
+        }
+
     }
 
     setPlayerController(playerController) {
