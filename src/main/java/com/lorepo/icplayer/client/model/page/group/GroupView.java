@@ -30,7 +30,7 @@ public class GroupView extends AbsolutePanel implements IDisplay{
             this.addStyleName(styleClass);
         }
         if(!isPreview){
-			setVisible(this.group.isVisible());
+			setVisible(isVisibleGroup());
 		}
 		this.getElement().setId(this.group.getId());
 		this.setPixelSize(group.getWidth()+2, group.getHeight()+2);
@@ -73,6 +73,10 @@ public class GroupView extends AbsolutePanel implements IDisplay{
 	
 	public Group getGroup() {
 		return group; 
+	}
+	
+	private boolean isVisibleGroup() {
+		return this.group.isVisible(); 
 	}
 	
 }

@@ -124,6 +124,7 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	public void removeAllModules() {
 		this.widgets.clear();
 		this.widgetsPositions.clear();
+		this.groupsPanel.clear();
 		this.clear();
 		this.createPageDimensions();
 	}

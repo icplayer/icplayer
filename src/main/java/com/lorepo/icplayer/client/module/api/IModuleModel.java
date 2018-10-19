@@ -25,4 +25,5 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public void setContentDefaultLayoutID(String layoutID);
 	public void setIsVisible(Boolean isVisible);
 	public SemiResponsiveStyles getSemiResponsiveStyles();
+	public boolean isVisible();  
 }

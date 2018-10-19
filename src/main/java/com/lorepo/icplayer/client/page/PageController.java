@@ -193,6 +193,7 @@ public class PageController implements ITextToSpeechController {
 		groupPresenters.clear();
 		presenters.clear();
 		pageView.removeAllModules();
+		
 		scriptingEngine.reset();
 		
 		for(Group group : currentPage.getGroupedModules()) {
@@ -454,7 +455,7 @@ public class PageController implements ITextToSpeechController {
 	}
 	
 	private void setStatePresenters(List<? extends IPresenter> elements, HashMap<String, String> state) {
-		for (IPresenter presenter : presenters) {
+		for (IPresenter presenter : elements) {
 			if (presenter instanceof IStateful) {
 				IStateful statefulObj = (IStateful)presenter;
 				String key = currentPage.getId() + statefulObj.getSerialId();
@@ -468,15 +469,14 @@ public class PageController implements ITextToSpeechController {
 	
 	public void setPageState(HashMap<String, String> state) {
 		setStatePresenters(presenters, state); 
-		setStatePresenters(groupPresenters, state); 
-		
+		setStatePresenters(groupPresenters, state);
 		String heightModificationsState = state.get(this.getOutstretchUniqueHeightKey());
 		if (heightModificationsState != null) {
 			this.currentPage.heightModifications.setState(heightModificationsState);	
 		}
 	}
 	
-	private void getStatePresenters(List<? extends IPresenter> elements, HashMap<String, String>	pageState) {
+	private void getStatePresenters(List<? extends IPresenter> elements, HashMap<String, String>pageState) {
 		for(IPresenter presenter : elements){
 			if(presenter instanceof IStateful){
 				IStateful statefulObj = (IStateful)presenter;

@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -87,7 +88,7 @@ public class GroupPresenter implements IPresenter, IStateful{
 	public void reset() {
 		isVisible = group.isVisible();
 		if(view != null){
-			if(group.isVisible()){
+			if(isVisible){
 				view.show();
 			}
 			else{
@@ -174,7 +175,6 @@ public class GroupPresenter implements IPresenter, IStateful{
 
 	@Override
 	public void setState(String state) {
-
 		isVisible = Boolean.parseBoolean(state);
 		if(!isVisible){
 			view.hide();

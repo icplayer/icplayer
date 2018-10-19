@@ -6,6 +6,7 @@ import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.SemiResponsivePositions;
+import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.xml.group.parsers.GroupParser;
 
 public class Group extends GroupPropertyProvider {
@@ -36,6 +37,7 @@ public class Group extends GroupPropertyProvider {
 		addPropertyScoreType();
 	}
 
+	
 	public String getId() {
 		return id;
 	}
@@ -254,5 +256,14 @@ public class Group extends GroupPropertyProvider {
 				}
 			}
 		}
+	}
+	
+	public boolean isVisibleModules() {
+		for(IModuleModel module : this.moduleModels) {
+			if(module.isModuleInEditorVisible()) {
+				return true; 
+			}
+		}
+		return false;
 	}
 }
