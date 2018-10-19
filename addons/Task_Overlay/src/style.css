@@ -1,0 +1,165 @@
+
+.task-overlay-wrapper .primary-color {
+	background-color: #fcaa47;
+	color: #fcaa47;
+}
+
+.task-overlay-wrapper .secondary-color {
+	background-color: #F7D946;
+}
+
+.task-overlay-wrapper .secondary-color .feedback-icon {
+	border: 2px solid #F7D946;
+}
+
+.task-overlay-wrapper .off-color {
+	background-color: gray;
+}
+
+.task-overlay-wrapper .off-color .feedback-icon {
+	border: 2px solid gray;
+}
+
+.task-overlay-wrapper .correct-color {
+	background-color: #20B747;
+}
+
+.task-overlay-wrapper .correct-color .feedback-icon {
+	border: 2px solid #20B747;
+}
+
+.task-overlay-wrapper .wrong-color {
+	background-color: #F7374A;
+}
+
+.task-overlay-wrapper .wrong-color .feedback-icon {
+	border: 2px solid #F7374A;
+}
+
+.module {
+	/* all mine - emulate positioning of a module in player*/
+	width: 800px;
+	height: 600px;
+	position:absolute;
+	top: 100px;
+	left: 200px;
+}
+
+.task-overlay-wrapper {
+	/* MINE - otherwise it will be invisible */
+	height:100%;
+	width:100%;
+}
+
+.task-overlay-wrapper-shadow {
+	/* .ltr .task.selected .task_container */
+	box-shadow: -3px 4px 4px #DEDEDE;
+}
+
+.task-overlay-wrapper .toolbar-container {
+	/* MINE - place it at the bottom of the wrapper */
+	position: absolute;
+	bottom: 10px;
+	/* .task .task_toolbar */
+	height: 3rem;
+	width:100%;
+	display: block;
+	/* .ltr .task .task_toolbar_container */
+	left: -20px;
+}
+
+.task-overlay-wrapper .toolbar-container-shadow:before {
+	/* .ltr .task .task_toolbar:before */
+	content: " ";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 0 solid transparent;
+    border-bottom: 10px solid transparent;
+    border-right: 20px solid #6A597A;
+    top: 3rem;
+    left: 0;
+}
+
+.task-overlay-wrapper .feedback-line {
+	/* .task .feedback_line */
+	height: 0.4rem;
+    position: absolute;
+    top: -0.4rem;
+    width: 100%;
+    display: inline-block;
+}
+
+.task-overlay-wrapper .feedback-icon {
+	background-color: inherit;
+	position: absolute;
+    left: 50%;
+    margin-left: -0.8rem;
+    /* bottom: 3.5rem; */
+    top: -27px;
+    color: #fff;
+	text-align: center;
+	font-weight: bold;
+	width: 30px;
+	height: 30px;
+    border-radius: 20px;
+    border: inherit;
+	display: block;
+
+	/* .task */
+	font-size: 1.571rem;
+
+
+}
+
+.task-overlay-wrapper .task-toolbar {
+	display: block;
+	height: 100%;
+	/* .ltr .task .task_toolbar */
+	text-align: right;
+    direction: ltr;
+    padding-right: 0.4em;
+
+	/*.task .task_toolbar .progress_button_text, .task .task_toolbar .buffer .buffer_navigation .progress_button_text */
+	font-family: Rokkitt, serif;
+    font-weight: bold;
+
+}
+
+.task-overlay-wrapper .hidden {
+	display: none;
+}
+
+.task-overlay-wrapper .progress-button {
+	float: right;
+	display: inline-block;
+	/* .progress_button, .task_toolbar .progress_button */
+	height: 2rem;
+    cursor: pointer;
+    /*display: inline-block;*/
+    background-color: #fff;
+    border-top: 1px solid transparent;
+    border-left: 1px solid transparent;
+    font-size: 1.2rem;
+    margin-top: 0.5rem;
+    border-radius: 20px;
+    line-height: 1.8rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
+
+.task-overlay-wrapper .progress-button.disabled {
+	background-color: rgba(255, 255, 255, 0.4)
+}
+
+.task-overlay-wrapper .progress-button.disabled:hover {
+	background-color: #fff
+}
+
+.task-overlay-wrapper .attempts-text {
+	color: #fff;
+	margin-top: 1rem;
+	padding-left: 0.75rem;
+    padding-right: 0.75rem;
+	display: inline-block;
+}

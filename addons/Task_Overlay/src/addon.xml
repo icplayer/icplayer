@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<addon id='Task_Overlay' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="Curtain image" displayName="Curtain image" nameLabel="Task_Overlay_property_curtain_image" type="image" />
+        <property name="worksWith" nameLabel="Limited_Show_Answers_property_works_with" type="list" isDefault="true">
+            <property name="ID" nameLabel="Text_To_Speech_property_id" type="string" />
+        </property>
+        <property name="number_of_attempts" displayName="Number of attempts" nameLabel="Task_Overlay_property_number_of_attempts" type="string" />
+        <property name="onFinished" displayName="on task finished" nameLabel="Single_State_Button_property_on_finished" type="event" isDefault="true"/>
+    </model>
+</addon>

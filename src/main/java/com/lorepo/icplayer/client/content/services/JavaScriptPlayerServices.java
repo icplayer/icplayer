@@ -407,6 +407,10 @@ public class JavaScriptPlayerServices {
 		playerServices.getModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModule(Ljava/lang/String;)(id);
 		};
+		
+		playerServices.setModuleMode = function(id, isErrorsMode) {
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setModuleMode(Ljava/lang/String;Z)(id, isErrorsMode);
+		};
 
 		playerServices.getHeaderModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getHeaderModule(Ljava/lang/String;)(id);
@@ -679,6 +683,17 @@ public class JavaScriptPlayerServices {
 	private JavaScriptObject getModule(String id) {
 		IPresenter presenter = playerServices.getModule(id);
 		return getModulePresentationJSObject(presenter);
+	}
+	
+	private void setModuleMode(String id, boolean isErrorsMode) {
+		IPresenter presenter = playerServices.getModule(id);
+		if (presenter != null) {
+			if (isErrorsMode) {
+				presenter.setShowErrorsMode();
+			} else {
+				presenter.setWorkMode();
+			}
+		}
 	}
 
 	private JavaScriptObject getModulePresentationJSObject(IPresenter presenter) {

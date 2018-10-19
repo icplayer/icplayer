@@ -96,6 +96,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Page_Counter", "navigation_menu");
 		addDescriptor("Page_Name", "navigation_menu");
 		addDescriptor("Table_Of_Contents", "navigation_menu");
+		addDescriptor("Task_Overlay", "navigation_menu");
 		addDescriptor("Hierarchical_Table_Of_Contents", "navigation_menu");
 
 		// MEDIA
