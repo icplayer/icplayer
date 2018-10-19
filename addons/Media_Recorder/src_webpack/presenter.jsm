@@ -44,7 +44,7 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.stopPlaying = function stopPlaying() {
-        presenter.mediaRecorder.stopPlaying;
+        presenter.mediaRecorder.stopPlaying();
     };
 
     presenter.getErrorCount = function getErrorCount() {

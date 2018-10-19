@@ -88,8 +88,11 @@ export class MediaRecorder {
     };
 
     stopPlaying() {
-        if (this.mediaState.isPlaying())
+        if (this.mediaState.isPlaying()) {
             this.playButton.forceClick();
+        } else if (this.mediaState.isPlayingDefault()) {
+            this.playDefButton.forceClick();
+        }
     };
 
     destroy() {
