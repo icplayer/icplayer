@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.page;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -189,6 +190,7 @@ public class PageController implements ITextToSpeechController {
 	}
 
 	private void initModules() {
+		groupPresenters.clear();
 		presenters.clear();
 		pageView.removeAllModules();
 		scriptingEngine.reset();
@@ -450,8 +452,8 @@ public class PageController implements ITextToSpeechController {
 
 		return playerService.getScoreService().getPageScore(currentPage.getId());
 	}
-
-	public void setPageState(HashMap<String, String> state) {
+	
+	private void setStatePresenters(List<? extends IPresenter> elements, HashMap<String, String> state) {
 		for (IPresenter presenter : presenters) {
 			if (presenter instanceof IStateful) {
 				IStateful statefulObj = (IStateful)presenter;
@@ -462,26 +464,34 @@ public class PageController implements ITextToSpeechController {
 				}
 			}
 		}
+	}
+	
+	public void setPageState(HashMap<String, String> state) {
+		setStatePresenters(presenters, state); 
+		setStatePresenters(groupPresenters, state); 
 		
 		String heightModificationsState = state.get(this.getOutstretchUniqueHeightKey());
 		if (heightModificationsState != null) {
 			this.currentPage.heightModifications.setState(heightModificationsState);	
 		}
 	}
-
+	
+	private void getStatePresenters(List<? extends IPresenter> elements, HashMap<String, String>	pageState) {
+		for(IPresenter presenter : elements){
+			if(presenter instanceof IStateful){
+				IStateful statefulObj = (IStateful)presenter;
+				String state = statefulObj.getState();
+				String key = this.currentPage.getId() + statefulObj.getSerialId();
+				pageState.put(key, state);
+			}
+		}
+	}
+	
 	public HashMap<String, String> getState() {
-
 		HashMap<String, String>	pageState = new HashMap<String, String>();
 		if(this.currentPage != null) {
-			for(IPresenter presenter : presenters){
-				if(presenter instanceof IStateful){
-					IStateful statefulObj = (IStateful)presenter;
-					String state = statefulObj.getState();
-					String key = this.currentPage.getId() + statefulObj.getSerialId();
-					pageState.put(key, state);
-				}
-			}
-			
+			getStatePresenters(presenters,pageState); 
+			getStatePresenters(groupPresenters,pageState); 
 			pageState.put(this.getOutstretchUniqueHeightKey(), this.currentPage.heightModifications.getState());
 		}
 		

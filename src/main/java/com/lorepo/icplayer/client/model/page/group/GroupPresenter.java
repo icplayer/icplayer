@@ -9,10 +9,12 @@ import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
-public class GroupPresenter implements IPresenter{
+public class GroupPresenter implements IPresenter, IStateful{
 
 	
 	public interface IDisplay extends IModuleView{
@@ -158,5 +160,27 @@ public class GroupPresenter implements IPresenter{
 	
 	public Group getGroup() {
 		return group; 
+	}
+
+	@Override
+	public String getSerialId() {
+		return group.getId();
+	}
+
+	@Override
+	public String getState() {
+		return Boolean.toString(isVisible);
+	}
+
+	@Override
+	public void setState(String state) {
+
+		isVisible = Boolean.parseBoolean(state);
+		if(!isVisible){
+			view.hide();
+		}
+		else{
+			view.show();
+		}
 	}
 }
