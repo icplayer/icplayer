@@ -6,13 +6,11 @@ import java.util.List;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
-import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 public class GroupPresenter implements IPresenter, IStateful{
@@ -100,6 +98,7 @@ public class GroupPresenter implements IPresenter, IStateful{
 	
 	public void hide() {
 		if(view != null){
+			this.isVisible = false; 
 			view.hide();
 		}
 		for(IPresenter p : presenters) {
@@ -109,6 +108,7 @@ public class GroupPresenter implements IPresenter, IStateful{
 	
 	public void show() {
 		if(view != null){
+			this.isVisible = true; 
 			view.show();
 		}
 		for(IPresenter p : presenters) {
@@ -177,10 +177,10 @@ public class GroupPresenter implements IPresenter, IStateful{
 	public void setState(String state) {
 		isVisible = Boolean.parseBoolean(state);
 		if(!isVisible){
-			view.hide();
+			hide(); 
 		}
 		else{
-			view.show();
+			show();
 		}
 	}
 }

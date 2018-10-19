@@ -490,8 +490,8 @@ public class PageController implements ITextToSpeechController {
 	public HashMap<String, String> getState() {
 		HashMap<String, String>	pageState = new HashMap<String, String>();
 		if(this.currentPage != null) {
-			getStatePresenters(presenters,pageState); 
-			getStatePresenters(groupPresenters,pageState); 
+			getStatePresenters(presenters, pageState); 
+			getStatePresenters(groupPresenters, pageState); 
 			pageState.put(this.getOutstretchUniqueHeightKey(), this.currentPage.heightModifications.getState());
 		}
 		
