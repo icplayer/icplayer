@@ -23,7 +23,7 @@ import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 
 
-public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
+public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView{
 	private final TextModel module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
@@ -319,7 +319,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 	@Override
 	public void refreshMath () {
-		MathJax.refreshMathJax(getElement());
+		MathJax.rerenderMathJax(getElement());
 	}
 
 	public void rerenderMathJax () {
@@ -328,21 +328,15 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 	@Override
 	public void hide() {
-		getElement().getStyle().setProperty("visibility", "hidden");
-		getElement().getStyle().setProperty("display", "none");
+		setVisible(false);
 	}
 
 	@Override
 	public void show(boolean callRefreshMath) {
-		Element element = getElement();
-		if (element.getStyle().getVisibility().equals("hidden")) {
-			element.getStyle().setProperty("visibility", "visible");
-			element.getStyle().setProperty("display", "block");
-
-			if (callRefreshMath) {
-				refreshMath();
-				rerenderMathJax();
-			}
+		setVisible(true); 
+		if (callRefreshMath) {
+			refreshMath();
+			rerenderMathJax();
 		}
 	}
 
