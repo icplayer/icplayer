@@ -1016,13 +1016,9 @@ function Addonmultiplegap_create(){
 
         var invalidAndRedundantItems = presenter.getInvalidItems();
         var invalidItems = invalidAndRedundantItems.remainingItems;
-        var redundantItems = invalidAndRedundantItems.redundantItems;
 
-        if (redundantItems.length > 0) {
-            return 0;
-        } else {
-            return presenter.configuration.itemsAnswersID.length - invalidItems.length;
-        }
+        return presenter.configuration.itemsAnswersID.length - invalidItems.length;
+
     };
     
     presenter.getErrorCount = function() {
