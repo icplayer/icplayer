@@ -7,7 +7,8 @@ TestCase("[Media Recorder] Record Button", {
         this.state = {
             setBlocked: sinon.stub(),
             setRecording: sinon.stub(),
-            setLoading: sinon.stub()
+            setLoading: sinon.stub(),
+            isLoadedDefaultRecording: sinon.stub()
         };
 
         this.recordButton = new internalElements.RecordButton({$view: this.$view, state: this.state});
@@ -87,6 +88,7 @@ TestCase("[Media Recorder] Record Button", {
         this.state.isNew = () => false;
         this.state.isLoaded = () => false;
         this.state.isRecording = () => true;
+        this.state.isLoadedDefaultRecording = () => false;
 
         this.recordButton.activate();
         this.$view.trigger("click");
@@ -98,6 +100,7 @@ TestCase("[Media Recorder] Record Button", {
         this.state.isNew = () => false;
         this.state.isLoaded = () => false;
         this.state.isRecording = () => true;
+        this.state.isLoadedDefaultRecording = () => false;
 
         this.recordButton.activate();
         this.$view.trigger("click");
@@ -109,6 +112,7 @@ TestCase("[Media Recorder] Record Button", {
         this.state.isNew = () => false;
         this.state.isLoaded = () => false;
         this.state.isRecording = () => true;
+        this.state.isLoadedDefaultRecording = () => false;
 
         this.recordButton.activate();
         this.$view.trigger("click");

@@ -25,6 +25,10 @@ export class Player {
         throw new Error("StopStreaming method is not implemented");
     }
 
+    setEventBus(eventBus, sourceID) {
+        throw new Error("setEventBus method is not implemented");
+    }
+
     reset() {
         throw new Error("Reset method is not implemented");
     }

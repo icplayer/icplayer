@@ -24,10 +24,10 @@ export class AddonState {
     }
 
     getVisibility() {
-        debugger;
+        var self = this;
         return new Promise(resolve => {
-            if (this.visibility != null)
-                resolve(this.visibility);
+            if (self.visibility != null)
+                resolve(self.visibility);
         });
     }
 

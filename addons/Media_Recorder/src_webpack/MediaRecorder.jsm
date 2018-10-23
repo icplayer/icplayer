@@ -36,10 +36,14 @@ export class MediaRecorder {
 
         if (!validatedModel.isValid)
             this._showError(view, validatedModel);
+        else
+            this._updatePreview(view, validatedModel);
     }
 
     setPlayerController(playerController) {
         this.playerController = playerController;
+        if (this.player && this.recorder)
+            this._loadEventBus()
     }
 
     getState() {
@@ -82,6 +86,7 @@ export class MediaRecorder {
 
     destroy() {
         this.playButton.destroy();
+        this.defaultRecordingPlayButton.destroy();
         this.recordButton.destroy();
         this.recorder.destroy();
         this.player.destroy();
@@ -99,6 +104,7 @@ export class MediaRecorder {
         this.activationState.destroy();
 
         this.viewHandlers = null;
+        this.defaultRecordingPlayButton = null;
         this.recorder = null;
         this.player = null;
         this.resourcesProvider = null;
@@ -212,12 +218,25 @@ export class MediaRecorder {
         this.player = new AudioPlayer(this.viewHandlers.$playerView);
         this.defaultRecordingPlayer = new AudioPlayer(this.viewHandlers.$playerView);
         this.resourcesProvider = new AudioResourcesProvider(this.viewHandlers.$wrapperView);
+        if (this.playerController)
+            this._loadEventBus();
+    }
+
+    _loadEventBus() {
+        let eventBus = this.playerController.getEventBus();
+        this.player.setEventBus(eventBus, this.model.ID);
+        this.recorder.setEventBus(eventBus, this.model.ID);
     }
 
     _loadViewElements() {
         this.addonViewService = new AddonViewService(this.viewHandlers.$wrapperView);
         this.recordButton = this._loadRecordButton();
-        this.defaultRecordingPlayButton = this._loadDefaultRecordingPlayButton();
+
+        this.defaultRecordingPlayButton = new DefaultRecordingPlayButton({
+            $view: this.viewHandlers.$defaultRecordingPlayButtonView,
+            state: this.mediaState,
+            defaultRecording: this.model.defaultRecording
+        });
 
         this.playButton = new PlayButton({
             $view: this.viewHandlers.$playButtonView,
@@ -417,13 +436,20 @@ export class MediaRecorder {
         $wrapper.text(Errors["not_supported_browser"]);
     }
 
-    _loadDefaultRecordingPlayButton() {
-        if (this.model.defaultRecording) {
-            return new DefaultRecordingPlayButton({
-                $view: this.viewHandlers.$defaultRecordingPlayButtonView,
-                state: this.mediaState
-            });
-        }
+    _updatePreview(view, validatedModel) {
+        let valid_model = validatedModel.value;
+        let timerViewHandler = $(view).find(".media-recorder-timer");
+        let defaultButtonViewHandler = $(view).find(".media-recorder-default-recording-play-button");
+
+        if (valid_model.isShowedTimer == false)
+            timerViewHandler.hide();
+        else
+            timerViewHandler.show();
+
+        if (valid_model.isShowedDefaultRecordingButton == false)
+            defaultButtonViewHandler.hide();
+        else
+            defaultButtonViewHandler.show();
     }
 
     _hideSelectedElements() {

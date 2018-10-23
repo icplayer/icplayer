@@ -11,9 +11,15 @@ TestCase("[Media Recorder] Activation Test", {
         this.mediaRecorder.recordButton = {
             activate: sinon.stub(),
             deactivate: sinon.stub(),
-            forceClick: sinon.stub()
+            forceClick: sinon.stub(),
+            reset: sinon.stub(),
         };
         this.mediaRecorder.playButton = {
+            activate: sinon.stub(),
+            deactivate: sinon.stub(),
+            forceClick: sinon.stub()
+        };
+        this.mediaRecorder.defaultRecordingPlayButton = {
             activate: sinon.stub(),
             deactivate: sinon.stub(),
             forceClick: sinon.stub()
@@ -24,7 +30,11 @@ TestCase("[Media Recorder] Activation Test", {
         };
         this.mediaRecorder.mediaState = {
             isRecording: sinon.stub(),
-            isPlaying: sinon.stub()
+            isPlaying: sinon.stub(),
+            isPlayingDefaultRecording: sinon.stub(),
+        };
+        this.mediaRecorder.model = {
+            isResetRemovesRecording: sinon.stub()
         };
     },
 
@@ -47,6 +57,7 @@ TestCase("[Media Recorder] Activation Test", {
         assertTrue(this.mediaRecorder.activationState.setActive.calledOnce);
         assertTrue(this.mediaRecorder.recordButton.activate.calledOnce);
         assertTrue(this.mediaRecorder.playButton.activate.calledOnce);
+        assertTrue(this.mediaRecorder.defaultRecordingPlayButton.activate.calledOnce);
         assertTrue(this.mediaRecorder.addonViewService.activate.calledOnce);
     },
 
@@ -62,10 +73,11 @@ TestCase("[Media Recorder] Activation Test", {
     "test buttons is triggered when deactivate addon and state is set to recording": function () {
         this.mediaRecorder.mediaState.isRecording.returns(true);
         this.mediaRecorder.mediaState.isPlaying.returns(false);
+        this.mediaRecorder.model.isResetRemovesRecording.returns(false);
 
         this.mediaRecorder.deactivate();
 
-        assertTrue(this.mediaRecorder.recordButton.forceClick.calledOnce);
+        assertTrue(this.mediaRecorder.recordButton.reset.calledOnce);
         assertTrue(this.mediaRecorder.playButton.forceClick.notCalled);
     },
 

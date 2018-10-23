@@ -8,19 +8,31 @@ export class BaseRecorder extends Recorder {
             throw new Error("Cannot create an instance of Recorder abstract class");
 
         this.recorder = null;
+        this.eventBus = null;
+        this.sourceID = '';
     }
 
     startRecording(stream) {
         this._clearRecorder();
         this.recorder = RecordRTC(stream, this._getOptions());
         this.recorder.startRecording();
+        this._onStartRecordingCallback();
     }
 
     stopRecording() {
-        return new Promise(
+        let promise = new Promise(
             resolve => this.recorder.stopRecording(
                 () => resolve(this.recorder.getBlob()))
-        )
+        );
+        let self = this;
+        promise.then(() => self._onStopRecordingCallback(self));
+
+        return promise;
+    }
+
+    setEventBus(eventBus, sourceID) {
+        this.eventBus = eventBus;
+        this.sourceID = sourceID;
     }
 
     destroy() {
@@ -37,6 +49,26 @@ export class BaseRecorder extends Recorder {
         if (this.recorder) {
             this.recorder.destroy();
             this.recorder = null;
+        }
+    }
+
+    _onStartRecordingCallback() {
+        this._sendEventCallback(this, 'start');
+    }
+
+    _onStopRecordingCallback(self) {
+        self._sendEventCallback(self, 'stop');
+    }
+
+    _sendEventCallback(self, value) {
+        if (self.eventBus) {
+            var eventData = {
+                'source': self.sourceID,
+                'item': 'recorder',
+                'value': value,
+                'score': ''
+            };
+            self.eventBus.sendEvent('ValueChanged', eventData);
         }
     }
 

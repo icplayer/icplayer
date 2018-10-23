@@ -11,7 +11,10 @@ TestCase("[Media Recorder] Model validation", {
             type: "audio",
             defaultRecording: "/file/666666666",
             startRecordingSound: "/file/666666666",
-            stopRecordingSound: "/file/666666666"
+            stopRecordingSound: "/file/666666666",
+            isResetRemovesRecording: "False",
+            isShowedTimer: "False",
+            isShowedDefaultRecordingButton: "False"
         };
 
         this.DefaultValues = {

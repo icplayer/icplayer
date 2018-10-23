@@ -2,9 +2,10 @@ import {Button} from "./Button.jsm";
 
 export class DefaultRecordingPlayButton extends Button {
 
-    constructor({$view, state}) {
+    constructor({$view, state, defaultRecording}) {
         super($view);
         this.state = state;
+        this.defaultRecording = defaultRecording;
     }
 
     destroy() {
@@ -13,7 +14,7 @@ export class DefaultRecordingPlayButton extends Button {
     }
 
     _eventHandler() {
-        if (this.state.isLoaded() || this.state.isLoadedDefaultRecording())
+        if ((this.state.isLoaded() || this.state.isLoadedDefaultRecording()) && this.defaultRecording != "")
             this._startPlaying();
         else if (this.state.isPlayingDefaultRecording())
             this._stopPlaying()

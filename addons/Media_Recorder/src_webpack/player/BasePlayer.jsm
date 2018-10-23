@@ -13,6 +13,8 @@ export class BasePlayer extends Player {
         this.mediaNode = this._createMediaNode();
         this.mediaNode.controls = false;
         this.$view.append(this.mediaNode);
+        this.eventBus = null;
+        this.sourceID = '';
 
         this._enableEventsHandling();
     }
@@ -52,6 +54,8 @@ export class BasePlayer extends Player {
     }
 
     stopStreaming() {
+        if (!this.mediaNode.paused)
+            this.stopNextStopEvent = true;
         this.stopPlaying();
         this._enableEventsHandling();
     }
@@ -80,16 +84,25 @@ export class BasePlayer extends Player {
         this.$view = null;
     }
 
+    setEventBus(eventBus, sourceID) {
+        this.eventBus = eventBus;
+        this.sourceID = sourceID;
+    }
+
     _enableEventsHandling() {
         this.mediaNode.onloadstart = () => this.onStartLoadingCallback();
         this.mediaNode.oncanplay = () => this.onEndLoadingCallback();
         this.mediaNode.onended = () => this.onEndPlayingCallback();
+        this.mediaNode.onplay = () => this._onPlayCallback();
+        this.mediaNode.onpause = () => this._onPausedCallback();
     }
 
     _disableEventsHandling() {
         this.mediaNode.onloadstart = null;
         this.mediaNode.oncanplay = null;
         this.mediaNode.onended = null;
+        this.mediaNode.onplay = () => null;
+        this.mediaNode.onpause = () => null;
     }
 
     _getDuration() {
@@ -115,6 +128,30 @@ export class BasePlayer extends Player {
         return !(source.startsWith("www.")
             || source.startsWith("http://")
             || source.startsWith("https://"));
+    }
+
+    _onPlayCallback() {
+        this._sendEventCallback('playing');
+    }
+
+    _onPausedCallback() {
+        if (this.stopNextStopEvent) {
+            this.stopNextStopEvent = false;
+        } else {
+            this._sendEventCallback('stop');
+        }
+    }
+
+    _sendEventCallback(value) {
+        if (this.eventBus) {
+            let eventData = {
+                'source': this.sourceID,
+                'item': 'player',
+                'value': value,
+                'score': ''
+            };
+            this.eventBus.sendEvent('ValueChanged', eventData);
+        }
     }
 
     _createMediaNode() {
