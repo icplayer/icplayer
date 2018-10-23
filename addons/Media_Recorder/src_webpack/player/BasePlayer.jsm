@@ -15,6 +15,7 @@ export class BasePlayer extends Player {
         this.$view.append(this.mediaNode);
         this.eventBus = null;
         this.sourceID = '';
+        this.item = '';
 
         this._enableEventsHandling();
     }
@@ -84,9 +85,10 @@ export class BasePlayer extends Player {
         this.$view = null;
     }
 
-    setEventBus(eventBus, sourceID) {
+    setEventBus(eventBus, sourceID, item) {
         this.eventBus = eventBus;
         this.sourceID = sourceID;
+        this.item = item;
     }
 
     _enableEventsHandling() {
@@ -146,7 +148,7 @@ export class BasePlayer extends Player {
         if (this.eventBus) {
             let eventData = {
                 'source': this.sourceID,
-                'item': 'player',
+                'item': this.item,
                 'value': value,
                 'score': ''
             };

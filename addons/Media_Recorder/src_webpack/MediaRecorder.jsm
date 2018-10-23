@@ -224,7 +224,8 @@ export class MediaRecorder {
 
     _loadEventBus() {
         let eventBus = this.playerController.getEventBus();
-        this.player.setEventBus(eventBus, this.model.ID);
+        this.player.setEventBus(eventBus, this.model.ID, "player");
+        this.defaultRecordingPlayer.setEventBus(eventBus, this.model.ID, "default");
         this.recorder.setEventBus(eventBus, this.model.ID);
     }
 
