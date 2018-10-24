@@ -170,6 +170,7 @@ function AddonCatch_create() {
 
         return {
             items: validatedItems.value,
+            plateImage: model['Plate image'],
             levelsItems: presenter.calculateLevelsItems(validatedItems.value),
             pointsToFinish: validatedPointsToFinish.value,
             countErrors: ModelValidationUtils.validateBoolean(model["Count errors"]),
@@ -182,8 +183,10 @@ function AddonCatch_create() {
     };
 
     function makePlate () {
+        var plateImage = presenter.configuration.plateImage !== "" && presenter.configuration.plateImage !== undefined ? presenter.configuration.plateImage : getImageUrlFromResources('plate.png');
+
         $plateElement = $('<img class="plate" />');
-        $plateElement.attr('src', getImageUrlFromResources('plate.png'));
+        $plateElement.attr('src', plateImage);
 
         presenter.$view.append($plateElement);
 
