@@ -3,7 +3,8 @@ function getValidModel(isVisible) {
         isVisibleByDefault: isVisible,
         isValid: true,
         haveURL: true,
-        allowFullScreen: false
+        allowFullScreen: false,
+        isVisible: isVisible
     }
 }
 
@@ -52,5 +53,20 @@ TestCase('[Iframe] Visibility tests', {
         this.presenter.run(this.view, {});
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(false));
+    },
+
+    'test when not in preview mode, flag isEditor should be false': function () {
+        this.stubs.validateModelStub.returns(getValidModel(true));
+        this.presenter.run(this.view, {});
+
+        assertFalse(this.presenter.isEditor);
+    },
+
+    'test when in preview mode, flag isEditor should be true': function () {
+        this.stubs.validateModelStub.returns(getValidModel(true));
+        this.presenter.createPreview(this.view, {});
+
+        assertTrue(this.presenter.isEditor);
     }
+
 });
