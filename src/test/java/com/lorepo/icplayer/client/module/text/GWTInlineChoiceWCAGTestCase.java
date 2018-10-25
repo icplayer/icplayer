@@ -11,15 +11,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doNothing;
 
 import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.DomEvent;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
-import com.lorepo.icplayer.client.module.text.mockup.TextViewMockupExtendFromOriginal;
 import com.lorepo.icplayer.client.page.PageController;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
@@ -43,12 +45,13 @@ public class GWTInlineChoiceWCAGTestCase extends GwtTest {
 		a1.appendChild(div1);
 
 		this.model = new TextModel();
-		this.textView = new TextViewMockupExtendFromOriginal(this.model, false);
+		this.textView = new TextView(this.model, false);
 		
 		listenerMock = mock(ITextViewListener.class);		
 		this.textView.addListener(listenerMock);
 		pageControllerMock = mock(PageController.class);
 		this.textView.setPageController(pageControllerMock);
+
 		InlineChoiceInfo choiceInfo = new InlineChoiceInfo("sddsf1", "answer", 1);
 		choiceInfo.addDistractor("option 2");
 		choiceInfo.addDistractor("option 3");

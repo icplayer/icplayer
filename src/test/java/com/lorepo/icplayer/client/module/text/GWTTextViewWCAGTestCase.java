@@ -18,7 +18,6 @@ import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
-import com.lorepo.icplayer.client.module.text.mockup.TextViewMockupExtendFromOriginal;
 import com.lorepo.icplayer.client.page.PageController;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
@@ -48,7 +47,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 		a1.appendChild(div2);
 
 		this.model = new TextModel();
-		this.textView = new TextViewMockupExtendFromOriginal(this.model, false);
+		this.textView = new TextView(this.model, false);
 		GapInfo gapInfo = new GapInfo("sddsf1", 12, false, true, 0);
 		
 		this.gapWidget = new DraggableGapWidget(gapInfo, null);

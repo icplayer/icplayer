@@ -1,3 +1,4 @@
+2018-10-25 Fixed problem with loading math jax
 2018-10-25 Added new addon audio recorder
 2018-10-22 Grouping modules into a div
 2018-10-16 Added property Plate Image in Catch module
