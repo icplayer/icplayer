@@ -1,4 +1,4 @@
-import {BasePlayer} from "./basePlayer.jsm";
+import {BasePlayer} from "./BasePlayer.jsm";
 
 export class AudioPlayer extends BasePlayer {
 
