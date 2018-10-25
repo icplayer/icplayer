@@ -148,11 +148,11 @@ public class GroupPresenter implements IPresenter, IStateful{
 		var presenter = function() {};
 
 		presenter.show = function() {
-			g.@com.lorepo.icplayer.client.model.page.group.GroupPresenter::show()();
+			g.@com.lorepo.icplayer.client.model.page.Group.GroupPresenter::show()();
 		};
 
 		presenter.hide = function() {
-			g.@com.lorepo.icplayer.client.model.page.group.GroupPresenter::hide()();
+			g.@com.lorepo.icplayer.client.model.page.Group.GroupPresenter::hide()();
 		};
 	
 		return presenter;
