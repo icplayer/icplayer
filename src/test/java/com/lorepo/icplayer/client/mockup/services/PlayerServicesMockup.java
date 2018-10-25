@@ -11,6 +11,7 @@ import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
@@ -31,7 +32,6 @@ public class PlayerServicesMockup implements IPlayerServices {
 	private final IJsonServices	jsonMockup;
 
 	public PlayerServicesMockup() {
-
 		contentModel = new Content();
 		eventBus = new SimpleEventBus();
 		commands = new CommandsMockup();
@@ -228,5 +228,18 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public void setApplication(PlayerApp application) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public boolean changeSemiResponsiveLayout(String layoutID) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public GroupPresenter getGroup(String groupId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -535,7 +535,7 @@ function AddonMagic_Boxes_create() {
         }
     };
 
-    function presenterLogic(view, model, preview){
+    function presenterLogic(view, model, isPreview){
         presenter.answerWords = {};
         viewContainer = $(view);
         presenter.view = viewContainer;
@@ -543,7 +543,7 @@ function AddonMagic_Boxes_create() {
         gridContainer = gridContainerWrapper.find(".magicGrid:first");
         presenter.configuration = presenter.validateModel(model);
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         if(presenter.configuration.answers){
             for(var i = 0; i< presenter.configuration.answers.length; i++){
@@ -558,7 +558,7 @@ function AddonMagic_Boxes_create() {
             showErrorMessage(presenter.configuration.errorMessage);
         } else {
             initGridSelection();
-            initGrid(model, preview);
+            initGrid(model, isPreview);
             goodSelections = presenter.findGoodSelections(presenter.configuration.gridElements, presenter.configuration.answers);
 
             if(presenter.configuration.checkByWords){
@@ -567,7 +567,7 @@ function AddonMagic_Boxes_create() {
                 maxScore = presenter.calculateMaxScore(goodSelections);
             }
 
-            if (preview) {
+            if (isPreview) {
                 gridSelection = goodSelections;
                 presenter.setWorkMode();
             }

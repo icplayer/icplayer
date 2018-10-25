@@ -11,6 +11,10 @@ TestCase('[Text Selection] scoring tests', {
         this.presenter.configuration = {
             isActivity: true
         };
+
+        this.stubs = {
+            hideAnswers: sinon.stub(this.presenter, 'hideAnswers')
+        }
     },
 
     'test getErrorCount noerrors' : function() {
@@ -41,5 +45,32 @@ TestCase('[Text Selection] scoring tests', {
     'test getScore equals one' : function() {
         this.presenter.markers = { markedCorrect: [1, 2, 4] };
         assertEquals(1, this.presenter.getScore());
+    },
+
+    'test while showing answers when get score is called then answers are not hidden': function() {
+        this.presenter.markers = { markedCorrect: [] };
+        this.presenter.isShowAnswers = true;
+
+        this.presenter.getScore();
+
+        assertFalse(this.stubs.hideAnswers.called);
+    },
+
+    'test while showing answers when getErrorCount is called then answers are not hidden': function() {
+        this.presenter.markers = { markedWrong: [] };
+        this.presenter.isShowAnswers = true;
+
+        this.presenter.getErrorCount();
+
+        assertFalse(this.stubs.hideAnswers.called);
+    },
+
+    'test while showing answers when getMaxScore is called then answers are not hidden': function() {
+        this.presenter.markers = { markedCorrect: [] };
+        this.presenter.isShowAnswers = true;
+
+        this.presenter.getMaxScore();
+
+        assertFalse(this.stubs.hideAnswers.called);
     }
 });

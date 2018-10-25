@@ -63,19 +63,19 @@ function AddonCompletion_Progress_create() {
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
-            presenter.$view = $(view);
-            presenter.model = model;
-            presenter.configuration = presenter.validateModel(model);
+        presenter.$view = $(view);
+        presenter.model = model;
+        presenter.configuration = presenter.validateModel(model);
 
-            presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
-            if (!isPreview && presenter.configuration.automaticCounting) {
-                eventBus.addEventListener('ValueChanged', this);
-                presenter.pageLoaded.then(function() {
-                    presenter.loadModules();
-                    presenter.updateProgress();
-                });
-            }
+        if (!isPreview && presenter.configuration.automaticCounting) {
+            eventBus.addEventListener('ValueChanged', this);
+            presenter.pageLoaded.then(function() {
+                presenter.loadModules();
+                presenter.updateProgress();
+            });
+        }
     };
 
     presenter.onEventReceived = function (eventName) {

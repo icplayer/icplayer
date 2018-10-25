@@ -486,9 +486,8 @@ function AddonText_Selection_create() {
             presenter.$view.append($(presenter.configuration.renderedPreview));
         } else {
             presenter.$view.append($(presenter.configuration.renderedRun));
+            presenter.setVisibility(presenter.configuration.isVisible);
         }
-
-        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.ERROR_CODES = {
@@ -1175,7 +1174,17 @@ function AddonText_Selection_create() {
     };
 
     function points(selector) {
-        var numbersSelected = presenter.$view.find('.text_selection').find('.selected').map(function () {
+        var $selectedElements = null;
+        if (!presenter.isShowAnswers) {
+            $selectedElements = presenter.$view.find('.text_selection').find('.selected');
+        } else {
+            if (presenter.selected_elements) {
+                $selectedElements = presenter.selected_elements;
+            } else {
+                return 0;
+            }
+        }
+        var numbersSelected = $selectedElements.map(function () {
             return parseInt(this.getAttribute('number'), 10);
         }).get();
 
@@ -1184,9 +1193,6 @@ function AddonText_Selection_create() {
 
     presenter.getErrorCount = function () {
         if (presenter.configuration.isActivity) {
-            if (presenter.isShowAnswers) {
-                presenter.hideAnswers();
-            }
             return points(presenter.markers.markedWrong);
         } else {
             return 0;
@@ -1195,9 +1201,6 @@ function AddonText_Selection_create() {
 
     presenter.getMaxScore = function () {
         if (presenter.configuration.isActivity) {
-            if (presenter.isShowAnswers) {
-                presenter.hideAnswers();
-            }
             return presenter.markers.markedCorrect.length;
         } else {
             return 0;
@@ -1206,9 +1209,6 @@ function AddonText_Selection_create() {
 
     presenter.getScore = function () {
         if (presenter.configuration.isActivity) {
-            if (presenter.isShowAnswers) {
-                presenter.hideAnswers();
-            }
             return points(presenter.markers.markedCorrect);
         } else {
             return 0;

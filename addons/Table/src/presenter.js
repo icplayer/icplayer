@@ -244,7 +244,7 @@ function AddonTable_create() {
         var $table = presenter.generateTable(presenter.configuration.contents, isPreview);
         presenter.setColumnWidth($table, presenter.configuration.columnsWidths, presenter.configuration.rowsHeights);
         presenter.setRowHeight($table, presenter.configuration.rowsHeights);
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         presenter.initializeGaps(isPreview);
 

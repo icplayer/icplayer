@@ -6,6 +6,8 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.group.Group;
+import com.lorepo.icplayer.client.model.page.group.GroupView;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -23,7 +25,7 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 
 	private Page currentPage;
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
-
+	
 	public ResponsivePageView(){
 		addStyleName("ic_flowPage");
 	}
@@ -61,6 +63,16 @@ public class ResponsivePageView extends FlowPanel implements IPageDisplay{
 		    add(moduleView);
 		    widgets.put(module.getId(), moduleView);
 		}
+	}
+	
+	@Override
+	public void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId) {
+		// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public void addGroupView(GroupView groupView) {
+		// TODO Auto-generated method stub
 	}
 
 
