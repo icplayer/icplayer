@@ -139,14 +139,14 @@ function AddonTask_Overlay_create(){
 	};
 
 	function activateButton() {
-		if (presenter.buttonActive) return;
+		if (presenter.buttonActive ==! null && true === presenter.buttonActive) return;
 		presenter.buttonActive = true;
 		presenter.viewHandlers.$proceedButton.click(buttonHandler);
 		presenter.viewHandlers.$proceedButton.removeClass('disabled');
 	}
 
 	function deactivateButton() {
-		if (!presenter.buttonActive) return;
+		if (presenter.buttonActive ==! null && false === presenter.buttonActive) return;
 		presenter.buttonActive = false;
 		presenter.viewHandlers.$proceedButton.off('click', buttonHandler);
 		var $el = presenter.viewHandlers.$proceedButton;
@@ -170,7 +170,6 @@ function AddonTask_Overlay_create(){
     }
 
 	presenter.validateModel = function(model) {
-
 		var validatedCurtainImage = parseImage(model["Curtain image"]);
         if (!validatedCurtainImage.isValid) {
             return returnErrorObject(validatedCurtainImage.errorCode);
@@ -193,6 +192,16 @@ function AddonTask_Overlay_create(){
 			ShowAnswers: 'Show Answers'
 		};
 
+        function validateStaticText(model, propertyName) {
+        	return model.texts[propertyName]!= null && model.texts[propertyName][propertyName].trim().length > 0;
+		}
+
+        if(validateStaticText(model, 'Attempts')) texts.Attempts = model.texts['Attempts']['Attempts'];
+        if(validateStaticText(model, 'Validate')) texts.Validate = model.texts['Validate']['Validate'];
+        if(validateStaticText(model, 'Continue')) texts.Continue = model.texts['Continue']['Continue'];
+        if(validateStaticText(model, 'Retry')) texts.Retry = model.texts['Retry']['Retry'];
+        if(validateStaticText(model, 'ShowAnswers')) texts.ShowAnswers = model.texts['ShowAnswers']['ShowAnswers'];
+
 		return {
 			isValid: true,
 			width: parseInt(model["Width"], 10),
@@ -202,7 +211,8 @@ function AddonTask_Overlay_create(){
 			worksWith: worksWith,
 			maxAttempts: parseInt(model['number_of_attempts']),
 			texts: texts,
-			onFinished: model['onFinished']
+			onFinished: model['onFinished'],
+			defaultUncover: ModelValidationUtils.validateBoolean(model['uncoverOnDefault'])
 		}
 	};
 
@@ -299,6 +309,11 @@ function AddonTask_Overlay_create(){
 
 		createEventListeners();
 		presenter.viewHandlers.$proceedButton.text(presenter.configuration.texts.Validate);
+
+		if (presenter.configuration.defaultUncover) {
+			presenter.state.cover = false;
+		}
+
 		presenter.updateView();
     };
 
@@ -350,20 +365,13 @@ function AddonTask_Overlay_create(){
 	function getModulesResults() {
 		var maxScore = 0;
 		var score = 0;
-		var isAttempted = false;
 		for (var i = 0; i < presenter.configuration.worksWith.length; i++) {
-            var module = presenter.playerController.getModule(presenter.configuration.worksWith[i]);
-            if (module != null) {
-                if (module.hasOwnProperty('getScore') && module.hasOwnProperty('getMaxScore')) {
-                    maxScore += module.getMaxScore();
-                    score += module.getScore();
-                }
-                if (module.hasOwnProperty('isAttempted') && module.isAttempted()){
-                	isAttempted = true;
-				}
+            var moduleScore = presenter.playerController.getModuleScore(presenter.configuration.worksWith[i]);
+            if (moduleScore != null) {
+            	score += moduleScore.score;
+            	maxScore +=moduleScore.maxScore;
             }
         }
-        if (!isAttempted && score == 0 && maxScore != 0) return presenter.moduleResults.not_attempted;
 		if (maxScore == score) return presenter.moduleResults.correct;
 		if (score == 0) return presenter.moduleResults.wrong;
 		return presenter.moduleResults.partial;
@@ -374,6 +382,7 @@ function AddonTask_Overlay_create(){
 	function buttonHandler() {
 		var results = getModulesResults();
 		if (presenter.state.buttonState == presenter.buttonStates.validate) {
+			limitedCheck();
 			if (results == presenter.moduleResults.correct) {
 				presenter.state.buttonState = presenter.buttonStates.next;
 				presenter.state.completion = presenter.completedCodes.correct;
@@ -386,7 +395,6 @@ function AddonTask_Overlay_create(){
 						presenter.state.completion = presenter.completedCodes.wrong;
 					}
 				} else {
-					limitedCheck();
 					presenter.state.buttonState = presenter.buttonStates.retry;
 					if (results == presenter.moduleResults.partial) {
 						presenter.state.completion = presenter.completedCodes.partial;
@@ -404,6 +412,7 @@ function AddonTask_Overlay_create(){
 			limitedShowAnswers();
 		} else if (presenter.state.buttonState == presenter.buttonStates.next) {
 			limitedHideAnswers();
+			limitedCheck();
 			presenter.state.completion = presenter.completedCodes.done;
 			executeCommandOnFinished();
 		}
@@ -425,7 +434,6 @@ function AddonTask_Overlay_create(){
 			activateButton();
 			presenter.viewHandlers.$proceedButton.text(presenter.configuration.texts.ShowAnswers);
 		}else if (buttonState == presenter.buttonStates.next) {
-			activateButton();
 			presenter.viewHandlers.$proceedButton.text(presenter.configuration.texts.Continue);
 		}
 
@@ -455,6 +463,7 @@ function AddonTask_Overlay_create(){
 		}
 
 		updateAttemptText();
+
 	};
 
 	function clearFeedbackLine() {

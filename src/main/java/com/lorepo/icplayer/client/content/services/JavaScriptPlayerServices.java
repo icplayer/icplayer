@@ -19,6 +19,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
+import com.lorepo.icplayer.client.module.api.IActivity;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
@@ -411,6 +412,10 @@ public class JavaScriptPlayerServices {
 		playerServices.setModuleMode = function(id, isErrorsMode) {
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setModuleMode(Ljava/lang/String;Z)(id, isErrorsMode);
 		};
+		
+		playerServices.getModuleScore = function(id) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModuleScore(Ljava/lang/String;)(id);
+		};
 
 		playerServices.getHeaderModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getHeaderModule(Ljava/lang/String;)(id);
@@ -694,6 +699,17 @@ public class JavaScriptPlayerServices {
 				presenter.setWorkMode();
 			}
 		}
+	}
+	
+	private JavaScriptObject getModuleScore(String id) {
+		IPresenter presenter = playerServices.getModule(id);
+		if (presenter == null || !(presenter instanceof IActivity)) return null;
+		
+		IActivity activity = (IActivity) presenter;
+		JavaScriptObject score = JavaScriptObject.createArray();
+		JavaScriptUtils.addPropertyToJSArray(score, "score", (int) activity.getScore());
+		JavaScriptUtils.addPropertyToJSArray(score, "maxScore", (int) activity.getMaxScore());
+		return score;
 	}
 
 	private JavaScriptObject getModulePresentationJSObject(IPresenter presenter) {
