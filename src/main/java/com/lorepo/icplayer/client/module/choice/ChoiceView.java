@@ -41,14 +41,13 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private boolean isWCAGOn = false;
 	private boolean isShowErrorsMode = false;
 	private boolean mathJaxIsLoaded = false;
-	private boolean shouldRefreshMath = false;
 
 	private int position = -1;
 	
 	public ChoiceView(ChoiceModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
-		MathJax.setCallbackForMathJaxLoaded(this);
+		mathJaxLoaded();
 	}
 	
 	/**
@@ -127,13 +126,16 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			this.incorrectText = this.module.getSpeechTextItem(3);
 		}
 	}
+	
+	@Override
+	public void mathJaxLoaded() {
+		MathJax.setCallbackForMathJaxLoaded(this); 
+	}
 	    
 	@Override
 	public void mathJaxIsLoadedCallback() {
 		this.mathJaxIsLoaded = true;
-		if (this.shouldRefreshMath) {
-			this.refreshMath();
-		}
+		this.refreshMath();
 	}
 	
 	
@@ -231,8 +233,6 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		setVisible(true);
 		if (this.mathJaxIsLoaded) {
 			refreshMath();
-		} else {
-			this.shouldRefreshMath = true;
 		}
 	}
 	
@@ -243,7 +243,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	@Override
 	public void refreshMath() {
-		MathJax.rerenderMathJax(getElement());
+		MathJax.refreshMathJax(getElement());
 	}
 
 	public int[] getOryginalOrder() {

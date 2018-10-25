@@ -49,11 +49,11 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	private PageController pageController;
 	private boolean isWCAGOn = false;
 	private boolean mathJaxIsLoaded = false;
-	private boolean shouldRefreshMath = false;
 
 	public SourceListView(SourceListModule module, boolean isPreview){
 		this.module = module;
 		createUI(isPreview);
+		mathJaxLoaded();
 	}
 
 	private void createUI(boolean isPreview) {
@@ -79,6 +79,11 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		}
 	}
 
+	@Override
+	public void mathJaxLoaded() {
+		MathJax.setCallbackForMathJaxLoaded(this); 
+	}
+	
 	@Override
 	public void setDragMode() {
 		isDragged = true;
@@ -255,21 +260,19 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	}
 
 	public void refreshMath(Element element) {
-		MathJax.rerenderMathJax(element);
+		MathJax.refreshMathJax(element);
 	}
 	
 	@Override
 	public void refreshMath() {
-		MathJax.rerenderMathJax(getElement());
+		MathJax.refreshMathJax(getElement());
 	}
 	
 	
 	@Override
 	public void mathJaxIsLoadedCallback() {
 		this.mathJaxIsLoaded = true;
-		if (this.shouldRefreshMath) {
-			this.refreshMath();
-		}
+		this.refreshMath();
 	}
 
 	@Override
@@ -277,15 +280,12 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		setVisible(true);
 		if (this.mathJaxIsLoaded) {
 			refreshMath();
-		} else {
-			this.shouldRefreshMath = true;
 		}
 	}
 
 	@Override
 	public void hide() {
 		setVisible(false);
-		refreshMath();
 	}
 
 	@Override

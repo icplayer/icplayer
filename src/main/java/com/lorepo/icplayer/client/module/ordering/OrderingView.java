@@ -69,7 +69,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.module = module;
 		this.playerServices = services;
 		createUI(module, isPreview);
-		MathJax.setCallbackForMathJaxLoaded(this);
+		mathJaxLoaded();
 	}
 
 	@Override
@@ -138,6 +138,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		getAsJavaScript();
 		makeSortable();
 		getElement().setAttribute("lang", this.getLang());
+	}
+	
+	@Override
+	public void mathJaxLoaded() {
+		MathJax.setCallbackForMathJaxLoaded(this); 
 	}
 	
 	private boolean isDisableDragging() {

@@ -35,6 +35,7 @@ import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.module.text.TextModel;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
 import com.lorepo.icplayer.client.module.text.mockup.TextViewMockup;
+import com.lorepo.icplayer.client.module.text.mockup.TextViewMockupExtendFromOriginal;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTTextPresenterTestCase extends GwtTest{
@@ -355,8 +356,8 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		IPlayerServices services = Mockito.mock(IPlayerServices.class);
 		TextPresenter presenter = new TextPresenter(module, services);
 		
-		TextView textView = new TextView(module, false);
-	
+		TextView textView = new TextViewMockupExtendFromOriginal(module, false);
+
 		com.google.gwt.user.client.Element widget1 = DOM.createElement("div");
 		widget1.setId("1");
 		Document.get().getBody().appendChild(widget1);

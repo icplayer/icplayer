@@ -2,7 +2,6 @@ package com.lorepo.icplayer.client.utils;
 
 import com.google.gwt.dom.client.Element;
 
-
 public class MathJax {
 
 	/**

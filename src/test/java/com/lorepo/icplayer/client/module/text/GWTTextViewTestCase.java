@@ -11,6 +11,7 @@ import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.dom.client.Document;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
+import com.lorepo.icplayer.client.module.text.mockup.TextViewMockupExtendFromOriginal;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTTextViewTestCase extends GwtTest {
@@ -41,7 +42,7 @@ public class GWTTextViewTestCase extends GwtTest {
 		a1.appendChild(div3);
 
 		this.model = new TextModel();
-		this.textView = new TextView(this.model, false);
+		this.textView = new TextViewMockupExtendFromOriginal(this.model, false);
 		GapInfo gapInfo1 = new GapInfo("sddsf1", 12, false, true, 0);
 		InlineChoiceInfo gapInfo2 = new InlineChoiceInfo("sddsf2", "12", 0);
 		GapInfo gapInfo3 = new GapInfo("sddsf3", 12, false, true, 0);

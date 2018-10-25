@@ -14,6 +14,7 @@ import com.google.gwt.dom.client.OptionElement;
 import com.google.gwt.dom.client.SelectElement;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
+import com.lorepo.icplayer.client.module.text.mockup.TextViewMockupExtendFromOriginal;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTTextShowAnswersTestCase extends GwtTest {	
@@ -32,10 +33,10 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 	@Before
 	public void setUp() {
 		TextModel model = new TextModel();
-		TextView textView1 = new TextView(model, false);
-		TextView textView2 = new TextView(model, false);
-		TextView textView3 = new TextView(model, false);
-		TextView textView4 = new TextView(model, false);
+		TextView textView1 = new TextViewMockupExtendFromOriginal(model, false);
+		TextView textView2 = new TextViewMockupExtendFromOriginal(model, false);
+		TextView textView3 = new TextViewMockupExtendFromOriginal(model, false);
+		TextView textView4 = new TextViewMockupExtendFromOriginal(model, false);
 		
 		List<String> optionsForGap1 = Arrays.asList("---", "correct", "wrong");
 		List<String> optionsForGap2 = Arrays.asList("---", "special chars ' < > & \" ", "wrong");

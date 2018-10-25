@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
 
 import com.google.gwt.dom.client.Style.Visibility;
@@ -21,6 +22,7 @@ import com.googlecode.gwt.test.utils.events.EventBuilder;
 import com.lorepo.icplayer.client.GWTPowerMockitoTest;
 import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
+import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -30,7 +32,10 @@ import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
 import com.lorepo.icplayer.client.module.choice.ChoiceModel;
 import com.lorepo.icplayer.client.module.choice.ChoiceOption;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController.PresenterEntry;
+import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockup;
+import com.lorepo.icplayer.client.page.mockup.ModuleFactoryMockupExtendFromOrigin;
 import com.lorepo.icplayer.client.ui.PlayerView;
+import org.junit.runner.RunWith;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest {
@@ -59,6 +64,7 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 
 		this.headerPageController = new PageController(this.playerController);
 		this.mainPageController = new PageController(this.playerController);
+		this.mainPageController.setModuleFactory(new ModuleFactoryMockupExtendFromOrigin(playerController.getPlayerServices()));
 		this.footerPageController = new PageController(this.playerController);
 		
 		PageView headerPageView = new PageView("header");
