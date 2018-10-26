@@ -13,14 +13,15 @@ import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 
 public class SemiResponsivePositions {
-	protected HashMap<String, ModuleDimensions> positions = new HashMap<String, ModuleDimensions>();
-	protected HashMap<String, LayoutDefinition> layoutsDefinitions = new HashMap<String, LayoutDefinition>();
-	protected HashMap<String, Boolean> isLocked = new HashMap<String, Boolean>();
-	protected HashMap<String, Boolean> isModuleVisibleInEditor = new HashMap<String, Boolean>();
-	protected boolean isVisible = true;
+	private HashMap<String, ModuleDimensions> positions = new HashMap<String, ModuleDimensions>();
+	private HashMap<String, LayoutDefinition> layoutsDefinitions = new HashMap<String, LayoutDefinition>();
+	private HashMap<String, Boolean> isLocked = new HashMap<String, Boolean>();
+	private HashMap<String, Boolean> isModuleVisibleInEditor = new HashMap<String, Boolean>();
 	
-	protected String defaultLayoutID = "default";
-	protected String semiResponsiveID = "default";
+	private boolean isVisible = true;
+	
+	private String defaultLayoutID = "default";
+	private String semiResponsiveID = "default";
 	
 	public SemiResponsivePositions () {
 		this.positions.put(this.defaultLayoutID, new ModuleDimensions());
@@ -44,12 +45,6 @@ public class SemiResponsivePositions {
 		this.positions.put(this.semiResponsiveID, dimensions);
 	}
 	
-	public void setPositionValue(String idLayout, String attribute, int value) {
-		ModuleDimensions dimensions = this.positions.get(this.semiResponsiveID);
-		dimensions.setValueByAttributeName(attribute, value);
-		this.positions.put(idLayout, dimensions);
-	}
-
 	public void setSemiResponsiveLayoutID (String semiResponsiveLayoutID) {
 		this.semiResponsiveID = semiResponsiveLayoutID;
 		this.ensureLayoutExistsOrFallbackToDefault(semiResponsiveLayoutID);
@@ -96,7 +91,7 @@ public class SemiResponsivePositions {
 		}
 	}
 
-	protected void deleteOldLayouts(Set<PageLayout> actualSemiResponsiveLayouts) {
+	private void deleteOldLayouts(Set<PageLayout> actualSemiResponsiveLayouts) {
 		Set<String> actualIDs = this.convertToActualLayoutsIDs(actualSemiResponsiveLayouts);
 		
 		this.removeOldKeysFromHashMap(actualIDs, this.positions);
@@ -105,7 +100,7 @@ public class SemiResponsivePositions {
 		this.removeOldKeysFromHashMap(actualIDs, this.isModuleVisibleInEditor);
 	}
 
-	protected void removeOldKeysFromHashMap(Set<String> actualIDs, HashMap<String, ?> hashmap) {
+	private void removeOldKeysFromHashMap(Set<String> actualIDs, HashMap<String, ?> hashmap) {
 		for (String key : hashmap.keySet()) {
 			if(!actualIDs.contains(key)) {
 				hashmap.remove(key);
@@ -126,7 +121,7 @@ public class SemiResponsivePositions {
 		}
 	}
 
-	protected Set<String> convertToActualLayoutsIDs(Set<PageLayout> actualSemiResponsiveLayouts) {
+	private Set<String> convertToActualLayoutsIDs(Set<PageLayout> actualSemiResponsiveLayouts) {
 		Set<String> actualIDs = new HashSet<String>();
 		for (PageLayout pl : actualSemiResponsiveLayouts) {
 			actualIDs.add(pl.getID());
@@ -134,7 +129,7 @@ public class SemiResponsivePositions {
 		return actualIDs;
 	}
 
-	protected void ensureLayoutExistsOrFallbackToDefault(String semiResponsiveLayoutID) {
+	private void ensureLayoutExistsOrFallbackToDefault(String semiResponsiveLayoutID) {
 		if (!this.positions.containsKey(semiResponsiveLayoutID)) {
 			ModuleDimensions copyOfDefaultDimensions = this.getDimensionsCopy(this.defaultLayoutID);
 			this.positions.put(semiResponsiveLayoutID, copyOfDefaultDimensions);
@@ -149,7 +144,7 @@ public class SemiResponsivePositions {
 		this.ensureDefaultValueInBooleanHashMap(semiResponsiveLayoutID, this.isModuleVisibleInEditor);
 	}
 
-	protected void ensureDefaultValueInBooleanHashMap(String semiResponsiveLayoutID, HashMap<String, Boolean> hashmap) {
+	private void ensureDefaultValueInBooleanHashMap(String semiResponsiveLayoutID, HashMap<String, Boolean> hashmap) {
 		if (!hashmap.containsKey(semiResponsiveLayoutID)) {
 			hashmap.put(semiResponsiveLayoutID, hashmap.get(this.defaultLayoutID));
 		}
@@ -215,13 +210,14 @@ public class SemiResponsivePositions {
 			layout.setAttribute("id", layoutID);
 			layout.appendChild(this.layoutsDefinitions.get(layoutID).toXML());
 			layout.appendChild(this.getAbsolutePositionsXML(layoutID, doc));
+			
 			layouts.appendChild(layout);
 		}
 
 		return layouts;
 	}
 
-	protected Node getAbsolutePositionsXML(String layoutID, Document doc) {
+	private Node getAbsolutePositionsXML(String layoutID, Document doc) {
 		Element absolute = doc.createElement("absolute");
 		ModuleDimensions moduleDimensions = this.positions.get(layoutID);
 		
@@ -254,7 +250,7 @@ public class SemiResponsivePositions {
 		this.copyValueInBoolenHashMap(lastSeenLayout, this.isModuleVisibleInEditor);
 	}
 	
-	protected void copyValueInBoolenHashMap(String lastSeenLayout, HashMap<String, Boolean> map) {
+	private void copyValueInBoolenHashMap(String lastSeenLayout, HashMap<String, Boolean> map) {
 		if (map.containsKey(lastSeenLayout)) {
 			map.put(this.semiResponsiveID, map.get(lastSeenLayout));
 		}
@@ -270,7 +266,7 @@ public class SemiResponsivePositions {
 			if (this.isLocked.containsKey(key)) {
 				this.translateBooleanHashMap(this.isLocked, key, translatedID);
 			}
-
+			
 			if (this.isModuleVisibleInEditor.containsKey(key)) {
 				this.translateBooleanHashMap(this.isModuleVisibleInEditor, key, translatedID);
 			}
@@ -281,19 +277,19 @@ public class SemiResponsivePositions {
 		}
 	}
 	
-	protected void translateLayoutsDefinition(String key, String translatedID) {
+	private void translateLayoutsDefinition(String key, String translatedID) {
 		LayoutDefinition copiedLD = LayoutDefinition.copy(this.layoutsDefinitions.get(key));
 		this.layoutsDefinitions.put(translatedID, copiedLD);
 		this.layoutsDefinitions.remove(key);
 	}
 
-	protected void translateBooleanHashMap(HashMap<String, Boolean> map, String key, String translatedID) {
+	private void translateBooleanHashMap(HashMap<String, Boolean> map, String key, String translatedID) {
 		boolean value = map.get(key);
 		map.put(translatedID, value);
 		map.remove(key);
 	}
 
-	protected void translatePositions(String key, String translatedID) {
+	private void translatePositions(String key, String translatedID) {
 		ModuleDimensions positionCopy = ModuleDimensions.copy(this.positions.get(key));
 		this.positions.put(translatedID, positionCopy);
 		this.positions.remove(key);

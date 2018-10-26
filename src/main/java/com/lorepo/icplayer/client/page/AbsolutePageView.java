@@ -11,8 +11,6 @@ import com.lorepo.icplayer.client.dimensions.CalculateModuleDimensions;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.dimensions.PageDimensionsForCalculations;
 import com.lorepo.icplayer.client.model.page.Page;
-import com.lorepo.icplayer.client.model.page.group.Group;
-import com.lorepo.icplayer.client.model.page.group.GroupView;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -26,7 +24,6 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	
 	private Page currentPage;
 	private HashMap<String, Widget> widgets = new HashMap<String, Widget>();
-	private HashMap<String, GroupView> groupsPanel = new HashMap<String, GroupView>();
 	private PageDimensionsForCalculations pageDimensions;
 	private CalculateModuleDimensions calculateModuleDimensions = new CalculateModuleDimensions();
 	private WidgetsPositionsStore widgetsPositions = new WidgetsPositionsStore(); 
@@ -82,31 +79,6 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	}
 
 	@Override
-	public void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId) {
-		if(view instanceof Widget){
-			Widget moduleView = (Widget) view;
-			GroupView groupPanel = groupsPanel.get(groupId);
-		
-			ModuleDimensions moduleDimensions = this.calculateModuleDimensions.setPageDimensions(this.pageDimensions)
-					.setModule(module)
-					.compute(this.widgets);
-			
-			moduleView.setPixelSize(moduleDimensions.width, moduleDimensions.height);
-			groupPanel.add(moduleView, moduleDimensions.left, moduleDimensions.top);
-		    this.widgets.put(module.getId(), moduleView);
-		    this.widgetsPositions.add(moduleView, moduleDimensions);
-		}
-	}
-
-	@Override
-	public void addGroupView(GroupView groupWidget) {
-		if(groupWidget.getGroup().isDiv()) {
-			add(groupWidget, groupWidget.getLeft(), groupWidget.getTop());
-			groupsPanel.put(groupWidget.getId(), groupWidget);
-		}
-	}
-
-	@Override
 	public void setWidth(int width) {
 		this.setWidth(width + "px");
 		this.createPageDimensions();
@@ -124,7 +96,6 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 	public void removeAllModules() {
 		this.widgets.clear();
 		this.widgetsPositions.clear();
-		this.groupsPanel.clear();
 		this.clear();
 		this.createPageDimensions();
 	}

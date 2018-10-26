@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
-import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
+import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
@@ -34,10 +34,25 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.module.button.ButtonPresenter;
+import com.lorepo.icplayer.client.module.checkbutton.CheckButtonPresenter;
+import com.lorepo.icplayer.client.module.choice.ChoicePresenter;
+import com.lorepo.icplayer.client.module.errorcounter.ErrorCounterPresenter;
+import com.lorepo.icplayer.client.module.image.ImagePresenter;
+import com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter;
+import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
+import com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter;
+import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter;
+import com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter;
+import com.lorepo.icplayer.client.module.ordering.OrderingPresenter;
+import com.lorepo.icplayer.client.module.pageprogress.PageProgressPresenter;
+import com.lorepo.icplayer.client.module.shape.ShapePresenter;
+import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter;
 import com.lorepo.icplayer.client.module.text.GapInfo;
 import com.lorepo.icplayer.client.module.text.InlineChoiceInfo;
 import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
+import com.lorepo.icplayer.client.module.text.TextPresenter;
 
 public class JavaScriptPlayerServices {
 
@@ -389,10 +404,6 @@ public class JavaScriptPlayerServices {
 			return commands;
 		};
 
-		playerServices.getGroup = function(id) {
-			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getGroup(Ljava/lang/String;)(id);
-		};
-
 		playerServices.getModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModule(Ljava/lang/String;)(id);
 		};
@@ -669,17 +680,43 @@ public class JavaScriptPlayerServices {
 		IPresenter presenter = playerServices.getModule(id);
 		return getModulePresentationJSObject(presenter);
 	}
-	
-	private JavaScriptObject getGroup(String id) {
-		GroupPresenter group = playerServices.getGroup(id); 
-		if(group!=null) {
-			return group.getAsJavaScript(); 
-		}
-		return null; 
-	}
 
 	private JavaScriptObject getModulePresentationJSObject(IPresenter presenter) {
-		return presenter.getAsJavaScript();
+		if (presenter instanceof AddonPresenter) {
+			return ((AddonPresenter) presenter).getJavaScriptObject();
+		} else if (presenter instanceof TextPresenter) {
+			return ((TextPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof ImagePresenter) {
+			return ((ImagePresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof ImageGapPresenter) {
+			return ((ImageGapPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof ImageSourcePresenter) {
+			return ((ImageSourcePresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof ChoicePresenter) {
+			return ((ChoicePresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof OrderingPresenter) {
+			return ((OrderingPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof ButtonPresenter) {
+			return ((ButtonPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof SourceListPresenter) {
+			return ((SourceListPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof PageProgressPresenter) {
+			return ((PageProgressPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof CheckButtonPresenter) {
+			return ((CheckButtonPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof LimitedCheckPresenter) {
+			return ((LimitedCheckPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof LimitedResetPresenter) {
+			return ((LimitedResetPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof ErrorCounterPresenter) {
+			return ((ErrorCounterPresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof ShapePresenter) {
+			return ((ShapePresenter) presenter).getAsJavaScript();
+		} else if (presenter instanceof LessonResetPresenter) {
+			return ((LessonResetPresenter) presenter).getAsJavaScript();
+		}
+
+		return null;
 	}
 
 	private String getTotalTime() {

@@ -1,14 +1,14 @@
-package com.lorepo.icplayer.client.model.page.group;
+package com.lorepo.icplayer.client.model.page;
 
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
-import com.lorepo.icplayer.client.model.page.Page;
-import com.lorepo.icplayer.client.module.SemiResponsivePositions;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.xml.group.parsers.GroupParser;
 
+@SuppressWarnings("serial")
 public class Group extends GroupPropertyProvider {
 
 	private Page page;
@@ -37,7 +37,6 @@ public class Group extends GroupPropertyProvider {
 		addPropertyScoreType();
 	}
 
-	
 	public String getId() {
 		return id;
 	}
@@ -50,41 +49,53 @@ public class Group extends GroupPropertyProvider {
 		return scoringType;
 	}
 
-	public void setScoringGroupType(ScoringGroupType scoringType) {
-		this.scoringType = scoringType;
-	}
-
 	public int getMaxScore() {
 		return maxScore;
 	}
 
-	public void setMaxScore(int maxScore) {
-		this.maxScore = maxScore;
-	}
-
-	public SemiResponsivePositions getSemiResponsivePositions() {
-		return semiResponsivePositions;
-	}
-
-	public Page getPage() {
-		return this.page;
-	}
-
-	public Element stylesToXML() {
-		return super.stylesToXML();
-	}
-
 	public Group loadGroupFromXML(Element groupNode) {
-		Group group = GroupParser.loadGroupFromXML(groupNode, page);
-		group.initGroupPropertyProvider();
+		NodeList groupModuleElements = groupNode.getElementsByTagName("groupModule");
+		NodeList scoringNode = groupNode.getElementsByTagName("scoring");
+		Element scoring = (Element)scoringNode.item(0);
+		setScoreFromString(DictionaryWrapper.get(scoring.getAttribute("type")));
+		maxScore = Integer.parseInt(scoring.getAttribute("max"));
+		id = groupNode.getAttribute("id");
+
+		Group group = new Group(page);
+
+		for (int j = 0; j < groupModuleElements.getLength(); j++) {
+			Element groupModule = (Element) groupModuleElements.item(j);
+			String moduleID = groupModule.getAttribute("moduleID");
+			group.add(page.getModules().getModuleById(moduleID));
+		}
+
+		group.maxScore = maxScore;
+		group.scoringType = scoringType;
+		group.id = id;
+
 		return group;
 	}
 
 	public String toXML() {
-		return GroupParser.toXML(this).toString();
+		Group group = this;
+		String xml;
+
+		xml = "<group id='" + id + "'>";
+		xml += "<scoring type='" + scoringType + "' max='" + maxScore + "'/>";
+		xml += "<groupedModulesList>";
+
+		for(IModuleModel module : group) {
+			if (module != null) {
+				xml += "<groupModule moduleID='" + StringUtils.escapeXML(module.getId()) + "'/>";
+			}
+		}
+
+		xml += "</groupedModulesList>";
+		xml += "</group>";
+		return xml;
 	}
 
-	public boolean isIdCorrect(String newValue) {
+	protected boolean isIdCorrect(String newValue) {
 		return !newValue.trim().equals("");
 	}
 
@@ -125,7 +136,7 @@ public class Group extends GroupPropertyProvider {
 		addProperty(propertyId);
 	}
 
-	public boolean isIDUnique(String newId) {
+	protected boolean isIDUnique(String newId) {
 		for (Group group : page.getGroupedModules()) {
 			if (group.getId().equals(newId)) {
 				return false;
@@ -196,7 +207,7 @@ public class Group extends GroupPropertyProvider {
 		addProperty(property);
 	}
 
-	public boolean isNewValueMaxScoreValid(String newValue, IProperty property) {
+	protected boolean isNewValueMaxScoreValid(String newValue, IProperty property) {
 		try {
 			maxScore = Integer.parseInt(newValue);
 			sendPropertyChangedEvent(property);
@@ -256,14 +267,5 @@ public class Group extends GroupPropertyProvider {
 				}
 			}
 		}
-	}
-	
-	public boolean isVisibleModules() {
-		for(IModuleModel module : this.moduleModels) {
-			if(module.isModuleInEditorVisible()) {
-				return true; 
-			}
-		}
-		return false;
 	}
 }

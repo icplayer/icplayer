@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.page.Page;
-import com.lorepo.icplayer.client.model.page.group.GroupView;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -91,20 +90,6 @@ public class PageViewMockup implements IPageDisplay {
 
 	@Override
 	public void recalculatePageDimensions() {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void addGroupView(GroupView groupView) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -6,8 +6,6 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.Page.LayoutType;
-import com.lorepo.icplayer.client.model.page.group.Group;
-import com.lorepo.icplayer.client.model.page.group.GroupView;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.page.PageController.IPageDisplay;
@@ -52,16 +50,8 @@ public class PageView extends SimplePanel implements IPageDisplay {
 	public void addModuleView(IModuleView view, IModuleModel module){
 		display.addModuleView(view, module);
 	}
-	
-	@Override
-	public void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId) {
-		display.addModuleViewIntoGroup(view, module, groupId);
-	}
 
-	public void addGroupView(GroupView groupView) {
-		display.addGroupView(groupView);
-	}
-	
+
 	@Override
 	public void setWidth(int width) {
 		display.setWidth(width);

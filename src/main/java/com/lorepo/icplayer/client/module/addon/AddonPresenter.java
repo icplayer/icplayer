@@ -436,7 +436,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return model;
 	}
 	
-	public JavaScriptObject getAsJavaScript(){
+	public JavaScriptObject getJavaScriptObject(){
 		return jsObject;
 	}
 
@@ -572,7 +572,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 	
 	public  boolean isEnterable () {
-		return this.isEnterable(this.getAsJavaScript());
+		return this.isEnterable(this.getJavaScriptObject());
 	}
 	
 	public native boolean isEnterable (JavaScriptObject obj) /*-{
@@ -583,7 +583,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}-*/;
 	
 	public  boolean isDeactivationBlocked () {
-		return this.isDeactivationBlocked(this.getAsJavaScript());
+		return this.isDeactivationBlocked(this.getJavaScriptObject());
 	}
 	
 	public native boolean isDeactivationBlocked (JavaScriptObject obj) /*-{
