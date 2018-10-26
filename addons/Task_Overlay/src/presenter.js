@@ -349,7 +349,13 @@ function AddonTask_Overlay_create(){
 	}
 
 	function togglePopup() {
-		presenter.viewHandlers.$popupWrapper.toggle('slide', {direction: "up"});
+		if (presenter.viewHandlers.$popupWrapper.css('display') == 'none') {
+			positionPopup();
+        }
+        var dir = 'up';
+		if (presenter.viewHandlers.$popupWrapper.hasClass('above')) dir='down';
+
+		presenter.viewHandlers.$popupWrapper.toggle('slide', {direction: dir});
 	}
 
 	function showPopup() {
@@ -362,6 +368,38 @@ function AddonTask_Overlay_create(){
 		if (presenter.viewHandlers.$popupWrapper.css('display') != 'none') {
 			togglePopup();
 		}
+	}
+
+	function positionPopup() {
+		var $toolbar = presenter.viewHandlers.$toolbarContainer;
+		var toolbarBottom = $toolbar.offset().top + $toolbar.outerHeight();
+		var popupHeight = getPopupOffsetHeight();
+		var windowBottom = 0;
+		if (presenter.iframeSize) {
+			windowBottom = presenter.iframeSize.offsetTop + presenter.iframeSize.windowInnerHeight;
+			toolbarBottom += presenter.iframeSize.frameOffset;
+		} else {
+			windowBottom = $(window).scrollTop() + $(window).height();
+		}
+
+
+		var $wrapper = presenter.viewHandlers.$popupWrapper;
+		if (toolbarBottom + popupHeight < windowBottom) {
+			$wrapper.removeClass('above');
+			if (!$wrapper.hasClass('below')) $wrapper.addClass('below');
+		} else {
+			$wrapper.removeClass('below');
+			if (!$wrapper.hasClass('above')) $wrapper.addClass('above');
+		}
+	}
+
+	function getPopupOffsetHeight() {
+		presenter.viewHandlers.$popupWrapper.css('visibility','hidden');
+		presenter.viewHandlers.$popupWrapper.css('display','');
+		var height = presenter.viewHandlers.$popupWrapper.outerHeight();
+		presenter.viewHandlers.$popupWrapper.css('visibility','');
+		presenter.viewHandlers.$popupWrapper.css('display','none');
+		return height;
 	}
 
 	presenter.initiate = function(view, model, isPreview) {
@@ -439,12 +477,20 @@ function AddonTask_Overlay_create(){
         	var modules = page.getModulesAsJS();
         	var tasks = [];
         	modules.forEach(function(module){
-        		if (module.indexOf(presenter.baseID) != -1) tasks.push(module);
+        		if (module.indexOf(presenter.baseID) != -1){
+        			var index = module.replace(presenter.baseID, '');
+        			if (!isNaN(index)) {
+        				tasks.push({
+							addonID: module,
+							addonIndex: parseInt(index)
+						})
+					}
+				}
 			});
-        	tasks.sort();
-        	var index = tasks.indexOf(presenter.configuration.addonID);
+        	tasks.sort(function(a, b){return a.addonIndex - b.addonIndex});
+        	var index = tasks.findIndex(function(el){return 0 == el.addonID.localeCompare(presenter.configuration.addonID)});
         	if (index != -1 && index != tasks.length-1) {
-        		presenter.playerController.getCommands().executeEventCode(tasks[index+1]+'.uncover()');
+        		presenter.playerController.getCommands().executeEventCode(tasks[index+1].addonID+'.uncover()');
 			}
 		}
 	}
