@@ -81,6 +81,10 @@ public abstract class ContentParserBase implements IContentParser {
 					ArrayList<IAsset> assets = this.parseAssets(child);
 					content.setAssets(assets);
 				}
+				else if (name.compareTo("adaptive") == 0) {
+					String structure = XMLUtils.getText(child);
+					content.setAdaptiveStructure(structure);
+				}
 			}
 		}		
 
