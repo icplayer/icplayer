@@ -1,8 +1,4 @@
-2019-10-16 Added property Plate Image in Catch module
-2019-10-12 Shooting range impoving the game.
-2019-10-11 Removed sending ValueChanged with value removed on stopping item drag in multiplegap
 2018-10-25 Added new addon audio recorder
-2018-10-22 Grouping modules into a div
 2018-10-16 Added property Plate Image in Catch module
 2018-10-15 Fixed iFrame visible in the editor when the hide option is enabled
 2018-10-12 Shooting range impoving the game.
