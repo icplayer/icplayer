@@ -4,7 +4,6 @@ package com.lorepo.icplayer.client.module.api;
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icplayer.client.framework.module.IStyledModule;
-import com.lorepo.icplayer.client.semi.responsive.SemiResponsiveStyles;
 
 public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyProvider, SemiResponsiveLayouts {
 	public String getModuleTypeName(); // get module type
@@ -23,7 +22,4 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
     public boolean isTabindexEnabled();
 	public void setIsTabindexEnabled(boolean value);
 	public void setContentDefaultLayoutID(String layoutID);
-	public void setIsVisible(Boolean isVisible);
-	public SemiResponsiveStyles getSemiResponsiveStyles();
-	public boolean isVisible();  
 }

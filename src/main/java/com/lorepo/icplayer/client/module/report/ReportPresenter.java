@@ -2,7 +2,6 @@ package com.lorepo.icplayer.client.module.report;
 
 import java.util.HashMap;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -154,12 +153,5 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
 		// TODO Auto-generated method stub
 		
-	}
-
-
-	@Override
-	public JavaScriptObject getAsJavaScript() {
-		// TODO Auto-generated method stub
-		return JavaScriptObject.createObject();
 	}
 }
