@@ -41,6 +41,7 @@ public class Content implements IContentBuilder, IContent {
 	private String		baseUrl = "";
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
+	private String adaptiveStructure = "";
 
 	private HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
@@ -226,6 +227,11 @@ public class Content implements IContentBuilder, IContent {
 		}
 		xml += 	"</assets>";
 
+		// Adaptive
+		xml += "<adaptive>";
+		xml += adaptiveStructure;
+		xml += 	"</adaptive>";
+
 		xml += 	"</interactiveContent>";
 		return xml;
 	}
@@ -256,6 +262,14 @@ public class Content implements IContentBuilder, IContent {
 		return xml;
 	}
 
+
+	public String getAdaptiveStructure() {
+		return adaptiveStructure;
+	}
+
+	public void setAdaptiveStructure(String structure) {
+		this.adaptiveStructure = structure;
+	}
 
 	@Override
 	public int getPageCount() {
