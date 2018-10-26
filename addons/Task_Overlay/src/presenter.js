@@ -25,8 +25,7 @@ function AddonTask_Overlay_create(){
 	presenter.moduleResults = {
 		correct: 2,
 		partial: 1,
-		wrong: 0,
-		not_attempted: -1
+		wrong: 0
 	};
 
 	presenter.buttonStates = {
@@ -49,6 +48,7 @@ function AddonTask_Overlay_create(){
 	presenter.eventBus = null;
 	presenter.iframeSize = null;
 	presenter.buttonActive = false;
+	presenter.baseID = 'Task_Overlay';
 
 	presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
@@ -189,7 +189,13 @@ function AddonTask_Overlay_create(){
 			Validate: 'Validate',
 			Continue: 'Continue',
 			Retry: 'Retry',
-			ShowAnswers: 'Show Answers'
+			Comment: 'Comment',
+			ShowAnswers: 'Show Answers',
+			Wrong: 'All wrong, try again.',
+			FinalWrong: 'All wrong, see the answer.',
+			Partial: 'Partially correct, try again',
+			FinalPartial: 'Partially correct, se the answer',
+			Correct: 'Correct'
 		};
 
         function validateStaticText(model, propertyName) {
@@ -201,6 +207,13 @@ function AddonTask_Overlay_create(){
         if(validateStaticText(model, 'Continue')) texts.Continue = model.texts['Continue']['Continue'];
         if(validateStaticText(model, 'Retry')) texts.Retry = model.texts['Retry']['Retry'];
         if(validateStaticText(model, 'ShowAnswers')) texts.ShowAnswers = model.texts['ShowAnswers']['ShowAnswers'];
+		if(validateStaticText(model, 'Comment')) texts.Comment = model.texts['Comment']['Comment'];
+
+        if(validateStaticText(model, 'Wrong')) texts.Wrong = model.texts['Wrong']['Wrong'];
+        if(validateStaticText(model, 'FinalWrong')) texts.FinalWrong = model.texts['FinalWrong']['FinalWrong'];
+        if(validateStaticText(model, 'Partial')) texts.Partial = model.texts['Partial']['Partial'];
+        if(validateStaticText(model, 'FinalPartial')) texts.FinalPartial = model.texts['FinalPartial']['FinalPartial'];
+        if(validateStaticText(model, 'Correct')) texts.Correct = model.texts['Correct']['Correct'];
 
 		return {
 			isValid: true,
@@ -212,6 +225,7 @@ function AddonTask_Overlay_create(){
 			maxAttempts: parseInt(model['number_of_attempts']),
 			texts: texts,
 			onFinished: model['onFinished'],
+			onFinishedNext: ModelValidationUtils.validateBoolean(model['onFinishedNext']),
 			defaultUncover: ModelValidationUtils.validateBoolean(model['uncoverOnDefault'])
 		}
 	};
@@ -281,12 +295,82 @@ function AddonTask_Overlay_create(){
         $wrapper.append($image);
 	}
 
+	function setPopup() {
+		presenter.viewHandlers.$popupWrapper.css('display','none');
+		presenter.viewHandlers.$popupButton.click(togglePopup);
+		presenter.viewHandlers.$popupButton.text(presenter.configuration.texts.Comment);
+		presenter.viewHandlers.$popupWrapper.find('.baloon-popup-close').click(hidePopup);
+	}
+
+	function updatePopup(moduleResult) {
+		var content = "";
+		if (moduleResult == presenter.moduleResults.correct) {
+			content = presenter.configuration.texts.Correct;
+		} else if (moduleResult == presenter.moduleResults.partial) {
+			if(presenter.state.attempts == presenter.configuration.maxAttempts) {
+				content = presenter.configuration.texts.FinalPartial;
+			} else {
+				content = presenter.configuration.texts.Partial;
+			}
+		} else {
+			if(presenter.state.attempts == presenter.configuration.maxAttempts) {
+				content = presenter.configuration.texts.FinalWrong;
+			} else {
+				content = presenter.configuration.texts.Wrong;
+			}
+		}
+		setPopupValue(moduleResult, content);
+	}
+
+	function setPopupValue(iconID, content) {
+		var wrapper = presenter.viewHandlers.$popupWrapper;
+		var $icon = wrapper.find('.baloon-popup-icon');
+		var $text = wrapper.find('.baloon-popup-text');
+		if (iconID == presenter.moduleResults.correct) {
+			$icon.text(':D');
+		} else if (iconID == presenter.moduleResults.partial) {
+			$icon.text(':/');
+		} else {
+			$icon.text(':(');
+		}
+		$text.text(content);
+	}
+
+	function showPopupButton() {
+		var $el = presenter.viewHandlers.$popupButton;
+		$el.removeClass('hidden');
+		showPopup();
+	}
+
+	function hidePopupButton() {
+		var $el = presenter.viewHandlers.$popupButton;
+		if (!$el.hasClass('hidden')) $el.addClass('hidden');
+		hidePopup();
+	}
+
+	function togglePopup() {
+		presenter.viewHandlers.$popupWrapper.toggle('slide', {direction: "up"});
+	}
+
+	function showPopup() {
+		if (presenter.viewHandlers.$popupWrapper.css('display') == 'none') {
+			togglePopup();
+		}
+	}
+
+	function hidePopup() {
+		if (presenter.viewHandlers.$popupWrapper.css('display') != 'none') {
+			togglePopup();
+		}
+	}
+
 	presenter.initiate = function(view, model, isPreview) {
 		var validatedModel = presenter.validateModel(model);
 		if (!validatedModel.isValid) {
 			DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
 			return;
 		}
+		if (isPreview) return;
 		presenter.configuration = validatedModel;
 
 		presenter.view = view;
@@ -302,10 +386,13 @@ function AddonTask_Overlay_create(){
 			$attemptsField: $(view).find('.attempts-text'),
 			$correctIcon: $(view).find('.feedback-icon-right'),
 			$partialCorrectIcon: $(view).find('.feedback-icon-part-correct'),
-			$wrongIcon: $(view).find('.feedback-icon-wrong')
+			$wrongIcon: $(view).find('.feedback-icon-wrong'),
+			$popupButton: $(view).find('.baloon-button'),
+			$popupWrapper: $(view).find('.baloon-popup-wrapper')
 		};
 
         setImage(presenter.configuration.curtainImage, 'Blocked', presenter.viewHandlers.$curtainImageWrapper);
+        setPopup();
 
 		createEventListeners();
 		presenter.viewHandlers.$proceedButton.text(presenter.configuration.texts.Validate);
@@ -326,7 +413,7 @@ function AddonTask_Overlay_create(){
 	};
 
 	presenter.createPreview = function(view, model){
-		return;
+		presenter.initiate(view,model,true);
 	};
 
 	presenter.getErrorCount = function(){
@@ -343,9 +430,23 @@ function AddonTask_Overlay_create(){
 
 	function executeCommandOnFinished() {
 		if (presenter.playerController == null) return;
-        if (!presenter.configuration.onFinished) return;
-
-        presenter.playerController.getCommands().executeEventCode(presenter.configuration.onFinished);
+        if (presenter.configuration.onFinished) {
+            presenter.playerController.getCommands().executeEventCode(presenter.configuration.onFinished);
+        }
+        if (presenter.configuration.onFinishedNext) {
+        	var page = presenter.playerController.getPresentation().getPage(presenter.playerController.getCurrentPageIndex());
+        	if (page == null) return;
+        	var modules = page.getModulesAsJS();
+        	var tasks = [];
+        	modules.forEach(function(module){
+        		if (module.indexOf(presenter.baseID) != -1) tasks.push(module);
+			});
+        	tasks.sort();
+        	var index = tasks.indexOf(presenter.configuration.addonID);
+        	if (index != -1 && index != tasks.length-1) {
+        		presenter.playerController.getCommands().executeEventCode(tasks[index+1]+'.uncover()');
+			}
+		}
 	}
 
 	presenter.getState = function(){
@@ -382,6 +483,8 @@ function AddonTask_Overlay_create(){
 	function buttonHandler() {
 		var results = getModulesResults();
 		if (presenter.state.buttonState == presenter.buttonStates.validate) {
+			updatePopup(results);
+			showPopupButton();
 			limitedCheck();
 			if (results == presenter.moduleResults.correct) {
 				presenter.state.buttonState = presenter.buttonStates.next;
@@ -408,12 +511,19 @@ function AddonTask_Overlay_create(){
 			limitedUncheck();
 			presenter.state.buttonState = presenter.buttonStates.validate;
 		} else if (presenter.state.buttonState == presenter.buttonStates.show_answer) {
+			hidePopupButton();
 			presenter.state.buttonState = presenter.buttonStates.next;
 			limitedShowAnswers();
 		} else if (presenter.state.buttonState == presenter.buttonStates.next) {
 			limitedHideAnswers();
 			limitedCheck();
-			presenter.state.completion = presenter.completedCodes.done;
+			if (results == presenter.moduleResults.correct) {
+                presenter.state.completion = presenter.completedCodes.done;
+            } else if (results == presenter.moduleResults.partial) {
+                presenter.state.completion = presenter.completedCodes.done_partially;
+            } else {
+				presenter.state.completion = presenter.completedCodes.done_incorrectly;
+			}
 			executeCommandOnFinished();
 		}
 

@@ -1,4 +1,3 @@
-
 .task-overlay-wrapper .primary-color {
 	background-color: #fcaa47;
 	color: #fcaa47;
@@ -36,8 +35,15 @@
 	border: 2px solid #F7374A;
 }
 
+.task-overlay-wrapper .baloon-popup-border-color {
+	border-color: #fcaa47!important;
+}
+
+.task-overlay-wrapper .baloon-popup-arrow-border-color {
+	border-color: #fcaa47!important;
+}
+
 .module {
-	/* all mine - emulate positioning of a module in player*/
 	width: 800px;
 	height: 600px;
 	position:absolute;
@@ -46,30 +52,24 @@
 }
 
 .task-overlay-wrapper {
-	/* MINE - otherwise it will be invisible */
 	height:100%;
 	width:100%;
 }
 
 .task-overlay-wrapper-shadow {
-	/* .ltr .task.selected .task_container */
 	box-shadow: -3px 4px 4px #DEDEDE;
 }
 
 .task-overlay-wrapper .toolbar-container {
-	/* MINE - place it at the bottom of the wrapper */
 	position: absolute;
 	bottom: 10px;
-	/* .task .task_toolbar */
 	height: 3rem;
 	width:100%;
 	display: block;
-	/* .ltr .task .task_toolbar_container */
 	left: -20px;
 }
 
 .task-overlay-wrapper .toolbar-container-shadow:before {
-	/* .ltr .task .task_toolbar:before */
 	content: " ";
     position: absolute;
     width: 0;
@@ -82,7 +82,6 @@
 }
 
 .task-overlay-wrapper .feedback-line {
-	/* .task .feedback_line */
 	height: 0.4rem;
     position: absolute;
     top: -0.4rem;
@@ -95,7 +94,6 @@
 	position: absolute;
     left: 50%;
     margin-left: -0.8rem;
-    /* bottom: 3.5rem; */
     top: -27px;
     color: #fff;
 	text-align: center;
@@ -105,38 +103,30 @@
     border-radius: 20px;
     border: inherit;
 	display: block;
-
-	/* .task */
 	font-size: 1.571rem;
-
-
 }
 
 .task-overlay-wrapper .task-toolbar {
 	display: block;
 	height: 100%;
-	/* .ltr .task .task_toolbar */
 	text-align: right;
     direction: ltr;
     padding-right: 0.4em;
-
-	/*.task .task_toolbar .progress_button_text, .task .task_toolbar .buffer .buffer_navigation .progress_button_text */
-	font-family: Rokkitt, serif;
     font-weight: bold;
+	font-family: "verdana";
 
 }
 
 .task-overlay-wrapper .hidden {
-	display: none;
+	display: none !important;
 }
 
 .task-overlay-wrapper .progress-button {
 	float: right;
 	display: inline-block;
-	/* .progress_button, .task_toolbar .progress_button */
 	height: 2rem;
     cursor: pointer;
-    /*display: inline-block;*/
+    font-family: Rokkitt, serif;
     background-color: #fff;
     border-top: 1px solid transparent;
     border-left: 1px solid transparent;
@@ -146,6 +136,10 @@
     line-height: 1.8rem;
     padding-left: 0.75rem;
     padding-right: 0.75rem;
+}
+
+.task-overlay-wrapper .progress-button:hover {
+	background-color: rgba(255, 255, 255, 0.8)
 }
 
 .task-overlay-wrapper .progress-button.disabled {
@@ -162,4 +156,117 @@
 	padding-left: 0.75rem;
     padding-right: 0.75rem;
 	display: inline-block;
+	font-style: italic;
+    font-size: 0.938rem;
+}
+
+
+.task-overlay-wrapper .baloon-button {
+	color: #fff;
+    cursor: pointer;
+	margin-top: 0.8rem;
+	height: 100% !important;
+    display: inline-block;
+	vertical-align: middle;
+    direction: ltr;
+	position:absolute;
+	left: 1rem;
+}
+
+.task-overlay-wrapper .baloon-button:hover {
+	color: rgba(255, 255, 255, 0.4);
+}
+
+.task-overlay-wrapper .baloon-button-text {
+	user-select: none;
+	height: 100% !important;
+    display: inline-block;
+	vertical-align: middle;
+	text-align: right;
+	font-family: "verdana";
+    font-weight: normal;
+}
+
+.task-overlay-wrapper .baloon-popup-wrapper {
+	position: absolute;
+	left: 0em;
+    padding: 0.75rem;
+    z-index: 200;
+	width:  495px;
+    background: rgba(255,255,255,0);
+	text-align: left;
+}
+
+.task-overlay-wrapper .baloon-popup-wrapper.below {
+	top:100%;
+}
+
+.task-overlay-wrapper .baloon-popup-wrapper.above {
+	bottom:100%;
+}
+
+.task-overlay-wrapper .baloon-popup-arrow {
+	border-left: 2px solid;
+	border-top: 2px solid;
+	border-bottom: 0px;
+	border-right: 0px;
+	width: 14px;
+    height: 14px;
+	background: #fff;
+	position: absolute;
+}
+
+.task-overlay-wrapper .baloon-popup-wrapper.below .baloon-popup-arrow {
+	bottom: auto;
+    top: 4px;
+	transform: rotate(45deg);
+}
+
+.task-overlay-wrapper .baloon-popup-wrapper.above .baloon-popup-arrow {
+	bottom: 4px;
+    top: auto;
+	transform: rotate(225deg);
+}
+
+.task-overlay-wrapper .baloon-popup{
+	left: 0em;
+    max-width: 35.3rem;
+	text-align: left;
+    padding: 0.75rem;
+    background: #fff;
+    border: 2px solid #6A597A;
+	direction:ltr;
+}
+
+.task-overlay-wrapper .baloon-popup-icon {
+	font-size: 1.29rem;
+    text-family: 'verdana';
+	text-align: center;
+    color: #444;
+    font-weight: normal;
+	display:table-cell;
+	padding-right: 0.5rem;
+}
+
+.task-overlay-wrapper .baloon-popup-text {
+	font-size: 1.29rem;
+    text-family: 'verdana';
+	text-align: left;
+    color: #444;
+    font-weight: normal;
+	display:table-cell;
+}
+
+.task-overlay-wrapper .baloon-popup-close {
+	cursor: pointer;
+	font-size: 0.8rem;
+    text-family: 'verdana';
+	text-align: right;
+    color: #444;
+    font-weight: normal;
+	display:block;
+	right:0.8rem;
+	top: 0.8rem;
+	padding:0.4rem;
+	position:absolute;
 }

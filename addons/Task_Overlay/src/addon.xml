@@ -21,9 +21,28 @@
             <property name="Attempts" displayName="Attempts:" nameLabel="Task_Overlay_property_attempts" type="staticrow">
                 <property name="Attempts" displayName="Attempts:" nameLabel="Task_Overlay_property_attempts" type="string"/>
             </property>
+            <property name="Comment" displayName="Comment" nameLabel="Task_Overlay_property_comment" type="staticrow">
+                <property name="Comment" displayName="Comment" nameLabel="Task_Overlay_property_comment" type="string"/>
+            </property>
+            <property name="Correct" displayName="Correct" nameLabel="Task_Overlay_property_correct" type="staticrow">
+                <property name="Correct" displayName="Correct" nameLabel="Task_Overlay_property_correct" type="string"/>
+            </property>
+            <property name="Partial" displayName="Partially correct, try again." nameLabel="Task_Overlay_property__partial" type="staticrow">
+                <property name="Partial" displayName="Partially correct, try again." nameLabel="Task_Overlay_property__partial" type="string"/>
+            </property>
+            <property name="FinalPartial" displayName="Partially correct, see the answer." nameLabel="Task_Overlay_property__final_partial" type="staticrow">
+                <property name="FinalPartial" displayName="Partially correct, see the answer." nameLabel="Task_Overlay_property__final_partial" type="string"/>
+            </property>
+            <property name="Wrong" displayName="All wrong, try again." nameLabel="Task_Overlay_property__wrong" type="staticrow">
+                <property name="Wrong" displayName="All wrong, try again." nameLabel="Task_Overlay_property__wrong" type="string"/>
+            </property>
+            <property name="FinalWrong" displayName="All wrong, see the answer." nameLabel="Task_Overlay_property__final_wrong" type="staticrow">
+                <property name="FinalWrong" displayName="All wrong, see the answer." nameLabel="Task_Overlay_property__final_wrong" type="string"/>
+            </property>
         </property>
         <property name="number_of_attempts" displayName="Number of attempts" nameLabel="Task_Overlay_property_number_of_attempts" type="string" />
         <property name="onFinished" displayName="on task finished" nameLabel="Single_State_Button_property_on_finished" type="event" isDefault="true"/>
+        <property name="onFinishedNext" displayName="move to next task when finished" nameLabel="Single_State_Button_property_on_finished_next" type="boolean"/>
         <property name="uncoverOnDefault" displayName="Uncover on default" nameLabel="Single_State_Button_uncover_on_default" type="boolean"/>
     </model>
 </addon>
