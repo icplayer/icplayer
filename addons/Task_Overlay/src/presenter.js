@@ -298,7 +298,7 @@ function AddonTask_Overlay_create(){
 	function setPopup() {
 		presenter.viewHandlers.$popupWrapper.css('display','none');
 		presenter.viewHandlers.$popupButton.click(togglePopup);
-		presenter.viewHandlers.$popupButton.text(presenter.configuration.texts.Comment);
+		presenter.viewHandlers.$popupButton.find('.baloon-button-text').text(presenter.configuration.texts.Comment);
 		presenter.viewHandlers.$popupWrapper.find('.baloon-popup-close').click(hidePopup);
 	}
 
@@ -322,16 +322,24 @@ function AddonTask_Overlay_create(){
 		setPopupValue(moduleResult, content);
 	}
 
+	function setResultIcons($el, className) {
+		$el.removeClass('right-icon');
+		$el.removeClass('wrong-icon');
+		$el.removeClass('partial-icon');
+		$el.addClass(className);
+	}
+
 	function setPopupValue(iconID, content) {
 		var wrapper = presenter.viewHandlers.$popupWrapper;
 		var $icon = wrapper.find('.baloon-popup-icon');
 		var $text = wrapper.find('.baloon-popup-text');
+
 		if (iconID == presenter.moduleResults.correct) {
-			$icon.text(':D');
+			setResultIcons($icon, 'check-icon');
 		} else if (iconID == presenter.moduleResults.partial) {
-			$icon.text(':/');
+			setResultIcons($icon, 'partial-icon');
 		} else {
-			$icon.text(':(');
+			setResultIcons($icon, 'wrong-icon');
 		}
 		$text.text(content);
 	}
@@ -433,7 +441,7 @@ function AddonTask_Overlay_create(){
         setPopup();
 
 		createEventListeners();
-		presenter.viewHandlers.$proceedButton.text(presenter.configuration.texts.Validate);
+		presenter.viewHandlers.$proceedButton.find('.progress-button-text').text(presenter.configuration.texts.Validate);
 
 		if (presenter.configuration.defaultUncover) {
 			presenter.state.cover = false;
@@ -578,19 +586,20 @@ function AddonTask_Overlay_create(){
 
 	presenter.updateView = function() {
 		var buttonState = presenter.state.buttonState;
+		var buttonText = presenter.viewHandlers.$proceedButton.find('.progress-button-text');
 		if (buttonState == presenter.buttonStates.inactive) {
 			deactivateButton();
 		} else if (buttonState == presenter.buttonStates.validate) {
 			activateButton();
-			presenter.viewHandlers.$proceedButton.text(presenter.configuration.texts.Validate);
+			buttonText.text(presenter.configuration.texts.Validate);
 		} else if (buttonState == presenter.buttonStates.retry) {
 			activateButton();
-			presenter.viewHandlers.$proceedButton.text(presenter.configuration.texts.Retry);
+			buttonText.text(presenter.configuration.texts.Retry);
 		} else if (buttonState == presenter.buttonStates.show_answer) {
 			activateButton();
-			presenter.viewHandlers.$proceedButton.text(presenter.configuration.texts.ShowAnswers);
+			buttonText.text(presenter.configuration.texts.ShowAnswers);
 		}else if (buttonState == presenter.buttonStates.next) {
-			presenter.viewHandlers.$proceedButton.text(presenter.configuration.texts.Continue);
+			buttonText.text(presenter.configuration.texts.Continue);
 		}
 
 		var completion = presenter.state.completion;

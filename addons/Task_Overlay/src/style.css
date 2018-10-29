@@ -106,6 +106,30 @@
 	font-size: 1.571rem;
 }
 
+.task-overlay-wrapper .feedback-icon-right {
+	position:absolute;
+	left: 0px;
+	width:30px;
+	height:30px;
+	background: url("resources/baseline-check-24px.svg") no-repeat center;
+}
+
+.task-overlay-wrapper .feedback-icon-part-correct {
+	position:absolute;
+	left: 0px;
+	width:30px;
+	height:30px;
+	background: url("resources/baseline-check-24px.svg") no-repeat center;
+}
+
+.task-overlay-wrapper .feedback-icon-wrong {
+	position:absolute;
+	left: 0px;
+	width:30px;
+	height:30px;
+	background: url("resources/baseline-close-24px.svg") no-repeat center;
+}
+
 .task-overlay-wrapper .task-toolbar {
 	display: block;
 	height: 100%;
@@ -150,6 +174,19 @@
 	background-color: #fff
 }
 
+.task-overlay-wrapper .progress-button-icon-wrapper {
+	display:none;
+	width:30px;
+}
+
+.task-overlay-wrapper .progress-button-icon {
+	position:absolute;
+	top: -5px;
+	width:30px;
+	height:30px;
+	background: url("resources/baseline-check-24px.svg") no-repeat center;
+}
+
 .task-overlay-wrapper .attempts-text {
 	color: #fff;
 	margin-top: 1rem;
@@ -171,6 +208,19 @@
     direction: ltr;
 	position:absolute;
 	left: 1rem;
+}
+
+.task-overlay-wrapper .baloon-button-icon-wrapper {
+	display:none;
+	width:30px;
+}
+
+.task-overlay-wrapper .baloon-button-icon {
+	position:absolute;
+	top: -5px;
+	width:30px;
+	height:30px;
+	background: url("resources/baseline-check-24px.svg") no-repeat center;
 }
 
 .task-overlay-wrapper .baloon-button:hover {
@@ -238,7 +288,7 @@
 	direction:ltr;
 }
 
-.task-overlay-wrapper .baloon-popup-icon {
+.task-overlay-wrapper .baloon-popup-icon-wrapper {
 	font-size: 1.29rem;
     text-family: 'verdana';
 	text-align: center;
@@ -246,6 +296,35 @@
     font-weight: normal;
 	display:table-cell;
 	padding-right: 0.5rem;
+	width: 30px;
+}
+
+.task-overlay-wrapper .baloon-popup-icon {
+	display:block;
+	padding-right: 0.5rem;
+	position: absolute;
+	top: 22px;
+    background-size: 100%;
+	width: 20px;
+    height: 30px;
+    border: 2px solid;
+	border-radius: 20px;
+
+}
+
+.task-overlay-wrapper .check-icon {
+	background: #20B747 url("resources/baseline-check-24px.svg") no-repeat center;
+	border-color: #20B747;
+}
+
+.task-overlay-wrapper .partial-icon {
+	background: #F7D946 url("resources/baseline-check-24px.svg") no-repeat center;
+	border-color: #F7D946;
+}
+
+.task-overlay-wrapper .wrong-icon {
+	background: #F7374A url("resources/baseline-close-24px.svg") no-repeat center;
+	border-color: #F7374A;
 }
 
 .task-overlay-wrapper .baloon-popup-text {
