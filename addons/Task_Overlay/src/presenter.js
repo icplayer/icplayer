@@ -97,14 +97,16 @@ function AddonTask_Overlay_create(){
 		presenter.updateView();
 	};
 
-	function scrollTo()	{
-		if (presenter.iframeSize && window.frameElement) { // set scrollTop while in iframe
-			var top = presenter.$view.offset().top;// + presenter.iframeSize.frameOffset;
-			parent.postMessage('SCROLLTOP:'+top,"*");
+	function scrollTo() {
+		var top = presenter.$view.offset().top;
+		scrollToOffset(top);
+	}
 
+	function scrollToOffset(top)	{
+		if (presenter.iframeSize && window.frameElement) { // set scrollTop while in iframe
+			window.parent.postMessage('SCROLLTOP:'+top,"*");
 		} else { // set scrollTop while outside of iframe
-			var top = presenter.$view.offset().top;
-			window.scrollTo(0,top);
+			$('html, body, #scrollableBody').scrollTop(top);
 		}
 
 	}
@@ -119,6 +121,7 @@ function AddonTask_Overlay_create(){
 		window.addEventListener('message', getMessage, false);
 		if (presenter.eventBus) {
 			presenter.eventBus.addEventListener('ValueChanged', presenter);
+			presenter.eventBus.addEventListener('PageLoaded', presenter);
 		}
 		presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(event) {
             if (event.target === this) {
@@ -128,13 +131,21 @@ function AddonTask_Overlay_create(){
 	}
 
 	presenter.onEventReceived = function(eventName, eventData) {
-		var buttonState = presenter.state.buttonState;
-		if(presenter.configuration.worksWith.indexOf(eventData.source) != -1
-			&& (buttonState == presenter.buttonStates.inactive || buttonState == presenter.buttonStates.retry)) {
-			presenter.state.buttonState = presenter.buttonStates.validate;
-			activateButton();
-			presenter.updateView();
-			return;
+		if (eventName == 'ValueChanged') {
+            var buttonState = presenter.state.buttonState;
+            if (presenter.configuration.worksWith.indexOf(eventData.source) != -1
+                && (buttonState == presenter.buttonStates.inactive || buttonState == presenter.buttonStates.retry)) {
+                presenter.state.buttonState = presenter.buttonStates.validate;
+                activateButton();
+                presenter.updateView();
+                return;
+            }
+        } else if (eventName == 'PageLoaded') {
+			if (presenter.state.completion == presenter.completedCodes.done
+				|| presenter.state.completion == presenter.completedCodes.done_partially
+				|| presenter.state.completion == presenter.completedCodes.done_incorrectly) {
+				limitedCheck();
+            }
 		}
 	};
 
@@ -155,6 +166,8 @@ function AddonTask_Overlay_create(){
 
 	function destroyEventListeners() {
 		window.removeEventListener('message', getMessage);
+		presenter.viewHandlers.$proceedButton.off('click', buttonHandler);
+		presenter.viewHandlers.$popupButton.off('click', togglePopup);
 	}
 
 	function returnErrorObject(ec) { return { isValid: false, errorCode: ec }; }
@@ -230,12 +243,17 @@ function AddonTask_Overlay_create(){
 		}
 	};
 
+	presenter.isShownigAnswers = false;
+
 	function limitedShowAnswers() {
+		presenter.isShownigAnswers = true;
 		sendLimitedEvent('ShowAnswers');
 	}
 
 	function limitedHideAnswers() {
-		sendLimitedEvent('HideAnswers');
+		if (presenter.isShownigAnswers) {
+            sendLimitedEvent('HideAnswers');
+        }
 	}
 
 	function sendLimitedEvent (eventName) {
@@ -480,7 +498,8 @@ function AddonTask_Overlay_create(){
             presenter.playerController.getCommands().executeEventCode(presenter.configuration.onFinished);
         }
         if (presenter.configuration.onFinishedNext) {
-        	var page = presenter.playerController.getPresentation().getPage(presenter.playerController.getCurrentPageIndex());
+        	var pageIndex = presenter.playerController.getCurrentPageIndex();
+        	var page = presenter.playerController.getPresentation().getPage(pageIndex);
         	if (page == null) return;
         	var modules = page.getModulesAsJS();
         	var tasks = [];
@@ -497,8 +516,13 @@ function AddonTask_Overlay_create(){
 			});
         	tasks.sort(function(a, b){return a.addonIndex - b.addonIndex});
         	var index = tasks.findIndex(function(el){return 0 == el.addonID.localeCompare(presenter.configuration.addonID)});
-        	if (index != -1 && index != tasks.length-1) {
-        		presenter.playerController.getCommands().executeEventCode(tasks[index+1].addonID+'.uncover()');
+        	if (index != -1) {
+        		if (index != tasks.length-1) {
+                    presenter.playerController.getCommands().executeEventCode(tasks[index + 1].addonID + '.uncover()');
+                } else if (pageIndex + 1 < presenter.playerController.getPresentation().getPageCount()) {
+        			scrollToOffset(0);
+        			presenter.playerController.getCommands().gotoPageIndex(pageIndex + 1);
+				}
 			}
 		}
 	}
