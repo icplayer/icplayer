@@ -43,17 +43,10 @@
 	border-color: #fcaa47!important;
 }
 
-.module {
-	width: 800px;
-	height: 600px;
-	position:absolute;
-	top: 100px;
-	left: 200px;
-}
-
 .task-overlay-wrapper {
 	height:100%;
 	width:100%;
+	box-sizing: border-box;
 }
 
 .task-overlay-wrapper-shadow {
@@ -67,6 +60,7 @@
 	width:100%;
 	display: block;
 	left: -20px;
+	box-sizing: border-box;
 }
 
 .task-overlay-wrapper .toolbar-container-shadow:before {
@@ -206,7 +200,8 @@
     display: inline-block;
 	vertical-align: middle;
     direction: ltr;
-	position:absolute;
+	position:relative;
+	float:left;
 	left: 1rem;
 }
 
@@ -241,7 +236,7 @@
 	position: absolute;
 	left: 0em;
     padding: 0.75rem;
-    z-index: 200;
+    z-index: 2;
 	width:  495px;
     background: rgba(255,255,255,0);
 	text-align: left;

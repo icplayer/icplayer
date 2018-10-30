@@ -48,6 +48,7 @@ function AddonTask_Overlay_create(){
 	presenter.eventBus = null;
 	presenter.iframeSize = null;
 	presenter.buttonActive = false;
+	presenter.areModulesVisible = false;
 	presenter.baseID = 'Task_Overlay';
 
 	presenter.setPlayerController = function(controller) {
@@ -141,10 +142,13 @@ function AddonTask_Overlay_create(){
                 return;
             }
         } else if (eventName == 'PageLoaded') {
+			if (presenter.state.cover) {
+				callModules('hide');
+			}
 			if (presenter.state.completion == presenter.completedCodes.done
 				|| presenter.state.completion == presenter.completedCodes.done_partially
 				|| presenter.state.completion == presenter.completedCodes.done_incorrectly) {
-				limitedCheck();
+				limitedShowAnswers();
             }
 		}
 	};
@@ -250,12 +254,6 @@ function AddonTask_Overlay_create(){
 		sendLimitedEvent('ShowAnswers');
 	}
 
-	function limitedHideAnswers() {
-		if (presenter.isShownigAnswers) {
-            sendLimitedEvent('HideAnswers');
-        }
-	}
-
 	function sendLimitedEvent (eventName) {
 		if (!presenter.playerController) return;
 
@@ -305,11 +303,11 @@ function AddonTask_Overlay_create(){
     }
 
 	function setImage(url, alt, $wrapper) {
-		var $image = $('<img>');
-        $image.attr("src", url);
-        $image.attr("height", presenter.configuration.height);
-        $image.attr("width", presenter.configuration.width);
-        $image.attr("alt", alt);
+		var $image = $('<div>');
+        $image.css('background-image', 'url("' + url + '")');
+        $image.css("height", presenter.configuration.height);
+        $image.css("width", presenter.configuration.width);
+        $image.css("display","block");
         $wrapper.append($image);
 	}
 
@@ -434,8 +432,17 @@ function AddonTask_Overlay_create(){
 			DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
 			return;
 		}
-		if (isPreview) return;
+
 		presenter.configuration = validatedModel;
+
+		if (isPreview) {
+			var attemptsText = presenter.configuration.texts.Attempts + " 1/" + presenter.configuration.maxAttempts;
+			$(view).find('.attempts-text').text(attemptsText);
+			$(view).find('.progress-button').text(presenter.configuration.texts.Validate);
+			var width = $(view).find('.task-toolbar').innerWidth();
+			$(view).find('.feedback-line').css('width', width);
+			return;
+		}
 
 		presenter.view = view;
 		presenter.$view = $(view);
@@ -463,6 +470,7 @@ function AddonTask_Overlay_create(){
 
 		if (presenter.configuration.defaultUncover) {
 			presenter.state.cover = false;
+			presenter.areModulesVisible = true;
 		}
 
 		presenter.updateView();
@@ -527,6 +535,31 @@ function AddonTask_Overlay_create(){
 		}
 	}
 
+	presenter.areModulesVisible;
+
+	function hideModules() {
+		if (presenter.areModulesVisible) {
+			presenter.areModulesVisible = false;
+            callModules('hide');
+        }
+	}
+
+	function showModules() {
+		if (!presenter.areModulesVisible) {
+			presenter.areModulesVisible = true;
+            callModules('show');
+        }
+	}
+
+	function callModules(methodName){
+		for(var i = 0; i < presenter.configuration.worksWith.length; i++) {
+			var module = presenter.playerController.getModule(presenter.configuration.worksWith[i]);
+			if (module != null && module[methodName] != null) {
+				(module[methodName])();
+			}
+		}
+	}
+
 	presenter.getState = function(){
 		return JSON.stringify(presenter.state);
 	};
@@ -563,11 +596,12 @@ function AddonTask_Overlay_create(){
 		if (presenter.state.buttonState == presenter.buttonStates.validate) {
 			updatePopup(results);
 			showPopupButton();
-			limitedCheck();
 			if (results == presenter.moduleResults.correct) {
 				presenter.state.buttonState = presenter.buttonStates.next;
 				presenter.state.completion = presenter.completedCodes.correct;
+				limitedShowAnswers();
 			} else {
+				limitedCheck();
 				if (presenter.state.attempts == presenter.configuration.maxAttempts) {
 					presenter.state.buttonState = presenter.buttonStates.show_answer;
 					if (results == presenter.moduleResults.partial) {
@@ -589,12 +623,11 @@ function AddonTask_Overlay_create(){
 			limitedUncheck();
 			presenter.state.buttonState = presenter.buttonStates.validate;
 		} else if (presenter.state.buttonState == presenter.buttonStates.show_answer) {
+			limitedUncheck();
 			hidePopupButton();
 			presenter.state.buttonState = presenter.buttonStates.next;
 			limitedShowAnswers();
 		} else if (presenter.state.buttonState == presenter.buttonStates.next) {
-			limitedHideAnswers();
-			limitedCheck();
 			if (results == presenter.moduleResults.correct) {
                 presenter.state.completion = presenter.completedCodes.done;
             } else if (results == presenter.moduleResults.partial) {
@@ -644,16 +677,21 @@ function AddonTask_Overlay_create(){
 		if (presenter.state.cover) {
 			presenter.viewHandlers.$curtainImageWrapper.css('display', '');
 			presenter.viewHandlers.$taskOverlayWrapper.css('display', 'none');
-			presenter.$view.css('z-index','100');
+			hideModules();
 		} else {
 			presenter.viewHandlers.$curtainImageWrapper.css('display', 'none');
 			presenter.viewHandlers.$taskOverlayWrapper.css('display', '');
-			presenter.$view.css('z-index','');
+			showModules();
 		}
 
 		updateAttemptText();
 
 	};
+
+	function setFeedbackWidth() {
+		var width = presenter.viewHandlers.$taskToolbarWrapper.innerWidth();
+		presenter.viewHandlers.$feedbackLine.css('width',width);
+	}
 
 	function clearFeedbackLine() {
 		var $el = presenter.viewHandlers.$feedbackLine;
@@ -725,6 +763,7 @@ function AddonTask_Overlay_create(){
 	}
 
 	function showFeedbackLine() {
+		setFeedbackWidth();
 		presenter.viewHandlers.$feedbackLine.removeClass('hidden');
 	}
 	function hideFeedbackLine() {
