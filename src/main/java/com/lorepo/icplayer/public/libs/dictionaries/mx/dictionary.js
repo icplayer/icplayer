@@ -1075,6 +1075,7 @@ var ice_dictionary_mx = {
 	"Paragraph_property_custom_toolbar": "Barra de herramientas personalizada",
 	"Paragraph_property_custom_css": "CSS personalizado",
 	"Paragraph_property_placeholder_text": "Texto del marcador de posición",
+	"Paragraph_property_editable_placeholder": "Editable placeholder",
 	"Paragraph_Keyboard_info": "Permite a los usuarios a introducir un texto con el formateo básico y con los signos diacríticos.",
 	"Paragraph_Keyboard_name": "Párrafo con teclado",
 	"Paragraph_Keyboard_property_default_font_family": "Familia de fuentes predeterminada",
@@ -1773,6 +1774,7 @@ var ice_dictionary_mx = {
 	"Catch_property_count_errors": "Count errors",
 	"Catch_property_item_width": "Item width",
 	"Catch_property_item_height": "Item height",
+	"Catch_property_plate_image": "Plate image",
 	"Maze_info": "Resolve questions and complete maze",
     "Maze_name": "Maze",
 	"Maze_property_width": "Rows",
@@ -1892,5 +1894,13 @@ var ice_dictionary_mx = {
     "Double_State_Button_property_image_selected_alternative_text": "Image selected alternative text",
     "Double_state_button_speech_text_disabled": "Do not read the Speech texts",
     "copy_page_layout": "Copy page settings",
-    "copy_page_layout_question": "You are going to copy page settings from layout: "
+    "copy_page_layout_question": "You are going to copy page settings from layout: ",
+	"Media_Recorder_name": "Media Recorder",
+    "Media_Recorder_info": "Media Recorder",
+    "Media_Recorder_property_type": "Media type",
+    "Media_Recorder_property_max_time": "Maximum recording duration",
+    "Media_Recorder_property_default_recording": "Default recording",
+    "Media_Recorder_property_start_recording_sound": "Recording start sound",
+    "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
+    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording"
 };

@@ -9,7 +9,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
@@ -21,9 +20,10 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
+import com.lorepo.icplayer.client.utils.MathJaxElement;
 
 
-public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
+public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, IWCAGModuleView{
 	private final TextModel module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
@@ -35,12 +35,19 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
 	private boolean isWCAGon = false;
 	private boolean isShowErrorsMode = false;
+	private boolean mathJaxIsLoaded = false;
 	
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
+		mathJaxLoaded();
 	}
 
+	@Override
+	public void mathJaxLoaded() {
+		MathJax.setCallbackForMathJaxLoaded(this); 
+	}
+	
 	private void createUI (boolean isPreview) {
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
@@ -54,23 +61,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		}
 		
 		getElement().setAttribute("lang", this.module.getLangAttribute());
-		if (this.module.hasMathGaps()) {
-			setCallbackForMathJaxLoaded(this, getElement());
-		}
 	}
 	
-	private native void setCallbackForMathJaxLoaded(TextView x, Element e) /*-{
-		var $e = $wnd.$(e);
-		$e.css('display','none');
-		$wnd.MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
-	        if ($wnd.$(message[1]).hasClass('ic_page')) {
-	            x.@com.lorepo.icplayer.client.module.text.TextView::mathJaxIsLoadedCallback()();
-	            $e.css('display','');
-	        }
-	    });
-	}-*/;
-	
-	void mathJaxIsLoadedCallback() {
+	public void mathJaxIsLoadedCallback() {
+		this.mathJaxIsLoaded = true;
 		this.refreshMath();
 	}
 
@@ -328,21 +322,18 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 	@Override
 	public void hide() {
-		getElement().getStyle().setProperty("visibility", "hidden");
-		getElement().getStyle().setProperty("display", "none");
+		setVisible(false);
 	}
 
 	@Override
 	public void show(boolean callRefreshMath) {
-		Element element = getElement();
-		if (element.getStyle().getVisibility().equals("hidden")) {
-			element.getStyle().setProperty("visibility", "visible");
-			element.getStyle().setProperty("display", "block");
-
-			if (callRefreshMath) {
-				refreshMath();
-				rerenderMathJax();
-			}
+		setVisible(true);
+		if (this.mathJaxIsLoaded) {
+			refreshMath();
+		}
+		if (callRefreshMath) {
+			refreshMath();
+			rerenderMathJax();
 		}
 	}
 

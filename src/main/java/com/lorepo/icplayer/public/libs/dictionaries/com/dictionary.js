@@ -961,6 +961,7 @@ var ice_dictionary_en = {
 	"Paragraph_property_custom_toolbar": "Custom toolbar",
 	"Paragraph_property_custom_css": "Custom CSS",
     "Paragraph_property_placeholder_text": "Placeholder text",
+	"Paragraph_property_editable_placeholder": "Editable placeholder",
     "Paragraph_Keyboard_info": "Allows a user to enter a free form text with basic WYSIWYG formatting and diacritical characters.",
 	"Paragraph_Keyboard_name": "Paragraph eKeyboard",
 	"Paragraph_Keyboard_property_default_font_family": "Default font family",
@@ -1777,6 +1778,7 @@ var ice_dictionary_en = {
     "Catch_property_count_errors": "Count errors",
     "Catch_property_item_width": "Item width",
     "Catch_property_item_height": "Item height",
+	"Catch_property_plate_image": "Plate image",
 	"Maze_info": "Resolve questions and complete maze",
     "Maze_name": "Maze",
 	"Maze_property_width": "Rows",
@@ -1910,5 +1912,15 @@ var ice_dictionary_en = {
 	"Double_State_Button_property_image_selected_alternative_text": "Image selected alternative text",
 	"Double_state_button_speech_text_disabled": "Do not read the Speech texts",
     "copy_page_layout": "Copy page settings",
-    "copy_page_layout_question": "You are going to copy page settings from layout: "
+    "copy_page_layout_question": "You are going to copy page settings from layout: ",
+    "Media_Recorder_name": "Media Recorder",
+    "Media_Recorder_info": "Media Recorder",
+    "Media_Recorder_property_type": "Media type",
+    "Media_Recorder_property_max_time": "Maximum recording duration",
+    "Media_Recorder_property_default_recording": "Default recording",
+    "Media_Recorder_property_start_recording_sound": "Recording start sound",
+    "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
+    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording",
+    "Media_Recorder_property_is_showed_default_recording_button": "Show default recording play button",
+    "Media_Recorder_property_is_showed_timer": "Show timer"
 };
