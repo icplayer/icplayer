@@ -1,9 +1,6 @@
 package com.lorepo.icplayer.client.module;
 
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icplayer.client.model.page.group.Group;
-import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
-import com.lorepo.icplayer.client.model.page.group.GroupView;
 import com.lorepo.icplayer.client.module.addon.AddonModel;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.addon.AddonView;
@@ -217,12 +214,6 @@ public class ModuleFactory implements IModuleFactory{
 		return new DummyView("Can't find view for module: " + module.toString());
 	}
 	
-	@Override
-	public GroupView createView(Group group){
-		boolean isPreview = (services == null);
-		return new GroupView(group, isPreview); 
-	}
-	
 	
 	@Override
 	public IPresenter createPresenter(IModuleModel module){
@@ -282,10 +273,5 @@ public class ModuleFactory implements IModuleFactory{
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public GroupPresenter createPresenter(Group group){
-		return new GroupPresenter(group, services); 
 	}
 }

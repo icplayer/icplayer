@@ -1,6 +1,5 @@
 package com.lorepo.icplayer.client.page;
 
-import java.io.Console;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,11 +19,9 @@ import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.model.page.Group;
+import com.lorepo.icplayer.client.model.page.Group.ScoringGroupType;
 import com.lorepo.icplayer.client.model.page.Page;
-import com.lorepo.icplayer.client.model.page.group.Group;
-import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
-import com.lorepo.icplayer.client.model.page.group.GroupView;
-import com.lorepo.icplayer.client.model.page.group.Group.ScoringGroupType;
 import com.lorepo.icplayer.client.model.page.properties.OutstretchHeightData;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
@@ -51,8 +48,6 @@ import com.lorepo.icplayer.client.page.Score.Result;
 public class PageController implements ITextToSpeechController {
 
 	public interface IPageDisplay {
-		void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId);
-		void addGroupView(GroupView groupView);
 		void addModuleView(IModuleView view, IModuleModel module);
 		void setPage(Page page);
 		void refreshMathJax();
@@ -72,14 +67,13 @@ public class PageController implements ITextToSpeechController {
 	private IPlayerServices playerService;
 	private IModuleFactory moduleFactory;
 	private ArrayList<IPresenter> presenters;
-	private ArrayList<GroupPresenter> groupPresenters; 
 	private final ScriptingEngine scriptingEngine = new ScriptingEngine();
 	private IPlayerController playerController;
 	private HandlerRegistration valueChangedHandler;
 	private final static String PAGE_TTS_MODULE_ID = "Text_To_Speech1";
 	private boolean isReadingOn = false;
 	private Content contentModel;
-	
+
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
@@ -92,7 +86,6 @@ public class PageController implements ITextToSpeechController {
 
 	private void init(IPlayerServices playerServices) {
 		presenters = new ArrayList<IPresenter>();
-		groupPresenters = new ArrayList<GroupPresenter>();
 		this.playerService = playerServices;
 		moduleFactory = new ModuleFactory(playerService);
 	}
@@ -166,12 +159,6 @@ public class PageController implements ITextToSpeechController {
 			module.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
 			module.setSemiResponsiveLayoutID(layoutID);
 		}
-		
-		for(Group group : this.currentPage.getGroupedModules()) {
-		    group.syncSemiResponsiveStyles(actualSemiResponsiveLayouts);
-			group.syncSemiResponsiveLayouts(actualSemiResponsiveLayouts);
-			group.setSemiResponsiveLayoutID(layoutID);
-		}
 
 		this.currentPage.setSemiResponsiveLayoutID(layoutID);
 	}
@@ -190,54 +177,28 @@ public class PageController implements ITextToSpeechController {
 	}
 
 	private void initModules() {
-		groupPresenters.clear();
 		presenters.clear();
 		pageView.removeAllModules();
-		
 		scriptingEngine.reset();
-		
-		for(Group group : currentPage.getGroupedModules()) {
-			GroupView groupView = moduleFactory.createView(group);
-			GroupPresenter presenter = moduleFactory.createPresenter(group);
-			pageView.addGroupView(groupView);
-			presenter.addView(groupView);
-			groupPresenters.add(presenter);
-		}
-		
+
 		for (IModuleModel module : currentPage.getModules()) {
 			String newInlineStyle = deletePositionImportantStyles(module.getInlineStyle());
 			module.setInlineStyle(newInlineStyle);
 			IModuleView moduleView = moduleFactory.createView(module);
 			IPresenter presenter = moduleFactory.createPresenter(module);
-			GroupPresenter groupPresenter = findGroupPresenter(module); 
-			
-			if(groupPresenter != null) {
-				if(groupPresenter.getGroup().isDiv()) {
-					pageView.addModuleViewIntoGroup(moduleView, module, groupPresenter.getGroup().getId());
-				}else {
-					pageView.addModuleView(moduleView, module);
+			pageView.addModuleView(moduleView, module);
+			if (presenter != null) {
+				presenter.addView(moduleView);
+				presenters.add(presenter);
+				if (presenter instanceof ICommandReceiver) {
+					scriptingEngine.addReceiver((ICommandReceiver) presenter);
 				}
-				groupPresenter.addPresenter(presenter);
-			} else {
-				pageView.addModuleView(moduleView, module);
+			} else if (moduleView instanceof IPresenter) {
+				presenters.add((IPresenter) moduleView);
 			}
-
-			addPresenter(presenter, moduleView);
 		}
 	}
 
-	private void addPresenter(IPresenter presenter, IModuleView moduleView) {
-		if (presenter != null) {
-			presenter.addView(moduleView);
-			presenters.add(presenter);
-			if (presenter instanceof ICommandReceiver) {
-				scriptingEngine.addReceiver((ICommandReceiver) presenter);
-			}
-		} else if (moduleView instanceof IPresenter) {
-			presenters.add((IPresenter) moduleView);
-		}
-	}
-	
 	public String deletePositionImportantStyles (String inlineStyle) {
 		String[] attributes = inlineStyle.split(";");
 		StringBuilder strBuilder = new StringBuilder();
@@ -255,16 +216,6 @@ public class PageController implements ITextToSpeechController {
 		String newAttributes = strBuilder.toString();
 		return newAttributes;
 	}
-	
-	public GroupPresenter findGroupPresenter(IModuleModel module) {
-		GroupPresenter groupPresenter = null; 
-		for (GroupPresenter g :groupPresenters) {
-			if (g.getGroup().contains(module)) {
-				groupPresenter = g; 
-			}
-		}
-		return groupPresenter; 
-	}
 
 	public Group findGroup(IModuleModel module) {
 		List<Group> groups = currentPage.getGroupedModules();
@@ -276,15 +227,6 @@ public class PageController implements ITextToSpeechController {
 			}
 		}
 
-		return null;
-	}
-	
-	public GroupPresenter findGroup(String id) {
-		for (GroupPresenter presenter : groupPresenters) {
-			if (presenter.getId().compareTo(id) == 0) {
-				return presenter;
-			}
-		}
 		return null;
 	}
 
@@ -453,9 +395,9 @@ public class PageController implements ITextToSpeechController {
 
 		return playerService.getScoreService().getPageScore(currentPage.getId());
 	}
-	
-	private void setStatePresenters(List<? extends IPresenter> elements, HashMap<String, String> state) {
-		for (IPresenter presenter : elements) {
+
+	public void setPageState(HashMap<String, String> state) {
+		for (IPresenter presenter : presenters) {
 			if (presenter instanceof IStateful) {
 				IStateful statefulObj = (IStateful)presenter;
 				String key = currentPage.getId() + statefulObj.getSerialId();
@@ -465,33 +407,26 @@ public class PageController implements ITextToSpeechController {
 				}
 			}
 		}
-	}
-	
-	public void setPageState(HashMap<String, String> state) {
-		setStatePresenters(presenters, state); 
-		setStatePresenters(groupPresenters, state);
+		
 		String heightModificationsState = state.get(this.getOutstretchUniqueHeightKey());
 		if (heightModificationsState != null) {
 			this.currentPage.heightModifications.setState(heightModificationsState);	
 		}
 	}
-	
-	private void getStatePresenters(List<? extends IPresenter> elements, HashMap<String, String>pageState) {
-		for(IPresenter presenter : elements){
-			if(presenter instanceof IStateful){
-				IStateful statefulObj = (IStateful)presenter;
-				String state = statefulObj.getState();
-				String key = this.currentPage.getId() + statefulObj.getSerialId();
-				pageState.put(key, state);
-			}
-		}
-	}
-	
+
 	public HashMap<String, String> getState() {
+
 		HashMap<String, String>	pageState = new HashMap<String, String>();
 		if(this.currentPage != null) {
-			getStatePresenters(presenters, pageState); 
-			getStatePresenters(groupPresenters, pageState); 
+			for(IPresenter presenter : presenters){
+				if(presenter instanceof IStateful){
+					IStateful statefulObj = (IStateful)presenter;
+					String state = statefulObj.getState();
+					String key = this.currentPage.getId() + statefulObj.getSerialId();
+					pageState.put(key, state);
+				}
+			}
+			
 			pageState.put(this.getOutstretchUniqueHeightKey(), this.currentPage.heightModifications.getState());
 		}
 		
@@ -615,7 +550,7 @@ public class PageController implements ITextToSpeechController {
 		AddonPresenter textToSpeechAPIModule = (AddonPresenter) this.findModule("Text_To_Speech1");
 		
 		if (textToSpeechAPIModule != null) {
-			return textToSpeechAPIModule.getAsJavaScript();
+			return textToSpeechAPIModule.getJavaScriptObject();
 		}
 		
 		return null;

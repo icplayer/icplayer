@@ -1,4 +1,4 @@
-import {BaseRecorder} from "./baseRecorder.jsm";
+import {BaseRecorder} from "./BaseRecorder.jsm";
 
 export class AudioRecorder extends BaseRecorder {
 
