@@ -218,7 +218,7 @@
 	background: url("resources/baseline-check-24px.svg") no-repeat center;
 }
 
-.task-overlay-wrapper .baloon-button:hover {
+.task-overlay-wrapper .baloon-button-text:hover {
 	color: rgba(255, 255, 255, 0.4);
 }
 
@@ -233,6 +233,7 @@
 }
 
 .task-overlay-wrapper .baloon-popup-wrapper {
+	cursor: default;
 	position: absolute;
 	left: 0em;
     padding: 0.75rem;
@@ -247,7 +248,7 @@
 }
 
 .task-overlay-wrapper .baloon-popup-wrapper.above {
-	bottom:100%;
+	bottom:150%;
 }
 
 .task-overlay-wrapper .baloon-popup-arrow {
@@ -281,6 +282,7 @@
     background: #fff;
     border: 2px solid #6A597A;
 	direction:ltr;
+	min-height: 32px;
 }
 
 .task-overlay-wrapper .baloon-popup-icon-wrapper {

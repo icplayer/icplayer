@@ -313,7 +313,7 @@ function AddonTask_Overlay_create(){
 
 	function setPopup() {
 		presenter.viewHandlers.$popupWrapper.css('display','none');
-		presenter.viewHandlers.$popupButton.click(togglePopup);
+		presenter.viewHandlers.$popupButton.find('.baloon-button-text').click(togglePopup);
 		presenter.viewHandlers.$popupButton.find('.baloon-button-text').text(presenter.configuration.texts.Comment);
 		presenter.viewHandlers.$popupWrapper.find('.baloon-popup-close').click(hidePopup);
 	}
