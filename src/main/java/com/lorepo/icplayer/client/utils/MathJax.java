@@ -20,5 +20,12 @@ public class MathJax {
 	public static native void rerenderMathJax (Element e) /*-{
 		$wnd.MathJax.Hub.Rerender(e);
 	}-*/;
-
+	
+	public static native void setCallbackForMathJaxLoaded(MathJaxElement element) /*-{
+		$wnd.MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
+	        if ($wnd.$(message[1]).hasClass('ic_page')) {
+	            element.@com.lorepo.icplayer.client.utils.MathJaxElement::mathJaxIsLoadedCallback()();
+	        }
+	    });
+	}-*/;
 }

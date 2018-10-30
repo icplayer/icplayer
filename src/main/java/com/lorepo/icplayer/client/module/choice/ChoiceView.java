@@ -20,8 +20,10 @@ import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
+import com.lorepo.icplayer.client.utils.MathJaxElement;
 
-public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG, IWCAGModuleView {
+
+public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG, IWCAGModuleView, MathJaxElement {
 
 	private ChoiceModel module;
 	private VerticalPanel optionsPanel;
@@ -38,12 +40,14 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private boolean isEnabled = true;
 	private boolean isWCAGOn = false;
 	private boolean isShowErrorsMode = false;
+	private boolean mathJaxIsLoaded = false;
 
 	private int position = -1;
 	
 	public ChoiceView(ChoiceModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
+		mathJaxLoaded();
 	}
 	
 	/**
@@ -122,7 +126,19 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			this.incorrectText = this.module.getSpeechTextItem(3);
 		}
 	}
+	
+	@Override
+	public void mathJaxLoaded() {
+		MathJax.setCallbackForMathJaxLoaded(this); 
+	}
 	    
+	@Override
+	public void mathJaxIsLoadedCallback() {
+		this.mathJaxIsLoaded = true;
+		this.refreshMath();
+	}
+	
+	
 	private void shuffleArray(List<Integer> list) {
         int n = list.size();
         Random random = new Random();
@@ -215,7 +231,9 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	@Override
 	public void show() {
 		setVisible(true);
-		refreshMath();
+		if (this.mathJaxIsLoaded) {
+			refreshMath();
+		}
 	}
 	
 	@Override
@@ -223,6 +241,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		setVisible(val);
 	}
 
+	@Override
 	public void refreshMath() {
 		MathJax.refreshMathJax(getElement());
 	}
