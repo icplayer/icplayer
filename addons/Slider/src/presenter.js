@@ -175,8 +175,6 @@ function AddonSlider_create () {
 
     function touchStartCallback (event) {
         presenter.isTouched = true;
-        event.preventDefault();
-        event.stopPropagation();
 
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
         
@@ -362,7 +360,7 @@ function AddonSlider_create () {
         if (window.navigator.msPointerEnabled && MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
             presenter.isWindowsMobile = true;
         }
-
+        console.log(presenter.isWindowsMobile);
         var imageElement = $(addonContainer.find(CLASSES_NAMES.ELEMENT_IMAGE.SELECTOR))[0];
 
         $(imageElement).hover(
