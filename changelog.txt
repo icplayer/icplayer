@@ -1,3 +1,23 @@
+2018-10-25 Added new addon audio recorder
+2018-10-16 Added property Plate Image in Catch module
+2018-10-15 Fixed iFrame visible in the editor when the hide option is enabled
+2018-10-12 Shooting range impoving the game.
+2018-10-11 Removed sending ValueChanged with value removed on stopping item drag in multiplegap
+2018-10-10 Added disable dragging property in Ordering
+2018-10-09 Fixed scoring in multiplegap when incorrect answers are present
+2018-10-09 Fixed problem with setState in shooting range module
+2018-10-08 Fixed issue with show answers in Text Selection when Limited Check is used
+2018-10-05 Fixed issue with MathJax in eKeyboard and Text when the first layout is not default
+2018-10-03 Added setText in Paragraph
+2018-10-02 Fixed isAttempted method in not activity mode in True False module
+2018-09-27 Changed mouse and touch control scheme in Catch addon
+2018-09-24 Fixed issues with scoring in multiplegap
+2018-09-24 Added missing split page label
+2018-09-19 Fixed issue with decimals in Math
+2018-09-19 Unifed visiblity settings in preview for multiple addons
+2018-09-17 Fixed issue with Audio progress bard
+2018-09-17 Fixed conflict CSS of modules
+2018-09-14 Removing semi word from translations labels and API calls.
 2018-08-24 Fixed problem with hiding audio descriptions in Video module
 2018-08-23 Added 'Enable scroll on mobile' property in Text Identification module
 2018-08-17 Added show answer class for individual words in Text Coloring.

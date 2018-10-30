@@ -7,6 +7,7 @@ function AddonShooting_Range_create() {
         view: null,
         $view: null,
         $questionDiv: null,
+        $levelDiv: null,
         $answersWrapper: null,
         $playButton: null,
         levels: [],
@@ -79,6 +80,7 @@ function AddonShooting_Range_create() {
         presenter.state.$view = $(view);
         presenter.state.view = view;
         presenter.state.$questionDiv = $(view).find(".addon-Shooting_Range-wrapper-question");
+        presenter.state.$levelDiv = $(view).find(".addon-Shooting_Range-wrapper-level");
         presenter.state.$answersWrapper = $(view).find(".addon-Shooting_Range-wrapper-answers-wrapper");
         presenter.state.$playButton = $(view).find(".addon-Shooting_Range-play-button-wrapper");
 
@@ -88,7 +90,7 @@ function AddonShooting_Range_create() {
            presenter.connectHandlers();
         }
 
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
 
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
     };
@@ -192,7 +194,7 @@ function AddonShooting_Range_create() {
 
     presenter.actualizeAnswersWrapperHeight = function () {
         presenter.state.$answersWrapper.css({
-            'top': presenter.state.$questionDiv.height(),
+            'top': presenter.state.$questionDiv.height() + presenter.state.$levelDiv.height(),
             'height': presenter.state.$view.height() - presenter.state.$questionDiv.height()
         });
     };
@@ -215,6 +217,8 @@ function AddonShooting_Range_create() {
                 definition: presenter.configuration.definitions[i],
                 timeForAnswer: initialTimerForAnswer + (diffOnLevel * i),
                 questionNumber: i,
+                numberOfLevel: (i + 1) + "/" + presenter.configuration.definitions.length,
+                $levelDiv: presenter.state.$levelDiv,
                 $questionDiv: presenter.state.$questionDiv,
                 $answersWrapper: presenter.state.$answersWrapper,
                 onCorrectAnswerCallback: presenter.onCorrectAnswerCallback.bind(this),
@@ -290,7 +294,11 @@ function AddonShooting_Range_create() {
         presenter.state.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.onEndLevelCallback = function () {
+    /**
+     * If all elements dropped then call this function
+     * @param {boolean} dontPushResults Don't push results to the resultsList. It is used while loading state
+     */
+    presenter.onEndLevelCallback = function (dontPushResults) {
         presenter.state.actualLevel++;
         if (presenter.state.actualLevel < presenter.state.levels.length) {
             presenter.getActualLevel().start();
@@ -299,10 +307,12 @@ function AddonShooting_Range_create() {
             }
             presenter.actualizeAnswersWrapperHeight();
         } else {
-            presenter.state.resultsList.push({
-                score: presenter.state.score,
-                errors: presenter.state.wholeErrorCount
-            });
+            if (!dontPushResults) {
+                presenter.state.resultsList.push({
+                    score: presenter.state.score,
+                    errors: presenter.state.wholeErrorCount
+                });
+            }
         }
     };
 
@@ -619,8 +629,10 @@ function AddonShooting_Range_create() {
             presenter.getActualLevel().start(state['actualLevelTimeElapsed'], state['clickedElements']);
 
             presenter.actualizeAnswersWrapperHeight();
-            presenter.getActualLevel().actualize();
-            presenter.getActualLevel().pause(true);
+            if (!state.isFinished) {
+                presenter.getActualLevel().actualize();
+                presenter.getActualLevel().pause(true);
+            }
             presenter.state.isStarted = true;
         }
         presenter.state.errorCount = state.errorCount;
@@ -630,7 +642,7 @@ function AddonShooting_Range_create() {
 
         if (state.isFinished) {
             presenter.getActualLevel().destroy();
-            presenter.onEndLevelCallback();
+            presenter.onEndLevelCallback(true);
         }
 
         presenter.setVisibility(state.isVisible);
@@ -729,6 +741,8 @@ function AddonShooting_Range_create() {
         this.questionNumber = configuration.questionNumber;
         this.$answersWrapper = configuration.$answersWrapper;
         this.$questionDiv = configuration.$questionDiv;
+        this.$levelDiv = configuration.$levelDiv;
+        this.numberOfLevel = configuration.numberOfLevel;
         this.timeForAnswer = configuration.timeForAnswer;
         this.callbacks = {
             onCorrectAnswerCallback: configuration.onCorrectAnswerCallback,
@@ -750,11 +764,11 @@ function AddonShooting_Range_create() {
 
     Level.prototype = {
         start: function (elapsedTime, clickedElements) {
-            this.droppedElements = 0;
             this.clickedElements = 0;
             this.startTime = new Date().getTime() / 1000;
             this.generateAnswers();
             this.$questionDiv.html(this.definition["definition"]);
+            this.$levelDiv.html(this.numberOfLevel);
             this.destroyed = false;
             this.initialElapsedTime = 0;
             this.pauseTime = 0;
@@ -858,14 +872,12 @@ function AddonShooting_Range_create() {
 
             if (isCorrect) {
                 this.callbacks.onCorrectAnswerCallback(questionNumber, answerNumber);
+                this.setCorrectAnswer(answerNumber);
             } else {
                 this.callbacks.onWrongAnswerCallback(questionNumber, answerNumber);
+                this.setWrongAnswer(answerNumber);
             }
-
-            this.answers[answerNumber].element.addClass("clicked");
-            this.answers[answerNumber].isClicked = true;
-            this.clickedElements++;
-
+            this.setClickedAnswer(answerNumber);
         },
 
         onDrop: function (questionNumber, answerNumber) {
@@ -911,11 +923,29 @@ function AddonShooting_Range_create() {
             return (new Date().getTime() / 1000) - this.startTime + this.initialElapsedTime + pausedTime;
         },
 
+        setWrongAnswer(answerNumber) {
+            this.answers[answerNumber].element.addClass("wrong");
+        },
+
+        setCorrectAnswer(answerNumber) {
+            this.answers[answerNumber].element.addClass("correct");
+        },
+
+        setClickedAnswer(answerNumber) {
+            this.answers[answerNumber].isClicked = true;
+            this.answers[answerNumber].element.addClass("clicked");
+            this.clickedElements++;
+        },
+
+
         setClicked: function (clickedArray) {
             for (var i = 0; i < clickedArray.length; i++) {
-                this.answers[clickedArray[i]].isClicked = true;
-                this.answers[clickedArray[i]].element.addClass("clicked");
-                this.clickedElements++;
+                this.setClickedAnswer(clickedArray[i]);
+                if(this.answers[clickedArray[i]].isCorrect){
+                    this.setCorrectAnswer(clickedArray[i]);
+                }else{
+                    this.setWrongAnswer(clickedArray[i]);
+                }
             }
         },
 

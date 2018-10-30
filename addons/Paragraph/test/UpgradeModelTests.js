@@ -3,6 +3,7 @@ TestCase("[Paragraph] Upgrade model", {
         this.presenter = AddonParagraph_create();
 
         this.upgradePlaceholderTextStub = sinon.stub(this.presenter, 'upgradePlaceholderText');
+        this.upgradeEditablePlaceholderStub = sinon.stub(this.presenter, 'upgradeEditablePlaceholder');
     },
 
     tearDown: function () {
@@ -13,6 +14,7 @@ TestCase("[Paragraph] Upgrade model", {
         this.presenter.upgradeModel({});
 
         assertTrue(this.upgradePlaceholderTextStub.called);
+        assertTrue(this.upgradeEditablePlaceholderStub.called);
     }
 });
 
@@ -40,5 +42,32 @@ TestCase("[Paragraph] Upgrading placeholder text property", {
         var upgradedModel = this.presenter.upgradePlaceholderText(model);
 
         assertEquals(upgradedModel["Placeholder Text"], "");
+    }
+});
+
+TestCase("[Paragraph] Upgrading editable placeholder property", {
+    setUp: function () {
+        this.presenter = AddonParagraph_create();
+    },
+
+    'test when model has editable placeholder property then model should not be upgraded' : function() {
+        var model = {
+            "ID": "Paragraph1",
+            "Editable placeholder": "True"
+        };
+
+        var upgradedModel = this.presenter.upgradeEditablePlaceholder(model);
+
+        assertEquals("True", upgradedModel["Editable placeholder"]);
+    },
+
+    'test when model has no editable placeholder property then editable placeholder should be empty string as default' : function() {
+        var model = {
+            "ID": "Paragraph1"
+        };
+
+        var upgradedModel = this.presenter.upgradeEditablePlaceholder(model);
+
+        assertEquals("", upgradedModel["Editable placeholder"]);
     }
 });

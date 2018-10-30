@@ -34,6 +34,7 @@
             <arg line="--js src/controls-bar.js" />
             <arg line="--js src/DeferredSyncQueue.js" />
             <arg line="--js src/blocklyCustomBlocks/sceneGrid.js" />
+            <arg line="--js src/blocklyCustomBlocks/visualFeedbackCreatorBlocks.js" />
             <arg line="--js_output_file bin/commons-${commons.version}/commons.js" />
         </java>
 

@@ -795,10 +795,6 @@ function AddonPuzzle_create() {
         element.setAttribute('src', model.Image);
 
         presenter.$view = $(view);
-        presenter.configuration = presenter.validateModel(model);
-        if (!presenter.configuration.isVisibleByDefault) {
-            presenter.hide();
-        }
     };
 
     presenter.executeCommand = function (name, params) {
