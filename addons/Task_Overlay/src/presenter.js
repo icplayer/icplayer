@@ -7,11 +7,13 @@ function AddonTask_Overlay_create(){
 		completion: -1,
 		attempts: 1,
 		buttonState: 0,
-		cover: true
+		cover: true,
+		isVisible: true,
+		isFocused: false
 	};
 
 
-	presenter.completedCodes = {
+	presenter.COMPLETION_CODES = {
 		done: 5,
 		done_partially: 4,
 		done_incorrectly: 3,
@@ -22,13 +24,13 @@ function AddonTask_Overlay_create(){
 		wrong: -2
 	};
 
-	presenter.moduleResults = {
+	presenter.MODULE_RESULTS = {
 		correct: 2,
 		partial: 1,
 		wrong: 0
 	};
 
-	presenter.buttonStates = {
+	presenter.BUTTON_STATES = {
 		inactive: 0,
 		validate: 1,
 		retry: 2,
@@ -75,9 +77,11 @@ function AddonTask_Overlay_create(){
 	};
 
 	presenter.show = function() {
+		presenter.$view.css('display','');
     };
 
     presenter.hide = function() {
+    	presenter.$view.css('display','none');
     };
 
 	presenter.updateVisibility = function() {
@@ -135,8 +139,8 @@ function AddonTask_Overlay_create(){
 		if (eventName == 'ValueChanged') {
             var buttonState = presenter.state.buttonState;
             if (presenter.configuration.worksWith.indexOf(eventData.source) != -1
-                && (buttonState == presenter.buttonStates.inactive || buttonState == presenter.buttonStates.retry)) {
-                presenter.state.buttonState = presenter.buttonStates.validate;
+                && (buttonState == presenter.BUTTON_STATES.inactive || buttonState == presenter.BUTTON_STATES.retry)) {
+                presenter.state.buttonState = presenter.BUTTON_STATES.validate;
                 activateButton();
                 presenter.updateView();
                 return;
@@ -145,9 +149,19 @@ function AddonTask_Overlay_create(){
 			if (presenter.state.cover) {
 				callModules('hide');
 			}
-			if (presenter.state.completion == presenter.completedCodes.done
-				|| presenter.state.completion == presenter.completedCodes.done_partially
-				|| presenter.state.completion == presenter.completedCodes.done_incorrectly) {
+			if (presenter.playerController) {
+				var maxScore = getModulesMaxScore();
+				if (maxScore == 0) {
+                    presenter.state.completion = presenter.COMPLETION_CODES.neutral;
+                    presenter.state.buttonState = presenter.BUTTON_STATES.next;
+                    presenter.state.attempts = 0;
+                    activateButton();
+                    presenter.updateView();
+                }
+			}
+			if (presenter.state.completion == presenter.COMPLETION_CODES.done
+				|| presenter.state.completion == presenter.COMPLETION_CODES.done_partially
+				|| presenter.state.completion == presenter.COMPLETION_CODES.done_incorrectly) {
 				limitedShowAnswers();
             }
 		}
@@ -191,6 +205,7 @@ function AddonTask_Overlay_create(){
         if (!validatedCurtainImage.isValid) {
             return returnErrorObject(validatedCurtainImage.errorCode);
         }
+		presenter.state.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
 
         if (model['number_of_attempts'] == null || model['number_of_attempts'].length == 0 || isNaN(model['number_of_attempts'])) {
         	return returnErrorObject('ATPT01');
@@ -302,9 +317,10 @@ function AddonTask_Overlay_create(){
         });
     }
 
-	function setImage(url, alt, $wrapper) {
+	function setImage(url, $wrapper) {
 		var $image = $('<div>');
         $image.css('background-image', 'url("' + url + '")');
+        $image.css('background-size','cover');
         $image.css("height", presenter.configuration.height);
         $image.css("width", presenter.configuration.width);
         $image.css("display","block");
@@ -320,9 +336,9 @@ function AddonTask_Overlay_create(){
 
 	function updatePopup(moduleResult) {
 		var content = "";
-		if (moduleResult == presenter.moduleResults.correct) {
+		if (moduleResult == presenter.MODULE_RESULTS.correct) {
 			content = presenter.configuration.texts.Correct;
-		} else if (moduleResult == presenter.moduleResults.partial) {
+		} else if (moduleResult == presenter.MODULE_RESULTS.partial) {
 			if(presenter.state.attempts == presenter.configuration.maxAttempts) {
 				content = presenter.configuration.texts.FinalPartial;
 			} else {
@@ -350,9 +366,9 @@ function AddonTask_Overlay_create(){
 		var $icon = wrapper.find('.baloon-popup-icon');
 		var $text = wrapper.find('.baloon-popup-text');
 
-		if (iconID == presenter.moduleResults.correct) {
+		if (iconID == presenter.MODULE_RESULTS.correct) {
 			setResultIcons($icon, 'check-icon');
-		} else if (iconID == presenter.moduleResults.partial) {
+		} else if (iconID == presenter.MODULE_RESULTS.partial) {
 			setResultIcons($icon, 'partial-icon');
 		} else {
 			setResultIcons($icon, 'wrong-icon');
@@ -462,7 +478,7 @@ function AddonTask_Overlay_create(){
 			$popupWrapper: $(view).find('.baloon-popup-wrapper')
 		};
 
-        setImage(presenter.configuration.curtainImage, 'Blocked', presenter.viewHandlers.$curtainImageWrapper);
+        setImage(presenter.configuration.curtainImage, presenter.viewHandlers.$curtainImageWrapper);
         setPopup();
 
 		createEventListeners();
@@ -473,6 +489,7 @@ function AddonTask_Overlay_create(){
 			presenter.areModulesVisible = true;
 		}
 
+		presenter.updateVisibility();
 		presenter.updateView();
     };
 
@@ -553,11 +570,18 @@ function AddonTask_Overlay_create(){
 
 	function callModules(methodName){
 		for(var i = 0; i < presenter.configuration.worksWith.length; i++) {
-			var module = presenter.playerController.getModule(presenter.configuration.worksWith[i]);
-			if (module != null && module[methodName] != null) {
+			var moduleID = presenter.configuration.worksWith[i];
+			var module = presenter.playerController.getModule(moduleID);
+			if (module != null && module[methodName] != null && !isModuleNumbering(moduleID)) {
 				(module[methodName])();
 			}
 		}
+	}
+
+	function isModuleNumbering(moduleID){
+		var moduleView = presenter.$view.closest('.ic_page').find('#'+moduleID);
+		if (moduleView == null || !moduleView.hasClass('TEXT_numbering')) return false;
+		return true;
 	}
 
 	presenter.getState = function(){
@@ -584,56 +608,65 @@ function AddonTask_Overlay_create(){
             	maxScore +=moduleScore.maxScore;
             }
         }
-		if (maxScore == score) return presenter.moduleResults.correct;
-		if (score == 0) return presenter.moduleResults.wrong;
-		return presenter.moduleResults.partial;
+		if (maxScore == score) return presenter.MODULE_RESULTS.correct;
+		if (score == 0) return presenter.MODULE_RESULTS.wrong;
+		return presenter.MODULE_RESULTS.partial;
+	}
 
-
+	function getModulesMaxScore() {
+		var maxScore = 0;
+		for (var i = 0; i < presenter.configuration.worksWith.length; i++) {
+            var moduleScore = presenter.playerController.getModuleScore(presenter.configuration.worksWith[i]);
+            if (moduleScore != null) {
+            	maxScore +=moduleScore.maxScore;
+            }
+        }
+		return maxScore;
 	}
 
 	function buttonHandler() {
 		var results = getModulesResults();
-		if (presenter.state.buttonState == presenter.buttonStates.validate) {
+		if (presenter.state.buttonState == presenter.BUTTON_STATES.validate) {
 			updatePopup(results);
 			showPopupButton();
-			if (results == presenter.moduleResults.correct) {
-				presenter.state.buttonState = presenter.buttonStates.next;
-				presenter.state.completion = presenter.completedCodes.correct;
+			if (results == presenter.MODULE_RESULTS.correct) {
+				presenter.state.buttonState = presenter.BUTTON_STATES.next;
+				presenter.state.completion = presenter.COMPLETION_CODES.correct;
 				limitedShowAnswers();
 			} else {
 				limitedCheck();
 				if (presenter.state.attempts == presenter.configuration.maxAttempts) {
-					presenter.state.buttonState = presenter.buttonStates.show_answer;
-					if (results == presenter.moduleResults.partial) {
-						presenter.state.completion = presenter.completedCodes.partial;
+					presenter.state.buttonState = presenter.BUTTON_STATES.show_answer;
+					if (results == presenter.MODULE_RESULTS.partial) {
+						presenter.state.completion = presenter.COMPLETION_CODES.partial;
 					} else {
-						presenter.state.completion = presenter.completedCodes.wrong;
+						presenter.state.completion = presenter.COMPLETION_CODES.wrong;
 					}
 				} else {
-					presenter.state.buttonState = presenter.buttonStates.retry;
-					if (results == presenter.moduleResults.partial) {
-						presenter.state.completion = presenter.completedCodes.partial;
+					presenter.state.buttonState = presenter.BUTTON_STATES.retry;
+					if (results == presenter.MODULE_RESULTS.partial) {
+						presenter.state.completion = presenter.COMPLETION_CODES.partial;
 					} else {
-						presenter.state.completion = presenter.completedCodes.neutral;
+						presenter.state.completion = presenter.COMPLETION_CODES.neutral;
 					}
 					presenter.state.attempts += 1;
 				}
 			}
-		} else if (presenter.state.buttonState == presenter.buttonStates.retry) {
+		} else if (presenter.state.buttonState == presenter.BUTTON_STATES.retry) {
 			limitedUncheck();
-			presenter.state.buttonState = presenter.buttonStates.validate;
-		} else if (presenter.state.buttonState == presenter.buttonStates.show_answer) {
+			presenter.state.buttonState = presenter.BUTTON_STATES.validate;
+		} else if (presenter.state.buttonState == presenter.BUTTON_STATES.show_answer) {
 			limitedUncheck();
 			hidePopupButton();
-			presenter.state.buttonState = presenter.buttonStates.next;
+			presenter.state.buttonState = presenter.BUTTON_STATES.next;
 			limitedShowAnswers();
-		} else if (presenter.state.buttonState == presenter.buttonStates.next) {
-			if (results == presenter.moduleResults.correct) {
-                presenter.state.completion = presenter.completedCodes.done;
-            } else if (results == presenter.moduleResults.partial) {
-                presenter.state.completion = presenter.completedCodes.done_partially;
+		} else if (presenter.state.buttonState == presenter.BUTTON_STATES.next) {
+			if (results == presenter.MODULE_RESULTS.correct) {
+                presenter.state.completion = presenter.COMPLETION_CODES.done;
+            } else if (results == presenter.MODULE_RESULTS.partial) {
+                presenter.state.completion = presenter.COMPLETION_CODES.done_partially;
             } else {
-				presenter.state.completion = presenter.completedCodes.done_incorrectly;
+				presenter.state.completion = presenter.COMPLETION_CODES.done_incorrectly;
 			}
 			executeCommandOnFinished();
 		}
@@ -644,31 +677,32 @@ function AddonTask_Overlay_create(){
 	presenter.updateView = function() {
 		var buttonState = presenter.state.buttonState;
 		var buttonText = presenter.viewHandlers.$proceedButton.find('.progress-button-text');
-		if (buttonState == presenter.buttonStates.inactive) {
+		if (buttonState == presenter.BUTTON_STATES.inactive) {
 			deactivateButton();
-		} else if (buttonState == presenter.buttonStates.validate) {
+		} else if (buttonState == presenter.BUTTON_STATES.validate) {
 			activateButton();
 			buttonText.text(presenter.configuration.texts.Validate);
-		} else if (buttonState == presenter.buttonStates.retry) {
+		} else if (buttonState == presenter.BUTTON_STATES.retry) {
 			activateButton();
 			buttonText.text(presenter.configuration.texts.Retry);
-		} else if (buttonState == presenter.buttonStates.show_answer) {
+		} else if (buttonState == presenter.BUTTON_STATES.show_answer) {
 			activateButton();
 			buttonText.text(presenter.configuration.texts.ShowAnswers);
-		}else if (buttonState == presenter.buttonStates.next) {
+		}else if (buttonState == presenter.BUTTON_STATES.next) {
 			buttonText.text(presenter.configuration.texts.Continue);
 		}
 
 		var completion = presenter.state.completion;
 
-		if (completion == presenter.completedCodes.done || completion == presenter.completedCodes.done_partially
-			|| completion == presenter.completedCodes.done_incorrectly) {
+		if (completion == presenter.COMPLETION_CODES.done
+			|| completion == presenter.COMPLETION_CODES.done_partially
+			|| completion == presenter.COMPLETION_CODES.done_incorrectly) {
 			setOffFeedback();
-		} else if (completion == presenter.completedCodes.partial) {
+		} else if (completion == presenter.COMPLETION_CODES.partial) {
 			setPartialCorrectFeedback();
-		} else if (completion == presenter.completedCodes.correct) {
+		} else if (completion == presenter.COMPLETION_CODES.correct) {
 			setCorrectFeedback();
-		} else if (completion == presenter.completedCodes.wrong) {
+		} else if (completion == presenter.COMPLETION_CODES.wrong) {
 			setWrongFeedback();
 		} else {
 			setNeutralFeedback();
@@ -717,9 +751,9 @@ function AddonTask_Overlay_create(){
 		if (!$el.hasClass('off-color')) $el.addClass('off-color');
 
 		var completion = presenter.state.completion;
-        if (completion == presenter.completedCodes.done_partially) {
+        if (completion == presenter.COMPLETION_CODES.done_partially) {
             presenter.viewHandlers.$partialCorrectIcon.removeClass('hidden');
-        } else if (completion == presenter.completedCodes.done) {
+        } else if (completion == presenter.COMPLETION_CODES.done) {
             presenter.viewHandlers.$correctIcon.removeClass('hidden');
         } else {
         	presenter.viewHandlers.$wrongIcon.removeClass('hidden');
@@ -787,6 +821,9 @@ function AddonTask_Overlay_create(){
 	}
 
 	function updateAttemptText() {
+		if (presenter.state.attempts == 0) {
+			presenter.viewHandlers.$attemptsField.addClass('hidden');
+		}
 		presenter.viewHandlers.$attemptsField.text(presenter.configuration.texts.Attempts +
 			' ' + presenter.state.attempts + '/' + presenter.configuration.maxAttempts);
 	}

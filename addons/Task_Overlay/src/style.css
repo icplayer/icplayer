@@ -113,7 +113,7 @@
 	left: 0px;
 	width:30px;
 	height:30px;
-	background: url("resources/baseline-check-24px.svg") no-repeat center;
+	background: url("resources/baseline-partial-done-24px.svg") no-repeat center;
 }
 
 .task-overlay-wrapper .feedback-icon-wrong {
@@ -135,7 +135,7 @@
 
 }
 
-.task-overlay-wrapper .hidden {
+.addon_Task_Overlay .hidden {
 	display: none !important;
 }
 
@@ -315,7 +315,7 @@
 }
 
 .task-overlay-wrapper .partial-icon {
-	background: #F7D946 url("resources/baseline-check-24px.svg") no-repeat center;
+	background: #F7D946 url("resources/baseline-partial-done-24px.svg") no-repeat center;
 	border-color: #F7D946;
 }
 
