@@ -629,6 +629,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	public void removeHook() {
 		if (this.mathJaxHook != null) {
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
+			this.mathJaxHook = null;
 		}
 	}
 	

@@ -34,7 +34,7 @@ public class MathJax {
 		// https://github.com/mathjax/MathJax-docs/wiki/How-to-stop-listening-or-un-register-from-a-messagehook
 		setTimeout( 
 			function removeHook() {
-				$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook)
+				$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
 			}, 
 			0
 		);
