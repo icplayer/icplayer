@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -41,6 +42,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private boolean isWCAGOn = false;
 	private boolean isShowErrorsMode = false;
 	private boolean mathJaxIsLoaded = false;
+	private JavaScriptObject mathJaxHook = null;
 
 	private int position = -1;
 	
@@ -128,8 +130,15 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	}
 	
 	@Override
+	protected void onDetach() {
+		this.removeHook();
+		
+		super.onDetach();
+	};
+	
+	@Override
 	public void mathJaxLoaded() {
-		MathJax.setCallbackForMathJaxLoaded(this); 
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
 	}
 	    
 	@Override
@@ -474,6 +483,13 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private void speak (List<TextToSpeechVoice> voiceTexts) {
 		if (this.pageController != null) {	
 			this.pageController.speak(voiceTexts);
+		}
+	}
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
 		}
 	}
 

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -49,7 +50,8 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	private PageController pageController;
 	private boolean isWCAGOn = false;
 	private boolean mathJaxIsLoaded = false;
-
+	private JavaScriptObject mathJaxHook = null;
+	
 	public SourceListView(SourceListModule module, boolean isPreview){
 		this.module = module;
 		createUI(isPreview);
@@ -81,7 +83,7 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 
 	@Override
 	public void mathJaxLoaded() {
-		MathJax.setCallbackForMathJaxLoaded(this); 
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
 	}
 	
 	@Override
@@ -493,5 +495,19 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	@Override
 	public String getLang () {
 		return this.module.getLangAttribute();
+	}
+	
+	@Override
+	protected void onDetach() {
+		this.removeHook();
+		
+		super.onDetach();
+	};
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
+		}		
 	}
 }
