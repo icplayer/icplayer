@@ -532,6 +532,14 @@ hr, table, fieldset {
 	opacity: 0.4;
 }
 
+table.ic_ordering-wrapping {
+	display:block!important;
+}
+
+table.ic_ordering-wrapping td {
+	display:inline-block!important;
+}
+
 /**
  * Page counters
  */

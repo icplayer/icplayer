@@ -38,6 +38,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	private boolean graduallyScore = false;
 	private boolean dontGenerateCorrectOrder = false;
 	private boolean disableDragging = false;
+	private boolean wrapItems = false;
 	private String langAttribute = "";
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private boolean isValid = true;
@@ -57,6 +58,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		addPropertyAllElementHasSameWidth();
 		addPropertyGraduallyScore();
 		addPropertyDisableDragging();
+		addPropertyWrapItems();
 		addPropertyDontGenerateCorrectOrder();
 		addPropertySpeechTexts();
 		addPropertyLangAttribute();
@@ -145,6 +147,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			allElementsHasSameWidth = XMLUtils.getAttributeAsBoolean(ordering, "allElementsHasSameWidth");
 			graduallyScore = XMLUtils.getAttributeAsBoolean(ordering, "graduallyScore");
 			disableDragging = XMLUtils.getAttributeAsBoolean(ordering, "disableDragging");
+			wrapItems = XMLUtils.getAttributeAsBoolean(ordering, "wrapItems");
 			dontGenerateCorrectOrder = XMLUtils.getAttributeAsBoolean(ordering, "dontGenerateCorrectOrder");
 			this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(ordering, "selected"));
 			this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(ordering, "deselected"));
@@ -247,6 +250,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		XMLUtils.setBooleanAttribute(ordering, "allElementsHasSameWidth", allElementsHasSameWidth);
 		XMLUtils.setBooleanAttribute(ordering, "graduallyScore", graduallyScore);
 		XMLUtils.setBooleanAttribute(ordering, "disableDragging", disableDragging);
+		XMLUtils.setBooleanAttribute(ordering, "wrapItems", wrapItems);
 		XMLUtils.setBooleanAttribute(ordering, "dontGenerateCorrectOrder", dontGenerateCorrectOrder);
 		ordering.setAttribute("optionalOrder", optionalOrder);
 		ordering.setAttribute("lang", this.langAttribute);
@@ -618,6 +622,49 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 
 	public boolean isDisableDragging() {
 		return disableDragging;
+	}
+	
+	private void addPropertyWrapItems() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != wrapItems) {
+					wrapItems = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return wrapItems ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return "Wrap items";//DictionaryWrapper.get("ordering_disable_dragging");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return "Wrap items";//DictionaryWrapper.get("ordering_disable_dragging");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+
+	public boolean isWrapItems() {
+		return wrapItems;
 	}
 
 	private void addPropertyDontGenerateCorrectOrder() {

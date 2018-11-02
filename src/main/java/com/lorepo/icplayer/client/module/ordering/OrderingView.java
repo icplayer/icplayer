@@ -125,6 +125,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 		initWidget(innerCellPanel);
 		setStyleName("ic_ordering");
+		if(this.module.isWrapItems()) {
+			addStyleName("ic_ordering-wrapping");
+		}
 		StyleUtils.applyInlineStyle(this, module);
 
 		if (playerServices != null) {
@@ -148,16 +151,16 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 	
 	private void makeSortable() {
-		makeSortable(this, getElement(), jsObject, workMode);
+		makeSortable(this, getElement(), jsObject, workMode, this.module.isWrapItems());
 	};
 
-	private native void makeSortable(OrderingView x, Element e, JavaScriptObject jsObject, boolean workMode)/*-{
+	private native void makeSortable(OrderingView x, Element e, JavaScriptObject jsObject, boolean workMode, boolean wrapItems)/*-{
 		var selector = jsObject.axis == "y" ? "tbody" : "tbody tr";
 		var displayType = jsObject.axis == "y" ? "table-row" : "table-cell";
 		var forceHide = false;
 		var isPreview = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isPreview()();
 		var isDisableDragging = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isDisableDragging()();
-		
+
 		if (isPreview || isDisableDragging) return;
 		
 		if (!workMode) {
@@ -166,12 +169,15 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		} else {
 			$wnd.$(e).find(selector).sortable("enable");	
 		}
-		
+
 		$wnd.$(e).find(selector).sortable({
 			placeholder: "ic_ordering-placeholder",
-			axis: jsObject.axis,
+			axis: wrapItems ? null : jsObject.axis,
 			helper : 'clone',
-			cursorAt: { left: 5 },
+			cursorAt: wrapItems ? null : { left: 5 },
+			handle: '.ic_ordering-item',
+			tolerance: wrapItems ? 'pointer' : 'intersect',
+			toleranceElement: wrapItems ? '.ic_ordering-item' : null,
 			start: function(event, ui) {
 				jsObject.markStart(ui.item.index());
 				ui.helper.html(ui.item.html());
@@ -193,6 +199,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 				jsObject.markEnd(ui.item.index());
 				if (forceHide) {
 					ui.item.style("display", displayType, "important");
+				}
+				if (wrapItems) {
+					ui.item.style("display", "inline-block");
 				}
 			},
 			change: function( event, ui ) {
