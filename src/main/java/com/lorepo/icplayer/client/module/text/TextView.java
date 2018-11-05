@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -36,6 +37,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private boolean isWCAGon = false;
 	private boolean isShowErrorsMode = false;
 	private boolean mathJaxIsLoaded = false;
+	private JavaScriptObject mathJaxHook = null;
 	
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
@@ -45,7 +47,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void mathJaxLoaded() {
-		MathJax.setCallbackForMathJaxLoaded(this); 
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this); 
 	}
 	
 	private void createUI (boolean isPreview) {
@@ -613,6 +615,21 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private void speak (List<TextToSpeechVoice> textVoices) {
 		if (this.pageController != null && this.isWCAGon) {
 			this.pageController.speak(textVoices);
+		}
+	}
+	
+	@Override
+	protected void onDetach() {		
+		this.removeHook();
+		
+		super.onDetach();
+	};
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
+			this.mathJaxHook = null;
 		}
 	}
 	

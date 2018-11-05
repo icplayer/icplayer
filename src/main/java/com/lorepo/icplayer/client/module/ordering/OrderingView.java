@@ -61,6 +61,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private boolean isWCAGOn = false;
 	private PageController pageController;
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
+	private JavaScriptObject mathJaxHook = null;
 	
 	private final String ITEM_CORRECT_CLASS = "ic_ordering-item-correct";
 	private final String ITEM_WRONG_CLASS = "ic_ordering-item-wrong";
@@ -142,7 +143,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	
 	@Override
 	public void mathJaxLoaded() {
-		MathJax.setCallbackForMathJaxLoaded(this); 
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
 	}
 	
 	private boolean isDisableDragging() {
@@ -925,6 +926,20 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		if (this.pageController != null) {
 			this.pageController.speak(textVoices);
 		}
+	}
+	
+	@Override
+	protected void onDetach() {
+		this.removeHook();
+		
+		super.onDetach();
+	};
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
+		}		
 	}
 	
 }
