@@ -36,9 +36,10 @@ import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
+import com.lorepo.icplayer.client.utils.MathJaxElement;
 
 
-public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGModuleView {
+public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGModuleView, MathJaxElement {
 
 	private final OrderingModule module;
 	private final IPlayerServices playerServices;
@@ -60,6 +61,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private boolean isWCAGOn = false;
 	private PageController pageController;
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
+	private JavaScriptObject mathJaxHook = null;
 	
 	private final String ITEM_CORRECT_CLASS = "ic_ordering-item-correct";
 	private final String ITEM_WRONG_CLASS = "ic_ordering-item-wrong";
@@ -68,7 +70,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.module = module;
 		this.playerServices = services;
 		createUI(module, isPreview);
-		this.setCallbackForMathJaxLoaded(this);
+		mathJaxLoaded();
 	}
 
 	@Override
@@ -137,6 +139,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		getAsJavaScript();
 		makeSortable();
 		getElement().setAttribute("lang", this.getLang());
+	}
+	
+	@Override
+	public void mathJaxLoaded() {
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
 	}
 	
 	private boolean isDisableDragging() {
@@ -674,7 +681,8 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.listener = listener;
 	}
 
-	void refreshMath() {
+	@Override
+	public void refreshMath() {
 		MathJax.rerenderMathJax(getElement());
 	}
 
@@ -683,15 +691,8 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		setVisible(false);
 	}
 
-	private native void setCallbackForMathJaxLoaded(OrderingView x) /*-{
-	$wnd.MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
-        if ($wnd.$(message[1]).hasClass('ic_page')) {
-            x.@com.lorepo.icplayer.client.module.ordering.OrderingView::mathJaxIsLoadedCallback()();
-        }
-    });
-	}-*/;
-	
-	void mathJaxIsLoadedCallback() {
+	@Override
+	public void mathJaxIsLoadedCallback() {
 		this.mathJaxIsLoaded = true;
 		if (this.shouldRefreshMath) {
 			this.refreshMath();
@@ -925,6 +926,20 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		if (this.pageController != null) {
 			this.pageController.speak(textVoices);
 		}
+	}
+	
+	@Override
+	protected void onDetach() {
+		this.removeHook();
+		
+		super.onDetach();
+	};
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
+		}		
 	}
 	
 }
