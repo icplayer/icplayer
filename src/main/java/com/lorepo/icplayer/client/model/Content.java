@@ -27,7 +27,7 @@ import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public class Content implements IContentBuilder, IContent {
 
-	public final static String version = "2";
+	public final static String version = "3";
 	public enum ScoreType { first, last }
 
 	private static final String COMMONS_FOLDER = "commons/";
@@ -267,6 +267,7 @@ public class Content implements IContentBuilder, IContent {
 		return adaptiveStructure;
 	}
 
+	@Override
 	public void setAdaptiveStructure(String structure) {
 		this.adaptiveStructure = structure;
 	}

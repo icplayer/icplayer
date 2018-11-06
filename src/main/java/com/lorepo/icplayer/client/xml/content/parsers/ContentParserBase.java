@@ -82,8 +82,7 @@ public abstract class ContentParserBase implements IContentParser {
 					content.setAssets(assets);
 				}
 				else if (name.compareTo("adaptive") == 0) {
-					String structure = XMLUtils.getText(child);
-					content.setAdaptiveStructure(structure);
+					content = parseAdaptiveStructure(content, child);
 				}
 			}
 		}		
@@ -260,5 +259,9 @@ public abstract class ContentParserBase implements IContentParser {
 		styles.put("default", defaultStyle);
 	
 		return styles;
+	}
+	
+	protected Content parseAdaptiveStructure(IContentBuilder content, Element xml) {
+		return (Content) content;
 	}
 }
