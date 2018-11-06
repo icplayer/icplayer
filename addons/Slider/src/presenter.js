@@ -360,7 +360,7 @@ function AddonSlider_create () {
         if (window.navigator.msPointerEnabled && MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
             presenter.isWindowsMobile = true;
         }
-        console.log(presenter.isWindowsMobile);
+
         var imageElement = $(addonContainer.find(CLASSES_NAMES.ELEMENT_IMAGE.SELECTOR))[0];
 
         $(imageElement).hover(
