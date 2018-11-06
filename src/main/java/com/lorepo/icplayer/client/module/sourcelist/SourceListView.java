@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -29,9 +30,10 @@ import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter.IDisplay
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
+import com.lorepo.icplayer.client.utils.MathJaxElement;
 
 
-public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGModuleView {
+public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGModuleView, MathJaxElement{
 
 	private static final String SELECTED_STYLE = "ic_sourceListItem-selected";
 	private final SourceListModule module;
@@ -47,10 +49,13 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	private ArrayList <String> labelsIds = new ArrayList <String>();
 	private PageController pageController;
 	private boolean isWCAGOn = false;
-
+	private boolean mathJaxIsLoaded = false;
+	private JavaScriptObject mathJaxHook = null;
+	
 	public SourceListView(SourceListModule module, boolean isPreview){
 		this.module = module;
 		createUI(isPreview);
+		mathJaxLoaded();
 	}
 
 	private void createUI(boolean isPreview) {
@@ -76,6 +81,11 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		}
 	}
 
+	@Override
+	public void mathJaxLoaded() {
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
+	}
+	
 	@Override
 	public void setDragMode() {
 		isDragged = true;
@@ -254,17 +264,30 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	public void refreshMath(Element element) {
 		MathJax.refreshMathJax(element);
 	}
+	
+	@Override
+	public void refreshMath() {
+		MathJax.refreshMathJax(getElement());
+	}
+	
+	
+	@Override
+	public void mathJaxIsLoadedCallback() {
+		this.mathJaxIsLoaded = true;
+		this.refreshMath();
+	}
 
 	@Override
 	public void show() {
 		setVisible(true);
-		refreshMath(getElement());
+		if (this.mathJaxIsLoaded) {
+			refreshMath();
+		}
 	}
 
 	@Override
 	public void hide() {
 		setVisible(false);
-		refreshMath(getElement());
 	}
 
 	@Override
@@ -472,5 +495,19 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	@Override
 	public String getLang () {
 		return this.module.getLangAttribute();
+	}
+	
+	@Override
+	protected void onDetach() {
+		this.removeHook();
+		
+		super.onDetach();
+	};
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
+		}		
 	}
 }
