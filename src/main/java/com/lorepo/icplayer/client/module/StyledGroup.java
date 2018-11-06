@@ -10,23 +10,24 @@ import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.semi.responsive.SemiResponsiveStyles;
 
 
-class StyledModule extends AbsolutePositioningModule implements IStyledModule {
+public class StyledGroup extends AbsolutePositioningGroup implements IStyledModule {
 
 	private IStyleListener styleListener;
 	private SemiResponsiveStyles semiResponsiveStyles = new SemiResponsiveStyles();
 
 	
-	public StyledModule(String name) {
+	public StyledGroup(String name) {
 		super(name);
 	}
 
+	
+	public SemiResponsiveStyles getSemiResponsiveStyles() {
+		return semiResponsiveStyles;
+	}
+	
 	@Override
 	public void addStyleListener(IStyleListener listener){
 		styleListener = listener;
-	}
-	
-	public SemiResponsiveStyles getSemiResponsiveStyles() {
-		return this.semiResponsiveStyles;
 	}
 	
 	@Override
@@ -68,7 +69,7 @@ class StyledModule extends AbsolutePositioningModule implements IStyledModule {
 	
 	@Override
 	public String getClassNamePrefix() {
-		return "";
+		return "moduleGroup";
 	};
 	
 	
@@ -101,4 +102,6 @@ class StyledModule extends AbsolutePositioningModule implements IStyledModule {
 		this.semiResponsiveStyles.syncStyles(actualSemiResponsiveLayouts, this.getDefaultSemiResponsiveID());
 		
 	}
+	
+	
 }
