@@ -244,10 +244,10 @@ function AddonHierarchical_Lesson_Report_create() {
 
             if (presenter.configuration.showMaxScoreField) {
                 var isMaxScore = pageScore === score.maxScore && score.maxScore !== 0;
-
                 var $td = $('<td></td>');
                 $td.addClass(isMaxScore ? 'hier_report-page-max-score' : 'hier_report-page-non-max-score');
-
+                var $element = generateMaxScoreLinks(pageId,isMaxScore);
+                $($td).append($element);
                 $(row).append($td);
             }
         } else {
@@ -264,6 +264,14 @@ function AddonHierarchical_Lesson_Report_create() {
 
         return pageScore + "<span class='hier_report-separator'>/</span>" + score.maxScore;
     };
+
+    function generateMaxScoreLinks(pageId, isMaxScore) {
+        var $element = $(document.createElement('td'));
+        $element.addClass(isMaxScore ? 'hier_report-page-max-score' : 'hier_report-page-non-max-score');
+        var $link = $("<a></a>").attr('href', '#').attr('data-page-id', pageId);
+        $link.append($element);
+        return $link;
+    }
 
     function generatePageLinks(text, isChapter, pageId) {
         var $element = $(document.createElement('td')),
