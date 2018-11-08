@@ -256,11 +256,10 @@ function AddonSlider_create () {
             var relativeDistance;
 
             if(presenter.isTouched) {
-                var scaleX = playerController.getScaleInformation().scaleX;
-                var scaleY = playerController.getScaleInformation().scaleY;
-                if (scaleX !== 1.0 || scaleY !== 1.0) {
-                    mousePositions.x = mousePositions.x / scaleX;
-                    mousePositions.y = mousePositions.y / scaleY;
+                var scale = playerController.getScaleInformation();
+                if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
+                    mousePositions.x = mousePositions.x / scale.scaleX;
+                    mousePositions.y = mousePositions.y / scale.scaleY;
                 }
             }
 
