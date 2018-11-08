@@ -152,16 +152,6 @@ function AddonSlider_create () {
 
     };
 
-    function getScale() {
-        var $content = $("#content"); // the div transform css is attached to
-		if($content.size()>0){
-            var contentElem = $content[0];
-            var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
-            var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
-            return {X:scaleX, Y:scaleY};
-		};
-		return {X:1.0, Y:1.0};
-    }
 
     function mouseDownCallback (eventData) {
         if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
@@ -266,10 +256,11 @@ function AddonSlider_create () {
             var relativeDistance;
 
             if(presenter.isTouched) {
-                var scale = getScale();
-                if (scale.X !== 1.0 || scale.Y !== 1.0) {
-                    mousePositions.x = mousePositions.x / scale.X;
-                    mousePositions.y = mousePositions.y / scale.Y;
+                var scaleX = playerController.getScaleInformation().scaleX;
+                var scaleY = playerController.getScaleInformation().scaleY;
+                if (scaleX !== 1.0 || scaleY !== 1.0) {
+                    mousePositions.x = mousePositions.x / scaleX;
+                    mousePositions.y = mousePositions.y / scaleY;
                 }
             }
 
