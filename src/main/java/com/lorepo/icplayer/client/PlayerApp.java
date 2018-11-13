@@ -265,8 +265,8 @@ public class PlayerApp {
 				if ((typeof event.data == 'string' || event.data instanceof String) && event.data.indexOf('I_FRAME_SIZES:') === 0) {
 					var scroll = $wnd.iframeSize.offsetTop;
 					offsetIframe = $wnd.iframeSize.notScaledOffset;
-					sum = $wnd.iframeSize.windowInnerHeight - offsetIframe - icFooterHeight + scroll;
-					if (sum >= ($wnd.iframeSize.height - icFooterHeight)) {
+					sum = $wnd.iframeSize.windowInnerHeight - offsetIframe - icFooterHeight + scroll; 
+					if (parseInt(sum) >= (parseInt($wnd.iframeSize.height) - parseInt(icFooterHeight))) {
 						$wnd.$(".ic_static_footer").css("top", "auto");
 					} else {
 						$wnd.$(".ic_static_footer").css("top", sum + "px");
