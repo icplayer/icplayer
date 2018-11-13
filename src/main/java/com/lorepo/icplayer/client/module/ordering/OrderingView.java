@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DomEvent;
@@ -23,6 +24,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
@@ -62,6 +64,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private PageController pageController;
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
 	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
 	
 	private final String ITEM_CORRECT_CLASS = "ic_ordering-item-correct";
 	private final String ITEM_WRONG_CLASS = "ic_ordering-item-wrong";
@@ -128,7 +131,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		initWidget(innerCellPanel);
 		setStyleName("ic_ordering");
 		StyleUtils.applyInlineStyle(this, module);
-
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (playerServices != null) {
 			randomizeViewItems();
 			saveScore();
@@ -941,5 +944,18 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
 		}		
 	}
+	
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
+	
+	
 	
 }
