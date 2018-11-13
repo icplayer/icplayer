@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.Widget;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -26,6 +27,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	private IPlayerServices playerServices;
 	private PageController pageController;
 	private boolean isWCAGOn = false;
+	private String originalDisplay = null;
 
 	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
@@ -76,7 +78,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		if(button instanceof ButtonBase){
 			ButtonBase pushButton = (ButtonBase) button;
 			StyleUtils.applyInlineStyle(pushButton, module);
-	
+			originalDisplay = pushButton.getElement().getStyle().getDisplay();
 			pushButton.setText(module.getText());
 		}
 
@@ -248,5 +250,16 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	public String getLang() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		JavaScriptUtils.log("original display");
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
 	}
 }

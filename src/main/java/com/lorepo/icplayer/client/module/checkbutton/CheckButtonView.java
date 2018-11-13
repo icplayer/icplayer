@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.PushButton;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -24,6 +25,7 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 	private boolean isWCAGOn;
 	private IPlayerServices playerServices;
 	private PageController pageController;
+	private String originalDisplay;
 
 	public CheckButtonView(CheckButtonModule module, IPlayerServices services) {
 		this.playerServices = services;
@@ -37,6 +39,7 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 	private void createUI() {
 
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		updateStyle();
 
 		if (playerServices != null) {
@@ -234,6 +237,17 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 			return titlePostfix;
 		} else {
 			return "";
+		}
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		JavaScriptUtils.log("original display");
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
 		}
 	}
 }
