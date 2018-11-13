@@ -356,7 +356,7 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		TextPresenter presenter = new TextPresenter(module, services);
 		
 		TextView textView = new TextView(module, false);
-	
+
 		com.google.gwt.user.client.Element widget1 = DOM.createElement("div");
 		widget1.setId("1");
 		Document.get().getBody().appendChild(widget1);

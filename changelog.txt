@@ -1,5 +1,7 @@
+2018-11-02 Added removal of MathJax "End Process" hooks after modules detach  
+2018-10-25 Fixed problem with loading math jax
 2018-10-25 Added new addon audio recorder
-201810-16 Hierarchical lesson report add maxscore link
+2018-10-16 Hierarchical lesson report add maxscore link
 2018-10-16 Added property Plate Image in Catch module
 2018-10-15 Fixed iFrame visible in the editor when the hide option is enabled
 2018-10-12 Shooting range impoving the game.
