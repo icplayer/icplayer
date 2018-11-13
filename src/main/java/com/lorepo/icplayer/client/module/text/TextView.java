@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -329,7 +330,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void show(boolean callRefreshMath) {
-		setVisible(true);
+		Element element = getElement();
+		if (element.getStyle().getVisibility().equals("hidden")) {
+            element.getStyle().setProperty("visibility", "visible");
+            element.getStyle().setProperty("display", "block");
+        }
 		if (this.mathJaxIsLoaded) {
 			refreshMath();
 		}
