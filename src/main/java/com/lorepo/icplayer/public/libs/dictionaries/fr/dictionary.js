@@ -397,6 +397,7 @@ var ice_dictionary_fr = {
     "ordering_item" : "Elément numéro",
     "ordering_item_text" : "Texte",
     "ordering_gradually_score": "Résultat progressif",
+	"ordering_disable_dragging": "Disable dragging",
     "ordering_item_starting_position": "Starting position",
     "page_progress_module" : "Progression de la page",
     "Page_progress_property_works_with" : "Works with",
@@ -1074,6 +1075,7 @@ var ice_dictionary_fr = {
     "Paragraph_property_custom_toolbar": "Personnaliser la barre d'outils",
     "Paragraph_property_custom_css": "Personnaliser le CSS",
     "Paragraph_property_placeholder_text": "Texte emplacement réservé",
+	"Paragraph_property_editable_placeholder": "Editable placeholder",
     "Paragraph_Keyboard_info": "Permet à un utilisateur de saisir un texte libre qui s'affichera tel quel et avec les caractères diacritiques.",
     "Paragraph_Keyboard_name": "Clavier de caractères spéciaux",
     "Paragraph_Keyboard_property_default_font_family": "Famille de police par défaut",
@@ -1772,6 +1774,7 @@ var ice_dictionary_fr = {
     "Catch_property_count_errors": "Count errors",
     "Catch_property_item_width": "Item width",
     "Catch_property_item_height": "Item height",
+    "Catch_property_plate_image": "Plate image",
     "Maze_info": "Resolve questions and complete maze",
     "Maze_name": "Maze",
     "Maze_property_width": "Rows",
@@ -1891,5 +1894,13 @@ var ice_dictionary_fr = {
     "Double_State_Button_property_image_selected_alternative_text": "Image selected alternative text",
     "Double_state_button_speech_text_disabled": "Do not read the Speech texts",
     "copy_page_layout": "Copy page settings",
-    "copy_page_layout_question": "You are going to copy page settings from layout: "
+    "copy_page_layout_question": "You are going to copy page settings from layout: ",
+    "Media_Recorder_name": "Media Recorder",
+    "Media_Recorder_info": "Media Recorder",
+    "Media_Recorder_property_type": "Media type",
+    "Media_Recorder_property_max_time": "Maximum recording duration",
+    "Media_Recorder_property_default_recording": "Default recording",
+    "Media_Recorder_property_start_recording_sound": "Recording start sound",
+    "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
+    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording"
 };
