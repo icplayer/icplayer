@@ -18,6 +18,7 @@ public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDi
 	private ErrorCounterModule module;
 	private boolean isWCAGOn = false;
 	private PageController pageController;
+	private String originalDisplay = "";
 	
 	
 	public ErrorCounterView(ErrorCounterModule module, boolean isPreview){
@@ -25,6 +26,7 @@ public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDi
 		this.module = module;
 		setStyleName("ic_errorcounter");
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if(isPreview){
 			setText("5");
 		}else{
@@ -154,4 +156,14 @@ public class ErrorCounterView extends Label implements ErrorCounterPresenter.IDi
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
 }
