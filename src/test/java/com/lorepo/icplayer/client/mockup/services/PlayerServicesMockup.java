@@ -12,6 +12,7 @@ import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
@@ -206,5 +207,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public boolean changeSemiResponsiveLayout(String layoutID) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+
+	@Override
+	public IAdaptiveLearningService getAdaptiveLearningService() {
+		return null;
 	}
 }

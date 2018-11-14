@@ -11,6 +11,7 @@ import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.content.services.TimeService;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IReportableService;
@@ -262,6 +263,12 @@ public class PlayerControllerMockup implements IPlayerController {
 	public boolean isPlayerInCrossDomain() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+
+	@Override
+	public IAdaptiveLearningService getAdaptiveLearningService() {
+		return null;
 	}
 
 }
