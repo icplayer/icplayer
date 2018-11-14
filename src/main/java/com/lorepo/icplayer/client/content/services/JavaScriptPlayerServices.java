@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
@@ -18,6 +19,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
@@ -31,6 +33,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
+import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
@@ -526,6 +529,20 @@ public class JavaScriptPlayerServices {
 		playerServices.changeResponsiveLayout = function (layoutIDOrName) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeSemiResponsiveLayout(Ljava/lang/String;)(layoutIDOrName);
 		}
+		
+		playerServices.getAdaptiveLearningService = function () {
+			var adaptive = function() {};
+			
+			adaptive.getCurrentPageConnections = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveConnectionCurrentPage()();
+			};
+			
+			adaptive.getPageConnections = function(pageID) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveConnectionForPage(Ljava/lang/String;)(pageID);
+			};
+			
+			return adaptive;
+		}
 
 		return playerServices;
 	}-*/;
@@ -946,5 +963,13 @@ public class JavaScriptPlayerServices {
 		NativeEvent event = Document.get().createKeyDownEvent(false, false, reverseDirection, false, 9);
 		// Send a Tab or Tab+Shift keydown event to the keyboard controller
 		DomEvent.fireNativeEvent(event,  RootPanel.get());
+	}
+	
+	public JsArray<AdaptiveConnection> getAdaptiveConnectionCurrentPage() {
+		return this.playerServices.getAdaptiveLearningService().getConnectionsForPage();
+	}
+	
+	public JsArray<AdaptiveConnection> getAdaptiveConnectionForPage(String pageID) {
+		return this.playerServices.getAdaptiveLearningService().getConnectionsForPage(pageID);
 	}
 }

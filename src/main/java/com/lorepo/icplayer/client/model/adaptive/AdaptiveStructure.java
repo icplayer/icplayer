@@ -1,31 +1,29 @@
 package com.lorepo.icplayer.client.model.adaptive;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
+import com.lorepo.icplayer.client.model.page.Page;
 
 
 public class AdaptiveStructure {
-	public Map<String, JsArray<AdaptiveConnection>> adjacencyList;
-
+	private AdaptiveAdjacencyList adjacencyList;
+	
 	public AdaptiveStructure(String json) {
-		this.adjacencyList = new HashMap<String, JsArray<AdaptiveConnection>>();
-
-		JsArray<AdaptiveConnection> values = this.getValues(json);
-		
-		for (int i = 0; i < values.length(); i++) {
-			AdaptiveConnection connection = values.get(i);
-		}
-
+		this.adjacencyList = getValues(json);
 	}
 	
-	private native JsArray<AdaptiveConnection> getValues(String json) /*-{
-		var parsedJSON = JSON.parse(json);
-		
-		return parsedJSON.edges;
+	public JsArray<AdaptiveConnection> getConnectionsForPage(String pageID) {
+		return this.adjacencyList.getConnectionsForPage(pageID);
+	}
+	
+	private native AdaptiveAdjacencyList getValues(String json) /*-{
+		$wnd.console.log(json);
+		if (json !== ''&& json !== null && json !== undefined) { 
+			var parsedJSON = JSON.parse(json);
+			
+			return parsedJSON.edges;
+		} else {
+			return {};
+		}
 	}-*/;
 	
 }

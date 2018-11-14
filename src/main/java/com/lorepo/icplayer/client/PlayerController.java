@@ -15,6 +15,7 @@ import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.UUID;
+import com.lorepo.icplayer.client.content.services.AdaptiveLearningService;
 import com.lorepo.icplayer.client.content.services.AssetsService;
 import com.lorepo.icplayer.client.content.services.ReportableService;
 import com.lorepo.icplayer.client.content.services.ScoreService;
@@ -25,6 +26,7 @@ import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.PageList;
 import com.lorepo.icplayer.client.model.page.PopupPage;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -54,6 +56,7 @@ public class PlayerController implements IPlayerController{
 	private final AssetsService		assetsService;
 	private final StateService		stateService;
 	private final ReportableService reportableService;
+	private final AdaptiveLearningService adaptiveLearningService;
 	private ILoadListener		pageLoadListener;
 	private PagePopupPanel		popupPanel;
 	private final String sessionId;
@@ -89,6 +92,9 @@ public class PlayerController implements IPlayerController{
 		this.isIframeInCrossDomain = checkIsPlayerInCrossDomain();
 		this.getIFrameScroll(this);
 		this.lang = content.getMetadataValue("lang");
+		
+		// TODO: Two pages controllers?
+		this.adaptiveLearningService = new AdaptiveLearningService(this.pageController1, content.getAdaptiveStructure());
 	}
 
 	private void createPageControllers(boolean bookMode) {
@@ -719,6 +725,11 @@ public class PlayerController implements IPlayerController{
 	
 	public boolean isWCAGOn() {
 		return this.keyboardController.isWCAGOn();
+	}
+
+	@Override
+	public IAdaptiveLearningService getAdaptiveLearningService() {
+		return this.adaptiveLearningService;
 	}
 
 }

@@ -12,6 +12,7 @@ import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
@@ -312,5 +313,10 @@ public class PlayerServices implements IPlayerServices {
 			return pc.isWCAGOn();
 		}
 		return false;
+	}
+
+	@Override
+	public IAdaptiveLearningService getAdaptiveLearningService() {
+		return this.playerController.getAdaptiveLearningService();
 	}
 }

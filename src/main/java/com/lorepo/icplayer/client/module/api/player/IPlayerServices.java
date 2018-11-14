@@ -26,6 +26,7 @@ public interface IPlayerServices {
 	public IStateService 	getStateService();
 	public IJsonServices	getJsonServices();
 	public IReportableService getReportableService();
+	public IAdaptiveLearningService getAdaptiveLearningService();
 	public JavaScriptObject getAsJSObject();
 	public IPresenter getModule(String moduleName);
 	public boolean isBookMode();
