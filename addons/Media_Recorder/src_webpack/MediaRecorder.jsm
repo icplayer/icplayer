@@ -23,7 +23,7 @@ export class MediaRecorder {
     run(view, model) {
         let validatedModel = validateModel(model);
 
-        if (window.DevicesUtils.isInternetExplorer()) {
+        if (this._isBrowserNotSupported()) {
             this._showBrowserError(view)
         } else if (validatedModel.isValid)
             this._runAddon(view, validatedModel.value);
@@ -434,7 +434,7 @@ export class MediaRecorder {
     _showBrowserError(view) {
         let $wrapper = $(view).find(".media-recorder-wrapper");
         $wrapper.addClass("media-recorder-wrapper-browser-not-supported");
-        $wrapper.text(Errors["not_supported_browser"]);
+        $wrapper.text(Errors["not_supported_browser"] + window.DevicesUtils.browserVersion());
     }
 
     _updatePreview(view, validatedModel) {
@@ -458,5 +458,21 @@ export class MediaRecorder {
             this.viewHandlers.$timerView.hide();
         if (this.model.isShowedDefaultRecordingButton == false)
             this.viewHandlers.$defaultRecordingPlayButtonView.hide();
+    }
+
+    _isBrowserNotSupported() {
+        const browser = window.DevicesUtils.browserVersion().split(" ")[0].toLowerCase();
+        const browserVersion = window.DevicesUtils.browserVersion().split(" ")[1];
+
+        if (browser.indexOf("safari") > 0 && browserVersion < 11)
+            return true;
+
+        if (browser.indexOf("chrome") > 0 && browserVersion < 53)
+            return true;
+
+        if (window.DevicesUtils.isInternetExplorer())
+            return true;
+
+        return false;
     }
 }
