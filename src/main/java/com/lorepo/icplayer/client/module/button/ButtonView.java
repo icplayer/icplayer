@@ -254,7 +254,6 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	
 	@Override
 	public void setVisible(boolean visible) {
-		JavaScriptUtils.log("original display");
 		if (visible) {
 			super.setVisible(true);
 			getElement().getStyle().setProperty("display", originalDisplay);	
