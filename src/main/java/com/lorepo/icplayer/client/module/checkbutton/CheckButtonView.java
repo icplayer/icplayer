@@ -242,7 +242,6 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 	
 	@Override
 	public void setVisible(boolean visible) {
-		JavaScriptUtils.log("original display");
 		if (visible) {
 			super.setVisible(true);
 			getElement().getStyle().setProperty("display", originalDisplay);	
