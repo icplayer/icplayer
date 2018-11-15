@@ -649,6 +649,7 @@ public class PlayerApp {
 		String score = playerController.getPlayerServices().getScoreService().getAsString();
 		String time = playerController.getPlayerServices().getTimeService().getAsString();
 		String isReportable = playerController.getPlayerServices().getReportableService().getAsString();
+//		String adaptivePageHistory = playerController;
 
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("state", state);

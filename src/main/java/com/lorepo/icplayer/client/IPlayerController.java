@@ -48,6 +48,7 @@ public interface IPlayerController {
 	void enableKeyboardNavigation();
 	void disableKeyboardNavigation();
 	boolean isPlayerInCrossDomain();
+	String getCurrentPageId();
 
 	String getPageStamp();
 }

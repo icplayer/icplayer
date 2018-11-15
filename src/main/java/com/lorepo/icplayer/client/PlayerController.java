@@ -93,8 +93,7 @@ public class PlayerController implements IPlayerController{
 		this.getIFrameScroll(this);
 		this.lang = content.getMetadataValue("lang");
 		
-		// TODO: Two pages controllers?
-		this.adaptiveLearningService = new AdaptiveLearningService(this.pageController1, content.getAdaptiveStructure());
+		this.adaptiveLearningService = new AdaptiveLearningService(this, content.getAdaptiveStructure());
 	}
 
 	private void createPageControllers(boolean bookMode) {
@@ -730,6 +729,11 @@ public class PlayerController implements IPlayerController{
 	@Override
 	public IAdaptiveLearningService getAdaptiveLearningService() {
 		return this.adaptiveLearningService;
+	}
+
+	@Override
+	public String getCurrentPageId() {
+		return this.pageController1.getPage().getId();
 	}
 
 }
