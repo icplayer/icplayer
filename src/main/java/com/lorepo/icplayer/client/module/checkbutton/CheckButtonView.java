@@ -7,7 +7,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.PushButton;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;

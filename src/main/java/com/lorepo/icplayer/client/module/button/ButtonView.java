@@ -8,7 +8,6 @@ import com.google.gwt.user.client.ui.ButtonBase;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FocusWidget;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
