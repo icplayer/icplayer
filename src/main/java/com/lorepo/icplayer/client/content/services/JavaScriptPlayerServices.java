@@ -541,6 +541,18 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveConnectionForPage(Ljava/lang/String;)(pageID);
 			};
 			
+			adaptive.moveToNextPage = function (pageID) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveToNextPage(Ljava/lang/String;)(pageID);
+			}
+			
+			adaptive.moveToPrevPage = function () {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveToPrevPage()();
+			}
+			
+			adaptive.getAdaptiveState = function () {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveState()();
+			}
+			
 			return adaptive;
 		}
 
@@ -971,5 +983,18 @@ public class JavaScriptPlayerServices {
 	
 	public JsArray<AdaptiveConnection> getAdaptiveConnectionForPage(String pageID) {
 		return this.playerServices.getAdaptiveLearningService().getConnectionsForPage(pageID);
+	}
+	
+	public void moveToNextPage(String pageID) {
+		this.playerServices.getAdaptiveLearningService().moveToNextPage(pageID);
+	}
+	
+	public void moveToPrevPage() {
+		this.playerServices.getAdaptiveLearningService().moveToPrevPage();
+	}
+	
+	// TODO remove it later
+	public String getAdaptiveState() {
+		return this.playerServices.getAdaptiveLearningService().getStateAsString();
 	}
 }

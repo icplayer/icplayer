@@ -58,7 +58,7 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 	// if there is no next page, adds page with supplied id to history and loads it
 	// if there is next page, just loads it
 	public void moveToNextPage(String pageID) {
-		if (this.currentPageIndex == this.vistiedPageIndexes.size() - 1 && pageID != null) {
+		if (this.currentPageIndex == this.vistiedPageIndexes.size() - 1) {
 			this.playerController.switchToPageById(pageID);
 			this.vistiedPageIndexes.add(this.playerController.getCurrentPageIndex());
 			this.currentPageIndex++;
@@ -93,14 +93,15 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 	}
 
 	@Override
-	public void setState(String state) {
+	public void loadFromString(String state) {
 		if (state == null) {
 			return;
 		}
 		HashMap<String, String> data = JSONUtils.decodeHashMap(state);
 
 		if (data.containsKey(JSON_KEYS.CURRENT_PAGE_INDEX.toString())) {
-			this.currentPageIndex = Integer.getInteger(data.get(JSON_KEYS.CURRENT_PAGE_INDEX.toString()));
+			String value = data.get(JSON_KEYS.CURRENT_PAGE_INDEX.toString());
+			this.currentPageIndex = Integer.parseInt(value);
 		} else {
 			this.currentPageIndex = 0;
 		}

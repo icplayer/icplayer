@@ -11,5 +11,5 @@ public interface IAdaptiveLearningService {
 	public void moveToPrevPage();
 	
 	public String getStateAsString();
-	public void setState(String state);
+	public void loadFromString(String state);
 }
