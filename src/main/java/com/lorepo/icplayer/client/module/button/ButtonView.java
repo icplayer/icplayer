@@ -26,6 +26,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	private IPlayerServices playerServices;
 	private PageController pageController;
 	private boolean isWCAGOn = false;
+	private String originalDisplay = "";
 
 	public ButtonView(ButtonModule module, IPlayerServices services) {
 		this.module = module;
@@ -79,6 +80,8 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 			pushButton.setText(module.getText());
 		}
 
+		originalDisplay = button.getElement().getStyle().getDisplay();
+		
 		if(playerServices != null){
 			button.setVisible(module.isVisible());
 		}
@@ -247,5 +250,15 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	public String getLang() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
 	}
 }
