@@ -1922,5 +1922,6 @@ var ice_dictionary_en = {
     "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
     "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording",
     "Media_Recorder_property_is_showed_default_recording_button": "Show default recording play button",
-    "Media_Recorder_property_is_showed_timer": "Show timer"
+    "Media_Recorder_property_is_showed_timer": "Show timer",
+	"Editor_load_theme_error": "Error loading template <a class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">(find out more here)</a>"
 };

@@ -1902,5 +1902,6 @@ var ice_dictionary_mx = {
     "Media_Recorder_property_default_recording": "Default recording",
     "Media_Recorder_property_start_recording_sound": "Recording start sound",
     "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
-    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording"
+    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording",
+	"Editor_load_theme_error": "Error loading template <a class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">(find out more here)</a>"
 };
