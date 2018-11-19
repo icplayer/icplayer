@@ -12,6 +12,7 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
@@ -228,9 +229,9 @@ public class Content implements IContentBuilder, IContent {
 		xml += 	"</assets>";
 
 		// Adaptive
-		xml += "<adaptive>";
+		xml += "<adaptive><![CDATA[";
 		xml += adaptiveStructure;
-		xml += 	"</adaptive>";
+		xml += 	"]]></adaptive>";
 
 		xml += 	"</interactiveContent>";
 		return xml;
