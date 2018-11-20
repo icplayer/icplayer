@@ -92,11 +92,18 @@ export class BasePlayer extends Player {
     }
 
     _enableEventsHandling() {
+        const self = this;
         this.mediaNode.onloadstart = () => this.onStartLoadingCallback();
-        this.mediaNode.oncanplay = () => this.onEndLoadingCallback();
         this.mediaNode.onended = () => this.onEndPlayingCallback();
         this.mediaNode.onplay = () => this._onPlayCallback();
         this.mediaNode.onpause = () => this._onPausedCallback();
+
+        if (this._isMobieSafari())
+            this.mediaNode.onloadedmetadata = function () {
+                self.onEndLoadingCallback();
+            };
+        else
+            this.mediaNode.oncanplay = () => this.onEndLoadingCallback();
     }
 
     _disableEventsHandling() {
@@ -105,6 +112,8 @@ export class BasePlayer extends Player {
         this.mediaNode.onended = null;
         this.mediaNode.onplay = () => null;
         this.mediaNode.onpause = () => null;
+        this.mediaNode.onloadedmetadata = function () {
+        };
     }
 
     _getDuration() {
@@ -124,6 +133,10 @@ export class BasePlayer extends Player {
                 playerMock.volume = 0;
             }
         )
+    }
+
+    _isMobieSafari() {
+        return window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1 && window.MobileUtils.isSafariMobile(navigator.userAgent);
     }
 
     _isNotOnlineResources(source) {

@@ -22,7 +22,7 @@
         isEdge: function () {
             return navigator.userAgent.indexOf('Edge') !== -1 && (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob);
         },
-        browserVersion: function () { // source: https://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
+        getBrowserVersion: function () { // source: https://stackoverflow.com/questions/5916900/how-can-you-detect-the-version-of-a-browser
             var ua = navigator.userAgent, tem,
                 M = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
             if (/trident/i.test(M[1])) {

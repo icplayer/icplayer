@@ -17,8 +17,12 @@ export class RecordButton extends Button {
         this.onResetCallback();
     }
 
+    setUnclickView() {
+        this.$view.removeClass("selected");
+    }
+
     _eventHandler() {
-        if (this.state.isNew() || this.state.isLoaded() || this.state.isLoadedDefaultRecording())
+        if (this.state.isNew() || this.state.isLoaded() || this.state.isLoadedDefaultRecording() || this.state.isBlocekdSafari())
             this._startRecording();
         else if (this.state.isRecording())
             this._stopRecording()

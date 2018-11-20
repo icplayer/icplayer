@@ -9,6 +9,7 @@ export class MediaState {
         PLAYING: 5,
         PLAYING_DEFAULT_RECORDING: 6,
         LOADED_DEFAULT_RECORDING: 7,
+        BLOCKED_SAFARI: 8
     };
 
     constructor() {
@@ -41,6 +42,10 @@ export class MediaState {
 
     isLoadedDefaultRecording() {
         return this._value === this.values.LOADED_DEFAULT_RECORDING;
+    }
+
+    isBlocekdSafari() {
+        return this._value === this.values.BLOCKED_SAFARI;
     }
 
     isBlocked() {
@@ -77,6 +82,10 @@ export class MediaState {
 
     setBlocked() {
         this._value = this.values.BLOCKED;
+    }
+
+    setBlockedSafari() {
+        this._value = this.values.BLOCKED_SAFARI;
     }
 
     destroy() {
