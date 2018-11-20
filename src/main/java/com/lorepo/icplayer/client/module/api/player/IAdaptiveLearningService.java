@@ -9,6 +9,7 @@ public interface IAdaptiveLearningService {
 	public JsArray<AdaptiveConnection> getConnectionsForPage();
 	public void moveToNextPage(String pageID);
 	public void moveToPrevPage();
+	public void resetHistory();
 	
 	public String getStateAsString();
 	public void loadFromString(String state);

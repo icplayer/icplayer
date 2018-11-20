@@ -549,8 +549,8 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveToPrevPage()();
 			}
 			
-			adaptive.getAdaptiveState = function () {
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveState()();
+			adaptive.resetHistory = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetHistory()();
 			}
 			
 			return adaptive;
@@ -993,8 +993,7 @@ public class JavaScriptPlayerServices {
 		this.playerServices.getAdaptiveLearningService().moveToPrevPage();
 	}
 	
-	// TODO remove it later
-	public String getAdaptiveState() {
-		return this.playerServices.getAdaptiveLearningService().getStateAsString();
+	public void resetHistory() {
+		this.playerServices.getAdaptiveLearningService().resetHistory();
 	}
 }

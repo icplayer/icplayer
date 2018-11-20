@@ -97,6 +97,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Page_Name", "navigation_menu");
 		addDescriptor("Table_Of_Contents", "navigation_menu");
 		addDescriptor("Hierarchical_Table_Of_Contents", "navigation_menu");
+		addDescriptor("Adaptive_Next", "navigation_menu");
 
 		// MEDIA
 		addDescriptor("Viewer_3D", "media_menu");

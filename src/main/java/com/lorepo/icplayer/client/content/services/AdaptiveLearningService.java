@@ -111,4 +111,10 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		}
 	}
 
+	@Override
+	public void resetHistory() {
+		this.vistiedPageIndexes.clear();
+		this.vistiedPageIndexes.add(0);
+	}
+
 }
