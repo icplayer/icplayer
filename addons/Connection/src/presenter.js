@@ -656,9 +656,10 @@ function AddonConnection_create() {
                         ui.helper.css("visibility", "hidden");
                         var $iconWrapper = $(e).find(".iconWrapper");
                         scale = playerController.getScaleInformation();
-
-                        presenter.iconTop = $iconWrapper.position().top / scale.scaleY + ($iconWrapper.height()/2);
-                        presenter.iconLeft = $iconWrapper.position().left / scale.scaleX +  $iconWrapper.width();
+                        var position = presenter.getElementSnapPoint($iconWrapper);
+                        var viewOffset = $(presenter.view).offset();
+                        presenter.iconTop = position[1] - viewOffset.top / scale.scaleY;
+                        presenter.iconLeft = position[0] - viewOffset.left / scale.scaleY;
 
                         if (!isSelectionPossible) {
                             event.stopPropagation();
@@ -911,9 +912,13 @@ function AddonConnection_create() {
         var leftColumnWidth = $(view).find('.connectionLeftColumn:first').outerWidth(true);
         var rightColumnWidth = $(view).find('.connectionRightColumn:first').outerWidth(true);
         var width = model['Width'] - leftColumnWidth - rightColumnWidth;
+        var top = model['Top'];
+        var left = model['Left'];
 
         presenter.height = height;
         presenter.width = width;
+        presenter.top = parseInt(top, 10);
+        presenter.left = parseInt(left, 10);
 
         var context = connections[0].getContext('2d');
         context.canvas.width = width;
