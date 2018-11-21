@@ -145,6 +145,7 @@ function AddonShooting_Range_create() {
         presenter.actualizeAnswersWrapperHeight();
         presenter.state.isStarted = false;
         presenter.state.$questionDiv.html("&nbsp;");
+        presenter.state.$levelDiv.html("&nbsp;");
 
     };
 
