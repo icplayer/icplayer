@@ -1,3 +1,4 @@
+2018-11-21 Fixed toolbar and added color pickers in Paragraph module
 2018-11-02 Added removal of MathJax "End Process" hooks after modules detach  
 2018-10-25 Fixed problem with loading math jax
 2018-10-25 Added new addon audio recorder
