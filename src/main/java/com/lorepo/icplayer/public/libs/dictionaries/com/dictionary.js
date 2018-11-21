@@ -1922,5 +1922,10 @@ var ice_dictionary_en = {
     "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
     "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording",
     "Media_Recorder_property_is_showed_default_recording_button": "Show default recording play button",
-    "Media_Recorder_property_is_showed_timer": "Show timer"
+    "Media_Recorder_property_is_showed_timer": "Show timer",
+    "Adaptive_Next_name": "Adaptive button",
+    "Media_Recorder_info": "Button for navigating through adaptive structure",
+    "Adaptive_Next_property_next_direction": "Direction",
+    "Adaptive_Next_property_next_is_disabled": "Is disabled",
+    "Adaptive_Next_property_next_image": "Image"
 };

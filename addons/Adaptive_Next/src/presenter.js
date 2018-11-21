@@ -5,7 +5,18 @@ function AddonAdaptive_Next_create() {
 
     presenter.CONSTANTS = {
         NEXT_IMAGE: 'baseline-navigate_next-24px.svg',
-        PREV_IMAGE: 'baseline-navigate_prev-24px.svg'
+        PREV_IMAGE: 'baseline-navigate_before-24px.svg'
+    };
+
+    presenter.BUTTON_TYPE = {
+        NEXT: 'Next',
+        PREV: 'Previous'
+    };
+
+    presenter.state = {
+        isVisible: true,
+        isDisabled: false,
+        isErrorMode: false
     };
 
     presenter.executeUserEventCode = function() {
@@ -20,8 +31,8 @@ function AddonAdaptive_Next_create() {
             event.stopPropagation();
         }
 
-        if (presenter.configuration.isDisabled) return;
-        if (presenter.configuration.isErrorMode) return;
+        if (presenter.state.isDisabled) return;
+        if (presenter.state.isErrorMode) return;
 
         presenter.triggerButtonClickedEvent();
     };
@@ -43,32 +54,41 @@ function AddonAdaptive_Next_create() {
         DOMOperationsUtils.setReducedSize(wrapper, element);
     }
 
-    function createImageElement(element) {
-        var $imageElement = $(document.createElement('img'));
-        $imageElement.addClass('adaptive-next-image');
-
-        var resource = presenter.configuration.Direction ? presenter.CONSTANTS.NEXT_IMAGE : presenter.CONSTANTS.PREV_IMAGE;
+    function addImageBackground(element) {
+        var resource = presenter.getResourceName();
         var source = getImageUrlFromResources(resource);
 
         if (presenter.configuration.Image) {
             source = presenter.configuration.Image;
         }
 
-        $imageElement.attr('src', source);
-        $(element).append($imageElement);
+        element.css('background-image', 'url(' + source + ')');
     }
 
-    function createElements(wrapper) {
-        var $element = $(document.createElement('div'));
-        $element.addClass('adaptive-next-button-element');
+    presenter.getResourceName = function () {
+        if (presenter.configuration.Direction === presenter.BUTTON_TYPE.NEXT) {
+            return presenter.CONSTANTS.NEXT_IMAGE
+        } else {
+            return presenter.CONSTANTS.PREV_IMAGE;
+        }
+    };
+
+    presenter.createElement = function($element) {
         if (presenter.configuration.isTabindexEnabled) {$element.attr('tabindex', '0');}
 
-        createImageElement($element);
+        addImageBackground($element);
+    };
 
-        wrapper.append($element);
+    presenter.initView = function () {
+        var $wrapper = $(presenter.$view.find('.adaptive-next-wrapper')[0]);
+        var $element = presenter.$view.find('.adaptive-next-button-element');
 
-        return $element;
-    }
+        presenter.createElement($element);
+
+        setElementsDimensions(presenter.configuration, $wrapper, $element);
+        presenter.toggleDisable(presenter.configuration.isDisabled);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
+    };
 
     function presenterLogic(view, model, isPreview) {
         presenter.addonID = model.ID;
@@ -82,12 +102,8 @@ function AddonAdaptive_Next_create() {
 
         presenter.configuration = validatedModel.value;
 
-        var $wrapper = $(presenter.$view.find('.adaptive-next-wrapper')[0]);
-        var $element = createElements($wrapper);
 
-        setElementsDimensions(model, $wrapper, $element);
-        presenter.toggleDisable(presenter.configuration.isDisabled);
-        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
+        presenter.initView();
 
         if (!isPreview) {
             handleMouseActions();
@@ -96,6 +112,7 @@ function AddonAdaptive_Next_create() {
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
+        presenter.adaptiveLearningService = presenter.playerController.getAdaptiveLearningService();
 
         var eventBus = presenter.playerController.getEventBus();
 
@@ -126,7 +143,10 @@ function AddonAdaptive_Next_create() {
 
         var validatedModel = modelValidator.validate(model, [
             ModelValidators.utils.FieldRename("Is Visible", "isVisible", ModelValidators.Boolean('isVisible')),
-            ModelValidators.Boolean('Direction'),
+            ModelValidators.Enum('Direction', {
+                default: presenter.BUTTON_TYPE.NEXT,
+                values: [presenter.BUTTON_TYPE.NEXT, presenter.BUTTON_TYPE.PREV]
+            }),
             ModelValidators.utils.FieldRename("Is disabled", "isDisabled", ModelValidators.Boolean('isDisabled')),
             ModelValidators.Integer('Width'),
             ModelValidators.Integer('Height'),
@@ -150,26 +170,35 @@ function AddonAdaptive_Next_create() {
         Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.triggerButtonClickedEvent = function() {
-        if (presenter.playerController == null) return;
+    presenter.nextButtonTrigger = function() {
+        // this allows to inject custom pages states into window object, which will be used instead of player state
         presenter.isAdaptivePreviewMode = window.adaptivePreviewMode ? true : false;
 
-        var adaptiveLearningService = presenter.playerController.getAdaptiveLearningService();
 
-        if (!presenter.configuration.Direction) {
-            adaptiveLearningService.moveToPrevPage();
-            return;
-        }
-
-        var connections = adaptiveLearningService.getCurrentPageConnections();
+        var connections = presenter.adaptiveLearningService.getCurrentPageConnections();
 
         for (var i = 0; i < connections.length; i++) {
             var isMetCondition = presenter.evaluateCondition(connections[i].conditions);
 
             if (isMetCondition) {
-                adaptiveLearningService.moveToNextPage(connections[i].target);
+                presenter.adaptiveLearningService.moveToNextPage(connections[i].target);
                 return;
             }
+        }
+    };
+
+    presenter.prevButtonTrigger = function() {
+        presenter.adaptiveLearningService.moveToPrevPage();
+    };
+
+
+    presenter.triggerButtonClickedEvent = function() {
+        if (presenter.playerController == null) return;
+
+        if (presenter.configuration.Direction === presenter.BUTTON_TYPE.PREV) {
+            presenter.prevButtonTrigger();
+        } else {
+            presenter.nextButtonTrigger();
         }
     };
 
@@ -185,6 +214,7 @@ function AddonAdaptive_Next_create() {
         }
     };
 
+    // needed for condition evaluation
     function expect(pageID) {
         if (presenter.isAdaptivePreviewMode) {
             return window.pagesScores[pageID];
@@ -197,22 +227,23 @@ function AddonAdaptive_Next_create() {
 
 
     presenter.setVisibility = function(isVisible) {
+        presenter.state.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
     presenter.show = function() {
         this.setVisibility(true);
-        presenter.configuration.isVisible = true;
+        presenter.state.isVisible = true;
     };
 
     presenter.hide = function() {
         this.setVisibility(false);
-        presenter.configuration.isVisible = false;
+        presenter.state.isVisible = false;
     };
 
     presenter.reset = function() {
-        presenter.configuration.isErrorMode = false;
-        presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
+        presenter.state.isErrorMode = false;
+        presenter.state.isVisible = presenter.configuration.isVisible;
         if (presenter.configuration.isVisible) {
             this.show();
         } else {
@@ -230,53 +261,55 @@ function AddonAdaptive_Next_create() {
     };
 
     presenter.toggleDisable = function(disable) {
-        var element = presenter.$view.find('div[class*=singlestate-button-element]:first');
+        var element = presenter.$view.find('div[class*=adaptive-next-button-element]:first');
         if(disable) {
             element.addClass("disable");
         } else {
             element.removeClass("disable");
         }
-        presenter.configuration.isDisabled = disable;
+        presenter.state.isDisabled = disable;
     };
 
     presenter.getState = function() {
         return JSON.stringify({
-            isVisible: presenter.configuration.isVisible,
-            isDisabled: presenter.configuration.isDisabled
+            isVisible: presenter.state.isVisible,
+            isDisabled: presenter.state.isDisabled
         });
     };
 
     presenter.setState = function(stateString) {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
-
+        console.log(stateString);
         var state = JSON.parse(stateString);
-        presenter.configuration.isDisabled = state.isDisabled;
-        presenter.configuration.isVisible = state.isVisible;
 
-        if (presenter.configuration.isVisible) {
+
+        presenter.state.isDisabled = state.isDisabled;
+        presenter.state.isVisible = state.isVisible;
+
+        if (presenter.state.isVisible) {
             presenter.show();
         } else {
             presenter.hide();
         }
 
-        presenter.toggleDisable(presenter.configuration.isDisabled);
+        presenter.toggleDisable(presenter.state.isDisabled);
     };
 
     presenter.setShowErrorsMode = function () {
-        presenter.configuration.isErrorMode = true;
+        presenter.state.isErrorMode = true;
     };
 
     presenter.setWorkMode = function () {
-        presenter.configuration.isErrorMode = false;
+        presenter.state.isErrorMode = false;
     };
 
     presenter.onEventReceived = function (eventName) {
         if (eventName == "ShowAnswers") {
-            presenter.configuration.isErrorMode = true;
+            presenter.state.isErrorMode = true;
         }
 
         if (eventName == "HideAnswers") {
-            presenter.configuration.isErrorMode = false;
+            presenter.state.isErrorMode = false;
         }
     };
 

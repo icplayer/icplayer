@@ -112,9 +112,15 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 	}
 
 	@Override
-	public void resetHistory() {
+	public void resetHistory() {		
 		this.vistiedPageIndexes.clear();
 		this.vistiedPageIndexes.add(0);
+		this.currentPageIndex = 0;
+
+		if (currentPageIndex > 0) {
+			this.vistiedPageIndexes.add(this.playerController.getCurrentPageIndex());
+			this.currentPageIndex = 1;
+		}
 	}
 
 }

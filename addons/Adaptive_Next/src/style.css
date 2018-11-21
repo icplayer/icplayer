@@ -1,3 +1,18 @@
-.audio-play-btn {
-    background-image: url('resources/audio-play-btn.png');
+.adaptive-next-button-wrapper {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
 }
+
+.adaptive-next-button-element {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.adaptive-next-button-image {
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
