@@ -7,7 +7,9 @@ import com.lorepo.icplayer.client.model.page.Page;
 public interface IAdaptiveLearningService {
 	public JsArray<AdaptiveConnection> getConnectionsForPage(String pageID);
 	public JsArray<AdaptiveConnection> getConnectionsForPage();
-	public void moveToNextPage(String pageID);
+	public void addNextPage(String pageID);
+	public boolean isNextPageAvailable();
+	public void moveToNextPage();
 	public void moveToPrevPage();
 	public void resetHistory();
 	

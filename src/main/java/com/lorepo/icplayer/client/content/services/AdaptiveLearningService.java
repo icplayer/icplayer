@@ -54,15 +54,18 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		String id = this.playerController.getCurrentPageId();
 		return this.getConnectionsForPage(id);
 	}
+	
+	public boolean isNextPageAvailable() {
+		return this.currentPageIndex == this.vistiedPageIndexes.size() - 1;
+	}
 
-	// if there is no next page, adds page with supplied id to history and loads it
-	// if there is next page, just loads it
-	public void moveToNextPage(String pageID) {
-		if (this.currentPageIndex == this.vistiedPageIndexes.size() - 1) {
-			this.playerController.switchToPageById(pageID);
-			this.vistiedPageIndexes.add(this.playerController.getCurrentPageIndex());
-			this.currentPageIndex++;
-		} else {
+	public void addNextPage(String pageID) {
+		this.playerController.switchToPageById(pageID);
+		this.vistiedPageIndexes.add(this.playerController.getCurrentPageIndex());		
+	}
+	
+	public void moveToNextPage() {
+		if (this.currentPageIndex != this.vistiedPageIndexes.size() - 1) {
 			this.currentPageIndex++;
 			this.playerController.switchToPage(this.vistiedPageIndexes.get(this.currentPageIndex));
 		}
@@ -112,13 +115,16 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 	}
 
 	@Override
-	public void resetHistory() {		
+	public void resetHistory() {
 		this.vistiedPageIndexes.clear();
 		this.vistiedPageIndexes.add(0);
 		this.currentPageIndex = 0;
+		
+		
+		Integer currentPage = this.playerController.getCurrentPageIndex();
 
-		if (currentPageIndex > 0) {
-			this.vistiedPageIndexes.add(this.playerController.getCurrentPageIndex());
+		if (currentPage > 0) {
+			this.vistiedPageIndexes.add(currentPage);
 			this.currentPageIndex = 1;
 		}
 	}
