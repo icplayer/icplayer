@@ -61,6 +61,7 @@ public class ValueChangedEvent extends PlayerEvent<Handler> {
 		data.put("item", itemId);
 		data.put("value", value);
 		data.put("score", score);
+		data.put("pageId", pageId);
 	
 		return data;
 	}
