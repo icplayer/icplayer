@@ -1,3 +1,5 @@
+2018-11-21 Fixed toolbar and added color pickers in Paragraph module
+2018-11-09 Fixed hyperlinks in feedback
 2019-11-05 Added alt text to audiodescriptions in video
 2018-11-02 Added removal of MathJax "End Process" hooks after modules detach  
 2018-10-25 Fixed problem with loading math jax
