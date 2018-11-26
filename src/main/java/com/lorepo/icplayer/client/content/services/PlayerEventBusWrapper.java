@@ -29,23 +29,23 @@ public class PlayerEventBusWrapper {
 		this.playerServices.sendEvent(eventName, eventData);
 	}
 	
-	public native JavaScriptObject getAsJSObject() /*-{
-		var wrappedBus = this;
-		
+	public native JavaScriptObject getAsJSObject() /*-{		
 		var eventBus = function() {
 		};
+		
+		var wrapper = this;
 
 		eventBus.addEventListener = function(name, listener, isDelayed) {
 			if(isDelayed == undefined){
 				isDelayed = false;
 			}
 
-			wrappedBus.@com.lorepo.icplayer.client.content.services.PlayerEventBusWrapper::addEventListener(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;Z)
+			wrapper.@com.lorepo.icplayer.client.content.services.PlayerEventBusWrapper::addEventListener(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;Z)
 				(name, listener, isDelayed);
 		};
 		
 		eventBus.sendEvent = function(name, data) {
-			wrappedBus.@com.lorepo.icplayer.client.content.services.PlayerEventBusWrapper::sendEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)
+			wrapper.@com.lorepo.icplayer.client.content.services.PlayerEventBusWrapper::sendEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)
 				(name, data);
 		};
 

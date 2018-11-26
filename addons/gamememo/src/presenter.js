@@ -407,6 +407,10 @@ function Addongamememo_create(){
         textParser = new TextParserProxy(controller.getTextParser());
     };
 
+    presenter.setEventBus = function (wrappedEventBus) {
+        eventBus = wrappedEventBus;
+    };
+
     presenter.setWCAGStatus = function (isOn) {
         isWCAGOn = isOn;
     };
@@ -1293,7 +1297,6 @@ function Addongamememo_create(){
 
     presenter.run = function(view, model) {
         presenter.preview = false;
-        eventBus = playerController.getEventBus();
         presenter.initializeLogic(view, model);
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);

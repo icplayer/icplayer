@@ -448,11 +448,10 @@ public class PlayerServices implements IPlayerServices {
 		this.fireEvent(listenersDelayed, pageLoadedListenersDelayed, eventName, data);
 	}
 	
-	private void addEventListener(
-			HashMap<String, List<JavaScriptObject>> listeners, 
-			Map<String, List<JavaScriptObject>> pageLoadedListeners,
+	private void addEventListener(HashMap<String, List<JavaScriptObject>> listeners, Map<String, List<JavaScriptObject>> pageLoadedListeners,
 			String eventName, 
-			JavaScriptObject listener) {
+			JavaScriptObject listener) 
+	{
 		List<JavaScriptObject> eventListeners = listeners.get(eventName);
 		if (eventListeners == null) {
 			eventListeners = new ArrayList<JavaScriptObject>();
