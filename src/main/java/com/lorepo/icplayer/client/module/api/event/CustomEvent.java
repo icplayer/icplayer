@@ -42,6 +42,7 @@ public class CustomEvent extends PlayerEvent<Handler> {
 		handler.onCustomEventOccurred(this);
 	}
 	
+	@Override
 	public HashMap<String, String> getData() {
 		return data;
 	}

@@ -39,11 +39,6 @@ public class PlayerEventBus extends ResettableEventBus {
 		}
 	}
 	
-	private void setPageId(PlayerEvent<?> event) {
-		String currentPageId = playerServices.getCommands().getPageController().getPage().getId();
-		event.setPageId(currentPageId);
-	}
-	
 	@Override
 	public void fireEvent(Event<?> event) {
 		this.fireEventShared(event);
@@ -56,10 +51,6 @@ public class PlayerEventBus extends ResettableEventBus {
 	
 	private void fireEventShared(Event<?> event) {
 		checkIfEventTypeIsEnabled(event);
-		
-		if (event instanceof PlayerEvent<?>) {
-			setPageId((PlayerEvent<?>) event);
-		}
 		
 		super.fireEvent(event);
 	}
@@ -76,10 +67,6 @@ public class PlayerEventBus extends ResettableEventBus {
 	
 	private void fireEventFromSourceShared(Event<?> event, Object source) {
 		checkIfEventTypeIsEnabled(event);
-		
-		if (event instanceof PlayerEvent<?>) {
-			setPageId((PlayerEvent<?>) event);
-		}
 
 		super.fireEventFromSource(event, source);
 

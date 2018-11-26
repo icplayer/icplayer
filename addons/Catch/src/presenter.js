@@ -2,7 +2,6 @@ function AddonCatch_create() {
 
     var presenter = function () {};
     presenter.configuration = {};
-    var eventBus;
 
     var points = 0;
     var errors = 0;
@@ -615,14 +614,18 @@ function AddonCatch_create() {
             };
         }
 
-        eventBus.sendEvent('ValueChanged', createEventObject(item, value, isCorrect));
+        presenter.eventBus.sendEvent('ValueChanged', createEventObject(item, value, isCorrect));
     }
+
+    presenter.setEventBus = function(eventBus) {
+        presenter.eventBus = eventBus;
+
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
+    };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
-        eventBus = controller.getEventBus();
-        eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
     };
 
     function getImageUrlFromResources (fileName) {

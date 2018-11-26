@@ -264,12 +264,15 @@ function AddonConnection_create() {
     presenter.run = function (view, model) {
         presenter.view = view;
         presenter.model = model;
-        eventBus = playerController.getEventBus();
         addonID = model.ID;
 
         presenter.initialize(presenter.view, presenter.model, false);
 
         presenter.parseDefinitionLinks();
+    };
+
+    presenter.setEventBus = function(wrappedEventBus) {
+        eventBus = wrappedEventBus;
 
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);

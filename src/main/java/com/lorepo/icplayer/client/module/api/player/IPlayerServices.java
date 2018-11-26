@@ -45,5 +45,8 @@ public interface IPlayerServices {
 	public void setAbleChangeLayout(boolean isAbleChangeLayout); 
 	public boolean isAbleChangeLayout();
 	public boolean changeSemiResponsiveLayout(String layoutID);
+	
+	public void sendEvent(String eventName, JavaScriptObject eventData);
+	public void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed);
 
 }

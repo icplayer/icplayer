@@ -55,156 +55,17 @@ import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
 
 public class JavaScriptPlayerServices {
-
-	private static final String ITEM_SELECTED_EVENT_NAME = "ItemSelected";
-	private static final String ITEM_CONSUMED_EVENT_NAME = "ItemConsumed";
-	private static final String ITEM_RETURNED_EVENT_NAME = "ItemReturned";
-	private static final String VALUE_CHANGED_EVENT_NAME = "ValueChanged";
-	private static final String DEFINITION_EVENT_NAME = "Definition";
-	private static final String PAGE_LOADED_EVENT_NAME = "PageLoaded";
-	private static final String SHOW_ERRORS_EVENT_NAME = "ShowErrors";
-
 	private final IPlayerServices playerServices;
 	private final JavaScriptObject jsObject;
 	private JavaScriptObject presentationObject;
-	private final HashMap<String, List<JavaScriptObject>> listeners = new HashMap<String, List<JavaScriptObject>>();
-	private final Map<String, List<JavaScriptObject>> pageLoadedListeners = new LinkedHashMap<String, List<JavaScriptObject>>();
-	private final Map<String, List<JavaScriptObject>> pageLoadedListenersDelayed = new LinkedHashMap<String, List<JavaScriptObject>>();
-	private final HashMap<String, List<JavaScriptObject>> listenersDelayed = new HashMap<String, List<JavaScriptObject>>();
-
+	
 	public JavaScriptPlayerServices(IPlayerServices playerServices) {
 		this.playerServices = playerServices;
 		jsObject = initJSObject(this);
-		connectEventHandlers();
-	}
-
-	private void connectEventHandlers() {
-
-		EventBus eventBus = playerServices.getEventBus();
-
-		eventBus.addHandler(ItemSelectedEvent.TYPE, new ItemSelectedEvent.Handler() {
-			@Override
-			public void onItemSelected(ItemSelectedEvent event) {
-				fireEvent(ITEM_SELECTED_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(ItemConsumedEvent.TYPE, new ItemConsumedEvent.Handler() {
-			@Override
-			public void onItemConsumed(ItemConsumedEvent event) {
-				fireEvent(ITEM_CONSUMED_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(ItemReturnedEvent.TYPE, new ItemReturnedEvent.Handler() {
-			@Override
-			public void onItemReturned(ItemReturnedEvent event) {
-				fireEvent(ITEM_RETURNED_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
-			@Override
-			public void onScoreChanged(ValueChangedEvent event) {
-				fireEvent(VALUE_CHANGED_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(DefinitionEvent.TYPE, new DefinitionEvent.Handler() {
-			@Override
-			public void onDefinitionClicked(DefinitionEvent event) {
-				fireEvent(DEFINITION_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(PageLoadedEvent.TYPE, new PageLoadedEvent.Handler() {
-			@Override
-			public void onPageLoaded(PageLoadedEvent event) {
-				fireEvent(PAGE_LOADED_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
-			@Override
-			public void onCustomEventOccurred(CustomEvent event) {
-				fireEvent(event.eventName, event.getData());
-			}
-		});
-
-		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
-			@Override
-			public void onShowErrors(ShowErrorsEvent event) {
-				fireEvent(SHOW_ERRORS_EVENT_NAME, new HashMap<String, String>());
-			}
-		});
-
-	}
-	
-	public void resetEventListeners() {
-		listeners.clear();
-		listenersDelayed.clear();
-		connectEventHandlers();
 	}
 
 	public JavaScriptObject getJavaScriptObject() {
 		return jsObject;
-	}
-
-	public void clearPageLoadedListeners() {
-		pageLoadedListeners.clear();
-		pageLoadedListenersDelayed.clear();
-	}
-
-	private void fireEvent(String eventName, HashMap<String, String> data) {
-		List<JavaScriptObject> eventListeners = listeners.get(eventName);
-		final JavaScriptObject jsData = JavaScriptUtils.createHashMap(data);
-
-		if (eventListeners != null) {
-			if (eventName == PAGE_LOADED_EVENT_NAME) {
-				final HashMap<String, String> pageLoadedData = new HashMap<String, String>();
-				pageLoadedData.putAll(data);
-
-				for (String eventSource : pageLoadedListeners.keySet()) {
-					pageLoadedData.put("source", eventSource);
-					final JavaScriptObject pageLoadedEventData = JavaScriptUtils.createHashMap(pageLoadedData);
-
-					for (JavaScriptObject listener : pageLoadedListeners.get(eventSource)) {
-						onEvent(listener, eventName, pageLoadedEventData);
-					}
-
-					pageLoadedListeners.get(eventSource).clear();
-				}
-				pageLoadedListeners.put(data.get("source"), new ArrayList<JavaScriptObject>());
-			}
-
-			for (JavaScriptObject listener : eventListeners) {
-				onEvent(listener, eventName, jsData);
-			}
-		}
-
-		List<JavaScriptObject> eventListenersDelayed = listenersDelayed.get(eventName);
-		if (eventListenersDelayed != null) {
-			if (eventName == PAGE_LOADED_EVENT_NAME) {
-				final HashMap<String, String> pageLoadedDataDelayed = new HashMap<String, String>();
-				pageLoadedDataDelayed.putAll(data);
-
-				for (String eventSource : pageLoadedListenersDelayed.keySet()) {
-					pageLoadedDataDelayed.put("source", eventSource);
-					final JavaScriptObject pageLoadedEventDataDelayed = JavaScriptUtils.createHashMap(pageLoadedDataDelayed);
-
-					for (JavaScriptObject listener : pageLoadedListenersDelayed.get(eventSource)) {
-						onEvent(listener, eventName, pageLoadedEventDataDelayed);
-					}
-
-					pageLoadedListenersDelayed.get(eventSource).clear();
-				}
-				pageLoadedListenersDelayed.put(data.get("source"), new ArrayList<JavaScriptObject>());
-			}
-
-			for (JavaScriptObject listenerDelayed : eventListenersDelayed) {
-				onEvent(listenerDelayed, eventName, jsData);
-			}
-		}
 	}
 
 	private native JavaScriptObject initJSObject(JavaScriptPlayerServices x) /*-{
@@ -602,39 +463,9 @@ public class JavaScriptPlayerServices {
 	private void executeEventCode(String code){
 		playerServices.getCommands().executeEventCode(code);
 	}
-
+	
 	private void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed) {
-		if (isDelayed) {
-			List<JavaScriptObject> eventListenersDelayed = listenersDelayed.get(eventName);
-
-			if (eventListenersDelayed == null) {
-				eventListenersDelayed = new ArrayList<JavaScriptObject>();
-				listenersDelayed.put(eventName, eventListenersDelayed);
-			}
-
-			if (eventName == PAGE_LOADED_EVENT_NAME) {
-				for (String eventSource : pageLoadedListenersDelayed.keySet()) {
-					pageLoadedListenersDelayed.get(eventSource).add(listener);
-				}
-			}
-
-			eventListenersDelayed.add(listener);
-		} else {
-
-			List<JavaScriptObject> eventListeners = listeners.get(eventName);
-			if (eventListeners == null) {
-				eventListeners = new ArrayList<JavaScriptObject>();
-				listeners.put(eventName, eventListeners);
-			}
-
-			if (eventName == PAGE_LOADED_EVENT_NAME) {
-				for (String eventSource : pageLoadedListeners.keySet()) {
-					pageLoadedListeners.get(eventSource).add(listener);
-				}
-			}
-
-			eventListeners.add(listener);
-		}
+		this.playerServices.addEventListener(eventName, listener, isDelayed);
 	}
 
 	private String parseText(String text){
@@ -856,48 +687,10 @@ public class JavaScriptPlayerServices {
 	private int getIframeScroll() {
 		return playerServices.getCommands().getIframeScroll();
 	}
-
+	
 	private void sendEvent(String eventName, JavaScriptObject eventData){
-
-		DraggableItem item;
-		GwtEvent<?> event = null;
-
-		String source = JavaScriptUtils.getArrayItemByKey(eventData, "source");
-		String type = JavaScriptUtils.getArrayItemByKey(eventData, "type");
-		String id = JavaScriptUtils.getArrayItemByKey(eventData, "item");
-		String value = JavaScriptUtils.getArrayItemByKey(eventData, "value");
-		String score = JavaScriptUtils.getArrayItemByKey(eventData, "score");
-
-		if(type.compareTo("image") == 0) {
-			item = new DraggableImage(id, value);
-		} else {
-			item = new DraggableText(id, value);
-		}
-
-		if (ITEM_CONSUMED_EVENT_NAME.compareTo(eventName) == 0) {
-			event = new ItemConsumedEvent(item);
-		} else if (ITEM_RETURNED_EVENT_NAME.compareTo(eventName) == 0) {
-			event = new ItemReturnedEvent(item);
-		} else if (ITEM_SELECTED_EVENT_NAME.compareTo(eventName) == 0) {
-			event = new ItemSelectedEvent(item);
-		} else if (VALUE_CHANGED_EVENT_NAME.compareTo(eventName) == 0) {
-			event = new ValueChangedEvent(source, id, value, score);
-		} else if (DEFINITION_EVENT_NAME.compareTo(eventName) == 0) {
-			String word = JavaScriptUtils.getArrayItemByKey(eventData, "word");
-			event = new DefinitionEvent(word);
-		} else {
-			String jsonString = JavaScriptUtils.toJsonString(eventData);
-			event = new CustomEvent(eventName, (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonString));
-		}
-
-		if (event != null) {
-			playerServices.getEventBus().fireEventFromSource(event, this);
-		}
+		this.playerServices.sendEvent(eventName, eventData);
 	}
-
-	private native void onEvent(JavaScriptObject listener, String name, JavaScriptObject data) /*-{
-		listener.onEventReceived(name, data);
-	}-*/;
 
 	private boolean isBookMode() {
 		return playerServices.isBookMode();

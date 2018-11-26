@@ -2,16 +2,12 @@ package com.lorepo.icplayer.client.module.api.event;
 
 import java.util.HashMap;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventHandler;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent.Handler;
 
 public class ValueChangedEvent extends PlayerEvent<Handler> {
-
-	private String moduleId;
-	private String itemId;
-	private String value;
-	private String score;
-	
 	
 	public ValueChangedEvent(String moduleID, String itemID, String value, String score){
 		this.moduleId = moduleID;
@@ -20,6 +16,14 @@ public class ValueChangedEvent extends PlayerEvent<Handler> {
 		this.score = score;
 	}
 	
+	public ValueChangedEvent(String moduleID, String itemID, String value, String score, String pageID, String moduleType) {
+		this.moduleId = moduleID;
+		this.itemId = itemID;
+		this.value = value;
+		this.score = score;
+		this.pageID = pageID;
+		this.moduleType = moduleType;
+	}
 	
 	public String getModuleID(){
 		return moduleId;
@@ -53,7 +57,7 @@ public class ValueChangedEvent extends PlayerEvent<Handler> {
 		handler.onScoreChanged(this);
 	}
 
-
+	@Override
 	public HashMap<String, String> getData() {
 
 		HashMap<String, String> data = new HashMap<String, String>();
@@ -61,7 +65,8 @@ public class ValueChangedEvent extends PlayerEvent<Handler> {
 		data.put("item", itemId);
 		data.put("value", value);
 		data.put("score", score);
-		data.put("pageId", pageId);
+		data.put("page_id", pageID);
+		data.put("module_type", moduleType);
 	
 		return data;
 	}
