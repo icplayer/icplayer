@@ -510,7 +510,13 @@ export class MediaRecorder {
     }
 
     _notifyWebView() {
-        window.external.notify(JSON.stringify({type: "platform", target: this.model.ID}));
+        try {
+            window.external.notify(JSON.stringify({type: "platform", target: this.model.ID}));
+        } catch (e) {
+            // silent message
+            // can't use a conditional expression
+            // https://social.msdn.microsoft.com/Forums/en-US/1a8b3295-cd4d-4916-9cf6-666de1d3e26c/windowexternalnotify-always-undefined?forum=winappswithcsharp
+        }
     }
 
     _loadWebViewMessageListener() {
