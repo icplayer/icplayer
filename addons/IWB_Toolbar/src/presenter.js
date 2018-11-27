@@ -648,6 +648,11 @@ function AddonIWB_Toolbar_create() {
         presenter.$buttonsExceptOpen = presenter.$panel.children('.button:not(.open)');
         presenter.buttonWidth = presenter.$buttonsExceptOpen.width();
 
+        var display = $(view).css('display');
+        if (display && display.length > 0 && display != "block") {
+            presenter.$panel.css('display', display);
+        }
+
         presenter.$view.parent().append(presenter.$panel);
 
         presenter.$view.disableSelection();

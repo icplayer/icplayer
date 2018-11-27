@@ -25,6 +25,7 @@ public class LimitedCheckView extends PushButton implements IDisplay {
     private boolean isShowAnswersMode = false;
     private boolean isDisabled = false;
     private List<IPresenter> presenters;
+    private String originalDisplay = "";
 
     public LimitedCheckView(LimitedCheckModule module, IPlayerServices services) {
         this.playerServices = services;
@@ -36,6 +37,7 @@ public class LimitedCheckView extends PushButton implements IDisplay {
 
     private void createUI() {
         StyleUtils.applyInlineStyle(this, module);
+        originalDisplay = getElement().getStyle().getDisplay();
         updateStyle();
 
         if (playerServices != null) {
@@ -193,4 +195,14 @@ public class LimitedCheckView extends PushButton implements IDisplay {
     public String getName() {
         return "LimitedCheck";
     }
+    
+    @Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
 }

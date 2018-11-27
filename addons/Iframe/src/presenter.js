@@ -15,6 +15,7 @@ function AddonIframe_create() {
     presenter.eventBus = null;
     presenter.isEditor = false;
     presenter.isVisible = true;
+    presenter.originalDisplay = "block";
 
     presenter.actionID = {
         SET_WORK_MODE : "SET_WORK_MODE",
@@ -113,6 +114,11 @@ function AddonIframe_create() {
 
         presenter.$view = $(view);
         presenter.view = view;
+
+         var display = presenter.$view.css('display');
+        if (display != null && display.length > 0) {
+            presenter.originalDisplay = display;
+        }
 
         presenter.iframeContent = iframe.get(0).contentWindow;
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
@@ -226,7 +232,7 @@ function AddonIframe_create() {
         presenter.isVisible = isVisible;
         presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
         if(!presenter.isEditor) {
-            presenter.$view.css('display', isVisible ? 'block' : 'none');
+            presenter.$view.css('display', isVisible ? presenter.originalDisplay : 'none');
         }
     };
 

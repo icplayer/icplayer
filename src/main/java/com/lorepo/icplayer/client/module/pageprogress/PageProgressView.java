@@ -20,6 +20,7 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 	private ArrayList<IOptionDisplay> optionWidgets = new ArrayList<IOptionDisplay>();
 	private boolean isWCAGOn = false;
 	private PageController pageController;
+	private String originalDisplay = "";
 	
 	public PageProgressView(PageProgressModule module, boolean isPreview){
 		
@@ -35,6 +36,7 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 		}
 		setStyleName("ic_pageprogress");
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		setProgress(50);
 		getElement().setId(module.getId());
 	}
@@ -144,5 +146,15 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
 	
 }

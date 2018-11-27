@@ -35,6 +35,7 @@ function AddonMenuPanel_create(){
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = presenter.isVisible;
+        presenter.originalDisplay = presenter.$view.css('display') ? presenter.$view.css('display') : 'block';
 
         presenter.isDisabled = ModelValidationUtils.validateBoolean(model["Disable"]);
         presenter.isDisabledByDefault = presenter.isDisabled;
@@ -349,7 +350,7 @@ function AddonMenuPanel_create(){
     presenter.setVisibility = function(isVisible) {
         presenter.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
-        presenter.$view.css("display", isVisible ? "block" : "none");
+        presenter.$view.css("display", isVisible ? presenter.originalDisplay : "none");
     };
 
     presenter.enable = function(item) {
