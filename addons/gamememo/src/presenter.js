@@ -958,9 +958,7 @@ function Addongamememo_create(){
     };
 
     presenter.sendEventData = function (eventData) {
-        if (playerController !== null) {
-            playerController.getEventBus().sendEvent('ValueChanged', eventData);
-        }
+        eventBus.sendEvent('ValueChanged', eventData);
     };
 
     function numberToCardType(element) {
