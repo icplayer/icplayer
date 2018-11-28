@@ -1,3 +1,4 @@
+2018-11-28 Fixed media recorder on safari mobile devices and mLibro
 2018-11-27 Fixed issues with inline display: none in multiple addons
 2018-11-21 Fixed toolbar and added color pickers in Paragraph module
 2018-11-09 Fixed hyperlinks in feedback
