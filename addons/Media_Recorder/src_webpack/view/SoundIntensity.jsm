@@ -11,7 +11,8 @@ export class SoundIntensity {
     }
 
     stopAnalyzing() {
-        clearInterval(this.interval);
+        if (this.interval)
+            clearInterval(this.interval);
         this._clearIntensity();
     }
 

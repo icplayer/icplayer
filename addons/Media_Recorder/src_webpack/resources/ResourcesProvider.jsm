@@ -24,6 +24,10 @@ export class ResourcesProvider {
         });
     }
 
+    getStream() {
+        return this.stream;
+    }
+
     destroy() {
         if (this.stream) {
             this.stream.stop();

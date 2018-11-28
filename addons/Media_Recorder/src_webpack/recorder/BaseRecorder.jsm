@@ -20,11 +20,12 @@ export class BaseRecorder extends Recorder {
     }
 
     stopRecording() {
+        const self = this;
         let promise = new Promise(
-            resolve => this.recorder.stopRecording(
-                () => resolve(this.recorder.getBlob()))
+            resolve => self.recorder.stopRecording(
+                () => resolve(self.recorder.getBlob())
+            )
         );
-        let self = this;
         promise.then(() => self._onStopRecordingCallback(self));
 
         return promise;
