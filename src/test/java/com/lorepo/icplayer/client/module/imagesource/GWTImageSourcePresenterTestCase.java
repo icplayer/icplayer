@@ -8,21 +8,25 @@ import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.powermock.reflect.Whitebox;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
+import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.PlayerEntryPoint;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
+import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PageView;
+import com.lorepo.icplayer.client.page.mockup.PlayerControllerMockup;
 import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
 
@@ -36,7 +40,7 @@ public class GWTImageSourcePresenterTestCase extends GwtTest{
 	private Element element;
 	private PageView mainPageView;
 	
-	private PlayerController playerController;
+	private IPlayerController playerController;
 	
 	private Content initContentFromFile(String path) throws SAXException, IOException {
 		InputStream inputStream = getClass().getResourceAsStream(path);
@@ -52,27 +56,22 @@ public class GWTImageSourcePresenterTestCase extends GwtTest{
 	@Before
 	public void runBeforeEveryTest() throws Exception {
 		Content content = initContentFromFile("testdata/content4.xml");
-		
-		PlayerView view = new PlayerView();
-		PlayerEntryPoint playerEntryPoint = new PlayerEntryPoint();
-		
+	
 		Page main = new Page("main", "main");
-		
-		playerController = new PlayerController(content, view, false, playerEntryPoint);
-		
-		PageController mainPageController = new PageController(this.playerController);
-		mainPageController.setContent(content);
-		
+		playerController = new PlayerControllerMockup();
+		services = new PlayerServicesMockup();
 		mainPageView = new PageView("main");
-		
+
+		PageController mainPageController = new PageController(this.playerController);
+		Whitebox.setInternalState(mainPageController, IPlayerServices.class, services);
+		mainPageController.setContent(content);
+
 		mainPageController.setView(mainPageView);
 		mainPageController.setPage(main);	
-		
+
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		element = xmlParser.parser(inputStream);
-				
-		services = new PlayerServices(playerController, mainPageController);
 	}	
 	
 	

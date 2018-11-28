@@ -17,6 +17,7 @@ import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
+import com.lorepo.icplayer.client.module.api.player.IPlayerEventBusService;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -239,6 +240,28 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 	@Override
 	public GroupPresenter getGroup(String groupId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void sendEvent(String eventName, JavaScriptObject eventData) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void addEventListener(String eventName, JavaScriptObject listener,
+			boolean isDelayed) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public IPlayerEventBusService getEventBusService() {
 		// TODO Auto-generated method stub
 		return null;
 	}

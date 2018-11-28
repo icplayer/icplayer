@@ -6,7 +6,6 @@ import com.googlecode.gwt.test.patchers.PatchClass;
 import com.googlecode.gwt.test.patchers.PatchMethod;
 import com.lorepo.icf.utils.JavaScriptUtils;
 
-
 @PatchClass(JavaScriptUtils.class)
 public class JavaScriptUtilsPatcher {
 	@PatchMethod
@@ -33,4 +32,8 @@ public class JavaScriptUtilsPatcher {
 		
 	}
 	
+	@PatchMethod
+	public void addPropertyToJSArray(JavaScriptObject model, String key, String value) {
+		
+	}
 }
