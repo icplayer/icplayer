@@ -51,6 +51,7 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	private boolean isWCAGOn = false;
 	private boolean mathJaxIsLoaded = false;
 	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
 	
 	public SourceListView(SourceListModule module, boolean isPreview){
 		this.module = module;
@@ -62,6 +63,7 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		this.isPreview = isPreview;
 		setStyleName(module.getStyleClass().isEmpty() ? "ic_sourceList" : module.getStyleClass());
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (!isPreview) {
 			setVisible(module.isVisible());
 		}
@@ -509,5 +511,15 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		if (this.mathJaxHook != null) {
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
 		}		
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
 	}
 }

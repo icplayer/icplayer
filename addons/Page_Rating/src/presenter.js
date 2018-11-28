@@ -9,6 +9,7 @@ function AddonPage_Rating_create() {
 	presenter.isElementSelected = null;
 	presenter.isModelError = false;
     presenter.addonID = null;
+    presenter.originalDisplay = "";
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
     };
@@ -152,6 +153,7 @@ function AddonPage_Rating_create() {
         updateTitle(presenter.$view, presenter.configuration.title);
         updateRates(presenter.$view, presenter.configuration.rates, presenter.configuration.length, isPreview);
         updateComment(presenter.$view, presenter.configuration.comment, isPreview);
+        presenter.$view.css('display',presenter.originalDisplay);
     };
 
     presenter.presenterLogic = function (view, model, isPreview) {
@@ -162,6 +164,8 @@ function AddonPage_Rating_create() {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
+
+        presenter.originalDisplay = $(view).css('display');
 
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
         presenter.updateView(isPreview);

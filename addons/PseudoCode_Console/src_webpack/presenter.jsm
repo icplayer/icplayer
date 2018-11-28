@@ -123,6 +123,8 @@ function AddonPseudoCode_Console_create() {
         "wrong": "pseudo-code-console-wrong"
     };
 
+    presenter.originalDisplay = 'block';
+
     presenter.setPlayerController = function presenter_setPlayerController (controller) {
         presenter.state.playerController = controller;
         presenter.state.eventBus = presenter.state.playerController.getEventBus();
@@ -241,6 +243,12 @@ function AddonPseudoCode_Console_create() {
         }
         presenter.state.$view = $(view);
         presenter.state.view = view;
+
+        var display = presenter.state.$view.css('display');
+        if (display != null && display.length > 0) {
+            presenter.originalDisplay = display;
+        }
+
         presenter.state.addonWrapper = presenter.state.$view.find(".addon-PseudoCode_Console-wrapper");
         if (!isPreview) {
             presenter.initializeExceptions();
@@ -307,7 +315,7 @@ function AddonPseudoCode_Console_create() {
 
     presenter.setVisibility = function presenter_setVisibility (isVisible) {
         presenter.state.$view.css('visibility', isVisible ? 'visible' : 'hidden');
-        presenter.state.$view.css('display', isVisible ? 'block' : 'none');
+        presenter.state.$view.css('display', isVisible ? presenter.originalDisplay : 'none');
 
         presenter.state.isVisible = isVisible;
     };

@@ -55,6 +55,8 @@ function AddonShooting_Range_create() {
         SPEED_ATTACK: 1
     };
 
+    presenter.originalDisplay = "block";
+
     presenter.setPlayerController = function (controller) {
         presenter.state.playerController = controller;
         presenter.state.eventBus = presenter.state.playerController.getEventBus();
@@ -88,6 +90,11 @@ function AddonShooting_Range_create() {
            presenter.initializeGame();
            presenter.actualizeAnswersWrapperHeight();
            presenter.connectHandlers();
+        }
+
+        var display = presenter.state.$view.css('display');
+        if (display != null && display.length > 0) {
+            presenter.originalDisplay = display;
         }
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
@@ -573,7 +580,7 @@ function AddonShooting_Range_create() {
 
     presenter.setVisibility = function (isVisible) {
         presenter.state.$view.css('visibility', isVisible ? 'visible' : 'hidden');
-        presenter.state.$view.css('display', isVisible ? 'block' : 'none');
+        presenter.state.$view.css('display', isVisible ? presenter.originalDisplay : 'none');
 
         presenter.state.isVisible = isVisible;
     };

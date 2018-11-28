@@ -40,6 +40,7 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModu
 	private boolean disabled = false;
 	private boolean isWCAGon = false;
 	private PageController pageController;
+	private String originalDisplay = "";
 	
 	public ImageSourceView(ImageSourceModule module, boolean isPreview) {
 		this.module = module;
@@ -51,6 +52,7 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModu
 	private void createUI() {
 		setStyleName(DEFAULT_STYLE);
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (isPreview && module.isDisabled()) {
 			StyleUtils.addStateDisableClass(this);
 		}
@@ -301,6 +303,16 @@ public class ImageSourceView extends Image implements IDisplay, IWCAG, IWCAGModu
 	private void speak (List<TextToSpeechVoice> textVoices) {
 		if (this.isWCAGon && this.pageController != null) {
 			this.pageController.speak(textVoices);
+		}
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
 		}
 	}
 }
