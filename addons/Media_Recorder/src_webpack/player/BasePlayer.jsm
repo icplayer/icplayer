@@ -98,7 +98,7 @@ export class BasePlayer extends Player {
         this.mediaNode.onplay = () => this._onPlayCallback();
         this.mediaNode.onpause = () => this._onPausedCallback();
 
-        if (this._isMobieSafari())
+        if (this._isMobileSafari())
             this.mediaNode.onloadedmetadata = function () {
                 self.onEndLoadingCallback();
             };
@@ -135,7 +135,7 @@ export class BasePlayer extends Player {
         )
     }
 
-    _isMobieSafari() {
+    _isMobileSafari() {
         return window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1 && window.MobileUtils.isSafariMobile(navigator.userAgent);
     }
 

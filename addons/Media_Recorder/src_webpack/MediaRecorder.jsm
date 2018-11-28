@@ -273,15 +273,15 @@ export class MediaRecorder {
     _loadLogic() {
         this.recordButton.onStartRecording = () => {
             this.mediaState.setBlocked();
-            if (this.safariRecorderState.isAvaliableResources()) {
+            if (this.safariRecorderState.isAvailableResources()) {
                 const stream = this.resourcesProvider.getStream();
                 this._handleRecording(stream);
             } else if (this.platform === 'mlibro') {
                 this._handleMlibroStartRecording();
             } else {
-                const stream = this.resourcesProvider.getMediaResources().then(stream => {
+                this.resourcesProvider.getMediaResources().then(stream => {
                     const isSafari = window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
-                    if (isSafari && this.safariRecorderState.isUnavaliableResources()) {
+                    if (isSafari && this.safariRecorderState.isUnavailableResources()) {
                         this._handleSafariRecordingInitialization();
                         return;
                     }
@@ -308,7 +308,7 @@ export class MediaRecorder {
                         this.player.setRecording(recording);
                     });
                 this.resourcesProvider.destroy();
-                this.safariRecorderState.setUnavaliableResources();
+                this.safariRecorderState.setUnavailableResources();
             }
         };
 
@@ -504,7 +504,7 @@ export class MediaRecorder {
 
     _handleSafariRecordingInitialization() {
         this.mediaState.setBlockedSafari();
-        this.safariRecorderState.setAvaliableResources();
+        this.safariRecorderState.setAvailableResources();
         this.recordButton.setUnclickView();
         alert(Errors["safari_select_recording_button_again"]);
     }
@@ -520,31 +520,29 @@ export class MediaRecorder {
     }
 
     _loadWebViewMessageListener() {
-        const self = this;
         window.addEventListener('message', event => {
             const eventData = JSON.parse(event.data);
             let isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
             let isValueMlibro = eventData.value ? eventData.value.toLowerCase() === 'mlibro' : false;
             if (isTypePlatform && isValueMlibro)
-                self._handleWebViewBehaviour();
+                this._handleWebViewBehaviour();
         }, false);
     }
 
     _handleWebViewBehaviour() {
-        const self = this;
-        if (self.platform === undefined || self.platform === null) {
-            self.platform = 'mlibro';
+        if (this.platform === undefined || this.platform === null) {
+            this.platform = 'mlibro';
             window.addEventListener('message', event => {
                 const eventData = JSON.parse(event.data);
                 let isTypeRecording = eventData.type ? eventData.type.toLowerCase() === 'recording' : false;
                 let isTargetMe = eventData.target ? eventData.target === this.model.ID : false;
-                let isStateLoading = self.mediaState.isLoading();
+                let isStateLoading = this.mediaState.isLoading();
                 if (isTypeRecording && isTargetMe && isStateLoading) {
                     this.addonState.setRecordingBase64(eventData.value);
                     this.player.reset();
                     this.player.setRecording(eventData.value);
                 } else {
-                    console.log("the recording has not been received");
+                    console.log("The recording has not been received");
                 }
             }, false);
         }

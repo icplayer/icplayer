@@ -9,19 +9,19 @@ export class SafariRecorderState {
         this._value = this.values.UNAVAILABLE_RESOURCES;
     };
 
-    isUnavaliableResources() {
+    isUnavailableResources() {
         return this._value === this.values.UNAVAILABLE_RESOURCES;
     }
 
-    isAvaliableResources() {
+    isAvailableResources() {
         return this._value === this.values.AVAILABLE_RESOURCES;
     }
 
-    setUnavaliableResources() {
+    setUnavailableResources() {
         this._value = this.values.UNAVAILABLE_RESOURCES;
     }
 
-    setAvaliableResources() {
+    setAvailableResources() {
         this._value = this.values.AVAILABLE_RESOURCES;
     }
 

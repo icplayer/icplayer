@@ -44,7 +44,7 @@ export class MediaState {
         return this._value === this.values.LOADED_DEFAULT_RECORDING;
     }
 
-    isBlocekdSafari() {
+    isBlockedSafari() {
         return this._value === this.values.BLOCKED_SAFARI;
     }
 

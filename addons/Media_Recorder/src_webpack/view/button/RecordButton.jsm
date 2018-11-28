@@ -22,7 +22,7 @@ export class RecordButton extends Button {
     }
 
     _eventHandler() {
-        if (this.state.isNew() || this.state.isLoaded() || this.state.isLoadedDefaultRecording() || this.state.isBlocekdSafari())
+        if (this.state.isNew() || this.state.isLoaded() || this.state.isLoadedDefaultRecording() || this.state.isBlockedSafari())
             this._startRecording();
         else if (this.state.isRecording())
             this._stopRecording()
