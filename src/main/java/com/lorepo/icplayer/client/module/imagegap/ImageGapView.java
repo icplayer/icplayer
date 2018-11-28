@@ -37,6 +37,7 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 	private String langTag = "";
 	private String altText = "";
 	private String imageUrl = "";
+	private String originalDisplay = "";
 	
 
 	public ImageGapView(ImageGapModule module, boolean isPreview) {
@@ -48,6 +49,7 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 	private void createUI(boolean isPreview) {
 		setStylePrimaryName(DEFAULT_STYLE);
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (isPreview && module.isDisabled()) {
 			StyleUtils.addStateDisableClass(this);
 		}
@@ -309,5 +311,14 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 		}
 	}
 	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
 
 }

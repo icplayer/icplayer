@@ -4,6 +4,7 @@ function AddonSlider_create () {
     presenter.$view = null;
     presenter.savedState = null;
     presenter.counter = 0;
+    presenter.isTouched = false;
 
     var playerController, onStepChangeEvent;
 
@@ -151,6 +152,7 @@ function AddonSlider_create () {
 
     };
 
+
     function mouseDownCallback (eventData) {
         if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
 
@@ -162,8 +164,7 @@ function AddonSlider_create () {
     }
 
     function touchStartCallback (event) {
-        event.preventDefault();
-        event.stopPropagation();
+        presenter.isTouched = true;
 
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
         
@@ -205,6 +206,7 @@ function AddonSlider_create () {
     };
 
     function touchEndCallback (event) {
+        presenter.isTouched = false;
         event.preventDefault();
         event.stopPropagation();
 
@@ -253,6 +255,13 @@ function AddonSlider_create () {
             var mousePositions = getMousePositions(eventData);
             var relativeDistance;
 
+            if(presenter.isTouched) {
+                var scale = playerController.getScaleInformation();
+                if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
+                    mousePositions.x = mousePositions.x / scale.scaleX;
+                    mousePositions.y = mousePositions.y / scale.scaleY;
+                }
+            }
 
             if(presenter.continuousEvents && presenter.continuousEventsSteps == "Smooth"){
                 presenter.configuration.newStep = presenter.whichStepZoneSmooth(mousePositions, presenter.configuration);
@@ -320,7 +329,9 @@ function AddonSlider_create () {
 
             //presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
         }
-        eventData.preventDefault();
+        if(eventData.preventDefault) {
+            eventData.preventDefault();
+        }
     }
 
     function touchMoveCallback (event) {

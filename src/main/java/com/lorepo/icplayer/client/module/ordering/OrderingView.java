@@ -62,6 +62,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private PageController pageController;
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
 	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
 	
 	private final String ITEM_CORRECT_CLASS = "ic_ordering-item-correct";
 	private final String ITEM_WRONG_CLASS = "ic_ordering-item-wrong";
@@ -128,7 +129,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		initWidget(innerCellPanel);
 		setStyleName("ic_ordering");
 		StyleUtils.applyInlineStyle(this, module);
-
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (playerServices != null) {
 			randomizeViewItems();
 			saveScore();
@@ -941,5 +942,18 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
 		}		
 	}
+	
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
+	
+	
 	
 }
