@@ -227,7 +227,7 @@ function AddonText_To_Speech_create() {
                 return;
             }
             if (presenter.intervalId == null) return;
-            presenter.utterances = [];
+            var utterances = [];
             for (var i=0; i<textsObjects.length; i++) {
                 var textObject = textsObjects[i];
                 var msg = new SpeechSynthesisUtterance(textObject.text);
@@ -251,7 +251,7 @@ function AddonText_To_Speech_create() {
                         }
                         if (finalCallback){
                             finalCallback();
-                            presenter.utterances = [];
+                            utterances = [];
                         };
                     };
                 }
@@ -259,7 +259,7 @@ function AddonText_To_Speech_create() {
                 //this list and "push" is solving the problem on
                 //'end' event of SpeechSynthesisUtterance object is not dispatched sometimes
                 //https://www.e-learn.cn/content/wangluowenzhang/603510
-                presenter.utterances.push(msg);
+                utterances.push(msg);
                 window.speechSynthesis.speak(msg);
             }
         }, 250);

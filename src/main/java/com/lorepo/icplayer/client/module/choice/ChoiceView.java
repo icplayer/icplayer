@@ -43,6 +43,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private boolean isShowErrorsMode = false;
 	private boolean mathJaxIsLoaded = false;
 	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
 
 	private int position = -1;
 	
@@ -102,6 +103,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 		
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if(!isPreview){
 			setVisible(module.isVisible());
 		}
@@ -490,6 +492,16 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	public void removeHook() {
 		if (this.mathJaxHook != null) {
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
+		}
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
 		}
 	}
 

@@ -19,6 +19,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
@@ -263,6 +264,10 @@ public class JavaScriptPlayerServices {
 			};
 
 			return commands;
+		};
+
+		playerServices.getGroup = function(id) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getGroup(Ljava/lang/String;)(id);
 		};
 
 		playerServices.getModule = function(id) {
@@ -511,10 +516,18 @@ public class JavaScriptPlayerServices {
 		IPresenter presenter = playerServices.getModule(id);
 		return getModulePresentationJSObject(presenter);
 	}
+	
+	private JavaScriptObject getGroup(String id) {
+		GroupPresenter group = playerServices.getGroup(id); 
+		if(group!=null) {
+			return group.getAsJavaScript(); 
+		}
+		return null; 
+	}
 
 	private JavaScriptObject getModulePresentationJSObject(IPresenter presenter) {
 		if (presenter instanceof AddonPresenter) {
-			return ((AddonPresenter) presenter).getJavaScriptObject();
+			return ((AddonPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof TextPresenter) {
 			return ((TextPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof ImagePresenter) {
@@ -545,6 +558,8 @@ public class JavaScriptPlayerServices {
 			return ((ShapePresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof LessonResetPresenter) {
 			return ((LessonResetPresenter) presenter).getAsJavaScript();
+		}else if (presenter instanceof GroupPresenter) {
+			return ((GroupPresenter) presenter).getAsJavaScript();
 		}
 
 		return null;

@@ -17,6 +17,7 @@ import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
@@ -218,6 +219,13 @@ public class PlayerServices implements IPlayerServices {
 		return pageController.findModule(moduleId);
 	}
 
+	
+	@Override
+	public GroupPresenter getGroup(String groupId) {
+		return pageController.findGroup(groupId); 
+	}
+	
+	
 	@Override
 	public IPresenter getHeaderModule(String moduleId) {
 		return playerController.findHeaderModule(moduleId);
