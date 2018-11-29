@@ -271,8 +271,13 @@ function AddonTable_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
-        presenter.eventBus = controller.getEventBus();
         presenter.textParser = new TextParserProxy(controller.getTextParser());
+
+    };
+
+    presenter.setEventBus = function (eventBus) {
+        presenter.eventBus = eventBus;
+
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('ItemSelected', this);

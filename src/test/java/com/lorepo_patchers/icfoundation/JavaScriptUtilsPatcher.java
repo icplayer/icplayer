@@ -33,7 +33,7 @@ public class JavaScriptUtilsPatcher {
 	}
 	
 	@PatchMethod
-	public void addPropertyToJSArray(JavaScriptObject model, String key, String value) {
+	public static void addPropertyToJSArray(JavaScriptObject model, String key, String value) {
 		
 	}
 }
