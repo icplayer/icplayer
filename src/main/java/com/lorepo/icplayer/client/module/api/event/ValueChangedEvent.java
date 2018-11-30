@@ -2,9 +2,7 @@ package com.lorepo.icplayer.client.module.api.event;
 
 import java.util.HashMap;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventHandler;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent.Handler;
 
 public class ValueChangedEvent extends PlayerEvent<Handler> {

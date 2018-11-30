@@ -60,11 +60,12 @@ public class GWTImageSourcePresenterTestCase extends GwtTest{
 		Page main = new Page("main", "main");
 		playerController = new PlayerControllerMockup();
 		services = new PlayerServicesMockup();
-		mainPageView = new PageView("main");
 
 		PageController mainPageController = new PageController(this.playerController);
 		Whitebox.setInternalState(mainPageController, IPlayerServices.class, services);
 		mainPageController.setContent(content);
+
+		mainPageView = new PageView("main");
 
 		mainPageController.setView(mainPageView);
 		mainPageController.setPage(main);	
