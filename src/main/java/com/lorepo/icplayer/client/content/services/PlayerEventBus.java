@@ -41,15 +41,13 @@ public class PlayerEventBus extends ResettableEventBus {
 	
 	@Override
 	public void fireEvent(Event<?> event) {
-		this.fireEventShared(event);
+		checkIfEventTypeIsEnabled(event);
+
+		super.fireEvent(event);
 	}
 
 	@Override
 	public void fireEvent(GwtEvent<?> event) {
-		this.fireEventShared(event);
-	}
-	
-	private void fireEventShared(Event<?> event) {
 		checkIfEventTypeIsEnabled(event);
 		
 		super.fireEvent(event);
@@ -57,19 +55,16 @@ public class PlayerEventBus extends ResettableEventBus {
 
 	@Override
 	public void fireEventFromSource(Event<?> event, Object source) {
-		this.fireEventFromSourceShared(event, source);
+		checkIfEventTypeIsEnabled(event);
+
+		super.fireEventFromSource(event, source);
 	}
 
 	@Override
 	public void fireEventFromSource(GwtEvent<?> event, Object source) {
-		this.fireEventFromSourceShared(event, source);
-	}
-	
-	private void fireEventFromSourceShared(Event<?> event, Object source) {
 		checkIfEventTypeIsEnabled(event);
 
 		super.fireEventFromSource(event, source);
-
 	}
 
 	public void setPlayerServices(PlayerServices playerServices) {

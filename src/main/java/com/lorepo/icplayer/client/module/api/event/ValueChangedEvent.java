@@ -9,11 +9,21 @@ import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent.Handler;
 
 public class ValueChangedEvent extends PlayerEvent<Handler> {
 	
+	private String moduleId;
+	private String itemId;
+	private String value;
+	private String score;
+	private String pageID;
+	private String moduleType;
+
+
 	public ValueChangedEvent(String moduleID, String itemID, String value, String score){
 		this.moduleId = moduleID;
 		this.itemId = itemID;
 		this.value = value;
 		this.score = score;
+		this.pageID = "";
+		this.moduleType = "";
 	}
 	
 	public ValueChangedEvent(String moduleID, String itemID, String value, String score, String pageID, String moduleType) {
@@ -57,7 +67,7 @@ public class ValueChangedEvent extends PlayerEvent<Handler> {
 		handler.onScoreChanged(this);
 	}
 
-	@Override
+    @Override
 	public HashMap<String, String> getData() {
 
 		HashMap<String, String> data = new HashMap<String, String>();

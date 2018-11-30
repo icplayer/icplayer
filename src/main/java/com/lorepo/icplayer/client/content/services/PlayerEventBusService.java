@@ -98,7 +98,7 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 		String moduleType = JavaScriptUtils.getArrayItemByKey(eventData, "moduleType");
 		String pageId = JavaScriptUtils.getArrayItemByKey(eventData, "pageId");
 
-		if(type.compareTo("image") == 0) {
+		if (type.compareTo("image") == 0) {
 			item = new DraggableImage(id, value);
 		} else {
 			item = new DraggableText(id, value);
@@ -216,10 +216,12 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 
 	}
 	
-	private void addEventListener(HashMap<String, List<JavaScriptObject>> listeners, Map<String, List<JavaScriptObject>> pageLoadedListeners,
-			String eventName, 
-			JavaScriptObject listener) 
-	{
+	private void addEventListener(
+	    HashMap<String, List<JavaScriptObject>> listeners,
+	    Map<String, List<JavaScriptObject>> pageLoadedListeners,
+        String eventName,
+        JavaScriptObject listener
+    ) {
 		List<JavaScriptObject> eventListeners = listeners.get(eventName);
 		if (eventListeners == null) {
 			eventListeners = new ArrayList<JavaScriptObject>();

@@ -41,7 +41,7 @@ public class CustomEvent extends PlayerEvent<Handler> {
 	protected void dispatch(Handler handler) {
 		handler.onCustomEventOccurred(this);
 	}
-	
+
 	@Override
 	public HashMap<String, String> getData() {
 		return data;
