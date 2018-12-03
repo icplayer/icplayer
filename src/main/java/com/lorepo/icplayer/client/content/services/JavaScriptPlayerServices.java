@@ -389,17 +389,25 @@ public class JavaScriptPlayerServices {
 			adaptive.getCurrentPageConnections = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveConnectionCurrentPage()();
 			};
+			
+			adaptive.addNextPage = function(pageId) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addNextAdaptivePage(Ljava/lang/String;)(pageId);
+			};
 
 			adaptive.getPageConnections = function(pageID) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveConnectionForPage(Ljava/lang/String;)(pageID);
 			};
 
 			adaptive.moveToNextPage = function (pageID) {
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveToNextPage(Ljava/lang/String;)(pageID);
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveToNextAdaptivePage()();
 			}
 
 			adaptive.moveToPrevPage = function () {
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveToPrevPage()();
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveToPrevAdaptivePage()();
+			}
+			
+			adaptive.isNextAdaptivePageAvaialable = function () {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isNextAdaptivePageAvaialable()();
 			}
 
 			adaptive.resetHistory = function() {
@@ -780,15 +788,23 @@ public class JavaScriptPlayerServices {
 		return this.playerServices.getAdaptiveLearningService().getConnectionsForPage(pageID);
 	}
 
-	public void moveToNextPage(String pageID) {
-		this.playerServices.getAdaptiveLearningService().moveToNextPage(pageID);
+	public void moveToNextAdaptivePage() {
+		this.playerServices.getAdaptiveLearningService().moveToNextPage();
 	}
 
-	public void moveToPrevPage() {
+	public void moveToPrevAdaptivePage() {
 		this.playerServices.getAdaptiveLearningService().moveToPrevPage();
 	}
 
 	public void resetHistory() {
 		this.playerServices.getAdaptiveLearningService().resetHistory();
+	}
+	
+	public boolean isNextAdaptivePageAvaialable() {
+		return this.playerServices.getAdaptiveLearningService().isNextPageAvailable();
+	}
+	
+	public void addNextAdaptivePage(String pageId) {
+		this.playerServices.getAdaptiveLearningService().addNextPage(pageId);
 	}
 }

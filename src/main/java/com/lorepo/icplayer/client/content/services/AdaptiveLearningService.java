@@ -12,6 +12,7 @@ import com.lorepo.icf.utils.JSONValueAdapter;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
+import com.lorepo.icplayer.client.model.adaptive.AdaptivePageSteps;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveStructure;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
@@ -19,6 +20,7 @@ import com.lorepo.icplayer.client.page.PageController;
 
 public class AdaptiveLearningService implements IAdaptiveLearningService {
 	private AdaptiveStructure structure;
+	private AdaptivePageSteps pageToSteps;
 	private IPlayerController playerController;
 	private List<Integer> vistiedPageIndexes; // by default first page is added
 	private int currentPageIndex = 0;
@@ -40,6 +42,7 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 	public AdaptiveLearningService(IPlayerController playerController, String adaptiveStructure) {
 		this.playerController = playerController;
 		this.structure = new AdaptiveStructure(adaptiveStructure);
+		this.pageToSteps = new AdaptivePageSteps(adaptiveStructure);
 		this.vistiedPageIndexes = new ArrayList<Integer>();
 		this.vistiedPageIndexes.add(0);
 	}
@@ -56,7 +59,7 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 	}
 	
 	public boolean isNextPageAvailable() {
-		return this.currentPageIndex == this.vistiedPageIndexes.size() - 1;
+		return this.currentPageIndex < this.vistiedPageIndexes.size() - 1;
 	}
 
 	public void addNextPage(String pageID) {
@@ -127,6 +130,11 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 			this.vistiedPageIndexes.add(currentPage);
 			this.currentPageIndex = 1;
 		}
+	}
+
+	@Override
+	public int getPageStep(String pageID) {
+		return pageToSteps.getPageStep(pageID);
 	}
 
 }

@@ -171,17 +171,23 @@ function AddonAdaptive_Next_create() {
     };
 
     presenter.nextButtonTrigger = function() {
+        // if there is next page in saved history, move to that page, otherwise check connections for current page
+        if (presenter.adaptiveLearningService.isNextAdaptivePageAvaialable()) {
+            presenter.adaptiveLearningService.moveToNextPage();
+            return;
+        }
+
         // this allows to inject custom pages states into window object, which will be used instead of player state
         presenter.isAdaptivePreviewMode = window.adaptivePreviewMode ? true : false;
-
 
         var connections = presenter.adaptiveLearningService.getCurrentPageConnections();
 
         for (var i = 0; i < connections.length; i++) {
-            var isMetCondition = presenter.evaluateCondition(connections[i].conditions);
+            var isConditionMet = presenter.evaluateCondition(connections[i].conditions);
 
-            if (isMetCondition) {
-                presenter.adaptiveLearningService.moveToNextPage(connections[i].target);
+            if (isConditionMet) {
+                presenter.adaptiveLearningService.addNextPage(connections[i].target);
+                presenter.adaptiveLearningService.moveToNextPage();
                 return;
             }
         }

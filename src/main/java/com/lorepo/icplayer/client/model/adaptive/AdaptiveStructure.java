@@ -16,7 +16,6 @@ public class AdaptiveStructure {
 	}
 	
 	private native AdaptiveAdjacencyList getValues(String json) /*-{
-		$wnd.console.log(json);
 		if (json !== ''&& json !== null && json !== undefined) { 
 			var parsedJSON = JSON.parse(json);
 			
