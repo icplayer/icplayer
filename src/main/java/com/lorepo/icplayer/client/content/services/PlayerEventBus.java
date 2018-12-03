@@ -2,10 +2,12 @@ package com.lorepo.icplayer.client.content.services;
 
 import java.util.Arrays;
 
+import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.module.api.event.PlayerEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent.Handler;
@@ -40,7 +42,7 @@ public class PlayerEventBus extends ResettableEventBus {
 	@Override
 	public void fireEvent(Event<?> event) {
 		checkIfEventTypeIsEnabled(event);
-		
+
 		super.fireEvent(event);
 	}
 

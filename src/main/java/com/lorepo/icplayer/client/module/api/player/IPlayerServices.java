@@ -18,7 +18,6 @@ public interface IPlayerServices {
 
 	public IContent getModel();
 	public PlayerConfig getPlayerConfig();
-	public EventBus	getEventBus();
 	public int getCurrentPageIndex();
 	public IPlayerCommands	getCommands();
 	public IScoreService	getScoreService();
@@ -48,5 +47,10 @@ public interface IPlayerServices {
 	public void setAbleChangeLayout(boolean isAbleChangeLayout); 
 	public boolean isAbleChangeLayout();
 	public boolean changeSemiResponsiveLayout(String layoutID);
+	
+	public EventBus	getEventBus();
+	public IPlayerEventBusService getEventBusService();
+	public void sendEvent(String eventName, JavaScriptObject eventData);
+	public void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed);
 
 }

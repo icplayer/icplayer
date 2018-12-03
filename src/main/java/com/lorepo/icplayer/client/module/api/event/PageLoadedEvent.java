@@ -33,6 +33,7 @@ public class PageLoadedEvent extends PlayerEvent<Handler> {
 		handler.onPageLoaded(this);
 	}
 
+	@Override
 	public HashMap<String, String> getData() {
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("source", pageName);

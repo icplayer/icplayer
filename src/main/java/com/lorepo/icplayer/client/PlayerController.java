@@ -41,7 +41,7 @@ import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
 
-public class PlayerController implements IPlayerController{
+public class PlayerController implements IPlayerController {
 
 	private final	Content				contentModel;
 	private PlayerConfig config = new PlayerConfig();
