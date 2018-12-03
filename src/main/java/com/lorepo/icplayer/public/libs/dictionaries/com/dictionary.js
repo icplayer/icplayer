@@ -84,6 +84,9 @@ var ice_dictionary_en = {
 	"main_tab": "Main",
 	"commons_tab": "Commons",
 	"save_changes": "You have made changes, do you want to save them?",
+	"saving_css": "Saving CSS...",
+	"saved_css": "CSS saved",
+	"background_saving_css": "Saving CSS will continue in the background",
 	"module_belongs_to_group" : "At least one module belongs to a group",
 	"max_score" : "Group's Max Score",
 	"group_id" : "ID",
@@ -1927,5 +1930,6 @@ var ice_dictionary_en = {
     "Media_Recorder_info": "Button for navigating through adaptive structure",
     "Adaptive_Next_property_next_direction": "Direction",
     "Adaptive_Next_property_next_is_disabled": "Is disabled",
-    "Adaptive_Next_property_next_image": "Image"
+    "Adaptive_Next_property_next_image": "Image",
+	"Editor_load_theme_error": "Error loading template (click <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">here</a> to find out more)"
 };

@@ -17,18 +17,21 @@ import {AudioResourcesProvider} from "./resources/AudioResourcesProvider.jsm";
 import {AudioRecorder} from "./recorder/AudioRecorder.jsm";
 import {AudioPlayer} from "./player/AudioPlayer.jsm";
 import {DefaultRecordingPlayButton} from "./view/button/DefaultRecordingPlayButton.jsm";
+import {SafariRecorderState} from "./state/SafariRecorderState.jsm";
 
 export class MediaRecorder {
 
     run(view, model) {
         let validatedModel = validateModel(model);
 
-        if (window.DevicesUtils.isInternetExplorer()) {
+        if (this._isBrowserNotSupported()) {
             this._showBrowserError(view)
         } else if (validatedModel.isValid)
             this._runAddon(view, validatedModel.value);
         else
             this._showError(view, validatedModel);
+
+        this._notifyWebView();
     }
 
     createPreview(view, model) {
@@ -101,6 +104,7 @@ export class MediaRecorder {
         this.mediaAnalyserService.destroy();
         this.addonState.destroy();
         this.mediaState.destroy();
+        this.safariRecorderState.destroy();
         this.activationState.destroy();
 
         this.viewHandlers = null;
@@ -177,6 +181,7 @@ export class MediaRecorder {
         this._loadLogic();
         this._loadDefaultRecording(this.model);
         this._activateButtons();
+        this._loadWebViewMessageListener();
         this.setVisibility(model["Is Visible"]);
     }
 
@@ -198,6 +203,7 @@ export class MediaRecorder {
         this.mediaState = new MediaState();
         this.activationState = new ActivationState();
         this.addonState = new AddonState();
+        this.safariRecorderState = new SafariRecorderState();
     }
 
     _loadViewHandlers(view) {
@@ -267,34 +273,43 @@ export class MediaRecorder {
     _loadLogic() {
         this.recordButton.onStartRecording = () => {
             this.mediaState.setBlocked();
-            this.resourcesProvider.getMediaResources()
-                .then(stream => {
-                    this.mediaState.setRecording();
-                    this.player.startStreaming(stream);
-                    this.recorder.startRecording(stream);
-                    this.timer.reset();
-                    this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
-                    this.recordingTimeLimiter.startCountdown();
-                    this.mediaAnalyserService.createAnalyserFromStream(stream)
-                        .then(analyser => this.soundIntensity.startAnalyzing(analyser));
-                })
+            if (this.safariRecorderState.isAvailableResources()) {
+                const stream = this.resourcesProvider.getStream();
+                this._handleRecording(stream);
+            } else if (this.platform === 'mlibro') {
+                this._handleMlibroStartRecording();
+            } else {
+                this.resourcesProvider.getMediaResources().then(stream => {
+                    const isSafari = window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
+                    if (isSafari && this.safariRecorderState.isUnavailableResources()) {
+                        this._handleSafariRecordingInitialization();
+                        return;
+                    }
+                    this._handleRecording(stream);
+                });
+            }
         };
 
         this.recordButton.onStopRecording = () => {
-            this.mediaState.setLoading();
-            this.timer.stopCountdown();
-            this.recordingTimeLimiter.stopCountdown();
-            this.soundIntensity.stopAnalyzing();
-            this.mediaAnalyserService.closeAnalyzing();
-            this.player.stopStreaming();
-            this.recorder.stopRecording()
-                .then(blob => {
-                    this.addonState.setRecordingBlob(blob);
-                    let recording = URL.createObjectURL(blob);
-                    this.player.reset();
-                    this.player.setRecording(recording);
-                });
-            this.resourcesProvider.destroy();
+            if (this.platform === 'mlibro')
+                this._handleMlibroStopRecording();
+            else {
+                this.mediaState.setLoading();
+                this.timer.stopCountdown();
+                this.recordingTimeLimiter.stopCountdown();
+                this.soundIntensity.stopAnalyzing();
+                this.mediaAnalyserService.closeAnalyzing();
+                this.player.stopStreaming();
+                this.recorder.stopRecording()
+                    .then(blob => {
+                        this.addonState.setRecordingBlob(blob);
+                        let recording = URL.createObjectURL(blob);
+                        this.player.reset();
+                        this.player.setRecording(recording);
+                    });
+                this.resourcesProvider.destroy();
+                this.safariRecorderState.setUnavailableResources();
+            }
         };
 
         this.recordButton.onReset = () => {
@@ -378,6 +393,17 @@ export class MediaRecorder {
         this.recordingTimeLimiter.onTimeExpired = () => this.recordButton.forceClick();
     }
 
+    _handleRecording(stream) {
+        this.mediaState.setRecording();
+        this.player.startStreaming(stream);
+        this.recorder.startRecording(stream);
+        this.timer.reset();
+        this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
+        this.recordingTimeLimiter.startCountdown();
+        this.mediaAnalyserService.createAnalyserFromStream(stream)
+            .then(analyser => this.soundIntensity.startAnalyzing(analyser));
+    };
+
     _loadDefaultRecording(model) {
         if (_isValid(model.defaultRecording) && model.isShowedDefaultRecordingButton) {
             this.mediaState.setLoading();
@@ -434,7 +460,7 @@ export class MediaRecorder {
     _showBrowserError(view) {
         let $wrapper = $(view).find(".media-recorder-wrapper");
         $wrapper.addClass("media-recorder-wrapper-browser-not-supported");
-        $wrapper.text(Errors["not_supported_browser"]);
+        $wrapper.text(Errors["not_supported_browser"] + window.DevicesUtils.getBrowserVersion());
     }
 
     _updatePreview(view, validatedModel) {
@@ -458,5 +484,82 @@ export class MediaRecorder {
             this.viewHandlers.$timerView.hide();
         if (this.model.isShowedDefaultRecordingButton == false)
             this.viewHandlers.$defaultRecordingPlayButtonView.hide();
+    }
+
+    _isBrowserNotSupported() {
+        const browser = window.DevicesUtils.getBrowserVersion().split(" ")[0].toLowerCase();
+        const browserVersion = window.DevicesUtils.getBrowserVersion().split(" ")[1];
+
+        if (browser.indexOf("safari") > -1 && browserVersion < 11)
+            return true;
+
+        if (browser.indexOf("chrome") > -1 && browserVersion < 53)
+            return true;
+
+        if (window.DevicesUtils.isInternetExplorer())
+            return true;
+
+        return false;
+    }
+
+    _handleSafariRecordingInitialization() {
+        this.mediaState.setBlockedSafari();
+        this.safariRecorderState.setAvailableResources();
+        this.recordButton.setUnclickView();
+        alert(Errors["safari_select_recording_button_again"]);
+    }
+
+    _notifyWebView() {
+        try {
+            window.external.notify(JSON.stringify({type: "platform", target: this.model.ID}));
+        } catch (e) {
+            // silent message
+            // can't use a conditional expression
+            // https://social.msdn.microsoft.com/Forums/en-US/1a8b3295-cd4d-4916-9cf6-666de1d3e26c/windowexternalnotify-always-undefined?forum=winappswithcsharp
+        }
+    }
+
+    _loadWebViewMessageListener() {
+        window.addEventListener('message', event => {
+            const eventData = JSON.parse(event.data);
+            let isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
+            let isValueMlibro = eventData.value ? eventData.value.toLowerCase() === 'mlibro' : false;
+            if (isTypePlatform && isValueMlibro)
+                this._handleWebViewBehaviour();
+        }, false);
+    }
+
+    _handleWebViewBehaviour() {
+        if (this.platform === undefined || this.platform === null) {
+            this.platform = 'mlibro';
+            window.addEventListener('message', event => {
+                const eventData = JSON.parse(event.data);
+                let isTypeRecording = eventData.type ? eventData.type.toLowerCase() === 'recording' : false;
+                let isTargetMe = eventData.target ? eventData.target === this.model.ID : false;
+                let isStateLoading = this.mediaState.isLoading();
+                if (isTypeRecording && isTargetMe && isStateLoading) {
+                    this.addonState.setRecordingBase64(eventData.value);
+                    this.player.reset();
+                    this.player.setRecording(eventData.value);
+                } else {
+                    console.log("The recording has not been received");
+                }
+            }, false);
+        }
+    }
+
+    _handleMlibroStartRecording() {
+        this.mediaState.setRecording();
+        this.timer.reset();
+        this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
+        this.recordingTimeLimiter.startCountdown();
+        window.external.notify(JSON.stringify({type: "mediaRecord", target: this.model.ID}));
+    }
+
+    _handleMlibroStopRecording() {
+        this.mediaState.setLoading();
+        this.timer.stopCountdown();
+        this.recordingTimeLimiter.stopCountdown();
+        window.external.notify(JSON.stringify({type: "mediaStop", target: this.model.ID}));
     }
 }

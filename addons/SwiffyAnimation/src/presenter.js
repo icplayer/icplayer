@@ -14,6 +14,7 @@ function AddonSwiffyAnimation_create(){
         presenter.swiffyItem = [];
         presenter.animsLoaded = [];
         presenter.animsRunning = [];
+        presenter.originalDisplay = presenter.$view.css('display') ? presenter.$view.css('display') : 'block';
 
         presenter.isVisible = model["Is Visible"] == 'True';
         presenter.setVisibility(presenter.isVisible);
@@ -249,7 +250,7 @@ function AddonSwiffyAnimation_create(){
 
     presenter.setVisibility = function(isVisible) {
         presenter.isVisible = isVisible;
-        presenter.$view.css("display", isVisible ? "block" : "none");
+        presenter.$view.css("display", isVisible ? presenter.originalDisplay : "none");
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 

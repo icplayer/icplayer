@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.api;
 
 import java.util.HashMap;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 
 
@@ -81,6 +82,12 @@ public class TextToSpeechPresenter implements ITextToSpeechPresenter {
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public JavaScriptObject getAsJavaScript() {
+		// TODO Auto-generated method stub
+		return JavaScriptObject.createObject();
 	}
 	
 }

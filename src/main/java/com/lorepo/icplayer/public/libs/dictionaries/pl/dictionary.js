@@ -84,6 +84,9 @@ var ice_dictionary_pl = {
 	"main_tab": "Głowne",
 	"commons_tab": "Wspólne",
 	"save_changes": "Zostały wprowadzone zmiany. Czy chcesz je zapisać?",
+	"saving_css": "Saving CSS...",
+	"saved_css": "CSS saved",
+	"background_saving_css": "Saving CSS will continue in the background",
 	"module_belongs_to_group" : "Co najmniej jeden moduł należy do grupy",
 	"max_score" : "Punktacja max. dla grupy",
 	"group_id" : "ID",
@@ -1901,6 +1904,7 @@ var ice_dictionary_pl = {
     "Media_Recorder_property_default_recording": "Default recording",
     "Media_Recorder_property_start_recording_sound": "Recording start sound",
     "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
-    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording"
+    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording",
+	"Editor_load_theme_error":"Błąd podczas wgrywania szablonu (więcej informacji dostępnych jest <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">tutaj</a>)"
 };
 

@@ -16,6 +16,7 @@ import com.lorepo.icplayer.client.module.api.player.PageScore;
 
 import java.util.HashMap;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 
 public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButton{
@@ -134,5 +135,11 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 		if (eventName.equals("ShowAnswers")) {
 			updateDisplay();
 		}
+	}
+
+	@Override
+	public JavaScriptObject getAsJavaScript() {
+		// TODO Auto-generated method stub
+		return JavaScriptObject.createObject();
 	}
 }

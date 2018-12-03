@@ -7,6 +7,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 
 
@@ -29,6 +30,7 @@ public interface IPlayerServices {
 	public IAdaptiveLearningService getAdaptiveLearningService();
 	public JavaScriptObject getAsJSObject();
 	public IPresenter getModule(String moduleName);
+	public GroupPresenter getGroup(String groupId);  
 	public boolean isBookMode();
 	public boolean hasCover();
 	public void sendAnalytics(String event, HashMap<String,String> params);
