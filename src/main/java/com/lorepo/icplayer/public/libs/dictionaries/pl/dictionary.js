@@ -1904,6 +1904,7 @@ var ice_dictionary_pl = {
     "Media_Recorder_property_default_recording": "Default recording",
     "Media_Recorder_property_start_recording_sound": "Recording start sound",
     "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
-    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording"
+    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording",
+	"Editor_load_theme_error":"Błąd podczas wgrywania szablonu (więcej informacji dostępnych jest <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">tutaj</a>)"
 };
 

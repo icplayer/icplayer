@@ -39,6 +39,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private boolean isShowErrorsMode = false;
 	private boolean mathJaxIsLoaded = false;
 	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
 	
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
@@ -55,6 +56,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (!isPreview && !module.isVisible()) {
 			hide();
 		}
@@ -330,11 +332,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void show(boolean callRefreshMath) {
-		Element element = getElement();
-		if (element.getStyle().getVisibility().equals("hidden")) {
-            element.getStyle().setProperty("visibility", "visible");
-            element.getStyle().setProperty("display", "block");
-        }
+		setVisible(true);
 		if (this.mathJaxIsLoaded) {
 			refreshMath();
 		}
@@ -635,6 +633,16 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		if (this.mathJaxHook != null) {
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
 			this.mathJaxHook = null;
+		}
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
 		}
 	}
 	
