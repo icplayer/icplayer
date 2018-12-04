@@ -1,7 +1,8 @@
 /*
  KNOWN ISSUES
     Text parsing:
-        Do not change the space special character support due to backward compatibility
+        Do not change the space special character (&nbsp;) support due to backward compatibility #6613
+        Do not add html escape support due to backward compatibility #6902
 */
 
 function AddonText_Coloring_create() {
