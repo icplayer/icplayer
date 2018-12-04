@@ -49,7 +49,7 @@ TestCase("[Text_Coloring] block html escape - code freeze", {
         assertEquals(expectedResult, result);
     },
 
-        'test should parse reverse of signs combinations': function () {
+    'test should parse reverse of signs combinations': function () {
         // arrange
         var wordToParse = "><";
 
