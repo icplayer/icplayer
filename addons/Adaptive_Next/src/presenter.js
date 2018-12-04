@@ -172,7 +172,7 @@ function AddonAdaptive_Next_create() {
 
     presenter.nextButtonTrigger = function() {
         // if there is next page in saved history, move to that page, otherwise check connections for current page
-        if (presenter.adaptiveLearningService.isNextAdaptivePageAvaialable()) {
+        if (presenter.adaptiveLearningService.isNextAdaptivePageAvailable()) {
             presenter.adaptiveLearningService.moveToNextPage();
             return;
         }
@@ -199,7 +199,7 @@ function AddonAdaptive_Next_create() {
 
 
     presenter.triggerButtonClickedEvent = function() {
-        if (presenter.playerController == null) return;
+        if (presenter.adaptiveLearningService == null) return;
 
         if (presenter.configuration.Direction === presenter.BUTTON_TYPE.PREV) {
             presenter.prevButtonTrigger();
@@ -215,7 +215,6 @@ function AddonAdaptive_Next_create() {
         try {
             return eval(condition);
         } catch (e) {
-            console.log(condition + ' error');
             return false;
         }
     };
@@ -285,9 +284,7 @@ function AddonAdaptive_Next_create() {
 
     presenter.setState = function(stateString) {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
-        console.log(stateString);
         var state = JSON.parse(stateString);
-
 
         presenter.state.isDisabled = state.isDisabled;
         presenter.state.isVisible = state.isVisible;

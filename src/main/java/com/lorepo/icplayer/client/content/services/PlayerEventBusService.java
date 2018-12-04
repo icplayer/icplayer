@@ -16,6 +16,7 @@ import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
 import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
+import com.lorepo.icplayer.client.module.api.event.builders.ValueChangedBuilder;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
@@ -97,6 +98,7 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 		String score = JavaScriptUtils.getArrayItemByKey(eventData, "score");
 		String moduleType = JavaScriptUtils.getArrayItemByKey(eventData, "moduleType");
 		String pageId = JavaScriptUtils.getArrayItemByKey(eventData, "pageId");
+		String pageStep = JavaScriptUtils.getArrayItemByKey(eventData, "pageAdaptiveStep");
 
 		if (type.compareTo("image") == 0) {
 			item = new DraggableImage(id, value);
@@ -111,7 +113,12 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 		} else if (ITEM_SELECTED_EVENT_NAME.compareTo(eventName) == 0) {
 			event = new ItemSelectedEvent(item);
 		} else if (VALUE_CHANGED_EVENT_NAME.compareTo(eventName) == 0) {
-			event = new ValueChangedEvent(source, id, value, score, pageId, moduleType);
+			ValueChangedBuilder builder = new ValueChangedBuilder(source, id, value, score)
+				.setModuleType(moduleType)
+				.setPageId(pageId)
+				.setPageAdaptiveStep(pageStep);
+				
+			event = builder.build();
 		} else if (DEFINITION_EVENT_NAME.compareTo(eventName) == 0) {
 			String word = JavaScriptUtils.getArrayItemByKey(eventData, "word");
 			event = new DefinitionEvent(word);

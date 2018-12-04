@@ -10,6 +10,7 @@ public class PlayerEventBusWrapper {
 	
 	protected final String ADDON_TYPE_EVENT_KEY = "moduleType";
 	protected final String PAGE_ID_EVENT_KEY = "pageId";
+	protected final String PAGE_STEP_EVENT_KEY = "pageAdaptiveStep";
 	
 	public PlayerEventBusWrapper(IPlayerServices services, String addonType) {
 		this.playerServices = services;
@@ -21,11 +22,13 @@ public class PlayerEventBusWrapper {
 	}
 	
 	public void sendEvent(String eventName, JavaScriptObject eventData) {
-		JavaScriptUtils.addPropertyToJSArray(eventData, ADDON_TYPE_EVENT_KEY, addonType);
-		
 		String currentPageID = this.playerServices.getCommands().getPageController().getPage().getId();
-		JavaScriptUtils.addPropertyToJSArray(eventData, PAGE_ID_EVENT_KEY, currentPageID);
+		String currentPageAdaptiveStep = String.valueOf(this.playerServices.getAdaptiveLearningService().getPageStep(currentPageID));
 		
+		JavaScriptUtils.addPropertyToJSArray(eventData, PAGE_ID_EVENT_KEY, currentPageID);
+		JavaScriptUtils.addPropertyToJSArray(eventData, ADDON_TYPE_EVENT_KEY, addonType);
+		JavaScriptUtils.addPropertyToJSArray(eventData, PAGE_STEP_EVENT_KEY, currentPageAdaptiveStep);
+
 		this.playerServices.sendEvent(eventName, eventData);
 	}
 	

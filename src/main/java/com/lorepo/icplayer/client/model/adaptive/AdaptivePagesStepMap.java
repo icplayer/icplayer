@@ -6,7 +6,7 @@ public class AdaptivePagesStepMap extends JavaScriptObject {
 	protected AdaptivePagesStepMap () { }
 	
 	public final native int getPageStep(String pageId) /*-{
-		if (this[pageId]) {
+		if (this[pageId] !== undefined) {
 			return this[pageId]; 
 		}
 		
