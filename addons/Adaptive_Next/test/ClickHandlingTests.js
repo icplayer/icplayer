@@ -50,17 +50,19 @@ TestCase("[Adaptive_Next] Click handling test - next button", {
         this.presenter = AddonAdaptive_Next_create();
 
         this.stubs = {
-            isNextAdaptivePageAvailableMock: sinon.stub(),
-            moveToNextPageMock: sinon.stub(),
-            getCurrentPageConnectionsMock: sinon.stub(),
+            isNextAdaptivePageAvailableStub: sinon.stub(),
+            moveToNextPageStub: sinon.stub(),
+            getCurrentPageConnectionsStub: sinon.stub(),
+            addNextPageStub: sinon.stub(),
 
-            evaluateConditionMock: sinon.stub()
+            evaluateConditionStub: sinon.stub()
         };
 
         this.adaptiveLearningServiceMock = {
-            moveToNextPage: this.stubs.moveToNextPageMock,
-            isNextAdaptivePageAvailable: this.stubs.isNextAdaptivePageAvailableMock,
-            getCurrentPageConnections: this.stubs.getCurrentPageConnectionsMock
+            moveToNextPage: this.stubs.moveToNextPageStub,
+            isNextAdaptivePageAvailable: this.stubs.isNextAdaptivePageAvailableStub,
+            getCurrentPageConnections: this.stubs.getCurrentPageConnectionsStub,
+            addNextPage: this.stubs.addNextPageStub
         };
 
         this.presenter.adaptiveLearningService = this.adaptiveLearningServiceMock;
@@ -68,43 +70,74 @@ TestCase("[Adaptive_Next] Click handling test - next button", {
             Direction: this.presenter.BUTTON_TYPE.NEXT
         };
 
-        this.presenter.evaluateCondition = this.stubs.evaluateConditionMock;
+        this.presenter.evaluateCondition = this.stubs.evaluateConditionStub;
     },
 
     'test given service returning next page is available when handling click then will call moveToNextPage': function () {
-        this.stubs.isNextAdaptivePageAvailableMock.returns(true);
+        this.stubs.isNextAdaptivePageAvailableStub.returns(true);
 
         this.presenter.triggerButtonClickedEvent();
 
-        assertTrue(this.stubs.moveToNextPageMock.called);
+        assertTrue(this.stubs.moveToNextPageStub.called);
     },
 
-    'test given no connections for current page when no next page available then will call not moveToNextPage': function () {
-        this.stubs.isNextAdaptivePageAvailableMock.returns(false);
-        this.stubs.getCurrentPageConnectionsMock.returns([]);
+    'test given no connections for current page when no next page available then will not call moveToNextPage': function () {
+        this.stubs.isNextAdaptivePageAvailableStub.returns(false);
+        this.stubs.getCurrentPageConnectionsStub.returns([]);
 
         this.presenter.triggerButtonClickedEvent();
 
-        assertFalse(this.stubs.moveToNextPageMock.called);
+        assertFalse(this.stubs.moveToNextPageStub.called);
     },
 
-    'test given connections for current page when no next page available then will call not moveToNextPage': function () {
-        this.stubs.isNextAdaptivePageAvailableMock.returns(false);
-        this.stubs.getCurrentPageConnectionsMock.returns([]);
+    'test given connections for current page when no next page available then will not call moveToNextPage': function () {
+        this.stubs.isNextAdaptivePageAvailableStub.returns(false);
+        this.stubs.getCurrentPageConnectionsStub.returns([]);
 
         this.presenter.triggerButtonClickedEvent();
 
-        assertFalse(this.stubs.moveToNextPageMock.called);
+        assertFalse(this.stubs.moveToNextPageStub.called);
     },
 
-    'test given false when evaluating conditions then will call not moveToNextPage': function () {
-        this.stubs.isNextAdaptivePageAvailableMock.returns(false);
-        this.stubs.getCurrentPageConnectionsMock.returns(generateConnections(3));
-        this.stubs.evaluateConditionMock.returns(false);
+    'test given false when evaluating conditions then will not call moveToNextPage': function () {
+        this.stubs.isNextAdaptivePageAvailableStub.returns(false);
+        this.stubs.getCurrentPageConnectionsStub.returns(generateConnections(3));
+        this.stubs.evaluateConditionStub.returns(false);
 
         this.presenter.triggerButtonClickedEvent();
 
-        assertFalse(this.stubs.moveToNextPageMock.called);
-        assertEquals(3, this.stubs.evaluateConditionMock.callCount)
-    }
+        assertFalse(this.stubs.moveToNextPageStub.called);
+        assertEquals(3, this.stubs.evaluateConditionStub.callCount)
+    },
+
+    'test given true when evaluating second condition then will call moveToNextPage': function () {
+        var connections = generateConnections(3);
+
+        this.stubs.isNextAdaptivePageAvailableStub.returns(false);
+        this.stubs.getCurrentPageConnectionsStub.returns(connections);
+        this.stubs.evaluateConditionStub.onFirstCall().returns(false);
+        this.stubs.evaluateConditionStub.onSecondCall().returns(true);
+
+        this.presenter.triggerButtonClickedEvent();
+
+        assertTrue(this.stubs.moveToNextPageStub.called);
+        assertTrue(this.stubs.addNextPageStub.calledWith(connections[1].target));
+        assertEquals(2, this.stubs.evaluateConditionStub.callCount);
+    },
+
+    'test given true when evaluating third condition then will call moveToNextPage': function () {
+        var connections = generateConnections(3);
+
+        this.stubs.isNextAdaptivePageAvailableStub.returns(false);
+        this.stubs.getCurrentPageConnectionsStub.returns(connections);
+        this.stubs.evaluateConditionStub.onFirstCall().returns(false);
+        this.stubs.evaluateConditionStub.onSecondCall().returns(false);
+        this.stubs.evaluateConditionStub.onThirdCall().returns(true);
+
+        this.presenter.triggerButtonClickedEvent();
+
+        assertTrue(this.stubs.moveToNextPageStub.called);
+        assertTrue(this.stubs.addNextPageStub.calledWith(connections[2].target));
+        assertEquals(3, this.stubs.evaluateConditionStub.callCount);
+    },
 });

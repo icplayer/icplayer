@@ -4,7 +4,7 @@ public class AdaptivePageSteps {
 	private AdaptivePagesStepMap pagesToStep;
 	
 	public AdaptivePageSteps(String json) {
-		this.pagesToStep = getValues(json);
+		this.pagesToStep = this.getValues(json);
 	}
 	
 	public int getPageStep(String pageId) {

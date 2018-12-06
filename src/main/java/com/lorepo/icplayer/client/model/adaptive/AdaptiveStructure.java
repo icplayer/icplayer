@@ -1,7 +1,6 @@
 package com.lorepo.icplayer.client.model.adaptive;
 
 import com.google.gwt.core.client.JsArray;
-import com.lorepo.icplayer.client.model.page.Page;
 
 
 public class AdaptiveStructure {
@@ -16,7 +15,7 @@ public class AdaptiveStructure {
 	}
 	
 	private native AdaptiveAdjacencyList getValues(String json) /*-{
-		if (json !== ''&& json !== null && json !== undefined) { 
+		if (json !== '' && json !== null && json !== undefined) { 
 			var parsedJSON = JSON.parse(json);
 			
 			return parsedJSON.edges;
