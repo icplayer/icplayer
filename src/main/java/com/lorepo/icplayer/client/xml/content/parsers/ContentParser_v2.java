@@ -12,10 +12,9 @@ public class ContentParser_v2 extends ContentParser_v1 {
 	}
 	
 	@Override
-	protected Content parseAdaptiveStructure(IContentBuilder content, Element child) {
+	protected String parseAdaptiveStructure(Element child) {
 		String structure = XMLUtils.getCDATA(child);
-		content.setAdaptiveStructure(structure);
 
-		return (Content) content;
+		return structure;
 	}
 }

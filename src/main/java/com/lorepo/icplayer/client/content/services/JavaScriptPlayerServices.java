@@ -406,7 +406,7 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveToPrevAdaptivePage()();
 			}
 			
-			adaptive.isNextAdaptivePageAvaialable = function () {
+			adaptive.isNextAdaptivePageAvailable = function () {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isNextAdaptivePageAvaialable()();
 			}
 
