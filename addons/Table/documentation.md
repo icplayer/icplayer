@@ -229,18 +229,43 @@ Table addon sends ValueChanged type events to Event Bus when either gap is chang
         <th>Description</th>
     </tr>
     <tr>
+        <tr>
+            <td>Item</td>
+            <td>Modified gap index (1-based)</td>
+        </tr>
+        <tr>
+            <td>Value</td>
+            <td>Gap value or "-" sign if no value is selected (default option)</td>
+        </tr>
+        <tr>
+            <td>Score</td>
+            <td>1 if new value is correct answer, 0 otherwise</td>
+        </tr>
+    </tr>
+    </tbody>
+</table>
+
+Table addon sends ValueChanged type events to Event Bus when all gaps are filled correctly.
+
+<table border='1'>
+    <tbody>
     <tr>
-        <td>Item</td>
-        <td>Modified gap index (1-based)</td>
+        <th>Field name</th>
+        <th>Description</th>
     </tr>
     <tr>
-        <td>Value</td>
-        <td>Gap value or "-" sign if no value is selected (default option)</td>
-    </tr>
-    <tr>
-        <td>Score</td>
-        <td>1 if new value is correct answer, 0 otherwise</td>
-    </tr>
+        <tr>
+            <td>Item</td>
+            <td>all</td>
+        </tr>
+        <tr>
+            <td>Value</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Score</td>
+            <td></td>
+        </tr>
     </tr>
     </tbody>
 </table>
