@@ -1,21 +1,8 @@
 package com.lorepo.icplayer.client.module.sourcelist;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.DragStartEvent;
-import com.google.gwt.event.dom.client.DragStartHandler;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.MouseUpEvent;
-import com.google.gwt.event.dom.client.MouseUpHandler;
-import com.google.gwt.event.dom.client.TouchEndEvent;
-import com.google.gwt.event.dom.client.TouchEndHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
@@ -31,6 +18,11 @@ import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 
 public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGModuleView, MathJaxElement{
@@ -275,8 +267,10 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	
 	@Override
 	public void mathJaxIsLoadedCallback() {
-		this.mathJaxIsLoaded = true;
-		this.refreshMath();
+		if (!this.mathJaxIsLoaded) {
+			this.mathJaxIsLoaded = true;
+			this.refreshMath();
+		}
 	}
 
 	@Override

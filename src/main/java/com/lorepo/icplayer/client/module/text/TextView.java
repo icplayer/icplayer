@@ -1,12 +1,6 @@
 package com.lorepo.icplayer.client.module.text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -23,6 +17,11 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 
 public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, IWCAGModuleView{
@@ -69,9 +68,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	public void mathJaxIsLoadedCallback() {
-		this.mathJaxIsLoaded = true;
-		this.refreshMath();
-	}
+        if (!this.mathJaxIsLoaded) {
+            this.mathJaxIsLoaded = true;
+            this.refreshMath();
+        }
+    }
 
 	public ITextViewListener getListener() {
 		return listener;
