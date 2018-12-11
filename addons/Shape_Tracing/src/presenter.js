@@ -393,6 +393,18 @@ function AddonShape_Tracing_create() {
         presenter.stageBG.add(presenter.layerBG);
     }
 
+    function getScale() {
+        var $content = $("#content"); // the div transform css is attached to
+        if ($content.size() > 0) {
+            var contentElem = $content[0];
+            var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+            var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+            return {x: scaleX, y: scaleY};
+        }
+        ;
+        return {x: 1.0, y: 1.0};
+    }
+
     function prepearText(x, y) {
         function addZerosToNumber(n) {
             switch (n.toString().length) {
@@ -659,7 +671,13 @@ function AddonShape_Tracing_create() {
         ctx.strokeStyle = presenter.configuration.color;
         ctx.fillStyle = presenter.configuration.color;
 
-        points.push({ x: presenter.cursorPosition.x, y: presenter.cursorPosition.y });
+        let point = {x: presenter.cursorPosition.x, y: presenter.cursorPosition.y};
+        var scale = getScale();
+        if (scale.x !== 1.0 || scale.y !== 1.0) {
+            point.x = point.x / scale.x;
+            point.y = point.y / scale.y;
+        }
+        points.push(point);
 
         if (points.length < 3) {
             ctx.beginPath();
