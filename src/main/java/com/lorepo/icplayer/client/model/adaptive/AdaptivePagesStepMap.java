@@ -12,5 +12,4 @@ public class AdaptivePagesStepMap extends JavaScriptObject {
 		
 		return -1;
 	}-*/;
-
 }

@@ -1,3 +1,5 @@
+2018-12-11 Added new properties for ValueChanged event and added method for injecting eventbus for addons
+2018-12-11 Added possibility for creating adaptive lessons
 2018-11-28 Fixed media recorder on safari mobile devices and mLibro
 2018-11-28 Fixed reset issue in Shooting Range
 2018-11-27 Fixed issues with inline display: none in multiple addons

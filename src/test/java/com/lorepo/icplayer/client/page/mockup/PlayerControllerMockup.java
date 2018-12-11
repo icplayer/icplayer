@@ -274,7 +274,6 @@ public class PlayerControllerMockup implements IPlayerController {
 
 	@Override
 	public String getCurrentPageId() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

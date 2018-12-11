@@ -322,7 +322,6 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed) {
 		this.eventBusService.addEventListener(eventName, listener, isDelayed);
-
 	}
 
 	@Override

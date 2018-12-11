@@ -247,29 +247,17 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 
 	@Override
-	public void sendEvent(String eventName, JavaScriptObject eventData) {
-		// TODO Auto-generated method stub
-
-	}
+	public void sendEvent(String eventName, JavaScriptObject eventData) { }
 
 
 	@Override
-	public void addEventListener(String eventName, JavaScriptObject listener,
-			boolean isDelayed) {
-		// TODO Auto-generated method stub
-
-	}
+	public void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed) {	}
 
 
 	@Override
-	public IPlayerEventBusService getEventBusService() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public IPlayerEventBusService getEventBusService() { }
 
 
 	@Override
-	public IAdaptiveLearningService getAdaptiveLearningService() {
-		return null;
-	}
+	public IAdaptiveLearningService getAdaptiveLearningService() { }
 }
