@@ -1905,6 +1905,18 @@ var ice_dictionary_pl = {
     "Media_Recorder_property_start_recording_sound": "Recording start sound",
     "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
     "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording",
-	"Editor_load_theme_error":"Błąd podczas wgrywania szablonu (więcej informacji dostępnych jest <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">tutaj</a>)"
+	"Editor_load_theme_error":"Błąd podczas wgrywania szablonu (więcej informacji dostępnych jest <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">tutaj</a>)",
+	"Editor_begin_adding_tts":"Begin adding TTS to the presentation",
+	"Editor_finish_adding_tts":"Finished adding TTS to the presentation",
+	"Editor_finish_adding_tts_with_errors":"Finished adding TTS to the presentation. Some errors have occured.",
+	"Editor_begin_loading_missing_wcag":"Begin loading the list of modules with missing WCAG properties",
+	"Editor_finish_loading_missing_wcag":"Finished loading the list of modules with missing WCAG properties",
+	"Editor_finish_loading_missing_wcag_with_errors":"Finished loading the list of modules with missing WCAG properties. Some errors have occured",
+	"Editor_wcag_missing":"Missing: ",
+	"Editor_wcag_sort":"Sort",
+	"wcag":"WCAG",
+	"Editor_add_missing_tts":"Add missing TTS modules",
+	"Editor_tts_modified_pages_list":"The list of pages modified while adding TTS to presentation:",
+	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation"
 };
 
