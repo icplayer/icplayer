@@ -625,7 +625,8 @@ function AddonParagraph_Keyboard_create() {
         }
 
         setTimeout(function () {
-            presenter.setIframeHeight();
+            if (presenter.setIframeHeight)
+                presenter.setIframeHeight();
         }, 0);
 
         presenter.$tinyMCEToolbar = presenter.$view.find('.mce-toolbar');
@@ -653,7 +654,7 @@ function AddonParagraph_Keyboard_create() {
     };
 
     function checkForChanges(){
-        if (presenter.$tinyMCEToolbar.css('height') != presenter.lastHeight){
+        if (presenter.$tinyMCEToolbar && presenter.$tinyMCEToolbar.css('height') != presenter.lastHeight){
             presenter.lastHeight = presenter.$tinyMCEToolbar.css('height');
             presenter.setIframeHeight();
             return;
