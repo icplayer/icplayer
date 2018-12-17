@@ -496,7 +496,12 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
 		}
 	}
-	
+
+	@Override
+	public String getElementId() {
+		return this.module.getId();
+	}
+
 	@Override
 	public void setVisible(boolean visible) {
 		if (visible) {

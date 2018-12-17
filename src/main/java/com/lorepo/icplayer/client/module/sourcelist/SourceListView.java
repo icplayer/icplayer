@@ -506,7 +506,12 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
 		}		
 	}
-	
+
+	@Override
+	public String getElementId() {
+		return this.module.getId();
+	}
+
 	@Override
 	public void setVisible(boolean visible) {
 		if (visible) {

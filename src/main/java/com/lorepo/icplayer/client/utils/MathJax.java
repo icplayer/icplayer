@@ -17,25 +17,32 @@ public class MathJax {
 	  		console.log("Error : " + err);
 		}
 	}-*/;
-	
+
 	public static native void rerenderMathJax (Element e) /*-{
 		$wnd.MathJax.Hub.Rerender(e);
 	}-*/;
-	
+
 	public static native JavaScriptObject setCallbackForMathJaxLoaded(MathJaxElement element) /*-{
 		return $wnd.MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
-	        if ($wnd.$(message[1]).hasClass('ic_page')) {
-	            element.@com.lorepo.icplayer.client.utils.MathJaxElement::mathJaxIsLoadedCallback()();
+			var elementId = element.@com.lorepo.icplayer.client.utils.MathJaxElement::getElementId()();
+			if($wnd.MathJax.callbacksHook == null || $wnd.MathJax.callbacksHook == undefined){
+				$wnd.MathJax.callbacksHook = [];
+			}
+
+			var isCallbackNotResolved = $wnd.MathJax.callbacksHook[elementId] == null || $wnd.MathJax.callbacksHook[elementId] == undefined;
+			if ($wnd.$(message[1]).hasClass('ic_page') && isCallbackNotResolved) {
+				$wnd.MathJax.callbacksHook[elementId] = true;
+				element.@com.lorepo.icplayer.client.utils.MathJaxElement::mathJaxIsLoadedCallback()();
 	        }
 	    });
 	}-*/;
-	
+
 	public static native void removeMessageHookCallback(JavaScriptObject hook) /*-{
 		// https://github.com/mathjax/MathJax-docs/wiki/How-to-stop-listening-or-un-register-from-a-messagehook
-		setTimeout( 
+		setTimeout(
 			function removeHook() {
 				$wnd.MathJax.Hub.signal.hooks["End Process"].Remove(hook);
-			}, 
+			},
 			0
 		);
 	}-*/;

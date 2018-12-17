@@ -48,7 +48,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void mathJaxLoaded() {
-		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this); 
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
 	}
 	
 	private void createUI (boolean isPreview) {
@@ -636,7 +636,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			this.mathJaxHook = null;
 		}
 	}
-	
+
+	@Override
+	public String getElementId() {
+		return this.module.getId();
+	}
+
 	@Override
 	public void setVisible(boolean visible) {
 		if (visible) {
