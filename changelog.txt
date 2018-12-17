@@ -1,4 +1,6 @@
-2018-12-10 Fixed mathjax calls
+2018-12-17 Fixed mathjax calls
+2018-12-12 Fixed shape tracing scaling on mobile devices
+2018-12-11 Upgraded tinymce library
 2018-11-28 Fixed media recorder on safari mobile devices and mLibro
 2018-11-28 Fixed reset issue in Shooting Range
 2018-11-27 Fixed issues with inline display: none in multiple addons
