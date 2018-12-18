@@ -1226,51 +1226,79 @@ function AddonConnection_create() {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
 
-    presenter.isOK = function (id) {
-        var isCorrect = true;
-        var selectedDestination = [];
-        var correctDestination = [];
-
-        for (var selectedLineId = 0; selectedLineId < presenter.lineStack.ids.length; selectedLineId++) {
-            let selectedLinePoints = presenter.lineStack.ids[selectedLineId];
-            if (selectedLinePoints.includes(id)) {
-                selectedDestination.push(selectedLinePoints[0] === id ? selectedLinePoints[1] : selectedLinePoints[0]);
-            }
-        }
-
-        for (var correctConnectionId = 0; correctConnectionId < presenter.elements.length; correctConnectionId++) {
-            var correctConnection = presenter.elements[correctConnectionId];
-            if (correctConnection.id === id) {
-                var correctPoints = correctConnection.connects.split(',');
-                for (var index = 0; index < correctPoints.length; index++)
-                    correctDestination.push(correctPoints[index]);
-            }
-            if (correctConnection.connects.split(',').includes(id)) {
-                correctDestination.push(correctConnection.id)
-            }
-        }
-
-        correctDestination = correctDestination.filter((value, index, arr) => arr.indexOf(value) === index);
-
-        for (var index = 0; index < selectedDestination.length; index++) {
-            if (!correctDestination.includes(selectedDestination[index])) {
-                isCorrect = false;
-            }
-        }
-
-        for (var index = 0; index < correctDestination.length; index++) {
-            if (!selectedDestination.includes(correctDestination[index])) {
-                isCorrect = false;
-            }
-        }
+    presenter.isOK = function (source) {
+        var selectedDestinations = getConnectedPoints(source);
+        var correctDestinations = getCorrectPoints(source);
+        var isCorrect = isSameArrays(selectedDestinations, correctDestinations);
 
         return {
-            isCorrect: isCorrect,
-            source: id,
-            selectedDestination: selectedDestination,
-            correctDestination: correctDestination
+            value: isCorrect,
+            source: source,
+            selectedDestinations: selectedDestinations,
+            correctDestinations: correctDestinations
         };
     };
+
+    function getConnectedPoints(source) {
+        var connectedPoints = [];
+
+        var selectedLines = presenter.lineStack.ids;
+        for (var index = 0; index < selectedLines.length; index++) {
+            let selectedLinePoints = selectedLines[index];
+            if (selectedLinePoints.includes(source)) {
+                var selectedDestinationPoint = selectedLinePoints[0] === source ? selectedLinePoints[1] : selectedLinePoints[0];
+                connectedPoints.push(selectedDestinationPoint);
+            }
+        }
+
+        return connectedPoints;
+    }
+
+    function getCorrectPoints(source) {
+        var correctPoints = [];
+
+        var correctLines = presenter.elements;
+        for (var index = 0; index < correctLines.length; index++) {
+            var correctLine = correctLines[index];
+            var correctLinePoints = correctLine.connects.split(',');
+            if (correctLine.id === source) {
+                for (var pointIndex = 0; pointIndex < correctLinePoints.length; pointIndex++) {
+                    correctPoints.push(correctLinePoints[pointIndex]);
+                }
+            }
+            if (correctLinePoints.includes(source)) {
+                correctPoints.push(correctLine.id)
+            }
+        }
+
+        correctPoints = removeDuplicates(correctPoints);
+        return correctPoints;
+    }
+
+    function removeDuplicates(correctPoints) {
+        correctPoints = correctPoints.filter(function (value, index, arr) {
+            return arr.indexOf(value) === index;
+        });
+        return correctPoints;
+    }
+
+    function isSameArrays(selectedDestinations, correctDestinations) {
+        var isSame = true;
+
+        for (var index = 0; index < selectedDestinations.length; index++) {
+            if (!correctDestinations.includes(selectedDestinations[index])) {
+                isSame = false;
+            }
+        }
+
+        for (var index = 0; index < correctDestinations.length; index++) {
+            if (!selectedDestinations.includes(correctDestinations[index])) {
+                isSame = false;
+            }
+        }
+
+        return isSame;
+    }
 
     presenter.isSelected = function (leftIndex, rightIndex) {
         if (presenter.isShowAnswersActive) {
