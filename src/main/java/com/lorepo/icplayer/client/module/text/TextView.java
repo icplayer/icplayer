@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -38,6 +39,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private boolean isShowErrorsMode = false;
 	private boolean mathJaxIsLoaded = false;
 	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
 	
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
@@ -54,6 +56,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (!isPreview && !module.isVisible()) {
 			hide();
 		}
@@ -630,6 +633,16 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		if (this.mathJaxHook != null) {
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
 			this.mathJaxHook = null;
+		}
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
 		}
 	}
 	

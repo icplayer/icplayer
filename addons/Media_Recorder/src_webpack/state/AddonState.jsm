@@ -12,6 +12,10 @@ export class AddonState {
             .then(recording => this.recording = recording);
     }
 
+    setRecordingBase64(recording) {
+        this.recording = recording;
+    }
+
     getRecordingBlob() {
         return new Promise(resolve => {
             if (this.recording)

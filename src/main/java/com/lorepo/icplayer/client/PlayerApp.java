@@ -275,7 +275,7 @@ public class PlayerApp {
 						iframeScale = $wnd.iframeSize.frameScale;
 					}
 					sum = ($wnd.iframeSize.windowInnerHeight - icFooterHeight + scroll)/iframeScale - offsetIframe;
-					if (sum >= ($wnd.iframeSize.height - icFooterHeight)) {
+					if (parseInt(sum) >= (parseInt($wnd.iframeSize.height) - parseInt(icFooterHeight))) {
 						$wnd.$(".ic_static_footer").css("top", "auto");
 					} else {
 						$wnd.$(".ic_static_footer").css("top", sum + "px");

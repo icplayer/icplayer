@@ -84,6 +84,9 @@ var ice_dictionary_fr = {
     "main_tab": "pages",
     "commons_tab": "Eléments communs",
     "save_changes": "Vous avez fait des changements, voulez-vous les sauvegarder ?",
+	"saving_css": "Saving CSS...",
+	"saved_css": "CSS saved",
+	"background_saving_css": "Saving CSS will continue in the background",
     "module_belongs_to_group" : "Au moins un module appartient à un groupe",
     "max_score" : "Score max du groupe",
     "group_id" : "ID",
@@ -1902,5 +1905,6 @@ var ice_dictionary_fr = {
     "Media_Recorder_property_default_recording": "Default recording",
     "Media_Recorder_property_start_recording_sound": "Recording start sound",
     "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
-    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording"
+    "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording",
+	"Editor_load_theme_error": "Error loading template (click <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">here</a> to find out more)"
 };

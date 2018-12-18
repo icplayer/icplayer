@@ -25,6 +25,7 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 	private Image image;
 	private PageController pageController;
 	private boolean isWCAGOn = false;
+	private String originalDisplay = null;
 	
 	public ImageView(ImageModule module, boolean isPreview) {
 	
@@ -199,6 +200,19 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 			textVoices.add(TextToSpeechVoice.create());
 			
 			this.pageController.speak(textVoices);
+		}
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (originalDisplay == null) {
+			originalDisplay = getElement().getStyle().getDisplay();
+		}
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
 		}
 	}
 }
