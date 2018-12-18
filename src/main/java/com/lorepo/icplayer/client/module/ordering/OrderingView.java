@@ -1,28 +1,12 @@
 package com.lorepo.icplayer.client.module.ordering;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.DomEvent;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.MouseUpEvent;
-import com.google.gwt.event.dom.client.MouseUpHandler;
-import com.google.gwt.event.dom.client.TouchEndEvent;
-import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.CellPanel;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
@@ -37,6 +21,10 @@ import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGModuleView, MathJaxElement {
@@ -694,9 +682,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 	@Override
 	public void mathJaxIsLoadedCallback() {
-		this.mathJaxIsLoaded = true;
-		if (this.shouldRefreshMath) {
-			this.refreshMath();
+		if (!this.mathJaxIsLoaded) {
+			this.mathJaxIsLoaded = true;
+			if (this.shouldRefreshMath) {
+				this.refreshMath();
+			}
 		}
 	}
 	
@@ -942,8 +932,13 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
 		}		
 	}
-	
-	
+
+	@Override
+	public String getElementId() {
+		return this.module.getId();
+	}
+
+
 	@Override
 	public void setVisible(boolean visible) {
 		if (visible) {
