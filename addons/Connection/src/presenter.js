@@ -1226,6 +1226,52 @@ function AddonConnection_create() {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
 
+    presenter.isOK = function (id) {
+        var isCorrect = true;
+        var selectedDestination = [];
+        var correctDestination = [];
+
+        for (var selectedLineId = 0; selectedLineId < presenter.lineStack.ids.length; selectedLineId++) {
+            let selectedLinePoints = presenter.lineStack.ids[selectedLineId];
+            if (selectedLinePoints.includes(id)) {
+                selectedDestination.push(selectedLinePoints[0] === id ? selectedLinePoints[1] : selectedLinePoints[0]);
+            }
+        }
+
+        for (var correctConnectionId = 0; correctConnectionId < presenter.elements.length; correctConnectionId++) {
+            var correctConnection = presenter.elements[correctConnectionId];
+            if (correctConnection.id === id) {
+                var correctPoints = correctConnection.connects.split(',');
+                for (var index = 0; index < correctPoints.length; index++)
+                    correctDestination.push(correctPoints[index]);
+            }
+            if (correctConnection.connects.split(',').includes(id)) {
+                correctDestination.push(correctConnection.id)
+            }
+        }
+
+        correctDestination = correctDestination.filter((value, index, arr) => arr.indexOf(value) === index);
+
+        for (var index = 0; index < selectedDestination.length; index++) {
+            if (!correctDestination.includes(selectedDestination[index])) {
+                isCorrect = false;
+            }
+        }
+
+        for (var index = 0; index < correctDestination.length; index++) {
+            if (!selectedDestination.includes(correctDestination[index])) {
+                isCorrect = false;
+            }
+        }
+
+        return {
+            isCorrect: isCorrect,
+            source: id,
+            selectedDestination: selectedDestination,
+            correctDestination: correctDestination
+        };
+    };
+
     presenter.isSelected = function (leftIndex, rightIndex) {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
@@ -1298,6 +1344,7 @@ function AddonConnection_create() {
 
         var commands = {
             'isAllOK': presenter.isAllOK,
+            'isOK': presenter.isOK,
             'isSelected': presenter.isSelectedCommand,
             'markAsCorrect': presenter.markAsCorrectCommand,
             'markAsWrong': presenter.markAsWrongCommand,
