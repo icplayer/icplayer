@@ -1272,6 +1272,8 @@ function AddonConnection_create() {
         }
 
         correctPoints = removeDuplicates(correctPoints);
+        correctPoints = correctPoints.filter(value => value !== "");
+
         return correctPoints;
     }
 
@@ -1283,21 +1285,19 @@ function AddonConnection_create() {
     }
 
     function isSameArrays(selectedDestinations, correctDestinations) {
-        var isSame = true;
-
         for (var index = 0; index < selectedDestinations.length; index++) {
             if (!correctDestinations.includes(selectedDestinations[index])) {
-                isSame = false;
+                return false;
             }
         }
 
         for (var index = 0; index < correctDestinations.length; index++) {
             if (!selectedDestinations.includes(correctDestinations[index])) {
-                isSame = false;
+                return false;
             }
         }
 
-        return isSame;
+        return true;
     }
 
     presenter.isSelected = function (leftIndex, rightIndex) {
