@@ -1244,7 +1244,7 @@ function AddonConnection_create() {
 
         var selectedLines = presenter.lineStack.ids;
         for (var index = 0; index < selectedLines.length; index++) {
-            let selectedLinePoints = selectedLines[index];
+            var selectedLinePoints = selectedLines[index];
             if (selectedLinePoints.includes(source)) {
                 var selectedDestinationPoint = selectedLinePoints[0] === source ? selectedLinePoints[1] : selectedLinePoints[0];
                 connectedPoints.push(selectedDestinationPoint);
