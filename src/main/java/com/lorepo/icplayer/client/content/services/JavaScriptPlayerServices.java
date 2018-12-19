@@ -635,6 +635,7 @@ public class JavaScriptPlayerServices {
 		JavaScriptUtils.addPropertyToJSArray(model, "errorCount", score.getErrorCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "mistakeCount", score.getMistakeCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "weight", score.getWeight());
+		JavaScriptUtils.addPropertyToJSArray(model, "scaledScore", Float.toString(score.getScaledScore()));
 		return model;
 	}
 

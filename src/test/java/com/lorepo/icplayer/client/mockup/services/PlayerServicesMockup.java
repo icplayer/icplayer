@@ -255,9 +255,13 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 
 	@Override
-	public IPlayerEventBusService getEventBusService() { }
+	public IPlayerEventBusService getEventBusService() {
+		return null; 
+	}
 
 
 	@Override
-	public IAdaptiveLearningService getAdaptiveLearningService() { }
+	public IAdaptiveLearningService getAdaptiveLearningService() { 
+		return null;
+	}
 }
