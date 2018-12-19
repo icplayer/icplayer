@@ -25,7 +25,7 @@ function AddonParagraph_Keyboard_create() {
         'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
         'bullist numlist outdent indent blockquote undo redo '+
         'removeformat subscript superscript forecolor backcolor |'.split(' ');
-    
+
     presenter.ERROR_CODES = {
         'defaultLayoutError' : 'Custom Keyboard Layout should be a JavaScript object with at least "default" property ' +
             'which should be an array of strings with space-seperated chars.'
@@ -365,18 +365,40 @@ function AddonParagraph_Keyboard_create() {
         });
     };
 
+    // On the mCourser, each addon is called twice on the first page.
+    // Removing the addon before loading the library causes a problem with second loading.
+    // You must separate each method of destroy, or improve the mechanism of loading lessons.
     presenter.destroy = function AddonParagraph_Keyboard_destroy(event) {
         if (event.target !== presenter.view) {
             return;
         }
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
-        presenter.$view.off();
-        presenter.jQueryTinyMCEHTML.off();
-        presenter.$tinyMCEToolbar.off();
-        presenter.$TinyMCEBody.off();
-        presenter.editor.destroy();
-        tinymce.remove();
+        try {
+            presenter.$view.off();
+        } catch (e) {
+        }
+        try {
+            presenter.jQueryTinyMCEHTML.off();
+        } catch (e) {
+        }
+        try {
+            presenter.$tinyMCEToolbar.off();
+        } catch (e) {
+        }
+        try {
+            presenter.$TinyMCEBody.off();
+        } catch (e) {
+        }
+        try {
+            presenter.editor.destroy();
+        } catch (e) {
+        }
+        try {
+            tinymce.remove();
+        } catch (e) {
+        }
+
         tinymce.AddOnManager.PluginManager.items.length = 0;
 
         presenter.$tinyMCEToolbar = null;
@@ -534,22 +556,22 @@ function AddonParagraph_Keyboard_create() {
         $.each(presenter.configuration.keyboardLayout, function(set, keySet) {
             keySetLayer = $('<div>').addClass('keySetLayer');
             keySetLayer.addClass('keyset-' + set);
-            
+
             for ( row = 0; row < keySet.length; row++ ){
                 currentSet = $.trim(keySet[row]).replace(/\{(\.?)[\s+]?:[\s+]?(\.?)\}/g,'{$1:$2}');
                 keys = currentSet.split(/\s+/);
-                
-                if (!keys) { 
-                    continue; 
+
+                if (!keys) {
+                    continue;
                 }
-                
+
                 keyRow = $('<div>').addClass('keyRow');
                 for ( key = 0; key < keys.length; key++ ) {
                     // ignore empty keys
-                    if (keys[key].length === 0) { 
-                        continue; 
+                    if (keys[key].length === 0) {
+                        continue;
                     }
-                    
+
                     t = keys[key];
 
                     if (t == '{empty}') {
@@ -603,7 +625,8 @@ function AddonParagraph_Keyboard_create() {
         }
 
         setTimeout(function () {
-            presenter.setIframeHeight();
+            if (presenter.setIframeHeight)
+                presenter.setIframeHeight();
         }, 0);
 
         presenter.$tinyMCEToolbar = presenter.$view.find('.mce-toolbar');
@@ -631,7 +654,7 @@ function AddonParagraph_Keyboard_create() {
     };
 
     function checkForChanges(){
-        if (presenter.$tinyMCEToolbar.css('height') != presenter.lastHeight){
+        if (presenter.$tinyMCEToolbar && presenter.$tinyMCEToolbar.css('height') != presenter.lastHeight){
             presenter.lastHeight = presenter.$tinyMCEToolbar.css('height');
             presenter.setIframeHeight();
             return;
@@ -652,6 +675,8 @@ function AddonParagraph_Keyboard_create() {
 
         if (presenter.editor != null && presenter.editor.hasOwnProperty("id")) {
             tinymceState = presenter.editor.getContent({format : 'raw'});
+        } else {
+            tinymceState = presenter.cacheTinymceState;
         }
 
         return JSON.stringify({
@@ -662,6 +687,7 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.setState = function AddonParagraph_Keyboard_setState(state) {
         var parsedState = JSON.parse(state);
+        presenter.cacheTinymceState = parsedState.tinymceState;
 
         if (presenter.editor  != null) {
             presenter.editor.setContent(parsedState.tinymceState, {format : 'raw'});
