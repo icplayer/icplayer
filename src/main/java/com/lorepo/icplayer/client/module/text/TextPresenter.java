@@ -122,7 +122,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private int currentScore = 0;
 	private int currentErrorCount = 0;
 	private int currentMaxScore = 0;
-	private boolean isSetTextUsed = false;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -468,6 +467,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public void reset() {
+        setText(this.module.getDefaultModuleText());
+
 		if (module.isActivity() && isShowAnswers()) {
 			hideAnswers();
 		}
@@ -499,12 +500,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		updateScore();
 
 		this.currentState = "";
-
-		if (this.isSetTextUsed) {
-		    enteredText = "";
-		    view.setValue("");
-		    this.setTextUsed = false;
-		}
 	}
 
 	@Override
@@ -1300,8 +1295,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void setText(String text) {
-		this.setTextUsed = true;
-
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
