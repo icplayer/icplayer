@@ -1,11 +1,5 @@
 package com.lorepo.icplayer.client.module.text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
@@ -22,26 +16,15 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.IEnterable;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
-import com.lorepo.icplayer.client.module.api.IActivity;
-import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.module.api.IModuleView;
-import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.IStateful;
-import com.lorepo.icplayer.client.module.api.event.CustomEvent;
-import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
-import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
-import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
-import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
-import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
+import com.lorepo.icplayer.client.module.api.*;
+import com.lorepo.icplayer.client.module.api.event.*;
+import com.lorepo.icplayer.client.module.api.event.dnd.*;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
+
+import java.util.*;
 
 public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IEnterable {
 
@@ -122,6 +105,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private int currentScore = 0;
 	private int currentErrorCount = 0;
 	private int currentMaxScore = 0;
+	private boolean isTextSetByCommand = false;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -467,7 +451,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public void reset() {
-        setText(this.module.getDefaultModuleText());
+		if (isTextSetByCommand) {
+			setText(this.module.getDefaultModuleText());
+		}
 
 		if (module.isActivity() && isShowAnswers()) {
 			hideAnswers();
@@ -1295,6 +1281,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void setText(String text) {
+		isTextSetByCommand = true;
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
