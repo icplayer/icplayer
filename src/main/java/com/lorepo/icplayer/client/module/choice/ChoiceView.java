@@ -1,9 +1,5 @@
 package com.lorepo.icplayer.client.module.choice;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -22,6 +18,10 @@ import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 
 public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG, IWCAGModuleView, MathJaxElement {
@@ -145,8 +145,10 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	    
 	@Override
 	public void mathJaxIsLoadedCallback() {
-		this.mathJaxIsLoaded = true;
-		this.refreshMath();
+		if (!this.mathJaxIsLoaded) {
+			this.mathJaxIsLoaded = true;
+			this.refreshMath();
+		}
 	}
 	
 	
@@ -494,7 +496,12 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
 		}
 	}
-	
+
+	@Override
+	public String getElementId() {
+		return this.module.getId();
+	}
+
 	@Override
 	public void setVisible(boolean visible) {
 		if (visible) {
