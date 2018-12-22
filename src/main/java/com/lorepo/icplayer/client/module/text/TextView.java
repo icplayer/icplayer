@@ -334,6 +334,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 			for (int index = 0; index < textElements.size(); index++) {
 				if (textElements.get(index).getId().equals(gapId)) {
+					String textValue = textElements.get(index).getTextValue();
+					gap.setText(textValue);
 					textElements.set(index, gap);
 				}
 			}
