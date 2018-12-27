@@ -1,3 +1,4 @@
+2018-12-19 Fixed reseting after using setText command in Text module
 2018-12-17 Fixed ekeyboard paragraph loading on the first page of mCourser
 2018-12-17 Fixed mathjax calls
 2018-12-12 Fixed shape tracing scaling on mobile devices

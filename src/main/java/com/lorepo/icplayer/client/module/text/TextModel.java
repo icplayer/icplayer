@@ -40,6 +40,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
 
 	public String moduleText = "";
+	public String defaultModuleText = "";
 	private boolean useDraggableGaps;
 	private boolean useMathGaps;
 	private boolean openLinksinNewTab = true;
@@ -90,6 +91,10 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		if (rawText != null) {
 			setText(rawText);
 		}
+	}
+
+	public String getDefaultModuleText() {
+		return defaultModuleText;
 	}
 
 	public String getGapUniqueId() {
@@ -146,6 +151,8 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 				if (rawText == null) {
 					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 				}
+
+				defaultModuleText = rawText;
 				setText(rawText);
 			}
 		}
