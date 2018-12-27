@@ -390,8 +390,8 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveConnectionCurrentPage()();
 			};
 			
-			adaptive.addNextPage = function(pageId) {
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addNextAdaptivePage(Ljava/lang/String;)(pageId);
+			adaptive.addNextPage = function(pageID) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addNextAdaptivePage(Ljava/lang/String;)(pageID);
 			};
 
 			adaptive.getPageConnections = function(pageID) {
@@ -412,6 +412,10 @@ public class JavaScriptPlayerServices {
 
 			adaptive.resetHistory = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetHistory()();
+			}
+			
+			adaptive.getPageDifficulty = function(pageID) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageDifficulty(Ljava/lang/String;)(pageID);
 			}
 
 			return adaptive;
@@ -807,5 +811,9 @@ public class JavaScriptPlayerServices {
 	
 	public void addNextAdaptivePage(String pageId) {
 		this.playerServices.getAdaptiveLearningService().addNextPage(pageId);
+	}
+	
+	public String getPageDifficulty(String pageId) {
+		return this.playerServices.getAdaptiveLearningService().getPageDifficulty(pageId);
 	}
 }
