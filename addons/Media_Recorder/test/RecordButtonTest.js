@@ -89,6 +89,7 @@ TestCase("[Media Recorder] Record Button", {
         this.state.isLoaded = () => false;
         this.state.isRecording = () => true;
         this.state.isLoadedDefaultRecording = () => false;
+        this.state.isBlockedSafari = () => false;
 
         this.recordButton.activate();
         this.$view.trigger("click");
@@ -101,6 +102,7 @@ TestCase("[Media Recorder] Record Button", {
         this.state.isLoaded = () => false;
         this.state.isRecording = () => true;
         this.state.isLoadedDefaultRecording = () => false;
+        this.state.isBlockedSafari = () => false;
 
         this.recordButton.activate();
         this.$view.trigger("click");
@@ -113,6 +115,7 @@ TestCase("[Media Recorder] Record Button", {
         this.state.isLoaded = () => false;
         this.state.isRecording = () => true;
         this.state.isLoadedDefaultRecording = () => false;
+        this.state.isBlockedSafari = () => false;
 
         this.recordButton.activate();
         this.$view.trigger("click");
