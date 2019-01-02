@@ -9,6 +9,8 @@ import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.EnableTabindex;
+import com.lorepo.icplayer.client.metadata.IMetadata;
+import com.lorepo.icplayer.client.metadata.Metadata;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
 import com.lorepo.icplayer.client.xml.module.ModuleXMLParsersFactory;
@@ -23,6 +25,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	private String buttonType;
 	private boolean isTabindexEnabled = false;
 	private String contentDefaultLayoutID = null;
+	public IMetadata metadata = new Metadata();
 
 	protected BasicModuleModel(String typeName, String name) {
 		super(name);
@@ -61,8 +64,7 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	}
 
 	@Override
-	public void release() {
-	}
+	public void release() {}
 
 	@Override
 	public void setInlineStyle(String style) {
@@ -73,6 +75,11 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	@Override
 	public void setContentDefaultLayoutID(String layoutID) {
 		this.contentDefaultLayoutID = layoutID;
+	}
+	
+	@Override
+	public void setMetadata(IMetadata metadata) {
+		this.metadata = metadata;
 	}
 
 	/**
@@ -106,6 +113,10 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 		
 		if (this.haveStyles()) {
 			moduleXML.appendChild(this.stylesToXML());
+		}
+		
+		if (this.metadata.hasEntries()) {
+			moduleXML.appendChild(this.metadata.toXML());
 		}
 
 		return moduleXML;

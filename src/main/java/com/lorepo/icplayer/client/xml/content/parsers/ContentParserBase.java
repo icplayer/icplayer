@@ -49,7 +49,7 @@ public abstract class ContentParserBase implements IContentParser {
 				String name = child.getNodeName(); 
 				
 				if(name.compareTo("metadata") == 0){
-					content.setMetadata(this.parseMetadata(child));
+					content.metadata.parse(child);
 				}
 				else if(name.compareTo("addons") == 0){
 					HashMap<String, AddonDescriptor> addonsDescriptors = this.parseAddonDescriptors(child);
@@ -135,26 +135,6 @@ public abstract class ContentParserBase implements IContentParser {
 		}
 
 		return addonDescriptors;
-	}
-
-	protected HashMap<String, String> parseMetadata(Element rootElement) {
-		HashMap<String, String> metadata = new HashMap<String, String>();
-		NodeList entries = rootElement.getElementsByTagName("entry");
-		
-		for(int i = 0; i < entries.getLength(); i++){
-			Element node = (Element)entries.item(i);
-			String key = StringUtils.unescapeXML(node.getAttribute("key"));
-			String value = StringUtils.unescapeXML(node.getAttribute("value"));
-			
-			if(value == null || value.length() == 0){
-				metadata.remove(key);
-			}
-			else{
-				metadata.put(key, value);
-			}
-		}
-		
-		return metadata;
 	}
 
 	protected ArrayList<IAsset> parseAssets(Element rootElement) {
