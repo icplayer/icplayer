@@ -1245,7 +1245,7 @@ function AddonConnection_create() {
         var selectedLines = presenter.lineStack.ids;
         for (var index = 0; index < selectedLines.length; index++) {
             var selectedLinePoints = selectedLines[index];
-            if (selectedLinePoints.includes(source)) {
+            if (hasArrayElement(selectedLinePoints, source)) {
                 var selectedDestinationPoint = selectedLinePoints[0] === source ? selectedLinePoints[1] : selectedLinePoints[0];
                 connectedPoints.push(selectedDestinationPoint);
             }
@@ -1262,11 +1262,9 @@ function AddonConnection_create() {
             var correctLine = correctLines[index];
             var correctLinePoints = correctLine.connects.split(',');
             if (correctLine.id === source) {
-                for (var pointIndex = 0; pointIndex < correctLinePoints.length; pointIndex++) {
-                    correctPoints.push(correctLinePoints[pointIndex]);
-                }
+                correctPoints = correctPoints.concat(correctLinePoints);
             }
-            if (correctLinePoints.includes(source)) {
+            if (hasArrayElement(correctLinePoints, source)) {
                 correctPoints.push(correctLine.id)
             }
         }
@@ -1285,19 +1283,18 @@ function AddonConnection_create() {
     }
 
     function isSameArrays(selectedDestinations, correctDestinations) {
-        for (var index = 0; index < selectedDestinations.length; index++) {
-            if (!correctDestinations.includes(selectedDestinations[index])) {
-                return false;
-            }
-        }
+        let serializedSelectedDestinations = selectedDestinations.sort().join(',');
+        let serializedCorrectDestinations = correctDestinations.sort().join(',');
 
-        for (var index = 0; index < correctDestinations.length; index++) {
-            if (!selectedDestinations.includes(correctDestinations[index])) {
-                return false;
-            }
-        }
+        return serializedSelectedDestinations === serializedCorrectDestinations;
+    }
 
-        return true;
+    function hasArrayElement(array, element) {
+        for (var arrayIndex in array)
+            if (array[arrayIndex] === element)
+                return true;
+
+        return false;
     }
 
     presenter.isSelected = function (leftIndex, rightIndex) {
