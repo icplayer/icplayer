@@ -263,4 +263,9 @@ public abstract class BasicModuleModel extends StyledModule implements IModuleMo
 	public void setIsTabindexEnabled(boolean value) {
 		this.isTabindexEnabled = value;
 	}
+	
+	@Override
+	public IMetadata getMetadata() {
+		return this.metadata;
+	}
 }

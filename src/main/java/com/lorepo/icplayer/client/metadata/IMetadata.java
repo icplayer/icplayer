@@ -1,4 +1,6 @@
 package com.lorepo.icplayer.client.metadata;
+import java.util.Set;
+
 import com.google.gwt.xml.client.Element;
 
 public interface IMetadata {
@@ -7,6 +9,7 @@ public interface IMetadata {
 	public void put(String key, String value);
 	public void remove(String key);
 	public boolean hasEntries();
+	public Set<String> getKeys();
 	
 	public void parse(Element rootXML);
 	public Element toXML();

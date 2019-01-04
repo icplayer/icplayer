@@ -3,6 +3,8 @@ package com.lorepo.icplayer.client.metadata;
 
 
 import java.util.HashMap;
+import java.util.Set;
+
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.utils.StringUtils;
@@ -72,5 +74,10 @@ public class Metadata implements IMetadata {
 		entry.setAttribute("value", encodedValue);
 		
 		return entry;
+	}
+
+	@Override
+	public Set<String> getKeys() {
+		return this.metadata.keySet();
 	}	
 }
