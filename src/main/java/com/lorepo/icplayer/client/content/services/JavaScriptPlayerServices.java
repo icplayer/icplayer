@@ -421,6 +421,10 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getFooterModule(Ljava/lang/String;)(id);
 		};
 
+		playerServices.getModuleMetadata = function (moduleID) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModuleMetadata(Ljava/lang/String;)(moduleID);
+		};
+
 		playerServices.setAbleChangeLayout = function(isAbleChangeLayout){
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setAbleChangeLayout(Z)(isAbleChangeLayout); 
 		};
@@ -961,5 +965,9 @@ public class JavaScriptPlayerServices {
 		NativeEvent event = Document.get().createKeyDownEvent(false, false, reverseDirection, false, 9);
 		// Send a Tab or Tab+Shift keydown event to the keyboard controller
 		DomEvent.fireNativeEvent(event,  RootPanel.get());
+	}
+
+	public JavaScriptObject getModuleMetadata(String moduleID) {
+		return this.playerServices.getModule(moduleID).getModel().getMetadata().toJavaScript();
 	}
 }

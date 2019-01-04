@@ -5,8 +5,10 @@ package com.lorepo.icplayer.client.metadata;
 import java.util.HashMap;
 import java.util.Set;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 
@@ -34,6 +36,11 @@ public class Metadata implements IMetadata {
 		return this.metadata.size() > 0;
 	}
 	
+	@Override
+	public boolean hasKey(String key) {
+		return this.metadata.containsKey(key);
+	}
+
 	public Element toXML() {
 		Element metadata = XMLUtils.createElement("metadata");
 		for(String key : this.metadata.keySet()){
@@ -79,5 +86,10 @@ public class Metadata implements IMetadata {
 	@Override
 	public Set<String> getKeys() {
 		return this.metadata.keySet();
-	}	
+	}
+
+	@Override
+	public JavaScriptObject toJavaScript() {
+		return JavaScriptUtils.createHashMap(this.metadata);
+	}
 }

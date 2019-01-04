@@ -12,6 +12,7 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public String getModuleName(); // get translated module name
 	public String getId();
 	public String getButtonType();
+	public IMetadata getMetadata();
 	public void setId(String id);
 	public void release();
 	public String toXML();
@@ -27,5 +28,4 @@ public interface IModuleModel extends IStyledModule, IRectangleItem, IPropertyPr
 	public void setIsVisible(Boolean isVisible);
 	public SemiResponsiveStyles getSemiResponsiveStyles();
 	public boolean isVisible();
-	public IMetadata getMetadata();
 }
