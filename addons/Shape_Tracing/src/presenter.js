@@ -1068,6 +1068,7 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.setPlayerController = function(controller) {
+        presenter.playerController = controller;
         eventBus = controller.getEventBus();
     };
 
@@ -1476,10 +1477,6 @@ function AddonShape_Tracing_create() {
         turnOffEventListeners();
         turnOnEventListeners();
         presenter.isShowAnswersActive = false;
-    };
-
-    presenter.setPlayerController = function(controller) {
-        presenter.playerController = controller;
     };
 
     return presenter;
