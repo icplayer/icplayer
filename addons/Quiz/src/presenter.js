@@ -492,7 +492,15 @@ function AddonQuiz_create() {
 
     presenter.showCurrentQuestion = function AddonQuiz_showCurrentQuestion() {
         showQuestion(getCurrentQuestion(), false);
-    }
+        if (presenter.isLoaded)
+            presenter.reloadMathJax();
+    };
+
+    presenter.reloadMathJax = function(){
+        window.MathJax.Callback.Queue().Push(function () {
+            window.MathJax.Hub.Typeset(presenter.$view[0]);
+        });
+    };
 
     presenter.setPlayerController = function AddonQuiz_setPlayerController(controller) {
         playerController = controller;
@@ -520,11 +528,13 @@ function AddonQuiz_create() {
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
 
-        presenter.$view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+        presenter.$view[0].addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
                 presenter.destroy();
             }
         });
+
+        presenter.isLoaded = true;
     };
 
     presenter.createPreview = function AddonQuiz_createPreview(view, model) {
@@ -673,7 +683,7 @@ function AddonQuiz_create() {
     };
 
     presenter.destroy = function () {
-        presenter.$view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+        presenter.$view[0].removeEventListener('DOMNodeRemoved', presenter.destroy);
         unbindEvents();
         presenter.$view.off();
         presenter.eventBus = null;
