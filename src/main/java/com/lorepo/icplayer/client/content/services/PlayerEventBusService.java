@@ -97,7 +97,9 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 		
 		GwtEvent<?> event = builder.build();
 		
-		eventBus.fireEvent(event);
+		if (eventBus != null) {
+			eventBus.fireEvent(event);
+		}
 	}
 	
 	@Override
