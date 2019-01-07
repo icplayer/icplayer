@@ -81,6 +81,10 @@ public abstract class ContentParserBase implements IContentParser {
 					ArrayList<IAsset> assets = this.parseAssets(child);
 					content.setAssets(assets);
 				}
+				else if (name.compareTo("adaptive") == 0) {
+					String adaptiveStructure = parseAdaptiveStructure(child);
+					content.setAdaptiveStructure(adaptiveStructure);
+				}
 			}
 		}		
 
@@ -256,5 +260,9 @@ public abstract class ContentParserBase implements IContentParser {
 		styles.put("default", defaultStyle);
 	
 		return styles;
+	}
+	
+	protected String parseAdaptiveStructure(Element xml) {
+		return "";
 	}
 }

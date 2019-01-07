@@ -13,10 +13,12 @@ import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
+import com.lorepo.icplayer.client.module.api.player.IPlayerEventBusService;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -192,7 +194,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public void setScaleInformation(String scaleX, String scaleY,
 			String transform, String transformOrigin) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
@@ -242,4 +244,20 @@ public class PlayerServicesMockup implements IPlayerServices {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
+	@Override
+	public void sendEvent(String eventName, JavaScriptObject eventData) { }
+
+
+	@Override
+	public void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed) {	}
+
+
+	@Override
+	public IPlayerEventBusService getEventBusService() { }
+
+
+	@Override
+	public IAdaptiveLearningService getAdaptiveLearningService() { }
 }

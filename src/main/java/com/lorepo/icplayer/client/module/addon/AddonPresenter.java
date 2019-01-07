@@ -28,6 +28,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
+import com.lorepo.icplayer.client.content.services.PlayerEventBusWrapper;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -243,6 +244,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			setProperTabindexValue(model);
 			JavaScriptObject jsModel = createModel(model);
 			setPlayerController(jsObject, services.getAsJSObject());
+			setEventBus(jsObject);
 			run(jsObject, view.getElement(), jsModel, model.getAddonId());
 		}
 	}
@@ -597,4 +599,15 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
 		
 	}
+	
+	private void setEventBus(JavaScriptObject presenter) {
+		PlayerEventBusWrapper eventBus = new PlayerEventBusWrapper(services, this.model.getAddonId().toLowerCase());
+		setEventBus(presenter, eventBus.getAsJSObject());
+	}
+	
+	private native void setEventBus(JavaScriptObject presenter, JavaScriptObject eventBusWrapper) /*-{
+		if(presenter.setEventBus != undefined) {
+			presenter.setEventBus(eventBusWrapper);
+		}
+	}-*/;
 }

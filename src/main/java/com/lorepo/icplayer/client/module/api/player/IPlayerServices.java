@@ -18,7 +18,6 @@ public interface IPlayerServices {
 
 	public IContent getModel();
 	public PlayerConfig getPlayerConfig();
-	public EventBus	getEventBus();
 	public int getCurrentPageIndex();
 	public IPlayerCommands	getCommands();
 	public IScoreService	getScoreService();
@@ -27,6 +26,7 @@ public interface IPlayerServices {
 	public IStateService 	getStateService();
 	public IJsonServices	getJsonServices();
 	public IReportableService getReportableService();
+	public IAdaptiveLearningService getAdaptiveLearningService();
 	public JavaScriptObject getAsJSObject();
 	public IPresenter getModule(String moduleName);
 	public GroupPresenter getGroup(String groupId);  
@@ -47,5 +47,10 @@ public interface IPlayerServices {
 	public void setAbleChangeLayout(boolean isAbleChangeLayout); 
 	public boolean isAbleChangeLayout();
 	public boolean changeSemiResponsiveLayout(String layoutID);
+	
+	public EventBus	getEventBus();
+	public IPlayerEventBusService getEventBusService();
+	public void sendEvent(String eventName, JavaScriptObject eventData);
+	public void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed);
 
 }

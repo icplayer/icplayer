@@ -1,3 +1,5 @@
+2018-12-28 Added new properties for ValueChanged event and added method for injecting eventbus for addons
+2018-12-28 Added possibility for creating adaptive lessons
 2019-01-04 Fixed setting player controller in Shape Tracing module
 2019-01-02 Added command isOK to a connection addon
 2018-12-19 Fixed reseting after using setText command in Text module

@@ -8,17 +8,22 @@ function AddonMath_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
-        presenter.eventBus = presenter.playerController.getEventBus();
+    };
+
+    presenter.setEventBus = function (eventBus) {
+        presenter.eventBus = eventBus;
     };
 
     presenter.run = function (view, model) {
         presenter.presenterLogic(view, model);
         presenter.$view.css('visibility', 'hidden');
 
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
-        presenter.eventBus.addEventListener('PageLoaded', this);
-        presenter.eventBus.addEventListener('ValueChanged', this);
+        if (presenter.eventBus) {
+            presenter.eventBus.addEventListener('ShowAnswers', this);
+            presenter.eventBus.addEventListener('HideAnswers', this);
+            presenter.eventBus.addEventListener('PageLoaded', this);
+            presenter.eventBus.addEventListener('ValueChanged', this);
+        }
     };
 
     presenter.createPreview = function (view, model) {

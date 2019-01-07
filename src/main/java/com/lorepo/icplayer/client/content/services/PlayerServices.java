@@ -4,8 +4,6 @@ import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.ResettableEventBus;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
@@ -13,10 +11,12 @@ import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
+import com.lorepo.icplayer.client.module.api.player.IPlayerEventBusService;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -25,12 +25,11 @@ import com.lorepo.icplayer.client.module.api.player.ITimeService;
 import com.lorepo.icplayer.client.page.PageController;
 
 public class PlayerServices implements IPlayerServices {
-
 	private final PlayerCommands playerCommands;
-	private final PlayerEventBus eventBus;
 	private final IPlayerController playerController;
 	private final PageController pageController;
 	private JavaScriptPlayerServices jsServiceImpl;
+	private IPlayerEventBusService eventBusService;
 	private IJsonServices jsonServices = new JsonServices();
 	private ScaleInformation scaleInformation;
 	private JavaScriptObject jQueryPrepareOffsetsFunction = null;
@@ -41,11 +40,8 @@ public class PlayerServices implements IPlayerServices {
 		this.playerController = controller;
 		this.pageController = pageController;
 		scaleInformation = new ScaleInformation();
-
-		eventBus = new PlayerEventBus(new ResettableEventBus(new SimpleEventBus()));
-		eventBus.setPlayerServices(this);
-
 		playerCommands = new PlayerCommands(pageController, playerController);
+		eventBusService = new PlayerEventBusService(this);
 	}
 	
 	@Override
@@ -84,15 +80,11 @@ public class PlayerServices implements IPlayerServices {
 
 	@Override
 	public EventBus getEventBus() {
-		return eventBus;
+		return this.eventBusService.getEventBus();
 	}
 
 	public void resetEventBus() {
-		eventBus.removeHandlers();
-		if (jsServiceImpl != null) {
-			jsServiceImpl.clearPageLoadedListeners();
-			jsServiceImpl.resetEventListeners();
-		}
+		this.eventBusService.resetEventBus();
 	}
 
 	@Override
@@ -320,5 +312,25 @@ public class PlayerServices implements IPlayerServices {
 			return pc.isWCAGOn();
 		}
 		return false;
+	}
+
+	@Override
+	public void sendEvent(String eventName, JavaScriptObject eventData) {
+		this.eventBusService.sendEvent(eventName, eventData);
+	}
+
+	@Override
+	public void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed) {
+		this.eventBusService.addEventListener(eventName, listener, isDelayed);
+	}
+
+	@Override
+	public IPlayerEventBusService getEventBusService() {
+		return this.eventBusService;
+	}
+
+	@Override
+	public IAdaptiveLearningService getAdaptiveLearningService() {
+		return this.playerController.getAdaptiveLearningService();
 	}
 }
