@@ -7,7 +7,8 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
-import com.lorepo.icplayer.client.EnableTabindex;
+import com.lorepo.icplayer.client.metadata.IMetadata;
+import com.lorepo.icplayer.client.metadata.Metadata;
 
 public abstract class ModuleModelParser_base implements IModuleModelParser {
 
@@ -50,10 +51,18 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 				this.parseLayouts((Element) childNode);
 			} else if(childNode.getNodeName().compareTo("styles") == 0 && childNode instanceof Element) {
 				this.parseStyles((Element) childNode);
+			} else if(childNode.getNodeName().compareTo("metadata") == 0 && childNode instanceof Element) {
+				this.parseMetadata((Element) childNode);
 			}
 		}
 		
 		return this.module;
+	}
+
+	private void parseMetadata(Element childNode) {
+		IMetadata metadata = new Metadata();
+		metadata.parse(childNode);
+		this.module.setMetadata(metadata);
 	}
 
 	protected void parseStyles(Element childNode) {}

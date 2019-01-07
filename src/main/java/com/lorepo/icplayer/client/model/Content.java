@@ -12,6 +12,8 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icplayer.client.metadata.IMetadata;
+import com.lorepo.icplayer.client.metadata.Metadata;
 import com.lorepo.icplayer.client.model.addon.AddonDescriptor;
 import com.lorepo.icplayer.client.model.layout.LayoutsContainer;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
@@ -37,7 +39,7 @@ public class Content implements IContentBuilder, IContent {
 	private PageList	commonPages;
 	private HashMap<String, AddonDescriptor>	addonDescriptors = new HashMap<String, AddonDescriptor>();
 	private ArrayList<IAsset>	assets = new ArrayList<IAsset>();
-	private HashMap<String, String>	metadata = new HashMap<String, String>();
+	public IMetadata metadata = new Metadata();
 	private String		baseUrl = "";
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
@@ -153,7 +155,7 @@ public class Content implements IContentBuilder, IContent {
 
 
 	public String getMetadataValue(String key) {
-		return metadata.get(key);
+		return metadata.getValue(key);
 	}
 
 
@@ -187,13 +189,8 @@ public class Content implements IContentBuilder, IContent {
 		xml += " version=\"" + Content.version + "\">";
 
 		// Metadata
-		xml += "<metadata>";
-		for(String key : metadata.keySet()){
-			String encodedKey = StringUtils.escapeHTML(key);
-			String encodedValue = StringUtils.escapeHTML(metadata.get(key));
-			xml += "<entry key='" + encodedKey + "' value='" + encodedValue + "'/>";
-		}
-		xml += 	"</metadata>";
+		Element metadata = this.metadata.toXML();
+		xml += metadata.toString();
 
 		// Addons
 		xml += "<addons>";
@@ -394,7 +391,11 @@ public class Content implements IContentBuilder, IContent {
 
 	@Override
 	public void setMetadata(HashMap<String, String> metadata) {
-		this.metadata = metadata;
+		this.metadata.clear();
+		for (String key : metadata.keySet()) {
+			String value = metadata.get(key);
+			this.metadata.put(key, value);
+		}
 	}
 
 	@Override
