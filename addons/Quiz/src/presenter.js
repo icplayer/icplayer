@@ -1,4 +1,13 @@
 function AddonQuiz_create() {
+    /*
+    *  KNOWN ISSUES:
+    *
+    *  The first time the addon is loaded, mathjax is rendered.
+    *  Each reload content requires mathjax reload.
+    *  When addon is loaded first time you shouldn't manually reload mathjax.
+    *
+    */
+
     var presenter = function () {
     };
 
@@ -22,6 +31,7 @@ function AddonQuiz_create() {
     }
 
     presenter.activeElements = [];
+    presenter.isLoaded = false;
 
     function setupDefaults() {
         state = {
@@ -492,15 +502,20 @@ function AddonQuiz_create() {
 
     presenter.showCurrentQuestion = function AddonQuiz_showCurrentQuestion() {
         showQuestion(getCurrentQuestion(), false);
-        if (presenter.isLoaded)
-            presenter.reloadMathJax();
+        renderMathJax();
     };
 
-    presenter.reloadMathJax = function(){
+    function renderMathJax() {
+        if (presenter.isLoaded) {
+            reloadMathJax();
+        }
+    }
+
+    function reloadMathJax() {
         window.MathJax.Callback.Queue().Push(function () {
             window.MathJax.Hub.Typeset(presenter.$view[0]);
         });
-    };
+    }
 
     presenter.setPlayerController = function AddonQuiz_setPlayerController(controller) {
         playerController = controller;
