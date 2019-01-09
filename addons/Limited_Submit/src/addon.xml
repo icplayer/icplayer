@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Limited_Submit' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="Text" nameLabel="Limited_Submit_property_text" type="string" isLocalized="true" />
+        <property name="Text selected" nameLabel="Limited_Submit_property_text_selected" type="string" isLocalized="true" />
+        <property name="worksWith" nameLabel="Limited_Submit_property_works_with" type="text"/>
+    </model>
+</addon>

@@ -632,7 +632,7 @@ function AddonTask_Overlay_create(){
 			if (results == presenter.MODULE_RESULTS.correct) {
 				presenter.state.buttonState = presenter.BUTTON_STATES.next;
 				presenter.state.completion = presenter.COMPLETION_CODES.correct;
-				limitedShowAnswers();
+				limitedCheck();
 			} else {
 				limitedCheck();
 				if (presenter.state.attempts == presenter.configuration.maxAttempts) {
