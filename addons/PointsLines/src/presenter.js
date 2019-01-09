@@ -379,7 +379,11 @@ function AddonPointsLines_create() {
         }
     };
 
-    presenter.drawTempLine = function(i,x,y) {
+    presenter.drawTempLine = function (i, x, y) {
+        var scaledPoint = scalePoint({x: x, y: y});
+        x = scaledPoint.x;
+        y = scaledPoint.y;
+
         if (presenter.draw !== false) {
             if (presenter.$view.find('#line_tmp').length > 0) {
                 presenter.$view.find('#line_tmp').remove();
@@ -665,8 +669,12 @@ function AddonPointsLines_create() {
                     //			presenter.doClick(presenter.draw);
                 } else  if (presenter.draw !== false){
                     j = -1;
-                    for(i = 0; i<(presenter.points).length; i++) {
-                        distance = Math.abs(presenter.mouseX - parseInt(presenter.points[i][0],10))+ Math.abs(presenter.mouseY - parseInt(presenter.points[i][1],10));
+                    var scaledPoint = scalePoint({x: presenter.mouseX, y: presenter.mouseY});
+                    presenter.mouseX = scaledPoint.x;
+                    presenter.mouseY = scaledPoint.y;
+
+                    for (i = 0; i < (presenter.points).length; i++) {
+                        distance = Math.abs(presenter.mouseX - parseInt(presenter.points[i][0], 10)) + Math.abs(presenter.mouseY - parseInt(presenter.points[i][1], 10));
                         if (distance < 25) {
                             j = i;
                         }
@@ -737,6 +745,16 @@ function AddonPointsLines_create() {
             x : parseInt(client.x - rect.left, 10),
             y : parseInt(client.y - rect.top, 10)
         };
+    }
+
+    function scalePoint({x, y}) {
+        var scale = presenter.playerController.getScaleInformation();
+        var scaledPoint = {x: x, y: y};
+        if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
+            scaledPoint.x = scaledPoint.x / scale.scaleX;
+            scaledPoint.y = scaledPoint.y / scale.scaleY;
+        }
+        return scaledPoint;
     }
 
     presenter.createPreview = function(view, model) {
