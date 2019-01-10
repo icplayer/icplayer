@@ -576,7 +576,7 @@ function AddonCatch_create() {
     };
 
     presenter.getScore = function () {
-        return points;
+        return presenter.configuration.countErrors ? (points - errors) : points;
     };
 
     presenter.getState = function () {
@@ -611,7 +611,7 @@ function AddonCatch_create() {
                 'source': presenter.configuration.ID,
                 'item': '' + _item,
                 'value': '' + _value,
-                'score': _isCorrect ? '1' : '0'
+                'score': _isCorrect ? '1' : presenter.configuration.countErrors ? '-1' : '0'
             };
         }
 
