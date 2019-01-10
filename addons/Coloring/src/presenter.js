@@ -1314,15 +1314,15 @@ function AddonColoring_create(){
         presenter.isShowAnswersActive = false;
     };
 
-    function scalePoint({x: x, y: y}) {
+    function scalePoint({x, y}) {
         var scaledPoint = {x: x, y: y};
         if (!presenter.playerController)
             return scaledPoint;
 
         var scale = presenter.playerController.getScaleInformation();
         if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
-            scaledPoint.x = parseInt(scaledPoint.x / scale.scaleX, 10);
-            scaledPoint.y = parseInt(scaledPoint.y / scale.scaleY, 10);
+            scaledPoint.x = Math.floor(scaledPoint.x / scale.scaleX);
+            scaledPoint.y = Math.floor(scaledPoint.y / scale.scaleY);
         }
         return scaledPoint;
     }

@@ -715,11 +715,14 @@ function AddonConnectingDots_create(){
     };
 
     function scalePoint({x, y}) {
-        var scale = presenter.playerController.getScaleInformation();
         var scaledPoint = {x: x, y: y};
+        if (!presenter.playerController)
+            return scaledPoint;
+
+        var scale = presenter.playerController.getScaleInformation();
         if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
-            scaledPoint.x = scaledPoint.x / scale.scaleX;
-            scaledPoint.y = scaledPoint.y / scale.scaleY;
+            scaledPoint.x = Math.floor(scaledPoint.x / scale.scaleX);
+            scaledPoint.y = Math.floor(scaledPoint.y / scale.scaleY);
         }
         return scaledPoint;
     }
