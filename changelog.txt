@@ -1,3 +1,4 @@
+2019-01-10 Changed the behavior of the point counter in a Catch addon
 2019-01-04 Fixed setting player controller in Shape Tracing module
 2019-01-02 Added command isOK to a connection addon
 2018-12-19 Fixed reseting after using setText command in Text module
