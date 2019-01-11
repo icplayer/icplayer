@@ -33,7 +33,6 @@ public class AbsolutePositioningModule extends BasicPropertyProvider implements 
 	private GroupPropertyProvider group = null; 	
 	
 	protected SemiResponsivePositions semiResponsivePositions = new SemiResponsivePositions();
-
 	
 	private boolean disableChangeEvent = false;
 	

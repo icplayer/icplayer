@@ -86,6 +86,23 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 	}
 	
 	@Override
+	public void sendValueChangedEvent(String moduleType, String moduleID, String itemID, String value, String score) {
+		String pageID = this.playerServices.getCommands().getPageController().getPage().getId();
+		int pageStep = this.playerServices.getAdaptiveLearningService().getPageStep(pageID);
+
+		ValueChangedBuilder builder = new ValueChangedBuilder(moduleID, itemID, value, score)
+			.setModuleType(moduleType)
+			.setPageId(pageID)
+			.setPageAdaptiveStep(Integer.toString(pageStep));
+		
+		GwtEvent<?> event = builder.build();
+		
+		if (eventBus != null) {
+			eventBus.fireEvent(event);
+		}
+	}
+	
+	@Override
 	public void sendEvent(String eventName, JavaScriptObject eventData){
 
 		DraggableItem item;

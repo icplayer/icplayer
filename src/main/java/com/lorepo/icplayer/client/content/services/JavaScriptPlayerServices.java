@@ -272,6 +272,10 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getFooterModule(Ljava/lang/String;)(id);
 		};
 
+		playerServices.getModuleMetadata = function (moduleID) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModuleMetadata(Ljava/lang/String;)(moduleID);
+		};
+
 		playerServices.setAbleChangeLayout = function(isAbleChangeLayout){
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setAbleChangeLayout(Z)(isAbleChangeLayout); 
 		};
@@ -405,7 +409,7 @@ public class JavaScriptPlayerServices {
 			adaptive.moveToPrevPage = function () {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveToPrevAdaptivePage()();
 			}
-			
+
 			adaptive.isNextAdaptivePageAvailable = function () {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isNextAdaptivePageAvaialable()();
 			}
@@ -413,7 +417,7 @@ public class JavaScriptPlayerServices {
 			adaptive.resetHistory = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetHistory()();
 			}
-			
+
 			adaptive.getPageDifficulty = function(pageID) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageDifficulty(Ljava/lang/String;)(pageID);
 			}
@@ -804,15 +808,19 @@ public class JavaScriptPlayerServices {
 	public void resetHistory() {
 		this.playerServices.getAdaptiveLearningService().resetHistory();
 	}
-	
+
 	public boolean isNextAdaptivePageAvaialable() {
 		return this.playerServices.getAdaptiveLearningService().isNextPageAvailable();
 	}
-	
+
 	public void addNextAdaptivePage(String pageId) {
 		this.playerServices.getAdaptiveLearningService().addNextPage(pageId);
 	}
-	
+
+	public JavaScriptObject getModuleMetadata(String moduleID) {
+		return this.playerServices.getModule(moduleID).getModel().getMetadata().toJavaScript();
+	}
+
 	public String getPageDifficulty(String pageId) {
 		return this.playerServices.getAdaptiveLearningService().getPageDifficulty(pageId);
 	}

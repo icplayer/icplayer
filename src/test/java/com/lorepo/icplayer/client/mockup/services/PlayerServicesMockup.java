@@ -32,6 +32,8 @@ public class PlayerServicesMockup implements IPlayerServices {
 	private final IScoreService	scoreService;
 	private IContent		contentModel;
 	private final IJsonServices	jsonMockup;
+	private final PlayerEventBusServiceMockup eventBusService;
+	private final AdaptiveLearningServiceMockup adaptiveLearningService;
 
 	public PlayerServicesMockup() {
 		contentModel = new Content();
@@ -39,6 +41,8 @@ public class PlayerServicesMockup implements IPlayerServices {
 		commands = new CommandsMockup();
 		scoreService = new ScoreService(ScoreType.last);
 		jsonMockup = new JsonMockup();
+		eventBusService = new PlayerEventBusServiceMockup(eventBus);
+		adaptiveLearningService = new AdaptiveLearningServiceMockup();
 	}
 
 
@@ -256,12 +260,12 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 	@Override
 	public IPlayerEventBusService getEventBusService() {
-		return null; 
+		return this.eventBusService;
 	}
 
 
 	@Override
-	public IAdaptiveLearningService getAdaptiveLearningService() { 
-		return null;
+	public IAdaptiveLearningService getAdaptiveLearningService() {
+		return this.adaptiveLearningService;
 	}
 }

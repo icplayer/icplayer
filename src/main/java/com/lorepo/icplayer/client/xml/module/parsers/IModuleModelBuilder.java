@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.google.gwt.xml.client.Element;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
+import com.lorepo.icplayer.client.metadata.IMetadata;
 import com.lorepo.icplayer.client.module.LayoutDefinition;
 
 public interface IModuleModelBuilder {
@@ -25,4 +26,5 @@ public interface IModuleModelBuilder {
 	public void setDefaultStyleClass(String styleClass);
 	public void setDefaultInlineStyle(String inlineStyle);
 	public void setIsTabindexEnabled(boolean value);
+	public void setMetadata(IMetadata metadata);
 }

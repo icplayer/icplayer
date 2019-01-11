@@ -20,7 +20,6 @@ import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
-import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -343,13 +342,12 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if(sourceOptionView.isDown()){
 			score = Integer.toString(option.getValue());
 		}
-		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), id, newValue, score);
-		playerServices.getEventBus().fireEvent(valueEvent);
+
+		sendValueChangedEvent(id, newValue, score);
 
 		if(getScore() == getMaxScore() && getErrorCount() == 0){
 			score = Integer.toString(getScore());
-			valueEvent = new ValueChangedEvent(module.getId(), id, "allOK", score);
-			playerServices.getEventBus().fireEvent(valueEvent);
+			sendValueChangedEvent(id, "allOK", score);
 		}
 	}
 
@@ -678,5 +676,12 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		} else if (eventName.equals("HideAnswers")) {
 			hideAnswers();
 		}
+	}
+	
+	public void sendValueChangedEvent(String itemID, String value, String score) {
+		String moduleType = this.module.getModuleTypeName();
+		String moduleID = this.module.getId();
+		
+		this.playerServices.getEventBusService().sendValueChangedEvent(moduleType, moduleID, itemID, value, score);
 	}
 }

@@ -1931,5 +1931,6 @@ var ice_dictionary_en = {
     "Adaptive_Next_property_next_direction": "Direction",
     "Adaptive_Next_property_next_is_disabled": "Is disabled",
     "Adaptive_Next_property_next_image": "Image",
-	"Editor_load_theme_error": "Error loading template (click <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">here</a> to find out more)"
+	"Editor_load_theme_error": "Error loading template (click <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">here</a> to find out more)",
+    "module_metadata": "Module metadata"
 };
