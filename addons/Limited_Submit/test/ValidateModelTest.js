@@ -49,7 +49,7 @@ TestCase("[Limited_Submit] Validating model test", {
         assertEquals("Show_Answers1", result.value.addonID);
     },
 
-    'test validateModel should return list of modules to send event': function () {
+    'test given list of addons separated by new line in raw model when validateModel is called then will return this list of addons as js list without whitespaces before and after id and without empty ids': function () {
         var modules = this.presenter.validateModel(this.model).value.worksWithModulesList;
 
         assertEquals(["text1", "text2", "text3"], modules);
