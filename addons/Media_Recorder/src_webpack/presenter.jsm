@@ -80,11 +80,11 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.enable = function enable() {
-        presenter.mediaRecorder.activate();
+        presenter.mediaRecorder.enable();
     };
 
     presenter.disable = function disable() {
-        presenter.mediaRecorder.deactivate();
+        presenter.mediaRecorder.disable();
     };
 
     presenter.executeCommand = function executeCommand(name, params) {

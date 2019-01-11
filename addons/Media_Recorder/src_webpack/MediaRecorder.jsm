@@ -64,7 +64,11 @@ export class MediaRecorder {
         this.addonState.getVisibility()
             .then(isVisible => {
                 this.setVisibility(isVisible);
-            })
+            });
+        this.addonState.getEnabled()
+            .then(isEnable => {
+                this._setEnableState(isEnable);
+            });
     }
 
     startRecording() {
@@ -131,6 +135,14 @@ export class MediaRecorder {
         this.model = null;
     }
 
+    enable() {
+        this._setEnableState(true);
+    }
+
+    disable() {
+        this._setEnableState(false);
+    }
+
     activate() {
         if (this.activationState.isInactive()) {
             this.activationState.setActive();
@@ -150,6 +162,7 @@ export class MediaRecorder {
         this.deactivate();
         this.activate();
         this.setVisibility(this.model["Is Visible"]);
+        this._setEnableState(!this.model.isDisabled);
     }
 
     resetRecording() {
@@ -184,6 +197,7 @@ export class MediaRecorder {
         this._activateButtons();
         this._loadWebViewMessageListener();
         this.setVisibility(model["Is Visible"]);
+        this._setEnableState(!model.isDisabled);
     }
 
     _loadAddon(view, model) {
@@ -470,6 +484,7 @@ export class MediaRecorder {
         let valid_model = validatedModel.value;
         let timerViewHandler = $(view).find(".media-recorder-timer");
         let defaultButtonViewHandler = $(view).find(".media-recorder-default-recording-play-button");
+        let $wrapperViewHandler = $(view).find(".media-recorder-wrapper");
 
         if (valid_model.isShowedTimer == false)
             timerViewHandler.hide();
@@ -480,6 +495,11 @@ export class MediaRecorder {
             defaultButtonViewHandler.hide();
         else
             defaultButtonViewHandler.show();
+
+        if (valid_model.isDisabled) {
+            this.addonViewService = new AddonViewService($wrapperViewHandler);
+            this.addonViewService.deactivate();
+        }
     }
 
     _hideSelectedElements() {
@@ -564,5 +584,15 @@ export class MediaRecorder {
         this.timer.stopCountdown();
         this.recordingTimeLimiter.stopCountdown();
         window.external.notify(JSON.stringify({type: "mediaStop", target: this.model.ID}));
+    }
+
+    _setEnableState(isEnable) {
+        if (isEnable) {
+            this.addonState.setEnabled(true);
+            this.activate();
+        } else {
+            this.addonState.setEnabled(false);
+            this.deactivate();
+        }
     }
 }
