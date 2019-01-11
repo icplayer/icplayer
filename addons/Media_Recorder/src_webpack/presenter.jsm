@@ -79,6 +79,14 @@ function AddonMedia_Recorder_create() {
         presenter.mediaRecorder.reset();
     };
 
+    presenter.enable = function enable() {
+        presenter.mediaRecorder.activate();
+    };
+
+    presenter.disable = function disable() {
+        presenter.mediaRecorder.deactivate();
+    };
+
     presenter.executeCommand = function executeCommand(name, params) {
         let commands = {
             'startRecording': presenter.startRecording,
@@ -89,7 +97,9 @@ function AddonMedia_Recorder_create() {
             'setWorkMode': presenter.setWorkMode,
             'reset': presenter.reset,
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'enable': presenter.enable,
+            'disable': presenter.disable,
         };
 
         return Commands.dispatch(commands, name, params, presenter);

@@ -150,16 +150,17 @@ export class MediaRecorder {
         this.deactivate();
         this.activate();
         this.setVisibility(this.model["Is Visible"]);
-        if (this.model.isResetRemovesRecording) {
-            this.player.reset();
-            this.addonState.reset();
-            this.timer.reset();
-            if (this.defaultRecordingPlayer.hasRecording) {
-                this.mediaState.setLoadedDefaultRecording();
-                this.timer.setDuration(this.defaultRecordingPlayer.duration);
-            } else
-                this.mediaState.setNew();
-        }
+    }
+
+    resetRecording() {
+        this.player.reset();
+        this.addonState.reset();
+        this.timer.reset();
+        if (this.defaultRecordingPlayer.hasRecording) {
+            this.mediaState.setLoadedDefaultRecording();
+            this.timer.setDuration(this.defaultRecordingPlayer.duration);
+        } else
+            this.mediaState.setNew();
     }
 
     show() {
@@ -429,8 +430,10 @@ export class MediaRecorder {
 
     _stopActions() {
         if (this.mediaState.isRecording())
-            if (this.model.isResetRemovesRecording)
+            if (this.model.isResetRemovesRecording) {
                 this.recordButton.reset();
+                this.resetRecording();
+            }
             else
                 this.recordButton.forceClick();
         if (this.mediaState.isPlaying())
