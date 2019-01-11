@@ -1,6 +1,6 @@
 (function () {
     function setUpPresenter() {
-        this.presenter = AddonLimited_Show_Answers_create();
+        this.presenter = AddonLimited_Submit_create();
 
         this.commands = {
             incrementCheckCounter: sinon.stub(),
@@ -17,7 +17,9 @@
             textStub: sinon.stub(),
             sendEventStub: sinon.stub(this.presenter, 'sendEvent'),
             getCommandsStubs: sinon.stub().returns(this.commands),
-            getModuleStub: sinon.stub().returns(this.tts)
+            getModuleStub: sinon.stub().returns(this.tts),
+            executeCheckForAllModulesStub: sinon.stub(this.presenter, 'executeCheckForAllModules'),
+            executeUnCheckForAllModulesStub: sinon.stub(this.presenter, 'executeUnCheckForAllModules'),
         };
 
         this.presenter.playerController = {
@@ -32,154 +34,91 @@
         };
 
         this.presenter.configuration = {
-            isSelected: false,
-            textSelected: {},
-            enableCheckCounter: false,
-            enableMistakeCounter: false,
-            isEnabled: true
         };
 
         this.button = document.createElement("div");
-        this.button.className = 'show-answers-button';
+        this.button.className = 'submit-button';
 
         this.presenter.$button = jQuery(this.button);
     }
 
-    TestCase('[Limited_Show_Answers] Basic code flow', {
+    TestCase('[Limited_Submit] Basic code flow', {
         setUp: setUpPresenter,
 
-        'test should calls sendEvent once': function () {
+        'test given unselected button and attempted modules when button is clicked then will send selected event and will check modules': function () {
+            this.presenter.allModulesAttempted = function () {
+                return true;
+            };
+
+            this.presenter.state.isSelected = false;
+
             this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
             assertTrue(this.stubs.sendEventStub.calledOnce);
+            assertTrue(this.stubs.sendEventStub.calledWith(this.presenter.EVENTS_NAMES.SELECTED));
+            assertTrue(this.stubs.executeCheckForAllModulesStub.calledOnce)
         },
 
-        'test should not calls sendEvent when addon is disabled': function () {
-            this.presenter.configuration.isEnabled = false;
-            this.presenter.connectClickAction();
-            this.presenter.$button.trigger('click');
-
-            assertTrue(this.stubs.sendEventStub.notCalled);
-        },
-
-        'test should sends LimitedShowAnswers event when is not selected': function () {
-            this.presenter.configuration.isSelected = false;
-
-            this.presenter.connectClickAction();
-            this.presenter.$button.trigger('click');
-
-            var result = this.stubs.sendEventStub.getCall(0).args;
-
-            assertEquals('LimitedShowAnswers', result[0]);
-        },
-
-        'test should sends LimitedHideAnswers event when is selected': function () {
-            this.presenter.configuration.isSelected = true;
+        'test given unselected button but with module which is unselected when button in clicked then will send TRIED_SELECT event': function () {
+            this.presenter.state.isSelected = false;
+            this.presenter.allModulesAttempted = function () {
+                return false;
+            };
 
             this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
-            var result = this.stubs.sendEventStub.getCall(0).args;
-
-            assertEquals('LimitedHideAnswers', result[0]);
+            assertTrue(this.stubs.sendEventStub.calledOnce);
+            assertTrue(this.stubs.sendEventStub.calledWith(this.presenter.EVENTS_NAMES.TRIED_SELECT));
         },
 
-        'test should calls addClass when isSelected is false': function () {
-            this.presenter.configuration.isSelected = false;
+        'test given selected button when button is clicked then will send event and will call uncheck addons': function () {
+            this.presenter.state.isSelected = true;
 
             this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
-            assertTrue(this.stubs.addClassStub.calledOnce);
-        },
-
-        'test should calls removeClass when isSelected is true': function () {
-            this.presenter.configuration.isSelected = true;
-
-            this.presenter.connectClickAction();
-            this.presenter.$button.trigger('click');
-
-            assertTrue(this.stubs.removeClassStub.calledOnce);
+            assertTrue(this.stubs.sendEventStub.calledOnce);
+            assertTrue(this.stubs.sendEventStub.calledWith(this.presenter.EVENTS_NAMES.DESELECTED));
+            assertTrue(this.stubs.executeUnCheckForAllModulesStub.calledOnce)
         }
     });
 
-    TestCase('[Limited_Show_Answers] Check counter', {
+    TestCase('[Limited_Submit] Select/Deselect code flow', {
         setUp: setUpPresenter,
 
-        'test should calls incrementCheckCounter when not selected and enableCheckCounter is checked': function () {
-            this.presenter.configuration.isSelected = false;
-            this.presenter.configuration.enableCheckCounter = true;
+        'test given deselected addon when select is called then at first will be send event with selection and at next modules will be selected': function () {
+            this.presenter.state.isSelected = false;
+            this.presenter.allModulesAttempted = function () {
+                return true;
+            };
 
             this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
-            assertTrue(this.commands.incrementCheckCounter.calledOnce);
+            assertTrue(this.stubs.sendEventStub.calledBefore(this.stubs.executeCheckForAllModulesStub));
         },
 
-        'test should not calls incrementCheckCounter when selected and enableCheckCounter is unchecked': function () {
-            this.presenter.configuration.isSelected = true;
-            this.presenter.configuration.enableCheckCounter = true;
+        'test given selected addon when deselect is called then will be send event with deselection and at next modules will be deselected': function () {
+            this.presenter.state.isSelected = true;
 
             this.presenter.connectClickAction();
             this.presenter.$button.trigger('click');
 
-            assertFalse(this.commands.incrementCheckCounter.calledOnce);
-        },
-
-        'test should not calls incrementCheckCounter when selected and enableCheckCounter is checked': function () {
-            this.presenter.configuration.isSelected = true;
-            this.presenter.configuration.enableCheckCounter = true;
-
-            this.presenter.connectClickAction();
-            this.presenter.$button.trigger('click');
-
-            assertFalse(this.commands.incrementCheckCounter.calledOnce);
+            assertTrue(this.stubs.sendEventStub.calledBefore(this.stubs.executeUnCheckForAllModulesStub));
         }
     });
 
-    TestCase('[Limited_Show_Answers] Mistake counter', {
+    TestCase('[Limited_Submit] WCAG navigation test', {
         setUp: setUpPresenter,
 
-        'test should calls incrementMistakeCounter when not selected and enableMistakeCounter is checked': function () {
-            this.presenter.configuration.isSelected = false;
-            this.presenter.configuration.enableMistakeCounter = true;
-
-            this.presenter.connectClickAction();
-            this.presenter.$button.trigger('click');
-
-            assertTrue(this.commands.increaseMistakeCounter.calledOnce);
-        },
-
-        'test should not calls incrementMistakeCounter when selected and enableMistakeCounter is unchecked': function () {
-            this.presenter.configuration.isSelected = true;
-            this.presenter.configuration.enableMistakeCounter = true;
-
-            this.presenter.connectClickAction();
-            this.presenter.$button.trigger('click');
-
-            assertFalse(this.commands.increaseMistakeCounter.calledOnce);
-        },
-
-        'test should not calls incrementMistakeCounter when selected and enableMistakeCounter is checked': function () {
-            this.presenter.configuration.isSelected = true;
-            this.presenter.configuration.enableMistakeCounter = true;
-
-            this.presenter.connectClickAction();
-            this.presenter.$button.trigger('click');
-
-            assertFalse(this.commands.increaseMistakeCounter.calledOnce);
-        }
-    });
-
-    TestCase('[Limited_Show_Answers] WCAG navigation test', {
-        setUp: setUpPresenter,
-
-        'test press enter when Show Answers not selected': function () {
+        'test given enabled WCAG, deselected button and attempted modules when enter is clicked then will call speak with blocked addon text': function () {
+            this.presenter.allModulesAttempted = sinon.stub().returns(true);
             this.presenter.setWCAGStatus(true);
-            this.presenter.speechTexts = {
-                editBlock: 'Page edition is blocked',
-                noEditBlock: 'Page edition is not blocked'
+            this.presenter.configuration.speechTexts = {
+                blockEdit: {textToSpeechText: 'Page edition is blocked'},
+                noBlockEdit: {textToSpeechText: 'Page edition is not blocked'}
             };
             this.presenter.connectClickAction();
 
@@ -189,14 +128,14 @@
             assertTrue(0 === args[0].text.localeCompare('Page edition is blocked'));
         },
 
-        'test press enter when Show Answers selected': function () {
+        'test given enabled WCAG and selected button when enter is clicked then will call speak with not blocked addon text': function () {
             this.presenter.setWCAGStatus(true);
-            this.presenter.speechTexts = {
-                editBlock: 'Page edition is blocked',
-                noEditBlock: 'Page edition is not blocked'
+            this.presenter.configuration.speechTexts = {
+                blockEdit: {textToSpeechText: 'Page edition is blocked'},
+                noBlockEdit: {textToSpeechText: 'Page edition is not blocked'}
             };
             this.presenter.connectClickAction();
-            this.presenter.configuration.isSelected = true;
+            this.presenter.state.isSelected = true;
 
             this.presenter.keyboardController(13);
             var args = this.tts.speak.args[0][0];
@@ -204,11 +143,12 @@
             assertTrue(0 === args[0].text.localeCompare('Page edition is not blocked'));
         },
 
-        'test press enter when WCAG not active': function () {
+        'test given disabled WCAG when enter is clicked then speak wont be called': function () {
+            this.presenter.allModulesAttempted = sinon.stub().returns(true);
             this.presenter.setWCAGStatus(false);
             this.presenter.speechTexts = {
-                editBlock: 'Page edition is blocked',
-                noEditBlock: 'Page edition is not blocked'
+                blockEdit: {textToSpeechText: 'Page edition is blocked'},
+                noBlockEdit: {textToSpeechText: 'Page edition is not blocked'}
             };
             this.presenter.connectClickAction();
 

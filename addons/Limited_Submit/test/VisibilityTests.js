@@ -7,9 +7,9 @@ function getValidModel(isVisible) {
     }
 }
 
-TestCase('[Limited_Show_Answers] Visiblity tests', {
+TestCase('[Limited Submit] Visiblity tests', {
     setUp: function () {
-        this.presenter = AddonLimited_Show_Answers_create();
+        this.presenter = AddonLimited_Submit_create();
 
         this.stubs = {
             validateModelStub: sinon.stub(),

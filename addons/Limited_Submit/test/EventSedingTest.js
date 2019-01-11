@@ -1,6 +1,6 @@
-TestCase('[Limited_Show_Answers] Event sending tests', {
+TestCase('[Limited Submit] Event sending tests', {
     setUp: function () {
-        this.presenter = AddonLimited_Show_Answers_create();
+        this.presenter = AddonLimited_Submit_create();
 
         this.stubs = {
             sendEventStub: sinon.stub()
@@ -11,7 +11,7 @@ TestCase('[Limited_Show_Answers] Event sending tests', {
         };
 
         this.presenter.configuration = {
-            addonID: 'Show_Answers1',
+            addonID: 'Limited_Submit1',
             worksWithModulesList: ["text1", "text2", "text3"]
         };
 
@@ -40,43 +40,38 @@ TestCase('[Limited_Show_Answers] Event sending tests', {
       delete player;
     },
 
-    'test should calls sendEvent only once': function () {
-        this.presenter.sendEvent({});
+    'test given empty event value when sendEvent is called then will send event by event bus': function () {
+        this.presenter.sendEvent("");
 
         assertTrue(this.stubs.sendEventStub.calledOnce);
     },
 
-    'test should sends "Show_Answers1" as source in data': function () {
-        this.presenter.sendEvent({});
+    'test given addon id when sendEvent is called then will send addonId as source': function () {
+        this.presenter.sendEvent("");
         var result = this.stubs.sendEventStub.getCall(0).args;
 
-        assertEquals('Show_Answers1', result[1].source);
+        assertEquals('Limited_Submit1', result[1].source);
     },
 
-    'test should sends "Event Name" as event name in data': function () {
+    'test given simple value when sendEvent is called then will send ValueChanged event': function () {
         this.presenter.sendEvent('Data');
         var result = this.stubs.sendEventStub.getCall(0).args;
 
         assertEquals('ValueChanged', result[0]);
     },
 
-    'test should sends as value LimitedShowAnswers': function () {
+    'test given event value when sendEvent is called then this data is send as event value': function () {
         this.presenter.sendEvent('Data');
         var result = this.stubs.sendEventStub.getCall(0).args;
 
         assertEquals('Data', result[1].value);
     },
 
-    'test should sends as item serialized modules': function () {
+    'test given addons list when sendEvent is called then will send serialized addons list in item field in event object': function () {
         this.presenter.sendEvent('Data');
 
         var result = this.stubs.sendEventStub.getCall(0).args;
 
         assertTrue(result[1].item == "[\"text1\",\"text2\",\"text3\"]");
-    },
-
-    'test send event should call onEventReceived': function () {
-        this.presenter.sendEvent('LimitedShowAnswers');
-
     }
 });
