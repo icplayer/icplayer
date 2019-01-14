@@ -343,13 +343,12 @@ function AddonTrueFalse_create() {
         }
     }
 
-    var makeView = function (view, model, preview) {
+    var makeView = function (view, model, isPreview) {
         possibleChoices = model['Choices'];
         questions = model['Questions'];
         presenter.langAttribute = model['Lang attribute'];
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-        presenter.setVisibility(presenter.isVisible);
         presenter.$view.attr('lang', presenter.langAttribute);
 
         getSpeechTexts(model);
@@ -376,15 +375,16 @@ function AddonTrueFalse_create() {
 
         presenter.generateTableContent(table, view);
 
-        if (!preview) {
+        if (!isPreview) {
             handleClickActions(view);
+            presenter.setVisibility(presenter.isVisible);
         }
 
         if (textParser !== null) { // Actions performed only in Player mode
             textParser.connectLinks($(view));
         }
 
-        if (!preview) {
+        if (!isPreview) {
             presenter.$view.find('.tf_' + presenter.type + '_image' + ',.tf_' + presenter.type + '_question:not(.first)').each(function(index, element){
                 presenter.keyboardNavigationElements[index] = $(element);
             });
@@ -694,6 +694,8 @@ function AddonTrueFalse_create() {
     };
 
     presenter.isAttempted = function () {
+        if (isNotActivity) return true;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -868,12 +870,9 @@ function AddonTrueFalse_create() {
         }
     }
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        $(document).on('keydown', function(e) {
-            e.preventDefault();
-            presenter.shiftPressed = e.shiftKey;
-            $(this).off('keydown');
-        });
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        event.preventDefault();
+        presenter.shiftPressed = event.shiftKey;
 
         var keys = {
             ENTER: 13,

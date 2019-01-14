@@ -7,9 +7,11 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icplayer.client.IPlayerController;
+import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
@@ -33,6 +35,7 @@ public class PlayerServices implements IPlayerServices {
 	private ScaleInformation scaleInformation;
 	private JavaScriptObject jQueryPrepareOffsetsFunction = null;
 	private boolean isAbleChangeLayout = true;
+	private PlayerApp application = null;
 	
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 		this.playerController = controller;
@@ -47,7 +50,16 @@ public class PlayerServices implements IPlayerServices {
 	
 	@Override
 	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
+		boolean oldIsAbleChangeLayout = this.isAbleChangeLayout;
 		this.isAbleChangeLayout = isAbleChangeLayout;
+		if (!oldIsAbleChangeLayout && isAbleChangeLayout && application != null) {
+			this.application.updateLayout();
+		}
+	}
+	
+	@Override
+	public void setApplication(PlayerApp application) {
+		this.application = application;
 	}
 	
 	@Override
@@ -111,6 +123,13 @@ public class PlayerServices implements IPlayerServices {
 		return pageController.findModule(moduleId);
 	}
 
+	
+	@Override
+	public GroupPresenter getGroup(String groupId) {
+		return pageController.findGroup(groupId); 
+	}
+	
+	
 	@Override
 	public IPresenter getHeaderModule(String moduleId) {
 		return playerController.findHeaderModule(moduleId);
@@ -208,6 +227,15 @@ public class PlayerServices implements IPlayerServices {
 			this.jQueryUiDroppableScaleFix(this.jQueryPrepareOffsetsFunction);
 			this.jQueryUiDroppableIntersectFix();
 		}
+	}
+	
+	public boolean changeSemiResponsiveLayout(String layoutIDOrName) {
+		boolean result = this.application.changeLayout(layoutIDOrName);
+		if (result) {
+			return result;
+		} 
+		
+		return this.application.changeLayoutByName(layoutIDOrName);
 	}
 	
 	

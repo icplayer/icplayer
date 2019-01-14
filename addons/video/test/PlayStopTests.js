@@ -53,8 +53,8 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
 
         this.presenter.stop();
 
-        assertFalse('Stop method should NOT be executed', this.presenter.videoObject.pause.called);
-        assertFalse('Seek command should NOT be executed', this.presenter.seek.called);
+        assertTrue('Stop method should be executed', this.presenter.videoObject.pause.called);
+        assertTrue('Seek command should be executed', this.presenter.seek.called);
     },
 
     'test pause when video is playing': function() {

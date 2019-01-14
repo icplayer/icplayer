@@ -17,11 +17,13 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 	private CheckCounterModule module;
 	private boolean isWCAGOn = false;
 	private PageController pageController;
+	private String originalDisplay = "";
 	
 	public CheckCounterView(CheckCounterModule module, boolean isPreview) {
 		this.module = module;
 		setStyleName("ic_checkcounter");
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (isPreview) {
 			setText("3");
 		} else {
@@ -76,7 +78,7 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 	}
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		speak();
 	}
 
@@ -114,4 +116,14 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
 }

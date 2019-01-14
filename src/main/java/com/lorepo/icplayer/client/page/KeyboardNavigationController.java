@@ -376,10 +376,6 @@ public final class KeyboardNavigationController {
 					event.preventDefault();
 					activateModule();
 				}
-				
-				if (!modeOn && (event.getNativeKeyCode() == KeyCodes.KEY_ENTER || isSpace(event.getNativeKeyCode()) )) {
-					this.handleDoubleStateButton();
-				}
 
 	            if (modeOn && moduleIsActivated) {
 	            	manageKey(event);
@@ -402,50 +398,7 @@ public final class KeyboardNavigationController {
 
 	            restoreClasses();
 	        }
-
-			// for DoubleStateButton we want to activate it also when not in WCAG navigation mode, but during browsers tab navigation
-			private void handleDoubleStateButton() {
-				String focusedID = getActiveElementParentId();
-
-				if (focusedID != "") {
-					String pageType = getPageTypeOfActiveElement();
-					
-					if (pageType != null) {
-						IPresenter module = null;
-
-						if (pageType.equals("main")) {
-							module = mainPageController.findModule(focusedID);
-						} else 
-						if (pageType.equals("header")) {
-							module = headerController.findModule(focusedID);
-						} else 
-						if (pageType.equals("footer")) {
-							module = footerController.findModule(focusedID);
-						}
-
-						if (module != null) {
-							if (module.getModel().getModuleTypeName().equals("Double_State_Button")) {
-								findAndActivateModule(module);
-							}
-						}
-					}  
-				}
-			}
-			
-			private void findAndActivateModule(IPresenter module) {
-				for (int i = 0; i < presentersOriginalOrder.size(); i++) {
-					IPresenter presenter = (IPresenter) presentersOriginalOrder.get(i).presenter;
-		
-					if(presenter.getModel() == module.getModel()) {
-						IWCAGPresenter wcagPresenter = (IWCAGPresenter) presenter;
-						wcagPresenter.getWCAGController().enter(false);
-						return;
-					}
-				}
-			}
-			
-			
-	    }, KeyDownEvent.getType());
+		}, KeyDownEvent.getType());
 	}
 	
 	private void setFocusOnInvisibleElement () {
@@ -530,7 +483,7 @@ public final class KeyboardNavigationController {
 				wcagWidget.escape(event);
 				break;
 			case KeyCodes.KEY_ENTER:
-				wcagWidget.enter(event.isShiftKeyDown() || event.isControlKeyDown());
+				wcagWidget.enter(event, event.isShiftKeyDown() || event.isControlKeyDown());
 				break;
 			case KeyCodes.KEY_TAB:
 				if (event.isShiftKeyDown()) {
@@ -817,7 +770,7 @@ public final class KeyboardNavigationController {
 		
 		return this.isWCAGSupportOn ? this.presenters : this.presentersOriginalOrder;
 	}
-	
+
 	public boolean isWCAGOn() {
 		return modeOn && isWCAGSupportOn;
 	}

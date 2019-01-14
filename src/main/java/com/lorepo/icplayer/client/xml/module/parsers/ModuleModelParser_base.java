@@ -13,6 +13,7 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 
 	protected String version;
 	protected IModuleModelBuilder module;
+	protected String defaultLayoutID = "default";
 	
 	public ModuleModelParser_base() {}
 	
@@ -25,7 +26,12 @@ public abstract class ModuleModelParser_base implements IModuleModelParser {
 	public String getVersion() {
 		return this.version;
 	}
-
+	
+	@Override
+	public void setDefaultLayoutID(String layoutID) {
+		defaultLayoutID = layoutID;
+	}
+	
 	@Override
 	public Object parse(Element xml) {
 		this.parsePosition(xml);

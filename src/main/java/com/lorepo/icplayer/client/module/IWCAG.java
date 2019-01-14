@@ -4,7 +4,7 @@ import com.google.gwt.event.dom.client.KeyDownEvent;
 
 
 public interface IWCAG {
-	public void enter(boolean isExiting);
+	public void enter(KeyDownEvent event, boolean isExiting);
 	public void space(KeyDownEvent event);
 	public void tab(KeyDownEvent event);
 	public void left(KeyDownEvent event);

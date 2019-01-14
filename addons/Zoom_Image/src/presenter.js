@@ -6,7 +6,8 @@ function AddonZoom_Image_create() {
     var isWCAGOn = false;
     var oldFocus = null;
     presenter.isOpened = false;
-
+    var backgroundColorStyle;
+    var opacity;
     function setup_presenter() {
         presenter.$player = null;
         presenter.view = null;
@@ -99,9 +100,8 @@ function AddonZoom_Image_create() {
         if (!isPreview) {
             presenter.eventType = MobileUtils.isMobileUserAgent(navigator.userAgent) ? "touchend" : "click";
             presenter.$view.find(".icon").on(presenter.eventType, presenter.createPopUp);
+            presenter.setVisibility(presenter.configuration.isVisible);
         }
-
-        presenter.setVisibility(presenter.configuration.isVisible);
 
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
@@ -219,6 +219,8 @@ function AddonZoom_Image_create() {
     }
 
     presenter.removeOpenedDialog = function (e) {
+        $('.ui-widget-overlay').css("opacity", opacity);
+        $('.ui-widget-overlay').css("background", backgroundColorStyle);
         if(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -285,6 +287,10 @@ function AddonZoom_Image_create() {
             },
             create: presenter.bigImageCreated,
             open: function() {
+                opacity =  $('.ui-widget-overlay').css("opacity");
+                backgroundColorStyle = $('.ui-widget-overlay').css("background");
+                $('.ui-widget-overlay').css("background", "black");
+                $('.ui-widget-overlay').css("opacity", "0.7");
                 $('.ui-widget-overlay').on(presenter.eventType, presenter.removeOpenedDialog);
             }
         });
@@ -358,16 +364,15 @@ function AddonZoom_Image_create() {
         presenter.setVisibility(upgradedState.isVisible);
     };
 
-     presenter.handleSpace = function(keyCode){
-        $(document).on('keydown', function(e){
-           if(keyCode == 32 || keyCode == 27 || keyCode == 38 || keyCode == 40) { // Space, esc, up, down buttons
-               e.preventDefault();
-           }$(this).off('keydown');
-        });
-    };
+    presenter.keyboardController = function(keyCode, isShift, event) {
+         if (keyCode == window.KeyboardControllerKeys.SPACE ||
+             keyCode == window.KeyboardControllerKeys.ESC ||
+             keyCode == window.KeyboardControllerKeys.ARROW_UP ||
+             keyCode == window.KeyboardControllerKeys.ARROW_DOWN)
+         {
+             event.preventDefault();
+         }
 
-    presenter.keyboardController = function(keyCode, isShift) {
-         presenter.handleSpace(keyCode);
          if (keyCode === 13 && !isShift) { // Enter button
             if (!presenter.isOpened) {
                 presenter.createPopUp();

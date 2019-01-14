@@ -52,18 +52,12 @@
      @param {Number} keycode - key code of pressed key
      @param {boolean} isShiftKeyDown - if shift is pressed
     */
-    KeyboardController.prototype.handle = function (keycode, isShiftKeyDown) {
-        var self = this;
-        $(document).on('keydown', function (e) {
-            try {
-                if (isShiftKeyDown) {
-                    self.shiftKeysMapping[keycode].call(self, e);
-                } else {
-                    self.mapping[keycode].call(self, e);
-                }
-            } catch (er) {}
-            $(this).off('keydown');
-        });
+    KeyboardController.prototype.handle = function (keycode, isShiftKeyDown, event) {
+        if (isShiftKeyDown) {
+            this.shiftKeysMapping[keycode] && this.shiftKeysMapping[keycode].call(this, event);
+        } else {
+            this.mapping[keycode] && this.mapping[keycode].call(this, event);
+        }
     };
 
 

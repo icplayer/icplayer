@@ -350,7 +350,7 @@ function AddonConnection_create() {
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-        presenter.setVisibility(presenter.isVisible);
+        presenter.setVisibility(presenter.isVisible || isPreview);
 
         isRTL = presenter.$view.css('direction').toLowerCase() === 'rtl';
         connections = presenter.$view.find('.connections:first');
@@ -1226,6 +1226,77 @@ function AddonConnection_create() {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
 
+    presenter.isOK = function (source) {
+        var selectedDestinations = getConnectedPoints(source);
+        var correctDestinations = getCorrectPoints(source);
+        var isCorrect = isSameArrays(selectedDestinations, correctDestinations);
+
+        return {
+            value: isCorrect,
+            source: source,
+            selectedDestinations: selectedDestinations,
+            correctDestinations: correctDestinations
+        };
+    };
+
+    function getConnectedPoints(source) {
+        var connectedPoints = [];
+
+        var selectedLines = presenter.lineStack.ids;
+        for (var index = 0; index < selectedLines.length; index++) {
+            var selectedLinePoints = selectedLines[index];
+            if (hasArrayElement(selectedLinePoints, source)) {
+                var selectedDestinationPoint = selectedLinePoints[0] === source ? selectedLinePoints[1] : selectedLinePoints[0];
+                connectedPoints.push(selectedDestinationPoint);
+            }
+        }
+
+        return connectedPoints;
+    }
+
+    function getCorrectPoints(source) {
+        var correctPoints = [];
+
+        var correctLines = presenter.elements;
+        for (var index = 0; index < correctLines.length; index++) {
+            var correctLine = correctLines[index];
+            var correctLinePoints = correctLine.connects.split(',');
+            if (correctLine.id === source) {
+                correctPoints = correctPoints.concat(correctLinePoints);
+            }
+            if (hasArrayElement(correctLinePoints, source)) {
+                correctPoints.push(correctLine.id)
+            }
+        }
+
+        correctPoints = removeDuplicates(correctPoints);
+        correctPoints = correctPoints.filter(value => value !== "");
+
+        return correctPoints;
+    }
+
+    function removeDuplicates(correctPoints) {
+        correctPoints = correctPoints.filter(function (value, index, arr) {
+            return arr.indexOf(value) === index;
+        });
+        return correctPoints;
+    }
+
+    function isSameArrays(selectedDestinations, correctDestinations) {
+        let serializedSelectedDestinations = selectedDestinations.sort().join(',');
+        let serializedCorrectDestinations = correctDestinations.sort().join(',');
+
+        return serializedSelectedDestinations === serializedCorrectDestinations;
+    }
+
+    function hasArrayElement(array, element) {
+        for (var arrayIndex in array)
+            if (array[arrayIndex] === element)
+                return true;
+
+        return false;
+    }
+
     presenter.isSelected = function (leftIndex, rightIndex) {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
@@ -1298,6 +1369,7 @@ function AddonConnection_create() {
 
         var commands = {
             'isAllOK': presenter.isAllOK,
+            'isOK': presenter.isOK,
             'isSelected': presenter.isSelectedCommand,
             'markAsCorrect': presenter.markAsCorrectCommand,
             'markAsWrong': presenter.markAsWrongCommand,
@@ -1429,8 +1501,8 @@ function AddonConnection_create() {
         isSelectionPossible = true;
     };
 
-    presenter.keyboardController = function(keycode) {
-        presenter.keyboardControllerObject.handle(keycode);
+    presenter.keyboardController = function(keycode, isShiftDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
     };
 
     function ConnectionKeyboardController (elements, columnsCount) {

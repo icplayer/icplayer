@@ -436,7 +436,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return model;
 	}
 	
-	public JavaScriptObject getJavaScriptObject(){
+	public JavaScriptObject getAsJavaScript(){
 		return jsObject;
 	}
 
@@ -473,8 +473,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 	
 	@Override
-	public void enter(boolean isExiting) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting, null);
+	public void enter(KeyDownEvent event, boolean isExiting) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting, event.getNativeEvent());
 	}
 
 	@Override
@@ -572,7 +572,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 	
 	public  boolean isEnterable () {
-		return this.isEnterable(this.getJavaScriptObject());
+		return this.isEnterable(this.getAsJavaScript());
 	}
 	
 	public native boolean isEnterable (JavaScriptObject obj) /*-{
@@ -583,7 +583,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}-*/;
 	
 	public  boolean isDeactivationBlocked () {
-		return this.isDeactivationBlocked(this.getJavaScriptObject());
+		return this.isDeactivationBlocked(this.getAsJavaScript());
 	}
 	
 	public native boolean isDeactivationBlocked (JavaScriptObject obj) /*-{

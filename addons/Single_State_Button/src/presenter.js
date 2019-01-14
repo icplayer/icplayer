@@ -84,7 +84,7 @@ function AddonSingle_State_Button_create() {
         return $element;
     }
 
-    function presenterLogic(view, model, preview) {
+    function presenterLogic(view, model, isPreview) {
         presenter.addonID = model.ID;
         presenter.$view = $(view);
 
@@ -96,9 +96,9 @@ function AddonSingle_State_Button_create() {
 
         setElementsDimensions(upgradedModel, $wrapper, $element);
         presenter.toggleDisable(presenter.configuration.isDisabledByDefault);
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
 
-        if (!preview) {
+        if (!isPreview) {
             handleMouseActions();
         }
     }
@@ -292,8 +292,9 @@ function AddonSingle_State_Button_create() {
         }
     };
 
-    presenter.keyboardController = function(keyCode) {
-        if (keyCode == 13) {
+    presenter.keyboardController = function(keyCode, isShiftDown, event) {
+        event.preventDefault();
+        if (keyCode == window.KeyboardControllerKeys.ENTER) {
             presenter.clickHandler();
         }
     };
