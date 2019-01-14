@@ -1456,7 +1456,9 @@ function AddonTextAudio_create() {
             'stop': presenter.stop,
             'pause': presenter.pause,
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'enable': presenter.enable,
+            'disable': presenter.disable
         };
 
         Commands.dispatch(commands, name, params, presenter);
