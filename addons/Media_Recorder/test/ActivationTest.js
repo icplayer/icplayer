@@ -73,12 +73,12 @@ TestCase("[Media Recorder] Activation Test", {
     "test buttons is triggered when deactivate addon and state is set to recording": function () {
         this.mediaRecorder.mediaState.isRecording.returns(true);
         this.mediaRecorder.mediaState.isPlaying.returns(false);
-        this.mediaRecorder.model.isResetRemovesRecording.returns(false);
+        this.mediaRecorder.model.isResetRemovesRecording = false;
 
         this.mediaRecorder.deactivate();
 
-        assertTrue(this.mediaRecorder.recordButton.reset.calledOnce);
-        assertTrue(this.mediaRecorder.playButton.forceClick.notCalled);
+        assertTrue(this.mediaRecorder.recordButton.reset.notCalled);
+        assertTrue(this.mediaRecorder.recordButton.forceClick.calledOnce);
     },
 
     "test buttons is triggered when deactivate addon and state is set to playing": function () {

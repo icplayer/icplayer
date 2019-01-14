@@ -1908,6 +1908,7 @@ var ice_dictionary_mx = {
     "copy_page_layout_question": "You are going to copy page settings from layout: ",
 	"Media_Recorder_name": "Media Recorder",
     "Media_Recorder_info": "Media Recorder",
+    "Media_Recorder_property_is_disabled": "Is disabled",
     "Media_Recorder_property_type": "Media type",
     "Media_Recorder_property_max_time": "Maximum recording duration",
     "Media_Recorder_property_default_recording": "Default recording",
