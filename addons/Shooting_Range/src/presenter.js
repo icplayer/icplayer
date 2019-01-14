@@ -329,8 +329,8 @@ function AddonShooting_Range_create() {
                     score: presenter.state.score,
                     errors: presenter.state.wholeErrorCount
                 });
+                presenter.sendEndOfGameEvent();
             }
-            presenter.sendEndOfGameEvent();
         }
     };
 
