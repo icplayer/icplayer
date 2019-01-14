@@ -124,9 +124,11 @@ public class AddonDescriptorFactory {
 		addDescriptor("Zoom_Image", "media_menu");
 		addDescriptor("Iframe", "media_menu");
 		addDescriptor("Heading", "media_menu");
+		addDescriptor("Media_Recorder", "media_menu");
 
 		// SCRIPTING
 		addDescriptor("Advanced_Connector", "scripting_menu");
+		addDescriptor("Visual_Feedback_Creator", "scripting_menu");
 		addDescriptor("Connector", "scripting_menu");
 		addDescriptor("Double_State_Button", "scripting_menu");
 		addDescriptor("eKeyboard", "scripting_menu");

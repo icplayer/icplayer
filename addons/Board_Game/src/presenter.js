@@ -434,7 +434,7 @@ function AddonBoard_Game_create(){
         var board = presenter.drawBoard(view, model);
         $(myDiv).append(board);
 
-        presenter.setVisibility(presenter.wasVisible);
+        presenter.setVisibility(presenter.isVisible);
 
         presenter.boardCounters = presenter.$view.find('.board-game-element');
         presenter.fields = presenter.$view.find('.board-game-field');
@@ -1041,7 +1041,7 @@ function AddonBoard_Game_create(){
     };
 
     presenter.keyboardController = function (keyCode, isShiftDown, originalEvent) {
-        presenter.boardGameKeyboardController.handle(keyCode, isShiftDown);
+        presenter.boardGameKeyboardController.handle(keyCode, isShiftDown, originalEvent);
     };
 
     return presenter;

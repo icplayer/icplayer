@@ -514,11 +514,11 @@ function AddonTable_Of_Contents_create(){
         presenter.keyboardControllerObject.selectEnabled(true);
     };
 
-    presenter.keyboardController = function(keycode) {
+    presenter.keyboardController = function(keycode, isShiftDown, event) {
         if(presenter.configuration.displayType == "comboList") {
             presenter.$view.find('select').focus();
         }
-        presenter.keyboardControllerObject.handle(keycode);
+        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
     };
 
     function TocKeyboardController (elements, columnsCount) {

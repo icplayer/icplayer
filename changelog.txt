@@ -1,3 +1,57 @@
+2019-01-10 Added commands to Text, Ordering, Image Gap and Choice
+2019-01-04 Fixed setting player controller in Shape Tracing module
+2019-01-02 Added command isOK to a connection addon
+2018-12-21 Fixed a rerendered mathjax of text module
+2018-12-19 Fixed reseting after using setText command in Text module
+2018-12-17 Fixed ekeyboard paragraph loading on the first page of mCourser
+2018-12-17 Fixed mathjax calls
+2018-12-12 Fixed shape tracing scaling on mobile devices
+2018-12-11 Upgraded tinymce library
+2018-11-28 Fixed media recorder on safari mobile devices and mLibro
+2018-11-28 Fixed reset issue in Shooting Range
+2018-11-27 Fixed issues with inline display: none in multiple addons
+2018-11-21 Fixed toolbar and added color pickers in Paragraph module
+2018-11-09 Fixed hyperlinks in feedback
+2018-11-05 Added alt text to audiodescriptions in video
+2018-11-05 Fixed static header and footer positioning when in scaled iframe
+2018-11-02 Added removal of MathJax "End Process" hooks after modules detach  
+2018-10-25 Fixed problem with loading math jax
+2018-10-25 Added new addon audio recorder
+2018-10-22 Grouping modules into a div
+2018-10-16 Hierarchical lesson report add maxscore link
+2018-10-16 Added property Plate Image in Catch module
+2018-10-15 Fixed iFrame visible in the editor when the hide option is enabled
+2018-10-12 Shooting range impoving the game.
+2018-10-11 Removed sending ValueChanged with value removed on stopping item drag in multiplegap
+2018-10-10 Added disable dragging property in Ordering
+2018-10-09 Fixed scoring in multiplegap when incorrect answers are present
+2018-10-09 Fixed problem with setState in shooting range module
+2018-10-08 Fixed issue with show answers in Text Selection when Limited Check is used
+2018-10-05 Fixed issue with MathJax in eKeyboard and Text when the first layout is not default
+2018-10-03 Added setText in Paragraph
+2018-10-02 Fixed isAttempted method in not activity mode in True False module
+2018-09-27 Changed mouse and touch control scheme in Catch addon
+2018-09-24 Fixed issues with scoring in multiplegap
+2018-09-24 Added missing split page label
+2018-09-19 Fixed issue with decimals in Math
+2018-09-19 Unifed visiblity settings in preview for multiple addons
+2018-09-17 Fixed issue with Audio progress bard
+2018-09-17 Fixed conflict CSS of modules
+2018-09-14 Removing semi word from translations labels and API calls.
+2018-08-24 Fixed problem with hiding audio descriptions in Video module
+2018-08-23 Added 'Enable scroll on mobile' property in Text Identification module
+2018-08-17 Added show answer class for individual words in Text Coloring.
+2018-08-17 Fixed Double_State_Button native navigation.
+2018-08-13 Fixed Choice disable command on mobiles
+2018-08-10 Added audio descriptions to the video addon
+2018-08-10 Fixed displaying of < > buttons in assessments navigation bar
+2018-08-07 Fixed layout change issue after quiting fullscreen mode
+2018-08-06 Fixed issues with tests for page version update
+2018-08-03 Fixed playing Video without controls bar
+2018-08-03 Added Copy Page Settings to Page properties
+2018-08-03 Changed is visible property so that it's common for all layouts
+2018-07-31 Fixed PieChart's display on Desktop devices
+2018-07-26 Removed reading " connected" when in Show Answer Mode in TTS
 2018-07-25 Added test mode in quiz
 2018-07-23 Added module sorting in editor
 2018-07-20 Fixed issues with invalid model in Crossword addon

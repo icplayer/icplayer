@@ -283,10 +283,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 				playerServices.getEventBus().fireEvent(isAllOKevent);
 			}
 			view.makeDraggable(this);
+			String langAtribute = getSourceLangTag(consumedItem.getId()); 
 			if(getScore() == 0 && model.shouldBlockWrongAnswers()){
 				removeItem(false);
 			}
-			view.setLangTag(getSourceLangTag(consumedItem.getId()));
+			view.setLangTag(langAtribute);
 			view.readInserted();
 		}
 	}
@@ -449,6 +450,20 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			enable();
 		} else if(commandName.compareTo("reset") == 0) {
 			reset();
+		} else if (commandName.compareTo("getscore") == 0) {
+			return String.valueOf(getScore());
+		} else if (commandName.compareTo("geterrorcount") == 0) {
+			return String.valueOf(getErrorCount());
+		} else if (commandName.compareTo("getmaxscore") == 0) {
+			return String.valueOf(getMaxScore());
+		} else if (commandName.compareTo("setshowerrorsmode") == 0) {
+			setShowErrorsMode();
+		} else if (commandName.compareTo("setworkmode") == 0) {
+			setWorkMode();
+		} else if (commandName.compareTo("showanswers") == 0) {
+			showAnswers();
+		} else if (commandName.compareTo("hideanswers") == 0) {
+			hideAnswers();
 		}
 
 		return value;
@@ -595,6 +610,34 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		
 		presenter.onEventReceived = function (eventName, data) {
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+
+		presenter.getScore = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getScore()();
+		};
+
+		presenter.getErrorCount = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getErrorCount()();
+		};
+
+		presenter.getMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getMaxScore()();
+		};
+
+		presenter.setShowErrorsMode = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::setShowErrorsMode()();
+		};
+
+		presenter.setWorkMode = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::setWorkMode()();
+		};
+
+		presenter.showAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::showAnswers()();
+		};
+
+		presenter.hideAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::hideAnswers()();
 		};
 
 		return presenter;

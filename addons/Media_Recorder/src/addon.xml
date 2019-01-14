@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<addon id='Media_Recorder' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="maxTime" nameLabel="Media_Recorder_property_max_time" type="integer"/>
+        <property name="defaultRecording" nameLabel="Media_Recorder_property_default_recording" type="audio"/>
+        <property name="startRecordingSound" nameLabel="Media_Recorder_property_start_recording_sound" type="audio"/>
+        <property name="stopRecordingSound" nameLabel="Media_Recorder_property_stop_recording_sound" type="audio"/>
+        <property name="isShowedTimer" nameLabel="Media_Recorder_property_is_showed_timer" type="boolean"/>
+        <property name="isShowedDefaultRecordingButton" nameLabel="Media_Recorder_property_is_showed_default_recording_button" type="boolean"/>
+        <property name="isResetRemovesRecording" nameLabel="Media_Recorder_property_is_reset_removes_recording" type="boolean" />
+    </model>
+</addon>

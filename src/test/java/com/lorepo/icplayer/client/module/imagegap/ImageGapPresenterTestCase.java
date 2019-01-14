@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.event.shared.EventBus;
@@ -293,5 +294,28 @@ public class ImageGapPresenterTestCase {
 
 		assertTrue(display.isDisabled());
 		
+	}
+	
+	@Test 
+	public void insertItemDoesNotThrowException() throws SAXException, IOException {
+		Exception e = null; 
+		try {
+			InputStream inputStream = getClass().getResourceAsStream("testdata/module3.xml");
+			XMLParserMockup xmlParser = new XMLParserMockup();
+			Element element = xmlParser.parser(inputStream);
+			module = new ImageGapModule();
+			module.load(element, "", PAGE_VERSION);
+			display = new ImageGapViewMockup(module);
+			presenter = new ImageGapPresenter(module, services);
+			presenter.addView(display);
+			EventBus eventBus = services.getEventBus();
+			DraggableItem item = new DraggableImage("1", "Sample text");
+			ItemSelectedEvent event = new ItemSelectedEvent(item);
+			eventBus.fireEventFromSource(event, this);
+			display.getListener().onClicked();
+		}catch(NullPointerException ex) {
+			e = ex; 
+		}
+		assertNull(e);
 	}
 }

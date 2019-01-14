@@ -244,10 +244,10 @@ function AddonHierarchical_Lesson_Report_create() {
 
             if (presenter.configuration.showMaxScoreField) {
                 var isMaxScore = pageScore === score.maxScore && score.maxScore !== 0;
-
                 var $td = $('<td></td>');
                 $td.addClass(isMaxScore ? 'hier_report-page-max-score' : 'hier_report-page-non-max-score');
-
+                var $element = generateMaxScoreLinks(pageId,isMaxScore);
+                $($td).append($element);
                 $(row).append($td);
             }
         } else {
@@ -264,6 +264,14 @@ function AddonHierarchical_Lesson_Report_create() {
 
         return pageScore + "<span class='hier_report-separator'>/</span>" + score.maxScore;
     };
+
+    function generateMaxScoreLinks(pageId, isMaxScore) {
+        var $element = $(document.createElement('td'));
+        $element.addClass(isMaxScore ? 'hier_report-page-max-score' : 'hier_report-page-non-max-score');
+        var $link = $("<a></a>").attr('href', '#').attr('data-page-id', pageId);
+        $link.append($element);
+        return $link;
+    }
 
     function generatePageLinks(text, isChapter, pageId) {
         var $element = $(document.createElement('td')),
@@ -810,7 +818,7 @@ function AddonHierarchical_Lesson_Report_create() {
         presenter.treeID = presenter.configuration.ID + (isPreview ? "Preview" : "");
         presenter.$view.find("div").first().attr('id', presenter.treeID);
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         addHeader();
         if (isPreview) {
@@ -858,12 +866,9 @@ function AddonHierarchical_Lesson_Report_create() {
             return presenter.$view.find('tr:eq(0) > td').size();
         }
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        $(document).on('keydown', function(e) {
-            e.preventDefault();
-            presenter.shiftPressed = e.shiftKey;
-            $(this).off('keydown');
-        });
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        event.preventDefault();
+        presenter.shiftPressed = event.shiftKey;
 
         var keys = {
             ENTER: 13,

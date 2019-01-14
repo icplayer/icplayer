@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.model.page;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -21,13 +22,18 @@ import org.powermock.reflect.Whitebox;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.i18n.client.Dictionary;
+import com.google.gwt.xml.client.Element;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.mockup.xml.PageFactoryMockup;
+import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
+import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v3;
+import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v4;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class GWTPageTestCase extends GwtTest {
@@ -180,5 +186,138 @@ public class GWTPageTestCase extends GwtTest {
 		Page resultPage = this.loadFromString(new Page("Page 2", ""), page.toXML());
 		
 		assertTrue(resultPage.isReportable());
+	}
+	
+	@Test
+	public void isVisibilityFromXML() throws Exception {
+		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
+		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
+
+		Page page = this.loadFromFile(new Page("Page 1", ""), "testdata/PageVersion5ManyLayouts2.xml");
+		
+		assertEquals(4, page.getModules().size());
+		
+		IModuleModel model = page.getModules().get(0);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("Image1", basicModel.getId());
+			assertTrue(basicModel.isVisible());
+		}
+		
+		model = page.getModules().get(1);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("Text1", basicModel.getId());
+			assertFalse(basicModel.isVisible());
+		}
+		
+		model = page.getModules().get(2);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("Text2", basicModel.getId());
+			assertFalse(basicModel.isVisible());
+		}
+		
+		model = page.getModules().get(3);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("NextPage1", basicModel.getId());
+			assertTrue(basicModel.isVisible());
+		}
+		
+	}
+	
+	@Test
+	public void isVisibilityFromXMLVersion4() throws Exception {
+		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
+		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
+
+		Page page = this.loadFromFile(new Page("Page 1", ""), "testdata/PageVersion4ManyLayouts2.xml");
+		
+		assertEquals(4, page.getModules().size());
+		
+		IModuleModel model = page.getModules().get(0);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("Image1", basicModel.getId());
+			assertTrue(basicModel.isVisible());
+		}
+		
+		model = page.getModules().get(1);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("Text1", basicModel.getId());
+			assertFalse(basicModel.isVisible());
+		}
+		
+		model = page.getModules().get(2);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("Text2", basicModel.getId());
+			assertFalse(basicModel.isVisible());
+		}
+		
+		model = page.getModules().get(3);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("NextPage1", basicModel.getId());
+			assertTrue(basicModel.isVisible());
+		}
+		
+	}
+	
+	@Test
+	public void isVisibilityFromXMLVersion4WithSetDefaultLayout() throws Exception {
+		PageParser_v3 pageParser = new PageParser_v3();
+		pageParser.setDefaultLayoutID("E38BC2B9-2466-431B-8168-F542CB68EC74");
+		Page page = new Page("Page 1", "");
+		pageParser.setPage(page);
+		
+		InputStream xmlStream = getClass().getResourceAsStream("testdata/PageVersion4ManyLayouts2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element xml = xmlParser.parser(xmlStream);
+		pageParser.parse(xml);
+			
+		assertEquals(4, page.getModules().size());
+		
+		IModuleModel model = page.getModules().get(0);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("Image1", basicModel.getId());
+			assertTrue(basicModel.isVisible());
+		}
+		
+		model = page.getModules().get(1);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("Text1", basicModel.getId());
+			assertTrue(basicModel.isVisible());
+		}
+		
+		model = page.getModules().get(2);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("Text2", basicModel.getId());
+			assertTrue(basicModel.isVisible());
+		}
+		
+		model = page.getModules().get(3);
+		assertTrue(model instanceof BasicModuleModel);
+		if(model instanceof BasicModuleModel) {
+			BasicModuleModel basicModel = (BasicModuleModel) model;
+			assertEquals("NextPage1", basicModel.getId());
+			assertFalse(basicModel.isVisible());
+		}
 	}
 }

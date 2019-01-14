@@ -36,8 +36,11 @@ TestCase("[Text Identification] Keyboard controller tests", {
 
     'test should mark container as active' : function() {
         var enterKeycode = 13;
-        this.presenter.keyboardController(enterKeycode, false);
-        $(document).trigger('keydown', enterKeycode);
+        var enterEvent = {
+            'keyCode': enterKeycode,
+            preventDefault: sinon.stub()
+        };
+        this.presenter.keyboardController(enterKeycode, false, enterEvent);
 
         assertTrue($(this.container).hasClass("keyboard_navigation_active_element"));
     },
@@ -45,19 +48,31 @@ TestCase("[Text Identification] Keyboard controller tests", {
     'test should call clickHandler when addon is active and space is pressed' : function() {
         var enterKeycode = 13;
         var spaceKeycode = 32;
-        this.presenter.keyboardController(enterKeycode, false);
-        $(document).trigger('keydown', enterKeycode);
 
-        this.presenter.keyboardController(spaceKeycode, false);
-        $(document).trigger('keydown', spaceKeycode);
+        var enterEvent = {
+            'keyCode': enterKeycode,
+            preventDefault: sinon.stub()
+        };
+
+        var spaceEvent = {
+            'keyCode': spaceKeycode,
+            preventDefault: sinon.stub()
+        };
+
+        this.presenter.keyboardController(enterKeycode, false, enterEvent);
+
+        this.presenter.keyboardController(spaceKeycode, false, spaceEvent);
 
         assertTrue(this.stubs.clickHandlerStub.called);
     },
 
     'test should call tts.read when entering addon' : function() {
         var enterKeycode = 13;
-        this.presenter.keyboardController(enterKeycode, false);
-        $(document).trigger('keydown', enterKeycode);
+        var enterEvent = {
+            'keyCode': enterKeycode,
+            preventDefault: sinon.stub()
+        };
+        this.presenter.keyboardController(enterKeycode, false, enterEvent);
 
         // gets first call
         var args = this.tts.speak.args[0];
@@ -68,11 +83,22 @@ TestCase("[Text Identification] Keyboard controller tests", {
 
     'test should call tts.read when selecting addon' : function() {
         var enterKeycode = 13;
-        var spaceKeycode= 32;
-        this.presenter.keyboardController(enterKeycode, false);
+        var spaceKeycode = 32;
+
+        var enterEvent = {
+            'keyCode': enterKeycode,
+            preventDefault: sinon.stub()
+        };
+
+        var spaceEvent = {
+            'keyCode': spaceKeycode,
+            preventDefault: sinon.stub()
+        };
+
+        this.presenter.keyboardController(enterKeycode, false, enterEvent);
         $(document).trigger('keydown', enterKeycode);
 
-        this.presenter.keyboardController(spaceKeycode, false);
+        this.presenter.keyboardController(spaceKeycode, false, spaceEvent);
         $(document).trigger('keydown', spaceKeycode);
 
         // gets second call

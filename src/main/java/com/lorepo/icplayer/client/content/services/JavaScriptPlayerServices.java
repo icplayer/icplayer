@@ -19,6 +19,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
@@ -404,6 +405,10 @@ public class JavaScriptPlayerServices {
 			return commands;
 		};
 
+		playerServices.getGroup = function(id) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getGroup(Ljava/lang/String;)(id);
+		};
+
 		playerServices.getModule = function(id) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModule(Ljava/lang/String;)(id);
 		};
@@ -518,9 +523,21 @@ public class JavaScriptPlayerServices {
 
 			return keyboardController;
 		}
+		
+		playerServices.changeSemiResponsiveLayout = function (layoutIDOrName) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeSemiResponsiveLayout(Ljava/lang/String;)(layoutIDOrName);
+		}
+		
+		playerServices.changeResponsiveLayout = function (layoutIDOrName) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeSemiResponsiveLayout(Ljava/lang/String;)(layoutIDOrName);
+		}
 
 		return playerServices;
 	}-*/;
+	
+	private boolean changeSemiResponsiveLayout(String layoutIDOrName) {
+		return this.playerServices.changeSemiResponsiveLayout(layoutIDOrName);
+	}
 	
 	private void changeFooterVisibility(boolean isVisible) {
 		this.playerServices.getCommands().changeFooterVisibility(isVisible);
@@ -668,10 +685,18 @@ public class JavaScriptPlayerServices {
 		IPresenter presenter = playerServices.getModule(id);
 		return getModulePresentationJSObject(presenter);
 	}
+	
+	private JavaScriptObject getGroup(String id) {
+		GroupPresenter group = playerServices.getGroup(id); 
+		if(group!=null) {
+			return group.getAsJavaScript(); 
+		}
+		return null; 
+	}
 
 	private JavaScriptObject getModulePresentationJSObject(IPresenter presenter) {
 		if (presenter instanceof AddonPresenter) {
-			return ((AddonPresenter) presenter).getJavaScriptObject();
+			return ((AddonPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof TextPresenter) {
 			return ((TextPresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof ImagePresenter) {
@@ -702,6 +727,8 @@ public class JavaScriptPlayerServices {
 			return ((ShapePresenter) presenter).getAsJavaScript();
 		} else if (presenter instanceof LessonResetPresenter) {
 			return ((LessonResetPresenter) presenter).getAsJavaScript();
+		}else if (presenter instanceof GroupPresenter) {
+			return ((GroupPresenter) presenter).getAsJavaScript();
 		}
 
 		return null;
@@ -924,7 +951,7 @@ public class JavaScriptPlayerServices {
 	public boolean isWCAGOn() {
 		return this.playerServices.isWCAGOn();
 	}
-	
+
 	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
 		this.playerServices.setAbleChangeLayout(isAbleChangeLayout);
 	}

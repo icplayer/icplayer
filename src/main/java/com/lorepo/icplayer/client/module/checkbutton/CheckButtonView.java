@@ -24,6 +24,7 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 	private boolean isWCAGOn;
 	private IPlayerServices playerServices;
 	private PageController pageController;
+	private String originalDisplay;
 
 	public CheckButtonView(CheckButtonModule module, IPlayerServices services) {
 		this.playerServices = services;
@@ -37,6 +38,7 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 	private void createUI() {
 
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		updateStyle();
 
 		if (playerServices != null) {
@@ -119,7 +121,7 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 	}
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		if (!isExiting) {
 			this.enter();
 			if (this.isWCAGOn) {
@@ -234,6 +236,16 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 			return titlePostfix;
 		} else {
 			return "";
+		}
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
 		}
 	}
 }

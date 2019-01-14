@@ -1,7 +1,8 @@
 /*
  KNOWN ISSUES
     Text parsing:
-        Do not change the space special character support due to backward compatibility
+        Do not change the space special character (&nbsp;) support due to backward compatibility #6613
+        Do not add html escape support due to backward compatibility #6902
 */
 
 function AddonText_Coloring_create() {
@@ -147,15 +148,32 @@ function AddonText_Coloring_create() {
             var colorDefinition = presenter.getColorDefinitionById(token.color);
             if (colorDefinition !== undefined) {
                 var $tokenElement = presenter.getWordTokenByIndex(token.index);
+                presenter.addShowAnswerClass($tokenElement, colorDefinition.id);
                 presenter.markToken($tokenElement, colorDefinition.color);
             }
         });
+    };
+
+    presenter.addShowAnswerClass = function ($element, colorName) {
+        var className = StringUtils.format(presenter.defaults.css.showAnswer, colorName);
+        $element.addClass(className);
+    };
+
+    presenter.removeShowAnswerClass = function ($element, colorName) {
+        var className = StringUtils.format(presenter.defaults.css.showAnswer, colorName);
+        $element.removeClass(className);
     };
 
     TextColoringStateMachine.prototype.onHideAnswers = function () {
         this.restorePreviousState();
         this.onUnblock();
         presenter.unmarkToken(presenter.$wordTokens);
+
+        presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
+            var $tokenElement = presenter.getWordTokenByIndex(token.index);
+            presenter.removeShowAnswerClass($tokenElement, token.color);
+        });
+
         presenter.configuration.filteredTokens.filter(function (token) {
             return token.isSelected == true;
         }).forEach(function (token) {
@@ -297,7 +315,8 @@ function AddonText_Coloring_create() {
                 wrong: 'text-coloring-token-wrong-marking'
             },
             activeButton: 'text-coloring-active-button',
-            coloredWord: 'text-coloring-colored-with-{0}'
+            coloredWord: 'text-coloring-colored-with-{0}',
+            showAnswer: 'text-coloring-show-answers-{0}'
         }
     };
 
@@ -393,11 +412,11 @@ function AddonText_Coloring_create() {
             }
         });
 
-        presenter.stateMachine = new TextColoringStateMachine({});
+        presenter.createStateMachine();
         presenter.setFilteredTokensData();
         presenter.setView(presenter.createView());
 
-        if (!presenter.configuration.isVisible) {
+        if (!presenter.configuration.isVisible && !isPreview) {
             presenter.hide();
         }
 
@@ -408,6 +427,10 @@ function AddonText_Coloring_create() {
             presenter.setColor(presenter.configuration.colors[0].id);
             presenter.stateMachine.notifyEdit();
         }
+    };
+
+    presenter.createStateMachine = function() {
+        presenter.stateMachine = new TextColoringStateMachine({});
     };
 
     presenter.colorTokensInPreview = function () {

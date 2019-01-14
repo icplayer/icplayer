@@ -1,28 +1,12 @@
 package com.lorepo.icplayer.client.module.ordering;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.DomEvent;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.MouseUpEvent;
-import com.google.gwt.event.dom.client.MouseUpHandler;
-import com.google.gwt.event.dom.client.TouchEndEvent;
-import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.CellPanel;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
@@ -36,9 +20,14 @@ import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
+import com.lorepo.icplayer.client.utils.MathJaxElement;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
-public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGModuleView {
+public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGModuleView, MathJaxElement {
 
 	private final OrderingModule module;
 	private final IPlayerServices playerServices;
@@ -54,11 +43,14 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private boolean wasChanged = false;
 	private boolean mathJaxIsLoaded = false;
 	private boolean shouldRefreshMath = false;
+	private boolean isPreview = false;
 	private int currentWCAGSelectedItemIndex = 0;
 	private boolean isWCAGActive = false;
 	private boolean isWCAGOn = false;
 	private PageController pageController;
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
+	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
 	
 	private final String ITEM_CORRECT_CLASS = "ic_ordering-item-correct";
 	private final String ITEM_WRONG_CLASS = "ic_ordering-item-wrong";
@@ -67,7 +59,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.module = module;
 		this.playerServices = services;
 		createUI(module, isPreview);
-		this.setCallbackForMathJaxLoaded(this);
+		mathJaxLoaded();
 	}
 
 	@Override
@@ -99,6 +91,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}-*/;
 
 	private void createUI(OrderingModule module, boolean isPreview) {
+		this.isPreview = isPreview;
 		createWidgetPanel();
 
 		module.validate();
@@ -124,7 +117,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		initWidget(innerCellPanel);
 		setStyleName("ic_ordering");
 		StyleUtils.applyInlineStyle(this, module);
-
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (playerServices != null) {
 			randomizeViewItems();
 			saveScore();
@@ -133,16 +126,35 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 		getElement().setId(module.getId());
 		getAsJavaScript();
-		if(!isPreview){
-			makeSortable(getElement(), jsObject, workMode);
-		}
+		makeSortable();
 		getElement().setAttribute("lang", this.getLang());
 	}
+	
+	@Override
+	public void mathJaxLoaded() {
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
+	}
+	
+	private boolean isDisableDragging() {
+		return module.isDisableDragging();
+	}
+	
+	private boolean isPreview() {
+		return isPreview;
+	}
+	
+	private void makeSortable() {
+		makeSortable(this, getElement(), jsObject, workMode);
+	};
 
-	private native void makeSortable(Element e, JavaScriptObject jsObject, boolean workMode)/*-{
+	private native void makeSortable(OrderingView x, Element e, JavaScriptObject jsObject, boolean workMode)/*-{
 		var selector = jsObject.axis == "y" ? "tbody" : "tbody tr";
 		var displayType = jsObject.axis == "y" ? "table-row" : "table-cell";
 		var forceHide = false;
+		var isPreview = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isPreview()();
+		var isDisableDragging = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isDisableDragging()();
+		
+		if (isPreview || isDisableDragging) return;
 		
 		if (!workMode) {
 			$wnd.$(e).find(selector).sortable("disable");
@@ -507,7 +519,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void setShowErrorsMode() {
 		workMode = false;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 		
 		if(selectedWidget!=null){
 			selectedWidget.removeStyleName("ic_drag-source");
@@ -533,7 +545,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void setWorkMode() {
 		workMode = true;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 
 		if (module.isActivity()) {
 			for (int i = 0; i < getWidgetCount(); i++) {
@@ -574,7 +586,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void setWorkStatus(boolean isWorkOn) {
 		workMode = isWorkOn;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 	}
 
 	@Override
@@ -614,7 +626,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void reset() {
 		workMode = true;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 
 		if(selectedWidget!=null){
 			selectedWidget.removeStyleName("ic_drag-source");
@@ -658,7 +670,8 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.listener = listener;
 	}
 
-	void refreshMath() {
+	@Override
+	public void refreshMath() {
 		MathJax.rerenderMathJax(getElement());
 	}
 
@@ -667,18 +680,13 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		setVisible(false);
 	}
 
-	private native void setCallbackForMathJaxLoaded(OrderingView x) /*-{
-	$wnd.MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
-        if ($wnd.$(message[1]).hasClass('ic_page')) {
-            x.@com.lorepo.icplayer.client.module.ordering.OrderingView::mathJaxIsLoadedCallback()();
-        }
-    });
-	}-*/;
-	
-	void mathJaxIsLoadedCallback() {
-		this.mathJaxIsLoaded = true;
-		if (this.shouldRefreshMath) {
-			this.refreshMath();
+	@Override
+	public void mathJaxIsLoadedCallback() {
+		if (!this.mathJaxIsLoaded) {
+			this.mathJaxIsLoaded = true;
+			if (this.shouldRefreshMath) {
+				this.refreshMath();
+			}
 		}
 	}
 	
@@ -722,7 +730,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 	
 	@Override
-	public void enter (boolean isExiting) {
+	public void enter (KeyDownEvent event, boolean isExiting) {
 		this.isWCAGActive = !isExiting;
 		if (isExiting) {
 			this.deselectCurrentItem();
@@ -910,5 +918,37 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			this.pageController.speak(textVoices);
 		}
 	}
+	
+	@Override
+	protected void onDetach() {
+		this.removeHook();
+		
+		super.onDetach();
+	};
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
+		}		
+	}
+
+	@Override
+	public String getElementId() {
+		return this.module.getId();
+	}
+
+
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
+	
+	
 	
 }

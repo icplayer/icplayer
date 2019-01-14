@@ -12,6 +12,9 @@ function getMockForConiguration() {
                 show: sinon.spy(),
                 hide: sinon.spy()
             },
+            $levelDiv:{
+                html: sinon.spy()
+            },
             $answersWrapper: {
                 append: sinon.spy()
             },
@@ -69,7 +72,6 @@ TestCase("[Shooting_Range - Level] start", {
     },
 
     'test if start will set properly values': function () {
-        this.level.droppedElements = 22;
         this.level.clickedElements = 1;
         this.level.startTime = 50;
         this.level.destroyed = true;
@@ -77,6 +79,7 @@ TestCase("[Shooting_Range - Level] start", {
         this.level.levelWasEnded = true;
         this.level.pauseTime = 12;
         this.level.isPaused = true;
+        this.level.droppedElements = 3;
 
         this.level.start();
 
@@ -84,7 +87,6 @@ TestCase("[Shooting_Range - Level] start", {
         assertTrue(this.mock.$questionDiv.html.calledOnce);
         assertEquals('def', this.mock.$questionDiv.html.getCall(0).args[0]);
 
-        assertEquals(0, this.level.droppedElements);
         assertEquals(0, this.level.clickedElements);
         assertEquals(new Date().getTime() / 1000, this.level.startTime);
         assertEquals(false, this.level.destroyed);
@@ -92,6 +94,7 @@ TestCase("[Shooting_Range - Level] start", {
         assertEquals(false, this.level.levelWasEnded);
         assertEquals(0, this.level.pauseTime);
         assertEquals(false, this.level.isPaused);
+        assertEquals(0, this.level.droppedElements);
 
     }
 

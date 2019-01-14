@@ -262,7 +262,7 @@ function AddonHierarchical_Table_Of_Contents_create() {
         presenter.treeID = presenter.configuration.ID + (isPreview ? "Preview" : "");
         presenter.$view.find("div").first().attr('id', presenter.treeID);
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         addHeader();
         if (isPreview) {

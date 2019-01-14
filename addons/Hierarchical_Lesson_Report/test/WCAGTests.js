@@ -29,92 +29,97 @@ TestCase("[Hierarchical Lesson Report - WCAG] keyboard controller", {
             showErrors: true,
             showPageScore: true
         };
-        },
+
+        this.event = {
+            'preventDefault': sinon.stub()
+        };
+
+    },
 
     tearDown: function () {
     },
 
     'test keyboard navigation - arrows': function () {
-        this.presenter.keyboardController(13,false); // ENTER
+        this.presenter.keyboardController(13,false, this.event); // ENTER
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(39,false); // RIGHT
-        this.presenter.keyboardController(39,false);
+        this.presenter.keyboardController(39,false, this.event); // RIGHT
+        this.presenter.keyboardController(39,false, this.event);
         assertFalse(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(2)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(40,false); // DOWN
+        this.presenter.keyboardController(40,false, this.event); // DOWN
         assertFalse(this.presenter.$view.find('tr:eq(1) > td:eq(2)').hasClass('keyboard_navigation_active_element'));
         assertFalse(this.presenter.$view.find('tr:eq(2) > td:eq(2)').hasClass('keyboard_navigation_active_element'));
         assertTrue(this.presenter.$view.find('tr:eq(6) > td:eq(2)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(37,false); // LEFT
+        this.presenter.keyboardController(37,false, this.event); // LEFT
         assertFalse(this.presenter.$view.find('tr:eq(6) > td:eq(2)').hasClass('keyboard_navigation_active_element'));
         assertTrue(this.presenter.$view.find('tr:eq(6) > td:eq(1)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(38,false); // UP
+        this.presenter.keyboardController(38,false, this.event); // UP
         assertFalse(this.presenter.$view.find('tr:eq(6) > td:eq(1)').hasClass('keyboard_navigation_active_element'));
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(1)').hasClass('keyboard_navigation_active_element'));
     },
 
     'test keyboard navigation - Escape': function () {
-        this.presenter.keyboardController(13,false); // ENTER
+        this.presenter.keyboardController(13,false, this.event); // ENTER
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(39,false); // RIGHT
+        this.presenter.keyboardController(39,false, this.event); // RIGHT
         assertFalse(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(1)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(27,false); //ESCAPE
+        this.presenter.keyboardController(27,false, this.event); //ESCAPE
         assertFalse(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
         assertFalse(this.presenter.$view.find('tr:eq(1) > td:eq(1)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(13,false); // ENTER
+        this.presenter.keyboardController(13,false, this.event); // ENTER
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
 
     },
 
     'test keyboard navigation - Ctrl + Enter': function () {
-        this.presenter.keyboardController(13,false); // ENTER
+        this.presenter.keyboardController(13,false, this.event); // ENTER
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(13,true); // RIGHT
+        this.presenter.keyboardController(13,true, this.event); // RIGHT
         assertFalse(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
     },
 
     'test keyboard navigation - Tab': function () {
-        this.presenter.keyboardController(13,false); // ENTER
+        this.presenter.keyboardController(13,false, this.event); // ENTER
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(9, false); // TAB
+        this.presenter.keyboardController(9, false, this.event); // TAB
         assertFalse(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(1)').hasClass('keyboard_navigation_active_element'));
         for(var i=0; i < 6; i++) { // Press Tab multiple times in order to move to the next row
-            this.presenter.keyboardController(9, false);
+            this.presenter.keyboardController(9, false, this.event);
         }
         assertFalse(this.presenter.$view.find('tr:eq(1) > td:eq(1)').hasClass('keyboard_navigation_active_element'));
         assertTrue(this.presenter.$view.find('tr:eq(6) > td:eq(1)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(9, true); // SHIFT + TAB
+        this.presenter.keyboardController(9, true, this.event); // SHIFT + TAB
         assertFalse(this.presenter.$view.find('tr:eq(6) > td:eq(1)').hasClass('keyboard_navigation_active_element'));
         assertTrue(this.presenter.$view.find('tr:eq(6) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(9, true); // SHIFT + TAB moving to a new row
+        this.presenter.keyboardController(9, true, this.event); // SHIFT + TAB moving to a new row
         assertFalse(this.presenter.$view.find('tr:eq(6) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(5)').hasClass('keyboard_navigation_active_element'));
     },
 
     'test keyboard navigation - detecting moving out of table bounds': function () {
-        this.presenter.keyboardController(13,false); // ENTER
+        this.presenter.keyboardController(13,false, this.event); // ENTER
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(37,false); // LEFT
+        this.presenter.keyboardController(37,false, this.event); // LEFT
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(38,false); // UP
+        this.presenter.keyboardController(38,false, this.event); // UP
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(9,true); // SHIFT + TAB
+        this.presenter.keyboardController(9,true, this.event); // SHIFT + TAB
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(0)').hasClass('keyboard_navigation_active_element'));
         for (var i = 0; i<5; i++){
-            this.presenter.keyboardController(9,false); // Move to the right side of the table
+            this.presenter.keyboardController(9,false, this.event); // Move to the right side of the table
         }
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(5)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(39,false); // RIGHT
+        this.presenter.keyboardController(39,false, this.event); // RIGHT
         assertTrue(this.presenter.$view.find('tr:eq(1) > td:eq(5)').hasClass('keyboard_navigation_active_element'));
         for (var i = 0; i<3; i++){
-            this.presenter.keyboardController(40,false); // Move to the bottom of the table
+            this.presenter.keyboardController(40,false, this.event); // Move to the bottom of the table
         }
         assertTrue(this.presenter.$view.find('tr:eq(8) > td:eq(5)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(40,false); // DOWN
+        this.presenter.keyboardController(40,false, this.event); // DOWN
         assertTrue(this.presenter.$view.find('tr:eq(8) > td:eq(5)').hasClass('keyboard_navigation_active_element'));
-        this.presenter.keyboardController(9,false); // TAB
+        this.presenter.keyboardController(9,false, this.event); // TAB
         assertTrue(this.presenter.$view.find('tr:eq(8) > td:eq(5)').hasClass('keyboard_navigation_active_element'));
 
     }

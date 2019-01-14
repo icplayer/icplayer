@@ -1678,7 +1678,7 @@ function AddonCount_and_Graph_create() {
         }
 
         presenter.$view.find("div").attr('id', presenter.configuration.ID);
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
 
         presenter.observer = new presenter.graphObserver();

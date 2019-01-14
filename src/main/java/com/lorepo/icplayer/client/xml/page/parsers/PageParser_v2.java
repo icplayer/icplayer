@@ -15,6 +15,10 @@ public class PageParser_v2 extends PageParserBase {
 	@Override
 	protected IPageBuilder loadLayouts(IPageBuilder page, Element xml) {
 		NodeList children = xml.getChildNodes();
+		boolean isContentDefaultLayoutPresent = false;
+		String pageDefaultLayout = null;
+		String firstLayout = null;
+		boolean firstChild = true;
 		
 		for(int i = 0; i < children.getLength(); i++) {
 			if (children.item(i) instanceof Element) {
@@ -28,10 +32,28 @@ public class PageParser_v2 extends PageParserBase {
 				size.setIsDefault(isDefault);
 				page.addSize(layoutID, size);
 				
+				if (firstChild) {
+					firstLayout = layoutID;
+					firstChild = false;
+				}
+				if (layoutID.equals(this.contentDefaultLayoutID)) {
+					isContentDefaultLayoutPresent = true;
+				}
 				if (isDefault) {
-					page.setDefaultLayoutID(layoutID);
+					pageDefaultLayout = layoutID;
 				}
 			}
+		}
+		
+		if (isContentDefaultLayoutPresent) {
+			this.defaultLayoutID = this.contentDefaultLayoutID;
+			page.setDefaultLayoutID(contentDefaultLayoutID);
+		} else if (pageDefaultLayout != null) {
+			this.defaultLayoutID = pageDefaultLayout;
+			page.setDefaultLayoutID(pageDefaultLayout);
+		} else {
+			this.defaultLayoutID = firstLayout;
+			page.setDefaultLayoutID(firstLayout);
 		}
 		
 		return page;

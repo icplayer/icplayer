@@ -32,6 +32,7 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	private PageController pageController;
 	private int currentWCAGSelectedRowIndex = 1;
 	private int currentWCAGSelectedColumnIndex = 0;
+	private String originalDisplay = "";
 	
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
 	
@@ -50,6 +51,7 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 
 		grid.setStyleName("ic_report");
 		StyleUtils.applyInlineStyle(grid, module);
+		originalDisplay = grid.getElement().getStyle().getDisplay();
 		grid.setCellSpacing(0);
 
 		grid.getRowFormatter().addStyleName(0, "ic_report-header");
@@ -250,7 +252,7 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 	
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		this.isWCAGActive = !isExiting;
 		if (isExiting) {
 			grid.getCellFormatter().removeStyleName(currentWCAGSelectedRowIndex,currentWCAGSelectedColumnIndex,WCAG_SELECTED_CLASS_NAME);
@@ -350,6 +352,16 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 			return "";
 		} else {
 			return this.module.getSpeechTextItem(columnIndex);
+		}
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
 		}
 	}
 }
