@@ -595,6 +595,7 @@ var ice_dictionary_mx = {
 	"TextAudio_property_is_click_disabled": "Inhabilitar el clic",
 	"TextAudio_property_show_slides": "Mostrar diapositivas",
 	"TextAudio_property_position_and_dimentions": "Posición y dimensiones",
+	"TextAudio_property_is_disabled": "Is disabled",
 	"Connection_info": "Permite crear actividades con dos columnas de ítems (textos o imágenes) emparejados. Hay opción de configurar la actividad para el modo simple o múltiple (un ítem unido a varios de otra columna).",
 	"Connection_name": "Conexión",
 	"Connection_property_is_not_activity": "No es actividad",

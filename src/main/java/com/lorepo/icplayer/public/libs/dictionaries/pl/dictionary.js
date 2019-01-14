@@ -595,6 +595,7 @@ var ice_dictionary_pl = {
     "TextAudio_property_is_click_disabled": "Klikanie wyłączone",
     "TextAudio_property_show_slides": "Pokaż slajdy",
     "TextAudio_property_position_and_dimentions": "Pozycja i wymiary",
+	"TextAudio_property_is_disabled": "Is disabled",
 	"Connection_info" : "Pozwala na utworzenie ćwiczenia składającego się z dwóch kolumn z elementami (tekstem lub obrazkami) do połączenia. Ćwiczenie może działać w trybie łączenia pojedynczego lub wielokrotnego (każdy element można wykorzystać w kilku połączeniach).",
 	"Connection_name" : "Ćwiczenie łączenia",
 	"Connection_property_is_not_activity" : "Nie jest ćwiczeniem",
