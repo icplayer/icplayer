@@ -862,6 +862,12 @@ function AddonTextAudio_create() {
             presenter.audio.addEventListener('playing', presenter.onAudioPlaying, false);
             presenter.audio.addEventListener('play', presenter.onAudioPlay, false);
             presenter.audio.addEventListener('pause', presenter.onAudioPause, false);
+
+            if (presenter.configuration.isEnabled) {
+                presenter.enable();
+            } else {
+                presenter.disable();
+            }
         }
     };
 
@@ -1135,6 +1141,7 @@ function AddonTextAudio_create() {
         }
 
         presenter.isVisibleByDefault = presenter.configuration.isVisible;
+        presenter.isEnabledByDefault = presenter.configuration.isEnabled;
 
         presenter.createView(view, upgradedModel, isPreview);
 
@@ -1553,7 +1560,11 @@ function AddonTextAudio_create() {
         presenter.isPlaying = false;
         presenter.playedByClick = false;
 
-        this.enable();
+        if (presenter.isEnabledByDefault) {
+            presenter.enable();
+        } else {
+            presenter.disable();
+        }
 
         presenter.configuration.isVisible = presenter.isVisibleByDefault;
         if (presenter.configuration.isVisible) {
