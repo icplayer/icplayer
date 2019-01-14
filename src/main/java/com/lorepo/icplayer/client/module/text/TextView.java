@@ -174,7 +174,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						if (savedDisabledState.size() > counter) {
 							GapWidget gap = (GapWidget) getChild(counter);
 							gap.setDisabled(savedDisabledState.get(counter));
-							
+
 							textElements.set(counter, gap);
 						}
 					} else {
@@ -184,7 +184,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						} else {
 							gap.setDisabled(module.isDisabled());
 						}
-						
+
 						textElements.add(gap);
 						mathGapIds.add(id);
 					}
@@ -324,6 +324,22 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	public void rerenderMathJax () {
 		MathJax.rerenderMathJax(getElement());
+		updateMathGaps();
+	}
+
+	private void updateMathGaps() {
+		for (GapInfo gapInfo : module.getGapInfos()) {
+			String gapId = gapInfo.getId();
+			GapWidget gap = new GapWidget(gapInfo, listener);
+
+			for (int index = 0; index < textElements.size(); index++) {
+				if (textElements.get(index).getId().equals(gapId)) {
+					String textValue = textElements.get(index).getTextValue();
+					gap.setText(textValue);
+					textElements.set(index, gap);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -333,11 +349,13 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void show(boolean callRefreshMath) {
+		boolean isVisible = isVisible();
+
 		setVisible(true);
 		if (this.mathJaxIsLoaded) {
 			refreshMath();
 		}
-		if (callRefreshMath) {
+		if (callRefreshMath && !isVisible) {
 			refreshMath();
 			rerenderMathJax();
 		}
@@ -651,5 +669,5 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			super.setVisible(false);
 		}
 	}
-	
+
 }
