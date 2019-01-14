@@ -750,6 +750,7 @@ function AddonQuiz_create() {
 
     function showAnswers() {
         showQuestion(getCurrentQuestion(), true);
+        reloadMathJax();
     }
 
     function hideAnswers() {
