@@ -2,6 +2,7 @@
 2018-12-28 Added possibility for creating adaptive lessons
 2019-01-04 Fixed setting player controller in Shape Tracing module
 2019-01-02 Added command isOK to a connection addon
+2018-12-21 Fixed a rerendered mathjax of text module
 2018-12-19 Fixed reseting after using setText command in Text module
 2018-12-17 Fixed ekeyboard paragraph loading on the first page of mCourser
 2018-12-17 Fixed mathjax calls
