@@ -1,4 +1,5 @@
 2019-01-14 Added a end of game event to a shooting range addon
+2019-01-10 Added commands to Text, Ordering, Image Gap and Choice
 2019-01-04 Fixed setting player controller in Shape Tracing module
 2019-01-02 Added command isOK to a connection addon
 2018-12-21 Fixed a rerendered mathjax of text module
