@@ -863,7 +863,8 @@ function AddonTextAudio_create() {
             presenter.audio.addEventListener('play', presenter.onAudioPlay, false);
             presenter.audio.addEventListener('pause', presenter.onAudioPause, false);
 
-            if (presenter.configuration.isEnabled) {
+            presenter.configuration.isEnabled = true;   // At start addon is always enabled, so we need to reset flag and set correct value.
+            if (presenter.isEnabledByDefault) {
                 presenter.enable();
             } else {
                 presenter.disable();
