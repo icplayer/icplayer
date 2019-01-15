@@ -298,7 +298,7 @@ function AddonLimited_Submit_create() {
 
     presenter.keyboardController = function (keycode) {
         function buttonChangedStateToDeselected(beforeState) {
-            return beforeState !== presenter.state.isSelected
+            return !presenter.state.isSelected && (beforeState !== presenter.state.isSelected)
         }
 
         if (keycode === 13) {
