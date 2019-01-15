@@ -65,13 +65,5 @@ TestCase('[Limited Submit] Event sending tests', {
         var result = this.stubs.sendEventStub.getCall(0).args;
 
         assertEquals('Data', result[1].value);
-    },
-
-    'test given addons list when sendEvent is called then will send serialized addons list in item field in event object': function () {
-        this.presenter.sendEvent('Data');
-
-        var result = this.stubs.sendEventStub.getCall(0).args;
-
-        assertTrue(result[1].item == "[\"text1\",\"text2\",\"text3\"]");
     }
 });

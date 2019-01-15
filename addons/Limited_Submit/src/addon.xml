@@ -7,12 +7,20 @@
         <property name="worksWith" nameLabel="Limited_Submit_property_works_with" type="text" isDefault="true"/>
 
         <property name="speechTexts" displayName="Speech texts" nameLabel="Limited_Submit_speech_texts" type="staticlist">
-            <property name="blockEdit" nameLabel="Limited_Submit_speech_text_check_answers_button_edit_block" type="staticrow">
-                <property name="textToSpeechText" nameLabel="Limited_Submit_speech_text_check_answers_button_edit_block" type="string"/>
+            <property name="selected" nameLabel="Limited_Submit_speech_text_selected" type="staticrow">
+                <property name="textToSpeechText" nameLabel="Limited_Submit_speech_text_selected" type="string"/>
             </property>
 
-            <property name="noBlockEdit" nameLabel="Limited_Submit_speech_text_check_answers_button_no_edit_block" type="staticrow">
-                <property name="textToSpeechText" nameLabel="Limited_Submit_speech_text_check_answers_button_no_edit_block" type="string"/>
+            <property name="blockEdit" nameLabel="Limited_Submit_speech_text_selected_button_edit_block" type="staticrow">
+                <property name="textToSpeechText" nameLabel="Limited_Submit_speech_text_selected_button_edit_block" type="string"/>
+            </property>
+
+            <property name="noBlockEdit" nameLabel="Limited_Submit_speech_text_selected_button_no_edit_block" type="staticrow">
+                <property name="textToSpeechText" nameLabel="Limited_Submit_speech_text_selected_button_no_edit_block" type="string"/>
+            </property>
+
+            <property name="notAllAttempted" nameLabel="Limited_Submit_speech_text_selected_button_not_attempted" type="staticrow">
+                <property name="textToSpeechText" nameLabel="Limited_Submit_speech_text_selected_button_not_attempted" type="string"/>
             </property>
         </property>
     </model>

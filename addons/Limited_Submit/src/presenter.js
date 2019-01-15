@@ -26,11 +26,14 @@ function AddonLimited_Submit_create() {
     presenter.sendEvent = function (eventValue) {
         var eventData = {
             'value': eventValue,
-            'source': presenter.configuration.addonID,
-            'item': JSON.stringify(presenter.configuration.worksWithModulesList)
+            'source': presenter.configuration.addonID
         };
 
         presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.getWorksWithModulesList = function () {
+        return presenter.configuration.worksWithModulesList.slice();    // Make a copy of this list
     };
 
     presenter.createPreview = function (view, model) {
@@ -42,7 +45,9 @@ function AddonLimited_Submit_create() {
 
         var speechToTextListModelValidator = {
             'blockEdit': [ModelValidators.String('textToSpeechText', {default: 'Exercise edition is blocked'})],
-            'noBlockEdit': [ModelValidators.String('textToSpeechText', {default: 'Exercise edition is not blocked'})]
+            'noBlockEdit': [ModelValidators.String('textToSpeechText', {default: 'Exercise edition is not blocked'})],
+            'notAllAttempted': [ModelValidators.String('textToSpeechText', {default: 'Not all attempted'})],
+            'selected': [ModelValidators.String('textToSpeechText', {default: 'Selected'})]
         };
 
         var validatedModel = modelValidator.validate(model, [
@@ -283,14 +288,29 @@ function AddonLimited_Submit_create() {
         isWCAGOn = isOn;
     };
 
+    presenter.getTitlePostfix = function () {
+        if(presenter.state.isSelected) {
+            return presenter.configuration.speechTexts.selected.textToSpeechText;
+        } else {
+            return ''
+        }
+    };
+
     presenter.keyboardController = function (keycode) {
+        function buttonChangedStateToDeselected(beforeState) {
+            return beforeState !== presenter.state.isSelected
+        }
+
         if (keycode === 13) {
+            var wasClick = presenter.state.isSelected;
             presenter.$button.click();
             if (isWCAGOn) {
                 if (presenter.state.isSelected) {
                     speak([getTextVoiceObject(presenter.configuration.speechTexts.blockEdit.textToSpeechText)]);
-                } else {
+                } else if (buttonChangedStateToDeselected(wasClick)) {
                     speak([getTextVoiceObject(presenter.configuration.speechTexts.noBlockEdit.textToSpeechText)]);
+                } else {
+                    speak([getTextVoiceObject(presenter.configuration.speechTexts.notAllAttempted.textToSpeechText)]);
                 }
             }
         }
