@@ -1492,7 +1492,7 @@ function AddonTextAudio_create() {
         }
     });
 
-    presenter.stop = isModuleEnabledDecorator(true)(function addonTextAudio_stop () {
+    function forceStop () {
         if (presenter.configuration.controls === "Custom" && presenter.isLoaded) {
             presenter.stopClicked = true;
             presenter.$playPauseBtn.
@@ -1508,11 +1508,15 @@ function AddonTextAudio_create() {
         if (!presenter.isLoaded) {
             presenter.audio.addEventListener("loadeddata", presenter.stopAudioLoadedData);
         }
+    }
+
+    presenter.stop = isModuleEnabledDecorator(true)(function addonTextAudio_stop () {
+        forceStop();
     });
 
     presenter.stopAudioLoadedData = function AddonTextAudio_StopAudioLoadedData () {
         presenter.isLoaded = true;
-        presenter.stop();
+        forceStop();
     };
 
     presenter.playPartStop = function addonTextAudio_playPartStop () {
