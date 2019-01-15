@@ -943,6 +943,20 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 				markGapAsEmpty(gapIndex);
 			}
+		} else if (commandName.compareTo("getscore") == 0) {
+			return String.valueOf(getScore());
+		} else if (commandName.compareTo("geterrorcount") == 0) {
+			return String.valueOf(getErrorCount());
+		} else if (commandName.compareTo("getmaxscore") == 0) {
+			return String.valueOf(getMaxScore());
+		} else if (commandName.compareTo("setshowerrorsmode") == 0) {
+			setShowErrorsMode();
+		} else if (commandName.compareTo("setworkmode") == 0) {
+			setWorkMode();
+		} else if (commandName.compareTo("showanswers") == 0) {
+			showAnswers();
+		} else if (commandName.compareTo("hideanswers") == 0) {
+			hideAnswers();
 		}
 
 		return "";
@@ -1091,6 +1105,34 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		presenter.onEventReceived = function (eventName, data) {
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+
+		presenter.getScore = function() {
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getScore()();
+		};
+
+		presenter.getErrorCount = function() {
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getErrorCount()();
+		};
+
+		presenter.getMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getMaxScore()();
+		};
+
+		presenter.setShowErrorsMode = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setShowErrorsMode()();
+		};
+
+		presenter.setWorkMode = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setWorkMode()();
+		};
+
+		presenter.showAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::showAnswers()();
+		};
+
+		presenter.hideAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::hideAnswers()();
 		};
 
 		return presenter;

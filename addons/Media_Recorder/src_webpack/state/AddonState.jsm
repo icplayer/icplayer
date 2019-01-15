@@ -5,6 +5,7 @@ export class AddonState {
     constructor() {
         this.recording = null;
         this.visibility = null;
+        this.enabled = null;
     }
 
     setRecordingBlob(blob) {
@@ -35,13 +36,27 @@ export class AddonState {
         });
     }
 
+    setEnabled(isEnable) {
+        this.enabled = isEnable ? true : false;
+    }
+
+    getEnabled(){
+        var self = this;
+        return new Promise(resolve => {
+            if (self.enabled != null)
+                resolve(self.enabled);
+        });
+    }
+
     reset() {
         this.recording = null;
         this.visibility = null;
+        this.enabled = null;
     }
 
     destroy() {
         this.recording = null;
         this.visibility = null;
+        this.enabled = null;
     }
 }

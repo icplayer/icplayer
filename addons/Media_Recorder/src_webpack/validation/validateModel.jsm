@@ -25,6 +25,7 @@ export function validateModel(model) {
         }),
         ModelValidators.Boolean("isResetRemovesRecording"),
         ModelValidators.Boolean("isShowedTimer"),
-        ModelValidators.Boolean("isShowedDefaultRecordingButton")
+        ModelValidators.Boolean("isShowedDefaultRecordingButton"),
+        ModelValidators.Boolean("isDisabled")
     ]);
 }

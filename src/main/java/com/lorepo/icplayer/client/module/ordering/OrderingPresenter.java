@@ -343,6 +343,34 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
 		};
 
+		presenter.getScore = function() {
+			return x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::getScore()();
+		};
+
+		presenter.getErrorCount = function() {
+			return x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::getErrorCount()();
+		};
+
+		presenter.getMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::getMaxScore()();
+		};
+
+		presenter.setShowErrorsMode = function() {
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::setShowErrorsMode()();
+		};
+
+		presenter.setWorkMode = function() {
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::setWorkMode()();
+		};
+
+		presenter.showAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::showAnswers()();
+		};
+
+		presenter.hideAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::hideAnswers()();
+		};
+
 		return presenter;
 	}-*/;
 
@@ -385,6 +413,34 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 		if (commandName.compareTo("reset") == 0) {
 			reset();
+		}
+
+		if (commandName.compareTo("getscore") == 0) {
+			return String.valueOf(getScore());
+		}
+
+		if (commandName.compareTo("geterrorcount") == 0) {
+			return String.valueOf(getErrorCount());
+		}
+
+		if (commandName.compareTo("getmaxscore") == 0) {
+			return String.valueOf(getMaxScore());
+		}
+
+		if (commandName.compareTo("setshowerrorsmode") == 0) {
+			setShowErrorsMode();
+		}
+
+		if (commandName.compareTo("setworkmode") == 0) {
+			setWorkMode();
+		}
+
+		if (commandName.compareTo("showanswers") == 0) {
+			showAnswers();
+		}
+
+		if (commandName.compareTo("hideanswers") == 0) {
+			hideAnswers();
 		}
 
 		return "";
