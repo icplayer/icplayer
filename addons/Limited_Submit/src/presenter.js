@@ -297,17 +297,13 @@ function AddonLimited_Submit_create() {
     };
 
     presenter.keyboardController = function (keycode) {
-        function buttonChangedStateToDeselected(beforeState) {
-            return !presenter.state.isSelected && (beforeState !== presenter.state.isSelected)
-        }
-
         if (keycode === 13) {
-            var wasClick = presenter.state.isSelected;
+            var wasSelected = presenter.state.isSelected;
             presenter.$button.click();
             if (isWCAGOn) {
                 if (presenter.state.isSelected) {
                     speak([getTextVoiceObject(presenter.configuration.speechTexts.blockEdit.textToSpeechText)]);
-                } else if (buttonChangedStateToDeselected(wasClick)) {
+                } else if (wasSelected && !presenter.state.isSelected) {
                     speak([getTextVoiceObject(presenter.configuration.speechTexts.noBlockEdit.textToSpeechText)]);
                 } else {
                     speak([getTextVoiceObject(presenter.configuration.speechTexts.notAllAttempted.textToSpeechText)]);
