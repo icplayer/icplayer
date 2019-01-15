@@ -22,6 +22,6 @@
         <property name='onEnd' displayName='On end' nameLabel='TextAudio_property_vocabulary_on_end' type='event' />
         <property name='isClickDisabled' displayName='Is Click Disabled' nameLabel='TextAudio_property_is_click_disabled' type='boolean' />
         <property name="showSlides" displayName="Show Slides" nameLabel='TextAudio_property_show_slides' type="{Show current slide, Show all slides}" />
-        <property name="Is disabled" type="boolean" nameLabel="TextAudio_property_is_disabled"/>
+        <property name="isDisabled" type="boolean" nameLabel="TextAudio_property_is_disabled"/>
     </model>
 </addon>

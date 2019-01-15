@@ -166,8 +166,8 @@ function AddonTextAudio_create() {
 
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (upgradedModel['Is disabled'] === undefined) {
-            upgradedModel['Is disabled'] = 'True';
+        if (upgradedModel['isDisabled'] === undefined) {
+            upgradedModel['isDisabled'] = 'False';
         }
 
         return upgradedModel;
@@ -1446,7 +1446,7 @@ function AddonTextAudio_create() {
             vocabularyIntervals: validatedVocabularyIntervals.intervals,
             isClickDisabled: ModelValidationUtils.validateBoolean(model.isClickDisabled),
             showSlides: model.showSlides,
-            isEnabled: !ModelValidationUtils.validateBoolean(model["Is disabled"])
+            isEnabled: !ModelValidationUtils.validateBoolean(model["isDisabled"])
         };
     };
 

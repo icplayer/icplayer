@@ -125,26 +125,26 @@ TestCase('[TextAudio] Upgrade model for is Disabled', {
 
         var upgradedModel = this.presenter.upgradeModel(model);
 
-        assertEquals('True', upgradedModel['Is disabled']);
+        assertEquals('False', upgradedModel['isDisabled']);
     },
 
     'test given model with is Disabled as true when upgradeModel is called then will return is Disabled with true value': function () {
         var model = {
-            'Is disabled': 'False'
+            'isDisabled': 'False'
         };
 
         var upgradedModel = this.presenter.upgradeModel(model);
 
-        assertEquals('False', upgradedModel['Is disabled']);
+        assertEquals('False', upgradedModel['isDisabled']);
     },
 
     'test given model with is Disabled as false when upgradeModel is called then will return is Disabled with false value': function () {
         var model = {
-            'Is disabled': 'True'
+            'isDisabled': 'True'
         };
 
         var upgradedModel = this.presenter.upgradeModel(model);
 
-        assertEquals('True', upgradedModel['Is disabled']);
+        assertEquals('True', upgradedModel['isDisabled']);
     }
 });
