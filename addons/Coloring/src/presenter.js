@@ -486,10 +486,11 @@ function AddonColoring_create(){
             client = fixTouch(event.touches[0] || event.changedTouches[0]);
         }
 
-        return {
-            x: parseInt(client.x - rect.left, 10),
-            y: parseInt(client.y - rect.top, 10)
-        };
+        var positionX = parseInt(client.x - rect.left, 10);
+        var positionY = parseInt(client.y - rect.top, 10);
+        var scaledPoint = scalePoint({x: positionX, y: positionY});
+
+        return {x: scaledPoint.x, y: scaledPoint.y};
     }
 
     presenter.errorCodes = {
@@ -1312,6 +1313,19 @@ function AddonColoring_create(){
 
         presenter.isShowAnswersActive = false;
     };
+
+    function scalePoint({x, y}) {
+        var scaledPoint = {x: x, y: y};
+        if (!presenter.playerController)
+            return scaledPoint;
+
+        var scale = presenter.playerController.getScaleInformation();
+        if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
+            scaledPoint.x = Math.floor(scaledPoint.x / scale.scaleX);
+            scaledPoint.y = Math.floor(scaledPoint.y / scale.scaleY);
+        }
+        return scaledPoint;
+    }
 
     return presenter;
 }
