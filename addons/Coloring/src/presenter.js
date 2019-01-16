@@ -1103,7 +1103,7 @@ function AddonColoring_create(){
         presenter.floodFill({
             x: areaToFillObject.area.x,
             y: areaToFillObject.area.y,
-            color: [255, 255, 255, 255]
+            color: presenter.getColorAtPoint(areaToFillObject.area.x, areaToFillObject.area.y)
         },
 
         areaToFillObject.color,
