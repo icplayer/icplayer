@@ -1,3 +1,4 @@
+2019-01-14 Fixed a model in media recorder addon
 2019-01-14 Added a end of game event to a shooting range addon
 2019-01-14 Fixed setting state in Coloring module
 2019-01-14 Fixed the problem of latex reloading in a quiz addon
