@@ -1561,17 +1561,19 @@ function AddonTextAudio_create() {
     };
 
     presenter.reset = function addonTextAudio_reset () {
-        presenter.stop();
-
-        presenter.hasBeenStarted = false;
-        presenter.isPlaying = false;
-        presenter.playedByClick = false;
-
         if (presenter.isEnabledByDefault) {
             presenter.enable();
         } else {
             presenter.disable();
         }
+
+        forceStop();
+
+        presenter.hasBeenStarted = false;
+        presenter.isPlaying = false;
+        presenter.playedByClick = false;
+
+
 
         presenter.configuration.isVisible = presenter.isVisibleByDefault;
         if (presenter.configuration.isVisible) {
@@ -1587,6 +1589,7 @@ function AddonTextAudio_create() {
     });
 
     presenter.disable = isModuleEnabledDecorator(true)(function () {
+        presenter.pause();
         presenter.configuration.isEnabled = false;
         presenter.$view.addClass('disabled');
     });
