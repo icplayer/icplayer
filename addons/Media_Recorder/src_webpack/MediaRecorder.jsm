@@ -22,7 +22,8 @@ import {SafariRecorderState} from "./state/SafariRecorderState.jsm";
 export class MediaRecorder {
 
     run(view, model) {
-        let validatedModel = validateModel(model);
+        let upgradedModel = this._upgradeModel(model);
+        let validatedModel = validateModel(upgradedModel);
 
         if (this._isBrowserNotSupported()) {
             this._showBrowserError(view)
@@ -35,7 +36,8 @@ export class MediaRecorder {
     }
 
     createPreview(view, model) {
-        let validatedModel = validateModel(model);
+        let upgradedModel = this._upgradeModel(model);
+        let validatedModel = validateModel(upgradedModel);
 
         if (!validatedModel.isValid)
             this._showError(view, validatedModel);
@@ -595,4 +597,20 @@ export class MediaRecorder {
             this.deactivate();
         }
     }
+
+    _upgradeModel(model) {
+        let upgradedModel = this._upgradeIsDisabled(model);
+        return upgradedModel;
+    };
+
+    _upgradeIsDisabled(model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["isDisabled"]) {
+            upgradedModel["isDisabled"] = "False";
+        }
+
+        return upgradedModel;
+    };
 }

@@ -1,7 +1,12 @@
-2019-01-14 Added disable and enable commands for TextAudio addon
+2019-01-18 Added disable and enable commands for TextAudio addon
+2019-01-14 Fixed a model in media recorder addon
+2019-01-14 Added a end of game event to a shooting range addon
+2019-01-14 Fixed setting state in Coloring module
 2019-01-14 Fixed the problem of latex reloading in a quiz addon
 2019-01-11 Added disable enable commands to Media Recorder addon
+2019-01-10 Fixed view shift on mobile devices in Points and lines, Connecting dots, Coloring
 2019-01-10 Added commands to Text, Ordering, Image Gap and Choice
+2019-01-10 Changed the behavior of the point counter in a Catch addon
 2019-01-04 Fixed setting player controller in Shape Tracing module
 2019-01-02 Added command isOK to a connection addon
 2018-12-21 Fixed a rerendered mathjax of text module
