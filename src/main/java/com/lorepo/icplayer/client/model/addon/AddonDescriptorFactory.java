@@ -81,6 +81,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Lesson_Progress", "reporting_menu");
 		addDescriptor("Lesson_Score_Counter", "reporting_menu");
 		addDescriptor("Limited_Show_Answers", "reporting_menu");
+		addDescriptor("Limited_Submit", "reporting_menu");
 		addDescriptor("Page_Rating", "reporting_menu");
 		addDescriptor("Page_Score_Counter", "reporting_menu");
 		addDescriptor("Show_Answers", "reporting_menu");

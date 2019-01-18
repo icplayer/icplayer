@@ -1,0 +1,12 @@
+.limited-submit-wrapper,
+.limited-submit-wrapper .limited-submit-container,
+.limited-submit-wrapper .limited-submit-container .limited-submit-button {
+    width: 100%;
+    height: 100%;
+}
+
+.limited-submit-wrapper .limited-submit-container .limited-submit-button {
+    background: url('resources/submit-button.png') no-repeat center;
+    cursor: pointer;
+    text-align: center;
+}
