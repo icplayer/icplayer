@@ -11,6 +11,7 @@ function AddonTextAudio_create() {
     presenter.isVocabularyAudioLoaded = false;
     presenter.isVocabularyPlaying = false;
     presenter.buzzAudio = [];
+    presenter.disabledTime = 0;
     presenter.audio = {};
     presenter.current_slide_data = {
         slide_id: -1,
@@ -918,20 +919,28 @@ function AddonTextAudio_create() {
         event.stopPropagation();
     };
 
+    presenter.canPlayMp3 = function () {
+        return presenter.audio.canPlayType && "" != presenter.audio.canPlayType('audio/mpeg');
+    };
+
+    presenter.canPlayOgg = function () {
+        return presenter.audio.canPlayType && "" != presenter.audio.canPlayType('audio/ogg; codecs="vorbis"');
+    };
+
+    presenter.setAudioSrc = function () {
+        var canPlayMp3 = presenter.canPlayMp3();
+        var canPlayOgg = presenter.canPlayOgg();
+
+        if (canPlayMp3) {
+            presenter.audio.setAttribute("src", presenter.originalFile .mp3);
+        } else if (canPlayOgg) {
+            presenter.audio.setAttribute("src", presenter.originalFile .ogg);
+        }
+    };
+
     presenter.loadFiles = function AddonTextAudio_loadFiles () {
-        var canPlayMp3 = false;
-        var canPlayOgg = false;
-
         if (presenter.audio.canPlayType) {
-            canPlayMp3 = presenter.audio.canPlayType && "" != presenter.audio.canPlayType('audio/mpeg');
-            canPlayOgg = presenter.audio.canPlayType && "" != presenter.audio.canPlayType('audio/ogg; codecs="vorbis"');
-
-            if (canPlayMp3) {
-                presenter.audio.setAttribute("src", presenter.originalFile .mp3);
-            } else if (canPlayOgg) {
-                presenter.audio.setAttribute("src", presenter.originalFile .ogg);
-            }
-
+            presenter.setAudioSrc();
             if (presenter.configuration.clickAction == 'play_vocabulary_interval') {
                 presenter.vocabulary = new buzz.sound([
                     presenter.configuration.vocabulary_mp3,
@@ -1586,12 +1595,23 @@ function AddonTextAudio_create() {
     presenter.enable = isModuleEnabledDecorator(false)(function () {
         presenter.configuration.isEnabled = true;
         presenter.$view.removeClass('disabled');
+
+        if (presenter.configuration.controls === "Browser") {
+            presenter.setAudioSrc();
+            presenter.audio.currentTime = presenter.disabledTime;
+        }
     });
 
     presenter.disable = isModuleEnabledDecorator(true)(function () {
         presenter.pause();
         presenter.configuration.isEnabled = false;
         presenter.$view.addClass('disabled');
+
+        if (presenter.configuration.controls === "Browser") {
+            presenter.disabledTime = presenter.audio.currentTime;
+            presenter.audio.removeAttribute('src');
+            presenter.audio.load();
+        }
     });
 
     presenter.clearSelection = function addonTextAudio_clearSelection () {
