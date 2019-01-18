@@ -576,7 +576,7 @@ function AddonCatch_create() {
     };
 
     presenter.getScore = function () {
-        return points;
+        return presenter.configuration.countErrors ? Math.max((points - errors), 0) : points;
     };
 
     presenter.getState = function () {
