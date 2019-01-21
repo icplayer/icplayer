@@ -1570,6 +1570,7 @@ function AddonTextAudio_create() {
     };
 
     presenter.reset = function addonTextAudio_reset () {
+        presenter.disabledTime = 0;
         if (presenter.isEnabledByDefault) {
             presenter.enable();
         } else {
