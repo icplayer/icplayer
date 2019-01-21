@@ -58,7 +58,21 @@ function AddonConnection_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeFrom_01(model);
+        var upgradedModel = presenter.upgradeFrom_01(model);
+        upgradedModel = presenter.upgradeStartValues(upgradedModel);
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeStartValues = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['initialConnections'] === undefined) {
+            upgradedModel['initialConnections'] = [];
+        }
+
+        return upgradedModel;
     };
 
     presenter.upgradeFrom_01 = function (model) {
@@ -335,10 +349,52 @@ function AddonConnection_create() {
         };
     }
 
+    presenter.getInitialValues = function(model) {
+        var modelValidator = new ModelValidator();
+        var validated = modelValidator.validate(model, [
+            ModelValidators.List("initialConnections", [
+                ModelValidators.String("from", {default: "", trim: true}),
+                ModelValidators.String("to", {default: "", trim: true})
+            ])
+        ]);
+
+        return validated.value.initialConnections;
+    };
+
+    /**
+     * @param initialValue {{from: string, to: string}}
+     */
+    presenter.drawInitialValue = function (initialValue) {
+        function oneOfValueIsEmpty () {
+            return initialValue.from === "" && initialValue.to === "";
+        }
+
+        function areFromDifferentCols() {
+            return true
+        }
+
+        var pushed = false;
+
+        if (!oneOfValueIsEmpty() && areFromDifferentCols()) {
+            pushConnection(new Line(getElementById(initialValue.from), getElementById(initialValue.to)), false);
+            pushed = true;
+        }
+
+        if (pushed) {
+            presenter.redraw();
+        }
+    };
+
+    presenter.drawInitialValues = function () {
+        presenter.initialValues.forEach(presenter.drawInitialValue);
+    };
+
     presenter.initialize = function (view, model, isPreview) {
         if (isPreview) {
             presenter.lineStack = new LineStack(false);
         }
+
+        model = presenter.upgradeModel(model);
 
         presenter.langTag = model['langAttribute'];
         presenter.$view = $(view);
@@ -346,6 +402,7 @@ function AddonConnection_create() {
 
         setSpeechTexts(model['speechTexts']);
 
+        presenter.initialValues = presenter.getInitialValues(model);
         presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
@@ -354,8 +411,6 @@ function AddonConnection_create() {
 
         isRTL = presenter.$view.css('direction').toLowerCase() === 'rtl';
         connections = presenter.$view.find('.connections:first');
-
-        model = presenter.upgradeModel(model);
 
         this.setSingleMode(model['Single connection mode']);
 
@@ -410,6 +465,7 @@ function AddonConnection_create() {
             presenter.mathJaxProcessEnded.then(function () {
                 presenter.initializeView(view, model);
                 presenter.registerListeners(presenter.view);
+                presenter.drawInitialValues();
             });
         }
 
@@ -1270,7 +1326,9 @@ function AddonConnection_create() {
         }
 
         correctPoints = removeDuplicates(correctPoints);
-        correctPoints = correctPoints.filter(value => value !== "");
+        correctPoints = correctPoints.filter(function (value) {
+            return value !== ";"
+        });
 
         return correctPoints;
     }
@@ -1283,8 +1341,8 @@ function AddonConnection_create() {
     }
 
     function isSameArrays(selectedDestinations, correctDestinations) {
-        let serializedSelectedDestinations = selectedDestinations.sort().join(',');
-        let serializedCorrectDestinations = correctDestinations.sort().join(',');
+        var serializedSelectedDestinations = selectedDestinations.sort().join(',');
+        var serializedCorrectDestinations = correctDestinations.sort().join(',');
 
         return serializedSelectedDestinations === serializedCorrectDestinations;
     }
