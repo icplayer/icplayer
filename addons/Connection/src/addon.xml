@@ -24,6 +24,7 @@
         <property name="initialConnections" nameLabel="Connection_property_initial_connection" type="list">
             <property name="from" nameLabel="Connection_property_initial_connection_from" type="string" />
             <property name="to" nameLabel="Connection_property_initial_connection_to" type="string" />
+            <property name="isDisabled" nameLabel="Connection_property_initial_connection_is_disabled" type="boolean"/>
         </property>
         <property name="Default connection color" nameLabel="Connection_property_default_connection_color" type="string" />
         <property name="Correct connection color" nameLabel="Connection_property_correct_connection_color" type="string" />

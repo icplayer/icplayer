@@ -45,13 +45,28 @@ function AddonConnection_create() {
     var WRONG_ITEM_CLASS = 'connectionItem-wrong';
 
     presenter.ERROR_MESSAGES = {
-        'ID not unique': 'One or more IDs are not unique.'
+        'ID not unique': 'One or more IDs are not unique.',
+         'One or two not exists': 'Provided id for initial value doesn\'t exists',
+         'Are from the same column': 'Provided ids for initial value are in the same column'
     };
 
     presenter.ELEMENT_SIDE = {
         LEFT: 0,
         RIGHT: 1
     };
+
+    function convertId (id) {
+        id = id.toString();
+
+        return id.substr(id.indexOf('-') + 1);
+    }
+
+    function convertIds (id1, id2){
+        return {
+            id1: convertId(id1),
+            id2: convertId(id2)
+        }
+    }
 
     presenter.getCurrentActivatedElement = function () {
         return $('.keyboard_navigation_active_element');
@@ -349,12 +364,26 @@ function AddonConnection_create() {
         };
     }
 
+    presenter.addDisabledElementsFromInitialValues = function () {
+        presenter.initialValues.forEach(function (initialValue) {
+           if (initialValue.isDisabled) {
+               presenter.disabledConnections.push({
+                   id1: initialValue.from,
+                   id2: initialValue.to
+               });
+           }
+        });
+    };
+
+
+
     presenter.getInitialValues = function(model) {
         var modelValidator = new ModelValidator();
         var validated = modelValidator.validate(model, [
             ModelValidators.List("initialConnections", [
-                ModelValidators.String("from", {default: "", trim: true}),
-                ModelValidators.String("to", {default: "", trim: true})
+                ModelValidators.String("from", {default: "", trim: false}),
+                ModelValidators.String("to", {default: "", trim: false}),
+                ModelValidators.Boolean("isDisabled", {default: false})
             ])
         ]);
 
@@ -365,23 +394,57 @@ function AddonConnection_create() {
      * @param initialValue {{from: string, to: string}}
      */
     presenter.drawInitialValue = function (initialValue) {
+        function containsID (array, idToFind, toReturn) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].id === idToFind) {
+                    return toReturn;
+                }
+            }
+
+            return false;
+        }
+
         function oneOfValueIsEmpty () {
-            return initialValue.from === "" && initialValue.to === "";
+            return initialValue.from.trim() === "" && initialValue.to.trim() === "";
         }
 
         function areFromDifferentCols() {
-            return true
+            var fromColumn = containsID(presenter.model['Left column'], initialValue.from, presenter.ELEMENT_SIDE.LEFT) ||
+                containsID(presenter.model['Right column'], initialValue.from, presenter.ELEMENT_SIDE.RIGHT);
+
+            var toColumn = containsID(presenter.model['Left column'], initialValue.to, presenter.ELEMENT_SIDE.LEFT) ||
+                containsID(presenter.model['Right column'], initialValue.to, presenter.ELEMENT_SIDE.RIGHT);
+
+            return fromColumn !== toColumn;
+        }
+
+        function bothExists () {
+            var fromExists = containsID(presenter.model['Left column'], initialValue.from, true) ||
+                containsID(presenter.model['Right column'], initialValue.from, true);
+
+            var toExists = containsID(presenter.model['Left column'], initialValue.to, true) ||
+                containsID(presenter.model['Right column'], initialValue.to, true);
+
+            return fromExists && toExists;
         }
 
         var pushed = false;
 
-        if (!oneOfValueIsEmpty() && areFromDifferentCols()) {
+        if (!oneOfValueIsEmpty() && bothExists() && areFromDifferentCols()) {
             pushConnection(new Line(getElementById(initialValue.from), getElementById(initialValue.to)), false);
             pushed = true;
         }
 
         if (pushed) {
             presenter.redraw();
+        } else {
+            if (!oneOfValueIsEmpty()) {
+                if (!bothExists()) {
+                    $(presenter.view).html(presenter.ERROR_MESSAGES['One or two not exists']);
+                } else {
+                    $(presenter.view).html(presenter.ERROR_MESSAGES['Are from the same column']);
+                }
+            }
         }
     };
 
@@ -465,7 +528,6 @@ function AddonConnection_create() {
             presenter.mathJaxProcessEnded.then(function () {
                 presenter.initializeView(view, model);
                 presenter.registerListeners(presenter.view);
-                presenter.drawInitialValues();
             });
         }
 
@@ -560,6 +622,10 @@ function AddonConnection_create() {
     }
 
     function basicClickLogic(element) {
+        if (!isEnabledOrMultiLineMode(element)) {
+            return false;
+        }
+
         // workaround for android webView
         // http://code.google.com/p/android/issues/detail?id=38808
         var current = new Date().getTime();
@@ -664,6 +730,25 @@ function AddonConnection_create() {
         });
     };
 
+    function isEnabledOrMultiLineMode (element) {
+        if (!singleMode) {
+            return true;
+        }
+
+        var elementId = convertId($(element).attr('id'));
+
+        for(var i = 0; i < presenter.initialValues.length; i++) {
+            var initialValue = presenter.initialValues[i];
+
+            if (initialValue.from === elementId || initialValue.to === elementId) {
+                return !initialValue.isDisabled;
+            }
+        }
+
+        return true;
+    }
+
+
     presenter.registerListeners = function (view) {
 
         presenter.$connectionContainer = $(view).find('.connectionContainer');
@@ -709,6 +794,10 @@ function AddonConnection_create() {
                         top: Math.round(e.find('.inner').height()/2)
                     },
                     start: function (event, ui) {
+                        if (!isEnabledOrMultiLineMode(this)) {
+                            event.preventDefault();
+                            return false;
+                        }
                         ui.helper.css("visibility", "hidden");
                         var $iconWrapper = $(e).find(".iconWrapper");
                         scale = playerController.getScaleInformation();
@@ -981,6 +1070,9 @@ function AddonConnection_create() {
         connections.translateCanvas({
             x: 0.5, y: 0.5
         });
+
+        presenter.drawInitialValues();
+        presenter.addDisabledElementsFromInitialValues();
     };
 
     presenter.gatherCorrectConnections = function () {
@@ -1181,6 +1273,8 @@ function AddonConnection_create() {
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
         presenter.disabledConnections = [];
+        presenter.addDisabledElementsFromInitialValues();
+        presenter.drawInitialValues();
     };
 
     presenter.getErrorCount = function () {
@@ -1232,6 +1326,7 @@ function AddonConnection_create() {
         presenter.mathJaxProcessEnded.then(function () {
             if (state != '' && !hookExecuted) {
                 presenter.lineStack.setSendEvents(false);
+                presenter.lineStack.clear();
 
                 var parsedState = JSON.parse(state);
                 var id;
@@ -1348,7 +1443,7 @@ function AddonConnection_create() {
     }
 
     function hasArrayElement(array, element) {
-        for (var arrayIndex in array)
+        for (var arrayIndex = 0; arrayIndex < array.length; arrayIndex++)
             if (array[arrayIndex] === element)
                 return true;
 
@@ -1454,19 +1549,6 @@ function AddonConnection_create() {
     presenter.enableCommand = function (params) {
         presenter.enable(params[0], params[1]);
     };
-
-    function convertIds (id1, id2){
-        id1 = id1.toString();
-        id2 = id2.toString();
-
-        id1 = id1.substr(id1.indexOf("-") + 1);
-        id2 = id2.substr(id2.indexOf("-") + 1);
-
-        return {
-            id1: id1,
-            id2: id2
-        }
-    }
 
     presenter.enable = function(id1, id2) {
         var convertedIds = convertIds(id1, id2);
