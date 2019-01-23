@@ -250,6 +250,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					}
 				}
 			});
+
+			textElements.add(button);
 		}
 	}
 
