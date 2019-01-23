@@ -677,8 +677,7 @@ hr, table, fieldset {
 .ic_text_audio_button{
 	width: 22px;
 	height: 22px;
-	background-repeat-x: no-repeat;
-	background-repeat-y: no-repeat;
+	background-repeat: no-repeat;
 	border-radius: 15px;
 	border: none;
 	background-size: 15px;
