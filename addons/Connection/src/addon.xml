@@ -28,6 +28,7 @@
         </property>
         <property name="Default connection color" nameLabel="Connection_property_default_connection_color" type="string" />
         <property name="Correct connection color" nameLabel="Connection_property_correct_connection_color" type="string" />
+        <property name="disabledConnectionColor" nameLabel="Connection_property_disabled_connection_color" type="string" />
         <property name="Incorrect connection color" nameLabel="Connection_property_incorrect_connection_color" type="string" />
         <property name="Connection thickness" nameLabel="Connection_property_connection_thickness" type="string" />
         <property name="Random order left column" nameLabel="Connection_property_random_order_left_column" type="boolean" />

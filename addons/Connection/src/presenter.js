@@ -45,7 +45,7 @@ function AddonConnection_create() {
     var WRONG_ITEM_CLASS = 'connectionItem-wrong';
 
     presenter.ERROR_MESSAGES = {
-        'ID not unique': 'One or more IDs are not unique.',
+         'ID not unique': 'One or more IDs are not unique.',
          'One or two not exists': 'Provided id for initial value doesn\'t exists',
          'Are from the same column': 'Provided ids for initial value are in the same column'
     };
@@ -54,6 +54,24 @@ function AddonConnection_create() {
         LEFT: 0,
         RIGHT: 1
     };
+
+    function isEnabledOrMultiLineMode (element) {
+        if (!singleMode) {
+            return true;
+        }
+
+        var elementId = convertId($(element).attr('id'));
+
+        for(var i = 0; i < presenter.initialValues.length; i++) {
+            var initialValue = presenter.initialValues[i];
+
+            if (initialValue.from === elementId || initialValue.to === elementId) {
+                return !initialValue.isDisabled;
+            }
+        }
+
+        return true;
+    }
 
     function convertId (id) {
         id = id.toString();
@@ -85,6 +103,7 @@ function AddonConnection_create() {
 
         if (upgradedModel['initialConnections'] === undefined) {
             upgradedModel['initialConnections'] = [];
+            upgradedModel['disabledConnectionColor'] = "";
         }
 
         return upgradedModel;
@@ -211,7 +230,13 @@ function AddonConnection_create() {
                 }
             }
             return lines;
-        }
+        };
+
+        this.getDisabledCount = function () {
+            return this.stack.filter(function (stackElement) {
+                return stackElement.isDisabled();
+            }).length;
+        };
     }
 
     function Line(from, to) {
@@ -227,8 +252,30 @@ function AddonConnection_create() {
                 return to;
             }
             return from;
-        }
+        };
+
+        this.isDisabled = function () {
+            var ids = convertIds($(this.from).attr('id'), $(this.to).attr('id'));
+
+            for (var i = 0; i < presenter.initialValues.length; i++) {
+                var initialValue = presenter.initialValues[i];
+
+                var initialValues = [initialValue.from, initialValue.to];
+
+                if (initialValue.isDisabled) {
+                    if ($.inArray(ids.id1, initialValues) > -1 && $.inArray(ids.id2, initialValues) > -1) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        };
     }
+
+    presenter.showErrorMessage = function (errorCode) {
+        return $(presenter.view).html(presenter.ERROR_MESSAGES[errorCode]);
+    };
 
     presenter.parseDefinitionLinks = function () {
         $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
@@ -377,17 +424,21 @@ function AddonConnection_create() {
 
 
 
-    presenter.getInitialValues = function(model) {
+    presenter.getInitialValues = function (model) {
         var modelValidator = new ModelValidator();
         var validated = modelValidator.validate(model, [
             ModelValidators.List("initialConnections", [
                 ModelValidators.String("from", {default: "", trim: false}),
                 ModelValidators.String("to", {default: "", trim: false}),
                 ModelValidators.Boolean("isDisabled", {default: false})
-            ])
+            ]),
+            ModelValidators.String("disabledConnectionColor", {default: "", trim: true})
         ]);
 
-        return validated.value.initialConnections;
+        return {
+            initialConnections: validated.value.initialConnections,
+            disabledConnectionColor: validated.value.disabledConnectionColor
+        };
     };
 
     /**
@@ -436,20 +487,32 @@ function AddonConnection_create() {
         }
 
         if (pushed) {
-            presenter.redraw();
-        } else {
-            if (!oneOfValueIsEmpty()) {
-                if (!bothExists()) {
-                    $(presenter.view).html(presenter.ERROR_MESSAGES['One or two not exists']);
-                } else {
-                    $(presenter.view).html(presenter.ERROR_MESSAGES['Are from the same column']);
-                }
+            return true;
+        }
+
+        if (!oneOfValueIsEmpty()) {
+            if (!bothExists()) {
+                presenter.showErrorMessage('One or two not exists');
+            } else {
+                presenter.showErrorMessage('Are from the same column');
             }
         }
+
+        return false;
     };
 
     presenter.drawInitialValues = function () {
-        presenter.initialValues.forEach(presenter.drawInitialValue);
+        var redraw = false;
+        this.lineStack.setSendEvents(false);
+        presenter.initialValues.forEach(function (value) {
+            redraw = redraw || presenter.drawInitialValue(value);
+        });
+
+        if (redraw) {
+            presenter.redraw();
+        }
+
+        this.lineStack.setSendEvents(true);
     };
 
     presenter.initialize = function (view, model, isPreview) {
@@ -465,7 +528,10 @@ function AddonConnection_create() {
 
         setSpeechTexts(model['speechTexts']);
 
-        presenter.initialValues = presenter.getInitialValues(model);
+        var initialValues = presenter.getInitialValues(model);
+        presenter.initialValues = initialValues.initialConnections;
+        presenter.disabledConnectionColor = initialValues.disabledConnectionColor;
+
         presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
@@ -528,6 +594,8 @@ function AddonConnection_create() {
             presenter.mathJaxProcessEnded.then(function () {
                 presenter.initializeView(view, model);
                 presenter.registerListeners(presenter.view);
+                presenter.drawInitialValues();
+                presenter.addDisabledElementsFromInitialValues();
             });
         }
 
@@ -729,25 +797,6 @@ function AddonConnection_create() {
             '-o-transform-origin' : '0px 0px'
         });
     };
-
-    function isEnabledOrMultiLineMode (element) {
-        if (!singleMode) {
-            return true;
-        }
-
-        var elementId = convertId($(element).attr('id'));
-
-        for(var i = 0; i < presenter.initialValues.length; i++) {
-            var initialValue = presenter.initialValues[i];
-
-            if (initialValue.from === elementId || initialValue.to === elementId) {
-                return !initialValue.isDisabled;
-            }
-        }
-
-        return true;
-    }
-
 
     presenter.registerListeners = function (view) {
 
@@ -955,7 +1004,7 @@ function AddonConnection_create() {
         presenter.columnSizes[columnModel] = model[columnModel].length;
         var id = model[columnModel][i]['id'];
         if (!this.isIDUnique(id)) {
-            return $(this.view).html(this.ERROR_MESSAGES['ID not unique']);
+            return presenter.showErrorMessage('ID not unique');
         }
         var element = $('<table class="connectionItem" id="connection-' + id + '"></div>');
         var row = $('<tr></tr>');
@@ -1070,9 +1119,6 @@ function AddonConnection_create() {
         connections.translateCanvas({
             x: 0.5, y: 0.5
         });
-
-        presenter.drawInitialValues();
-        presenter.addDisabledElementsFromInitialValues();
     };
 
     presenter.gatherCorrectConnections = function () {
@@ -1194,6 +1240,10 @@ function AddonConnection_create() {
     };
 
     function drawLine(line, color) {
+        if (line.isDisabled() && presenter.disabledConnectionColor !== "") {
+            color = presenter.disabledConnectionColor;
+        }
+
         var from = presenter.getElementSnapPoint(line.from);
         var to = presenter.getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
@@ -1293,7 +1343,7 @@ function AddonConnection_create() {
     presenter.getMaxScore = function () {
         if (presenter.isNotActivity) return 0;
 
-        return presenter.correctConnections.length();
+        return presenter.correctConnections.length() - presenter.correctConnections.getDisabledCount();
     };
 
     presenter.getScore = function () {
@@ -1303,7 +1353,9 @@ function AddonConnection_create() {
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
             if (presenter.correctConnections.hasLine(line).length > 0) {
-                score++;
+                if (!line.isDisabled()) {
+                    score++;
+                }
             }
         }
         return score;
@@ -1824,5 +1876,9 @@ function AddonConnection_create() {
         }
     };
 
+
+    presenter.__internal__ = {
+        Line: Line
+    };
     return presenter;
 }

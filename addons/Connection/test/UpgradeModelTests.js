@@ -1,4 +1,4 @@
-UpgradeModelTests = TestCase("Upgrade tasks tests");
+UpgradeModelTests = TestCase("[Connection] Upgrade tasks tests");
 
 UpgradeModelTests.prototype.setUp = function() {
     this.presenter = AddonConnection_create();
@@ -43,7 +43,9 @@ UpgradeModelTests.prototype.setUp = function() {
         "Default connection color": "",
         "Correct connection color": "",
         "Incorrect connection color": "",
-        "Connection thickness, string": ""
+        "Connection thickness, string": "",
+        "disabledConnectionColor": "",
+        "initialConnections": []
     };
 };
 
@@ -65,4 +67,27 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
 
     assertEquals(this.currentModel, upgradedModel);
     assertNotEquals(this.model, upgradedModel);
+};
+
+UpgradeModelTests.prototype.testGivenEmptyModelWhenUpgradeStartValuesIsCalledThenReturnsUpgradedModel = function () {
+    var emptyModel = {};
+    var expectedModel = {
+        "disabledConnectionColor": "",
+        "initialConnections": []
+    };
+    var upgradedModel = this.presenter.upgradeStartValues(emptyModel);
+
+    assertNotEquals(emptyModel, upgradedModel);
+    assertEquals(expectedModel, upgradedModel);
+};
+
+UpgradeModelTests.prototype.testGivenModelWithFilledDisabledFieldsWhenUpgradeModelIsCalledThenWillReturnTheSameObject = function () {
+    var modelToUpgrade = {
+        "disabledConnectionColor": "abc",
+        "initialConnections": ["a", "b", "C"]
+    };
+
+    var upgradedModel = this.presenter.upgradeStartValues(modelToUpgrade);
+
+    assertEquals(modelToUpgrade, upgradedModel);
 };
