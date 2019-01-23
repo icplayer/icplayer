@@ -1,11 +1,5 @@
 package com.lorepo.icplayer.client.module.text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
@@ -15,6 +9,7 @@ import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
+import java.util.*;
 
 public class TextParser {
 
@@ -24,6 +19,7 @@ public class TextParser {
 		public List<GapInfo> gapInfos = new ArrayList<GapInfo>();
 		public List<InlineChoiceInfo> choiceInfos = new ArrayList<InlineChoiceInfo>();
 		public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
+		public List<AudioInfo> audioInfos = new ArrayList<AudioInfo>();
 	}
 
 	private String baseId = "";
@@ -78,49 +74,7 @@ public class TextParser {
 		
 		return parse(srcText);
 	}
-	
-	private List<String> calculateGapsOrder (String text) {
-		String rawText = getRawTextSource(text);
-		ArrayList<String> result = new ArrayList<String>();
-		
-		for (int i=0; i<rawText.length(); i++) {
-			String currentChar = Character.toString((char) rawText.charAt(i));
-			String nextChar = i+1 < rawText.length() ? Character.toString((char) rawText.charAt(i+1)) : "_";
-			String lastChar = i+2 < rawText.length() ? Character.toString((char) rawText.charAt(i+2)) : "_";
-			
-			if (currentChar == "#" && lastChar == "#") {
-				if (nextChar == "1") {
-					result.add("gap");
-				}
-				
-				if (nextChar == "2") {
-					result.add("dropdown");
-				}
-				
-				if (nextChar == "3") {
-					result.add("math");
-				}
-				
-				if (nextChar == "4") {
-					result.add("gap");
-				}
-			}
-		}
-		
-		return result;
-	}
-	
-	public String getRawTextSource (String text) {
-		final String availableCharsInGapContent = "[^\\}]+";
-		
-		return text
-			.replaceAll("\\<.*?>", "").replaceAll("&nbsp;", "")
-			.replaceAll("\\\\gap\\{" + availableCharsInGapContent + "\\}", "#1#")
-			.replaceAll("\\{\\{" + availableCharsInGapContent + "\\}\\}", "#2#")
-			.replaceAll("\\\\(" + availableCharsInGapContent + "\\\\)", "#3#")
-			.replaceAll("\\\\filledGap\\{" + availableCharsInGapContent + "\\}", "#4#");
-	}
-	
+
 	public ParserResult parse (String srcText) {
 		this.gapsOrder = calculateGapsOrder(srcText);
 
@@ -135,6 +89,7 @@ public class TextParser {
 			} else {
 				if (!skipGaps) {
 					parserResult.parsedText = parseGaps(srcText);
+					parserResult.parsedText = parseAudio(parserResult.parsedText);
 					if (!useMathGaps) {
 						parserResult.parsedText = escapeAltText(parserResult.parsedText);
 						parserResult.parsedText = parseOldSyntax(parserResult.parsedText);
@@ -155,14 +110,60 @@ public class TextParser {
 
 		return parserResult;
 	}
-	
+
+	private List<String> calculateGapsOrder (String text) {
+		String rawText = getRawTextSource(text);
+		ArrayList<String> result = new ArrayList<String>();
+
+		for (int i=0; i<rawText.length(); i++) {
+			String currentChar = Character.toString((char) rawText.charAt(i));
+			String nextChar = i+1 < rawText.length() ? Character.toString((char) rawText.charAt(i+1)) : "_";
+			String lastChar = i+2 < rawText.length() ? Character.toString((char) rawText.charAt(i+2)) : "_";
+
+			if (currentChar == "#" && lastChar == "#") {
+				if (nextChar == "1") {
+					result.add("gap");
+				}
+
+				if (nextChar == "2") {
+					result.add("dropdown");
+				}
+
+				if (nextChar == "3") {
+					result.add("math");
+				}
+
+				if (nextChar == "4") {
+					result.add("gap");
+				}
+
+				if (nextChar == "5") {
+					result.add("audio");
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private String getRawTextSource (String text) {
+		final String availableCharsInGapContent = "[^\\}]+";
+		return text
+				.replaceAll("\\<.*?>", "").replaceAll("&nbsp;", "")
+				.replaceAll("\\\\gap\\{" + availableCharsInGapContent + "\\}", "#1#")
+				.replaceAll("\\{\\{" + availableCharsInGapContent + "\\}\\}", "#2#")
+				.replaceAll("\\\\(" + availableCharsInGapContent + "\\\\)", "#3#")
+				.replaceAll("\\\\filledGap\\{" + availableCharsInGapContent + "\\}", "#4#")
+				.replaceAll("\\\\audio\\{" + availableCharsInGapContent + "\\}", "#5#");
+	}
+
 	private ParserResult parseInEditorMode(String srcText) {
 		ParserResult result = new ParserResult();
-		
 		result.parsedText = parseGaps(srcText);
 		result.parsedText = parseOldSyntax(result.parsedText);
-		
 		result.parsedText = parseDefinitions(result.parsedText);
+		result.parsedText = parseAudio(result.parsedText);
+
 		return result;
 	}
 
@@ -929,6 +930,59 @@ public class TextParser {
 
 		output += input;
 		return output;
+	}
+
+	private String parseAudio(String srcText) {
+		final String patternString = "\\\\audio\\{(.+?)\\}";
+		RegExp regexp = RegExp.compile(patternString);
+		MatchResult matchResult;
+
+		String input = srcText;
+		String output = "";
+
+		while ((matchResult = regexp.exec(input)) != null) {
+			if (matchResult.getGroupCount() > 0) {
+				String group = matchResult.getGroup(0);
+				String filePath = matchResult.getGroup(1);
+				int lastIndex = matchResult.getIndex();
+				int groupLength = group.length();
+
+				output += input.substring(0, lastIndex);
+				input = input.substring(lastIndex + groupLength);
+				output += createAudio(filePath);
+			} else {
+				break;
+			}
+
+		}
+		output += input;
+
+		return output;
+	}
+
+	private String createAudio(String filePath) {
+		String id = UUID.uuid(8);
+
+		AudioInfo info = new AudioInfo(id);
+		parserResult.audioInfos.add(info);
+
+		DomElementManipulator buttonElement = new DomElementManipulator("input");
+		buttonElement.setHTMLAttribute("id", AudioButtonWidget.BUTTON_ID_PREFIX + id);
+		buttonElement.addClass(AudioButtonWidget.BUTTON_CLASS);
+		buttonElement.addClass(AudioButtonWidget.BUTTON_CLASS_PLAY_STYLE);
+		buttonElement.setHTMLAttribute("type", "button");
+
+		if (editorMode) {
+			buttonElement.setHTMLAttribute("data-audio-value", "\\audio{" + filePath + "}");
+			buttonElement.setHTMLAttribute("style", "width: 22px; height: 22px; vertical-align: middle;");
+			return buttonElement.getHTMLCode();
+		}
+
+		DomElementManipulator audioElement = new DomElementManipulator("audio");
+		audioElement.setHTMLAttribute("id", AudioWidget.AUDIO_ID_PREFIX + id);
+		audioElement.setHTMLAttribute("src", filePath);
+
+		return buttonElement.getHTMLCode() + audioElement.getHTMLCode();
 	}
 
 

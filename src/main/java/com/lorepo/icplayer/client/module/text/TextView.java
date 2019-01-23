@@ -1,10 +1,11 @@
 package com.lorepo.icplayer.client.module.text;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.dom.client.AudioElement;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
@@ -216,7 +217,42 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			}
 		}
 	}
-	
+
+	@Override
+	public void connectAudios(Iterator<AudioInfo> iterator) {
+		while (iterator.hasNext()) {
+			final AudioInfo info = iterator.next();
+			String id = info.getId();
+
+			Element buttonElement = DOM.getElementById(AudioButtonWidget.BUTTON_ID_PREFIX + id);
+			AudioButtonWidget button = new AudioButtonWidget(buttonElement);
+
+			AudioElement audioElement = Document.get().getElementById(AudioWidget.AUDIO_ID_PREFIX + id).cast();
+			AudioWidget audio = new AudioWidget(audioElement);
+
+			info.setAudio(audio);
+			info.setButton(button);
+
+			button.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent clickEvent) {
+					if (listener != null) {
+						listener.onAudioButtonClicked(info);
+					}
+				}
+			});
+
+			audio.addEndedHandler(new EndedHandler() {
+				@Override
+				public void onEnded(EndedEvent endedEvent) {
+					if (listener != null) {
+						listener.onAudioEnded(info);
+					}
+				}
+			});
+		}
+	}
+
 	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<TextElementDisplay> textElements) {
 		for (int i=startingIndex; i<textElements.size(); i++) {
 			TextElementDisplay textElement = textElements.get(i);
@@ -230,7 +266,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	public void sortGapsOrder () {
-//		final List<String> gapsOrder = module.getGapsOrder();
 		final List<String> gapsOrder = WCAGUtils.getGapsOrder(module);
 		final int gapsOrderSize = gapsOrder.size();
 		final int textElementsSize = textElements.size();

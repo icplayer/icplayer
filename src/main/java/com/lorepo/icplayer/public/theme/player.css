@@ -671,6 +671,29 @@ hr, table, fieldset {
 	cursor: pointer;
 }
 
+/*
+ * Text
+ */
+.ic_text_audio_button{
+	width: 22px;
+	height: 22px;
+	background-repeat-x: no-repeat;
+	background-repeat-y: no-repeat;
+	border-radius: 15px;
+	border: none;
+	background-size: 15px;
+	background-position: center;
+	vertical-align: middle;
+}
+
+.ic_text_audio_button.text-audio-button-play{
+	background-image: url("images/text-audio-play.png");
+}
+
+.ic_text_audio_button.text-audio-button-stop{
+	background-image: url("images/text-audio-stop.png");
+}
+
 /**
  * Source image
  */
