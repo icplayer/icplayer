@@ -46,4 +46,9 @@ public class AdaptiveLearningServiceMockup implements IAdaptiveLearningService {
 	@Override
 	public void loadFromString(String state) {	}
 
+	@Override
+	public String getPageDifficulty(String pageID) {
+		return "0";
+	}
+
 }

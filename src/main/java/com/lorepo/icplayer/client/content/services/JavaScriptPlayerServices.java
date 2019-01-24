@@ -393,9 +393,9 @@ public class JavaScriptPlayerServices {
 			adaptive.getCurrentPageConnections = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveConnectionCurrentPage()();
 			};
-
-			adaptive.addNextPage = function(pageId) {
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addNextAdaptivePage(Ljava/lang/String;)(pageId);
+			
+			adaptive.addNextPage = function(pageID) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addNextAdaptivePage(Ljava/lang/String;)(pageID);
 			};
 
 			adaptive.getPageConnections = function(pageID) {
@@ -416,6 +416,10 @@ public class JavaScriptPlayerServices {
 
 			adaptive.resetHistory = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetHistory()();
+			}
+
+			adaptive.getPageDifficulty = function(pageID) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageDifficulty(Ljava/lang/String;)(pageID);
 			}
 
 			return adaptive;
@@ -639,6 +643,7 @@ public class JavaScriptPlayerServices {
 		JavaScriptUtils.addPropertyToJSArray(model, "errorCount", score.getErrorCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "mistakeCount", score.getMistakeCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "weight", score.getWeight());
+		JavaScriptUtils.addPropertyToJSArray(model, "scaledScore", Float.toString(score.getScaledScore()));
 		return model;
 	}
 
@@ -812,8 +817,11 @@ public class JavaScriptPlayerServices {
 		this.playerServices.getAdaptiveLearningService().addNextPage(pageId);
 	}
 
-
 	public JavaScriptObject getModuleMetadata(String moduleID) {
 		return this.playerServices.getModule(moduleID).getModel().getMetadata().toJavaScript();
+	}
+
+	public String getPageDifficulty(String pageId) {
+		return this.playerServices.getAdaptiveLearningService().getPageDifficulty(pageId);
 	}
 }

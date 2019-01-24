@@ -8,6 +8,7 @@ public interface IAdaptiveLearningService {
 	public JsArray<AdaptiveConnection> getConnectionsForPage(String pageID);
 	public JsArray<AdaptiveConnection> getConnectionsForPage();
 	public int getPageStep(String pageID);
+	public String getPageDifficulty(String pageID);
 	public void addNextPage(String pageID);
 	public boolean isNextPageAvailable();
 	public void moveToNextPage();

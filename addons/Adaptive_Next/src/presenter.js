@@ -90,8 +90,18 @@ function AddonAdaptive_Next_create() {
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
     };
 
+    presenter.destroy = function (event) {
+         if (event.target !== this) {
+            return;
+        }
+
+        presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
+        presenter.$view.find('div[class*=adaptive-next-button-element]').off("click", presenter.clickHandler);
+    };
+
     function presenterLogic(view, model, isPreview) {
         presenter.addonID = model.ID;
+        presenter.view = view;
         presenter.$view = $(view);
 
         var validatedModel = presenter.validateModel(model);

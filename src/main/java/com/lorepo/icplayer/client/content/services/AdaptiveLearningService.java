@@ -137,4 +137,9 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		return pageToSteps.getPageStep(pageID);
 	}
 
+	@Override
+	public String getPageDifficulty(String pageID) {
+		return structure.getDifficultyForPage(pageID);
+	}
+
 }

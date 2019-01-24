@@ -33,7 +33,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 	private IContent		contentModel;
 	private final IJsonServices	jsonMockup;
 	private final PlayerEventBusServiceMockup eventBusService;
-	private final AdaptiveLearningServiceMockup adaptiveLearningService; 
+	private final AdaptiveLearningServiceMockup adaptiveLearningService;
 
 	public PlayerServicesMockup() {
 		contentModel = new Content();
@@ -260,7 +260,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 	@Override
 	public IPlayerEventBusService getEventBusService() {
-		return this.eventBusService; 
+		return this.eventBusService;
 	}
 
 
