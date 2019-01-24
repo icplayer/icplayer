@@ -71,7 +71,12 @@ TestCase("[Connection] Drawing initial values", {
 
     'test given initial values when drawInitialValues is called then will call drawInitialValue for each value': function () {
         this.presenter.initialValues = [sinon.stub(), sinon.stub(), sinon.stub()];
-        this.presenter.drawInitialValue = sinon.spy();
+        this.presenter.drawInitialValue = sinon.stub();
+
+        this.presenter.drawInitialValue.onCall(0).returns(true);
+        this.presenter.drawInitialValue.onCall(1).returns(false);
+        this.presenter.drawInitialValue.onCall(2).returns(false);
+
         this.presenter.redraw = function () {};
 
         this.presenter.drawInitialValues();

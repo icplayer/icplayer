@@ -479,14 +479,8 @@ function AddonConnection_create() {
             return fromExists && toExists;
         }
 
-        var pushed = false;
-
         if (!oneOfValueIsEmpty() && bothExists() && areFromDifferentCols()) {
             pushConnection(new Line(getElementById(initialValue.from), getElementById(initialValue.to)), false);
-            pushed = true;
-        }
-
-        if (pushed) {
             return true;
         }
 
@@ -505,7 +499,7 @@ function AddonConnection_create() {
         var redraw = false;
         this.lineStack.setSendEvents(false);
         presenter.initialValues.forEach(function (value) {
-            redraw = redraw || presenter.drawInitialValue(value);
+            redraw = presenter.drawInitialValue(value) || redraw;
         });
 
         if (redraw) {
