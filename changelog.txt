@@ -1,3 +1,5 @@
+2019-01-22 Fixed getting error count in Shooting Range module
+2019-01-21 Added disable and enable commands for TextAudio addon
 2019-01-14 Added new addon Limited Submit
 2019-01-14 Fixed a model in media recorder addon
 2019-01-14 Added a end of game event to a shooting range addon

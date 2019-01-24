@@ -24,6 +24,14 @@ TestCase('[Limited Submit] Tabindex tests', {
 
                 'noBlockEdit': {
                     'textToSpeechText': 'Edition of this page is not blocked'
+                },
+
+                'selected': {
+                    'textToSpeechText': 'text select'
+                },
+
+                'notAllAttempted': {
+                    'textToSpeechText': 'text select'
                 }
             }
         };

@@ -716,7 +716,6 @@ function AddonShooting_Range_create() {
 
     presenter.getErrorCount = function () {
         var lastErrorCount = presenter.state.errorCount;
-        presenter.state.errorCount = 0;
 
         return lastErrorCount;
     };

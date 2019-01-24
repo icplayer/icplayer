@@ -594,6 +594,7 @@ var ice_dictionary_en = {
 	"TextAudio_property_vocabulary_on_end": "On end",
     "TextAudio_property_is_click_disabled": "Is Click Disabled",
     "TextAudio_property_show_slides": "Show slides",
+	"TextAudio_property_is_disabled": "Is disabled",
     "TextAudio_property_position_and_dimentions": "Position and dimentions",
 	"Connection_info": "Allows to create an activity with two columns of items (texts or images) which match one another. The activity can work either in a single or a multiple connection mode where each item can be used in multiple links.",
 	"Connection_name": "Connection",
