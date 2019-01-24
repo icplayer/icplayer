@@ -24,6 +24,14 @@ TestCase('[Limited_Show_Answers] Tabindex tests', {
 
                 'noBlockEdit': {
                     'textToSpeechText': 'Edition of this page is not blocked'
+                },
+
+                'selected': {
+                    'textToSpeechText': 'text select'
+                },
+
+                'notAllAttempted': {
+                    'textToSpeechText': 'text select'
                 }
             }
         };
