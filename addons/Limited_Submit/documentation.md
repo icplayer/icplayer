@@ -1,6 +1,6 @@
 ## Description
 
-Limited Submit works in the same way as Submit button but contains possibility to select specific addons with will be work.
+Limited Submit works in the same way as the Submit button but gives the possibility of selecting specific addons to work with it.
 
 ## Properties
 
@@ -19,7 +19,7 @@ Limited Submit works in the same way as Submit button but contains possibility t
     </tr>
     <tr>
         <td>Works with</td>
-        <td>List of addons which will be checked by Limited Submit separated by new line.</td>
+        <td>List of addons to be checked by Limited Submit separated by new lines.</td>
     </tr>
     <tr>
         <td>Speech texts</td>
@@ -30,19 +30,19 @@ Limited Submit works in the same way as Submit button but contains possibility t
             </tr>
             <tr>
                 <td>Selected</td>
-                <td>Text which will be read when button is selected, when selection is over button.</td>
+                <td>Text to be read when the button is selected, when the selection is over the button.</td>
             </tr>
             <tr>
                 <td>The exercise edition is blocked</td>
-                <td>Text which will be read when button changed state to selected.</td>
+                <td>Text to be read when the button changed its state to 'selected'.</td>
             </tr>
             <tr>
                 <td>The exercise is not blocked</td>
-                <td>Text which will be read when button changed state to deselected.</td>
+                <td>Text to be read when the button changed its state to 'deselected'.</td>
             </tr>
             <tr>
                 <td>Not attempted</td>
-                <td>Text which will be read when one of addon is not attempted</td>
+                <td>Text to be read when one addon was not 'attempted'</td>
             </tr>
         </table></td>
     </tr>    
@@ -69,7 +69,7 @@ Limited Submit works in the same way as Submit button but contains possibility t
     <tr>
         <td>getWorksWithModulesList</td>
         <td>---</td>
-        <td>Get list of moduls configuerd in "Works With" property.
+        <td>Gets list of modules configuerd in "Works With" property.
     </tr>
 </table>
 
@@ -87,9 +87,9 @@ It sends <b>ValueChanged</b> event when a user selects the button.
     <tr>
         <td>Value</td>
         <td>
-            <b>selected</b> - it is sent when all modles was attempted and button changed state to selected by user click.<br />
-            <b>deselected</b> - it is sent when button changed state to deselected by user click.<br />
-            <b>canceled</b> - it sent when not all modules was attempted.
+            <b>selected</b> - it is sent when all modules were attempted and the button changed its state to 'selected' by a user's click.<br />
+            <b>deselected</b> - it is sent when the button changed its state to 'deselected' by a user's click.<br />
+            <b>canceled</b> - it is sent when not all modules were attempted.
         </td>
     </tr>
     <tr>
@@ -142,4 +142,4 @@ It sends <b>ValueChanged</b> event when a user selects the button.
 </pre>
 
 ## Demo presentation
-[Demo presentation](/embed/6082998918971392 "Demo presentation") contains examples of how this addon can be used.               
+[Demo presentation](/embed/6082998918971392 "Demo presentation") contains examples of how this addon can be used.                 
