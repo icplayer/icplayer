@@ -323,7 +323,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	public void rerenderMathJax () {
-		MathJax.rerenderMathJax(getElement());+
+		MathJax.rerenderMathJax(getElement());
 		// If mathjax was re rendered then gaps lost handlers to thers DOM elements.
 		this.reconnectHandlers();
 	}
