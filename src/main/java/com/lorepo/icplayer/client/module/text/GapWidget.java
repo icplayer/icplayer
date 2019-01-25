@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.text;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.google.gwt.core.client.Scheduler;
@@ -14,6 +15,7 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TextBox;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -28,19 +30,39 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	private boolean isSelected = false;
 	private boolean isWorkingMode = true;
 	private int gapState = 0;
+	private ArrayList<HandlerRegistration> handlers = new ArrayList<HandlerRegistration>();
 	
-	public GapWidget(GapInfo gi, final ITextViewListener listener){
-
+	
+	public GapWidget(GapInfo gi, ITextViewListener listener){
 		super(DOM.getElementById(gi.getId()));
-
 		gapInfo = gi;
+		
+		this.initialize(listener);
+	}
+	
+	public void reconnectHandlers (ITextViewListener listener) {
+		/**
+		 * When gap is rerendered by MathJax then will lost connection to DOM element (handlers doesn't work). 
+		 * In this case we need to drop old gap, find new one and set listeners to him.
+		 */
+		String value = this.getTextValue();
+		this.removeHandlers();
+		this.onDetach();
+		this.setElement(DOM.getElementById(this.gapInfo.getId()));
+		
+		this.initialize(listener);
+		this.setText(value);
+	}
+	
+	private void initialize (ITextViewListener listener) {
+
 		setStylePrimaryName("ic_gap");
 
-		if (gi.getMaxLength()>0) {
-			int max_length = gi.getMaxLength();
-			max_length = Math.max(max_length, gi.getPlaceHolder().length());
+		if (this.gapInfo.getMaxLength()>0) {
+			int max_length = this.gapInfo.getMaxLength();
+			max_length = Math.max(max_length, this.gapInfo.getPlaceHolder().length());
 			String answer;
-			Iterator<String> get_answers = gi.getAnswers();
+			Iterator<String> get_answers = this.gapInfo.getAnswers();
 			while (get_answers.hasNext()) {
 				answer = get_answers.next();
 				if (answer.length() > max_length) {
@@ -52,9 +74,20 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 
 		onAttach();
 
+		this.connectHandlers(listener);		
+	}
+	
+	private void removeHandlers () {
+		for (HandlerRegistration handler: this.handlers) {
+			handler.removeHandler();
+		}
+		
+		this.handlers.clear();
+	}
+	
+	private void connectHandlers (final ITextViewListener listener) {
 		if (listener != null) {
-
-			addKeyUpHandler(new KeyUpHandler() {
+			this.handlers.add(addKeyUpHandler(new KeyUpHandler() {
 				@Override
 				public void onKeyUp(KeyUpEvent event) {
 					if(shouldSendEvent()) {
@@ -62,9 +95,9 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 						listener.onUserAction(gapInfo.getId(), getText());
 					}
 				}
-			});
+			}));
 			
-			addValueChangeHandler(new ValueChangeHandler<String>() {
+			this.handlers.add(addValueChangeHandler(new ValueChangeHandler<String>() {
 
 				@Override
 				public void onValueChange(ValueChangeEvent<String> event) {
@@ -73,22 +106,22 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 						listener.onUserAction(gapInfo.getId(), getText());
 					}
 				}
-			});
+			}));
 			
-			addBlurHandler(new BlurHandler() {
+			this.handlers.add(addBlurHandler(new BlurHandler() {
 				public void onBlur(BlurEvent event) {
 					listener.onKeyAction(gapInfo.getId(), event.getRelativeElement());
 				}
-			});
+			}));
 
-			addBlurHandler(new BlurHandler() {
+			this.handlers.add(addBlurHandler(new BlurHandler() {
 				@Override
 				public void onBlur(BlurEvent event) {
 					listener.onValueChanged(gapInfo.getId(), getText());
 				}
-			});
+			}));
 
-			addDropHandler(new DropHandler() {
+			this.handlers.add(addDropHandler(new DropHandler() {
 
 				@Override
 				public void onDrop(DropEvent event) {
@@ -103,15 +136,15 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 					}
 
 				}
-			});
-		}
-		addClickHandler(new ClickHandler() {
+			}));
+		} 
+		
+		this.handlers.add(addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
 			}
-		});
-
+		}));		
 	}
 
 	private boolean shouldSendEvent() {
