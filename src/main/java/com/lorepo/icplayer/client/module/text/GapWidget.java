@@ -46,12 +46,14 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		 * In this case we need to drop old gap, find new one and set listeners to him.
 		 */
 		String value = this.getTextValue();
+		boolean isDisabled = this.isDisabled();
 		this.removeHandlers();
 		this.onDetach();
 		this.setElement(DOM.getElementById(this.gapInfo.getId()));
 		
 		this.initialize(listener);
 		this.setText(value);
+		this.setDisabled(isDisabled);
 	}
 	
 	private void initialize (ITextViewListener listener) {
