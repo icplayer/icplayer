@@ -1,49 +1,26 @@
-function getModelColumnData(id) {
-    return {
-        id: id
-    }
-}
-
-function getInitialValue(from, to) {
-    return {
-        from: from,
-        to: to
-    }
-}
-
-function getElement (id) {
-    return {
-        id: id,
-        element: {
-            get: sinon.stub()
-        }
-    };
-}
-
 TestCase("[Connection] Drawing initial values", {
     setUp: function () {
         this.presenter = AddonConnection_create();
         this.presenter.elements = [
-            getElement("a"),
-            getElement("b"),
-            getElement("c"),
-            getElement("1"),
-            getElement("2"),
-            getElement("3")
+            this.getElement("a"),
+            this.getElement("b"),
+            this.getElement("c"),
+            this.getElement("1"),
+            this.getElement("2"),
+            this.getElement("3")
 
         ];
-        this.presenter.showErrorMessage = sinon.spy();
 
         this.presenter.model = {
             'Left column': [
-                getModelColumnData("a"),
-                getModelColumnData("b"),
-                getModelColumnData("c")
+                this.getModelColumnData("a"),
+                this.getModelColumnData("b"),
+                this.getModelColumnData("c")
             ],
             'Right column': [
-                getModelColumnData("1"),
-                getModelColumnData("2"),
-                getModelColumnData("3")
+                this.getModelColumnData("1"),
+                this.getModelColumnData("2"),
+                this.getModelColumnData("3")
             ]
         }
     },
@@ -55,7 +32,7 @@ TestCase("[Connection] Drawing initial values", {
         this.presenter.drawInitialValue = function () {
             // Check if for each drawInitialValue call setSendEvents was only once called
             if (this.presenter.lineStack.setSendEvents.callCount !== 1) {
-                wasEnabled = false;
+                wasEnabled = true;
             }
         }.bind(this);
 
@@ -100,27 +77,12 @@ TestCase("[Connection] Drawing initial values", {
         assertTrue(this.presenter.redraw.calledOnce);
     },
 
-    'test given inital values without correct value when drawInitialValues is called then redraw wont be called': function () {
-        this.presenter.drawInitialValue = sinon.stub();
-        this.presenter.drawInitialValue.onCall(0).returns(false);
-        this.presenter.drawInitialValue.onCall(1).returns(false);
-        this.presenter.drawInitialValue.onCall(2).returns(false);
-        this.presenter.initialValues = [sinon.stub(), sinon.stub(), sinon.stub()];
-        this.presenter.redraw = sinon.spy();
-
-        this.presenter.drawInitialValues();
-
-        assertFalse(this.presenter.redraw.called);
-    },
-
     'test given correct initial value when drawInitialValue is called then will push new line and will return true': function () {
         this.presenter.lineStack.setSendEvents(false);
-        var initialValue = getInitialValue("a", "1");
+        var initialValue = this.getInitialValue("a", "1");
 
-        var output = this.presenter.drawInitialValue(initialValue);
+        this.presenter.drawInitialValue(initialValue);
 
-        assertTrue(output);
-        assertFalse(this.presenter.showErrorMessage.called);
         assertEquals(1, this.presenter.lineStack.length());
         assertEquals(this.presenter.elements[0].element, this.presenter.lineStack.get(0).from);
         assertEquals(this.presenter.elements[3].element, this.presenter.lineStack.get(0).to);
@@ -128,53 +90,32 @@ TestCase("[Connection] Drawing initial values", {
 
     'test given empty initial value entry when drawInitialValue is called then will return false and doesn\'t put new linee': function () {
         this.presenter.lineStack.setSendEvents(false);
-        var initialValue = getInitialValue("", "");
+        var initialValue = this.getInitialValue("", "");
 
-        var output = this.presenter.drawInitialValue(initialValue);
+        this.presenter.drawInitialValue(initialValue);
 
-        assertFalse(output);
         assertEquals(0, this.presenter.lineStack.length());
-        assertFalse(this.presenter.showErrorMessage.called);
-
     },
 
-    'test given "from" value with not existing value when drawInitialValue is called then will return false, set error message to view and doesn\'t put new line': function () {
-        this.presenter.lineStack.setSendEvents(false);
-
-        var initialValue = getInitialValue("abc", "1");
-
-        this.callAndExpectError(initialValue, "One or two not exists");
+    getModelColumnData: function(id) {
+        return {
+            id: id
+        };
     },
 
-    'test given "to" value with not existing value when drawInitialValue is called then will return false, set error message to view and doesn\'t put new line': function () {
-        this.presenter.lineStack.setSendEvents(false);
-
-        var initialValue = getInitialValue("a", "123");
-
-        this.callAndExpectError(initialValue, "One or two not exists");
+    getInitialValue: function (from, to) {
+        return {
+            from: from,
+            to: to
+        };
     },
 
-    'test given "from" and "to" from left col when drawInitialValue is called then will return false, set error message and doesn\'t put new line': function () {
-        this.presenter.lineStack.setSendEvents(false);
-
-        var initialValue = getInitialValue("a", "b");
-
-        this.callAndExpectError(initialValue, "Are from the same column");
-    },
-
-    'test given "from" and "to" from right col when drawInitialValue is called then will return false, set error message and doesn\'t put new line': function () {
-        this.presenter.lineStack.setSendEvents(false);
-
-        var initialValue = getInitialValue("1", "2");
-
-        this.callAndExpectError(initialValue, "Are from the same column");
-    },
-
-    callAndExpectError: function (initialValue, errorMessage) {
-        var output = this.presenter.drawInitialValue(initialValue);
-        assertFalse(output);
-        assertTrue(this.presenter.showErrorMessage.calledOnce);
-        assertEquals(errorMessage, this.presenter.showErrorMessage.getCall(0).args[0]);
-        assertEquals(0, this.presenter.lineStack.length());
+    getElement: function (id) {
+        return {
+            id: id,
+            element: {
+                get: sinon.stub()
+            }
+        };
     }
 });

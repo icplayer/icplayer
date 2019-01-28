@@ -1,18 +1,11 @@
-function getInitialValue (from, to, isDiabled) {
-    return {
-        from: from,
-        to: to,
-        isDisabled: isDiabled
-    };
-}
-
 TestCase("[Connection] Line", {
     setUp: function () {
+        debugger;
         this.presenter = AddonConnection_create();
         this.presenter.initialValues = [
-            getInitialValue("a", "1", true),
-            getInitialValue("b", "2", false),
-            getInitialValue("ab", "3", false)
+            this.getInitialValue("a", "1", true),
+            this.getInitialValue("b", "2", false),
+            this.getInitialValue("ab", "3", false)
         ];
         var fromElement = $('<div id="connection-1"></div>');
         var toElement = $('<div id="connection-a"></div>');
@@ -21,6 +14,7 @@ TestCase("[Connection] Line", {
     },
 
     'test given initial values with disabled path when isDisabled is called then will return true': function () {
+        debugger;
         var expectedValue = true;
 
         var isDisabled = this.line.isDisabled();
@@ -44,5 +38,13 @@ TestCase("[Connection] Line", {
         var isDisabled = this.line.isDisabled();
 
         assertEquals(expectedValue, isDisabled);
+    },
+
+    getInitialValue: function (from, to, isDisabled) {
+        return {
+            from: from,
+            to: to,
+            isDisabled: isDisabled
+        };
     }
 });

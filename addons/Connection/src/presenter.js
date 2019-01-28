@@ -21,6 +21,7 @@ function AddonConnection_create() {
     presenter.speechTexts = {};
     presenter.columnSizes = {};
     presenter.lineStackSA = [];
+    presenter.isValid = true;
 
     presenter.isShowAnswersActive = false;
     presenter.isCheckActive = false;
@@ -46,7 +47,7 @@ function AddonConnection_create() {
 
     presenter.ERROR_MESSAGES = {
          'ID not unique': 'One or more IDs are not unique.',
-         'One or two not exists': 'Provided id for initial value doesn\'t exists',
+         'One or two not exist': 'Provided id for initial value doesn\'t exists',
          'Are from the same column': 'Provided ids for initial value are in the same column'
     };
 
@@ -84,6 +85,10 @@ function AddonConnection_create() {
             id1: convertId(id1),
             id2: convertId(id2)
         }
+    }
+
+    function isOneOfValuesEmpty (initialValue) {
+        return initialValue.from.trim() === "" && initialValue.to.trim() === "";
     }
 
     presenter.getCurrentActivatedElement = function () {
@@ -441,10 +446,7 @@ function AddonConnection_create() {
         };
     };
 
-    /**
-     * @param initialValue {{from: string, to: string}}
-     */
-    presenter.drawInitialValue = function (initialValue) {
+    presenter.validateInitialValue = function (initialValue) {
         function containsID (array, idToFind, toReturn) {
             for (var i = 0; i < array.length; i++) {
                 if (array[i].id === idToFind) {
@@ -455,16 +457,12 @@ function AddonConnection_create() {
             return false;
         }
 
-        function oneOfValueIsEmpty () {
-            return initialValue.from.trim() === "" && initialValue.to.trim() === "";
-        }
-
         function areFromDifferentCols() {
-            var fromColumn = containsID(presenter.model['Left column'], initialValue.from, presenter.ELEMENT_SIDE.LEFT) ||
-                containsID(presenter.model['Right column'], initialValue.from, presenter.ELEMENT_SIDE.RIGHT);
+            var fromColumn = containsID(presenter.model['Left column'], initialValue.from, "LEFT") ||
+                containsID(presenter.model['Right column'], initialValue.from, "RIGHT");
 
-            var toColumn = containsID(presenter.model['Left column'], initialValue.to, presenter.ELEMENT_SIDE.LEFT) ||
-                containsID(presenter.model['Right column'], initialValue.to, presenter.ELEMENT_SIDE.RIGHT);
+            var toColumn = containsID(presenter.model['Left column'], initialValue.to, "LEFT") ||
+                containsID(presenter.model['Right column'], initialValue.to, "RIGHT");
 
             return fromColumn !== toColumn;
         }
@@ -479,32 +477,43 @@ function AddonConnection_create() {
             return fromExists && toExists;
         }
 
-        if (!oneOfValueIsEmpty() && bothExists() && areFromDifferentCols()) {
-            pushConnection(new Line(getElementById(initialValue.from), getElementById(initialValue.to)), false);
-            return true;
-        }
-
-        if (!oneOfValueIsEmpty()) {
+        if (!isOneOfValuesEmpty(initialValue)) {
             if (!bothExists()) {
-                presenter.showErrorMessage('One or two not exists');
-            } else {
+                presenter.showErrorMessage('One or two not exist');
+                return false;
+            } else if (!areFromDifferentCols()) {
                 presenter.showErrorMessage('Are from the same column');
+                return false;
             }
         }
 
-        return false;
+        return true;
+    };
+
+    presenter.validateInitialValues = function () {
+        for (var i = 0; i < presenter.initialValues.length; i++) {
+            if(!presenter.validateInitialValue(presenter.initialValues[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    /**
+     * @param initialValue {{from: string, to: string}}
+     */
+    presenter.drawInitialValue = function (initialValue) {
+        if (!isOneOfValuesEmpty(initialValue)) {
+            pushConnection(new Line(getElementById(initialValue.from), getElementById(initialValue.to)), false);
+        }
     };
 
     presenter.drawInitialValues = function () {
-        var redraw = false;
         this.lineStack.setSendEvents(false);
-        presenter.initialValues.forEach(function (value) {
-            redraw = presenter.drawInitialValue(value) || redraw;
-        });
 
-        if (redraw) {
-            presenter.redraw();
-        }
+        presenter.initialValues.forEach(presenter.drawInitialValue);
+        presenter.redraw();
 
         this.lineStack.setSendEvents(true);
     };
@@ -557,6 +566,11 @@ function AddonConnection_create() {
             } else {
                 this.loadRandomElementsRight(view, model, 'connectionRightColumn', 'Right column', true);
             }
+        }
+
+        if (!presenter.validateInitialValues()) {
+            presenter.isValid = false;
+            return;
         }
 
         this.setColumnsWidth(view, model["Columns width"]);
@@ -1300,6 +1314,10 @@ function AddonConnection_create() {
     };
 
     presenter.reset = function() {
+        if (!presenter.isValid) {
+            return;
+        }
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }

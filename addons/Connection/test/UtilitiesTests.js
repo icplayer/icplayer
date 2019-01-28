@@ -1,18 +1,3 @@
-function getInitialValue (from, to, isDiabled) {
-    return {
-        from: from,
-        to: to,
-        isDisabled: isDiabled
-    };
-}
-
-function getDisabledValue(from, to) {
-    return {
-        id1: from,
-        id2: to
-    };
-}
-
 TestCase('[Connection] Utilities Tests', {
     setUp: function() {
         this.presenter = AddonConnection_create();
@@ -28,17 +13,17 @@ TestCase('[Connection] Utilities Tests', {
         ];
 
         this.presenter.disabledConnections = [
-            getDisabledValue('g', '22')
+            this.getDisabledValue('g', '22')
         ];
 
         this.presenter.initialValues = [
-            getInitialValue('a', '1', true),
-            getInitialValue('b', '2', false),
-            getInitialValue('c', '3', true),
-            getInitialValue('d', '4', true),
-            getInitialValue('e', '5', false),
-            getInitialValue('f', '6', false),
-            getInitialValue('a', '2', true)
+            this.getInitialValue('a', '1', true),
+            this.getInitialValue('b', '2', false),
+            this.getInitialValue('c', '3', true),
+            this.getInitialValue('d', '4', true),
+            this.getInitialValue('e', '5', false),
+            this.getInitialValue('f', '6', false),
+            this.getInitialValue('a', '2', true)
         ];
     },
 
@@ -50,11 +35,11 @@ TestCase('[Connection] Utilities Tests', {
 
     'test given initial values when addDIsabledElementsFromInitialValues is called then will add to disabledConnections fields': function () {
         var expectedArray = [
-            getDisabledValue('g', '22'),
-            getDisabledValue('a', '1'),
-            getDisabledValue('c', '3'),
-            getDisabledValue('d', '4'),
-            getDisabledValue('a', '2')
+            this.getDisabledValue('g', '22'),
+            this.getDisabledValue('a', '1'),
+            this.getDisabledValue('c', '3'),
+            this.getDisabledValue('d', '4'),
+            this.getDisabledValue('a', '2')
         ];
 
         this.presenter.addDisabledElementsFromInitialValues();
@@ -98,5 +83,20 @@ TestCase('[Connection] Utilities Tests', {
         var validatedFields = this.presenter.getInitialValues(rawModel);
 
         assertEquals(expectedModel, validatedFields)
+    },
+
+    getInitialValue: function(from, to, isDiabled) {
+        return {
+            from: from,
+            to: to,
+            isDisabled: isDiabled
+        };
+    },
+
+    getDisabledValue: function (from, to) {
+        return {
+            id1: from,
+            id2: to
+        };
     }
 });
