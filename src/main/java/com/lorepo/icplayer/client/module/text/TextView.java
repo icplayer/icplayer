@@ -95,6 +95,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			}
 			
 			gap.setDisabled(module.isDisabled());
+			
 			textElements.add(gap);
 		}
 	}
@@ -230,7 +231,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	public void sortGapsOrder () {
-//		final List<String> gapsOrder = module.getGapsOrder();
 		final List<String> gapsOrder = WCAGUtils.getGapsOrder(module);
 		final int gapsOrderSize = gapsOrder.size();
 		final int textElementsSize = textElements.size();
@@ -324,22 +324,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	public void rerenderMathJax () {
 		MathJax.rerenderMathJax(getElement());
-		updateMathGaps();
-	}
-
-	private void updateMathGaps() {
-		for (GapInfo gapInfo : module.getGapInfos()) {
-			String gapId = gapInfo.getId();
-			GapWidget gap = new GapWidget(gapInfo, listener);
-
-			for (int index = 0; index < textElements.size(); index++) {
-				if (textElements.get(index).getId().equals(gapId)) {
-					String textValue = textElements.get(index).getTextValue();
-					gap.setText(textValue);
-					textElements.set(index, gap);
-				}
-			}
-		}
+		// If mathjax was re rendered then gaps lost handlers to thers DOM elements.
+		this.reconnectHandlers();
 	}
 
 	@Override
@@ -349,15 +335,21 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void show(boolean callRefreshMath) {
-		boolean isVisible = isVisible();
-
 		setVisible(true);
 		if (this.mathJaxIsLoaded) {
 			refreshMath();
 		}
-		if (callRefreshMath && !isVisible) {
+		if (callRefreshMath) {
 			refreshMath();
 			rerenderMathJax();
+		}
+	}
+	
+	private void reconnectHandlers () {
+		for (TextElementDisplay element: this.textElements) {
+			if (element instanceof GapWidget) {
+				((GapWidget) element).reconnectHandlers(this.listener);
+			}
 		}
 	}
 

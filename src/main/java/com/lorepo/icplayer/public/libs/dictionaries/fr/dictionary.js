@@ -595,6 +595,7 @@ var ice_dictionary_fr = {
     "TextAudio_property_is_click_disabled": "Est désactivé au clic",
     "TextAudio_property_show_slides": "Afficher les slides",
     "TextAudio_property_position_and_dimentions": "Position et dimensions",
+    "TextAudio_property_is_disabled": "Is disabled",
     "Connection_info": "Permet de créer une activité avec deux colonnes d'éléments (textes ou images) que l'on devra associer. Il est possible de paramétrer des connexions uniques ou multiples (un élément peut etre relié à plusieurs).",
     "Connection_name": "Connexion",
     "Connection_property_is_not_activity": "N'est pas un exercice",

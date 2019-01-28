@@ -20,6 +20,14 @@ TestCase("[Limited_Submit] Validating model test", {
 
                 'noBlockEdit': {
                     'textToSpeechText': 'Edition of this page is not blocked'
+                },
+
+                'selected': {
+                    'textToSpeechText': 'text select'
+                },
+
+                'notAllAttempted': {
+                    'textToSpeechText': 'text select'
                 }
             }
         };
