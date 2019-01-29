@@ -22,7 +22,8 @@ import {SafariRecorderState} from "./state/SafariRecorderState.jsm";
 export class MediaRecorder {
 
     run(view, model) {
-        let validatedModel = validateModel(model);
+        let upgradedModel = this._upgradeModel(model);
+        let validatedModel = validateModel(upgradedModel);
 
         if (this._isBrowserNotSupported()) {
             this._showBrowserError(view)
@@ -35,7 +36,8 @@ export class MediaRecorder {
     }
 
     createPreview(view, model) {
-        let validatedModel = validateModel(model);
+        let upgradedModel = this._upgradeModel(model);
+        let validatedModel = validateModel(upgradedModel);
 
         if (!validatedModel.isValid)
             this._showError(view, validatedModel);
@@ -64,7 +66,11 @@ export class MediaRecorder {
         this.addonState.getVisibility()
             .then(isVisible => {
                 this.setVisibility(isVisible);
-            })
+            });
+        this.addonState.getEnabled()
+            .then(isEnable => {
+                this._setEnableState(isEnable);
+            });
     }
 
     startRecording() {
@@ -131,6 +137,14 @@ export class MediaRecorder {
         this.model = null;
     }
 
+    enable() {
+        this._setEnableState(true);
+    }
+
+    disable() {
+        this._setEnableState(false);
+    }
+
     activate() {
         if (this.activationState.isInactive()) {
             this.activationState.setActive();
@@ -150,16 +164,18 @@ export class MediaRecorder {
         this.deactivate();
         this.activate();
         this.setVisibility(this.model["Is Visible"]);
-        if (this.model.isResetRemovesRecording) {
-            this.player.reset();
-            this.addonState.reset();
-            this.timer.reset();
-            if (this.defaultRecordingPlayer.hasRecording) {
-                this.mediaState.setLoadedDefaultRecording();
-                this.timer.setDuration(this.defaultRecordingPlayer.duration);
-            } else
-                this.mediaState.setNew();
-        }
+        this._setEnableState(!this.model.isDisabled);
+    }
+
+    resetRecording() {
+        this.player.reset();
+        this.addonState.reset();
+        this.timer.reset();
+        if (this.defaultRecordingPlayer.hasRecording) {
+            this.mediaState.setLoadedDefaultRecording();
+            this.timer.setDuration(this.defaultRecordingPlayer.duration);
+        } else
+            this.mediaState.setNew();
     }
 
     show() {
@@ -183,6 +199,7 @@ export class MediaRecorder {
         this._activateButtons();
         this._loadWebViewMessageListener();
         this.setVisibility(model["Is Visible"]);
+        this._setEnableState(!model.isDisabled);
     }
 
     _loadAddon(view, model) {
@@ -429,8 +446,10 @@ export class MediaRecorder {
 
     _stopActions() {
         if (this.mediaState.isRecording())
-            if (this.model.isResetRemovesRecording)
+            if (this.model.isResetRemovesRecording) {
                 this.recordButton.reset();
+                this.resetRecording();
+            }
             else
                 this.recordButton.forceClick();
         if (this.mediaState.isPlaying())
@@ -467,6 +486,7 @@ export class MediaRecorder {
         let valid_model = validatedModel.value;
         let timerViewHandler = $(view).find(".media-recorder-timer");
         let defaultButtonViewHandler = $(view).find(".media-recorder-default-recording-play-button");
+        let $wrapperViewHandler = $(view).find(".media-recorder-wrapper");
 
         if (valid_model.isShowedTimer == false)
             timerViewHandler.hide();
@@ -477,6 +497,11 @@ export class MediaRecorder {
             defaultButtonViewHandler.hide();
         else
             defaultButtonViewHandler.show();
+
+        if (valid_model.isDisabled) {
+            this.addonViewService = new AddonViewService($wrapperViewHandler);
+            this.addonViewService.deactivate();
+        }
     }
 
     _hideSelectedElements() {
@@ -562,4 +587,30 @@ export class MediaRecorder {
         this.recordingTimeLimiter.stopCountdown();
         window.external.notify(JSON.stringify({type: "mediaStop", target: this.model.ID}));
     }
+
+    _setEnableState(isEnable) {
+        if (isEnable) {
+            this.addonState.setEnabled(true);
+            this.activate();
+        } else {
+            this.addonState.setEnabled(false);
+            this.deactivate();
+        }
+    }
+
+    _upgradeModel(model) {
+        let upgradedModel = this._upgradeIsDisabled(model);
+        return upgradedModel;
+    };
+
+    _upgradeIsDisabled(model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["isDisabled"]) {
+            upgradedModel["isDisabled"] = "False";
+        }
+
+        return upgradedModel;
+    };
 }

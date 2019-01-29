@@ -14,7 +14,8 @@ TestCase("[Media Recorder] Model validation", {
             stopRecordingSound: "/file/666666666",
             isResetRemovesRecording: "False",
             isShowedTimer: "False",
-            isShowedDefaultRecordingButton: "False"
+            isShowedDefaultRecordingButton: "False",
+            isDisabled: "False"
         };
 
         this.DefaultValues = {

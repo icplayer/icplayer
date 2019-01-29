@@ -298,6 +298,15 @@ function AddonShooting_Range_create() {
         presenter.sendValueChangedEvent(presenter.generateEventData(questionNumber, answerNumber, false, false));
     };
 
+    presenter.sendEndOfGameEvent = function () {
+        presenter.sendValueChangedEvent({
+            source : presenter.configuration.addonID,
+            item : 'all',
+            value : 'EOG',
+            score : '1'
+        });
+    };
+
     presenter.sendValueChangedEvent = function (eventData) {
         presenter.state.eventBus.sendEvent('ValueChanged', eventData);
     };
@@ -320,6 +329,7 @@ function AddonShooting_Range_create() {
                     score: presenter.state.score,
                     errors: presenter.state.wholeErrorCount
                 });
+                presenter.sendEndOfGameEvent();
             }
         }
     };
@@ -706,7 +716,6 @@ function AddonShooting_Range_create() {
 
     presenter.getErrorCount = function () {
         var lastErrorCount = presenter.state.errorCount;
-        presenter.state.errorCount = 0;
 
         return lastErrorCount;
     };
