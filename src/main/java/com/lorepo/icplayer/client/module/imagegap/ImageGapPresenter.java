@@ -212,6 +212,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		if (isShowAnswersActive) {
 			hideAnswers();
 		}
+		
+		if(this.consumedItem != null) {
+			this.removeItem(false);
+		}
+		
 		readyToDraggableItem = null;
 		consumedItem = null;
 		view.clearAltText();
@@ -274,6 +279,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			view.setAltText(getImageSourceAltText(readyToDraggableItem.getId()));
 			view.setImageUrl(readyToDraggableItem.getValue());
 			consumedItem = readyToDraggableItem;
+			String langAtribute = getSourceLangTag(consumedItem.getId()); 
 			fireItemConsumedEvent();
 			String score = Integer.toString(getScore());
 			ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", consumedItem.getId(), score);
@@ -283,7 +289,6 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 				playerServices.getEventBus().fireEvent(isAllOKevent);
 			}
 			view.makeDraggable(this);
-			String langAtribute = getSourceLangTag(consumedItem.getId()); 
 			if(getScore() == 0 && model.shouldBlockWrongAnswers()){
 				removeItem(false);
 			}
@@ -653,20 +658,32 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		}
 		return currentEventData;
 	}
+	
+	private boolean isElementToDrag () {
+		return this.consumedItem != null || this.currentEventData != null;
+	}
 
 	private void itemDragged() {
+		if (!this.isElementToDrag()) { 
+			return;
+		}
+		
 		CustomEvent dragEvent = new CustomEvent("itemDragged", prepareEventData());
 		removeItem(true);
 		playerServices.getEventBus().fireEvent(dragEvent);
 	}
 
 	private void itemStopped() {
+		if (!this.isElementToDrag()) { 
+			return;
+		}
+		
 		CustomEvent stopEvent = new CustomEvent("itemStopped", prepareEventData());
 		playerServices.getEventBus().fireEvent(stopEvent);
 	}
 
 	private boolean isDragPossible() {
-		if (this.isShowAnswersActive || view.getDisabled()) {
+		if (this.isShowAnswersActive || view.getDisabled() || !this.isElementToDrag()) {
 			return false;
 		}
 		return true;
