@@ -1,3 +1,4 @@
+2019-01-31 Added starting values to connection modules
 2019-01-28 Fixed problem with recreating gaps on show command
 2019-01-22 Fixed getting error count in Shooting Range module
 2019-01-21 Added disable and enable commands for TextAudio addon
