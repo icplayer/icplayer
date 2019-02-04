@@ -78,6 +78,29 @@ The Addon allows creating a connection activity only in a vertical mode. In orde
         <td>List of speech texts: Connected, Disconnected, Connected to, Selected, Deselected, Correct, Wrong. <br />
 This texts will be read by Text to Speech addon after a user performs an action.</td> 
     </tr>
+    <tr>
+        <td>Initial connections</td>
+        <td>List of points connected at the module's start.<table border='1'>
+        <tbody>
+            <tr>
+                <th>Property name</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>From ID</td>
+                <td>Start point of the initial connection</td>
+            </tr>
+            <tr>
+                <td>To ID</td>
+                <td>End point of the initial connection</td>
+            </tr>
+            <tr>
+                <td>Is disabled</td>
+                <td>Disabling a provided connection. If the connection is disabled, it can't be changed by user interaction. Make sure that the disabled connection is connected to a proper path, because a user can't change it.</td>
+            </tr>          
+        </tbody>
+        </table></td>
+    </tr>
 </tbody>
 </table>
 
@@ -106,6 +129,11 @@ To configure which connections are allowed you have to:
          <th>Description</th>
      </tr>
      <tr>
+         <td>isOK</td>
+         <td>id</td>
+         <td>Returns an object that contains information about the connection status and its validity. The response is described below.</td>
+     </tr>
+     <tr>
          <td>isAllOK</td>
          <td>---</td>
          <td>Returns true if all connections are made correctly and there are no mistakes, otherwise false.</td>
@@ -127,7 +155,39 @@ To configure which connections are allowed you have to:
     </tr>
  </table>
 
-##Show Answers
+Response of isOK(id) command:
+
+    {
+        value: boolean,
+        source: string,
+        selectedDestinations: string[],
+        correctDestinations: string[]
+    }
+
+<table border="1">
+    <tr>
+        <th>Parameter</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>value</td>
+        <td>Represents the correctness of source connections.</td>
+    </tr>
+    <tr>
+        <td>source</td>
+        <td>The node which is subject to analysis. Is passed in the command argument.</td>
+    </tr>
+    <tr>
+        <td>selectedDestinations</td>
+        <td>Selected nodes that are connected to the source.</td>
+    </tr>
+    <tr>
+        <td>correctDestinations</td>
+        <td>Nodes that should be connected to the source.</td>
+    </tr>
+</table>
+
+## Show Answers
 
 This module is fully compatible with [Show Answers module](/doc/page/Show-Answers "Show Answers module") and displays correct answers when adequate event is sent.
 
@@ -375,4 +435,4 @@ Here are the styles used in a sample presentation. ConnectionSample style is use
     }
 
 ## Demo presentation
-[Demo presentation](/embed/5910648580997120 "Demo presentation") contains examples of how to use the Connection addon.                                
+[Demo presentation](/embed/5910648580997120 "Demo presentation") contains examples of how to use the Connection addon.                                    
