@@ -1,4 +1,4 @@
-GatheringConnectionsTests = TestCase("Gathering Connections Tests");
+GatheringConnectionsTests = TestCase("[Connection] Gathering Connections Tests");
 
 GatheringConnectionsTests.prototype.setUp = function() {
     this.presenter = AddonConnection_create();

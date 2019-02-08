@@ -1,4 +1,4 @@
-StatesTests = TestCase("States Tests");
+StatesTests = TestCase("[Connection] States Tests");
 
 StatesTests.prototype.setUp = function() {
     this.presenter = AddonConnection_create();

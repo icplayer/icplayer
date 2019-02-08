@@ -113,3 +113,38 @@ TestCase('[TextAudio] Upgrade model for audio controls', {
         assertEquals("None", upgradedModel.controls);
     }
 });
+
+TestCase('[TextAudio] Upgrade model for is Disabled', {
+    setUp: function () {
+        this.presenter = AddonTextAudio_create();
+    },
+
+    'test given model without is Disabled when upgradeModel is called then will return model with default value': function () {
+        var model = {
+        };
+
+        var upgradedModel = this.presenter.upgradeModel(model);
+
+        assertEquals('False', upgradedModel['isDisabled']);
+    },
+
+    'test given model with is Disabled as true when upgradeModel is called then will return is Disabled with true value': function () {
+        var model = {
+            'isDisabled': 'False'
+        };
+
+        var upgradedModel = this.presenter.upgradeModel(model);
+
+        assertEquals('False', upgradedModel['isDisabled']);
+    },
+
+    'test given model with is Disabled as false when upgradeModel is called then will return is Disabled with false value': function () {
+        var model = {
+            'isDisabled': 'True'
+        };
+
+        var upgradedModel = this.presenter.upgradeModel(model);
+
+        assertEquals('True', upgradedModel['isDisabled']);
+    }
+});
