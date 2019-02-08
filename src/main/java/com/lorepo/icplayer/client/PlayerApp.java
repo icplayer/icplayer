@@ -59,6 +59,7 @@ public class PlayerApp {
 			offsetTop: 0,
 			height: 0,
 			frameOffset: 64,
+			frameScale: 1.0,
 			windowInnerHeight: 0,
 			isEditorPreview: false
 		};
@@ -205,7 +206,11 @@ public class PlayerApp {
 					if($wnd.iframeSize.isEditorPreview){
 						playerOffset = 0;
 					}
-					var top = scroll > playerOffset ? scroll - playerOffset : 0;
+					var iframeScale = 1.0;
+					if ($wnd.iframeSize.frameScale != null){
+						iframeScale = $wnd.iframeSize.frameScale;
+					} 
+					var top = scroll > playerOffset ? (scroll - playerOffset)/iframeScale : 0;
 					$wnd.$(".ic_static_header").css("top", top);
 				}
 			});
@@ -265,8 +270,12 @@ public class PlayerApp {
 				if ((typeof event.data == 'string' || event.data instanceof String) && event.data.indexOf('I_FRAME_SIZES:') === 0) {
 					var scroll = $wnd.iframeSize.offsetTop;
 					offsetIframe = $wnd.iframeSize.notScaledOffset;
-					sum = $wnd.iframeSize.windowInnerHeight - offsetIframe - icFooterHeight + scroll;
-					if (sum >= ($wnd.iframeSize.height - icFooterHeight)) {
+					iframeScale = 1.0;
+					if ($wnd.iframeSize.frameScale != null){
+						iframeScale = $wnd.iframeSize.frameScale;
+					}
+					sum = ($wnd.iframeSize.windowInnerHeight - icFooterHeight + scroll)/iframeScale - offsetIframe;
+					if (parseInt(sum) >= (parseInt($wnd.iframeSize.height) - parseInt(icFooterHeight))) {
 						$wnd.$(".ic_static_footer").css("top", "auto");
 					} else {
 						$wnd.$(".ic_static_footer").css("top", sum + "px");

@@ -21,6 +21,7 @@ function AddonConnection_create() {
     presenter.speechTexts = {};
     presenter.columnSizes = {};
     presenter.lineStackSA = [];
+    presenter.isValid = true;
 
     presenter.isShowAnswersActive = false;
     presenter.isCheckActive = false;
@@ -45,7 +46,9 @@ function AddonConnection_create() {
     var WRONG_ITEM_CLASS = 'connectionItem-wrong';
 
     presenter.ERROR_MESSAGES = {
-        'ID not unique': 'One or more IDs are not unique.'
+         'ID not unique': 'One or more IDs are not unique.',
+         'One or two not exist': 'Provided id for initial value doesn\'t exists',
+         'Are from the same column': 'Provided ids for initial value are in the same column'
     };
 
     presenter.ELEMENT_SIDE = {
@@ -53,12 +56,62 @@ function AddonConnection_create() {
         RIGHT: 1
     };
 
+    function isEnabledOrMultiLineMode (element) {
+        if (!singleMode) {
+            return true;
+        }
+
+        var elementId = convertId($(element).attr('id'));
+
+        for(var i = 0; i < presenter.initialValues.length; i++) {
+            var initialValue = presenter.initialValues[i];
+
+            if (initialValue.from === elementId || initialValue.to === elementId) {
+                return !initialValue.isDisabled;
+            }
+        }
+
+        return true;
+    }
+
+    function convertId (id) {
+        id = id.toString();
+
+        return id.substr(id.indexOf('-') + 1);
+    }
+
+    function convertIds (id1, id2){
+        return {
+            id1: convertId(id1),
+            id2: convertId(id2)
+        }
+    }
+
+    function isOneOfValuesEmpty (initialValue) {
+        return initialValue.from.trim() === "" && initialValue.to.trim() === "";
+    }
+
     presenter.getCurrentActivatedElement = function () {
         return $('.keyboard_navigation_active_element');
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeFrom_01(model);
+        var upgradedModel = presenter.upgradeFrom_01(model);
+        upgradedModel = presenter.upgradeStartValues(upgradedModel);
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeStartValues = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['initialConnections'] === undefined) {
+            upgradedModel['initialConnections'] = [];
+            upgradedModel['disabledConnectionColor'] = "";
+        }
+
+        return upgradedModel;
     };
 
     presenter.upgradeFrom_01 = function (model) {
@@ -182,7 +235,13 @@ function AddonConnection_create() {
                 }
             }
             return lines;
-        }
+        };
+
+        this.getDisabledCount = function () {
+            return this.stack.filter(function (stackElement) {
+                return stackElement.isDisabled();
+            }).length;
+        };
     }
 
     function Line(from, to) {
@@ -198,8 +257,30 @@ function AddonConnection_create() {
                 return to;
             }
             return from;
-        }
+        };
+
+        this.isDisabled = function () {
+            var ids = convertIds($(this.from).attr('id'), $(this.to).attr('id'));
+
+            for (var i = 0; i < presenter.initialValues.length; i++) {
+                var initialValue = presenter.initialValues[i];
+
+                var initialValues = [initialValue.from, initialValue.to];
+
+                if (initialValue.isDisabled) {
+                    if ($.inArray(ids.id1, initialValues) > -1 && $.inArray(ids.id2, initialValues) > -1) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        };
     }
+
+    presenter.showErrorMessage = function (errorCode) {
+        return $(presenter.view).html(presenter.ERROR_MESSAGES[errorCode]);
+    };
 
     presenter.parseDefinitionLinks = function () {
         $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
@@ -335,16 +416,124 @@ function AddonConnection_create() {
         };
     }
 
+    presenter.addDisabledElementsFromInitialValues = function () {
+        presenter.initialValues.forEach(function (initialValue) {
+           if (initialValue.isDisabled) {
+               presenter.disabledConnections.push({
+                   id1: initialValue.from,
+                   id2: initialValue.to
+               });
+           }
+        });
+    };
+
+
+
+    presenter.getInitialValues = function (model) {
+        var modelValidator = new ModelValidator();
+        var validated = modelValidator.validate(model, [
+            ModelValidators.List("initialConnections", [
+                ModelValidators.String("from", {default: "", trim: false}),
+                ModelValidators.String("to", {default: "", trim: false}),
+                ModelValidators.Boolean("isDisabled", {default: false})
+            ]),
+            ModelValidators.String("disabledConnectionColor", {default: "", trim: true})
+        ]);
+
+        return {
+            initialConnections: validated.value.initialConnections,
+            disabledConnectionColor: validated.value.disabledConnectionColor
+        };
+    };
+
+    presenter.validateInitialValue = function (initialValue) {
+        function containsID (array, idToFind, toReturn) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].id === idToFind) {
+                    return toReturn;
+                }
+            }
+
+            return false;
+        }
+
+        function areFromDifferentCols() {
+            var fromColumn = containsID(presenter.model['Left column'], initialValue.from, "LEFT") ||
+                containsID(presenter.model['Right column'], initialValue.from, "RIGHT");
+
+            var toColumn = containsID(presenter.model['Left column'], initialValue.to, "LEFT") ||
+                containsID(presenter.model['Right column'], initialValue.to, "RIGHT");
+
+            return fromColumn !== toColumn;
+        }
+
+        function bothExists () {
+            var fromExists = containsID(presenter.model['Left column'], initialValue.from, true) ||
+                containsID(presenter.model['Right column'], initialValue.from, true);
+
+            var toExists = containsID(presenter.model['Left column'], initialValue.to, true) ||
+                containsID(presenter.model['Right column'], initialValue.to, true);
+
+            return fromExists && toExists;
+        }
+
+        if (!isOneOfValuesEmpty(initialValue)) {
+            if (!bothExists()) {
+                presenter.showErrorMessage('One or two not exist');
+                return false;
+            } else if (!areFromDifferentCols()) {
+                presenter.showErrorMessage('Are from the same column');
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    presenter.validateInitialValues = function () {
+        for (var i = 0; i < presenter.initialValues.length; i++) {
+            if(!presenter.validateInitialValue(presenter.initialValues[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    /**
+     * @param initialValue {{from: string, to: string}}
+     */
+    presenter.drawInitialValue = function (initialValue) {
+        if (!isOneOfValuesEmpty(initialValue)) {
+            pushConnection(new Line(getElementById(initialValue.from), getElementById(initialValue.to)), false);
+        }
+    };
+
+    presenter.drawInitialValues = function () {
+        this.lineStack.setSendEvents(false);
+
+        presenter.initialValues.forEach(presenter.drawInitialValue);
+        presenter.redraw();
+
+        this.lineStack.setSendEvents(true);
+    };
+
     presenter.initialize = function (view, model, isPreview) {
         if (isPreview) {
             presenter.lineStack = new LineStack(false);
         }
+
+        model = presenter.upgradeModel(model);
 
         presenter.langTag = model['langAttribute'];
         presenter.$view = $(view);
         presenter.$view.attr('lang', presenter.langTag);
 
         setSpeechTexts(model['speechTexts']);
+
+        var initialValues = presenter.getInitialValues(model);
+        presenter.initialValues = initialValues.initialConnections;
+        presenter.disabledConnectionColor = initialValues.disabledConnectionColor;
 
         presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
@@ -354,8 +543,6 @@ function AddonConnection_create() {
 
         isRTL = presenter.$view.css('direction').toLowerCase() === 'rtl';
         connections = presenter.$view.find('.connections:first');
-
-        model = presenter.upgradeModel(model);
 
         this.setSingleMode(model['Single connection mode']);
 
@@ -379,6 +566,11 @@ function AddonConnection_create() {
             } else {
                 this.loadRandomElementsRight(view, model, 'connectionRightColumn', 'Right column', true);
             }
+        }
+
+        if (!presenter.validateInitialValues()) {
+            presenter.isValid = false;
+            return;
         }
 
         this.setColumnsWidth(view, model["Columns width"]);
@@ -410,6 +602,8 @@ function AddonConnection_create() {
             presenter.mathJaxProcessEnded.then(function () {
                 presenter.initializeView(view, model);
                 presenter.registerListeners(presenter.view);
+                presenter.drawInitialValues();
+                presenter.addDisabledElementsFromInitialValues();
             });
         }
 
@@ -504,6 +698,10 @@ function AddonConnection_create() {
     }
 
     function basicClickLogic(element) {
+        if (!isEnabledOrMultiLineMode(element)) {
+            return false;
+        }
+
         // workaround for android webView
         // http://code.google.com/p/android/issues/detail?id=38808
         var current = new Date().getTime();
@@ -653,6 +851,10 @@ function AddonConnection_create() {
                         top: Math.round(e.find('.inner').height()/2)
                     },
                     start: function (event, ui) {
+                        if (!isEnabledOrMultiLineMode(this)) {
+                            event.preventDefault();
+                            return false;
+                        }
                         ui.helper.css("visibility", "hidden");
                         var $iconWrapper = $(e).find(".iconWrapper");
                         scale = playerController.getScaleInformation();
@@ -811,7 +1013,7 @@ function AddonConnection_create() {
         presenter.columnSizes[columnModel] = model[columnModel].length;
         var id = model[columnModel][i]['id'];
         if (!this.isIDUnique(id)) {
-            return $(this.view).html(this.ERROR_MESSAGES['ID not unique']);
+            return presenter.showErrorMessage('ID not unique');
         }
         var element = $('<table class="connectionItem" id="connection-' + id + '"></div>');
         var row = $('<tr></tr>');
@@ -1051,6 +1253,10 @@ function AddonConnection_create() {
     };
 
     function drawLine(line, color) {
+        if (line.isDisabled() && presenter.disabledConnectionColor !== "") {
+            color = presenter.disabledConnectionColor;
+        }
+
         var from = presenter.getElementSnapPoint(line.from);
         var to = presenter.getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
@@ -1113,6 +1319,10 @@ function AddonConnection_create() {
     };
 
     presenter.reset = function() {
+        if (!presenter.isValid) {
+            return;
+        }
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1130,6 +1340,8 @@ function AddonConnection_create() {
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
         presenter.disabledConnections = [];
+        presenter.addDisabledElementsFromInitialValues();
+        presenter.drawInitialValues();
     };
 
     presenter.getErrorCount = function () {
@@ -1148,7 +1360,7 @@ function AddonConnection_create() {
     presenter.getMaxScore = function () {
         if (presenter.isNotActivity) return 0;
 
-        return presenter.correctConnections.length();
+        return presenter.correctConnections.length() - presenter.correctConnections.getDisabledCount();
     };
 
     presenter.getScore = function () {
@@ -1158,7 +1370,9 @@ function AddonConnection_create() {
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
             if (presenter.correctConnections.hasLine(line).length > 0) {
-                score++;
+                if (!line.isDisabled()) {
+                    score++;
+                }
             }
         }
         return score;
@@ -1181,6 +1395,7 @@ function AddonConnection_create() {
         presenter.mathJaxProcessEnded.then(function () {
             if (state != '' && !hookExecuted) {
                 presenter.lineStack.setSendEvents(false);
+                presenter.lineStack.clear();
 
                 var parsedState = JSON.parse(state);
                 var id;
@@ -1230,6 +1445,79 @@ function AddonConnection_create() {
     presenter.isAllOK = function () {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
+
+    presenter.isOK = function (source) {
+        var selectedDestinations = getConnectedPoints(source);
+        var correctDestinations = getCorrectPoints(source);
+        var isCorrect = isSameArrays(selectedDestinations, correctDestinations);
+
+        return {
+            value: isCorrect,
+            source: source,
+            selectedDestinations: selectedDestinations,
+            correctDestinations: correctDestinations
+        };
+    };
+
+    function getConnectedPoints(source) {
+        var connectedPoints = [];
+
+        var selectedLines = presenter.lineStack.ids;
+        for (var index = 0; index < selectedLines.length; index++) {
+            var selectedLinePoints = selectedLines[index];
+            if (hasArrayElement(selectedLinePoints, source)) {
+                var selectedDestinationPoint = selectedLinePoints[0] === source ? selectedLinePoints[1] : selectedLinePoints[0];
+                connectedPoints.push(selectedDestinationPoint);
+            }
+        }
+
+        return connectedPoints;
+    }
+
+    function getCorrectPoints(source) {
+        var correctPoints = [];
+
+        var correctLines = presenter.elements;
+        for (var index = 0; index < correctLines.length; index++) {
+            var correctLine = correctLines[index];
+            var correctLinePoints = correctLine.connects.split(',');
+            if (correctLine.id === source) {
+                correctPoints = correctPoints.concat(correctLinePoints);
+            }
+            if (hasArrayElement(correctLinePoints, source)) {
+                correctPoints.push(correctLine.id)
+            }
+        }
+
+        correctPoints = removeDuplicates(correctPoints);
+        correctPoints = correctPoints.filter(function (value) {
+            return value !== ";"
+        });
+
+        return correctPoints;
+    }
+
+    function removeDuplicates(correctPoints) {
+        correctPoints = correctPoints.filter(function (value, index, arr) {
+            return arr.indexOf(value) === index;
+        });
+        return correctPoints;
+    }
+
+    function isSameArrays(selectedDestinations, correctDestinations) {
+        var serializedSelectedDestinations = selectedDestinations.sort().join(',');
+        var serializedCorrectDestinations = correctDestinations.sort().join(',');
+
+        return serializedSelectedDestinations === serializedCorrectDestinations;
+    }
+
+    function hasArrayElement(array, element) {
+        for (var arrayIndex = 0; arrayIndex < array.length; arrayIndex++)
+            if (array[arrayIndex] === element)
+                return true;
+
+        return false;
+    }
 
     presenter.isSelected = function (leftIndex, rightIndex) {
         if (presenter.isShowAnswersActive) {
@@ -1303,6 +1591,7 @@ function AddonConnection_create() {
 
         var commands = {
             'isAllOK': presenter.isAllOK,
+            'isOK': presenter.isOK,
             'isSelected': presenter.isSelectedCommand,
             'markAsCorrect': presenter.markAsCorrectCommand,
             'markAsWrong': presenter.markAsWrongCommand,
@@ -1329,19 +1618,6 @@ function AddonConnection_create() {
     presenter.enableCommand = function (params) {
         presenter.enable(params[0], params[1]);
     };
-
-    function convertIds (id1, id2){
-        id1 = id1.toString();
-        id2 = id2.toString();
-
-        id1 = id1.substr(id1.indexOf("-") + 1);
-        id2 = id2.substr(id2.indexOf("-") + 1);
-
-        return {
-            id1: id1,
-            id2: id2
-        }
-    }
 
     presenter.enable = function(id1, id2) {
         var convertedIds = convertIds(id1, id2);
@@ -1617,5 +1893,9 @@ function AddonConnection_create() {
         }
     };
 
+
+    presenter.__internal__ = {
+        Line: Line
+    };
     return presenter;
 }

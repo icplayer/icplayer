@@ -1,9 +1,16 @@
-function AddonLimited_Show_Answers_create() {
+function AddonLimited_Submit_create() {
     var presenter = function () {
     };
 
+    var isWCAGOn = false;
+
     presenter.playerController = null;
     presenter.eventBus = null;
+    presenter.EVENTS_NAMES = {
+        SELECTED: "selected",
+        DESELECTED: "deselected",
+        TRIED_SELECT: "canceled"
+    };
 
     presenter.state = {
         isSelected: false,
@@ -11,37 +18,22 @@ function AddonLimited_Show_Answers_create() {
         isVisible: true
     };
 
-    presenter.EVENTS = {
-        SHOW_ANSWERS: 'LimitedShowAnswers',
-        HIDE_ANSWERS: 'LimitedHideAnswers'
-    };
-
-    presenter.EVENTS_MAP = {
-        LimitedShowAnswers: "ShowAnswers",
-        LimitedHideAnswers: "HideAnswers"
-    };
-
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
     };
 
-    presenter.sendEvent = function (eventName) {
+    presenter.sendEvent = function (eventValue) {
         var eventData = {
-            'value': eventName,
-            'source': presenter.configuration.addonID,
-            'item': JSON.stringify(presenter.configuration.worksWithModulesList)
+            'value': eventValue,
+            'source': presenter.configuration.addonID
         };
 
         presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
 
-        presenter.configuration.worksWithModulesList.forEach(function (moduleId) {
-            var module = player.getPlayerServices().getModule(moduleId);
-            if (module && module.onEventReceived) {
-                module.onEventReceived(presenter.EVENTS_MAP[eventName]);
-            }
-        });
-
+    presenter.getWorksWithModulesList = function () {
+        return presenter.configuration.worksWithModulesList.slice();    // Make a copy of this list
     };
 
     presenter.createPreview = function (view, model) {
@@ -49,16 +41,23 @@ function AddonLimited_Show_Answers_create() {
     };
 
     presenter.validateModel = function (model) {
-        presenter.setSpeechTexts(model['speechTexts']);
-
         var modelValidator = new ModelValidator();
+
+        var speechToTextListModelValidator = {
+            'blockEdit': [ModelValidators.String('textToSpeechText', {default: 'Exercise edition is blocked'})],
+            'noBlockEdit': [ModelValidators.String('textToSpeechText', {default: 'Exercise edition is not blocked'})],
+            'notAllAttempted': [ModelValidators.String('textToSpeechText', {default: 'Not all attempted'})],
+            'selected': [ModelValidators.String('textToSpeechText', {default: 'Selected'})]
+        };
+
         var validatedModel = modelValidator.validate(model, [
             ModelValidators.utils.FieldRename("Is Visible", "isVisible", ModelValidators.Boolean("isVisible")),
             ModelValidators.utils.FieldRename("Text", "text", ModelValidators.String("text", {default: ""})),
             ModelValidators.utils.FieldRename("Text selected", "textSelected", ModelValidators.String("textSelected", {default: ""})),
             ModelValidators.utils.FieldRename("ID", "addonID", ModelValidators.DumbString("addonID")),
             ModelValidators.utils.FieldRename("Is Tabindex Enabled", "isTabindexEnabled", ModelValidators.Boolean("isTabindexEnabled")),
-            ModelValidators.String("worksWith", {default: ""})
+            ModelValidators.String("worksWith", {default: ""}),
+            ModelValidators.StaticList('speechTexts', speechToTextListModelValidator)
         ]);
 
         if (validatedModel.isValid) {
@@ -79,30 +78,74 @@ function AddonLimited_Show_Answers_create() {
     };
 
     presenter.handleClick = function () {
-        var text, eventName;
-
-        presenter.state.isSelected = !presenter.state.isSelected;
-
         if (presenter.state.isSelected) {
-            text = presenter.configuration.textSelected;
-            eventName = presenter.EVENTS.SHOW_ANSWERS;
-            presenter.$wrapper.addClass('selected');
-
-            if (presenter.configuration.enableCheckCounter) {
-                presenter.playerController.getCommands().incrementCheckCounter();
-            }
-
-            if (presenter.configuration.enableMistakeCounter) {
-                presenter.playerController.getCommands().increaseMistakeCounter();
-            }
+            presenter.onButtonDeselect();
         } else {
-            text = presenter.configuration.text;
-            eventName = presenter.EVENTS.HIDE_ANSWERS;
-            presenter.$wrapper.removeClass('selected');
+            presenter.onButtonSelect();
+        }
+    };
+
+    presenter.onButtonDeselect = function () {
+        var text = presenter.configuration.text;
+
+        presenter.state.isSelected = false;
+        presenter.$wrapper.removeClass('selected');
+
+        presenter.sendEvent(presenter.EVENTS_NAMES.DESELECTED);
+
+        presenter.executeUnCheckForAllModules();
+        presenter.$button.text(text);
+    };
+
+    presenter.onButtonSelect = function () {
+        if (presenter.allModulesAttempted()) {
+            var text = presenter.configuration.textSelected;
+
+            presenter.$wrapper.addClass('selected');
+            presenter.state.isSelected = true;
+
+            presenter.sendEvent(presenter.EVENTS_NAMES.SELECTED);
+
+            presenter.executeCheckForAllModules();
+            presenter.$button.text(text);
+        } else {
+            presenter.sendEvent(presenter.EVENTS_NAMES.TRIED_SELECT);
+        }
+    };
+
+
+    presenter.executeCheckForAllModules = function () {
+        presenter.configuration.worksWithModulesList.forEach(function (moduleId) {
+            var module = presenter.playerController.getModule(moduleId);
+            if (module && module.setShowErrorsMode) {
+                module.setShowErrorsMode();
+            }
+        });
+    };
+
+    presenter.executeUnCheckForAllModules = function () {
+        presenter.configuration.worksWithModulesList.forEach(function (moduleId) {
+            var module = presenter.playerController.getModule(moduleId);
+            if (module && module.setWorkMode) {
+                module.setWorkMode();
+            }
+        });
+    };
+
+    presenter.allModulesAttempted = function () {
+        var i = 0;
+        var worksWithModulesList = presenter.configuration.worksWithModulesList;
+
+        for (; i < worksWithModulesList.length; i++) {
+            var moduleId = worksWithModulesList[i];
+            var module = presenter.playerController.getModule(moduleId);
+
+            if (module && module.isAttempted && !module.isAttempted()) {
+                return false;
+            }
         }
 
-        presenter.$button.text(text);
-        presenter.sendEvent(eventName);
+        return true;
     };
 
     presenter.connectClickAction = function () {
@@ -138,9 +181,6 @@ function AddonLimited_Show_Answers_create() {
             presenter.setVisibility(presenter.configuration.isVisible);
             presenter.connectClickAction();
             presenter.connectKeyDownAction();
-            presenter.eventBus.addEventListener('ShowAnswers', presenter);
-            presenter.eventBus.addEventListener('HideAnswers', presenter);
-            presenter.eventBus.addEventListener('LimitedHideAnswers', presenter);
         }
     };
 
@@ -169,28 +209,6 @@ function AddonLimited_Show_Answers_create() {
     presenter.setVisibility = function (isVisible) {
         presenter.state.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
-    };
-
-    presenter.onEventReceived = function (eventName, eventData) {
-        if (eventName == "LimitedHideAnswers") {
-            for (var i in eventData) {
-                if (eventData.hasOwnProperty(i)) {
-                    var eventModule = eventData[i];
-                    if (presenter.configuration.worksWithModulesList.includes(eventModule))
-                        presenter.reset();
-                }
-            }
-        }
-        if (eventName == "HideAnswers") {
-            presenter.reset();
-        }
-        if (eventName == "ShowAnswers") {
-            presenter.$button.text(presenter.configuration.textSelected);
-            presenter.$wrapper.removeClass('disabled');
-            presenter.$wrapper.addClass('selected');
-            presenter.state.isSelected = true;
-            presenter.state.isEnabled = false;
-        }
     };
 
     presenter.show = function () {
@@ -242,6 +260,56 @@ function AddonLimited_Show_Answers_create() {
 
     presenter.setWorkMode = function () {
         presenter.reset();
+    };
+
+    function speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
+
+    function getTextVoiceObject(text, lang) {
+        return {
+            text: text,
+            lang: lang
+        };
+    }
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    presenter.getTitlePostfix = function () {
+        if(presenter.state.isSelected) {
+            return presenter.configuration.speechTexts.selected.textToSpeechText;
+        } else {
+            return ''
+        }
+    };
+
+    presenter.keyboardController = function (keycode) {
+        if (keycode === 13) {
+            var wasSelected = presenter.state.isSelected;
+            presenter.$button.click();
+            if (isWCAGOn) {
+                if (presenter.state.isSelected) {
+                    speak([getTextVoiceObject(presenter.configuration.speechTexts.blockEdit.textToSpeechText)]);
+                } else if (wasSelected && !presenter.state.isSelected) {
+                    speak([getTextVoiceObject(presenter.configuration.speechTexts.noBlockEdit.textToSpeechText)]);
+                } else {
+                    speak([getTextVoiceObject(presenter.configuration.speechTexts.notAllAttempted.textToSpeechText)]);
+                }
+            }
+        }
     };
 
     return presenter;

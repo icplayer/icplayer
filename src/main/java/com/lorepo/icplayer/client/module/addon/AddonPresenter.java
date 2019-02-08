@@ -57,7 +57,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private IPlayerServices services;
 	private IDisplay view;
 	private IAddonDescriptor addonDescriptor;
-	private static Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "limited_show_answers", "text_identification", "image_identification"));
+	private static Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "limited_show_answers", "text_identification", "image_identification", "limited_submit"));
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 		this.model = model;
@@ -436,7 +436,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return model;
 	}
 	
-	public JavaScriptObject getJavaScriptObject(){
+	public JavaScriptObject getAsJavaScript(){
 		return jsObject;
 	}
 
@@ -572,7 +572,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 	
 	public  boolean isEnterable () {
-		return this.isEnterable(this.getJavaScriptObject());
+		return this.isEnterable(this.getAsJavaScript());
 	}
 	
 	public native boolean isEnterable (JavaScriptObject obj) /*-{
@@ -583,7 +583,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}-*/;
 	
 	public  boolean isDeactivationBlocked () {
-		return this.isDeactivationBlocked(this.getJavaScriptObject());
+		return this.isDeactivationBlocked(this.getAsJavaScript());
 	}
 	
 	public native boolean isDeactivationBlocked (JavaScriptObject obj) /*-{

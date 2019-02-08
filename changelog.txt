@@ -1,15 +1,48 @@
-2019-01-09 Added new addon Limited Submit
+2019-01-31 Added starting values to connection modules
+2019-01-28 Fixed problem with recreating gaps on show command
+2019-01-22 Fixed getting error count in Shooting Range module
+2019-01-21 Added disable and enable commands for TextAudio addon
+2019-01-14 Added new addon Limited Submit
+2019-01-14 Fixed a model in media recorder addon
+2019-01-14 Added a end of game event to a shooting range addon
+2019-01-14 Fixed setting state in Coloring module
+2019-01-14 Fixed the problem of latex reloading in a quiz addon
+2019-01-11 Added disable enable commands to Media Recorder addon
+2019-01-10 Fixed view shift on mobile devices in Points and lines, Connecting dots, Coloring
+2019-01-10 Added commands to Text, Ordering, Image Gap and Choice
+2019-01-10 Changed the behavior of the point counter in a Catch addon
+2019-01-04 Fixed setting player controller in Shape Tracing module
+2019-01-02 Added command isOK to a connection addon
+2018-12-21 Fixed a rerendered mathjax of text module
+2018-12-19 Fixed reseting after using setText command in Text module
+2018-12-17 Fixed ekeyboard paragraph loading on the first page of mCourser
+2018-12-17 Fixed mathjax calls
+2018-12-12 Fixed shape tracing scaling on mobile devices
+2018-12-11 Upgraded tinymce library
+2018-11-28 Fixed media recorder on safari mobile devices and mLibro
+2018-11-28 Fixed reset issue in Shooting Range
+2018-11-27 Fixed issues with inline display: none in multiple addons
+2018-11-21 Fixed toolbar and added color pickers in Paragraph module
+2018-11-09 Fixed hyperlinks in feedback
+2018-11-05 Added alt text to audiodescriptions in video
+2018-11-05 Fixed static header and footer positioning when in scaled iframe
+2018-11-02 Added removal of MathJax "End Process" hooks after modules detach
+2018-10-25 Fixed problem with loading math jax
+2018-10-25 Added new addon audio recorder
+2018-10-22 Grouping modules into a div
+2018-10-16 Hierarchical lesson report add maxscore link
 2018-10-16 Added property Plate Image in Catch module
+2018-10-15 Fixed iFrame visible in the editor when the hide option is enabled
 2018-10-12 Shooting range impoving the game.
 2018-10-11 Removed sending ValueChanged with value removed on stopping item drag in multiplegap
 2018-10-10 Added disable dragging property in Ordering
-2019-10-09 Fixed scoring in multiplegap when incorrect answers are present
+2018-10-09 Fixed scoring in multiplegap when incorrect answers are present
 2018-10-09 Fixed problem with setState in shooting range module
 2018-10-08 Fixed issue with show answers in Text Selection when Limited Check is used
-2019-10-05 Fixed issue with MathJax in eKeyboard and Text when the first layout is not default
+2018-10-05 Fixed issue with MathJax in eKeyboard and Text when the first layout is not default
 2018-10-03 Added setText in Paragraph
-2019-10-02 Fixed isAttempted method in not activity mode in True False module
-2019-09-27 Changed mouse and touch control scheme in Catch addon
+2018-10-02 Fixed isAttempted method in not activity mode in True False module
+2018-09-27 Changed mouse and touch control scheme in Catch addon
 2018-09-24 Fixed issues with scoring in multiplegap
 2018-09-24 Added missing split page label
 2018-09-19 Fixed issue with decimals in Math

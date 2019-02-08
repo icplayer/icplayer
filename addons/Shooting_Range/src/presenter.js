@@ -55,6 +55,8 @@ function AddonShooting_Range_create() {
         SPEED_ATTACK: 1
     };
 
+    presenter.originalDisplay = "block";
+
     presenter.setPlayerController = function (controller) {
         presenter.state.playerController = controller;
         presenter.state.eventBus = presenter.state.playerController.getEventBus();
@@ -88,6 +90,11 @@ function AddonShooting_Range_create() {
            presenter.initializeGame();
            presenter.actualizeAnswersWrapperHeight();
            presenter.connectHandlers();
+        }
+
+        var display = presenter.state.$view.css('display');
+        if (display != null && display.length > 0) {
+            presenter.originalDisplay = display;
         }
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
@@ -145,6 +152,7 @@ function AddonShooting_Range_create() {
         presenter.actualizeAnswersWrapperHeight();
         presenter.state.isStarted = false;
         presenter.state.$questionDiv.html("&nbsp;");
+        presenter.state.$levelDiv.html("&nbsp;");
 
     };
 
@@ -290,6 +298,15 @@ function AddonShooting_Range_create() {
         presenter.sendValueChangedEvent(presenter.generateEventData(questionNumber, answerNumber, false, false));
     };
 
+    presenter.sendEndOfGameEvent = function () {
+        presenter.sendValueChangedEvent({
+            source : presenter.configuration.addonID,
+            item : 'all',
+            value : 'EOG',
+            score : '1'
+        });
+    };
+
     presenter.sendValueChangedEvent = function (eventData) {
         presenter.state.eventBus.sendEvent('ValueChanged', eventData);
     };
@@ -312,6 +329,7 @@ function AddonShooting_Range_create() {
                     score: presenter.state.score,
                     errors: presenter.state.wholeErrorCount
                 });
+                presenter.sendEndOfGameEvent();
             }
         }
     };
@@ -572,7 +590,7 @@ function AddonShooting_Range_create() {
 
     presenter.setVisibility = function (isVisible) {
         presenter.state.$view.css('visibility', isVisible ? 'visible' : 'hidden');
-        presenter.state.$view.css('display', isVisible ? 'block' : 'none');
+        presenter.state.$view.css('display', isVisible ? presenter.originalDisplay : 'none');
 
         presenter.state.isVisible = isVisible;
     };
@@ -698,7 +716,6 @@ function AddonShooting_Range_create() {
 
     presenter.getErrorCount = function () {
         var lastErrorCount = presenter.state.errorCount;
-        presenter.state.errorCount = 0;
 
         return lastErrorCount;
     };
@@ -774,6 +791,7 @@ function AddonShooting_Range_create() {
             this.pauseTime = 0;
             this.isPaused = false;
             this.levelWasEnded = false;
+            this.droppedElements = 0;
 
             if (this.definition.gameMode == presenter.GAME_MODE.SPEED_ATTACK) {
                 this.$questionDiv.hide();

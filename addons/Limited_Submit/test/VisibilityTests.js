@@ -7,9 +7,9 @@ function getValidModel(isVisible) {
     }
 }
 
-TestCase('[Limited_Show_Answers] Visiblity tests', {
+TestCase('[Limited Submit] Visiblity tests', {
     setUp: function () {
-        this.presenter = AddonLimited_Show_Answers_create();
+        this.presenter = AddonLimited_Submit_create();
 
         this.stubs = {
             validateModelStub: sinon.stub(),
@@ -30,28 +30,28 @@ TestCase('[Limited_Show_Answers] Visiblity tests', {
         this.view = document.createElement('div');
     },
 
-    'test when in preview mode, setVisibility should not be called': function () {
+    'test given preview mode and visibility as true when createPreview is called then setVisibility is not called': function () {
         this.stubs.validateModelStub.returns(getValidModel(true));
         this.presenter.createPreview(this.view, {});
 
         assertFalse(this.stubs.setVisibilityStub.called);
     },
 
-    'test when in preview mode and addon is not visible, setVisibility should not be called': function () {
+    'test given preview mode and visibility as false when createPreview is called then setVisibility is not called': function () {
         this.stubs.validateModelStub.returns(getValidModel(false));
         this.presenter.createPreview(this.view, {});
 
         assertFalse(this.stubs.setVisibilityStub.called);
     },
 
-    'test when not in preview mode and addon is visible, setVisibility should be called with true': function () {
+    'test given work mode and visibility as true when run is called then setVisibility is called': function () {
         this.stubs.validateModelStub.returns(getValidModel(true));
         this.presenter.run(this.view, {});
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(true));
     },
 
-    'test when not in preview mode and addon is not visible, setVisibility should be called with false': function () {
+    'test given work mode and visibility as false when run is called then setVisbility is called': function () {
         this.stubs.validateModelStub.returns(getValidModel(false));
         this.presenter.run(this.view, {});
 

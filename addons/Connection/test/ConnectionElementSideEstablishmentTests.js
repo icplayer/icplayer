@@ -1,4 +1,4 @@
-ConnectionElementSideEstablishmentTests = TestCase("Connection element side establishment");
+ConnectionElementSideEstablishmentTests = TestCase("[Connection] Connection element side establishment");
 
 ConnectionElementSideEstablishmentTests.prototype.setUp = function() {
     this.presenter = AddonConnection_create();

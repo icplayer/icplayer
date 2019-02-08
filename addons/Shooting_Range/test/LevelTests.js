@@ -79,6 +79,7 @@ TestCase("[Shooting_Range - Level] start", {
         this.level.levelWasEnded = true;
         this.level.pauseTime = 12;
         this.level.isPaused = true;
+        this.level.droppedElements = 3;
 
         this.level.start();
 
@@ -93,6 +94,7 @@ TestCase("[Shooting_Range - Level] start", {
         assertEquals(false, this.level.levelWasEnded);
         assertEquals(0, this.level.pauseTime);
         assertEquals(false, this.level.isPaused);
+        assertEquals(0, this.level.droppedElements);
 
     }
 

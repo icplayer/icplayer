@@ -659,7 +659,14 @@ function AddonShape_Tracing_create() {
         ctx.strokeStyle = presenter.configuration.color;
         ctx.fillStyle = presenter.configuration.color;
 
-        points.push({ x: presenter.cursorPosition.x, y: presenter.cursorPosition.y });
+
+        var point = {x: presenter.cursorPosition.x, y: presenter.cursorPosition.y};
+        var scale = presenter.playerController.getScaleInformation();
+        if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
+            point.x = point.x / scale.scaleX;
+            point.y = point.y / scale.scaleY;
+        }
+        points.push(point);
 
         if (points.length < 3) {
             ctx.beginPath();
@@ -1061,6 +1068,7 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.setPlayerController = function(controller) {
+        presenter.playerController = controller;
         eventBus = controller.getEventBus();
     };
 

@@ -1,15 +1,10 @@
 package com.lorepo.icplayer.client.module.text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
@@ -21,9 +16,15 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
+import com.lorepo.icplayer.client.utils.MathJaxElement;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 
-public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
+public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, IWCAGModuleView{
 	private final TextModel module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
@@ -35,16 +36,26 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
 	private boolean isWCAGon = false;
 	private boolean isShowErrorsMode = false;
+	private boolean mathJaxIsLoaded = false;
+	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
 	
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
+		mathJaxLoaded();
 	}
 
+	@Override
+	public void mathJaxLoaded() {
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
+	}
+	
 	private void createUI (boolean isPreview) {
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (!isPreview && !module.isVisible()) {
 			hide();
 		}
@@ -54,25 +65,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		}
 		
 		getElement().setAttribute("lang", this.module.getLangAttribute());
-		if (this.module.hasMathGaps()) {
-			setCallbackForMathJaxLoaded(this, getElement());
-		}
 	}
 	
-	private native void setCallbackForMathJaxLoaded(TextView x, Element e) /*-{
-		var $e = $wnd.$(e);
-		$e.css('display','none');
-		$wnd.MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
-	        if ($wnd.$(message[1]).hasClass('ic_page')) {
-	            x.@com.lorepo.icplayer.client.module.text.TextView::mathJaxIsLoadedCallback()();
-	            $e.css('display','');
-	        }
-	    });
-	}-*/;
-	
-	void mathJaxIsLoadedCallback() {
-		this.refreshMath();
-	}
+	public void mathJaxIsLoadedCallback() {
+        if (!this.mathJaxIsLoaded) {
+            this.mathJaxIsLoaded = true;
+            this.refreshMath();
+        }
+    }
 
 	public ITextViewListener getListener() {
 		return listener;
@@ -95,6 +95,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			}
 			
 			gap.setDisabled(module.isDisabled());
+			
 			textElements.add(gap);
 		}
 	}
@@ -174,7 +175,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 						if (savedDisabledState.size() > counter) {
 							GapWidget gap = (GapWidget) getChild(counter);
 							gap.setDisabled(savedDisabledState.get(counter));
-							
+
 							textElements.set(counter, gap);
 						}
 					} else {
@@ -184,7 +185,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 						} else {
 							gap.setDisabled(module.isDisabled());
 						}
-						
+
 						textElements.add(gap);
 						mathGapIds.add(id);
 					}
@@ -230,7 +231,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 	
 	public void sortGapsOrder () {
-//		final List<String> gapsOrder = module.getGapsOrder();
 		final List<String> gapsOrder = WCAGUtils.getGapsOrder(module);
 		final int gapsOrderSize = gapsOrder.size();
 		final int textElementsSize = textElements.size();
@@ -324,24 +324,31 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 	public void rerenderMathJax () {
 		MathJax.rerenderMathJax(getElement());
+		// If mathjax was re rendered then gaps lost handlers to thers DOM elements.
+		this.reconnectHandlers();
 	}
 
 	@Override
 	public void hide() {
-		getElement().getStyle().setProperty("visibility", "hidden");
-		getElement().getStyle().setProperty("display", "none");
+		setVisible(false);
 	}
 
 	@Override
 	public void show(boolean callRefreshMath) {
-		Element element = getElement();
-		if (element.getStyle().getVisibility().equals("hidden")) {
-			element.getStyle().setProperty("visibility", "visible");
-			element.getStyle().setProperty("display", "block");
-
-			if (callRefreshMath) {
-				refreshMath();
-				rerenderMathJax();
+		setVisible(true);
+		if (this.mathJaxIsLoaded) {
+			refreshMath();
+		}
+		if (callRefreshMath) {
+			refreshMath();
+			rerenderMathJax();
+		}
+	}
+	
+	private void reconnectHandlers () {
+		for (TextElementDisplay element: this.textElements) {
+			if (element instanceof GapWidget) {
+				((GapWidget) element).reconnectHandlers(this.listener);
 			}
 		}
 	}
@@ -625,4 +632,34 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		}
 	}
 	
+	@Override
+	protected void onDetach() {		
+		this.removeHook();
+		
+		super.onDetach();
+	};
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
+			this.mathJaxHook = null;
+		}
+	}
+
+	@Override
+	public String getElementId() {
+		return this.module.getId();
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
+
 }
