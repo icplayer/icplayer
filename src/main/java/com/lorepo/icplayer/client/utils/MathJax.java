@@ -10,10 +10,11 @@ public class MathJax {
 	 */
 	public static native void refreshMathJax(Element e) /*-{
 		try {
-			// Array is created this way, beacuse in different frames Array prototypes are different objects.
-			// Comparing array variable from one frame to Array prototype in different frame will return false
-            // GWT creates its own frame and MathJax is placed in other ($wnd)
-			// ex (when window !== top):
+			// Array is created this way, beacuse in different windows Array prototypes are different objects.
+			// Comparing array variable from one window to Array prototype in different window will return false
+            // GWT creates its own window and MathJax is placed in another ($wnd)
+            // This is needed because MathJax compares arguments to instaceof Array
+			// e.g. (when window !== top):
 			// var array = new Array(); 
 			// array instanceof Array // true
 			// array instanceof top.Array // false
