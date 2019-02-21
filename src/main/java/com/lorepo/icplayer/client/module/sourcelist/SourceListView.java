@@ -136,10 +136,6 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		}
 
 		connectLabelEventHandlers(label, id);
-
-        if(!isPreview){
-    		JavaScriptUtils.makeDraggable(label.getElement(), presenter.getAsJavaScript());
-        }
 	}
 
 	public void connectLabelEventHandlers(HTML label, final String id) {
@@ -175,6 +171,10 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 				itemDragged(id);
 			}
 		});
+
+        if(!isPreview){
+    		JavaScriptUtils.makeDraggable(label.getElement(), presenter.getAsJavaScript());
+        }
 	}
 
 	@Override
