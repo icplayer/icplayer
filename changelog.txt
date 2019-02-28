@@ -1,3 +1,4 @@
+2019-02-28 Fixed problem with setting state in Text Audio module
 2019-02-21 Fix for problem with dissapearing Source List items after drag stop
 2019-02-08 Fixed adding selectable characters in word in Text Coloring
 2019-01-31 Added starting values to connection modules
