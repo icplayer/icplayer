@@ -40,6 +40,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private JavaScriptObject mathJaxHook = null;
 	private String originalDisplay = "";
 	
+	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
+	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
+	private ArrayList<GapWidget> gapsWidgets = new ArrayList<GapWidget>();
+	
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
@@ -135,6 +139,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				}
 				
 				gap.setDisabled(module.isDisabled());
+				gapsWidgets.add(gap);
 				textElements.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
@@ -158,6 +163,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				}
 				
 				gap.setDisabled(module.isDisabled());
+				gapsWidgets.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
 			}
@@ -177,6 +183,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 							gap.setDisabled(savedDisabledState.get(counter));
 
 							textElements.set(counter, gap);
+							gapsWidgets.set(counter, gap);
 						}
 					} else {
 						GapWidget gap = new GapWidget(gi, listener);
@@ -187,6 +194,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						}
 
 						textElements.add(gap);
+						gapsWidgets.add(gap);
 						mathGapIds.add(id);
 					}
 				} catch (Exception e) {
@@ -346,10 +354,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	private void reconnectHandlers () {
-		for (TextElementDisplay element: this.textElements) {
-			if (element instanceof GapWidget) {
-				((GapWidget) element).reconnectHandlers(this.listener);
-			}
+		for (GapWidget element: this.gapsWidgets) {
+			element.reconnectHandlers(this.listener);
 		}
 	}
 
