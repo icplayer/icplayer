@@ -4,10 +4,14 @@ TestCase("[Paragraph] Upgrade model", {
 
         this.upgradePlaceholderTextStub = sinon.stub(this.presenter, 'upgradePlaceholderText');
         this.upgradeEditablePlaceholderStub = sinon.stub(this.presenter, 'upgradeEditablePlaceholder');
+        this.upgradeManualGradingStub = sinon.stub(this.presenter, 'upgradeManualGrading');
+        this.upgradeTitleStub = sinon.stub(this.presenter, 'upgradeTitle');
     },
 
     tearDown: function () {
         this.presenter.upgradePlaceholderText.restore();
+        this.presenter.upgradeManualGrading.restore();
+        this.presenter.upgradeTitle.restore();
     },
 
     'test upgrade model': function () {
@@ -15,6 +19,8 @@ TestCase("[Paragraph] Upgrade model", {
 
         assertTrue(this.upgradePlaceholderTextStub.called);
         assertTrue(this.upgradeEditablePlaceholderStub.called);
+        assertTrue(this.upgradeManualGradingStub.called);
+        assertTrue(this.upgradeTitleStub.called);
     }
 });
 
