@@ -530,7 +530,12 @@ function AddonTrueFalse_create() {
             i++;
         });
 
-        if(parsedState.isDisabled && parsedState.isDisabled !== undefined) {
+        //  For backward compatibility in old lessons
+        if (parsedState.isDisabled === undefined) {
+            parsedState.isDisabled = false;
+        }
+
+        if(parsedState.isDisabled) {
             presenter.disable();
         } else {
             presenter.enable();
