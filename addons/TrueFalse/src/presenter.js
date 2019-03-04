@@ -155,6 +155,7 @@ function AddonTrueFalse_create() {
     function clickLogic(element) {
         var sendEvent = true;
         var wasSelected = false;
+        if (presenter.isDisabled) return;
 
         if (!$(element).hasClass("disabled")) {
             if (multi) {
@@ -198,6 +199,9 @@ function AddonTrueFalse_create() {
     }
 
     function handleClickActions(view) {
+        if(presenter.isDisabled) return;
+
+
         var $elements = $(view).find(".tf_" + presenter.type + "_image");
         
         if (!MobileUtils.isMobileUserAgent(window.navigator.userAgent)){
@@ -349,6 +353,8 @@ function AddonTrueFalse_create() {
         presenter.langAttribute = model['Lang attribute'];
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        presenter.isDisabled = false; // At start addon is always enabled, so we need to reset flag and set correct value.
+        presenter.isDisabledByDefault = ModelValidationUtils.validateBoolean(model["isDisabled"]);
         presenter.$view.attr('lang', presenter.langAttribute);
 
         getSpeechTexts(model);
@@ -378,6 +384,12 @@ function AddonTrueFalse_create() {
         if (!isPreview) {
             handleClickActions(view);
             presenter.setVisibility(presenter.isVisible);
+
+            if (presenter.isDisabledByDefault) {
+                presenter.disable();
+            } else {
+                presenter.enable();
+            }
         }
 
         if (textParser !== null) { // Actions performed only in Player mode
@@ -489,7 +501,8 @@ function AddonTrueFalse_create() {
 
         return JSON.stringify({
             selectedElements: getSelectedElements(),
-            isVisible: presenter.isVisible
+            isVisible: presenter.isVisible,
+            isDisabled: presenter.isDisabled
         });
     };
 
@@ -516,6 +529,12 @@ function AddonTrueFalse_create() {
             }
             i++;
         });
+
+        if(parsedState.isDisabled && parsedState.isDisabled !== undefined) {
+            presenter.disable();
+        } else {
+            presenter.enable();
+        }
     };
 
     presenter.setShowErrorsMode = function () {
@@ -557,6 +576,12 @@ function AddonTrueFalse_create() {
         workMode(true);
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
+
+        if (presenter.isDisabledByDefault) {
+            presenter.disable();
+        } else {
+            presenter.enable();
+        }
     };
 
     presenter.getErrorCount = function () {
@@ -604,7 +629,11 @@ function AddonTrueFalse_create() {
             'isAttempted' : presenter.isAttemptedCommand,
             'show': presenter.show,
             'hide': presenter.hide,
-            'reset' : presenter.reset
+            'reset' : presenter.reset,
+            'showAnswers' : presenter.showAnswers,
+            'hideAnswers' : presenter.hideAnswers,
+            'enable' : presenter.enable,
+            'disable' : presenter.disable
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -644,6 +673,8 @@ function AddonTrueFalse_create() {
 
 
     presenter.markAsCorrect = function (rowIndex, answerIndex) {
+        if(presenter.isDisabled) return;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -657,6 +688,8 @@ function AddonTrueFalse_create() {
     };
 
     presenter.markAsWrong = function (rowIndex, answerIndex) {
+        if(presenter.isDisabled) return;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -670,6 +703,8 @@ function AddonTrueFalse_create() {
     };
 
     presenter.markAsEmpty = function (rowIndex, answerIndex) {
+        if(presenter.isDisabled) return;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -682,6 +717,8 @@ function AddonTrueFalse_create() {
     };
 
     presenter.removeMark = function (rowIndex, answerIndex) {
+        if(presenter.isDisabled) return;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -750,6 +787,22 @@ function AddonTrueFalse_create() {
         if (eventName == "HideAnswers") {
             presenter.hideAnswers();
         }
+    };
+
+    presenter.disable = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        presenter.isDisabled = true;
+        presenter.$view.removeClass("disabled");
+    };
+
+    presenter.enable = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        presenter.isDisabled = false;
+        presenter.$view.addClass("disabled");
     };
 
     presenter.showAnswers = function () {
