@@ -799,7 +799,7 @@ function AddonTrueFalse_create() {
             presenter.hideAnswers();
         }
         presenter.isDisabled = true;
-        presenter.$view.removeClass("disabled");
+        presenter.$view.addClass("disabled");
     };
 
     presenter.enable = function() {
@@ -807,7 +807,7 @@ function AddonTrueFalse_create() {
             presenter.hideAnswers();
         }
         presenter.isDisabled = false;
-        presenter.$view.addClass("disabled");
+        presenter.$view.removeClass("disabled");
     };
 
     presenter.showAnswers = function () {
