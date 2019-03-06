@@ -826,7 +826,7 @@ function AddonTrueFalse_create() {
     };
 
     presenter.hideAnswers = function () {
-        if (isNotActivity) {
+        if (isNotActivity || !presenter.isShowAnswersActive) {
             return;
         }
 
