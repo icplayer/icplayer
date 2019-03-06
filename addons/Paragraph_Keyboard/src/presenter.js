@@ -202,7 +202,9 @@ function AddonParagraph_Keyboard_create() {
             hasDefaultFontSize = false,
             keyboardPosition = model['keyboardPosition'] ? model['keyboardPosition'].toLowerCase() : 'bottom',
             layoutType = presenter.validateType(model['layoutType']),
-            keyboardLayout = model['keyboardLayout'];
+            keyboardLayout = model['keyboardLayout'],
+            title = model["Title"],
+            manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]);
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -259,13 +261,40 @@ function AddonParagraph_Keyboard_create() {
 
             keyboardLayout: keyboardLayout,
             keyboardPosition: keyboardPosition,
-            error: false
+            error: false,
+            manualGrading: manualGrading,
+            title: title
         };
     };
 
     presenter.setWrapperID = function AddonParagraph_Keyboard_setWrapperID() {
         var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
         $paragraphWrapper.attr('id', presenter.configuration.ID + '-wrapper');
+    };
+
+    presenter.upgradeAttribute = function (model, attrName, defaultValue) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (model[attrName] == undefined) {
+            upgradedModel[attrName] = defaultValue;
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = presenter.upgradeTitle(model);
+            upgradedModel = presenter.upgradeManualGrading(upgradedModel);
+        return upgradedModel;
+    };
+
+    presenter.upgradeManualGrading = function (model) {
+        return presenter.upgradeAttribute(model, "Manual grading", false);
+    };
+
+    presenter.upgradeTitle = function (model) {
+        return presenter.upgradeAttribute(model, "Title", "");
     };
 
     /**
@@ -278,7 +307,8 @@ function AddonParagraph_Keyboard_create() {
     presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model) {
         presenter.view = view;
         presenter.$view = $(view);
-        presenter.configuration = presenter.parseModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.parseModel(upgradedModel);
 
         if (presenter.configuration.error) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.error);
