@@ -535,10 +535,12 @@ function AddonTrueFalse_create() {
             parsedState.isDisabled = false;
         }
 
-        if(parsedState.isDisabled) {
-            presenter.disable();
-        } else {
-            presenter.enable();
+        if(!presenter.isShowAnswersActive) {
+            if (parsedState.isDisabled) {
+                presenter.disable();
+            } else {
+                presenter.enable();
+            }
         }
     };
 
@@ -592,29 +594,17 @@ function AddonTrueFalse_create() {
     presenter.getErrorCount = function () {
         if (isNotActivity) return 0;
 
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
         return score().errorCount;
     };
 
     presenter.getMaxScore = function () {
         if (isNotActivity) return 0;
 
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
         return score().maxScore;
     };
 
     presenter.getScore = function () {
         if (isNotActivity) return 0;
-
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
 
         return score().score;
     };
