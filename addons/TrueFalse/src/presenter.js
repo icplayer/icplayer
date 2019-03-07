@@ -496,7 +496,7 @@ function AddonTrueFalse_create() {
 
     presenter.getState = function () {
         if (presenter.isShowAnswersActive) {
-            return presenter.currentState;
+            presenter.hideAnswers();
         }
 
         return JSON.stringify({
