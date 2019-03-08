@@ -1,3 +1,8 @@
+2019-02-26 Added Manual grading and Title properties in Paragraph and Paragraph Keyboard modules
+2019-02-21 Fix for problem with dissapearing Source List items after drag stop
+2019-02-08 Fixed adding selectable characters in word in Text Coloring
+2019-01-31 Added starting values to connection modules
+2019-01-28 Fixed problem with recreating gaps on show command
 2019-01-22 Fixed getting error count in Shooting Range module
 2019-01-21 Added disable and enable commands for TextAudio addon
 2019-01-14 Added new addon Limited Submit
