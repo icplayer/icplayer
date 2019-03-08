@@ -8,17 +8,17 @@
     
     <script type="text/javascript" language="javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" language="javascript" src="icplayer/icplayer.nocache.js"></script>
-    
-	<script type="text/x-mathjax-config">
-     MathJax.Hub.Config({
-		TeX: {extensions: ["mhchem.js", "AMSsymbols.js", "AMSmath.js"]},
-		extensions: ["tex2jax.js"],
-		skipStartupTypeset: true,
-		showProcessingMessages: false,
-		jax: ["input/TeX","output/HTML-CSS"]
-    });
 
-	</script>    
+    <script type="text/x-mathjax-config">
+	MathJax.Hub.Config({
+		TeX: {extensions: ["mhchem.js", "AMSsymbols.js", "AMSmath.js"]},
+		extensions: ["tex2jax.js", "mml2jax.js", "/media/js/forminput.js"],
+		skipStartupTypeset: true,
+		messageStyle: "none",
+		jax: ["input/TeX", "input/MathML", "output/HTML-CSS"],
+		playerObject: 'player'
+	});
+	</script>
     <script type="text/javascript" src="mathjax/MathJax.js"></script>
     <script language="javascript">
 		var player;
