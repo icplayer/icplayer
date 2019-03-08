@@ -1960,5 +1960,6 @@ var ice_dictionary_en = {
 	"Editor_add_missing_tts":"Add missing TTS modules",
 	"Editor_tts_modified_pages_list":"The list of pages modified while adding TTS to presentation:",
 	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation",
-	"module_metadata": "Module metadata"
+	"module_metadata": "Module metadata",
+	"editor_metadata_remove_external": "Update metadata fields"
 };
