@@ -594,17 +594,29 @@ function AddonTrueFalse_create() {
     presenter.getErrorCount = function () {
         if (isNotActivity) return 0;
 
+        if (presenter.isShowAnswersActive) {
+            return presenter.currentScore.errorCount;
+        }
+
         return score().errorCount;
     };
 
     presenter.getMaxScore = function () {
         if (isNotActivity) return 0;
 
+        if (presenter.isShowAnswersActive) {
+            return presenter.currentScore.maxScore;
+        }
+
         return score().maxScore;
     };
 
     presenter.getScore = function () {
         if (isNotActivity) return 0;
+
+        if (presenter.isShowAnswersActive) {
+            return presenter.currentScore.score;
+        }
 
         return score().score;
     };
@@ -801,10 +813,11 @@ function AddonTrueFalse_create() {
     };
 
     presenter.showAnswers = function () {
-        if (isNotActivity) {
+        if (isNotActivity || presenter.isShowAnswersActive) {
             return;
         }
 
+        presenter.currentScore = score();
         presenter.isShowAnswersActive = true;
         presenter.currentState = getSelectedElements();
         presenter.isErrorMode = false;
