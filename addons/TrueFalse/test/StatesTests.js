@@ -20,7 +20,7 @@ TestCase("Get and Set State Tests", {
 
         var state = this.presenter.getState();
 
-        assertEquals('[false, true, false]', state);
+        assertEquals('{\"selectedElements\":[false,false,false]}', state);
     },
 
     'test set state function sets data properly' : function() {

@@ -1,4 +1,5 @@
 2019-03-06 Fixed problem with not selectable placeholder text in filled gap after reset command
+2019-03-04 Added showAnswers, hideAnswers, enable and disable commands in True False module
 2019-02-26 Added Manual grading and Title properties in Paragraph and Paragraph Keyboard modules
 2019-02-21 Fix for problem with dissapearing Source List items after drag stop
 2019-02-08 Fixed adding selectable characters in word in Text Coloring
