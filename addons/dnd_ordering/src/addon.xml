@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<addon id="dnd_ordering" xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="maxelements" displayName="max elements" nameLabel="maxelements" type="string" />
+        <property name="isGapOrdering" displayName="is Gap Ordering" nameLabel="isGapOrdering" type="boolean" />
+        <property name='startingvalues' displayName="Starting Values" nameLabel="Starting Values" type='list'>
+            <property name='value' displayName="value" nameLabel="value" type='string' />       
+        </property>
+        <property name='correctorder' displayName="correctorder" nameLabel="correctorder" type='list'>
+            <property name='value' displayName="value" nameLabel="value" type='string' />       
+        </property>
+    </model>
+</addon>

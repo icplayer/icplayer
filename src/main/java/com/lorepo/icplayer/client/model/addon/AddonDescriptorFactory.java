@@ -55,6 +55,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Text_Selection", "activities_menu");
 		addDescriptor("TrueFalse", "activities_menu");
 		addDescriptor("WritingCalculations", "activities_menu");
+		addDescriptor("dnd_ordering", "activities_menu");
 
 		// GAMES
 		addDescriptor("Board_Game", "games_menu");
