@@ -170,7 +170,7 @@ public class GWTTextModelTestCase extends GwtTest {
 		
 		TextModel module = new TextModel();
 		module.load(element, "", PAGE_VERSION);
-		
+
 		String EXPECTED_STRING = "type=\"edit\" data-gap=\"editable\" size=\"6\" class=\"ic_gap\"";
 		int index = module.getParsedText().indexOf(EXPECTED_STRING);
 		assertTrue(index > 0);
