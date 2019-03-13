@@ -1640,7 +1640,7 @@ function AddonTextAudio_create() {
             presenter.hideAddon();
         }
 
-        if (!data.isEnabled) {
+        if (!data.isEnabled && data.isEnabled !== undefined) {
             presenter.disable();
         } else {
             presenter.enable();
