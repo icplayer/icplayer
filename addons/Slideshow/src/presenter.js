@@ -1799,8 +1799,8 @@ function AddonSlideshow_create() {
             };
         }
 
-        var maxDuration = parseInt(model['Presentation duration']);
-        if (noAudio && (isNaN(maxDuration) || maxDuration <= 0)) {
+        var maxDurationResult = ModelValidationUtils.validateInteger(model['Presentation duration']);
+        if (noAudio && (!maxDurationResult.isValid || maxDurationResult.value <= 0)) {
             return {isError: true, errorCode: 'N_01'};
         }
 
@@ -1826,7 +1826,7 @@ function AddonSlideshow_create() {
             isVisible: isVisibleByDefault,
             addonID: model['ID'],
             noAudio: noAudio,
-            maxTime: maxDuration
+            maxTime: maxDurationResult.value
         };
     };
 
