@@ -293,6 +293,7 @@ function AddonSlideshow_create() {
     presenter.playAudioResource = function () {
         presenter.isPlaying = true;
         if (presenter.configuration.noAudio) {
+            presenter.configuration.audio.wasPlayed = true;
             presenter.startNoAudioPlayer();
         } else {
             presenter.configuration.audio.wasPlayed = true;
@@ -1772,7 +1773,7 @@ function AddonSlideshow_create() {
 
 		var audioValidationResult = null;
 		if (noAudio) {
-		    audioValidationResult = {audio: null};
+		    audioValidationResult = {audio: {wasPlayed: false}};
         } else {
             audioValidationResult = presenter.validateAudio(model.Audio[0]);
             if (audioValidationResult.isError) {
