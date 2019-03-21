@@ -26,6 +26,10 @@ TestCase("[Navigation_bar] goToPage test case", {
             NEXT: 3,
             OTHER: 4
         };
+
+        this.presenter.configuration = {
+            blockNotVisited: false
+        }
     },
 
     'test should go to page index 3': function () {
@@ -54,5 +58,25 @@ TestCase("[Navigation_bar] goToPage test case", {
 
         var result = this.stubs.goToPageIndexStub.args;
         assertEquals(1, result[0]);
+    },
+
+    'test given blockNotVisited set to true when trying to enter a not visited page then goToPageIndex is not called': function () {
+        var whereTo = this.NAVIGATION_PAGE.OTHER;
+        this.presenter.configuration.blockNotVisited = true;
+        this.presenter.isPageVisited = [true, true, false, false];
+
+        this.presenter.__internalElements.goToPage(whereTo, 3);
+
+        assertFalse(this.stubs.goToPageIndexStub.called);
+    },
+
+    'test given blockNotVisited set to true when trying to enter a visited page then goToPageIndex is called': function () {
+        var whereTo = this.NAVIGATION_PAGE.OTHER;
+        this.presenter.configuration.blockNotVisited = true;
+        this.presenter.isPageVisited = [true, true, false, false];
+
+        this.presenter.__internalElements.goToPage(whereTo, 1);
+
+        assertTrue(this.stubs.goToPageIndexStub.called);
     }
 });

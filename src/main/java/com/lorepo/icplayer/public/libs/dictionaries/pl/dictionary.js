@@ -1056,6 +1056,7 @@ var ice_dictionary_pl = {
     "Navigation_Bar_property_show_more": "Pokaż więcej stron",
     "Navigation_Bar_property_show_prev": "Pokaż wcześniejsze strony",
     "Navigation_Bar_property_play_title": "Przeczytaj tytuł strony",
+	"Navigation_Bar_property_block_not_visited": "Block not visited pages",
 	"Page_Counter_info" : "Umożliwia dodanie licznika stron do prezentacji. Moduł przedstawia indeks bieżącej strony oraz liczbę stron w prezentacji w standardowej lub odwróconej kolejności.",
 	"Page_Counter_name" : "Licznik stron",
  	"Page_Counter_property_numericals": "Numerowanie stron",

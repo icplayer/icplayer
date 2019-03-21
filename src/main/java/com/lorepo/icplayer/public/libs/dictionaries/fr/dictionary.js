@@ -1057,6 +1057,7 @@ var ice_dictionary_fr = {
     "Navigation_Bar_property_show_more": "Show more pages",
     "Navigation_Bar_property_show_prev": "Show earlier pages",
     "Navigation_Bar_property_play_title": "Read page title",
+	"Navigation_Bar_property_block_not_visited": "Block not visited pages",
     "Page_Counter_info": "Permet d'ajouter un compteur de page dans une présentation. Il présente le numéro de la page affichée et le nombre de pages total, dans l'ordre normal ou inversé.",
     "Page_Counter_name": "Compteur de page",
     "Page_Counter_property_numericals": "Numériques",

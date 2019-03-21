@@ -35,5 +35,6 @@
         </property>
         <property name="langAttribute" displayName="Lang attribute" nameLabel="Navigation_Bar_property_lang_attribute" type="string" />
         <property name='playTitle' type='boolean' nameLabel="Navigation_Bar_property_play_title"/>
+        <property name='blockNotVisited' type='boolean' displayName='Block not visited pages' nameLabel="Navigation_Bar_property_block_not_visited"/>
 	</model>
 </addon>

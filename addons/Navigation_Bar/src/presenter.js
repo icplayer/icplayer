@@ -4,6 +4,7 @@ function AddonNavigation_Bar_create() {
     presenter.pagesOk = [];
     presenter.allPagesDisplayed = false;
     presenter.pageTitles = [];
+    presenter.visitedPages = [];
     var isWCAGOn = false;
 
     presenter.__internalElements = {
@@ -179,7 +180,9 @@ function AddonNavigation_Bar_create() {
         presenter.eventBus.addEventListener('closePage', this);
 
         for(var i = 0; i < presenter.pageCount; i++) {
-            presenter.pageTitles.push(presenter.presentation.getPage(i).getName());
+            var page = presenter.presentation.getPage(i);
+            presenter.pageTitles.push(page.getName());
+            presenter.visitedPages.push(page.isVisited());
         }
     };
 
@@ -217,9 +220,13 @@ function AddonNavigation_Bar_create() {
     };
 
     function goToPage(whereTo, index) {
-        var currentIndex = presenter.playerController.getCurrentPageIndex(),
-            goToIndex = 0;
-
+        var currentIndex = 0;
+        if (movedFromIndex) {
+            currentIndex = movedFromIndex;
+        } else {
+            currentIndex = presenter.playerController.getCurrentPageIndex();
+        }
+        var goToIndex = 0;
         switch (whereTo) {
             case NAVIGATION_PAGE.FIRST:
                 if (currentIndex !== 0) {
@@ -233,12 +240,12 @@ function AddonNavigation_Bar_create() {
                 break;
             case NAVIGATION_PAGE.NEXT:
                 if (currentIndex !== (presenter.pageCount - 1)) {
-                    goToIndex = presenter.currentIndex + 1;
+                    goToIndex = currentIndex + 1;
                 }
                 break;
             case NAVIGATION_PAGE.PREVIOUS:
                 if (currentIndex !== 0) {
-                    goToIndex = presenter.currentIndex - 1;
+                    goToIndex = currentIndex - 1;
                 }
                 break;
             case NAVIGATION_PAGE.OTHER:
@@ -248,7 +255,9 @@ function AddonNavigation_Bar_create() {
                 break;
         }
 
-        presenter.commander.gotoPageIndex(goToIndex);
+         if (presenter.visitedPages[goToIndex] || !presenter.configuration.blockNotVisited) {
+             presenter.commander.gotoPageIndex(goToIndex);
+         }
     }
 
     function handleMouseActions(dotsLeftIndex, dotsRightIndex, elementWidth, elementHeight, preview, horizontalGap) {
@@ -396,6 +405,9 @@ function AddonNavigation_Bar_create() {
                 	function() {
                     	$(this).removeClass(removeClassNames);
                     	$(this).addClass(addClassName);
+                    	if (presenter.configuration.blockNotVisited) {
+                            presenter.setDisabledPagesStyle();
+                        }
                 	}
             	);
             }
@@ -411,6 +423,9 @@ function AddonNavigation_Bar_create() {
                 function() {
                     $(this).removeClass(removeClassNames);
                     $(this).addClass(addClassName);
+                    if (presenter.configuration.blockNotVisited) {
+                        presenter.setDisabledPagesStyle();
+                    }
                 }
             );
         });
@@ -432,6 +447,9 @@ function AddonNavigation_Bar_create() {
                 	function() {
                     	$(this).removeClass('navigationbar-element-mouse-hover');
                     	$(this).addClass('navigationbar-element');
+                    	 if (presenter.configuration.blockNotVisited) {
+                            presenter.setDisabledPagesStyle();
+                        }
                 	}
             	);
             }
@@ -447,6 +465,9 @@ function AddonNavigation_Bar_create() {
                 function() {
                     $(this).removeClass('navigationbar-element-mouse-click');
                     $(this).addClass('navigationbar-element');
+                    if (presenter.configuration.blockNotVisited) {
+                        presenter.setDisabledPagesStyle();
+                    }
                 }
             );
         });
@@ -679,6 +700,10 @@ function AddonNavigation_Bar_create() {
             $(this).css('line-height', elementHeight + 'px');
         });
 
+        if (presenter.configuration.blockNotVisited) {
+            presenter.setDisabledPagesStyle();
+        }
+
         return dotsIndexes;
     }
 
@@ -696,6 +721,10 @@ function AddonNavigation_Bar_create() {
 
         if (!preview) {
             handleMouseActions(dotsIndexes.leftIndex, dotsIndexes.rightIndex, elementWidth, elementHeight, preview, horizontalGap);
+        }
+
+        if (presenter.configuration.blockNotVisited) {
+            presenter.setDisabledPagesStyle();
         }
     }
 
@@ -729,7 +758,9 @@ function AddonNavigation_Bar_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeFrom_01(model);
+        var upgradedModel = presenter.upgradeFrom_01(model);
+        upgradedModel = presenter.upgradeFrom_02(upgradedModel);
+        return upgradedModel;
     };
 
     presenter.upgradeFrom_01 = function (model) {
@@ -758,6 +789,16 @@ function AddonNavigation_Bar_create() {
         return upgradedModel;
     };
 
+     presenter.upgradeFrom_02 = function (model) {
+         var upgradedModel = {};
+         $.extend(true, upgradedModel, model);
+
+         if (!upgradedModel['blockNotVisited']) {
+             upgradedModel['blockNotVisited'] = 'False';
+         }
+         return upgradedModel;
+     };
+
     presenter.validateModel = function (model) {
         var validatedModel = {
             isError: false,
@@ -771,7 +812,8 @@ function AddonNavigation_Bar_create() {
             lastPageSeparated: ModelValidationUtils.validateBoolean(model["lastPageSeparated"]),
             langTag: model['langAttribute'],
             speechTexts: getSpeechTexts(model['speechTexts']),
-            playTitle: 0 === model['playTitle'].toLowerCase().localeCompare('true')
+            playTitle: 0 === model['playTitle'].toLowerCase().localeCompare('true'),
+            blockNotVisited: ModelValidationUtils.validateBoolean(model["blockNotVisited"])
         };
 
         if (!model['Styles']) {
@@ -874,6 +916,38 @@ function AddonNavigation_Bar_create() {
         });
     };
 
+    presenter.setDisabledPagesStyle = function() {
+        if (!presenter.playerController) return;
+
+        for (var page = 0; page < presenter.pageCount; page++) {
+            if (!presenter.visitedPages[page]) {
+                presenter.addAdditionalStyleToPage(page+1, '', '', 'disabled');
+            }
+        }
+        var currentIndex = 0;
+        if (movedFromIndex) {
+            currentIndex = movedFromIndex;
+        } else {
+            currentIndex = presenter.playerController.getCurrentPageIndex();
+        }
+        if (!presenter.visitedPages[0] || currentIndex == 0) {
+            var $el = presenter.$wrapper.find('.navigationbar-element-first:first');
+            $el.addClass('navigationbar-element-first-inactive disabled');
+        }
+        if (currentIndex > 0 && !presenter.visitedPages[currentIndex-1]) {
+            var $el = presenter.$wrapper.find('.navigationbar-element-previous:first');
+            $el.addClass('navigationbar-element-previous-inactive disabled');
+        }
+        if (currentIndex < presenter.pageCount - 1 && !presenter.visitedPages[currentIndex+1]) {
+            var $el = presenter.$wrapper.find('.navigationbar-element-next:first');
+            $el.addClass('navigationbar-element-next-inactive disabled');
+        }
+        if (!presenter.visitedPages[presenter.pageCount-1] || currentIndex == presenter.pageCount-1) {
+            var $el = presenter.$wrapper.find('.navigationbar-element-last:first');
+            $el.addClass('navigationbar-element-last-inactive disabled');
+        }
+    };
+
     function presenterLogic(view, model, isPreview) {
     	presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.navigationbar-wrapper:first');
@@ -915,6 +989,9 @@ function AddonNavigation_Bar_create() {
         generateElements(elementWidth, elementHeight, false, isPreview, horizontalGap, true);
         if(model['Styles']) {
             presenter.setPageStyles();
+        }
+        if (presenter.configuration.blockNotVisited && !isPreview) {
+            presenter.setDisabledPagesStyle();
         }
     }
 
