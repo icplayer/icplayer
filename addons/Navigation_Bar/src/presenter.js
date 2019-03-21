@@ -182,7 +182,7 @@ function AddonNavigation_Bar_create() {
         for(var i = 0; i < presenter.pageCount; i++) {
             var page = presenter.presentation.getPage(i);
             presenter.pageTitles.push(page.getName());
-            presenter.visitedPages.push(page.isVisited());
+            presenter.visitedPages.push(page.isVisited() || !page.isReportable());
         }
     };
 
