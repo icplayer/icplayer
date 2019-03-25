@@ -1,3 +1,4 @@
+2019-03-25 Added setContextMetadata to player API
 2019-03-06 Fixed problem with not selectable placeholder text in filled gap after reset command
 2019-03-04 Added showAnswers, hideAnswers, enable and disable commands in True False module
 2019-02-28 Fixed problem with setting state in Text Audio module
