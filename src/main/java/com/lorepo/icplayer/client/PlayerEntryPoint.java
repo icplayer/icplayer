@@ -13,6 +13,7 @@ public class PlayerEntryPoint implements EntryPoint {
 	private JavaScriptObject pageScrollToListener;
 	private JavaScriptObject statusChangedListener;
 	private JavaScriptObject outstretchHeightListener;
+	private JavaScriptObject contextMetadata;
 
 	/**
 	 * This is the entry point method.
@@ -92,7 +93,11 @@ public class PlayerEntryPoint implements EntryPoint {
 			
 			player.isAbleChangeLayout = function(){
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::isAbleChangeLayout()(); 
-			}
+			};
+
+			player.setContextMetadata = function(contextData){
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::contextMetadata = contextData;
+			};
 		}
 
 		// CreatePlayer
@@ -157,6 +162,10 @@ public class PlayerEntryPoint implements EntryPoint {
 		this.theApplication.loadCommonPage(url, pageIndex);
 	}
 
+    private void setContextMetadata(JavaScriptObject contextMetadata) {
+        this.theApplication.getPlayerServices().setContextMetadata(contextMetadata);
+    }
+
 	private void setConfig(JavaScriptObject config) {
 		this.theApplication.setConfig(config);
 	}
@@ -214,6 +223,7 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	public void onPageLoaded() {
 		fireCallback(this.pageLoadedListener);
+		setContextMetadata(this.contextMetadata);
 		final int currentPageIndex = this.theApplication.getPlayerServices()
 				.getCurrentPageIndex();
 		String source = Integer.toString(currentPageIndex + 1);
