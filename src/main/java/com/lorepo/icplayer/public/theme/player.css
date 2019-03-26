@@ -670,7 +670,15 @@ hr, table, fieldset {
 	background-color: orange;
 	cursor: pointer;
 }
-
+/**
+ * Text
+ */
+ .ic_text .errorMessage{
+ 	padding: 1em;
+ 	font-size: 12px;
+ 	color: red;
+ } 
+ 
 /**
  * Source image
  */
