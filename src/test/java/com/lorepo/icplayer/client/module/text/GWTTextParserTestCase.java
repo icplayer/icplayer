@@ -311,7 +311,8 @@ public class GWTTextParserTestCase extends GwtTest{
 		parser.setId("xcf");
 		ParserResult parsed = parser.parse(srcText);
 		
-		assertEquals("#ERROR#", parsed.parsedText);
+		assertEquals("{{1 {{1:7200}}", parsed.parsedText);
+		assertTrue(parsed.hasSyntaxError);
 	}
 
 	@Test
