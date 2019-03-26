@@ -1147,6 +1147,7 @@ var ice_dictionary_en = {
 	"TrueFalse_property_selected": "Selected",
 	"TrueFalse_property_correct": "Correct",
 	"TrueFalse_property_incorrect": "Incorrect",
+	"TrueFalse_property_is_disabled" : "Is disabled",
 	"Grid_Scene_name" : "Grid Scene",
 	"Grid_Scene_info": "Scene containing grid to be drawed",
 	"Grid_Scene_property_rows": "Rows",

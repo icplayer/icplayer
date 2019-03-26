@@ -1261,6 +1261,7 @@ var ice_dictionary_fr = {
     "TrueFalse_property_selected": "Selected",
     "TrueFalse_property_correct": "Correct",
     "TrueFalse_property_incorrect": "Incorrect",
+    "TrueFalse_property_is_disabled" : "Is disabled",
     "video_info": "Permet de télécharger et d'intégrer des fichiers vidéo avec leurs sous-titres. Pour que le module fonctionne sur les navigateurs et les systemes d'exploitation les plus courants, il est nécessaire de télécharger les fichiers en trois formats : mp4, ogg et WebM. Le module peut être configuré avec plusieurs fichiers vidéo qui peuvent être modifiés dynamiquement en utilisant des boutons standards.",
     "video_name": "Vidéo",
     "video_property_files": "Fichiers",

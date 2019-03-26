@@ -1260,6 +1260,7 @@ var ice_dictionary_pl = {
 	"TrueFalse_property_selected": "Zaznaczone",
 	"TrueFalse_property_correct": "Poprawne",
 	"TrueFalse_property_incorrect": "Błędne",
+	"TrueFalse_property_is_disabled" : "Is disabled",
 	"video_info" : "Pozwala na wgranie i osadzenie w prezentacji plików wideo z uwzględnieniem dopasowanych napisów. Aby Addon działał poprawnie na wszystkich popularnych przeglądarkach i systemach operacyjnych, należy wgrać pliki w trzech formatach: mp4, ogg i WebM. W Addonie można wykorzystać wiele plików wideo, które mogą zmieniać się dynamicznie po wybraniu standardowych przycisków.",
 	"video_name" : "Wideo",
 	"video_property_files": "Pliki",
