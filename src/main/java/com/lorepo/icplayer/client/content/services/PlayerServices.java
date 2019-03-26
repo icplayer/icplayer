@@ -16,6 +16,7 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IReportableService;
@@ -320,5 +321,10 @@ public class PlayerServices implements IPlayerServices {
 			return pc.isWCAGOn();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean isPageVisited(IPage page) {
+		return this.playerController.getVisitedPages().contains(page);
 	}
 }

@@ -1,6 +1,8 @@
 package com.lorepo.icplayer.client;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -65,6 +67,7 @@ public class PlayerController implements IPlayerController{
 	private String lang = "en";
 	private int iframeScroll = 0;
 	private boolean isIframeInCrossDomain = false;
+	private Set<IPage> visitedPages = new HashSet<IPage>();
 
 	private String pageStamp = "0";
 
@@ -309,6 +312,7 @@ public class PlayerController implements IPlayerController{
 
 
 	private void switchToPage(IPage page, final PageController pageController){
+		this.visitedPages.add(page);
 	    this.pageStamp = this.generatePageStamp(page.getId());
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
@@ -719,6 +723,10 @@ public class PlayerController implements IPlayerController{
 	
 	public boolean isWCAGOn() {
 		return this.keyboardController.isWCAGOn();
+	}
+	
+	public Set<IPage> getVisitedPages() {
+		return this.visitedPages;
 	}
 
 }
