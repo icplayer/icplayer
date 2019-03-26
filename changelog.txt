@@ -1,4 +1,4 @@
-2019-03-21 Fixed issue with the dotted button in Navigation Bar and added Block not visited pages property
+2019-03-26 Fixed issue with the dotted button in Navigation Bar and added Block not visited pages property
 1019-03-13 Fixed issue with dropdown gap editor when 'keep in order' is disabled
 2019-03-06 Fixed problem with not selectable placeholder text in filled gap after reset command
 2019-03-04 Added showAnswers, hideAnswers, enable and disable commands in True False module

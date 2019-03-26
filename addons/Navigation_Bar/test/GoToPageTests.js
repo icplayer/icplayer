@@ -63,7 +63,7 @@ TestCase("[Navigation_bar] goToPage test case", {
     'test given blockNotVisited set to true when trying to enter a not visited page then goToPageIndex is not called': function () {
         var whereTo = this.NAVIGATION_PAGE.OTHER;
         this.presenter.configuration.blockNotVisited = true;
-        this.presenter.isPageVisited = [true, true, false, false];
+        this.presenter.visitedPages = [true, true, false, false];
 
         this.presenter.__internalElements.goToPage(whereTo, 3);
 
@@ -73,7 +73,7 @@ TestCase("[Navigation_bar] goToPage test case", {
     'test given blockNotVisited set to true when trying to enter a visited page then goToPageIndex is called': function () {
         var whereTo = this.NAVIGATION_PAGE.OTHER;
         this.presenter.configuration.blockNotVisited = true;
-        this.presenter.isPageVisited = [true, true, false, false];
+        this.presenter.visitedPages = [true, true, false, false];
 
         this.presenter.__internalElements.goToPage(whereTo, 1);
 
