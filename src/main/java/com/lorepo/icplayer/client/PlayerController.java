@@ -449,7 +449,9 @@ public class PlayerController implements IPlayerController{
 		String[] ids = visitedPageIds.split(";");
 		for (String id: ids) {
 			IPage page = this.contentModel.getPageById(id);
-			newVisitedPages.add(page);
+			if (page != null) {
+				newVisitedPages.add(page);
+			}
 		}
 		this.visitedPages = newVisitedPages;
 	}
