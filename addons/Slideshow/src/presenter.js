@@ -356,6 +356,7 @@ function AddonSlideshow_create() {
     }
 
     function onPresentationEnd() {
+        presenter.time = 0;
         $(DOMElements.controls.currentTime).text('00:00');
         changeButtonToPlay();
         updateProgressBar(0);
@@ -502,6 +503,7 @@ function AddonSlideshow_create() {
         hideAllTexts();
         executeTasks(0, true);
         changeButtonToPlay();
+        presenter.time = 0;
     };
 
     // Returns currently displayed index. If none slide is visible then this function returns -1
