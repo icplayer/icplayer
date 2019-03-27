@@ -902,8 +902,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 	
 	/*
-	 * If checkReportable is set to false, isVisted always returns false for non-reportable page
-	 * If checkReportable is set to true, non-reportable pages will be treated the same way as any other. 
+	 * If checkNonReportable is set to false, isVisted always returns false for non-reportable page
+	 * If checkNonReportable is set to true, non-reportable pages will be treated the same way as any other. 
 	 * */
 	public boolean isVisited(boolean checkNonReportable) {
 		if (checkNonReportable) {

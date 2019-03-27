@@ -434,6 +434,25 @@ public class PlayerController implements IPlayerController{
 			this.stateService.addState(state);
 		}
 	}
+	
+	public String getVisitedPagesAsString(){
+		String result = "";
+		for (IPage page: this.visitedPages) {
+			result += page.getId() + ";";
+		}
+		result = result.substring(0, result.length()-1);
+		return result;
+	}
+	
+	public void loadVisitedPagesFromString(String visitedPageIds){
+		Set<IPage> newVisitedPages = new HashSet<IPage>();
+		String[] ids = visitedPageIds.split(";");
+		for (String id: ids) {
+			IPage page = this.contentModel.getPageById(id);
+			newVisitedPages.add(page);
+		}
+		this.visitedPages = newVisitedPages;
+	}
 
 
 	public IPlayerServices getPlayerServices() {
