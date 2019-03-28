@@ -776,9 +776,9 @@ function AddonParagraph_Keyboard_create() {
     };
 
     presenter.lock = function AddonParagraph_Keyboard_lock() {
-        var maskClass = "paragraph-lock";
-        var mask = $("<div>").addClass(maskClass);
         if (!presenter.isLocked) {
+            var mask = $('<div>').addClass('paragraph-lock');
+            presenter.$view.find('.paragraph-keyboard').hide();
             presenter.$view.find('#' + presenter.configuration.ID + '-wrapper').append(mask);
             presenter.isLocked = true;
         }
@@ -786,6 +786,7 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.unlock = function AddonParagraph_Keyboard_unlock() {
         if (presenter.isLocked) {
+            presenter.$view.find('.paragraph-keyboard').show();
             presenter.$view.find('.paragraph-lock').remove();
             presenter.isLocked = false;
         }

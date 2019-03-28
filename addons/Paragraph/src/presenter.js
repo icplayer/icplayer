@@ -731,9 +731,8 @@ function AddonParagraph_create() {
     };
 
     presenter.lock = function AddonParagraph_lock() {
-        var maskClass = "paragraph-lock";
-        var mask = $("<div>").addClass(maskClass);
         if (!presenter.isLocked) {
+            var mask = $('<div>').addClass('paragraph-lock');
             presenter.$view.find('#' + presenter.configuration.ID + '-wrapper').append(mask);
             presenter.isLocked = true;
         }
