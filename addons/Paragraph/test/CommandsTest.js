@@ -64,18 +64,6 @@ TestCase("[Paragraph] lock and unlock method", {
         this.presenter.lock();
         this.presenter.unlock();
         assertTrue(this.presenter.$view.find('.paragraph-lock').length === 0);
-    },
-
-    'test weight': function () {
-        weight = ['abc', -1, 0, 100, 5, 5.5, true, false];
-
-        weight.forEach(w => {
-            this.presenter.weight
-            this.presenter.lock();
-            this.presenter.unlock();
-            assertTrue(this.presenter.$view.find('.paragraph-lock').length === 0);
-        });
-
     }
 
 });
