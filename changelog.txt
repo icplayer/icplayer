@@ -1,3 +1,4 @@
+2019-03-28 Added lock and unlock commands and weight property in Paragraph and Paragraph Keyboard modules
 2019-03-13 Fixed issue with dropdown gap editor when 'keep in order' is disabled
 2019-03-12 Fixed setting state in Basic Math Gaps module
 2019-03-06 Fixed problem with not selectable placeholder text in filled gap after reset command

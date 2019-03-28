@@ -28,6 +28,10 @@ function AddonParagraph_create() {
         'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
         'bullist numlist outdent indent blockquote undo redo '+
         'removeformat subscript superscript forecolor backcolor |'.split(' ');
+
+    presenter.ERROR_CODES = {
+        'W_01': 'Weight must be a positive number between 0 and 100'
+    };
     
     function isIOSSafari() {
         var ua = window.navigator.userAgent,
@@ -46,7 +50,9 @@ function AddonParagraph_create() {
             'isVisible': presenter.isVisible,
             'getText': presenter.getText,
             'setText': presenter.setText,
-            'isAttempted': presenter.isAttempted
+            'isAttempted': presenter.isAttempted,
+            'lock': presenter.lock,
+            'unlock': presenter.unlock
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -99,6 +105,11 @@ function AddonParagraph_create() {
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
+
+        if (presenter.configuration.isError) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            return;
+        }
 
         presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
 
@@ -246,7 +257,8 @@ function AddonParagraph_create() {
             hasDefaultFontSize = false,
             layoutType = model["Layout Type"] || "Default",
             title = model["Title"],
-            manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]);
+            manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]),
+            weight = model['Weight'];
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -256,6 +268,10 @@ function AddonParagraph_create() {
         if (ModelValidationUtils.isStringEmpty(fontSize)) {
             fontSize = presenter.DEFAULTS.FONT_SIZE;
             hasDefaultFontSize = true;
+        }
+
+        if (!ModelValidationUtils.isStringEmpty(weight) && !ModelValidationUtils.validateIntegerInRange(weight, 100, 0).isValid ) {
+            return {isError: true, errorCode: 'W_01'}
         }
 
         height -= !isToolbarHidden ? 37 : 2;
@@ -280,7 +296,8 @@ function AddonParagraph_create() {
             layoutType: layoutType,
             isPlaceholderEditable: isPlaceholderEditable,
             title: title,
-            manualGrading: manualGrading
+            manualGrading: manualGrading,
+            weight: weight
         };
     };
 
@@ -703,6 +720,18 @@ function AddonParagraph_create() {
                 presenter.editor.setContent(text);
             }
         }
+    };
+
+    presenter.lock = function AddonParagraph_lock() {
+        var maskClass = "paragraph-lock";
+        var mask = $("<div>").addClass(maskClass);
+        if (presenter.$view.find("." + maskClass).length === 0) {
+            presenter.$view.find('#' + presenter.configuration.ID + '-wrapper').append(mask);
+        }
+    };
+
+    presenter.unlock = function AddonParagraph_unlock() {
+        presenter.$view.find('.paragraph-lock').remove();
     };
 
     return presenter;

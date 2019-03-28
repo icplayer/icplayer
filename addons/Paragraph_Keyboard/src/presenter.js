@@ -28,7 +28,8 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.ERROR_CODES = {
         'defaultLayoutError' : 'Custom Keyboard Layout should be a JavaScript object with at least "default" property ' +
-            'which should be an array of strings with space-seperated chars.'
+            'which should be an array of strings with space-seperated chars.',
+        'weightError' : 'Weight must be a positive number between 0 and 100'
     };
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
@@ -204,7 +205,8 @@ function AddonParagraph_Keyboard_create() {
             layoutType = presenter.validateType(model['layoutType']),
             keyboardLayout = model['keyboardLayout'],
             title = model["Title"],
-            manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]);
+            manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]),
+            weight = model['Weight'];
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -235,6 +237,10 @@ function AddonParagraph_Keyboard_create() {
             return {error: 'defaultLayoutError'};
         }
 
+        if (!ModelValidationUtils.isStringEmpty(weight) && !ModelValidationUtils.validateIntegerInRange(weight, 100, 0).isValid ) {
+            return {error: 'weightError'}
+        }
+
         var supportedPositions = ['top', 'bottom', 'custom', 'left', 'right'];
 
         if (keyboardPosition == 'left' || keyboardPosition == 'right') {
@@ -263,7 +269,8 @@ function AddonParagraph_Keyboard_create() {
             keyboardPosition: keyboardPosition,
             error: false,
             manualGrading: manualGrading,
-            title: title
+            title: title,
+            weight: weight
         };
     };
 
@@ -735,7 +742,9 @@ function AddonParagraph_Keyboard_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'isVisible': presenter.isVisible
+            'isVisible': presenter.isVisible,
+            'lock': presenter.lock,
+            'unlock': presenter.unlock
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -756,6 +765,18 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.isVisible = function AddonParagraph_Keyboard_isVisible() {
         return presenter.isVisibleValue;
+    };
+
+    presenter.lock = function AddonParagraph_Keyboard_lock() {
+        var maskClass = "paragraph-lock";
+        var mask = $("<div>").addClass(maskClass);
+        if (presenter.$view.find("." + maskClass).length === 0) {
+            presenter.$view.find('#' + presenter.configuration.ID + '-wrapper').append(mask);
+        }
+    };
+
+    presenter.unlock = function AddonParagraph_Keyboard_unlock() {
+        presenter.$view.find('.paragraph-lock').remove();
     };
 
     return presenter;
