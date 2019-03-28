@@ -16,6 +16,7 @@ public class TextParser {
 	public class ParserResult {
 		public String parsedText;
 		public String originalText;
+		public boolean hasSyntaxError;
 		public List<GapInfo> gapInfos = new ArrayList<GapInfo>();
 		public List<InlineChoiceInfo> choiceInfos = new ArrayList<InlineChoiceInfo>();
 		public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
@@ -36,6 +37,7 @@ public class TextParser {
 	private boolean editorMode = false;
 	private boolean useEscapeCharacterInGap = false;
 	private List<String> gapsOrder;
+	private boolean hasSyntaxError = false;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -81,7 +83,7 @@ public class TextParser {
 		parserResult = new ParserResult();
 		parserResult.originalText = srcText;
 		srcText = srcText.replaceAll("\\s+", " ");
-
+		hasSyntaxError = false;
 		try {
 			if (this.editorMode) {
 				parserResult = this.parseInEditorMode(srcText);
@@ -108,6 +110,7 @@ public class TextParser {
 			parserResult.parsedText = "#ERROR#";
 		}
 
+		parserResult.hasSyntaxError = hasSyntaxError;
 		return parserResult;
 	}
 
@@ -159,11 +162,14 @@ public class TextParser {
 
 	private ParserResult parseInEditorMode(String srcText) {
 		ParserResult result = new ParserResult();
+		hasSyntaxError = false;
+
 		result.parsedText = parseGaps(srcText);
 		result.parsedText = parseOldSyntax(result.parsedText);
 		result.parsedText = parseDefinitions(result.parsedText);
 		result.parsedText = parseAudio(result.parsedText);
 
+		result.hasSyntaxError = hasSyntaxError;
 		return result;
 	}
 
@@ -212,7 +218,8 @@ public class TextParser {
 					}
 				}
 				if (replaceText == null) {
-					replaceText = "#ERR#";
+					hasSyntaxError = true;
+					replaceText = "{{" + expression + "}}";
 				}
 
 				output += replaceText;
@@ -250,21 +257,23 @@ public class TextParser {
 		String langTag = gapOptions!=null && gapOptions.containsKey("lang") ? gapOptions.get("lang") : "";
 		int index = expression.indexOf(":");
 		String replaceText = null;
-		
-		if (index > 0) {
-			String value = expression.substring(0, index).trim();
-			String answer = expression.substring(index + 1).trim();
-			String id = baseId + "-" + idCounter;
-			idCounter++;
-			DomElementManipulator inputElement = this.createGapInputElement(id, answer, gapOptions);
-			
-			replaceText = inputElement.getHTMLCode();
-			GapInfo gi = new GapInfo(id, Integer.parseInt(value), isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
-			String[] answers = answer.split("\\|");
-			for (int i = 0; i < answers.length; i++) {
-				gi.addAnswer(answers[i]);
+		try{
+			if (index > 0) {
+				String value = expression.substring(0, index).trim();
+				String answer = expression.substring(index + 1).trim();
+				String id = baseId + "-" + idCounter;
+				idCounter++;
+				DomElementManipulator inputElement = this.createGapInputElement(id, answer, gapOptions);
+
+				GapInfo gi = new GapInfo(id, Integer.parseInt(value), isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
+				String[] answers = answer.split("\\|");
+				for (int i = 0; i < answers.length; i++) {
+					gi.addAnswer(answers[i]);
+				}
+				parserResult.gapInfos.add(gi);
+				replaceText = inputElement.getHTMLCode();
 			}
-			parserResult.gapInfos.add(gi);
+		} catch(Exception e) {
 		}
 
 		return replaceText;
@@ -563,7 +572,7 @@ public class TextParser {
 		} catch (Exception e) {
 		}
 
-		
+
 		return replaceText;
 	}
 	

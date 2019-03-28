@@ -244,7 +244,9 @@ function AddonParagraph_create() {
             height = model.Height,
             hasDefaultFontFamily = false,
             hasDefaultFontSize = false,
-            layoutType = model["Layout Type"] || "Default";
+            layoutType = model["Layout Type"] || "Default",
+            title = model["Title"],
+            manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]);
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -276,7 +278,9 @@ function AddonParagraph_create() {
             width: model['Width'],
             height: parseInt(height, 10),
             layoutType: layoutType,
-            isPlaceholderEditable: isPlaceholderEditable
+            isPlaceholderEditable: isPlaceholderEditable,
+            title: title,
+            manualGrading: manualGrading
         };
     };
 
@@ -303,7 +307,17 @@ function AddonParagraph_create() {
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradePlaceholderText(model);
+            upgradedModel = presenter.upgradeManualGrading(upgradedModel);
+            upgradedModel = presenter.upgradeTitle(upgradedModel);
         return presenter.upgradeEditablePlaceholder(upgradedModel);
+    };
+
+    presenter.upgradeManualGrading = function (model) {
+        return presenter.upgradeAttribute(model, "Manual grading", false);
+    };
+
+    presenter.upgradeTitle = function (model) {
+        return presenter.upgradeAttribute(model, "Title", "");
     };
 
     presenter.upgradePlaceholderText = function (model) {

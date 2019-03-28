@@ -1,4 +1,4 @@
-TestCase("Event data creation", {
+TestCase("[Connection] Event data creation", {
     setUp: function() {
         this.presenter = AddonConnection_create();
 
@@ -69,7 +69,7 @@ TestCase("Event data creation", {
     }
 });
 
-TestCase("Event sending helper method - isAllOK", {
+TestCase("[Connection] Event sending helper method - isAllOK", {
     setUp: function () {
         this.presenter = AddonConnection_create();
 

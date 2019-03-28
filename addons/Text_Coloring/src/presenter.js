@@ -848,6 +848,7 @@ function AddonText_Coloring_create() {
             }
 
             word = word.substring(selectablePart.getStopOfIndex(), word.length);
+            selectablePart.pattern = /\\color{[^}]+}{[^}]+}/g;
         }
 
         if (word.length > 0)
