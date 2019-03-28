@@ -76,6 +76,7 @@ function AddonParagraph_Keyboard_create() {
     presenter.run = function AddonParagraph_Keyboard_run(view, model) {
         presenter.initializeEditor(view, model, false);
         presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.isLocked = false;
     };
 
     presenter.validateToolbar = function AddonParagraph_validateToolbar(controls, width) {
@@ -718,7 +719,8 @@ function AddonParagraph_Keyboard_create() {
 
         return JSON.stringify({
             'tinymceState' : tinymceState,
-            'isVisible' : presenter.isVisibleValue
+            'isVisible' : presenter.isVisibleValue,
+            'isLocked' : presenter.isLocked
         });
     };
 
@@ -733,6 +735,12 @@ function AddonParagraph_Keyboard_create() {
         }
 
         presenter.setVisibility(parsedState.isVisible);
+
+        if (parsedState.isLocked) {
+            presenter.lock();
+        } else {
+            presenter.unlock();
+        }
     };
 
 
@@ -770,13 +778,17 @@ function AddonParagraph_Keyboard_create() {
     presenter.lock = function AddonParagraph_Keyboard_lock() {
         var maskClass = "paragraph-lock";
         var mask = $("<div>").addClass(maskClass);
-        if (presenter.$view.find("." + maskClass).length === 0) {
+        if (!presenter.isLocked) {
             presenter.$view.find('#' + presenter.configuration.ID + '-wrapper').append(mask);
+            presenter.isLocked = true;
         }
     };
 
     presenter.unlock = function AddonParagraph_Keyboard_unlock() {
-        presenter.$view.find('.paragraph-lock').remove();
+        if (presenter.isLocked) {
+            presenter.$view.find('.paragraph-lock').remove();
+            presenter.isLocked = false;
+        }
     };
 
     return presenter;

@@ -98,6 +98,7 @@ function AddonParagraph_create() {
     presenter.run = function AddonParagraph_run(view, model) {
         presenter.initializeEditor(view, model, false);
         presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.isLocked = false;
     };
 
     presenter.initializeEditor = function AddonParagraph_initializeEditor(view, model) {
@@ -665,7 +666,8 @@ function AddonParagraph_create() {
 
         return JSON.stringify({
             'tinymceState' : tinymceState,
-            'isVisible' : presenter.isVisibleValue
+            'isVisible' : presenter.isVisibleValue,
+            'isLocked' : presenter.isLocked
         });
     };
 
@@ -684,6 +686,12 @@ function AddonParagraph_create() {
                 presenter.configuration.state = tinymceState;
                 presenter.state = state;
             }
+        }
+
+        if (parsedState.isLocked) {
+            presenter.lock();
+        } else {
+            presenter.unlock();
         }
     };
 
@@ -725,13 +733,17 @@ function AddonParagraph_create() {
     presenter.lock = function AddonParagraph_lock() {
         var maskClass = "paragraph-lock";
         var mask = $("<div>").addClass(maskClass);
-        if (presenter.$view.find("." + maskClass).length === 0) {
+        if (!presenter.isLocked) {
             presenter.$view.find('#' + presenter.configuration.ID + '-wrapper').append(mask);
+            presenter.isLocked = true;
         }
     };
 
     presenter.unlock = function AddonParagraph_unlock() {
-        presenter.$view.find('.paragraph-lock').remove();
+        if (presenter.isLocked) {
+            presenter.$view.find('.paragraph-lock').remove();
+            presenter.isLocked = false;
+        }
     };
 
     return presenter;
