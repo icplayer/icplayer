@@ -1,3 +1,4 @@
+2019-04-02 Fixed setting isEnable property in Text Audio module
 2019-04-01 Added refreshing mathjax in filled gap in Text module
 2019-04-01 Added bookmarks to Navigation Bar
 2019-03-13 Fixed issue with dropdown gap editor when 'keep in order' is disabled
