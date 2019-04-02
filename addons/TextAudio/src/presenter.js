@@ -167,6 +167,7 @@ function AddonTextAudio_create() {
 
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
+        presenter.isDisabledModel = upgradedModel['isDisabled'];
         if (upgradedModel['isDisabled'] === undefined) {
             upgradedModel['isDisabled'] = 'False';
         }
@@ -1640,7 +1641,9 @@ function AddonTextAudio_create() {
             presenter.hideAddon();
         }
 
-        if (!data.isEnabled && data.isEnabled !== undefined) {
+        if (presenter.isDisabledModel === undefined) {
+            presenter.enable();
+        }else if (!data.isEnabled && data.isEnabled !== undefined) {
             presenter.disable();
         } else {
             presenter.enable();
