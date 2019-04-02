@@ -1,4 +1,6 @@
 2019-04-02 Fixed setting isEnable property in Text Audio module
+2019-04-01 Added refreshing mathjax in filled gap in Text module
+2019-04-01 Added bookmarks to Navigation Bar
 2019-03-13 Fixed issue with dropdown gap editor when 'keep in order' is disabled
 2019-03-12 Fixed setting state in Basic Math Gaps module
 2019-03-06 Fixed problem with not selectable placeholder text in filled gap after reset command
