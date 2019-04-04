@@ -4,7 +4,12 @@ function AddonNavigation_Bar_create() {
     presenter.pagesOk = [];
     presenter.allPagesDisplayed = false;
     presenter.pageTitles = [];
+    presenter.originalIndex = 0;
     var isWCAGOn = false;
+
+    presenter.state = {
+        bookmarks: []
+    };
 
     presenter.__internalElements = {
         goToPage: goToPage
@@ -181,6 +186,7 @@ function AddonNavigation_Bar_create() {
         for(var i = 0; i < presenter.pageCount; i++) {
             presenter.pageTitles.push(presenter.presentation.getPage(i).getName());
         }
+        presenter.originalIndex = presenter.playerController.getCurrentPageIndex();
     };
 
     presenter.playButton = function(element){
@@ -331,6 +337,7 @@ function AddonNavigation_Bar_create() {
                 presenter.setPageStyles();
             }
 
+            presenter.refreshBookmarks();
             if(isWCAGOn) {
                 presenter.$view.find(".dotted-element-right:first").addClass('navigationbar-element-mouse-hover');
             }
@@ -358,6 +365,7 @@ function AddonNavigation_Bar_create() {
                 presenter.setPageStyles();
             }
 
+            presenter.refreshBookmarks();
             if(isWCAGOn) {
                 presenter.$view.find(".dotted-element-left:first").addClass('navigationbar-element-mouse-hover');
             }
@@ -1021,6 +1029,59 @@ function AddonNavigation_Bar_create() {
 
     presenter.hideAnswers = function () {
         presenter.isShowAnswersActive = false;
+    };
+
+    presenter.getState = function(){
+        return JSON.stringify(presenter.state);
+    };
+
+    presenter.setState = function(state){
+        if (state === null || state === "" || state === undefined) {
+            return;
+        }
+        var parsedState = JSON.parse(state);
+        if (parsedState.bookmarks != null) {
+            presenter.state.bookmarks = parsedState.bookmarks;
+        }
+        presenter.refreshBookmarks();
+    };
+
+    presenter.executeCommand = function (name, params) {
+        var commands = {
+            'bookmarkCurrentPage': presenter.bookmarkCurrentPage,
+            'removeBookmark' : presenter.removeBookmark
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.bookmarkCurrentPage = function(){
+        var page = presenter.originalIndex + 1;
+        if ( presenter.state.bookmarks.indexOf(page) == -1) {
+            presenter.state.bookmarks.push(page);
+        }
+        presenter.refreshBookmarks();
+    };
+
+    presenter.removeBookmark = function(){
+        var page = presenter.originalIndex + 1;
+        var index = presenter.state.bookmarks.indexOf(page);
+        if ( index != -1) {
+            presenter.state.bookmarks.splice(index, 1);
+        }
+        presenter.refreshBookmarks();
+    };
+
+    presenter.refreshBookmarks = function() {
+        for (var i = 0; i < presenter.pageCount; i++) {
+            var page = i+1;
+            if ( presenter.state.bookmarks.indexOf(page) != -1) {
+                presenter.$wrapper.find("span[data-page-number='" + page + "']").addClass('bookmark');
+            } else {
+                presenter.$wrapper.find("span[data-page-number='" + page + "']").removeClass('bookmark');
+            }
+
+        }
     };
 
     return presenter;
