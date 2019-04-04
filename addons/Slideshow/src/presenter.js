@@ -362,7 +362,7 @@ function AddonSlideshow_create() {
         updateProgressBar(0);
         presenter.configuration.currentTime = 0;
         presenter.pauseAudioResource();
-        if (presenter.configuration.audioState == presenter.AUDIO_STATE.STOP) {
+        if (presenter.configuration.audioState == presenter.AUDIO_STATE.STOP || presenter.configuration.noAudio) {
             presenter.sendValueChangedEvent("end");
         }
         presenter.configuration.audioState = presenter.AUDIO_STATE.STOP;
