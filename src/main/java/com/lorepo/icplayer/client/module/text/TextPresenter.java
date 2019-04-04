@@ -774,6 +774,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if(shouldFireEvent){
 			playerServices.getEventBus().fireEvent(valueEvent);
 		}
+		view.refreshMath();
 	}
 
 	protected void gapFocused(String gapId, Element element) {
