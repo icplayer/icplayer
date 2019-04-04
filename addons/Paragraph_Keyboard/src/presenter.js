@@ -294,6 +294,7 @@ function AddonParagraph_Keyboard_create() {
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeTitle(model);
             upgradedModel = presenter.upgradeManualGrading(upgradedModel);
+            upgradedModel = presenter.upgradeWeight(upgradedModel);
         return upgradedModel;
     };
 
@@ -303,6 +304,10 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.upgradeTitle = function (model) {
         return presenter.upgradeAttribute(model, "Title", "");
+    };
+
+    presenter.upgradeWeight = function (model) {
+        return presenter.upgradeAttribute(model, "Weight", "");
     };
 
     /**

@@ -327,6 +327,7 @@ function AddonParagraph_create() {
         var upgradedModel = presenter.upgradePlaceholderText(model);
             upgradedModel = presenter.upgradeManualGrading(upgradedModel);
             upgradedModel = presenter.upgradeTitle(upgradedModel);
+            upgradedModel = presenter.upgradeWeight(upgradedModel);
         return presenter.upgradeEditablePlaceholder(upgradedModel);
     };
 
@@ -344,6 +345,10 @@ function AddonParagraph_create() {
 
     presenter.upgradeEditablePlaceholder = function (model) {
         return presenter.upgradeAttribute(model, "Editable placeholder", "");
+    };
+
+    presenter.upgradeWeight = function (model) {
+        return presenter.upgradeAttribute(model, "Weight", "");
     };
 
     presenter.upgradeAttribute = function (model, attrName, defaultValue) {
