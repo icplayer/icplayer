@@ -20,6 +20,10 @@ public class TextViewMockup implements IDisplay {
 	public TextViewMockup(TextModel module) {
 		// TODO Auto-generated constructor stub
 	}
+	
+	public void callAudioButtonClickedListenerWith(AudioInfo audio) {
+		this.listener.onAudioButtonClicked(audio);
+	}
 
 	@Override
 	public void addListener(ITextViewListener l) {

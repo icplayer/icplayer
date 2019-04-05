@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -452,5 +453,44 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		display.getListener().onValueChanged(id1, "error1");
 		display.getListener().onValueChanged(id2, "error2");
 		assertEquals(2, presenter.getErrorCount());
+	}
+	
+	@Test
+	public void givenTwoAudioButtonsWhenOneIsPlayingAndSecondIsClickedThenFirstStopsPlaying() throws Exception {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/moduleWithAudio.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+		module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+
+		services = new PlayerServicesMockup();
+		display = new TextViewMockup(module);
+		presenter = new TextPresenter(module, services);
+		presenter.addView(display);
+
+		List<AudioInfo> infos = module.getAudioInfos();
+		AudioInfo oneToBeStopped = infos.get(0);
+		AudioInfo oneToBePlaying = infos.get(1);
+
+		AudioWidget audioToBeStopped = Mockito.mock(AudioWidget.class);
+		AudioWidget audioToBePlayed = Mockito.mock(AudioWidget.class);
+		
+		oneToBeStopped.setAudio(audioToBeStopped);
+		oneToBePlaying.setAudio(audioToBePlayed);
+		
+		// we don't care about this mock, but it needs to be here, so there won't be null pointer exception
+		AudioButtonWidget abw = Mockito.mock(AudioButtonWidget.class);
+		
+		oneToBeStopped.setButton(abw);
+		oneToBePlaying.setButton(abw);
+	
+		Mockito.when(audioToBeStopped.isPaused()).thenReturn(false);
+		Mockito.when(audioToBePlayed.isPaused()).thenReturn(true);
+
+		display.callAudioButtonClickedListenerWith(oneToBePlaying);
+
+		Mockito.verify(audioToBeStopped, Mockito.times(1)).reset();
+		Mockito.verify(audioToBePlayed, Mockito.times(1)).play();
+		
 	}
 }

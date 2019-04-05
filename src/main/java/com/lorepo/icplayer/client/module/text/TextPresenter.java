@@ -615,6 +615,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				AudioButtonWidget button = audioInfo.getButton();
 
 				if (audio.isPaused()) {
+					// in future if audio can be paused and replayed from stopped moment 
+					// reset would need to omit audio which was currently pressed
+					resetAudio();
+
 					audio.play();
 					button.setStopPlayingStyleClass();
 				} else {
