@@ -1939,5 +1939,13 @@ var ice_dictionary_pl = {
 	"wcag":"WCAG",
 	"Editor_add_missing_tts":"Add missing TTS modules",
 	"Editor_tts_modified_pages_list":"The list of pages modified while adding TTS to presentation:",
-	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation"
+	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation",
+	"EditableWindow_info": "Editable Window",
+	"EditableWindow_name": "Editable Window",
+	"EditableWindow_property_file_list" : "File list",
+	"EditableWindow_property_id": "Id",
+	"EditableWindow_property_file": "File",
+	"EditableWindow_property_index_file": "Index file",
+	"EditableWindow_property_audio_file": "Audio file",
+	"EditableWindow_property_video_file": "Video file"
 };
