@@ -44,7 +44,7 @@
 
 .addon-editable-window-wrapper .video-wrapper {
     flex-grow: 1;
-    display: flex;
+    display: grid;
     background-color: black;
 }
 

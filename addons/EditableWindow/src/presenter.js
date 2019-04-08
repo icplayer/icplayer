@@ -314,6 +314,18 @@ function AddonEditableWindow_create() {
         $(presenter.configuration.view).find(".content-iframe").remove();
     };
 
+    presenter.centerPosition = function () {
+        let $view = $(presenter.configuration.view);
+        let width = $(".addon-editable-window-wrapper").width();
+        let icPageWidth = $(".ic_page").width();
+        let scrollY = window.parent !== undefined ? window.parent.scrollY : window.scrollY;
+
+        let topOffset = scrollY + 25;
+        let leftOffset = (icPageWidth - width) / 2;
+
+        $view.css({top: topOffset, left: leftOffset, right: "", bottom: ""});
+    };
+
     presenter.show = function () {
         let view = presenter.configuration.view;
         let eventBus = presenter.configuration.eventBus;
@@ -365,6 +377,7 @@ function AddonEditableWindow_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'isVisible': presenter.isVisible,
+            'centerPosition': presenter.centerPosition,
         };
 
         return Commands.dispatch(commands, name, params, presenter);
