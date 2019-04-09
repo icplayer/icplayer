@@ -10,6 +10,9 @@ function Addondnd_ordering_create(){
             var answers = [];
             var originAnswers = [];
             var isGapOrdering = false;
+            var itemWidth = null;
+            var itemHeight = null;
+            var isNoItemsOrder = false;
             var mode = 0;  // 0 - running, 1 - setShowErrorsMode 3 - showAnswers
 			
             presenter.setPlayerController = function(controller) {
@@ -51,6 +54,13 @@ function Addondnd_ordering_create(){
                     if (isGapOrdering) {
                         div.style.top = "-1px";
                         div.style.left = "-1px";
+                    }
+
+                    if(itemWidth != null) {
+                        div.style.width = itemWidth;
+                    }
+                    if(itemHeight != null) {
+                        div.style.height = itemHeight;
                     }
 
                     $view.append(div);
@@ -101,6 +111,13 @@ function Addondnd_ordering_create(){
                         div.style.top = "-1px";
                         div.style.left = "-1px";
                     }
+
+                    if(itemWidth != null) {
+                        div.style.width = itemWidth;
+                    }
+                    if(itemHeight != null) {
+                        div.style.height = itemHeight;
+                    }
                     div.style.display = "inline-block";
                     div.innerHTML = element['value'];
 
@@ -121,10 +138,13 @@ function Addondnd_ordering_create(){
                 view.classList.add('dndsortable')
                 $view = $(view);
                 isGapOrdering = model['isGapOrdering'] === 'True';
-
+                isNoItemsOrder = model['isNoItemsOrder'] === 'True';
                 if (isGapOrdering) {
                     $view.addClass('ordering');
                 }
+
+                itemWidth = model['itemWidth'] > 0 ? model['itemWidth'] : null;
+                itemHeight = model['itemHeight'] > 0 ? model['itemHeight'] : null;
 
                 answers = model['correctorder'].map(function (element) {
                     return element.value.trim() === '' ? null : element.value.trim();
@@ -217,6 +237,13 @@ function Addondnd_ordering_create(){
                             event.target.style.top = '-1px';
                             event.target.style.left = '-1px';
                             event.target.style.zIndex = '';
+
+                            if(itemWidth != null) {
+                                div.style.width = itemWidth;
+                            }
+                            if(itemHeight != null) {
+                                div.style.height = itemHeight;
+                            }
                         }
                     });
                 }
@@ -248,19 +275,36 @@ function Addondnd_ordering_create(){
                 var current = $view.children().map(function (indx, element) { return element.style.display === 'none' ? null : $(element) });
                 current = current.filter(function(indx, element) { return element !== null; });
 
-                for (var i = 0; i < Math.min(current.length, answers.length); i++) {
-                    if (answers[i] !== current[i].text()) {
-                        current[i][0].classList.add('wrong');
-                    } else {
-                        current[i][0].classList.add('correct');
+                if (isNoItemsOrder) {
+                    for (var i = 0; i < Math.min(current.length, answers.length); i++) {
+                        if(answers.filter(function(el){return answers[i] === el}).length == current.filter(function(el){return answers[i] === el}).length) {
+                            current[i][0].classList.add('correct');
+                        } else {
+                            current[i][0].classList.add('wrong');
+                        }
+                        current[i][0].classList.add('ic_element_works_mode');
+
+                        for (var i = Math.min(current.length, answers.length); i < current.length; i++) {
+                            current[i][0].classList.add('wrong');
+                            current[i][0].classList.add('ic_element_works_mode');
+                        }
+                    }
+                } else {
+
+                    for (var i = 0; i < Math.min(current.length, answers.length); i++) {
+                        if (answers[i] !== current[i].text()) {
+                            current[i][0].classList.add('wrong');
+                        } else {
+                            current[i][0].classList.add('correct');
+                        }
+
+                        current[i][0].classList.add('ic_element_works_mode');
                     }
 
-                    current[i][0].classList.add('ic_element_works_mode');
-                }
-
-                for (var i = Math.min(current.length, answers.length); i < current.length; i++) {
-                    current[i][0].classList.add('wrong');
-                    current[i][0].classList.add('ic_element_works_mode');
+                    for (var i = Math.min(current.length, answers.length); i < current.length; i++) {
+                        current[i][0].classList.add('wrong');
+                        current[i][0].classList.add('ic_element_works_mode');
+                    }
                 }
             }
 			

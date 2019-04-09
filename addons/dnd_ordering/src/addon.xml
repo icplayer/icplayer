@@ -4,6 +4,9 @@
     <model>
         <property name="maxelements" displayName="max elements" nameLabel="maxelements" type="string" />
         <property name="isGapOrdering" displayName="is Gap Ordering" nameLabel="isGapOrdering" type="boolean" />
+        <property name="isNoItemsOrder" displayName="is No Items Order" nameLabel="isNoItemsOrder" type="boolean" />
+        <property name="itemWidth" displayName="item Width" nameLabel="itemWidth" type="string" />
+        <property name="itemHeight" displayName="item Height" nameLabel="itemHeight" type="string" />
         <property name='startingvalues' displayName="Starting Values" nameLabel="Starting Values" type='list'>
             <property name='value' displayName="value" nameLabel="value" type='string' />       
         </property>
