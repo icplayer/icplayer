@@ -345,6 +345,11 @@ function AddonEditableWindow_create() {
         });
     };
 
+    presenter.openPopup = function () {
+        presenter.show();
+        presenter.centerPosition();
+    };
+
     presenter.hide = function () {
         presenter.configuration.isVisible = false;
         $(presenter.configuration.view).hide();
@@ -378,6 +383,7 @@ function AddonEditableWindow_create() {
             'hide': presenter.hide,
             'isVisible': presenter.isVisible,
             'centerPosition': presenter.centerPosition,
+            'openPopup': presenter.openPopup,
         };
 
         return Commands.dispatch(commands, name, params, presenter);
