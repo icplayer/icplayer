@@ -80,3 +80,30 @@ TestCase("[Paragraph] Upgrading editable placeholder property", {
         assertEquals("", upgradedModel["Editable placeholder"]);
     }
 });
+
+TestCase("[Paragraph] Upgrading weight property", {
+    setUp: function () {
+        this.presenter = AddonParagraph_create();
+    },
+
+    'test when model has weight property then model should not be upgraded' : function() {
+        var model = {
+            "ID": "Paragraph1",
+            "Weight": "1"
+        };
+
+        var upgradedModel = this.presenter.upgradeWeight(model);
+
+        assertEquals("1", upgradedModel["Weight"]);
+    },
+
+    'test when model has no weight property then weight should be empty string as default' : function() {
+        var model = {
+            "ID": "Paragraph1"
+        };
+
+        var upgradedModel = this.presenter.upgradeWeight(model);
+
+        assertEquals("", upgradedModel["Weight"]);
+    }
+});

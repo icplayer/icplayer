@@ -21,3 +21,30 @@ TestCase("[Paragraph_Keyboard] Upgrade model", {
         assertTrue(this.upgradeWeightStub.called);
     }
 });
+
+TestCase("[Paragraph_Keyboard] Upgrading weight property", {
+    setUp: function () {
+        this.presenter = AddonParagraph_Keyboard_create();
+    },
+
+    'test when model has weight property then model should not be upgraded' : function() {
+        var model = {
+            "ID": "Paragraph1",
+            "Weight": "1"
+        };
+
+        var upgradedModel = this.presenter.upgradeWeight(model);
+
+        assertEquals("1", upgradedModel["Weight"]);
+    },
+
+    'test when model has no weight property then weight should be empty string as default' : function() {
+        var model = {
+            "ID": "Paragraph1"
+        };
+
+        var upgradedModel = this.presenter.upgradeWeight(model);
+
+        assertEquals("", upgradedModel["Weight"]);
+    }
+});
