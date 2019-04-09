@@ -191,9 +191,6 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
                     item.width *= scale.X;
                 });
 
-				ui.item.height = ui.item.height*scale.Y;
-				ui.item.width = ui.item.width*scale.Y;
-
 				jsObject.markStart(ui.item.index());
 				ui.helper.html(ui.item.html());
 				ui.placeholder.html(ui.helper.html());
@@ -212,7 +209,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			},
 			sort: function(event, ui) {
 			    var changeLeft = ui.position.left - ui.originalPosition.left;
-                var newLeft = ui.originalPosition.left + changeLeft / scale.X - ui.item.parent().offset().left;
+                var newLeft = ui.originalPosition.left + changeLeft / scale.X;
                 var newTop = ui.position.top / scale.Y;
 
 				if (jsObject.axis == "y") {
