@@ -1,3 +1,4 @@
+2019-04-04 Added 'no audio' option to the slideshow addon
 2019-04-04 Fixed calculating max score in Choice module
 2019-04-02 Fixed setting isEnable property in Text Audio module
 2019-04-01 Added refreshing mathjax in filled gap in Text module
