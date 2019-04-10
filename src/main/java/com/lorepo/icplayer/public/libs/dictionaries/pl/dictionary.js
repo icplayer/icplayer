@@ -1201,6 +1201,8 @@ var ice_dictionary_pl = {
 	"Slideshow_property_show_slide": "Pokaż slajd",
 	"Slideshow_property_group_next_and_previous_buttons": "Grupuj przyciski Dalej i Wstecz",
 	"Slideshow_property_narration": "Narracja",
+	"Slideshow_property_no_audio": "No audio",
+	"Slideshow_property_presentation_duration": "Presentation duration",
 	"Standard_Shapes_info" : "Pozwala na wstawienie do prezentacji podstawowych figur (kształtów), takich jak linie, kwadraty, prostokąty i koła.",
 	"Standard_Shapes_name" : "Standardowe kształty",
 	"Standard_Shapes_property_shape": "Kształt",

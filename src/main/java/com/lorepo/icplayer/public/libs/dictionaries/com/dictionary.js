@@ -1088,6 +1088,8 @@ var ice_dictionary_en = {
 	"Slideshow_property_show_slide": "Show slide",
 	"Slideshow_property_group_next_and_previous_buttons": "Group next and previous buttons",
 	"Slideshow_property_narration": "Narration",
+	"Slideshow_property_no_audio": "No audio",
+	"Slideshow_property_presentation_duration": "Presentation duration",
 	"Standard_Shapes_info": "Allows to embed basic shapes into a presentation, including lines, squares, rectangles, circles, or ellipses.",
 	"Standard_Shapes_name": "Standard Shapes",
 	"Standard_Shapes_property_shape": "Shape",
