@@ -1,4 +1,10 @@
-2019-03-25 Added setContextMetadata to player API
+2019-04-10 Added setContextMetadata to player API
+2019-04-04 Fixed calculating max score in Choice module
+2019-04-02 Fixed setting isEnable property in Text Audio module
+2019-04-01 Added refreshing mathjax in filled gap in Text module
+2019-04-01 Added bookmarks to Navigation Bar
+2019-03-13 Fixed issue with dropdown gap editor when 'keep in order' is disabled
+2019-03-12 Fixed setting state in Basic Math Gaps module
 2019-03-06 Fixed problem with not selectable placeholder text in filled gap after reset command
 2019-03-04 Added showAnswers, hideAnswers, enable and disable commands in True False module
 2019-02-28 Fixed problem with setting state in Text Audio module

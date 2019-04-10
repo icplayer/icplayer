@@ -58,6 +58,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
+	private boolean syntaxError = false;
 	private String originalText;
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String langAttribute = "";
@@ -186,6 +187,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		gapInfos = parsedTextInfo.gapInfos;
 		choiceInfos = parsedTextInfo.choiceInfos;
 		linkInfos = parsedTextInfo.linkInfos;
+		syntaxError = parsedTextInfo.hasSyntaxError;
 		if (getBaseURL() != null) {
 			parsedText = StringUtils.updateLinks(parsedText, getBaseURL());
 		}
@@ -1036,4 +1038,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		return this.originalText;
 	}
 	
+	public boolean hasSyntaxError () {
+		return syntaxError;
+	}
 }
