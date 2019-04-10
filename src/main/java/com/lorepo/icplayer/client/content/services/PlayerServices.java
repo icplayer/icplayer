@@ -219,11 +219,6 @@ public class PlayerServices implements IPlayerServices {
 	}
 
 	@Override
-	public void setContextMetadata(JavaScriptObject contextMetadata) {
-		this.contextMetadata = contextMetadata;
-	}
-
-	@Override
 	public JavaScriptObject getContextMetadata() {
 		return this.application.getContextMetadata();
 	}
