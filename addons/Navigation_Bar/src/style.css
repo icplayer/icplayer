@@ -68,4 +68,7 @@
 
 .navigationbar-wrapper .disabled {
     color: #C0C0C0;
+
+.navigationbar-wrapper .bookmark {
+    color: red;
 }
