@@ -12,7 +12,7 @@ function Addondnd_ordering_create(){
             var isGapOrdering = false;
             var itemWidth = null;
             var itemHeight = null;
-            var isNoItemsOrder = false;
+            var ignoreOrder = false;
             var mode = 0;  // 0 - running, 1 - setShowErrorsMode 3 - showAnswers
 			
             presenter.setPlayerController = function(controller) {
@@ -138,7 +138,7 @@ function Addondnd_ordering_create(){
                 view.classList.add('dndsortable')
                 $view = $(view);
                 isGapOrdering = model['isGapOrdering'] === 'True';
-                isNoItemsOrder = model['isNoItemsOrder'] === 'True';
+                ignoreOrder = model['ignoreOrder'] === 'True';
                 if (isGapOrdering) {
                     $view.addClass('ordering');
                 }
@@ -265,7 +265,10 @@ function Addondnd_ordering_create(){
                 presenter.setVisibility(true);
             };
 
-			presenter.setShowErrorsMode = function() {
+
+
+
+    presenter.setShowErrorsMode = function() {
                 if (mode == 3) {
                     presenter.hideAnswers();
                 }
@@ -275,20 +278,25 @@ function Addondnd_ordering_create(){
                 var current = $view.children().map(function (indx, element) { return element.style.display === 'none' ? null : $(element) });
                 current = current.filter(function(indx, element) { return element !== null; });
 
-                if (isNoItemsOrder) {
-                    for (var i = 0; i < Math.min(current.length, answers.length); i++) {
-                        if(answers.filter(function(el){return answers[i] === el}).length == current.filter(function(el){return answers[i] === el}).length) {
-                            current[i][0].classList.add('correct');
-                        } else {
-                            current[i][0].classList.add('wrong');
-                        }
-                        current[i][0].classList.add('ic_element_works_mode');
+                if (ignoreOrder) {
 
-                        for (var i = Math.min(current.length, answers.length); i < current.length; i++) {
+                    var copyAnswer = answers.slice();
+
+                    for(i = 0; i< current.length; i++){
+                        var correctFlag = false;
+                        for(j =0; j < copyAnswer.length; j++){
+                            if(copyAnswer[j] == current[i]){
+                                current[i][0].classList.add('correct');
+                                copyAnswer[j] = undefined;
+                                correctFlag = true;
+                                break;
+                            }
+                        }
+                        if(!correctFlag) {
                             current[i][0].classList.add('wrong');
-                            current[i][0].classList.add('ic_element_works_mode');
                         }
                     }
+
                 } else {
 
                     for (var i = 0; i < Math.min(current.length, answers.length); i++) {
@@ -334,9 +342,34 @@ function Addondnd_ordering_create(){
                     return 0;
                 }
 
-                for (var i = 0; i < answers.length; i++) {
-                    if (answers[i] !== current[i]) {
+                if (ignoreOrder) {
+
+                    if(current.length != answers.length){
                         return 0;
+                    }
+
+                    var copyAnswer = answers.slice();
+
+                    for(i = 0; i < current.length; i++){
+                        var correctFlag = false;
+                        for(j = 0; j < copyAnswer.length; j++){
+                            if(copyAnswer[j] == current[i]){
+                                copyAnswer[j] = undefined;
+                                correctFlag = true;
+                                break;
+                            }
+                        }
+                        if(!correctFlag) {
+                            return 0;
+                        }
+                    }
+
+                 } else {
+
+                    for (var i = 0; i < answers.length; i++) {
+                        if (answers[i] !== current[i]) {
+                            return 0;
+                        }
                     }
                 }
 
