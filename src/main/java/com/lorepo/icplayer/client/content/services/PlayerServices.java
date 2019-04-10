@@ -36,7 +36,6 @@ public class PlayerServices implements IPlayerServices {
 	private JavaScriptObject jQueryPrepareOffsetsFunction = null;
 	private boolean isAbleChangeLayout = true;
 	private PlayerApp application = null;
-	private JavaScriptObject contextMetadata = null;
 	
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 		this.playerController = controller;
@@ -226,7 +225,7 @@ public class PlayerServices implements IPlayerServices {
 
 	@Override
 	public JavaScriptObject getContextMetadata() {
-		return this.contextMetadata;
+		return this.application.getContextMetadata();
 	}
 	
 	public void fixDroppable() {

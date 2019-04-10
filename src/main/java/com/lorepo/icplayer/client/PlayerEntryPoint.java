@@ -162,10 +162,6 @@ public class PlayerEntryPoint implements EntryPoint {
 		this.theApplication.loadCommonPage(url, pageIndex);
 	}
 
-    private void setContextMetadata(JavaScriptObject contextMetadata) {
-        this.theApplication.getPlayerServices().setContextMetadata(contextMetadata);
-    }
-
 	private void setConfig(JavaScriptObject config) {
 		this.theApplication.setConfig(config);
 	}
@@ -223,7 +219,6 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	public void onPageLoaded() {
 		fireCallback(this.pageLoadedListener);
-		setContextMetadata(this.contextMetadata);
 		final int currentPageIndex = this.theApplication.getPlayerServices()
 				.getCurrentPageIndex();
 		String source = Integer.toString(currentPageIndex + 1);
@@ -240,5 +235,9 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	public void fireOutstretchHeightEvent() {
 		fireCallback(this.outstretchHeightListener);
+	}
+
+	public JavaScriptObject getContextMetadata() {
+		return this.contextMetadata;
 	}
 }
