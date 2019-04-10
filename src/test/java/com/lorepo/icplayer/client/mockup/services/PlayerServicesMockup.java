@@ -248,9 +248,4 @@ public class PlayerServicesMockup implements IPlayerServices {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public void setContextMetadata(JavaScriptObject contextMetadata) {
-		// TODO Auto-generated method stub
-	}
 }
