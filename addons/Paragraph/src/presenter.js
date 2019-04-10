@@ -709,6 +709,9 @@ function AddonParagraph_create() {
             presenter.editor.setContent('');
         }
         presenter.placeholder.addPlaceholder();
+        if (presenter.isLocked) {
+            presenter.unlock();
+        }
     };
 
     presenter.show = function AddonParagraph_show() {

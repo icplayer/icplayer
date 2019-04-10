@@ -766,6 +766,9 @@ function AddonParagraph_Keyboard_create() {
     presenter.reset = function AddonParagraph_Keyboard_reset() {
         presenter.editor.setContent('');
         presenter.setVisibility(presenter.configuration.isVisible);
+        if (presenter.isLocked) {
+            presenter.unlock();
+        }
     };
 
     presenter.show = function AddonParagraph_Keyboard_show() {
