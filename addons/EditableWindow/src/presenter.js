@@ -1,6 +1,6 @@
 function AddonEditableWindow_create() {
 
-    let presenter = function () {
+    var presenter = function () {
     };
 
     presenter.configuration = {
@@ -19,8 +19,8 @@ function AddonEditableWindow_create() {
         hasHtml: false,
         hasVideo: false,
         hasAudio: false,
-        heightOffset: 90,
-        widthOffset: 2,
+        heightOffset: 110,
+        widthOffset: 22,
         minHeight: 300,
         minWidth: 300,
         state: {
@@ -40,15 +40,16 @@ function AddonEditableWindow_create() {
             presenter.configuration.hasAudio = presenter.configuration.model.audioFile !== "";
             presenter.configuration.hasVideo = presenter.configuration.model.videoFile !== "";
             presenter.init();
+            presenter.hide();
         } else {
             $(view).html(presenter.configuration.model.errorMessage);
         }
     };
 
     presenter.init = function () {
-        let $view = $(presenter.configuration.view);
-        let hasHtml = presenter.configuration.hasHtml;
-        let textareaId = presenter.configuration.textareaId;
+        var $view = $(presenter.configuration.view);
+        var hasHtml = presenter.configuration.hasHtml;
+        var textareaId = presenter.configuration.textareaId;
 
         if (presenter.configuration.hasVideo) {
             presenter.handleVideoContent();
@@ -84,13 +85,23 @@ function AddonEditableWindow_create() {
             minWidth: presenter.configuration.minWidth,
             resize: function (event, ui) {
                 if (hasHtml) {
-                    let heightOffset = presenter.configuration.heightOffset;
-                    let widthOffset = presenter.configuration.widthOffset;
-                    let newHeight = ui.size.height - heightOffset;
-                    let newWidth = ui.size.width - widthOffset;
+                    var heightOffset = presenter.configuration.heightOffset;
+                    var widthOffset = presenter.configuration.widthOffset;
+                    var newHeight = ui.size.height - heightOffset;
+                    var newWidth = ui.size.width - widthOffset;
                     tinymce.get(textareaId).theme.resizeTo(newWidth, newHeight);
                 }
-            }
+            },
+            start: function (event, ui) {
+                if (hasHtml) {
+                    $view.find("iframe").css("visibility", "hidden")
+                }
+            },
+            stop: function (event, ui) {
+                if (hasHtml) {
+                    $view.find("iframe").css("visibility", "visible")
+                }
+            },
         });
 
         $view.find(".close-button").click(function () {
@@ -103,30 +114,30 @@ function AddonEditableWindow_create() {
     };
 
     presenter.handleVideoContent = function () {
-        let $view = $(presenter.configuration.view);
-        let audioSource = presenter.configuration.model.videoFile;
-        let $videoElement = $view.find("video");
+        var $view = $(presenter.configuration.view);
+        var audioSource = presenter.configuration.model.videoFile;
+        var $videoElement = $view.find("video");
         $videoElement.attr("src", audioSource);
     };
 
     presenter.handleAudioContent = function () {
-        let $view = $(presenter.configuration.view);
-        let audioSource = presenter.configuration.model.audioFile;
-        let $audioElement = $view.find("audio");
+        var $view = $(presenter.configuration.view);
+        var audioSource = presenter.configuration.model.audioFile;
+        var $audioElement = $view.find("audio");
         $audioElement.attr("src", audioSource);
         presenter.configuration.heightOffset += 35;
     };
 
     presenter.handleHtmlContent = function () {
-        let height = presenter.configuration.model.height;
-        let width = presenter.configuration.model.width;
-        let indexFile = presenter.configuration.model.indexFile;
-        let textareaId = presenter.configuration.textareaId;
-        let $view = $(presenter.configuration.view);
+        var height = presenter.configuration.model.height;
+        var width = presenter.configuration.model.width;
+        var indexFile = presenter.configuration.model.indexFile;
+        var textareaId = presenter.configuration.textareaId;
+        var $view = $(presenter.configuration.view);
 
-        let iframe = $view.find(".content-iframe");
-        let separator = (indexFile.indexOf("?") === -1) ? "?" : "&";
-        let source = indexFile + separator + "no_gcs=true";
+        var iframe = $view.find(".content-iframe");
+        var separator = (indexFile.indexOf("?") === -1) ? "?" : "&";
+        var source = indexFile + separator + "no_gcs=true";
 
         iframe.attr("onload", function () {
             presenter.configuration.isIframeLoaded = true;
@@ -135,11 +146,11 @@ function AddonEditableWindow_create() {
 
         $view.css("z-index", "1");
 
-        let textarea = $view.find("textarea");
+        var textarea = $view.find("textarea");
         textarea.attr("id", textareaId);
 
-        let widthOffset = presenter.configuration.widthOffset;
-        let heightOffset = presenter.configuration.heightOffset;
+        var widthOffset = presenter.configuration.widthOffset;
+        var heightOffset = presenter.configuration.heightOffset;
 
         tinymce.init({
             selector: "#" + textareaId,
@@ -154,9 +165,9 @@ function AddonEditableWindow_create() {
             presenter.configuration.isTinyMceLoaded = true;
         });
 
-        let timeout = setTimeout(function () {
+        var timeout = setTimeout(function () {
             presenter.fetchIframeContent(function (content) {
-                let isInitialized = presenter.configuration.state.isInitialized;
+                var isInitialized = presenter.configuration.state.isInitialized;
                 if (!isInitialized) {
                     presenter.configuration.contentLoadingLock = true;
                     presenter.fillActiveTinyMce(content);
@@ -164,6 +175,7 @@ function AddonEditableWindow_create() {
                     presenter.configuration.state.content = content;
                     presenter.configuration.contentLoadingLock = false;
                 }
+                presenter.removeIframe();
             });
         }, 3000);
         presenter.configuration.timeouts.push(timeout);
@@ -179,9 +191,9 @@ function AddonEditableWindow_create() {
     };
 
     presenter.setState = function (state) {
-        let contentLoadingLock = presenter.configuration.contentLoadingLock;
+        var contentLoadingLock = presenter.configuration.contentLoadingLock;
         if (contentLoadingLock) {
-            let timeout = setTimeout(function (state) {
+            var timeout = setTimeout(function (state) {
                 presenter.setState(state);
             }, 1000);
 
@@ -194,9 +206,10 @@ function AddonEditableWindow_create() {
     function handleState(state) {
         presenter.configuration.contentLoadingLock = true;
         presenter.configuration.state = JSON.parse(state);
+        console.log(state);
 
-        let isInitialized = presenter.configuration.state.isInitialized;
-        let content = presenter.configuration.state.content;
+        var isInitialized = presenter.configuration.state.isInitialized;
+        var content = presenter.configuration.state.content;
 
         if (isInitialized) {
             presenter.fillActiveTinyMce(content);
@@ -205,9 +218,9 @@ function AddonEditableWindow_create() {
     }
 
     presenter.getState = function () {
-        let editor = presenter.configuration.editor;
-        let isTinyMceLoaded = presenter.configuration.isTinyMceLoaded;
-        let isTinyMceFilled = presenter.configuration.isTinyMceFilled;
+        var editor = presenter.configuration.editor;
+        var isTinyMceLoaded = presenter.configuration.isTinyMceLoaded;
+        var isTinyMceFilled = presenter.configuration.isTinyMceFilled;
         if (isTinyMceLoaded && isTinyMceFilled) {
             presenter.configuration.state.content = editor.getContent({format: 'raw'});
         }
@@ -216,19 +229,19 @@ function AddonEditableWindow_create() {
     };
 
     presenter.validModel = function (model) {
-        let indexFile = model['index'];
-        let audioFile = model['audio'];
-        let videoFile = model['video'];
+        var indexFile = model['index'];
+        var audioFile = model['audio'];
+        var videoFile = model['video'];
 
         if (indexFile === "" && audioFile === "" && videoFile === "") {
             return presenter.generateValidationError("Content cannot be undefined.");
         }
 
-        let fileList = [];
+        var fileList = [];
 
-        let originalFileList = model["fileList"];
-        for (let i = 0; i < originalFileList.length; i++) {
-            let entity = originalFileList[i];
+        var originalFileList = model["fileList"];
+        for (var i = 0; i < originalFileList.length; i++) {
+            var entity = originalFileList[i];
             if (entity.id != "" && entity.file != "") {
                 fileList.push(entity);
             }
@@ -258,14 +271,21 @@ function AddonEditableWindow_create() {
     };
 
     presenter.fetchIframeContent = function (callback) {
-        let view = presenter.configuration.view;
-        let isIframeLoaded = presenter.configuration.isIframeLoaded;
+        var view = presenter.configuration.view;
+        var isIframeLoaded = presenter.configuration.isIframeLoaded;
 
         if (isIframeLoaded) {
-            let content = $(view).find(".content-iframe").contents().find("body").html();
-            callback(content);
+            var content = $(view).find(".content-iframe").contents().find("body").html();
+            if (content == null || content == "") {
+                var timeout = setTimeout(function () {
+                    presenter.fetchIframeContent(callback);
+                }, 1000);
+                presenter.configuration.timeouts.push(timeout);
+            } else {
+                callback(content);
+            }
         } else {
-            let timeout = setTimeout(function (callback) {
+            var timeout = setTimeout(function (callback) {
                 presenter.fetchIframeContent(callback)
             }, 1000);
 
@@ -274,16 +294,17 @@ function AddonEditableWindow_create() {
     };
 
     presenter.fillActiveTinyMce = function (content) {
-        let isTinyMceLoaded = presenter.configuration.isTinyMceLoaded;
+        console.log("FillActiveTinyMce: " + content);
+        var isTinyMceLoaded = presenter.configuration.isTinyMceLoaded;
 
         if (isTinyMceLoaded) {
-            let timeout = setTimeout(function () {
+            var timeout = setTimeout(function () {
                 presenter.fillTinyMce(content);
             }, 1000);
 
             presenter.configuration.timeouts.push(timeout);
         } else {
-            let timeout = setTimeout(function () {
+            var timeout = setTimeout(function () {
                 presenter.fillActiveTinyMce(content);
             }, 1000);
 
@@ -292,22 +313,22 @@ function AddonEditableWindow_create() {
     };
 
     presenter.fillTinyMce = function (content) {
-        let fileList = presenter.configuration.model.fileList;
-        let documentContent = new DOMParser().parseFromString(content, 'text/html');
-        let textareaId = presenter.configuration.textareaId;
+        console.log("Fill: " + content);
+        var fileList = presenter.configuration.model.fileList;
+        var documentContent = new DOMParser().parseFromString(content, 'text/html');
+        var textareaId = presenter.configuration.textareaId;
 
-        for (let i = 0; i < fileList.length; i++) {
-            let entity = fileList[i];
-            let node = documentContent.getElementById(entity.id);
+        for (var i = 0; i < fileList.length; i++) {
+            var entity = fileList[i];
+            var node = documentContent.getElementById(entity.id);
             if (node != null && node !== undefined) {
                 node.src = entity.file;
             }
         }
 
-        let parsedContent = documentContent.getElementsByTagName("body")[0].innerHTML;
+        var parsedContent = documentContent.getElementsByTagName("body")[0].innerHTML;
         tinymce.get(textareaId).getBody().innerHTML = parsedContent;
         presenter.configuration.isTinyMceFilled = true;
-        presenter.removeIframe();
     };
 
     presenter.removeIframe = function () {
@@ -315,22 +336,29 @@ function AddonEditableWindow_create() {
     };
 
     presenter.centerPosition = function () {
-        let $view = $(presenter.configuration.view);
-        let width = $(".addon-editable-window-wrapper").width();
-        let icPageWidth = $(".ic_page").width();
-        let scrollY = window.parent !== undefined ? window.parent.scrollY : window.scrollY;
+        var $view = $(presenter.configuration.view);
+        var width = $view.find(".addon-editable-window-wrapper").width();
+        var icPageWidth = $(".ic_page").width();
 
-        let topOffset = scrollY + 25;
-        let leftOffset = (icPageWidth - width) / 2;
+        var scrollY;
+        try {
+            scrollY = window.parent.scrollY !== undefined ? window.parent.scrollY : window.scrollY;
+        } catch (e) {
+            scrollY = 0;
+            console.error(e.errorMessage);
+        }
+
+        var topOffset = scrollY + 25;
+        var leftOffset = (icPageWidth - width) / 2;
 
         $view.css({top: topOffset, left: leftOffset, right: "", bottom: ""});
     };
 
     presenter.show = function () {
-        let view = presenter.configuration.view;
-        let eventBus = presenter.configuration.eventBus;
-        let id = presenter.configuration.model.id;
-        let $view = $(view);
+        var view = presenter.configuration.view;
+        var eventBus = presenter.configuration.eventBus;
+        var id = presenter.configuration.model.id;
+        var $view = $(view);
 
         presenter.configuration.isVisible = true;
 
@@ -353,6 +381,8 @@ function AddonEditableWindow_create() {
     presenter.hide = function () {
         presenter.configuration.isVisible = false;
         $(presenter.configuration.view).hide();
+        presenter.stopAudio();
+        presenter.stopVideo();
     };
 
     presenter.isVisible = function () {
@@ -366,19 +396,37 @@ function AddonEditableWindow_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-        let value = eventData.value;
-        let source = eventData.source;
-        let id = presenter.configuration.model.id;
-        let view = presenter.configuration.view;
-        let $view = $(view);
+        var value = eventData.value;
+        var source = eventData.source;
+        var id = presenter.configuration.model.id;
+        var view = presenter.configuration.view;
+        var $view = $(view);
 
         if (value === "move-editable-windows" && source !== id) {
             $view.style("z-index", "1");
         }
     };
 
+    presenter.stopAudio = function () {
+        if (presenter.configuration.hasAudio) {
+            var $view = $(presenter.configuration.view);
+            var audioElement = $view.find("audio")[0];
+            audioElement.pause();
+            audioElement.currentTime = 0;
+        }
+    };
+
+    presenter.stopVideo = function () {
+        if (presenter.configuration.hasVideo) {
+            var $view = $(presenter.configuration.view);
+            var audioElement = $view.find("video")[0];
+            audioElement.pause();
+            audioElement.currentTime = 0;
+        }
+    };
+
     presenter.executeCommand = function (name, params) {
-        let commands = {
+        var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
             'isVisible': presenter.isVisible,
@@ -393,8 +441,8 @@ function AddonEditableWindow_create() {
         if (event.target === presenter.configuration.view) {
             presenter.configuration.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
-            let timeouts = presenter.configuration.timeouts;
-            for (let i = 0; i < timeouts.length; i++) {
+            var timeouts = presenter.configuration.timeouts;
+            for (var i = 0; i < timeouts.length; i++) {
                 clearTimeout(timeouts[i]);
             }
 

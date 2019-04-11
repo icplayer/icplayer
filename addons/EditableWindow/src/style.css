@@ -2,10 +2,11 @@
     width: 100%;
     height: 100%;
     position: absolute;
-    background-color: #f0f0f0;
+    background-color: #eaeaea;
     border: 1px solid #cccccc;
     display: flex;
     flex-flow: column;
+    cursor: move;
 }
 
 .addon-editable-window-wrapper iframe {
@@ -29,11 +30,13 @@
     background: none;
     border: none;
     outline: none;
+    cursor: pointer;
 }
 
 .addon-editable-window-wrapper .header {
     height: 35px;
     width: 100%;
+    cursor: move;
 }
 
 .addon-editable-window-wrapper audio {
@@ -55,4 +58,8 @@
 
 .addon-editable-window-wrapper .footer {
     height: 20px;
+}
+
+.addon-editable-window-wrapper .text-wrapper {
+    padding: 10px;
 }
