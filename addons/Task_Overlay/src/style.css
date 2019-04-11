@@ -139,6 +139,10 @@
 	display: none !important;
 }
 
+.addon_Task_Overlay {
+	margin-left: 40px;
+}
+
 .task-overlay-wrapper .progress-button {
 	float: right;
 	display: inline-block;
