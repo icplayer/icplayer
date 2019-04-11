@@ -56,12 +56,7 @@ function Addondnd_ordering_create(){
                         div.style.left = "-1px";
                     }
 
-                    if(itemWidth != null) {
-                        div.style.width = itemWidth;
-                    }
-                    if(itemHeight != null) {
-                        div.style.height = itemHeight;
-                    }
+                    presenter.setElementSize(div);
 
                     $view.append(div);
                 });
@@ -112,12 +107,8 @@ function Addondnd_ordering_create(){
                         div.style.left = "-1px";
                     }
 
-                    if(itemWidth != null) {
-                        div.style.width = itemWidth;
-                    }
-                    if(itemHeight != null) {
-                        div.style.height = itemHeight;
-                    }
+                    presenter.setElementSize(div);
+
                     div.style.display = "inline-block";
                     div.innerHTML = element['value'];
 
@@ -194,6 +185,9 @@ function Addondnd_ordering_create(){
                             var value = $view.find("div[data-item='" + selectedItem['item'] + "']")[0];
                             if (value) {
                                 value.style.display = 'inline-block';
+                                presenter.setElementSize(value);
+                            } else {
+                                presenter.setElementSize(ui.draggable[0]);
                             }
                             presenter.eventBus.sendEvent('ItemConsumed', selectedItem);
                             lastAddedItem = selectedItem;
@@ -237,13 +231,7 @@ function Addondnd_ordering_create(){
                             event.target.style.top = '-1px';
                             event.target.style.left = '-1px';
                             event.target.style.zIndex = '';
-
-                            if(itemWidth != null) {
-                                div.style.width = itemWidth;
-                            }
-                            if(itemHeight != null) {
-                                div.style.height = itemHeight;
-                            }
+                            presenter.setElementSize(event.target);
                         }
                     });
                 }
@@ -381,6 +369,15 @@ function Addondnd_ordering_create(){
 
 			presenter.setState = function(state){
 			}
+
+            presenter.setElementSize = function (element) {
+                if(itemWidth != null) {
+                    element.style.width = itemWidth+"px";
+                }
+                if(itemHeight != null) {
+                    element.style.height = itemHeight+"px";
+                }
+            }
 
 			return presenter;
 		}
