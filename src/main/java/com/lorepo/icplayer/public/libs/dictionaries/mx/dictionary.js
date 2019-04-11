@@ -1058,6 +1058,7 @@ var ice_dictionary_mx = {
     "Navigation_Bar_property_show_prev": "Show earlier pages",
     "Navigation_Bar_property_play_title": "Read page title",
 	"Navigation_Bar_property_block_not_visited": "Block not visited pages",
+	"Navigation_Bar_property_disabled_page": "Disabled page",
 	"Page_Counter_info": "Permite añadir un contador de páginas a la presentación. Presenta un índice de la página actual y un número de páginas de presentación en el orden normal o invertido.",
 	"Page_Counter_name": "Contador de páginas",
 	"Page_Counter_property_numericals": "Numeración",

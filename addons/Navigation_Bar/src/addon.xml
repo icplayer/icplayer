@@ -32,6 +32,9 @@
             <property name="DottedLeft" nameLabel="Navigation_Bar_property_show_prev" type="staticrow">
                 <property name="DottedLeft" nameLabel="Navigation_Bar_property_show_prev" type="string"/>
             </property>
+            <property name="DisabledPage" nameLabel="Navigation_Bar_property_disabled_page" type="staticrow">
+                <property name="DisabledPage" nameLabel="Navigation_Bar_property_disabled_page" type="string"/>
+            </property>
         </property>
         <property name="langAttribute" displayName="Lang attribute" nameLabel="Navigation_Bar_property_lang_attribute" type="string" />
         <property name='playTitle' type='boolean' nameLabel="Navigation_Bar_property_play_title"/>

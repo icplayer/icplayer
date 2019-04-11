@@ -1,4 +1,4 @@
-2019-03-27 Fixed issue with the dotted button in Navigation Bar and added Block not visited pages property
+2019-04-11 Fixed issue with the dotted button in Navigation Bar and added Block not visited pages property
 2019-04-04 Added 'no audio' option to the slideshow addon
 2019-04-04 Fixed calculating max score in Choice module
 2019-04-02 Fixed setting isEnable property in Text Audio module

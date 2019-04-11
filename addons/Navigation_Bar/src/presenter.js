@@ -6,7 +6,7 @@ function AddonNavigation_Bar_create() {
     presenter.pageTitles = [];
     presenter.visitedPages = [];
     presenter.originalIndex = 0;
-    
+
     var isWCAGOn = false;
 
     presenter.state = {
@@ -206,7 +206,11 @@ function AddonNavigation_Bar_create() {
         } else {
             var pageNumber = $element.attr('data-page-number');
             if (pageNumber !== null && pageNumber !== undefined && !isNaN(pageNumber)){
-                presenter.playPage(pageNumber-1 , presenter.configuration.speechTexts.goToPageNumber + ' ' + pageNumber);
+                if ($element.hasClass('disabled')) {
+                   presenter.playPage(pageNumber - 1, presenter.configuration.speechTexts.disabledPage + ' ' + pageNumber);
+                } else {
+                    presenter.playPage(pageNumber - 1, presenter.configuration.speechTexts.goToPageNumber + ' ' + pageNumber);
+                }
             }
         }
     };
@@ -805,6 +809,9 @@ function AddonNavigation_Bar_create() {
          if (!upgradedModel['blockNotVisited']) {
              upgradedModel['blockNotVisited'] = 'False';
          }
+         if (!upgradedModel['speechTexts']['DisabledPage']) {
+             upgradedModel['speechTexts']['DisabledPage'] = {DisabledPage: ''};
+         }
          return upgradedModel;
      };
 
@@ -865,7 +872,8 @@ function AddonNavigation_Bar_create() {
             prevPage: 'Go to previous page',
             titled: 'Titled',
             dottedRight: 'Show more pages',
-            dottedLeft: 'Show earlier pages'
+            dottedLeft: 'Show earlier pages',
+            disabledPage: 'Disabled page'
         };
 
         if (!speechTexts) {
@@ -879,6 +887,7 @@ function AddonNavigation_Bar_create() {
             titled:     getSpeechTextProperty(speechTexts['Titled']['Titled'], speechTextsModel.titled),
             dottedRight:   getSpeechTextProperty(speechTexts['DottedRight']['DottedRight'], speechTextsModel.dottedRight),
             dottedLeft:      getSpeechTextProperty(speechTexts['DottedLeft']['DottedLeft'], speechTextsModel.dottedLeft),
+            disabledPage:      getSpeechTextProperty(speechTexts['DisabledPage']['DisabledPage'], speechTextsModel.disabledPage),
         };
         return speechTextsModel;
     }
@@ -1020,21 +1029,21 @@ function AddonNavigation_Bar_create() {
     };
 
     presenter.isCurrentPageOk = function () {
-        if(presenter.presentation.getPage(presenter.currentIndex).isReportable()){
-            var percentageScore = presenter.getPercentageScore(presenter.currentIndex);
-            var $page = presenter.$wrapper.find("[data-page-number='" + (presenter.currentIndex + 1) + "']");
-            var id = presenter.presentation.getPage(presenter.currentIndex).getId();
+        if(presenter.presentation.getPage(presenter.originalIndex).isReportable()){
+            var percentageScore = presenter.getPercentageScore(presenter.originalIndex);
+            var $page = presenter.$wrapper.find("[data-page-number='" + (presenter.originalIndex + 1) + "']");
+            var id = presenter.presentation.getPage(presenter.originalIndex).getId();
             var pageScore = presenter.scoreService.getPageScoreById(id);
 
             if((percentageScore == 100 && pageScore.errorCount == 0) || isNaN(percentageScore)){
                 $page.addClass("navigationbar-page-ok");
-                presenter.pagesOk.push(presenter.currentIndex + 1);
+                presenter.pagesOk.push(presenter.originalIndex + 1);
             }
 
             if(percentageScore < 100 || pageScore.errorCount > 0){
                 $page.removeClass("navigationbar-page-ok");
                 for(var k = presenter.pagesOk.length - 1; k >= 0; k--) {
-                    if(presenter.pagesOk[k] === (presenter.currentIndex + 1)) {
+                    if(presenter.pagesOk[k] === (presenter.originalIndex + 1)) {
                         presenter.pagesOk.splice(k, 1);
                     }
                 }
