@@ -273,7 +273,7 @@ function Addondnd_ordering_create(){
                     for(i = 0; i< current.length; i++){
                         var correctFlag = false;
                         for(j =0; j < copyAnswer.length; j++){
-                            if(copyAnswer[j] == current[i]){
+                            if(copyAnswer[j] == current[i].text()){
                                 current[i][0].classList.add('correct');
                                 copyAnswer[j] = undefined;
                                 correctFlag = true;
