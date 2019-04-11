@@ -206,7 +206,6 @@ function AddonEditableWindow_create() {
     function handleState(state) {
         presenter.configuration.contentLoadingLock = true;
         presenter.configuration.state = JSON.parse(state);
-        console.log(state);
 
         var isInitialized = presenter.configuration.state.isInitialized;
         var content = presenter.configuration.state.content;
@@ -294,7 +293,6 @@ function AddonEditableWindow_create() {
     };
 
     presenter.fillActiveTinyMce = function (content) {
-        console.log("FillActiveTinyMce: " + content);
         var isTinyMceLoaded = presenter.configuration.isTinyMceLoaded;
 
         if (isTinyMceLoaded) {
@@ -313,7 +311,6 @@ function AddonEditableWindow_create() {
     };
 
     presenter.fillTinyMce = function (content) {
-        console.log("Fill: " + content);
         var fileList = presenter.configuration.model.fileList;
         var documentContent = new DOMParser().parseFromString(content, 'text/html');
         var textareaId = presenter.configuration.textareaId;
