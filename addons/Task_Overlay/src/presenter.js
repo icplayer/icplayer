@@ -31,11 +31,11 @@ function AddonTask_Overlay_create(){
 	};
 
 	presenter.BUTTON_STATES = {
-		inactive: 0,
-		validate: 1,
-		retry: 2,
-		show_answer: 3,
-		next: 4
+		inactive: -1,
+		validate: 0,
+		retry: 1,
+		show_answer: 2,
+		next: 3
 	};
 
 
@@ -179,7 +179,7 @@ function AddonTask_Overlay_create(){
 		presenter.buttonActive = false;
 		presenter.viewHandlers.$proceedButton.off('click', buttonHandler);
 		var $el = presenter.viewHandlers.$proceedButton;
-		if (!$el.hasClass('disabled')) $el.addClass('disabled');
+		if (!$el.hasClass('disabled')) $el.addClass('');
 	}
 
 	function destroyEventListeners() {
@@ -320,8 +320,8 @@ function AddonTask_Overlay_create(){
 	function setImage(url, $wrapper) {
 		var $image = $('<div>');
         $image.css('background-image', 'url("' + url + '")');
-        $image.css('background-size','cover');
-        $image.css("height", presenter.configuration.height);
+        $image.css('background-size','initial');
+        $image.css("height", (presenter.configuration.height - 5));
         $image.css("width", presenter.configuration.width);
         $image.css("display","block");
         $wrapper.append($image);
@@ -545,7 +545,6 @@ function AddonTask_Overlay_create(){
         		if (index != tasks.length-1) {
                     presenter.playerController.getCommands().executeEventCode(tasks[index + 1].addonID + '.uncover()');
                 } else if (pageIndex + 1 < presenter.playerController.getPresentation().getPageCount()) {
-        			scrollToOffset(0);
         			presenter.playerController.getCommands().gotoPageIndex(pageIndex + 1);
 				}
 			}
@@ -564,7 +563,7 @@ function AddonTask_Overlay_create(){
 	function showModules() {
 		if (!presenter.areModulesVisible) {
 			presenter.areModulesVisible = true;
-            callModules('show');
+			callModules('show');
         }
 	}
 
@@ -575,12 +574,26 @@ function AddonTask_Overlay_create(){
 			if (module != null && module[methodName] != null && !isModuleNumbering(moduleID)) {
 				(module[methodName])();
 			}
+			if(methodName == 'show' && moduleID.includes('task_numbering')){
+				var previousNumberID = getPreviousTaskNumberID(moduleID);
+				var previousNumberColor = $("[id='task_numbering " + previousNumberID + ".']").css('color');
+				var actualNumberColor = $("[id='"+moduleID + "']").css('color');
+				$("[id='"+moduleID + "']").css('color', previousNumberColor);
+				$("[id='task_numbering " + previousNumberID + ".']").css('color', actualNumberColor);
+			}
 		}
+	}
+
+	function getPreviousTaskNumberID(moduleID){
+		var dividedID = moduleID.split(" ");
+		var secondPartOfDividedID = dividedID[1].split(".");
+		var number = secondPartOfDividedID[0];
+		return number - 1;
 	}
 
 	function isModuleNumbering(moduleID){
 		var moduleView = presenter.$view.closest('.ic_page').find('#'+moduleID);
-		if (moduleView == null || !moduleView.hasClass('TEXT_numbering')) return false;
+		if (moduleView == null || !moduleID.includes('task_numbering')) return false;
 		return true;
 	}
 
