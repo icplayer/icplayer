@@ -22,7 +22,6 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
 
 public class GapWidget extends TextBox implements TextElementDisplay {
-	private final GapInfo gapInfo;
 	private boolean isDisabled = false;
 	private String gapId = "";
 	private String text = "";
@@ -32,6 +31,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	private int gapState = 0;
 	private ArrayList<HandlerRegistration> handlers = new ArrayList<HandlerRegistration>();
 	
+	protected final GapInfo gapInfo;
 	
 	public GapWidget(GapInfo gi, ITextViewListener listener){
 		super(DOM.getElementById(gi.getId()));
@@ -56,11 +56,11 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		this.setDisabled(isDisabled);
 	}
 	
-	private void initialize (ITextViewListener listener) {
+	protected void initialize (ITextViewListener listener) {
 
 		setStylePrimaryName("ic_gap");
 
-		if (this.gapInfo.getMaxLength()>0) {
+		if (this.gapInfo.getMaxLength() > 0) {
 			int max_length = this.gapInfo.getMaxLength();
 			max_length = Math.max(max_length, this.gapInfo.getPlaceHolder().length());
 			String answer;
@@ -87,7 +87,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		this.handlers.clear();
 	}
 	
-	private void connectHandlers (final ITextViewListener listener) {
+	protected void connectHandlers (final ITextViewListener listener) {
 		if (listener != null) {
 			this.handlers.add(addKeyUpHandler(new KeyUpHandler() {
 				@Override

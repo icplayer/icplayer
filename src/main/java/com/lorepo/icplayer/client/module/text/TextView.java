@@ -9,6 +9,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
@@ -39,9 +40,15 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private boolean mathJaxIsLoaded = false;
 	private JavaScriptObject mathJaxHook = null;
 	private String originalDisplay = "";
+	private boolean isPreview = false;
+	
+	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
+	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
+	private ArrayList<GapWidget> gapsWidgets = new ArrayList<GapWidget>();
 	
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
+		this.isPreview = isPreview;
 		createUI(isPreview);
 		mathJaxLoaded();
 	}
@@ -135,6 +142,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				}
 				
 				gap.setDisabled(module.isDisabled());
+				gapsWidgets.add(gap);
 				textElements.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
@@ -158,6 +166,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				}
 				
 				gap.setDisabled(module.isDisabled());
+				gapsWidgets.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
 			}
@@ -177,6 +186,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 							gap.setDisabled(savedDisabledState.get(counter));
 
 							textElements.set(counter, gap);
+							gapsWidgets.set(counter, gap);
 						}
 					} else {
 						GapWidget gap = new GapWidget(gi, listener);
@@ -187,6 +197,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						}
 
 						textElements.add(gap);
+						gapsWidgets.add(gap);
 						mathGapIds.add(id);
 					}
 				} catch (Exception e) {
@@ -309,6 +320,9 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void setHTML (String html) {
+		if (isPreview && module.hasSyntaxError()) {
+			html += "<div class=\"errorMessage\">" + DictionaryWrapper.get("text_parse_error") + "</div>";
+		}
 		super.setHTML(html);
 	}
 	
@@ -346,10 +360,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	private void reconnectHandlers () {
-		for (TextElementDisplay element: this.textElements) {
-			if (element instanceof GapWidget) {
-				((GapWidget) element).reconnectHandlers(this.listener);
-			}
+		for (GapWidget element: this.gapsWidgets) {
+			element.reconnectHandlers(this.listener);
 		}
 	}
 

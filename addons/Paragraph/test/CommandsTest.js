@@ -42,3 +42,29 @@ TestCase("[Paragraph] getText and setText method", {
     }
 });
 
+TestCase("[Paragraph] lock and unlock method", {
+    setUp: function () {
+        this.presenter = AddonParagraph_create();
+        this.presenter.configuration = {
+            isValid: true,
+            ID: "Paragraph1"
+        };
+        this.presenter.$view = $('<div>');
+        this.presenter.$view.append("<div class=\"addon_Paragraph\" id=\"Paragraph1\">" +
+            "<div id=\"Paragraph1-wrapper\" class=\"paragraph-wrapper\"><form><textarea class=\"paragraph_field\"></textarea></form>" +
+            "</div>");
+    },
+
+    'test when lock is called as a command it appends element with class paragraph-lock': function () {
+        this.presenter.lock();
+        assertTrue(this.presenter.$view.find('.paragraph-lock').length === 1);
+    },
+
+    'test when unlock is called after lock as a command there is no element with class paragraph-lock': function () {
+        this.presenter.lock();
+        this.presenter.unlock();
+        assertTrue(this.presenter.$view.find('.paragraph-lock').length === 0);
+    }
+
+});
+
