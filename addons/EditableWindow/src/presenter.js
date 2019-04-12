@@ -339,7 +339,7 @@ function AddonEditableWindow_create() {
 
         var scrollY;
         try {
-            scrollY = window.parent.scrollY !== undefined ? window.parent.scrollY : window.scrollY;
+            scrollY =  presenter.configuration.playerController.iframeScroll();
         } catch (e) {
             scrollY = 0;
             console.error(e.errorMessage);
