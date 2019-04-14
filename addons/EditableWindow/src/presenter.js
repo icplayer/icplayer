@@ -339,7 +339,7 @@ function AddonEditableWindow_create() {
 
         var scrollY;
         try {
-            scrollY =  presenter.configuration.playerController.iframeScroll();
+            scrollY = presenter.configuration.playerController.iframeScroll();
         } catch (e) {
             scrollY = 0;
             console.error(e.errorMessage);
@@ -434,6 +434,9 @@ function AddonEditableWindow_create() {
         return Commands.dispatch(commands, name, params, presenter);
     };
 
+
+    // On the mCourser, each addon is called twice on the first page.
+    // Removing the addon before loading the library causes a problem with second loading.
     presenter.destroy = function (event) {
         if (event.target === presenter.configuration.view) {
             presenter.configuration.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
@@ -443,9 +446,18 @@ function AddonEditableWindow_create() {
                 clearTimeout(timeouts[i]);
             }
 
-            if (presenter.configuration.editor != null) {
+            try {
                 presenter.configuration.editor.destroy();
+            } catch (e) {
+                console.log(presenter.configuration.model.id + ": cannot to destroy editor.")
             }
+
+            try {
+                tinymce.remove();
+            } catch (e) {
+                console.log(presenter.configuration.model.id + ": cannot to remove tinymce.")
+            }
+
             $(presenter.configuration.view).off();
             presenter.configuration = null;
         }
