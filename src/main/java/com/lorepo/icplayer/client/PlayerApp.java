@@ -454,6 +454,10 @@ public class PlayerApp {
 		return $wnd.$(".ic_static_header").length > 0;
 	}-*/;
 
+	public JavaScriptObject getContextMetadata() {
+		return this.entryPoint.getContextMetadata();
+	}
+
 
 	/**
 	 * Init player after content is loaded
