@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.page.mockup;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.mockito.Mockito;
 
@@ -13,6 +14,7 @@ import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
@@ -262,6 +264,13 @@ public class PlayerControllerMockup implements IPlayerController {
 	public boolean isPlayerInCrossDomain() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+
+	@Override
+	public Set<IPage> getVisitedPages() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
