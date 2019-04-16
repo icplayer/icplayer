@@ -249,5 +249,12 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public boolean isPageVisited(IPage page) {
 		// TODO Auto-generated method stub
 		return false;
+  }
+  
+  
+	@Override
+	public JavaScriptObject getContextMetadata() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

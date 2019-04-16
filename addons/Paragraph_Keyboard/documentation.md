@@ -47,18 +47,52 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
 </ul>
 </td>
     </tr>
-
     <tr>
       <td>Keyboard Position</td>
       <td>Position of the Keyboard in relation to the text field. If position is right or left, the keyboard layout will be transposed. If position is set as Custom, you have to specify the position by presentation CSS styles.
 </td>
+    </tr>
+    <tr>
+      <td>Weight</td>
+      <td>Set the weight of the paragraph. It is a numeric value between 0 and 100.</td>
     </tr>
 
 </table>
 
 ## Supported commands
 
-This module does not provide any commands.
+<table border='1'>
+    <tr>
+        <th>Command name</th>
+        <th>Params</th> 
+        <th>Description</th> 
+    </tr>
+    <tr>
+        <td>show</td>
+        <td>---</td>
+        <td>shows the module</td> 
+    </tr>
+    <tr>
+        <td>hide</td>
+        <td>---</td>
+        <td>hides the module</td> 
+    </tr>
+    <tr>
+        <td>isVisible</td>
+        <td>---</td>
+        <td>returns true if module is visible, otherwise false</td> 
+    </tr>
+    <tr>
+        <td>lock</td>
+        <td>---</td>
+        <td>covers the module with mask</td> 
+    </tr>
+    <tr>
+        <td>unlock</td>
+        <td>---</td>
+        <td>removes mask from the module</td> 
+    </tr>
+</table>
 
 ## Scoring
 

@@ -1088,6 +1088,7 @@ var ice_dictionary_pl = {
 	"Paragraph_property_editable_placeholder": "Editable placeholder",
 	"Paragraph_property_manual_grading" : "Manual grading",
 	"Paragraph_property_title" : "Title",
+	"Paragraph_property_weight" : "Weight",
 	"Paragraph_Keyboard_info" : "Pozwala użytkownikowi na wprowadzenie tekstu w dowolnej formie z zachowaniem formatowania WYSIWYG i wykorzystaniem znaków diakrytycznych.",
 	"Paragraph_Keyboard_name" : "Paragraf z e-Klawiaturą",
 	"Paragraph_Keyboard_property_default_font_family": "Domyślna rodzina czcionek",
@@ -1100,6 +1101,7 @@ var ice_dictionary_pl = {
 	"Paragraph_Keyboard_property_keyboard_position": "Pozycja klawiatury",
 	"Paragraph_Keyboard_property_manual_grading" : "Manual grading",
 	"Paragraph_Keyboard_property_title" : "Title",
+	"Paragraph_Keyboard_property_weight" : "Weight",
 	"Plot_info" : "Moduł ten pozwala na przedstawienie wykresów i tworzenie interaktywnych ćwiczeń matematycznych bazujących na układzie współrzędnych. Dzięki Addonowi Wykres można rysować funkcje f(x) i f(y).",
 	"Plot_name" : "Wykres",
 	"Plot_property_expressions": "Wyrażenia",
@@ -1943,5 +1945,13 @@ var ice_dictionary_pl = {
 	"wcag":"WCAG",
 	"Editor_add_missing_tts":"Add missing TTS modules",
 	"Editor_tts_modified_pages_list":"The list of pages modified while adding TTS to presentation:",
-	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation"
+	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation",
+	"EditableWindow_info": "Editable Window",
+	"EditableWindow_name": "Editable Window",
+	"EditableWindow_property_file_list" : "File list",
+	"EditableWindow_property_id": "Id",
+	"EditableWindow_property_file": "File",
+	"EditableWindow_property_index_file": "Index file",
+	"EditableWindow_property_audio_file": "Audio file",
+	"EditableWindow_property_video_file": "Video file"
 };

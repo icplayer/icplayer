@@ -975,6 +975,7 @@ var ice_dictionary_en = {
 	"Paragraph_property_editable_placeholder": "Editable placeholder",
 	"Paragraph_property_manual_grading" : "Manual grading",
 	"Paragraph_property_title" : "Title",
+	"Paragraph_property_weight" : "Weight",
     "Paragraph_Keyboard_info": "Allows a user to enter a free form text with basic WYSIWYG formatting and diacritical characters.",
 	"Paragraph_Keyboard_name": "Paragraph eKeyboard",
 	"Paragraph_Keyboard_property_default_font_family": "Default font family",
@@ -987,6 +988,7 @@ var ice_dictionary_en = {
 	"Paragraph_Keyboard_property_keyboard_position": "Keyboard Position",
 	"Paragraph_Keyboard_property_manual_grading" : "Manual grading",
 	"Paragraph_Keyboard_property_title" : "Title",
+	"Paragraph_Keyboard_property_weight" : "Weight",
 	"Plot_info": "Plot drawing/exercise module allows users to present plots and make plot/points based activities. Plot enables to draw functions: f(x) and f(y).",
 	"Plot_name": "Plot",
 	"Plot_property_expressions": "Expressions",
@@ -1964,5 +1966,13 @@ var ice_dictionary_en = {
 	"wcag":"WCAG",
 	"Editor_add_missing_tts":"Add missing TTS modules",
 	"Editor_tts_modified_pages_list":"The list of pages modified while adding TTS to presentation:",
-	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation"
+	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation",
+	"EditableWindow_info": "Editable Window",
+	"EditableWindow_name": "Editable Window",
+	"EditableWindow_property_file_list" : "File list",
+	"EditableWindow_property_id": "Id",
+	"EditableWindow_property_file": "File",
+	"EditableWindow_property_index_file": "Index file",
+	"EditableWindow_property_audio_file": "Audio file",
+	"EditableWindow_property_video_file": "Video file"
 };

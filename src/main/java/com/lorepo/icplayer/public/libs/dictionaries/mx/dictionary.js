@@ -1089,6 +1089,7 @@ var ice_dictionary_mx = {
 	"Paragraph_property_editable_placeholder": "Editable placeholder",
 	"Paragraph_property_manual_grading" : "Manual grading",
 	"Paragraph_property_title" : "Title",
+	"Paragraph_property_weight" : "Weight",
 	"Paragraph_Keyboard_info": "Permite a los usuarios a introducir un texto con el formateo básico y con los signos diacríticos.",
 	"Paragraph_Keyboard_name": "Párrafo con teclado",
 	"Paragraph_Keyboard_property_default_font_family": "Familia de fuentes predeterminada",
@@ -1101,6 +1102,7 @@ var ice_dictionary_mx = {
 	"Paragraph_Keyboard_property_keyboard_position": "Posición del teclado",
 	"Paragraph_Keyboard_property_manual_grading" : "Manual grading",
 	"Paragraph_Keyboard_property_title" : "Title",
+	"Paragraph_Keyboard_property_weight" : "Weight",
 	"Plot_info": "El módulo Graficador permite a preparar y presentar ejercicios con las gráficas de funciones. El Graficador permite dibujar funciones f(x) y f(y).",
 	"Plot_name": "Graficador",
 	"Plot_property_expressions": "Expresiones",
@@ -1944,5 +1946,13 @@ var ice_dictionary_mx = {
 	"wcag":"WCAG",
 	"Editor_add_missing_tts":"Add missing TTS modules",
 	"Editor_tts_modified_pages_list":"The list of pages modified while adding TTS to presentation:",
-	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation"
+	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation",
+	"EditableWindow_info": "Editable Window",
+	"EditableWindow_name": "Editable Window",
+	"EditableWindow_property_file_list" : "File list",
+	"EditableWindow_property_id": "Id",
+	"EditableWindow_property_file": "File",
+	"EditableWindow_property_index_file": "Index file",
+	"EditableWindow_property_audio_file": "Audio file",
+	"EditableWindow_property_video_file": "Video file"
 };
