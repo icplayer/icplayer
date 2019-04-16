@@ -104,11 +104,11 @@ function AddonEditableWindow_create() {
             },
         });
 
-        $view.find(".close-button").click(function () {
+        $view.find(".addon-editable-close-button").click(function () {
             presenter.hide();
         });
 
-        $view.find(".header").click(function () {
+        $view.find(".addon-editable-window-wrapper").click(function () {
             presenter.show();
         });
     };
