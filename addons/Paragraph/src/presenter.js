@@ -28,6 +28,10 @@ function AddonParagraph_create() {
         'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
         'bullist numlist outdent indent blockquote undo redo '+
         'removeformat subscript superscript forecolor backcolor |'.split(' ');
+
+    presenter.ERROR_CODES = {
+        'W_01': 'Weight must be a positive number between 0 and 100'
+    };
     
     function isIOSSafari() {
         var ua = window.navigator.userAgent,
@@ -46,7 +50,9 @@ function AddonParagraph_create() {
             'isVisible': presenter.isVisible,
             'getText': presenter.getText,
             'setText': presenter.setText,
-            'isAttempted': presenter.isAttempted
+            'isAttempted': presenter.isAttempted,
+            'lock': presenter.lock,
+            'unlock': presenter.unlock
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -92,6 +98,7 @@ function AddonParagraph_create() {
     presenter.run = function AddonParagraph_run(view, model) {
         presenter.initializeEditor(view, model, false);
         presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.isLocked = false;
     };
 
     presenter.initializeEditor = function AddonParagraph_initializeEditor(view, model) {
@@ -99,6 +106,11 @@ function AddonParagraph_create() {
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
+
+        if (presenter.configuration.isError) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            return;
+        }
 
         presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
 
@@ -246,7 +258,8 @@ function AddonParagraph_create() {
             hasDefaultFontSize = false,
             layoutType = model["Layout Type"] || "Default",
             title = model["Title"],
-            manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]);
+            manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]),
+            weight = model['Weight'];
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -256,6 +269,10 @@ function AddonParagraph_create() {
         if (ModelValidationUtils.isStringEmpty(fontSize)) {
             fontSize = presenter.DEFAULTS.FONT_SIZE;
             hasDefaultFontSize = true;
+        }
+
+        if (!ModelValidationUtils.isStringEmpty(weight) && !ModelValidationUtils.validateIntegerInRange(weight, 100, 0).isValid ) {
+            return {isError: true, errorCode: 'W_01'}
         }
 
         height -= !isToolbarHidden ? 37 : 2;
@@ -280,7 +297,8 @@ function AddonParagraph_create() {
             layoutType: layoutType,
             isPlaceholderEditable: isPlaceholderEditable,
             title: title,
-            manualGrading: manualGrading
+            manualGrading: manualGrading,
+            weight: weight
         };
     };
 
@@ -309,6 +327,7 @@ function AddonParagraph_create() {
         var upgradedModel = presenter.upgradePlaceholderText(model);
             upgradedModel = presenter.upgradeManualGrading(upgradedModel);
             upgradedModel = presenter.upgradeTitle(upgradedModel);
+            upgradedModel = presenter.upgradeWeight(upgradedModel);
         return presenter.upgradeEditablePlaceholder(upgradedModel);
     };
 
@@ -326,6 +345,10 @@ function AddonParagraph_create() {
 
     presenter.upgradeEditablePlaceholder = function (model) {
         return presenter.upgradeAttribute(model, "Editable placeholder", "");
+    };
+
+    presenter.upgradeWeight = function (model) {
+        return presenter.upgradeAttribute(model, "Weight", "");
     };
 
     presenter.upgradeAttribute = function (model, attrName, defaultValue) {
@@ -648,7 +671,8 @@ function AddonParagraph_create() {
 
         return JSON.stringify({
             'tinymceState' : tinymceState,
-            'isVisible' : presenter.isVisibleValue
+            'isVisible' : presenter.isVisibleValue,
+            'isLocked' : presenter.isLocked
         });
     };
 
@@ -668,6 +692,12 @@ function AddonParagraph_create() {
                 presenter.state = state;
             }
         }
+
+        if (parsedState.isLocked) {
+            presenter.lock();
+        } else {
+            presenter.unlock();
+        }
     };
 
     presenter.reset = function AddonParagraph_reset() {
@@ -679,6 +709,9 @@ function AddonParagraph_create() {
             presenter.editor.setContent('');
         }
         presenter.placeholder.addPlaceholder();
+        if (presenter.isLocked) {
+            presenter.unlock();
+        }
     };
 
     presenter.show = function AddonParagraph_show() {
@@ -702,6 +735,21 @@ function AddonParagraph_create() {
             } else if (typeof text === 'string' || text instanceof String) {
                 presenter.editor.setContent(text);
             }
+        }
+    };
+
+    presenter.lock = function AddonParagraph_lock() {
+        if (!presenter.isLocked) {
+            var mask = $('<div>').addClass('paragraph-lock');
+            presenter.$view.find('#' + presenter.configuration.ID + '-wrapper').append(mask);
+            presenter.isLocked = true;
+        }
+    };
+
+    presenter.unlock = function AddonParagraph_unlock() {
+        if (presenter.isLocked) {
+            presenter.$view.find('.paragraph-lock').remove();
+            presenter.isLocked = false;
         }
     };
 
