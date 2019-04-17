@@ -34,11 +34,14 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
 <p><em>This property allows online resources. <a href="/doc/page/Online-resources">Find out more »</a></em></p>
 </td>
     </tr>
-
     <tr>
       <td>Placeholder text</td>
       <td>This property enables you to specify a free text content to be used as a placeholder in Paragraph. Allows for html styling.
     </td>
+    </tr>
+    <tr>
+      <td>Weight</td>
+      <td>Set the weight of the paragraph. It is a numeric value between 0 and 100.</td>
     </tr>
 </table>
 
@@ -74,6 +77,16 @@ newdocument bold italic underline strikethrough alignleft aligncenter alignright
         <td>isAttempted</td>
         <td>---</td>
         <td>returns true if any text was inserted</td> 
+    </tr>
+    <tr>
+        <td>lock</td>
+        <td>---</td>
+        <td>covers the module with mask</td> 
+    </tr>
+    <tr>
+        <td>unlock</td>
+        <td>---</td>
+        <td>removes mask from the module</td> 
     </tr>
 </table>
 
