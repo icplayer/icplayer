@@ -132,6 +132,29 @@ TestCase("[Paragraph] Model parsing", {
         assertEquals('', validatedModel.title);
         assertEquals(false, validatedModel.manualGrading);
     },
+
+    'test given weight when properties set than should be the same in model': function () {
+        var model = {
+            'ID': 'Paragraph ID',
+            'Weight': '0'
+        };
+
+        var upgradedModel = this.presenter.upgradeModel(model);
+        var validatedModel = this.presenter.validateModel(upgradedModel);
+
+        assertEquals('0', validatedModel.weight);
+    },
+
+    'test given weight when properties are empty than should be empty in model': function () {
+        var model = {
+            'ID': 'Paragraph ID'
+        };
+
+        var upgradedModel = this.presenter.upgradeModel(model);
+        var validatedModel = this.presenter.validateModel(upgradedModel);
+
+        assertEquals('', validatedModel.weight);
+    }
 });
 
 TestCase("[Paragraph] ToolbarValidation", {

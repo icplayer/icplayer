@@ -2,6 +2,9 @@ package com.lorepo.icplayer.client.content.service;
 
 import static org.junit.Assert.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -10,8 +13,11 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.lorepo.icplayer.client.PlayerApp;
+import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.module.api.player.IPage;
+import com.lorepo.icplayer.client.model.page.Page;
 
 public class PlayerServicesTestCase {
 	
@@ -113,4 +119,24 @@ public class PlayerServicesTestCase {
 		mockedPlayerServices.setAbleChangeLayout(false);
 		Mockito.verify(applicationMock, Mockito.times(1)).updateLayout();
 	};
+	
+	@Test
+	public void testGivenVisitedPagesSetWhenTestingIfPagesWereVisitedThenReturnTrueOnlyForVisitedPages() {
+		PlayerController controllerMock = Mockito.mock(PlayerController.class);
+		Whitebox.setInternalState(mockedPlayerServices, "playerController", controllerMock);
+		
+		Set<IPage> visitedPages = new HashSet<IPage>();
+		Page page1 = new Page("page1","");
+		Page page2 = new Page("page2","");
+		Page page3 = new Page("page3","");
+		visitedPages.add(page1);
+		visitedPages.add(page2);
+		
+		Mockito.doReturn(visitedPages).when(controllerMock).getVisitedPages();
+		Mockito.doCallRealMethod().when(mockedPlayerServices).isPageVisited(Mockito.any(IPage.class));
+		
+		assertTrue(mockedPlayerServices.isPageVisited(page1));
+		assertTrue(mockedPlayerServices.isPageVisited(page2));
+		assertFalse(mockedPlayerServices.isPageVisited(page3));
+	}
 }
