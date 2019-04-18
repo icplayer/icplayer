@@ -162,13 +162,35 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		} else {
 			$wnd.$(e).find(selector).sortable("enable");	
 		}
-		
+
+		var getContentScale = $entry(function() {
+			return @com.lorepo.icf.utils.JavaScriptUtils::getContentScale()();
+		});
+		scale = {X:1.0, Y:1.0};
+
 		$wnd.$(e).find(selector).sortable({
 			placeholder: "ic_ordering-placeholder",
 			axis: jsObject.axis,
 			helper : 'clone',
+			tolerance: "pointer",
 			cursorAt: { left: 5 },
 			start: function(event, ui) {
+				scale = getContentScale();
+                var changeLeft = ui.placeholder.clientLeft - ui.originalPosition.left;
+                var newLeft = ui.originalPosition.left + changeLeft / scale.X - ui.item.parent().offset().left;
+                var newTop = ui.placeholder.clientTop / scale.Y;
+
+                ui.helper.css({
+                    left: newLeft,
+                    top: newTop
+                });
+
+                var items = $wnd.$(this).data().sortable.items;
+                items.forEach(function(item) {
+                    item.height *= scale.Y;
+                    item.width *= scale.X;
+                });
+
 				jsObject.markStart(ui.item.index());
 				ui.helper.html(ui.item.html());
 				ui.placeholder.html(ui.helper.html());
@@ -183,6 +205,21 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 				} else {
 					ui.helper.width(ui.placeholder.width());
 					ui.helper.height(ui.placeholder.height());
+				}
+			},
+			sort: function(event, ui) {
+			    var changeLeft = ui.position.left - ui.originalPosition.left;
+                var newLeft = ui.originalPosition.left + changeLeft / scale.X;
+                var newTop = ui.position.top / scale.Y;
+
+				if (jsObject.axis == "y") {
+					ui.helper.css({
+						top: newTop
+					});
+				} else {
+					ui.helper.css({
+						left: newLeft
+					});
 				}
 			},
 			stop: function(event, ui) {
