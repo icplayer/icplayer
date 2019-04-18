@@ -1,3 +1,4 @@
+2019-04-18 Fixed issue with pause command in video only being available from AC scripts
 2019-04-17 Added audio to text module
 2019-04-17 Fixed sorting on mobile devices in Ordering module
 2019-04-16 Added new custom addon editable window
