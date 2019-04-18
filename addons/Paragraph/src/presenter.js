@@ -603,12 +603,10 @@ function AddonParagraph_create() {
 
         if (!presenter.configuration.isToolbarHidden) {
             var interval = setInterval(function () {
-                if (presenter.$view.find('.mce-toolbar').height() < editorHeight) {
                     editorHeight -= presenter.$view.find('.mce-toolbar').height();
                     $editor.height(editorHeight);
                     clearInterval(interval);
-                }
-            }, 100);
+            }, 0);
         } else {
             $editor.height(editorHeight);
         }
