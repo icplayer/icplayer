@@ -602,10 +602,9 @@ function AddonParagraph_create() {
             editorHeight = presenter.$view.height();
 
         if (!presenter.configuration.isToolbarHidden) {
-            var interval = setInterval(function () {
+            setTimeout(function () {
                     editorHeight -= presenter.$view.find('.mce-toolbar').height();
                     $editor.height(editorHeight);
-                    clearInterval(interval);
             }, 0);
         } else {
             $editor.height(editorHeight);
