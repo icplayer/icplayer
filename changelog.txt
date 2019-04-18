@@ -1,3 +1,4 @@
+2019-04-18 Fixed setting iframe height in Paragraph module
 2019-04-16 Added new custom addon editable window
 2019-04-11 Fixed issue with the dotted button in Navigation Bar and added Block not visited pages property
 2019-04-10 Added setContextMetadata to player API

@@ -602,10 +602,16 @@ function AddonParagraph_create() {
             editorHeight = presenter.$view.height();
 
         if (!presenter.configuration.isToolbarHidden) {
-            editorHeight -= presenter.$view.find('.mce-toolbar').height();
+            var interval = setInterval(function () {
+                if (presenter.$view.find('.mce-toolbar').height() < editorHeight) {
+                    editorHeight -= presenter.$view.find('.mce-toolbar').height();
+                    $editor.height(editorHeight);
+                    clearInterval(interval);
+                }
+            }, 100);
+        } else {
+            $editor.height(editorHeight);
         }
-
-        $editor.height(editorHeight);
     };
 
     presenter.onInit = function AddonParagraph_onInit() {
@@ -629,7 +635,7 @@ function AddonParagraph_create() {
         }
 
         presenter.$tinyMCEToolbar = presenter.$view.find('.mce-toolbar');
-        presenter.$tinyMCEToolbar.on('resize', presenter.setIframeHeight);
+        presenter.setIframeHeight();
 
         presenter.tinyMceContainer = presenter.$view.find('.mce-container.mce-panel.mce-tinymce');
         presenter.tinyMceContainer.css('border', 0);
