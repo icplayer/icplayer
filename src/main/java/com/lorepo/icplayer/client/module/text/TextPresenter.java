@@ -67,6 +67,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectDraggableGaps(Iterator<GapInfo> giIterator);
 		void connectInlineChoices(List<InlineChoiceInfo> list);
 		void connectLinks(Iterator<LinkInfo> giIterator);
+		void connectAudios(Iterator<AudioInfo> iterator);
 		int getChildrenCount();
 		TextElementDisplay getChild(int index);
 		void setValue(String id, String value);
@@ -223,6 +224,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void showAnswers() {
+		resetAudio();
+
 		if (!module.isActivity()) {
 			if (this.isShowErrorsMode) {
 				setWorkMode();
@@ -298,6 +301,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
 		}
+		resetAudio();
 		this.view.setShowErrorsMode();
 		this.isShowErrorsMode = true;
 	}
@@ -474,6 +478,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			child.setDisabled(module.isDisabled());
 		}
 
+		resetAudio();
+
 		if (enteredText != null) {
 			updateViewText();
 		}
@@ -486,6 +492,21 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		updateScore();
 
 		this.currentState = "";
+	}
+
+	private void resetAudio() {
+		List<AudioInfo> audioInfos = module.getAudioInfos();
+		for (int i = 0; i < audioInfos.size(); i++) {
+			AudioInfo audioInfo = audioInfos.get(i);
+			AudioButtonWidget button = audioInfo.getButton();
+			AudioWidget audio = audioInfo.getAudio();
+			boolean isElementExists = button != null && audio != null;
+
+			if (isElementExists && !audio.isPaused()) {
+				audio.reset();
+				button.setStartPlayingStyleClass();
+			}
+		}
 	}
 
 	@Override
@@ -582,16 +603,44 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		view.connectInlineChoices(module.getChoiceInfos());
 		view.connectLinks(module.getLinkInfos().iterator());
+		view.connectAudios(module.getAudioInfos().iterator());
 		view.sortGapsOrder();
 	}
 
 	private void connectViewListener() {
 		view.addListener(new ITextViewListener() {
 			@Override
+			public void onAudioButtonClicked(AudioInfo audioInfo) {
+				AudioWidget audio = audioInfo.getAudio();
+				AudioButtonWidget button = audioInfo.getButton();
+
+				if (audio.isPaused()) {
+					// in future if audio can be paused and replayed from stopped moment 
+					// reset would need to omit audio which was currently pressed
+					resetAudio();
+
+					audio.play();
+					button.setStopPlayingStyleClass();
+				} else {
+					audio.reset();
+					button.setStartPlayingStyleClass();
+				}
+			}
+
+			@Override
+			public void onAudioEnded(AudioInfo audioInfo) {
+				AudioWidget audio = audioInfo.getAudio();
+				AudioButtonWidget button = audioInfo.getButton();
+
+				audio.reset();
+				button.setStartPlayingStyleClass();
+			}
+
+			@Override
 			public void onUserAction(String id, String newValue) {
 				valueChangedOnUserAction(id, newValue);
 			}
-			
+
 			@Override
 			public void onValueChanged(String id, String newValue) {
 				valueChanged(id, newValue);
