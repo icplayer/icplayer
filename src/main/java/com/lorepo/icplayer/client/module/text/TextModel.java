@@ -1,17 +1,9 @@
 package com.lorepo.icplayer.client.module.text;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
-import com.lorepo.icf.properties.IBooleanProperty;
-import com.lorepo.icf.properties.IEnumSetProperty;
-import com.lorepo.icf.properties.IHtmlProperty;
-import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.properties.IPropertyProvider;
-import com.lorepo.icf.properties.IStaticListProperty;
+import com.lorepo.icf.properties.*;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
@@ -20,6 +12,9 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // in old lessons some characters aren't escaped (e.g: > or <), in new lessons they are
 // only after editing and saving text in old lessons characters will be escaped
@@ -38,6 +33,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	public List<GapInfo> gapInfos = new ArrayList<GapInfo>();
 	public List<InlineChoiceInfo> choiceInfos = new ArrayList<InlineChoiceInfo>();
 	public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
+	public List<AudioInfo> audioInfos = new ArrayList<AudioInfo>();
 
 	public String moduleText = "";
 	public String defaultModuleText = "";
@@ -181,12 +177,14 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 			gapInfos.clear();
 			choiceInfos.clear();
 			linkInfos.clear();
-			
+			audioInfos.clear();
+
 			return;
 		}
 		gapInfos = parsedTextInfo.gapInfos;
 		choiceInfos = parsedTextInfo.choiceInfos;
 		linkInfos = parsedTextInfo.linkInfos;
+        audioInfos = parsedTextInfo.audioInfos;
 		syntaxError = parsedTextInfo.hasSyntaxError;
 		if (getBaseURL() != null) {
 			parsedText = StringUtils.updateLinks(parsedText, getBaseURL());
@@ -496,6 +494,10 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 
 	public List<LinkInfo> getLinkInfos() {
 		return linkInfos;
+	}
+
+	public List<AudioInfo> getAudioInfos() {
+		return audioInfos;
 	}
 
 	public boolean isActivity() {
