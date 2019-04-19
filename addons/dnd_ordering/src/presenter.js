@@ -283,6 +283,8 @@ function Addondnd_ordering_create(){
                         if(!correctFlag) {
                             current[i][0].classList.add('wrong');
                         }
+
+                        current[i][0].classList.add('ic_element_works_mode');
                     }
 
                 } else {
