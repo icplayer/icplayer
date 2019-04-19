@@ -48,7 +48,7 @@ function Addondnd_ordering_create(){
                     div.classList.add('ic_sourceListItem');
                     div.classList.add('ic_element_showAnswer_el');
                     div.classList.add('init')
-                    div.style.display = "inline-block";
+                    div.style.display = "inherit";
                     div.innerHTML = element;
 
                     if (isGapOrdering) {
@@ -109,7 +109,7 @@ function Addondnd_ordering_create(){
 
                     presenter.setElementSize(div);
 
-                    div.style.display = "inline-block";
+                    div.style.display = "inherit";
                     div.innerHTML = element['value'];
 
                     return div;
@@ -184,7 +184,7 @@ function Addondnd_ordering_create(){
                         if (selectedItem) {
                             var value = $view.find("div[data-item='" + selectedItem['item'] + "']")[0];
                             if (value) {
-                                value.style.display = 'inline-block';
+                                value.style.display = 'inherit';
                                 presenter.setElementSize(value);
                             } else {
                                 presenter.setElementSize(ui.draggable[0]);

@@ -574,6 +574,9 @@ function AddonTask_Overlay_create(){
 			if (module != null && module[methodName] != null && !isModuleNumbering(moduleID)) {
 				(module[methodName])();
 			}
+			if(methodName == 'show' && moduleID.includes('Group')){
+				$("[id='"+moduleID+"']").css('z-index', 1);
+			}
 			if(methodName == 'show' && moduleID.includes('task_numbering')){
 				var previousNumberID = getPreviousTaskNumberID(moduleID);
 				var previousNumberColor = $("[id='task_numbering " + previousNumberID + ".']").css('color');
