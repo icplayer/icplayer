@@ -1,0 +1,66 @@
+.addon-editable-window-wrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-color: #eaeaea;
+    border: 1px solid #cccccc;
+    display: flex;
+    flex-flow: column;
+    cursor: move;
+}
+
+.addon-editable-window-wrapper iframe {
+    display: none;
+}
+
+.addon-editable-window-wrapper textarea {
+    width: 100%;
+    height: 100%;
+}
+
+.addon-editable-close-button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    height: 30px;
+    width: 35px;
+    line-height: 30px;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.addon-editable-window-wrapper .header {
+    height: 35px;
+    width: 100%;
+    cursor: move;
+}
+
+.addon-editable-window-wrapper audio {
+    height: 35px;
+    width: 100%;
+    background-color: #f1f3f4;
+}
+
+.addon-editable-window-wrapper .video-wrapper {
+    flex-grow: 1;
+    display: grid;
+    background-color: black;
+}
+
+.addon-editable-window-wrapper video {
+    height: 100%;
+    width: 100%;
+}
+
+.addon-editable-window-wrapper .footer {
+    height: 20px;
+}
+
+.addon-editable-window-wrapper .text-wrapper {
+    padding: 10px;
+}

@@ -1673,6 +1673,7 @@ function Addonvideo_create() {
             'seek': presenter.seekCommand,
             'play': presenter.play,
             'stop': presenter.stop,
+            'pause': presenter.pause,
             'showSubtitles': presenter.showSubtitles,
             'hideSubtitles': presenter.hideSubtitles,
             'showAudioDescription': presenter.showAudioDescription,

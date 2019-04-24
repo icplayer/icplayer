@@ -943,6 +943,8 @@ var ice_dictionary_en = {
     "Navigation_Bar_property_show_more": "Show more pages",
     "Navigation_Bar_property_show_prev": "Show earlier pages",
     "Navigation_Bar_property_play_title": "Read page title",
+	"Navigation_Bar_property_block_not_visited": "Block not visited pages",
+	"Navigation_Bar_property_disabled_page": "Disabled page",
 	"Page_Counter_info": "Allows to add a page counter to a presentation. It can present a current page index and a presentation page count in a normal or reversed order.",
 	"Page_Counter_name": "Page Counter",
  	"Page_Counter_property_numericals": "Numericals",
@@ -1965,5 +1967,13 @@ var ice_dictionary_en = {
 	"Editor_add_missing_tts":"Add missing TTS modules",
 	"Editor_tts_modified_pages_list":"The list of pages modified while adding TTS to presentation:",
 	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation",
-	"module_metadata": "Module metadata"
+	"EditableWindow_info": "Editable Window",
+	"EditableWindow_name": "Editable Window",
+	"EditableWindow_property_file_list" : "File list",
+	"EditableWindow_property_id": "Id",
+	"EditableWindow_property_file": "File",
+	"EditableWindow_property_index_file": "Index file",
+	"EditableWindow_property_audio_file": "Audio file",
+	"EditableWindow_property_video_file": "Video file",
+    "module_metadata": "Module metadata"
 };
