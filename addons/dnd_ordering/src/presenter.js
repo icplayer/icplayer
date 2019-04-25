@@ -164,24 +164,37 @@ function Addondnd_ordering_create(){
                         },
                         receive : function(event, ui) {
                             var event = lastAddedItem;
-                            $(this).data().sortable.currentItem[0].classList.remove('ic_sourceListItem-selected');
-                            $(this).data().sortable.currentItem[0].setAttribute('data-item', event['item']);
-                            $(this).data().sortable.currentItem.style('visibility', 'visible');
-                            $(this).data().sortable.currentItem.on('click', function () {
-                                presenter.sendRemoveEvent(event);
-                                $(this)[0].style.display = 'none';
-                            });
+                            if(event){
+                                $(this).data().sortable.currentItem[0].classList.remove('ic_sourceListItem-selected');
+                                $(this).data().sortable.currentItem[0].setAttribute('data-item', event['item']);
+                                $(this).data().sortable.currentItem.style('visibility', 'visible');
+                                $(this).data().sortable.currentItem.on('click', function () {
+                                    presenter.sendRemoveEvent(event);
+                                    $(this)[0].style.display = 'none';
+                                });
+                            }else{
+                                $(this).data().sortable.currentItem[0].classList.remove('ic_sourceListItem-selected');
+                                $(this).data().sortable.currentItem[0].remove();
+                                $(this).data().sortable.currentItem.on('click', function () {
+                                    presenter.sendRemoveEvent(event);
+                                });
+                            }
                         }
                     });
                 }
-
-
+      
                 $view.droppable({
                     accept: function () {
                         return true;
                     },
                     drop: function (event, ui) {
                         if (selectedItem) {
+                            console.log("childer all  "+ $view.children());
+                            console.log("answer "+ originAnswers.length);
+                            console.log($view.children().filter(".ic_sourceListItem.ui-draggable").filter(function() {return $(this).css('display') != 'none';}).length);
+                            if($view.children().filter(".ic_sourceListItem.ui-draggable").filter(function() {
+                                return $(this).css('display') != 'none';}).filter(function() {
+                                    return $(this).css('display') != 'inherit';}).length <= originAnswers.length){
                             var value = $view.find("div[data-item='" + selectedItem['item'] + "']")[0];
                             if (value) {
                                 value.style.display = 'inherit';
@@ -192,12 +205,18 @@ function Addondnd_ordering_create(){
                             presenter.eventBus.sendEvent('ItemConsumed', selectedItem);
                             lastAddedItem = selectedItem;
                             selectedItem = null;
+                            console.log("done");
+                        }else{
+                            selectedItem = null;
+                            lastAddedItem = null;
+                            }
                         } else {
                             if (isGapOrdering) {
                                 var parent = ui.draggable[0].parentElement;
                                 var child = $view.children()[0];
                                 ui.draggable.detach();
                                 $(child).detach();
+                                console.log("gapordering");
                                 $view.append(ui.draggable[0]);
                                 // ui.draggable[0].style.position = 'initial';
                                 parent.appendChild(child);
