@@ -197,7 +197,7 @@ function Addondnd_ordering_create(){
                                     return $(this).css('display') != 'inherit';}).length <= originAnswers.length){
                             var value = $view.find("div[data-item='" + selectedItem['item'] + "']")[0];
                             if (value) {
-                                value.style.display = 'inherit';
+                                value.style.display = 'block';
                                 presenter.setElementSize(value);
                             } else {
                                 presenter.setElementSize(ui.draggable[0]);
