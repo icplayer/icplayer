@@ -460,7 +460,7 @@ function AddonEditableWindow_create() {
             presenter.configuration.contentLoadingLock = true;
             presenter.fillTinyMce(iframeContent);
             presenter.configuration.state.isInitialized = true;
-            presenter.configuration.state.content = content;
+            presenter.configuration.state.content = iframeContent;
             presenter.configuration.contentLoadingLock = false;
         }
     };
