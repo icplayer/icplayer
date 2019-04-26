@@ -44,6 +44,7 @@
     background: url('resources/reset-button.png') no-repeat center;
     background-size: 11px 11px;
     z-index: 1;
+    cursor: pointer;
 }
 
 .addon-editable-window-wrapper .header {
