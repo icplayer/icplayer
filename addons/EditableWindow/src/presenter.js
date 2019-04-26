@@ -13,6 +13,7 @@ function AddonEditableWindow_create() {
         isTinyMceLoaded: false,
         isTinyMceFilled: false,
         contentLoadingLock: false,
+        iframeContent: null,
         editor: null,
         textareaId: null,
         isVisible: true,
@@ -23,6 +24,7 @@ function AddonEditableWindow_create() {
         widthOffset: 22,
         minHeight: 300,
         minWidth: 300,
+        maxWidth: 950,
         state: {
             isInitialized: false,
             content: null
@@ -83,6 +85,7 @@ function AddonEditableWindow_create() {
         $view.resizable({
             minHeight: presenter.configuration.minHeight,
             minWidth: presenter.configuration.minWidth,
+            maxWidth: presenter.configuration.maxWidth,
             resize: function (event, ui) {
                 if (hasHtml) {
                     var heightOffset = presenter.configuration.heightOffset;
@@ -154,8 +157,16 @@ function AddonEditableWindow_create() {
 
         tinymce.init({
             selector: "#" + textareaId,
-            plugins: "textcolor colorpicker",
+            plugins: "textcolor",
             toolbar: "backcolor",
+            textcolor_map: [
+                "ffff00", "Yellow",
+                "87ceeb", "Blue",
+                "ffb6c1", "Red",
+                "90ee90", "Green",
+                "ffffff", "White"
+            ],
+            custom_colors: false,
             statusbar: false,
             menubar: false,
             height: height - heightOffset,
@@ -281,7 +292,13 @@ function AddonEditableWindow_create() {
                 }, 1000);
                 presenter.configuration.timeouts.push(timeout);
             } else {
+                presenter.configuration.iframeContent = content;
                 callback(content);
+
+                var $view = $(presenter.configuration.view);
+                $view.find(".addon-editable-reset-button").click(function () {
+                    presenter.reset();
+                });
             }
         } else {
             var timeout = setTimeout(function (callback) {
@@ -434,6 +451,18 @@ function AddonEditableWindow_create() {
         return Commands.dispatch(commands, name, params, presenter);
     };
 
+    presenter.reset = function () {
+        var iframeContent = presenter.configuration.iframeContent;
+        var isTinyMceLoaded = presenter.configuration.isTinyMceLoaded;
+
+        presenter.configuration.contentLoadingLock = true;
+        if (isTinyMceLoaded) {
+            presenter.fillTinyMce(iframeContent);
+        }
+        presenter.configuration.state.isInitialized = true;
+        presenter.configuration.state.content = content;
+        presenter.configuration.contentLoadingLock = false;
+    };
 
     // On the mCourser, each addon is called twice on the first page.
     // Removing the addon before loading the library causes a problem with second loading.

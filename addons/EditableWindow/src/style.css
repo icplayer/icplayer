@@ -34,6 +34,18 @@
     z-index: 1;
 }
 
+.addon-editable-reset-button {
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    left: 10px;
+    bottom: 6px;
+    border: none;
+    background: url('resources/reset-button.png') no-repeat center;
+    background-size: 11px 11px;
+    z-index: 1;
+}
+
 .addon-editable-window-wrapper .header {
     height: 35px;
     width: 100%;
