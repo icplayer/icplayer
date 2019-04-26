@@ -454,14 +454,15 @@ function AddonEditableWindow_create() {
     presenter.reset = function () {
         var iframeContent = presenter.configuration.iframeContent;
         var isTinyMceLoaded = presenter.configuration.isTinyMceLoaded;
+        var isContentLoadingLocked = presenter.configuration.contentLoadingLock;
 
-        presenter.configuration.contentLoadingLock = true;
-        if (isTinyMceLoaded) {
+        if (isTinyMceLoaded && !isContentLoadingLocked) {
+            presenter.configuration.contentLoadingLock = true;
             presenter.fillTinyMce(iframeContent);
+            presenter.configuration.state.isInitialized = true;
+            presenter.configuration.state.content = content;
+            presenter.configuration.contentLoadingLock = false;
         }
-        presenter.configuration.state.isInitialized = true;
-        presenter.configuration.state.content = content;
-        presenter.configuration.contentLoadingLock = false;
     };
 
     // On the mCourser, each addon is called twice on the first page.
