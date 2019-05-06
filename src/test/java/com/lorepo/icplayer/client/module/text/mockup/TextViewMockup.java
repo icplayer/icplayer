@@ -1,19 +1,14 @@
 package com.lorepo.icplayer.client.module.text.mockup;
 
+import com.google.gwt.dom.client.Element;
+import com.lorepo.icplayer.client.module.text.*;
+import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
+import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.lorepo.icplayer.client.module.text.GapInfo;
-import com.lorepo.icplayer.client.module.text.ITextViewListener;
-import com.lorepo.icplayer.client.module.text.InlineChoiceInfo;
-import com.lorepo.icplayer.client.module.text.LinkInfo;
-import com.lorepo.icplayer.client.module.text.TextModel;
-import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
-import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
 
 public class TextViewMockup implements IDisplay {
@@ -24,6 +19,10 @@ public class TextViewMockup implements IDisplay {
 	
 	public TextViewMockup(TextModel module) {
 		// TODO Auto-generated constructor stub
+	}
+	
+	public void callAudioButtonClickedListenerWith(AudioInfo audio) {
+		this.listener.onAudioButtonClicked(audio);
 	}
 
 	@Override
@@ -71,6 +70,11 @@ public class TextViewMockup implements IDisplay {
 	public void connectLinks(Iterator<LinkInfo> giIterator) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void connectAudios(Iterator<AudioInfo> iterator) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override
