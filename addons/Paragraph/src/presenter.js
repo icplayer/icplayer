@@ -10,6 +10,8 @@ function AddonParagraph_create() {
     presenter.playerController = null;
     presenter.isVisibleValue = null;
 
+    presenter.isEditorLoaded = false;
+
     presenter.LANGUAGES = {
         DEFAULT: "en_GB",
         FRENCH: "fr_FR"
@@ -59,6 +61,15 @@ function AddonParagraph_create() {
     };
 
     presenter.isAttempted = function () {
+        if (!presenter.isEditorLoaded) {
+            if (presenter.state) {
+                var parser = new DOMParser();
+                var stateNode = parser.parseFromString(JSON.parse(presenter.state).tinymceState, "text/html");
+                return $(stateNode).text() != '';
+            } else {
+                return false;
+            }
+        }
         return $(presenter.editor.getContent({format: 'raw'})).text() != '';
     };
 
@@ -136,6 +147,7 @@ function AddonParagraph_create() {
             presenter.editor.on('blur', function () {
                 presenter.sendOnBlurEvent();
             });
+            presenter.isEditorLoaded = true;
         });
         
         if(isIOSSafari()) {
