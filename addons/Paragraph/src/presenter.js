@@ -602,9 +602,33 @@ function AddonParagraph_create() {
             editorHeight = presenter.$view.height();
 
         if (!presenter.configuration.isToolbarHidden) {
+            //setTimouts for checking if height of the toolbar changed
             setTimeout(function () {
-                    editorHeight -= presenter.$view.find('.mce-toolbar').height();
-                    $editor.height(editorHeight);
+                    var lastHeight = presenter.$view.find('.mce-toolbar').height(),
+                        newHeight,
+                        counter = 0,
+                        toolbarHeightChangedTimeout = false,
+                        originalEditorHeight = editorHeight;
+
+                        editorHeight -= presenter.$view.find('.mce-toolbar').height();
+                        $editor.height(editorHeight);
+                    (function checkHeight(){
+                        newHeight = presenter.$view.find('.mce-toolbar').height();
+                        if(lastHeight !== newHeight) {
+                            var height = originalEditorHeight - presenter.$view.find('.mce-toolbar').height();
+                            $editor.height(height);
+                        }
+                        lastHeight = newHeight;
+
+                        if(toolbarHeightChangedTimeout) {
+                            clearTimeout(toolbarHeightChangedTimeout);
+                        }
+
+                        counter++;
+                        if(counter < 3) {
+                            toolbarHeightChangedTimeout = setTimeout(checkHeight, 500);
+                        }
+                    })();
             }, 0);
         } else {
             $editor.height(editorHeight);
