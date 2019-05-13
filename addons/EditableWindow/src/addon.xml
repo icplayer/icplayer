@@ -8,6 +8,6 @@
         <property name="index" displayName="Index File" nameLabel="EditableWindow_property_index_file" type="file"/>
         <property name="audio" displayName="Audio File" nameLabel="EditableWindow_property_audio_file" type="file"/>
         <property name="video" displayName="Video File" nameLabel="EditableWindow_property_video_file" type="file"/>
-        <property name="title" displayName="Title" nameLabel="EditableWindow_property_title" type="file"/>
+        <property name="title" displayName="Title" nameLabel="EditableWindow_property_title" type="string"/>
     </model>
 </addon>
