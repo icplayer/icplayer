@@ -52,6 +52,9 @@ function AddonEditableWindow_create() {
         var $view = $(presenter.configuration.view);
         var hasHtml = presenter.configuration.hasHtml;
         var textareaId = presenter.configuration.textareaId;
+        var title = presenter.configuration.model.title;
+
+        $view.find(".header").text(title);
 
         if (presenter.configuration.hasVideo) {
             presenter.handleVideoContent();
@@ -270,6 +273,7 @@ function AddonEditableWindow_create() {
             indexFile: model['index'],
             audioFile: model['audio'],
             videoFile: model['video'],
+            title: model['title'] ? model['title'] : ""
         }
     };
 
