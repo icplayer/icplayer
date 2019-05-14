@@ -1,4 +1,6 @@
-2019-05-09 Fixed issue with setState in Audio on Mobile Safari
+2019-05-14 Fixed issue with setState in Audio on Mobile Safari
+2019-05-10 Fixed setting iframe height in Paragraph module
+2019-05-10 Added reset button, limited width and limited colors in Editable Window
 2019-04-18 Fixed issue with isAttempted command in Paragraph
 2019-04-18 Fixed issue with pause command in video only being available from AC scripts
 2019-04-17 Added audio to text module
