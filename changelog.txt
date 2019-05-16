@@ -1,3 +1,4 @@
+2019-05-16 Fixed issue with background color in show answers mode of Text Coloring
 2019-05-10 Fixed setting iframe height in Paragraph module
 2019-05-10 Added reset button, limited width and limited colors in Editable Window
 2019-04-18 Fixed issue with isAttempted command in Paragraph
