@@ -1,4 +1,4 @@
-2019-05-13 Added title to a ediatble window custon addon
+2019-05-23 Added title to a ediatble window custon addon
 2019-05-10 Fixed setting iframe height in Paragraph module
 2019-05-10 Added reset button, limited width and limited colors in Editable Window
 2019-04-18 Fixed issue with isAttempted command in Paragraph

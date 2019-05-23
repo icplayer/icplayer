@@ -2,6 +2,7 @@
 <addon id='EditableWindow' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
         <property name="title" displayName="Title" nameLabel="EditableWindow_property_title" type="string"/>
+        <property name="headerStyle" displayName="Header style" nameLabel="EditableWindow_property_header_style" type="string"/>
         <property name="fileList" displayName="File List" nameLabel="EditableWindow_property_file_list" type="list">
             <property name="id" displayName="ID" nameLabel="EditableWindow_property_id" type="string"/>
             <property name="file" displayName="File" nameLabel="EditableWindow_property_file" type="file"/>
