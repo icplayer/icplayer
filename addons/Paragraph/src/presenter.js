@@ -113,6 +113,8 @@ function AddonParagraph_create() {
     };
 
     presenter.initializeEditor = function AddonParagraph_initializeEditor(view, model) {
+        if (presenter.loaded){ return;}
+        presenter.loaded = true;
         presenter.view = view;
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
