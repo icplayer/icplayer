@@ -2,6 +2,8 @@ function AddoneKeyboard_create(){
 
     var presenter = function(){};
 
+    var math = require('https://unpkg.com/mathlive/dist/mathlive.mjs');
+
     presenter.playerController = null;
     presenter.eventBus = null;
     presenter.display = null;
@@ -14,7 +16,7 @@ function AddoneKeyboard_create(){
     var lastClickedElement = null;
     var movedInput = false;
     var escClicked = false;
-
+    var mathfields = [];
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
         'french (special characters)' : "{ \
@@ -212,6 +214,41 @@ function AddoneKeyboard_create(){
                 var module = presenter.playerController.getModule(this.toString()),
                     moduleNotFound = false,
                     getViewNotImplemented = false;
+                
+                    console.log(this);
+                
+                    var inputs = $("#"+this+" input");
+                    var spans = $("#"+this+" span[class = 'subAnswer']");
+                    
+                    for(i = 0; i < inputs.length; i++){
+                        var div = document.createElement('div');
+                        div.classList.add("mathfieldDiv");
+                        div.id = "mathfieldDiv"+i;
+                        div.style.width = 100 + "px";
+                        div.style.height = 45 + "px";
+                        spans[i].append(div);
+    
+                        var script = document.createElement("script");
+                        script.type = 'module';
+                        script.text = "import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';"+
+                        "window.mySuperField"+i+" = MathLive.makeMathField('mathfieldDiv"+i+"');"+
+                        "window.mySuperField"+i+".toggleVirtualKeyboard_ = 'hide';";
+                        $("body").append(script);
+                        mathfields[i] = 'mathfieldDiv'+i;
+                        
+                        inputs[i].classList.add('inputNumber'+ i);
+                    }
+                    
+    
+                    var link1 = document.createElement("link");
+                    link1.rel = 'stylesheet';
+                    link1.href = 'https://unpkg.com/mathlive/dist/mathlive.core.css';
+                    $("head").append(link1);
+    
+                    var link2 = document.createElement("link");
+                    link2.rel = 'stylesheet';
+                    link2.href = 'https://unpkg.com/mathlive/dist/mathlive.css';
+                    $("head").append(link2);
 
                 if (module) {
                     if ( module.getView() ) {
@@ -312,7 +349,7 @@ function AddoneKeyboard_create(){
         presenter.keyboardWrapper.className = "ui-ekeyboard-wrapper";
         $(document.body).append(presenter.keyboardWrapper);
 
-        initializeOpenButton();
+        //initializeOpenButton();
         presenter.initializeCloseButton();
 
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved_eKeyboard (ev) {
@@ -368,6 +405,7 @@ function AddoneKeyboard_create(){
                 presenter.configuration.customLayout.id = new Date().getTime();
 
                 var defaultDisplay = {
+
                     a      : '\u2714:Accept (Shift-Enter)', // check mark - same action as accept
                     accept : 'Accept:Accept (Shift-Enter)',
                     alt    : 'AltGr:Alternate Graphemes',
@@ -381,6 +419,8 @@ function AddoneKeyboard_create(){
                     e      : '\u21b5:Enter',        // down, then left arrow - enter symbol
                     enter  : 'Enter:Enter',
                     left   : '\u2190',              // left arrow (move caret)
+                    up     : '\u2191',              // up arrow (move caret)
+                    down   : '\u2193',              // down arrow (move caret)
                     lock   : '\u21ea Lock:Caps Lock', // caps lock
                     next   : 'Next',
                     prev   : 'Prev',
@@ -426,6 +466,11 @@ function AddoneKeyboard_create(){
                 element.addEventListener('focus', presenter.openEKeyboardOnFocus);
                 element.addEventListener('forceClick', presenter.openEKeyboardOnForceClick);
                 element.addEventListener('keyup', presenter.onESCHideKeyboard);
+                element.addEventListener('input', (e) => {
+                    console.log(e.srcElement.value);
+                })
+
+
 
                 if (presenter.configuration.maxCharacters !== false) {
                     element.addEventListener('change', presenter.moveToNextGap);
@@ -438,13 +483,20 @@ function AddoneKeyboard_create(){
                     element.addEventListener('focusout', focusoutCallBack);
                 }
             });
+            
+
     };
 
     presenter.focusOnMouseDown = function AddoneKeyboard_focusOnMouseDown () {
         $(this).focus();
     };
 
-    presenter.openEKeyboardOnFocus = function AddoneKeyboard_openEKeyboardOnFocus () {
+    presenter.openEKeyboardOnFocus = function AddoneKeyboard_openEKeyboardOnFocus (event) {
+        var input = event.path[0];
+        input.style.zIndex = -1;
+        var inputClass = input.classList[1];
+        var mathNumber = inputClass.split('inputNumber')[1];
+        console.log(mathNumber);
         lastClickedElement = this;
         if (!keyboardIsVisible) {
             if ($(this).data('keyboard') !== undefined) {
@@ -459,7 +511,122 @@ function AddoneKeyboard_create(){
             presenter.createEKeyboard(this, presenter.display);
             $(this).trigger('showKeyboard');
         }
+        var inputPosition = input.getBoundingClientRect();
+        $('.ui-keyboard.ui-widget-content.ui-widget.ui-corner-all.ui-helper-clearfix.ui-keyboard-has-focus.ui-draggable').css({'left': inputPosition.x, 'top': (inputPosition.y+50)});
+        var navigationPanelInNormalClass  = $('div.ui-keyboard-keyset.ui-keyboard-keyset-normal > button.ui-keyboard-button.ui-keyboard-default.ui-keyboard-widekey.ui-state-default.ui-corner-all,div.ui-keyboard-keyset.ui-keyboard-keyset-normal > button.ui-keyboard-button.ui-keyboard-meta.ui-keyboard-widekey.ui-state-default.ui-corner-all,div.ui-keyboard-keyset.ui-keyboard-keyset-normal > button.ui-keyboard-button.ui-keyboard-meta2.ui-keyboard-widekey.ui-keyboard-actionkey.ui-state-default.ui-corner-all.ui-keyboard-hasactivestate');
+        var navigationPanelInMetaClass  = $('div.ui-keyboard-keyset.ui-keyboard-keyset-meta > button.ui-keyboard-button.ui-keyboard-default.ui-keyboard-widekey.ui-state-default.ui-corner-all,div.ui-keyboard-keyset.ui-keyboard-keyset-meta > button.ui-keyboard-button.ui-keyboard-meta.ui-keyboard-widekey.ui-state-default.ui-corner-all,div.ui-keyboard-keyset.ui-keyboard-keyset-meta > button.ui-keyboard-button.ui-keyboard-meta2.ui-keyboard-widekey.ui-keyboard-actionkey.ui-state-default.ui-corner-all.ui-keyboard-hasactivestate');
+        var navigationPanelInMeta2Class  = $('div.ui-keyboard-keyset.ui-keyboard-keyset-meta2 > button.ui-keyboard-button.ui-keyboard-default.ui-keyboard-widekey.ui-state-default.ui-corner-all,div.ui-keyboard-keyset.ui-keyboard-keyset-meta2 > button.ui-keyboard-button.ui-keyboard-meta.ui-keyboard-widekey.ui-state-default.ui-corner-all,div.ui-keyboard-keyset.ui-keyboard-keyset-meta2 > button.ui-keyboard-button.ui-keyboard-meta2.ui-keyboard-widekey.ui-keyboard-actionkey.ui-state-default.ui-corner-all.ui-keyboard-hasactivestate');
+        var navigationPanelInMeta3Class  = $('div.ui-keyboard-keyset.ui-keyboard-keyset-meta3 > button.ui-keyboard-button.ui-keyboard-default.ui-keyboard-widekey.ui-state-default.ui-corner-all,div.ui-keyboard-keyset.ui-keyboard-keyset-meta3 > button.ui-keyboard-button.ui-keyboard-meta.ui-keyboard-widekey.ui-state-default.ui-corner-all,div.ui-keyboard-keyset.ui-keyboard-keyset-meta3 > button.ui-keyboard-button.ui-keyboard-shift.ui-keyboard-widekey.ui-keyboard-actionkey.ui-state-default.ui-corner-all.ui-keyboard-hasactivestate');
+
+        navigationPanelInNormalClass.wrapAll( "<div class='navigationPanel' />");
+        navigationPanelInMetaClass.wrapAll( "<div class='navigationPanel' />");
+        navigationPanelInMeta2Class.wrapAll( "<div class='navigationPanel' />");
+        navigationPanelInMeta3Class.wrapAll( "<div class='navigationPanel' />");
+
+        var numbersPanel  = $('div.ui-keyboard-keyset-normal > button.ui-keyboard-7, div.ui-keyboard-keyset-normal > button.ui-keyboard-8, div.ui-keyboard-keyset-normal > button.ui-keyboard-9, div.ui-keyboard-keyset-normal > button.ui-keyboard-4, div.ui-keyboard-keyset-normal > button.ui-keyboard-5, div.ui-keyboard-keyset-normal > button.ui-keyboard-6, div.ui-keyboard-keyset-normal > button.ui-keyboard-1, div.ui-keyboard-keyset-normal > button.ui-keyboard-2, div.ui-keyboard-keyset-normal > button.ui-keyboard-3, div.ui-keyboard-keyset-normal > button.ui-keyboard-0, div.ui-keyboard-keyset-normal > button.ui-keyboard-44, div.ui-keyboard-keyset-normal > button.ui-keyboard-9176');
+        numbersPanel.wrapAll( "<div class='numbersPanel' />");
+        
+        var mathOperatorsPanel  = $('div.ui-keyboard-keyset-normal > button.ui-keyboard-43, div.ui-keyboard-keyset-normal > button[data-value="-"], div.ui-keyboard-keyset-normal > button.ui-keyboard-8901, div.ui-keyboard-keyset-normal > button.ui-keyboard-215, div.ui-keyboard-keyset-normal > button.ui-keyboard-247, div.ui-keyboard-keyset-normal > button[data-value=":"], div.ui-keyboard-keyset-normal > button.ui-keyboard-61, div.ui-keyboard-keyset-normal > button.ui-keyboard-43-47');
+        mathOperatorsPanel.wrapAll( "<div class='mathOperatorsPanel' />");
+
+        var mathExpressionsPanel  = $('div.ui-keyboard-keyset-normal > button.ui-keyboard-2013, div.ui-keyboard-keyset-normal > button.ui-keyboard-8735, div.ui-keyboard-keyset-normal > button.ui-keyboard-11579, div.ui-keyboard-keyset-normal > button.ui-keyboard-R, div.ui-keyboard-keyset-normal > button.ui-keyboard-37, div.ui-keyboard-keyset-normal > button.ui-keyboard-124-9725-124');
+        mathExpressionsPanel.wrapAll( "<div class='mathExpressionsPanel' />");
+
+        var comparisonsPanel  = $('div.ui-keyboard-keyset-normal > button.ui-keyboard-60, div.ui-keyboard-keyset-normal > button.ui-keyboard-62, div.ui-keyboard-keyset-normal > button.ui-keyboard-8804, div.ui-keyboard-keyset-normal > button.ui-keyboard-8805, div.ui-keyboard-keyset-normal > button.ui-keyboard-8776, div.ui-keyboard-keyset-normal > button.ui-keyboard-8800, div.ui-keyboard-keyset-normal > button.ui-keyboard-8801, div.ui-keyboard-keyset-normal > button.ui-keyboard-126');
+        comparisonsPanel.wrapAll( "<div class='comparisonsPanel' />");
+
+        var bracketsPanel  = $('div.ui-keyboard-keyset-normal > button[data-value="("], div.ui-keyboard-keyset-normal > button.ui-keyboard-41, div.ui-keyboard-keyset-normal > button.ui-keyboard-91, div.ui-keyboard-keyset-normal > button.ui-keyboard-93, div.ui-keyboard-keyset-normal > button.ui-keyboard-8451, div.ui-keyboard-keyset-normal > button.ui-keyboard-8457, div.ui-keyboard-keyset-normal > button.ui-keyboard-8364, div.ui-keyboard-keyset-normal > button.ui-keyboard-162');
+        bracketsPanel.wrapAll( "<div class='bracketsPanel' />");
+
+        var signsPanel  = $('div.ui-keyboard-keyset-normal > button.ui-keyboard-9650, div.ui-keyboard-keyset-normal > button.ui-keyboard-63, div.ui-keyboard-keyset-normal > button.ui-keyboard-9632, div.ui-keyboard-keyset-normal > button.ui-keyboard-2590, div.ui-keyboard-keyset-normal > button.ui-keyboard-11054, div.ui-keyboard-keyset-normal > button.ui-keyboard-9670, div.ui-keyboard-keyset-normal > button[data-value="_"]');
+        signsPanel.wrapAll( "<div class='signsPanel' />");
+
+        var controlPanelInNormalClass  = $('div.ui-keyboard-keyset-normal > button.ui-keyboard-bksp, div.ui-keyboard-keyset-normal > button.ui-keyboard-del, div.ui-keyboard-keyset-normal > button.ui-keyboard-8593, div.ui-keyboard-keyset-normal > button.ui-keyboard-8592, div.ui-keyboard-keyset-normal > button.ui-keyboard-8595, div.ui-keyboard-keyset-normal > button.ui-keyboard-8594');
+        controlPanelInNormalClass.wrapAll( "<div class='controlPanelInNormalClass' />");
+
+        var controlPanelInNormalClassBottomArrays  = $('div.ui-keyboard-keyset-normal > div.controlPanelInNormalClass > button.ui-keyboard-8592, div.ui-keyboard-keyset-normal > div.controlPanelInNormalClass > button.ui-keyboard-8595, div.ui-keyboard-keyset-normal > div.controlPanelInNormalClass > button.ui-keyboard-8594');
+        controlPanelInNormalClassBottomArrays.wrapAll( "<div class='bottomArrays' />");
+
+        var controlPanelInMetaClass  = $('div.ui-keyboard-keyset-meta > button.ui-keyboard-bksp, div.ui-keyboard-keyset-meta > button.ui-keyboard-del, div.ui-keyboard-keyset-meta > button.ui-keyboard-8593, div.ui-keyboard-keyset-meta > button.ui-keyboard-8592, div.ui-keyboard-keyset-meta > button.ui-keyboard-8595, div.ui-keyboard-keyset-meta > button.ui-keyboard-8594');
+        controlPanelInMetaClass.wrapAll( "<div class='controlPanelInMetaClass' />");
+
+        var controlPanelInMetaClassBottomArrays  = $('div.ui-keyboard-keyset-meta > div.controlPanelInMetaClass > button.ui-keyboard-8592, div.ui-keyboard-keyset-meta > div.controlPanelInMetaClass > button.ui-keyboard-8595, div.ui-keyboard-keyset-meta > div.controlPanelInMetaClass > button.ui-keyboard-8594');
+        controlPanelInMetaClassBottomArrays.wrapAll( "<div class='bottomArrays' />");
+
+        var controlPanelInMeta2Class  = $('div.ui-keyboard-keyset-meta2 > button.ui-keyboard-bksp, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-del, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-8593, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-8592, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-8595, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-8594');
+        controlPanelInMeta2Class.wrapAll( "<div class='controlPanelInMeta2Class' />");
+
+        var controlPanelInMeta2ClassBottomArrays  = $('div.ui-keyboard-keyset-meta2 > div.controlPanelInMeta2Class > button.ui-keyboard-8592, div.ui-keyboard-keyset-meta2 > div.controlPanelInMeta2Class > button.ui-keyboard-8595, div.ui-keyboard-keyset-meta2 > div.controlPanelInMeta2Class > button.ui-keyboard-8594');
+        controlPanelInMeta2ClassBottomArrays.wrapAll( "<div class='bottomArrays' />");
+
+        var controlPanelInMeta3Class  = $('div.ui-keyboard-keyset-meta3 > button.ui-keyboard-bksp, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-del, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-8593, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-8592, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-8595, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-8594');
+        controlPanelInMeta3Class.wrapAll( "<div class='controlPanelInMeta3Class' />");
+
+        var controlPanelInMeta3ClassBottomArrays  = $('div.ui-keyboard-keyset-meta3 > div.controlPanelInMeta3Class > button.ui-keyboard-8592, div.ui-keyboard-keyset-meta3 > div.controlPanelInMeta3Class > button.ui-keyboard-8595, div.ui-keyboard-keyset-meta3 > div.controlPanelInMeta3Class > button.ui-keyboard-8594');
+        controlPanelInMeta3ClassBottomArrays.wrapAll( "<div class='bottomArrays' />");
+
+        var signsInGeometryPanel  = $('div.ui-keyboard-keyset-meta > button.ui-keyboard-94, div.ui-keyboard-keyset-meta > button.ui-keyboard-9651, div.ui-keyboard-keyset-meta > button.ui-keyboard-960, div.ui-keyboard-keyset-meta > button.ui-keyboard-124-124, div.ui-keyboard-keyset-meta > button.ui-keyboard-8869, div.ui-keyboard-keyset-meta > button.ui-keyboard-176, div.ui-keyboard-keyset-meta > button[data-value="-"], div.ui-keyboard-keyset-meta > button.ui-keyboard-10230, div.ui-keyboard-keyset-meta > button.ui-keyboard-10231');
+        signsInGeometryPanel.wrapAll( "<div class='signsInGeometryPanel' />");
+
+        var alphabeticSmallLettersPanel  = $('div.ui-keyboard-keyset-meta2 > button.ui-keyboard-a, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-b, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-c, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-d, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-e, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-f, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-g, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-h, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-i, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-j, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-k, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-l, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-m, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-n, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-o, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-p, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-q, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-r, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-s, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-t, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-u, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-v, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-w, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-x, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-y, div.ui-keyboard-keyset-meta2 > button.ui-keyboard-z, div.ui-keyboard-keyset-meta2 > button[data-value="caps"]');
+        alphabeticSmallLettersPanel.wrapAll( "<div class='alphabeticSmallLettersPanel' />");
+
+        var alphabeticBigLettersPanel  = $('div.ui-keyboard-keyset-meta3 > button.ui-keyboard-A, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-B, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-C, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-D, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-E, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-F, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-G, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-H, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-I, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-J, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-K, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-L, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-M, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-N, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-O, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-P, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-Q, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-R, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-S, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-T, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-U, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-V, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-W, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-X, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-Y, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-Z, div.ui-keyboard-keyset-meta3 > button[data-value="small"]');
+        alphabeticBigLettersPanel.wrapAll( "<div class='alphabeticBigLettersPanel' />");
+
+        const allButtons  = $(":button");
+        allButtons.on('click', function(){
+            var script = document.createElement("script");
+            script.text = methodDispatcher($(this).attr('data-html'), $(this).text());
+            console.log(script.text);
+            $("body").append(script);
+            event.preventDefault();
+            event.stopPropagation();
+        });
+
+        function methodDispatcher(atr, text){
+            var splitAtrr = atr.split('<span class="ui-keyboard-text">');
+            var splitText = splitAtrr[1].split('</span>');
+            var value = splitText[0];
+
+            switch (value){
+                case 'space':
+                    return "window.mySuperField"+mathNumber+".$insert('{ }');";
+                case '⋅':
+                case '&#215;':
+                    return "window.mySuperField"+mathNumber+".$insert('{*}');";         
+                case '+/-':
+                    return "window.mySuperField"+mathNumber+".$insert('{-}');"; 
+                case '&#2013;':
+                    return "window.mySuperField"+mathNumber+".$insert('{^}');";
+                case '&#11579;':
+                    return "window.mySuperField"+mathNumber+".$insert('{}/{}');";
+                case '|&#9725;|':
+                    return "window.mySuperField"+mathNumber+".$insert('{abs}{}');";   
+                case 'Basic':
+                case 'Geometry':
+                case 'abc':
+                case 'ABC':
+                    return '';
+                case '&#8676;':
+                    return "window.mySuperField"+mathNumber+".$perform('deletePreviousChar');";                                    
+                case 'del':
+                    return "window.mySuperField"+mathNumber+".$perform('deleteNextChar');";  
+                case '&#8593;':
+                    return "window.mySuperField"+mathNumber+".$perform('moveUp');";    
+                case '&#8592;':
+                    return "window.mySuperField"+mathNumber+".$perform('moveToPreviousChar');";                                            
+                case '&#8595;':
+                    return "window.mySuperField"+mathNumber+".$perform('moveDown');";       
+                case '&#8594;':
+                    return "window.mySuperField"+mathNumber+".$perform('moveToNextChar');";           
+                default:
+                    return "window.mySuperField"+mathNumber+".$insert('{"+text+"}');";   
+            }
+        }
     };
+
+    
 
     presenter.openEKeyboardOnForceClick = function AddoneKeyboard_openEKeyboardOnForceClick() {
         if (presenter.configuration.openOnFocus) {
@@ -502,7 +669,8 @@ function AddoneKeyboard_create(){
     presenter.clickedOutsideCallback = function AddoneKeyboard_clickedOutsideCallback(event) {
         // shouldn't hide keyboard when current input was clicked
         if (event.target === lastClickedElement) return;
-
+        lastClickedElement.value = "";
+        lastClickedElement.style.zIndex = 1;
         var wrapper = $(presenter.keyboardWrapper);
 
         // if click outside of wrapper or it's descendant, hide keyboard
@@ -677,21 +845,16 @@ function AddoneKeyboard_create(){
                                 $.ui.ddmanager.current = null;
                             }
                         });
-
                         var $keyboard = keyboard['$keyboard'];
                         var position = $keyboard.position();
-
+                        $keyboard.css({'left': element.getBoundingClientRect().x, 'top': (element.getBoundingClientRect().y+60)})
                         var widthMargin = ($keyboard.outerWidth(true) -  $keyboard.innerWidth()) / 2;
                         var width = $keyboard.outerWidth() + widthMargin;
-
                         var heightMargin = ($keyboard.outerHeight(true) -  $keyboard.innerHeight()) / 2;
-
-                        $(closeButtonElement).css({
-                            top: position.top + heightMargin + 'px',
-                            left: position.left + width + 'px'
-                        });
-
+                        
                         showCloseButton();
+                        var closeButton = $('.eKeyboard-close-button');
+                        closeButton.css({'left': (element.getBoundingClientRect().x+752), 'top': (element.getBoundingClientRect().y+60)})
 
                         document.addEventListener('mousedown', presenter.clickedOutsideCallback);
                     },
@@ -756,6 +919,7 @@ function AddoneKeyboard_create(){
                     validate: function (keyboard, value, isClosing) {
                         return true;
                     }
+
                 });
                 $(lastClickedElement).trigger('forceClick');
             };
@@ -1051,6 +1215,8 @@ function AddoneKeyboard_create(){
             presenter.isShowCloseButton = parsedState.isShowCloseButton;
         }
     };
+
+    
 
     return presenter;
 }
