@@ -181,4 +181,13 @@ public class AddonDescriptorFactory {
 	public Collection<AddonEntry> getEntries() {
 		return addonList.values();
 	}
+	
+	public void setWirisEnabled(boolean isEnabled) {
+		if (isEnabled) {
+			addDescriptor("MathFormula", "media_menu");
+		} else {
+			AddonEntry mathDisplay = addonList.get("MathFormula");
+			addonList.remove(mathDisplay);
+		}
+	}
 }
