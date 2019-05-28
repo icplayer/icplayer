@@ -1025,7 +1025,7 @@ function AddonText_Coloring_create() {
                     disabledClasses.push(classNames[i]);
                 }
             }
-            $this.attr('disbaledClasses', disabledClasses.join(' '));
+            this.dataset.disabledClasses = disabledClasses.join(' ');
         });
     };
 
@@ -1033,13 +1033,13 @@ function AddonText_Coloring_create() {
         if (!$element) return;
         $element.each(function(){
             var $this = $(this);
-            var disabledClasses = $this.attr('disbaledClasses');
+            var disabledClasses = this.dataset.disabledClasses;
             if (disabledClasses) {
                 var classNames = disabledClasses.split(/\s+/);
                 for (var i = 0; i < classNames.length; i++) {
                     $this.addClass(classNames[i]);
                 }
-                $this.attr('disbaledClasses', '');
+                this.dataset.disabledClasses = '';
             }
         });
     };
