@@ -32,19 +32,24 @@ function AddonEditableWindow_create() {
     };
 
     presenter.run = function (view, model) {
-        presenter.configuration.view = view;
-        presenter.configuration.view.addEventListener('DOMNodeRemoved', presenter.destroy);
-        presenter.configuration.model = presenter.validModel(model);
+        try {
+            presenter.configuration.view = view;
+            presenter.configuration.view.addEventListener('DOMNodeRemoved', presenter.destroy);
+            presenter.configuration.model = presenter.validModel(model);
 
-        if (presenter.configuration.model.isValid) {
-            presenter.configuration.textareaId = presenter.configuration.model.id + "-textarea";
-            presenter.configuration.hasHtml = presenter.configuration.model.indexFile !== "";
-            presenter.configuration.hasAudio = presenter.configuration.model.audioFile !== "";
-            presenter.configuration.hasVideo = presenter.configuration.model.videoFile !== "";
-            presenter.init();
-            presenter.hide();
-        } else {
-            $(view).html(presenter.configuration.model.errorMessage);
+            if (presenter.configuration.model.isValid) {
+                presenter.configuration.textareaId = presenter.configuration.model.id + "-textarea";
+                presenter.configuration.hasHtml = presenter.configuration.model.indexFile !== "";
+                presenter.configuration.hasAudio = presenter.configuration.model.audioFile !== "";
+                presenter.configuration.hasVideo = presenter.configuration.model.videoFile !== "";
+                presenter.init();
+                presenter.hide();
+            } else {
+                $(view).html(presenter.configuration.model.errorMessage);
+            }
+        } catch (e) {
+            console.trace();
+            console.log(e);
         }
     };
 
@@ -73,12 +78,12 @@ function AddonEditableWindow_create() {
             $view.find("audio").remove();
         }
 
-        if (presenter.configuration.hasHtml) {
-            presenter.handleHtmlContent();
-        } else {
-            $view.find(".content-iframe").remove();
-            $view.find("textarea").remove();
-        }
+        // if (presenter.configuration.hasHtml) {
+        //     presenter.handleHtmlContent();
+        // } else {
+        //     $view.find(".content-iframe").remove();
+        //     $view.find("textarea").remove();
+        // }
 
         $view.css("z-index", "1");
 
@@ -138,64 +143,74 @@ function AddonEditableWindow_create() {
     };
 
     presenter.handleHtmlContent = function () {
-        var height = presenter.configuration.model.height;
-        var width = presenter.configuration.model.width;
-        var indexFile = presenter.configuration.model.indexFile;
-        var textareaId = presenter.configuration.textareaId;
-        var $view = $(presenter.configuration.view);
+        try {
+            var height = presenter.configuration.model.height;
+            var width = presenter.configuration.model.width;
+            var indexFile = presenter.configuration.model.indexFile;
+            var textareaId = presenter.configuration.textareaId;
+            var $view = $(presenter.configuration.view);
 
-        var iframe = $view.find(".content-iframe");
-        var separator = (indexFile.indexOf("?") === -1) ? "?" : "&";
-        var source = indexFile + separator + "no_gcs=true";
+            var iframe = $view.find(".content-iframe");
+            var separator = (indexFile.indexOf("?") === -1) ? "?" : "&";
+            var source = indexFile + separator + "no_gcs=true";
 
-        iframe.attr("onload", function () {
-            presenter.configuration.isIframeLoaded = true;
-        });
-        iframe.attr("src", source);
-
-        $view.css("z-index", "1");
-
-        var textarea = $view.find("textarea");
-        textarea.attr("id", textareaId);
-
-        var widthOffset = presenter.configuration.widthOffset;
-        var heightOffset = presenter.configuration.heightOffset;
-
-        tinymce.init({
-            selector: "#" + textareaId,
-            plugins: "textcolor",
-            toolbar: "backcolor",
-            textcolor_map: [
-                "ffff00", "Yellow",
-                "87ceeb", "Blue",
-                "ffb6c1", "Red",
-                "90ee90", "Green",
-                "ffffff", "White"
-            ],
-            custom_colors: false,
-            statusbar: false,
-            menubar: false,
-            height: height - heightOffset,
-            width: width - widthOffset,
-        }).then(function (editors) {
-            presenter.configuration.editor = editors[0];
-            presenter.configuration.isTinyMceLoaded = true;
-        });
-
-        var timeout = setTimeout(function () {
-            presenter.fetchIframeContent(function (content) {
-                var isInitialized = presenter.configuration.state.isInitialized;
-                if (!isInitialized) {
-                    presenter.configuration.contentLoadingLock = true;
-                    presenter.fillActiveTinyMce(content);
-                    presenter.configuration.state.isInitialized = true;
-                    presenter.configuration.state.content = content;
-                    presenter.configuration.contentLoadingLock = false;
-                }
-                presenter.removeIframe();
+            iframe.attr("onload", function () {
+                presenter.configuration.isIframeLoaded = true;
             });
-        }, 3000);
-        presenter.configuration.timeouts.push(timeout);
+            iframe.attr("src", source);
+
+            $view.css("z-index", "1");
+
+            var textarea = $view.find("textarea");
+            $view.find("textarea").css("visibility", "visible");
+            textarea.attr("id", textareaId);
+
+            var widthOffset = presenter.configuration.widthOffset;
+            var heightOffset = presenter.configuration.heightOffset;
+
+            if (presenter.configuration.editorIsInitialized != true) {
+                tinymce.init({
+                    selector: "#" + textareaId,
+                    plugins: "textcolor",
+                    toolbar: "backcolor",
+                    textcolor_map: [
+                        "ffff00", "Yellow",
+                        "87ceeb", "Blue",
+                        "ffb6c1", "Red",
+                        "90ee90", "Green",
+                        "ffffff", "White"
+                    ],
+                    custom_colors: false,
+                    statusbar: false,
+                    menubar: false,
+                    height: height - heightOffset,
+                    width: width - widthOffset,
+                }).then(function (editors) {
+                    presenter.configuration.editorIsInitialized = true;
+                    presenter.configuration.editor = editors[0];
+                    presenter.configuration.isTinyMceLoaded = true;
+                });
+            }
+
+            var timeout = setTimeout(function () {
+                presenter.fetchIframeContent(function (content) {
+                    var isInitialized = presenter.configuration.state.isInitialized;
+                    if (!isInitialized) {
+                        presenter.configuration.contentLoadingLock = true;
+                        presenter.fillActiveTinyMce(content);
+                        presenter.configuration.state.isInitialized = true;
+                        presenter.configuration.state.content = content;
+                        presenter.configuration.contentLoadingLock = false;
+                    }
+                    presenter.removeIframe();
+                });
+            }, 3000);
+            presenter.configuration.timeouts.push(timeout);
+        } catch (e) {
+            console.log(e);
+            console.trace();
+            console.log(e.stack);
+        }
     };
 
     presenter.createPreview = function (view, model) {
@@ -398,13 +413,24 @@ function AddonEditableWindow_create() {
     presenter.openPopup = function () {
         presenter.show();
         presenter.centerPosition();
+        if (presenter.configuration.hasHtml) {
+            presenter.handleHtmlContent();
+        } else {
+            $view.find(".content-iframe").remove();
+            $view.find("textarea").remove();
+        }
     };
 
     presenter.hide = function () {
-        presenter.configuration.isVisible = false;
-        $(presenter.configuration.view).hide();
-        presenter.stopAudio();
-        presenter.stopVideo();
+        try {
+            presenter.configuration.isVisible = false;
+            $(presenter.configuration.view).hide();
+            presenter.stopAudio();
+            presenter.stopVideo();
+        } catch (err) {
+            console.trace();
+            console.log(err);
+        }
     };
 
     presenter.isVisible = function () {
