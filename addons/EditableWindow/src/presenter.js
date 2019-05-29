@@ -57,6 +57,12 @@ function AddonEditableWindow_create() {
         var $view = $(presenter.configuration.view);
         var hasHtml = presenter.configuration.hasHtml;
         var textareaId = presenter.configuration.textareaId;
+        var title = presenter.configuration.model.title;
+        var headerStyle = presenter.configuration.model.headerStyle;
+        var $header = $view.find(".header");
+
+        $header.text(title);
+        $header.addClass(headerStyle);
 
         if (presenter.configuration.hasVideo) {
             presenter.handleVideoContent();
@@ -285,6 +291,8 @@ function AddonEditableWindow_create() {
             indexFile: model['index'],
             audioFile: model['audio'],
             videoFile: model['video'],
+            title: model['title'] ? model['title'] : "",
+            headerStyle: model['headerStyle'] ? model['headerStyle'] : "",
         }
     };
 

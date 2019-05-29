@@ -48,8 +48,11 @@
 }
 
 .addon-editable-window-wrapper .header {
-    height: 35px;
-    width: 100%;
+    min-height: 20px;
+    font-size: 14px;
+    padding: 8px 10px;
+    width: 82%;
+    overflow: hidden;
     cursor: move;
 }
 
