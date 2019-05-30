@@ -219,7 +219,8 @@ function AddoneKeyboard_create(){
                 
                     var inputs = $("#"+this+" input");
                     var spans = $("#"+this+" span[class = 'subAnswer']");
-                    
+                    $("#"+this+" span[class = 'normal']").css('margin-bottom', '30px');
+
                     for(i = 0; i < inputs.length; i++){
                         var div = document.createElement('div');
                         div.classList.add("mathfieldDiv");
@@ -231,8 +232,7 @@ function AddoneKeyboard_create(){
                         var script = document.createElement("script");
                         script.type = 'module';
                         script.text = "import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';"+
-                        "window.mySuperField"+i+" = MathLive.makeMathField('mathfieldDiv"+i+"');"+
-                        "window.mySuperField"+i+".toggleVirtualKeyboard_ = 'hide';";
+                        "window.mySuperField"+i+" = MathLive.makeMathField('mathfieldDiv"+i+"');";
                         $("body").append(script);
                         mathfields[i] = 'mathfieldDiv'+i;
                         
@@ -379,6 +379,28 @@ function AddoneKeyboard_create(){
             presenter.configuration = presenter.validateModel(model, isPreview);
             presenter.configuration.$inputs = $(presenter.configuration.workWithViews).find('input');
 
+            presenter.configuration.$inputs.each(
+                function(){
+                    var classList = $(this).attr("class");
+                    var dividedClassList = classList.split(' ')[1];
+                    var classNumber = dividedClassList.split('inputNumber')[1];
+                    var p = document.createElement("p");
+                    p.classList.add("writing");
+                    p.id = "writing"+classNumber;
+                    p.innerHTML = '123';
+                    p.style.width = 10 + "px";
+                    p.style.height = 10 + "px";
+                    var x = $(this).offset().left;
+                    var y = $(this).offset().top;
+                    p.style.top = y+"px";
+                    p.style.left = (x+79)+"px";
+                    p.style.position = "absolute";
+                    p.style.color = '#B8B8B8';
+                    p.style.fontStyle = 'italic';
+                    p.style.fontSize = 13+'px';
+                    $('.ic_page').append(p);
+            });
+
             if (presenter.configuration.isError) {
                 DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
                 return;
@@ -442,7 +464,8 @@ function AddoneKeyboard_create(){
                 }
 
                 presenter.removeEventListeners();
-
+                const allButtons  = $(":button");
+                allButtons.off('click');
                 presenter.connectHandlers();
             }
             for (var i = 0; i < presenter.functionsQueue.length; i++) {
@@ -457,6 +480,7 @@ function AddoneKeyboard_create(){
      */
 
     presenter.connectHandlers = function AddoneKeyboard_connectHandlers() {
+        $('.eKeyboard-close-button > span').click(presenter.hideKeyboard);
         presenter.configuration.$inputs.each(
             function (index, element) {
                 if (DevicesUtils.isInternetExplorer()) {
@@ -491,12 +515,15 @@ function AddoneKeyboard_create(){
         $(this).focus();
     };
 
+    var lastFocused;
+    var mySuperField;
     presenter.openEKeyboardOnFocus = function AddoneKeyboard_openEKeyboardOnFocus (event) {
         var input = event.path[0];
         input.style.zIndex = -1;
         var inputClass = input.classList[1];
         var mathNumber = inputClass.split('inputNumber')[1];
-        console.log(mathNumber);
+        var pId = 'writing'+mathNumber;
+        $('#'+pId+'').css('z-index', '-1');
         lastClickedElement = this;
         if (!keyboardIsVisible) {
             if ($(this).data('keyboard') !== undefined) {
@@ -575,6 +602,7 @@ function AddoneKeyboard_create(){
         alphabeticBigLettersPanel.wrapAll( "<div class='alphabeticBigLettersPanel' />");
 
         const allButtons  = $(":button");
+        if(lastFocused !== undefined && mySuperField === mathNumber){lastFocused.focus()};
         allButtons.on('click', function(){
             var script = document.createElement("script");
             script.text = methodDispatcher($(this).attr('data-html'), $(this).text());
@@ -582,8 +610,11 @@ function AddoneKeyboard_create(){
             $("body").append(script);
             event.preventDefault();
             event.stopPropagation();
+            lastFocused = document.activeElement;
         });
-
+        $(lastFocused).focusout(function(){allButtons.off('click');$(lastFocused).off('focusout')});
+        $(window).focusout(function(){allButtons.off('click');$(window).off('focusout')});
+        mySuperField = mathNumber;
         function methodDispatcher(atr, text){
             var splitAtrr = atr.split('<span class="ui-keyboard-text">');
             var splitText = splitAtrr[1].split('</span>');
@@ -591,18 +622,22 @@ function AddoneKeyboard_create(){
 
             switch (value){
                 case 'space':
-                    return "window.mySuperField"+mathNumber+".$insert('{ }');";
+                    return "window.mySuperField"+mathNumber+".$insert('{ }', {'focus' : true});";
                 case '⋅':
                 case '&#215;':
-                    return "window.mySuperField"+mathNumber+".$insert('{*}');";         
+                    return "window.mySuperField"+mathNumber+".$insert('{*}', {'focus' : true});";         
                 case '+/-':
-                    return "window.mySuperField"+mathNumber+".$insert('{-}');"; 
+                    return "window.mySuperField"+mathNumber+".$insert('{-}', {'focus' : true});"; 
+                case '%':
+                    return "window.mySuperField"+mathNumber+".$insert('\\\\%', {'focus' : true});";
                 case '&#2013;':
-                    return "window.mySuperField"+mathNumber+".$insert('{^}');";
+                    return "window.mySuperField"+mathNumber+".$insert('^{\\\\placeholder{}}', {'focus' : true});";
                 case '&#11579;':
-                    return "window.mySuperField"+mathNumber+".$insert('{}/{}');";
+                    return "window.mySuperField"+mathNumber+".$insert('\\\\frac{\\\\placeholder{}}{\\\\placeholder{denominator}}', {'focus' : true});";
                 case '|&#9725;|':
-                    return "window.mySuperField"+mathNumber+".$insert('{abs}{}');";   
+                    return "window.mySuperField"+mathNumber+".$insert('{abs}(\\\\placeholder{})', {'focus' : true});";   
+                case '&#9176;':
+                    return "window.mySuperField"+mathNumber+".$insert('{ }', {'focus' : true});";   
                 case 'Basic':
                 case 'Geometry':
                 case 'abc':
@@ -621,7 +656,7 @@ function AddoneKeyboard_create(){
                 case '&#8594;':
                     return "window.mySuperField"+mathNumber+".$perform('moveToNextChar');";           
                 default:
-                    return "window.mySuperField"+mathNumber+".$insert('{"+text+"}');";   
+                    return "window.mySuperField"+mathNumber+".$insert('"+text+"', {'focus' : true});";   
             }
         }
     };
@@ -671,6 +706,17 @@ function AddoneKeyboard_create(){
         if (event.target === lastClickedElement) return;
         lastClickedElement.value = "";
         lastClickedElement.style.zIndex = 1;
+        var lastClickedElementClassList = lastClickedElement.classList;
+        var number = lastClickedElementClassList[1].split('inputNumber')[1];
+        var mathfieldId = 'mathfieldDiv'+number;
+        var mathfield = $('#'+mathfieldId);
+        var field = mathfield.find('span.ML__fieldcontainer__field');
+        var span = field.find('span.ML__mathrm');
+        console.log(span.attr('class'));
+        if(span.attr('class') == undefined){
+            var pId = 'writing'+number;
+            $('#'+pId+'').css('z-index', '1');
+        };
         var wrapper = $(presenter.keyboardWrapper);
 
         // if click outside of wrapper or it's descendant, hide keyboard
@@ -847,14 +893,14 @@ function AddoneKeyboard_create(){
                         });
                         var $keyboard = keyboard['$keyboard'];
                         var position = $keyboard.position();
-                        $keyboard.css({'left': element.getBoundingClientRect().x, 'top': (element.getBoundingClientRect().y+60)})
+                        $keyboard.css({'left': element.getBoundingClientRect().x, 'top': (element.getBoundingClientRect().y+50)})
                         var widthMargin = ($keyboard.outerWidth(true) -  $keyboard.innerWidth()) / 2;
                         var width = $keyboard.outerWidth() + widthMargin;
                         var heightMargin = ($keyboard.outerHeight(true) -  $keyboard.innerHeight()) / 2;
                         
                         showCloseButton();
                         var closeButton = $('.eKeyboard-close-button');
-                        closeButton.css({'left': (element.getBoundingClientRect().x+752), 'top': (element.getBoundingClientRect().y+60)})
+                        closeButton.css({'left': (element.getBoundingClientRect().x+752), 'top': (element.getBoundingClientRect().y+80)})
 
                         document.addEventListener('mousedown', presenter.clickedOutsideCallback);
                     },
@@ -1158,9 +1204,6 @@ function AddoneKeyboard_create(){
             'value': status
         });
     };
-
-
-
 
     presenter.destroy = function destroy_addon_eKeyboard_function () {
         if (presenter.isPreview || !presenter.configuration) {
