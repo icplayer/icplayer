@@ -33,11 +33,14 @@ function AddonEditableWindow_create() {
 
     presenter.run = function (view, model) {
         try {
-            presenter.configuration.view = view;
-            presenter.configuration.view.addEventListener('DOMNodeRemoved', presenter.destroy);
+            presenter.configuration.view = view.getElementsByClassName('addon-editable-window-container')[0];
+            view.addEventListener('DOMNodeRemoved', presenter.destroy);
             presenter.configuration.model = presenter.validModel(model);
 
             if (presenter.configuration.model.isValid) {
+                presenter.configuration.view.style.width = presenter.configuration.model.width + 'px';
+                presenter.configuration.view.style.height = presenter.configuration.model.height + 'px';
+
                 presenter.configuration.textareaId = presenter.configuration.model.id + "-textarea";
                 presenter.configuration.hasHtml = presenter.configuration.model.indexFile !== "";
                 presenter.configuration.hasAudio = presenter.configuration.model.audioFile !== "";
@@ -78,13 +81,6 @@ function AddonEditableWindow_create() {
             $view.find("audio").remove();
         }
 
-        // if (presenter.configuration.hasHtml) {
-        //     presenter.handleHtmlContent();
-        // } else {
-        //     $view.find(".content-iframe").remove();
-        //     $view.find("textarea").remove();
-        // }
-
         $view.css("z-index", "1");
 
         $view.draggable({
@@ -98,6 +94,7 @@ function AddonEditableWindow_create() {
             minWidth: presenter.configuration.minWidth,
             maxWidth: presenter.configuration.maxWidth,
             resize: function (event, ui) {
+                presenter.changeViewPositionToFixed();
                 if (hasHtml) {
                     var heightOffset = presenter.configuration.heightOffset;
                     var widthOffset = presenter.configuration.widthOffset;
@@ -115,6 +112,7 @@ function AddonEditableWindow_create() {
                 if (hasHtml) {
                     $view.find("iframe").css("visibility", "visible")
                 }
+                presenter.changeViewPositionToFixed();
             },
         });
 
@@ -141,6 +139,11 @@ function AddonEditableWindow_create() {
         $audioElement.attr("src", audioSource);
         presenter.configuration.heightOffset += 35;
     };
+
+    presenter.changeViewPositionToFixed = function() {
+        // changing position to fixed is needed because jQuery changes position of element to absolute when it is resizable and draggable after some callbacks
+        presenter.configuration.view.style.position = 'fixed';
+    }
 
     presenter.handleHtmlContent = function () {
         try {
