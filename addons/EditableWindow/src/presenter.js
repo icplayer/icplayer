@@ -116,14 +116,26 @@ function AddonEditableWindow_create() {
             },
         });
 
-        $view.find(".addon-editable-close-button").click(function () {
-            presenter.hide();
-        });
-
-        $view.find(".addon-editable-window-wrapper").click(function () {
-            presenter.show();
-        });
+        presenter.addHandlers();
     };
+
+    presenter.addHandlers = function() {
+        $view.find(".addon-editable-close-button").click(presenter.closeButtonCallback);
+        $view.find(".addon-editable-full-screen-button").click(presenter.fullScreenButtonClickedCallback);
+        $view.find(".addon-editable-window-wrapper").click(presenter.viewClickedCallback);
+    }
+
+    presenter.viewClickedCallback = function() {
+        presenter.show();
+    }
+
+    presenter.closeButtonClickedCallback = function () {
+        presenter.hide();
+    }
+
+    presenter.fullScreenButtonClickedCallback = function () {
+        // TODO: logic
+    }
 
     presenter.handleVideoContent = function () {
         var $view = $(presenter.configuration.view);
@@ -508,6 +520,8 @@ function AddonEditableWindow_create() {
         if (event.target === presenter.configuration.view) {
             presenter.configuration.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
+            presenter.removeCallbacks();
+
             var timeouts = presenter.configuration.timeouts;
             for (var i = 0; i < timeouts.length; i++) {
                 clearTimeout(timeouts[i]);
@@ -529,6 +543,12 @@ function AddonEditableWindow_create() {
             presenter.configuration = null;
         }
     };
+
+    presenter.removeCallbacks = function() {
+        $view.off('click', ".addon-editable-close-button", presenter.closeButtonCallback);
+        $view.off('click', ".addon-editable-close-button", presenter.fullScreenButtonClickedCallback);
+        $view.off('click', ".addon-editable-close-button", presenter.viewClickedCallback);
+}
 
     return presenter;
 }

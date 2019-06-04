@@ -38,6 +38,23 @@ div.addon-editable-window-container {
     z-index: 1;
 }
 
+button.addon-editable-full-screen-button {
+    position: absolute;
+    top: 8px;
+    right: 40px;
+    height: 20px;
+    width: 20px;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    z-index: 1;
+    background-image: url('resources/fullscreen-button.png');
+    background-repeat: no-repeat;
+}
+
 .addon-editable-reset-button {
     width: 15px;
     height: 15px;
