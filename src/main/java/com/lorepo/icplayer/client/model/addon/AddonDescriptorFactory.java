@@ -1,10 +1,10 @@
 package com.lorepo.icplayer.client.model.addon;
 
-import java.util.Collection;
-import java.util.HashMap;
-
 import com.google.gwt.core.client.GWT;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+
+import java.util.Collection;
+import java.util.HashMap;
 
 public class AddonDescriptorFactory {
 
@@ -158,7 +158,10 @@ public class AddonDescriptorFactory {
 		addDescriptor("LearnPen", "learn_pen_menu");
 		addDescriptor("LearnPen_Data", "learn_pen_menu");
 		addDescriptor("LearnPen_Report", "learn_pen_menu");
-	}
+
+		// NOT VISIBLE
+        addDescriptor("EditableWindow", "not_visible");
+    }
 
 	private void addDescriptor(String id, String category) {
 		String moduleBaseURL = GWT.getModuleBaseURL().replaceFirst("^(http://|https://)", "//");

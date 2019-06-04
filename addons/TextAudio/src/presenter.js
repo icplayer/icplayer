@@ -167,6 +167,7 @@ function AddonTextAudio_create() {
 
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
+        presenter.originalIsDisabledModel = upgradedModel['isDisabled'];
         if (upgradedModel['isDisabled'] === undefined) {
             upgradedModel['isDisabled'] = 'False';
         }
@@ -1640,7 +1641,10 @@ function AddonTextAudio_create() {
             presenter.hideAddon();
         }
 
-        if (!data.isEnabled) {
+        // Fix due to a bug that put wrong state. If the value in model is undefined, than module is enabled
+        if (presenter.originalIsDisabledModel === undefined) {
+            presenter.enable();
+        }else if (!data.isEnabled && data.isEnabled !== undefined) {
             presenter.disable();
         } else {
             presenter.enable();
