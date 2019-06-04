@@ -17,6 +17,7 @@ function AddoneKeyboard_create(){
     var movedInput = false;
     var escClicked = false;
     var mathfields = [];
+    var inputValue;
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
         'french (special characters)' : "{ \
@@ -203,6 +204,7 @@ function AddoneKeyboard_create(){
             layoutType = presenter.validateType(model['layoutType']),
             customLayout = model['customLayout'],
             maxCharacters = presenter.validateMaxCharacters(model['maxCharacters']),
+            correctAnswers = model['correctAnswers'],
             positionMy = presenter.validatePosition(model['positionMy'], true),
             positionAt = presenter.validatePosition(model['positionAt'], false),
             workWithIsValid = true,
@@ -249,6 +251,51 @@ function AddoneKeyboard_create(){
                     link2.rel = 'stylesheet';
                     link2.href = 'https://unpkg.com/mathlive/dist/mathlive.css';
                     $("head").append(link2);
+
+                    if(inputValue != undefined){
+                        var stateObject = Object.entries(inputValue);
+                        stateObject.forEach(function(value){
+                            var id = value[0].split('_')[1];
+                            var text = value[1];
+                            console.log(text.includes('⬚'));
+                            if(text.includes('n') && text.includes('d')){
+                                $('#'+id).append('\\frac{'+fracNumeratorText(text.split('n')[0])+'}{'+DenumeratorText(text.split('d')[0])+'}');
+                            }
+                            else if(text.includes('%')){
+                                $('#'+id).append('\\%')
+                            }else if(text.includes('_p')){
+                                $('#'+id).append(powerText(text))
+                            }else if(text.includes('_vec')){
+                                $('#'+id).append(vectorText(text))
+                            }else{
+                                $('#'+id).append(text);
+                            }
+                            function vectorText(text){
+                                var splitVal = text.split('_vec')[0];
+                                if(splitVal.includes('⃗')){
+                                    if(splitVal.includes('⬚')){return '\\vec{\\placeholder{}}}'}
+                                    else{return '\\vec{'+splitVal.slice(0, -1)+'}}'}
+                                }else{
+                                    if(splitVal.includes('⬚')){return '\\bar{\\placeholder{}}}'}
+                                    else{return '\\bar{'+splitVal.slice(0, -1)+'}}'}
+                                }
+                            }
+                            function powerText (text){
+                                var powerValue = text.split('_p')[0];
+                                console.log(powerValue);
+                                if(powerValue.includes('â¬š')){return '^{placeholder{}}'}
+                                else{return '^{'+powerValue+'}'}
+                            }
+                            function fracNumeratorText (text){
+                                if(text.includes('⬚')){return '\\placeholder{}'}
+                                else{return text}
+                            }
+                             function DenumeratorText (text){
+                                text = text.split('n')[1];
+                                if(text.includes('⬚')){return '\\placeholder{denominator}'}
+                                else{return text}
+                            }
+                        })};
 
                 if (module) {
                     if ( module.getView() ) {
@@ -384,21 +431,23 @@ function AddoneKeyboard_create(){
                     var classList = $(this).attr("class");
                     var dividedClassList = classList.split(' ')[1];
                     var classNumber = dividedClassList.split('inputNumber')[1];
-                    var p = document.createElement("p");
-                    p.classList.add("writing");
-                    p.id = "writing"+classNumber;
-                    p.innerHTML = '123';
-                    p.style.width = 10 + "px";
-                    p.style.height = 10 + "px";
-                    var x = $(this).offset().left;
-                    var y = $(this).offset().top;
-                    p.style.top = y+"px";
-                    p.style.left = (x+79)+"px";
-                    p.style.position = "absolute";
-                    p.style.color = '#B8B8B8';
-                    p.style.fontStyle = 'italic';
-                    p.style.fontSize = 13+'px';
-                    $('.ic_page').append(p);
+                    if($('#mathfieldDiv'+classNumber+'').text().trim().length == 0){
+                        var p = document.createElement("p");
+                        p.classList.add("writing");
+                        p.id = "writing"+classNumber;
+                        p.innerHTML = '123';
+                        p.style.width = 10 + "px";
+                        p.style.height = 10 + "px";
+                        var x = $(this).offset().left;
+                        var y = $(this).offset().top;
+                        p.style.top = y+"px";
+                        p.style.left = (x+79)+"px";
+                        p.style.position = "absolute";
+                        p.style.color = '#B8B8B8';
+                        p.style.fontStyle = 'italic';
+                        p.style.fontSize = 13+'px';
+                        $('.ic_page').append(p);
+                    }
             });
 
             if (presenter.configuration.isError) {
@@ -628,14 +677,21 @@ function AddoneKeyboard_create(){
                     return "window.mySuperField"+mathNumber+".$insert('{*}', {'focus' : true});";         
                 case '+/-':
                     return "window.mySuperField"+mathNumber+".$insert('{-}', {'focus' : true});"; 
+                case '^':
+                    return "window.mySuperField"+mathNumber+".$insert('\\\\^', {'focus' : true});";
                 case '%':
                     return "window.mySuperField"+mathNumber+".$insert('\\\\%', {'focus' : true});";
+                case '-':
+                    return "window.mySuperField"+mathNumber+".$insert('{\\\\bar{\\\\placeholder{}}}', {'focus' : true});"
+                case '&#10230;':
+                case '&#10231;':
+                    return "window.mySuperField"+mathNumber+".$insert('{\\\\vec{\\\\placeholder{}}}', {'focus' : true});"    
                 case '&#2013;':
                     return "window.mySuperField"+mathNumber+".$insert('^{\\\\placeholder{}}', {'focus' : true});";
                 case '&#11579;':
                     return "window.mySuperField"+mathNumber+".$insert('\\\\frac{\\\\placeholder{}}{\\\\placeholder{denominator}}', {'focus' : true});";
                 case '|&#9725;|':
-                    return "window.mySuperField"+mathNumber+".$insert('{abs}(\\\\placeholder{})', {'focus' : true});";   
+                    return "window.mySuperField"+mathNumber+".$insert('{\\\\lvert \\\\placeholder{} \\\\rvert }', {'focus' : true});";   
                 case '&#9176;':
                     return "window.mySuperField"+mathNumber+".$insert('{ }', {'focus' : true});";   
                 case 'Basic':
@@ -706,6 +762,8 @@ function AddoneKeyboard_create(){
         if (event.target === lastClickedElement) return;
         lastClickedElement.value = "";
         lastClickedElement.style.zIndex = 1;
+        var fieldContainerHeight = $('.ML__fieldcontainer').css('height');
+        lastClickedElement.style.height = (fieldContainerHeight.split('px')[0]-8+'px');
         var lastClickedElementClassList = lastClickedElement.classList;
         var number = lastClickedElementClassList[1].split('inputNumber')[1];
         var mathfieldId = 'mathfieldDiv'+number;
@@ -1244,19 +1302,67 @@ function AddoneKeyboard_create(){
     };
 
     presenter.getState = function () {
-        return JSON.stringify({
-            "isClosed": keyboardIsVisible,
-            "isShowCloseButton": presenter.isShowCloseButton
+    var spans = $('.ic_page').find('.ML__base');
+        var valueToMathfieldId = new Map();
+        var numberIterator = 1;
+        var numberIteratorForFraction = -1;
+        var numberIteratorForPower = 1000;
+        var numberIteratorForPi = -1000;
+        var numberIteratorForVectors = -2000;
+        spans.each(function(){
+            var mathfield = $(this).closest('.mathfieldDiv');
+            var mathfieldText = $(this).text();
+            var textSpan = $(this).children().first();
+
+            var children = textSpan.children('.ML__mathrm');
+            children.each(function(){
+                valueToMathfieldId.set(numberIterator+'_'+mathfield.attr('id'), $(this).text());
+                numberIterator++;
+            });
+
+            var childrenWithPiValue = textSpan.children('.ML__mathit')
+            childrenWithPiValue.each(function(){
+                valueToMathfieldId.set(numberIterator+'_'+mathfield.attr('id'), $(this).text());
+                numberIteratorForPi--;
+            });
+
+            var vectors = $(this).find('span.vlist:has(span.math)');
+            vectors.each(function(){
+                valueToMathfieldId.set(numberIterator+'_'+mathfield.attr('id'), $(this).text()+'_vec');
+                numberIteratorForVectors--;
+            });
+
+            var frac = $(this).find('span.vlist.mfrac');
+            frac.each(function(){
+                if(frac.text() != ""){
+                    var numerator = frac.children()[0];
+                    numerator.textContent;
+                    var denominator = frac.children()[2];
+                    denominator.textContent;
+                    var fractionValue =numerator.textContent+'n'+denominator.textContent+'d';
+                    valueToMathfieldId.set(numberIteratorForFraction+'_'+mathfield.attr('id'), fractionValue);
+                    numberIteratorForFraction--;
+                    }
+            })
+
+            var powers = $(this).find('span.msubsup');
+            powers.each(function(){
+                if(powers.text() != ""){
+                    var power = powers.text()+'_p';
+                    console.log(power);
+                    valueToMathfieldId.set(numberIteratorForPower+'_'+mathfield.attr('id'), power);
+                    numberIteratorForPower++;
+                    }
+            })
         });
+        return JSON.stringify({
+            value: Object.fromEntries(valueToMathfieldId),
+        })
     };
 
     presenter.setState = function (state) {
-        var parsedState = JSON.parse(state);
-        keyboardIsVisible = parsedState.isClosed;
-
-        if(parsedState.isShowCloseButton != undefined) {
-            presenter.isShowCloseButton = parsedState.isShowCloseButton;
-        }
+        var state2 = JSON.parse(state);
+        inputValue = state2.value;
     };
 
     
