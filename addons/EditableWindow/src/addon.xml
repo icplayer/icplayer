@@ -10,5 +10,6 @@
         <property name="index" displayName="Index File" nameLabel="EditableWindow_property_index_file" type="file"/>
         <property name="audio" displayName="Audio File" nameLabel="EditableWindow_property_audio_file" type="file"/>
         <property name="video" displayName="Video File" nameLabel="EditableWindow_property_video_file" type="file"/>
+        <property name="editingEnabled" displayName="Editing enabled" nameLabel="EditableWindow_property_editing_enabled" type="boolean" />
     </model>
 </addon>
