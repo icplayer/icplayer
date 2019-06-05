@@ -2,10 +2,16 @@ div.addon-editable-window-container {
     position: fixed;
 }
 
+div.addon-editable-window-container.addon-editable-window-container-full-screen.ui-draggable-disabled {
+    opacity: initial;
+    background-image: initial;
+}
+
 div.addon-editable-window-container.addon-editable-window-container-full-screen {
     width: 100% !important;
-    height: 100% !important;
-    top: 0 !important;
+    /*height: 700px !important;*/
+    /*height: 100% !important;*/
+    /*top: 0 !important;*/
     left: 0 !important;
 }
 

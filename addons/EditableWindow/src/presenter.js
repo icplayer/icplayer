@@ -26,9 +26,19 @@ function AddonEditableWindow_create() {
         maxWidth: 950,
         state: {
             isInitialized: false,
-            content: null,
-            isFullscreen: false
+            content: null
         }
+    };
+
+    // these values are numbers and won't have "px" ending
+    presenter.temporaryState = {
+        isFullscreen: false,
+        scrollTop: 0,
+        addonFullScreenHeight: 0,
+        addonTop: 0,
+        addonLeft: 0,
+        addonWidth: 0,
+        addonHeight: 0
     };
 
     presenter.run = function (view, model) {
@@ -45,6 +55,8 @@ function AddonEditableWindow_create() {
                 presenter.configuration.hasHtml = presenter.configuration.model.indexFile !== "";
                 presenter.configuration.hasAudio = presenter.configuration.model.audioFile !== "";
                 presenter.configuration.hasVideo = presenter.configuration.model.videoFile !== "";
+                presenter.temporaryState.iFrameOffset = window.iframeSize.frameOffset || 0;
+
                 presenter.init();
                 presenter.hide();
             } else {
@@ -137,7 +149,7 @@ function AddonEditableWindow_create() {
         var $view = $(presenter.configuration.view);
         var $button = $view.find(presenter.cssClasses.fullScreenButton.getSelector());
 
-        if (presenter.configuration.state.isFullScreen) {
+        if (presenter.temporaryState.isFullScreen) {
             presenter.closeFullScreen($view, $button);
         } else {
             presenter.openFullScreen($view, $button);
@@ -145,36 +157,36 @@ function AddonEditableWindow_create() {
     };
 
     presenter.openFullScreen = function($view, $button) {
-        presenter.configuration.state.isFullScreen = true;
+        presenter.temporaryState.isFullScreen = true;
 
         presenter.saveViewPropertiesToState($view);
         presenter.addFullScreenClasses($view, $button);
 
-        if (presenter.configuration.isTinyMceLoaded && presenter.configuration.editor) {
-            presenter.configuration.editor.resizeTo
-        }
+        presenter.positionFullScreenWindow($view);
+        presenter.resizeTinyMce($view.width(), $view.height());
     };
 
     presenter.closeFullScreen = function($view, $button) {
-        presenter.configuration.state.isFullScreen = false;
+        presenter.temporaryState.isFullScreen = false;
 
         presenter.setViewPropertiesFromState($view);
         presenter.removeFullScreenClasses($view, $button);
+        presenter.resizeTinyMce($view.width(), $view.height());
     };
 
     presenter.saveViewPropertiesToState = function($view) {
-        presenter.configuration.state.width = $view.width();
-        presenter.configuration.state.height = $view.height();
-        presenter.configuration.state.top = $view.position().top;
-        presenter.configuration.state.left =$view.position().left;
+        presenter.temporaryState.addonWidth = $view.width();
+        presenter.temporaryState.addonHeight = $view.height();
+        presenter.temporaryState.addonTop = $view.position().top;
+        presenter.temporaryState.addonLeft = $view.position().left;
     };
 
     presenter.setViewPropertiesFromState = function($view) {
-        $view.width(presenter.configuration.state.width);
-        $view.height(presenter.configuration.state.height);
+        $view.width(presenter.temporaryState.addonWidth);
+        $view.height(presenter.temporaryState.addonHeight);
         $view.css({
-            top: presenter.configuration.state.top,
-            left: presenter.configuration.state.left
+            top: presenter.temporaryState.addonTop,
+            left: presenter.temporaryState.addonLeft
         });
     };
 
@@ -182,14 +194,50 @@ function AddonEditableWindow_create() {
         $button.removeClass(presenter.cssClasses.openFullScreenButton.getName());
         $button.addClass(presenter.cssClasses.closeFullScreenButton.getName());
         $view.addClass(presenter.cssClasses.containerFullScreen.getName());
+
+        $view.resizable('disable');
+        $view.draggable('disable');
     };
 
     presenter.removeFullScreenClasses = function($view, $button) {
         $button.removeClass(presenter.cssClasses.closeFullScreenButton.getName());
         $button.addClass(presenter.cssClasses.openFullScreenButton.getName());
         $view.removeClass(presenter.cssClasses.containerFullScreen.getName());
+
+        $view.resizable('enable');
+        $view.draggable('enable');
     };
 
+    presenter.positionFullScreenWindow = function($view) {
+        var top = presenter.temporaryState.scrollTop + 'px';
+        var height = (window.iframeSize.windowInnerHeight || presenter.configuration.model.width) + 'px';
+        $view.css({
+            top:  top,
+            height: height
+        });
+    };
+
+    presenter.resizeTinyMce = function(width, height) {
+        if (presenter.configuration.isTinyMceLoaded && presenter.configuration.editor) {
+            width -= presenter.configuration.widthOffset;
+            height -= presenter.configuration.heightOffset;
+            presenter.configuration.editor.theme.resizeTo(width, height);
+        }
+    };
+
+    presenter.updateFullScreenWindowTop = function() {
+        var $view = $(presenter.configuration.view);
+        var top = presenter.temporaryState.scrollTop;
+
+        // this is needed when embeding page has header and iFrame is not at the top of the page
+        if (top > presenter.temporaryState.iFrameOffset) {
+            top -= presenter.temporaryState.iFrameOffset;
+        }
+
+        $view.css({
+            top: top + 'px'
+        });
+    };
 
     presenter.handleVideoContent = function () {
         var $view = $(presenter.configuration.view);
@@ -207,7 +255,7 @@ function AddonEditableWindow_create() {
     };
 
     presenter.changeViewPositionToFixed = function() {
-        // changing position to fixed is needed because jQuery changes position of element to absolute when it is resizable and draggable after some callbacks
+        // changing position to fixed is needed because jQuery changes position of element to absolute when it is both resizable and draggable after resize
         presenter.configuration.view.style.position = 'fixed';
     };
 
@@ -510,9 +558,18 @@ function AddonEditableWindow_create() {
         presenter.configuration.playerController = controller;
         presenter.configuration.eventBus = presenter.configuration.playerController.getEventBus();
         presenter.configuration.eventBus.addEventListener('ValueChanged', this);
+        presenter.configuration.eventBus.addEventListener('ScrollEvent',  this);
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
+        if (eventName === 'ValueChanged') {
+            presenter.handleValueChanged(eventData);
+        } else if (eventName === 'ScrollEvent') {
+            presenter.handleScrollEvent(eventData);
+        }
+    };
+
+    presenter.handleValueChanged = function(eventData) {
         var value = eventData.value;
         var source = eventData.source;
         var id = presenter.configuration.model.id;
@@ -521,6 +578,15 @@ function AddonEditableWindow_create() {
 
         if (value === "move-editable-windows" && source !== id) {
             $view.style("z-index", "1");
+        }
+    };
+
+    presenter.handleScrollEvent = function(eventData) {
+        var scrollValue = eventData.value;
+        presenter.temporaryState.scrollTop = scrollValue;
+
+        if (presenter.temporaryState.isFullScreen) {
+            presenter.updateFullScreenWindowTop();
         }
     };
 
