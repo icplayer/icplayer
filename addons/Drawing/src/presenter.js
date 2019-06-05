@@ -35,6 +35,14 @@ function AddonDrawing_create() {
     presenter.mouse = {x: 0, y: 0};
     presenter.isStarted = false;
 
+    presenter.initialState = {
+        color: null,
+        thickness: null,
+        opacity: null,
+        eraser: false,
+        eraserThickness: null
+    };
+
     function getZoom() {
         var val = $('#_icplayer').css('zoom');
         if (val == "normal" || val == "") { // IE 11
@@ -353,9 +361,35 @@ function AddonDrawing_create() {
         }
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
+
+        presenter.loadInitialState();
+    };
+
+    presenter.loadInitialState = function() {
+        if (presenter.initialState.color != null) {
+            presenter.setColor(presenter.initialState.color);
+        }
+        if (presenter.initialState.thickness != null) {
+            presenter.setThickness(presenter.initialState.thickness);
+        }
+        if (presenter.initialState.opacity != null) {
+            presenter.setOpacity(presenter.initialState.opacity);
+        }
+        if (presenter.initialState.eraser == true) {
+            presenter.setEraserOn();
+        }
+        if (presenter.initialState.eraserThickness != null) {
+            presenter.setEraserThickness(presenter.initialState.eraserThickness);
+        }
     };
 
     presenter.setColor = function(color) {
+        if (!presenter.configuration.context) {
+            presenter.initialState.color = color;
+            presenter.initialState.eraser = false;
+            return;
+        }
+
         if (typeof color === "object") color = color[0];
 
         presenter.configuration.isPencil = true;
@@ -366,6 +400,11 @@ function AddonDrawing_create() {
     };
 
     presenter.setThickness = function(thickness) {
+        if (!presenter.configuration.context) {
+            presenter.initialState.thickness = thickness;
+            return;
+        }
+
         if (typeof thickness === "object") thickness = thickness[0];
 
         presenter.configuration.pencilThickness = presenter.parseThickness(thickness).thickness;
@@ -375,12 +414,22 @@ function AddonDrawing_create() {
     };
 
     presenter.setOpacity = function(opacity) {
+        if (!presenter.configuration.context) {
+            presenter.initialState.opacity = opacity;
+            return;
+        }
+
         if (typeof opacity === "object") opacity = opacity[0];
 
         presenter.configuration.opacity = presenter.parseOpacity(opacity).opacity;
     };
 
     presenter.setEraserOff = function () {
+         if (!presenter.configuration.context) {
+            presenter.initialState.eraser = false;
+            return;
+        }
+
         if (presenter.beforeEraserColor == undefined) {
             presenter.setColor(presenter.configuration.color);
         } else {
@@ -389,6 +438,11 @@ function AddonDrawing_create() {
     };
 
     presenter.setEraserOn = function() {
+         if (!presenter.configuration.context) {
+            presenter.initialState.eraser = true;
+            return;
+        }
+
         presenter.configuration.isPencil = false;
 
         presenter.configuration.thickness = presenter.configuration.eraserThickness;
@@ -398,6 +452,11 @@ function AddonDrawing_create() {
     };
 
     presenter.setEraserThickness = function(thickness) {
+        if (!presenter.configuration.context) {
+            presenter.initialState.eraserThickness = thickness;
+            return;
+        }
+
         presenter.configuration.eraserThickness = presenter.parseThickness(thickness).thickness;
         if (!presenter.configuration.isPencil) {
             presenter.configuration.thickness = presenter.configuration.eraserThickness;
