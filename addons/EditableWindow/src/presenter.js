@@ -160,10 +160,13 @@ function AddonEditableWindow_create() {
         presenter.temporaryState.isFullScreen = true;
 
         presenter.saveViewPropertiesToState($view);
+
+        var height = window.iframeSize.windowInnerHeight || presenter.configuration.model.width;
+        $view.height(height);
         presenter.addFullScreenClasses($view, $button);
 
-        presenter.positionFullScreenWindow($view);
-        presenter.resizeTinyMce($view.width(), $view.height());
+        presenter.updateFullScreenWindowTop();
+        presenter.resizeTinyMce($view.width(), height);
     };
 
     presenter.closeFullScreen = function($view, $button) {
@@ -206,15 +209,6 @@ function AddonEditableWindow_create() {
 
         $view.resizable('enable');
         $view.draggable('enable');
-    };
-
-    presenter.positionFullScreenWindow = function($view) {
-        var top = presenter.temporaryState.scrollTop + 'px';
-        var height = (window.iframeSize.windowInnerHeight || presenter.configuration.model.width) + 'px';
-        $view.css({
-            top:  top,
-            height: height
-        });
     };
 
     presenter.resizeTinyMce = function(width, height) {
@@ -491,21 +485,20 @@ function AddonEditableWindow_create() {
 
     presenter.centerPosition = function () {
         var $view = $(presenter.configuration.view);
-        var width = $view.find(".addon-editable-window-wrapper").width();
-        var icPageWidth = $(".ic_page").width();
+        var width = $view.width();
+        var availableWidth = $(window).width();
 
-        var scrollY;
-        try {
-            scrollY = presenter.configuration.playerController.iframeScroll();
-        } catch (e) {
-            scrollY = 0;
-            console.error(e.errorMessage);
-        }
+        var scrollY = presenter.temporaryState.scrollTop;
 
         var topOffset = scrollY + 25;
-        var leftOffset = (icPageWidth - width) / 2;
+        var leftOffset = (availableWidth - width) / 2;
 
-        $view.css({top: topOffset, left: leftOffset, right: "", bottom: ""});
+        $view.css({
+            top: topOffset,
+            left: leftOffset,
+            right: "",
+            bottom: ""
+        });
     };
 
     presenter.show = function () {
