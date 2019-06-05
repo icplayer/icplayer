@@ -185,7 +185,7 @@ function AddonEditableWindow_create() {
                     menubar: false,
                     height: height - heightOffset,
                     width: width - widthOffset,
-                    init_instance_callback: function (editor) {
+                    setup: function (editor) {
                         if(!presenter.configuration.model.editingEnabled) {
                             editor.on('keydown keypress keyup', function (e) {
                                 e.preventDefault();
