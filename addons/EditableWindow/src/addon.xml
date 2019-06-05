@@ -10,5 +10,7 @@
         <property name="index" displayName="Index File" nameLabel="EditableWindow_property_index_file" type="file"/>
         <property name="audio" displayName="Audio File" nameLabel="EditableWindow_property_audio_file" type="file"/>
         <property name="video" displayName="Video File" nameLabel="EditableWindow_property_video_file" type="file"/>
+        <property name="isVisibleToTeacher" displayName="Is visible to teacher" nameLabel="EditableWindow_property_is_visible_to_teacher" type="boolean"/>
+        <property name="isVisibleToStudent" displayName="Is visible to student" nameLabel="EditableWindow_property_is_visible_to_student" type="boolean"/>
     </model>
 </addon>
