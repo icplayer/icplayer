@@ -1,5 +1,4 @@
 function AddonEditableWindow_create() {
-
     var presenter = function () {
     };
 
@@ -27,13 +26,14 @@ function AddonEditableWindow_create() {
         maxWidth: 950,
         state: {
             isInitialized: false,
-            content: null
+            content: null,
+            isFullscreen: false
         }
     };
 
     presenter.run = function (view, model) {
         try {
-            presenter.configuration.view = view.getElementsByClassName('addon-editable-window-container')[0];
+            presenter.configuration.view = view.getElementsByClassName(presenter.cssClasses.container.getName())[0];
             view.addEventListener('DOMNodeRemoved', presenter.destroy);
             presenter.configuration.model = presenter.validModel(model);
 
@@ -116,26 +116,80 @@ function AddonEditableWindow_create() {
             },
         });
 
-        presenter.addHandlers();
+        presenter.addHandlers($view);
     };
 
-    presenter.addHandlers = function() {
-        $view.find(".addon-editable-close-button").click(presenter.closeButtonCallback);
-        $view.find(".addon-editable-full-screen-button").click(presenter.fullScreenButtonClickedCallback);
-        $view.find(".addon-editable-window-wrapper").click(presenter.viewClickedCallback);
-    }
+    presenter.addHandlers = function($view) {
+        $view.find(presenter.cssClasses.closeButton.getSelector()).click(presenter.closeButtonClickedCallback);
+        $view.find(presenter.cssClasses.fullScreenButton.getSelector()).click(presenter.fullScreenButtonClickedCallback);
+        $view.find(presenter.cssClasses.wrapper.getSelector()).click(presenter.viewClickedCallback);
+    };
 
     presenter.viewClickedCallback = function() {
         presenter.show();
-    }
+    };
 
     presenter.closeButtonClickedCallback = function () {
         presenter.hide();
-    }
+    };
 
     presenter.fullScreenButtonClickedCallback = function () {
-        // TODO: logic
-    }
+        var $view = $(presenter.configuration.view);
+        var $button = $view.find(presenter.cssClasses.fullScreenButton.getSelector());
+
+        if (presenter.configuration.state.isFullScreen) {
+            presenter.closeFullScreen($view, $button);
+        } else {
+            presenter.openFullScreen($view, $button);
+        }
+    };
+
+    presenter.openFullScreen = function($view, $button) {
+        presenter.configuration.state.isFullScreen = true;
+
+        presenter.saveViewPropertiesToState($view);
+        presenter.addFullScreenClasses($view, $button);
+
+        if (presenter.configuration.isTinyMceLoaded && presenter.configuration.editor) {
+            presenter.configuration.editor.resizeTo
+        }
+    };
+
+    presenter.closeFullScreen = function($view, $button) {
+        presenter.configuration.state.isFullScreen = false;
+
+        presenter.setViewPropertiesFromState($view);
+        presenter.removeFullScreenClasses($view, $button);
+    };
+
+    presenter.saveViewPropertiesToState = function($view) {
+        presenter.configuration.state.width = $view.width();
+        presenter.configuration.state.height = $view.height();
+        presenter.configuration.state.top = $view.position().top;
+        presenter.configuration.state.left =$view.position().left;
+    };
+
+    presenter.setViewPropertiesFromState = function($view) {
+        $view.width(presenter.configuration.state.width);
+        $view.height(presenter.configuration.state.height);
+        $view.css({
+            top: presenter.configuration.state.top,
+            left: presenter.configuration.state.left
+        });
+    };
+
+    presenter.addFullScreenClasses = function($view, $button) {
+        $button.removeClass(presenter.cssClasses.openFullScreenButton.getName());
+        $button.addClass(presenter.cssClasses.closeFullScreenButton.getName());
+        $view.addClass(presenter.cssClasses.containerFullScreen.getName());
+    };
+
+    presenter.removeFullScreenClasses = function($view, $button) {
+        $button.removeClass(presenter.cssClasses.closeFullScreenButton.getName());
+        $button.addClass(presenter.cssClasses.openFullScreenButton.getName());
+        $view.removeClass(presenter.cssClasses.containerFullScreen.getName());
+    };
+
 
     presenter.handleVideoContent = function () {
         var $view = $(presenter.configuration.view);
@@ -155,7 +209,7 @@ function AddonEditableWindow_create() {
     presenter.changeViewPositionToFixed = function() {
         // changing position to fixed is needed because jQuery changes position of element to absolute when it is resizable and draggable after some callbacks
         presenter.configuration.view.style.position = 'fixed';
-    }
+    };
 
     presenter.handleHtmlContent = function () {
         try {
@@ -545,10 +599,32 @@ function AddonEditableWindow_create() {
     };
 
     presenter.removeCallbacks = function() {
-        $view.off('click', ".addon-editable-close-button", presenter.closeButtonCallback);
-        $view.off('click', ".addon-editable-close-button", presenter.fullScreenButtonClickedCallback);
-        $view.off('click', ".addon-editable-close-button", presenter.viewClickedCallback);
-}
+        $view.off('click', presenter.cssClasses.closeButton.getSelector(), presenter.closeButtonClickedCallback);
+        $view.off('click', presenter.cssClasses.fullScreenButton.getSelector(), presenter.fullScreenButtonClickedCallback);
+        $view.off('click', presenter.cssClasses.wrapper.getSelector(), presenter.viewClickedCallback);
+    };
+
+    presenter.CssClass = function CssClass(name) {
+        this.name = name;
+    };
+
+    presenter.CssClass.prototype.getSelector = function () {
+        return "." + this.name;
+    };
+
+    presenter.CssClass.prototype.getName = function() {
+        return this.name;
+    };
+
+    presenter.cssClasses = {
+        container: new presenter.CssClass("addon-editable-window-container"),
+        containerFullScreen: new presenter.CssClass("addon-editable-window-container-full-screen"),
+        closeButton: new presenter.CssClass("addon-editable-close-button"),
+        fullScreenButton: new presenter.CssClass("addon-editable-full-screen-button"),
+        openFullScreenButton: new presenter.CssClass("addon-editable-open-full-screen-button"),
+        closeFullScreenButton: new presenter.CssClass("addon-editable-close-full-screen-button"),
+        wrapper: new presenter.CssClass("addon-editable-window-wrapper")
+    };
 
     return presenter;
 }
