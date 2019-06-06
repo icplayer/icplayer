@@ -185,7 +185,14 @@ function AddonEditableWindow_create() {
                     menubar: false,
                     height: height - heightOffset,
                     width: width - widthOffset,
-                }).then(function (editors) {
+                    setup: function (editor) {
+                        if(!presenter.configuration.model.editingEnabled) {
+                            editor.on('keydown keypress keyup', function (e) {
+                                e.preventDefault();
+                            });
+                        }
+                    }
+                    }).then(function (editors) {
                     presenter.configuration.editorIsInitialized = true;
                     presenter.configuration.editor = editors[0];
                     presenter.configuration.isTinyMceLoaded = true;
@@ -293,6 +300,7 @@ function AddonEditableWindow_create() {
             videoFile: model['video'],
             title: model['title'] ? model['title'] : "",
             headerStyle: model['headerStyle'] ? model['headerStyle'] : "",
+            editingEnabled: ModelValidationUtils.validateBoolean(model["editingEnabled"])
         }
     };
 
