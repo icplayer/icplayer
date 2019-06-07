@@ -180,7 +180,7 @@ function AddonEditableWindow_create() {
 
     presenter.fullScreenButtonClickedCallback = function () {
         var $view = presenter.configuration.$container;
-        var $button = $view.find(presenter.cssClasses.fullScreenButton.getSelector());
+        var $button = $(presenter.configuration.view).find(presenter.cssClasses.fullScreenButton.getSelector());
 
         if (presenter.temporaryState.isFullScreen) {
             presenter.closeFullScreen($view, $button);
