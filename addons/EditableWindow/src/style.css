@@ -35,6 +35,11 @@ div.addon-editable-window-container.addon-editable-window-container-full-screen 
     height: 100%;
 }
 
+div.addon-editable-buttons-menu {
+    z-index: 3;
+    position: fixed;
+}
+
 .addon-editable-close-button {
     position: absolute;
     top: 2px;
