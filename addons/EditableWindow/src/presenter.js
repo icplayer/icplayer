@@ -147,11 +147,13 @@ function AddonEditableWindow_create() {
     presenter.updateButtonMenuPosition = function () {
         var $view = $(presenter.configuration.view);
         var $buttonMenu = $view.find(presenter.cssClasses.buttonMenu.getSelector());
+        // selector needs to be scoped to addon id, otherwise if more than one addon were added to lesson then it wouldn't properly position buttonMenu
+        var buttonParentSelector = '#' + presenter.configuration.model.id + ' ' + presenter.cssClasses.container.getSelector();
 
         $buttonMenu.position({
             my: "left top",
             at: "right top",
-            of: presenter.cssClasses.container.getSelector(),
+            of: buttonParentSelector,
             collision: "fit"
         });
     };
