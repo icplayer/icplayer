@@ -33,7 +33,7 @@ function AddonEditableWindow_create() {
 
     // these values are numbers and won't have "px" ending
     presenter.temporaryState = {
-        isFullscreen: false,
+        isFullScreen: false,
         scrollTop: 0,
         addonFullScreenHeight: 0,
         addonTop: 0,
@@ -171,7 +171,7 @@ function AddonEditableWindow_create() {
     presenter.closeButtonClickedCallback = function () {
         var $view = presenter.configuration.$container;
         var $button = $view.find(presenter.cssClasses.fullScreenButton.getSelector());
-        if (presenter.temporaryState.isFullscreen) {
+        if (presenter.temporaryState.isFullScreen) {
             presenter.closeFullScreen($view, $button);
         }
 
