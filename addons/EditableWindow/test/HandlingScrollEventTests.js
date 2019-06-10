@@ -34,6 +34,8 @@ TestCase("[EditableWindow] Handling scroll event", {
     },
 
     'test given scroll in state when scroll event comes then scroll value in state will be number and will be changed': function () {
+        assertEquals(0, this.presenter.temporaryState.scrollTop);
+
         var eventData = {
             value: '100'
         };
@@ -41,7 +43,6 @@ TestCase("[EditableWindow] Handling scroll event", {
         this.presenter.handleScrollEvent(eventData);
 
         assertEquals('number', typeof this.presenter.temporaryState.scrollTop);
-        assertEquals(100, this.presenter.temporaryState.scrollTop);
         assertEquals(100, this.presenter.temporaryState.scrollTop);
     }
 });
