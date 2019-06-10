@@ -223,7 +223,7 @@ function AddonEditableWindow_create() {
         presenter.temporaryState.addonLeft = $view.position().left;
     };
 
-    // restore size and position before going full screen, also add current scroll value window is visible
+    // restore size and position before going full screen, also add current scroll value so window is visible at once
     presenter.setViewPropertiesFromState = function($view) {
         $view.width(presenter.temporaryState.addonWidth);
         $view.height(presenter.temporaryState.addonHeight);
