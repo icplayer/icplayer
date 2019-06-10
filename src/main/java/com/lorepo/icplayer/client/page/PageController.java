@@ -625,4 +625,13 @@ public class PageController implements ITextToSpeechController {
 		this.isReadingOn = isReadingOn;
 	}
 	
+	public void sendScrollEvent(int scrollValue) {
+		String eventName = "ScrollEvent";
+		HashMap<String, String> eventData = new HashMap<String, String>();
+		eventData.put("value", Integer.toString(scrollValue));
+		CustomEvent scrollEvent = new CustomEvent(eventName, eventData);
+
+		this.playerService.getEventBus().fireEvent(scrollEvent);
+	}
+	
 }
