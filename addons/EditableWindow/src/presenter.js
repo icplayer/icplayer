@@ -101,7 +101,9 @@ function AddonEditableWindow_create() {
 
         $container.css("z-index", "1");
 
+        // containment option disallows moving window outside of specifed dom element
         $container.draggable({
+            containment: 'document',
             start: function () {
                 presenter.show();
             },
@@ -221,12 +223,12 @@ function AddonEditableWindow_create() {
         presenter.temporaryState.addonLeft = $view.position().left;
     };
 
-    // restore size and position before going full screen
+    // restore size and position before going full screen, also add current scroll value so window is visible at once
     presenter.setViewPropertiesFromState = function($view) {
         $view.width(presenter.temporaryState.addonWidth);
         $view.height(presenter.temporaryState.addonHeight);
         $view.css({
-            top: presenter.temporaryState.addonTop,
+            top: presenter.temporaryState.addonTop + presenter.temporaryState.scrollTop,
             left: presenter.temporaryState.addonLeft
         });
     };
@@ -541,7 +543,7 @@ function AddonEditableWindow_create() {
     presenter.centerPosition = function () {
         var $view = presenter.configuration.$container;
         var width = $view.width();
-        var availableWidth = $(window).width();
+        var availableWidth = presenter.getAvailableWidth();
 
         var scrollY = presenter.temporaryState.scrollTop;
 
@@ -549,14 +551,17 @@ function AddonEditableWindow_create() {
         var leftOffset = (availableWidth - width) / 2;
 
         $view.css({
-            top: topOffset,
-            left: leftOffset,
+            top: topOffset + 'px',
+            left: leftOffset + 'px',
             right: "",
             bottom: ""
         });
 
         presenter.updateButtonMenuPosition();
+    };
 
+    presenter.getAvailableWidth = function() {
+        return $(window).width();
     };
 
     presenter.show = function () {
@@ -635,7 +640,7 @@ function AddonEditableWindow_create() {
 
     presenter.handleScrollEvent = function(eventData) {
         var scrollValue = eventData.value;
-        presenter.temporaryState.scrollTop = scrollValue;
+        presenter.temporaryState.scrollTop = parseInt(scrollValue, 10);
 
         if (presenter.temporaryState.isFullScreen) {
             presenter.updateFullScreenWindowTop();
