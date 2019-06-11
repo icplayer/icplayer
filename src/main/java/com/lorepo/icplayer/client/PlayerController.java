@@ -644,6 +644,14 @@ public class PlayerController implements IPlayerController{
 
 	public void setIframeScroll (int scroll) {
 		this.iframeScroll = scroll;
+		
+		if (this.pageController1 != null) {
+			this.pageController1.sendScrollEvent(scroll);
+		}
+		
+		if (this.pageController2 != null) {
+			this.pageController2.sendScrollEvent(scroll);
+		}
 	}
 
 	@Override
@@ -665,17 +673,15 @@ public class PlayerController implements IPlayerController{
 
 	public native int getIFrameScroll (PlayerController x) /*-{
 		var iframeScroll = 0;
-		
-		if(x.@com.lorepo.icplayer.client.PlayerController::checkIsPlayerInCrossDomain()()) {		
-			$wnd.addEventListener('message', function (event) {
-				var data = event.data;
-		
-				if ((typeof data == 'string' || data instanceof String) && data.indexOf('I_FRAME_SCROLL:') === 0) {
-					iframeScroll = JSON.parse(data.replace('I_FRAME_SCROLL:', ''));
-					x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(iframeScroll);
-				}
-			}, false);
-		}
+				
+		$wnd.addEventListener('message', function (event) {
+			var data = event.data;
+	
+			if ((typeof data == 'string' || data instanceof String) && data.indexOf('I_FRAME_SCROLL:') === 0) {
+				iframeScroll = JSON.parse(data.replace('I_FRAME_SCROLL:', ''));
+				x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(iframeScroll);
+			}
+		}, false);
 	}-*/;
 
 	@Override
