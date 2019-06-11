@@ -10,6 +10,8 @@ function AddonParagraph_create() {
     presenter.playerController = null;
     presenter.isVisibleValue = null;
 
+    presenter.isEditorLoaded = false;
+
     presenter.LANGUAGES = {
         DEFAULT: "en_GB",
         FRENCH: "fr_FR"
@@ -59,6 +61,15 @@ function AddonParagraph_create() {
     };
 
     presenter.isAttempted = function () {
+        if (!presenter.isEditorLoaded) {
+            if (presenter.state) {
+                var parser = new DOMParser();
+                var stateNode = parser.parseFromString(JSON.parse(presenter.state).tinymceState, "text/html");
+                return $(stateNode).text() != '';
+            } else {
+                return false;
+            }
+        }
         return $(presenter.editor.getContent({format: 'raw'})).text() != '';
     };
 
@@ -102,6 +113,8 @@ function AddonParagraph_create() {
     };
 
     presenter.initializeEditor = function AddonParagraph_initializeEditor(view, model) {
+        if (presenter.loaded){ return;}
+        presenter.loaded = true;
         presenter.view = view;
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
@@ -136,6 +149,7 @@ function AddonParagraph_create() {
             presenter.editor.on('blur', function () {
                 presenter.sendOnBlurEvent();
             });
+            presenter.isEditorLoaded = true;
         });
         
         if(isIOSSafari()) {
@@ -602,10 +616,37 @@ function AddonParagraph_create() {
             editorHeight = presenter.$view.height();
 
         if (!presenter.configuration.isToolbarHidden) {
-            editorHeight -= presenter.$view.find('.mce-toolbar').height();
-        }
+            //setTimouts for checking if height of the toolbar changed
+            setTimeout(function () {
+                    var lastHeight = presenter.$view.find('.mce-toolbar').height(),
+                        newHeight,
+                        counter = 0,
+                        toolbarHeightChangedTimeout = false,
+                        originalEditorHeight = editorHeight;
 
-        $editor.height(editorHeight);
+                        editorHeight -= presenter.$view.find('.mce-toolbar').height();
+                        $editor.height(editorHeight);
+                    (function checkHeight(){
+                        newHeight = presenter.$view.find('.mce-toolbar').height();
+                        if(lastHeight !== newHeight) {
+                            var height = originalEditorHeight - presenter.$view.find('.mce-toolbar').height();
+                            $editor.height(height);
+                        }
+                        lastHeight = newHeight;
+
+                        if(toolbarHeightChangedTimeout) {
+                            clearTimeout(toolbarHeightChangedTimeout);
+                        }
+
+                        counter++;
+                        if(counter < 3) {
+                            toolbarHeightChangedTimeout = setTimeout(checkHeight, 500);
+                        }
+                    })();
+            }, 0);
+        } else {
+            $editor.height(editorHeight);
+        }
     };
 
     presenter.onInit = function AddonParagraph_onInit() {
@@ -629,7 +670,7 @@ function AddonParagraph_create() {
         }
 
         presenter.$tinyMCEToolbar = presenter.$view.find('.mce-toolbar');
-        presenter.$tinyMCEToolbar.on('resize', presenter.setIframeHeight);
+        presenter.setIframeHeight();
 
         presenter.tinyMceContainer = presenter.$view.find('.mce-container.mce-panel.mce-tinymce');
         presenter.tinyMceContainer.css('border', 0);

@@ -1,4 +1,13 @@
-2019-04-24 Added modules metadata.
+2019-06-11 Added modules metadata.
+2019-06-11 Fixed issue with background color in show answers mode of Text Coloring
+2019-06-10 Fixed issues with editable window position centering. Disallow moving the window outside of document.
+2019-06-07 Added fullscreen option to editable window.
+2019-06-04 Added property to disable or enable editing in popup in Editable window module
+2019-05-23 Added title to a ediatble window custon addon
+2019-05-14 Fixed issue with setState in Audio on Mobile Safari
+2019-05-10 Fixed setting iframe height in Paragraph module
+2019-05-10 Added reset button, limited width and limited colors in Editable Window
+2019-04-18 Fixed issue with isAttempted command in Paragraph
 2019-04-18 Fixed issue with pause command in video only being available from AC scripts
 2019-04-17 Added audio to text module
 2019-04-17 Fixed sorting on mobile devices in Ordering module
