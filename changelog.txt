@@ -1,3 +1,4 @@
+2019-06-11 Fixed issue with Report when multiple pages have the same name
 2019-05-23 Added title to a ediatble window custon addon
 2019-05-14 Fixed issue with setState in Audio on Mobile Safari
 2019-05-10 Fixed setting iframe height in Paragraph module
