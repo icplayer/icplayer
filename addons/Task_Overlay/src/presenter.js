@@ -646,7 +646,7 @@ function AddonTask_Overlay_create(){
 			updatePopup(results);
 			showPopupButton();
 			if (results == presenter.MODULE_RESULTS.correct) {
-				presenter.state.buttonState = presenter.BUTTON_STATES.next;
+				presenter.state.buttonState = presenter.BUTTON_STATES.show_answer;
 				presenter.state.completion = presenter.COMPLETION_CODES.correct;
 				limitedCheck();
 			} else {

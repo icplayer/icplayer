@@ -17,7 +17,9 @@ function AddoneKeyboard_create(){
     var movedInput = false;
     var escClicked = false;
     var mathfields = [];
-    var inputValue;
+    var inputValue = '';
+    var inputsNumber = '';
+    var taskOverlayId = '';
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
         'french (special characters)' : "{ \
@@ -198,6 +200,8 @@ function AddoneKeyboard_create(){
         runLogic(view, model, true);
     };
 
+    var arrayOfInputsIndexes;
+    var inputs;
     presenter.validateModel = function(model, isPreview) {
         var workWithModules = Helpers.splitLines(model['workWith']),
             workWithViews = [],
@@ -205,6 +209,9 @@ function AddoneKeyboard_create(){
             customLayout = model['customLayout'],
             maxCharacters = presenter.validateMaxCharacters(model['maxCharacters']),
             correctAnswers = model['correctAnswers'],
+            taskOverlayId = model['taskOverlayId'],
+            taskOverlayId = model['taskOverlayId'],
+            inputsNumber = model['inputsNumber'],
             positionMy = presenter.validatePosition(model['positionMy'], true),
             positionAt = presenter.validatePosition(model['positionAt'], false),
             workWithIsValid = true,
@@ -218,28 +225,32 @@ function AddoneKeyboard_create(){
                     getViewNotImplemented = false;
                 
                     console.log(this);
-                
-                    var inputs = $("#"+this+" input");
+
+                    var splitInputsNumber = inputsNumber.split('=[')[1];
+                    var inputsIndexes = splitInputsNumber.split(']}')[0];
+                    arrayOfInputsIndexes = inputsIndexes.split(',');
+
+                    inputs = $("#"+this+" input");
+
                     var spans = $("#"+this+" span[class = 'subAnswer']");
                     $("#"+this+" span[class = 'normal']").css('margin-bottom', '30px');
+                    console.log(spans);
 
-                    for(i = 0; i < inputs.length; i++){
+                    arrayOfInputsIndexes.forEach(function(inputIndex){
                         var div = document.createElement('div');
                         div.classList.add("mathfieldDiv");
-                        div.id = "mathfieldDiv"+i;
+                        div.id = "mathfieldDiv"+inputIndex.trim();
                         div.style.width = 100 + "px";
                         div.style.height = 45 + "px";
-                        spans[i].append(div);
-    
+                        spans[inputIndex.trim()].append(div);
                         var script = document.createElement("script");
                         script.type = 'module';
                         script.text = "import MathLive from 'https://unpkg.com/mathlive/dist/mathlive.mjs';"+
-                        "window.mySuperField"+i+" = MathLive.makeMathField('mathfieldDiv"+i+"');";
+                        "window.mySuperField"+inputIndex.trim()+" = MathLive.makeMathField('mathfieldDiv"+inputIndex.trim()+"');";
                         $("body").append(script);
-                        mathfields[i] = 'mathfieldDiv'+i;
-                        
-                        inputs[i].classList.add('inputNumber'+ i);
-                    }
+                        mathfields[inputIndex.trim()] = 'mathfieldDiv'+inputIndex.trim();
+                        inputs[inputIndex.trim()].classList.add('inputNumber'+ inputIndex.trim());
+                    })
                     
     
                     var link1 = document.createElement("link");
@@ -257,18 +268,31 @@ function AddoneKeyboard_create(){
                         stateObject.forEach(function(value){
                             var id = value[0].split('_')[1];
                             var text = value[1];
-                            console.log(text.includes('⬚'));
-                            if(text.includes('n') && text.includes('d')){
+                            if(text.includes('n') && text.includes('d') && !text.includes('border') && !text.includes('outline')){
                                 $('#'+id).append('\\frac{'+fracNumeratorText(text.split('n')[0])+'}{'+DenumeratorText(text.split('d')[0])+'}');
                             }
-                            else if(text.includes('%')){
+                            else if(text.includes('%') && !text.includes('border') && !text.includes('outline')){
                                 $('#'+id).append('\\%')
-                            }else if(text.includes('_p')){
+                            }else if(text.includes('_p') && !text.includes('border') && !text.includes('outline')){
                                 $('#'+id).append(powerText(text))
-                            }else if(text.includes('_vec')){
+                            }else if(text.includes('_vec') && !text.includes('border') && !text.includes('outline')){
                                 $('#'+id).append(vectorText(text))
-                            }else{
-                                $('#'+id).append(text);
+                            }else if(text.includes('border')){
+                                function changeBarColor(){
+                                   var borderValue = text.split('border ')[1];
+                                   $('#'+id+'').find('.ML__fieldcontainer').css('border', ''+borderValue+'')
+                               }
+                                setTimeout(changeBarColor, 100);
+                           }else if(text.includes('outline')){
+                                function changeBarColor(){
+                                   var outlineValue = text.split('outline ')[1];
+                                   $('#'+id+'').find('.ML__fieldcontainer').css('outline', ''+outlineValue+'')
+                               }
+                                setTimeout(changeBarColor, 100);
+                           }else{
+                               if(!text.includes('border') && !text.includes('outline')){
+                                   $('#'+id).append(text);
+                               }
                             }
                             function vectorText(text){
                                 var splitVal = text.split('_vec')[0];
@@ -316,6 +340,131 @@ function AddoneKeyboard_create(){
                 }
             });
         }
+
+        function fractionAnswer(answers){
+            var frac = answers.split('/fraction')[0].split('fraction')[1];
+            var numerator = frac.split('/numerator')[0].split('numerator')[1];
+            var denomirator = frac.split('/denomirator')[0].split('denominator')[1];
+        
+            var num = numerator.split('/');
+            var den = denomirator.split('/');
+        
+            var numeratorWorth = '';
+            for(i = 0; i < num[1].split('').length; i++){
+                if(num[1].split('')[i] != ' '){
+                    numeratorWorth += num[1].split('')[i];
+               }
+            }
+            var denomiratorWorth = '';
+            for(i = 0; i < den[1].split('').length; i++){
+                if(den[1].split('')[i] != ' '){
+                    denomiratorWorth += den[1].split('')[i];
+               }
+            }
+            return numeratorWorth + '/' + denomiratorWorth;
+        }
+
+        var validateStatus;
+        var wrongAnswersIds = [];
+        $('#'+taskOverlayId+'').find('.progress-button-text').on('click', function(){
+            var split = correctAnswers.split('ans_option')
+            var fraction = [];
+            function hasText(value){return value.includes('checktype')}
+            var filtered = split.filter(hasText);
+            var mathfieldId;
+            filtered.forEach(function(filter){
+                var answers = filter;
+                mathfieldId = answers.split(' checktype')[0];
+                mathfieldNumber = mathfieldId.split('mathfield')[1];
+                if(answers.includes('fraction')){
+                   fraction.push(mathfieldId+"_"+fractionAnswer(answers));
+               }
+            })
+            var maxScore = fraction.length;
+            var score = 0;
+
+            if($(this).text() === 'Validate'){
+                function validate() {
+                    var counter = 0;
+                    fraction.forEach(function(answer){
+                        if($('#mathfieldDiv'+arrayOfInputsIndexes[counter].trim()+'').find('.ML__base').text() == answer.replace('/', '').split('_')[1]){
+                            score += 1;
+                            $('#mathfieldDiv'+arrayOfInputsIndexes[counter].trim()+'').find('.ML__fieldcontainer').css("border", "2px solid #20B747");
+                            counter++;
+                        }else{
+                            wrongAnswersIds.push(arrayOfInputsIndexes[counter].trim());
+                            $('#mathfieldDiv'+arrayOfInputsIndexes[counter].trim()+'').find('.ML__fieldcontainer').css("border", "2px solid #F7364A");
+                            counter++;
+                        }
+                    })
+                    if(score === maxScore){
+                       validateStatus = true;
+                       $('.ML__fieldcontainer').css("border", "2px solid #20B747");
+                       $('.progress-button-text').text('Continue');
+                    }else if(score != maxScore && score != 0){
+                       $('div[class ="feedback-line part correct-color"]').attr('class', 'feedback-line part secondary-color');
+                       $('span[class ="feedback-icon-right"]').attr('class', 'feedback-icon-right hidden');
+                       $('span[class ="feedback-icon-wrong hidden"]').attr('class', 'feedback-icon-part-correct');
+                       $('div[class ="baloon-popup-icon check-icon"]').attr('class', 'baloon-popup-icon check-icon partial-icon');
+                       $('div[class ="baloon-popup-text"]').text('Partially correct, see the answer');
+                    }
+                    else{
+                        $('div[class ="feedback-line part correct-color"]').attr('class', 'feedback-line part wrong-color');
+                        $('div[class ="feedback-line part secondary-color"]').attr('class', 'feedback-line part wrong-color');
+                        $('div[class ="feedback-line secondary-color"]').attr('class', 'feedback-line wrong-color');
+                        $('span[class ="feedback-icon-right"]').attr('class', 'feedback-icon-right hidden');
+                        $('span[class ="feedback-icon-wrong hidden"]').attr('class', 'feedback-icon-wrong');
+                        $('span[class ="feedback-icon-part-correct"]').attr('class', 'feedback-icon-wrong');
+                        $('div[class ="baloon-popup-icon check-icon"]').attr('class', 'baloon-popup-icon check-icon wrong-icon');
+                        $('div[class ="baloon-popup-icon check-icon partial-icon"]').attr('class', 'baloon-popup-icon check-icon wrong-icon');
+                        $('div[class ="baloon-popup-text"]').text('All wrong, see the answer.');
+                        $('.ML__fieldcontainer').css("border", "2px solid #F7364A");
+                        validateStatus = false;
+                    };
+                    };
+                    setTimeout(validate, 50);
+            }
+
+            if($(this).text() === 'Retry'){
+
+            function changeBarColor(){
+               $('div[class ="feedback-line part secondary-color"]').attr('class', 'feedback-line');
+               $('div[class ="baloon-popup-icon check-icon"]').attr('class', 'baloon-popup-icon check-icon wrong-icon');
+               $('span[class ="ML__fieldcontainer"]').css('border', '1px solid #B3B3B3');
+               $('div[class ="baloon-button"]').attr('class', 'baloon-button hidden');
+               }
+               setTimeout(changeBarColor, 50);
+       }
+
+            if($(this).text() === 'Show Answers'){
+                var counter = 0;
+                fraction.forEach(function(answer){
+                    var script = document.createElement("script");
+                    script.text = "window.mySuperField"+arrayOfInputsIndexes[counter].trim()+".$perform('deleteAll');window.mySuperField"+arrayOfInputsIndexes[counter].trim()+".$insert('\\\\frac{"+answer.split('/')[0].split('_')[1]+"}{"+answer.split('/')[1]+"}');";
+                    $("body").append(script);
+                    $('#writing'+arrayOfInputsIndexes[counter].trim()+'').remove();
+                    counter++;
+                })
+
+                wrongAnswersIds.forEach(function(wrongAnswer){
+                    $('#mathfieldDiv'+wrongAnswer+'').find('.ML__fieldcontainer').css("outline", "solid 1px #2CA223");
+                    $('#mathfieldDiv'+wrongAnswer+'').find('.ML__fieldcontainer').css("border", "dashed 1px #2CA223");
+
+                })
+                if(!validateStatus){
+                    function changeBarColor(){
+                    $('div[class ="feedback-line part correct-color"]').attr('class', 'feedback-line part wrong-color');
+                    $('div[class ="feedback-line part secondary-color"]').attr('class', 'feedback-line part wrong-color');
+                    $('div[class ="feedback-line secondary-color"]').attr('class', 'feedback-line part wrong-color');
+                    $('span[class ="feedback-icon-right"]').attr('class', 'feedback-icon-right hidden');
+                    $('span[class ="feedback-icon-wrong hidden"]').attr('class', 'feedback-icon-wrong');
+                    $('span[class ="feedback-icon-part-correct hidden"]').attr('class', 'feedback-icon-wrong');
+                    $('div[class ="baloon-popup-icon check-icon"]').attr('class', 'baloon-popup-icon check-icon wrong-icon');
+                    }
+                    setTimeout(changeBarColor, 50);
+                }
+        }
+       })
 
         if (!workWithIsValid) {
             return {
@@ -426,10 +575,12 @@ function AddoneKeyboard_create(){
             presenter.configuration = presenter.validateModel(model, isPreview);
             presenter.configuration.$inputs = $(presenter.configuration.workWithViews).find('input');
 
-            presenter.configuration.$inputs.each(
-                function(){
-                    var classList = $(this).attr("class");
-                    var dividedClassList = classList.split(' ')[1];
+            arrayOfInputsIndexes.forEach(
+
+                function(index){
+                    var inputName = inputs[index.trim()].classList  + '';
+
+                    var dividedClassList = inputName.split(' ')[1];
                     var classNumber = dividedClassList.split('inputNumber')[1];
                     if($('#mathfieldDiv'+classNumber+'').text().trim().length == 0){
                         var p = document.createElement("p");
@@ -438,15 +589,13 @@ function AddoneKeyboard_create(){
                         p.innerHTML = '123';
                         p.style.width = 10 + "px";
                         p.style.height = 10 + "px";
-                        var x = $(this).offset().left;
-                        var y = $(this).offset().top;
-                        p.style.top = y+"px";
-                        p.style.left = (x+79)+"px";
                         p.style.position = "absolute";
                         p.style.color = '#B8B8B8';
                         p.style.fontStyle = 'italic';
                         p.style.fontSize = 13+'px';
-                        $('.ic_page').append(p);
+                        p.style.marginTop = '-25px';
+                        p.style.marginLeft = '75px';
+                        $('#mathfieldDiv'+classNumber+'').closest('span.subAnswer').append(p);
                     }
             });
 
@@ -650,15 +799,31 @@ function AddoneKeyboard_create(){
         var alphabeticBigLettersPanel  = $('div.ui-keyboard-keyset-meta3 > button.ui-keyboard-A, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-B, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-C, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-D, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-E, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-F, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-G, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-H, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-I, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-J, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-K, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-L, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-M, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-N, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-O, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-P, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-Q, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-R, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-S, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-T, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-U, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-V, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-W, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-X, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-Y, div.ui-keyboard-keyset-meta3 > button.ui-keyboard-Z, div.ui-keyboard-keyset-meta3 > button[data-value="small"]');
         alphabeticBigLettersPanel.wrapAll( "<div class='alphabeticBigLettersPanel' />");
 
+        function getFieldContainderWidth(value){
+            return (value.split('px')[0]-33) + 'px';
+        }
+
         const allButtons  = $(":button");
         if(lastFocused !== undefined && mySuperField === mathNumber){lastFocused.focus()};
         allButtons.on('click', function(){
             var script = document.createElement("script");
             script.text = methodDispatcher($(this).attr('data-html'), $(this).text());
+            if(script.text.includes('$insert')){
+                if($('#mathfieldDiv'+mathNumber+'').find('.ML__mathlive').css('width') == undefined || $('#mathfieldDiv'+mathNumber+'').find('.ML__mathlive').css('width') < getFieldContainderWidth($('.ML__fieldcontainer__field').css('width'))
+                && $('#mathfieldDiv'+mathNumber+'').find('.ML__base').find('.mfrac').length < 3){
+                    console.log(script.text);
+                    $("body").append(script);
+                    event.preventDefault();
+                    event.stopPropagation();
+                    lastFocused = document.activeElement;
+                }
+            }
+            else{
             console.log(script.text);
             $("body").append(script);
             event.preventDefault();
             event.stopPropagation();
+        }
             lastFocused = document.activeElement;
         });
         $(lastFocused).focusout(function(){allButtons.off('click');$(lastFocused).off('focusout')});
@@ -959,7 +1124,10 @@ function AddoneKeyboard_create(){
                         showCloseButton();
                         var closeButton = $('.eKeyboard-close-button');
                         closeButton.css({'left': (element.getBoundingClientRect().x+752), 'top': (element.getBoundingClientRect().y+80)})
-
+                        if(taskOverlayId != 1){
+                            $keyboard.css({'position': 'fixed'});
+                            closeButton.css({'position': 'fixed'});
+                        }
                         document.addEventListener('mousedown', presenter.clickedOutsideCallback);
                     },
                     change: function (e, keyboard, el) {
@@ -1309,8 +1477,14 @@ function AddoneKeyboard_create(){
         var numberIteratorForPower = 1000;
         var numberIteratorForPi = -1000;
         var numberIteratorForVectors = -2000;
+        var colorsIterator = -3000;
         spans.each(function(){
             var mathfield = $(this).closest('.mathfieldDiv');
+            var fieldContainer = mathfield.find('.ML__fieldcontainer');
+            valueToMathfieldId.set(colorsIterator+'_'+mathfield.attr('id')+'_', 'border '+fieldContainer.css('border'));
+            colorsIterator++;
+            valueToMathfieldId.set(colorsIterator+'_'+mathfield.attr('id')+'_', 'outline '+fieldContainer.css('outline'));
+            colorsIterator++;
             var mathfieldText = $(this).text();
             var textSpan = $(this).children().first();
 
