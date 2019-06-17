@@ -43,33 +43,28 @@ function AddonEditableWindow_create() {
     };
 
     presenter.run = function (view, model) {
-        try {
-            presenter.configuration.view = view;
-            // container is the div that will be draggable and resizable
-            presenter.configuration.container = view.getElementsByClassName(presenter.cssClasses.container.getName())[0];
-            presenter.configuration.$container = $(presenter.configuration.container);
+        presenter.configuration.view = view;
+        // container is the div that will be draggable and resizable
+        presenter.configuration.container = view.getElementsByClassName(presenter.cssClasses.container.getName())[0];
+        presenter.configuration.$container = $(presenter.configuration.container);
 
-            view.addEventListener('DOMNodeRemoved', presenter.destroy);
-            presenter.configuration.model = presenter.validModel(model);
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
+        presenter.configuration.model = presenter.validModel(model);
 
-            if (presenter.configuration.model.isValid) {
-                presenter.configuration.container.style.width = presenter.configuration.model.width + 'px';
-                presenter.configuration.container.style.height = presenter.configuration.model.height + 'px';
+        if (presenter.configuration.model.isValid) {
+            presenter.configuration.container.style.width = presenter.configuration.model.width + 'px';
+            presenter.configuration.container.style.height = presenter.configuration.model.height + 'px';
 
-                presenter.configuration.textareaId = presenter.configuration.model.id + "-textarea";
-                presenter.configuration.hasHtml = presenter.configuration.model.indexFile !== "";
-                presenter.configuration.hasAudio = presenter.configuration.model.audioFile !== "";
-                presenter.configuration.hasVideo = presenter.configuration.model.videoFile !== "";
-                presenter.temporaryState.iFrameOffset = window.iframeSize.frameOffset || 0;
+            presenter.configuration.textareaId = presenter.configuration.model.id + "-textarea";
+            presenter.configuration.hasHtml = presenter.configuration.model.indexFile !== "";
+            presenter.configuration.hasAudio = presenter.configuration.model.audioFile !== "";
+            presenter.configuration.hasVideo = presenter.configuration.model.videoFile !== "";
+            presenter.temporaryState.iFrameOffset = window.iframeSize.frameOffset || 0;
 
-                presenter.init();
-                presenter.hide();
-            } else {
-                $(view).html(presenter.configuration.model.errorMessage);
-            }
-        } catch (e) {
-            console.trace();
-            console.log(e);
+            presenter.init();
+            presenter.hide();
+        } else {
+            $(view).html(presenter.configuration.model.errorMessage);
         }
     };
 
@@ -97,6 +92,13 @@ function AddonEditableWindow_create() {
             presenter.handleAudioContent();
         } else {
             $container.find("audio").remove();
+        }
+
+        if (presenter.configuration.hasHtml) {
+            presenter.handleHtmlContent();
+        } else {
+            $view.find(".content-iframe").remove();
+            $view.find("textarea").remove();
         }
 
         $container.css("z-index", "1");
@@ -160,13 +162,13 @@ function AddonEditableWindow_create() {
         });
     };
 
-    presenter.addHandlers = function($view) {
+    presenter.addHandlers = function ($view) {
         $view.find(presenter.cssClasses.closeButton.getSelector()).click(presenter.closeButtonClickedCallback);
         $view.find(presenter.cssClasses.fullScreenButton.getSelector()).click(presenter.fullScreenButtonClickedCallback);
         $view.find(presenter.cssClasses.wrapper.getSelector()).click(presenter.viewClickedCallback);
     };
 
-    presenter.viewClickedCallback = function() {
+    presenter.viewClickedCallback = function () {
         presenter.show();
     };
 
@@ -193,7 +195,7 @@ function AddonEditableWindow_create() {
         presenter.updateButtonMenuPosition();
     };
 
-    presenter.openFullScreen = function($view, $button) {
+    presenter.openFullScreen = function ($view, $button) {
         // so height of the window will take whole available space
         var height = window.iframeSize.windowInnerHeight || presenter.configuration.model.width;
 
@@ -207,7 +209,7 @@ function AddonEditableWindow_create() {
         presenter.resizeTinyMce($view.width(), height);
     };
 
-    presenter.closeFullScreen = function($view, $button) {
+    presenter.closeFullScreen = function ($view, $button) {
         presenter.temporaryState.isFullScreen = false;
 
         presenter.setViewPropertiesFromState($view);
@@ -216,7 +218,7 @@ function AddonEditableWindow_create() {
     };
 
     // save current size and position to state
-    presenter.saveViewPropertiesToState = function($view) {
+    presenter.saveViewPropertiesToState = function ($view) {
         presenter.temporaryState.addonWidth = $view.width();
         presenter.temporaryState.addonHeight = $view.height();
         presenter.temporaryState.addonTop = $view.position().top;
@@ -224,7 +226,7 @@ function AddonEditableWindow_create() {
     };
 
     // restore size and position before going full screen, also add current scroll value so window is visible at once
-    presenter.setViewPropertiesFromState = function($view) {
+    presenter.setViewPropertiesFromState = function ($view) {
         $view.width(presenter.temporaryState.addonWidth);
         $view.height(presenter.temporaryState.addonHeight);
         $view.css({
@@ -233,7 +235,7 @@ function AddonEditableWindow_create() {
         });
     };
 
-    presenter.addFullScreenClasses = function($view, $button) {
+    presenter.addFullScreenClasses = function ($view, $button) {
         $button.removeClass(presenter.cssClasses.openFullScreenButton.getName());
         $button.addClass(presenter.cssClasses.closeFullScreenButton.getName());
         $view.addClass(presenter.cssClasses.containerFullScreen.getName());
@@ -242,7 +244,7 @@ function AddonEditableWindow_create() {
         $view.draggable('disable');
     };
 
-    presenter.removeFullScreenClasses = function($view, $button) {
+    presenter.removeFullScreenClasses = function ($view, $button) {
         $button.removeClass(presenter.cssClasses.closeFullScreenButton.getName());
         $button.addClass(presenter.cssClasses.openFullScreenButton.getName());
         $view.removeClass(presenter.cssClasses.containerFullScreen.getName());
@@ -251,7 +253,7 @@ function AddonEditableWindow_create() {
         $view.draggable('enable');
     };
 
-    presenter.resizeTinyMce = function(width, height) {
+    presenter.resizeTinyMce = function (width, height) {
         if (presenter.configuration.isTinyMceLoaded && presenter.configuration.editor) {
             // tinymce can be smaller than whole window
             width -= presenter.configuration.widthOffset;
@@ -261,7 +263,7 @@ function AddonEditableWindow_create() {
     };
 
     // during scroll window needs to be repositioned, so it blocks whole lesson view
-    presenter.updateFullScreenWindowTop = function() {
+    presenter.updateFullScreenWindowTop = function () {
         var $view = presenter.configuration.$container;
         var top = presenter.temporaryState.scrollTop;
         var properties = {
@@ -298,12 +300,11 @@ function AddonEditableWindow_create() {
     };
 
     // jQuery changes position of element to absolute when it is both resizable and draggable after resize
-    presenter.changeViewPositionToFixed = function() {
+    presenter.changeViewPositionToFixed = function () {
         presenter.configuration.container.style.position = 'fixed';
     };
 
     presenter.handleHtmlContent = function () {
-        try {
             var height = presenter.configuration.model.height;
             var width = presenter.configuration.model.width;
             var indexFile = presenter.configuration.model.indexFile;
@@ -322,13 +323,11 @@ function AddonEditableWindow_create() {
             $view.css("z-index", "1");
 
             var textarea = $view.find("textarea");
-            $view.find("textarea").css("visibility", "visible");
             textarea.attr("id", textareaId);
 
             var widthOffset = presenter.configuration.widthOffset;
             var heightOffset = presenter.configuration.heightOffset;
 
-            if (presenter.configuration.editorIsInitialized != true) {
                 tinymce.init({
                     selector: "#" + textareaId,
                     plugins: "textcolor",
@@ -346,18 +345,16 @@ function AddonEditableWindow_create() {
                     height: height - heightOffset,
                     width: width - widthOffset,
                     setup: function (editor) {
-                        if(!presenter.configuration.model.editingEnabled) {
+                        if (!presenter.configuration.model.editingEnabled) {
                             editor.on('keydown keypress keyup', function (e) {
                                 e.preventDefault();
                             });
                         }
                     }
-                    }).then(function (editors) {
-                    presenter.configuration.editorIsInitialized = true;
+                }).then(function (editors) {
                     presenter.configuration.editor = editors[0];
                     presenter.configuration.isTinyMceLoaded = true;
                 });
-            }
 
             var timeout = setTimeout(function () {
                 presenter.fetchIframeContent(function (content) {
@@ -373,11 +370,6 @@ function AddonEditableWindow_create() {
                 });
             }, 3000);
             presenter.configuration.timeouts.push(timeout);
-        } catch (e) {
-            console.log(e);
-            console.trace();
-            console.log(e.stack);
-        }
     };
 
     presenter.createPreview = function (view, model) {
@@ -560,7 +552,7 @@ function AddonEditableWindow_create() {
         presenter.updateButtonMenuPosition();
     };
 
-    presenter.getAvailableWidth = function() {
+    presenter.getAvailableWidth = function () {
         return $(window).width();
     };
 
@@ -587,24 +579,13 @@ function AddonEditableWindow_create() {
     presenter.openPopup = function () {
         presenter.show();
         presenter.centerPosition();
-        if (presenter.configuration.hasHtml) {
-            presenter.handleHtmlContent();
-        } else {
-            $view.find(".content-iframe").remove();
-            $view.find("textarea").remove();
-        }
     };
 
     presenter.hide = function () {
-        try {
             presenter.configuration.isVisible = false;
             $(presenter.configuration.view).hide();
             presenter.stopAudio();
             presenter.stopVideo();
-        } catch (err) {
-            console.trace();
-            console.log(err);
-        }
     };
 
     presenter.isVisible = function () {
@@ -615,7 +596,7 @@ function AddonEditableWindow_create() {
         presenter.configuration.playerController = controller;
         presenter.configuration.eventBus = presenter.configuration.playerController.getEventBus();
         presenter.configuration.eventBus.addEventListener('ValueChanged', this);
-        presenter.configuration.eventBus.addEventListener('ScrollEvent',  this);
+        presenter.configuration.eventBus.addEventListener('ScrollEvent', this);
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
@@ -626,7 +607,7 @@ function AddonEditableWindow_create() {
         }
     };
 
-    presenter.handleValueChanged = function(eventData) {
+    presenter.handleValueChanged = function (eventData) {
         var value = eventData.value;
         var source = eventData.source;
         var id = presenter.configuration.model.id;
@@ -638,7 +619,7 @@ function AddonEditableWindow_create() {
         }
     };
 
-    presenter.handleScrollEvent = function(eventData) {
+    presenter.handleScrollEvent = function (eventData) {
         var scrollValue = eventData.value;
         presenter.temporaryState.scrollTop = parseInt(scrollValue, 10);
 
@@ -723,7 +704,7 @@ function AddonEditableWindow_create() {
         }
     };
 
-    presenter.removeCallbacks = function() {
+    presenter.removeCallbacks = function () {
         $view.off('click', presenter.cssClasses.closeButton.getSelector(), presenter.closeButtonClickedCallback);
         $view.off('click', presenter.cssClasses.fullScreenButton.getSelector(), presenter.fullScreenButtonClickedCallback);
         $view.off('click', presenter.cssClasses.wrapper.getSelector(), presenter.viewClickedCallback);
@@ -738,7 +719,7 @@ function AddonEditableWindow_create() {
         return "." + this.name;
     };
 
-    presenter.CssClass.prototype.getName = function() {
+    presenter.CssClass.prototype.getName = function () {
         return this.name;
     };
 
