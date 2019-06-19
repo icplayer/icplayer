@@ -1,3 +1,4 @@
+2019-06-19 Fixed anchors in Editable Window
 2019-06-11 Fixed issue with background color in show answers mode of Text Coloring
 2019-06-10 Fixed issues with editable window position centering. Disallow moving the window outside of document.
 2019-06-07 Added fullscreen option to editable window.
