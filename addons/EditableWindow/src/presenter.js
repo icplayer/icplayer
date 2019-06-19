@@ -541,7 +541,7 @@ function AddonEditableWindow_create() {
                 anchorElement.href = anchor.href;
                 anchorElement.target = '_blank';
                 var anchorEvent = document.createEvent("MouseEvents");
-                anchorEvent.initEvent("click", true, true);
+                anchorEvent.initEvent("click", false, true);
                 anchorElement.dispatchEvent(anchorEvent);
             });
         }
