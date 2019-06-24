@@ -346,23 +346,32 @@ function AddoneKeyboard_create(){
             var numerator = frac.split('/numerator')[0].split('numerator')[1];
             var denomirator = frac.split('/denomirator')[0].split('denominator')[1];
         
-            var num = numerator.split('/');
-            var den = denomirator.split('/');
-        
             var numeratorWorth = '';
-            for(i = 0; i < num[1].split('').length; i++){
-                if(num[1].split('')[i] != ' '){
-                    numeratorWorth += num[1].split('')[i];
+            for(i = 0; i < numerator.split('').length; i++){
+                if(numerator.split('')[i] != ' '){
+                    numeratorWorth += numerator.split('')[i];
                }
             }
             var denomiratorWorth = '';
-            for(i = 0; i < den[1].split('').length; i++){
-                if(den[1].split('')[i] != ' '){
-                    denomiratorWorth += den[1].split('')[i];
+            for(i = 0; i < denomirator.split('').length; i++){
+                if(denomirator.split('')[i] != ' '){
+                    denomiratorWorth += denomirator.split('')[i];
                }
             }
             return numeratorWorth + '/' + denomiratorWorth;
         }
+        
+        function answerWithoutSpecialCharacters(answers){
+            var answer = answers.split('markupValue')[1];
+            var answerArray = answer.split(' ');
+            var correctAnswer = '';
+             for(i = 0; i < answerArray.length; i++){
+                 if(answerArray[i] != ''){
+                     correctAnswer += answerArray[i];
+                 }
+             }
+             return correctAnswer;
+         }
 
         var validateStatus;
         var wrongAnswersIds = [];
@@ -372,35 +381,90 @@ function AddoneKeyboard_create(){
             function hasText(value){return value.includes('checktype')}
             var filtered = split.filter(hasText);
             var mathfieldId;
+            var correctAnswerWithoutSpecialCharacters = [];
+
             filtered.forEach(function(filter){
                 var answers = filter;
                 mathfieldId = answers.split(' checktype')[0];
                 mathfieldNumber = mathfieldId.split('mathfield')[1];
                 if(answers.includes('fraction')){
                    fraction.push(mathfieldId+"_"+fractionAnswer(answers));
-               }
+               }else{
+                var answer = answerWithoutSpecialCharacters(answers);
+                  correctAnswerWithoutSpecialCharacters.push(mathfieldId+"_"+ answer);
+             }
             })
-            var maxScore = fraction.length;
+            var maxScore = arrayOfInputsIndexes.length;
             var score = 0;
 
             if($(this).text() === 'Validate'){
                 function validate() {
                     var counter = 0;
-                    fraction.forEach(function(answer){
-                        if($('#mathfieldDiv'+arrayOfInputsIndexes[counter].trim()+'').find('.ML__base').text() == answer.replace('/', '').split('_')[1]){
+                    if(fraction.length != 0 ){
+                        function clearAnswer(counter){
+                            for(i = 0; i < fraction.length; i++){
+                                if(fraction[i].includes('mathfield'+counter)){
+                                    console.log(fraction[i].split('_')[1].replace('/', ''));
+                                    return fraction[i].split('_')[1].replace('/', '');
+                                }
+                            }
+                        }
+                        for(i = 0; i < arrayOfInputsIndexes.length; i++){
+                            console.log($('#mathfieldDiv'+arrayOfInputsIndexes[counter].trim()+'').find('.ML__base').text());
+                            if($('#mathfieldDiv'+arrayOfInputsIndexes[counter].trim()+'').find('.ML__base').text() == clearAnswer(counter)){
+                                score += 1;
+                                $('#mathfieldDiv'+arrayOfInputsIndexes[counter]+'').find('.ML__fieldcontainer').css("border", "2px solid #20B747");
+                                counter++;
+                            }else{
+                                wrongAnswersIds.push(arrayOfInputsIndexes[counter].trim());
+                                $('#mathfieldDiv'+arrayOfInputsIndexes[counter].trim()+'').find('.ML__fieldcontainer').css("border", "2px solid #F7364A");
+                                counter++;
+                        }
+
+                        }
+                    }else{
+                        arrayOfInputsIndexes.forEach(function(arr){
+                            var answer;
+                            var reversedAnswer;
+                            for(i = 0; i < correctAnswerWithoutSpecialCharacters.length; i++){
+                                if(correctAnswerWithoutSpecialCharacters[i].includes('mathfield'+arr)){
+                                    answer = correctAnswerWithoutSpecialCharacters[i].split('_')[1];
+                                    reversedAnswer = correctAnswerWithoutSpecialCharacters[i+1].split('_')[1];
+                                }
+                            }
+                            var givenAnswer = '';
+                            var arrayFromInputValue = $('#mathfieldDiv'+arr+'').find('.ML__base').text().split('');
+                            console.log(arrayFromInputValue);
+                            for(i = 0; i < arrayFromInputValue.length; i++){
+                                if(arrayFromInputValue[i]){
+                                    console.log(arrayFromInputValue[i] == '');
+                                    givenAnswer += arrayFromInputValue[i];
+                                }
+                            }
+                            console.log(givenAnswer);
+                            if(givenAnswer.replace(/\s/g,'').replace('\u2212', '-') == answer || givenAnswer.replace(/\s/g,'').replace('\u2212', '-') == reversedAnswer){
                             score += 1;
-                            $('#mathfieldDiv'+arrayOfInputsIndexes[counter].trim()+'').find('.ML__fieldcontainer').css("border", "2px solid #20B747");
+                            $('#mathfieldDiv'+arr+'').find('.ML__fieldcontainer').css("border", "2px solid #20B747");
                             counter++;
+                            console.log('correct');
                         }else{
+                            console.log(counter);
                             wrongAnswersIds.push(arrayOfInputsIndexes[counter].trim());
-                            $('#mathfieldDiv'+arrayOfInputsIndexes[counter].trim()+'').find('.ML__fieldcontainer').css("border", "2px solid #F7364A");
+                            $('#mathfieldDiv'+arr+'').find('.ML__fieldcontainer').css("border", "2px solid #F7364A");
                             counter++;
                         }
-                    })
+                        })
+                    }
+
+                    
                     if(score === maxScore){
                        validateStatus = true;
                        $('.ML__fieldcontainer').css("border", "2px solid #20B747");
                        $('.progress-button-text').text('Continue');
+                       $('div[class ="feedback-line part wrong-color"]').attr('class', 'feedback-line correct-color');
+                       $('div[class ="baloon-popup-text"]').text('Correct');
+                       $('div[class ="baloon-popup-icon check-icon wrong-icon"]').attr('class', 'baloon-popup-icon check-icon correct-icon');
+                       $('span[class ="feedback-icon-wrong"]').attr('class', 'feedback-icon-right');
                     }else if(score != maxScore && score != 0){
                        $('div[class ="feedback-line part correct-color"]').attr('class', 'feedback-line part secondary-color');
                        $('span[class ="feedback-icon-right"]').attr('class', 'feedback-icon-right hidden');
@@ -435,16 +499,40 @@ function AddoneKeyboard_create(){
                }
                setTimeout(changeBarColor, 50);
        }
+            if($(this).text() === 'Continue'){
+                    function changeBarColor(){
+                       $('div[class ="feedback-line wrong-color"]').attr('class', 'feedback-line correct-color');
+                       $('div[class ="baloon-popup-text"]').text('Correct');
+                       $('div[class ="baloon-popup-icon check-icon wrong-icon"]').attr('class', 'baloon-popup-icon check-icon correct-icon');
+                       $('span[class ="feedback-icon-wrong"]').attr('class', 'feedback-icon-right');
+               }
+               setTimeout(changeBarColor, 30);}
 
             if($(this).text() === 'Show Answers'){
                 var counter = 0;
-                fraction.forEach(function(answer){
-                    var script = document.createElement("script");
-                    script.text = "window.mySuperField"+arrayOfInputsIndexes[counter].trim()+".$perform('deleteAll');window.mySuperField"+arrayOfInputsIndexes[counter].trim()+".$insert('\\\\frac{"+answer.split('/')[0].split('_')[1]+"}{"+answer.split('/')[1]+"}');";
-                    $("body").append(script);
-                    $('#writing'+arrayOfInputsIndexes[counter].trim()+'').remove();
-                    counter++;
-                })
+                if(fraction.length != 0 ){
+                    fraction.forEach(function(answer){
+                        var script = document.createElement("script");
+                        script.text = "window.mySuperField"+arrayOfInputsIndexes[counter].trim()+".$perform('deleteAll');window.mySuperField"+arrayOfInputsIndexes[counter].trim()+".$insert('\\\\frac{"+answer.split('/')[0].split('_')[1]+"}{"+answer.split('/')[1]+"}');";
+                        $("body").append(script);
+                        $('#writing'+arrayOfInputsIndexes[counter].trim()+'').remove();
+                        counter++;
+                    })
+                }else{
+                    arrayOfInputsIndexes.forEach(function(arr){
+                            for(i = 0; i < correctAnswerWithoutSpecialCharacters.length; i++){
+                                if(correctAnswerWithoutSpecialCharacters[i].includes('mathfield'+arr)){
+                                    answer = correctAnswerWithoutSpecialCharacters[i].split('_')[1];
+                                }
+                            }
+                            var script = document.createElement("script");
+                        script.text = "window.mySuperField"+arr+".$perform('deleteAll');window.mySuperField"+arr+".$insert('"+answer+"');";
+                        $("body").append(script);
+                        $('#writing'+arrayOfInputsIndexes[counter].trim()+'').remove();
+                        counter++;
+                    })
+                }
+                
 
                 wrongAnswersIds.forEach(function(wrongAnswer){
                     $('#mathfieldDiv'+wrongAnswer+'').find('.ML__fieldcontainer').css("outline", "solid 1px #2CA223");
@@ -846,7 +934,7 @@ function AddoneKeyboard_create(){
                     return "window.mySuperField"+mathNumber+".$insert('\\\\^', {'focus' : true});";
                 case '%':
                     return "window.mySuperField"+mathNumber+".$insert('\\\\%', {'focus' : true});";
-                case '-':
+                case '--':
                     return "window.mySuperField"+mathNumber+".$insert('{\\\\bar{\\\\placeholder{}}}', {'focus' : true});"
                 case '&#10230;':
                 case '&#10231;':
