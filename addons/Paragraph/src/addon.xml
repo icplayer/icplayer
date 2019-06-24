@@ -12,5 +12,6 @@
         <property name="Layout Type" nameLabel="Paragraph_property_layout_type" type="{Default, French}"/>
 		<property name="Manual grading" nameLabel="Paragraph_property_manual_grading" type="boolean" />
 		<property name="Title" nameLabel="Paragraph_property_title" type="string" />
+		<property name="Weight" nameLabel="Paragraph_property_weight" type="string" />
 	</model>
 </addon>

@@ -13,5 +13,6 @@
 		<property name="keyboardPosition" displayName="Keyboard position" nameLabel="Paragraph_Keyboard_property_keyboard_position" type="{Bottom, Top, Left, Right, Custom}" />
 		<property name="Manual grading" nameLabel="Paragraph_Keyboard_property_manual_grading" type="boolean" />
 		<property name="Title" nameLabel="Paragraph_Keyboard_property_title" type="string" />
+		<property name="Weight" nameLabel="Paragraph_Keyboard_property_weight" type="string" />
 	</model>
 </addon>

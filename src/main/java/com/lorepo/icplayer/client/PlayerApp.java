@@ -454,6 +454,10 @@ public class PlayerApp {
 		return $wnd.$(".ic_static_header").length > 0;
 	}-*/;
 
+	public JavaScriptObject getContextMetadata() {
+		return this.entryPoint.getContextMetadata();
+	}
+
 
 	/**
 	 * Init player after content is loaded
@@ -573,6 +577,9 @@ public class PlayerApp {
 			if (this.loadedState.get("isReportable") != null) {
 				this.playerController.getPlayerServices().getReportableService().loadFromString(this.loadedState.get("isReportable"));
 			}
+			if (this.loadedState.get("visitedPages") != null) {
+				this.playerController.loadVisitedPagesFromString(this.loadedState.get("visitedPages"));
+			}
 		}
 
 		//All reportable values for pages should be loaded before start.
@@ -658,12 +665,14 @@ public class PlayerApp {
 		String score = playerController.getPlayerServices().getScoreService().getAsString();
 		String time = playerController.getPlayerServices().getTimeService().getAsString();
 		String isReportable = playerController.getPlayerServices().getReportableService().getAsString();
+		String visitedPages = playerController.getVisitedPagesAsString();
 
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("state", state);
 		data.put("score", score);
 		data.put("time", time);
 		data.put("isReportable", isReportable);
+		data.put("visitedPages", visitedPages);
 
 		return JSONUtils.toJSONString(data);
 	}

@@ -536,9 +536,17 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeSemiResponsiveLayout(Ljava/lang/String;)(layoutIDOrName);
 		}
 
+		playerServices.getContextMetadata = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContextMetadata()();
+		};
+
 		return playerServices;
 	}-*/;
-	
+
+	private JavaScriptObject getContextMetadata() {
+		return this.playerServices.getContextMetadata();
+	}
+
 	private boolean changeSemiResponsiveLayout(String layoutIDOrName) {
 		return this.playerServices.changeSemiResponsiveLayout(layoutIDOrName);
 	}

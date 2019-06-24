@@ -1,6 +1,8 @@
 package com.lorepo.icplayer.client;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -65,6 +67,7 @@ public class PlayerController implements IPlayerController{
 	private String lang = "en";
 	private int iframeScroll = 0;
 	private boolean isIframeInCrossDomain = false;
+	private Set<IPage> visitedPages = new HashSet<IPage>();
 
 	private String pageStamp = "0";
 
@@ -309,6 +312,7 @@ public class PlayerController implements IPlayerController{
 
 
 	private void switchToPage(IPage page, final PageController pageController){
+		this.visitedPages.add(page);
 	    this.pageStamp = this.generatePageStamp(page.getId());
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
@@ -429,6 +433,27 @@ public class PlayerController implements IPlayerController{
 			state = this.footerController.getState();
 			this.stateService.addState(state);
 		}
+	}
+	
+	public String getVisitedPagesAsString(){
+		String result = "";
+		for (IPage page: this.visitedPages) {
+			result += page.getId() + ";";
+		}
+		result = result.substring(0, result.length()-1);
+		return result;
+	}
+	
+	public void loadVisitedPagesFromString(String visitedPageIds){
+		Set<IPage> newVisitedPages = new HashSet<IPage>();
+		String[] ids = visitedPageIds.split(";");
+		for (String id: ids) {
+			IPage page = this.contentModel.getPageById(id);
+			if (page != null) {
+				newVisitedPages.add(page);
+			}
+		}
+		this.visitedPages = newVisitedPages;
 	}
 
 
@@ -619,6 +644,14 @@ public class PlayerController implements IPlayerController{
 
 	public void setIframeScroll (int scroll) {
 		this.iframeScroll = scroll;
+		
+		if (this.pageController1 != null) {
+			this.pageController1.sendScrollEvent(scroll);
+		}
+		
+		if (this.pageController2 != null) {
+			this.pageController2.sendScrollEvent(scroll);
+		}
 	}
 
 	@Override
@@ -640,17 +673,15 @@ public class PlayerController implements IPlayerController{
 
 	public native int getIFrameScroll (PlayerController x) /*-{
 		var iframeScroll = 0;
-		
-		if(x.@com.lorepo.icplayer.client.PlayerController::checkIsPlayerInCrossDomain()()) {		
-			$wnd.addEventListener('message', function (event) {
-				var data = event.data;
-		
-				if ((typeof data == 'string' || data instanceof String) && data.indexOf('I_FRAME_SCROLL:') === 0) {
-					iframeScroll = JSON.parse(data.replace('I_FRAME_SCROLL:', ''));
-					x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(iframeScroll);
-				}
-			}, false);
-		}
+				
+		$wnd.addEventListener('message', function (event) {
+			var data = event.data;
+	
+			if ((typeof data == 'string' || data instanceof String) && data.indexOf('I_FRAME_SCROLL:') === 0) {
+				iframeScroll = JSON.parse(data.replace('I_FRAME_SCROLL:', ''));
+				x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(iframeScroll);
+			}
+		}, false);
 	}-*/;
 
 	@Override
@@ -719,6 +750,10 @@ public class PlayerController implements IPlayerController{
 	
 	public boolean isWCAGOn() {
 		return this.keyboardController.isWCAGOn();
+	}
+	
+	public Set<IPage> getVisitedPages() {
+		return this.visitedPages;
 	}
 
 }

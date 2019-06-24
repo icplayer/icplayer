@@ -17,6 +17,8 @@
 			<property name="Start" nameLabel="Slideshow_property_start" type="string" />
 			<property name="End" nameLabel="Slideshow_property_end" type="string" />
 		</property>
+		<property name="No audio" nameLabel="Slideshow_property_no_audio" type="boolean" />
+		<property name="Presentation duration" nameLabel="Slideshow_property_presentation_duration" type="string" />
 		<property name="Slide animation" nameLabel="Slideshow_property_slide_animation" type="boolean" />
 		<property name="Text animation" nameLabel="Slideshow_property_text_animation" type="boolean" />
 		<property name="Hide progressbar" nameLabel="Slideshow_property_hide_progressbar" type="boolean" />
