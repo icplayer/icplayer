@@ -1947,6 +1947,11 @@ var ice_dictionary_mx = {
 	"Editor_add_missing_tts":"Add missing TTS modules",
 	"Editor_tts_modified_pages_list":"The list of pages modified while adding TTS to presentation:",
 	"Editor_tts_no_modified_pages":"No pages were modified while adding TTS to presentation",
+	"module_metadata": "Module metadata",
+	"editor_metadata_remove_external": "Update fields",
+	"editor_metadata_info_remove_page_external": "Metadata which weren't specified in project settings were found in this module.",
+	"editor_metadata_question_remove_external": "Do you want to remove metadata fields not specified in project settings?",
+	"editor_metadata_notification_remove_finished": "External metadata removal finished",
 	"EditableWindow_info": "Editable Window",
 	"EditableWindow_name": "Editable Window",
 	"EditableWindow_property_file_list" : "File list",
@@ -1958,5 +1963,4 @@ var ice_dictionary_mx = {
 	"EditableWindow_property_video_title": "Title",
 	"EditableWindow_property_header_style": "Header style",
 	"EditableWindow_property_editing_enabled" : "Editing enabled",
-    "module_metadata": "Module metadata"
 };
