@@ -1,4 +1,5 @@
 2019-06-11 Fixed issue with Report when multiple pages have the same name
+2019-06-11 Fixed issue with background color in show answers mode of Text Coloring
 2019-06-10 Fixed issues with editable window position centering. Disallow moving the window outside of document.
 2019-06-07 Added fullscreen option to editable window.
 2019-06-04 Added property to disable or enable editing in popup in Editable window module
