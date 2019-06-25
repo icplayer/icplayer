@@ -51,6 +51,7 @@
                 <exclude name="**/dictionaries/fr/*"/>
                 <exclude name="**/dictionaries/pl/*"/>
                 <exclude name="**/dictionaries/mx/*"/>
+                <exclude name="**/dictionaries/bl/*"/>
                 <exclude name="**/dictionary.js"/>
                 <exclude name="**/commons.js"/>
                 <exclude name="**/*.min.js"/>
@@ -103,6 +104,7 @@
                 <file name="${build.temp.folder}/dictionaries/fr/dictionary.js"/>
                 <file name="${build.temp.folder}/dictionaries/mx/dictionary.js"/>
                 <file name="${build.temp.folder}/dictionaries/pl/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/bl/dictionary.js"/>
                 <file name="${build.temp.folder}/aop.min.js"/>
                 <file name="${build.temp.folder}/math.js"/>
                 <file name="${build.temp.folder}/scorm.js"/>
