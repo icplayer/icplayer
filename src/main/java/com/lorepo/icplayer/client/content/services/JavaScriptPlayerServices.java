@@ -21,11 +21,7 @@ import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.event.CustomEvent;
-import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
-import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
-import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
-import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
+import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
@@ -64,6 +60,7 @@ public class JavaScriptPlayerServices {
 	private static final String DEFINITION_EVENT_NAME = "Definition";
 	private static final String PAGE_LOADED_EVENT_NAME = "PageLoaded";
 	private static final String SHOW_ERRORS_EVENT_NAME = "ShowErrors";
+	private static final String RESIZE_WINDOW_EVENT_NAME = "ResizeWindow";
 
 	private final IPlayerServices playerServices;
 	private final JavaScriptObject jsObject;
@@ -139,6 +136,12 @@ public class JavaScriptPlayerServices {
 			}
 		});
 
+		eventBus.addHandler(ResizeWindowEvent.TYPE, new ResizeWindowEvent.Handler() {
+			@Override
+			public void onResizeWindowEvent(ResizeWindowEvent event) {
+				fireEvent(RESIZE_WINDOW_EVENT_NAME, new HashMap<String, String>());
+			}
+		});
 	}
 	
 	public void resetEventListeners() {
