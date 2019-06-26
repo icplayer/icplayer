@@ -190,7 +190,7 @@ function AddonIWB_Toolbar_create() {
             var newPlayerLeftOffset = $("#_icplayer").offset().left;
             var viewLeftOffset = presenter.zoomConfiguration.viewLeftOffset;
             var playerInitialLeftOffset = presenter.zoomConfiguration.playerInitialLeftOffset;
-            var newViewLeftOffset = viewLeftOffset - playerInitialLeftOffset + newPlayerLeftOffset;
+            var newViewLeftOffset = newPlayerLeftOffset - playerInitialLeftOffset + viewLeftOffset;
             presenter.$panel.offset({left: newViewLeftOffset});
         }
     };
@@ -3713,12 +3713,10 @@ function AddonIWB_Toolbar_create() {
 
         setOverflowWorkAround(true);
         setOverflowWorkAround(false);
-
-        presenter.updateZoomConfiguration();
     };
 
     presenter.updateZoomConfiguration = function () {
-        presenter.zoomConfiguration.layerInitialLeftOffset = $("#_icplayer").offset().left;
+        presenter.zoomConfiguration.playerInitialLeftOffset = $("#_icplayer").offset().left;
         presenter.zoomConfiguration.viewLeftOffset = presenter.$panel.offset().left;
     };
 
