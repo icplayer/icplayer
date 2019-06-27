@@ -2261,18 +2261,28 @@ function AddonIWB_Toolbar_create() {
         }
     };
 
+    presenter.Note.prototype.saveButtonHandler = function() {
+        var value = this.$textarea.val();
+        this.$noteBody.html(value);
+        this.$textarea.remove();
+        this.connectNoteEditHandler();
+    };
+
     presenter.Note.prototype.noteEditHandler = function () {
         this.$textarea = $('<textarea></textarea>');
         this.$buttonSave = $('<button class="save">Save</button>');
 
         this.currentValue = this.$noteBody.html();
 
-        this.$buttonSave.on('click', function() {
-            var value = this.$textarea.val();
-            this.$noteBody.html(value);
-            this.$textarea.remove();
-            this.connectNoteEditHandler();
-        }.bind(this));
+        if(MobileUtils.isEventSupported('touchstart')) {
+            this.$buttonSave.on('touchstart', function() {
+                this.saveButtonHandler();
+            }.bind(this));
+        } else {
+            this.$buttonSave.on('click', function() {
+                this.saveButtonHandler();
+            }.bind(this));
+        }
 
         this.$textarea.on('click', function (){
             var val = this.$textarea.val();
@@ -2286,29 +2296,40 @@ function AddonIWB_Toolbar_create() {
         this.$textarea.focus();
     };
 
-    presenter.Note.prototype.connectHandlers = function () {
-        this.$closeButton.on('click', {"note": this}, function(event) {
-            event.stopPropagation();
-            var confirmation = presenter.$removeConfirmationBox;
-            var window_scroll = presenter.playerController.iframeScroll() > 0 ? presenter.playerController.iframeScroll() : $(window).scrollTop();
+    presenter.Note.prototype.closeButtonHandler = function(event) {
+        var confirmation = presenter.$removeConfirmationBox;
+        var window_scroll = presenter.playerController.iframeScroll() > 0 ? presenter.playerController.iframeScroll() : $(window).scrollTop();
 
-            confirmation.css('top', window_scroll + 10 + 'px');
-            confirmation.show();
-            confirmation.find('.no-button').on(getTouchStartOrMouseDownEventName(),function(e) {
-                e.stopPropagation();
-                confirmation.hide();
-            });
-            confirmation.find('.yes-button').on(getTouchStartOrMouseDownEventName(), {"note": event.data.note}, function(e) {
-                e.stopPropagation();
-                var note = e.data.note;
-
-                presenter.noteObjects = presenter.noteObjects.filter(function (note) {
-                    return note != this;
-                }, note);
-                note.destroy();
-                confirmation.hide();
-            });
+        confirmation.css('top', window_scroll + 10 + 'px');
+        confirmation.show();
+        confirmation.find('.no-button').on(getTouchStartOrMouseDownEventName(),function(e) {
+            e.stopPropagation();
+            confirmation.hide();
         });
+        confirmation.find('.yes-button').on(getTouchStartOrMouseDownEventName(), {"note": event.data.note}, function(e) {
+            e.stopPropagation();
+            var note = e.data.note;
+
+            presenter.noteObjects = presenter.noteObjects.filter(function (note) {
+                return note != this;
+            }, note);
+            note.destroy();
+            confirmation.hide();
+        });
+    };
+
+    presenter.Note.prototype.connectHandlers = function () {
+        if(MobileUtils.isEventSupported('touchstart')) {
+            this.$closeButton.on('touchstart', {"note": this}, function(event) {
+                event.stopPropagation();
+                this.closeButtonHandler(event);
+            }.bind(this));
+        } else {
+            this.$closeButton.on('click', {"note": this}, function(event) {
+                event.stopPropagation();
+                this.closeButtonHandler(event);
+            }.bind(this));
+        }
 
         this.connectNoteEditHandler();
     };
