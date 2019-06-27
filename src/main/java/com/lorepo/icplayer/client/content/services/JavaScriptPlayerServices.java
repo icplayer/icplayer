@@ -539,11 +539,23 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContextMetadata()();
 		};
 
+		playerServices.getContextMetadata = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContextMetadata()();
+		};
+
+		playerServices.sendResizeEvent = function() {
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendResizeEvent()();
+		};
+
 		return playerServices;
 	}-*/;
 
 	private JavaScriptObject getContextMetadata() {
 		return this.playerServices.getContextMetadata();
+	}
+
+	private void sendResizeEvent() {
+		this.playerServices.sendResizeEvent();
 	}
 
 	private boolean changeSemiResponsiveLayout(String layoutIDOrName) {

@@ -214,8 +214,13 @@ public class PlayerServices implements IPlayerServices {
 	public JavaScriptObject getContextMetadata() {
 		return this.application.getContextMetadata();
 	}
-	
-	public void fixDroppable() {
+
+    @Override
+    public void sendResizeEvent() {
+        this.pageController.sendResizeEvent();
+    }
+
+    public void fixDroppable() {
 		if (this.jQueryPrepareOffsetsFunction == null) {
 			this.jQueryPrepareOffsetsFunction = this.getJQueryUIPrepareOffsetFunction();
 		}

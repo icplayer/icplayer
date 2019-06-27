@@ -1,7 +1,5 @@
 package com.lorepo.icplayer.client.module.api.player;
 
-import java.util.HashMap;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icplayer.client.PlayerApp;
@@ -9,6 +7,8 @@ import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+
+import java.util.HashMap;
 
 
 /**
@@ -49,4 +49,5 @@ public interface IPlayerServices {
 	public boolean changeSemiResponsiveLayout(String layoutID);
 	public boolean isPageVisited(IPage page);
 	public JavaScriptObject getContextMetadata();
+	public void sendResizeEvent();
 }
