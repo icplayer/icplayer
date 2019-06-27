@@ -7,14 +7,17 @@ SetGetStateTests.prototype.setUp = function() {
     this.presenter.$view = $("<div></div>");
     this.presenter.videoObject = document.createElement("video");
     this.presenter.currentMovie = 1;
+    this.presenter.currentTime = 1;
     this.presenter.videoContainer = $('<div></div>');
     this.presenter.videoContainer.append(this.presenter.videoObject);
     this.presenter.$captionsContainer = $('<div></div>');
+    this.presenter.posterPlayButton = $(document.createElement("div"));
     this.presenter.addedVideoURLS = {
 
     };
     this.files = ['video1.ogg', 'video2.ogg'];
     this.presenter.configuration.files = this.files;
+    this.presenter.isAudioDescriptionEnabled = true;
     sinon.stub(this.presenter, 'setVisibility');
 };
 
@@ -39,7 +42,7 @@ SetGetStateTests.prototype.testGetState = function() {
     var stateString = this.presenter.getState();
 
     // Then
-    assertEquals('{"files":"deprecated","videoURLS":{"0":{"url":{"subtitles":"0|2|100|200|red|This is a sample text\\n2.5|4|10|10|green|Another line of text","oggFormat":"https://www.w3schools.com/html/mov_bbb.mp4","mp4Format":"https://www.w3schools.com/html/mov_bbb.mp4","webMFormat":"https://www.w3schools.com/html/mov_bbb.mp4","poster":"","id":"some id","altText":"ALT :)","loop":true},"index":0}},"currentTime":0,"isCurrentlyVisible":false,"isPaused":true,"currentMovie":1,"areSubtitlesHidden":false}', stateString);
+    assertEquals('{"files":"deprecated","videoURLS":{"0":{"url":{"subtitles":"0|2|100|200|red|This is a sample text\\n2.5|4|10|10|green|Another line of text","oggFormat":"https://www.w3schools.com/html/mov_bbb.mp4","mp4Format":"https://www.w3schools.com/html/mov_bbb.mp4","webMFormat":"https://www.w3schools.com/html/mov_bbb.mp4","poster":"","id":"some id","altText":"ALT :)","loop":true},"index":0}},"currentTime":0,"isCurrentlyVisible":false,"isPaused":true,"currentMovie":1,"areSubtitlesHidden":false,"isAudioDescriptionEnabled":true}', stateString);
 };
 
 SetGetStateTests.prototype.testSetState = function() {
@@ -99,10 +102,26 @@ SetGetStateTests.prototype.testSetStateWithoutFileShouldStillWork = function() {
     this.presenter.$view.css('visibility', 'hidden');
     var stateString = '{\"currentTime\":0,\"isCurrentlyVisible\":true,\"isPaused\":true,\"currentMovie\":0}';
 
+
     // When
     this.presenter.setState(stateString);
 
     // Then
     assertTrue(this.presenter.setVisibility.calledOnce);
     assertEquals(this.files, this.presenter.configuration.files);
+};
+
+
+SetGetStateTests.prototype.testSetStateAndGetStateCurrentTime = function () {
+    //Given
+    this.presenter.videoObject.currentTime = 1;
+    var  time = 4;
+    var stateString = '{"files":"deprecated","videoURLS":{},"currentTime":' + time + ',"isCurrentlyVisible":true,"isPaused":false,"currentMovie":1,"areSubtitlesHidden":false}';
+
+     // When
+    this.presenter.setState(stateString);
+    $(this.presenter.videoObject).trigger('canplay');
+
+    // Then
+    assertEquals(this.presenter.videoObject.currentTime, time);
 };

@@ -60,94 +60,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var EXCEPTIONS = exports.EXCEPTIONS = function () {
-    function EXCEPTIONS(translations) {
-        _classCallCheck(this, EXCEPTIONS);
-
-        this.translations = {};
-
-        this.translations = translations;
-    }
-
-    _createClass(EXCEPTIONS, [{
-        key: "InstructionIsDefinedException",
-        value: function InstructionIsDefinedException(instrName) {
-            var defaultTranslation = "The instruction '{0}' has already been defined";
-            this.name = "InstructionIsDefinedException";
-            this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, instrName);
-
-            return this;
-        }
-    }, {
-        key: "CastErrorException",
-        value: function CastErrorException(type, toType) {
-            this.name = "CastErrorException";
-            this.message = "Cast exception \"" + type + "\" to type: \"" + toType + "\"";
-
-            return this;
-        }
-    }, {
-        key: "IndexOutOfBoundsException",
-        value: function IndexOutOfBoundsException(type, index, length) {
-            this.name = "IndexOutOfBoundsException";
-            this.message = "Exception (" + type + "): index " + index + " is out of bounds";
-
-            return this;
-        }
-    }, {
-        key: "ToFewArgumentsException",
-        value: function ToFewArgumentsException(functionName, expected) {
-            this.name = "ToFewArgumentsException";
-            this.message = "To few arguments for function " + functionName + " (expected at least: " + expected + " arguments)";
-
-            return this;
-        }
-    }, {
-        key: "MethodNotFoundException",
-        value: function MethodNotFoundException(instrName) {
-            this.name = "MethodNotFoundException";
-            this.message = "Undefined method \"" + instrName + "\"";
-
-            return this;
-        }
-    }, {
-        key: "UndefinedVariableNameException",
-        value: function UndefinedVariableNameException(varName, functionName) {
-            this.name = "UndefinedVariableNameException";
-            this.message = "Usage of undefined variable '" + varName + "' in function '" + functionName + "'";
-
-            return this;
-        }
-    }, {
-        key: "UndefinedFunctionNameException",
-        value: function UndefinedFunctionNameException(varName, functionName) {
-            this.name = "UndefinedFunctionNameException";
-            this.message = "Usage of undefined function '" + varName + "' in function '" + functionName + "'";
-
-            return this;
-        }
-    }]);
-
-    return EXCEPTIONS;
-}();
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -184,24 +101,26 @@ function generateJumpInstruction(code, toLabel) {
 }
 
 /***/ }),
-/* 2 */
+/* 1 */,
+/* 2 */,
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _languageDefinition = __webpack_require__(3);
+var _languageDefinition = __webpack_require__(4);
 
-var _definedObjects = __webpack_require__(4);
+var _definedObjects = __webpack_require__(5);
 
-var _definedExceptions = __webpack_require__(0);
+var _definedExceptions = __webpack_require__(6);
 
-var _languageCodeGenerators = __webpack_require__(5);
+var _languageCodeGenerators = __webpack_require__(7);
 
-var _console = __webpack_require__(6);
+var _console = __webpack_require__(8);
 
-var _machine = __webpack_require__(7);
+var _machine = __webpack_require__(9);
 
-var _validation = __webpack_require__(8);
+var _validation = __webpack_require__(10);
 
-var _utils = __webpack_require__(9);
+var _utils = __webpack_require__(11);
 
 /**
  * Teoria:
@@ -246,7 +165,10 @@ function AddonPseudoCode_Console_create() {
         lastScore: 0, //Last score, we dont need to recalculate score if user dont run code
         lastUsedCode: [], //Compiled code which was last used,
         definedByUserFunctions: [], //Functions defined by user
-        variablesAndFunctionsUsage: {} //Functions and variables used by user each element contains: {defined: [], args: [], vars: [], fn: []}
+        variablesAndFunctionsUsage: {}, //Functions and variables used by user each element contains: {defined: [], args: [], vars: [], fn: []},
+        addonWrapper: null,
+        _disabled: false,
+        _wasExecuted: false
     };
 
     presenter.configuration = {
@@ -280,7 +202,7 @@ function AddonPseudoCode_Console_create() {
         functions: [],
         answer: null,
         methods: [],
-        round: 100,
+        round: 20,
         availableConsoleInput: "All",
         exceptionTranslations: {}
     };
@@ -293,9 +215,9 @@ function AddonPseudoCode_Console_create() {
         "AN02": "Multiple aliases got the same name",
         "JS01": "Java Script code in mdefined ethod is not valid.",
         "JS02": "Java Script code in defined function is not valid",
-        "ER01": "Round value must be an integer",
-        "ER02": "Round value must be bigger than 0",
-        "ER03": "Round value must be below 100",
+        "ER01": "Math precision value must be an integer",
+        "ER02": "Math precision value must be bigger than 0",
+        "ER03": "Math precision value cannot be greater than 20",
         "IP01": "Max time for answer must be float number in range 0 to 10 excluding 0",
         "IP02": "Answer code must be valid JS code"
     };
@@ -314,6 +236,11 @@ function AddonPseudoCode_Console_create() {
             return (/^-?[0-9]*\.?[0-9]*$/g.test(wholeValue)
             );
         }
+    };
+
+    presenter.CLASS_LIST = {
+        "correct": "pseudo-code-console-correct",
+        "wrong": "pseudo-code-console-wrong"
     };
 
     presenter.setPlayerController = function presenter_setPlayerController(controller) {
@@ -432,6 +359,7 @@ function AddonPseudoCode_Console_create() {
         }
         presenter.state.$view = $(view);
         presenter.state.view = view;
+        presenter.state.addonWrapper = presenter.state.$view.find(".addon-PseudoCode_Console-wrapper");
         if (!isPreview) {
             presenter.initializeExceptions();
             presenter.initializeConsole();
@@ -474,10 +402,13 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.showAnswers = function presenter_showAnswers() {
+        presenter.setWorkMode();
+        presenter.state._disabled = true;
         presenter.state.console.disable();
     };
 
     presenter.hideAnswers = function presenter_hideAnswers() {
+        presenter.state._disabled = false;
         presenter.state.console.enable();
     };
 
@@ -508,17 +439,40 @@ function AddonPseudoCode_Console_create() {
     };
 
     presenter.reset = function presenter_reset() {
+        presenter.state._wasExecuted = false;
+        presenter.setWorkMode();
+        presenter.hideAnswers();
         presenter.killAllMachines();
         presenter.state.console.Reset();
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.state.console.enable();
+        presenter.state.lastUsedCode = [];
+        presenter.state.wasChanged = true;
     };
 
     presenter.setShowErrorsMode = function presenter_setShowErrorsMode() {
+        presenter.hideAnswers();
+        presenter.state._disabled = true;
+
+        if (!presenter.state._wasExecuted) {
+            return;
+        }
+
+        if (presenter.configuration.isActivity) {
+            if (presenter.getScore() === 1) {
+                presenter.state.addonWrapper[0].classList.add(presenter.CLASS_LIST.correct);
+            } else {
+                presenter.state.addonWrapper[0].classList.add(presenter.CLASS_LIST.wrong);
+            }
+        }
         presenter.state.console.disable();
     };
 
     presenter.setWorkMode = function presenter_setWorkMode() {
+        presenter.state._disabled = false;
+
+        presenter.state.addonWrapper[0].classList.remove(presenter.CLASS_LIST.correct);
+        presenter.state.addonWrapper[0].classList.remove(presenter.CLASS_LIST.wrong);
         presenter.state.console.enable();
     };
 
@@ -527,12 +481,14 @@ function AddonPseudoCode_Console_create() {
 
         presenter.setVisibility(state.isVisible);
         presenter.state.lastScore = state.score;
+        presenter.state._wasExecuted = state._wasExecuted;
     };
 
     presenter.getState = function presenter_getState() {
         var state = {
             isVisible: presenter.state.isVisible,
-            score: presenter.state.lastScore
+            score: presenter.state.lastScore,
+            _wasExecuted: presenter.state._wasExecuted //Added later and can be false
         };
 
         return JSON.stringify(state);
@@ -734,8 +690,14 @@ function AddonPseudoCode_Console_create() {
             return;
         }
 
+        if (presenter.state._disabled) {
+            return;
+        }
+
         presenter.state.variablesAndFunctionsUsage = {};
         presenter.state.wasChanged = true;
+        presenter.state._wasExecuted = true;
+        presenter.state.lastUsedCode = [];
         presenter.initializeObjectForCode();
         try {
             presenter.state.console.Reset();
@@ -761,7 +723,7 @@ function AddonPseudoCode_Console_create() {
 window.AddonPseudoCode_Console_create = AddonPseudoCode_Console_create;
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -983,7 +945,7 @@ function getLanguageParser(config) {
 }
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1286,7 +1248,95 @@ function getDefinedObjects(config) {
 }
 
 /***/ }),
-/* 5 */
+/* 6 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var EXCEPTIONS = exports.EXCEPTIONS = function () {
+    function EXCEPTIONS(translations) {
+        _classCallCheck(this, EXCEPTIONS);
+
+        this.translations = {};
+
+        this.translations = translations;
+    }
+
+    _createClass(EXCEPTIONS, [{
+        key: "InstructionIsDefinedException",
+        value: function InstructionIsDefinedException(instrName) {
+            var defaultTranslation = "The instruction '{0}' has already been defined";
+            this.name = "InstructionIsDefinedException";
+            this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, instrName);
+
+            return this;
+        }
+    }, {
+        key: "CastErrorException",
+        value: function CastErrorException(type, toType) {
+            var defaultTranslation = "Cast exception '{0}' to type: '{1}'";
+            this.name = "CastErrorException";
+            this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, type, toType);
+            return this;
+        }
+    }, {
+        key: "IndexOutOfBoundsException",
+        value: function IndexOutOfBoundsException(type, index, length) {
+            var defaultTranslation = "Exception ({0}): index {1} is out of bounds";
+            this.name = "IndexOutOfBoundsException";
+            this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, type, index);
+
+            return this;
+        }
+    }, {
+        key: "ToFewArgumentsException",
+        value: function ToFewArgumentsException(functionName, expected) {
+            var defaultTranslation = "To few arguments for function '{0}' (expected at least: {1} arguments)";
+            this.name = "ToFewArgumentsException";
+            this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, functionName, expected);
+
+            return this;
+        }
+    }, {
+        key: "MethodNotFoundException",
+        value: function MethodNotFoundException(instrName) {
+            var defaultTranslation = "Undefined method '{0}'";
+            this.name = "MethodNotFoundException";
+            this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, instrName);
+
+            return this;
+        }
+    }, {
+        key: "UndefinedVariableNameException",
+        value: function UndefinedVariableNameException(varName, functionName) {
+            var defaultTranslation = "Usage of undefined variable '{0}' in function '{1}'";
+            this.name = "UndefinedVariableNameException";
+            this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, varName, functionName);
+
+            return this;
+        }
+    }, {
+        key: "UndefinedFunctionNameException",
+        value: function UndefinedFunctionNameException(varName, functionName) {
+            var defaultTranslation = "Usage of undefined function '{0}' in function '{1}'";
+            this.name = "UndefinedFunctionNameException";
+            this.message = window.StringUtils.format(this.translations[this.name] || defaultTranslation, varName, functionName);
+
+            return this;
+        }
+    }]);
+
+    return EXCEPTIONS;
+}();
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1294,9 +1344,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.CODE_GENERATORS = undefined;
 
-var _languageUtils = __webpack_require__(1);
-
-var _definedExceptions = __webpack_require__(0);
+var _languageUtils = __webpack_require__(0);
 
 function uidDecorator(fn) {
     return function () {
@@ -1649,7 +1697,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
         initialCommand += "eax = stack.pop();\n"; //Size of args array
         initialCommand += "ebx = Math.abs(eax - " + argsList.length + ");\n";
 
-        initialCommand += "if (eax < " + argsList.length + ") throw new machineManager.exceptions.ToFewArgumentsException('" + functionName + "'," + argsList.length + ");\n";
+        initialCommand += "if (eax < " + argsList.length + ") throw machineManager.exceptions.ToFewArgumentsException('" + functionName + "'," + argsList.length + ");\n";
 
         initialCommand += "stack.push(actualScope);\n"; //Save actualScope on stack
         initialCommand += "actualScope = {};\n"; //Reset scope to default
@@ -1848,7 +1896,11 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
             parsedArgs.unshift("stack[stack.length - " + i + "]");
         }
 
-        code = "machineManager.configuration.functions." + functionName + ".call({}, machineManager.objectForInstructions, machineManager.objectMocks, next, pause, retVal," + parsedArgs.join(",") + ");";
+        if (parsedArgs.length > 0) {
+            code = "machineManager.configuration.functions." + functionName + ".call({}, machineManager.objectForInstructions, machineManager.objectMocks, next, pause, retVal," + parsedArgs.join(",") + ");";
+        } else {
+            code = "machineManager.configuration.functions." + functionName + ".call({}, machineManager.objectForInstructions, machineManager.objectMocks, next, pause, retVal);";
+        }
 
         execCode.push((0, _languageUtils.generateExecuteObject)(code, '', true));
 
@@ -1865,7 +1917,7 @@ var CODE_GENERATORS = exports.CODE_GENERATORS = {
 };
 
 /***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2214,7 +2266,7 @@ UserConsole.prototype = {
 };
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2222,7 +2274,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.codeExecutor = codeExecutor;
 
-var _languageUtils = __webpack_require__(1);
+var _languageUtils = __webpack_require__(0);
 
 /**
  * @param  {Object} parsedData parsed code by jison
@@ -2352,7 +2404,7 @@ function codeExecutor(parsedData, getScore, machineManager) {
 }
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2586,7 +2638,7 @@ function validateRound(model) {
     if (round.trim() === '') {
         return {
             isValid: true,
-            value: 100
+            value: 20
         };
     }
 
@@ -2606,7 +2658,7 @@ function validateRound(model) {
         };
     }
 
-    if (parsedRound > 100) {
+    if (parsedRound > 20) {
         return {
             isValid: false,
             errorCode: "ER03"
@@ -2736,7 +2788,7 @@ function validateModel(model, aliases) {
 }
 
 /***/ }),
-/* 9 */
+/* 11 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {

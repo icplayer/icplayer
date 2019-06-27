@@ -25,6 +25,7 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 	private Image image;
 	private PageController pageController;
 	private boolean isWCAGOn = false;
+	private String originalDisplay = null;
 	
 	public ImageView(ImageModule module, boolean isPreview) {
 	
@@ -153,12 +154,14 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 	}
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		this.speak(this.module.getAltText());
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {}
+	public void space(KeyDownEvent event) {
+		event.preventDefault();
+	}
 
 	@Override
 	public void tab(KeyDownEvent event) {}
@@ -170,13 +173,19 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 	public void right(KeyDownEvent event) {}
 
 	@Override
-	public void down(KeyDownEvent event) {}
+	public void down(KeyDownEvent event) {
+		event.preventDefault(); 
+	}
 
 	@Override
-	public void up(KeyDownEvent event) {}
+	public void up(KeyDownEvent event) {
+		event.preventDefault();
+	}
 
 	@Override
-	public void escape(KeyDownEvent event) {}
+	public void escape(KeyDownEvent event) {
+	    event.preventDefault();
+	}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {}
@@ -191,6 +200,19 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 			textVoices.add(TextToSpeechVoice.create());
 			
 			this.pageController.speak(textVoices);
+		}
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (originalDisplay == null) {
+			originalDisplay = getElement().getStyle().getDisplay();
+		}
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
 		}
 	}
 }

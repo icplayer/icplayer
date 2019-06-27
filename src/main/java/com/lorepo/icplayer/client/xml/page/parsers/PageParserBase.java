@@ -6,10 +6,10 @@ import java.util.List;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.model.layout.Size;
-import com.lorepo.icplayer.client.model.page.Group;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.Page.LayoutType;
 import com.lorepo.icplayer.client.model.page.Page.PageScoreWeight;
+import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.ui.Ruler;
@@ -22,6 +22,8 @@ public abstract class PageParserBase implements IPageParser{
 
 	protected String version;
 	protected IPageBuilder page;
+	protected String contentDefaultLayoutID = null;
+	protected String defaultLayoutID = null;
 	
 	public PageParserBase() {}
 	
@@ -32,6 +34,11 @@ public abstract class PageParserBase implements IPageParser{
 	@Override
 	public String getVersion() {
 		return this.version;
+	}
+	
+	@Override
+	public void setDefaultLayoutID(String layoutID) {
+		contentDefaultLayoutID = layoutID;
 	}
 	
 	public Object parse(Element xml) {
@@ -135,6 +142,9 @@ public abstract class PageParserBase implements IPageParser{
 				IModuleModel module = moduleFactory.createModel(node.getNodeName());
 
 				if (module != null) {
+					if (defaultLayoutID != null) {
+						module.setContentDefaultLayoutID(defaultLayoutID);
+					}
 					module.load((Element) node, page.getBaseURL(), Integer.toString(pageVersion));
 					page.addModule(module);
 				}

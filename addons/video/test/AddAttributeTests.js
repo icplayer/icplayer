@@ -29,7 +29,10 @@ AddAttributeTests.prototype.testAddingPosterShouldSetValidPoster = function() {
         };
     };
 
-    this.presenter.addAttributePoster(this.video, "some_url");
+    var image = new Image();
+    image.src = "some_url";
+
+    this.presenter.addAttributePoster(this.video, image);
 
     /** @type {jQuery} */
     var image = this.presenter.$view.find("img");

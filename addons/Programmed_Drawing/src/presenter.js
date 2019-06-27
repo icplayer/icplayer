@@ -147,10 +147,12 @@ function AddonProgrammed_Drawing_create(){
 
     presenter.run = function(view, model){
         presenterLogic(view, model);
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.createPreview = function(view, model){
         presenterLogic(view, model);
+        presenter.setVisibility(true);
     };
 
     function returnErrorObject(errorCode) {
@@ -175,8 +177,6 @@ function AddonProgrammed_Drawing_create(){
         if(presenter.configuration.initialDesign){
             presenter.validateInstructions(presenter.configuration.initialDesign);
         }
-
-        presenter.setVisibility(presenter.configuration.isVisible);
     }
 
     presenter.setPlayerController = function(controller) {

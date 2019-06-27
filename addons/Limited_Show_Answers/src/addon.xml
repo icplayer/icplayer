@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Limited_Show_Answers' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+        <property name="Text" nameLabel="Limited_Show_Answers_property_text" type="string" isLocalized="true" />
+        <property name="Text selected" nameLabel="Limited_Show_Answers_property_text_selected" type="string" isLocalized="true" />
+        <property name="Increment check counter" nameLabel="Limited_Show_Answers_property_increment_check_counter" type="boolean" />
+        <property name="Increment mistake counter" nameLabel="Limited_Show_Answers_property_increment_mistake_counter" type="boolean" />
+        <property name="worksWith" nameLabel="Limited_Show_Answers_property_works_with" type="text"/>
+        <property name="speechTexts" displayName="Speech texts" nameLabel="choice_speech_texts" type="staticlist">
+
+            <property name="Selected" nameLabel="Limited_Show_Answers_speech_text_choice_item_selected" type="staticrow">
+                <property name="Selected" nameLabel="Limited_Show_Answers_speech_text_choice_item_selected" type="string"/>
+            </property>
+
+            <property name="Block edit" nameLabel="Limited_Show_Answers_speech_text_check_answers_button_edit_block" type="staticrow">
+                <property name="Block edit" nameLabel="Limited_Show_Answers_speech_text_check_answers_button_edit_block" type="string"/>
+            </property>
+
+            <property name="No block edit" nameLabel="Limited_Show_Answers_speech_text_check_answers_button_no_edit_block" type="staticrow">
+                <property name="No block edit" nameLabel="Limited_Show_Answers_speech_text_check_answers_button_no_edit_block" type="string"/>
+            </property>
+
+        </property>
+    </model>
+</addon>

@@ -121,16 +121,18 @@ function AddonExternal_Link_Button_create() {
         var $element = presenter.createElements($wrapper);
         
         presenter.setElementsDimensions(model, $wrapper, $element);
-        
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
     presenter.createPreview = function(view, model) {
     	presenter.presenterLogic(view, model);
+
+        presenter.setVisibility(true);
     };
 
     presenter.run = function(view, model){
     	presenter.presenterLogic(view, model);
+
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
     };
 
     presenter.validateString = function (imageSrc) {
@@ -171,7 +173,7 @@ function AddonExternal_Link_Button_create() {
         	isValid: true,
             title: model.Title,
             image: image.value,
-            URI: model.URI,
+            URI: model.URI.trim(),
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
             targetType: model['targetType']

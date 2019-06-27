@@ -155,6 +155,7 @@ function AddonTrueFalse_create() {
     function clickLogic(element) {
         var sendEvent = true;
         var wasSelected = false;
+        if (presenter.isDisabled) return;
 
         if (!$(element).hasClass("disabled")) {
             if (multi) {
@@ -198,8 +199,19 @@ function AddonTrueFalse_create() {
     }
 
     function handleClickActions(view) {
-        var $elements = $(view).find(".tf_" + presenter.type + "_image");
+        if(presenter.isDisabled) return;
 
+
+        var $elements = $(view).find(".tf_" + presenter.type + "_image");
+        
+        if (!MobileUtils.isMobileUserAgent(window.navigator.userAgent)){
+            $elements.hover(function(){
+                $(this).addClass('mouse-hover');
+                }, function(){
+                $(this).removeClass('mouse-hover');
+            });
+        }
+        
         $elements.on('touchstart', function (e) {
             e.stopPropagation();
             e.preventDefault();
@@ -335,13 +347,14 @@ function AddonTrueFalse_create() {
         }
     }
 
-    var makeView = function (view, model, preview) {
+    var makeView = function (view, model, isPreview) {
         possibleChoices = model['Choices'];
         questions = model['Questions'];
         presenter.langAttribute = model['Lang attribute'];
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-        presenter.setVisibility(presenter.isVisible);
+        presenter.isDisabled = false; // At start addon is always enabled, so we need to reset flag and set correct value.
+        presenter.isDisabledByDefault = ModelValidationUtils.validateBoolean(model["isDisabled"]);
         presenter.$view.attr('lang', presenter.langAttribute);
 
         getSpeechTexts(model);
@@ -368,15 +381,22 @@ function AddonTrueFalse_create() {
 
         presenter.generateTableContent(table, view);
 
-        if (!preview) {
+        if (!isPreview) {
             handleClickActions(view);
+            presenter.setVisibility(presenter.isVisible);
+
+            if (presenter.isDisabledByDefault) {
+                presenter.disable();
+            } else {
+                presenter.enable();
+            }
         }
 
         if (textParser !== null) { // Actions performed only in Player mode
             textParser.connectLinks($(view));
         }
 
-        if (!preview) {
+        if (!isPreview) {
             presenter.$view.find('.tf_' + presenter.type + '_image' + ',.tf_' + presenter.type + '_question:not(.first)').each(function(index, element){
                 presenter.keyboardNavigationElements[index] = $(element);
             });
@@ -476,12 +496,13 @@ function AddonTrueFalse_create() {
 
     presenter.getState = function () {
         if (presenter.isShowAnswersActive) {
-            return presenter.currentState;
+            presenter.hideAnswers();
         }
 
         return JSON.stringify({
             selectedElements: getSelectedElements(),
-            isVisible: presenter.isVisible
+            isVisible: presenter.isVisible,
+            isDisabled: presenter.isDisabled
         });
     };
 
@@ -508,6 +529,19 @@ function AddonTrueFalse_create() {
             }
             i++;
         });
+
+        //  For backward compatibility in old lessons
+        if (parsedState.isDisabled === undefined) {
+            parsedState.isDisabled = false;
+        }
+
+        if(!presenter.isShowAnswersActive) {
+            if (parsedState.isDisabled) {
+                presenter.disable();
+            } else {
+                presenter.enable();
+            }
+        }
     };
 
     presenter.setShowErrorsMode = function () {
@@ -549,13 +583,19 @@ function AddonTrueFalse_create() {
         workMode(true);
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
+
+        if (presenter.isDisabledByDefault) {
+            presenter.disable();
+        } else {
+            presenter.enable();
+        }
     };
 
     presenter.getErrorCount = function () {
         if (isNotActivity) return 0;
 
         if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+            return presenter.currentScore.errorCount;
         }
 
         return score().errorCount;
@@ -565,7 +605,7 @@ function AddonTrueFalse_create() {
         if (isNotActivity) return 0;
 
         if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+            return presenter.currentScore.maxScore;
         }
 
         return score().maxScore;
@@ -575,7 +615,7 @@ function AddonTrueFalse_create() {
         if (isNotActivity) return 0;
 
         if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+            return presenter.currentScore.score;
         }
 
         return score().score;
@@ -596,7 +636,11 @@ function AddonTrueFalse_create() {
             'isAttempted' : presenter.isAttemptedCommand,
             'show': presenter.show,
             'hide': presenter.hide,
-            'reset' : presenter.reset
+            'reset' : presenter.reset,
+            'showAnswers' : presenter.showAnswers,
+            'hideAnswers' : presenter.hideAnswers,
+            'enable' : presenter.enable,
+            'disable' : presenter.disable
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -636,6 +680,8 @@ function AddonTrueFalse_create() {
 
 
     presenter.markAsCorrect = function (rowIndex, answerIndex) {
+        if(presenter.isDisabled) return;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -649,6 +695,8 @@ function AddonTrueFalse_create() {
     };
 
     presenter.markAsWrong = function (rowIndex, answerIndex) {
+        if(presenter.isDisabled) return;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -662,6 +710,8 @@ function AddonTrueFalse_create() {
     };
 
     presenter.markAsEmpty = function (rowIndex, answerIndex) {
+        if(presenter.isDisabled) return;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -674,6 +724,8 @@ function AddonTrueFalse_create() {
     };
 
     presenter.removeMark = function (rowIndex, answerIndex) {
+        if(presenter.isDisabled) return;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -686,6 +738,8 @@ function AddonTrueFalse_create() {
     };
 
     presenter.isAttempted = function () {
+        if (isNotActivity) return true;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -742,11 +796,28 @@ function AddonTrueFalse_create() {
         }
     };
 
+    presenter.disable = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        presenter.isDisabled = true;
+        presenter.$view.addClass("disabled");
+    };
+
+    presenter.enable = function() {
+        if (presenter.isShowAnswersActive) {
+            presenter.hideAnswers();
+        }
+        presenter.isDisabled = false;
+        presenter.$view.removeClass("disabled");
+    };
+
     presenter.showAnswers = function () {
-        if (isNotActivity) {
+        if (isNotActivity || presenter.isShowAnswersActive) {
             return;
         }
 
+        presenter.currentScore = score();
         presenter.isShowAnswersActive = true;
         presenter.currentState = getSelectedElements();
         presenter.isErrorMode = false;
@@ -768,7 +839,7 @@ function AddonTrueFalse_create() {
     };
 
     presenter.hideAnswers = function () {
-        if (isNotActivity) {
+        if (isNotActivity || !presenter.isShowAnswersActive) {
             return;
         }
 
@@ -807,19 +878,20 @@ function AddonTrueFalse_create() {
     }
 
     function getChoice(index) {
-         return presenter.$view.find('#0').children().eq(index).text().trim();
+        var $topRowElement = presenter.$view.find('#0');
+        var $choiceElement = $topRowElement.children().eq(index);
+        return window.TTSUtils.getTextVoiceArrayFromElement($choiceElement,presenter.langAttribute);
     }
 
     function readOption(readSelection) {
         var tts = getTextToSpeech();
         if (tts) {
             var $active = getActivatedElement(),
-                question = $active.parent().parent().first().text().trim(),
                 elementIndex = getElementIndex($active),
-                choice = getChoice(elementIndex);
-
+                choiceArray = getChoice(elementIndex);
+            
             if ($active.hasClass('tf_' + presenter.type + '_question')) {
-                speak([getTextVoiceObject($active.text().trim(), presenter.langAttribute)]);
+                speak(window.TTSUtils.getTextVoiceArrayFromElement($active,presenter.langAttribute));
                 return;
             }
 
@@ -827,16 +899,16 @@ function AddonTrueFalse_create() {
                 if ($active.parent().hasClass('down')) {
                     if (presenter.isErrorMode) {
                         if ($active.parent().hasClass('correct')) {
-                            speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + correctSpeechText, "")]);
+                            speak(choiceArray.concat([getTextVoiceObject(selectedSpeechText + " " + correctSpeechText, "")]))
                         }
                         if($active.parent().hasClass('wrong')) {
-                            speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText + " " + incorrectSpeechText, "")]);
+                            speak(choiceArray.concat([getTextVoiceObject(selectedSpeechText + " " + incorrectSpeechText, "")]))
                         }
                     } else {
-                        speak([getTextVoiceObject(choice, presenter.langAttribute), getTextVoiceObject(selectedSpeechText, "")]);
+                        speak(choiceArray.concat([getTextVoiceObject(selectedSpeechText, "")]))
                     }
                 } else {
-                    speak([getTextVoiceObject(choice, presenter.langAttribute)]);
+                    speak(choiceArray);
                 }
             } else {
                 if ($active.parent().hasClass('down')) {
@@ -859,12 +931,9 @@ function AddonTrueFalse_create() {
         }
     }
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        $(document).on('keydown', function(e) {
-            e.preventDefault();
-            presenter.shiftPressed = e.shiftKey;
-            $(this).off('keydown');
-        });
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        event.preventDefault();
+        presenter.shiftPressed = event.shiftKey;
 
         var keys = {
             ENTER: 13,

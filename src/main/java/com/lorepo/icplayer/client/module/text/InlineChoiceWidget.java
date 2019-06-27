@@ -9,6 +9,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.TouchEndEvent;
 import com.google.gwt.event.dom.client.TouchEndHandler;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.ListBox;
 import com.lorepo.icf.utils.StringUtils;
@@ -54,9 +56,14 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 						addStyleName("ic_inlineChoice-default");
 					}
 					listener.onValueChanged(choiceInfo.getId(), value);
-					if(getView().isWCAGon()){
+					TextView view = getView();
+					if(view.isWCAGon()){
 						List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-						textVoices.add(TextToSpeechVoice.create(value, getView().getLang()));
+						if (index == 0) {
+							textVoices.add(TextToSpeechVoice.create(view.getSpeechText(TextModel.EMPTY_INDEX)));
+						} else {
+							textVoices.add(TextToSpeechVoice.create(value, view.getLang()));
+						} 
 						getPageController().speak(textVoices);
 					}
 				}
@@ -93,7 +100,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 			boolean isFilledGap = selectedIndex > 0;
 
 			if (isFilledGap) {
-				boolean isCorrectAnswer = getItemText(selectedIndex).compareTo(choiceInfo.getAnswer()) == 0;
+				boolean isCorrectAnswer = StringUtils.unescapeXML(getValue(selectedIndex)).compareTo(choiceInfo.getAnswer()) == 0;
 				addStyleDependentName(isCorrectAnswer ? "correct" : "wrong");
 				this.gapState = (isCorrectAnswer ? 1 : 2);
 			} else {
@@ -147,6 +154,12 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	public String getTextValue() {
 		int index = getSelectedIndex();
 		return getItemText(index);
+	}
+	
+	@Override
+	public String getWCAGTextValue() {
+		int index = getSelectedIndex();
+		return getValue(index);
 	}
 
 	@Override
@@ -222,7 +235,9 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 		} else {
 			this.deselect();
 		}
-		setFocus(focus);
+		if( !getView().isWCAGon() ){
+			setFocus(focus);
+		}
 	}
 
 	@Override
@@ -230,7 +245,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 		return "dropdown";
 	}
 	
-	private PageController getPageController () {
+	public PageController getPageController () {
 		return this.pageController;
 	}
 	
@@ -272,5 +287,38 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	
 	private TextView getView(){
 		return this.view;
+	}
+	
+	public void changeSelected(boolean next){
+		if(isSelected && isWorkingMode) {
+			int selectedIndex = this.getSelectedIndex();
+			int originalIndex = selectedIndex;
+			int size = this.getItemCount();
+			if(next) {
+				selectedIndex++;
+				if(selectedIndex >= size) {
+					selectedIndex = size - 1;
+				}
+			} else {
+				selectedIndex--;
+				if (selectedIndex <= 0) {
+					selectedIndex = 0;
+				}
+			}
+
+			if(selectedIndex != originalIndex) {
+				this.setSelectedIndex( selectedIndex );
+				fireChangeEvent();
+			}
+		}
+	}
+	
+	public void fireChangeEvent() {
+		DomEvent.fireNativeEvent(Document.get().createChangeEvent(), this);
+	}
+	
+	@Override
+	public String getLangTag() {
+		return null;
 	}
 }

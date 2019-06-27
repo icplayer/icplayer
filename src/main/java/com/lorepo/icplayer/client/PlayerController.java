@@ -1,6 +1,8 @@
 package com.lorepo.icplayer.client;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
@@ -23,6 +25,7 @@ import com.lorepo.icplayer.client.content.services.TimeService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.PageList;
+import com.lorepo.icplayer.client.model.page.PopupPage;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IPage;
@@ -63,6 +66,8 @@ public class PlayerController implements IPlayerController{
 	private PlayerEntryPoint entryPoint;
 	private String lang = "en";
 	private int iframeScroll = 0;
+	private boolean isIframeInCrossDomain = false;
+	private Set<IPage> visitedPages = new HashSet<IPage>();
 
 	private String pageStamp = "0";
 
@@ -84,6 +89,7 @@ public class PlayerController implements IPlayerController{
 		this.scoreService.setPlayerService(this.pageController1.getPlayerServices());
 		this.timeService = new TimeService();
 		this.keyboardController.run(entryPoint);
+		this.isIframeInCrossDomain = checkIsPlayerInCrossDomain();
 		this.getIFrameScroll(this);
 		this.lang = content.getMetadataValue("lang");
 	}
@@ -306,6 +312,7 @@ public class PlayerController implements IPlayerController{
 
 
 	private void switchToPage(IPage page, final PageController pageController){
+		this.visitedPages.add(page);
 	    this.pageStamp = this.generatePageStamp(page.getId());
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("page", page.getId());
@@ -427,6 +434,27 @@ public class PlayerController implements IPlayerController{
 			this.stateService.addState(state);
 		}
 	}
+	
+	public String getVisitedPagesAsString(){
+		String result = "";
+		for (IPage page: this.visitedPages) {
+			result += page.getId() + ";";
+		}
+		result = result.substring(0, result.length()-1);
+		return result;
+	}
+	
+	public void loadVisitedPagesFromString(String visitedPageIds){
+		Set<IPage> newVisitedPages = new HashSet<IPage>();
+		String[] ids = visitedPageIds.split(";");
+		for (String id: ids) {
+			IPage page = this.contentModel.getPageById(id);
+			if (page != null) {
+				newVisitedPages.add(page);
+			}
+		}
+		this.visitedPages = newVisitedPages;
+	}
 
 
 	public IPlayerServices getPlayerServices() {
@@ -463,7 +491,7 @@ public class PlayerController implements IPlayerController{
 			return;
 		}
 		this.setPopupEnabled(true);
-		Page page  = this.contentModel.findPageByName(pageName);
+		PopupPage page  = new PopupPage(this.contentModel.findPageByName(pageName));
 		PageController popupPageControler = new PageController(this);
 		popupPageControler.setContent(this.getModel());
 		this.popupPanel = new PagePopupPanel(this.getView(), popupPageControler, top, left, additionalClasses, this.getPlayerServices());
@@ -603,18 +631,49 @@ public class PlayerController implements IPlayerController{
 
 	@Override
 	public int getIframeScroll() {
-		return this.iframeScroll;
+		// when true, iframeScroll set by parsing message
+		if (isIframeInCrossDomain) {
+			return this.iframeScroll;
+		}
+		return this.getScrollTop();
 	}
+	
+	private native int getScrollTop() /*-{
+		return $wnd.window.top.pageYOffset;
+	}-*/;
 
 	public void setIframeScroll (int scroll) {
 		this.iframeScroll = scroll;
+		
+		if (this.pageController1 != null) {
+			this.pageController1.sendScrollEvent(scroll);
+		}
+		
+		if (this.pageController2 != null) {
+			this.pageController2.sendScrollEvent(scroll);
+		}
 	}
 
-
-
+	@Override
+	public boolean isPlayerInCrossDomain() {
+		return this.isIframeInCrossDomain;
+	}
+	
+	private native boolean checkIsPlayerInCrossDomain () /*-{		
+		try {
+	        var doc = $wnd.window.top.document;
+	        if (!doc) {
+	            return true;
+	        }
+        	return false;
+		} catch (e) {
+		    return true;
+		}
+	}-*/;
 
 	public native int getIFrameScroll (PlayerController x) /*-{
 		var iframeScroll = 0;
+				
 		$wnd.addEventListener('message', function (event) {
 			var data = event.data;
 	
@@ -687,6 +746,14 @@ public class PlayerController implements IPlayerController{
 
 	public String getPageStamp() {
 		return this.pageStamp;
+	}
+	
+	public boolean isWCAGOn() {
+		return this.keyboardController.isWCAGOn();
+	}
+	
+	public Set<IPage> getVisitedPages() {
+		return this.visitedPages;
 	}
 
 }

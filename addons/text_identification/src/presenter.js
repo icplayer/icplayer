@@ -73,42 +73,87 @@ function Addontext_identification_create() {
 
     function handleMouseActions() {
         var $element = viewContainer.find('div.text-identification-container');
-        $element.hover(
-            function() {
-                if (!presenter.configuration.isErrorCheckMode && isHoverEnabled) {
-                    $(this).removeClass(CSS_CLASSESToString());
-                    $(this).addClass(presenter.isSelected() ? CSS_CLASSES.MOUSE_HOVER_SELECTED : CSS_CLASSES.MOUSE_HOVER);
+        if (!MobileUtils.isMobileUserAgent(navigator.userAgent)) {
+            $element.hover(
+                function () {
+                    if (!presenter.configuration.isErrorCheckMode && isHoverEnabled) {
+                        $(this).removeClass(CSS_CLASSESToString());
+                        $(this).addClass(presenter.isSelected() ? CSS_CLASSES.MOUSE_HOVER_SELECTED : CSS_CLASSES.MOUSE_HOVER);
+                    }
+                },
+                function () {
+                    if (!presenter.configuration.isErrorCheckMode && isHoverEnabled) {
+                        $(this).removeClass(CSS_CLASSESToString());
+                        $(this).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
+                    }
                 }
-            },
-            function() {
-                if (!presenter.configuration.isErrorCheckMode && isHoverEnabled) {
-                    $(this).removeClass(CSS_CLASSESToString());
-                    $(this).addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
+            );
+        }
+
+        if (presenter.configuration.enableScroll) {
+            var posDiff = 0;
+            var lastScreenPos = {X: 0, Y: 0};
+
+            $element.on('touchstart', function (e) {
+                e.stopPropagation();
+                posDiff = 0;
+                var temp = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
+                lastScreenPos.X = temp.screenX;
+                lastScreenPos.Y = temp.screenY;
+            });
+
+            $element.on('touchend', function (e) {
+                e.stopPropagation();
+                if (posDiff < 15) {
+                    presenter.clickHandler(e);
                 }
-            }
-        );
+            });
 
-        $element.on('touchstart', function (e) {
-            e.preventDefault();
+            $element.on('touchmove', function (e) {
+                e.stopPropagation();
+                var temp = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0] || e.originalEvent.targetTouches[0];
+                posDiff += Math.abs(lastScreenPos.X - temp.screenX) + Math.abs(lastScreenPos.Y - temp.screenY);
+                lastScreenPos.X = temp.screenX;
+                lastScreenPos.Y = temp.screenY;
+            });
 
-            presenter.lastEvent = e;
-        });
+        } else {
+            $element.on('touchstart', function (e) {
+                e.preventDefault();
 
-        $element.on('touchend', function (e) {
-            e.preventDefault();
-            if ( presenter.lastEvent.type != e.type ) {
-                presenter.clickHandler(e);
-            }
-        });
+                presenter.lastEvent = e;
+            });
 
-        $element.click(presenter.clickHandler);
+            $element.on('touchend', function (e) {
+                e.preventDefault();
+                if (presenter.lastEvent.type != e.type) {
+                    presenter.clickHandler(e);
+                }
+            });
+        }
+
+        if (!MobileUtils.isMobileUserAgent(navigator.userAgent)){
+            $element.click(presenter.clickHandler);
+        }
     }
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeShouldSendEventsOnCommands(model);
+        upgradedModel = upgradeModelEnableScrollProperty(upgradedModel);
         upgradedModel = presenter.upgradeTTS(upgradedModel);
         return upgradedModel;
     };
+
+    function upgradeModelEnableScrollProperty(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!upgradedModel['enableScroll']){
+            upgradedModel['enableScroll'] = false;
+        }
+
+        return upgradedModel;
+    }
 
     presenter.upgradeShouldSendEventsOnCommands = function (model) {
         var upgradedModel = {};
@@ -168,7 +213,8 @@ function Addontext_identification_create() {
             isErrorCheckMode: false,
             blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers),
             shouldSendEventsOnCommands: ModelValidationUtils.validateBoolean(model.shouldSendEventsOnCommands),
-            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
+            enableScroll: ModelValidationUtils.validateBoolean(model['enableScroll']),
         };
     };
 
@@ -207,7 +253,7 @@ function Addontext_identification_create() {
 
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-        presenter.setVisibility(presenter.isVisible);
+        presenter.setVisibility(presenter.isVisible || isPreview);
 
         var container = $('<div class="text-identification-container"></div>');
         container.addClass(presenter.isSelected() ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
@@ -521,6 +567,7 @@ function Addontext_identification_create() {
     };
 
     TextIdentificationKeyboardController.prototype.select = function (event) {
+        event.preventDefault();
         presenter.clickHandler(event);
 
         if (!presenter.isShowAnswersActive && !presenter.configuration.isErrorCheckMode) {
@@ -529,8 +576,8 @@ function Addontext_identification_create() {
     };
 
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        this.keyboardControllerObject.handle(keycode, isShiftKeyDown);
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        this.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
     };
 
     presenter.buildKeyboardController = function () {

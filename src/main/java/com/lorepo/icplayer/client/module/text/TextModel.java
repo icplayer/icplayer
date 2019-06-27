@@ -1,29 +1,25 @@
 package com.lorepo.icplayer.client.module.text;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
-import com.lorepo.icf.properties.IBooleanProperty;
-import com.lorepo.icf.properties.IEnumSetProperty;
-import com.lorepo.icf.properties.IHtmlProperty;
-import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.properties.IPropertyProvider;
-import com.lorepo.icf.properties.IStaticListProperty;
+import com.lorepo.icf.properties.*;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // in old lessons some characters aren't escaped (e.g: > or <), in new lessons they are
 // only after editing and saving text in old lessons characters will be escaped
 
-public class TextModel extends BasicModuleModel {
+public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	public static final int NUMBER_INDEX = 0;
 	public static final int GAP_INDEX = 1;
 	public static final int DROPDOWN_INDEX = 2;
@@ -37,8 +33,10 @@ public class TextModel extends BasicModuleModel {
 	public List<GapInfo> gapInfos = new ArrayList<GapInfo>();
 	public List<InlineChoiceInfo> choiceInfos = new ArrayList<InlineChoiceInfo>();
 	public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
+	public List<AudioInfo> audioInfos = new ArrayList<AudioInfo>();
 
 	public String moduleText = "";
+	public String defaultModuleText = "";
 	private boolean useDraggableGaps;
 	private boolean useMathGaps;
 	private boolean openLinksinNewTab = true;
@@ -56,6 +54,7 @@ public class TextModel extends BasicModuleModel {
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
+	private boolean syntaxError = false;
 	private String originalText;
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String langAttribute = "";
@@ -89,6 +88,10 @@ public class TextModel extends BasicModuleModel {
 		if (rawText != null) {
 			setText(rawText);
 		}
+	}
+
+	public String getDefaultModuleText() {
+		return defaultModuleText;
 	}
 
 	public String getGapUniqueId() {
@@ -145,6 +148,8 @@ public class TextModel extends BasicModuleModel {
 				if (rawText == null) {
 					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 				}
+
+				defaultModuleText = rawText;
 				setText(rawText);
 			}
 		}
@@ -172,12 +177,15 @@ public class TextModel extends BasicModuleModel {
 			gapInfos.clear();
 			choiceInfos.clear();
 			linkInfos.clear();
-			
+			audioInfos.clear();
+
 			return;
 		}
 		gapInfos = parsedTextInfo.gapInfos;
 		choiceInfos = parsedTextInfo.choiceInfos;
 		linkInfos = parsedTextInfo.linkInfos;
+        audioInfos = parsedTextInfo.audioInfos;
+		syntaxError = parsedTextInfo.hasSyntaxError;
 		if (getBaseURL() != null) {
 			parsedText = StringUtils.updateLinks(parsedText, getBaseURL());
 		}
@@ -486,6 +494,10 @@ public class TextModel extends BasicModuleModel {
 
 	public List<LinkInfo> getLinkInfos() {
 		return linkInfos;
+	}
+
+	public List<AudioInfo> getAudioInfos() {
+		return audioInfos;
 	}
 
 	public boolean isActivity() {
@@ -1028,4 +1040,7 @@ public class TextModel extends BasicModuleModel {
 		return this.originalText;
 	}
 	
+	public boolean hasSyntaxError () {
+		return syntaxError;
+	}
 }

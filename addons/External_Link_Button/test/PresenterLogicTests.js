@@ -9,7 +9,6 @@ TestCase("[External Link Button] Presenter logic", {
 		sinon.stub(this.presenter, 'setVisibility');
 		
 		sinon.stub(DOMOperationsUtils, 'showErrorMessage');
-		//DOMOperationsUtils.showErrorMessage.restore();
 	},
 	
 	tearDown: function () {
@@ -33,7 +32,6 @@ TestCase("[External Link Button] Presenter logic", {
 		assertTrue(this.presenter.createElements.calledOnce);
 		
 		assertTrue(this.presenter.setElementsDimensions.calledOnce);
-		assertTrue(this.presenter.setVisibility.calledOnce);
 	},
 
 	'test errors during model validation': function () {
@@ -47,7 +45,6 @@ TestCase("[External Link Button] Presenter logic", {
 		assertFalse(this.presenter.createElements.called);
 		
 		assertFalse(this.presenter.setElementsDimensions.called);
-		assertFalse(this.presenter.setVisibility.called);
 	},
 
 });

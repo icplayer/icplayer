@@ -499,6 +499,10 @@ public class Content implements IContentBuilder, IContent {
 	public boolean setActualLayoutID(String id) {
 		return this.layoutsContainer.setActualLayoutID(id);
 	}
+	
+	public String getLayoutIDByName(String layoutName) {
+		return this.layoutsContainer.getLayoutIDByName(layoutName);
+	}
 
 	public void setDefaultCSSStyle(String cssStyleID) {
 		for (CssStyle style : this.styles.values()) {

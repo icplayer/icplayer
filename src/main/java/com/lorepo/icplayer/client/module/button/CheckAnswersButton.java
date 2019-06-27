@@ -58,7 +58,7 @@ class CheckAnswersButton extends ExecutableButton {
 
 	public void execute() {
 		this.checkAnswersModeOn = !this.checkAnswersModeOn;
-		
+
 		if(this.checkAnswersModeOn) {
 			setStyleName("ic_button_uncheck");
 			setTitle("");

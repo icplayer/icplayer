@@ -16,7 +16,8 @@
 
     /**
     Custom controls bar for video/audio data.
-
+    @memberOf CustomControlsBar
+    @constructor
     @param {Object} userConfiguration object with user configuration
     @return {null}
     */
@@ -55,6 +56,7 @@
 
     /**
     Add new callback when progress was changed.
+    @memberOf CustomControlsBar
     @method addProgressChangedCallback. At first parameter will be calculated percent.
 
     @param {function} callback to execute
@@ -77,6 +79,7 @@
 
     /**
     Default callback for click on progress bar. This function will call all functions added in addProgressChangedCallback
+    @memberOf CustomControlsBar
     @method progressBarClicked
 
     @param {eventData} e Event data to calculate percent
@@ -313,9 +316,12 @@
     };
 
     /**
+     * @typedef {{title: String, callback: Function}} addBurgerMenuElement
+     */
+    /**
      * Add new burger menu and add elements to this menu.
      * @param {String} name of burger menu
-     * @param {{title: String, callback: Function}[]} elements to append
+     * @param {addBurgerMenuElement[]} elements to append
      */
     CustomControlsBar.prototype.addBurgerMenu = function (name, elements) {
         function showContainer (container) {

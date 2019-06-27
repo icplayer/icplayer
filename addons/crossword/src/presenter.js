@@ -55,6 +55,8 @@ function Addoncrossword_create(){
         SHOW_ERRORS: 1
     };
 
+    presenter.isModelValid = true;
+
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
         if(typeof(substitutions) == 'undefined') {
@@ -556,6 +558,21 @@ function Addoncrossword_create(){
         };
     };
 
+    presenter.destroyCommands = function () {
+        delete presenter.executeCommand;
+        delete presenter.isAllOK;
+        delete presenter.isAttempted;
+        delete presenter.getMaxScore;
+        delete presenter.getScore;
+        delete presenter.getErrorCount;
+        delete presenter.setShowErrorsMode;
+        delete presenter.setWorkMode;
+        delete presenter.reset;
+        delete presenter.getState;
+        delete presenter.setState;
+        presenter.isModelValid = false;
+    };
+
     presenter.isBlockWrongAnswers = function (model) {
         return ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
     };
@@ -567,6 +584,7 @@ function Addoncrossword_create(){
         var configuration = presenter.readConfiguration(model);
         if(configuration.isError) {
             presenter.showErrorMessage(configuration.errorMessage, configuration.errorMessageSubstitutions);
+            presenter.destroyCommands();
             return;
         }
 
@@ -887,6 +905,8 @@ function Addoncrossword_create(){
     };
 
     presenter.onEventReceived = function (eventName) {
+        if (!presenter.isModelValid) return;
+
         if (eventName == "ShowAnswers") {
             presenter.showAnswers();
         }

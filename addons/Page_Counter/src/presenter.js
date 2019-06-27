@@ -3,6 +3,41 @@ function AddonPage_Counter_create() {
     var presentationController;
     var isWCAGOn = false;
 
+    presenter.isCurrentlyVisible = true;
+
+    presenter.executeCommand = function(name, params) {
+        switch(name.toLowerCase()) {
+            case 'hide'.toLowerCase():
+                presenter.hide();
+                break;
+            case 'show'.toLowerCase():
+                presenter.show();
+                break;
+        }
+    };
+    
+    presenter.hide = function() {
+        presenter.isCurrentlyVisible = false;
+        presenter.setVisibility(false);
+    };
+    
+    presenter.show = function() {
+        presenter.isCurrentlyVisible = true;
+        presenter.setVisibility(true);
+    };
+    
+    presenter.setVisibility = function(isVisible) {
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+    
+    presenter.updateVisibility = function() {
+        if (presenter.isCurrentlyVisible) {
+            presenter.show();
+        } else {
+            presenter.hide();
+        }
+    };
+    
     presenter.ERROR_CODES = {
             "L_01": "No language selected, have to be selected proper language in Numericals property",
             'ST_01': "Start from property have to be a positive integer.",
@@ -22,14 +57,14 @@ function AddonPage_Counter_create() {
             return false;
         }
 
-    	var exp = /[0-9]/;
-    	for(var i = 0 ; i < value.length; i++) {
-    		var character = value.charAt(i);
-    		if(!exp.test(character)) {
-    			return false;
-    		}
-    	}
-    	return true;
+        var exp = /[0-9]/;
+        for(var i = 0 ; i < value.length; i++) {
+            var character = value.charAt(i);
+            if(!exp.test(character)) {
+                return false;
+            }
+        }
+        return true;
     };
 
     function getTextVoiceObject (text, lang) { return {text: text, lang: lang}; }
@@ -55,13 +90,13 @@ function AddonPage_Counter_create() {
     }
     
     presenter.validateLanguage = function (model) {
-    	if (model.Numericals == 'Eastern Arabic') {
-    		return {isValid: true, value: Internationalization.EASTERN_ARABIC};
-    	}
+        if (model.Numericals == 'Eastern Arabic') {
+            return {isValid: true, value: Internationalization.EASTERN_ARABIC};
+        }
 
         else if (model.Numericals == 'Perso-Arabic') {
-    		return {isValid: true, value: Internationalization.PERSO_ARABIC};
-    	}
+            return {isValid: true, value: Internationalization.PERSO_ARABIC};
+        }
 
         return {isValid: true, value: Internationalization.WESTERN_ARABIC};
     };
@@ -81,7 +116,7 @@ function AddonPage_Counter_create() {
     }
 
     function renderText(view, text) {
-    	var viewContainer = $(view);
+        var viewContainer = $(view);
         var element = viewContainer.find(".pagecounter:first")[0];
         DOMOperationsUtils.setReducedSize(view, element);
 
@@ -104,7 +139,7 @@ function AddonPage_Counter_create() {
     };
 
     function parsePages(omittedPagesTextsObject) {
-    	var pages = omittedPagesTextsObject.pages;
+        var pages = omittedPagesTextsObject.pages;
         var text = omittedPagesTextsObject.text;
 
         if (ModelValidationUtils.isStringEmpty(pages) && !ModelValidationUtils.isStringEmpty(text)) {
@@ -115,20 +150,20 @@ function AddonPage_Counter_create() {
             }
         }
 
-    	pages = pages.split(",");
+        pages = pages.split(",");
 
-    	var parsedPages = [];
-    	for(var page = 0; page < pages.length; page++) {
-    		var number = pages[page].trim();
+        var parsedPages = [];
+        for(var page = 0; page < pages.length; page++) {
+            var number = pages[page].trim();
 
             if(!presenter.isPositiveInt(number)) {
                 return {isValid: false, errorCode: "OPT_01"};
             }
 
-    		parsedPages.push((parseInt(number, 10) - 1));
-    	}
-    	
-    	return {isValid: true, value: parsedPages};
+            parsedPages.push((parseInt(number, 10) - 1));
+        }
+        
+        return {isValid: true, value: parsedPages};
     }
 
     presenter.validateOmittedPagesTexts = function (model, validatedStartFrom) {
@@ -141,52 +176,53 @@ function AddonPage_Counter_create() {
             return {isValid: true, value: {}};
         }
 
-    	var parsedOPT = {};
-    	
-    	for(var i = 0; i < (omittedPagesTexts).length; i++) {
-    		var parsedPages = parsePages(omittedPagesTexts[i]);
-    		if(!parsedPages.isValid) {
-    			return parsedPages;
-    		}
-    		
-    		for(var page = 0; page < parsedPages.value.length; page++) {
-    			if(parsedOPT[parsedPages.value[page]] != undefined) {
-    				return {isValid: false, errorCode: "OPT_02"};
-    			}
+        var parsedOPT = {};
+        
+        for(var i = 0; i < (omittedPagesTexts).length; i++) {
+            var parsedPages = parsePages(omittedPagesTexts[i]);
+            if(!parsedPages.isValid) {
+                return parsedPages;
+            }
+            
+            for(var page = 0; page < parsedPages.value.length; page++) {
+                if(parsedOPT[parsedPages.value[page]] != undefined) {
+                    return {isValid: false, errorCode: "OPT_02"};
+                }
 
 
-    			if(parsedPages.value[page] >= validatedStartFrom) {
-    				return {isValid: false, errorCode: "OPT_03"};
-    			}
-    			
-    			parsedOPT[parsedPages.value[page]] = omittedPagesTexts[i].text;
-    		}
-    		
-		}
-    	
-    	return {isValid: true, value: parsedOPT};
+                if(parsedPages.value[page] >= validatedStartFrom) {
+                    return {isValid: false, errorCode: "OPT_03"};
+                }
+                
+                parsedOPT[parsedPages.value[page]] = omittedPagesTexts[i].text;
+            }
+            
+        }
+        
+        return {isValid: true, value: parsedOPT};
     };
     
     presenter.validateModel = function(model) {
-    	var validatedStartFrom = presenter.validateStartFrom(model.startFrom);
-    	if (!validatedStartFrom.isValid) {
-    		return validatedStartFrom;
-    	}
+        var validatedStartFrom = presenter.validateStartFrom(model.startFrom);
+        if (!validatedStartFrom.isValid) {
+            return validatedStartFrom;
+        }
 
-    	var validatedOmittedPagesTexts = presenter.validateOmittedPagesTexts(model, validatedStartFrom.value);
-    	if (!validatedOmittedPagesTexts.isValid) {
-    		return validatedOmittedPagesTexts;
-    	}
+        var validatedOmittedPagesTexts = presenter.validateOmittedPagesTexts(model, validatedStartFrom.value);
+        if (!validatedOmittedPagesTexts.isValid) {
+            return validatedOmittedPagesTexts;
+        }
 
         return {
-    		isValid: true,
-    		ID: model.ID,
-    		startFrom: validatedStartFrom.value,
-    		omittedPagesTexts: validatedOmittedPagesTexts.value,
+            isValid: true,
+            ID: model.ID,
+            startFrom: validatedStartFrom.value,
+            omittedPagesTexts: validatedOmittedPagesTexts.value,
             Numericals: presenter.validateLanguage(model).value,
             langTag: model['langAttribute'],
-            speechTexts: presenter.getSpeechTexts(model['speechTexts'])
-    	};
+            speechTexts: presenter.getSpeechTexts(model['speechTexts']),
+            isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"])
+        };
     };
 
     function getSpeechTextProperty (rawValue, defaultValue) {
@@ -256,23 +292,27 @@ function AddonPage_Counter_create() {
     };
     
     function presenterLogic(view, model, isPreview) {
-
+        presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
-    	var validatedModel = presenter.validateModel(upgradedModel);
-    	presenter.configuration = validatedModel;
-    	
-    	if (!validatedModel.isValid) {
-    		DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
+        var validatedModel = presenter.validateModel(upgradedModel);
+        presenter.configuration = validatedModel;
+        presenter.isCurrentlyVisible = presenter.configuration.isVisible;
+        if (!isPreview) {
+            presenter.updateVisibility();
+        }
+        
+        if (!validatedModel.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.errorCode);
             return;
-    	}
+        }
 
         var language = validatedModel.Numericals;
 
-    	if (isPreview) {
+        if (isPreview) {
             render(view, language, 0, 5);
-    	} else {
-        	var currentPageIndex = presentationController.getCurrentPageIndex();
-    		var pageCount = presentationController.getPresentation().getPageCount();
+        } else {
+            var currentPageIndex = presentationController.getCurrentPageIndex();
+            var pageCount = presentationController.getPresentation().getPageCount();
 
             if (validatedModel.startFrom) {
                 var modifiedPageIndex = currentPageIndex - validatedModel.startFrom;
@@ -287,7 +327,7 @@ function AddonPage_Counter_create() {
             } else {
                 render(view, language, currentPageIndex, pageCount);
             }
-    	}
+        }
     }
 
     presenter.setPlayerController = function(controller) {
@@ -295,7 +335,7 @@ function AddonPage_Counter_create() {
     };
 
     presenter.createPreview = function(view, model) {
-    	presenterLogic(view, model, true);
+        presenterLogic(view, model, true);
     };
 
     presenter.run = function(view, model) {
@@ -361,6 +401,28 @@ function AddonPage_Counter_create() {
         return pageCount;
     };
 
+    presenter.reset = function() {
+        presenter.isCurrentlyVisible = presenter.configuration.isVisible;
+        presenter.updateVisibility();
+    };
+    
+    presenter.getState = function(){
+        return JSON.stringify({
+            visible : presenter.isCurrentlyVisible
+        });
+    };
+
+    presenter.setState = function(state){
+        if (state === undefined || state === '') {
+             presenter.isCurrentlyVisible = true;
+        } else {
+             var parsedState = JSON.parse(state);
+             presenter.isCurrentlyVisible = parsedState.visible;
+        }
+
+        presenter.updateVisibility();
+    };
+    
     presenter.isEnterable = function() {
         return false;
     };

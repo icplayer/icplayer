@@ -8,6 +8,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
@@ -95,11 +96,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 			eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 				@Override
 				public void onCustomEventOccurred(CustomEvent event) {
-					if (event.eventName.equals("ShowAnswers")) {
-						showAnswers();
-					} else if (event.eventName.equals("HideAnswers")) {
-						hideAnswers();
-					}
+					onEventReceived(event.eventName, event.getData());
 				}
 			});
 			
@@ -310,6 +307,10 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 		return jsObject;
 	}
+	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
 
 	private native JavaScriptObject initJSObject(OrderingPresenter x) /*-{
 		var presenter = function(){};
@@ -337,6 +338,38 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		presenter.reset = function() {
 			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::reset()();
 		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+
+		presenter.getScore = function() {
+			return x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::getScore()();
+		};
+
+		presenter.getErrorCount = function() {
+			return x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::getErrorCount()();
+		};
+
+		presenter.getMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::getMaxScore()();
+		};
+
+		presenter.setShowErrorsMode = function() {
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::setShowErrorsMode()();
+		};
+
+		presenter.setWorkMode = function() {
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::setWorkMode()();
+		};
+
+		presenter.showAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::showAnswers()();
+		};
+
+		presenter.hideAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::hideAnswers()();
+		};
 
 		return presenter;
 	}-*/;
@@ -380,6 +413,34 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 		if (commandName.compareTo("reset") == 0) {
 			reset();
+		}
+
+		if (commandName.compareTo("getscore") == 0) {
+			return String.valueOf(getScore());
+		}
+
+		if (commandName.compareTo("geterrorcount") == 0) {
+			return String.valueOf(getErrorCount());
+		}
+
+		if (commandName.compareTo("getmaxscore") == 0) {
+			return String.valueOf(getMaxScore());
+		}
+
+		if (commandName.compareTo("setshowerrorsmode") == 0) {
+			setShowErrorsMode();
+		}
+
+		if (commandName.compareTo("setworkmode") == 0) {
+			setWorkMode();
+		}
+
+		if (commandName.compareTo("showanswers") == 0) {
+			showAnswers();
+		}
+
+		if (commandName.compareTo("hideanswers") == 0) {
+			hideAnswers();
 		}
 
 		return "";
@@ -454,5 +515,14 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		return !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName.equals("ShowAnswers")) {
+			showAnswers();
+		} else if (eventName.equals("HideAnswers")) {
+			hideAnswers();
+		}
 	}
 }

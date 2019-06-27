@@ -1,5 +1,13 @@
+/*
+ KNOWN ISSUES
+    Text parsing:
+        Do not change the space special character (&nbsp;) support due to backward compatibility #6613
+        Do not add html escape support due to backward compatibility #6902
+*/
+
 function AddonText_Coloring_create() {
-    var presenter = function () {};
+    var presenter = function () {
+    };
 
     function markAsValidValues(value) {
         value.isValid = true;
@@ -39,6 +47,12 @@ function AddonText_Coloring_create() {
 
         return result;
     }
+
+    presenter.MODE = {
+        'Mark phrases to select': 'MARK_PHRASES',
+        'All selectable': 'ALL_SELECTABLE',
+        DEFAULT: 'All selectable'
+    };
 
     function parseIDs(colorDefinition) {
         var trimmedColorID = colorDefinition.id.trim();
@@ -104,7 +118,7 @@ function AddonText_Coloring_create() {
         $buttons.removeClass(presenter.defaults.css.activeButton);
     }
 
-    function TextColoringStateMachine (cssConfiguration) {
+    function TextColoringStateMachine(cssConfiguration) {
         StatefullAddonObject.call(this, cssConfiguration);
         this.notifyEdit();
         this.previousActiveColorID = null;
@@ -115,34 +129,52 @@ function AddonText_Coloring_create() {
     TextColoringStateMachine.prototype = Object.create(StatefullAddonObject.prototype);
     TextColoringStateMachine.constructor = TextColoringStateMachine;
 
-    TextColoringStateMachine.prototype.onBlock = function() {
+    TextColoringStateMachine.prototype.onBlock = function () {
         presenter.disconnectHandlers();
     };
 
-    TextColoringStateMachine.prototype.onUnblock = function() {
+    TextColoringStateMachine.prototype.onUnblock = function () {
         presenter.connectHandlers();
         if (presenter.configuration.activeColorID != null || presenter.configuration.eraserMode != null) {
             presenter.connectWordTokensHandlers();
         }
     };
 
-    TextColoringStateMachine.prototype.onShowAnswers = function() {
+    TextColoringStateMachine.prototype.onShowAnswers = function () {
         this.savePreviousState();
         this.onBlock();
         presenter.unmarkToken(presenter.$wordTokens);
+        presenter.hideTokenClasses(presenter.$wordTokens);
         presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
             var colorDefinition = presenter.getColorDefinitionById(token.color);
             if (colorDefinition !== undefined) {
                 var $tokenElement = presenter.getWordTokenByIndex(token.index);
+                presenter.addShowAnswerClass($tokenElement, colorDefinition.id);
                 presenter.markToken($tokenElement, colorDefinition.color);
             }
         });
     };
 
-    TextColoringStateMachine.prototype.onHideAnswers = function() {
+    presenter.addShowAnswerClass = function ($element, colorName) {
+        var className = StringUtils.format(presenter.defaults.css.showAnswer, colorName);
+        $element.addClass(className);
+    };
+
+    presenter.removeShowAnswerClass = function ($element, colorName) {
+        var className = StringUtils.format(presenter.defaults.css.showAnswer, colorName);
+        $element.removeClass(className);
+    };
+
+    TextColoringStateMachine.prototype.onHideAnswers = function () {
         this.restorePreviousState();
         this.onUnblock();
         presenter.unmarkToken(presenter.$wordTokens);
+
+        presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
+            var $tokenElement = presenter.getWordTokenByIndex(token.index);
+            presenter.removeShowAnswerClass($tokenElement, token.color);
+        });
+
         presenter.configuration.filteredTokens.filter(function (token) {
             return token.isSelected == true;
         }).forEach(function (token) {
@@ -159,6 +191,8 @@ function AddonText_Coloring_create() {
         if (this.previousEraserMode) {
             presenter.setEraserButtonAsActive();
         }
+
+        presenter.showTokenClasses(presenter.$wordTokens);
     };
 
     TextColoringStateMachine.prototype.isCorrect = function () {
@@ -190,7 +224,7 @@ function AddonText_Coloring_create() {
     };
 
     TextColoringStateMachine.prototype.restorePreviousState = function () {
-        presenter.configuration.activeColorID = this.previousActiveColorID ;
+        presenter.configuration.activeColorID = this.previousActiveColorID;
         presenter.configuration.activeColor = this.previousActiveColor;
         presenter.configuration.eraserMode = this.previousEraserMode;
     };
@@ -210,9 +244,11 @@ function AddonText_Coloring_create() {
         }
     };
 
-    TextColoringStateMachine.prototype.addCssClass = function () {};
+    TextColoringStateMachine.prototype.addCssClass = function () {
+    };
 
-    TextColoringStateMachine.prototype.removeCssClass = function () {};
+    TextColoringStateMachine.prototype.removeCssClass = function () {
+    };
 
     TextColoringStateMachine.prototype.onReset = function () {
         presenter.unmarkToken(presenter.$wordTokens);
@@ -282,7 +318,8 @@ function AddonText_Coloring_create() {
                 wrong: 'text-coloring-token-wrong-marking'
             },
             activeButton: 'text-coloring-active-button',
-            coloredWord: 'text-coloring-colored-with-{0}'
+            coloredWord: 'text-coloring-colored-with-{0}',
+            showAnswer: 'text-coloring-show-answers-{0}'
         }
     };
 
@@ -304,7 +341,7 @@ function AddonText_Coloring_create() {
         NEW_LINE: "new_line",
         SPACE: "space"
     };
-    
+
     presenter.POSITIONS = {
         LEFT: "left",
         RIGHT: "right",
@@ -312,7 +349,7 @@ function AddonText_Coloring_create() {
         BOTTOM: "bottom"
     };
 
-    presenter.EVENT_TYPES ={
+    presenter.EVENT_TYPES = {
         SELECTING: 1,
         DESELECTING: 0
     };
@@ -363,6 +400,7 @@ function AddonText_Coloring_create() {
     };
 
     presenter.runLogic = function (view, model, isPreview) {
+        model = presenter.upgradeModel(model);
         presenter.configuration = $.extend({}, presenter.configuration, presenter.validateModel(model));
         presenter.view = view;
         presenter.$view = $(view);
@@ -377,11 +415,11 @@ function AddonText_Coloring_create() {
             }
         });
 
-        presenter.stateMachine = new TextColoringStateMachine({});
+        presenter.createStateMachine();
         presenter.setFilteredTokensData();
         presenter.setView(presenter.createView());
 
-        if (!presenter.configuration.isVisible) {
+        if (!presenter.configuration.isVisible && !isPreview) {
             presenter.hide();
         }
 
@@ -394,9 +432,13 @@ function AddonText_Coloring_create() {
         }
     };
 
+    presenter.createStateMachine = function() {
+        presenter.stateMachine = new TextColoringStateMachine({});
+    };
+
     presenter.colorTokensInPreview = function () {
         presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
-            var $token = $(presenter.$wordTokens[token.index]);
+            var $token = presenter.getWordTokenByIndex(token.index);
             presenter.markToken($token, token.color);
         });
     };
@@ -442,31 +484,31 @@ function AddonText_Coloring_create() {
 
         var mainContainer = "<div class='{0}'>";
 
-        switch(presenter.configuration.buttonsPosition) {
+        switch (presenter.configuration.buttonsPosition) {
             case presenter.POSITIONS.LEFT:
                 css = presenter.getContainerCssByPosition(presenter.configuration.buttonsPosition);
                 buttonsContainerHTML = presenter.getButtonsContainerHTML(css);
-                textHTML = presenter.getTextHTML(presenter.configuration.textTokens, css.tokensContainer);
+                textHTML = presenter.getTextHTML(presenter.configuration.textTokens, css.tokensContainer, presenter.configuration.mode);
                 mainContainer = StringUtils.format(mainContainer, css.mainContainer);
                 mainContainer += buttonsContainerHTML + textHTML;
                 break;
             case presenter.POSITIONS.RIGHT:
                 css = presenter.getContainerCssByPosition(presenter.configuration.buttonsPosition);
-                textHTML = presenter.getTextHTML(presenter.configuration.textTokens, css.tokensContainer);
+                textHTML = presenter.getTextHTML(presenter.configuration.textTokens, css.tokensContainer, presenter.configuration.mode);
                 buttonsContainerHTML = presenter.getButtonsContainerHTML(css);
                 mainContainer = StringUtils.format(mainContainer, css.mainContainer);
                 mainContainer += textHTML + buttonsContainerHTML;
                 break;
             case presenter.POSITIONS.TOP:
                 css = presenter.getContainerCssByPosition(presenter.configuration.buttonsPosition);
-                textHTML = presenter.getTextHTML(presenter.configuration.textTokens, css.tokensContainer);
+                textHTML = presenter.getTextHTML(presenter.configuration.textTokens, css.tokensContainer, presenter.configuration.mode);
                 buttonsContainerHTML = presenter.getButtonsContainerHTML(css);
                 mainContainer = StringUtils.format(mainContainer, css.mainContainer);
                 mainContainer += buttonsContainerHTML + textHTML;
                 break;
             case presenter.POSITIONS.BOTTOM:
                 css = presenter.getContainerCssByPosition(presenter.configuration.buttonsPosition);
-                textHTML = presenter.getTextHTML(presenter.configuration.textTokens, css.tokensContainer);
+                textHTML = presenter.getTextHTML(presenter.configuration.textTokens, css.tokensContainer, presenter.configuration.mode);
                 buttonsContainerHTML = presenter.getButtonsContainerHTML(css);
                 mainContainer = StringUtils.format(mainContainer, css.mainContainer);
                 mainContainer += textHTML + buttonsContainerHTML;
@@ -476,7 +518,7 @@ function AddonText_Coloring_create() {
         mainContainer += "</div>";
         return mainContainer;
     };
-    
+
     presenter.getContainerCssByPosition = function (position) {
         var result = {
             eraserContainer: "",
@@ -485,8 +527,8 @@ function AddonText_Coloring_create() {
             buttonContainer: "",
             tokensContainer: ""
         };
-        
-        switch(position) {
+
+        switch (position) {
             case presenter.POSITIONS.LEFT:
                 result.eraserContainer = presenter.defaults.css.eraserButtonContainer.left;
                 result.colorsContainer = presenter.defaults.css.colorButtonsContainer.left;
@@ -519,7 +561,7 @@ function AddonText_Coloring_create() {
 
         return result;
     };
-    
+
     presenter.getButtonsContainerHTML = function (css) {
         var colorsButtons = presenter.getColorsButtonsHTML(presenter.configuration.colors, css.colorsContainer);
         var eraserButtons = presenter.getEraserModeButtonHTML(css.eraserContainer);
@@ -530,7 +572,7 @@ function AddonText_Coloring_create() {
         var result = StringUtils.format("<div class='{0}'>", containerCssClass);
 
         var colorsLen = colorsDefinitions.length;
-        for(var i = 0; i < colorsLen; i++) {
+        for (var i = 0; i < colorsLen; i++) {
             result = StringUtils.format("{0}{1}", result, presenter.getColorHTMLText(colorsDefinitions[i]));
         }
 
@@ -551,20 +593,24 @@ function AddonText_Coloring_create() {
         return StringUtils.format("<div class='{0}' data-{1}='{2}'>{3}</div>", presenter.defaults.css.colorButton, presenter.defaults.dataHolders.colorID, colorDefinition.id, colorDefinition.description);
     };
 
-    presenter.getTextHTML = function (tokens, containerCssClass) {
+    presenter.getTextHTML = function (tokens, containerCssClass, mode) {
         var tokensLen = tokens.length;
         var result = StringUtils.format("<div class='{0}'>", containerCssClass);
 
-        for(var i = 0, wordIndex = 0; i < tokensLen; i++) {
+        for (var i = 0, wordIndex = 0; i < tokensLen; i++) {
             if (tokens[i].type == presenter.TOKENS_TYPES.NEW_LINE) {
                 result = StringUtils.format("{0}{1}", result, presenter.getNewLineHTML());
-            } else if (tokens[i].type == presenter.TOKENS_TYPES.SPACE){
+            } else if (tokens[i].type == presenter.TOKENS_TYPES.SPACE) {
                 result = StringUtils.format("{0}{1}", result, presenter.getSpaceHTML());
-            } else if (tokens[i].type == presenter.TOKENS_TYPES.SELECTABLE){
+            } else if (tokens[i].type == presenter.TOKENS_TYPES.SELECTABLE) {
                 result = StringUtils.format("{0}{1}", result, presenter.getWordHTML(tokens[i], wordIndex));
                 wordIndex++;
             } else {
-                result = StringUtils.format("{0}{1}", result, presenter.getWordHTML(tokens[i], wordIndex));
+                if (mode == "ALL_SELECTABLE") {
+                    result = StringUtils.format("{0}{1}", result, presenter.getWordHTML(tokens[i], wordIndex));
+                } else {
+                    result = StringUtils.format("{0}{1}", result, tokens[i].value);
+                }
                 wordIndex++;
             }
         }
@@ -586,13 +632,31 @@ function AddonText_Coloring_create() {
             presenter.defaults.css.selectableWord, index, token.value);
     };
 
+    presenter.upgradeModel = function(model) {
+        var upgradedModel = upgradeModelAddModeProperty(model);
+        return upgradedModel;
+    };
+
+    function upgradeModelAddModeProperty(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!upgradedModel['Mode']){
+            upgradedModel['Mode'] = presenter.MODE.DEFAULT;
+        }
+
+        return upgradedModel;
+    }
+
     presenter.validateModel = function (model) {
         var validatedColors = presenter.validateColors(model.colors);
         if (validatedColors.isError) {
             return validatedColors;
         }
 
-        var parsedText = presenter.parseText(model.text);
+        var mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode);
+
+        var parsedText = presenter.parseText(model.text, mode);
         var validatedText = presenter.validateUsingOnlyDefinedColors(parsedText, validatedColors.value);
 
         if (validatedText.isError) {
@@ -609,7 +673,8 @@ function AddonText_Coloring_create() {
             showSetEraserButtonMode: ModelValidationUtils.validateBoolean(model.showSetEraserModeButton),
             hideColorsButtons: ModelValidationUtils.validateBoolean(model.hideColorsButtons),
             eraserButtonText: presenter.parseEraserButtonText(model.eraserButtonText),
-            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible'])
+            isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
+            mode: mode
         };
     };
 
@@ -666,7 +731,7 @@ function AddonText_Coloring_create() {
         };
     };
 
-    presenter.parseText = function (text) {
+    presenter.parseText = function (text, mode) {
         if (ModelValidationUtils.isStringEmpty(text.trim())) {
             return [];
         }
@@ -684,7 +749,10 @@ function AddonText_Coloring_create() {
                 continue;
             }
 
-            var parsedWords = presenter.splitGroupToWords(groups[groupNumber]).map(presenter.parseWords).reduce(flattenArrays, []);
+            var parsedWords = presenter.splitGroupToWords(groups[groupNumber], mode)
+                .map(presenter.parseWords)
+                .reduce(flattenArrays, []);
+
             if (parsedWords[parsedWords.length - 1].type == presenter.TOKENS_TYPES.SPACE) {
                 parsedWords = parsedWords.slice(0, -1);
             }
@@ -699,89 +767,123 @@ function AddonText_Coloring_create() {
         return result;
     };
 
-    presenter.splitGroupToWords = function(group) {
-        return group.split(" ").map(function (element) {
-            element.trim();
-            return element;
-        }).filter(function (element) {
-            return element != "";
-        });
+    presenter.splitGroupToWords = function (group, mode) {
+        if (mode == "ALL_SELECTABLE") {
+            return group.split(" ").map(function (element) {
+                element.trim();
+                return element;
+            }).filter(function (element) {
+                return element != "";
+            });
+        } else {
+            var splitGroup = [];
+            var space = / /.source;
+            var color = /\\color{[^}]*?}{[^}]*?}[^\s]*/.source;
+
+            var mainRex = new RegExp([color,space].join('|'));
+             var match = mainRex.exec(group);
+            while (match !== null) {
+                var before = group.substring(0,match.index);
+                group = group.substring(match.index + match[0].length);
+
+                if (before.trim().length > 0) {
+                    splitGroup.push(before.trim());
+                }
+                if (match[0].trim().length > 0) {
+                    splitGroup.push(match[0].trim());
+                }
+
+                match = mainRex.exec(group);
+            }
+            if (group.trim().length > 0) {
+                splitGroup.push(group.trim());
+            }
+            return splitGroup;
+        }
     };
 
     presenter.parseWords = function (word) {
-        var parsedColorID = presenter.getTokenColorID(word);
+        var result = [];
 
-        if (parsedColorID.isError) {
-            return [getWordToken(word), getSpaceToken()];
-        }
+        var selectablePart = {
+            pattern: /\\color{[^}]+}{[^}]+}/g,
 
-        var parsedSelectableWord = presenter.getTokenSelectableWord(word, parsedColorID.enclosingIndex);
-        if (parsedSelectableWord.isError) {
-            return [getWordToken(word), getSpaceToken()];
-        }
+            getStartOfIndex: function () {
+                return word.search(this.pattern);
+            },
 
-        var selectableWord = getSelectableToken(parsedSelectableWord.selectable, parsedColorID.value);
-        var wordBefore = null;
-        if (parsedColorID.wordBefore.trim().length > 0)
-            wordBefore = getWordToken(parsedColorID.wordBefore);
+            getStopOfIndex: function () {
+                return this.pattern.lastIndex;
+            },
 
-        if (parsedSelectableWord.normal === undefined) {
-            return [wordBefore, selectableWord, getSpaceToken()];
-        } else {
-            return [wordBefore, selectableWord, getWordToken(parsedSelectableWord.normal), getSpaceToken()];
-        }
-    };
+            getSelectablePhrase: function () {
+                this.pattern.test(word);
+                return word.substring(0, this.getStopOfIndex());
+            },
 
-    presenter.getTokenColorID = function (word) {
-        var MARKING_START_OF_COLOR_ID = "\\color{";
-        var CHARACTER_NOT_FOUND = -1;
-        var MARKING_LENGTH_OF_COLOR_ID = MARKING_START_OF_COLOR_ID.length;
-        var wordBefore = "";
+            isExists: function () {
+                return this.getStartOfIndex() != -1;
+            },
 
-        if (word.indexOf(MARKING_START_OF_COLOR_ID) !== -1) {
-            wordBefore = word.substring(0, word.indexOf(MARKING_START_OF_COLOR_ID));
-            var enclosingIndexOfColorID = word.indexOf("}", MARKING_LENGTH_OF_COLOR_ID);
-                if (enclosingIndexOfColorID == CHARACTER_NOT_FOUND) {
-                    return {
-                      isError: true
-                    };
-                } else {
-                    return {
-                      isError: false,
-                      value: word.substring(word.indexOf(MARKING_START_OF_COLOR_ID) + MARKING_LENGTH_OF_COLOR_ID, enclosingIndexOfColorID),
-                      enclosingIndex: enclosingIndexOfColorID,
-                      wordBefore: wordBefore
-                    }
-                }
-        }
+            hasPrecedingWord: function () {
+                return this.getStartOfIndex() > 0;
+            },
 
-        return {
-            isError: true
+            separatePrecedingWord: function () {
+                var precedingWord = word.substring(0, this.getStartOfIndex());
+                return precedingWord;
+            }
         };
-    };
 
-    presenter.getTokenSelectableWord = function (word, enclosingIndex) {
-        var openBracketIndexOfWord = enclosingIndex + 1;
+        while (selectablePart.isExists()) {
+            if (selectablePart.hasPrecedingWord()) {
+                var precedingWord = selectablePart.separatePrecedingWord();
+                result.push(getWordToken(precedingWord));
 
-        if (word[openBracketIndexOfWord] == "{") {
-            var endingBracketIndex = word.indexOf("}", openBracketIndexOfWord);
-            var selectableWord = word.substring(openBracketIndexOfWord + 1, endingBracketIndex);
-            var normalWord = undefined;
-
-            if (endingBracketIndex + 1 < word.length) {
-                normalWord = word.substring(endingBracketIndex + 1, word.length);
+                word = word.substring(selectablePart.getStartOfIndex(), word.length);
             }
 
-            return {
-                isError: false,
-                selectable: selectableWord,
-                normal: normalWord
-            };
+            var selectablePhrase = selectablePart.getSelectablePhrase();
+            if (selectablePhrase.length > 0) {
+                var selectableWord = presenter.getSelectableWord(selectablePhrase);
+                var selectableColor = presenter.getSelectableColor(selectablePhrase);
+                result.push(getSelectableToken(selectableWord, selectableColor));
+            }
+
+            word = word.substring(selectablePart.getStopOfIndex(), word.length);
+            selectablePart.pattern = /\\color{[^}]+}{[^}]+}/g;
         }
 
-        return {
-            isError: true
-        };
+        if (word.length > 0)
+            result.push(getWordToken(word));
+
+        result.push(getSpaceToken());
+
+        return result;
+    };
+
+    presenter.getSelectableColor = function (phrase) {
+        var pattern = /{[^}]+}/g;
+
+        pattern.test(phrase);
+
+        var startOfIndex = "\\color{".length;
+        var stopOfIndex = pattern.lastIndex - 1;
+
+        var color = phrase.substring(startOfIndex, stopOfIndex);
+
+        return color;
+    };
+
+    presenter.getSelectableWord = function (phrase) {
+        var pattern = /{[^}]+}{/g;
+
+        pattern.test(phrase);
+        phrase = phrase.substring(pattern.lastIndex, phrase.length);
+
+        var word = phrase.substring(0, phrase.length - 1);
+
+        return word;
     };
 
     presenter.connectHandlers = function () {
@@ -798,13 +900,13 @@ function AddonText_Coloring_create() {
     };
 
     presenter.disconnectHandlers = function () {
-          presenter.$colorButtons.off();
-          presenter.$eraserButton.off();
+        presenter.$colorButtons.off();
+        presenter.$eraserButton.off();
 
         if (presenter.configuration.eraserMode) {
             presenter.disconnectWordTokensHandlers();
             presenter.toggleEraserMode();
-        } else  if (presenter.configuration.activeColorID !== null) {
+        } else if (presenter.configuration.activeColorID !== null) {
             presenter.disconnectWordTokensHandlers();
             presenter.configuration.activeColor = null;
             presenter.configuration.activeColorID = null;
@@ -816,7 +918,7 @@ function AddonText_Coloring_create() {
         presenter.$wordTokens.hover(presenter.hoverInAddBackgroundHandler, presenter.hoverOutRemoveBackgroundHandler);
         presenter.$wordTokens.click(presenter.underlineWordHandler);
     };
-    
+
     presenter.disconnectWordTokensHandlers = function () {
         presenter.$wordTokens.off();
     };
@@ -847,7 +949,7 @@ function AddonText_Coloring_create() {
 
     presenter.resetColoredWords = function () {
         presenter.$view.find("[class*='text-coloring-colored-with']").each(function () {
-            $(this).removeClass (function (index, css) {
+            $(this).removeClass(function (index, css) {
                 return (css.match(/\btext-coloring-colored-with\S+/g) || []).join(' ');
             });
         })
@@ -907,6 +1009,38 @@ function AddonText_Coloring_create() {
             "text-decoration": "none",
             "padding-bottom": "0.1em",
             "border-bottom": StringUtils.format("0.1em solid {0}", color)
+        });
+    };
+
+
+    presenter.hideTokenClasses = function ($element) {
+        if (!$element) return;
+        $element.each(function(){
+            var $this = $(this);
+            var classNames = $this.attr('class').split(/\s+/);
+            var disabledClasses = [];
+            for (var i = 0; i < classNames.length; i++) {
+                if (classNames[i] != presenter.defaults.css.selectableWord){
+                    $this.removeClass(classNames[i]);
+                    disabledClasses.push(classNames[i]);
+                }
+            }
+            this.dataset.disabledClasses = disabledClasses.join(' ');
+        });
+    };
+
+    presenter.showTokenClasses = function ($element) {
+        if (!$element) return;
+        $element.each(function(){
+            var $this = $(this);
+            var disabledClasses = this.dataset.disabledClasses;
+            if (disabledClasses) {
+                var classNames = disabledClasses.split(/\s+/);
+                for (var i = 0; i < classNames.length; i++) {
+                    $this.addClass(classNames[i]);
+                }
+                this.dataset.disabledClasses = '';
+            }
         });
     };
 
@@ -972,7 +1106,11 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getWordTokenByIndex = function (tokenIndex) {
-        return $(presenter.$wordTokens[tokenIndex]);
+        if (presenter.configuration.mode == "ALL_SELECTABLE") {
+            return $(presenter.$wordTokens[tokenIndex]);
+        } else {
+            return presenter.$view.find('[data-word-index='+tokenIndex+']');
+        }
     };
 
     presenter.reset = function () {
@@ -981,7 +1119,16 @@ function AddonText_Coloring_create() {
     };
 
     presenter.setWorkMode = function () {
-        presenter.stateMachine.check();
+        presenter.stateMachine.hideAnswers();
+        presenter.stateMachine.onUnCorrect();
+        presenter.stateMachine.notifyEdit();
+
+        if (presenter.configuration.activeColorID !== null) {
+            presenter.configuration.activeColorID = null;
+            presenter.configuration.activeColor = null;
+        }
+        presenter.disconnectWordTokensHandlers();
+        presenter.setColor(presenter.configuration.colors[0].id);
     };
 
     presenter.setShowErrorsMode = function () {
@@ -1139,11 +1286,11 @@ function AddonText_Coloring_create() {
     };
 
     presenter.getState = function () {
-          return JSON.stringify({
-              isVisible: presenter.configuration.isVisible,
-              tokens: presenter.configuration.filteredTokens,
-              activeColorID: presenter.configuration.activeColorID
-          });
+        return JSON.stringify({
+            isVisible: presenter.configuration.isVisible,
+            tokens: presenter.configuration.filteredTokens,
+            activeColorID: presenter.configuration.activeColorID
+        });
     };
 
     presenter.setState = function (stateString) {
@@ -1161,8 +1308,8 @@ function AddonText_Coloring_create() {
         }
         presenter.colorAllMarkedTokens();
 
-        if(parsedState.activeColorID !== undefined) {
-            if(parsedState.activeColorID == null) {
+        if (parsedState.activeColorID !== undefined) {
+            if (parsedState.activeColorID == null) {
                 presenter.setEraserMode();
             } else {
                 presenter.setColor(parsedState.activeColorID);
@@ -1174,7 +1321,7 @@ function AddonText_Coloring_create() {
         presenter.configuration.filteredTokens.filter(function (token) {
             return token.selectionColorID !== null;
         }).forEach(function (token) {
-            var $token = $(presenter.$wordTokens[token.index]);
+            var $token = presenter.getWordTokenByIndex(token.index);
             var colorDefinition = presenter.getColorDefinitionById(token.selectionColorID);
             presenter.markToken($token, colorDefinition.color);
             presenter.addColoredWordCss($token, token);
@@ -1199,11 +1346,11 @@ function AddonText_Coloring_create() {
     };
 
     presenter.addCorrectClass = function (tokenIndex) {
-        $(presenter.$wordTokens[tokenIndex]).addClass(presenter.defaults.css.markings.correct);
+        presenter.getWordTokenByIndex(tokenIndex).addClass(presenter.defaults.css.markings.correct);
     };
 
     presenter.addWrongClass = function (tokenIndex) {
-        $(presenter.$wordTokens[tokenIndex]).addClass(presenter.defaults.css.markings.wrong);
+        presenter.getWordTokenByIndex(tokenIndex).addClass(presenter.defaults.css.markings.wrong);
     };
 
     presenter.removeAllCheckAnswersClasses = function () {

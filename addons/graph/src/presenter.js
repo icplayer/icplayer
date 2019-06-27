@@ -1503,12 +1503,18 @@ function Addongraph_create(){
             return;
         }
 
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
+
+        if (isPreview) presenter.configuration.isInteractive = false;
+
+        presenter.drawGraph(view, model);
+    };
+
+    presenter.drawGraph = function (view, model) {
         // Read data
         var i, j;
         var validRows = presenter.configuration.validRows;
         var columnsCount = presenter.configuration.columnsCount;
-
-        presenter.setVisibility(presenter.configuration.isVisible);
 
         var showXAxisBarsDescriptions = presenter.configuration.showXAxisBarsDescriptions;
         var showXAxisSeriesDescriptions = presenter.configuration.showXAxisSeriesDescriptions;
@@ -1516,7 +1522,7 @@ function Addongraph_create(){
         var xAxisBarsDescriptions = presenter.configuration.axisXBarsDescriptions;
         var xAxisSeriesDescriptions = presenter.configuration.axisXSeriesDescriptions;
 
-        if (isPreview) presenter.configuration.isInteractive = false;
+
 
         // Draw graph's containers
         var outerContainer = $('<div class="graph_container_outer"></div>');

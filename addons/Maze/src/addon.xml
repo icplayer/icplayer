@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Maze' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name="mazeWidth" nameLabel="Maze_property_width" type="string"/>
+		<property name="mazeHeight" nameLabel="Maze_property_height" type="string"/>
+		<property name="numberOfMazes" nameLabel="Maze_property_number_of_mazes" type="string"/>
+		<property name="gameMode" nameLabel="Maze_property_game_mode" type="{Doors,Letters}"/>
+
+		<property name="questions" nameLabel="Maze_property_questions" type="list">
+            <property name="question" nameLabel="Maze_property_questions_question" type="html" />
+            <property name="answer" nameLabel="Maze_property_questions_answer" type="string"/>
+			<property name="letter" nameLabel="Maze_property_questions_letter" type="string"/>
+			<property name="mazeId" nameLabel="Maze_property_questions_maze_number" type="string"/>
+			<property name="isCaseSensitive" nameLabel="Maze_property_questions_is_case_sensitive" type="boolean"/>
+        </property>
+		<property name="isDisabled" nameLabel="Maze_property_is_disabled" type="boolean"/>
+		<property name="hideControlPanel" nameLabel="Maze_property_hide_control_panel" type="boolean" />
+		<property name="translations" nameLabel="Maze_property_translations" type="staticlist">
+			<property name="endGame" nameLabel="Maze_property_translations_end_game" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
+			<property name="applyQuestion" nameLabel="Maze_property_translations_apply_question_text" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
+			<property name="nextMazeButton" nameLabel="Maze_property_translations_next_maze_button" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
+			<property name="solutionText" nameLabel="Maze_property_translations_level_solution_text" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
+			<property name="upButton" nameLabel="Maze_property_translations_up_button_text" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
+			<property name="leftButton" nameLabel="Maze_property_translations_left_button_text" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
+			<property name="rightButton" nameLabel="Maze_property_translations_right_button_text" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
+			<property name="downButton" nameLabel="Maze_property_translations_down_button_text" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
+			<property name="loose" nameLabel="Maze_property_translations_loose_text" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
+			<property name="looseButton" nameLabel="Maze_property_translations_retry_button_text" type="staticrow">
+				<property name="translation" nameLabel="Maze_property_translations_translation" type="string"/>
+			</property>
+		</property>
+	</model>
+</addon>

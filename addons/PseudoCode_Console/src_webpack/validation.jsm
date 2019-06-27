@@ -223,7 +223,7 @@ function validateRound (model) {
     if (round.trim() === '') {
         return {
             isValid: true,
-            value: 100
+            value: 20
         };
     }
 
@@ -243,7 +243,7 @@ function validateRound (model) {
         };
     }
 
-    if (parsedRound > 100) {
+    if (parsedRound > 20) {
         return {
             isValid: false,
             errorCode: "ER03"

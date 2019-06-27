@@ -20,7 +20,7 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 	@Override
 	protected void parseLayouts(Element xml) {
 		NodeList nodes = xml.getChildNodes();
-		
+		setDefaultIsVisible(xml);
 		for(int i = 0; i < nodes.getLength(); i++){
 			Node childNode = nodes.item(i);
 			
@@ -30,6 +30,22 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 		}
 	}
 	
+	protected void setDefaultIsVisible(Element layouts){
+		NodeList layoutChildren = layouts.getChildNodes();
+		for (int i = 0; i < layoutChildren.getLength(); i++){
+			Node childNode = layoutChildren.item(i);
+			if (childNode instanceof Element) {
+				Element child = (Element) childNode;
+				if(child.getAttribute("id").equals(this.defaultLayoutID)) {
+					Boolean isVisible = XMLUtils.getAttributeAsBoolean(child , "isVisible", true);
+					this.module.setIsVisible(isVisible);
+					return;
+				}
+			}
+		}
+		this.module.setIsVisible(true);
+	}
+
 	@Override
 	public void parseModuleStyleAttributes(Element xml) {
 		String inlineStyle = StringUtils.unescapeXML(xml.getAttribute("style"));
@@ -39,8 +55,7 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 		this.module.setDefaultStyleClass(styleClass);
 	}
 
-	private void parseSingleLayout(Node xml) {
-		Boolean isVisible = XMLUtils.getAttributeAsBoolean((Element) xml, "isVisible", true);
+	protected void parseSingleLayout(Node xml) {
 		Boolean isModuleVisibleInEditor = XMLUtils.getAttributeAsBoolean((Element) xml, "isModuleVisibleInEditor", true);
 		Boolean isLocked = XMLUtils.getAttributeAsBoolean((Element) xml, "isLocked", false);
 		String id = XMLUtils.getAttributeAsString((Element) xml, "id");
@@ -61,7 +76,6 @@ public class ModuleParser_v2 extends ModuleModelParser_base {
 		
 		this.module.setRelativeLayout(id, relativeLayout);
 		this.module.addSemiResponsiveDimensions(id, dimensions);
-		this.module.setIsVisible(id, isVisible);
 		this.module.setIsLocked(id, isLocked);
 		this.module.setIsVisibleInEditor(id, isModuleVisibleInEditor);
 	}

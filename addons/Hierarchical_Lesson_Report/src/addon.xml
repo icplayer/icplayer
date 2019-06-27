@@ -28,6 +28,45 @@
             <property name='alternativePageIsChapter' displayName="Is chapter" nameLabel="Hierarchical_Lesson_Report_property_show_is_alternative_page_chapter" type="boolean" />
 			<property name="alternativePageName" displayName="Page name" nameLabel="Hierarchical_Lesson_Report_property_alternative_page_name" type="html" isLocalized="true" />
 		</property>
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="Hierarchical_Lesson_Report_property_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Hierarchical_Lesson_Report_property_speech_texts" type="staticlist">
+
+            <property name="Expanded" nameLabel="Hierarchical_Lesson_Report_property_expanded_speech_text" type="staticrow">
+                <property name="Expanded" nameLabel="Hierarchical_Lesson_Report_property_expanded_speech_text" type="string"/>
+            </property>
+
+            <property name="Collapsed" nameLabel="Hierarchical_Lesson_Report_property_collapsed_speech_text" type="staticrow">
+                <property name="Collapsed" nameLabel="Hierarchical_Lesson_Report_property_collapsed_speech_text" type="string"/>
+            </property>
+
+            <property name="Results" nameLabel="Hierarchical_Lesson_Report_property_results_speech_text" type="staticrow">
+                <property name="Results" nameLabel="Hierarchical_Lesson_Report_property_results_speech_text" type="string"/>
+            </property>
+
+            <property name="Checks" nameLabel="Hierarchical_Lesson_Report_property_checks_speech_text" type="staticrow">
+                <property name="Checks" nameLabel="Hierarchical_Lesson_Report_property_checks_speech_text" type="string"/>
+            </property>
+
+            <property name="Mistakes" nameLabel="Hierarchical_Lesson_Report_property_mistakes_speech_text" type="staticrow">
+                <property name="Mistakes" nameLabel="Hierarchical_Lesson_Report_property_mistakes_speech_text" type="string"/>
+            </property>
+
+            <property name="Errors" nameLabel="Hierarchical_Lesson_Report_property_errors_speech_text" type="staticrow">
+                <property name="Errors" nameLabel="Hierarchical_Lesson_Report_property_errors_speech_text" type="string"/>
+            </property>
+
+            <property name="Score" nameLabel="Hierarchical_Lesson_Report_property_score_speech_text" type="staticrow">
+                <property name="Score" nameLabel="Hierarchical_Lesson_Report_property_score_speech_text" type="string"/>
+            </property>
+
+            <property name="OutOf" nameLabel="Hierarchical_Lesson_Report_property_out_of_speech_text" type="staticrow">
+                <property name="OutOf" nameLabel="Hierarchical_Lesson_Report_property_out_of_speech_text" type="string"/>
+            </property>
+
+            <property name="Total" nameLabel="Hierarchical_Lesson_Report_property_total_speech_text" type="staticrow">
+                <property name="Total" nameLabel="Hierarchical_Lesson_Report_property_total_speech_text" type="string"/>
+            </property>
+        </property>
 
     </model>
 </addon>

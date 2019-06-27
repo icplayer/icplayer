@@ -2,6 +2,7 @@ Variable_Storage
 PieChart
 Viewer_3D
 Advanced_Connector
+Visual_Feedback_Creator
 Animated_Lesson_Progress
 Animated_Page_Progress
 Animation
@@ -76,6 +77,8 @@ Print_Report
 SelectableAddonsBinder
 Shape_Tracing
 Show_Answers
+Limited_Show_Answers
+Limited_Submit
 Single_State_Button
 Slider
 Slideshow
@@ -106,3 +109,7 @@ Heading
 Text_To_Speech
 Catch
 PseudoCode_Console
+Dice
+Maze
+Media_Recorder
+EditableWindow

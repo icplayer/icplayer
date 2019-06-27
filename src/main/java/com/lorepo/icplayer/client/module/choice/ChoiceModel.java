@@ -13,8 +13,9 @@ import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 
-public class ChoiceModel extends BasicModuleModel{
+public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel{
 
 	private boolean isMulti = false;
 	private ArrayList<ChoiceOption>	options = new ArrayList<ChoiceOption>();	
@@ -164,8 +165,17 @@ public class ChoiceModel extends BasicModuleModel{
 	
 	public int calculateMaxScore() {
 		int maxScore = 0;
-		for (ChoiceOption option : options) {
-			maxScore += option.getValue();
+
+		if(isMulti) {
+			for (ChoiceOption option : options) {
+				maxScore += option.getValue();
+			}
+		} else {
+			for (ChoiceOption option : options) {
+				if(option.getValue() > maxScore) {
+					maxScore = option.getValue();
+				}
+			}
 		}
 		
 		return maxScore;

@@ -73,12 +73,33 @@
     height: 50%;
 }
 
+.headers-of-answers {
+    display: inline-flex;
+    font-weight: bold;
+}
+
+.answers {
+    width: 85%;
+    display: inline-flex;
+    margin-left: 0.5em;
+}
+
+.center-vertically{
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 .question-wrapper .question-tips .question-tip.correct {
     background-color: greenyellow;
 }
 
 .question-wrapper .question-tips .question-tip.wrong {
     background-color: #A52A2A;
+}
+
+.question-wrapper .question-tips .question-tip.option {
+    background-color: #fba600;
 }
 
 .question-wrapper .question-hint-wrapper {
@@ -110,12 +131,23 @@
     color: #ffffff;
     width: 100%;
     height: 100%;
+    position: relative;
 
 }
 .question-wrapper .game-lost-message {
     text-align: center;
 }
 
+.question-wrapper .game-summary-message-wrapper {
+    background-color: #ffffff;
+    color: #ffffff;
+    width: 100%;
+    height: 100%;
+    color: #000000;
+}
+.question-wrapper .game-summary-message {
+    text-align: center;
+}
 .question-wrapper.disabled,
 .question-wrapper.disabled .hint-button,
 .question-wrapper.disabled .fifty-fifty,

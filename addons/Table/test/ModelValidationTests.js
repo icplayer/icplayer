@@ -54,6 +54,8 @@ TestCase("[Table] Model validation", {
         assertFalse(validatedModel.isCaseSensitive);
         assertFalse(validatedModel.isPunctuationIgnored);
         assertEquals({isSet: false, value: undefined}, validatedModel.gapWidth);
+
+        assertEquals(3, validatedModel.columnsCount);
     },
 
     'test rows error': function() {

@@ -27,8 +27,16 @@ function AddonShow_Answers_create(){
         HIDE_ANSWERS: 'HideAnswers'
     };
 
-    presenter.keyboardController = function(keycode) {
-        if (keycode === 13) {
+    presenter.keyboardController = function(keycode, isShiftDown, event) {
+        if (keycode == window.KeyboardControllerKeys.SPACE ||
+            keycode == window.KeyboardControllerKeys.ARROW_UP ||
+            keycode == window.KeyboardControllerKeys.ARROW_DOWN ||
+            keycode == window.KeyboardControllerKeys.ESC)
+        {
+            event.preventDefault();
+        }
+
+        if (keycode === window.KeyboardControllerKeys.ENTER) {
             presenter.$button.click();
             if(isWCAGOn) {
                 if (presenter.configuration.isSelected) {
@@ -132,7 +140,11 @@ function AddonShow_Answers_create(){
 
         presenter.$button.text(text);
         presenter.sendEvent(eventName);
+        presenter.onClick();
     };
+
+    presenter.onClick = function () {
+     };
 
     presenter.connectClickAction = function () {
         presenter.$button.on('click', function (eventData) {
@@ -156,7 +168,7 @@ function AddonShow_Answers_create(){
         presenter.configuration = presenter.validateModel(upgradedModel);
         presenter.$view = $(view);
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         presenter.$button = presenter.$view.find('.show-answers-button');
         presenter.$button.text(presenter.configuration.text);
@@ -171,6 +183,7 @@ function AddonShow_Answers_create(){
             presenter.connectKeyDownAction();
             presenter.eventBus.addEventListener('ShowAnswers', presenter);
             presenter.eventBus.addEventListener('HideAnswers', presenter);
+            presenter.eventBus.addEventListener('LimitedHideAnswers', presenter);
         }
     };
 
@@ -202,6 +215,9 @@ function AddonShow_Answers_create(){
     };
 
     presenter.onEventReceived = function (eventName) {
+        if (eventName == "LimitedHideAnswers") {
+            presenter.reset();
+        }
         if (eventName == "HideAnswers") {
             presenter.reset();
         }

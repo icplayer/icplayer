@@ -210,9 +210,9 @@ function AddonMath_create() {
              * @param  {} variables
              */
             run: function (expression, variables) {
-                presenter.assignVariablesToObject(this, variables);
+                presenter.assignVariablesToObject(this, variables, expression);
                 var parser = math.parser();
-    
+
                 parser.set('variables', this.variables);
 
                 if ((expression.indexOf("{") > -1) && (expression.indexOf("function") > -1)) {     // There will be probably function declaration
@@ -372,7 +372,7 @@ function AddonMath_create() {
 
     function checkIfCorrectVariable(tempExpression, variable) {
         var lastChar = tempExpression.charAt(tempExpression.indexOf(variable)+variable.length);
-        return lastChar == "." || lastChar == "(" || lastChar == ")" || lastChar == "" || lastChar == " " || lastChar == "/" || lastChar == "*" || lastChar == "=" || lastChar == "+" || lastChar == "-" || lastChar == ">" || lastChar == "<" || lastChar == "%";
+        return lastChar == "." || lastChar == "(" || lastChar == ")" || lastChar == "" || lastChar == " " || lastChar == "/" || lastChar == "*" || lastChar == "=" || lastChar == "+" || lastChar == "-" || lastChar == ">" || lastChar == "<" || lastChar == "%" || lastChar == "!";
     }
 
     presenter.findTextOccurrences = function (expression, variable) {
@@ -405,11 +405,20 @@ function AddonMath_create() {
         return fixedExpression;
     };
 
-    presenter.assignVariablesToObject = function (object, variables) {
+    presenter.assignVariablesToObject = function (object, variables, expression) {
         object.variables = {};
+        if (expression != null) {
+            var parsedExpression = expression.replace(/[\s]/g, '').replace(/'/g, '"').replace(/[<>+\-]/g, '=');
+            parsedExpression = parsedExpression.replace(/===?/g, '=').replace(/variables\["(.*?)"]/g, '$1');
+        }
 
         for (var i = 0; i < variables.length; i++) {
-            object.variables[variables[i].name] = variables[i].value;
+            var name = variables[i].name;
+            if (parsedExpression != null && (parsedExpression.indexOf('"='+name) != -1 || parsedExpression.indexOf(name+'="') != -1)) {
+                object.variables[variables[i].name] = variables[i].value.toString();
+            } else {
+                object.variables[variables[i].name] = variables[i].value;
+            }
         }
     };
 

@@ -1,28 +1,12 @@
 package com.lorepo.icplayer.client.module.ordering;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.DomEvent;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.MouseUpEvent;
-import com.google.gwt.event.dom.client.MouseUpHandler;
-import com.google.gwt.event.dom.client.TouchEndEvent;
-import com.google.gwt.event.dom.client.TouchEndHandler;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.CellPanel;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
@@ -33,11 +17,17 @@ import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.ordering.OrderingPresenter.IDisplay;
+import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
+import com.lorepo.icplayer.client.utils.MathJaxElement;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
-public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGModuleView {
+public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGModuleView, MathJaxElement {
 
 	private final OrderingModule module;
 	private final IPlayerServices playerServices;
@@ -53,11 +43,14 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private boolean wasChanged = false;
 	private boolean mathJaxIsLoaded = false;
 	private boolean shouldRefreshMath = false;
+	private boolean isPreview = false;
 	private int currentWCAGSelectedItemIndex = 0;
 	private boolean isWCAGActive = false;
 	private boolean isWCAGOn = false;
 	private PageController pageController;
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
+	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
 	
 	private final String ITEM_CORRECT_CLASS = "ic_ordering-item-correct";
 	private final String ITEM_WRONG_CLASS = "ic_ordering-item-wrong";
@@ -66,7 +59,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.module = module;
 		this.playerServices = services;
 		createUI(module, isPreview);
-		this.setCallbackForMathJaxLoaded(this);
+		mathJaxLoaded();
 	}
 
 	@Override
@@ -98,6 +91,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}-*/;
 
 	private void createUI(OrderingModule module, boolean isPreview) {
+		this.isPreview = isPreview;
 		createWidgetPanel();
 
 		module.validate();
@@ -123,7 +117,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		initWidget(innerCellPanel);
 		setStyleName("ic_ordering");
 		StyleUtils.applyInlineStyle(this, module);
-
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (playerServices != null) {
 			randomizeViewItems();
 			saveScore();
@@ -132,16 +126,35 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 		getElement().setId(module.getId());
 		getAsJavaScript();
-		if(!isPreview){
-			makeSortable(getElement(), jsObject, workMode);
-		}
+		makeSortable();
 		getElement().setAttribute("lang", this.getLang());
 	}
+	
+	@Override
+	public void mathJaxLoaded() {
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
+	}
+	
+	private boolean isDisableDragging() {
+		return module.isDisableDragging();
+	}
+	
+	private boolean isPreview() {
+		return isPreview;
+	}
+	
+	private void makeSortable() {
+		makeSortable(this, getElement(), jsObject, workMode);
+	};
 
-	private native void makeSortable(Element e, JavaScriptObject jsObject, boolean workMode)/*-{
+	private native void makeSortable(OrderingView x, Element e, JavaScriptObject jsObject, boolean workMode)/*-{
 		var selector = jsObject.axis == "y" ? "tbody" : "tbody tr";
 		var displayType = jsObject.axis == "y" ? "table-row" : "table-cell";
 		var forceHide = false;
+		var isPreview = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isPreview()();
+		var isDisableDragging = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::isDisableDragging()();
+		
+		if (isPreview || isDisableDragging) return;
 		
 		if (!workMode) {
 			$wnd.$(e).find(selector).sortable("disable");
@@ -149,13 +162,35 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		} else {
 			$wnd.$(e).find(selector).sortable("enable");	
 		}
-		
+
+		var getContentScale = $entry(function() {
+			return @com.lorepo.icf.utils.JavaScriptUtils::getContentScale()();
+		});
+		scale = {X:1.0, Y:1.0};
+
 		$wnd.$(e).find(selector).sortable({
 			placeholder: "ic_ordering-placeholder",
 			axis: jsObject.axis,
 			helper : 'clone',
+			tolerance: "pointer",
 			cursorAt: { left: 5 },
 			start: function(event, ui) {
+				scale = getContentScale();
+                var changeLeft = ui.placeholder.clientLeft - ui.originalPosition.left;
+                var newLeft = ui.originalPosition.left + changeLeft / scale.X - ui.item.parent().offset().left;
+                var newTop = ui.placeholder.clientTop / scale.Y;
+
+                ui.helper.css({
+                    left: newLeft,
+                    top: newTop
+                });
+
+                var items = $wnd.$(this).data().sortable.items;
+                items.forEach(function(item) {
+                    item.height *= scale.Y;
+                    item.width *= scale.X;
+                });
+
 				jsObject.markStart(ui.item.index());
 				ui.helper.html(ui.item.html());
 				ui.placeholder.html(ui.helper.html());
@@ -170,6 +205,21 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 				} else {
 					ui.helper.width(ui.placeholder.width());
 					ui.helper.height(ui.placeholder.height());
+				}
+			},
+			sort: function(event, ui) {
+			    var changeLeft = ui.position.left - ui.originalPosition.left;
+                var newLeft = ui.originalPosition.left + changeLeft / scale.X;
+                var newTop = ui.position.top / scale.Y;
+
+				if (jsObject.axis == "y") {
+					ui.helper.css({
+						top: newTop
+					});
+				} else {
+					ui.helper.css({
+						left: newLeft
+					});
 				}
 			},
 			stop: function(event, ui) {
@@ -257,9 +307,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	private void replaceWidgetPositions(int srcIndex, int destIndex) {
 		if (srcIndex != destIndex) {
 			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-			textVoices.add(TextToSpeechVoice.create(this.getWidgetWCAGText(destIndex), this.getLang()));
+			textVoices.addAll(getWidgetTextVoicesByIndex(destIndex));
 			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(2)));
-			textVoices.add(TextToSpeechVoice.create(this.getWidgetWCAGText(srcIndex), this.getLang()));
+			textVoices.addAll(getWidgetTextVoicesByIndex(srcIndex));
 
 			this.speak(textVoices);
 		} else {
@@ -506,7 +556,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void setShowErrorsMode() {
 		workMode = false;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 		
 		if(selectedWidget!=null){
 			selectedWidget.removeStyleName("ic_drag-source");
@@ -532,7 +582,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void setWorkMode() {
 		workMode = true;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 
 		if (module.isActivity()) {
 			for (int i = 0; i < getWidgetCount(); i++) {
@@ -573,7 +623,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void setWorkStatus(boolean isWorkOn) {
 		workMode = isWorkOn;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 	}
 
 	@Override
@@ -613,7 +663,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	@Override
 	public void reset() {
 		workMode = true;
-		makeSortable(getElement(), jsObject, workMode);
+		makeSortable();
 
 		if(selectedWidget!=null){
 			selectedWidget.removeStyleName("ic_drag-source");
@@ -657,7 +707,8 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.listener = listener;
 	}
 
-	void refreshMath() {
+	@Override
+	public void refreshMath() {
 		MathJax.rerenderMathJax(getElement());
 	}
 
@@ -666,18 +717,13 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		setVisible(false);
 	}
 
-	private native void setCallbackForMathJaxLoaded(OrderingView x) /*-{
-	$wnd.MathJax.Hub.Register.MessageHook("End Process", function mathJaxResolve(message) {
-        if ($wnd.$(message[1]).hasClass('ic_page')) {
-            x.@com.lorepo.icplayer.client.module.ordering.OrderingView::mathJaxIsLoadedCallback()();
-        }
-    });
-	}-*/;
-	
-	void mathJaxIsLoadedCallback() {
-		this.mathJaxIsLoaded = true;
-		if (this.shouldRefreshMath) {
-			this.refreshMath();
+	@Override
+	public void mathJaxIsLoadedCallback() {
+		if (!this.mathJaxIsLoaded) {
+			this.mathJaxIsLoaded = true;
+			if (this.shouldRefreshMath) {
+				this.refreshMath();
+			}
 		}
 	}
 	
@@ -698,6 +744,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 	@Override
 	public void escape (KeyDownEvent event) {
+		event.preventDefault(); 
 		this.deselectCurrentItem();
 		currentWCAGSelectedItemIndex = 0;
 		this.isWCAGActive = false;
@@ -720,7 +767,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 	
 	@Override
-	public void enter (boolean isExiting) {
+	public void enter (KeyDownEvent event, boolean isExiting) {
 		this.isWCAGActive = !isExiting;
 		if (isExiting) {
 			this.deselectCurrentItem();
@@ -733,6 +780,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	
 	@Override
 	public void space (KeyDownEvent event) {
+	    event.preventDefault();
 		this.deselectCurrentItem();
 		DomEvent.fireNativeEvent(Document.get().createMouseUpEvent(0, 0, 0, 0, 0, false, false, false, false, 0), this.getWidget(this.currentWCAGSelectedItemIndex));
 		this.selectCurrentItem();
@@ -759,17 +807,19 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	
 	@Override
 	public void up (KeyDownEvent event) {
+		event.preventDefault(); 
 		this.move(-1);
 	}
 	
 	@Override
 	public void down (KeyDownEvent event) {
+		event.preventDefault(); 
 		this.move(1);
 	}
 	
 	private void readItem (int index) {
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-		textVoices.add(TextToSpeechVoice.create(this.getWidgetWCAGText(index), this.getLang()));
+		textVoices.addAll(getWidgetTextVoicesByIndex(index));
 		
 		Widget widget = this.innerCellPanel.getWidget(index);
 		if (ElementHTMLUtils.hasClass(widget.getElement(), "ic_drag-source")) {
@@ -830,7 +880,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
-	public void shiftTab (KeyDownEvent event) {}
+	public void shiftTab (KeyDownEvent event) {
+		this.move(-1);
+	}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {}
@@ -846,14 +898,19 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.pageController = pc;
 	}
 	
-	private String getWidgetWCAGText(Element element){
-		Element clone = new HTML(element.getInnerHTML()).getElement();
+	private String getWidgetWCAGText(Element element, boolean breaks){
+		String html = breaks ? WCAGUtils.getImageAltTextsWithBreaks(element.getInnerHTML()) : WCAGUtils.getImageAltTexts(element.getInnerHTML());
+		Element clone = new HTML(html).getElement();
 		NodeList<Element> spans = clone.getElementsByTagName("span");
-		for(int i = 0; i<spans.getLength();i++){
+		for (int i = 0; i<spans.getLength(); i++) {
 			Element child = spans.getItem(i);
-			if(child.getAttribute("aria-label").length()>0){
+			if (child.getAttribute("aria-label").length() > 0) {
 				Element textNode = DOM.createElement("span");
-				textNode.setInnerHTML(child.getAttribute("aria-label"));
+				String innerText = child.getAttribute("aria-label");
+				if (child.getAttribute("lang").length() > 0) {
+					innerText = "\\alt{ |" + innerText + "}[lang " + child.getAttribute("lang") + "]";
+				}
+				textNode.setInnerHTML(innerText);
 				child.appendChild(textNode);
 			} else if(child.getAttribute("aria-hidden").equals("true")){
 				child.removeFromParent();
@@ -864,7 +921,21 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 	
 	private String getWidgetWCAGText (int index) {
-		return getWidgetWCAGText(this.innerCellPanel.getWidget(index).getElement());
+		return getWidgetWCAGText(this.innerCellPanel.getWidget(index).getElement(),false);
+	}
+	
+	private String getWidgetWCAGTextWithBreaks (int index) {
+		return getWidgetWCAGText(this.innerCellPanel.getWidget(index).getElement(),true);
+	}
+	
+	private List<TextToSpeechVoice> getWidgetTextVoicesByIndex(int index) {
+		String fullText = getWidgetWCAGTextWithBreaks (index);
+		String[] textArray = fullText.split(WCAGUtils.BREAK_TEXT);
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		for(String text: textArray){
+			textVoices.add(TextToSpeechVoice.create(text, this.getLang()));
+		}
+		return textVoices;
 	}
 
 	@Override
@@ -884,5 +955,37 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			this.pageController.speak(textVoices);
 		}
 	}
+	
+	@Override
+	protected void onDetach() {
+		this.removeHook();
+		
+		super.onDetach();
+	};
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
+		}		
+	}
+
+	@Override
+	public String getElementId() {
+		return this.module.getId();
+	}
+
+
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
+	
+	
 	
 }

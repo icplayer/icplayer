@@ -670,6 +670,34 @@ hr, table, fieldset {
 	background-color: orange;
 	cursor: pointer;
 }
+/**
+ * Text
+ */
+
+ .ic_text .errorMessage{
+ 	padding: 1em;
+ 	font-size: 12px;
+ 	color: red;
+ }
+
+ .ic_text_audio_button{
+	width: 22px;
+	height: 22px;
+	background-repeat: no-repeat;
+	border-radius: 15px;
+	border: none;
+	background-size: 15px;
+	background-position: center;
+	vertical-align: middle;
+}
+
+.ic_text_audio_button.text-audio-button-play{
+	background-image: url("images/text-audio-play.png");
+}
+
+.ic_text_audio_button.text-audio-button-stop{
+	background-image: url("images/text-audio-stop.png");
+}
 
 /**
  * Source image
@@ -699,8 +727,6 @@ hr, table, fieldset {
 .ic_imageGap-wrong{
 	border: 1px solid red;
 }
-
-
 
 /**
  * Stylizacja panelu popupa
@@ -957,13 +983,13 @@ hr, table, fieldset {
 }
 
 .ic_selected_module {
-	border: 2px solid rgba(27,144,253,1) !important;
+	outline: 2px solid rgba(27,144,253,1) !important;
 	-webkit-box-shadow: 0 0 2px 0 rgba(27,144,253,0.6) !important;
 	box-shadow: 0 0 2px 0 rgba(27,144,253,0.6) !important;
 }
 
 .ic_active_module {
-	border: 2px solid rgba(0,255,0,1) !important;
+	outline: 2px solid rgba(0,255,0,1) !important;
 	-webkit-box-shadow: 0 0 2px 0 rgba(0,255,0,0.6) !important;
 	box-shadow: 0 0 2px 0 rgba(0,255,0,0.6) !important;
 }

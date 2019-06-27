@@ -5,6 +5,12 @@ function AddonHierarchical_Lesson_Report_create() {
     var absolutePageIndex = 0;
     var realPageIndex = 0;
     var chapters = 0;
+    var currentRow = 1;
+    var currentColumn = 0;
+    var selectedCellClassName = "keyboard_navigation_active_element";
+    var isWCAGOn = false;
+
+    function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
 
     presenter.ERROR_MESSAGES = {
         EXPAND_DEPTH_NOT_NUMERIC: "Depth of expand is not proper",
@@ -238,10 +244,10 @@ function AddonHierarchical_Lesson_Report_create() {
 
             if (presenter.configuration.showMaxScoreField) {
                 var isMaxScore = pageScore === score.maxScore && score.maxScore !== 0;
-
                 var $td = $('<td></td>');
                 $td.addClass(isMaxScore ? 'hier_report-page-max-score' : 'hier_report-page-non-max-score');
-
+                var $element = generateMaxScoreLinks(pageId,isMaxScore);
+                $($td).append($element);
                 $(row).append($td);
             }
         } else {
@@ -258,6 +264,14 @@ function AddonHierarchical_Lesson_Report_create() {
 
         return pageScore + "<span class='hier_report-separator'>/</span>" + score.maxScore;
     };
+
+    function generateMaxScoreLinks(pageId, isMaxScore) {
+        var $element = $(document.createElement('td'));
+        $element.addClass(isMaxScore ? 'hier_report-page-max-score' : 'hier_report-page-non-max-score');
+        var $link = $("<a></a>").attr('href', '#').attr('data-page-id', pageId);
+        $link.append($element);
+        return $link;
+    }
 
     function generatePageLinks(text, isChapter, pageId) {
         var $element = $(document.createElement('td')),
@@ -635,12 +649,78 @@ function AddonHierarchical_Lesson_Report_create() {
         return upgradedModel;
     };
 
+    presenter.upgradeTextToSpeechSupport = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (upgradedModel['speechTexts'] === undefined) {
+            upgradedModel['speechTexts'] = {
+                Expanded: {Expanded: "Expanded"},
+                Collapsed: {Collapsed: "Collapsed"},
+                Results: {Results: "Results"},
+                Checks: {Checks: "Checks"},
+                Mistakes: {Mistakes: "Mistakes"},
+                Errors: {Errors: "Errors"},
+                Score: {Score: "Score"},
+                OutOf: {OutOf: "Out of"},
+                Total: {Total: "Total"}
+            };
+        }
+
+        if (upgradedModel['langAttribute'] === undefined) {
+            upgradedModel['langAttribute'] = "";
+        }
+        return upgradedModel;
+    };
+
     presenter.upgradeModel = function (model) {
-        var modelWithPageNames = presenter.upgradeAlternativePageNamesProperty(model);
-        return modelWithPageNames;
+        var newModel = presenter.upgradeAlternativePageNamesProperty(model);
+        newModel = presenter.upgradeTextToSpeechSupport(newModel);
+        return newModel;
+    };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            expanded:  'Expanded',
+            collapsed: 'Collapsed',
+            results: 'Percentage results',
+            checks: 'Number of checks',
+            mistakes: 'Number of mistakes',
+            errors: 'Number of errors',
+            score: 'Score',
+            outOf: 'out of',
+            Total: 'Total'
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            expanded:    getSpeechTextProperty(speechTexts['Expanded']['Expanded'], presenter.speechTexts.expanded),
+            collapsed: getSpeechTextProperty(speechTexts['Collapsed']['Collapsed'], presenter.speechTexts.collapsed),
+            results:  getSpeechTextProperty(speechTexts['Results']['Results'], presenter.speechTexts.results),
+            checks:     getSpeechTextProperty(speechTexts['Checks']['Checks'], presenter.speechTexts.checks),
+            mistakes:   getSpeechTextProperty(speechTexts['Mistakes']['Mistakes'], presenter.speechTexts.mistakes),
+            errors:      getSpeechTextProperty(speechTexts['Errors']['Errors'], presenter.speechTexts.errors),
+            score:        getSpeechTextProperty(speechTexts['Score']['Score'], presenter.speechTexts.score),
+            outOf:        getSpeechTextProperty(speechTexts['OutOf']['OutOf'], presenter.speechTexts.outOf),
+            total:        getSpeechTextProperty(speechTexts['Total']['Total'], presenter.speechTexts.total)
+        };
     };
 
     presenter.validateModel = function (model) {
+        presenter.setSpeechTexts(model['speechTexts']);
         var expandDepth = returnCorrectObject(0);
 
         if (model['expandDepth'].length > 0) {
@@ -698,7 +778,8 @@ function AddonHierarchical_Lesson_Report_create() {
             showMaxScoreField: ModelValidationUtils.validateBoolean(model["showmaxscorefield"]),
             disabledScorePages: validatedDisabledScorePages.value,
             enablePages: validatedEnablePages.value,
-            alternativePageTitles: validatedAlternativePageTitles.value
+            alternativePageTitles: validatedAlternativePageTitles.value,
+            langTag: model['langAttribute']
         };
     };
 
@@ -726,11 +807,18 @@ function AddonHierarchical_Lesson_Report_create() {
             return;
         }
 
-        $('.hier_report').attr("style", "height: " + presenter.configuration.height + "px");
+        var padding_width = parseInt(presenter.$view.find('.hier_report').css('padding'));
+        if(isNaN(padding_width)) padding_width = 0;
+        var border_width = parseInt(presenter.$view.find('.hier_report').css('border-width'));
+        if(isNaN(border_width)) border_width = 0;
+        var actual_height = presenter.configuration.height + ( padding_width + border_width ) *2; // makes it so hier_report and the addons view are the same height
+
+        presenter.$view.css('height',actual_height+'px');
+        presenter.$view.find('.hier_report').attr("style", "height: " + presenter.configuration.height + "px");
         presenter.treeID = presenter.configuration.ID + (isPreview ? "Preview" : "");
         presenter.$view.find("div").first().attr('id', presenter.treeID);
 
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         addHeader();
         if (isPreview) {
@@ -755,6 +843,299 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         checkIfChapterHasChildren();
+    };
+
+    function getCell(rowNumber, columnNumber) {
+        var $cell = presenter.$view.find('tr:eq('+rowNumber+') > td:eq('+columnNumber+')');
+        if($cell.size()>0){
+            return $cell[0];
+        }
+        return null;
+    }
+
+    presenter.cellIsVisible = function(rowNumber, columnNumber) {
+        var cell = getCell(rowNumber, columnNumber);
+        return cell && $(cell).is(':visible');
+    };
+
+    function getTableMaxHeight() {
+            return presenter.$view.find('tr').size();
+        }
+
+        function getTableWidth() {
+            return presenter.$view.find('tr:eq(0) > td').size();
+        }
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        event.preventDefault();
+        presenter.shiftPressed = event.shiftKey;
+
+        var keys = {
+            ENTER: 13,
+            ESCAPE: 27,
+            SPACE: 32,
+            ARROW_LEFT: 37,
+            ARROW_UP: 38,
+            ARROW_RIGHT: 39,
+            ARROW_DOWN: 40,
+            TAB: 9
+        };
+
+        function moveTo(newRow, newColumn) {
+            if(!presenter.cellIsVisible(newRow,newColumn)) {
+                return;
+            }
+            currentColumn = newColumn;
+            currentRow = newRow;
+            presenter.$view.find('.' + selectedCellClassName).removeClass(selectedCellClassName);
+            var cell = getCell(currentRow, currentColumn);
+            $(cell).addClass(selectedCellClassName);
+            scrollCellIntoView();
+
+        }
+
+        function scrollCellIntoView () {
+            var cell = getCell(currentRow,currentColumn);
+            var $cell = $(cell);
+            var $hier_report = presenter.$view.find('.hier_report');
+            var scrollPos = $hier_report.scrollTop();
+
+            if($cell.outerHeight() + cell.offsetTop > $hier_report.height() + scrollPos) {
+                $hier_report.scrollTop($cell.height() + parseInt($cell.css('padding-top')) + cell.offsetTop - $hier_report.height() );
+            } else if(cell.offsetTop < scrollPos) {
+                $hier_report.scrollTop(cell.offsetTop + parseInt($cell.css('padding-top')));
+            }
+        };
+
+        function getNextVisibleRowNumber(rowNumber) {
+            var newRow = rowNumber;
+            var nRows = getTableMaxHeight();
+            while (true) {
+                newRow+=1;
+                if(newRow>=nRows) {
+                    return rowNumber;
+                }
+                if(presenter.cellIsVisible(newRow,0)){
+                    return newRow;
+                }
+            }
+        }
+
+        function getPrevVisibleRowNumber(rowNumber) {
+            var newRow = rowNumber;
+            while (true) {
+                newRow-=1;
+                if(newRow<=0) {
+                    return rowNumber;
+                }
+                if(presenter.cellIsVisible(newRow,0)){
+                    return newRow;
+                }
+            }
+        }
+
+        var enter = function (){
+            if(isShiftKeyDown) {
+                return escape();
+            }
+
+            moveTo(currentRow,currentColumn);
+            presenter.readCurrentRowAndCell();
+        };
+
+        var next_element = function (){
+            moveTo(currentRow,currentColumn+1);
+            presenter.readCurrentCell();
+        };
+
+        var previous_element = function (){
+            moveTo(currentRow,currentColumn-1);
+            presenter.readCurrentCell();
+        };
+
+        var next_row = function () {
+            var newRow = getNextVisibleRowNumber(currentRow);
+            moveTo(newRow,currentColumn);
+            presenter.readCurrentRowAndCell();
+        };
+
+        var previous_row = function () {
+            var newRow = getPrevVisibleRowNumber(currentRow);
+            moveTo(newRow,currentColumn);
+            presenter.readCurrentRowAndCell();
+        };
+
+        var space = function (){
+            var $cell = $(getCell(currentRow,currentColumn));
+            var $link = $cell.find('a');
+            if ($link.size()>0) {
+                $link.trigger('click');
+            } else {
+                var $expand = $cell.find('.treegrid-expander');
+                if ($expand.size()>0) {
+                    $expand.trigger("click");
+                    if ($expand.hasClass("treegrid-expander-collapsed")) {
+                        speak([getTextVoiceObject(presenter.speechTexts.collapsed,"")]);
+                    } else if ($expand.hasClass("treegrid-expander-expanded")) {
+                        speak([getTextVoiceObject(presenter.speechTexts.expanded,"")]);
+                    }
+                }
+            }
+        };
+
+        var escape = function (){
+            presenter.$view.find('.' + selectedCellClassName).removeClass(selectedCellClassName);
+            currentColumn = 0;
+            currentRow = 1;
+        };
+
+        function tabHandler() {
+            var rowChange = false;
+            var maxWidth = getTableWidth();
+
+            var newColumn = currentColumn;
+            var newRow = currentRow;
+
+            if (isShiftKeyDown) {
+                newColumn -= 1;
+            } else {
+                newColumn += 1;
+            }
+
+            if(newColumn>=maxWidth) {
+                newRow = getNextVisibleRowNumber(newRow);
+                if(newRow!==currentRow) {
+                    newColumn = 0;
+                    rowChange=true;
+                } else {
+                    newColumn = maxWidth-1;
+                }
+            } else if(newColumn<0) {
+                newRow = getPrevVisibleRowNumber(newRow);
+                 if(newRow!==currentRow) {
+                    newColumn = maxWidth-1;
+                    rowChange=true;
+                } else {
+                    newColumn = 0;
+                }
+            }
+
+            moveTo(newRow, newColumn);
+            if(rowChange) {
+                presenter.readCurrentRowAndCell();
+            } else {
+                presenter.readCurrentCell();
+            }
+
+        }
+
+        var mapping = {};
+        mapping[keys.ENTER] = enter;
+        mapping[keys.ESCAPE] = escape;
+        mapping[keys.SPACE] = space;
+        mapping[keys.ARROW_LEFT] = previous_element;
+        mapping[keys.ARROW_UP] = previous_row;
+        mapping[keys.ARROW_RIGHT] = next_element;
+        mapping[keys.ARROW_DOWN] = next_row;
+        mapping[keys.TAB] = tabHandler;
+
+        try {
+            mapping[keycode]();
+        } catch (er) {
+        }
+
+    };
+
+    function getColumnList() {
+        var columns = ['page_title'];
+        if(presenter.configuration.showResults){
+            columns.push('results');
+        }
+        if(presenter.configuration.showChecks){
+            columns.push('checks');
+        }
+        if(presenter.configuration.showMistakes){
+            columns.push('mistakes');
+        }
+        if(presenter.configuration.showErrors){
+            columns.push('errors');
+        }
+        if(presenter.configuration.showPageScore){
+            columns.push('score');
+        }
+        return columns;
+    }
+
+    function getCurrentCellTextVoiceArray() {
+        var TextVoiceArray = [];
+        var $cell = $(getCell(currentRow,currentColumn));
+
+        if (currentColumn===0) {
+            if(currentRow === getTableMaxHeight()-1 && presenter.configuration.showTotal) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.total, ""));
+            } else {
+                TextVoiceArray.push(getTextVoiceObject($cell.text(), presenter.configuration.langTag));
+            }
+        } else {
+            TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts[getColumnList()[currentColumn]],""));
+            if (-1 !== getColumnList()[currentColumn].indexOf('score')) {
+                TextVoiceArray.push(getTextVoiceObject($cell.text().replace('/', presenter.speechTexts.outOf, "")));
+            } else {
+                TextVoiceArray.push(getTextVoiceObject($cell.text(), ""));
+            }
+        }
+
+        if ($cell.find(".treegrid-expander-collapsed").size()>0) {
+            TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.collapsed,""));
+        } else if($cell.find(".treegrid-expander-expanded").size()>0) {
+            TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.expanded,""));
+        }
+
+        return TextVoiceArray;
+    }
+
+    presenter.readCurrentCell = function() {
+        speak(getCurrentCellTextVoiceArray());
+    };
+
+    presenter.readCurrentRowAndCell = function() {
+        var TextVoiceArray = [];
+
+        if (currentColumn!==0) {
+            if(currentRow === getTableMaxHeight()-1 && presenter.configuration.showTotal) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.total, ""));
+            } else {
+                TextVoiceArray.push(getTextVoiceObject($(getCell(currentRow,0)).text(), presenter.configuration.langTag));
+            }
+        }
+
+        TextVoiceArray = TextVoiceArray.concat(getCurrentCellTextVoiceArray());
+
+        speak(TextVoiceArray);
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function speak(data) {
+        presenter.speak(data);
+    }
+
+    presenter.speak = function(data) {
+        var tts = presenter.getTextToSpeechOrNull(presentationController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
     };
 
     return presenter;

@@ -17,11 +17,13 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 	private CheckCounterModule module;
 	private boolean isWCAGOn = false;
 	private PageController pageController;
+	private String originalDisplay = "";
 	
 	public CheckCounterView(CheckCounterModule module, boolean isPreview) {
 		this.module = module;
 		setStyleName("ic_checkcounter");
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (isPreview) {
 			setText("3");
 		} else {
@@ -76,12 +78,14 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 	}
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		speak();
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {}
+	public void space(KeyDownEvent event) {
+		event.preventDefault();
+	}
 
 	@Override
 	public void tab(KeyDownEvent event) {}
@@ -93,17 +97,33 @@ public class CheckCounterView extends Label implements CheckCounterPresenter.IDi
 	public void right(KeyDownEvent event) {}
 
 	@Override
-	public void down(KeyDownEvent event) {}
+	public void down(KeyDownEvent event) {
+			event.preventDefault();
+}
 
 	@Override
-	public void up(KeyDownEvent event) {}
+	public void up(KeyDownEvent event) {
+			event.preventDefault();
+}
 
 	@Override
-	public void escape(KeyDownEvent event) {}
+	public void escape(KeyDownEvent event) {
+			event.preventDefault();
+}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
 }

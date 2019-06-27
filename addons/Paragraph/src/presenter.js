@@ -10,6 +10,8 @@ function AddonParagraph_create() {
     presenter.playerController = null;
     presenter.isVisibleValue = null;
 
+    presenter.isEditorLoaded = false;
+
     presenter.LANGUAGES = {
         DEFAULT: "en_GB",
         FRENCH: "fr_FR"
@@ -28,6 +30,10 @@ function AddonParagraph_create() {
         'alignright alignjustify styleselect formatselect fontselect fontsizeselect '+
         'bullist numlist outdent indent blockquote undo redo '+
         'removeformat subscript superscript forecolor backcolor |'.split(' ');
+
+    presenter.ERROR_CODES = {
+        'W_01': 'Weight must be a positive number between 0 and 100'
+    };
     
     function isIOSSafari() {
         var ua = window.navigator.userAgent,
@@ -45,13 +51,25 @@ function AddonParagraph_create() {
             'hide': presenter.hide,
             'isVisible': presenter.isVisible,
             'getText': presenter.getText,
-            'isAttempted': presenter.isAttempted
+            'setText': presenter.setText,
+            'isAttempted': presenter.isAttempted,
+            'lock': presenter.lock,
+            'unlock': presenter.unlock
         };
 
-        Commands.dispatch(commands, name, params, presenter);
+        return Commands.dispatch(commands, name, params, presenter);
     };
 
     presenter.isAttempted = function () {
+        if (!presenter.isEditorLoaded) {
+            if (presenter.state) {
+                var parser = new DOMParser();
+                var stateNode = parser.parseFromString(JSON.parse(presenter.state).tinymceState, "text/html");
+                return $(stateNode).text() != '';
+            } else {
+                return false;
+            }
+        }
         return $(presenter.editor.getContent({format: 'raw'})).text() != '';
     };
 
@@ -83,19 +101,29 @@ function AddonParagraph_create() {
 
     presenter.createPreview = function AddonParagraph_createPreview(view, model) {
         presenter.initializeEditor(view, model);
+        presenter.setVisibility(true);
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': '100%', 'height': '100%', 'position':'absolute', 'top':0, 'left':0});
         presenter.$view.append(clickhandler);
     };
 
     presenter.run = function AddonParagraph_run(view, model) {
-        presenter.initializeEditor(view, model);
+        presenter.initializeEditor(view, model, false);
+        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.isLocked = false;
     };
 
     presenter.initializeEditor = function AddonParagraph_initializeEditor(view, model) {
+        if (presenter.loaded){ return;}
+        presenter.loaded = true;
         presenter.view = view;
         presenter.$view = $(view);
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
+
+        if (presenter.configuration.isError) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+            return;
+        }
 
         presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
 
@@ -121,9 +149,8 @@ function AddonParagraph_create() {
             presenter.editor.on('blur', function () {
                 presenter.sendOnBlurEvent();
             });
+            presenter.isEditorLoaded = true;
         });
-
-        presenter.setVisibility(presenter.configuration.isVisible);
         
         if(isIOSSafari()) {
             var input = document.createElement("input");
@@ -238,11 +265,15 @@ function AddonParagraph_create() {
         var fontFamily = model['Default font family'],
             fontSize = model['Default font size'],
             isToolbarHidden = ModelValidationUtils.validateBoolean(model['Hide toolbar']),
+            isPlaceholderEditable = ModelValidationUtils.validateBoolean(model['Editable placeholder']),
             toolbar = presenter.validateToolbar(model['Custom toolbar'], model.Width),
             height = model.Height,
             hasDefaultFontFamily = false,
             hasDefaultFontSize = false,
-            layoutType = model["Layout Type"] || "Default";
+            layoutType = model["Layout Type"] || "Default",
+            title = model["Title"],
+            manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]),
+            weight = model['Weight'];
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -252,6 +283,10 @@ function AddonParagraph_create() {
         if (ModelValidationUtils.isStringEmpty(fontSize)) {
             fontSize = presenter.DEFAULTS.FONT_SIZE;
             hasDefaultFontSize = true;
+        }
+
+        if (!ModelValidationUtils.isStringEmpty(weight) && !ModelValidationUtils.validateIntegerInRange(weight, 100, 0).isValid ) {
+            return {isError: true, errorCode: 'W_01'}
         }
 
         height -= !isToolbarHidden ? 37 : 2;
@@ -273,7 +308,11 @@ function AddonParagraph_create() {
             pluginName: presenter.makePluginName(model["ID"]),
             width: model['Width'],
             height: parseInt(height, 10),
-            layoutType: layoutType
+            layoutType: layoutType,
+            isPlaceholderEditable: isPlaceholderEditable,
+            title: title,
+            manualGrading: manualGrading,
+            weight: weight
         };
     };
 
@@ -299,15 +338,39 @@ function AddonParagraph_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradePlaceholderText(model);
+        var upgradedModel = presenter.upgradePlaceholderText(model);
+            upgradedModel = presenter.upgradeManualGrading(upgradedModel);
+            upgradedModel = presenter.upgradeTitle(upgradedModel);
+            upgradedModel = presenter.upgradeWeight(upgradedModel);
+        return presenter.upgradeEditablePlaceholder(upgradedModel);
+    };
+
+    presenter.upgradeManualGrading = function (model) {
+        return presenter.upgradeAttribute(model, "Manual grading", false);
+    };
+
+    presenter.upgradeTitle = function (model) {
+        return presenter.upgradeAttribute(model, "Title", "");
     };
 
     presenter.upgradePlaceholderText = function (model) {
+        return presenter.upgradeAttribute(model, "Placeholder Text", "");
+    };
+
+    presenter.upgradeEditablePlaceholder = function (model) {
+        return presenter.upgradeAttribute(model, "Editable placeholder", "");
+    };
+
+    presenter.upgradeWeight = function (model) {
+        return presenter.upgradeAttribute(model, "Weight", "");
+    };
+
+    presenter.upgradeAttribute = function (model, attrName, defaultValue) {
         var upgradedModel = {};
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (model["Placeholder Text"] == undefined) {
-            upgradedModel["Placeholder Text"] = "";
+        if (model[attrName] == undefined) {
+            upgradedModel[attrName] = defaultValue;
         }
 
         return upgradedModel;
@@ -392,7 +455,7 @@ function AddonParagraph_create() {
     presenter.placeholderElement = function AddonParagraph_placeholderElement() {
         this.isSet = true;
         this.shouldBeSet = false;
-        this.placeholderText = presenter.configuration.placeholderText;
+        this.placeholderText = presenter.configuration.isPlaceholderEditable ? "" : presenter.configuration.placeholderText;
         this.contentAreaContainer = null;
         this.el = null;
         this.attrs = {style: {position: 'absolute', top:'5px', left:0, color: '#888', padding: '1%', width:'98%', overflow: 'hidden'} };
@@ -553,10 +616,37 @@ function AddonParagraph_create() {
             editorHeight = presenter.$view.height();
 
         if (!presenter.configuration.isToolbarHidden) {
-            editorHeight -= presenter.$view.find('.mce-toolbar').height();
-        }
+            //setTimouts for checking if height of the toolbar changed
+            setTimeout(function () {
+                    var lastHeight = presenter.$view.find('.mce-toolbar').height(),
+                        newHeight,
+                        counter = 0,
+                        toolbarHeightChangedTimeout = false,
+                        originalEditorHeight = editorHeight;
 
-        $editor.height(editorHeight);
+                        editorHeight -= presenter.$view.find('.mce-toolbar').height();
+                        $editor.height(editorHeight);
+                    (function checkHeight(){
+                        newHeight = presenter.$view.find('.mce-toolbar').height();
+                        if(lastHeight !== newHeight) {
+                            var height = originalEditorHeight - presenter.$view.find('.mce-toolbar').height();
+                            $editor.height(height);
+                        }
+                        lastHeight = newHeight;
+
+                        if(toolbarHeightChangedTimeout) {
+                            clearTimeout(toolbarHeightChangedTimeout);
+                        }
+
+                        counter++;
+                        if(counter < 3) {
+                            toolbarHeightChangedTimeout = setTimeout(checkHeight, 500);
+                        }
+                    })();
+            }, 0);
+        } else {
+            $editor.height(editorHeight);
+        }
     };
 
     presenter.onInit = function AddonParagraph_onInit() {
@@ -580,7 +670,7 @@ function AddonParagraph_create() {
         }
 
         presenter.$tinyMCEToolbar = presenter.$view.find('.mce-toolbar');
-        presenter.$tinyMCEToolbar.on('resize', presenter.setIframeHeight);
+        presenter.setIframeHeight();
 
         presenter.tinyMceContainer = presenter.$view.find('.mce-container.mce-panel.mce-tinymce');
         presenter.tinyMceContainer.css('border', 0);
@@ -588,6 +678,10 @@ function AddonParagraph_create() {
 
         if (presenter.configuration.layoutType !== "Default") {
             presenter.addStylesToButton();
+        }
+
+        if (presenter.configuration.isPlaceholderEditable && presenter.state == null) {
+            presenter.setText(presenter.configuration.placeholderText);
         }
     };
 
@@ -618,7 +712,8 @@ function AddonParagraph_create() {
 
         return JSON.stringify({
             'tinymceState' : tinymceState,
-            'isVisible' : presenter.isVisibleValue
+            'isVisible' : presenter.isVisibleValue,
+            'isLocked' : presenter.isLocked
         });
     };
 
@@ -638,13 +733,26 @@ function AddonParagraph_create() {
                 presenter.state = state;
             }
         }
+
+        if (parsedState.isLocked) {
+            presenter.lock();
+        } else {
+            presenter.unlock();
+        }
     };
 
     presenter.reset = function AddonParagraph_reset() {
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.placeholder.removePlaceholder();
-        presenter.editor.setContent('');
+        if (presenter.configuration.isPlaceholderEditable) {
+            presenter.setText(presenter.configuration.placeholderText);
+        } else {
+            presenter.editor.setContent('');
+        }
         presenter.placeholder.addPlaceholder();
+        if (presenter.isLocked) {
+            presenter.unlock();
+        }
     };
 
     presenter.show = function AddonParagraph_show() {
@@ -659,6 +767,31 @@ function AddonParagraph_create() {
 
     presenter.isVisible = function AddonParagraph_isVisible() {
         return presenter.configuration.isVisible;
+    };
+
+    presenter.setText = function(text) {
+        if (presenter.editor != null && presenter.editor.initialized) {
+            if (Array.isArray(text)) {
+                presenter.editor.setContent(text[0]);
+            } else if (typeof text === 'string' || text instanceof String) {
+                presenter.editor.setContent(text);
+            }
+        }
+    };
+
+    presenter.lock = function AddonParagraph_lock() {
+        if (!presenter.isLocked) {
+            var mask = $('<div>').addClass('paragraph-lock');
+            presenter.$view.find('#' + presenter.configuration.ID + '-wrapper').append(mask);
+            presenter.isLocked = true;
+        }
+    };
+
+    presenter.unlock = function AddonParagraph_unlock() {
+        if (presenter.isLocked) {
+            presenter.$view.find('.paragraph-lock').remove();
+            presenter.isLocked = false;
+        }
     };
 
     return presenter;

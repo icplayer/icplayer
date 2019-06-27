@@ -28,10 +28,12 @@ function AddonViewer_3D_create(){
 
     presenter.run = function (view, model) {
         presenter.presenterLogic(view, model);
+        presenter.setVisibility(presenter.configuration.isVisible);
     };
 
     presenter.createPreview = function (view, model) {
         presenter.presenterLogic(view, model);
+        presenter.setVisibility(true);
     };
 
     presenter.setCanvasDimensions = function (width, height) {
@@ -242,7 +244,6 @@ function AddonViewer_3D_create(){
             return;
         }
 
-        presenter.setVisibility(presenter.configuration.isVisible);
         presenter.renderObject();
 
         presenter.$view.click(function(e){

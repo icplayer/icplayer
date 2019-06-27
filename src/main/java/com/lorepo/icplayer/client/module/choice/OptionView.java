@@ -14,6 +14,7 @@ import com.google.gwt.event.dom.client.TouchStartEvent;
 import com.google.gwt.event.dom.client.TouchStartHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ToggleButton;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
@@ -22,6 +23,7 @@ import com.lorepo.icplayer.client.module.text.LinkInfo;
 import com.lorepo.icplayer.client.module.text.LinkWidget;
 import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
+import com.lorepo.icplayer.client.utils.DevicesUtils;
 
 public class OptionView extends ToggleButton implements IOptionDisplay{
 
@@ -35,6 +37,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		super();
 		this.choiceOption = option;
 		initUI(isMulti);
+		setListener(this.getElement());
 	}
 
 	
@@ -51,13 +54,32 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 			setStylePrimaryName("ic_soption");
 		}
 	}
-
+	
+	public boolean isEnable() {
+		return super.isEnabled(); 
+	}
+	
+	private native void setListener(Element el)/*-{
+		var $el = $wnd.$(el);
+		var self = this;
+		$el.on('touchend',function(e){ //onBrowserEvent is not used to avoid visible delay
+			e.preventDefault();
+			var isEnabled = self.@com.lorepo.icplayer.client.module.choice.OptionView::isEnable()();
+			if(isEnabled){
+				self.@com.lorepo.icplayer.client.module.choice.OptionView::onClick()();
+			}
+		});
+	}-*/;
+	
+	
 	@Override
 	public void onBrowserEvent(Event event) {
 	    if( DOM.eventGetType(event) == Event.ONCLICK){
 	    	event.stopPropagation();
 	    }
-	    super.onBrowserEvent(event);
+	    if( DOM.eventGetType(event) != Event.ONTOUCHEND) { //Touchend is handled in setListener
+	    	super.onBrowserEvent(event);
+	    }
 	}
 	
 	protected void onAttach() {
@@ -146,13 +168,13 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	}
 	
 	public void connectLinks(Iterator<LinkInfo> it) {
-		
+
 		if(eventBus != null) {
 			while(it.hasNext()) {
 				final LinkInfo info = it.next();
 				if(DOM.getElementById(info.getId()) != null) {
 					LinkWidget widget = new LinkWidget(info);
-					
+
 					widget.addTouchStartHandler(new TouchStartHandler() {
 						public void onTouchStart(TouchStartEvent event) {
 							event.stopPropagation();
@@ -161,7 +183,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 							isTouched = true;
 						}
 					});
-					
+
 					widget.addTouchMoveHandler(new TouchMoveHandler() {
 						public void onTouchMove(TouchMoveEvent event) {
 							event.stopPropagation();
@@ -170,7 +192,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 							isTouched = false;
 						}
 					});
-					
+
 					widget.addTouchCancelHandler(new TouchCancelHandler() {
 						public void onTouchCancel(TouchCancelEvent event) {
 							event.stopPropagation();
@@ -179,7 +201,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 							isTouched = false;
 						}
 					});
-					
+
 					widget.addTouchEndHandler(new TouchEndHandler() {
 						public void onTouchEnd(TouchEndEvent event) {
 							event.stopPropagation();
@@ -191,7 +213,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 							}
 						}
 					});
-					
+
 					widget.addClickHandler(new ClickHandler() {
 						public void onClick(ClickEvent event) {
 							event.preventDefault();
@@ -249,5 +271,20 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 	@Override
 	public void addBorder() {
 		addStyleName("ic_option_border");
+	}
+	
+	@Override
+	public void addStyleDependentName(String styleSuffix) {
+		if(DevicesUtils.isMobile() ) { // Disable hovering style on mobile devices
+			if (styleSuffix.indexOf("up-hovering") > -1) {
+				styleSuffix = styleSuffix.replace("up-hovering","up");
+				super.removeStyleDependentName("down");
+			};
+			if (styleSuffix.indexOf("down-hovering") > -1) {
+				styleSuffix = styleSuffix.replace("down-hovering","down");
+				super.removeStyleDependentName("up");
+			};
+		}
+		super.addStyleDependentName(styleSuffix);
 	}
 }
