@@ -1959,5 +1959,8 @@ var ice_dictionary_mx = {
 	"MathFormula_info" : "Math Formula allows for displaying complex mathematical formulas",
 	"Mathtext_property_text" : "Math",
 	"Editor_wiris_editor": "Wiris editor",
-	"Editor_wiris_disabled": "Wiris editor is not enabled"
+	"Editor_wiris_disabled": "Wiris editor is not enabled",
+	"EditableWindow_property_video_title": "Title",
+	"EditableWindow_property_header_style": "Header style",
+	"EditableWindow_property_editing_enabled" : "Editing enabled"
 };
