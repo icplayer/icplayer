@@ -44,8 +44,28 @@ function AddonMathFormula_create() {
         if (presenter.configuration.isError) {
             presenter.$container.html(ERROR_CODES[presenter.configuration.errorCode])
         } else {
+            MathJax.Hub.Register.MessageHook("End Process", function () {
+                presenter.resetFonts();
+            });
             presenter.$container.html(presenter.configuration.mathML);
         }
+    };
+
+    presenter.resetFonts = function() {
+        presenter.$container.find('.math').each(function(){
+            var $this = $(this);
+            var fonts = ['Arial',
+                'stix', //Classic
+                'Courier New',
+                'Tahoma',
+                'Times New Roman',
+                'Verdana'];
+            for (var i=0; i < fonts.length; i++) {
+                if ($this.css('font-family') == fonts[i]) {
+                    $this.find('*').css('font-family', fonts[i])
+                }
+            }
+        });
     };
 
     presenter.destroy = function (event) {
