@@ -76,8 +76,9 @@ function AddonEditableWindow_create() {
         var title = presenter.configuration.model.title;
         var headerStyle = presenter.configuration.model.headerStyle;
         var $header = $container.find(".header");
+        var $headerText = $container.find(".header-text");
 
-        $header.text(title);
+        $headerText.text(title);
         $header.addClass(headerStyle);
 
         if (presenter.configuration.hasVideo) {
@@ -305,71 +306,71 @@ function AddonEditableWindow_create() {
     };
 
     presenter.handleHtmlContent = function () {
-            var height = presenter.configuration.model.height;
-            var width = presenter.configuration.model.width;
-            var indexFile = presenter.configuration.model.indexFile;
-            var textareaId = presenter.configuration.textareaId;
-            var $view = $(presenter.configuration.view);
+        var height = presenter.configuration.model.height;
+        var width = presenter.configuration.model.width;
+        var indexFile = presenter.configuration.model.indexFile;
+        var textareaId = presenter.configuration.textareaId;
+        var $view = $(presenter.configuration.view);
 
-            var iframe = $view.find(".content-iframe");
-            var separator = (indexFile.indexOf("?") === -1) ? "?" : "&";
-            var source = indexFile + separator + "no_gcs=true";
+        var iframe = $view.find(".content-iframe");
+        var separator = (indexFile.indexOf("?") === -1) ? "?" : "&";
+        var source = indexFile + separator + "no_gcs=true";
 
-            iframe.attr("onload", function () {
-                presenter.configuration.isIframeLoaded = true;
+        iframe.attr("onload", function () {
+            presenter.configuration.isIframeLoaded = true;
+        });
+        iframe.attr("src", source);
+
+        $view.css("z-index", "1");
+
+        var textarea = $view.find("textarea");
+        textarea.attr("id", textareaId);
+
+        var widthOffset = presenter.configuration.widthOffset;
+        var heightOffset = presenter.configuration.heightOffset;
+
+        tinymce.init({
+            selector: "#" + textareaId,
+            plugins: "textcolor link",
+            toolbar: "backcolor",
+            textcolor_map: [
+                "ffff00", "Yellow",
+                "87ceeb", "Blue",
+                "ffb6c1", "Red",
+                "90ee90", "Green",
+                "ffffff", "White"
+            ],
+            custom_colors: false,
+            statusbar: false,
+            menubar: false,
+            height: height - heightOffset,
+            width: width - widthOffset,
+            setup: function (editor) {
+                if (!presenter.configuration.model.editingEnabled) {
+                    editor.on('keydown keypress keyup', function (e) {
+                        e.preventDefault();
+                    });
+                }
+            }
+        }).then(function (editors) {
+            presenter.configuration.editor = editors[0];
+            presenter.configuration.isTinyMceLoaded = true;
+        });
+
+        var timeout = setTimeout(function () {
+            presenter.fetchIframeContent(function (content) {
+                var isInitialized = presenter.configuration.state.isInitialized;
+                if (!isInitialized) {
+                    presenter.configuration.contentLoadingLock = true;
+                    presenter.fillActiveTinyMce(content);
+                    presenter.configuration.state.isInitialized = true;
+                    presenter.configuration.state.content = content;
+                    presenter.configuration.contentLoadingLock = false;
+                }
+                presenter.removeIframe();
             });
-            iframe.attr("src", source);
-
-            $view.css("z-index", "1");
-
-            var textarea = $view.find("textarea");
-            textarea.attr("id", textareaId);
-
-            var widthOffset = presenter.configuration.widthOffset;
-            var heightOffset = presenter.configuration.heightOffset;
-
-                tinymce.init({
-                    selector: "#" + textareaId,
-                    plugins: "textcolor",
-                    toolbar: "backcolor",
-                    textcolor_map: [
-                        "ffff00", "Yellow",
-                        "87ceeb", "Blue",
-                        "ffb6c1", "Red",
-                        "90ee90", "Green",
-                        "ffffff", "White"
-                    ],
-                    custom_colors: false,
-                    statusbar: false,
-                    menubar: false,
-                    height: height - heightOffset,
-                    width: width - widthOffset,
-                    setup: function (editor) {
-                        if (!presenter.configuration.model.editingEnabled) {
-                            editor.on('keydown keypress keyup', function (e) {
-                                e.preventDefault();
-                            });
-                        }
-                    }
-                }).then(function (editors) {
-                    presenter.configuration.editor = editors[0];
-                    presenter.configuration.isTinyMceLoaded = true;
-                });
-
-            var timeout = setTimeout(function () {
-                presenter.fetchIframeContent(function (content) {
-                    var isInitialized = presenter.configuration.state.isInitialized;
-                    if (!isInitialized) {
-                        presenter.configuration.contentLoadingLock = true;
-                        presenter.fillActiveTinyMce(content);
-                        presenter.configuration.state.isInitialized = true;
-                        presenter.configuration.state.content = content;
-                        presenter.configuration.contentLoadingLock = false;
-                    }
-                    presenter.removeIframe();
-                });
-            }, 3000);
-            presenter.configuration.timeouts.push(timeout);
+        }, 3000);
+        presenter.configuration.timeouts.push(timeout);
     };
 
     presenter.createPreview = function (view, model) {
@@ -525,7 +526,26 @@ function AddonEditableWindow_create() {
 
         var parsedContent = documentContent.getElementsByTagName("body")[0].innerHTML;
         tinymce.get(textareaId).getBody().innerHTML = parsedContent;
+        presenter.linkAnchors();
+
         presenter.configuration.isTinyMceFilled = true;
+    };
+
+    presenter.linkAnchors = function () {
+        var $view = $(presenter.configuration.view);
+        var $anchors = $view.find("iframe").contents().find("a");
+        for (var i = 0; i < $anchors.length; i++) {
+            var anchor = $anchors[i];
+            anchor.style.cursor = "pointer";
+            anchor.addEventListener("click", function () {
+                var anchorElement = document.createElement("a");
+                anchorElement.href = anchor.href;
+                anchorElement.target = '_blank';
+                var anchorEvent = document.createEvent("MouseEvents");
+                anchorEvent.initEvent("click", false, true);
+                anchorElement.dispatchEvent(anchorEvent);
+            });
+        }
     };
 
     presenter.removeIframe = function () {
@@ -582,10 +602,10 @@ function AddonEditableWindow_create() {
     };
 
     presenter.hide = function () {
-            presenter.configuration.isVisible = false;
-            $(presenter.configuration.view).hide();
-            presenter.stopAudio();
-            presenter.stopVideo();
+        presenter.configuration.isVisible = false;
+        $(presenter.configuration.view).hide();
+        presenter.stopAudio();
+        presenter.stopVideo();
     };
 
     presenter.isVisible = function () {
