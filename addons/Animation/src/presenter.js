@@ -4,6 +4,9 @@ function AddonAnimation_create (){
     var presenter = function () {};
     presenter.DOMElements = {};
     presenter.configuration = {};
+    
+    var isWCAGOn = false;
+    var isSpeaking = false; //tts is currently playing the alternative text. This does NOT apply to the preview alt text
 
     presenter.ERROR_CODES = {
         'AI_01': "Animation image wasn't set or was set incorrectly!",
@@ -44,7 +47,8 @@ function AddonAnimation_create (){
     presenter.eventBus = null;
 
     presenter.upgradeModel = function (model) {
-        return presenter.addFramesToLabels(model);
+        var upgradedModel = presenter.addFramesToLabels(model);
+        return presenter.addTextToSpeech(upgradedModel);
     };
 
     presenter.addFramesToLabels = function (model) {
@@ -58,6 +62,55 @@ function AddonAnimation_create (){
         }
 
         return upgradedModel;
+    };
+
+    presenter.addTextToSpeech = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel['Alternative Text']) {
+            upgradedModel['Alternative Text'] = ''
+        }
+
+        if (!upgradedModel['Preview Alternative Text']) {
+            upgradedModel['Preview Alternative Text'] = ''
+        }
+
+        if (upgradedModel['speechTexts'] === undefined) {
+            upgradedModel['speechTexts'] = {
+                Stop: {Stop: "stop"}
+            };
+        }
+
+        if (upgradedModel['langAttribute'] === undefined) {
+            upgradedModel['langAttribute'] = '';
+        }
+
+        return upgradedModel;
+    };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            stop:  'stop'
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            stop:    getSpeechTextProperty(speechTexts['Stop']['Stop'], presenter.speechTexts.stop)
+        };
     };
 
     function setDOMElementsHrefsAndSelectors(view) {
@@ -343,7 +396,7 @@ function AddonAnimation_create (){
             } else {
                 presenter.configuration.animationState = presenter.ANIMATION_STATE.ENDED;
                 $.doTimeout(presenter.configuration.queueName, false);
-                presenter.sendEndAnimationEvent();
+                presenter.endAnimationHandler();
                 return false;
             }
         }
@@ -724,6 +777,8 @@ function AddonAnimation_create (){
     };
 
     presenter.validateModel = function(model) {
+        presenter.setSpeechTexts(model['speechTexts']);
+
         if (ModelValidationUtils.isStringEmpty(model["Preview image"])) {
             return { isError: true, errorCode: "PI_01" };
         }
@@ -782,7 +837,10 @@ function AddonAnimation_create (){
             isVisibleByDefault: isVisibleByDefault,
             isVisible: isVisibleByDefault,
             watermarkOptions: validatedOptions,
-            addonID: model.ID
+            addonID: model.ID,
+            altText: model['Alternative Text'],
+            altTextPreview: model['Preview Alternative Text'],
+            lang: model['langAttribute']
         };
     };
 
@@ -869,6 +927,77 @@ function AddonAnimation_create (){
         };
         
         presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.endAnimationHandler = function () {
+        if (presenter.configuration.animationState == presenter.ANIMATION_STATE.ENDED && (!isWCAGOn || !isSpeaking)) {
+            presenter.sendEndAnimationEvent();
+            if (isWCAGOn) {
+                presenter.stop();
+            }
+        }
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function speakCallback() {
+        isSpeaking = false;
+        presenter.endAnimationHandler();
+    }
+
+    presenter.speak = function(data, callback) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speakWithCallback(data, callback);
+        }
+    };
+
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        event.preventDefault();
+
+        var keys = {
+            ENTER: 13,
+            SPACE: 32
+        };
+
+        var enter = function() {
+            if(!isShiftKeyDown) {
+                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.altTextPreview, presenter.configuration.lang)]);
+            }
+        };
+
+        var space = function() {
+            if (presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING) {
+                presenter.stop();
+                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.stop)]);
+            } else {
+                presenter.stop();
+                presenter.play();
+                isSpeaking = true;
+                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.altText, presenter.configuration.lang)], speakCallback);
+            }
+        };
+
+        var mapping = {};
+        mapping[keys.ENTER] = enter;
+        mapping[keys.SPACE] = space;
+
+        try {
+            mapping[keycode]();
+        } catch (er) {
+        }
     };
 
     return presenter;

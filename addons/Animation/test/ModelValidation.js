@@ -28,7 +28,15 @@ TestCase("Model validation", {
             }],
             "Watermark color": "",
             "Watermark opacity": "",
-            "Watermark size": ""
+            "Watermark size": "",
+            "langAttribute": "pl",
+            "Alternative Text": "test alt text",
+            "Preview Alternative Text": "test prev alt text",
+            speechTexts: {
+                Stop: {
+                    Stop: "test stop"
+                }
+            }
         };
     },
 
@@ -69,6 +77,11 @@ TestCase("Model validation", {
 
         assertFalse(validationResult.watermarkOptions.show);
         assertFalse(validationResult.watermarkOptions.clicked);
+
+        assertEquals("pl", validationResult.lang);
+        assertEquals("test alt text", validationResult.altText);
+        assertEquals("test prev alt text", validationResult.altTextPreview);
+        assertEquals({stop: "test stop"}, this.presenter.speechTexts)
     },
 
     'test do not reset on end': function () {
