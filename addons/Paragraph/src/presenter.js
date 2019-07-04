@@ -14,7 +14,8 @@ function AddonParagraph_create() {
 
     presenter.LANGUAGES = {
         DEFAULT: "en_GB",
-        FRENCH: "fr_FR"
+        FRENCH: "fr_FR",
+		FRENCH_PURE: "fr_FR_pure"
     };
 
     presenter.DEFAULTS = {
