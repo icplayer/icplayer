@@ -333,6 +333,7 @@ function AddonEditableWindow_create() {
             selector: "#" + textareaId,
             plugins: "textcolor link",
             toolbar: "backcolor",
+            language: "fr_FR_pure",
             textcolor_map: [
                 "ffff00", "Yellow",
                 "87ceeb", "Blue",
