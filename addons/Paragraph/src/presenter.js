@@ -14,8 +14,7 @@ function AddonParagraph_create() {
 
     presenter.LANGUAGES = {
         DEFAULT: "en_GB",
-        FRENCH: "fr_FR",
-        FRENCH_PURE: "fr_FR_pure"
+        FRENCH: "fr_FR"
     };
 
     presenter.DEFAULTS = {
@@ -168,18 +167,6 @@ function AddonParagraph_create() {
     presenter.getTinymceInitConfiguration = function AddonParagraph_getTinyMceConfiguration(selector) {
         var layoutType = presenter.configuration.layoutType;
 
-        var language = layoutType === "Default"
-            ? presenter.LANGUAGES.DEFAULT
-            : layoutType === "French_pure"
-                ? presenter.LANGUAGES.FRENCH_PURE
-                : presenter.LANGUAGES.FRENCH;
-
-        var toolbar = layoutType === "Default"
-            ? presenter.configuration.toolbar
-            : layoutType === "French"
-                ? presenter.getSpecifyToolbar(layoutType)
-                : presenter.configuration.toolbar;
-
         return {
             plugins: presenter.configuration.plugins,
             selector : selector,
@@ -187,10 +174,10 @@ function AddonParagraph_create() {
             height: presenter.configuration.textAreaHeight,
             statusbar: false,
             menubar: false,
-            toolbar: toolbar,
+            toolbar: layoutType === "Default" ? presenter.configuration.toolbar : presenter.getSpecifyToolbar(layoutType),
             content_css: presenter.configuration.content_css,
             setup: presenter.setup,
-            language: language
+            language: layoutType === "Default" ? presenter.LANGUAGES.DEFAULT : presenter.LANGUAGES.FRENCH
         };
     };
 
@@ -577,7 +564,7 @@ function AddonParagraph_create() {
 
         ed.on("NodeChange", presenter.onNodeChange);
         ed.on("keyup", presenter.onTinymceChange);
-        if (presenter.configuration.layoutType === "French") {
+        if (presenter.configuration.layoutType !== "Default") {
             ed.addButton('customBold', presenter.createButton(this, "Bold"));
             ed.addButton('customItalic', presenter.createButton(this, "Italic"));
             ed.addButton('customUnderline', presenter.createButton(this, "Underline"));
@@ -689,7 +676,7 @@ function AddonParagraph_create() {
         presenter.tinyMceContainer.css('border', 0);
 
 
-        if (presenter.configuration.layoutType === "French") {
+        if (presenter.configuration.layoutType !== "Default") {
             presenter.addStylesToButton();
         }
 
