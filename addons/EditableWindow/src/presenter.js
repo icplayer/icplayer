@@ -76,8 +76,9 @@ function AddonEditableWindow_create() {
         var title = presenter.configuration.model.title;
         var headerStyle = presenter.configuration.model.headerStyle;
         var $header = $container.find(".header");
+        var $headerText = $container.find(".header-text");
 
-        $header.text(title);
+        $headerText.text(title);
         $header.addClass(headerStyle);
 
         if (presenter.configuration.hasVideo) {

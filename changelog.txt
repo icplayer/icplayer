@@ -1,3 +1,5 @@
+2019-07-03 Changed structure of a Editable Window
+2019-06-27 Fixed saving and closing notes on mobile devices in IWB Toolbar module
 2019-06-19 Fixed anchors in Editable Window
 2019-06-11 Fixed issue with Report when multiple pages have the same name
 2019-06-11 Fixed issue with background color in show answers mode of Text Coloring
