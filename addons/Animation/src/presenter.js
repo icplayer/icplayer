@@ -979,7 +979,7 @@ function AddonAnimation_create (){
         };
 
         var space = function() {
-            if (presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING) {
+            if (presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING || isSpeaking) {
                 presenter.stop();
                 presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.stop)]);
             } else {
