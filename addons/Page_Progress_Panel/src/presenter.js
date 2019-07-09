@@ -216,19 +216,27 @@ function AddonPage_Progress_Panel_create(){
         presenter.setVisibility(false);
     };
 
-	presenter.setVisibility = function(isVisible) {
+    presenter.setVisibility = function(isVisible) {
         presenter.state.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-	presenter.updateVisibility = function() {
+    presenter.updateVisibility = function() {
         (presenter.state.isVisible) ? presenter.show() : presenter.hide();
+    };
+	
+    presenter.updateMistakes = function() {
+	presenter.lastScores.sumOfMistakes = getPageScore().sumOfMistakes;
+	if (presenter.configuration.showMistakes) {
+		presenter.$mistakes.find('.value').html(presenter.lastScores.sumOfMistakes);
+	}
     };
 
     presenter.executeCommand = function(name, params) {
         var commands = {
             'show' : presenter.show,
             'hide' : presenter.hide,
+	    'updateMistakes' : presenter.updateMistakes,
         };
         Commands.dispatch(commands, name, params, presenter);
     };

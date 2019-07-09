@@ -1976,5 +1976,6 @@ var ice_dictionary_en = {
 	"EditableWindow_property_audio_file": "Audio file",
 	"EditableWindow_property_video_file": "Video file",
 	"EditableWindow_property_video_title": "Title",
-	"EditableWindow_property_header_style": "Header style"
+	"EditableWindow_property_header_style": "Header style",
+	"EditableWindow_property_editing_enabled" : "Editing enabled"
 };

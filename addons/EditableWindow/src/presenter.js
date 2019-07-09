@@ -31,37 +31,54 @@ function AddonEditableWindow_create() {
         }
     };
 
-    presenter.run = function (view, model) {
-        try {
-            presenter.configuration.view = view;
-            presenter.configuration.view.addEventListener('DOMNodeRemoved', presenter.destroy);
-            presenter.configuration.model = presenter.validModel(model);
+    // these values are numbers and won't have "px" ending
+    presenter.temporaryState = {
+        isFullScreen: false,
+        scrollTop: 0,
+        addonFullScreenHeight: 0,
+        addonTop: 0,
+        addonLeft: 0,
+        addonWidth: 0,
+        addonHeight: 0
+    };
 
-            if (presenter.configuration.model.isValid) {
-                presenter.configuration.textareaId = presenter.configuration.model.id + "-textarea";
-                presenter.configuration.hasHtml = presenter.configuration.model.indexFile !== "";
-                presenter.configuration.hasAudio = presenter.configuration.model.audioFile !== "";
-                presenter.configuration.hasVideo = presenter.configuration.model.videoFile !== "";
-                presenter.init();
-                presenter.hide();
-            } else {
-                $(view).html(presenter.configuration.model.errorMessage);
-            }
-        } catch (e) {
-            console.trace();
-            console.log(e);
+    presenter.run = function (view, model) {
+        presenter.configuration.view = view;
+        // container is the div that will be draggable and resizable
+        presenter.configuration.container = view.getElementsByClassName(presenter.cssClasses.container.getName())[0];
+        presenter.configuration.$container = $(presenter.configuration.container);
+
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
+        presenter.configuration.model = presenter.validModel(model);
+
+        if (presenter.configuration.model.isValid) {
+            presenter.configuration.container.style.width = presenter.configuration.model.width + 'px';
+            presenter.configuration.container.style.height = presenter.configuration.model.height + 'px';
+
+            presenter.configuration.textareaId = presenter.configuration.model.id + "-textarea";
+            presenter.configuration.hasHtml = presenter.configuration.model.indexFile !== "";
+            presenter.configuration.hasAudio = presenter.configuration.model.audioFile !== "";
+            presenter.configuration.hasVideo = presenter.configuration.model.videoFile !== "";
+            presenter.temporaryState.iFrameOffset = window.iframeSize.frameOffset || 0;
+
+            presenter.init();
+            presenter.hide();
+        } else {
+            $(view).html(presenter.configuration.model.errorMessage);
         }
     };
 
     presenter.init = function () {
         var $view = $(presenter.configuration.view);
+        var $container = presenter.configuration.$container;
         var hasHtml = presenter.configuration.hasHtml;
         var textareaId = presenter.configuration.textareaId;
         var title = presenter.configuration.model.title;
         var headerStyle = presenter.configuration.model.headerStyle;
-        var $header = $view.find(".header");
+        var $header = $container.find(".header");
+        var $headerText = $container.find(".header-text");
 
-        $header.text(title);
+        $headerText.text(title);
         $header.addClass(headerStyle);
 
         if (presenter.configuration.hasVideo) {
@@ -69,35 +86,41 @@ function AddonEditableWindow_create() {
             presenter.configuration.hasHtml = false;
             presenter.configuration.hasAudio = false;
         } else {
-            $view.find(".video-wrapper").remove();
+            $container.find(".video-wrapper").remove();
         }
 
         if (presenter.configuration.hasAudio) {
             presenter.handleAudioContent();
         } else {
-            $view.find("audio").remove();
+            $container.find("audio").remove();
         }
 
-        // if (presenter.configuration.hasHtml) {
-        //     presenter.handleHtmlContent();
-        // } else {
-        //     $view.find(".content-iframe").remove();
-        //     $view.find("textarea").remove();
-        // }
+        if (presenter.configuration.hasHtml) {
+            presenter.handleHtmlContent();
+        } else {
+            $view.find(".content-iframe").remove();
+            $view.find("textarea").remove();
+        }
 
-        $view.css("z-index", "1");
+        $container.css("z-index", "1");
 
-        $view.draggable({
+        // containment option disallows moving window outside of specifed dom element
+        $container.draggable({
+            containment: 'document',
             start: function () {
                 presenter.show();
-            }
+            },
+            drag: presenter.updateButtonMenuPosition,
+            stop: presenter.updateButtonMenuPosition
         });
 
-        $view.resizable({
+        $container.resizable({
             minHeight: presenter.configuration.minHeight,
             minWidth: presenter.configuration.minWidth,
             maxWidth: presenter.configuration.maxWidth,
             resize: function (event, ui) {
+                presenter.changeViewPositionToFixed();
+                presenter.updateButtonMenuPosition();
                 if (hasHtml) {
                     var heightOffset = presenter.configuration.heightOffset;
                     var widthOffset = presenter.configuration.widthOffset;
@@ -108,23 +131,158 @@ function AddonEditableWindow_create() {
             },
             start: function (event, ui) {
                 if (hasHtml) {
-                    $view.find("iframe").css("visibility", "hidden")
+                    $container.find("iframe").css("visibility", "hidden")
                 }
             },
             stop: function (event, ui) {
+                presenter.changeViewPositionToFixed();
+                presenter.updateButtonMenuPosition();
                 if (hasHtml) {
-                    $view.find("iframe").css("visibility", "visible")
+                    $container.find("iframe").css("visibility", "visible")
                 }
             },
         });
 
-        $view.find(".addon-editable-close-button").click(function () {
-            presenter.hide();
-        });
+        presenter.addHandlers($view);
+    };
 
-        $view.find(".addon-editable-window-wrapper").click(function () {
-            presenter.show();
+
+    // because draggable prevents event bubbling, button wasn't clickable on android
+    // menu with buttons is now outside of draggable container and its position needs to be updated when container changes position or size
+    presenter.updateButtonMenuPosition = function () {
+        var $view = $(presenter.configuration.view);
+        var $buttonMenu = $view.find(presenter.cssClasses.buttonMenu.getSelector());
+        // selector needs to be scoped to addon id, otherwise if more than one addon were added to lesson then it wouldn't properly position buttonMenu
+        var buttonParentSelector = '#' + presenter.configuration.model.id + ' ' + presenter.cssClasses.container.getSelector();
+
+        $buttonMenu.position({
+            my: "left top",
+            at: "right top",
+            of: buttonParentSelector,
+            collision: "fit"
         });
+    };
+
+    presenter.addHandlers = function ($view) {
+        $view.find(presenter.cssClasses.closeButton.getSelector()).click(presenter.closeButtonClickedCallback);
+        $view.find(presenter.cssClasses.fullScreenButton.getSelector()).click(presenter.fullScreenButtonClickedCallback);
+        $view.find(presenter.cssClasses.wrapper.getSelector()).click(presenter.viewClickedCallback);
+    };
+
+    presenter.viewClickedCallback = function () {
+        presenter.show();
+    };
+
+    presenter.closeButtonClickedCallback = function () {
+        var $view = presenter.configuration.$container;
+        var $button = $view.find(presenter.cssClasses.fullScreenButton.getSelector());
+        if (presenter.temporaryState.isFullScreen) {
+            presenter.closeFullScreen($view, $button);
+        }
+
+        presenter.hide();
+    };
+
+    presenter.fullScreenButtonClickedCallback = function () {
+        var $view = presenter.configuration.$container;
+        var $button = $(presenter.configuration.view).find(presenter.cssClasses.fullScreenButton.getSelector());
+
+        if (presenter.temporaryState.isFullScreen) {
+            presenter.closeFullScreen($view, $button);
+        } else {
+            presenter.openFullScreen($view, $button);
+        }
+
+        presenter.updateButtonMenuPosition();
+    };
+
+    presenter.openFullScreen = function ($view, $button) {
+        // so height of the window will take whole available space
+        var height = window.iframeSize.windowInnerHeight || presenter.configuration.model.width;
+
+        presenter.temporaryState.isFullScreen = true;
+
+        presenter.saveViewPropertiesToState($view);
+        $view.height(height);
+        presenter.addFullScreenClasses($view, $button);
+
+        presenter.updateFullScreenWindowTop();
+        presenter.resizeTinyMce($view.width(), height);
+    };
+
+    presenter.closeFullScreen = function ($view, $button) {
+        presenter.temporaryState.isFullScreen = false;
+
+        presenter.setViewPropertiesFromState($view);
+        presenter.removeFullScreenClasses($view, $button);
+        presenter.resizeTinyMce($view.width(), $view.height());
+    };
+
+    // save current size and position to state
+    presenter.saveViewPropertiesToState = function ($view) {
+        presenter.temporaryState.addonWidth = $view.width();
+        presenter.temporaryState.addonHeight = $view.height();
+        presenter.temporaryState.addonTop = $view.position().top;
+        presenter.temporaryState.addonLeft = $view.position().left;
+    };
+
+    // restore size and position before going full screen, also add current scroll value so window is visible at once
+    presenter.setViewPropertiesFromState = function ($view) {
+        $view.width(presenter.temporaryState.addonWidth);
+        $view.height(presenter.temporaryState.addonHeight);
+        $view.css({
+            top: presenter.temporaryState.addonTop + presenter.temporaryState.scrollTop,
+            left: presenter.temporaryState.addonLeft
+        });
+    };
+
+    presenter.addFullScreenClasses = function ($view, $button) {
+        $button.removeClass(presenter.cssClasses.openFullScreenButton.getName());
+        $button.addClass(presenter.cssClasses.closeFullScreenButton.getName());
+        $view.addClass(presenter.cssClasses.containerFullScreen.getName());
+
+        $view.resizable('disable');
+        $view.draggable('disable');
+    };
+
+    presenter.removeFullScreenClasses = function ($view, $button) {
+        $button.removeClass(presenter.cssClasses.closeFullScreenButton.getName());
+        $button.addClass(presenter.cssClasses.openFullScreenButton.getName());
+        $view.removeClass(presenter.cssClasses.containerFullScreen.getName());
+
+        $view.resizable('enable');
+        $view.draggable('enable');
+    };
+
+    presenter.resizeTinyMce = function (width, height) {
+        if (presenter.configuration.isTinyMceLoaded && presenter.configuration.editor) {
+            // tinymce can be smaller than whole window
+            width -= presenter.configuration.widthOffset;
+            height -= presenter.configuration.heightOffset;
+            presenter.configuration.editor.theme.resizeTo(width, height);
+        }
+    };
+
+    // during scroll window needs to be repositioned, so it blocks whole lesson view
+    presenter.updateFullScreenWindowTop = function () {
+        var $view = presenter.configuration.$container;
+        var top = presenter.temporaryState.scrollTop;
+        var properties = {
+            top: top
+        };
+
+        // this is needed when embedding page has header and iFrame is not at the top of the page
+        if (top > presenter.temporaryState.iFrameOffset) {
+            properties.top = (top - presenter.temporaryState.iFrameOffset) + 'px';
+        }
+
+        // on android scroll down/up can hide/show navbar which adds/subtracts available height
+        if (MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
+            properties.height = window.iframeSize.windowInnerHeight || presenter.configuration.model.width;
+        }
+
+        $view.css(properties);
+        presenter.updateButtonMenuPosition();
     };
 
     presenter.handleVideoContent = function () {
@@ -142,75 +300,78 @@ function AddonEditableWindow_create() {
         presenter.configuration.heightOffset += 35;
     };
 
+    // jQuery changes position of element to absolute when it is both resizable and draggable after resize
+    presenter.changeViewPositionToFixed = function () {
+        presenter.configuration.container.style.position = 'fixed';
+    };
+
     presenter.handleHtmlContent = function () {
-        try {
-            var height = presenter.configuration.model.height;
-            var width = presenter.configuration.model.width;
-            var indexFile = presenter.configuration.model.indexFile;
-            var textareaId = presenter.configuration.textareaId;
-            var $view = $(presenter.configuration.view);
+        var height = presenter.configuration.model.height;
+        var width = presenter.configuration.model.width;
+        var indexFile = presenter.configuration.model.indexFile;
+        var textareaId = presenter.configuration.textareaId;
+        var $view = $(presenter.configuration.view);
 
-            var iframe = $view.find(".content-iframe");
-            var separator = (indexFile.indexOf("?") === -1) ? "?" : "&";
-            var source = indexFile + separator + "no_gcs=true";
+        var iframe = $view.find(".content-iframe");
+        var separator = (indexFile.indexOf("?") === -1) ? "?" : "&";
+        var source = indexFile + separator + "no_gcs=true";
 
-            iframe.attr("onload", function () {
-                presenter.configuration.isIframeLoaded = true;
-            });
-            iframe.attr("src", source);
+        iframe.attr("onload", function () {
+            presenter.configuration.isIframeLoaded = true;
+        });
+        iframe.attr("src", source);
 
-            $view.css("z-index", "1");
+        $view.css("z-index", "1");
 
-            var textarea = $view.find("textarea");
-            $view.find("textarea").css("visibility", "visible");
-            textarea.attr("id", textareaId);
+        var textarea = $view.find("textarea");
+        textarea.attr("id", textareaId);
 
-            var widthOffset = presenter.configuration.widthOffset;
-            var heightOffset = presenter.configuration.heightOffset;
+        var widthOffset = presenter.configuration.widthOffset;
+        var heightOffset = presenter.configuration.heightOffset;
 
-            if (presenter.configuration.editorIsInitialized != true) {
-                tinymce.init({
-                    selector: "#" + textareaId,
-                    plugins: "textcolor",
-                    toolbar: "backcolor",
-                    textcolor_map: [
-                        "ffff00", "Yellow",
-                        "87ceeb", "Blue",
-                        "ffb6c1", "Red",
-                        "90ee90", "Green",
-                        "ffffff", "White"
-                    ],
-                    custom_colors: false,
-                    statusbar: false,
-                    menubar: false,
-                    height: height - heightOffset,
-                    width: width - widthOffset,
-                }).then(function (editors) {
-                    presenter.configuration.editorIsInitialized = true;
-                    presenter.configuration.editor = editors[0];
-                    presenter.configuration.isTinyMceLoaded = true;
-                });
+        tinymce.init({
+            selector: "#" + textareaId,
+            plugins: "textcolor link",
+            toolbar: "backcolor",
+            language: "fr_FR_pure",
+            textcolor_map: [
+                "ffff00", "Yellow",
+                "87ceeb", "Blue",
+                "ffb6c1", "Red",
+                "90ee90", "Green",
+                "ffffff", "White"
+            ],
+            custom_colors: false,
+            statusbar: false,
+            menubar: false,
+            height: height - heightOffset,
+            width: width - widthOffset,
+            setup: function (editor) {
+                if (!presenter.configuration.model.editingEnabled) {
+                    editor.on('keydown keypress keyup', function (e) {
+                        e.preventDefault();
+                    });
+                }
             }
+        }).then(function (editors) {
+            presenter.configuration.editor = editors[0];
+            presenter.configuration.isTinyMceLoaded = true;
+        });
 
-            var timeout = setTimeout(function () {
-                presenter.fetchIframeContent(function (content) {
-                    var isInitialized = presenter.configuration.state.isInitialized;
-                    if (!isInitialized) {
-                        presenter.configuration.contentLoadingLock = true;
-                        presenter.fillActiveTinyMce(content);
-                        presenter.configuration.state.isInitialized = true;
-                        presenter.configuration.state.content = content;
-                        presenter.configuration.contentLoadingLock = false;
-                    }
-                    presenter.removeIframe();
-                });
-            }, 3000);
-            presenter.configuration.timeouts.push(timeout);
-        } catch (e) {
-            console.log(e);
-            console.trace();
-            console.log(e.stack);
-        }
+        var timeout = setTimeout(function () {
+            presenter.fetchIframeContent(function (content) {
+                var isInitialized = presenter.configuration.state.isInitialized;
+                if (!isInitialized) {
+                    presenter.configuration.contentLoadingLock = true;
+                    presenter.fillActiveTinyMce(content);
+                    presenter.configuration.state.isInitialized = true;
+                    presenter.configuration.state.content = content;
+                    presenter.configuration.contentLoadingLock = false;
+                }
+                presenter.removeIframe();
+            });
+        }, 3000);
+        presenter.configuration.timeouts.push(timeout);
     };
 
     presenter.createPreview = function (view, model) {
@@ -293,6 +454,7 @@ function AddonEditableWindow_create() {
             videoFile: model['video'],
             title: model['title'] ? model['title'] : "",
             headerStyle: model['headerStyle'] ? model['headerStyle'] : "",
+            editingEnabled: ModelValidationUtils.validateBoolean(model["editingEnabled"])
         }
     };
 
@@ -365,7 +527,26 @@ function AddonEditableWindow_create() {
 
         var parsedContent = documentContent.getElementsByTagName("body")[0].innerHTML;
         tinymce.get(textareaId).getBody().innerHTML = parsedContent;
+        presenter.linkAnchors();
+
         presenter.configuration.isTinyMceFilled = true;
+    };
+
+    presenter.linkAnchors = function () {
+        var $view = $(presenter.configuration.view);
+        var $anchors = $view.find("iframe").contents().find("a");
+        for (var i = 0; i < $anchors.length; i++) {
+            var anchor = $anchors[i];
+            anchor.style.cursor = "pointer";
+            anchor.addEventListener("click", function () {
+                var anchorElement = document.createElement("a");
+                anchorElement.href = anchor.href;
+                anchorElement.target = '_blank';
+                var anchorEvent = document.createEvent("MouseEvents");
+                anchorEvent.initEvent("click", false, true);
+                anchorElement.dispatchEvent(anchorEvent);
+            });
+        }
     };
 
     presenter.removeIframe = function () {
@@ -373,22 +554,27 @@ function AddonEditableWindow_create() {
     };
 
     presenter.centerPosition = function () {
-        var $view = $(presenter.configuration.view);
-        var width = $view.find(".addon-editable-window-wrapper").width();
-        var icPageWidth = $(".ic_page").width();
+        var $view = presenter.configuration.$container;
+        var width = $view.width();
+        var availableWidth = presenter.getAvailableWidth();
 
-        var scrollY;
-        try {
-            scrollY = presenter.configuration.playerController.iframeScroll();
-        } catch (e) {
-            scrollY = 0;
-            console.error(e.errorMessage);
-        }
+        var scrollY = presenter.temporaryState.scrollTop;
 
         var topOffset = scrollY + 25;
-        var leftOffset = (icPageWidth - width) / 2;
+        var leftOffset = (availableWidth - width) / 2;
 
-        $view.css({top: topOffset, left: leftOffset, right: "", bottom: ""});
+        $view.css({
+            top: topOffset + 'px',
+            left: leftOffset + 'px',
+            right: "",
+            bottom: ""
+        });
+
+        presenter.updateButtonMenuPosition();
+    };
+
+    presenter.getAvailableWidth = function () {
+        return $(window).width();
     };
 
     presenter.show = function () {
@@ -401,6 +587,7 @@ function AddonEditableWindow_create() {
 
         $view.style("z-index", "3");
         $view.show();
+        presenter.updateButtonMenuPosition();
 
         eventBus.sendEvent('ValueChanged', {
             'source': id,
@@ -413,24 +600,13 @@ function AddonEditableWindow_create() {
     presenter.openPopup = function () {
         presenter.show();
         presenter.centerPosition();
-        if (presenter.configuration.hasHtml) {
-            presenter.handleHtmlContent();
-        } else {
-            $view.find(".content-iframe").remove();
-            $view.find("textarea").remove();
-        }
     };
 
     presenter.hide = function () {
-        try {
-            presenter.configuration.isVisible = false;
-            $(presenter.configuration.view).hide();
-            presenter.stopAudio();
-            presenter.stopVideo();
-        } catch (err) {
-            console.trace();
-            console.log(err);
-        }
+        presenter.configuration.isVisible = false;
+        $(presenter.configuration.view).hide();
+        presenter.stopAudio();
+        presenter.stopVideo();
     };
 
     presenter.isVisible = function () {
@@ -441,9 +617,18 @@ function AddonEditableWindow_create() {
         presenter.configuration.playerController = controller;
         presenter.configuration.eventBus = presenter.configuration.playerController.getEventBus();
         presenter.configuration.eventBus.addEventListener('ValueChanged', this);
+        presenter.configuration.eventBus.addEventListener('ScrollEvent', this);
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
+        if (eventName === 'ValueChanged') {
+            presenter.handleValueChanged(eventData);
+        } else if (eventName === 'ScrollEvent') {
+            presenter.handleScrollEvent(eventData);
+        }
+    };
+
+    presenter.handleValueChanged = function (eventData) {
         var value = eventData.value;
         var source = eventData.source;
         var id = presenter.configuration.model.id;
@@ -452,6 +637,15 @@ function AddonEditableWindow_create() {
 
         if (value === "move-editable-windows" && source !== id) {
             $view.style("z-index", "1");
+        }
+    };
+
+    presenter.handleScrollEvent = function (eventData) {
+        var scrollValue = eventData.value;
+        presenter.temporaryState.scrollTop = parseInt(scrollValue, 10);
+
+        if (presenter.temporaryState.isFullScreen) {
+            presenter.updateFullScreenWindowTop();
         }
     };
 
@@ -505,6 +699,8 @@ function AddonEditableWindow_create() {
         if (event.target === presenter.configuration.view) {
             presenter.configuration.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
+            presenter.removeCallbacks();
+
             var timeouts = presenter.configuration.timeouts;
             for (var i = 0; i < timeouts.length; i++) {
                 clearTimeout(timeouts[i]);
@@ -523,8 +719,40 @@ function AddonEditableWindow_create() {
             }
 
             $(presenter.configuration.view).off();
+            presenter.configuration.$container = null;
+            presenter.configuration.container = null;
             presenter.configuration = null;
         }
+    };
+
+    presenter.removeCallbacks = function () {
+        $view.off('click', presenter.cssClasses.closeButton.getSelector(), presenter.closeButtonClickedCallback);
+        $view.off('click', presenter.cssClasses.fullScreenButton.getSelector(), presenter.fullScreenButtonClickedCallback);
+        $view.off('click', presenter.cssClasses.wrapper.getSelector(), presenter.viewClickedCallback);
+    };
+
+    // small util class for aggregating classes and getting their selectors
+    presenter.CssClass = function CssClass(name) {
+        this.name = name;
+    };
+
+    presenter.CssClass.prototype.getSelector = function () {
+        return "." + this.name;
+    };
+
+    presenter.CssClass.prototype.getName = function () {
+        return this.name;
+    };
+
+    presenter.cssClasses = {
+        container: new presenter.CssClass("addon-editable-window-container"),
+        containerFullScreen: new presenter.CssClass("addon-editable-window-container-full-screen"),
+        closeButton: new presenter.CssClass("addon-editable-close-button"),
+        fullScreenButton: new presenter.CssClass("addon-editable-full-screen-button"),
+        openFullScreenButton: new presenter.CssClass("addon-editable-open-full-screen-button"),
+        closeFullScreenButton: new presenter.CssClass("addon-editable-close-full-screen-button"),
+        wrapper: new presenter.CssClass("addon-editable-window-wrapper"),
+        buttonMenu: new presenter.CssClass("addon-editable-buttons-menu")
     };
 
     return presenter;
