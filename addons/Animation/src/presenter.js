@@ -945,11 +945,6 @@ function AddonAnimation_create (){
         isWCAGOn = isOn;
     };
 
-    function speakCallback() {
-        isSpeaking = false;
-        presenter.endAnimationHandler();
-    }
-
     presenter.speak = function(data, callback) {
         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
 
@@ -957,7 +952,6 @@ function AddonAnimation_create (){
             tts.speakWithCallback(data, callback);
         }
     };
-
 
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
         event.preventDefault();
@@ -973,13 +967,18 @@ function AddonAnimation_create (){
             }
         };
 
+        var speakCallback = function () {
+            isSpeaking = false;
+            presenter.endAnimationHandler();
+        };
+
         var space = function() {
             if (presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING ||
                 presenter.configuration.animationState == presenter.ANIMATION_STATE.ENDED ||
                 isSpeaking) {
-                isSpeaking = false;
                 presenter.stop();
                 presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.stop)]);
+                isSpeaking = false;
             } else {
                 presenter.stop();
                 presenter.play();
