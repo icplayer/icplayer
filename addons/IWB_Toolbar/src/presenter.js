@@ -80,6 +80,7 @@ function AddonIWB_Toolbar_create() {
 
     presenter.zoomConfiguration = {
         initialWindowHeight: 0,
+        initialNotScaledOffset: 0,
         playerInitialLeftOffset: 0,
         viewLeftOffset: 0
     };
@@ -188,7 +189,7 @@ function AddonIWB_Toolbar_create() {
         }
 
         if (eventName == 'PageLoaded') {
-            presenter.zoomConfiguration.initialWindowHeight = $("#_icplayer").height();
+            presenter.loadWindowSize();
         }
 
         if (eventName == "ResizeWindow") {
@@ -198,6 +199,16 @@ function AddonIWB_Toolbar_create() {
             var newViewLeftOffset = newPlayerLeftOffset - playerInitialLeftOffset + viewLeftOffset;
             presenter.$panel.offset({left: newViewLeftOffset});
         }
+    };
+
+    presenter.loadWindowSize = function(){
+        presenter.zoomConfiguration.initialWindowHeight = window.iframeSize.windowInnerHeight;
+        presenter.zoomConfiguration.initialNotScaledOffset = window.iframeSize.notScaledOffset;
+
+        if (presenter.zoomConfiguration.initialWindowHeight === 0 || isNaN(presenter.zoomConfiguration.initialNotScaledOffset))
+            setTimeout(function (e) {
+                presenter.loadWindowSize();
+            }, 200);
     };
 
     presenter.ERROR_CODES = {
@@ -1699,9 +1710,12 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.getZoomHeightScale = function () {
-        var zoomHeightScale = presenter.zoomConfiguration.initialWindowHeight / $(window).height();
-        zoomHeightScale = zoomHeightScale !== 0 ? zoomHeightScale : 1;
-        zoomHeightScale = zoomHeightScale !== Infinity ? zoomHeightScale : 1;
+        var initialSize = presenter.zoomConfiguration.initialWindowHeight - presenter.zoomConfiguration.initialNotScaledOffset;
+        var newSize = window.iframeSize.windowInnerHeight - presenter.zoomConfiguration.initialNotScaledOffset;
+
+        var zoomHeightScale = newSize / initialSize;
+
+        zoomHeightScale = zoomHeightScale === 0 || isNaN(zoomHeightScale) || !isFinite(zoomHeightScale) ? 1 : zoomHeightScale;
 
         return zoomHeightScale
     };
