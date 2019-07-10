@@ -1206,6 +1206,8 @@ var ice_dictionary_mx = {
 	"Slideshow_property_narration": "Narración",
 	"Slideshow_property_no_audio": "No audio",
 	"Slideshow_property_presentation_duration": "Presentation duration",
+	"Slideshow_property_audiodescription": "Audiodescription",
+	"Slideshow_property_lang": "Lang attribute",
 	"Standard_Shapes_info": "Permite insertar formas básicas a la presentación, incluyendo líneas, cuadrados, rectángulos, círculos o elipses.",
 	"Standard_Shapes_name": "Formas básicas",
 	"Standard_Shapes_property_shape": "Forma",

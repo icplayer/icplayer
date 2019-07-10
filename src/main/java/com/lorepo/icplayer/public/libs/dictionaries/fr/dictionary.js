@@ -1206,6 +1206,8 @@ var ice_dictionary_fr = {
     "Slideshow_property_narration": "Narration",
 	"Slideshow_property_no_audio": "No audio",
 	"Slideshow_property_presentation_duration": "Presentation duration",
+	"Slideshow_property_audiodescription": "Audiodescription",
+	"Slideshow_property_lang": "Lang attribute",
     "Standard_Shapes_info": "Permet d'intégrer des formes de base dans une présentation, comme des lignes, des carrés, des rectangles, des cercles, des ellipses.",
     "Standard_Shapes_name": "Formes standards",
     "Standard_Shapes_property_shape": "Forme",

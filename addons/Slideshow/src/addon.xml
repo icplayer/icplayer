@@ -9,6 +9,7 @@
 		<property name="Slides" nameLabel="Slideshow_property_slides" type="list">
 			<property name="Image" nameLabel="Slideshow_property_image" type="image" />
 			<property name="Start" nameLabel="Slideshow_property_start" type="string" />
+			<property name="Audiodescription" nameLabel="Slideshow_property_audiodescription" type="string" />
 		</property>
 		<property name="Texts" nameLabel="Slideshow_property_texts" type="list">
 			<property name="Text" nameLabel="Slideshow_property_text" type="string" isLocalized="true" />
@@ -25,5 +26,6 @@
 		<property name="Show slide" nameLabel="Slideshow_property_show_slide" type="string" />
 		<property name="Group next and previous buttons" nameLabel="Slideshow_property_group_next_and_previous_buttons" type="boolean" />
 		<property name="Narration" nameLabel="Slideshow_property_narration" type="narration" />
+		<property name="langAttribute" nameLabel="Slideshow_property_lang" type="string" />
 	</model>
 </addon>
