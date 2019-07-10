@@ -205,6 +205,7 @@ function AddonIWB_Toolbar_create() {
         presenter.zoomConfiguration.initialWindowHeight = window.iframeSize.windowInnerHeight;
         presenter.zoomConfiguration.initialNotScaledOffset = window.iframeSize.notScaledOffset;
 
+        // you must repeat the data reading when they are not loaded correctly
         if (presenter.zoomConfiguration.initialWindowHeight === 0 || isNaN(presenter.zoomConfiguration.initialNotScaledOffset))
             setTimeout(function (e) {
                 presenter.loadWindowSize();
