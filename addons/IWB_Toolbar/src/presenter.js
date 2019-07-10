@@ -79,6 +79,7 @@ function AddonIWB_Toolbar_create() {
     presenter.markerUsed = false;
 
     presenter.zoomConfiguration = {
+        initialWindowHeight: 0,
         playerInitialLeftOffset: 0,
         viewLeftOffset: 0
     };
@@ -184,6 +185,10 @@ function AddonIWB_Toolbar_create() {
     presenter.onEventReceived = function (eventName, eventData) {
         if (eventName == 'PageLoaded' && eventData.source == 'header') {
             presenter.headerLoadedDeferred.resolve();
+        }
+
+        if (eventName == 'PageLoaded') {
+            presenter.zoomConfiguration.initialWindowHeight = $("#_icplayer").height();
         }
 
         if (eventName == "ResizeWindow") {
@@ -1693,7 +1698,16 @@ function AddonIWB_Toolbar_create() {
         }
     };
 
+    presenter.getZoomHeightScale = function () {
+        var zoomHeightScale = presenter.zoomConfiguration.initialWindowHeight / $(window).height();
+        zoomHeightScale = zoomHeightScale !== 0 ? zoomHeightScale : 1;
+        zoomHeightScale = zoomHeightScale !== Infinity ? zoomHeightScale : 1;
+
+        return zoomHeightScale
+    };
+
     presenter.isOnScreen = function (element, windowElement) {
+        var zoomHeightScale = presenter.getZoomHeightScale();
         var topWindow = $(windowElement.parent.document);
         var coords = {
             top: topWindow.scrollTop(),
@@ -1705,6 +1719,8 @@ function AddonIWB_Toolbar_create() {
         var bounds = element.offset();
         bounds.right = bounds.left + element.outerWidth();
         bounds.bottom = bounds.top + element.outerHeight();
+
+        bounds.bottom /= zoomHeightScale;
 
         return !(coords.right < bounds.left || coords.left > bounds.right || coords.bottom < bounds.top || coords.top > bounds.bottom);
     };
@@ -1721,9 +1737,11 @@ function AddonIWB_Toolbar_create() {
                         scrollTop = $(this).scrollTop(),
                         min = presenter.$pagePanel.offset().top,
                         headerHeight = $('.ic_header').outerHeight(true) - 20,
-                        max = containerHeight + headerHeight;
+                        max = containerHeight + headerHeight,
+                        zoomHeightScale = presenter.getZoomHeightScale();
                     difference = scrollTop - lastScrollTop;
-                    panelTop = parseInt(presenter.$panel.css('top'), 10) + difference;
+
+                    panelTop = parseInt(presenter.$panel.css('top'), 10) + difference * zoomHeightScale;
                     lastScrollTop = scrollTop;
 
                     if (panelTop && (panelTop) > min && (panelTop) < max) {
