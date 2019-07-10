@@ -81,7 +81,7 @@ TestCase("Model validation", {
         assertEquals("pl", validationResult.lang);
         assertEquals("test alt text", validationResult.altText);
         assertEquals("test prev alt text", validationResult.altTextPreview);
-        assertEquals({stop: "test stop"}, this.presenter.speechTexts)
+        assertEquals({stop: "test stop"}, validationResult.speechTexts)
     },
 
     'test do not reset on end': function () {

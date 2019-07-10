@@ -76,13 +76,13 @@ function AddonAnimation_create (){
             upgradedModel['Preview Alternative Text'] = ''
         }
 
-        if (upgradedModel['speechTexts'] === undefined) {
+        if (!upgradedModel['speechTexts']) {
             upgradedModel['speechTexts'] = {
                 Stop: {Stop: "stop"}
             };
         }
 
-        if (upgradedModel['langAttribute'] === undefined) {
+        if (!upgradedModel['langAttribute']) {
             upgradedModel['langAttribute'] = '';
         }
 
@@ -92,7 +92,7 @@ function AddonAnimation_create (){
     function getSpeechTextProperty (rawValue, defaultValue) {
         var value = rawValue.trim();
 
-        if (value === undefined || value === null || value === '') {
+        if (value === '') {
             return defaultValue;
         }
 
@@ -100,17 +100,11 @@ function AddonAnimation_create (){
     }
 
     presenter.setSpeechTexts = function(speechTexts) {
-        presenter.speechTexts = {
-            stop:  'stop'
+        var speechTexts = {
+            stop:    getSpeechTextProperty(speechTexts['Stop']['Stop'], "Stop")
         };
 
-        if (!speechTexts) {
-            return;
-        }
-
-        presenter.speechTexts = {
-            stop:    getSpeechTextProperty(speechTexts['Stop']['Stop'], presenter.speechTexts.stop)
-        };
+        return speechTexts;
     };
 
     function setDOMElementsHrefsAndSelectors(view) {
@@ -777,7 +771,7 @@ function AddonAnimation_create (){
     };
 
     presenter.validateModel = function(model) {
-        presenter.setSpeechTexts(model['speechTexts']);
+        var speechTexts = presenter.setSpeechTexts(model['speechTexts']);
 
         if (ModelValidationUtils.isStringEmpty(model["Preview image"])) {
             return { isError: true, errorCode: "PI_01" };
@@ -840,7 +834,8 @@ function AddonAnimation_create (){
             addonID: model.ID,
             altText: model['Alternative Text'],
             altTextPreview: model['Preview Alternative Text'],
-            lang: model['langAttribute']
+            lang: model['langAttribute'],
+            speechTexts: speechTexts
         };
     };
 
@@ -979,13 +974,18 @@ function AddonAnimation_create (){
         };
 
         var space = function() {
-            if (presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING || isSpeaking) {
+            if (presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING ||
+                presenter.configuration.animationState == presenter.ANIMATION_STATE.ENDED ||
+                isSpeaking) {
+                isSpeaking = false;
                 presenter.stop();
-                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.speechTexts.stop)]);
+                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.stop)]);
             } else {
                 presenter.stop();
                 presenter.play();
-                isSpeaking = true;
+                if (isWCAGOn) {
+                    isSpeaking = true;
+                }
                 presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.altText, presenter.configuration.lang)], speakCallback);
             }
         };
