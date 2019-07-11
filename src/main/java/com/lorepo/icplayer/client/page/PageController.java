@@ -1,11 +1,5 @@
 package com.lorepo.icplayer.client.page;
 
-import java.io.Console;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
@@ -22,30 +16,24 @@ import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.group.Group;
+import com.lorepo.icplayer.client.model.page.group.Group.ScoringGroupType;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupView;
-import com.lorepo.icplayer.client.model.page.group.Group.ScoringGroupType;
 import com.lorepo.icplayer.client.model.page.properties.OutstretchHeightData;
 import com.lorepo.icplayer.client.module.IModuleFactory;
 import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
-import com.lorepo.icplayer.client.module.api.IActivity;
-import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.module.api.IModuleView;
-import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.IStateful;
-import com.lorepo.icplayer.client.module.api.ITextToSpeechPresenter;
-import com.lorepo.icplayer.client.module.api.TextToSpeechPresenter;
-import com.lorepo.icplayer.client.module.api.event.CustomEvent;
-import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
-import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
-import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
-import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
-import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
+import com.lorepo.icplayer.client.module.api.*;
+import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.Score.Result;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 
 public class PageController implements ITextToSpeechController {
@@ -143,6 +131,18 @@ public class PageController implements ITextToSpeechController {
 		pageView.refreshMathJax();
 		this.restoreOutstretchHeights();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
+		handleResizeEvent(this);
+	}
+
+	public static native void handleResizeEvent(PageController pageController) /*-{
+		window.addEventListener('resize', function () {
+			pageController.@com.lorepo.icplayer.client.page.PageController::sendResizeEvent()();
+		});
+	}-*/;
+
+	public void sendResizeEvent() {
+		ResizeWindowEvent event = new ResizeWindowEvent();
+		playerService.getEventBus().fireEvent(event);
 	}
 	
 	private void setViewSize(Page page) {
