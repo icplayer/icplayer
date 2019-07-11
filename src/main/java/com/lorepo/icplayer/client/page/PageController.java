@@ -131,14 +131,7 @@ public class PageController implements ITextToSpeechController {
 		pageView.refreshMathJax();
 		this.restoreOutstretchHeights();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
-		handleResizeEvent(this);
 	}
-
-	public static native void handleResizeEvent(PageController pageController) /*-{
-		window.addEventListener('resize', function () {
-			pageController.@com.lorepo.icplayer.client.page.PageController::sendResizeEvent()();
-		});
-	}-*/;
 
 	public void sendResizeEvent() {
 		ResizeWindowEvent event = new ResizeWindowEvent();
