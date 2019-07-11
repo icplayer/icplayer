@@ -1,3 +1,4 @@
+2019-07-11 Fixed test - position of IWB toolbar in fullscreen mode
 2019-07-11 Fixed position of IWB toolbar in fullscreen mode
 2019-07-04 Added translations for Sejer to Paragraph and Editable Window
 2019-07-03 Changed structure of a Editable Window
