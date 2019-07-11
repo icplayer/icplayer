@@ -23,6 +23,7 @@ function AddonEditableWindow_create() {
         heightOffset: 110,
         widthOffset: 22,
         minHeight: 300,
+        maxHeight: 10000,
         minWidth: 300,
         maxWidth: 950,
         state: {
@@ -116,6 +117,7 @@ function AddonEditableWindow_create() {
 
         $container.resizable({
             minHeight: presenter.configuration.minHeight,
+            maxHeight: presenter.configuration.maxHeight,
             minWidth: presenter.configuration.minWidth,
             maxWidth: presenter.configuration.maxWidth,
             resize: function (event, ui) {
@@ -294,10 +296,19 @@ function AddonEditableWindow_create() {
 
     presenter.handleAudioContent = function () {
         var $view = $(presenter.configuration.view);
+        var $container = presenter.configuration.$container;
         var audioSource = presenter.configuration.model.audioFile;
         var $audioElement = $view.find("audio");
+        var onlyAudio = presenter.configuration.model.onlyAudio;
         $audioElement.attr("src", audioSource);
         presenter.configuration.heightOffset += 35;
+
+        if (onlyAudio) {
+            presenter.configuration.minHeight = 140;
+            presenter.configuration.maxHeight = 140;
+            presenter.configuration.model.height = 140;
+            $container.height(140);
+        }
     };
 
     // jQuery changes position of element to absolute when it is both resizable and draggable after resize
@@ -454,7 +465,8 @@ function AddonEditableWindow_create() {
             videoFile: model['video'],
             title: model['title'] ? model['title'] : "",
             headerStyle: model['headerStyle'] ? model['headerStyle'] : "",
-            editingEnabled: ModelValidationUtils.validateBoolean(model["editingEnabled"])
+            editingEnabled: ModelValidationUtils.validateBoolean(model["editingEnabled"]),
+            onlyAudio: ModelValidationUtils.validateBoolean(model["onlyAudio"])
         }
     };
 
