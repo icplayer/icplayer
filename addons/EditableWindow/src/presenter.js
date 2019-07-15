@@ -106,6 +106,7 @@ function AddonEditableWindow_create() {
 
         // containment option disallows moving window outside of specifed dom element
         $container.draggable({
+            cancel: 'video',
             containment: 'document',
             start: function () {
                 presenter.show();
