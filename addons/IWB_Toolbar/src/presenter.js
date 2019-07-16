@@ -77,6 +77,12 @@ function AddonIWB_Toolbar_create() {
     presenter.penUsed = false;
     presenter.markerUsed = false;
 
+    presenter.zoomConfiguration = {
+        initialWindowHeight: 0,
+        initialNotScaledOffset: 0,
+        playerInitialLeftOffset: 0,
+        viewLeftOffset: 0
+    };
 
     function getCorrectObject(val) {
         return {
@@ -173,12 +179,36 @@ function AddonIWB_Toolbar_create() {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
         presenter.eventBus.addEventListener('PageLoaded', this);
+        presenter.eventBus.addEventListener('ResizeWindow', this);
     };
 
     presenter.onEventReceived = function(eventName, eventData) {
         if (eventName == 'PageLoaded' && eventData.source == 'header') {
             presenter.headerLoadedDeferred.resolve();
         }
+
+        if (eventName == 'PageLoaded') {
+            presenter.loadWindowSize();
+        }
+
+        if (eventName == "ResizeWindow") {
+            var newPlayerLeftOffset = $("#_icplayer").offset().left;
+            var viewLeftOffset = presenter.zoomConfiguration.viewLeftOffset;
+            var playerInitialLeftOffset = presenter.zoomConfiguration.playerInitialLeftOffset;
+            var newViewLeftOffset = newPlayerLeftOffset - playerInitialLeftOffset + viewLeftOffset;
+            presenter.$panel.offset({left: newViewLeftOffset});
+        }
+    };
+
+    presenter.loadWindowSize = function(){
+        presenter.zoomConfiguration.initialWindowHeight = window.iframeSize.windowInnerHeight;
+        presenter.zoomConfiguration.initialNotScaledOffset = window.iframeSize.notScaledOffset;
+
+        // you must repeat the data reading when they are not loaded correctly
+        if (presenter.zoomConfiguration.initialWindowHeight === 0 || isNaN(presenter.zoomConfiguration.initialNotScaledOffset))
+            setTimeout(function (e) {
+                presenter.loadWindowSize();
+            }, 200);
     };
 
     presenter.ERROR_CODES = {
@@ -1679,7 +1709,19 @@ function AddonIWB_Toolbar_create() {
         }
     };
 
+    presenter.getZoomHeightScale = function () {
+        var initialSize = presenter.zoomConfiguration.initialWindowHeight - presenter.zoomConfiguration.initialNotScaledOffset;
+        var newSize = window.iframeSize.windowInnerHeight - presenter.zoomConfiguration.initialNotScaledOffset;
+
+        var zoomHeightScale = newSize / initialSize;
+
+        zoomHeightScale = zoomHeightScale === 0 || isNaN(zoomHeightScale) || !isFinite(zoomHeightScale) ? 1 : zoomHeightScale;
+
+        return zoomHeightScale
+    };
+
     presenter.isOnScreen = function (element, windowElement) {
+        var zoomHeightScale = presenter.getZoomHeightScale();
         var topWindow = $(windowElement.parent.document);
         var coords = {
             top: topWindow.scrollTop(),
@@ -1691,6 +1733,8 @@ function AddonIWB_Toolbar_create() {
         var bounds = element.offset();
         bounds.right = bounds.left + element.outerWidth();
         bounds.bottom = bounds.top + element.outerHeight();
+
+        bounds.bottom /= zoomHeightScale;
 
         return !(coords.right < bounds.left || coords.left > bounds.right || coords.bottom < bounds.top || coords.top > bounds.bottom);
     };
@@ -1707,9 +1751,11 @@ function AddonIWB_Toolbar_create() {
                         scrollTop = $(this).scrollTop(),
                         min = presenter.$pagePanel.offset().top,
                         headerHeight = $('.ic_header').outerHeight(true) - 20,
-                        max = containerHeight + headerHeight;
+                        max = containerHeight + headerHeight,
+                        zoomHeightScale = presenter.getZoomHeightScale();
                     difference = scrollTop - lastScrollTop;
-                    panelTop = parseInt(presenter.$panel.css('top'), 10) + difference;
+
+                    panelTop = parseInt(presenter.$panel.css('top'), 10) + difference * zoomHeightScale;
                     lastScrollTop = scrollTop;
 
                     if (panelTop && (panelTop) > min && (panelTop) < max) {
@@ -2731,6 +2777,8 @@ function AddonIWB_Toolbar_create() {
                 }
 
                 $.ui.ddmanager.current = null;
+
+                presenter.zoomConfiguration.viewLeftOffset = presenter.$panel.offset().left;
             }
         });
 
@@ -2800,6 +2848,8 @@ function AddonIWB_Toolbar_create() {
 
         presenter._view = view;
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
+
+        presenter.updateZoomConfiguration();
     };
 
     presenter.destroy = function (event) {
@@ -3702,6 +3752,11 @@ function AddonIWB_Toolbar_create() {
         
         setOverflowWorkAround(true);
         setOverflowWorkAround(false);
+    };
+
+    presenter.updateZoomConfiguration = function () {
+        presenter.zoomConfiguration.playerInitialLeftOffset = $("#_icplayer").offset().left;
+        presenter.zoomConfiguration.viewLeftOffset = presenter.$panel.offset().left;
     };
 
     function setDrawingState(image, ctx, data) {
