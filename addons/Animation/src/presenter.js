@@ -48,7 +48,7 @@ function AddonAnimation_create (){
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.addFramesToLabels(model);
-        return presenter.addTextToSpeech(upgradedModel);
+        return presenter.upgradeTextToSpeech(upgradedModel);
     };
 
     presenter.addFramesToLabels = function (model) {
@@ -64,7 +64,7 @@ function AddonAnimation_create (){
         return upgradedModel;
     };
 
-    presenter.addTextToSpeech = function (model) {
+    presenter.upgradeTextToSpeech = function (model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
@@ -99,7 +99,7 @@ function AddonAnimation_create (){
         return value;
     }
 
-    presenter.setSpeechTexts = function(speechTexts) {
+    presenter.getSpeechTexts = function(speechTexts) {
         var speechTexts = {
             stop:    getSpeechTextProperty(speechTexts['Stop']['Stop'], "Stop")
         };
@@ -771,7 +771,7 @@ function AddonAnimation_create (){
     };
 
     presenter.validateModel = function(model) {
-        var speechTexts = presenter.setSpeechTexts(model['speechTexts']);
+        var speechTexts = presenter.getSpeechTexts(model['speechTexts']);
 
         if (ModelValidationUtils.isStringEmpty(model["Preview image"])) {
             return { isError: true, errorCode: "PI_01" };

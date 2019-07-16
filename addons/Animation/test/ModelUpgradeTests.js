@@ -105,7 +105,7 @@ TestCase("Model upgrade", {
      'test given model without tts properties when upgrading model then tts properties will be added': function () {
         var expectedSpeechText = {Stop: {Stop: "stop"}};
 
-        var upgradedModel = this.presenter.addTextToSpeech({});
+        var upgradedModel = this.presenter.upgradeTextToSpeech({});
 
         assertEquals(expectedSpeechText, upgradedModel["speechTexts"]);
         assertTrue(upgradedModel["Alternative Text"] !== undefined);
