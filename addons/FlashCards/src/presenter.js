@@ -1,4 +1,4 @@
-function AddonFlashcards_create(){
+function AddonFlashCards_create(){
 			
     var presenter = function(){}
 
