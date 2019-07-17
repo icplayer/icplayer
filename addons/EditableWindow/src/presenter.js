@@ -76,8 +76,9 @@ function AddonEditableWindow_create() {
         var title = presenter.configuration.model.title;
         var headerStyle = presenter.configuration.model.headerStyle;
         var $header = $container.find(".header");
+        var $headerText = $container.find(".header-text");
 
-        $header.text(title);
+        $headerText.text(title);
         $header.addClass(headerStyle);
 
         if (presenter.configuration.hasVideo) {
@@ -332,6 +333,7 @@ function AddonEditableWindow_create() {
             selector: "#" + textareaId,
             plugins: "textcolor link",
             toolbar: "backcolor",
+            language: "fr_FR_pure",
             textcolor_map: [
                 "ffff00", "Yellow",
                 "87ceeb", "Blue",
