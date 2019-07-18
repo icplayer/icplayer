@@ -313,10 +313,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public String getState() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		HashMap<String, String> state = new HashMap<String, String>();
 		state.put("gapUniqueId", module.getGapUniqueId());
 		state.put("values", JSONUtils.toJSONString(values));
