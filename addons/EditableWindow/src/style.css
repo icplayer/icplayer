@@ -109,6 +109,13 @@ button.addon-editable-close-full-screen-button {
     flex-grow: 1;
     display: grid;
     background-color: black;
+    cursor: default;
+}
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+   .addon-editable-window-wrapper .video-wrapper {
+        height: 100%;
+   }
 }
 
 .addon-editable-window-wrapper video {

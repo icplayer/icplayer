@@ -1,4 +1,5 @@
 2019-07-18 Fixed a disappearing correct answers in text module
+2019-07-15 Fixed problem with editable window with video on IE
 2019-07-11 Fixed test - position of IWB toolbar in fullscreen mode
 2019-07-11 Fixed position of IWB toolbar in fullscreen mode
 2019-07-04 Added translations for Sejer to Paragraph and Editable Window
