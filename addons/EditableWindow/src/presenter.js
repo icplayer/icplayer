@@ -441,10 +441,8 @@ function AddonEditableWindow_create() {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
-        if (!model["disableResizeHeight"]) {
-            upgradedModel["disableResizeHeight"] = [
-                { Width: "False" }
-            ];
+        if (!model['disableResizeHeight') {
+            upgradedModel['disableResizeHeight'] = 'False';
         }
 
         return upgradedModel;
