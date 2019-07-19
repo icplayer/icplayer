@@ -1957,5 +1957,6 @@ var ice_dictionary_fr = {
     "EditableWindow_property_video_file": "Video file",
     "EditableWindow_property_video_title": "Title",
     "EditableWindow_property_header_style": "Header style",
-    "EditableWindow_property_editing_enabled" : "Editing enabled"
+    "EditableWindow_property_editing_enabled" : "Editing enabled",
+    "EditableWindow_property_disable_resize_height" : "Disable resize height"
 };
