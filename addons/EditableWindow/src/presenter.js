@@ -442,7 +442,7 @@ function AddonEditableWindow_create() {
         $.extend(true, upgradedModel, model);
 
         if (!model['disableResizeHeight') {
-            upgradedModel['disableResizeHeight'] = 'False';
+            upgradedModel['disableResizeHeight'] = "False";
         }
 
         return upgradedModel;
