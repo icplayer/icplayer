@@ -1,6 +1,6 @@
 function AddonFlashCards_create(){
 			
-    var presenter = function(){}
+    var presenter = function () {}
 
     presenter.configuration = {
         isVisible: false,
@@ -22,26 +22,26 @@ function AddonFlashCards_create(){
         cardsFavourites: null
 	};
 
-    presenter.setPlayerController = function(controller) {
+    presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
     };
 
-    presenter.createEventData = function(i,v,s) {
+    presenter.createEventData = function (item, value, score) {
         return {
             source : presenter.configuration.addonID,
-            item: i,
-            value: v,
-            score: s
+            item: item,
+            value: value,
+            score: score
         };
     };
 
-	presenter.triggerEvent = function(i,v,s) {
-        var eventData = presenter.createEventData(i,v,s);
+	presenter.triggerEvent = function (item, value, score) {
+        var eventData = presenter.createEventData(item, value, score);
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
 
-    presenter.validateModel = function(model) {
+    presenter.validateModel = function (model) {
 		return {
 			isValid: true,
 			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
@@ -57,39 +57,49 @@ function AddonFlashCards_create(){
 		}
 	};
 
-    presenter.init = function(view, model){
+    presenter.init = function (view, model) {
         var validatedModel = presenter.validateModel(model);
         presenter.configuration = validatedModel;
+        presenter.isErrorMode = false;
         presenter.Cards = model.Cards;
         presenter.state.isVisible = presenter.configuration.isVisible;
         presenter.state.NoLoop = presenter.configuration.NoLoop;
         presenter.state.cardsScore = presenter.configuration.cardsScore;
         presenter.state.cardsFavourites = presenter.configuration.cardsFavourites;
 
-        //console.log(model.ID+" init, config:");
-        //console.log(presenter.configuration);
-
         presenter.view = view;
         presenter.$view = $(view);
+        presenter.$flashcards_prev = presenter.$view.find(".flashcards-prev");
+        presenter.$flashcards_next = presenter.$view.find(".flashcards-next");
+        presenter.$flashcards_button_favourite = presenter.$view.find(".flashcards-button-favourite");
+        presenter.$flashcards_button_wrong = presenter.$view.find(".flashcards-button-wrong");
+        presenter.$flashcards_button_correct = presenter.$view.find(".flashcards-button-correct");
+        presenter.$flashcards_button_reset = presenter.$view.find(".flashcards-button-reset");
+        presenter.$flashcards_button = presenter.$view.find(".flashcards-button");
+        presenter.$flashcards_card_audio_button_front = presenter.$view.find(".flashcards-card-audio-button-front");
+        presenter.$flashcards_card_audio_button_back = presenter.$view.find(".flashcards-card-audio-button-back");
+        presenter.audioElementBack =  presenter.$view.find(".flashcards-card-audio-back").get(0);
+        presenter.audioElementFront =  presenter.$view.find(".flashcards-card-audio-front").get(0);
+        
         presenter.model = model;
         presenter.$card = $(presenter.$view.find(".flashcards-card").get(0));
 
-        $(presenter.Cards).each(function(k,v){
-            presenter.state.cardsScore[k] = 0;
-            presenter.state.cardsFavourites[k] = false;
+        $(presenter.Cards).each(function (key) {
+            presenter.state.cardsScore[key] = 0;
+            presenter.state.cardsFavourites[key] = false;
         });
 
         presenter.state.totalCards = presenter.Cards.length;
 
-        if(presenter.configuration.HidePrevNext){
-            $(presenter.$view.find(".flashcards-prev").get(0)).hide();
-            $(presenter.$view.find(".flashcards-next").get(0)).hide();
+        if (presenter.configuration.HidePrevNext) {
+            $(presenter.$flashcards_prev.get(0)).hide();
+            $(presenter.$flashcards_next.get(0)).hide();
         }
-        if(!presenter.configuration.ShowButtons){
+        if (!presenter.configuration.ShowButtons) {
             $(presenter.$view.find(".flashcards-buttons").get(0)).hide();
         }
-        if(presenter.configuration.Favourites == false){
-            $(presenter.$view.find(".flashcards-button-favourite").get(0)).hide();
+        if (presenter.configuration.Favourites == false) {
+            $(presenter.$flashcards_button_favourite.get(0)).hide();
         }        
 
         presenter.showCard(1);
@@ -100,173 +110,171 @@ function AddonFlashCards_create(){
         presenter.isBackPlaying = false;
     };
 
-    presenter.countFavourites = function(){
+    presenter.countFavourites = function () {
         var i = 0;
-        $(presenter.Cards).each(function(k,v){
-            if(presenter.state.cardsFavourites[k] == true){i++};
+        $(presenter.Cards).each(function (k,v) {
+            if (presenter.state.cardsFavourites[k] == true){i++};
         });
         return i;
     };
 
-    presenter.countNonFavouritesBefore = function(k){
+    presenter.countNonFavouritesBefore = function (k) {
         var i = 0;
         for(j = 0; j < k; j++){
-            if(presenter.state.cardsFavourites[j] == false){i++};
+            if (presenter.state.cardsFavourites[j] == false){i++};
         }
         return i;
     };
 
-    presenter.addClickHandlers = function(){
+    presenter.addClickHandlers = function () {
         //FLIP, PREV & NEXT
-        $(presenter.$view.find(".flashcards-card-contents")).click(function(e) {
+        $(presenter.$view.find(".flashcards-card-contents")).click(function (e) {
+            if (presenter.isErrorMode) return;
             e.preventDefault();
             presenter.revertCard();
         });
-        $(presenter.$view.find(".flashcards-prev")).click(function(e) {
+        $(presenter.$flashcards_prev).click(function (e) {
+            if (presenter.isErrorMode) return;
             e.preventDefault();
             presenter.prevCard();
         });
-        $(presenter.$view.find(".flashcards-next")).click(function(e) {
+        $(presenter.$flashcards_next).click(function (e) {
+            if (presenter.isErrorMode) return;
             e.preventDefault();
             presenter.nextCard();
         });
 
         //SCORE BUTTONS
-        $(presenter.$view.find(".flashcards-button-wrong")).click(function() {
+        $(presenter.$flashcards_button_wrong).click(function () {
+            if (presenter.isErrorMode) return;
             presenter.state.cardsScore[presenter.state.currentCard] = -1;
-            $(presenter.$view.find(".flashcards-button")).removeClass("flashcards-button-selected");
+            $(presenter.$flashcards_button).removeClass("flashcards-button-selected");
             $(this).addClass("flashcards-button-selected");
         });
-        $(presenter.$view.find(".flashcards-button-correct")).click(function() {
+        $(presenter.$flashcards_button_correct).click(function () {
+            if (presenter.isErrorMode) return;
             presenter.state.cardsScore[presenter.state.currentCard] = 1;
-            $(presenter.$view.find(".flashcards-button")).removeClass("flashcards-button-selected");
+            $(presenter.$flashcards_button).removeClass("flashcards-button-selected");
             $(this).addClass("flashcards-button-selected");
         });
-        $(presenter.$view.find(".flashcards-button-reset")).click(function() {
+        $(presenter.$flashcards_button_reset).click(function () {
+            if (presenter.isErrorMode) return;
             presenter.state.cardsScore[presenter.state.currentCard] = 0;
-            $(presenter.$view.find(".flashcards-button")).removeClass("flashcards-button-selected");
+            $(presenter.$flashcards_button).removeClass("flashcards-button-selected");
         });
 
         //FAVOURITE BUTTON
-        $(presenter.$view.find(".flashcards-button-favourite")).click(function() {
-            if(presenter.state.cardsFavourites[presenter.state.currentCard-1] == false){
-                presenter.state.cardsFavourites[presenter.state.currentCard-1] = true;
+        $(presenter.$flashcards_button_favourite).click(function () {
+            if (presenter.isErrorMode) return;
+            if (presenter.state.cardsFavourites[presenter.state.currentCard - 1] == false){
+                presenter.state.cardsFavourites[presenter.state.currentCard - 1] = true;
                 $(this).addClass("flashcards-button-selected");
                 presenter.triggerEvent(presenter.state.currentCard,"favourite","");
             }else{
-                presenter.state.cardsFavourites[presenter.state.currentCard-1] = false;
+                presenter.state.cardsFavourites[presenter.state.currentCard - 1] = false;
                 $(this).removeClass("flashcards-button-selected");
                 presenter.triggerEvent(presenter.state.currentCard,"unfavourite","");
             }            
         });
 
         //AUDIO
-        $(presenter.$view.find(".flashcards-card-audio-button-front")).click(function() {
-            presenter.audioElementFront =  presenter.$view.find(".flashcards-card-audio-front").get(0);
-            if(presenter.isFrontPlaying == false){
+        $(presenter.$flashcards_card_audio_button_front).click(function () {
+            if (presenter.isErrorMode) return;
+            
+            if (presenter.isFrontPlaying == false) {
                 presenter.isFrontPlaying = true;
                 presenter.audioElementFront.play();
-                $(presenter.$view.find(".flashcards-card-audio-button-front")).addClass("playing");
+                $(presenter.$flashcards_card_audio_button_front).addClass("playing");
             }else{
                 presenter.isFrontPlaying = false;
                 presenter.audioElementFront.pause();
-                $(presenter.$view.find(".flashcards-card-audio-button-front")).removeClass("playing");
+                $(presenter.$flashcards_card_audio_button_front).removeClass("playing");
             }
         });
-        $(presenter.$view.find(".flashcards-card-audio-button-back")).click(function() {
+        $(presenter.$flashcards_card_audio_button_back).click(function () {
+            if (presenter.isErrorMode) return;
             presenter.audioElementBack =  presenter.$view.find(".flashcards-card-audio-back").get(0);
-            if(presenter.isBackPlaying == false){
+            if (presenter.isBackPlaying == false) {
                 presenter.isBackPlaying = true;
                 presenter.audioElementBack.play();
-                $(presenter.$view.find(".flashcards-card-audio-button-back")).addClass("playing");
+                $(presenter.$flashcards_card_audio_button_back).addClass("playing");
             }else{
                 presenter.isBackPlaying = false;
                 presenter.audioElementBack.pause();
-                $(presenter.$view.find(".flashcards-card-audio-button-back")).removeClass("playing");
+                $(presenter.$flashcards_card_audio_button_back).removeClass("playing");
             }
         });  
     };
-
-    presenter.removeClickHandlers = function(){
-        //FLIP, PREV & NEXT
-        $(presenter.$view.find(".flashcards-card-contents")).unbind();
-        $(presenter.$view.find(".flashcards-prev")).unbind();
-        $(presenter.$view.find(".flashcards-next")).unbind();
-
-        //SCORE BUTTONS
-        $(presenter.$view.find(".flashcards-button-wrong")).unbind();
-        $(presenter.$view.find(".flashcards-button-correct")).unbind();
-        $(presenter.$view.find(".flashcards-button-reset")).unbind();
-
-        //FAVOURITE BUTTON
-        $(presenter.$view.find(".flashcards-button-favourite")).unbind();
-
-        //AUDIO
-        $(presenter.$view.find(".flashcards-card-audio-button-front")).unbind();
-        $(presenter.$view.find(".flashcards-card-audio-button-back")).unbind();
-    };
     
-    presenter.run = function(view, model){
+    presenter.run = function (view, model) {
 		presenter.init(view, model);
 	};
     
-    presenter.createPreview = function(view, model) {
+    presenter.createPreview = function (view, model) {
 		presenter.init(view, model);
 	};
 
-    presenter.revertCard = function(){
+    presenter.revertCard = function () {
+        presenter.isFrontPlaying = false;
+        presenter.audioElementFront.pause();
+        $(presenter.$flashcards_card_audio_button_front).removeClass("playing");
+
+        presenter.isBackPlaying = false;
+        presenter.audioElementBack.pause();
+        $(presenter.$flashcards_card_audio_button_back).removeClass("playing");
+
         presenter.$card.find(".flashcards-card-back .flashcards-card-contents").show();
         $(presenter.$view.find(".flashcards-card").get(0)).toggleClass("flashcards-card-reversed");
     };
 
-    presenter.prevCard = function(){
-        if(presenter.state.currentCard>1){
+    presenter.prevCard = function () {
+        if (presenter.state.currentCard>1){
             presenter.state.currentCard -= 1;
-        }else if(presenter.state.NoLoop == false){
+        }else if (presenter.state.NoLoop == false){
             presenter.state.currentCard = presenter.state.totalCards;
         }
         presenter.showCard(presenter.state.currentCard);
     };
 
-    presenter.nextCard = function(){
-        if(presenter.state.currentCard < presenter.state.totalCards){
+    presenter.nextCard = function () {
+        if (presenter.state.currentCard < presenter.state.totalCards){
             presenter.state.currentCard += 1;
-        }else if(presenter.state.NoLoop == false){
+        }else if (presenter.state.NoLoop == false){
             presenter.state.currentCard = 1;
         }
         presenter.showCard(presenter.state.currentCard);
     };
 
-    presenter.showCard = function(i){
-        i = parseInt(i,10);
-        if(presenter.state.ShowOnlyFavourites == true && presenter.countFavourites() > 0 ){
-            if(presenter.state.cardsFavourites[presenter.state.currentCard-1] == true){
-                presenter.displayCard(i);
+    presenter.showCard = function (cardNumber) {
+        cardNumber = parseInt(cardNumber,10);
+        if (presenter.state.ShowOnlyFavourites == true && presenter.countFavourites() > 0 ){
+            if (presenter.state.cardsFavourites[presenter.state.currentCard - 1] == true){
+                presenter.displayCard(cardNumber);
             }else{
-                if(i <= presenter.state.totalCards){
+                if (cardNumber <= presenter.state.totalCards){
                     presenter.nextCard();
                 }
             }
         }else{
-            presenter.displayCard(i);
+            presenter.displayCard(cardNumber);
         }        
     };
 
-    presenter.displayCard = function(i){
-        if(presenter.state.NoLoop){
-            $(presenter.$view.find(".flashcards-prev").get(0)).attr("disabled", false);
-            $(presenter.$view.find(".flashcards-next").get(0)).attr("disabled", false);
-            if(i == 1){
-                $(presenter.$view.find(".flashcards-prev").get(0)).attr("disabled", true);
-            }else if(i == presenter.state.totalCards){
-                $(presenter.$view.find(".flashcards-next").get(0)).attr("disabled", true);
+    presenter.displayCard = function (cardNumber) {
+        if (presenter.state.NoLoop){
+            $(presenter.$flashcards_prev.get(0)).attr("disabled", false);
+            $(presenter.$flashcards_next.get(0)).attr("disabled", false);
+            if (cardNumber == 1){
+                $(presenter.$flashcards_prev.get(0)).attr("disabled", true);
+            }else if (cardNumber == presenter.state.totalCards){
+                $(presenter.$flashcards_next.get(0)).attr("disabled", true);
             }
         }
 
-        var currentCardNumber = i;
+        var currentCardNumber = cardNumber;
         var totalCardsNuber = 0;
-        if(presenter.state.ShowOnlyFavourites == true){
-            currentCardNumber = i - presenter.countNonFavouritesBefore(i);
+        if (presenter.state.ShowOnlyFavourites == true) {
+            currentCardNumber = cardNumber - presenter.countNonFavouritesBefore(cardNumber);
             totalCardsNuber = presenter.countFavourites();
         }else{
             totalCardsNuber = presenter.state.totalCards;
@@ -275,36 +283,35 @@ function AddonFlashCards_create(){
         presenter.$card.find(".flashcards-card-back .flashcards-card-contents").hide();
         presenter.$card.removeClass("flashcards-card-reversed");
 
-        presenter.$view.find(".flashcards-card-contents-front").get(0).innerHTML = presenter.Cards[i-1].Front;
-        presenter.$view.find(".flashcards-card-contents-back").get(0).innerHTML = presenter.Cards[i-1].Back;
+        presenter.$view.find(".flashcards-card-contents-front").get(0).innerHTML = presenter.Cards[cardNumber - 1].Front;
+        presenter.$view.find(".flashcards-card-contents-back").get(0).innerHTML = presenter.Cards[cardNumber - 1].Back;
 
         //SCORE BUTTONS
-        $(presenter.$view.find(".flashcards-button")).removeClass("flashcards-button-selected");
-        if(presenter.state.cardsScore[presenter.state.currentCard] == 1){
-            $(presenter.$view.find(".flashcards-button-correct")).addClass("flashcards-button-selected");
+        $(presenter.$flashcards_button).removeClass("flashcards-button-selected");
+        if (presenter.state.cardsScore[presenter.state.currentCard] == 1){
+            $(presenter.$flashcards_button_correct).addClass("flashcards-button-selected");
         }
-        if(presenter.state.cardsScore[presenter.state.currentCard] == -1){
-            $(presenter.$view.find(".flashcards-button-wrong")).addClass("flashcards-button-selected");
+        if (presenter.state.cardsScore[presenter.state.currentCard] == -1){
+            $(presenter.$flashcards_button_wrong).addClass("flashcards-button-selected");
         }
 
         //FAV BUTTON
-        if(presenter.state.cardsFavourites[presenter.state.currentCard-1] == true){
-            $(presenter.$view.find(".flashcards-button-favourite")).addClass("flashcards-button-selected");
+        if (presenter.state.cardsFavourites[presenter.state.currentCard - 1] == true) {
+            $(presenter.$flashcards_button_favourite).addClass("flashcards-button-selected");
         }else{
-            $(presenter.$view.find(".flashcards-button-favourite")).removeClass("flashcards-button-selected");
+            $(presenter.$flashcards_button_favourite).removeClass("flashcards-button-selected");
         }
 
         //AUDIO - front
         presenter.isFrontPlaying = false;
-        presenter.audioElementFront =  presenter.$view.find(".flashcards-card-audio-front").get(0);
-        $(presenter.$view.find(".flashcards-card-audio-button-front")).removeClass("playing");
-        $(presenter.$view.find(".flashcards-card-audio-button-front")).addClass("disabled");
-        if(presenter.Cards[presenter.state.currentCard-1].AudioFront != ""){
+        $(presenter.$flashcards_card_audio_button_front).removeClass("playing");
+        $(presenter.$flashcards_card_audio_button_front).addClass("disabled");
+        if (presenter.Cards[presenter.state.currentCard - 1].AudioFront != ""){
             $(presenter.$view.find(".flashcards-card-audio-wrapper-front")).show();
             if (presenter.audioElementFront.canPlayType("audio/mpeg")) {
-                presenter.audioElementFront.setAttribute("src",presenter.Cards[presenter.state.currentCard-1].AudioFront);
-                presenter.audioElementFront.oncanplay = function() {
-                    $(presenter.$view.find(".flashcards-card-audio-button-front")).removeClass("disabled");
+                presenter.audioElementFront.setAttribute("src",presenter.Cards[presenter.state.currentCard - 1].AudioFront);
+                presenter.audioElementFront.oncanplay = function () {
+                    $(presenter.$flashcards_card_audio_button_front).removeClass("disabled");
                 };
             } 
         }else{
@@ -313,15 +320,14 @@ function AddonFlashCards_create(){
         }
         //AUDIO - back
         presenter.isBackPlaying = false;
-        presenter.audioElementBack =  presenter.$view.find(".flashcards-card-audio-back").get(0);
-        $(presenter.$view.find(".flashcards-card-audio-button-back")).removeClass("playing");
-        $(presenter.$view.find(".flashcards-card-audio-button-back")).addClass("disabled");
-        if(presenter.Cards[presenter.state.currentCard-1].AudioBack != ""){
+        $(presenter.$flashcards_card_audio_button_back).removeClass("playing");
+        $(presenter.$flashcards_card_audio_button_back).addClass("disabled");
+        if (presenter.Cards[presenter.state.currentCard - 1].AudioBack != ""){
             $(presenter.$view.find(".flashcards-card-audio-wrapper-back")).show();
             if (presenter.audioElementBack.canPlayType("audio/mpeg")) {
-                presenter.audioElementBack.setAttribute("src",presenter.Cards[presenter.state.currentCard-1].AudioBack);
-                presenter.audioElementBack.oncanplay = function() {
-                    $(presenter.$view.find(".flashcards-card-audio-button-back")).removeClass("disabled");
+                presenter.audioElementBack.setAttribute("src",presenter.Cards[presenter.state.currentCard - 1].AudioBack);
+                presenter.audioElementBack.oncanplay = function () {
+                    $(presenter.$flashcards_card_audio_button_back).removeClass("disabled");
                 };
             } 
         }else{
@@ -330,69 +336,69 @@ function AddonFlashCards_create(){
         }
     };
 
-    presenter.show = function(){
+    presenter.show = function () {
         presenter.setVisibility(true);
     };
 
-    presenter.hide = function(){
+    presenter.hide = function () {
         presenter.setVisibility(false);
     };
 
-    presenter.setVisibility = function(isVisible) {
+    presenter.setVisibility = function (isVisible) {
         presenter.state.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.updateVisibility = function() {
+    presenter.updateVisibility = function () {
         (presenter.state.isVisible) ? presenter.show() : presenter.hide();
     };
 
-    presenter.setShowErrorsMode = function(){
-        presenter.removeClickHandlers();
+    presenter.setShowErrorsMode = function () {
+        presenter.isErrorMode = true;
     }; 
 
-    presenter.setWorkMode = function(){
-        presenter.addClickHandlers();
+    presenter.setWorkMode = function () {
+        presenter.isErrorMode = false;
     };
 
-    presenter.ShowOnlyFavourites = function(){
+    presenter.ShowOnlyFavourites = function () {
         presenter.state.ShowOnlyFavourites = true;
         presenter.showCard(presenter.state.currentCard);
     };
-    presenter.ShowAllCards = function(){
+    presenter.ShowAllCards = function () {
         presenter.state.ShowOnlyFavourites = false;
         presenter.showCard(presenter.state.currentCard);
     };
 
-    presenter.resetFavourites = function(){
+    presenter.resetFavourites = function () {
         presenter.state.ShowOnlyFavourites = false;
-        $(presenter.Cards).each(function(k,v){
-            presenter.state.cardsFavourites[k] = false;
+        $(presenter.Cards).each(function (key) {
+            presenter.state.cardsFavourites[key] = false;
         });
-        $(presenter.$view.find(".flashcards-button-favourite")).removeClass("flashcards-button-selected");
+        $(presenter.$flashcards_button_favourite).removeClass("flashcards-button-selected");
     };
     
-    presenter.reset = function() {
+    presenter.reset = function () {
         presenter.state.ShowOnlyFavourites = false;
         presenter.state.currentCard = presenter.configuration.currentCard;
 
         presenter.state.isVisible = presenter.configuration.isVisible;
         presenter.updateVisibility();
 
-        $(presenter.model.Cards).each(function(k,v){
-            presenter.state.cardsScore[k] = 0;
-            presenter.state.cardsFavourites[k] = false;
+        $(presenter.model.Cards).each(function (key) {
+            presenter.state.cardsScore[key] = 0;
+            presenter.state.cardsFavourites[key] = false;
         });
 
         presenter.showCard(presenter.state.currentCard);
     };
     
-    presenter.getErrorCount = function(){
+    presenter.getErrorCount = function () {
         var errors = null;
-        if(presenter.configuration.IsActivity){
+        if (presenter.configuration.IsActivity) {
             errors = 0;
-            $(presenter.state.cardsScore).each(function(k,v){
-                if(presenter.state.cardsScore[k] == -1){
+            $(presenter.state.cardsScore).each(function (key) {
+                if (presenter.state.cardsScore[key] == -1){
                     errors++;
                 }
             });
@@ -400,20 +406,20 @@ function AddonFlashCards_create(){
         return errors;
     };
     
-    presenter.getMaxScore = function(){
+    presenter.getMaxScore = function () {
         var maxScore = null;
-        if(presenter.configuration.IsActivity){
+        if (presenter.configuration.IsActivity) {
             maxScore = presenter.state.totalCards;
         }
         return maxScore;
     };
     
-    presenter.getScore = function(){
+    presenter.getScore = function () {
         var score = null;
-        if(presenter.configuration.IsActivity){
+        if (presenter.configuration.IsActivity) {
             score = 0;
-            $(presenter.state.cardsScore).each(function(k,v){
-                if(presenter.state.cardsScore[k] == 1){
+            $(presenter.state.cardsScore).each(function (key) {
+                if (presenter.state.cardsScore[key] == 1){
                     score++;
                 }
             });
@@ -436,13 +442,13 @@ function AddonFlashCards_create(){
 		Commands.dispatch(commands, name, params, presenter);
 	};
     
-    presenter.getState = function(){
+    presenter.getState = function () {
         return JSON.stringify({
             state: presenter.state
         });
     };
 
-    presenter.setState = function(stateString){
+    presenter.setState = function (stateString) {
         if (ModelValidationUtils.isStringEmpty(stateString)) return;
         var parsedState = JSON.parse(stateString);
         presenter.state = parsedState.state;
@@ -455,12 +461,12 @@ function AddonFlashCards_create(){
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
         $(presenter.$view.find(".flashcards-card-contents")).unbind();
-        $(presenter.$view.find(".flashcards-button-wrong")).unbind();
-        $(presenter.$view.find(".flashcards-button-correct")).unbind();
-        $(presenter.$view.find(".flashcards-button-reset")).unbind();
-        $(presenter.$view.find(".flashcards-button-favourites")).unbind();
-        $(presenter.$view.find(".flashcards-prev")).unbind();
-        $(presenter.$view.find(".flashcards-next")).unbind();
+        $(presenter.$flashcards_button_wrong).unbind();
+        $(presenter.$flashcards_button_correct).unbind();
+        $(presenter.$flashcards_button_reset).unbind();
+        $(presenter.$flashcards_button_favourite).unbind();
+        $(presenter.$flashcards_button_favourite).unbind();
+        $(presenter.$flashcards_next).unbind();
         
     };
 
