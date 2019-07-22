@@ -1,3 +1,4 @@
+2019-07-22 Removed the ability to download the video in editable window
 2019-07-15 Fixed problem with editable window with video on IE
 2019-07-11 Fixed test - position of IWB toolbar in fullscreen mode
 2019-07-11 Fixed position of IWB toolbar in fullscreen mode
