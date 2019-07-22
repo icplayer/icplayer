@@ -23,6 +23,7 @@ function AddonEditableWindow_create() {
         heightOffset: 110,
         widthOffset: 22,
         minHeight: 300,
+        maxHeight: 10000,
         minWidth: 300,
         maxWidth: 950,
         state: {
@@ -49,7 +50,9 @@ function AddonEditableWindow_create() {
         presenter.configuration.$container = $(presenter.configuration.container);
 
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
-        presenter.configuration.model = presenter.validModel(model);
+
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration.model = presenter.validModel(upgradedModel);
 
         if (presenter.configuration.model.isValid) {
             presenter.configuration.container.style.width = presenter.configuration.model.width + 'px';
@@ -77,6 +80,7 @@ function AddonEditableWindow_create() {
         var headerStyle = presenter.configuration.model.headerStyle;
         var $header = $container.find(".header");
         var $headerText = $container.find(".header-text");
+        var disableResizeHeight = presenter.configuration.model.disableResizeHeight;
 
         $headerText.text(title);
         $header.addClass(headerStyle);
@@ -104,6 +108,12 @@ function AddonEditableWindow_create() {
 
         $container.css("z-index", "1");
 
+        if (disableResizeHeight) {
+            var moduleHeight = presenter.configuration.model.height;
+            presenter.configuration.minHeight = moduleHeight;
+            presenter.configuration.maxHeight = moduleHeight;
+        }
+
         // containment option disallows moving window outside of specifed dom element
         $container.draggable({
             cancel: 'video',
@@ -117,6 +127,7 @@ function AddonEditableWindow_create() {
 
         $container.resizable({
             minHeight: presenter.configuration.minHeight,
+            maxHeight: presenter.configuration.maxHeight,
             minWidth: presenter.configuration.minWidth,
             maxWidth: presenter.configuration.maxWidth,
             resize: function (event, ui) {
@@ -295,6 +306,7 @@ function AddonEditableWindow_create() {
 
     presenter.handleAudioContent = function () {
         var $view = $(presenter.configuration.view);
+        var $container = presenter.configuration.$container;
         var audioSource = presenter.configuration.model.audioFile;
         var $audioElement = $view.find("audio");
         $audioElement.attr("src", audioSource);
@@ -408,7 +420,7 @@ function AddonEditableWindow_create() {
             presenter.fillActiveTinyMce(content);
         }
         presenter.configuration.contentLoadingLock = false;
-    }
+    };
 
     presenter.getState = function () {
         var editor = presenter.configuration.editor;
@@ -419,6 +431,21 @@ function AddonEditableWindow_create() {
         }
 
         return JSON.stringify(presenter.configuration.state);
+    };
+
+    presenter.upgradeModel = function (model) {
+        return presenter.addDisableResizeHeight(model);
+    };
+
+    presenter.addDisableResizeHeight = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model['disableResizeHeight']) {
+            upgradedModel['disableResizeHeight'] = "False";
+        }
+
+        return upgradedModel;
     };
 
     presenter.validModel = function (model) {
@@ -455,7 +482,8 @@ function AddonEditableWindow_create() {
             videoFile: model['video'],
             title: model['title'] ? model['title'] : "",
             headerStyle: model['headerStyle'] ? model['headerStyle'] : "",
-            editingEnabled: ModelValidationUtils.validateBoolean(model["editingEnabled"])
+            editingEnabled: ModelValidationUtils.validateBoolean(model["editingEnabled"]),
+            disableResizeHeight: ModelValidationUtils.validateBoolean(model["disableResizeHeight"])
         }
     };
 
