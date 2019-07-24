@@ -28,7 +28,8 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.ERROR_CODES = {
         'defaultLayoutError' : 'Custom Keyboard Layout should be a JavaScript object with at least "default" property ' +
-            'which should be an array of strings with space-seperated chars.'
+            'which should be an array of strings with space-seperated chars.',
+        'weightError' : 'Weight must be a positive number between 0 and 100'
     };
 
     presenter.LAYOUT_TO_LANGUAGE_MAPPING = {
@@ -75,6 +76,7 @@ function AddonParagraph_Keyboard_create() {
     presenter.run = function AddonParagraph_Keyboard_run(view, model) {
         presenter.initializeEditor(view, model, false);
         presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.isLocked = false;
     };
 
     presenter.validateToolbar = function AddonParagraph_validateToolbar(controls, width) {
@@ -202,7 +204,10 @@ function AddonParagraph_Keyboard_create() {
             hasDefaultFontSize = false,
             keyboardPosition = model['keyboardPosition'] ? model['keyboardPosition'].toLowerCase() : 'bottom',
             layoutType = presenter.validateType(model['layoutType']),
-            keyboardLayout = model['keyboardLayout'];
+            keyboardLayout = model['keyboardLayout'],
+            title = model["Title"],
+            manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]),
+            weight = model['Weight'];
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -233,6 +238,10 @@ function AddonParagraph_Keyboard_create() {
             return {error: 'defaultLayoutError'};
         }
 
+        if (!ModelValidationUtils.isStringEmpty(weight) && !ModelValidationUtils.validateIntegerInRange(weight, 100, 0).isValid ) {
+            return {error: 'weightError'}
+        }
+
         var supportedPositions = ['top', 'bottom', 'custom', 'left', 'right'];
 
         if (keyboardPosition == 'left' || keyboardPosition == 'right') {
@@ -259,13 +268,46 @@ function AddonParagraph_Keyboard_create() {
 
             keyboardLayout: keyboardLayout,
             keyboardPosition: keyboardPosition,
-            error: false
+            error: false,
+            manualGrading: manualGrading,
+            title: title,
+            weight: weight
         };
     };
 
     presenter.setWrapperID = function AddonParagraph_Keyboard_setWrapperID() {
         var $paragraphWrapper = presenter.$view.find('.paragraph-wrapper');
         $paragraphWrapper.attr('id', presenter.configuration.ID + '-wrapper');
+    };
+
+    presenter.upgradeAttribute = function (model, attrName, defaultValue) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (model[attrName] == undefined) {
+            upgradedModel[attrName] = defaultValue;
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = presenter.upgradeTitle(model);
+            upgradedModel = presenter.upgradeManualGrading(upgradedModel);
+            upgradedModel = presenter.upgradeWeight(upgradedModel);
+        return upgradedModel;
+    };
+
+    presenter.upgradeManualGrading = function (model) {
+        return presenter.upgradeAttribute(model, "Manual grading", false);
+    };
+
+    presenter.upgradeTitle = function (model) {
+        return presenter.upgradeAttribute(model, "Title", "");
+    };
+
+    presenter.upgradeWeight = function (model) {
+        return presenter.upgradeAttribute(model, "Weight", "");
     };
 
     /**
@@ -278,7 +320,8 @@ function AddonParagraph_Keyboard_create() {
     presenter.initializeEditor = function AddonParagraph_Keyboard_initializeEditor(view, model) {
         presenter.view = view;
         presenter.$view = $(view);
-        presenter.configuration = presenter.parseModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.parseModel(upgradedModel);
 
         if (presenter.configuration.error) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.error);
@@ -681,7 +724,8 @@ function AddonParagraph_Keyboard_create() {
 
         return JSON.stringify({
             'tinymceState' : tinymceState,
-            'isVisible' : presenter.isVisibleValue
+            'isVisible' : presenter.isVisibleValue,
+            'isLocked' : presenter.isLocked
         });
     };
 
@@ -696,6 +740,12 @@ function AddonParagraph_Keyboard_create() {
         }
 
         presenter.setVisibility(parsedState.isVisible);
+
+        if (parsedState.isLocked) {
+            presenter.lock();
+        } else {
+            presenter.unlock();
+        }
     };
 
 
@@ -705,7 +755,9 @@ function AddonParagraph_Keyboard_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'isVisible': presenter.isVisible
+            'isVisible': presenter.isVisible,
+            'lock': presenter.lock,
+            'unlock': presenter.unlock
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -714,6 +766,9 @@ function AddonParagraph_Keyboard_create() {
     presenter.reset = function AddonParagraph_Keyboard_reset() {
         presenter.editor.setContent('');
         presenter.setVisibility(presenter.configuration.isVisible);
+        if (presenter.isLocked) {
+            presenter.unlock();
+        }
     };
 
     presenter.show = function AddonParagraph_Keyboard_show() {
@@ -726,6 +781,23 @@ function AddonParagraph_Keyboard_create() {
 
     presenter.isVisible = function AddonParagraph_Keyboard_isVisible() {
         return presenter.isVisibleValue;
+    };
+
+    presenter.lock = function AddonParagraph_Keyboard_lock() {
+        if (!presenter.isLocked) {
+            var mask = $('<div>').addClass('paragraph-lock');
+            presenter.$view.find('.paragraph-keyboard').hide();
+            presenter.$view.find('#' + presenter.configuration.ID + '-wrapper').append(mask);
+            presenter.isLocked = true;
+        }
+    };
+
+    presenter.unlock = function AddonParagraph_Keyboard_unlock() {
+        if (presenter.isLocked) {
+            presenter.$view.find('.paragraph-keyboard').show();
+            presenter.$view.find('.paragraph-lock').remove();
+            presenter.isLocked = false;
+        }
     };
 
     return presenter;

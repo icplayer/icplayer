@@ -99,5 +99,25 @@ TestCase("[Text_Coloring] parse words", {
 
         // assert
         assertEquals(expectedResult, result);
+    },
+
+    'test parse word with three selectable characters': function () {
+        // arrange
+        var wordToParse = "firstWord\\color{blue}{w}secondWord\\color{red}{o}\\color{red}{r}thirdWord";
+
+        var expectedResult = [];
+        expectedResult.push(setUpUtils.getWordToken("firstWord"));
+        expectedResult.push(setUpUtils.getSelectableToken("w", "blue"));
+        expectedResult.push(setUpUtils.getWordToken("secondWord"));
+        expectedResult.push(setUpUtils.getSelectableToken("o", "red"));
+        expectedResult.push(setUpUtils.getSelectableToken("r", "red"));
+        expectedResult.push(setUpUtils.getWordToken("thirdWord"));
+        expectedResult.push(setUpUtils.getSpaceToken());
+
+        // act
+        var result = this.presenter.parseWords(wordToParse);
+
+        // assert
+        assertEquals(expectedResult, result);
     }
 });

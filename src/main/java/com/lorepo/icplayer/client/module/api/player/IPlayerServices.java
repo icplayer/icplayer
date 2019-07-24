@@ -47,10 +47,12 @@ public interface IPlayerServices {
 	public void setAbleChangeLayout(boolean isAbleChangeLayout); 
 	public boolean isAbleChangeLayout();
 	public boolean changeSemiResponsiveLayout(String layoutID);
-	
+
 	public EventBus	getEventBus();
 	public IPlayerEventBusService getEventBusService();
 	public void sendEvent(String eventName, JavaScriptObject eventData);
 	public void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed);
 
+	public boolean isPageVisited(IPage page);
+	public JavaScriptObject getContextMetadata();
 }

@@ -1,14 +1,16 @@
 package com.lorepo.icplayer.client.module.text;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.dom.client.AudioElement;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
@@ -39,9 +41,15 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private boolean mathJaxIsLoaded = false;
 	private JavaScriptObject mathJaxHook = null;
 	private String originalDisplay = "";
+	private boolean isPreview = false;
+	
+	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
+	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
+	private ArrayList<GapWidget> gapsWidgets = new ArrayList<GapWidget>();
 	
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
+		this.isPreview = isPreview;
 		createUI(isPreview);
 		mathJaxLoaded();
 	}
@@ -95,6 +103,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			}
 			
 			gap.setDisabled(module.isDisabled());
+			
 			textElements.add(gap);
 		}
 	}
@@ -134,6 +143,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				}
 				
 				gap.setDisabled(module.isDisabled());
+				gapsWidgets.add(gap);
 				textElements.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
@@ -157,6 +167,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				}
 				
 				gap.setDisabled(module.isDisabled());
+				gapsWidgets.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
 			}
@@ -176,6 +187,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 							gap.setDisabled(savedDisabledState.get(counter));
 
 							textElements.set(counter, gap);
+							gapsWidgets.set(counter, gap);
 						}
 					} else {
 						GapWidget gap = new GapWidget(gi, listener);
@@ -186,6 +198,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						}
 
 						textElements.add(gap);
+						gapsWidgets.add(gap);
 						mathGapIds.add(id);
 					}
 				} catch (Exception e) {
@@ -216,7 +229,44 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			}
 		}
 	}
-	
+
+	@Override
+	public void connectAudios(Iterator<AudioInfo> iterator) {
+		while (iterator.hasNext()) {
+			final AudioInfo info = iterator.next();
+			String id = info.getId();
+
+			Element buttonElement = DOM.getElementById(AudioButtonWidget.BUTTON_ID_PREFIX + id);
+			AudioButtonWidget button = new AudioButtonWidget(buttonElement);
+
+			AudioElement audioElement = Document.get().getElementById(AudioWidget.AUDIO_ID_PREFIX + id).cast();
+			AudioWidget audio = new AudioWidget(audioElement);
+
+			info.setAudio(audio);
+			info.setButton(button);
+
+			button.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent clickEvent) {
+					if (listener != null) {
+						listener.onAudioButtonClicked(info);
+					}
+				}
+			});
+
+			audio.addEndedHandler(new EndedHandler() {
+				@Override
+				public void onEnded(EndedEvent endedEvent) {
+					if (listener != null) {
+						listener.onAudioEnded(info);
+					}
+				}
+			});
+
+			textElements.add(button);
+		}
+	}
+
 	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<TextElementDisplay> textElements) {
 		for (int i=startingIndex; i<textElements.size(); i++) {
 			TextElementDisplay textElement = textElements.get(i);
@@ -230,7 +280,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	public void sortGapsOrder () {
-//		final List<String> gapsOrder = module.getGapsOrder();
 		final List<String> gapsOrder = WCAGUtils.getGapsOrder(module);
 		final int gapsOrderSize = gapsOrder.size();
 		final int textElementsSize = textElements.size();
@@ -309,6 +358,9 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void setHTML (String html) {
+		if (isPreview && module.hasSyntaxError()) {
+			html += "<div class=\"errorMessage\">" + DictionaryWrapper.get("text_parse_error") + "</div>";
+		}
 		super.setHTML(html);
 	}
 	
@@ -324,22 +376,8 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	public void rerenderMathJax () {
 		MathJax.rerenderMathJax(getElement());
-		updateMathGaps();
-	}
-
-	private void updateMathGaps() {
-		for (GapInfo gapInfo : module.getGapInfos()) {
-			String gapId = gapInfo.getId();
-			GapWidget gap = new GapWidget(gapInfo, listener);
-
-			for (int index = 0; index < textElements.size(); index++) {
-				if (textElements.get(index).getId().equals(gapId)) {
-					String textValue = textElements.get(index).getTextValue();
-					gap.setText(textValue);
-					textElements.set(index, gap);
-				}
-			}
-		}
+		// If mathjax was re rendered then gaps lost handlers to thers DOM elements.
+		this.reconnectHandlers();
 	}
 
 	@Override
@@ -349,15 +387,19 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void show(boolean callRefreshMath) {
-		boolean isVisible = isVisible();
-
 		setVisible(true);
 		if (this.mathJaxIsLoaded) {
 			refreshMath();
 		}
-		if (callRefreshMath && !isVisible) {
+		if (callRefreshMath) {
 			refreshMath();
 			rerenderMathJax();
+		}
+	}
+	
+	private void reconnectHandlers () {
+		for (GapWidget element: this.gapsWidgets) {
+			element.reconnectHandlers(this.listener);
 		}
 	}
 

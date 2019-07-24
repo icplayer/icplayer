@@ -90,8 +90,9 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		isDragged = false;
 	
 		if (this.labelToRemove != null && this.idOfLabelToRemove != null) {
-			this.removeItem(this.idOfLabelToRemove);
+			labelsIds.remove(this.idOfLabelToRemove);
 			this.remove(this.labelToRemove);
+
 			this.labelToRemove = null;
 			this.idOfLabelToRemove = null;
 		}
@@ -134,6 +135,10 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 			refreshMath(label.getElement());
 		}
 
+		connectLabelEventHandlers(label, id);
+	}
+
+	public void connectLabelEventHandlers(HTML label, final String id) {
 		label.addTouchEndHandler(new TouchEndHandler() {
 			@Override
 			public void onTouchEnd(TouchEndEvent event) {

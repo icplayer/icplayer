@@ -144,6 +144,7 @@ function AddonText_Coloring_create() {
         this.savePreviousState();
         this.onBlock();
         presenter.unmarkToken(presenter.$wordTokens);
+        presenter.hideTokenClasses(presenter.$wordTokens);
         presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
             var colorDefinition = presenter.getColorDefinitionById(token.color);
             if (colorDefinition !== undefined) {
@@ -190,6 +191,8 @@ function AddonText_Coloring_create() {
         if (this.previousEraserMode) {
             presenter.setEraserButtonAsActive();
         }
+
+        presenter.showTokenClasses(presenter.$wordTokens);
     };
 
     TextColoringStateMachine.prototype.isCorrect = function () {
@@ -848,6 +851,7 @@ function AddonText_Coloring_create() {
             }
 
             word = word.substring(selectablePart.getStopOfIndex(), word.length);
+            selectablePart.pattern = /\\color{[^}]+}{[^}]+}/g;
         }
 
         if (word.length > 0)
@@ -1005,6 +1009,38 @@ function AddonText_Coloring_create() {
             "text-decoration": "none",
             "padding-bottom": "0.1em",
             "border-bottom": StringUtils.format("0.1em solid {0}", color)
+        });
+    };
+
+
+    presenter.hideTokenClasses = function ($element) {
+        if (!$element) return;
+        $element.each(function(){
+            var $this = $(this);
+            var classNames = $this.attr('class').split(/\s+/);
+            var disabledClasses = [];
+            for (var i = 0; i < classNames.length; i++) {
+                if (classNames[i] != presenter.defaults.css.selectableWord){
+                    $this.removeClass(classNames[i]);
+                    disabledClasses.push(classNames[i]);
+                }
+            }
+            this.dataset.disabledClasses = disabledClasses.join(' ');
+        });
+    };
+
+    presenter.showTokenClasses = function ($element) {
+        if (!$element) return;
+        $element.each(function(){
+            var $this = $(this);
+            var disabledClasses = this.dataset.disabledClasses;
+            if (disabledClasses) {
+                var classNames = disabledClasses.split(/\s+/);
+                for (var i = 0; i < classNames.length; i++) {
+                    $this.addClass(classNames[i]);
+                }
+                this.dataset.disabledClasses = '';
+            }
         });
     };
 

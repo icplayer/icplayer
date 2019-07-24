@@ -67,6 +67,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectDraggableGaps(Iterator<GapInfo> giIterator);
 		void connectInlineChoices(List<InlineChoiceInfo> list);
 		void connectLinks(Iterator<LinkInfo> giIterator);
+		void connectAudios(Iterator<AudioInfo> iterator);
 		int getChildrenCount();
 		TextElementDisplay getChild(int index);
 		void setValue(String id, String value);
@@ -223,6 +224,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void showAnswers() {
+		resetAudio();
+
 		if (!module.isActivity()) {
 			if (this.isShowErrorsMode) {
 				setWorkMode();
@@ -298,6 +301,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
 		}
+		resetAudio();
 		this.view.setShowErrorsMode();
 		this.isShowErrorsMode = true;
 	}
@@ -474,6 +478,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			child.setDisabled(module.isDisabled());
 		}
 
+		resetAudio();
+
 		if (enteredText != null) {
 			updateViewText();
 		}
@@ -486,6 +492,21 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		updateScore();
 
 		this.currentState = "";
+	}
+
+	private void resetAudio() {
+		List<AudioInfo> audioInfos = module.getAudioInfos();
+		for (int i = 0; i < audioInfos.size(); i++) {
+			AudioInfo audioInfo = audioInfos.get(i);
+			AudioButtonWidget button = audioInfo.getButton();
+			AudioWidget audio = audioInfo.getAudio();
+			boolean isElementExists = button != null && audio != null;
+
+			if (isElementExists && !audio.isPaused()) {
+				audio.reset();
+				button.setStartPlayingStyleClass();
+			}
+		}
 	}
 
 	@Override
@@ -582,16 +603,44 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		view.connectInlineChoices(module.getChoiceInfos());
 		view.connectLinks(module.getLinkInfos().iterator());
+		view.connectAudios(module.getAudioInfos().iterator());
 		view.sortGapsOrder();
 	}
 
 	private void connectViewListener() {
 		view.addListener(new ITextViewListener() {
 			@Override
+			public void onAudioButtonClicked(AudioInfo audioInfo) {
+				AudioWidget audio = audioInfo.getAudio();
+				AudioButtonWidget button = audioInfo.getButton();
+
+				if (audio.isPaused()) {
+					// in future if audio can be paused and replayed from stopped moment 
+					// reset would need to omit audio which was currently pressed
+					resetAudio();
+
+					audio.play();
+					button.setStopPlayingStyleClass();
+				} else {
+					audio.reset();
+					button.setStartPlayingStyleClass();
+				}
+			}
+
+			@Override
+			public void onAudioEnded(AudioInfo audioInfo) {
+				AudioWidget audio = audioInfo.getAudio();
+				AudioButtonWidget button = audioInfo.getButton();
+
+				audio.reset();
+				button.setStartPlayingStyleClass();
+			}
+
+			@Override
 			public void onUserAction(String id, String newValue) {
 				valueChangedOnUserAction(id, newValue);
 			}
-			
+
 			@Override
 			public void onValueChanged(String id, String newValue) {
 				valueChanged(id, newValue);
@@ -776,6 +825,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if(shouldFireEvent){
 			this.sendValueChangedEvent(itemID, value, score);
 		}
+		view.refreshMath();
 	}
 
 	protected void gapFocused(String gapId, Element element) {
@@ -945,6 +995,20 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 				markGapAsEmpty(gapIndex);
 			}
+		} else if (commandName.compareTo("getscore") == 0) {
+			return String.valueOf(getScore());
+		} else if (commandName.compareTo("geterrorcount") == 0) {
+			return String.valueOf(getErrorCount());
+		} else if (commandName.compareTo("getmaxscore") == 0) {
+			return String.valueOf(getMaxScore());
+		} else if (commandName.compareTo("setshowerrorsmode") == 0) {
+			setShowErrorsMode();
+		} else if (commandName.compareTo("setworkmode") == 0) {
+			setWorkMode();
+		} else if (commandName.compareTo("showanswers") == 0) {
+			showAnswers();
+		} else if (commandName.compareTo("hideanswers") == 0) {
+			hideAnswers();
 		}
 
 		return "";
@@ -1093,6 +1157,34 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		presenter.onEventReceived = function (eventName, data) {
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+
+		presenter.getScore = function() {
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getScore()();
+		};
+
+		presenter.getErrorCount = function() {
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getErrorCount()();
+		};
+
+		presenter.getMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getMaxScore()();
+		};
+
+		presenter.setShowErrorsMode = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setShowErrorsMode()();
+		};
+
+		presenter.setWorkMode = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setWorkMode()();
+		};
+
+		presenter.showAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::showAnswers()();
+		};
+
+		presenter.hideAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::hideAnswers()();
 		};
 
 		return presenter;

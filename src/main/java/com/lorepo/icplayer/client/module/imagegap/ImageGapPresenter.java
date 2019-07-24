@@ -212,6 +212,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		if (isShowAnswersActive) {
 			hideAnswers();
 		}
+		
+		if(this.consumedItem != null) {
+			this.removeItem(false);
+		}
+		
 		readyToDraggableItem = null;
 		consumedItem = null;
 		view.clearAltText();
@@ -274,6 +279,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			view.setAltText(getImageSourceAltText(readyToDraggableItem.getId()));
 			view.setImageUrl(readyToDraggableItem.getValue());
 			consumedItem = readyToDraggableItem;
+			String langAtribute = getSourceLangTag(consumedItem.getId()); 
 			fireItemConsumedEvent();
 			String score = Integer.toString(getScore());
 			ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", consumedItem.getId(), score);
@@ -283,7 +289,6 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 				playerServices.getEventBus().fireEvent(isAllOKevent);
 			}
 			view.makeDraggable(this);
-			String langAtribute = getSourceLangTag(consumedItem.getId()); 
 			if(getScore() == 0 && model.shouldBlockWrongAnswers()){
 				removeItem(false);
 			}
@@ -450,6 +455,20 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			enable();
 		} else if(commandName.compareTo("reset") == 0) {
 			reset();
+		} else if (commandName.compareTo("getscore") == 0) {
+			return String.valueOf(getScore());
+		} else if (commandName.compareTo("geterrorcount") == 0) {
+			return String.valueOf(getErrorCount());
+		} else if (commandName.compareTo("getmaxscore") == 0) {
+			return String.valueOf(getMaxScore());
+		} else if (commandName.compareTo("setshowerrorsmode") == 0) {
+			setShowErrorsMode();
+		} else if (commandName.compareTo("setworkmode") == 0) {
+			setWorkMode();
+		} else if (commandName.compareTo("showanswers") == 0) {
+			showAnswers();
+		} else if (commandName.compareTo("hideanswers") == 0) {
+			hideAnswers();
 		}
 
 		return value;
@@ -598,6 +617,34 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
 		};
 
+		presenter.getScore = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getScore()();
+		};
+
+		presenter.getErrorCount = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getErrorCount()();
+		};
+
+		presenter.getMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getMaxScore()();
+		};
+
+		presenter.setShowErrorsMode = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::setShowErrorsMode()();
+		};
+
+		presenter.setWorkMode = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::setWorkMode()();
+		};
+
+		presenter.showAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::showAnswers()();
+		};
+
+		presenter.hideAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::hideAnswers()();
+		};
+
 		return presenter;
 	}-*/;
 
@@ -611,20 +658,32 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		}
 		return currentEventData;
 	}
+	
+	private boolean isElementToDrag () {
+		return this.consumedItem != null || this.currentEventData != null;
+	}
 
 	private void itemDragged() {
+		if (!this.isElementToDrag()) { 
+			return;
+		}
+		
 		CustomEvent dragEvent = new CustomEvent("itemDragged", prepareEventData());
 		removeItem(true);
 		playerServices.getEventBus().fireEvent(dragEvent);
 	}
 
 	private void itemStopped() {
+		if (!this.isElementToDrag()) { 
+			return;
+		}
+		
 		CustomEvent stopEvent = new CustomEvent("itemStopped", prepareEventData());
 		playerServices.getEventBus().fireEvent(stopEvent);
 	}
 
 	private boolean isDragPossible() {
-		if (this.isShowAnswersActive || view.getDisabled()) {
+		if (this.isShowAnswersActive || view.getDisabled() || !this.isElementToDrag()) {
 			return false;
 		}
 		return true;

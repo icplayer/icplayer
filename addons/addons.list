@@ -78,6 +78,7 @@ SelectableAddonsBinder
 Shape_Tracing
 Show_Answers
 Limited_Show_Answers
+Limited_Submit
 Single_State_Button
 Slider
 Slideshow
@@ -111,4 +112,5 @@ PseudoCode_Console
 Dice
 Maze
 Media_Recorder
+EditableWindow
 Adaptive_Next

@@ -454,6 +454,10 @@ public class PlayerApp {
 		return $wnd.$(".ic_static_header").length > 0;
 	}-*/;
 
+	public JavaScriptObject getContextMetadata() {
+		return this.entryPoint.getContextMetadata();
+	}
+
 
 	/**
 	 * Init player after content is loaded
@@ -574,6 +578,9 @@ public class PlayerApp {
 			if (this.loadedState.get("isReportable") != null) {
 				this.playerController.getPlayerServices().getReportableService().loadFromString(this.loadedState.get("isReportable"));
 			}
+			if (this.loadedState.get("visitedPages") != null) {
+				this.playerController.loadVisitedPagesFromString(this.loadedState.get("visitedPages"));
+			}
 		}
 
 		//All reportable values for pages should be loaded before start.
@@ -659,6 +666,7 @@ public class PlayerApp {
 		String score = playerController.getPlayerServices().getScoreService().getAsString();
 		String time = playerController.getPlayerServices().getTimeService().getAsString();
 		String isReportable = playerController.getPlayerServices().getReportableService().getAsString();
+		String visitedPages = playerController.getVisitedPagesAsString();
 		String adaptivePageHistory = playerController.getAdaptiveLearningService().getStateAsString();
 
 		HashMap<String, String> data = new HashMap<String, String>();
@@ -667,6 +675,7 @@ public class PlayerApp {
 		data.put("time", time);
 		data.put("isReportable", isReportable);
 		data.put("adaptiveLearning", adaptivePageHistory);
+		data.put("visitedPages", visitedPages);
 
 		return JSONUtils.toJSONString(data);
 	}

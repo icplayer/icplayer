@@ -997,6 +997,7 @@ function AddonBasic_Math_Gaps_create(){
     presenter.GapsContainerObject.prototype.addGapFilled = function (gapID){
         this._gaps[gapID].removeCssClass("gapEmpty");
         this._gaps[gapID].addCssClass("gapFilled");
+        this._gaps[gapID].notifyEdit();
     };
 
     presenter.GapsContainerObject.prototype.showAnswers = function () {

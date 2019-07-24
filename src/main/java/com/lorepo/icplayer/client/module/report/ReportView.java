@@ -26,7 +26,7 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	private Grid grid;
 	private int lastRow;
 	private IViewListener listener;
-	private HashMap<Integer, String> pageLinks;
+	private HashMap<Integer, Integer> pageIds;
 	private boolean isWCAGOn = false;
 	private boolean isWCAGActive = false;
 	private PageController pageController;
@@ -45,7 +45,7 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	
 	private void createUI(boolean isPreview){
 		
-		pageLinks = new HashMap<Integer, String>();
+		pageIds = new HashMap<Integer, Integer>();
 		grid = new Grid(2, getColumnCount());
 		lastRow = 1;
 
@@ -91,8 +91,8 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		int row = cell.getRowIndex();
 		if(cell.getCellIndex() == 0 && row > 0 && row < grid.getRowCount()-1){
 			if(listener != null){
-				String link = pageLinks.get(row);
-				listener.onClicked(link);
+				int pageId = pageIds.get(row);
+				listener.onClicked(pageId);
 			}
 		}
 	}
@@ -104,10 +104,10 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 
 	@Override
-	public void addRow(String pageName, PageScore pageScore){
+	public void addRow(String pageName, Integer pageId, PageScore pageScore){
 
 		appendEmptyRow();
-		pageLinks.put(lastRow, pageName);
+		pageIds.put(lastRow, pageId);
 		grid.setText(lastRow, 0, pageName);
 		grid.getCellFormatter().addStyleName(lastRow, 0, "ic_reportPage");
 
@@ -270,8 +270,8 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		if (listener != null 
 			&& this.currentWCAGSelectedColumnIndex == 0 
 			&& this.currentWCAGSelectedRowIndex != grid.getRowCount()-1) {
-				String link = pageLinks.get(this.currentWCAGSelectedRowIndex);
-				listener.onClicked(link);
+				Integer pageId = pageIds.get(this.currentWCAGSelectedRowIndex);
+				listener.onClicked(pageId);
 		}
 	}
 

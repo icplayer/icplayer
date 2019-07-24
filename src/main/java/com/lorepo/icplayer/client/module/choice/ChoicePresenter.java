@@ -468,7 +468,21 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
         } else if (commandName.compareTo("markoptionasempty") == 0 && params.size() == 1) {
 			param = (IStringType) params.get(0);
         	markOptionAsEmpty(Integer.parseInt(param.getValue()));
-        }
+        } else if (commandName.compareTo("getscore") == 0) {
+			return String.valueOf(getScore());
+		} else if (commandName.compareTo("geterrorcount") == 0) {
+			return String.valueOf(getErrorCount());
+		} else if (commandName.compareTo("getmaxscore") == 0) {
+			return String.valueOf(getMaxScore());
+		} else if (commandName.compareTo("setshowerrorsmode") == 0) {
+			setShowErrorsMode();
+		} else if (commandName.compareTo("setworkmode") == 0) {
+			setWorkMode();
+		} else if (commandName.compareTo("showanswers") == 0) {
+			showAnswers();
+		} else if (commandName.compareTo("hideanswers") == 0) {
+			hideAnswers();
+		}
 		
 		return "";
 	}
@@ -549,6 +563,34 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		
 		presenter.onEventReceived = function (eventName, data) {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+
+		presenter.getScore = function() {
+			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::getScore()();
+		};
+
+		presenter.getErrorCount = function() {
+			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::getErrorCount()();
+		};
+
+		presenter.getMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::getMaxScore()();
+		};
+
+		presenter.setShowErrorsMode = function() {
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::setShowErrorsMode()();
+		};
+
+		presenter.setWorkMode = function() {
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::setWorkMode()();
+		};
+
+		presenter.showAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::showAnswers()();
+		};
+
+		presenter.hideAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::hideAnswers()();
 		};
 
 		return presenter;

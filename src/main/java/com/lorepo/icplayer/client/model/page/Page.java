@@ -139,8 +139,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			return x.@com.lorepo.icplayer.client.model.page.Page::getPreview()();
 		}
 
-		page.isVisited = function() {
-			return x.@com.lorepo.icplayer.client.model.page.Page::isVisited()();
+		page.isVisited = function(checkReportable) {
+			if (!checkReportable) {
+				checkReportable = false;
+			}
+			return x.@com.lorepo.icplayer.client.model.page.Page::isVisited(Z)(checkReportable);
 		}
 
 		page.getModulesAsJS = function() {
@@ -895,7 +898,17 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	public boolean isVisited() {
-
+		return isVisited(false);
+	}
+	
+	/*
+	 * If checkNonReportable is set to false, isVisted always returns false for non-reportable page
+	 * If checkNonReportable is set to true, non-reportable pages will be treated the same way as any other. 
+	 * */
+	public boolean isVisited(boolean checkNonReportable) {
+		if (checkNonReportable) {
+			return playerServices.isPageVisited(this);
+		}
 		String pageId;
 		int index = 0;
 		int pageCount = playerServices.getModel().getPageCount();

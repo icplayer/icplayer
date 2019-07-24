@@ -387,13 +387,17 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::changeSemiResponsiveLayout(Ljava/lang/String;)(layoutIDOrName);
 		}
 
+		playerServices.getContextMetadata = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContextMetadata()();
+		};
+
 		playerServices.getAdaptiveLearningService = function () {
 			var adaptive = function() {};
 
 			adaptive.getCurrentPageConnections = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveConnectionCurrentPage()();
 			};
-			
+
 			adaptive.addNextPage = function(pageID) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addNextAdaptivePage(Ljava/lang/String;)(pageID);
 			};
@@ -427,7 +431,11 @@ public class JavaScriptPlayerServices {
 
 		return playerServices;
 	}-*/;
-	
+
+	private JavaScriptObject getContextMetadata() {
+		return this.playerServices.getContextMetadata();
+	}
+
 	private boolean changeSemiResponsiveLayout(String layoutIDOrName) {
 		return this.playerServices.changeSemiResponsiveLayout(layoutIDOrName);
 	}

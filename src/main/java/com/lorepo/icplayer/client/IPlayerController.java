@@ -1,11 +1,13 @@
 package com.lorepo.icplayer.client;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IReportableService;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
@@ -48,6 +50,7 @@ public interface IPlayerController {
 	void enableKeyboardNavigation();
 	void disableKeyboardNavigation();
 	boolean isPlayerInCrossDomain();
+	Set<IPage> getVisitedPages();
 	String getCurrentPageId();
 
 	String getPageStamp();

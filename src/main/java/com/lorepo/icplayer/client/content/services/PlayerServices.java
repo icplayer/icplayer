@@ -15,6 +15,7 @@ import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerEventBusService;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -209,7 +210,12 @@ public class PlayerServices implements IPlayerServices {
 		
 		this.fixDroppable();
 	}
-	
+
+	@Override
+	public JavaScriptObject getContextMetadata() {
+		return this.application.getContextMetadata();
+	}
+
 	public void fixDroppable() {
 		if (this.jQueryPrepareOffsetsFunction == null) {
 			this.jQueryPrepareOffsetsFunction = this.getJQueryUIPrepareOffsetFunction();
@@ -312,6 +318,11 @@ public class PlayerServices implements IPlayerServices {
 			return pc.isWCAGOn();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean isPageVisited(IPage page) {
+		return this.playerController.getVisitedPages().contains(page);
 	}
 
 	@Override
