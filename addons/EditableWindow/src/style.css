@@ -3,7 +3,7 @@ div.addon-editable-window-container {
 }
 
 div.addon-editable-window-container.addon-editable-window-container-full-screen.ui-draggable-disabled {
-    opacity: initial;
+    opacity: 1;
     background-image: initial;
 }
 
