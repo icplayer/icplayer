@@ -69,15 +69,15 @@ function AddonFlashCards_create(){
 
         presenter.view = view;
         presenter.$view = $(view);
-        presenter.$flashcards_prev = presenter.$view.find(".flashcards-prev");
-        presenter.$flashcards_next = presenter.$view.find(".flashcards-next");
-        presenter.$flashcards_button_favourite = presenter.$view.find(".flashcards-button-favourite");
-        presenter.$flashcards_button_wrong = presenter.$view.find(".flashcards-button-wrong");
-        presenter.$flashcards_button_correct = presenter.$view.find(".flashcards-button-correct");
-        presenter.$flashcards_button_reset = presenter.$view.find(".flashcards-button-reset");
-        presenter.$flashcards_button = presenter.$view.find(".flashcards-button");
-        presenter.$flashcards_card_audio_button_front = presenter.$view.find(".flashcards-card-audio-button-front");
-        presenter.$flashcards_card_audio_button_back = presenter.$view.find(".flashcards-card-audio-button-back");
+        presenter.flashcardsPrev = presenter.$view.find(".flashcards-prev");
+        presenter.flashcardsNext = presenter.$view.find(".flashcards-next");
+        presenter.flashcardsButtonFavourite = presenter.$view.find(".flashcards-button-favourite");
+        presenter.flashcardsButtonWrong = presenter.$view.find(".flashcards-button-wrong");
+        presenter.flashcardsButtonCorrect = presenter.$view.find(".flashcards-button-correct");
+        presenter.flashcardsButtonReset = presenter.$view.find(".flashcards-button-reset");
+        presenter.flashcardsButton = presenter.$view.find(".flashcards-button");
+        presenter.flashcardsCardAudioButtonFront = presenter.$view.find(".flashcards-card-audio-button-front");
+        presenter.flashcardsCardAudioButtonBack = presenter.$view.find(".flashcards-card-audio-button-back");
         presenter.audioElementBack =  presenter.$view.find(".flashcards-card-audio-back").get(0);
         presenter.audioElementFront =  presenter.$view.find(".flashcards-card-audio-front").get(0);
         
@@ -92,14 +92,14 @@ function AddonFlashCards_create(){
         presenter.state.totalCards = presenter.Cards.length;
 
         if (presenter.configuration.HidePrevNext) {
-            $(presenter.$flashcards_prev.get(0)).hide();
-            $(presenter.$flashcards_next.get(0)).hide();
+            $(presenter.flashcardsPrev.get(0)).hide();
+            $(presenter.flashcardsNext.get(0)).hide();
         }
         if (!presenter.configuration.ShowButtons) {
             $(presenter.$view.find(".flashcards-buttons").get(0)).hide();
         }
         if (presenter.configuration.Favourites == false) {
-            $(presenter.$flashcards_button_favourite.get(0)).hide();
+            $(presenter.flashcardsButtonFavourite.get(0)).hide();
         }        
 
         presenter.showCard(1);
@@ -133,38 +133,38 @@ function AddonFlashCards_create(){
             e.preventDefault();
             presenter.revertCard();
         });
-        $(presenter.$flashcards_prev).click(function (e) {
+        $(presenter.flashcardsPrev).click(function (e) {
             if (presenter.isErrorMode) return;
             e.preventDefault();
             presenter.prevCard();
         });
-        $(presenter.$flashcards_next).click(function (e) {
+        $(presenter.flashcardsNext).click(function (e) {
             if (presenter.isErrorMode) return;
             e.preventDefault();
             presenter.nextCard();
         });
 
         //SCORE BUTTONS
-        $(presenter.$flashcards_button_wrong).click(function () {
+        $(presenter.flashcardsButtonWrong).click(function () {
             if (presenter.isErrorMode) return;
             presenter.state.cardsScore[presenter.state.currentCard] = -1;
-            $(presenter.$flashcards_button).removeClass("flashcards-button-selected");
+            $(presenter.flashcardsButton).removeClass("flashcards-button-selected");
             $(this).addClass("flashcards-button-selected");
         });
-        $(presenter.$flashcards_button_correct).click(function () {
+        $(presenter.flashcardsButtonCorrect).click(function () {
             if (presenter.isErrorMode) return;
             presenter.state.cardsScore[presenter.state.currentCard] = 1;
-            $(presenter.$flashcards_button).removeClass("flashcards-button-selected");
+            $(presenter.flashcardsButton).removeClass("flashcards-button-selected");
             $(this).addClass("flashcards-button-selected");
         });
-        $(presenter.$flashcards_button_reset).click(function () {
+        $(presenter.flashcardsButtonReset).click(function () {
             if (presenter.isErrorMode) return;
             presenter.state.cardsScore[presenter.state.currentCard] = 0;
-            $(presenter.$flashcards_button).removeClass("flashcards-button-selected");
+            $(presenter.flashcardsButton).removeClass("flashcards-button-selected");
         });
 
         //FAVOURITE BUTTON
-        $(presenter.$flashcards_button_favourite).click(function () {
+        $(presenter.flashcardsButtonFavourite).click(function () {
             if (presenter.isErrorMode) return;
             if (presenter.state.cardsFavourites[presenter.state.currentCard - 1] == false){
                 presenter.state.cardsFavourites[presenter.state.currentCard - 1] = true;
@@ -178,30 +178,30 @@ function AddonFlashCards_create(){
         });
 
         //AUDIO
-        $(presenter.$flashcards_card_audio_button_front).click(function () {
+        $(presenter.flashcardsCardAudioButtonFront).click(function () {
             if (presenter.isErrorMode) return;
             
             if (presenter.isFrontPlaying == false) {
                 presenter.isFrontPlaying = true;
                 presenter.audioElementFront.play();
-                $(presenter.$flashcards_card_audio_button_front).addClass("playing");
+                $(presenter.flashcardsCardAudioButtonFront).addClass("playing");
             }else{
                 presenter.isFrontPlaying = false;
                 presenter.audioElementFront.pause();
-                $(presenter.$flashcards_card_audio_button_front).removeClass("playing");
+                $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
             }
         });
-        $(presenter.$flashcards_card_audio_button_back).click(function () {
+        $(presenter.flashcardsCardAudioButtonBack).click(function () {
             if (presenter.isErrorMode) return;
             presenter.audioElementBack =  presenter.$view.find(".flashcards-card-audio-back").get(0);
             if (presenter.isBackPlaying == false) {
                 presenter.isBackPlaying = true;
                 presenter.audioElementBack.play();
-                $(presenter.$flashcards_card_audio_button_back).addClass("playing");
+                $(presenter.flashcardsCardAudioButtonBack).addClass("playing");
             }else{
                 presenter.isBackPlaying = false;
                 presenter.audioElementBack.pause();
-                $(presenter.$flashcards_card_audio_button_back).removeClass("playing");
+                $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
             }
         });  
     };
@@ -217,11 +217,11 @@ function AddonFlashCards_create(){
     presenter.revertCard = function () {
         presenter.isFrontPlaying = false;
         presenter.audioElementFront.pause();
-        $(presenter.$flashcards_card_audio_button_front).removeClass("playing");
+        $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
 
         presenter.isBackPlaying = false;
         presenter.audioElementBack.pause();
-        $(presenter.$flashcards_card_audio_button_back).removeClass("playing");
+        $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
 
         presenter.$card.find(".flashcards-card-back .flashcards-card-contents").show();
         $(presenter.$view.find(".flashcards-card").get(0)).toggleClass("flashcards-card-reversed");
@@ -262,12 +262,12 @@ function AddonFlashCards_create(){
 
     presenter.displayCard = function (cardNumber) {
         if (presenter.state.noLoop){
-            $(presenter.$flashcards_prev.get(0)).attr("disabled", false);
-            $(presenter.$flashcards_next.get(0)).attr("disabled", false);
+            $(presenter.flashcardsPrev.get(0)).attr("disabled", false);
+            $(presenter.flashcardsNext.get(0)).attr("disabled", false);
             if (cardNumber == 1){
-                $(presenter.$flashcards_prev.get(0)).attr("disabled", true);
+                $(presenter.flashcardsPrev.get(0)).attr("disabled", true);
             }else if (cardNumber == presenter.state.totalCards){
-                $(presenter.$flashcards_next.get(0)).attr("disabled", true);
+                $(presenter.flashcardsNext.get(0)).attr("disabled", true);
             }
         }
 
@@ -287,31 +287,31 @@ function AddonFlashCards_create(){
         presenter.$view.find(".flashcards-card-contents-back").get(0).innerHTML = presenter.Cards[cardNumber - 1].Back;
 
         //SCORE BUTTONS
-        $(presenter.$flashcards_button).removeClass("flashcards-button-selected");
+        $(presenter.flashcardsButton).removeClass("flashcards-button-selected");
         if (presenter.state.cardsScore[presenter.state.currentCard] == 1){
-            $(presenter.$flashcards_button_correct).addClass("flashcards-button-selected");
+            $(presenter.flashcardsButtonCorrect).addClass("flashcards-button-selected");
         }
         if (presenter.state.cardsScore[presenter.state.currentCard] == -1){
-            $(presenter.$flashcards_button_wrong).addClass("flashcards-button-selected");
+            $(presenter.flashcardsButtonWrong).addClass("flashcards-button-selected");
         }
 
         //FAV BUTTON
         if (presenter.state.cardsFavourites[presenter.state.currentCard - 1] == true) {
-            $(presenter.$flashcards_button_favourite).addClass("flashcards-button-selected");
+            $(presenter.flashcardsButtonFavourite).addClass("flashcards-button-selected");
         }else{
-            $(presenter.$flashcards_button_favourite).removeClass("flashcards-button-selected");
+            $(presenter.flashcardsButtonFavourite).removeClass("flashcards-button-selected");
         }
 
         //AUDIO - front
         presenter.isFrontPlaying = false;
-        $(presenter.$flashcards_card_audio_button_front).removeClass("playing");
-        $(presenter.$flashcards_card_audio_button_front).addClass("disabled");
+        $(presenter.flashcardsCardAudioButtonFront).removeClass("playing");
+        $(presenter.flashcardsCardAudioButtonFront).addClass("disabled");
         if (presenter.Cards[presenter.state.currentCard - 1].AudioFront != ""){
             $(presenter.$view.find(".flashcards-card-audio-wrapper-front")).show();
             if (presenter.audioElementFront.canPlayType("audio/mpeg")) {
                 presenter.audioElementFront.setAttribute("src",presenter.Cards[presenter.state.currentCard - 1].AudioFront);
                 presenter.audioElementFront.oncanplay = function () {
-                    $(presenter.$flashcards_card_audio_button_front).removeClass("disabled");
+                    $(presenter.flashcardsCardAudioButtonFront).removeClass("disabled");
                 };
             } 
         }else{
@@ -320,14 +320,14 @@ function AddonFlashCards_create(){
         }
         //AUDIO - back
         presenter.isBackPlaying = false;
-        $(presenter.$flashcards_card_audio_button_back).removeClass("playing");
-        $(presenter.$flashcards_card_audio_button_back).addClass("disabled");
+        $(presenter.flashcardsCardAudioButtonBack).removeClass("playing");
+        $(presenter.flashcardsCardAudioButtonBack).addClass("disabled");
         if (presenter.Cards[presenter.state.currentCard - 1].AudioBack != ""){
             $(presenter.$view.find(".flashcards-card-audio-wrapper-back")).show();
             if (presenter.audioElementBack.canPlayType("audio/mpeg")) {
                 presenter.audioElementBack.setAttribute("src",presenter.Cards[presenter.state.currentCard - 1].AudioBack);
                 presenter.audioElementBack.oncanplay = function () {
-                    $(presenter.$flashcards_card_audio_button_back).removeClass("disabled");
+                    $(presenter.flashcardsCardAudioButtonBack).removeClass("disabled");
                 };
             } 
         }else{
@@ -375,7 +375,7 @@ function AddonFlashCards_create(){
         $(presenter.Cards).each(function (key) {
             presenter.state.cardsFavourites[key] = false;
         });
-        $(presenter.$flashcards_button_favourite).removeClass("flashcards-button-selected");
+        $(presenter.flashcardsButtonFavourite).removeClass("flashcards-button-selected");
     };
     
     presenter.reset = function () {
@@ -461,12 +461,12 @@ function AddonFlashCards_create(){
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
         $(presenter.$view.find(".flashcards-card-contents")).unbind();
-        $(presenter.$flashcards_button_wrong).unbind();
-        $(presenter.$flashcards_button_correct).unbind();
-        $(presenter.$flashcards_button_reset).unbind();
-        $(presenter.$flashcards_button_favourite).unbind();
-        $(presenter.$flashcards_button_favourite).unbind();
-        $(presenter.$flashcards_next).unbind();
+        $(presenter.flashcardsButtonWrong).unbind();
+        $(presenter.flashcardsButtonCorrect).unbind();
+        $(presenter.flashcardsButtonReset).unbind();
+        $(presenter.flashcardsButtonFavourite).unbind();
+        $(presenter.flashcardsButtonFavourite).unbind();
+        $(presenter.flashcardsNext).unbind();
         
     };
 
