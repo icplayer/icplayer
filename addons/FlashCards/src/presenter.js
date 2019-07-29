@@ -5,7 +5,7 @@ function AddonFlashCards_create(){
     presenter.configuration = {
         isVisible: false,
         currentCard: 1,
-        NoLoop: false,
+        noLoop: false,
         IsActivity: false,
         Favourites: false
     };
@@ -14,7 +14,7 @@ function AddonFlashCards_create(){
 		isVisible: false,
         currentCard: 1,
         totalCards: 1,
-        NoLoop: false,
+        noLoop: false,
         IsActivity: false,
         Favourites: false,
         ShowOnlyFavourites: false,
@@ -45,7 +45,7 @@ function AddonFlashCards_create(){
 		return {
 			isValid: true,
 			isVisible: ModelValidationUtils.validateBoolean(model["Is Visible"]),
-            NoLoop: ModelValidationUtils.validateBoolean(model['NoLoop']),
+            noLoop: ModelValidationUtils.validateBoolean(model['NoLoop']),
 			Favourites: ModelValidationUtils.validateBoolean(model['Favourites']),
 			HidePrevNext: ModelValidationUtils.validateBoolean(model['HidePrevNext']),
             ShowButtons: ModelValidationUtils.validateBoolean(model['ShowButtons']),
@@ -63,7 +63,7 @@ function AddonFlashCards_create(){
         presenter.isErrorMode = false;
         presenter.Cards = model.Cards;
         presenter.state.isVisible = presenter.configuration.isVisible;
-        presenter.state.NoLoop = presenter.configuration.NoLoop;
+        presenter.state.noLoop = presenter.configuration.noLoop;
         presenter.state.cardsScore = presenter.configuration.cardsScore;
         presenter.state.cardsFavourites = presenter.configuration.cardsFavourites;
 
@@ -230,7 +230,7 @@ function AddonFlashCards_create(){
     presenter.prevCard = function () {
         if (presenter.state.currentCard>1){
             presenter.state.currentCard -= 1;
-        }else if (presenter.state.NoLoop == false){
+        }else if (presenter.state.noLoop == false){
             presenter.state.currentCard = presenter.state.totalCards;
         }
         presenter.showCard(presenter.state.currentCard);
@@ -239,7 +239,7 @@ function AddonFlashCards_create(){
     presenter.nextCard = function () {
         if (presenter.state.currentCard < presenter.state.totalCards){
             presenter.state.currentCard += 1;
-        }else if (presenter.state.NoLoop == false){
+        }else if (presenter.state.noLoop == false){
             presenter.state.currentCard = 1;
         }
         presenter.showCard(presenter.state.currentCard);
@@ -261,7 +261,7 @@ function AddonFlashCards_create(){
     };
 
     presenter.displayCard = function (cardNumber) {
-        if (presenter.state.NoLoop){
+        if (presenter.state.noLoop){
             $(presenter.$flashcards_prev.get(0)).attr("disabled", false);
             $(presenter.$flashcards_next.get(0)).attr("disabled", false);
             if (cardNumber == 1){
