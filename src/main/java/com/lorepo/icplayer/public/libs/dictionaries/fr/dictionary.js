@@ -1959,5 +1959,6 @@ var ice_dictionary_fr = {
     "EditableWindow_property_header_style": "Header style",
     "EditableWindow_property_editing_enabled" : "Editing enabled",
 	"FlashCards_name" : "Flash Cards",
-    "FlashCards_info" : "Flash Cards"
+    "FlashCards_info" : "Flash Cards",
+    "EditableWindow_property_disable_resize_height" : "Disable resize height"
 };
