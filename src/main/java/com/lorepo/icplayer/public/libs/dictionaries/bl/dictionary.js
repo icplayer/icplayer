@@ -1979,5 +1979,5 @@ var ice_dictionary_bl = {
 	"EditableWindow_property_header_style": "Стил на горния колонтитул",
 	"EditableWindow_property_editing_enabled" : "Разреши редактиране",
 	"FlashCards_name" : "Flash Cards",
-    "FlashCards_info" : "Flash Cards"
+    "FlashCards_info" : "In Flash Cards module you can create cards with varied content such as text, images and audio, which are different at the front and back of the card. Each card can be marked as favourite and graded by the student as correct or wrong in the activity mode."
 };
