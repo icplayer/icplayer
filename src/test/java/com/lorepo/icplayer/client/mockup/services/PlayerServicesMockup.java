@@ -253,4 +253,10 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public void sendResizeEvent() {
 		// TODO Auto-generated method stub
 	}
+
+
+	@Override
+	public String getContentMetadata(String key) {
+		return contentModel.getMetadataValue(key);
+	}
 }

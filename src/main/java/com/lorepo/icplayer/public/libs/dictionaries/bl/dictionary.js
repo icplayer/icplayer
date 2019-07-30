@@ -173,6 +173,7 @@ var ice_dictionary_bl = {
 	"rulers_snapping": "Залепяне на модул за линийките",
 	"static_header" : "Неподвижен горен колонтитул: ",
 	"static_footer" : "Неподвижен долен колонтитул: ",
+	"passing_score": "Passing score",
 	"save_strong" : "<strong>Запази</strong>",
 	"cancel" : "Отказ",
 	"editor_tips" : "Съвет: Ctrl-F: Намери, Ctrl-G: Намери следващ",

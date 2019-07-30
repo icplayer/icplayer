@@ -173,6 +173,7 @@ var ice_dictionary_en = {
 	"rulers_snapping": "Module to Rulers Snapping",
 	"static_header" : "Static header: ",
 	"static_footer" : "Static footer: ",
+	"passing_score": "Passing score",
 	"save_strong" : "<strong>Save</strong>",
 	"cancel" : "Cancel",
 	"editor_tips" : "Tip: Ctrl-F: Find, Ctrl-G: Find next",

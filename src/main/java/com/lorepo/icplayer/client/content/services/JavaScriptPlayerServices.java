@@ -542,6 +542,10 @@ public class JavaScriptPlayerServices {
 		playerServices.sendResizeEvent = function() {
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendResizeEvent()();
 		};
+		
+		playerServices.getContentMetadataValue = function (key) {
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContentMetadata(Ljava/lang/String;)(key);
+		}
 
 		return playerServices;
 	}-*/;
@@ -980,5 +984,9 @@ public class JavaScriptPlayerServices {
 		NativeEvent event = Document.get().createKeyDownEvent(false, false, reverseDirection, false, 9);
 		// Send a Tab or Tab+Shift keydown event to the keyboard controller
 		DomEvent.fireNativeEvent(event,  RootPanel.get());
+	}
+	
+	public String getContentMetadata(String key) {
+		return playerServices.getContentMetadata(key);
 	}
 }

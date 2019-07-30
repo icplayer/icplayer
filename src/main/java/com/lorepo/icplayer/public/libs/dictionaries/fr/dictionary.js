@@ -173,6 +173,7 @@ var ice_dictionary_fr = {
     "rulers_snapping": "Module pour l'apparition des règles",
     "static_header" : "En-tête statique : ",
     "static_footer" : "Pied de page statique : ",
+	"passing_score": "Passing score",
     "save_strong" : "<strong>Sauvegarder</strong>",
     "cancel" : "Annuler",
     "editor_tips" : "Astuce : Ctrl-F : Rechercher, Ctrl-G : Rechercher suivant",

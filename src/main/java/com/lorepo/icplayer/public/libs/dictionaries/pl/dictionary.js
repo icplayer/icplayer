@@ -173,6 +173,7 @@ var ice_dictionary_pl = {
 	"rulers_snapping": "Przyciąganie modułu do prowadnic",
 	"static_header" : "Nagłówek statyczny: ",
 	"static_footer" : "Stopka statyczna: ",
+	"passing_score": "Passing score",
 	"save_strong" : "<strong>Zapisz</strong>",
 	"cancel" : "Anuluj",
 	"editor_tips" : "Wskazówka: Ctrl-F: Znajdź, Ctrl-G: Znajdź następny",
