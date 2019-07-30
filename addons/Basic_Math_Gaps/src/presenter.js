@@ -813,6 +813,12 @@ function AddonBasic_Math_Gaps_create(){
         presenter.setVisibility(upgradedState.isVisible);
     };
 
+    presenter.isAttempted = function() {
+		if(!presenter.configuration.isActivity || presenter.gapsContainer.areAllGapsFilled()){
+			return true;
+		}
+    };
+    
     presenter.show = function() {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
@@ -852,7 +858,8 @@ function AddonBasic_Math_Gaps_create(){
             'disable' : presenter.disable,
             'enable' : presenter.enable,
             'isAllOK' : presenter.isAllOK,
-            'getView' : presenter.getView
+            'getView' : presenter.getView,
+			'isAttempted' : presenter.isAttempted
         };
 
         Commands.dispatch(commands, name, params, presenter);
