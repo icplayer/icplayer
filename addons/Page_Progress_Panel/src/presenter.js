@@ -72,7 +72,6 @@ function AddonPage_Progress_Panel_create(){
         presenter.configuration = presenter.validateModel(model);
 		presenter.displayText();
 		presenter.state.isVisible = presenter.configuration.isVisible;
-		presenter.updateVisibility();
 
         removeHidden(presenter.configuration.showProgressBar, presenter.$progressBarContainer);
         removeHidden(presenter.configuration.showChecks, presenter.$checks);
@@ -81,6 +80,7 @@ function AddonPage_Progress_Panel_create(){
         removeHidden(presenter.configuration.showMaxScore, presenter.$maxScore);
         removeHidden(presenter.configuration.showCorrectAnswers, presenter.$correctAnswers);
 		if (!isPreview) {
+		    presenter.updateVisibility();
 			var currentPageIndex = presenter.playerController.getCurrentPageIndex();
 			var pageId = presenter.playerController.getPresentation().getPage(currentPageIndex).getId();
 			var score = presenter.playerController.getScore().getPageScoreById(pageId);
@@ -216,19 +216,27 @@ function AddonPage_Progress_Panel_create(){
         presenter.setVisibility(false);
     };
 
-	presenter.setVisibility = function(isVisible) {
+    presenter.setVisibility = function(isVisible) {
         presenter.state.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-	presenter.updateVisibility = function() {
+    presenter.updateVisibility = function() {
         (presenter.state.isVisible) ? presenter.show() : presenter.hide();
+    };
+	
+    presenter.updateMistakes = function() {
+	presenter.lastScores.sumOfMistakes = getPageScore().sumOfMistakes;
+	if (presenter.configuration.showMistakes) {
+		presenter.$mistakes.find('.value').html(presenter.lastScores.sumOfMistakes);
+	}
     };
 
     presenter.executeCommand = function(name, params) {
         var commands = {
             'show' : presenter.show,
             'hide' : presenter.hide,
+	    'updateMistakes' : presenter.updateMistakes,
         };
         Commands.dispatch(commands, name, params, presenter);
     };

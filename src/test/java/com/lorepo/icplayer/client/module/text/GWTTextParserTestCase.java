@@ -8,6 +8,7 @@ import java.util.Iterator;
 import org.junit.Test;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.ui.HTML;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
@@ -112,6 +113,114 @@ public class GWTTextParserTestCase extends GwtTest{
 		assertEquals(2, parsed.gapInfos.size());
 
 	}
+	
+	@Test
+	public void testInlineChoice1() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="{{1:answer1|answer2|answer3}}";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		
+		Element root = new HTML(parsed.parsedText).getElement();
+		assertEquals(1,root.getChildCount());
+		
+		Element select = (Element)root.getChild(0);
+		assertEquals(4,select.getChildCount());
+		
+		String[] answers = {"---","answer1","answer2","answer3"};
+		String[] values = {"-","answer1","answer2","answer3"};
+		for (int i=0; i<4; i++) {
+			Element option = (Element)select.getChild(i);
+			assertEquals(answers[i],option.getInnerText());
+			assertEquals(values[i],option.getAttribute("value"));
+		}
+	}
+	
+	@Test
+	public void testInlineChoiceWithHtmlTags() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="{{1:<b>answer1</b>|answer2|answer3}}";
+		String expectedText = "<select class=\"ic_inlineChoice\" id=\"xcf-1\">" +
+		            "<option value=\"-\">---</option>" +
+		            "<option value=\"&lt;b&gt;answer1&lt;/b&gt;\" aria-label=\"&lt;b&gt;answer1&lt;/b&gt;\"><b>answer1</b></option>" +
+		            "<option value=\"answer2\" aria-label=\"answer2\">answer2</option>" +
+		            "<option value=\"answer3\" aria-label=\"answer3\">answer3</option>" +
+		            "</select>";
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		int index = parsed.parsedText.indexOf(expectedText);
+		assertTrue(index >= 0);
+		
+		
+	}
+	
+	@Test
+	public void testGapWithLangTag() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="\\gap{answer1} \\gap{answer1}[lang pl] \\gap{answer1|answer2|answer3}[lang de]";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(3, parsed.gapInfos.size());
+		assertEquals("",parsed.gapInfos.get(0).getLangTag());
+		assertEquals("pl",parsed.gapInfos.get(1).getLangTag());
+		assertEquals("de",parsed.gapInfos.get(2).getLangTag());
+	}
+	
+	@Test
+	public void testDropdownGapWithSpecialChars() {
+		TextParser parser = new TextParser();
+		parser.setKeepOriginalOrder(true);
+		String srcText ="{{1:answer 1 &amp; &lt; &gt; &apos; &quot;|answer 2 & < > ' \"}}";
+		parser.setId("xcf");		
+		
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(1, parsed.choiceInfos.size());
+		Iterator<String> iterator = parsed.choiceInfos.get(0).getDistractors();
+		
+		assertEquals("answer 1 & < > ' \"", iterator.next());
+		assertEquals("answer 2 & < > ' \"", iterator.next());
+	}
+	
+	@Test
+	public void testGapWithSpecialChars() {
+		TextParser parser = new TextParser();
+		parser.setKeepOriginalOrder(true);
+		
+		String srcText ="\\gap{answer 1 &amp; &lt; &gt; &apos; &quot;|answer 2 & < > ' \"}}";
+		parser.setId("xcf");		
+		
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(1, parsed.gapInfos.size());
+		
+		Iterator<String> iterator =  parsed.gapInfos.get(0).getAnswers();
+		
+		assertEquals("answer 1 & < > ' \"", iterator.next());
+		assertEquals("answer 2 & < > ' \"", iterator.next());
+	}
+	
+	@Test
+	public void testFilledGapWithLangTag() {
+		
+		TextParser parser = new TextParser();
+		String srcText ="\\filledGap{default|answer1} \\filledGap{default|answer1}[lang pl] \\filledGap{default|answer1|answer2|answer3}[lang de]";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		
+		assertEquals(3, parsed.gapInfos.size());
+		assertEquals("",parsed.gapInfos.get(0).getLangTag());
+		assertEquals("pl",parsed.gapInfos.get(1).getLangTag());
+		assertEquals("de",parsed.gapInfos.get(2).getLangTag());
+
+	}
 
 	@Test
 	public void testGap3() {
@@ -202,7 +311,8 @@ public class GWTTextParserTestCase extends GwtTest{
 		parser.setId("xcf");
 		ParserResult parsed = parser.parse(srcText);
 		
-		assertEquals("#ERROR#", parsed.parsedText);
+		assertEquals("{{1 {{1:7200}}", parsed.parsedText);
+		assertTrue(parsed.hasSyntaxError);
 	}
 
 	@Test
@@ -265,5 +375,76 @@ public class GWTTextParserTestCase extends GwtTest{
 		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\gap{answer1|answer2|answer3}\"") == -1);
 		assertTrue(parsed.parsedText.indexOf("data-gap-value=\"\\filledGap{initial text|answer}\"") == -1);
 		assertTrue(parsed.parsedText.indexOf("data-gap-value='\\def{słowko1}'") == -1);		
+	}
+	
+	@Test
+	public void altTextParsing () {
+		TextParser parser = new TextParser();
+		String srcText ="\\alt{visible|readable}\\alt{visible2|readable2}[lang langTag]<span value='\\alt{visible3|readable3}'>\\alt{visible4|readable4}[lang langtag2]</span>";
+		
+		parser.setId("xcf");
+		ParserResult parsed = parser.parse(srcText);
+		Element el = (new HTML(parsed.parsedText)).getElement();
+		
+		assertTrue(el.getChildCount()==3);
+		
+		Element child = (Element)el.getChild(0);
+		assertTrue(checkCorrectAltTextElement(child,"visible","readable",""));
+		
+		child = (Element)el.getChild(1);
+		assertTrue(checkCorrectAltTextElement(child,"visible2","readable2","langTag"));
+		
+		child = (Element)el.getChild(2);
+		assertTrue(child.getChildCount()==1);
+		assertTrue(child.getAttribute("value").equals("\\alt{visible3|readable3}"));
+		
+		child = (Element)child.getChild(0);
+		assertTrue(checkCorrectAltTextElement(child,"visible4","readable4","langtag2"));
+		
+	}
+	
+	@Test
+	public void altTextInsideDropdown () {
+		TextParser parser = new TextParser();
+		String srcText ="{{1:1|\\alt{hello|world}[lang langTag]|3}}";
+		
+		parser.setId("xcf");
+		parser.setKeepOriginalOrder(true);
+		
+		ParserResult parsed = parser.parse(srcText);
+		Element el = (new HTML(parsed.parsedText)).getElement();
+		NodeList<Element> options = el.getElementsByTagName("option");
+		
+		assertTrue(options.getLength()==4);
+		
+		Element child = options.getItem(2);
+		assertTrue(child.getChildCount()==1);
+		assertTrue(child.getAttribute("value").equals("\\alt{hello|world}[lang langTag]"));
+		assertTrue(child.getAttribute("aria-label").equals("world"));
+		
+		child = (Element) child.getChild(0);
+		assertTrue(checkCorrectAltTextElement(child,"hello","world","langTag"));
+		
+	}
+	
+	private boolean checkCorrectAltTextElement(Element root, String visible, String readable, String langTag) {
+		if (root.getChildCount() != 1) {
+			return false;
+		}
+		if(!root.getAttribute("aria-label").equals(readable)){
+			return false;
+		}
+		if(langTag.length() > 0 && !root.getAttribute("lang").equals(langTag)){
+			return false;
+		}
+
+		Element child = (Element)root.getChild(0);
+		if(!child.getAttribute("aria-hidden").equals("true")){
+			return false;
+		}
+		if(!child.getInnerText().equals(visible)){
+			return false;
+		}
+		return true;
 	}
 }

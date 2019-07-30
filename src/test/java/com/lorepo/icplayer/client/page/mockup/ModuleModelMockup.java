@@ -9,10 +9,12 @@ import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
+import com.lorepo.icplayer.client.model.page.group.GroupPropertyProvider;
 import com.lorepo.icplayer.client.module.LayoutDefinition;
 import com.lorepo.icplayer.client.module.api.ILayoutDefinition;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.INameValidator;
+import com.lorepo.icplayer.client.semi.responsive.SemiResponsiveStyles;
 
 public class ModuleModelMockup implements IModuleModel {
 	
@@ -310,12 +312,6 @@ public class ModuleModelMockup implements IModuleModel {
 	}
 
 	@Override
-	public HashMap<String, Boolean> getResponsiveVisibility() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public HashMap<String, Boolean> getResponsiveVisibilityInEditor() {
 		// TODO Auto-generated method stub
 		return null;
@@ -331,5 +327,59 @@ public class ModuleModelMockup implements IModuleModel {
 	public HashMap<String, LayoutDefinition> getResponsiveRelativeLayouts() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void setContentDefaultLayoutID(String layoutID) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public SemiResponsiveStyles getSemiResponsiveStyles() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void changeAbsoluteToRelative(int deltaLeft, int deltaTop) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void changeRelativeToAbsolute(int deltaLeft, int deltaTop) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setGroupPropertyProvider(GroupPropertyProvider group) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean hasGroup() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public LayoutDefinition getCurrentLayoutDefinition() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setIsVisible(Boolean isVisible) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isVisible() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

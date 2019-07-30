@@ -21,6 +21,7 @@ function AddonConnection_create() {
     presenter.speechTexts = {};
     presenter.columnSizes = {};
     presenter.lineStackSA = [];
+    presenter.isValid = true;
 
     presenter.isShowAnswersActive = false;
     presenter.isCheckActive = false;
@@ -28,7 +29,7 @@ function AddonConnection_create() {
     var connections;
     var singleMode = false;
     var selectedItem = null;
-    var isNotActivity = false;
+    presenter.isNotActivity = false;
 
     presenter.lineStack = new LineStack(true);
     presenter.correctConnections = new LineStack(false);
@@ -45,7 +46,9 @@ function AddonConnection_create() {
     var WRONG_ITEM_CLASS = 'connectionItem-wrong';
 
     presenter.ERROR_MESSAGES = {
-        'ID not unique': 'One or more IDs are not unique.'
+         'ID not unique': 'One or more IDs are not unique.',
+         'One or two not exist': 'Provided id for initial value doesn\'t exists',
+         'Are from the same column': 'Provided ids for initial value are in the same column'
     };
 
     presenter.ELEMENT_SIDE = {
@@ -53,12 +56,62 @@ function AddonConnection_create() {
         RIGHT: 1
     };
 
+    function isEnabledOrMultiLineMode (element) {
+        if (!singleMode) {
+            return true;
+        }
+
+        var elementId = convertId($(element).attr('id'));
+
+        for(var i = 0; i < presenter.initialValues.length; i++) {
+            var initialValue = presenter.initialValues[i];
+
+            if (initialValue.from === elementId || initialValue.to === elementId) {
+                return !initialValue.isDisabled;
+            }
+        }
+
+        return true;
+    }
+
+    function convertId (id) {
+        id = id.toString();
+
+        return id.substr(id.indexOf('-') + 1);
+    }
+
+    function convertIds (id1, id2){
+        return {
+            id1: convertId(id1),
+            id2: convertId(id2)
+        }
+    }
+
+    function isOneOfValuesEmpty (initialValue) {
+        return initialValue.from.trim() === "" && initialValue.to.trim() === "";
+    }
+
     presenter.getCurrentActivatedElement = function () {
         return $('.keyboard_navigation_active_element');
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeFrom_01(model);
+        var upgradedModel = presenter.upgradeFrom_01(model);
+        upgradedModel = presenter.upgradeStartValues(upgradedModel);
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeStartValues = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['initialConnections'] === undefined) {
+            upgradedModel['initialConnections'] = [];
+            upgradedModel['disabledConnectionColor'] = "";
+        }
+
+        return upgradedModel;
     };
 
     presenter.upgradeFrom_01 = function (model) {
@@ -182,7 +235,13 @@ function AddonConnection_create() {
                 }
             }
             return lines;
-        }
+        };
+
+        this.getDisabledCount = function () {
+            return this.stack.filter(function (stackElement) {
+                return stackElement.isDisabled();
+            }).length;
+        };
     }
 
     function Line(from, to) {
@@ -198,8 +257,30 @@ function AddonConnection_create() {
                 return to;
             }
             return from;
-        }
+        };
+
+        this.isDisabled = function () {
+            var ids = convertIds($(this.from).attr('id'), $(this.to).attr('id'));
+
+            for (var i = 0; i < presenter.initialValues.length; i++) {
+                var initialValue = presenter.initialValues[i];
+
+                var initialValues = [initialValue.from, initialValue.to];
+
+                if (initialValue.isDisabled) {
+                    if ($.inArray(ids.id1, initialValues) > -1 && $.inArray(ids.id2, initialValues) > -1) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        };
     }
+
+    presenter.showErrorMessage = function (errorCode) {
+        return $(presenter.view).html(presenter.ERROR_MESSAGES[errorCode]);
+    };
 
     presenter.parseDefinitionLinks = function () {
         $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
@@ -209,9 +290,10 @@ function AddonConnection_create() {
         presenter.textParser.connectLinks($(presenter.view));
     };
 
-    presenter.removeVisibleInnerHTML = function () {
+    presenter.removeNonVisibleInnerHTML = function () {
         $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
-            $(element).html($(element).html().replace(/\\alt{(.*?)\|.*?}/g, '$1')); // replace \alt{a|b} with a
+            var newInnerHtml = $(element).html().replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with a
+            $(element).html(newInnerHtml.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1')); // replace \alt{a|b} with a
         });
 
     };
@@ -265,7 +347,6 @@ function AddonConnection_create() {
         presenter.model = model;
         eventBus = playerController.getEventBus();
         addonID = model.ID;
-        presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
 
         presenter.initialize(presenter.view, presenter.model, false);
 
@@ -335,10 +416,114 @@ function AddonConnection_create() {
         };
     }
 
+    presenter.addDisabledElementsFromInitialValues = function () {
+        presenter.initialValues.forEach(function (initialValue) {
+           if (initialValue.isDisabled) {
+               presenter.disabledConnections.push({
+                   id1: initialValue.from,
+                   id2: initialValue.to
+               });
+           }
+        });
+    };
+
+
+
+    presenter.getInitialValues = function (model) {
+        var modelValidator = new ModelValidator();
+        var validated = modelValidator.validate(model, [
+            ModelValidators.List("initialConnections", [
+                ModelValidators.String("from", {default: "", trim: false}),
+                ModelValidators.String("to", {default: "", trim: false}),
+                ModelValidators.Boolean("isDisabled", {default: false})
+            ]),
+            ModelValidators.String("disabledConnectionColor", {default: "", trim: true})
+        ]);
+
+        return {
+            initialConnections: validated.value.initialConnections,
+            disabledConnectionColor: validated.value.disabledConnectionColor
+        };
+    };
+
+    presenter.validateInitialValue = function (initialValue) {
+        function containsID (array, idToFind, toReturn) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i].id === idToFind) {
+                    return toReturn;
+                }
+            }
+
+            return false;
+        }
+
+        function areFromDifferentCols() {
+            var fromColumn = containsID(presenter.model['Left column'], initialValue.from, "LEFT") ||
+                containsID(presenter.model['Right column'], initialValue.from, "RIGHT");
+
+            var toColumn = containsID(presenter.model['Left column'], initialValue.to, "LEFT") ||
+                containsID(presenter.model['Right column'], initialValue.to, "RIGHT");
+
+            return fromColumn !== toColumn;
+        }
+
+        function bothExists () {
+            var fromExists = containsID(presenter.model['Left column'], initialValue.from, true) ||
+                containsID(presenter.model['Right column'], initialValue.from, true);
+
+            var toExists = containsID(presenter.model['Left column'], initialValue.to, true) ||
+                containsID(presenter.model['Right column'], initialValue.to, true);
+
+            return fromExists && toExists;
+        }
+
+        if (!isOneOfValuesEmpty(initialValue)) {
+            if (!bothExists()) {
+                presenter.showErrorMessage('One or two not exist');
+                return false;
+            } else if (!areFromDifferentCols()) {
+                presenter.showErrorMessage('Are from the same column');
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    presenter.validateInitialValues = function () {
+        for (var i = 0; i < presenter.initialValues.length; i++) {
+            if(!presenter.validateInitialValue(presenter.initialValues[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
+    /**
+     * @param initialValue {{from: string, to: string}}
+     */
+    presenter.drawInitialValue = function (initialValue) {
+        if (!isOneOfValuesEmpty(initialValue)) {
+            pushConnection(new Line(getElementById(initialValue.from), getElementById(initialValue.to)), false);
+        }
+    };
+
+    presenter.drawInitialValues = function () {
+        this.lineStack.setSendEvents(false);
+
+        presenter.initialValues.forEach(presenter.drawInitialValue);
+        presenter.redraw();
+
+        this.lineStack.setSendEvents(true);
+    };
+
     presenter.initialize = function (view, model, isPreview) {
         if (isPreview) {
             presenter.lineStack = new LineStack(false);
         }
+
+        model = presenter.upgradeModel(model);
 
         presenter.langTag = model['langAttribute'];
         presenter.$view = $(view);
@@ -346,15 +531,18 @@ function AddonConnection_create() {
 
         setSpeechTexts(model['speechTexts']);
 
+        var initialValues = presenter.getInitialValues(model);
+        presenter.initialValues = initialValues.initialConnections;
+        presenter.disabledConnectionColor = initialValues.disabledConnectionColor;
+
+        presenter.blockWrongAnswers = ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
         presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         presenter.removeDraggedElement = ModelValidationUtils.validateBoolean(model["removeDraggedElement"]);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-        presenter.setVisibility(presenter.isVisible);
+        presenter.setVisibility(presenter.isVisible || isPreview);
 
         isRTL = presenter.$view.css('direction').toLowerCase() === 'rtl';
         connections = presenter.$view.find('.connections:first');
-
-        model = presenter.upgradeModel(model);
 
         this.setSingleMode(model['Single connection mode']);
 
@@ -380,6 +568,11 @@ function AddonConnection_create() {
             }
         }
 
+        if (!presenter.validateInitialValues()) {
+            presenter.isValid = false;
+            return;
+        }
+
         this.setColumnsWidth(view, model["Columns width"]);
 
         if (model['Connection thickness'] != '') {
@@ -398,21 +591,19 @@ function AddonConnection_create() {
             showAnswersColor = model['Show answers line color'];
         }
 
-        if (model['isNotActivity'] != undefined){
-            isNotActivity = (model['isNotActivity'].toLowerCase() === 'true');
-        }
-        else {
-            isNotActivity = false;
-        }
+        // isNotActivty may not exist
+        presenter.isNotActivity = ModelValidationUtils.validateBoolean(model['isNotActivity'] || 'False');
 
         if (isPreview) {
             presenter.initializeView(view, model);
-            presenter.removeVisibleInnerHTML();
+            presenter.removeNonVisibleInnerHTML();
             presenter.drawConfiguredConnections();
         } else {
             presenter.mathJaxProcessEnded.then(function () {
                 presenter.initializeView(view, model);
                 presenter.registerListeners(presenter.view);
+                presenter.drawInitialValues();
+                presenter.addDisabledElementsFromInitialValues();
             });
         }
 
@@ -502,26 +693,28 @@ function AddonConnection_create() {
 
     function clickLogic(element) {
         if (basicClickLogic(element)) {
-            redraw();
+            presenter.redraw();
         }
     }
 
     function basicClickLogic(element) {
+        if (!isEnabledOrMultiLineMode(element)) {
+            return false;
+        }
+
         // workaround for android webView
         // http://code.google.com/p/android/issues/detail?id=38808
         var current = new Date().getTime();
         var delta = current - presenter.lastClickTime;
         if (!isSelectionPossible || delta < 50) return;
         presenter.lastClickTime = current;
-        if (!$(element).hasClass('selected') && selectedItem == null) {
-            // zaznaczony pierwszy element
+        if (!$(element).hasClass('selected') && selectedItem == null) { // first element selected
             $(element).parent().find('.connectionItem').removeClass('selected');
             $(element).addClass('selected');
             selectedItem = $(element);
             return;
         }
-        if (selectedItem != null && $(element).get(0) == selectedItem.get(0)) {
-            // ponownie kliknięty już zaznaczony element
+        if (selectedItem != null && $(element).get(0) == selectedItem.get(0)) { // clicking the selected element again
             $(element).removeClass('selected');
             selectedItem = null;
             return;
@@ -529,7 +722,7 @@ function AddonConnection_create() {
         if (selectedItem != null &&
             ($(element).parents('.connectionLeftColumn').get(0) == selectedItem.parents('.connectionLeftColumn').get(0) ||
                 $(element).parents('.connectionRightColumn').get(0) == selectedItem.parents('.connectionRightColumn').get(0))) {
-            // kliknięty element w tej samej kolumnie
+            // element clicked in the same column
             var linesToSwitch = [];
             if (singleMode) {
                 for (var i = 0; i < presenter.lineStack.length(); i++) {
@@ -658,6 +851,10 @@ function AddonConnection_create() {
                         top: Math.round(e.find('.inner').height()/2)
                     },
                     start: function (event, ui) {
+                        if (!isEnabledOrMultiLineMode(this)) {
+                            event.preventDefault();
+                            return false;
+                        }
                         ui.helper.css("visibility", "hidden");
                         var $iconWrapper = $(e).find(".iconWrapper");
                         scale = playerController.getScaleInformation();
@@ -701,7 +898,7 @@ function AddonConnection_create() {
                         } else {
                             ui.helper.remove();
                         }
-                        redraw();
+                        presenter.redraw();
                         if ($(presenter.view).find('#connection_line_tmp').length > 0) {
                             $(presenter.view).find('#connection_line_tmp').remove();
                         }
@@ -815,7 +1012,7 @@ function AddonConnection_create() {
         presenter.columnSizes[columnModel] = model[columnModel].length;
         var id = model[columnModel][i]['id'];
         if (!this.isIDUnique(id)) {
-            return $(this.view).html(this.ERROR_MESSAGES['ID not unique']);
+            return presenter.showErrorMessage('ID not unique');
         }
         var element = $('<table class="connectionItem" id="connection-' + id + '"></div>');
         var row = $('<tr></tr>');
@@ -957,7 +1154,7 @@ function AddonConnection_create() {
         for (var i = 0; i < presenter.correctConnections.length(); i++) {
             pushConnection(presenter.correctConnections.get(i), true)
         }
-        redraw();
+        presenter.redraw();
     };
 
     presenter.getElementSnapPoint = function AddonConnection_getElementSnapPoint(element) {
@@ -1012,7 +1209,7 @@ function AddonConnection_create() {
         readConnected(addLine);
     }
 
-    function redraw() {
+    presenter.redraw = function AddonConnection_redraw() {
         connections.width = connections.width;
 
         var android_ver = MobileUtils.getAndroidVersion(window.navigator.userAgent);
@@ -1041,16 +1238,20 @@ function AddonConnection_create() {
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), connectionColor)
         }
-    }
+    };
 
-    function redrawShowAnswers () {
+    presenter.redrawShowAnswers = function AddonConnection_redrawShowAnswers () {
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             drawLine(presenter.lineStack.get(i), showAnswersColor)
         }
-    }
+    };
 
     function drawLine(line, color) {
+        if (line.isDisabled() && presenter.disabledConnectionColor !== "") {
+            color = presenter.disabledConnectionColor;
+        }
+
         var from = presenter.getElementSnapPoint(line.from);
         var to = presenter.getElementSnapPoint(line.to);
         var canvasOffset = connections.offset();
@@ -1072,7 +1273,7 @@ function AddonConnection_create() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        if (isNotActivity) return 0;
+        if (presenter.isNotActivity) return 0;
 
         connections.clearCanvas();
         for (var i = 0; i < presenter.lineStack.length(); i++) {
@@ -1104,7 +1305,7 @@ function AddonConnection_create() {
     presenter.setWorkMode = function () {
         presenter.isCheckActive = false;
         presenter.gatherCorrectConnections();
-        redraw();
+        presenter.redraw();
         $(presenter.view).find('.connectionItem').each(function () {
             $(this).removeClass('connectionItem-correct');
             $(this).removeClass('connectionItem-wrong');
@@ -1113,6 +1314,10 @@ function AddonConnection_create() {
     };
 
     presenter.reset = function() {
+        if (!presenter.isValid) {
+            return;
+        }
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1126,14 +1331,16 @@ function AddonConnection_create() {
             $(this).removeClass('connectionItem-wrong');
         });
 
-        redraw();
+        presenter.redraw();
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
         presenter.disabledConnections = [];
+        presenter.addDisabledElementsFromInitialValues();
+        presenter.drawInitialValues();
     };
 
     presenter.getErrorCount = function () {
-        if (isNotActivity) return 0;
+        if (presenter.isNotActivity) return 0;
 
         var errors = 0;
         for (var i = 0; i < presenter.lineStack.length(); i++) {
@@ -1146,19 +1353,21 @@ function AddonConnection_create() {
     };
 
     presenter.getMaxScore = function () {
-        if (isNotActivity) return 0;
+        if (presenter.isNotActivity) return 0;
 
-        return presenter.correctConnections.length();
+        return presenter.correctConnections.length() - presenter.correctConnections.getDisabledCount();
     };
 
     presenter.getScore = function () {
-        if (isNotActivity) return 0;
+        if (presenter.isNotActivity) return 0;
 
         var score = 0;
         for (var i = 0; i < presenter.lineStack.length(); i++) {
             var line = presenter.lineStack.get(i);
             if (presenter.correctConnections.hasLine(line).length > 0) {
-                score++;
+                if (!line.isDisabled()) {
+                    score++;
+                }
             }
         }
         return score;
@@ -1181,6 +1390,7 @@ function AddonConnection_create() {
         presenter.mathJaxProcessEnded.then(function () {
             if (state != '' && !hookExecuted) {
                 presenter.lineStack.setSendEvents(false);
+                presenter.lineStack.clear();
 
                 var parsedState = JSON.parse(state);
                 var id;
@@ -1197,7 +1407,7 @@ function AddonConnection_create() {
                 }
 
                 presenter.lineStack.setSendEvents(true);
-                redraw();
+                presenter.redraw();
             }
 
             hookExecuted = true;
@@ -1230,6 +1440,79 @@ function AddonConnection_create() {
     presenter.isAllOK = function () {
         return presenter.getMaxScore() === presenter.getScore() && presenter.getErrorCount() === 0;
     };
+
+    presenter.isOK = function (source) {
+        var selectedDestinations = getConnectedPoints(source);
+        var correctDestinations = getCorrectPoints(source);
+        var isCorrect = isSameArrays(selectedDestinations, correctDestinations);
+
+        return {
+            value: isCorrect,
+            source: source,
+            selectedDestinations: selectedDestinations,
+            correctDestinations: correctDestinations
+        };
+    };
+
+    function getConnectedPoints(source) {
+        var connectedPoints = [];
+
+        var selectedLines = presenter.lineStack.ids;
+        for (var index = 0; index < selectedLines.length; index++) {
+            var selectedLinePoints = selectedLines[index];
+            if (hasArrayElement(selectedLinePoints, source)) {
+                var selectedDestinationPoint = selectedLinePoints[0] === source ? selectedLinePoints[1] : selectedLinePoints[0];
+                connectedPoints.push(selectedDestinationPoint);
+            }
+        }
+
+        return connectedPoints;
+    }
+
+    function getCorrectPoints(source) {
+        var correctPoints = [];
+
+        var correctLines = presenter.elements;
+        for (var index = 0; index < correctLines.length; index++) {
+            var correctLine = correctLines[index];
+            var correctLinePoints = correctLine.connects.split(',');
+            if (correctLine.id === source) {
+                correctPoints = correctPoints.concat(correctLinePoints);
+            }
+            if (hasArrayElement(correctLinePoints, source)) {
+                correctPoints.push(correctLine.id)
+            }
+        }
+
+        correctPoints = removeDuplicates(correctPoints);
+        correctPoints = correctPoints.filter(function (value) {
+            return value !== ";"
+        });
+
+        return correctPoints;
+    }
+
+    function removeDuplicates(correctPoints) {
+        correctPoints = correctPoints.filter(function (value, index, arr) {
+            return arr.indexOf(value) === index;
+        });
+        return correctPoints;
+    }
+
+    function isSameArrays(selectedDestinations, correctDestinations) {
+        var serializedSelectedDestinations = selectedDestinations.sort().join(',');
+        var serializedCorrectDestinations = correctDestinations.sort().join(',');
+
+        return serializedSelectedDestinations === serializedCorrectDestinations;
+    }
+
+    function hasArrayElement(array, element) {
+        for (var arrayIndex = 0; arrayIndex < array.length; arrayIndex++)
+            if (array[arrayIndex] === element)
+                return true;
+
+        return false;
+    }
 
     presenter.isSelected = function (leftIndex, rightIndex) {
         if (presenter.isShowAnswersActive) {
@@ -1303,6 +1586,7 @@ function AddonConnection_create() {
 
         var commands = {
             'isAllOK': presenter.isAllOK,
+            'isOK': presenter.isOK,
             'isSelected': presenter.isSelectedCommand,
             'markAsCorrect': presenter.markAsCorrectCommand,
             'markAsWrong': presenter.markAsWrongCommand,
@@ -1329,19 +1613,6 @@ function AddonConnection_create() {
     presenter.enableCommand = function (params) {
         presenter.enable(params[0], params[1]);
     };
-
-    function convertIds (id1, id2){
-        id1 = id1.toString();
-        id2 = id2.toString();
-
-        id1 = id1.substr(id1.indexOf("-") + 1);
-        id2 = id2.substr(id2.indexOf("-") + 1);
-
-        return {
-            id1: id1,
-            id2: id2
-        }
-    }
 
     presenter.enable = function(id1, id2) {
         var convertedIds = convertIds(id1, id2);
@@ -1382,7 +1653,7 @@ function AddonConnection_create() {
     };
 
     presenter.showAnswers = function () {
-        if (isNotActivity) {
+        if (presenter.isNotActivity) {
             return;
         }
 
@@ -1394,7 +1665,7 @@ function AddonConnection_create() {
         }
 
         presenter.lineStack.clear();
-        redraw();
+        presenter.redraw();
 
         var elements = presenter.elements;
         for (var i = 0, elementsLength = elements.length; i < elementsLength; i++) {
@@ -1414,7 +1685,7 @@ function AddonConnection_create() {
         presenter.lineStackSA = {
             stack: presenter.lineStack ? presenter.lineStack.stack.concat([]) : []
         };
-        redrawShowAnswers();
+        presenter.redrawShowAnswers();
         presenter.lineStack.clear();
         isSelectionPossible = false;
 
@@ -1425,17 +1696,17 @@ function AddonConnection_create() {
     };
 
     presenter.hideAnswers = function () {
-        if (isNotActivity) {
+        if (presenter.isNotActivity) {
             return;
         }
-        presenter.keyboardControllerObject.selectEnabled(false);
-        redraw();
+        presenter.keyboardControllerObject.selectEnabled(true);
+        presenter.redraw();
         presenter.isShowAnswersActive = false;
         isSelectionPossible = true;
     };
 
-    presenter.keyboardController = function(keycode) {
-        presenter.keyboardControllerObject.handle(keycode);
+    presenter.keyboardController = function(keycode, isShiftDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
     };
 
     function ConnectionKeyboardController (elements, columnsCount) {
@@ -1487,15 +1758,14 @@ function AddonConnection_create() {
         var result = [];
 
         for (var i=0; i<connections.length; i++) {
-            var $connection = connections[i];
 
-            result.push(getTextVoiceObject($connection.text().trim(), presenter.langTag));
+            result = result.concat(window.TTSUtils.getTextVoiceArrayFromElement(connections[i],presenter.langTag));
 
-            if ($connection.hasClass(CORRECT_ITEM_CLASS) && presenter.isCheckActive) {
+            if (connections[i].hasClass(CORRECT_ITEM_CLASS) && presenter.isCheckActive) {
                 result.push(getTextVoiceObject(presenter.speechTexts.correct));
             }
 
-            if ($connection.hasClass(WRONG_ITEM_CLASS) && presenter.isCheckActive) {
+            if (connections[i].hasClass(WRONG_ITEM_CLASS) && presenter.isCheckActive) {
                 result.push(getTextVoiceObject(presenter.speechTexts.wrong));
             }
         }
@@ -1508,15 +1778,10 @@ function AddonConnection_create() {
         if (tts) {
             var $active = presenter.getCurrentActivatedElement();
             var connections = getConnections($active);
-            var $activeClone = $active.clone();
-            $activeClone.find('[aria-hidden="true"]').remove();
-            $activeClone.find('[aria-label]').each(function(){
-                $(this).append($(this).attr('aria-label'));
-            });
-            var TextVoiceArray = [getTextVoiceObject($activeClone.text().trim(), presenter.langTag)];
+            var TextVoiceArray = window.TTSUtils.getTextVoiceArrayFromElement($active, presenter.langTag);
 
-            if ($active.hasClass('selected')) {
-                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
+            if ($active.hasClass('selected') && !presenter.isShowAnswersActive) {
+                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
             }
 
             if (connections.length) {
@@ -1539,7 +1804,8 @@ function AddonConnection_create() {
     ConnectionKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
     ConnectionKeyboardController.prototype.constructor = ConnectionKeyboardController;
 
-    ConnectionKeyboardController.prototype.nextRow = function () {
+    ConnectionKeyboardController.prototype.nextRow = function (event) {
+         event.preventDefault();
         var new_position_index = this.keyboardNavigationCurrentElementIndex + 1;
         if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
             new_position_index = this.keyboardNavigationCurrentElementIndex;
@@ -1551,7 +1817,8 @@ function AddonConnection_create() {
         readActivatedElementConnections();
     };
 
-    ConnectionKeyboardController.prototype.previousRow = function () {
+    ConnectionKeyboardController.prototype.previousRow = function (event) {
+        event.preventDefault();
         var new_position_index = this.keyboardNavigationCurrentElementIndex - 1;
         if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
             new_position_index = this.keyboardNavigationCurrentElementIndex
@@ -1599,12 +1866,17 @@ function AddonConnection_create() {
         readActivatedElementConnections();
     };
 
-    ConnectionKeyboardController.prototype.enter = function () {
-        Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
-        readActivatedElementConnections();
+    ConnectionKeyboardController.prototype.enter = function (event) {
+        if (event.shiftKey || event.ctrlKey) {
+            Object.getPrototypeOf(ConnectionKeyboardController.prototype).escape.call(this);
+        } else {
+            Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
+            readActivatedElementConnections();
+        }
     };
 
-    ConnectionKeyboardController.prototype.select = function () {
+    ConnectionKeyboardController.prototype.select = function (event) {
+        event.preventDefault();
         if (presenter.getCurrentActivatedElement().hasClass('selected')) {
             speak([getTextVoiceObject(presenter.speechTexts.deselected)]);
         }
@@ -1616,5 +1888,9 @@ function AddonConnection_create() {
         }
     };
 
+
+    presenter.__internal__ = {
+        Line: Line
+    };
     return presenter;
 }

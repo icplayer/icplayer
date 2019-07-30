@@ -659,7 +659,14 @@ function AddonShape_Tracing_create() {
         ctx.strokeStyle = presenter.configuration.color;
         ctx.fillStyle = presenter.configuration.color;
 
-        points.push({ x: presenter.cursorPosition.x, y: presenter.cursorPosition.y });
+
+        var point = {x: presenter.cursorPosition.x, y: presenter.cursorPosition.y};
+        var scale = presenter.playerController.getScaleInformation();
+        if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
+            point.x = point.x / scale.scaleX;
+            point.y = point.y / scale.scaleY;
+        }
+        points.push(point);
 
         if (points.length < 3) {
             ctx.beginPath();
@@ -1000,6 +1007,21 @@ function AddonShape_Tracing_create() {
             return false;
         }
 
+        presenter.initializeCanvas(isPreview);
+
+        if (!isPreview) {
+            turnOnEventListeners();
+        }
+
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
+        presenter.visibleByDefault = presenter.configuration.isVisible;
+
+        presenter.$view.find('div.correctImage').css('display', 'none');
+
+        return false;
+    };
+
+    presenter.initializeCanvas = function(isPreview) {
         initPointsArray();
 
         presenter.data.isAllPointsChecked = presenter.configuration.points.length === 0;
@@ -1032,17 +1054,6 @@ function AddonShape_Tracing_create() {
                 drawCorrectAnswerImage(isPreview);
             }
         });
-
-        if (!isPreview) {
-            turnOnEventListeners();
-        }
-
-        presenter.setVisibility(presenter.configuration.isVisible);
-        presenter.visibleByDefault = presenter.configuration.isVisible;
-
-        presenter.$view.find('div.correctImage').css('display', 'none');
-
-        return false;
     };
 
     presenter.run = function(view, model) {
@@ -1057,6 +1068,7 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.setPlayerController = function(controller) {
+        presenter.playerController = controller;
         eventBus = controller.getEventBus();
     };
 

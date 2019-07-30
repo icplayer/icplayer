@@ -157,6 +157,10 @@ function AddonConnectingDots_create(){
 
     presenter.drawTempLine = function(i, x, y) {
         if (presenter.draw !== false) {
+            var scaledPoint = scalePoint({x: x, y: y});
+            x = scaledPoint.x;
+            y = scaledPoint.y;
+
             if (presenter.$view.find('#line_tmp').length > 0) {
                 presenter.$view.find('#line_tmp').remove();
             }
@@ -462,6 +466,11 @@ function AddonConnectingDots_create(){
                     presenter.$view.find('#line_tmp').remove();
                     tmpTime = 0;
                 }
+
+                var scaledPoint = scalePoint({x: presenter.mouseX, y: presenter.mouseY});
+                presenter.mouseX = scaledPoint.x;
+                presenter.mouseY = scaledPoint.y;
+
                 distance = Math.abs(parseInt(presenter.points[presenter.toSelect][0],10) - presenter.mouseX) + Math.abs(parseInt(presenter.points[presenter.toSelect][1],10) - presenter.mouseY);
                 if (distance < 35) {
                     if (presenter.toSelect > 0) {
@@ -514,8 +523,7 @@ function AddonConnectingDots_create(){
                 $(image1).addClass('image-start');
                 presenter.$view.find('.connectingdots').prepend(image1);
             }
-            presenter.isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
-            presenter.updateVisibility();
+
             var coordinatesContainer = $('<div></div>'),
                 xContainer = $('<div>x: <span class="value"></span></div>'),
                 yContainer = $('<div>y: <span class="value"></span></div>'),
@@ -705,5 +713,19 @@ function AddonConnectingDots_create(){
             }
         }
     };
+
+    function scalePoint({x, y}) {
+        var scaledPoint = {x: x, y: y};
+        if (!presenter.playerController)
+            return scaledPoint;
+
+        var scale = presenter.playerController.getScaleInformation();
+        if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
+            scaledPoint.x = Math.floor(scaledPoint.x / scale.scaleX);
+            scaledPoint.y = Math.floor(scaledPoint.y / scale.scaleY);
+        }
+        return scaledPoint;
+    }
+
     return presenter;
 }

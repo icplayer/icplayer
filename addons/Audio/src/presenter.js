@@ -127,7 +127,7 @@ function AddonAudio_create(){
     };
 
     function AddonAudio_onTimeUpdateCallback() {
-        var bar_width, duration = parseInt(presenter.audio.duration, 10);
+        var bar_width, duration = presenter.audio.duration;
         duration = isNaN(duration) ? 0 : duration;
         var currentTime = presenter.audio.currentTime;
         if (presenter.configuration.displayTime) {
@@ -702,9 +702,6 @@ function AddonAudio_create(){
     };
 
     presenter.getState = function AddonAudio_getState () {
-
-        presenter.stop();
-
         return JSON.stringify({
             isVisible : presenter.configuration.isVisible
         });
@@ -715,7 +712,15 @@ function AddonAudio_create(){
             return false;
         }
 
-        presenter.stop();
+        /*
+        * The If statement resolves an issue on Mobile Safari, where presenter.stop call from setState would be resolved
+        * right after the first presenter.play call. The problem occurs because the deferred queue is resolved
+        * on loadedmetadata event and Mobile Safari only downloads the audio/video src file on the first interaction
+        * with the tag, rather than when the page itself is loaded.
+        * */
+        if (audioIsLoaded) {
+            presenter.stop();
+        };
 
         if (JSON.parse(stateString).isVisible) {
             this.show();

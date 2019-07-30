@@ -10,4 +10,9 @@ public class DevicesUtilsPatcher {
 	public static boolean isSafariMobile() {
 		return false;
 	}
+	
+	@PatchMethod
+	public static boolean isMobile() {
+		return false;
+	}
 }

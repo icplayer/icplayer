@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.addon;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +57,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private IPlayerServices services;
 	private IDisplay view;
 	private IAddonDescriptor addonDescriptor;
-	private Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "text_identification", "image_identification"));
+	private static Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "limited_show_answers", "text_identification", "image_identification", "limited_submit"));
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 		this.model = model;
@@ -435,7 +436,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return model;
 	}
 	
-	public JavaScriptObject getJavaScriptObject(){
+	public JavaScriptObject getAsJavaScript(){
 		return jsObject;
 	}
 
@@ -444,11 +445,15 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		return this;
 	}
 
+	private boolean isWCAGOn() {
+		return services!=null && services.isWCAGOn();
+	}
+	
 	@Override
 	public void selectAsActive(String className) {
 		this.view.getElement().addClassName(className);
 		
-		if ("ic_selected_module" == className) {
+		if ("ic_selected_module" == className && !services.isWCAGOn()) {
 			this.view.getElement().focus();
 		}
 	}
@@ -456,7 +461,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	@Override
 	public void deselectAsActive(String className) {
 		this.view.getElement().removeClassName(className);
-		if ("ic_selected_module" == className) {
+		if ("ic_selected_module" == className && !services.isWCAGOn()) {
 			this.view.getElement().blur();
 		}
 	}
@@ -466,10 +471,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		boolean isVisible = this.model.isVisible();
 		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible && !isDisabled();
 	}
-
+	
 	@Override
-	public void enter(boolean isExiting) {
-		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting, null);
+	public void enter(KeyDownEvent event, boolean isExiting) {
+		this.onKeyDown(this.jsObject, KeyCodes.KEY_ENTER, isExiting, event.getNativeEvent());
 	}
 
 	@Override
@@ -523,6 +528,10 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 		return false;
 	}
+	
+	public static boolean isButton(String addonId){
+		return buttonAddons.contains(addonId.toLowerCase());
+	}
 
 	public boolean isDisabled() {
 		for (IAddonParam propetry : this.model.getParams()){
@@ -563,7 +572,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 	
 	public  boolean isEnterable () {
-		return this.isEnterable(this.getJavaScriptObject());
+		return this.isEnterable(this.getAsJavaScript());
 	}
 	
 	public native boolean isEnterable (JavaScriptObject obj) /*-{
@@ -572,4 +581,20 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		};
 		return true;
 	}-*/;
+	
+	public  boolean isDeactivationBlocked () {
+		return this.isDeactivationBlocked(this.getAsJavaScript());
+	}
+	
+	public native boolean isDeactivationBlocked (JavaScriptObject obj) /*-{
+		if (obj !== undefined && obj !== null && obj.hasOwnProperty('isDeactivationBlocked')) {
+			return obj.isDeactivationBlocked();
+		};
+		return false;
+	}-*/;
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		
+	}
 }

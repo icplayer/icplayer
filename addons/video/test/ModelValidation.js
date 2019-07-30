@@ -21,7 +21,8 @@ TestCase("[Video] Model validation", {
                 "Ogg video": "and another path",
                 "AlternativeText": "A",
                 "time_labels":  "00:00:00 Start\n" +
-                                "20 End :P"
+                                "20 End :P",
+                "Audio Description": "5|100|100|red|pl|test"
             }, {
                 Poster: "ok",
                 Subtitles: "okdaokdoa",
@@ -32,8 +33,13 @@ TestCase("[Video] Model validation", {
                 "Ogg video": "that should be something different",
                 "AlternativeText": "B",
                 "time_labels":  "02:01:01 Start2\n" +
-                                "02:20"
-            }]
+                                "02:20",
+                "Audio Description": "5|100|100|red|pl|test2"
+            }],
+            speechTexts: {
+                AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled2"},
+                AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled2"}
+            }
         }
     },
 
@@ -62,7 +68,8 @@ TestCase("[Video] Model validation", {
                 "timeLabels": [
                     {isValid: true, title: "Start", time:0},
                     {isValid: true, title: "End :P", time: 20}
-                ]
+                ],
+                Audiodescription: "5|100|100|red|pl|test"
             }, {
                 Poster: "ok",
                 Subtitles: "okdaokdoa",
@@ -75,13 +82,19 @@ TestCase("[Video] Model validation", {
                 "timeLabels": [
                     {isValid: true, title: "2. 02:20", time: 140},
                     {isValid: true, title: "Start2", time:7261}
-                ]
+                ],
+                Audiodescription: "5|100|100|red|pl|test2"
             }],
             height: 22
         };
 
+        var expectedSpeechTexts = {
+            audioDescriptionEnabled: "Audio description enabled2",
+            audioDescriptionDisabled: "Audio description disabled2"
+        };
         var result = this.presenter.validateModel(this.model);
 
         assertEquals(expected, result);
+        assertEquals(expectedSpeechTexts, this.presenter.speechTexts);
     }
 });

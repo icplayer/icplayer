@@ -1,9 +1,6 @@
 package com.lorepo.icplayer.client.module.choice;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -17,10 +14,17 @@ import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
+import com.lorepo.icplayer.client.module.text.WCAGUtils;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
+import com.lorepo.icplayer.client.utils.MathJaxElement;
 
-public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG, IWCAGModuleView {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+
+public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDisplay, ValueChangeHandler<Boolean>, IWCAG, IWCAGModuleView, MathJaxElement {
 
 	private ChoiceModel module;
 	private VerticalPanel optionsPanel;
@@ -37,12 +41,16 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	private boolean isEnabled = true;
 	private boolean isWCAGOn = false;
 	private boolean isShowErrorsMode = false;
+	private boolean mathJaxIsLoaded = false;
+	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
 
 	private int position = -1;
 	
 	public ChoiceView(ChoiceModel module, boolean isPreview) {
 		this.module = module;
 		createUI(isPreview);
+		mathJaxLoaded();
 	}
 	
 	/**
@@ -51,7 +59,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	 * @param isPreview 
 	 */
 	private void createUI(boolean isPreview){
-		
+
 		optionsPanel = new VerticalPanel();
 		optionsPanelHorizontal = new HorizontalPanel();
 
@@ -95,6 +103,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		}
 		
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if(!isPreview){
 			setVisible(module.isVisible());
 		}
@@ -121,7 +130,28 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			this.incorrectText = this.module.getSpeechTextItem(3);
 		}
 	}
+	
+	@Override
+	protected void onDetach() {
+		this.removeHook();
+		
+		super.onDetach();
+	};
+	
+	@Override
+	public void mathJaxLoaded() {
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
+	}
 	    
+	@Override
+	public void mathJaxIsLoadedCallback() {
+		if (!this.mathJaxIsLoaded) {
+			this.mathJaxIsLoaded = true;
+			this.refreshMath();
+		}
+	}
+	
+	
 	private void shuffleArray(List<Integer> list) {
         int n = list.size();
         Random random = new Random();
@@ -214,7 +244,9 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	@Override
 	public void show() {
 		setVisible(true);
-		refreshMath();
+		if (this.mathJaxIsLoaded) {
+			refreshMath();
+		}
 	}
 	
 	@Override
@@ -222,6 +254,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		setVisible(val);
 	}
 
+	@Override
 	public void refreshMath() {
 		MathJax.refreshMathJax(getElement());
 	}
@@ -284,10 +317,14 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			}
 		}
 		
-		this.speak(
-			TextToSpeechVoice.create(StringUtils.removeAllFormatting(widget.getModel().getText()), this.module.getLangAttribute()),
-			TextToSpeechVoice.create(callbackText)
-		);
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		String fullText = StringUtils.removeAllFormatting(WCAGUtils.getImageAltTextsWithBreaks(widget.getModel().getText()));
+		String[] textsArray = fullText.split(WCAGUtils.BREAK_TEXT);
+		for(String text: textsArray){
+			textVoices.add(TextToSpeechVoice.create(text, this.getLang()));
+		}
+		textVoices.add(TextToSpeechVoice.create(callbackText));
+		this.speak(textVoices);
 	}
 
 	private void textToSpeechSelectOption () {
@@ -314,7 +351,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 		
 		OptionView optionView = (OptionView) option;
 		if (!optionView.isEnabled()) return;
-		
+
 		if (!module.isMulti()) {
 			for (IOptionDisplay widget : optionWidgets) {
 				if(option != widget) {
@@ -350,7 +387,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 	}
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		if (!isExiting) {
 			addBorder();
 			textToSpeechCurrentOption();
@@ -362,6 +399,7 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	@Override
 	public void space(KeyDownEvent event) {
+		event.preventDefault(); 
 		select();
 		textToSpeechSelectOption();
 	}
@@ -386,18 +424,21 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 
 	@Override
 	public void down(KeyDownEvent event) {
-        skip();
+		event.preventDefault(); 
+		skip();
         textToSpeechCurrentOption();
 	}
 
 	@Override
 	public void up(KeyDownEvent event) {
+		event.preventDefault(); 
 	    previous();
 		textToSpeechCurrentOption();
 	}
 
 	@Override
 	public void escape(KeyDownEvent event) {
+		event.preventDefault();
 		removeBorder();
 		position = -1;
 	}
@@ -440,6 +481,34 @@ public class ChoiceView extends AbsolutePanel implements ChoicePresenter.IDispla
 			voiceTexts.add(t2);
 		
 			this.pageController.speak(voiceTexts);
+		}
+	}
+	
+	private void speak (List<TextToSpeechVoice> voiceTexts) {
+		if (this.pageController != null) {	
+			this.pageController.speak(voiceTexts);
+		}
+	}
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
+		}
+	}
+
+	@Override
+	public String getElementId() {
+		return this.module.getId();
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
 		}
 	}
 

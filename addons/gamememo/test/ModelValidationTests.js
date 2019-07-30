@@ -28,7 +28,21 @@ TestCase("[Gamememo] Model validation tests", {
            'Keep wrong marking': "True",
            'Time to solve': 10,
            'Session ended message': "",
-           'Is Tabindex Enabled': "True"
+           'Is Tabindex Enabled': "True",
+           'langAttribute': "en",
+           'speechTexts': {
+                Revealed: {Revealed: "Revealed test"},
+                Paired: {Paired: "Paired test"},
+                Value: {Value: "with a value of test"},
+                WrongColor: {WrongColor: "Incorrect card color test"},
+                Match: {Match: "Matches test"},
+                NotMatch: {NotMatch: "Doesn't match test"},
+                CurrentlySelected: {CurrentlySelected: "Currently selected test"},
+                TurnOver: {TurnOver: "Incorrect pair was turned over test"},
+                OutOf: {OutOf: "out of test"},
+                Found: {Found: "found test"},
+               RevealedCards: {RevealedCards: "Number of revealed cards test"}
+           }
        }
    },
 
@@ -46,5 +60,22 @@ TestCase("[Gamememo] Model validation tests", {
 
         assertFalse(configuration.isError);
         assertFalse(configuration.isTabindexEnabled);
+    },
+
+    'test if speechTexts and lang tag were set correctly': function () {
+       var configuration = this.presenter.validateModel(this.model);
+
+       assertEquals('en', configuration.langTag);
+       assertEquals(this.presenter.speechTexts.revealed, "Revealed test");
+       assertEquals(this.presenter.speechTexts.paired, "Paired test");
+       assertEquals(this.presenter.speechTexts.value, "with a value of test");
+       assertEquals(this.presenter.speechTexts.wrongColor, "Incorrect card color test");
+       assertEquals(this.presenter.speechTexts.match, "Matches test");
+       assertEquals(this.presenter.speechTexts.notMatch, "Doesn't match test");
+       assertEquals(this.presenter.speechTexts.currentlySelected, "Currently selected test");
+       assertEquals(this.presenter.speechTexts.turnOver, "Incorrect pair was turned over test");
+       assertEquals(this.presenter.speechTexts.outOf, "out of test");
+       assertEquals(this.presenter.speechTexts.found, "found test");
+       assertEquals(this.presenter.speechTexts.revealedCards, "Number of revealed cards test");
     }
 });

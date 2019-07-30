@@ -1,25 +1,19 @@
 package com.lorepo.icplayer.client.mockup.services;
 
-import java.util.HashMap;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.player.IAssetsService;
-import com.lorepo.icplayer.client.module.api.player.IContent;
-import com.lorepo.icplayer.client.module.api.player.IJsonServices;
-import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
-import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-import com.lorepo.icplayer.client.module.api.player.IReportableService;
-import com.lorepo.icplayer.client.module.api.player.IScoreService;
-import com.lorepo.icplayer.client.module.api.player.IStateService;
-import com.lorepo.icplayer.client.module.api.player.ITimeService;
+import com.lorepo.icplayer.client.module.api.player.*;
+
+import java.util.HashMap;
 
 public class PlayerServicesMockup implements IPlayerServices {
 
@@ -30,7 +24,6 @@ public class PlayerServicesMockup implements IPlayerServices {
 	private final IJsonServices	jsonMockup;
 
 	public PlayerServicesMockup() {
-
 		contentModel = new Content();
 		eventBus = new SimpleEventBus();
 		commands = new CommandsMockup();
@@ -192,5 +185,72 @@ public class PlayerServicesMockup implements IPlayerServices {
 			String transform, String transformOrigin) {
 		// TODO Auto-generated method stub
 		
+	}
+
+
+	@Override
+	public boolean isPlayerInCrossDomain() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public boolean isWCAGOn() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public void setAbleChangeLayout(boolean isAbleChangeLayout) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public boolean isAbleChangeLayout() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public void setApplication(PlayerApp application) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean changeSemiResponsiveLayout(String layoutID) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+
+	@Override
+	public GroupPresenter getGroup(String groupId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public boolean isPageVisited(IPage page) {
+		// TODO Auto-generated method stub
+		return false;
+  }
+  
+  
+	@Override
+	public JavaScriptObject getContextMetadata() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void sendResizeEvent() {
+		// TODO Auto-generated method stub
 	}
 }

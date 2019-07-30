@@ -20,6 +20,7 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 	private ArrayList<IOptionDisplay> optionWidgets = new ArrayList<IOptionDisplay>();
 	private boolean isWCAGOn = false;
 	private PageController pageController;
+	private String originalDisplay = "";
 	
 	public PageProgressView(PageProgressModule module, boolean isPreview){
 		
@@ -35,6 +36,7 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 		}
 		setStyleName("ic_pageprogress");
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		setProgress(50);
 		getElement().setId(module.getId());
 	}
@@ -106,12 +108,14 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 	}
 
 	@Override
-	public void enter(boolean isExiting) {
+	public void enter(KeyDownEvent event, boolean isExiting) {
 		speak();
 	}
 
 	@Override
-	public void space(KeyDownEvent event) {}
+	public void space(KeyDownEvent event) {
+		event.preventDefault(); 
+	}
 
 	@Override
 	public void tab(KeyDownEvent event) {}
@@ -123,18 +127,34 @@ public class PageProgressView extends ProgressBar implements PageProgressPresent
 	public void right(KeyDownEvent event) {}
 
 	@Override
-	public void down(KeyDownEvent event) {}
+	public void down(KeyDownEvent event) {
+			event.preventDefault();
+	}
 
 	@Override
-	public void up(KeyDownEvent event) {}
+	public void up(KeyDownEvent event) {
+			event.preventDefault();
+	}
 
 	@Override
-	public void escape(KeyDownEvent event) {}
+	public void escape(KeyDownEvent event) {
+			event.preventDefault();
+	}
 
 	@Override
 	public void customKeyCode(KeyDownEvent event) {}
 
 	@Override
 	public void shiftTab(KeyDownEvent event) {}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
 	
 }

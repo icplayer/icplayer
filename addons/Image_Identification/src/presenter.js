@@ -3,6 +3,7 @@ function AddonImage_Identification_create(){
 
     var playerController;
     var eventBus;
+    var isWCAGOn = false;
 
     presenter.lastEvent = null;
     presenter.isDisabled = false;
@@ -130,6 +131,8 @@ function AddonImage_Identification_create(){
         $(image).addClass(presenter.configuration.isSelected ? CSS_CLASSES.SELECTED : CSS_CLASSES.ELEMENT);
         presenter.$view.html(image);
 
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
+
         $(image).load(function () {
             var elementDimensions = DOMOperationsUtils.getOuterDimensions(this);
             var elementDistances = DOMOperationsUtils.calculateOuterDistances(elementDimensions);
@@ -159,12 +162,10 @@ function AddonImage_Identification_create(){
             $(element).html(innerElement);
             presenter.$view.html(element);
 
-            presenter.setVisibility(presenter.configuration.isVisibleByDefault);
-
             if (!isPreview) {
                 presenter.handleMouseActions();
             }
-            
+
             presenter.configuration.isDisabled ? presenter.disable() : presenter.enable();
 
             presenter.$view.trigger("onLoadImageCallbackEnd", []);
@@ -179,6 +180,7 @@ function AddonImage_Identification_create(){
 
     function presenterLogic(view, model, preview) {
         presenter.$view = $(view);
+        model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
 
         setViewDimensions(model);
@@ -193,6 +195,7 @@ function AddonImage_Identification_create(){
     }
 
     presenter.validateModel = function (model) {
+        var newSpeechTexts = setSpeechTexts(model['speechTexts']);
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]);
 
@@ -210,9 +213,67 @@ function AddonImage_Identification_create(){
             blockWrongAnswers: ModelValidationUtils.validateBoolean(model.blockWrongAnswers),
             isTabindexEnabled: isTabindexEnabled,
             altText: model["Alt text"],
-            isDisabled: ModelValidationUtils.validateBoolean(model["Is Disabled"])
+            isDisabled: ModelValidationUtils.validateBoolean(model["Is Disabled"]),
+            langTag: model["langAttribute"],
+            speechTexts: newSpeechTexts
         };
     };
+
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeFrom_01(model);
+    };
+
+    presenter.upgradeFrom_01 = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = '';
+        }
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {
+                Selected: {Selected: 'Selected'},
+                Deselected: {Deselected: 'Deselected'},
+                Correct: {Correct: 'Correct'},
+                Wrong: {Wrong: 'Wrong'}
+            };
+        }
+
+        return upgradedModel;
+    };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function setSpeechTexts (speechTexts) {
+        var newSpeechTexts = {
+            selected:  'selected',
+            deselected: 'deselected',
+            correct: 'correct',
+            wrong: 'wrong'
+        };
+
+        if (!speechTexts) {
+            return newSpeechTexts;
+        }
+
+        newSpeechTexts = {
+            selected:     getSpeechTextProperty(speechTexts['Selected']['Selected'], newSpeechTexts.selected),
+            deselected:   getSpeechTextProperty(speechTexts['Deselected']['Deselected'], newSpeechTexts.deselected),
+            correct:      getSpeechTextProperty(speechTexts['Correct']['Correct'], newSpeechTexts.correct),
+            wrong:        getSpeechTextProperty(speechTexts['Wrong']['Wrong'], newSpeechTexts.wrong)
+        };
+
+        return newSpeechTexts;
+    }
 
     function applySelectionStyle(selected, selectedClass, unselectedClass) {
         var element = presenter.$view.find('div:first')[0];
@@ -294,7 +355,7 @@ function AddonImage_Identification_create(){
         } else {
             presenter.hide();
         }
-        
+
         presenter.configuration.isDisabled ? presenter.disable() : presenter.enable();
     };
 
@@ -304,7 +365,7 @@ function AddonImage_Identification_create(){
         if (!presenter.configuration.isActivity) return;
 
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
-        
+
         presenter.isDisabled ? presenter.disable() : presenter.enable()
     };
 
@@ -322,7 +383,7 @@ function AddonImage_Identification_create(){
         } else {
             applySelectionStyle(true, CSS_CLASSES.EMPTY, CSS_CLASSES.ELEMENT);
         }
-        
+
         presenter.isDisabled ? presenter.disable() : presenter.enable()
     };
 
@@ -435,6 +496,16 @@ function AddonImage_Identification_create(){
 
         if(shouldSendEvent){
             presenter.triggerSelectionEvent(presenter.configuration.isSelected, presenter.configuration.shouldBeSelected);
+        }
+
+        if (isWCAGOn) {
+            var speechVoices = [];
+            if (presenter.configuration.isSelected) {
+                speechVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.selected));
+            } else {
+                speechVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.deselected));
+            }
+            speak(speechVoices);
         }
     };
 
@@ -549,9 +620,13 @@ function AddonImage_Identification_create(){
         presenter.isShowAnswersActive = false;
     };
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        if (keycode === window.KeyboardControllerKeys.ENTER) {
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        event.preventDefault();
+
+        if (keycode === window.KeyboardControllerKeys.SPACE) {
             clickLogic();
+        } else if (keycode === window.KeyboardControllerKeys.ENTER) {
+            presenter.readAltText();
         }
     };
 
@@ -559,6 +634,44 @@ function AddonImage_Identification_create(){
         var tabindexValue = isTabindexEnabled ? "0" : "-1";
         element.attr("tabindex", tabindexValue);
     };
+
+    presenter.readAltText = function() {
+        var speechVoices = [];
+        speechVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.altText, presenter.configuration.langTag));
+
+        if( (presenter.configuration.isSelected && !presenter.isShowAnswersActive) || (presenter.isShowAnswersActive && presenter.configuration.shouldBeSelected)) {
+            speechVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.selected));
+        }
+
+        if( presenter.$view.find('.' + CSS_CLASSES.CORRECT).size() > 0) {
+            speechVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.correct));
+        } else if( presenter.$view.find('.' + CSS_CLASSES.INCORRECT).size() > 0) {
+            speechVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.wrong));
+        }
+        speak(speechVoices);
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
+
+    presenter.isEnterable = function() {return false};
 
     return presenter;
 }

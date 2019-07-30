@@ -27,6 +27,10 @@ function AddonTable_create() {
     presenter.gapsSize = [];
     presenter.isSetShowErrorsMode = false;
     presenter.keyboardControllerObject = null;
+    presenter.isWCAGOn = false;
+    presenter.gapNavigation = false;
+    presenter.addonKeyboardNavigationActive = false;
+    presenter.gapIndex = 0;
 
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
@@ -240,7 +244,7 @@ function AddonTable_create() {
         var $table = presenter.generateTable(presenter.configuration.contents, isPreview);
         presenter.setColumnWidth($table, presenter.configuration.columnsWidths, presenter.configuration.rowsHeights);
         presenter.setRowHeight($table, presenter.configuration.rowsHeights);
-        presenter.setVisibility(presenter.configuration.isVisible);
+        presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
         presenter.initializeGaps(isPreview);
 
@@ -572,6 +576,44 @@ function AddonTable_create() {
         return { isValid: true, dimensions: widths };
     };
 
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            correct:  'correct',
+            wrong: 'wrong',
+            empty: 'empty',
+            gap: 'gap',
+            dropdown: 'dropdown',
+            inserted: 'inserted',
+            removed: 'removed',
+            cell: 'cell'
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            correct:    getSpeechTextProperty(speechTexts['Correct']['Correct'], presenter.speechTexts.correct),
+            wrong: getSpeechTextProperty(speechTexts['Wrong']['Wrong'], presenter.speechTexts.wrong),
+            empty:  getSpeechTextProperty(speechTexts['Empty']['Empty'], presenter.speechTexts.empty),
+            gap:     getSpeechTextProperty(speechTexts['Gap']['Gap'], presenter.speechTexts.gap),
+            dropdown:   getSpeechTextProperty(speechTexts['Dropdown']['Dropdown'], presenter.speechTexts.dropdown),
+            inserted:      getSpeechTextProperty(speechTexts['Inserted']['Inserted'], presenter.speechTexts.inserted),
+            removed:        getSpeechTextProperty(speechTexts['Removed']['Removed'], presenter.speechTexts.removed),
+            cell:        getSpeechTextProperty(speechTexts['Cell']['Cell'], presenter.speechTexts.cell)
+        };
+    };
+
     /**
      * Validate user input configuration.
      *
@@ -583,6 +625,8 @@ function AddonTable_create() {
      * @return {Object} contents array of contents. Dimensions based on Rows and Columns properties
      */
     presenter.validateModel = function (model) {
+
+        presenter.setSpeechTexts(model['speechTexts']);
 
         if (model["newWidthCalculate"] === undefined) {
             model["newWidthCalculate"] = false;
@@ -643,7 +687,10 @@ function AddonTable_create() {
             newWidthCalculate: ModelValidationUtils.validateBoolean(model["newWidthCalculate"]),
             gapWidth: gapWidth,
             gapType: model["Gap Type"],
-            isTabindexEnabled: isTabindexEnabled
+            isTabindexEnabled: isTabindexEnabled,
+            columnsCount: validatedColumns.value,
+            rowsCount: validatedRows.value,
+            langTag: model["langAttribute"]
         };
     };
 
@@ -673,10 +720,45 @@ function AddonTable_create() {
         return upgradedModel;
     };
 
-    presenter.upgradeModel = function (model) {
-        var modelWithColumnsWidth = presenter.addColumnsWidth(model);
+    presenter.addLangTag = function AddonTable_addLangTag(model) {
+         var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
 
-        return presenter.addRowHeights(modelWithColumnsWidth);
+        if (!model['langAttribute']) {
+            upgradedModel['langAttribute'] =  '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.addSpeechTexts = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model['speechTexts']) {
+            upgradedModel['speechTexts'] = {
+                Gap: {Gap: "Gap"},
+                Dropdown: {Dropdown: "Dropdown"},
+                Correct: {Correct: "Correct"},
+                Wrong: {Wrong: "Wrong"},
+                Empty: {Empty: "Empty"},
+                Inserted: {Inserted: "Inserted"},
+                Removed: {Removed: "Removed"},
+                Cell: {Cell: "Cell"}
+            }
+        }
+        return upgradedModel;
+    };
+
+
+
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = presenter.addColumnsWidth(model);
+        upgradedModel = presenter.addRowHeights(upgradedModel);
+        upgradedModel = presenter.addLangTag(upgradedModel);
+        upgradedModel = presenter.addSpeechTexts(upgradedModel);
+
+        return upgradedModel;
     };
 
     presenter.setVisibility = function (isVisible) {
@@ -991,7 +1073,8 @@ function AddonTable_create() {
     };
 
     presenter.GapUtils.prototype.isValueEmpty = function () {
-        return this.getValue().trim() == "";
+        var value = this.getValue().trim();
+        return value.length === 0 || (this.gapType===1 && 0 === value.localeCompare("---")); //gapType===1 is the dropdown gap
     };
 
     presenter.GapUtils.prototype.setCssOnCorrect = function () {
@@ -1560,6 +1643,7 @@ function AddonTable_create() {
     presenter.GapsContainerObject.prototype.setGapsState = function (state) {
         state.map(function (stateData, index) {
             this.gaps[index].setState(stateData.value, "", stateData.isEnabled);
+            this.gaps[index].$view.trigger('change');
         }, this);
     };
 
@@ -1653,15 +1737,37 @@ function AddonTable_create() {
         });
     };
 
-    function TableKeyboardController (elements, columnsCount) {
+    function TableKeyboardController (elements, columnsCount, rowsCount) {
         KeyboardController.call(this, elements, columnsCount);
+        this.rowsCount = rowsCount;
     }
 
     TableKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
     TableKeyboardController.prototype.constructor = TableKeyboardController;
 
     TableKeyboardController.prototype.select = function (event) {
-        this.getTarget(this.keyboardNavigationCurrentElement, true).click();
+        event.preventDefault();
+        if (presenter.gapNavigation && presenter.configuration.gapType == 'draggable' && presenter.getCurrentGapsNumber() > 0) {
+            var $gap = presenter.getGap(presenter.gapIndex);
+
+            if (!$gap || !$gap.is('span')) return;
+
+            var oldVal = $gap.text();
+            $gap.click();
+            var value = $gap.text();
+
+            if (0 !== oldVal.localeCompare(value)) {
+                var data = [];
+                if (value) {
+                    data.push(window.TTSUtils.getTextVoiceObject(value, presenter.configuration.langTag));
+                    data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.inserted));
+                } else {
+                    data.push(window.TTSUtils.getTextVoiceObject(oldVal, presenter.configuration.langTag));
+                    data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.removed));
+                }
+                presenter.speak(data);
+            }
+        }
     };
 
     TableKeyboardController.prototype.mark =  function (element) {
@@ -1675,31 +1781,258 @@ function AddonTable_create() {
     };
 
     presenter.buildKeyboardController = function () {
-        presenter.keyboardControllerObject = new TableKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
-
-        var keys = {
-            ARROW_LEFT: 37,
-            ARROW_UP: 38,
-            ARROW_RIGHT: 39,
-            ARROW_DOWN: 40
-        };
-
-        presenter.keyboardControllerObject.mapping[keys.ARROW_UP] = function () {};
-        presenter.keyboardControllerObject.mapping[keys.ARROW_LEFT] = function () {};
-        presenter.keyboardControllerObject.mapping[keys.ARROW_RIGHT] = function () {};
-        presenter.keyboardControllerObject.mapping[keys.ARROW_DOWN] = function () {};
+        presenter.keyboardControllerObject = new TableKeyboardController(presenter.getElementsForKeyboardNavigation(), presenter.configuration.columnsCount, presenter.configuration.rowsCount);
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
-        return presenter.$view.find('.ic_gap, .ic_filled_gap');
+        return presenter.$view.find('td');
     };
 
-    presenter.keyboardController = function(keycode, isShiftKeyDown) {
-        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown);
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
     };
 
     TableKeyboardController.prototype.getTarget = function (element, willBeClicked){
         return $(element);
+    };
+
+    TableKeyboardController.prototype.escape = function (event) {
+        if (presenter.gapNavigation) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            presenter.gapNavigation = false;
+            presenter.clearCurrentCell();
+            presenter.readCurrentCellTitle();
+        } else {
+            // must be set to false, otherwise module won't exit navigation
+            presenter.addonKeyboardNavigationActive = false;
+            KeyboardController.prototype.escape.call(this, event);
+        }
+    };
+
+    TableKeyboardController.prototype.enter = function (event){
+        KeyboardController.prototype.enter.call(this, event);
+
+        if (presenter.addonKeyboardNavigationActive && !presenter.gapNavigation) {
+            presenter.gapNavigation = true;
+            presenter.selectGap(0);
+        }
+        if (!presenter.addonKeyboardNavigationActive){
+            presenter.addonKeyboardNavigationActive = true;
+            presenter.readCurrentCellTitle();
+        } else {
+            presenter.readCurrentNavigationElement();
+        }
+    };
+
+    presenter.readCurrentNavigationElement = function() {
+        var html = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement);
+        var data = window.TTSUtils.getTextVoiceArrayFromElementWithGaps(html, presenter.configuration.langTag, presenter.speechTexts);
+        presenter.speak(data);
+    };
+
+    presenter.readCurrentCellTitle = function() {
+        var row = Math.floor(presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex / presenter.configuration.columnsCount);
+        var column = presenter.keyboardControllerObject.keyboardNavigationCurrentElementIndex % presenter.configuration.columnsCount;
+        var alphabet = "ABCDEFGHIJKLMNOPRSTUWXYZ";
+        var content = presenter.speechTexts.cell + " " + alphabet[column % alphabet.length] + " " + (row+1);
+        var data = [window.TTSUtils.getTextVoiceObject(content)];
+        presenter.speak(data);
+    };
+
+    // TAB or Right Arrow
+    TableKeyboardController.prototype.nextElement = function (event) {
+        if(event.keyCode === 9) { //TAB
+            this.handleTab(event);
+            event.preventDefault();
+            return;
+        }
+
+        if (presenter.gapNavigation){
+            presenter.switchSelectedValue(1);
+            return;
+        }
+
+        event.preventDefault();
+
+        if (this.keyboardNavigationCurrentElementIndex % this.columnsCount === this.columnsCount - 1) {
+            presenter.readCurrentCellTitle();
+        } else {
+            this.switchElement(1);
+            presenter.readCurrentCellTitle();
+        }
+    };
+
+    // SHIFT+TAB or Left Arrow
+    TableKeyboardController.prototype.previousElement = function (event) {
+        if(event.keyCode === 9) { //TAB
+            this.handleTab(event);
+            return;
+        }
+
+        if (presenter.gapNavigation){
+            presenter.switchSelectedValue(-1);
+            return;
+        }
+
+        event.preventDefault();
+
+        if (this.keyboardNavigationCurrentElementIndex % this.columnsCount === 0) {
+            presenter.readCurrentCellTitle();
+        } else {
+            this.switchElement(-1);
+            presenter.readCurrentCellTitle();
+        }
+    };
+
+    TableKeyboardController.prototype.handleTab = function (event) {
+        if (presenter.getCurrentGapsNumber() > 0) {
+            if (!presenter.gapNavigation) {
+                presenter.gapNavigation = true;
+                presenter.selectGap(0);
+            } else {
+                if ( !event.shiftKey ) {
+                    presenter.selectGap(presenter.gapIndex + 1);
+                } else {
+                    presenter.selectGap(presenter.gapIndex - 1);
+                }
+            }
+
+            var $gap = presenter.getGap(presenter.gapIndex);
+            var $cell = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement);
+            var data = window.TTSUtils.getTextVoiceArrayFromGap($gap, $cell, presenter.configuration.langTag, presenter.speechTexts);
+            presenter.speak(data);
+
+        }
+
+    };
+
+    // UP Arrow
+    TableKeyboardController.prototype.previousRow = function (event) {
+        if (presenter.gapNavigation) {
+            presenter.switchSelectedValue(-1);
+            return;
+        }
+
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (Math.floor(this.keyboardNavigationCurrentElementIndex / this.columnsCount) === 0) {
+            presenter.readCurrentCellTitle();
+        } else {
+            this.switchElement(-this.columnsCount);
+            presenter.readCurrentCellTitle();
+        }
+    };
+
+    // DOWN Arrow
+    TableKeyboardController.prototype.nextRow = function (event) {
+        if (presenter.gapNavigation) {
+            presenter.switchSelectedValue(1);
+            return;
+        }
+
+        if (event) {
+            event.preventDefault();
+        }
+
+        if (Math.floor(this.keyboardNavigationCurrentElementIndex / this.columnsCount) === this.rowsCount - 1) {
+            presenter.readCurrentCellTitle();
+        } else {
+            this.switchElement(this.columnsCount);
+            presenter.readCurrentCellTitle();
+        }
+    };
+
+    TableKeyboardController.prototype.exitWCAGMode = function () {
+        presenter.gapNavigation = false;
+        presenter.clearCurrentCell();
+        KeyboardController.prototype.exitWCAGMode.call(this);
+    };
+
+    presenter.getTextToSpeechOrNull = function AddonTable_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function AddonTable_setWCAGStatus(isOn) {
+        presenter.isWCAGOn = isOn;
+    };
+
+    presenter.speak = function AddonTable_speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.isDeactivationBlocked = function() {
+        return presenter.addonKeyboardNavigationActive || presenter.gapNavigation;
+    };
+
+    presenter.getCurrentGapsNumber = function() {
+        return $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice').length;
+    };
+
+    presenter.clearCurrentCell = function() {
+        var $cell = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement);
+        $cell.find('.keyboard_navigation_active_element').removeClass('keyboard_navigation_active_element');
+        if ($cell.find('input:focus').length > 0) {
+            $cell.find('input:focus').blur();
+        }
+    };
+
+    presenter.getGap = function (index) {
+        var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice');
+        if ($gaps.length == 0) return;
+        if (index < 0) index = 0;
+        if (index >= $gaps.length) index = $gaps.length-1;
+        return $gaps.eq(index);
+    };
+
+    presenter.selectGap = function(index) {
+        var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice');
+        if ($gaps.length == 0) return;
+        if(index < 0) index = 0;
+        if(index >= $gaps.length) index = $gaps.length - 1;
+        var $gap = $gaps.eq(index);
+
+        presenter.clearCurrentCell();
+        $gap.addClass('keyboard_navigation_active_element');
+
+        presenter.gapIndex = index;
+        if ($gap.is('input')) {
+            $gap.focus();
+        }
+    };
+
+    presenter.switchSelectedValue = function(move) {
+        if(presenter.isShowAnswersActive || presenter.isSetShowErrorsMode) return;
+        var $gap = presenter.getGap(presenter.gapIndex);
+
+        if (!$gap || !$gap.is('select')) return;
+
+        var index = $gap.prop("selectedIndex");
+        var optionSize = $gap.find('option').size();
+        index = index + move;
+
+        if (0 <= index && index < optionSize) {
+            $gap.prop("selectedIndex", index);
+            $gap.change();
+            var value = $gap.val();
+            if (value.length == 0 || value == '-' || value == '---') {
+                var data = [window.TTSUtils.getTextVoiceObject(presenter.speechTexts.empty)];
+            } else {
+                var data = [window.TTSUtils.getTextVoiceObject($gap.val(), presenter.configuration.langTag)];
+            }
+            presenter.speak(data);
+        }
     };
 
     return presenter;

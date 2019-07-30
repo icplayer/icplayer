@@ -1,5 +1,8 @@
 package com.lorepo.icplayer.client.module.report;
 
+import java.util.HashMap;
+
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -17,7 +20,7 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 
 	public interface IDisplay extends IModuleView{
 		void clear();
-		void addRow(String name, PageScore pageScore);
+		void addRow(String name, Integer pageId, PageScore pageScore);
 		void addRow(String name);
 		void addSummaryRow(int totalScore, int totalChecks, int totalErrors, int totalMistakes);
 		void addListener(IViewListener l);
@@ -58,7 +61,7 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 				counter ++;
 				
 				if(pageScore != null){
-					view.addRow(page.getName(), pageScore);
+					view.addRow(page.getName(), i, pageScore);
 	
 					totalChecks += pageScore.getCheckCount();
 					totalErrors += pageScore.getErrorCount();
@@ -76,15 +79,15 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 		view.addSummaryRow(totalScore, totalChecks, totalErrors, totalMistakes);
 		
 		view .addListener(new IViewListener() {
-			public void onClicked(String name) {
-				pageClicked(name);
+			public void onClicked(int pageId) {
+				pageClicked(pageId);
 			}
 		});
 	}
 
 
-	protected void pageClicked(String name) {
-		playerServices.getCommands().gotoPage(name);
+	protected void pageClicked(int pageId) {
+		playerServices.getCommands().gotoPageIndex(pageId);
 	}
 
 
@@ -144,5 +147,19 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		return !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
+	}
+
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public JavaScriptObject getAsJavaScript() {
+		// TODO Auto-generated method stub
+		return JavaScriptObject.createObject();
 	}
 }

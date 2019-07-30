@@ -2,8 +2,12 @@ function AddonZoom_Image_create() {
 
     var presenter = function() {};
     var eventBus;
+    var playerController = null;
+    var isWCAGOn = false;
+    var oldFocus = null;
     presenter.isOpened = false;
-
+    var backgroundColorStyle;
+    var opacity;
     function setup_presenter() {
         presenter.$player = null;
         presenter.view = null;
@@ -44,11 +48,13 @@ function AddonZoom_Image_create() {
     }
 
     presenter.setPlayerController = function(controller) {
+        playerController = controller;
         eventBus = controller.getEventBus();
     };
 
     presenter.validateModel = function(model) {
 
+        setSpeechTexts(model['speechTexts']);
         var validatedBigImage = parseImage(model["Full Screen image"]);
         if (!validatedBigImage.isValid) {
             return returnErrorObject(validatedBigImage.errorCode);
@@ -73,7 +79,8 @@ function AddonZoom_Image_create() {
             isVisibleByDefault: isVisible,
             isValid: true,
             alt: model['Alternative text'],
-            isTabindexEnabled: isTabindexEnabled
+            isTabindexEnabled: isTabindexEnabled,
+            langTag: model['langAttribute']
         }
     };
 
@@ -81,6 +88,7 @@ function AddonZoom_Image_create() {
         presenter.view = view;
         presenter.$view = $(view);
 
+        model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -92,9 +100,8 @@ function AddonZoom_Image_create() {
         if (!isPreview) {
             presenter.eventType = MobileUtils.isMobileUserAgent(navigator.userAgent) ? "touchend" : "click";
             presenter.$view.find(".icon").on(presenter.eventType, presenter.createPopUp);
+            presenter.setVisibility(presenter.configuration.isVisible);
         }
-
-        presenter.setVisibility(presenter.configuration.isVisible);
 
         presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
@@ -104,6 +111,51 @@ function AddonZoom_Image_create() {
 
         return false;
     };
+
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeFrom_01(model);
+    };
+
+    presenter.upgradeFrom_01 = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {
+                Closed: {Closed: 'closed'}
+            };
+        }
+
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = '';
+        }
+
+        return upgradedModel;
+    };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+            closed:  'closed'
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            closed:    getSpeechTextProperty(speechTexts['Closed']['Closed'], presenter.speechTexts.closed)
+        };
+    }
 
     presenter.destroy = function () {
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
@@ -167,6 +219,8 @@ function AddonZoom_Image_create() {
     }
 
     presenter.removeOpenedDialog = function (e) {
+        $('.ui-widget-overlay').css("opacity", opacity);
+        $('.ui-widget-overlay').css("background", backgroundColorStyle);
         if(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -205,6 +259,17 @@ function AddonZoom_Image_create() {
         var dialogSize = calculateImageSize(this);
 
         presenter.$image.appendTo(presenter.$view);
+
+        if(!oldFocus && isWCAGOn && $.browser.mozilla) {
+            // This hack is meant to prevent issues between TTS and NVDA on Firefox
+            // When the dialog is created, jquery.ui changes browser focus, causing NVDA to speak
+            // simultaneously with TTS. In order to prevent that, jQuery.focus() function is temporarily disabled
+            // and then restored after dialog has been created
+            oldFocus = $.fn.focus;
+            $.fn.focus = function () {
+                return this;
+            };
+        }
         presenter.$image.dialog({
             height: dialogSize.height,
             width: dialogSize.width,
@@ -222,11 +287,21 @@ function AddonZoom_Image_create() {
             },
             create: presenter.bigImageCreated,
             open: function() {
+                opacity =  $('.ui-widget-overlay').css("opacity");
+                backgroundColorStyle = $('.ui-widget-overlay').css("background");
+                $('.ui-widget-overlay').css("background", "black");
+                $('.ui-widget-overlay').css("opacity", "0.7");
                 $('.ui-widget-overlay').on(presenter.eventType, presenter.removeOpenedDialog);
             }
         });
         presenter.$image.parent().wrap("<div class='zoom-image-wraper'></div>");
         presenter.$image.on(presenter.eventType, presenter.removeOpenedDialog);
+
+        if(oldFocus) {
+            // Restoring jQuery.focus() after the hack meant to prevent issues between TTS and NVDA on Firefox
+            $.fn.focus = oldFocus;
+            oldFocus = null;
+        }
     };
 
     presenter.createPopUp = function createPopUp(e) {
@@ -289,17 +364,66 @@ function AddonZoom_Image_create() {
         presenter.setVisibility(upgradedState.isVisible);
     };
 
-    presenter.keyboardController = function(keyCode) {
-        if (keyCode === 13) {
+    presenter.keyboardController = function(keyCode, isShift, event) {
+         if (keyCode == window.KeyboardControllerKeys.SPACE ||
+             keyCode == window.KeyboardControllerKeys.ESC ||
+             keyCode == window.KeyboardControllerKeys.ARROW_UP ||
+             keyCode == window.KeyboardControllerKeys.ARROW_DOWN)
+         {
+             event.preventDefault();
+         }
+
+         if (keyCode === 13 && !isShift) { // Enter button
             if (!presenter.isOpened) {
                 presenter.createPopUp();
             }
+            presenter.readAltText();
         }
 
-        if (keyCode === 27) {
+        if (keyCode === 27 || keyCode === 9) { // ESC or TAB button
             presenter.removeOpenedDialog();
+            presenter.$view.removeClass('ic_active_module');
+            if (keyCode === 27) {
+                presenter.readClosed();
+            } else {
+                playerController.getKeyboardController().moveActiveModule(isShift);
+            }
         }
     };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
+
+    presenter.readAltText = function() {
+        var speechVoices = [];
+        speechVoices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.alt, presenter.configuration.langTag));
+        speak(speechVoices);
+    };
+
+    presenter.readClosed = function() {
+        var speechVoices = [];
+        speechVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.closed));
+        speak(speechVoices);
+    };
+
+    presenter.isEnterable = function() {return presenter.isOpened};
 
     return presenter;
 }

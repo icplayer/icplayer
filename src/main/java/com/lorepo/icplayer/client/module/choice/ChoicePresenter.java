@@ -9,6 +9,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
@@ -110,11 +111,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 				@Override
 				public void onCustomEventOccurred(CustomEvent event) {
-					if (event.eventName.equals("ShowAnswers")) {
-						showAnswers();
-					} else if (event.eventName.equals("HideAnswers")) {
-						hideAnswers();
-					}
+					onEventReceived(event.eventName, event.getData());
 				}
 			});
 			
@@ -473,7 +470,21 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
         } else if (commandName.compareTo("markoptionasempty") == 0 && params.size() == 1) {
 			param = (IStringType) params.get(0);
         	markOptionAsEmpty(Integer.parseInt(param.getValue()));
-        }
+        } else if (commandName.compareTo("getscore") == 0) {
+			return String.valueOf(getScore());
+		} else if (commandName.compareTo("geterrorcount") == 0) {
+			return String.valueOf(getErrorCount());
+		} else if (commandName.compareTo("getmaxscore") == 0) {
+			return String.valueOf(getMaxScore());
+		} else if (commandName.compareTo("setshowerrorsmode") == 0) {
+			setShowErrorsMode();
+		} else if (commandName.compareTo("setworkmode") == 0) {
+			setWorkMode();
+		} else if (commandName.compareTo("showanswers") == 0) {
+			showAnswers();
+		} else if (commandName.compareTo("hideanswers") == 0) {
+			hideAnswers();
+		}
 		
 		return "";
 	}
@@ -481,6 +492,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	@Override
 	public String getName() {
 		return module.getId();
+	}
+	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}
 
 	public JavaScriptObject getAsJavaScript(){
@@ -547,6 +562,38 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		presenter.isOptionSelected = function(index) {
 			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::isOptionSelected(I)(index);
 		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+
+		presenter.getScore = function() {
+			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::getScore()();
+		};
+
+		presenter.getErrorCount = function() {
+			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::getErrorCount()();
+		};
+
+		presenter.getMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::getMaxScore()();
+		};
+
+		presenter.setShowErrorsMode = function() {
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::setShowErrorsMode()();
+		};
+
+		presenter.setWorkMode = function() {
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::setWorkMode()();
+		};
+
+		presenter.showAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::showAnswers()();
+		};
+
+		presenter.hideAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::hideAnswers()();
+		};
 
 		return presenter;
 	}-*/;
@@ -663,5 +710,15 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		boolean isEnabled = !this.module.isDisabled();
 		return (isVisible || isTextToSpeechOn) && isEnabled;
+	}
+
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName.equals("ShowAnswers")) {
+			showAnswers();
+		} else if (eventName.equals("HideAnswers")) {
+			hideAnswers();
+		}
 	}
 }

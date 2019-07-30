@@ -51,6 +51,7 @@
                 <exclude name="**/dictionaries/fr/*"/>
                 <exclude name="**/dictionaries/pl/*"/>
                 <exclude name="**/dictionaries/mx/*"/>
+                <exclude name="**/dictionaries/bl/*"/>
                 <exclude name="**/dictionary.js"/>
                 <exclude name="**/commons.js"/>
                 <exclude name="**/*.min.js"/>
@@ -80,6 +81,9 @@
         <echo>Concanetate js files into single one</echo>
         <concat destfile="${libs.destination.file}" fixlastline="yes" encoding="UTF-8" outputencoding="UTF-8">
             <filelist>
+                <!--Polyfills-->
+                <file name="${build.temp.folder}/polyfills/startswith.js"/>
+
                 <file name="${build.temp.folder}/player-utils.js"/>
                 <file name="${build.temp.folder}/buzz.min.js"/>
                 <file name="${build.temp.folder}/jcanvas.min.js"/>
@@ -100,6 +104,7 @@
                 <file name="${build.temp.folder}/dictionaries/fr/dictionary.js"/>
                 <file name="${build.temp.folder}/dictionaries/mx/dictionary.js"/>
                 <file name="${build.temp.folder}/dictionaries/pl/dictionary.js"/>
+                <file name="${build.temp.folder}/dictionaries/bl/dictionary.js"/>
                 <file name="${build.temp.folder}/aop.min.js"/>
                 <file name="${build.temp.folder}/math.js"/>
                 <file name="${build.temp.folder}/scorm.js"/>
@@ -145,6 +150,8 @@
 
                 <file name="${build.temp.folder}/webtoolkit.js"/>
                 <file name="${build.temp.folder}/jison.min.js"/>
+
+                <file name="${build.temp.folder}/recorder/RecordRTC.js"/>
             </filelist>
         </concat>
         <echo>Concanetating success</echo>

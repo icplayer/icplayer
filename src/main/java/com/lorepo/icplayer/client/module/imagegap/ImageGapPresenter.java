@@ -8,6 +8,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -52,6 +53,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		public void removeClass(String string);
 		public void setAltText(String alt);
 		public void clearAltText();
+		public void setLangTag(String langTag);
+		public String getLang();
+		public void readInserted();
+		public void readRemoved();
 	}
 
 	private final ImageGapModule model;
@@ -127,11 +132,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
-				if (event.eventName.equals("ShowAnswers")) {
-					showAnswers();
-				} else if (event.eventName.equals("HideAnswers")) {
-					hideAnswers();
-				}
+				onEventReceived(event.eventName, event.getData());
 			}
 		});
 	}
@@ -211,6 +212,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		if (isShowAnswersActive) {
 			hideAnswers();
 		}
+		
+		if(this.consumedItem != null) {
+			this.removeItem(false);
+		}
+		
 		readyToDraggableItem = null;
 		consumedItem = null;
 		view.clearAltText();
@@ -240,7 +246,13 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	private void viewClicked() {
+		if (this.isShowAnswersActive || this.isShowErrorsMode) {
+			return;
+		}
 		if (consumedItem == null) {
+			insertItem();
+		} else if (readyToDraggableItem != null) {
+			removeItem(false);
 			insertItem();
 		} else {
 			removeItem(true);
@@ -249,6 +261,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private void removeItem(boolean shouldSendEvent) {
 		if (consumedItem != null) {
+			view.readRemoved();
 			view.setImageUrl("");
 			fireItemReturnedEvent(consumedItem);
 			consumedItem = null;
@@ -257,6 +270,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 				ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", "", "0");
 				playerServices.getEventBus().fireEvent(valueEvent);
 			}
+			view.setLangTag("");
 		}
 	}
 
@@ -265,6 +279,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			view.setAltText(getImageSourceAltText(readyToDraggableItem.getId()));
 			view.setImageUrl(readyToDraggableItem.getValue());
 			consumedItem = readyToDraggableItem;
+			String langAtribute = getSourceLangTag(consumedItem.getId()); 
 			fireItemConsumedEvent();
 			String score = Integer.toString(getScore());
 			ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", consumedItem.getId(), score);
@@ -277,7 +292,18 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			if(getScore() == 0 && model.shouldBlockWrongAnswers()){
 				removeItem(false);
 			}
+			view.setLangTag(langAtribute);
+			view.readInserted();
 		}
+	}
+	
+	private String getSourceLangTag(String id) {
+		IPresenter presenter = playerServices.getModule(id);
+		if (presenter != null && presenter instanceof ImageSourcePresenter) {
+			ImageSourcePresenter isp = (ImageSourcePresenter) presenter;
+			return isp.getLangAttribute();
+		}
+		return "";
 	}
 
 	private void setCorrectImage() {
@@ -285,6 +311,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		ImageSourcePresenter imageSourcePresenter = (ImageSourcePresenter) playerServices.getModule(answers[0]);
 		view.setImageUrl(imageSourcePresenter.getImageUrl());
 		view.setAltText(imageSourcePresenter.getAltText());
+		view.setLangTag(imageSourcePresenter.getLangAttribute());
 	}
 
 	private void fireItemReturnedEvent(DraggableItem previouslyConsumedItem) {
@@ -322,6 +349,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		HashMap<String, String> state = new HashMap<String, String>();
 		if (consumedItem != null) {
 			state.put("consumed",  consumedItem.toString());
+			state.put("langTag", view.getLang());
 		}
 		state.put("isVisible", Boolean.toString(isVisible));
 		if (isShowErrorsMode) {
@@ -351,6 +379,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			view.setImageUrl(getImageURL(consumedItem));
 			view.setAltText(getImageSourceAltText(consumedItem.getId()));
 			view.makeDraggable(this);
+			if (state.containsKey("langTag")){
+				view.setLangTag(state.get("langTag"));
+			}
 		}
 		if (state.containsKey("isVisible")) {
 			if (Boolean.parseBoolean(state.get("isVisible"))) {
@@ -424,6 +455,20 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			enable();
 		} else if(commandName.compareTo("reset") == 0) {
 			reset();
+		} else if (commandName.compareTo("getscore") == 0) {
+			return String.valueOf(getScore());
+		} else if (commandName.compareTo("geterrorcount") == 0) {
+			return String.valueOf(getErrorCount());
+		} else if (commandName.compareTo("getmaxscore") == 0) {
+			return String.valueOf(getMaxScore());
+		} else if (commandName.compareTo("setshowerrorsmode") == 0) {
+			setShowErrorsMode();
+		} else if (commandName.compareTo("setworkmode") == 0) {
+			setWorkMode();
+		} else if (commandName.compareTo("showanswers") == 0) {
+			showAnswers();
+		} else if (commandName.compareTo("hideanswers") == 0) {
+			hideAnswers();
 		}
 
 		return value;
@@ -475,6 +520,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	
 	private void markConnectionWithMath() {
 		isConnectedWithMath = true;
+	}
+	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}
 
 	private native JavaScriptObject initJSObject(ImageGapPresenter x) /*-{
@@ -563,6 +612,38 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		presenter.isAllOK = function() {
 			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::isAllOK()();
 		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+
+		presenter.getScore = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getScore()();
+		};
+
+		presenter.getErrorCount = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getErrorCount()();
+		};
+
+		presenter.getMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::getMaxScore()();
+		};
+
+		presenter.setShowErrorsMode = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::setShowErrorsMode()();
+		};
+
+		presenter.setWorkMode = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::setWorkMode()();
+		};
+
+		presenter.showAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::showAnswers()();
+		};
+
+		presenter.hideAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::hideAnswers()();
+		};
 
 		return presenter;
 	}-*/;
@@ -577,20 +658,32 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		}
 		return currentEventData;
 	}
+	
+	private boolean isElementToDrag () {
+		return this.consumedItem != null || this.currentEventData != null;
+	}
 
 	private void itemDragged() {
+		if (!this.isElementToDrag()) { 
+			return;
+		}
+		
 		CustomEvent dragEvent = new CustomEvent("itemDragged", prepareEventData());
 		removeItem(true);
 		playerServices.getEventBus().fireEvent(dragEvent);
 	}
 
 	private void itemStopped() {
+		if (!this.isElementToDrag()) { 
+			return;
+		}
+		
 		CustomEvent stopEvent = new CustomEvent("itemStopped", prepareEventData());
 		playerServices.getEventBus().fireEvent(stopEvent);
 	}
 
 	private boolean isDragPossible() {
-		if (this.isShowAnswersActive || view.getDisabled()) {
+		if (this.isShowAnswersActive || view.getDisabled() || !this.isElementToDrag()) {
 			return false;
 		}
 		return true;
@@ -686,6 +779,15 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			return imageSourcePresenter.getAltText();
 		}
 		return "";
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (eventName.equals("ShowAnswers")) {
+			showAnswers();
+		} else if (eventName.equals("HideAnswers")) {
+			hideAnswers();
+		}
 	}
 
 }

@@ -1,19 +1,16 @@
 package com.lorepo.icplayer.client.module.text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.AudioElement;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
@@ -21,9 +18,15 @@ import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
+import com.lorepo.icplayer.client.utils.MathJaxElement;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 
-public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
+public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, IWCAGModuleView{
 	private final TextModel module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
@@ -35,16 +38,32 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	private ArrayList<InlineChoiceInfo> inlineChoiceInfoArrayList = new ArrayList<InlineChoiceInfo>();
 	private boolean isWCAGon = false;
 	private boolean isShowErrorsMode = false;
+	private boolean mathJaxIsLoaded = false;
+	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
+	private boolean isPreview = false;
+	
+	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
+	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
+	private ArrayList<GapWidget> gapsWidgets = new ArrayList<GapWidget>();
 	
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
+		this.isPreview = isPreview;
 		createUI(isPreview);
+		mathJaxLoaded();
 	}
 
+	@Override
+	public void mathJaxLoaded() {
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
+	}
+	
 	private void createUI (boolean isPreview) {
 		getElement().setId(module.getId());
 		setStyleName("ic_text");
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (!isPreview && !module.isVisible()) {
 			hide();
 		}
@@ -55,6 +74,13 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		
 		getElement().setAttribute("lang", this.module.getLangAttribute());
 	}
+	
+	public void mathJaxIsLoadedCallback() {
+        if (!this.mathJaxIsLoaded) {
+            this.mathJaxIsLoaded = true;
+            this.refreshMath();
+        }
+    }
 
 	public ITextViewListener getListener() {
 		return listener;
@@ -77,6 +103,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			}
 			
 			gap.setDisabled(module.isDisabled());
+			
 			textElements.add(gap);
 		}
 	}
@@ -116,6 +143,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 				}
 				
 				gap.setDisabled(module.isDisabled());
+				gapsWidgets.add(gap);
 				textElements.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
@@ -139,6 +167,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 				}
 				
 				gap.setDisabled(module.isDisabled());
+				gapsWidgets.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
 			}
@@ -156,8 +185,9 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 						if (savedDisabledState.size() > counter) {
 							GapWidget gap = (GapWidget) getChild(counter);
 							gap.setDisabled(savedDisabledState.get(counter));
-							
+
 							textElements.set(counter, gap);
+							gapsWidgets.set(counter, gap);
 						}
 					} else {
 						GapWidget gap = new GapWidget(gi, listener);
@@ -166,8 +196,9 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 						} else {
 							gap.setDisabled(module.isDisabled());
 						}
-						
+
 						textElements.add(gap);
+						gapsWidgets.add(gap);
 						mathGapIds.add(id);
 					}
 				} catch (Exception e) {
@@ -198,7 +229,44 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 			}
 		}
 	}
-	
+
+	@Override
+	public void connectAudios(Iterator<AudioInfo> iterator) {
+		while (iterator.hasNext()) {
+			final AudioInfo info = iterator.next();
+			String id = info.getId();
+
+			Element buttonElement = DOM.getElementById(AudioButtonWidget.BUTTON_ID_PREFIX + id);
+			AudioButtonWidget button = new AudioButtonWidget(buttonElement);
+
+			AudioElement audioElement = Document.get().getElementById(AudioWidget.AUDIO_ID_PREFIX + id).cast();
+			AudioWidget audio = new AudioWidget(audioElement);
+
+			info.setAudio(audio);
+			info.setButton(button);
+
+			button.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent clickEvent) {
+					if (listener != null) {
+						listener.onAudioButtonClicked(info);
+					}
+				}
+			});
+
+			audio.addEndedHandler(new EndedHandler() {
+				@Override
+				public void onEnded(EndedEvent endedEvent) {
+					if (listener != null) {
+						listener.onAudioEnded(info);
+					}
+				}
+			});
+
+			textElements.add(button);
+		}
+	}
+
 	private int getIndexOfNextGapType (int startingIndex, String gapType, ArrayList<TextElementDisplay> textElements) {
 		for (int i=startingIndex; i<textElements.size(); i++) {
 			TextElementDisplay textElement = textElements.get(i);
@@ -212,7 +280,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 	
 	public void sortGapsOrder () {
-//		final List<String> gapsOrder = module.getGapsOrder();
 		final List<String> gapsOrder = WCAGUtils.getGapsOrder(module);
 		final int gapsOrderSize = gapsOrder.size();
 		final int textElementsSize = textElements.size();
@@ -291,6 +358,9 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 	@Override
 	public void setHTML (String html) {
+		if (isPreview && module.hasSyntaxError()) {
+			html += "<div class=\"errorMessage\">" + DictionaryWrapper.get("text_parse_error") + "</div>";
+		}
 		super.setHTML(html);
 	}
 	
@@ -303,30 +373,33 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	public void refreshMath () {
 		MathJax.refreshMathJax(getElement());
 	}
-	
+
 	public void rerenderMathJax () {
 		MathJax.rerenderMathJax(getElement());
+		// If mathjax was re rendered then gaps lost handlers to thers DOM elements.
+		this.reconnectHandlers();
 	}
 
 	@Override
 	public void hide() {
-		getElement().getStyle().setProperty("visibility", "hidden");
-		getElement().getStyle().setProperty("display", "none");
+		setVisible(false);
 	}
 
 	@Override
 	public void show(boolean callRefreshMath) {
-		Element element = getElement();
-		if (element.getStyle().getVisibility().equals("hidden")) {
-			element.getStyle().setProperty("visibility", "visible");
-			element.getStyle().setProperty("display", "block");
-
-			if (callRefreshMath) {
-				refreshMath();
-				if (!(module.hasMathGaps() || module.hasDraggableGaps())){
-					rerenderMathJax();
-				}
-			}
+		setVisible(true);
+		if (this.mathJaxIsLoaded) {
+			refreshMath();
+		}
+		if (callRefreshMath) {
+			refreshMath();
+			rerenderMathJax();
+		}
+	}
+	
+	private void reconnectHandlers () {
+		for (GapWidget element: this.gapsWidgets) {
+			element.reconnectHandlers(this.listener);
 		}
 	}
 
@@ -382,7 +455,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		return "Text";
 	}
 	
-	public void enter (boolean isExiting) {
+	public void enter (KeyDownEvent event, boolean isExiting) {
 		if (isExiting) {
 			this.removeAllSelections();
 			clicks = -1;
@@ -398,7 +471,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 					moduleHasFocus = true;
 				}
 			}
-			
+
 			this.readTextContent();
 		}
 	}
@@ -424,8 +497,9 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		
 		activeGap = textElements.get(clicks);
 		activeGap.setFocusGap(true);
+		moduleHasFocus = true;
 		
-		this.readGap(activeGap.getGapType(), clicks, activeGap.getTextValue(),activeGap.getGapState());
+		this.readGap(activeGap.getGapType(), clicks, activeGap.getWCAGTextValue(),activeGap.getGapState(), activeGap.getLangTag());
 	}
 
 	@Override
@@ -435,6 +509,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 
 	@Override
 	public void escape(KeyDownEvent event) {
+	    event.preventDefault();
 		this.removeAllSelections();
 		moduleHasFocus = false;
 		clicks = -1;
@@ -447,20 +522,47 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 	
 	@Override
-	public void left (KeyDownEvent event) {}
+	public void left (KeyDownEvent event) {
+		inlineChoiceChangeSelected(event, false);
+	}
 
 	@Override
-	public void right (KeyDownEvent event) {}
+	public void right (KeyDownEvent event) {
+		inlineChoiceChangeSelected(event, true);
+	}
 
 	@Override
-	public void down (KeyDownEvent event) {}
+	public void down (KeyDownEvent event) {
+		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
+			event.preventDefault(); 
+		}
+				
+	inlineChoiceChangeSelected(event, true);
+	}
 
 	@Override
-	public void up (KeyDownEvent event) {}
-	
+	public void up (KeyDownEvent event) {		
+		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
+			event.preventDefault(); 
+		}
+		
+		inlineChoiceChangeSelected(event, false);
+	}
+
 	@Override
 	public void space(KeyDownEvent event) {
-		if(!isShowErrorsMode){
+		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
+			event.preventDefault(); 
+		}
+				
+	    if(!WCAGUtils.hasGaps(this.module)){ // text without gaps
+	        event.preventDefault();
+	    }
+		if(!isShowErrorsMode && WCAGUtils.hasGaps(this.module)){
+			if (isWCAGon && activeGap != null && activeGap.getGapType().equals("dropdown") ) {
+				event.preventDefault(); // Prevent space button from displaying dropdown list when in WCAG mode
+				return;
+			}
 			String oldTextValue = activeGap.getTextValue();
 			this.listener.onGapClicked(activeGap.getId());
 			if (isWCAGon && activeGap.getDroppedElement()!=null) {
@@ -477,6 +579,17 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 					this.speak(textVoices);
 				}
 			}
+		}
+	}
+
+	private void inlineChoiceChangeSelected (KeyDownEvent event, boolean next) {
+		if (isWCAGon && activeGap!=null && activeGap.getGapType().equals("dropdown")) {
+			InlineChoiceWidget icw = (InlineChoiceWidget) activeGap;
+			if (icw.getPageController() == null){
+				icw.setPageController(this.pageController);
+			};
+			event.preventDefault();
+			icw.changeSelected(next);
 		}
 	}
 	
@@ -518,12 +631,21 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 		return this.module.getLangAttribute();
 	}
 
-	private void readGap (String type, int index, String content, int gapState) {
+	private void readGap (String type, int index, String content, int gapState, String langTag) {
+		if(langTag == null){
+			langTag = this.module.getLangAttribute();
+		}
 		final String gapType = type == "dropdown" ? this.module.getSpeechTextItem(TextModel.DROPDOWN_INDEX) : this.module.getSpeechTextItem(TextModel.GAP_INDEX);
 
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 		textVoices.add(TextToSpeechVoice.create(gapType + " " + Integer.toString(index + 1)));
-		textVoices.add(TextToSpeechVoice.create(content, this.module.getLangAttribute()));
+		if ( type.equals("dropdown") && ( content.equals("-") || content.equals("---"))) {
+			if(!this.isShowErrorsMode) {
+				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX)));
+			}
+		} else {
+			textVoices.add(TextToSpeechVoice.create(content, langTag));
+		}
 		
 		if(this.isShowErrorsMode) {
 			if(gapState==1) {
@@ -534,8 +656,12 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX)));
 			}
 		}
-		
+
 		this.speak(textVoices);
+	}
+	
+	public String getSpeechText (int index) {
+		return this.module.getSpeechTextItem(index);
 	}
 	
 	private void readTextContent () {
@@ -551,9 +677,39 @@ public class TextView extends HTML implements IDisplay, IWCAG, IWCAGModuleView {
 	}
 	
 	private void speak (List<TextToSpeechVoice> textVoices) {
-		if (this.pageController != null) {
+		if (this.pageController != null && this.isWCAGon) {
 			this.pageController.speak(textVoices);
 		}
 	}
 	
+	@Override
+	protected void onDetach() {		
+		this.removeHook();
+		
+		super.onDetach();
+	};
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
+			this.mathJaxHook = null;
+		}
+	}
+
+	@Override
+	public String getElementId() {
+		return this.module.getId();
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
+
 }

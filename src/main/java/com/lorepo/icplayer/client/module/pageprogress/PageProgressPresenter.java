@@ -117,10 +117,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 				new CustomEvent.Handler() {
 					@Override
 					public void onCustomEventOccurred(CustomEvent event) {
-						HashMap<String, String> data = event.getData();
-						if (module.getModules().contains(data.get("source"))) {
-							updateScore();
-						}
+						onEventReceived(event.eventName, event.getData());
 					}
 				});
 			
@@ -270,6 +267,10 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 		return jsObject;
 	}
 	
+	private void jsOnEventReceived (String eventName, String jsonData) {
+		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
+	}
+	
 	private native JavaScriptObject initJSObject(PageProgressPresenter x) /*-{
 	
 		var presenter = function(){}
@@ -289,6 +290,10 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 		presenter.getView = function() { 
 			return x.@com.lorepo.icplayer.client.module.pageprogress.PageProgressPresenter::getView()();
 		}
+		
+		presenter.onEventReceived = function (eventName, data) {
+			x.@com.lorepo.icplayer.client.module.pageprogress.PageProgressPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
 		
 		return presenter;
 	}-*/;
@@ -325,5 +330,12 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		return (isVisible || isTextToSpeechOn);
+	}
+
+	@Override
+	public void onEventReceived(String eventName, HashMap<String, String> data) {
+		if (module.getModules().contains(data.get("source"))) {
+			updateScore();
+		}
 	}
 }

@@ -46,6 +46,17 @@ TestCase("[Math] Expression evaluation", {
                         return '50';
                 }
             }
+        }, text5 = {
+            getGapValue: function (index) {
+                switch (index) {
+                    case '1':
+                        return '10.2';
+                    case '2':
+                        return '73500';
+                    case '3':
+                        return '18375';
+                }
+            }
         };
 
         sinon.stub(this.presenter, 'getModule');
@@ -53,6 +64,7 @@ TestCase("[Math] Expression evaluation", {
         this.presenter.getModule.withArgs('Text2').returns(text2);
         this.presenter.getModule.withArgs('Text3').returns(text3);
         this.presenter.getModule.withArgs('Text4').returns(text4);
+        this.presenter.getModule.withArgs('Text5').returns(text5);
         this.variables = [
             { name: 'gap1', value: 'Text1.1' },
             { name: 'gap2', value: 'Text1.2' },
@@ -82,7 +94,6 @@ TestCase("[Math] Expression evaluation", {
         var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
 
         assertTrue(evaluationResult.isValid);
-//        assertTrue(evaluationResult.result);
     },
 
     'test simple mathematical expression without variables': function () {
@@ -184,7 +195,7 @@ TestCase("[Math] Expression evaluation", {
         assertTrue(evaluationResult.isValid);
     },
 
-    'test if in expression is number and string returned value should works': function () {
+    'test if in expression is number and string returned value should work': function () {
         this.variables = [
             { name: 'gap1', value: 'Text4.1' },
             { name: 'gap2', value: 'Text4.2' },
@@ -214,4 +225,52 @@ TestCase("[Math] Expression evaluation", {
 
         assertTrue(evaluationResult.result);
     },
+
+    'test expressions with variables without spaces works correctly': function () {
+        var expression = "(gap1!='' && gap3!=''&& gap1!=gap2 && gap3!=gap4)";
+
+        var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
+
+        assertTrue(evaluationResult.result);
+    },
+
+    'test expressions with decimals': function () {
+        this.variables = [
+            { name: 'gap1', value: 'Text5.1' }
+        ];
+
+        var expression = "gap1>9.2 && gap1<10.8";
+
+        var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
+
+        assertTrue(evaluationResult.result);
+    },
+
+    'test expressions with variables being compared to numbers and strings': function () {
+        this.variables = [
+            { name: 'gap1', value: 'Text5.2' },
+            { name: 'gap2', value: 'Text5.3'}
+        ];
+
+        var expression = "((gap1 == 73500 || gap1 == '73,500') && (gap2 == 18375 || gap2 == '18,375')) " +
+            "|| ((gap2 == 73500 || gap2 == '73,500') && (gap1 == 18375 || gap1 == '18,375'))";
+
+        var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
+
+        assertTrue(evaluationResult.result);
+    },
+
+        'test expressions with variables being compared to numbers (including decimals) and strings': function () {
+        this.variables = [
+            { name: 'gap1', value: 'Text5.1' },
+            { name: 'gap3', value: 'Text5.2' },
+            { name: 'gap2', value: 'Text5.3'}
+        ];
+
+        var expression = "(((gap3 == 73500 || gap3 == '73,500') && (gap2 == 18375 || gap2 == '18,375')) " +
+            "|| ((gap2 == 73500 || gap2 == '73,500') && (gap3 == 18375 || gap3 == '18,375')))" +
+            " && (gap1>9.2 && gap1<10.8)";
+        var evaluationResult = this.presenter.evaluateExpression(expression, this.variables, this.separators);
+        assertTrue(evaluationResult.result);
+    }
 });

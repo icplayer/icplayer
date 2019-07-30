@@ -183,10 +183,11 @@ function AddonText_To_Speech_create() {
     }
 
     // https://responsivevoice.org/
-    function responsiveVoiceSpeak (texts) {
+    function responsiveVoiceSpeak (texts, finalCallback) {
         var textsObjects = filterTexts(texts, getResponsiveVoiceLanguage);
+        if (finalCallback === undefined) finalCallback = null;
 
-        var onEndStack = { onend: null };
+        var onEndStack = { onend: finalCallback };
         for (var i=textsObjects.length-1; i>=0; i--) {
             var textObject = textsObjects[i];
 
@@ -205,23 +206,28 @@ function AddonText_To_Speech_create() {
     presenter.intervalId = null;
 
     // https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
-    function speechSynthesisSpeak (texts) {
+    function speechSynthesisSpeak (texts, finalCallback) {
         window.speechSynthesis.cancel();
 
-        if (presenter.intervalId!==null) {
+        if (presenter.intervalId != null) {
             clearInterval(presenter.intervalId);
             presenter.intervalId = undefined;
         }
         // Fix for running speak method after cancelling SpeechSynthesis queue
         presenter.intervalId = setInterval(function() {
+
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
+                return;
             }
             var textsObjects = filterTexts(texts, getSpeechSynthesisLanguage);
             if (textsObjects.length === 0) {
                 clearInterval(presenter.intervalId);
+                presenter.intervalId = undefined;
                 return;
             }
+            if (presenter.intervalId == null) return;
+            var utterances = [];
             for (var i=0; i<textsObjects.length; i++) {
                 var textObject = textsObjects[i];
                 var msg = new SpeechSynthesisUtterance(textObject.text);
@@ -229,15 +235,115 @@ function AddonText_To_Speech_create() {
                 msg.rate = parseFloat(1); // 0 - 10
                 msg.pitch = parseFloat(1); // 0 - 2
                 msg.voice = textObject.lang;
-                msg.onstart = function (event) {
-                    clearInterval(presenter.intervalId);
-                    presenter.intervalId = undefined;
-                };
+                var currentIntervalId = presenter.intervalId;
+                if (i === 0) {
+                    msg.onstart = function (event) {
+                        clearInterval(currentIntervalId);
+                        if (currentIntervalId !== presenter.intervalId) {
+                            window.speechSynthesis.cancel();
+                        }
+                    };
+                }
+                if (i === textsObjects.length - 1) {
+                    msg.onend = function (event) {
+                        if(currentIntervalId === presenter.intervalId){
+                            window.speechSynthesis.cancel();
+                        }
+                        if (finalCallback){
+                            finalCallback();
+                            utterances = [];
+                        };
+                    };
+                }
+
+                //this list and "push" is solving the problem on
+                //'end' event of SpeechSynthesisUtterance object is not dispatched sometimes
+                //https://www.e-learn.cn/content/wangluowenzhang/603510
+                utterances.push(msg);
                 window.speechSynthesis.speak(msg);
             }
-        }, 200);
-
+        }, 250);
     }
+
+    function getAltTextOptions(expression) {
+        var options = {};
+        expression = expression.replace(/.*}\[/g, '');
+        expression = expression.replace('\]\[', '|');
+        expression = expression.replace('\]', '');
+        var optionExp = expression.split('\|');
+        for(var i=0;i<optionExp.length;i++) {
+            var optionValues = optionExp[i].split(' ');
+            if(optionValues.length===2){
+                options[optionValues[0]]=optionValues[1];
+            }
+        }
+        return options;
+    }
+
+     presenter.parseAltTexts = function(texts){
+        for (var i=0; i < texts.length; i++) {
+            if (texts[i].text !== null && texts[i].text !== undefined && texts[i].text.trim().length > 0)
+            {
+                // altText elements with a langTag need to be isolated into seperate items
+                // in the texts array, so that they can use a different language tag.
+                var match = texts[i].text.match(/\\alt{([^{}|]*?)\|([^{}|]*?)}(\[([a-zA-Z0-9_\- ]*?)\])+/g);
+                if (match && match.length>0) {
+                    // get the first altText element with a lang tag.
+                    // if there are more, they will not be parsed in this iteration
+                    // instead, they will become a part of the tail and will be parsed in future iterations
+                    var matchText = match[0].trim();
+                    var originalMatchText = matchText;
+                    var splitTexts = texts[i].text.split(matchText);
+                    var startIndex = texts[i].text.indexOf(matchText);
+                    var readableText = matchText.replace(/.*\\alt{[^{}|]*?\|([^{}|]*?)}.*/g,"$1");
+                    var options = getAltTextOptions(originalMatchText);
+                    var langTag = "";
+                    if(options.hasOwnProperty('lang')){
+                        langTag = options.lang;
+                    }
+
+                    if (langTag.length!==0) {
+                        var altTextVoice = getTextVoiceObject(readableText, langTag);
+
+                        if (splitTexts) {
+                            if (splitTexts.length > 2) {
+                                // It is possible that there will be multiple identical altText elements
+                                // if that is the case, all elements of the splitTexts array should be merged
+                                // with the exception of the head
+                                var newSplitTexts = splitTexts.splice(0, 1);
+                                newSplitTexts.push(splitTexts.join(originalMatchText));
+                                splitTexts = newSplitTexts;
+                            }
+                            if (splitTexts.length === 2) {
+                                texts[i].text = splitTexts[0];
+                                texts.splice(i + 1, 0, getTextVoiceObject(splitTexts[1], texts[i].lang));
+                                texts.splice(i + 1, 0, altTextVoice);
+                            } else if (splitTexts.length === 1) {
+                                texts[i].text = splitTexts[0];
+                                if (startIndex === 0) {
+                                    texts.splice(i, 0, altTextVoice);
+                                } else {
+                                    texts.splice(i + 1, 0, altTextVoice);
+                                }
+                            } else if(splitTexts.length === 0) {
+                                texts[i] = altTextVoice;
+                            }
+                        }
+                    } else {
+                        //if there is no lang option, there is not reason to create a new element in texts array
+                        texts[i].text = texts[i].text.replace(originalMatchText, readableText);
+                    }
+                }
+
+                // handle altText elements without a langTag
+                texts[i].text = texts[i].text.replace(/\\alt{.*?\|(.*?)}/g, '$1');
+            }
+        }
+
+        // splitting matched texts might create elements with an empty text field. This removes them
+        texts = texts.filter(function(element){return element && element.text && element.text.trim().length>0});
+        return texts;
+    };
 
     // The speak method is overloaded:
     // texts argument can be either an array of TextVoiceObjects, or a String
@@ -248,24 +354,26 @@ function AddonText_To_Speech_create() {
             texts = [getTextVoiceObject(texts, langTag)];
         }
 
-        for(var i=0; i<texts.length;i++){
-            if(texts[i].text!==null && texts[i].text!==undefined && texts[i].text.length>0)
-            {
-                texts[i].text = texts[i].text.replace(/\\alt{.*?\|(.*?)}/g, '$1');
-            }
-        }
+        presenter.speakWithCallback(texts, null);
+    };
 
+    presenter.speakWithCallback = function (texts, callback) {
+
+        texts = presenter.parseAltTexts(texts);
         if (window.responsiveVoice) {
-            responsiveVoiceSpeak(texts);
+            responsiveVoiceSpeak(texts, callback);
             return;
         }
 
         if ('speechSynthesis' in window) {
-            speechSynthesisSpeak(texts);
+            speechSynthesisSpeak(texts, callback);
             return;
         }
 
         console.log(texts);
+        if (callback) {
+            callback();
+        }
     };
 
     presenter.playTitle = function (area, id, langTag) {

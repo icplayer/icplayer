@@ -16,7 +16,6 @@ public interface IModuleModelBuilder {
 	public void addSemiResponsiveDimensions(String name, ModuleDimensions dimensions);
 	public void setButtonType(String buttonType);
 	public void loadLayout(Element xml);
-	public void setIsVisible(String name, boolean isVisible);
 	public void setIsLocked(String name, boolean isLocked);
 	public void setIsVisibleInEditor(String name, boolean isVisibleInEditor);
 	public void setModuleInEditorVisibility(boolean moduleInEditorVisibility);

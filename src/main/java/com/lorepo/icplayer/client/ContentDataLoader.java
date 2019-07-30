@@ -30,6 +30,7 @@ public class ContentDataLoader {
 	private Collection<AddonDescriptor> descriptors;
 	private List<Page> pages = new ArrayList<Page>();
 	private AddonLoaderFactory addonsLoaderFactory;
+	private String defaultLayoutID = null;
 	
 	public ContentDataLoader(String baseUrl) {
 		this.baseUrl = baseUrl;
@@ -50,6 +51,10 @@ public class ContentDataLoader {
 	
 	public void setBaseUrl(String baseURL) {
 		this.baseUrl = baseURL;
+	}
+	
+	public void setDefaultLayoutID (String layoutID){
+		defaultLayoutID = layoutID;
 	}
 
 	public void load(ILoadListener listener) {
@@ -95,6 +100,9 @@ public class ContentDataLoader {
 		String url = URLUtils.resolveURL(baseUrl, page.getHref());
 
 		PageFactory factory = new PageFactory((Page) page);
+		if (this.defaultLayoutID != null) {
+			factory.setDefaultLayoutID(defaultLayoutID);
+		}
 		factory.load(url, new IProducingLoadingListener() {
 			@Override
 			public void onFinishedLoading(Object producedItem) {

@@ -7,6 +7,7 @@ function Addonfeedback_create() {
     presenter.feedbackContainer = null;
     presenter.currentStateDefault = false;
     presenter.currentStateId = null;
+    presenter.speechTexts = {};
 
     var playerController = null;
     var textParser = null;
@@ -26,6 +27,99 @@ function Addonfeedback_create() {
     presenter.setPlayerController = function (controller) {
         playerController = controller;
         textParser = new TextParserProxy(playerController.getTextParser());
+    };
+
+    function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    var feedbackSpeakInterval = null;
+    function setSpeakInterval (data) {
+        if(feedbackSpeakInterval) {
+            clearInterval(feedbackSpeakInterval);
+            feedbackSpeakInterval = null;
+        }
+        feedbackSpeakInterval = setInterval(function () {
+
+            var speechSynthSpeaking = false;
+            var responsiveVoiceSpeaking = false;
+            if ('speechSynthesis' in window) {
+                speechSynthSpeaking = window.speechSynthesis.speaking;
+            }
+            if (window.responsiveVoice) {
+                responsiveVoiceSpeaking = window.responsiveVoice.isPlaying();
+            }
+            if (!speechSynthSpeaking && !responsiveVoiceSpeaking) {
+                clearInterval(feedbackSpeakInterval);
+                feedbackSpeakInterval = null;
+                var tts = presenter.getTextToSpeechOrNull(playerController);
+                if (tts && playerController.isWCAGOn()) {
+                    tts.speak(data);
+                }
+            }
+        }, 200);
+    }
+
+    var feedbackSpeakTimeout = null;
+    function speak (data) {
+        if(feedbackSpeakTimeout) {
+            clearTimeout(feedbackSpeakTimeout);
+            feedbackSpeakTimeout = null;
+        }
+        feedbackSpeakTimeout = setTimeout(function(){setSpeakInterval(data);},300);
+    }
+
+    presenter.stopFeedbackTTS = function() {
+        clearTimeout(feedbackSpeakTimeout);
+        clearInterval(feedbackSpeakInterval);
+    };
+
+    function getTextVoiceArrayFromText(text) {
+        var el = document.createElement('div');
+        el.innerHTML = text;
+        var $el = $(el);
+        return window.TTSUtils.getTextVoiceArrayFromElement($el,presenter.configuration.langTag);
+    }
+
+    presenter.readCurrentMessage = function(readEmptyOnDefault) {
+        if (presenter.getTextToSpeechOrNull(playerController) && playerController.isWCAGOn()) {
+            if (presenter.currentStateDefault) {
+                if(readEmptyOnDefault) {
+                    presenter.readDefaultMessage();
+                } else {
+                    presenter.stopFeedbackTTS();
+                }
+            } else if (presenter.currentStateId) {
+                presenter.readMessageById(presenter.currentStateId);
+            }
+        }
+    };
+
+    presenter.readDefaultMessage = function() {
+        var TextVoiceArray = [];
+        TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.empty));
+        speak(TextVoiceArray);
+    };
+
+    presenter.readMessageById = function(id) {
+        if(id && presenter.responses[id]) {
+            var TextVoiceArray = [];
+            var response = presenter.responses[id];
+            if ( 0 === response.status.toLowerCase().localeCompare("t")) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.positive));
+            }
+            if ( 0 === response.status.toLowerCase().localeCompare("f")) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.negative));
+            }
+            TextVoiceArray = TextVoiceArray.concat(getTextVoiceArrayFromText(response.text));
+            speak(TextVoiceArray);
+        }
     };
 
     presenter.showErrorMessage = function (message, substitutions) {
@@ -64,6 +158,8 @@ function Addonfeedback_create() {
         }
         presenter.currentStateDefault = true;
         presenter.currentStateId = null;
+
+        presenter.readCurrentMessage(false);
     };
 
     presenter.setResponse = function (id) {
@@ -86,6 +182,8 @@ function Addonfeedback_create() {
 
         presenter.currentStateDefault = false;
         presenter.currentStateId = id;
+
+        presenter.readCurrentMessage(false);
     };
 
 
@@ -101,9 +199,37 @@ function Addonfeedback_create() {
         return $feedbackTable;
     }
 
+    presenter.upgradeModel = function (model) {
+        return presenter.upgradeFrom_01(model);
+    };
+
+    presenter.upgradeFrom_01 = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = "";
+        }
+        if (!upgradedModel["speechTexts"]) {
+            upgradedModel["speechTexts"] = {};
+        }
+        if (!upgradedModel["speechTexts"]["Positive"]) {
+            upgradedModel["speechTexts"]["Positive"] = {Positive: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Negative"]) {
+            upgradedModel["speechTexts"]["Negative"] = {Negative: ""};
+        }
+        if (!upgradedModel["speechTexts"]["Empty"]) {
+            upgradedModel["speechTexts"]["Empty"] = {Empty: ""};
+        }
+        return upgradedModel;
+    };
+
     presenter.initialize = function (view, model, preview) {
         var text;
         var text_inner;
+
+        model = presenter.upgradeModel(model);
 
         presenter.$view = $(view);
         presenter.preview = preview;
@@ -176,6 +302,7 @@ function Addonfeedback_create() {
         presenter.centerInner(text_inner);
         if (textParser !== null && !preview) {
             textParser.connectLinks(presenter.feedbackContainer);
+            presenter.connectHTMLLinks(presenter.feedbackContainer);
         }
 
         if (!preview) {
@@ -195,8 +322,38 @@ function Addonfeedback_create() {
         }
     };
 
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    function setSpeechTexts (speechTexts) {
+        presenter.speechTexts = {
+            positive:  'Correct answer',
+            negative: 'Incorrect answer',
+            empty: 'No feedback message'
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            positive:    getSpeechTextProperty(speechTexts['Positive']['Positive'], presenter.speechTexts.positive),
+            negative: getSpeechTextProperty(speechTexts['Negative']['Negative'], presenter.speechTexts.negative),
+            empty: getSpeechTextProperty(speechTexts['Empty']['Empty'], presenter.speechTexts.empty)
+        };
+    }
+
     presenter.validateModel = function (model) {
         var validatedIsVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
+        setSpeechTexts(model["speechTexts"]);
+
         return {
             resetResponse: ModelValidationUtils.validateBoolean(model['Reset response on page change']),
             fadeTransitions: ModelValidationUtils.validateBoolean(model['Fade transitions']),
@@ -205,7 +362,8 @@ function Addonfeedback_create() {
             isActivity: !ModelValidationUtils.validateBoolean(model['Is not an activity']),
             isVisible: validatedIsVisible,
             isVisibleByDefault: validatedIsVisible,
-            isTabindexEnabled: ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled'])
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']),
+            langTag: model['langAttribute']
         };
     };
 
@@ -276,16 +434,16 @@ function Addonfeedback_create() {
     presenter.setVisibility = function(isVisible) {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
-    
+
     presenter.show = function () {
         presenter.setVisibility(true);
         presenter.configuration.isVisible = true;
-    }
+    };
 
     presenter.hide = function () {
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
-    }
+    };
 
     presenter.next = function () {
         var currentID = presenter.currentStateId, index, newID;
@@ -314,6 +472,20 @@ function Addonfeedback_create() {
         presenter.setResponse(newID);
     };
 
+    presenter.connectHTMLLinks = function ($element) {
+        $element.find('a').each(function(){
+            $(this).click(function(){
+                var url = $(this).attr('href');
+                var target = $(this).attr('target');
+                if (target != null && target.length > 0) {
+                    window.open(url, target);
+                } else {
+                    window.open(url);
+                }
+            });
+        });
+    };
+
 
     presenter.getState = function () {
         return JSON.stringify({
@@ -335,7 +507,7 @@ function Addonfeedback_create() {
         } else {
             presenter.setResponse(state['currentStateId']);
         }
-        
+
         presenter.configuration.isVisible = state['isVisible'];
         presenter.setVisibility(state['isVisible']);
     };
@@ -359,6 +531,24 @@ function Addonfeedback_create() {
     presenter.setTabindex = function ($element, isTabindexEnabled){
         var value = isTabindexEnabled ? '0' : '-1';
         $element.attr('tabindex', value);
+    };
+
+    presenter.keyboardController = function(keyCode, isShift, event) { //every time keyboard is pressed
+        if (keyCode == window.KeyboardControllerKeys.SPACE ||
+            keyCode == window.KeyboardControllerKeys.ARROW_UP ||
+            keyCode == window.KeyboardControllerKeys.ARROW_DOWN ||
+            keyCode == window.KeyboardControllerKeys.ESC)
+        {
+            event.preventDefault();
+        }
+
+        if (keyCode == window.KeyboardControllerKeys.ENTER) {
+            presenter.readCurrentMessage(true);
+        }
+    };
+
+    presenter.isEnterable = function() {
+        return false;
     };
 
     return presenter;
