@@ -814,9 +814,11 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.isAttempted = function() {
-		if(!presenter.configuration.isActivity || presenter.gapsContainer.areAllGapsFilled()){
-			return true;
-		}
+	if(!presenter.configuration.isActivity || presenter.gapsContainer.areAllGapsFilled()){
+		return true;
+	} else {
+		return false;
+	}
     };
     
     presenter.show = function() {
@@ -859,7 +861,7 @@ function AddonBasic_Math_Gaps_create(){
             'enable' : presenter.enable,
             'isAllOK' : presenter.isAllOK,
             'getView' : presenter.getView,
-			'isAttempted' : presenter.isAttempted
+	    'isAttempted' : presenter.isAttempted
         };
 
         Commands.dispatch(commands, name, params, presenter);
