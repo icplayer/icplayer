@@ -11,7 +11,7 @@ function AddonFlashCards_create(){
     };
 
     presenter.state = {
-		isVisible: false,
+	isVisible: false,
         currentCard: 1,
         totalCards: 1,
         noLoop: false,
@@ -20,11 +20,13 @@ function AddonFlashCards_create(){
         ShowOnlyFavourites: false,
         cardsScore: null,
         cardsFavourites: null
-	};
+    };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
+        presenter.eventBus.addEventListener('ShowAnswers', this);
+        presenter.eventBus.addEventListener('HideAnswers', this);
     };
 
     presenter.createEventData = function (item, value, score) {
@@ -236,10 +238,10 @@ function AddonFlashCards_create(){
         presenter.showCard(presenter.state.currentCard);
     };
 
-    presenter.nextCard = function () {
+    presenter.nextCard = function (disregardNoLoop) {
         if (presenter.state.currentCard < presenter.state.totalCards){
             presenter.state.currentCard += 1;
-        }else if (presenter.state.noLoop == false){
+        }else if (presenter.state.noLoop == false || disregardNoLoop){
             presenter.state.currentCard = 1;
         }
         presenter.showCard(presenter.state.currentCard);
@@ -252,7 +254,7 @@ function AddonFlashCards_create(){
                 presenter.displayCard(cardNumber);
             }else{
                 if (cardNumber <= presenter.state.totalCards){
-                    presenter.nextCard();
+                    presenter.nextCard(true);
                 }
             }
         }else{
@@ -361,10 +363,31 @@ function AddonFlashCards_create(){
         presenter.isErrorMode = false;
     };
 
-    presenter.ShowOnlyFavourites = function () {
-        presenter.state.ShowOnlyFavourites = true;
-        presenter.showCard(presenter.state.currentCard);
+    presenter.onEventReceived = function (eventName) {
+        if (eventName == "ShowAnswers") {
+            presenter.showAnswers();
+        }
+
+        if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
     };
+
+    presenter.showAnswers = function () {
+        presenter.isErrorMode = true;
+    };
+
+    presenter.hideAnswers = function () {
+        presenter.isErrorMode = false;
+    };
+
+    presenter.ShowOnlyFavourites = function () {
+        if (presenter.countFavourites() > 0) {
+            presenter.state.ShowOnlyFavourites = true;
+            presenter.showCard(presenter.state.currentCard);
+        }
+    };
+
     presenter.ShowAllCards = function () {
         presenter.state.ShowOnlyFavourites = false;
         presenter.showCard(presenter.state.currentCard);
@@ -379,6 +402,7 @@ function AddonFlashCards_create(){
     };
     
     presenter.reset = function () {
+        presenter.isErrorMode = false;
         presenter.state.ShowOnlyFavourites = false;
         presenter.state.currentCard = presenter.configuration.currentCard;
 
@@ -471,4 +495,4 @@ function AddonFlashCards_create(){
     };
 
     return presenter;
-}
+};
