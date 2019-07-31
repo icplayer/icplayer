@@ -1,4 +1,4 @@
-2019-07-30 Added getter for Content metadata. Added SCORM passed/failed statuses.
+2019-07-31 Added getter for Content metadata. Added SCORM passed/failed statuses.
 2019-07-26 Fixed opacity in Editable Window module
 2019-07-22 Removed the ability to download the video in editable window
 2019-07-19 Added supporting of only audio to Editable Window
