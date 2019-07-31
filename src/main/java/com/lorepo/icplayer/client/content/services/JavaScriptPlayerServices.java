@@ -544,7 +544,7 @@ public class JavaScriptPlayerServices {
 		};
 		
 		playerServices.getContentMetadataValue = function (key) {
-			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContentMetadata(Ljava/lang/String;)(key);
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContentMetadataValue(Ljava/lang/String;)(key);
 		}
 
 		return playerServices;
@@ -986,7 +986,7 @@ public class JavaScriptPlayerServices {
 		DomEvent.fireNativeEvent(event,  RootPanel.get());
 	}
 	
-	public String getContentMetadata(String key) {
+	public String getContentMetadataValue(String key) {
 		return playerServices.getContentMetadata(key);
 	}
 }

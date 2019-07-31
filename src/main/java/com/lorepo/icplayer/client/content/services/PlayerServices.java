@@ -331,6 +331,6 @@ public class PlayerServices implements IPlayerServices {
 
 	@Override
 	public String getContentMetadata(String key) {
-		return this.getContentMetadata(key);
+		return this.getModel().getMetadataValue(key);
 	}
 }
