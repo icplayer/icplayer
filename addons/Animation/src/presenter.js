@@ -5,8 +5,7 @@ function AddonAnimation_create (){
     presenter.DOMElements = {};
     presenter.configuration = {};
     
-    var isWCAGOn = false;
-    var isSpeaking = false; //tts is currently playing the alternative text. This does NOT apply to the preview alt text
+    var isSpeaking = false; //tts is currently attempting to play the alternative text (but not the preview alt text)
 
     presenter.ERROR_CODES = {
         'AI_01': "Animation image wasn't set or was set incorrectly!",
@@ -596,6 +595,16 @@ function AddonAnimation_create (){
             presenter.stop();
         } else {
             presenter.playAnimation();
+            if (presenter.playerController.isWCAGOn()) {
+                isSpeaking = true;
+
+                var speakCallback = function () {
+                    isSpeaking = false;
+                    presenter.endAnimationHandler();
+                };
+
+                presenter.speakWithDelay([window.TTSUtils.getTextVoiceObject(presenter.configuration.altText, presenter.configuration.lang)], speakCallback);
+            }
         }
     });
 
@@ -925,9 +934,10 @@ function AddonAnimation_create (){
     };
 
     presenter.endAnimationHandler = function () {
-        if (presenter.configuration.animationState == presenter.ANIMATION_STATE.ENDED && (!isWCAGOn || !isSpeaking)) {
+        if (presenter.configuration.animationState == presenter.ANIMATION_STATE.ENDED &&
+            (!presenter.playerController.isWCAGOn() || !isSpeaking)) {
             presenter.sendEndAnimationEvent();
-            if (isWCAGOn) {
+            if (presenter.playerController.isWCAGOn()) {
                 presenter.stop();
             }
         }
@@ -942,19 +952,71 @@ function AddonAnimation_create (){
     };
 
     presenter.setWCAGStatus = function (isOn) {
-        isWCAGOn = isOn;
+        /*
+        * This method is a stub. It allows the editor to detect that this addon supports TTS
+        * However, since Animation is often used for feedback, playerController.isWCAGOn is used
+        * instead of the value passed in this method
+        * */
     };
 
     presenter.speak = function(data, callback) {
         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
 
-        if (tts && isWCAGOn) {
+        if (tts && presenter.playerController.isWCAGOn()) {
             tts.speakWithCallback(data, callback);
         }
     };
 
+    var delayedSpeakInterval = null; // only used by speakWithDelay, which is why they are here and not at the top of the file
+    var delayedSpeakTimeout = null;
+    //This method works like speak, except that it waits for TTS to be idle instead of interrupting it
+    presenter.speakWithDelay = function (data, callback) {
+        presenter.stopDelayedTTS();
+
+        function setSpeakInterval (data, callback) {
+            delayedSpeakInterval = setInterval(function () {
+                var speechSynthSpeaking = false;
+                var responsiveVoiceSpeaking = false;
+
+                // Detect if TTS is idle
+                if ('speechSynthesis' in window) {
+                    speechSynthSpeaking = window.speechSynthesis.speaking;
+                }
+                if (window.responsiveVoice) {
+                    responsiveVoiceSpeaking = window.responsiveVoice.isPlaying();
+                }
+
+                if (!speechSynthSpeaking && !responsiveVoiceSpeaking) {
+                    // If TTS is idle, pass data to TTS and break the loop
+                    clearInterval(delayedSpeakInterval);
+                    delayedSpeakInterval = null;
+                    var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+                    if (tts && presenter.playerController.isWCAGOn()) {
+                        tts.speakWithCallback(data, callback);
+                    }
+                }
+            }, 200);
+        }
+
+        /*
+        * The timeout is used to ensure that if animation is triggered by another addon,
+        * that addon has the opportunity to use TTS first, since animation acts as feedback
+        */
+        delayedSpeakTimeout = setTimeout(function(){ setSpeakInterval(data, callback); }, 300);
+    };
+
+    presenter.stopDelayedTTS = function() {
+        if(delayedSpeakTimeout) {
+            clearTimeout(delayedSpeakTimeout);
+            delayedSpeakTimeout = null;
+        }
+         if(delayedSpeakInterval) {
+            clearInterval(delayedSpeakInterval);
+            delayedSpeakInterval = null;
+        }
+    };
+
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
-        event.preventDefault();
 
         var keys = {
             ENTER: 13,
@@ -962,30 +1024,25 @@ function AddonAnimation_create (){
         };
 
         var enter = function() {
+            event.preventDefault();
+            presenter.stopDelayedTTS();
             if(!isShiftKeyDown) {
                 presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.altTextPreview, presenter.configuration.lang)]);
             }
         };
 
-        var speakCallback = function () {
-            isSpeaking = false;
-            presenter.endAnimationHandler();
-        };
-
         var space = function() {
+            event.preventDefault();
+            presenter.stopDelayedTTS();
             if (presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING ||
                 presenter.configuration.animationState == presenter.ANIMATION_STATE.ENDED ||
                 isSpeaking) {
                 presenter.stop();
-                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.stop)]);
+                presenter.speakWithDelay([window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.stop)]);
                 isSpeaking = false;
             } else {
                 presenter.stop();
                 presenter.play();
-                if (isWCAGOn) {
-                    isSpeaking = true;
-                }
-                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.altText, presenter.configuration.lang)], speakCallback);
             }
         };
 
@@ -998,6 +1055,8 @@ function AddonAnimation_create (){
         } catch (er) {
         }
     };
+
+    presenter.isEnterable = function() {return false};
 
     return presenter;
 }
