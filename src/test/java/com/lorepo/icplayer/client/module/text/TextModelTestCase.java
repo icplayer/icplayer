@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.text;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -211,5 +212,53 @@ public class TextModelTestCase {
 		}
 
 		assertTrue(foundProperty);
+	}
+	
+	@Test
+	public void givenTextModelWhenChangingCalculationStyleToOldStyleThenChangesThatProperty() {
+		String propertyName = "name";
+		String oldMethod = "old";
+		String newMethod = "new";
+
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("text_module_gap_calculation_longest_answer_method")).thenReturn(newMethod);
+		when(DictionaryWrapper.get("text_module_gap_calculation_all_characters_method")).thenReturn(oldMethod);
+		when(DictionaryWrapper.get("text_module_gap_size_calculation")).thenReturn(propertyName);
+
+		TextModel module = new TextModel();
+
+		IProperty prop = module.getPropertyByName(propertyName);
+		
+		assertTrue(prop != null);
+		
+		prop.setValue(newMethod);
+		assertFalse(module.isOldGapSizeCalculation());
+		
+		prop.setValue(oldMethod);
+		assertTrue(module.isOldGapSizeCalculation());
+	}
+	
+	@Test
+	public void givenTextModelWhenChangingCalculationStyleToOldStyleAndLackingDictionaryThenAlwaysSetsOldMethod() {
+		String propertyName = "name";
+		String oldMethod = "MISSING";
+		String newMethod = "MISSING";
+
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get("text_module_gap_calculation_longest_answer_method")).thenReturn(newMethod);
+		when(DictionaryWrapper.get("text_module_gap_calculation_all_characters_method")).thenReturn(oldMethod);
+		when(DictionaryWrapper.get("text_module_gap_size_calculation")).thenReturn(propertyName);
+
+		TextModel module = new TextModel();
+
+		IProperty prop = module.getPropertyByName(propertyName);
+		
+		assertTrue(prop != null);
+		
+		prop.setValue(newMethod);
+		assertTrue(module.isOldGapSizeCalculation());
+		
+		prop.setValue(oldMethod);
+		assertTrue(module.isOldGapSizeCalculation());
 	}
 }

@@ -287,6 +287,14 @@ public class TextParser {
 		if (this.editorMode) {
 			inputElement.setHTMLAttribute("data-gap-value", "\\gap{" + answer + "}"+createGapOptionString(gapOptions));
 		}
+		
+//		String[] answers = answer.split("\\|");
+//		int longestAnswerLength = answer.length();
+//		
+//		for (int i = 0; i < answers.length; i++) {
+//			longestAnswerLength = answers[i].length();
+//		}
+		
 		inputElement.setHTMLAttribute("size", "" + answer.length());
 		inputElement.addClass("ic_gap");
 		if (this.editorMode) {
