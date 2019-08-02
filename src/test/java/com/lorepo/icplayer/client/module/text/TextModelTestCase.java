@@ -238,51 +238,51 @@ public class TextModelTestCase {
 		assertTrue(module.isOldGapSizeCalculation());
 	}
 	
-//	@Test
-//	public void givenTextModelAndSameLabelsWhenChangingCalculationStyleToOldStyleThenAlwaysSetsOldMethod() {
-//		String propertyName = "name";
-//		String oldMethod = "SAME_LABEL";
-//		String newMethod = "SAME_LABEL";
-//
-//		PowerMockito.spy(DictionaryWrapper.class);
-//		when(DictionaryWrapper.get(TextModel.LongestAnswerCalculationStyle)).thenReturn(newMethod);
-//		when(DictionaryWrapper.get(TextModel.AllCharactersCalculcationStyle)).thenReturn(oldMethod);
-//		when(DictionaryWrapper.get(TextModel.GapSizeCalculationStyleLabel)).thenReturn(propertyName);
-//
-//		TextModel module = new TextModel();
-//
-//		IProperty prop = module.getPropertyByName(propertyName);
-//		
-//		assertTrue(prop != null);
-//		assertTrue(module.isOldGapSizeCalculation());
-//		
-//		prop.setValue(newMethod);
-//		assertTrue(module.isOldGapSizeCalculation());
-//		
-//		prop.setValue(oldMethod);
-//		assertTrue(module.isOldGapSizeCalculation());
-//	}
-//	
-//	@Test
-//	public void givenTextModelAndDictionaryLackingKeysWhenChangingCalculationStyleToOldStyleThenAlwaysSetsOldMethod() {
-//		String propertyName = "name";
-//		String oldMethod = "LABEL";
-//
-//		PowerMockito.spy(DictionaryWrapper.class);
-//		when(DictionaryWrapper.get(TextModel.AllCharactersCalculcationStyle)).thenReturn(oldMethod);
-//		when(DictionaryWrapper.get(TextModel.GapSizeCalculationStyleLabel)).thenReturn(propertyName);
-//
-//		TextModel module = new TextModel();
-//
-//		IProperty prop = module.getPropertyByName(propertyName);
-//		
-//		assertTrue(prop != null);
-//		assertTrue(module.isOldGapSizeCalculation());
-//		
-//		prop.setValue("");
-//		assertTrue(module.isOldGapSizeCalculation());
-//		
-//		prop.setValue(oldMethod);
-//		assertTrue(module.isOldGapSizeCalculation());
-//	}
+	@Test
+	public void givenTextModelAndSameLabelsWhenChangingCalculationStyleToOldStyleThenAlwaysSetsOldMethod() {
+		String propertyName = "name";
+		String oldMethod = "SAME_LABEL";
+		String newMethod = "SAME_LABEL";
+
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get(TextModel.LongestAnswerCalculationStyle)).thenReturn(newMethod);
+		when(DictionaryWrapper.get(TextModel.AllCharactersCalculcationStyle)).thenReturn(oldMethod);
+		when(DictionaryWrapper.get(TextModel.GapSizeCalculationStyleLabel)).thenReturn(propertyName);
+
+		TextModel module = new TextModel();
+
+		IProperty prop = module.getPropertyByName(propertyName);
+		
+		assertTrue(prop != null);
+		assertTrue(module.isOldGapSizeCalculation());
+		
+		prop.setValue(newMethod);
+		assertTrue(module.isOldGapSizeCalculation());
+		
+		prop.setValue(oldMethod);
+		assertTrue(module.isOldGapSizeCalculation());
+	}
+	
+	@Test
+	public void givenTextModelAndDictionaryLackingKeysWhenChangingCalculationStyleToOldStyleThenAlwaysSetsOldMethod() {
+		String propertyName = "name";
+		String oldMethod = "LABEL";
+
+		PowerMockito.spy(DictionaryWrapper.class);
+		when(DictionaryWrapper.get(TextModel.AllCharactersCalculcationStyle)).thenReturn(oldMethod);
+		when(DictionaryWrapper.get(TextModel.GapSizeCalculationStyleLabel)).thenReturn(propertyName);
+
+		TextModel module = new TextModel();
+
+		IProperty prop = module.getPropertyByName(propertyName);
+		
+		assertTrue(prop != null);
+		assertTrue(module.isOldGapSizeCalculation());
+		
+		prop.setValue("");
+		assertTrue(module.isOldGapSizeCalculation());
+		
+		prop.setValue(oldMethod);
+		assertTrue(module.isOldGapSizeCalculation());
+	}
 }

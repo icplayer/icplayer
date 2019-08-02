@@ -244,6 +244,19 @@ public class GWTTextModelTestCase extends GwtTest {
 	}
 	
 	@Test
+	public void givenTextModelWhenLoadingOlderModelAndCheckingCalculationStyleThenReturnsTrue() throws SAXException, IOException {
+
+		InputStream inputStream = getClass().getResourceAsStream("testdata/module2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+
+		TextModel module = new TextModel();
+		module.load(element, "", PAGE_VERSION);
+
+		assertTrue(module.isOldGapSizeCalculation());
+	}
+	
+	@Test
 	public void givenNewModelWithNewGapSizeCalculationWhenCheckingOldGapSizeCalculationStyleThenReturnsFalse() throws SAXException, IOException {
 
 		InputStream inputStream = getClass().getResourceAsStream("testdata/module5WithOldCalculationStyle.xml");
@@ -253,6 +266,6 @@ public class GWTTextModelTestCase extends GwtTest {
 		TextModel module = new TextModel();
 		module.load(element, "", PAGE_VERSION);
 
-		assertFalse(module.isOldGapSizeCalculation());
+		assertTrue(module.isOldGapSizeCalculation());
 	}
 }
