@@ -957,15 +957,12 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 				boolean isAllAnswersSizeCalculationStyle = newValue.equals(DictionaryWrapper.get(AllCharactersCalculcationStyle));
 				
 				if (isLongestSizeCalculationStyle && isAllAnswersSizeCalculationStyle) { 
-					System.out.print("special case");
 					// special case, when labels are the same
 					allCharactersGapSizeStyle = true;
 				} else if (isLongestSizeCalculationStyle && !isAllAnswersSizeCalculationStyle) {
 					// user selected new method
-					System.out.print("new method");
 					allCharactersGapSizeStyle = false;
 				} else {
-					System.out.print("else");
 					allCharactersGapSizeStyle = true;
 				}
 				
