@@ -98,7 +98,7 @@ function AddonAnimation_create (){
         return value;
     }
 
-    presenter.getSpeechTexts = function(speechTexts) {
+    presenter.getspeechTexts = function(speechTexts) {
         var speechTexts = {
             stop:    getSpeechTextProperty(speechTexts['Stop']['Stop'], "Stop")
         };
@@ -780,7 +780,7 @@ function AddonAnimation_create (){
     };
 
     presenter.validateModel = function(model) {
-        var speechTexts = presenter.getSpeechTexts(model['speechTexts']);
+        var speechTexts = presenter.getspeechTexts(model['speechTexts']);
 
         if (ModelValidationUtils.isStringEmpty(model["Preview image"])) {
             return { isError: true, errorCode: "PI_01" };
@@ -951,14 +951,6 @@ function AddonAnimation_create (){
         return null;
     };
 
-    presenter.setWCAGStatus = function (isOn) {
-        /*
-        * This method is a stub. It allows the editor to detect that this addon supports TTS
-        * However, since Animation is often used for feedback, playerController.isWCAGOn is used
-        * instead of the value passed in this method
-        * */
-    };
-
     presenter.speak = function(data, callback) {
         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
 
@@ -1057,6 +1049,8 @@ function AddonAnimation_create (){
     };
 
     presenter.isEnterable = function() {return false};
+
+    presenter.markerWCAG = {}; // This is a marker identifying the addon as supporting WCAG to the editor
 
     return presenter;
 }
