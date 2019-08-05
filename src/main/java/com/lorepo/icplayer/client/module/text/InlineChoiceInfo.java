@@ -8,7 +8,7 @@ import java.util.Iterator;
  * @author Krzysztof Langner
  *
  */
-public class InlineChoiceInfo {
+public class InlineChoiceInfo implements IGapCommonUtilsProvider {
 
 	private String 	id;
 	private String 	answer;
@@ -77,5 +77,19 @@ public class InlineChoiceInfo {
 
 	public int getValue() {
 		return value;
+	}
+
+
+	@Override
+	public int getLongestAnswerLength() {
+		int longestAnswer = getAnswer().length();
+		
+		for (String option : distractors) {
+			if (longestAnswer < option.length()) {
+				longestAnswer = option.length();
+			}
+		}
+		
+		return longestAnswer;
 	}
 }
