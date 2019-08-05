@@ -221,9 +221,9 @@ public class TextModelTestCase {
 		String newMethod = "new";
 
 		PowerMockito.spy(DictionaryWrapper.class);
-		when(DictionaryWrapper.get(TextModel.LongestAnswerCalculationStyle)).thenReturn(newMethod);
-		when(DictionaryWrapper.get(TextModel.AllCharactersCalculcationStyle)).thenReturn(oldMethod);
-		when(DictionaryWrapper.get(TextModel.GapSizeCalculationStyleLabel)).thenReturn(propertyName);
+		when(DictionaryWrapper.get(TextModel.LONGEST_ANSWER_CALCULATION_STYLE)).thenReturn(newMethod);
+		when(DictionaryWrapper.get(TextModel.ALL_CHARACTES_CALCULATION_STYLE)).thenReturn(oldMethod);
+		when(DictionaryWrapper.get(TextModel.GAP_SIZE_CALCULATION_STYLE_LABEL)).thenReturn(propertyName);
 
 		TextModel module = new TextModel();
 
@@ -245,9 +245,9 @@ public class TextModelTestCase {
 		String newMethod = "SAME_LABEL";
 
 		PowerMockito.spy(DictionaryWrapper.class);
-		when(DictionaryWrapper.get(TextModel.LongestAnswerCalculationStyle)).thenReturn(newMethod);
-		when(DictionaryWrapper.get(TextModel.AllCharactersCalculcationStyle)).thenReturn(oldMethod);
-		when(DictionaryWrapper.get(TextModel.GapSizeCalculationStyleLabel)).thenReturn(propertyName);
+		when(DictionaryWrapper.get(TextModel.LONGEST_ANSWER_CALCULATION_STYLE)).thenReturn(newMethod);
+		when(DictionaryWrapper.get(TextModel.ALL_CHARACTES_CALCULATION_STYLE)).thenReturn(oldMethod);
+		when(DictionaryWrapper.get(TextModel.GAP_SIZE_CALCULATION_STYLE_LABEL)).thenReturn(propertyName);
 
 		TextModel module = new TextModel();
 
@@ -269,8 +269,8 @@ public class TextModelTestCase {
 		String oldMethod = "LABEL";
 
 		PowerMockito.spy(DictionaryWrapper.class);
-		when(DictionaryWrapper.get(TextModel.AllCharactersCalculcationStyle)).thenReturn(oldMethod);
-		when(DictionaryWrapper.get(TextModel.GapSizeCalculationStyleLabel)).thenReturn(propertyName);
+		when(DictionaryWrapper.get(TextModel.ALL_CHARACTES_CALCULATION_STYLE)).thenReturn(oldMethod);
+		when(DictionaryWrapper.get(TextModel.GAP_SIZE_CALCULATION_STYLE_LABEL)).thenReturn(propertyName);
 
 		TextModel module = new TextModel();
 

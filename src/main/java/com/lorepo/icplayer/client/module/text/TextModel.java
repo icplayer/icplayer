@@ -60,9 +60,9 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	private String langAttribute = "";
 	private boolean allCharactersGapSizeStyle = true;
 	
-	final static String GapSizeCalculationStyleLabel = "text_module_gap_size_calculation";
-	final static String AllCharactersCalculcationStyle = "text_module_gap_calculation_all_characters_method"; // old method
-	final static String LongestAnswerCalculationStyle = "text_module_gap_calculation_longest_answer_method"; // new method
+	final static String GAP_SIZE_CALCULATION_STYLE_LABEL = "text_module_gap_size_calculation";
+	final static String ALL_CHARACTES_CALCULATION_STYLE = "text_module_gap_calculation_all_characters_method"; // old method
+	final static String LONGEST_ANSWER_CALCULATION_STYLE = "text_module_gap_calculation_longest_answer_method"; // new method
 	
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
@@ -953,8 +953,8 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 			@Override
 			public void setValue(String newValue) {
 				// handling lacking or same labels
-				boolean isLongestSizeCalculationStyle = newValue.equals(DictionaryWrapper.get(LongestAnswerCalculationStyle));
-				boolean isAllAnswersSizeCalculationStyle = newValue.equals(DictionaryWrapper.get(AllCharactersCalculcationStyle));
+				boolean isLongestSizeCalculationStyle = newValue.equals(DictionaryWrapper.get(LONGEST_ANSWER_CALCULATION_STYLE));
+				boolean isAllAnswersSizeCalculationStyle = newValue.equals(DictionaryWrapper.get(ALL_CHARACTES_CALCULATION_STYLE));
 				
 				if (isLongestSizeCalculationStyle && isAllAnswersSizeCalculationStyle) { 
 					// special case, when labels are the same
@@ -976,7 +976,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 
 			@Override
 			public String getName() {
-				return DictionaryWrapper.get(GapSizeCalculationStyleLabel);
+				return DictionaryWrapper.get(GAP_SIZE_CALCULATION_STYLE_LABEL);
 			}
 
 			@Override
@@ -987,15 +987,15 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 			@Override
 			public String getAllowedValue(int index) {
 				if (index == 0){
-					return DictionaryWrapper.get(AllCharactersCalculcationStyle);
+					return DictionaryWrapper.get(ALL_CHARACTES_CALCULATION_STYLE);
 				} else {
-					return DictionaryWrapper.get(LongestAnswerCalculationStyle);
+					return DictionaryWrapper.get(LONGEST_ANSWER_CALCULATION_STYLE);
 				}
 			}
 
 			@Override
 			public String getDisplayName() {
-				return DictionaryWrapper.get(GapSizeCalculationStyleLabel);
+				return DictionaryWrapper.get(GAP_SIZE_CALCULATION_STYLE_LABEL);
 			}
 
 			@Override
