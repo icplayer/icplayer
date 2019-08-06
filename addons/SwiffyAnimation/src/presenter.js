@@ -109,6 +109,8 @@ function AddonSwiffyAnimation_create(){
             e.stopImmediatePropagation();
             e.stopPropagation();
         });
+
+        view.addEventListener('DOMNodeRemoved', presenter.destroy);
         //console.log('run');
     };
 
@@ -303,18 +305,6 @@ function AddonSwiffyAnimation_create(){
     };
 
     presenter.getState = function(){
-        //console.log("---getState!");
-        if(presenter.loaded === true){
-            presenter.loaded = false;
-            $(presenter.swiffyContainer).html("");
-            $(presenter.Animations).each(function(i, animation){
-                if(presenter.animsRunning[i] === true && typeof presenter.stage[i] !== 'undefined'){
-                    presenter.stage[i].destroy();
-                }
-            });
-            $(presenter.loadingIconImg).css('display','block');
-        }
-
         return JSON.stringify({
             'currentAnimationItem' : presenter.currentAnimationItem,
             'animsRunning' : presenter.animsRunning,
@@ -344,6 +334,18 @@ function AddonSwiffyAnimation_create(){
             }
         });
 
+    };
+
+    presenter.destroy = function() {
+        if(presenter.loaded === true){
+            presenter.loaded = false;
+            $(presenter.swiffyContainer).html("");
+            $(presenter.Animations).each(function(i, animation){
+                if(presenter.animsRunning[i] === true && typeof presenter.stage[i] !== 'undefined'){
+                    presenter.stage[i].destroy();
+                }
+            });
+        }
     };
 
     return presenter;
