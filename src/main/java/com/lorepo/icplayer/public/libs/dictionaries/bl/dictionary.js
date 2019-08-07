@@ -331,6 +331,7 @@ var ice_dictionary_bl = {
 	"title" : "Заглавие",
 	"page" : "Страница",
 	"page_index" : "Индекс на страници",
+	"page_id": "ID",
 	"on_click" : "при кликване",
 	"additional_classes" : "Допълнителни часове",
 	"popup_left_position" : "Изскачащо меню вляво",
