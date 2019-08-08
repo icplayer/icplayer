@@ -3,7 +3,6 @@ function AddonSwiffyAnimation_create(){
     var presenter = function(){};
 
     presenter.run = function(view, model){
-        //console.log("--------------- run 1.2 ---------------");
         presenter.view = view;
         presenter.$view = $(view);
         presenter.model = model;
@@ -68,16 +67,13 @@ function AddonSwiffyAnimation_create(){
             presenter.swiffyItem[i] = $(view).find('.swiffyItem_'+i)[0];
             $(presenter.swiffyItem[i]).css('visibility', visibility);
 
-            //console.log("i: "+i+", animation.autoPlay: "+animation.autoPlay)
             if(animation.autoPlay === 'True'){
                 presenter.animsRunning[i] = true;
             }else{
                 presenter.animsRunning[i] = false;
             }
-            //console.log("presenter.animsRunning["+i+"]: "+presenter.animsRunning[i])
 
             if(animation.doNotPreload !== 'True'){
-                //console.log('animation '+i+' has do not preload disabled, loading');
                 presenter.animsLoaded[i] = true;
 
                 $.getScript(animation.swiffyobject, function(){
@@ -111,11 +107,9 @@ function AddonSwiffyAnimation_create(){
         });
 
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
-        //console.log('run');
     };
 
     presenter.checkIfAllAnimationsAreLoaded = function(){
-        //console.log("checkIfAllAnimationsAreLoaded()");
         presenter.loaded = false;
 
         var count = 0;
@@ -130,7 +124,6 @@ function AddonSwiffyAnimation_create(){
 
         if(count > 0){
             presenter.animationLoaded[last].then(function() {
-                //console.log("animationLoaded["+last+"]");
                 if(presenter.animsLoaded.length == last){
                     presenter.loaded = true;
                     //hide loading icon
@@ -190,11 +183,7 @@ function AddonSwiffyAnimation_create(){
         var i = typeof item !== 'undefined' ? i = item - 1 : i = presenter.currentAnimationItem - 1;
         var animation = presenter.Animations[i];
 
-        //console.log("i: "+i+", canvas: "+presenter.$view.find('.swiffyItem_'+i+' canvas')[0])
-        //console.log("presenter.animsRunning[i]: "+presenter.animsRunning[i]);
-
         if(typeof presenter.$view.find('.swiffyItem_'+i+' canvas')[0] === 'undefined'){
-            //console.log('---warunki spełnione, ładuję '+i+' ---');
 
             $(presenter.loadingIconImg).css('display','block');
             presenter.animsLoaded[i] = true;
@@ -227,7 +216,6 @@ function AddonSwiffyAnimation_create(){
     };
 
     presenter.start = function(item){
-        //console.log('start '+i);
         var i = typeof item !== 'undefined' ? i = item - 1 : i = presenter.currentAnimationItem - 1;
         if(presenter.animsRunning[i] === false && typeof presenter.stage[i] !== 'undefined'){
             presenter.stage[i].start();
@@ -238,7 +226,6 @@ function AddonSwiffyAnimation_create(){
     };
 
     presenter.setVars = function(commands){
-        //console.log('setFlashVars');
         presenter.animationLoaded[presenter.currentAnimationItem].then(function() {
             commands = commands.split(",");
             var i = presenter.currentAnimationItem-1;
@@ -314,7 +301,6 @@ function AddonSwiffyAnimation_create(){
     };
 
     presenter.setState = function(state){
-        //console.log("---setState!");
         var parsedState = JSON.parse(state);
 
         presenter.currentAnimationItem = parsedState.currentAnimationItem;
