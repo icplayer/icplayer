@@ -126,6 +126,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Iframe", "media_menu");
 		addDescriptor("Heading", "media_menu");
 		addDescriptor("Media_Recorder", "media_menu");
+		addDescriptor("FlashCards", "media_menu");
 
 		// SCRIPTING
 		addDescriptor("Advanced_Connector", "scripting_menu");
