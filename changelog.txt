@@ -1,3 +1,4 @@
+2019-08-12 Fixed problem with editable window with audio on IE, EDGE, FIREFOX
 2019-07-31 Blocked the download audio in Editable Window module
 2019-07-26 Fixed scrolling while dragging the Slider on mobile devices
 2019-07-26 Fixed issue with the values of newly added properties being overwritten
