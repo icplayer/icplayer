@@ -1979,5 +1979,13 @@ var ice_dictionary_bl = {
 	"EditableWindow_property_header_style": "Стил на горния колонтитул",
 	"EditableWindow_property_editing_enabled" : "Разреши редактиране",
 	"FlashCards_name" : "Flash Cards",
-    "FlashCards_info" : "In Flash Cards module you can create cards with varied content such as text, images and audio, which are different at the front and back of the card. Each card can be marked as favourite and graded by the student as correct or wrong in the activity mode."
+    "FlashCards_info" : "In Flash Cards module you can create cards with varied content such as text, images and audio, which are different at the front and back of the card. Each card can be marked as favourite and graded by the student as correct or wrong in the activity mode.",
+	"Cross_Lesson_name" : "Cross Lesson",
+    "Cross_Lesson_info" : "Cross Lesson allows you to link directly to other lessons and courses.",
+	"Cross_Lesson_property_text": "Text",
+	"Cross_Lesson_property_image": "Image",
+	"Cross_Lesson_property_lesson_id": "Defined lesson id",
+	"Cross_Lesson_property_course_id": "Course id",
+	"Cross_Lesson_property_page": "Page",
+	"Cross_Lesson_property_type": "Type"
 };

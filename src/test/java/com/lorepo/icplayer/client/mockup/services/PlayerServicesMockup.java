@@ -253,4 +253,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public void sendResizeEvent() {
 		// TODO Auto-generated method stub
 	}
+
+
+	@Override
+	public void sendMessage(String data) {
+		// TODO Auto-generated method stub
+		
+	}
 }

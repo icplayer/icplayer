@@ -50,4 +50,5 @@ public interface IPlayerServices {
 	public boolean isPageVisited(IPage page);
 	public JavaScriptObject getContextMetadata();
 	public void sendResizeEvent();
+	public void sendMessage(String data);
 }
