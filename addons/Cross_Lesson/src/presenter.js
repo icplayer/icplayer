@@ -152,7 +152,7 @@ function AddonCross_Lesson_create(){
         }
     };
 
-    presenter.setplayerController = function(controller) {
+    presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
     };
 
