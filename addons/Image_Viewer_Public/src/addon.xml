@@ -15,7 +15,7 @@
 			<property name="frame" nameLabel="Image_Viewer_Public_property_frames" type="string" />
 		</property>
 		<property name="Alternative texts" nameLabel="Image_Viewer_Public_property_alternative_texts" type="list">
-			<property name="Alternative text" nameLabel="Image_Viewer_Public_property_alternative_text" type="string" />
+			<property name="Alternative text" nameLabel="Image_Viewer_Public_property_alternative_text" type="text" />
 			<property name="frame" nameLabel="Image_Viewer_Public_property_frames" type="string" />
 		</property>
 		<property name="isClickDisabled" nameLabel="Image_Viewer_Public_property_is_click_disabled" type="boolean" />
