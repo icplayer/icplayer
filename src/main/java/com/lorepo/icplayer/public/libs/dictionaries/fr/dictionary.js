@@ -331,6 +331,7 @@ var ice_dictionary_fr = {
     "title" : "Titre",
     "page" : "Titre de la page",
     "page_index" : "Index de la page",
+    "page_id": "ID",
     "on_click" : "au clic",
     "additional_classes" : "Classes supplémentaires",
     "popup_left_position" : "Popup left position",

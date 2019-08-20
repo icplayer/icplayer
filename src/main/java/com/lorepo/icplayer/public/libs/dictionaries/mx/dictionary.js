@@ -331,6 +331,7 @@ var ice_dictionary_mx = {
 	"title": "Título",
 	"page": "Página",
 	"page_index": "Índice de Página",
+	"page_id": "ID",
 	"on_click": "Acción al clic",
 	"additional_classes": "Clases adicionales",
 	"popup_left_position": "Ajustar posición izquierda",
