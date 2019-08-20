@@ -493,6 +493,10 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getIframeScroll()();
 		};
 		
+		playerServices.sendExternalEvent = function(eventType, data) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendExternalEvent(Ljava/lang/String;Ljava/lang/String;)(eventType, data);
+		};
+		
 		playerServices.getScaleInformation = function() {
 			var scaleInfo = x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getScaleInformation()();
 			var jsScaleInfo = {
@@ -980,5 +984,9 @@ public class JavaScriptPlayerServices {
 		NativeEvent event = Document.get().createKeyDownEvent(false, false, reverseDirection, false, 9);
 		// Send a Tab or Tab+Shift keydown event to the keyboard controller
 		DomEvent.fireNativeEvent(event,  RootPanel.get());
+	}
+	
+	public void sendExternalEvent(String eventType, String data) {
+		this.playerServices.sendExternalEvent(eventType, data);
 	}
 }
