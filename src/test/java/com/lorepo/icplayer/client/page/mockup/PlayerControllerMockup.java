@@ -273,4 +273,11 @@ public class PlayerControllerMockup implements IPlayerController {
 		return null;
 	}
 
+
+	@Override
+	public void sendExternalEvent(String eventType, String data) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

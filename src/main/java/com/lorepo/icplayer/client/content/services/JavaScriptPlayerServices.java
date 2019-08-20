@@ -493,8 +493,8 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getIframeScroll()();
 		};
 		
-		playerServices.sendMessage = function(data) {
-			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendMessage(Ljava/lang/String;)(data);
+		playerServices.sendExternalEvent = function(eventType, data) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendExternalEvent(Ljava/lang/String;Ljava/lang/String;)(eventType, data);
 		};
 		
 		playerServices.getScaleInformation = function() {
@@ -986,7 +986,7 @@ public class JavaScriptPlayerServices {
 		DomEvent.fireNativeEvent(event,  RootPanel.get());
 	}
 	
-	public void sendMessage(String data) {
-		this.playerServices.sendMessage(data);
+	public void sendExternalEvent(String eventType, String data) {
+		this.playerServices.sendExternalEvent(eventType, data);
 	}
 }

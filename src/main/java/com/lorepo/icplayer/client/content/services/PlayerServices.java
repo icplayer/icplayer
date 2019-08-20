@@ -330,11 +330,8 @@ public class PlayerServices implements IPlayerServices {
 	}
 
 	@Override
-	public void sendMessage(String data) {
-		sendNativeMessage(data);	
+	public void sendExternalEvent(String eventType, String data) {
+		this.playerController.sendExternalEvent(eventType, data);
+		
 	}
-	
-	private native void sendNativeMessage (String data) /*-{
-		$wnd.top.postMessage(data, "*");
-	}-*/;
 }

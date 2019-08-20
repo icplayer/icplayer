@@ -254,9 +254,8 @@ public class PlayerServicesMockup implements IPlayerServices {
 		// TODO Auto-generated method stub
 	}
 
-
 	@Override
-	public void sendMessage(String data) {
+	public void sendExternalEvent(String eventType, String data) {
 		// TODO Auto-generated method stub
 		
 	}

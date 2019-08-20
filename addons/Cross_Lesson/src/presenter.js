@@ -1,7 +1,7 @@
 function AddonCross_Lesson_create(){
     var presenter = function() {};
 
-    var crossLessonHeader = "CROSS_LESSON_REQUEST";
+    var crossLessonEventType = "crossLesson";
 
     var errorCodes = {
         "V_01": "Lesson ID is missing",
@@ -65,12 +65,12 @@ function AddonCross_Lesson_create(){
         if (id === "") {
             isValid = !isRequired
         } else {
-            isValid = idReg.test(id);
+            isValid = idReg.test(id.trim());
         }
 
         return {
             isValid: isValid,
-            value: isValid ? id : NaN
+            value: isValid ? id.trim() : NaN
         }
     };
 
@@ -145,8 +145,8 @@ function AddonCross_Lesson_create(){
             if (presenter.configuration.courseID) {
                 data.courseID = presenter.configuration.courseID;
             }
-            var message = crossLessonHeader + ':' + JSON.stringify(data);
-            presenter.playerController.sendMessage(message);
+            var jsonData = JSON.stringify(data);
+            presenter.playerController.sendExternalEvent(crossLessonEventType, jsonData);
         } else {
             console.error("Cannot make a request: no player controller");
         }
