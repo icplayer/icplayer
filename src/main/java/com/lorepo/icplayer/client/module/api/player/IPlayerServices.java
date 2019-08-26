@@ -51,4 +51,5 @@ public interface IPlayerServices {
 	public JavaScriptObject getContextMetadata();
 	public String getContentMetadata(String key);
 	public void sendResizeEvent();
+	public void sendExternalEvent(String eventType, String data);
 }
