@@ -1,7 +1,5 @@
 package com.lorepo.icplayer.client.mockup.services;
 
-import java.util.HashMap;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -13,16 +11,9 @@ import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.player.IAssetsService;
-import com.lorepo.icplayer.client.module.api.player.IContent;
-import com.lorepo.icplayer.client.module.api.player.IJsonServices;
-import com.lorepo.icplayer.client.module.api.player.IPage;
-import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
-import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-import com.lorepo.icplayer.client.module.api.player.IReportableService;
-import com.lorepo.icplayer.client.module.api.player.IScoreService;
-import com.lorepo.icplayer.client.module.api.player.IStateService;
-import com.lorepo.icplayer.client.module.api.player.ITimeService;
+import com.lorepo.icplayer.client.module.api.player.*;
+
+import java.util.HashMap;
 
 public class PlayerServicesMockup implements IPlayerServices {
 
@@ -256,5 +247,16 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public JavaScriptObject getContextMetadata() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void sendResizeEvent() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void sendExternalEvent(String eventType, String data) {
+		// TODO Auto-generated method stub
+		
 	}
 }

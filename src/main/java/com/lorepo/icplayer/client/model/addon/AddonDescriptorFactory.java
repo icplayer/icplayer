@@ -91,6 +91,7 @@ public class AddonDescriptorFactory {
 
 		// NAVIGATION
 		addDescriptor("External_Link_Button", "navigation_menu");
+		addDescriptor("Cross_Lesson", "navigation_menu");
 		addDescriptor("Navigation_Bar", "navigation_menu");
 		addDescriptor("Assessments_Navigation_Bar", "navigation_menu");
 		addDescriptor("Next", "navigation_menu");
@@ -126,6 +127,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Iframe", "media_menu");
 		addDescriptor("Heading", "media_menu");
 		addDescriptor("Media_Recorder", "media_menu");
+		addDescriptor("FlashCards", "media_menu");
 
 		// SCRIPTING
 		addDescriptor("Advanced_Connector", "scripting_menu");
