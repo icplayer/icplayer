@@ -332,6 +332,11 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public void sendExternalEvent(String eventType, String data) {
 		this.playerController.sendExternalEvent(eventType, data);
-		
+
+	}
+
+	@Override
+	public String getContentMetadata(String key) {
+		return this.getModel().getMetadataValue(key);
 	}
 }

@@ -257,6 +257,12 @@ public class PlayerServicesMockup implements IPlayerServices {
 	@Override
 	public void sendExternalEvent(String eventType, String data) {
 		// TODO Auto-generated method stub
-		
+
 	}
+
+	@Override
+	public String getContentMetadata(String key) {
+		return contentModel.getMetadataValue(key);
+	}
+
 }
