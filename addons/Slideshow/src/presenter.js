@@ -1886,8 +1886,7 @@ function AddonSlideshow_create() {
             ARROW_LEFT: 37,
             ARROW_UP: 38,
             ARROW_RIGHT: 39,
-            ARROW_DOWN: 40,
-            TAB: 9
+            ARROW_DOWN: 40
         };
 
         var leftArrowHandler = function () {
@@ -1899,14 +1898,6 @@ function AddonSlideshow_create() {
         var rightArrowHandler = function () {
             presenter.next();
             presenter.readSlide(presenter.getCurrentSlideIndex(), false);
-        };
-
-        var tabHandler = function () {
-            if (isShiftKeyDown) {
-                presenter.previous();
-            } else {
-                presenter.next();
-            }
         };
 
         var spaceHandler = function () {
@@ -1950,7 +1941,6 @@ function AddonSlideshow_create() {
         mapping[keys.ARROW_UP] = upArrowHandler;
         mapping[keys.ARROW_RIGHT] = rightArrowHandler;
         mapping[keys.ARROW_DOWN] = downArrowHandler;
-        mapping[keys.TAB] = tabHandler;
 
         try {
             mapping[keycode]();
@@ -2018,6 +2008,10 @@ function AddonSlideshow_create() {
             presenter.isSpeaking = false;
             tts.speakWithCallback([window.TTSUtils.getTextVoiceObject("-")], presenter.pause);
         }
+    };
+
+    presenter.isEnterable = function() {
+        return false;
     };
 
     return presenter;
