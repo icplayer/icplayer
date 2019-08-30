@@ -11,6 +11,9 @@
  *
  * Modified by Andrzej Krawczyk:
  * - added destroy function for zoom object
+ *
+ * Modified by Maciej Zawlocki:
+ * - fixed issue with positioning when zooming in an iframe
  */
 zoom = (function(){
 
@@ -31,8 +34,17 @@ zoom = (function(){
      *
      * @param {Object} rect
      * @param {Number} scale
+     * @param {Object} iframe - optional, to be used when calling the method inside an iframe. Object has two fields:
+     *     iframeTopOffset - total offset from the top of the window (usually scrollTop - top)
+     *     topWindowHeight - height of the top window
      */
-    function magnify( rect, scale ) {
+    function magnify( rect, scale, iframe) {
+        if (!iframe) {
+            iframe = {
+                iframeTopOffset: 0,
+                topWindowHeight: 0
+            };
+        }
 
         var scrollOffset = getScrollOffset();
 
@@ -40,9 +52,20 @@ zoom = (function(){
         rect.width = rect.width || 1;
         rect.height = rect.height || 1;
 
+
+        // If a a different top.window height is provided, use that value
+        var innerHeight = window.innerHeight;
+        if (iframe.topWindowHeight > 0) {
+            innerHeight = iframe.topWindowHeight;
+        }
+
         // Center the rect within the zoomed viewport
         rect.x -= ( window.innerWidth - ( rect.width * scale ) ) / 2;
-        rect.y -= ( window.innerHeight - ( rect.height * scale ) ) / 2;
+        rect.y -= ( innerHeight - ( rect.height * scale ) ) / 2;
+
+        // Make corrections to positioning when inside an iframe
+        rect.y -= iframe.iframeTopOffset * scale;
+        scrollOffset.y += iframe.iframeTopOffset;
 
         if( supportsTransforms ) {
             // Reset
@@ -159,6 +182,8 @@ zoom = (function(){
             } else {
                 options.x = options.x || 0;
                 options.y = options.y || 0;
+                options.topWindowHeight = options.topWindowHeight || 0;
+                options.iframeTopOffset = options.iframeTopOffset || 0;
 
                 // If an element is set, that takes precedence
                 if( !!options.element ) {
@@ -172,11 +197,16 @@ zoom = (function(){
                     options.height = bounds.height + ( padding * 2 );
                 }
 
+                var innerHeight = window.innerHeight;
+                if (options.topWindowHeight > 0) {
+                    innerHeight = options.topWindowHeight;
+                }
+
                 // If width/height values are set, calculate scale from those values
                 if ( options.width !== undefined && options.height !== undefined ) {
-                    options.scale = Math.max( Math.min( window.innerWidth / options.width, window.innerHeight / options.height ), 1 );
-                    if(Math.min( window.innerWidth / options.width, window.innerHeight / options.height ) <= 1){
-                        options.scale = Math.min( window.innerWidth / options.width, window.innerHeight / options.height )+1;
+                    options.scale = Math.max( Math.min( window.innerWidth / options.width, innerHeight / options.height ), 1 );
+                    if(Math.min( window.innerWidth / options.width, innerHeight / options.height ) <= 1){
+                        options.scale = Math.min( window.innerWidth / options.width, innerHeight / options.height )+1;
                     }
                 }
 
@@ -187,7 +217,7 @@ zoom = (function(){
                     options.x = Math.max( options.x, 0 );
                     options.y = Math.max( options.y, 0 );
 
-                    magnify( options, options.scale );
+                    magnify( options, options.scale, options );
 
                     if ( typeof options.callback === 'function' ) {
                         callbackTimeout = setTimeout( options.callback, TRANSITION_DURATION );

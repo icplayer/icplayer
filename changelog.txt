@@ -1,3 +1,4 @@
+2019-08-30 Fixed IWB Toolbar zoom working incorrectly in iframe
 2019-08-20 Added alt text support to text identification
 2019-08-12 Fixed problem with editable window with audio on IE, EDGE, FIREFOX
 2019-07-31 Blocked the download audio in Editable Window module

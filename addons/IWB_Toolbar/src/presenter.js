@@ -2485,8 +2485,16 @@ function AddonIWB_Toolbar_create() {
             presenter.changeCursor('zoom-in');
         } else {
             presenter.$panel.hide();
+            var topWindowHeight = 0;
+            var iframeTopOffset = 0;
+            if (window.iframeSize) {
+                topWindowHeight = window.iframeSize.windowInnerHeight;
+                iframeTopOffset = window.iframeSize.offsetTop - window.iframeSize.frameOffset;
+            }
             zoom.to({
-                element: selectedModule
+                element: selectedModule,
+                topWindowHeight: topWindowHeight,
+                iframeTopOffset: iframeTopOffset
             });
             $(selectedModule).addClass('zoomed');
             presenter.changeCursor('zoom-out');
