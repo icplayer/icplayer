@@ -328,4 +328,15 @@ public class PlayerServices implements IPlayerServices {
 	public boolean isPageVisited(IPage page) {
 		return this.playerController.getVisitedPages().contains(page);
 	}
+
+	@Override
+	public void sendExternalEvent(String eventType, String data) {
+		this.playerController.sendExternalEvent(eventType, data);
+
+	}
+
+	@Override
+	public String getContentMetadata(String key) {
+		return this.getModel().getMetadataValue(key);
+	}
 }

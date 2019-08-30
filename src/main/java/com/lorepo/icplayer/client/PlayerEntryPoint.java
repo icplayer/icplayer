@@ -10,6 +10,7 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private PlayerApp theApplication;
 	private JavaScriptObject pageLoadedListener;
+	private JavaScriptObject externalEventListener;
 	private JavaScriptObject pageScrollToListener;
 	private JavaScriptObject statusChangedListener;
 	private JavaScriptObject outstretchHeightListener;
@@ -77,6 +78,10 @@ public class PlayerEntryPoint implements EntryPoint {
 
 			player.onPageLoaded = function(listener) {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::pageLoadedListener = listener;
+			};
+			
+			player.onExternalEvent = function(listener) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::externalEventListener = listener;
 			};
 
 			player.onOutstretchHeight = function(listener) {
@@ -227,6 +232,16 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	public void onScrollTo(int top) {
 		fireScrollTo(this.pageScrollToListener, top);
+	}
+	
+	private static native void fireExternalEvent(JavaScriptObject callback, String eventType, String data)/*-{
+		if (callback != null) {
+			callback(eventType, data);
+		}
+	}-*/;
+	
+	public void onExternalEvent(String eventType, String data) {
+		fireExternalEvent(this.externalEventListener, eventType, data);
 	}
 
 	public JavaScriptObject getPageScrollToObject() {

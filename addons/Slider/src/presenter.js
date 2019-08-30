@@ -327,7 +327,6 @@ function AddonSlider_create () {
                 }
             }
 
-            //presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
         }
         if(eventData.preventDefault) {
             eventData.preventDefault();
@@ -336,6 +335,7 @@ function AddonSlider_create () {
 
     function touchMoveCallback (event) {
         event.stopPropagation();
+        event.preventDefault();
 
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
 
