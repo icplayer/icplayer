@@ -173,6 +173,7 @@ var ice_dictionary_fr = {
     "rulers_snapping": "Module pour l'apparition des règles",
     "static_header" : "En-tête statique : ",
     "static_footer" : "Pied de page statique : ",
+	"passing_score": "Passing score",
     "save_strong" : "<strong>Sauvegarder</strong>",
     "cancel" : "Annuler",
     "editor_tips" : "Astuce : Ctrl-F : Rechercher, Ctrl-G : Rechercher suivant",
@@ -331,6 +332,7 @@ var ice_dictionary_fr = {
     "title" : "Titre",
     "page" : "Titre de la page",
     "page_index" : "Index de la page",
+    "page_id": "ID",
     "on_click" : "au clic",
     "additional_classes" : "Classes supplémentaires",
     "popup_left_position" : "Popup left position",
@@ -1960,5 +1962,13 @@ var ice_dictionary_fr = {
     "EditableWindow_property_editing_enabled" : "Editing enabled",
 	"FlashCards_name" : "Flash Cards",
     "FlashCards_info" : "In Flash Cards module you can create cards with varied content such as text, images and audio, which are different at the front and back of the card. Each card can be marked as favourite and graded by the student as correct or wrong in the activity mode.",
-    "EditableWindow_property_disable_resize_height" : "Disable resize height"
+    "EditableWindow_property_disable_resize_height" : "Disable resize height",
+	"Cross_Lesson_name" : "Cross Lesson",
+    "Cross_Lesson_info" : "Cross Lesson allows you to link directly to other lessons and courses.",
+	"Cross_Lesson_property_text": "Text",
+	"Cross_Lesson_property_image": "Image",
+	"Cross_Lesson_property_lesson_id": "Defined lesson id",
+	"Cross_Lesson_property_course_id": "Course id",
+	"Cross_Lesson_property_page": "Page",
+	"Cross_Lesson_property_type": "Type"
 };
