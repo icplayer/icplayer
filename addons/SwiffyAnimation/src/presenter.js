@@ -322,15 +322,17 @@ function AddonSwiffyAnimation_create(){
 
     };
 
-    presenter.destroy = function() {
-        if(presenter.loaded === true){
-            presenter.loaded = false;
-            $(presenter.swiffyContainer).html("");
-            $(presenter.Animations).each(function(i, animation){
-                if(presenter.animsRunning[i] === true && typeof presenter.stage[i] !== 'undefined'){
-                    presenter.stage[i].destroy();
-                }
-            });
+    presenter.destroy = function(event) {
+        if (event.target == presenter.view) {
+            if (presenter.loaded === true) {
+                presenter.loaded = false;
+                $(presenter.swiffyContainer).html("");
+                $(presenter.Animations).each(function (i, animation) {
+                    if (presenter.animsRunning[i] === true && typeof presenter.stage[i] !== 'undefined') {
+                        presenter.stage[i].destroy();
+                    }
+                });
+            }
         }
     };
 
