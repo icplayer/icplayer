@@ -496,7 +496,7 @@ public class JavaScriptPlayerServices {
 		playerServices.sendExternalEvent = function(eventType, data) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendExternalEvent(Ljava/lang/String;Ljava/lang/String;)(eventType, data);
 		};
-		
+
 		playerServices.getScaleInformation = function() {
 			var scaleInfo = x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getScaleInformation()();
 			var jsScaleInfo = {
@@ -546,6 +546,10 @@ public class JavaScriptPlayerServices {
 		playerServices.sendResizeEvent = function() {
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendResizeEvent()();
 		};
+
+		playerServices.getContentMetadataValue = function (key) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContentMetadataValue(Ljava/lang/String;)(key);
+		}
 
 		return playerServices;
 	}-*/;
@@ -985,8 +989,12 @@ public class JavaScriptPlayerServices {
 		// Send a Tab or Tab+Shift keydown event to the keyboard controller
 		DomEvent.fireNativeEvent(event,  RootPanel.get());
 	}
-	
+
 	public void sendExternalEvent(String eventType, String data) {
 		this.playerServices.sendExternalEvent(eventType, data);
+	}
+
+	public String getContentMetadataValue(String key) {
+		return playerServices.getContentMetadata(key);
 	}
 }

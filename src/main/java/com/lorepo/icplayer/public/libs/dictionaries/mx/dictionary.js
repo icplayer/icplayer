@@ -173,6 +173,7 @@ var ice_dictionary_mx = {
 	"rulers_snapping": "Atraer módulo a las reglas",
 	"static_header": "Encabezado fijo: ",
 	"static_footer": "Pie fijo: ",
+	"passing_score": "Passing score",
 	"save_strong": "<strong>Guardar</strong>",
 	"cancel": "Cancelar",
 	"editor_tips": "Consejo: Ctrl-F: buscar, Ctrl-G: buscar siguiente",
