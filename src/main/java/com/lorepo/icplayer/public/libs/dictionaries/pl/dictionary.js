@@ -567,7 +567,7 @@ var ice_dictionary_pl = {
 	"Animation_property_do_not_reset_on_end": "Nie resetuj na koniec",
 	"Animation_property_is_click_disabled": "Klikanie wyłączone",
 	"Animation_property_speech_text" : "Speech texts",
-	"Animation_property_stop_speech_text" : "Stop",
+	"Animation_property_stop_speech_text" : "Stopped",
 	"Animation_property_alt_text" : "Alternative text",
 	"Animation_property_alt_text_prev" : "Preview alternative text",
 	"Animation_property_lang_attribute" : "Lang attribute",

@@ -77,7 +77,7 @@ function AddonAnimation_create (){
 
         if (!upgradedModel['speechTexts']) {
             upgradedModel['speechTexts'] = {
-                Stop: {Stop: "stop"}
+                Stop: {Stop: "stopped"}
             };
         }
 
@@ -100,7 +100,7 @@ function AddonAnimation_create (){
 
     presenter.getspeechTexts = function(speechTexts) {
         var speechTexts = {
-            stop:    getSpeechTextProperty(speechTexts['Stop']['Stop'], "Stop")
+            stop:    getSpeechTextProperty(speechTexts['Stop']['Stop'], "Stopped")
         };
 
         return speechTexts;
@@ -1030,7 +1030,7 @@ function AddonAnimation_create (){
                 presenter.configuration.animationState == presenter.ANIMATION_STATE.ENDED ||
                 isSpeaking) {
                 presenter.stop();
-                presenter.speakWithDelay([window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.stop)]);
+                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.stop)]);
                 isSpeaking = false;
             } else {
                 presenter.stop();
