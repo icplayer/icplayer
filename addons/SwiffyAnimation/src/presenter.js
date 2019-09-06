@@ -323,7 +323,8 @@ function AddonSwiffyAnimation_create(){
     };
 
     presenter.destroy = function(event) {
-        if (event.target == presenter.view) {
+        if (event.target === presenter.view) {
+            presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
             if (presenter.loaded === true) {
                 presenter.loaded = false;
                 $(presenter.swiffyContainer).html("");
