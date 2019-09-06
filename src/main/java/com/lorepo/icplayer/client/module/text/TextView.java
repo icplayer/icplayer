@@ -717,12 +717,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 	
 	private void setSizeAttributeToLongestAnswerSize(GapWidget gap, GapInfo info) {
-		Iterator<String> it = info.getAnswers();
-		int longestAnswer = it.next().length();
-		while (it.hasNext()) {
-			longestAnswer = it.next().length();
-		}
-		
+		int longestAnswer = info.getLongestAnswerLength();
 		gap.setSizeAttribute(longestAnswer);
 	}
 
