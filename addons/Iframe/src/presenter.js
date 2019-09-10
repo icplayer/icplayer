@@ -99,17 +99,18 @@ function AddonIframe_create() {
         window.addEventListener("message", presenter.getMessage, false);
 
         var iframe = $(view).find("iframe");
+
+        if (presenter.configuration.allowFullScreen) {  // It must be done before src setup.
+            iframe.attr("allowfullscreen", "allowfullscreen");
+            iframe.attr("webkitallowfullscreen", "webkitallowfullscreen");
+            iframe.attr("mozallowfullscreen", "mozallowfullscreen");
+        }
+
         if(presenter.configuration.haveURL) {
             iframe.attr("src", presenter.configuration.iframeURL);
         }
         else {
             iframe.attr("src", presenter.getIframeIndexSource());
-        }
-
-        if (presenter.configuration.allowFullScreen) {
-            iframe.attr("allowfullscreen", "allowfullscreen");
-            iframe.attr("webkitallowfullscreen", "webkitallowfullscreen");
-            iframe.attr("mozallowfullscreen", "mozallowfullscreen");
         }
 
         presenter.$view = $(view);
