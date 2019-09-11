@@ -26,6 +26,7 @@
             <property name="AudioDescriptionDisabled" nameLabel="video_property_description_disabled" type="staticrow">
                 <property name="AudioDescriptionDisabled" nameLabel="video_property_description_disabled" type="string"/>
             </property>
-		</property>
+        </property>
+        <property name="offlineMessage" nameLabel="video_property_offline_message" type="string" />
 	</model>
 </addon>
