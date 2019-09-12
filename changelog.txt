@@ -1,3 +1,4 @@
+2019-09-12 Fixed TrueFalse showAnswers method when correct answers are empty.
 2019-09-10 Fixed getState breaking Swiffy Animation addon
 2019-09-05 Added loading CSS styles to Editable Window
 2019-09-04 Fixed IWB Toolbar zoom working incorrectly in iframe
