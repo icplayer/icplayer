@@ -299,9 +299,16 @@ function AddonEditableWindow_create() {
 
     presenter.handleVideoContent = function () {
         var $view = $(presenter.configuration.view);
-        var audioSource = presenter.configuration.model.videoFile;
-        var $videoElement = $view.find("video");
-        $videoElement.attr("src", audioSource);
+        if (window.navigator.onLine || presenter.configuration.model.videoFile.indexOf("file:/") == 0) {
+            var audioSource = presenter.configuration.model.videoFile;
+            var $videoElement = $view.find("video");
+            $videoElement.attr("src", audioSource);
+        } else {
+            presenter.configuration.hasVideo = false;
+            var $wrapper = $view.find('.offline-video-message');
+            $wrapper.html(presenter.configuration.model.offlineMessage);
+            $wrapper.css("display", "block");
+        }
     };
 
     presenter.handleAudioContent = function () {
@@ -434,7 +441,8 @@ function AddonEditableWindow_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.addDisableResizeHeight(model);
+        var upgradedModel = presenter.addDisableResizeHeight(model);
+        return presenter.addOfflineMessage(upgradedModel);
     };
 
     presenter.addDisableResizeHeight = function (model) {
@@ -443,6 +451,17 @@ function AddonEditableWindow_create() {
 
         if (!model['disableResizeHeight']) {
             upgradedModel['disableResizeHeight'] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.addOfflineMessage = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model['offlineMessage']) {
+            upgradedModel['offlineMessage'] = "This video is not available offline. Please connect to the Internet to watch it.";
         }
 
         return upgradedModel;
@@ -483,7 +502,8 @@ function AddonEditableWindow_create() {
             title: model['title'] ? model['title'] : "",
             headerStyle: model['headerStyle'] ? model['headerStyle'] : "",
             editingEnabled: ModelValidationUtils.validateBoolean(model["editingEnabled"]),
-            disableResizeHeight: ModelValidationUtils.validateBoolean(model["disableResizeHeight"])
+            disableResizeHeight: ModelValidationUtils.validateBoolean(model["disableResizeHeight"]),
+            offlineMessage: model["offlineMessage"]
         }
     };
 
