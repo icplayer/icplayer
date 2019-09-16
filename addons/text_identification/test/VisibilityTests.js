@@ -21,7 +21,8 @@ TestCase('[text_identification] Visibility tests', {
             setVisibilityStub: sinon.stub(),
             registerMathJaxListenerStub: sinon.stub(),
             buildKeyboardControllerStub: sinon.stub(),
-            getEventBusStub: sinon.stub()
+            getEventBusStub: sinon.stub(),
+            getTextParserStub: sinon.stub()
         };
 
         this.presenter.validateModel = this.stubs.validateModelStub;
@@ -35,8 +36,15 @@ TestCase('[text_identification] Visibility tests', {
             addEventListener: function () {}
         });
 
+        this.stubs.getTextParserStub.returns({
+            parse: function () {
+                return "";
+            }
+        });
+
         this.presenter.setPlayerController({
-            getEventBus: this.stubs.getEventBusStub
+            getEventBus: this.stubs.getEventBusStub,
+            getTextParser: this.stubs.getTextParserStub
         });
 
 		this.view = document.createElement('div');
