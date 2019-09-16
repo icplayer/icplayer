@@ -1661,7 +1661,7 @@ function AddonImage_Viewer_Public_create() {
             if (presenter.isWCAGSelected) {
                 presenter.speak(voiceObjects);
             } else {
-                presenter.speakWithDelay(voiceObjects);
+                presenter.speakWhenIdle(voiceObjects);
             }
         }
     };
@@ -1673,7 +1673,7 @@ function AddonImage_Viewer_Public_create() {
                 event.preventDefault();
                 presenter.readFrame(presenter.configuration.currentFrame);
             } else {
-                presenter.isWCAGSelected = false;
+                presenter.setWCAGStatus(false);
             }
 
         } else if (keycode == window.KeyboardControllerKeys.SPACE) {
@@ -1704,8 +1704,6 @@ function AddonImage_Viewer_Public_create() {
         return null;
     };
 
-
-
     presenter.speak = function(data, callback) {
         var tts = presenter.getTextToSpeechOrNull(playerController);
 
@@ -1714,55 +1712,12 @@ function AddonImage_Viewer_Public_create() {
         }
     };
 
-    var delayedSpeakInterval = null; // only used by speakWithDelay, which is why they are here and not at the top of the file
-    var delayedSpeakTimeout = null;
-    //This method works like speak, except that it waits for TTS to be idle instead of interrupting it
-    presenter.speakWithDelay = function (data, callback) {
-        presenter.stopDelayedTTS();
-
-        function setSpeakInterval (data, callback) {
-            delayedSpeakInterval = setInterval(function () {
-                var speechSynthSpeaking = false;
-                var responsiveVoiceSpeaking = false;
-
-                // Detect if TTS is idle
-                if ('speechSynthesis' in window) {
-                    speechSynthSpeaking = window.speechSynthesis.speaking;
-                }
-                if (window.responsiveVoice) {
-                    responsiveVoiceSpeaking = window.responsiveVoice.isPlaying();
-                }
-
-                if (!speechSynthSpeaking && !responsiveVoiceSpeaking) {
-                    // If TTS is idle, pass data to TTS and break the loop
-                    clearInterval(delayedSpeakInterval);
-                    delayedSpeakInterval = null;
-                    var tts = presenter.getTextToSpeechOrNull(playerController);
-                    if (tts && playerController.isWCAGOn()) {
-                        tts.speakWithCallback(data, callback);
-                    }
-                }
-            }, 200);
-        }
-
-        /*
-        * The timeout is used to ensure that if animation is triggered by another addon,
-        * that addon has the opportunity to use TTS first, since animation acts as feedback
-        */
-        delayedSpeakTimeout = setTimeout(function(){ setSpeakInterval(data, callback); }, 300);
-    };
-
-    presenter.stopDelayedTTS = function() {
-        if(delayedSpeakTimeout) {
-            clearTimeout(delayedSpeakTimeout);
-            delayedSpeakTimeout = null;
-        }
-         if(delayedSpeakInterval) {
-            clearInterval(delayedSpeakInterval);
-            delayedSpeakInterval = null;
+    presenter.speakWhenIdle = function (data, callback) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts && playerController.isWCAGOn()) {
+            tts.speakWhenIdle(data, callback);
         }
     };
-
 
     return presenter;
 }
