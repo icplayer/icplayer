@@ -130,3 +130,13 @@ button.addon-editable-close-full-screen-button {
 .addon-editable-window-wrapper .text-wrapper {
     padding: 10px;
 }
+
+.addon-editable-window-wrapper .video-wrapper .offline-video-message {
+    width: 100%;
+    top: 45%;
+    position: absolute;
+    z-index: 5;
+    color: white;
+    text-align: center;
+    display: none;
+}

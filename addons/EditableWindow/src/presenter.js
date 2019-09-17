@@ -116,7 +116,7 @@ function AddonEditableWindow_create() {
 
         // containment option disallows moving window outside of specifed dom element
         $container.draggable({
-            cancel: 'video',
+            cancel: 'video, audio',
             containment: 'document',
             start: function () {
                 presenter.show();
@@ -299,9 +299,16 @@ function AddonEditableWindow_create() {
 
     presenter.handleVideoContent = function () {
         var $view = $(presenter.configuration.view);
-        var audioSource = presenter.configuration.model.videoFile;
-        var $videoElement = $view.find("video");
-        $videoElement.attr("src", audioSource);
+        if (window.navigator.onLine || presenter.configuration.model.videoFile.indexOf("file:/") == 0) {
+            var audioSource = presenter.configuration.model.videoFile;
+            var $videoElement = $view.find("video");
+            $videoElement.attr("src", audioSource);
+        } else {
+            presenter.configuration.hasVideo = false;
+            var $wrapper = $view.find('.offline-video-message');
+            $wrapper.html(presenter.configuration.model.offlineMessage);
+            $wrapper.css("display", "block");
+        }
     };
 
     presenter.handleAudioContent = function () {
@@ -434,7 +441,8 @@ function AddonEditableWindow_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.addDisableResizeHeight(model);
+        var upgradedModel = presenter.addDisableResizeHeight(model);
+        return presenter.addOfflineMessage(upgradedModel);
     };
 
     presenter.addDisableResizeHeight = function (model) {
@@ -443,6 +451,17 @@ function AddonEditableWindow_create() {
 
         if (!model['disableResizeHeight']) {
             upgradedModel['disableResizeHeight'] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.addOfflineMessage = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model['offlineMessage']) {
+            upgradedModel['offlineMessage'] = "This video is not available offline. Please connect to the Internet to watch it.";
         }
 
         return upgradedModel;
@@ -483,7 +502,8 @@ function AddonEditableWindow_create() {
             title: model['title'] ? model['title'] : "",
             headerStyle: model['headerStyle'] ? model['headerStyle'] : "",
             editingEnabled: ModelValidationUtils.validateBoolean(model["editingEnabled"]),
-            disableResizeHeight: ModelValidationUtils.validateBoolean(model["disableResizeHeight"])
+            disableResizeHeight: ModelValidationUtils.validateBoolean(model["disableResizeHeight"]),
+            offlineMessage: model["offlineMessage"]
         }
     };
 
@@ -556,9 +576,51 @@ function AddonEditableWindow_create() {
 
         var parsedContent = documentContent.getElementsByTagName("body")[0].innerHTML;
         tinymce.get(textareaId).getBody().innerHTML = parsedContent;
+
+        presenter.getStyles();
+
+
         presenter.linkAnchors();
 
         presenter.configuration.isTinyMceFilled = true;
+    };
+
+    presenter.getStyles = function() {
+        var indexUrl = presenter.configuration.model.indexFile;
+        $.get(indexUrl).then(
+            presenter.gettingIndexSuccess,
+            presenter.gettingIndexError
+        );
+    };
+
+    presenter.gettingIndexSuccess = function(html) {
+        var headContent = new DOMParser().parseFromString(html, 'text/html');
+        var styles = [];
+
+        presenter.configuration.model.fileList.forEach(function (entity) {
+            var node = headContent.getElementById(entity.id);
+
+            if (node !== null && node !== undefined && node.rel === 'stylesheet') {
+                   styles.push(entity.file);
+            }
+        });
+
+        presenter.addStyles(styles);
+    };
+
+    presenter.gettingIndexError = function() {
+        console.error("Couldn't load index of document");
+    };
+
+    presenter.addStyles = function(styles) {
+        var tinymceEditorHead = tinymce.get(presenter.configuration.textareaId).contentDocument.head;
+        styles.forEach(function(styleFile) {
+            var link = document.createElement("link");
+            link.href = styleFile;
+            link.type = 'text/css';
+            link.rel = 'stylesheet';
+            tinymceEditorHead.appendChild(link);
+        });
     };
 
     presenter.linkAnchors = function () {

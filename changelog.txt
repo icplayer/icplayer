@@ -1,4 +1,16 @@
-2019-07-31 Added TTS support to the Animation addon
+2019-09-17 Added TTS support to the Animation addon
+2019-09-13 Fixed TrueFalse showAnswers method when correct answers are empty.
+2019-09-11 Added handling of online video files when offline
+2019-09-10 Fixed getState breaking Swiffy Animation addon
+2019-09-05 Added loading CSS styles to Editable Window
+2019-09-04 Fixed IWB Toolbar zoom working incorrectly in iframe
+2019-09-02 Fixed problem with fullscreen in iframe addon
+2019-08-26 Added getter for Content metadata. Added SCORM passed/failed statuses.
+2019-08-20 Added alt text support to text identification
+2019-08-12 Fixed problem with editable window with audio on IE, EDGE, FIREFOX
+2019-07-31 Blocked the download audio in Editable Window module
+2019-07-26 Fixed scrolling while dragging the Slider on mobile devices
+2019-07-26 Fixed issue with the values of newly added properties being overwritten
 2019-07-26 Fixed opacity in Editable Window module
 2019-07-22 Removed the ability to download the video in editable window
 2019-07-19 Added supporting of only audio to Editable Window
