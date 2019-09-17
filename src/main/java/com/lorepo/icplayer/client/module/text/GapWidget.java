@@ -56,6 +56,10 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		this.setDisabled(isDisabled);
 	}
 	
+	public void setSizeAttribute(int size) {
+		this.getElement().setAttribute("size", Integer.toString(size));
+	}
+	
 	protected void initialize (ITextViewListener listener) {
 
 		setStylePrimaryName("ic_gap");
