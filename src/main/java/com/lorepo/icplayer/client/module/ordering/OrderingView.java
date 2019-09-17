@@ -168,6 +168,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		});
 		scale = {X:1.0, Y:1.0};
 
+		function isEdge() {
+		    return navigator.appName == 'Microsoft Internet Explorer' || (navigator.appName == "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
+		}
+
 		$wnd.$(e).find(selector).sortable({
 			placeholder: "ic_ordering-placeholder",
 			axis: jsObject.axis,
@@ -176,6 +180,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			cursorAt: { left: 5 },
 			start: function(event, ui) {
 				scale = getContentScale();
+				scaleInfo = $wnd.player.getPlayerServices().getScaleInformation();
+				scaleInfo = {scaleX: 2.243118675646851, scaleY: 2.243118675646851, transform: "scale(2.2430632630410656)", transformOrigin: "top left"};
+				console.log(scale);
+
                 var changeLeft = ui.placeholder.clientLeft - ui.originalPosition.left;
                 var newLeft = ui.originalPosition.left + changeLeft / scale.X - ui.item.parent().offset().left;
                 var newTop = ui.placeholder.clientTop / scale.Y;
@@ -212,10 +220,26 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
                 var newLeft = ui.originalPosition.left + changeLeft / scale.X;
                 var newTop = ui.position.top / scale.Y;
 
+                if (isEdge()){
+                    newLeft = ui.originalPosition.left + changeLeft / scaleInfo.scaleX - ui.item.offset().left;
+                    newTop = ui.position.top / scaleInfo.scaleY;
+                }
+
+                console.log(scaleInfo);
+
 				if (jsObject.axis == "y") {
 					ui.helper.css({
 						top: newTop
 					});
+
+                    ui.placeholder.css({
+						top: newTop
+					});
+                    ui.item.css({
+						top: newTop
+					});
+
+					ui.position.top = newTop;
 				} else {
 					ui.helper.css({
 						left: newLeft
