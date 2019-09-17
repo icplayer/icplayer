@@ -1,3 +1,4 @@
+2019-09-17 Added TTS support to the Animation addon
 2019-09-13 Fixed TrueFalse showAnswers method when correct answers are empty.
 2019-09-11 Added handling of online video files when offline
 2019-09-10 Fixed getState breaking Swiffy Animation addon
