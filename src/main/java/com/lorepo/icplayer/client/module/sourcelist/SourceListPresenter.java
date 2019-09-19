@@ -33,6 +33,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.choice.IOptionListener;
+import com.lorepo.icplayer.client.module.text.TextParser;
 
 public class SourceListPresenter implements IPresenter, IStateful, ICommandReceiver, IOptionListener, IActivity, IWCAGPresenter {
 
@@ -189,9 +190,14 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			}
 		}
 
+		TextParser parser = new TextParser();
+
 		for(int i = 0; i < order.size(); i++) {
 			Integer index = order.get(i);
 			String itemText = model.getItem(index);
+
+			itemText = parser.parseAltText(itemText);
+
 			String id = getItemPrefix() + (index+1);
 			items.put(id, itemText);
 			view.addItem(id, itemText, callMathJax);

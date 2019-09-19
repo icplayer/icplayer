@@ -6,6 +6,7 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
@@ -654,7 +655,7 @@ public class TextParser {
 	/**
 	 * Try to match variable
 	 * 
-	 * @param subSequence
+	 * @param key
 	 * @return null if no match found
 	 */
 	private String matchVariable(String key) {
@@ -887,7 +888,7 @@ public class TextParser {
 	/**
 	 * Replace external link with anchor
 	 * 
-	 * @param expression
+	 * @param href
 	 * @return
 	 */
 	private String externalLink2Anchor(String href) {
@@ -994,68 +995,11 @@ public class TextParser {
 
 		return buttonElement.getHTMLCode() + audioElement.getHTMLCode();
 	}
-
-
-	public static DomElementManipulator getAltTextElement(String visibleText, String altText){
-		return getAltTextElement(visibleText, altText, "");
-	}
-	
-	public static DomElementManipulator getAltTextElement(String visibleText, String altText, String langTag) {
-		DomElementManipulator wrapper = new DomElementManipulator("span");
-		wrapper.setHTMLAttribute("aria-label", altText);
-		if (langTag.length() > 0) {
-		    wrapper.setHTMLAttribute("lang", langTag);
-		}
-		DomElementManipulator visibleTextElement = new DomElementManipulator("span");
-		visibleTextElement.setHTMLAttribute("aria-hidden", "true");
-		visibleTextElement.setInnerHTMLText(visibleText);
-		
-		wrapper.appendElement(visibleTextElement);
-		return wrapper;
-		
-	}
 	
 	public String parseAltText(String srcText) {
-		srcText = this.escapeAltTextInTag(srcText);
-		final String pattern = 	"\\\\alt\\{";
-		String input = srcText;
-		String output = "";
-		String replaceText;
-		int index = -1;
-		RegExp regExp = RegExp.compile(pattern);
-		MatchResult matchResult;
-		
-		while ((matchResult = regExp.exec(input)) != null) {
-			if (matchResult.getGroupCount() <= 0) {
-				break;
-			}
-
-			String group = matchResult.getGroup(0);
-			output += input.substring(0, matchResult.getIndex());
-			input = input.substring(matchResult.getIndex() + group.length());
-			index = findClosingBracket(input);
-
-			String expression = input.substring(0, index);
-			input = input.substring(index + 1);
-			Map<String,String> gapOptions = this.getGapOptions(input);
-			input = removeGapOptions(input);
-			int seperatorIndex = expression.indexOf("|");
-			if (seperatorIndex > 0) {				
-				String visibleText = expression.substring(0, seperatorIndex);
-				String altText = expression.substring(seperatorIndex + 1);
-				if (gapOptions!=null && gapOptions.containsKey("lang")) {
-					replaceText =  StringUtils.unescapeXML(getAltTextElement(visibleText, altText, gapOptions.get("lang")).getHTMLCode());
-				} else {
-					replaceText =  StringUtils.unescapeXML(getAltTextElement(visibleText, altText).getHTMLCode());
-				}
-			} else {
-				replaceText = "#ERR";
-			}
-			output = output + replaceText;
-		}
-		return this.unescapeAltTextInTag(output + input);
+		return AlternativeTextService.getAltTextAsHtml(srcText);
 	}
-	
+
 	public static String escapeAltText(String srcText){
 		String parsedText = srcText.replaceAll("\\\\alt\\{([^\\|\\{\\}]*?)\\|([^\\|\\{\\}]*?)\\}", "\\\\altEscaped$1&altTextSeperator&$2&altTextEnd&");
 		return parsedText;
@@ -1065,30 +1009,6 @@ public class TextParser {
 		String parsedText = srcText.replaceAll("\\\\altEscaped([^\\|\\{\\}]*?)&altTextSeperator&([^\\|\\{\\}]*?)&altTextEnd&", "\\\\alt\\{$1\\|$2\\}");
 		return parsedText;
 	}
-	
-	private String escapeAltTextInTag(String srcText){
-		String parsedText = srcText;
-		String oldParsedText = "";
-		String pattern = "<([^>]*?)\\\\alt\\{([^<]*?)>";
-		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be multiple alt texts inside one tag, all must be escaped
-			oldParsedText = parsedText;
-			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\altEscaped\\{$2>");
-		}
-		return parsedText;
-	}
-	
-	private String unescapeAltTextInTag(String srcText){
-		String pattern = "<([^>]*?)\\\\altEscaped\\{([^<]*?)>";
-		String parsedText = srcText;
-		String oldParsedText = "";
-		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be multiple alt texts inside one tag, all must be unescaped
-			oldParsedText = parsedText;
-			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\alt\\{$2>");
-		}
-		return parsedText;
-	}
-	
-	
 	
 	private String getReadableAltText(String srcText){
 		String parsedText =  srcText.replaceAll("\\\\alt\\{.*?\\|(.*?)\\}(\\[[a-zA-Z0-9_\\- ]*?\\])*", "$1");
