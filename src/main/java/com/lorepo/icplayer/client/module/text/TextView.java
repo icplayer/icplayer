@@ -142,6 +142,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 					gap.setWidth(gapWidth + "px");
 				}
 				
+				if (!module.isOldGapSizeCalculation()) {
+					setSizeAttributeToLongestAnswerSize(gap, gi);
+				}
+				
 				gap.setDisabled(module.isDisabled());
 				gapsWidgets.add(gap);
 				textElements.add(gap);
@@ -710,6 +714,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		} else {
 			super.setVisible(false);
 		}
+	}
+	
+	private void setSizeAttributeToLongestAnswerSize(GapWidget gap, GapInfo info) {
+		int longestAnswer = info.getLongestAnswerLength();
+		gap.setSizeAttribute(longestAnswer);
 	}
 
 }

@@ -100,5 +100,19 @@ TestCase("Model upgrade", {
         var upgradedModel = this.presenter.addFramesToLabels(model);
 
         assertEquals(expectedModelFragment, upgradedModel["Labels"]);
+    },
+
+     'test given model without tts properties when upgrading model then tts properties will be added': function () {
+        var expectedSpeechText = {Stop: {Stop: "stop"}};
+
+        var upgradedModel = this.presenter.upgradeTextToSpeech({});
+
+        assertEquals(expectedSpeechText, upgradedModel["speechTexts"]);
+        assertTrue(upgradedModel["Alternative Text"] !== undefined);
+        assertEquals('', upgradedModel["Alternative Text"]);
+        assertTrue(upgradedModel["Preview Alternative Text"] !== undefined);
+        assertEquals('', upgradedModel["Preview Alternative Text"]);
+        assertTrue(upgradedModel["langAttribute"] !== undefined);
+        assertEquals('', upgradedModel["langAttribute"]);
     }
 });
