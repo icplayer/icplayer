@@ -75,7 +75,8 @@ function Addonvideo_create() {
         defaultControls: null,
         files: [],
         height: 0,
-        showPlayButton: false
+        showPlayButton: false,
+        offlineMessage: ""
     };
 
     presenter.lastSentCurrentTime = 0;
@@ -127,6 +128,7 @@ function Addonvideo_create() {
         var upgradedModel = presenter.upgradePoster(model);
         upgradedModel = presenter.upgradeTimeLabels(upgradedModel);
         upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
+        upgradedModel = presenter.upgradeOfflineMessage(upgradedModel);
         return presenter.upgradeShowPlayButton(upgradedModel);
     };
 
@@ -158,6 +160,17 @@ function Addonvideo_create() {
                 AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled"},
                 AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled"}
             }
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeOfflineMessage = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["offlineMessage"]) {
+            upgradedModel["offlineMessage"] = "This video is not available offline. Please connect to the Internet to watch it."
         }
 
         return upgradedModel;
@@ -841,7 +854,8 @@ function Addonvideo_create() {
             files: validatedFiles.files,
             height: parseInt(model.Height, 10),
             showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
-            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
+            offlineMessage: model["offlineMessage"]
         }
     };
 
@@ -1391,7 +1405,25 @@ function Addonvideo_create() {
         presenter.$view.find('.video-container-video').text(files[presenter.currentMovie].AlternativeText);
     };
 
+    presenter.isOnlineResourceOnly = function() {
+        for (var i = 0; i < presenter.configuration.files.length; i++) {
+            var videoFile = presenter.configuration.files[i];
+            var isMP4Local = videoFile["MP4 video"] && videoFile["MP4 video"].trim().indexOf("file:/") == 0;
+            var isOggLocal = videoFile["Ogg video"] && videoFile["Ogg video"].trim().indexOf("file:/") == 0;
+            var isWebMLocal = videoFile["WebM video"] && videoFile["WebM video"].trim().indexOf("file:/") == 0;
+            if (!isMP4Local && !isOggLocal && !isWebMLocal) {
+                return true;
+            }
+            return false;
+        }
+    };
+
     presenter.setVideo = function () {
+        if (!window.navigator.onLine && presenter.isOnlineResourceOnly()) {
+                presenter.$view.html(presenter.configuration.offlineMessage);
+                return;
+        }
+
         if (presenter.videoObject) {
             $(presenter.videoObject).unbind("ended");
             $(presenter.videoObject).unbind("error");
