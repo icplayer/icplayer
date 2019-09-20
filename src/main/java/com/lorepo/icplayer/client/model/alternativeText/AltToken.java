@@ -34,6 +34,6 @@ public class AltToken implements IToken {
 
     @Override
     public boolean isAlt() {
-        return false;
+        return true;
     }
 }
