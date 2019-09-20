@@ -27,7 +27,7 @@ public class AlternativeTextService {
 
     public static List<TextToSpeechVoice> getReadableText(String source) {
         List<IToken> tokens = parseAltText(source);
-        List<TextToSpeechVoice> textToSpeechVoices = new ArrayList<>();
+        List<TextToSpeechVoice> textToSpeechVoices = new ArrayList<TextToSpeechVoice>();
 
         for (IToken token : tokens) {
             TextToSpeechVoice ttsv;
@@ -72,52 +72,56 @@ public class AlternativeTextService {
         return builder.toString();
     }
 
-    private static List<IToken> parseAltText(String srcText) {
+    public static List<IToken> parseAltText(String srcText) {
         final String pattern = "\\\\alt\\{";
         String input = srcText;
         int index = -1;
         RegExp regExp = RegExp.compile(pattern);
         MatchResult matchResult;
 
-        List<IToken> altTokens = new ArrayList<>();
+        List<IToken> altTokens = new ArrayList<IToken>();
 
         while ((matchResult = regExp.exec(input)) != null) {
-            if (matchResult.getGroupCount() <= 0) {
+            if (matchResult.getGroupCount() <= 0) { // check if alt text is available
                 break;
             }
 
             String group = matchResult.getGroup(0);
-            altTokens.add(new Token(input.substring(0, matchResult.getIndex())));
 
-            input = input.substring(matchResult.getIndex() + group.length());
+            String textToBeginingOfAltText = input.substring(0, matchResult.getIndex());
+            if (textToBeginingOfAltText.length() > 0) {
+                altTokens.add(new Token(textToBeginingOfAltText)); // remove text from character 0 to position of \alt and add it as normal text
+            }
+            input = input.substring(matchResult.getIndex() + group.length()); // remove .*\alt{.* from input
             index = findClosingBracket(input);
 
-            String expression = input.substring(0, index);
-            input = input.substring(index + 1);
-            Map<String, String> gapOptions = getGapOptions(input);
-            input = removeGapOptions(input);
+            String expression = input.substring(0, index); // inside of brackets {visibleText|readableText}
+            input = input.substring(index + 1); // remove closing bracket
+            Map<String, String> gapOptions = getGapOptions(input); // finds [lang langTag]
+            input = removeGapOptions(input); // removes langtag from input
             int separatorIndex = expression.indexOf("|");
             if (separatorIndex > 0) {
                 String visibleText = expression.substring(0, separatorIndex);
                 String readableText = expression.substring(separatorIndex + 1);
                 if (gapOptions != null && gapOptions.containsKey("lang")) {
-                    altTokens.add(new AltToken(visibleText, readableText, gapOptions.get("lang")));
+                    altTokens.add(new AltToken(readableText, visibleText, gapOptions.get("lang")));
                 } else {
-                    altTokens.add(new AltToken(visibleText, readableText));
+                    altTokens.add(new AltToken(readableText, visibleText));
                 }
             } else {
-                altTokens.add(new AltToken("#ERR", "#ERR"));
+                altTokens.add(new Token("#ERR"));
             }
         }
 
+        // alt text was only at the begining and there is more text which needs to be added to the token list
         if (input.length() > 0) {
-            altTokens.add(new AltToken(input, input));
+            altTokens.add(new Token(input));
         }
 
         return altTokens;
     }
 
-    public static Map<String,String> getGapOptions(String expression) {
+    private static Map<String,String> getGapOptions(String expression) {
         final String pattern = 	"^\\[[a-zA-Z0-9_\\- ]*?\\]";
         Map<String,String> result = new HashMap<String,String>();
         RegExp regExp = RegExp.compile(pattern);
@@ -139,7 +143,7 @@ public class AlternativeTextService {
         return result;
     };
 
-    public static String removeGapOptions(String expression) {
+    private static String removeGapOptions(String expression) {
         final String pattern = 	"^\\[[a-zA-Z0-9_\\- ]*?\\]";
         RegExp regExp = RegExp.compile(pattern);
         MatchResult matchResult;
@@ -160,7 +164,7 @@ public class AlternativeTextService {
         return expression;
     };
 
-    public static DomElementManipulator getAltTextElement(String visibleText, String altText, String langTag) {
+    private static DomElementManipulator getAltTextElement(String visibleText, String altText, String langTag) {
         DomElementManipulator wrapper = new DomElementManipulator("span");
         wrapper.setHTMLAttribute("aria-label", altText);
         if (langTag != null && langTag.length() > 0) {
@@ -175,7 +179,7 @@ public class AlternativeTextService {
 
     }
 
-    public static int findClosingBracket(String input) {
+    private static int findClosingBracket(String input) {
 
         int counter = 0;
 
@@ -193,26 +197,4 @@ public class AlternativeTextService {
 
         return -1;
     }
-
-//    private static String escapeAltTextInTag(String srcText){
-//        String parsedText = srcText;
-//        String oldParsedText = "";
-//        String pattern = "<([^>]*?)\\\\alt\\{([^<]*?)>";
-//        while(!oldParsedText.equals(parsedText)){ //it is possible that there will be multiple alt texts inside one tag, all must be escaped
-//            oldParsedText = parsedText;
-//            parsedText =  parsedText.replaceAll(pattern, "<$1\\\\altEscaped\\{$2>");
-//        }
-//        return parsedText;
-//    }
-//
-//    private static String unescapeAltTextInTag(String srcText){
-//        String pattern = "<([^>]*?)\\\\altEscaped\\{([^<]*?)>";
-//        String parsedText = srcText;
-//        String oldParsedText = "";
-//        while(!oldParsedText.equals(parsedText)){ //it is possible that there will be multiple alt texts inside one tag, all must be unescaped
-//            oldParsedText = parsedText;
-//            parsedText =  parsedText.replaceAll(pattern, "<$1\\\\alt\\{$2>");
-//        }
-//        return parsedText;
-//    }
 }

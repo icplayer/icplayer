@@ -451,31 +451,36 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	}
 	
 	private void speak (TextToSpeechVoice t1) {
-		if (this.pageController != null) {
-			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-			textVoices.add(t1);
-			
-			this.pageController.speak(textVoices);
-		}
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(t1);
+
+		speak(textVoices);
 	}
 	
 	private void speak (TextToSpeechVoice t1, TextToSpeechVoice t2) {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(t1);
+		textVoices.add(t2);
+
+		speak(textVoices);
+	}
+
+	private void speak (List<TextToSpeechVoice> textVoices) {
 		if (this.pageController != null) {
-			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-			textVoices.add(t1);
-			textVoices.add(t2);
-			
 			this.pageController.speak(textVoices);
 		}
 	}
 	
 	private void speakOption (int index) {
 		if (index >= 0 && index < labelsIds.size()) {
-			final Label label = labels.get(labelsIds.get(index));
-			TextToSpeechVoice option = TextToSpeechVoice.create(label.getText(), this.module.getLangAttribute());
+			String labelId = labelsIds.get(index);
+			final Label label = labels.get(labelId);
+			List<TextToSpeechVoice> option = presenter.getTextToSpeechVoices(labelId);
 			
 			if (ElementHTMLUtils.hasClass(label.getElement(), SELECTED_STYLE)) {
-				this.speak(option, TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""));
+				List<TextToSpeechVoice> optionAndSelectedTexts = new ArrayList<TextToSpeechVoice>(option);
+				optionAndSelectedTexts.add( TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""));
+				this.speak(optionAndSelectedTexts);
 			} else {
 				this.speak(option);
 			}

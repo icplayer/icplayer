@@ -14,6 +14,8 @@ import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
@@ -33,7 +35,6 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.choice.IOptionListener;
-import com.lorepo.icplayer.client.module.text.TextParser;
 
 public class SourceListPresenter implements IPresenter, IStateful, ICommandReceiver, IOptionListener, IActivity, IWCAGPresenter {
 
@@ -62,6 +63,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private IPlayerServices playerServices;
 	private String selectedId;
 	private HashMap<String, String> items = new HashMap<String, String>();
+	private HashMap<String, List<TextToSpeechVoice>> readableItems = new HashMap<String, List<TextToSpeechVoice>>();
 	private JavaScriptObject jsObject;
 	private boolean isVisible;
 	private boolean canDrag = true;
@@ -190,17 +192,15 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			}
 		}
 
-		TextParser parser = new TextParser();
-
-		for(int i = 0; i < order.size(); i++) {
-			Integer index = order.get(i);
+		for (Integer index : order) {
 			String itemText = model.getItem(index);
+			String id = getItemPrefix() + (index + 1);
+			String itemVisibleText = AlternativeTextService.getVisibleText(itemText);
+			List<TextToSpeechVoice> itemReadableText = AlternativeTextService.getReadableText(itemText);
 
-			itemText = parser.parseAltText(itemText);
-
-			String id = getItemPrefix() + (index+1);
-			items.put(id, itemText);
-			view.addItem(id, itemText, callMathJax);
+			readableItems.put(id, itemReadableText);
+			items.put(id, itemVisibleText);
+			view.addItem(id, itemVisibleText, callMathJax);
 		}
 	}
 
@@ -306,6 +306,13 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		} else {
 			view.hide();
 		}
+	}
+
+	public List<TextToSpeechVoice> getTextToSpeechVoices(String id) {
+		if (readableItems.containsKey(id)) {
+			return readableItems.get(id);
+		}
+		return null;
 	}
 	
 	private void refreshView() {
