@@ -51,6 +51,7 @@ public interface IPlayerController {
 	void disableKeyboardNavigation();
 	boolean isPlayerInCrossDomain();
 	Set<IPage> getVisitedPages();
+	void sendExternalEvent(String eventType, String data);
 	String getCurrentPageId();
 
 	String getPageStamp();

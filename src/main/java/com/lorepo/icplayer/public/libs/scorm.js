@@ -146,6 +146,20 @@ function getScorm() {
 		}
 		return false;
 	}
+	
+	scorm.setFailed = function() {
+		if (initialized == true) {
+			return API.SetValue("cmi.success_status", "failed");
+		}
+		return false;
+	}
+	
+	scorm.setPassed = function() {
+		if (initialized == true) {
+			return API.SetValue("cmi.success_status", "passed");
+		}
+		return false;
+	}
 
 	scorm.setSessionTime = function(time) {
 		/**

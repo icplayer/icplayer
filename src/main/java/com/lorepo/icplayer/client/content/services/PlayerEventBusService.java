@@ -11,11 +11,7 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icf.utils.JavaScriptUtils;
-import com.lorepo.icplayer.client.module.api.event.CustomEvent;
-import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
-import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
-import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
-import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
+import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.event.builders.ValueChangedBuilder;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
@@ -33,6 +29,7 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 	private static final String DEFINITION_EVENT_NAME = "Definition";
 	private static final String PAGE_LOADED_EVENT_NAME = "PageLoaded";
 	private static final String SHOW_ERRORS_EVENT_NAME = "ShowErrors";
+    private static final String RESIZE_WINDOW_EVENT_NAME = "ResizeWindow";
 	
 	private final PlayerEventBus eventBus;
 	protected final PlayerServices playerServices;
@@ -203,6 +200,13 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 			@Override
 			public void onShowErrors(ShowErrorsEvent event) {
 				fireEvent(SHOW_ERRORS_EVENT_NAME, event.getData());
+			}
+		});
+
+		eventBus.addHandler(ResizeWindowEvent.TYPE, new ResizeWindowEvent.Handler() {
+			@Override
+			public void onResizeWindowEvent(ResizeWindowEvent event) {
+				fireEvent(RESIZE_WINDOW_EVENT_NAME, new HashMap<String, String>());
 			}
 		});
 	}

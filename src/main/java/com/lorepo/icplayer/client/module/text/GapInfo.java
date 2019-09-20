@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.lorepo.icf.utils.StringUtils;
 
-public class GapInfo {
+public class GapInfo implements IGapCommonUtilsProvider {
 
 	private String id;
 	private List<String> answers = new ArrayList<String>();
@@ -128,6 +128,18 @@ public class GapInfo {
 	
 	public String getPlaceHolder() {
 		return placeHolder;
+	}
+	
+	public int getLongestAnswerLength() {
+		int longestAnswer = 0;
+		
+		for (String answer : answers) {
+			if (longestAnswer < answer.length()) {
+				longestAnswer = answer.length();
+			}
+		}
+		
+		return longestAnswer;
 	}
 
 	/**

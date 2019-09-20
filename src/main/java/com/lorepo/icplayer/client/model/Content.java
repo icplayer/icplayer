@@ -153,7 +153,7 @@ public class Content implements IContentBuilder, IContent {
 		return baseUrl;
 	}
 
-
+	@Override
 	public String getMetadataValue(String key) {
 		return metadata.getValue(key);
 	}

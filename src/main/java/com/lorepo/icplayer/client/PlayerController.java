@@ -95,7 +95,7 @@ public class PlayerController implements IPlayerController {
 		this.isIframeInCrossDomain = checkIsPlayerInCrossDomain();
 		this.getIFrameScroll(this);
 		this.lang = content.getMetadataValue("lang");
-		
+
 		this.adaptiveLearningService = new AdaptiveLearningService(this, content.getAdaptiveStructure());
 	}
 
@@ -759,6 +759,12 @@ public class PlayerController implements IPlayerController {
 	
 	public Set<IPage> getVisitedPages() {
 		return this.visitedPages;
+	}
+
+	@Override
+	public void sendExternalEvent(String eventType, String data) {
+		this.entryPoint.onExternalEvent(eventType, data);
+
 	}
 
 	@Override

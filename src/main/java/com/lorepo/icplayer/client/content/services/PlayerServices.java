@@ -1,7 +1,5 @@
 package com.lorepo.icplayer.client.content.services;
 
-import java.util.HashMap;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icplayer.client.IPlayerController;
@@ -11,19 +9,10 @@ import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
-import com.lorepo.icplayer.client.module.api.player.IAssetsService;
-import com.lorepo.icplayer.client.module.api.player.IContent;
-import com.lorepo.icplayer.client.module.api.player.IJsonServices;
-import com.lorepo.icplayer.client.module.api.player.IPage;
-import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
-import com.lorepo.icplayer.client.module.api.player.IPlayerEventBusService;
-import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-import com.lorepo.icplayer.client.module.api.player.IReportableService;
-import com.lorepo.icplayer.client.module.api.player.IScoreService;
-import com.lorepo.icplayer.client.module.api.player.IStateService;
-import com.lorepo.icplayer.client.module.api.player.ITimeService;
+import com.lorepo.icplayer.client.module.api.player.*;
 import com.lorepo.icplayer.client.page.PageController;
+
+import java.util.HashMap;
 
 public class PlayerServices implements IPlayerServices {
 	private final PlayerCommands playerCommands;
@@ -216,7 +205,12 @@ public class PlayerServices implements IPlayerServices {
 		return this.application.getContextMetadata();
 	}
 
-	public void fixDroppable() {
+    @Override
+    public void sendResizeEvent() {
+        this.pageController.sendResizeEvent();
+    }
+
+    public void fixDroppable() {
 		if (this.jQueryPrepareOffsetsFunction == null) {
 			this.jQueryPrepareOffsetsFunction = this.getJQueryUIPrepareOffsetFunction();
 		}
@@ -323,6 +317,17 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public boolean isPageVisited(IPage page) {
 		return this.playerController.getVisitedPages().contains(page);
+	}
+
+	@Override
+	public void sendExternalEvent(String eventType, String data) {
+		this.playerController.sendExternalEvent(eventType, data);
+
+	}
+
+	@Override
+	public String getContentMetadata(String key) {
+		return this.getModel().getMetadataValue(key);
 	}
 
 	@Override
