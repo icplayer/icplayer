@@ -224,7 +224,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
                 var newTop = 0.0;
 
 				if (isEdge()) {
-                    newLeft = ui.position.left / scale.X - moduleOffset.left;
+                    newLeft = (ui.position.left - moduleOffset.left * (scale.X-1)) / scale.X;
                     var changeTop = ui.position.top - ui.originalPosition.top;
                     newTop = changeTop/scale.Y + ui.originalPosition.top;
                 } else {
