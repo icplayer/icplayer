@@ -1882,6 +1882,8 @@ function AddonSlideshow_create() {
         presenter.shiftPressed = event.shiftKey;
 
         var keys = {
+            ENTER: 13,
+            ESC: 27,
             SPACE: 32,
             ARROW_LEFT: 37,
             ARROW_UP: 38,
@@ -1934,8 +1936,20 @@ function AddonSlideshow_create() {
             }
         };
 
+        var escapeHandler = function () {
+            presenter.pause();
+        };
+
+        var enterHandler = function () {
+            if (!isWCAGOn) {
+                presenter.pause();
+            }
+        };
+
         var mapping = {};
 
+        mapping[keys.ENTER] = enterHandler;
+        mapping[keys.ESC] = escapeHandler;
         mapping[keys.SPACE] = spaceHandler;
         mapping[keys.ARROW_LEFT] = leftArrowHandler;
         mapping[keys.ARROW_UP] = upArrowHandler;
