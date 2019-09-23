@@ -17,6 +17,7 @@ function AddonImage_Viewer_Public_create() {
     presenter.lastReceivedEvent = null;
     presenter.isMouseDown = false;
     presenter.eventBus = null;
+    presenter.isWCAGSelected = false;
 
     presenter.ERROR_CODES = {
         'IM_01': "Image must be uploaded to display Addon!",
@@ -65,8 +66,9 @@ function AddonImage_Viewer_Public_create() {
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeFrom_01(model);
-
-        return presenter.upgradeFrom_02(upgradedModel);
+        upgradedModel =  presenter.upgradeFrom_02(upgradedModel);
+        upgradedModel = presenter.upgradeAddAltTexts(upgradedModel);
+        return upgradedModel;
     };
 
     presenter.upgradeFrom_01 = function (model) {
@@ -90,6 +92,25 @@ function AddonImage_Viewer_Public_create() {
 
         if (!upgradedModel["Initial frame"]) {
             upgradedModel["Initial frame"] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeAddAltTexts = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = "";
+        }
+
+        if (!upgradedModel["Alternative texts"]) {
+            upgradedModel["Alternative texts"] =
+                [{
+                    "Alternative text": "",
+                    "frame": ""
+                }];
         }
 
         return upgradedModel;
@@ -923,6 +944,23 @@ function AddonImage_Viewer_Public_create() {
         return { isError: false, frames : parsedFrame };
     };
 
+    presenter.validateAlternativeTexts = function (altTexts, framesNumber) {
+        var parsedAltTexts = [];
+
+        for (var i = 0; i < framesNumber; i++) parsedAltTexts.push("");
+
+        if (altTexts.length != 1 || altTexts[0]["Alternative text"] != "") {
+            for (var i = 0; i < altTexts.length; i++) {
+                var alt = altTexts[i];
+                var parsedNumber = presenter.validateFrameNumber(alt.frame);
+                if (parsedNumber.isError) return parsedNumber;
+                parsedAltTexts[parsedNumber.frames - 1] = alt["Alternative text"];
+            }
+        }
+        return { isError: false, altTexts: parsedAltTexts };
+
+    };
+
     presenter.validateSound = function(soundsArray) {
         var sounds = [];
 
@@ -1236,6 +1274,9 @@ function AddonImage_Viewer_Public_create() {
         var validatedInitialFrame = this.validateInitialFrame(model["Initial frame"], validatedFrames.frames);
         if(validatedInitialFrame.errorCode) return { isError: true, errorCode: validatedInitialFrame.errorCode };
 
+        var validatedAltTexts = presenter.validateAlternativeTexts(model["Alternative texts"], validatedFrames.frames);
+        if(validatedAltTexts.errorCode) return { isError: true, errorCode: validatedAltTexts.errorCode };
+
         var validatedSound = presenter.validateSound(model.Sounds);
         var isClickDisabled = ModelValidationUtils.validateBoolean(model.isClickDisabled);
         var frameSize = presenter.validateFrameSize(model["Frame size"]);
@@ -1266,7 +1307,9 @@ function AddonImage_Viewer_Public_create() {
             isRandomFrame: isRandomFrame,
             initialFrame: validatedInitialFrame,
             showFrameCounter: ModelValidationUtils.validateBoolean(model["Show frame counter"]),
-            shouldCalcScore: false
+            shouldCalcScore: false,
+            lang: model["langAttribute"],
+            altTexts: validatedAltTexts.altTexts
         };
     };
 
@@ -1373,6 +1416,7 @@ function AddonImage_Viewer_Public_create() {
     presenter.changeFrame = function(isPreview, isReverseOrder, triggerEvent) {
         presenter.changeBackgroundPosition(isPreview, presenter.$element, isReverseOrder);
         presenter.changeFrameLogic(isPreview, triggerEvent);
+        presenter.readFrame(presenter.configuration.currentFrame);
     };
 
     presenter.stopAllAudio = function () {
@@ -1609,6 +1653,70 @@ function AddonImage_Viewer_Public_create() {
         }
 
         presenter.isShowAnswersActive = false;
+    };
+
+    presenter.readFrame = function (frameId) {
+        if (playerController && playerController.isWCAGOn()) {
+            var voiceObjects = presenter.getTextVoiceObjectForFrame(frameId);
+            if (presenter.isWCAGSelected) {
+                presenter.speak(voiceObjects);
+            } else {
+                presenter.speakWhenIdle(voiceObjects);
+            }
+        }
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+
+        if (keycode == window.KeyboardControllerKeys.ENTER) {
+            if (!isShiftKeyDown) {
+                event.preventDefault();
+                presenter.readFrame(presenter.configuration.currentFrame);
+            } else {
+                presenter.setWCAGStatus(false);
+            }
+
+        } else if (keycode == window.KeyboardControllerKeys.SPACE) {
+            event.preventDefault();
+            if (!presenter.configuration.isClickDisabled) {
+                hideWatermarkIfVisible();
+                presenter.next();
+            }
+
+        } else if (keycode == window.KeyboardControllerKeys.ESCAPE) {
+            presenter.isWCAGSelected = false;
+        }
+    };
+
+    presenter.setWCAGStatus = function(isOn) {
+        presenter.isWCAGSelected = isOn;
+    };
+
+    presenter.getTextVoiceObjectForFrame = function (frameId) {
+        return [window.TTSUtils.getTextVoiceObject(presenter.configuration.altTexts[frameId], presenter.configuration.lang)];
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function(data, callback) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+
+        if (tts && playerController.isWCAGOn()) {
+            tts.speakWithCallback(data, callback);
+        }
+    };
+
+    presenter.speakWhenIdle = function (data, callback) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts && playerController.isWCAGOn()) {
+            tts.speakWhenIdle(data, callback);
+        }
     };
 
     return presenter;

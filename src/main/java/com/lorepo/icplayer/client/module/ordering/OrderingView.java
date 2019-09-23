@@ -167,6 +167,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			return @com.lorepo.icf.utils.JavaScriptUtils::getContentScale()();
 		});
 		scale = {X:1.0, Y:1.0};
+		var moduleOffset = {left: 0.0, top: 0.0};
+
+		function isEdge() {
+		    return navigator.appName == 'Microsoft Internet Explorer' || (navigator.appName == "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
+		}
 
 		$wnd.$(e).find(selector).sortable({
 			placeholder: "ic_ordering-placeholder",
@@ -176,8 +181,15 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			cursorAt: { left: 5 },
 			start: function(event, ui) {
 				scale = getContentScale();
+				moduleOffset = ui.item.parent().offset();
+				if (isEdge()) {
+					var scaleInfo = $wnd.player.getPlayerServices().getScaleInformation();
+					scale.X = scaleInfo.scaleX;
+					scale.Y = scaleInfo.scaleY;
+				}
+				
                 var changeLeft = ui.placeholder.clientLeft - ui.originalPosition.left;
-                var newLeft = ui.originalPosition.left + changeLeft / scale.X - ui.item.parent().offset().left;
+                var newLeft = ui.originalPosition.left + changeLeft / scale.X - moduleOffset.left;
                 var newTop = ui.placeholder.clientTop / scale.Y;
 
                 ui.helper.css({
@@ -208,9 +220,18 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 				}
 			},
 			sort: function(event, ui) {
-			    var changeLeft = ui.position.left - ui.originalPosition.left;
-                var newLeft = ui.originalPosition.left + changeLeft / scale.X;
-                var newTop = ui.position.top / scale.Y;
+                var newLeft = 0.0;
+                var newTop = 0.0;
+
+				if (isEdge()) {
+                    newLeft = (ui.position.left - moduleOffset.left * (scale.X-1)) / scale.X;
+                    var changeTop = ui.position.top - ui.originalPosition.top;
+                    newTop = changeTop/scale.Y + ui.originalPosition.top;
+                } else {
+                    var changeLeft = ui.position.left - ui.originalPosition.left;
+                    newLeft = ui.originalPosition.left / scale.X + changeLeft / scale.X;
+                    newTop = ui.position.top / scale.Y;
+                }
 
 				if (jsObject.axis == "y") {
 					ui.helper.css({
