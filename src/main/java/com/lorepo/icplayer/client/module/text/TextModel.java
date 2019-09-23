@@ -58,7 +58,12 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	private String originalText;
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String langAttribute = "";
-
+	private boolean allCharactersGapSizeStyle = true;
+	
+	final static String GAP_SIZE_CALCULATION_STYLE_LABEL = "text_module_gap_size_calculation";
+	final static String ALL_CHARACTES_CALCULATION_STYLE = "text_module_gap_calculation_all_characters_method"; // old method
+	final static String LONGEST_ANSWER_CALCULATION_STYLE = "text_module_gap_calculation_longest_answer_method"; // new method
+	
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
 		gapUniqueId = UUID.uuid(6);
@@ -80,6 +85,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		addPropertyUseEscapeCharacterInGap();
 		addPropertySpeechTexts();
 		addPropertyLangAttribute();
+		addPropertyGapSizeCalculationMethod();
 	}
 
 	@Override
@@ -136,6 +142,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 				userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
 				useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
 				langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
+				allCharactersGapSizeStyle = XMLUtils.getAttributeAsBoolean(textElement, "allAnswersGapSizeCalculationStyle", true);
 				this.speechTextItems.get(TextModel.NUMBER_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "number"));
 				this.speechTextItems.get(TextModel.GAP_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "gap"));
 				this.speechTextItems.get(TextModel.DROPDOWN_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "dropdown"));
@@ -213,6 +220,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		XMLUtils.setBooleanAttribute(text, "blockWrongAnswers", this.blockWrongAnswers);
 		XMLUtils.setBooleanAttribute(text, "userActionEvents", this.userActionEvents);
 		XMLUtils.setBooleanAttribute(text, "useEscapeCharacterInGap", this.useEscapeCharacterInGap);
+		XMLUtils.setBooleanAttribute(text, "allAnswersGapSizeCalculationStyle", this.allCharactersGapSizeStyle);
 		if (this.langAttribute.compareTo("") != 0) {
 			text.setAttribute("langAttribute", this.langAttribute);
 		}
@@ -938,6 +946,66 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 
 		addProperty(property);
 	}
+	
+	private void addPropertyGapSizeCalculationMethod() {
+		IProperty property = new IEnumSetProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				// handling lacking or same labels
+				boolean isLongestSizeCalculationStyle = newValue.equals(DictionaryWrapper.get(LONGEST_ANSWER_CALCULATION_STYLE));
+				boolean isAllAnswersSizeCalculationStyle = newValue.equals(DictionaryWrapper.get(ALL_CHARACTES_CALCULATION_STYLE));
+				
+				if (isLongestSizeCalculationStyle && isAllAnswersSizeCalculationStyle) { 
+					// special case, when labels are the same
+					allCharactersGapSizeStyle = true;
+				} else if (isLongestSizeCalculationStyle && !isAllAnswersSizeCalculationStyle) {
+					// user selected new method
+					allCharactersGapSizeStyle = false;
+				} else {
+					allCharactersGapSizeStyle = true;
+				}
+				
+				valueType = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return valueType;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get(GAP_SIZE_CALCULATION_STYLE_LABEL);
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return 2;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				if (index == 0){
+					return DictionaryWrapper.get(ALL_CHARACTES_CALCULATION_STYLE);
+				} else {
+					return DictionaryWrapper.get(LONGEST_ANSWER_CALCULATION_STYLE);
+				}
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get(GAP_SIZE_CALCULATION_STYLE_LABEL);
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
 
 	public boolean isDisabled() {
 		return isDisabled;
@@ -985,6 +1053,10 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 
 	public boolean isUsingEscapeCharacterInGap() {
 		return this.useEscapeCharacterInGap;
+	}
+	
+	public boolean isOldGapSizeCalculation() {
+		return this.allCharactersGapSizeStyle;
 	}
 	
 	public String getSpeechTextItem (int index) {

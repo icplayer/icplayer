@@ -4,6 +4,8 @@ function AddonAnimation_create (){
     var presenter = function () {};
     presenter.DOMElements = {};
     presenter.configuration = {};
+    
+    var isSpeaking = false; //tts is currently attempting to play the alternative text (but not the preview alt text)
 
     presenter.ERROR_CODES = {
         'AI_01': "Animation image wasn't set or was set incorrectly!",
@@ -44,7 +46,8 @@ function AddonAnimation_create (){
     presenter.eventBus = null;
 
     presenter.upgradeModel = function (model) {
-        return presenter.addFramesToLabels(model);
+        var upgradedModel = presenter.addFramesToLabels(model);
+        return presenter.upgradeTextToSpeech(upgradedModel);
     };
 
     presenter.addFramesToLabels = function (model) {
@@ -58,6 +61,49 @@ function AddonAnimation_create (){
         }
 
         return upgradedModel;
+    };
+
+    presenter.upgradeTextToSpeech = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel['Alternative Text']) {
+            upgradedModel['Alternative Text'] = ''
+        }
+
+        if (!upgradedModel['Preview Alternative Text']) {
+            upgradedModel['Preview Alternative Text'] = ''
+        }
+
+        if (!upgradedModel['speechTexts']) {
+            upgradedModel['speechTexts'] = {
+                Stop: {Stop: "stopped"}
+            };
+        }
+
+        if (!upgradedModel['langAttribute']) {
+            upgradedModel['langAttribute'] = '';
+        }
+
+        return upgradedModel;
+    };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    presenter.getspeechTexts = function(speechTexts) {
+        var speechTexts = {
+            stop:    getSpeechTextProperty(speechTexts['Stop']['Stop'], "Stopped")
+        };
+
+        return speechTexts;
     };
 
     function setDOMElementsHrefsAndSelectors(view) {
@@ -343,7 +389,7 @@ function AddonAnimation_create (){
             } else {
                 presenter.configuration.animationState = presenter.ANIMATION_STATE.ENDED;
                 $.doTimeout(presenter.configuration.queueName, false);
-                presenter.sendEndAnimationEvent();
+                presenter.endAnimationHandler();
                 return false;
             }
         }
@@ -549,6 +595,16 @@ function AddonAnimation_create (){
             presenter.stop();
         } else {
             presenter.playAnimation();
+            if (presenter.playerController.isWCAGOn()) {
+                isSpeaking = true;
+
+                var speakCallback = function () {
+                    isSpeaking = false;
+                    presenter.endAnimationHandler();
+                };
+
+                presenter.speakWithDelay([window.TTSUtils.getTextVoiceObject(presenter.configuration.altText, presenter.configuration.lang)], speakCallback);
+            }
         }
     });
 
@@ -724,6 +780,8 @@ function AddonAnimation_create (){
     };
 
     presenter.validateModel = function(model) {
+        var speechTexts = presenter.getspeechTexts(model['speechTexts']);
+
         if (ModelValidationUtils.isStringEmpty(model["Preview image"])) {
             return { isError: true, errorCode: "PI_01" };
         }
@@ -782,7 +840,11 @@ function AddonAnimation_create (){
             isVisibleByDefault: isVisibleByDefault,
             isVisible: isVisibleByDefault,
             watermarkOptions: validatedOptions,
-            addonID: model.ID
+            addonID: model.ID,
+            altText: model['Alternative Text'],
+            altTextPreview: model['Preview Alternative Text'],
+            lang: model['langAttribute'],
+            speechTexts: speechTexts
         };
     };
 
@@ -870,6 +932,125 @@ function AddonAnimation_create (){
         
         presenter.eventBus.sendEvent('ValueChanged', eventData);
     };
+
+    presenter.endAnimationHandler = function () {
+        if (presenter.configuration.animationState == presenter.ANIMATION_STATE.ENDED &&
+            (!presenter.playerController.isWCAGOn() || !isSpeaking)) {
+            presenter.sendEndAnimationEvent();
+            if (presenter.playerController.isWCAGOn()) {
+                presenter.stop();
+            }
+        }
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function(data, callback) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && presenter.playerController.isWCAGOn()) {
+            tts.speakWithCallback(data, callback);
+        }
+    };
+
+    var delayedSpeakInterval = null; // only used by speakWithDelay, which is why they are here and not at the top of the file
+    var delayedSpeakTimeout = null;
+    //This method works like speak, except that it waits for TTS to be idle instead of interrupting it
+    presenter.speakWithDelay = function (data, callback) {
+        presenter.stopDelayedTTS();
+
+        function setSpeakInterval (data, callback) {
+            delayedSpeakInterval = setInterval(function () {
+                var speechSynthSpeaking = false;
+                var responsiveVoiceSpeaking = false;
+
+                // Detect if TTS is idle
+                if ('speechSynthesis' in window) {
+                    speechSynthSpeaking = window.speechSynthesis.speaking;
+                }
+                if (window.responsiveVoice) {
+                    responsiveVoiceSpeaking = window.responsiveVoice.isPlaying();
+                }
+
+                if (!speechSynthSpeaking && !responsiveVoiceSpeaking) {
+                    // If TTS is idle, pass data to TTS and break the loop
+                    clearInterval(delayedSpeakInterval);
+                    delayedSpeakInterval = null;
+                    var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+                    if (tts && presenter.playerController.isWCAGOn()) {
+                        tts.speakWithCallback(data, callback);
+                    }
+                }
+            }, 200);
+        }
+
+        /*
+        * The timeout is used to ensure that if animation is triggered by another addon,
+        * that addon has the opportunity to use TTS first, since animation acts as feedback
+        */
+        delayedSpeakTimeout = setTimeout(function(){ setSpeakInterval(data, callback); }, 300);
+    };
+
+    presenter.stopDelayedTTS = function() {
+        if(delayedSpeakTimeout) {
+            clearTimeout(delayedSpeakTimeout);
+            delayedSpeakTimeout = null;
+        }
+         if(delayedSpeakInterval) {
+            clearInterval(delayedSpeakInterval);
+            delayedSpeakInterval = null;
+        }
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+
+        var keys = {
+            ENTER: 13,
+            SPACE: 32
+        };
+
+        var enter = function() {
+            event.preventDefault();
+            presenter.stopDelayedTTS();
+            if(!isShiftKeyDown) {
+                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.altTextPreview, presenter.configuration.lang)]);
+            }
+        };
+
+        var space = function() {
+            event.preventDefault();
+            presenter.stopDelayedTTS();
+            if (presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING ||
+                presenter.configuration.animationState == presenter.ANIMATION_STATE.ENDED ||
+                isSpeaking) {
+                presenter.stop();
+                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.stop)]);
+                isSpeaking = false;
+            } else {
+                presenter.stop();
+                presenter.play();
+            }
+        };
+
+        var mapping = {};
+        mapping[keys.ENTER] = enter;
+        mapping[keys.SPACE] = space;
+
+        try {
+            mapping[keycode]();
+        } catch (er) {
+        }
+    };
+
+    presenter.isEnterable = function() {return false};
+
+    presenter.markerWCAG = {}; // This is a marker identifying the addon as supporting WCAG to the editor
 
     return presenter;
 }

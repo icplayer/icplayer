@@ -91,7 +91,7 @@ function AddonFractions_create(){
 
     presenter.isAttempted = function(){
         presenter.hideAnswers();
-        if(presenter.configuration.isAnswer) {
+        if(!presenter.configuration.isAnswer) {
             return true;
         }
         return Counter === (presenter.initialMarks)/2 ? false : true;
