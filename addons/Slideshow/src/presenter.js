@@ -1882,6 +1882,7 @@ function AddonSlideshow_create() {
         presenter.shiftPressed = event.shiftKey;
 
         var keys = {
+            TAB: 9,
             ENTER: 13,
             ESC: 27,
             SPACE: 32,
@@ -1938,16 +1939,19 @@ function AddonSlideshow_create() {
 
         var escapeHandler = function () {
             presenter.pause();
+            presenter.stopSpeech();
         };
 
         var enterHandler = function () {
             if (!isWCAGOn) {
                 presenter.pause();
+                presenter.stopSpeech();
             }
         };
 
         var mapping = {};
 
+        mapping[keys.TAB] = escapeHandler;
         mapping[keys.ENTER] = enterHandler;
         mapping[keys.ESC] = escapeHandler;
         mapping[keys.SPACE] = spaceHandler;
@@ -2025,6 +2029,7 @@ function AddonSlideshow_create() {
     };
 
     presenter.isEnterable = function() {
+        presenter.stopSpeech();
         return false;
     };
 
