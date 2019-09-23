@@ -65,8 +65,6 @@ public class AlternativeTextService {
                 // it doesn't matter which text we will get as they are the same
                 builder.append(token.getReadableText());
             }
-
-            builder.append(token.getVisibleText());
         }
 
         return builder.toString();
