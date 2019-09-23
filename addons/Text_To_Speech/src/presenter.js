@@ -210,7 +210,7 @@ function AddonText_To_Speech_create() {
         window.speechSynthesis.cancel();
 
         if (presenter.intervalId != null) {
-            clearInterval(presenter.intervalId);
+        clearInterval(presenter.intervalId);
             presenter.intervalId = undefined;
         }
         // Fix for running speak method after cancelling SpeechSynthesis queue
@@ -374,6 +374,48 @@ function AddonText_To_Speech_create() {
         if (callback) {
             callback();
         }
+    };
+
+    var delayedSpeakInterval = null; // only used by speakWhenIdle, which is why they are here and not at the top of the file
+    var delayedSpeakTimeout = null;
+    //This method works like speakWithCallback, except that it waits for TTS to be idle instead of interrupting it
+    presenter.speakWhenIdle = function (data, callback) {
+        if(delayedSpeakTimeout) {
+            clearTimeout(delayedSpeakTimeout);
+            delayedSpeakTimeout = null;
+        }
+         if(delayedSpeakInterval) {
+            clearInterval(delayedSpeakInterval);
+            delayedSpeakInterval = null;
+        }
+
+        function setSpeakInterval (data, callback) {
+            delayedSpeakInterval = setInterval(function () {
+                var speechSynthSpeaking = false;
+                var responsiveVoiceSpeaking = false;
+
+                // Detect if TTS is idle
+                if ('speechSynthesis' in window) {
+                    speechSynthSpeaking = window.speechSynthesis.speaking;
+                }
+                if (window.responsiveVoice) {
+                    responsiveVoiceSpeaking = window.responsiveVoice.isPlaying();
+                }
+
+                if (!speechSynthSpeaking && !responsiveVoiceSpeaking) {
+                    // If TTS is idle, pass data to TTS and break the loop
+                    clearInterval(delayedSpeakInterval);
+                    delayedSpeakInterval = null;
+                    presenter.speakWithCallback(data, callback);
+                }
+            }, 100);
+        }
+
+        /*
+        * The timeout is used to ensure that if animation is triggered by another addon,
+        * that addon has the opportunity to use TTS first, since animation acts as feedback
+        */
+        delayedSpeakTimeout = setTimeout(function(){ setSpeakInterval(data, callback); }, 200);
     };
 
     presenter.playTitle = function (area, id, langTag) {

@@ -1,3 +1,4 @@
+2019-09-23 Added TTS support to Image Viewer
 2019-09-17 Added a new text property for controlling how gap size attribute is calculated
 2019-09-17 Added TTS support to the Animation addon
 2019-09-13 Fixed TrueFalse showAnswers method when correct answers are empty.
