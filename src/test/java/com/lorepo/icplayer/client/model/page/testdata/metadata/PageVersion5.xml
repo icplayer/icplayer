@@ -15,6 +15,11 @@
 	</layouts>
 	<modules>
 		<addonModule id="addon1" addonId="HelloWorldAddon" isTabindexEnabled="false">
+			<metadata>
+				<entry key="some1" value="someValue1"/>
+				<entry key="skills" value="grammar"/>
+				<entry key="difficulty" value="easy"/>
+			</metadata>
 			<layouts isVisible="true">
 				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
 					<relative type="LTWH">
@@ -26,19 +31,17 @@
 					<absolute left="5" right="0" top="10" bottom="0" width="80" height="40"/>
 				</layout>
 			</layouts>
-			<metadata>
-				<entry key="some1" value="someValue1"></entry>
-				<entry key="skills" value="grammar"></entry>
-				<entry key="difficulty" value="easy"></entry>
-			</metadata>
 			<properties>
 				<property name="text" value="Hello world!" displayName="" type=""/>
 			</properties>
 		</addonModule>
 	
-	
-	
 	    <imageModule id="Image1" isTabindexEnabled="false">
+			<metadata>
+				<entry key="some1" value="someValue1"/>
+				<entry key="skills" value="reading"/>
+				<entry key="difficulty" value="hard"/>
+			</metadata>
 			<layouts isVisible="true">
 				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
 					<relative type="LTWH">
@@ -50,11 +53,6 @@
 					<absolute left="0" right="0" top="0" bottom="0" width="950" height="1225"/>
 				</layout>
 			</layouts>
-			<metadata>
-				<entry key="some1" value="someValue1"></entry>
-				<entry key="skills" value="reading"></entry>
-				<entry key="difficulty" value="hard"></entry>
-			</metadata>
 			<image src="/file/serve/4937597482696704" alt="" mode="stretch" animatedGifRefresh="false"/>
 		</imageModule>
 		
@@ -64,6 +62,11 @@
 					<styleClass value="text_first_page_title" layoutID="default"/>
 				</styleClasses>
 	    	</styles>
+			<metadata>
+				<entry key="some1" value="textModuleValue"/>
+				<entry key="skills" value="reading"/>
+				<entry key="difficulty" value="easy"/>
+			</metadata>
 			<layouts isVisible="true">
 				<layout isLocked="false" isModuleVisibleInEditor="true" id="default">
 					<relative type="LTWH">
@@ -75,17 +78,12 @@
 					<absolute left="250" right="0" top="346" bottom="21" width="650" height="150"/>
 				</layout>
 			</layouts>
-			<text draggable="false" math="false" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false" 
+			<text draggable="false" math="false" allAnswersGapSizeCalculationStyle="true" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false"
 			    isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false"
 			     openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All"
 			     number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed="">
 			</text>
-			<metadata>
-				<entry key="some1" value="textModuleValue"></entry>
-				<entry key="skills" value="reading"></entry>
-				<entry key="difficulty" value="easy"></entry>
-			</metadata>
-			</textModule>
+		</textModule>
 		
 		<textModule id="Text2" isTabindexEnabled="false">
 			<styles>
@@ -104,7 +102,7 @@
 				<absolute left="175" right="0" top="476" bottom="21" width="725" height="125"/>
 				</layout>
 			</layouts>
-			<text draggable="false" math="false" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false" 
+			<text draggable="false" math="false" allAnswersGapSizeCalculationStyle="true" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false"
 			    isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" 
 			    openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All"
 			    number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed="">
