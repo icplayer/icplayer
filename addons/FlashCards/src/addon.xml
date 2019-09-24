@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='FlashCards' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+		<property name="Cards" displayName="Cards" nameLabel="FlashCards_property_Cards" type="list">
+            <property name="Front" displayName="Front" nameLabel="FlashCards_property_Front" type="html"/>
+            <property name="Back" displayName="Back" nameLabel="FlashCards_property_Back" type="html"/>
+			<property name="AudioFront" displayName="Audio Front" nameLabel="FlashCards_property_Audio_Front" type="audio"/>
+			<property name="AudioBack" displayName="Audio Back" nameLabel="FlashCards_property_Audio_Back" type="audio"/>
+        </property>
+        <property name="NoLoop" displayName="Disable Loop" nameLabel="FlashCards_property_Disable_Loop" type="boolean"/>
+        <property name="Favourites" displayName="Enable Favourites" nameLabel="FlashCards_property_Enable_Favourites" type="boolean"/>
+        <property name="HidePrevNext" displayName="Hide Previous and Next Buttons" nameLabel="FlashCards_property_Hide_Previous_and_Next_Buttons" type="boolean"/>
+        <property name="ShowButtons" displayName="Show Activity Buttons" nameLabel="FlashCards_property_Show_Activity_Buttons" type="boolean"/>
+        <property name="IsActivity" displayName="Is Activity" nameLabel="FlashCards_property_Is_Activity" type="boolean"/>
+    </model>
+</addon>

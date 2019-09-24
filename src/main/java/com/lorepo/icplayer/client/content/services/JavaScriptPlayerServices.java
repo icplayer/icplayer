@@ -21,11 +21,7 @@ import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.event.CustomEvent;
-import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
-import com.lorepo.icplayer.client.module.api.event.PageLoadedEvent;
-import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
-import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
+import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
@@ -64,6 +60,7 @@ public class JavaScriptPlayerServices {
 	private static final String DEFINITION_EVENT_NAME = "Definition";
 	private static final String PAGE_LOADED_EVENT_NAME = "PageLoaded";
 	private static final String SHOW_ERRORS_EVENT_NAME = "ShowErrors";
+	private static final String RESIZE_WINDOW_EVENT_NAME = "ResizeWindow";
 
 	private final IPlayerServices playerServices;
 	private final JavaScriptObject jsObject;
@@ -139,6 +136,12 @@ public class JavaScriptPlayerServices {
 			}
 		});
 
+		eventBus.addHandler(ResizeWindowEvent.TYPE, new ResizeWindowEvent.Handler() {
+			@Override
+			public void onResizeWindowEvent(ResizeWindowEvent event) {
+				fireEvent(RESIZE_WINDOW_EVENT_NAME, new HashMap<String, String>());
+			}
+		});
 	}
 	
 	public void resetEventListeners() {
@@ -494,6 +497,10 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getIframeScroll()();
 		};
 		
+		playerServices.sendExternalEvent = function(eventType, data) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendExternalEvent(Ljava/lang/String;Ljava/lang/String;)(eventType, data);
+		};
+
 		playerServices.getScaleInformation = function() {
 			var scaleInfo = x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getScaleInformation()();
 			var jsScaleInfo = {
@@ -540,11 +547,23 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContextMetadata()();
 		};
 
+		playerServices.sendResizeEvent = function() {
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendResizeEvent()();
+		};
+
+		playerServices.getContentMetadataValue = function (key) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContentMetadataValue(Ljava/lang/String;)(key);
+		}
+
 		return playerServices;
 	}-*/;
 
 	private JavaScriptObject getContextMetadata() {
 		return this.playerServices.getContextMetadata();
+	}
+
+	private void sendResizeEvent() {
+		this.playerServices.sendResizeEvent();
 	}
 
 	private boolean changeSemiResponsiveLayout(String layoutIDOrName) {
@@ -973,6 +992,14 @@ public class JavaScriptPlayerServices {
 		NativeEvent event = Document.get().createKeyDownEvent(false, false, reverseDirection, false, 9);
 		// Send a Tab or Tab+Shift keydown event to the keyboard controller
 		DomEvent.fireNativeEvent(event,  RootPanel.get());
+	}
+
+	public void sendExternalEvent(String eventType, String data) {
+		this.playerServices.sendExternalEvent(eventType, data);
+	}
+
+	public String getContentMetadataValue(String key) {
+		return playerServices.getContentMetadata(key);
 	}
 
 	public JavaScriptObject getModuleMetadata(String moduleID) {

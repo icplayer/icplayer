@@ -756,4 +756,10 @@ public class PlayerController implements IPlayerController{
 		return this.visitedPages;
 	}
 
+	@Override
+	public void sendExternalEvent(String eventType, String data) {
+		this.entryPoint.onExternalEvent(eventType, data);
+		
+	}
+
 }

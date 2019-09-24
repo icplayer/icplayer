@@ -287,6 +287,7 @@ public class TextParser {
 		if (this.editorMode) {
 			inputElement.setHTMLAttribute("data-gap-value", "\\gap{" + answer + "}"+createGapOptionString(gapOptions));
 		}
+		
 		inputElement.setHTMLAttribute("size", "" + answer.length());
 		inputElement.addClass("ic_gap");
 		if (this.editorMode) {

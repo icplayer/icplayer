@@ -23,6 +23,7 @@ function AddonEditableWindow_create() {
         heightOffset: 110,
         widthOffset: 22,
         minHeight: 300,
+        maxHeight: 10000,
         minWidth: 300,
         maxWidth: 950,
         state: {
@@ -49,7 +50,9 @@ function AddonEditableWindow_create() {
         presenter.configuration.$container = $(presenter.configuration.container);
 
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
-        presenter.configuration.model = presenter.validModel(model);
+
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration.model = presenter.validModel(upgradedModel);
 
         if (presenter.configuration.model.isValid) {
             presenter.configuration.container.style.width = presenter.configuration.model.width + 'px';
@@ -77,6 +80,7 @@ function AddonEditableWindow_create() {
         var headerStyle = presenter.configuration.model.headerStyle;
         var $header = $container.find(".header");
         var $headerText = $container.find(".header-text");
+        var disableResizeHeight = presenter.configuration.model.disableResizeHeight;
 
         $headerText.text(title);
         $header.addClass(headerStyle);
@@ -104,8 +108,15 @@ function AddonEditableWindow_create() {
 
         $container.css("z-index", "1");
 
+        if (disableResizeHeight) {
+            var moduleHeight = presenter.configuration.model.height;
+            presenter.configuration.minHeight = moduleHeight;
+            presenter.configuration.maxHeight = moduleHeight;
+        }
+
         // containment option disallows moving window outside of specifed dom element
         $container.draggable({
+            cancel: 'video, audio',
             containment: 'document',
             start: function () {
                 presenter.show();
@@ -116,6 +127,7 @@ function AddonEditableWindow_create() {
 
         $container.resizable({
             minHeight: presenter.configuration.minHeight,
+            maxHeight: presenter.configuration.maxHeight,
             minWidth: presenter.configuration.minWidth,
             maxWidth: presenter.configuration.maxWidth,
             resize: function (event, ui) {
@@ -287,13 +299,21 @@ function AddonEditableWindow_create() {
 
     presenter.handleVideoContent = function () {
         var $view = $(presenter.configuration.view);
-        var audioSource = presenter.configuration.model.videoFile;
-        var $videoElement = $view.find("video");
-        $videoElement.attr("src", audioSource);
+        if (window.navigator.onLine || presenter.configuration.model.videoFile.indexOf("file:/") == 0) {
+            var audioSource = presenter.configuration.model.videoFile;
+            var $videoElement = $view.find("video");
+            $videoElement.attr("src", audioSource);
+        } else {
+            presenter.configuration.hasVideo = false;
+            var $wrapper = $view.find('.offline-video-message');
+            $wrapper.html(presenter.configuration.model.offlineMessage);
+            $wrapper.css("display", "block");
+        }
     };
 
     presenter.handleAudioContent = function () {
         var $view = $(presenter.configuration.view);
+        var $container = presenter.configuration.$container;
         var audioSource = presenter.configuration.model.audioFile;
         var $audioElement = $view.find("audio");
         $audioElement.attr("src", audioSource);
@@ -333,6 +353,7 @@ function AddonEditableWindow_create() {
             selector: "#" + textareaId,
             plugins: "textcolor link",
             toolbar: "backcolor",
+            language: "fr_FR_pure",
             textcolor_map: [
                 "ffff00", "Yellow",
                 "87ceeb", "Blue",
@@ -406,7 +427,7 @@ function AddonEditableWindow_create() {
             presenter.fillActiveTinyMce(content);
         }
         presenter.configuration.contentLoadingLock = false;
-    }
+    };
 
     presenter.getState = function () {
         var editor = presenter.configuration.editor;
@@ -417,6 +438,33 @@ function AddonEditableWindow_create() {
         }
 
         return JSON.stringify(presenter.configuration.state);
+    };
+
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = presenter.addDisableResizeHeight(model);
+        return presenter.addOfflineMessage(upgradedModel);
+    };
+
+    presenter.addDisableResizeHeight = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model['disableResizeHeight']) {
+            upgradedModel['disableResizeHeight'] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.addOfflineMessage = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model['offlineMessage']) {
+            upgradedModel['offlineMessage'] = "This video is not available offline. Please connect to the Internet to watch it.";
+        }
+
+        return upgradedModel;
     };
 
     presenter.validModel = function (model) {
@@ -453,7 +501,9 @@ function AddonEditableWindow_create() {
             videoFile: model['video'],
             title: model['title'] ? model['title'] : "",
             headerStyle: model['headerStyle'] ? model['headerStyle'] : "",
-            editingEnabled: ModelValidationUtils.validateBoolean(model["editingEnabled"])
+            editingEnabled: ModelValidationUtils.validateBoolean(model["editingEnabled"]),
+            disableResizeHeight: ModelValidationUtils.validateBoolean(model["disableResizeHeight"]),
+            offlineMessage: model["offlineMessage"]
         }
     };
 
@@ -526,9 +576,51 @@ function AddonEditableWindow_create() {
 
         var parsedContent = documentContent.getElementsByTagName("body")[0].innerHTML;
         tinymce.get(textareaId).getBody().innerHTML = parsedContent;
+
+        presenter.getStyles();
+
+
         presenter.linkAnchors();
 
         presenter.configuration.isTinyMceFilled = true;
+    };
+
+    presenter.getStyles = function() {
+        var indexUrl = presenter.configuration.model.indexFile;
+        $.get(indexUrl).then(
+            presenter.gettingIndexSuccess,
+            presenter.gettingIndexError
+        );
+    };
+
+    presenter.gettingIndexSuccess = function(html) {
+        var headContent = new DOMParser().parseFromString(html, 'text/html');
+        var styles = [];
+
+        presenter.configuration.model.fileList.forEach(function (entity) {
+            var node = headContent.getElementById(entity.id);
+
+            if (node !== null && node !== undefined && node.rel === 'stylesheet') {
+                   styles.push(entity.file);
+            }
+        });
+
+        presenter.addStyles(styles);
+    };
+
+    presenter.gettingIndexError = function() {
+        console.error("Couldn't load index of document");
+    };
+
+    presenter.addStyles = function(styles) {
+        var tinymceEditorHead = tinymce.get(presenter.configuration.textareaId).contentDocument.head;
+        styles.forEach(function(styleFile) {
+            var link = document.createElement("link");
+            link.href = styleFile;
+            link.type = 'text/css';
+            link.rel = 'stylesheet';
+            tinymceEditorHead.appendChild(link);
+        });
     };
 
     presenter.linkAnchors = function () {

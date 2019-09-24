@@ -243,7 +243,7 @@ function Addontext_identification_create() {
         viewContainer = $(view);
         presenter.$view = $(view);
         presenter.currentPageId = presenter.$view.parent('.ic_page').attr('id');
-        var textSrc = model.Text;
+        var textSrc = model.Text ? model.Text : "";
         presenter.moduleID = model.ID;
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
@@ -261,7 +261,11 @@ function Addontext_identification_create() {
         presenter.setTabindex(container,presenter.configuration.isTabindexEnabled);
 
         var text = $('<div class="text-identification-content"></div>');
-        text.html(textSrc);
+        if (isPreview) {
+            text.html(window.TTSUtils.parsePreviewAltText(textSrc));
+        } else {
+            text.html(presenter.textParser.parse(textSrc));
+        }
         container.append(text);
 
         viewContainer.append(container);
@@ -288,6 +292,7 @@ function Addontext_identification_create() {
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = controller.getEventBus();
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
 
     presenter.applySelectionStyle = function (selected, selectedClass, unselectedClass) {
@@ -601,10 +606,7 @@ function Addontext_identification_create() {
     };
 
     presenter.readElement = function () {
-        var voiceObjects = [];
-
-        var text = presenter.$view.find('.text-identification-content').text().trim();
-        voiceObjects.push(getTextVoiceObject(text, presenter.langTag));
+        var voiceObjects = window.TTSUtils.getTextVoiceArrayFromElement(presenter.$view.find('.text-identification-content'), presenter.langTag);
 
         var selectedTextObject = getTextVoiceObject(presenter.selectedSpeechText);
 
