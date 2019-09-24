@@ -500,7 +500,7 @@ public class JavaScriptPlayerServices {
 		playerServices.sendExternalEvent = function(eventType, data) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendExternalEvent(Ljava/lang/String;Ljava/lang/String;)(eventType, data);
 		};
-
+		
 		playerServices.getScaleInformation = function() {
 			var scaleInfo = x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getScaleInformation()();
 			var jsScaleInfo = {
