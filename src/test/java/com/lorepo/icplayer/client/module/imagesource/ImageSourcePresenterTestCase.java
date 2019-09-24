@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.googlecode.gwt.test.GwtModule;
+import com.googlecode.gwt.test.GwtTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
@@ -26,7 +28,8 @@ import com.lorepo.icplayer.client.module.sourcelist.SourceListModule;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter;
 import com.lorepo.icplayer.client.module.sourcelist.mockup.SourceListViewMockup;
 
-public class ImageSourcePresenterTestCase {
+@GwtModule("com.lorepo.icplayer.Icplayer")
+public class ImageSourcePresenterTestCase extends GwtTest {
 
 	private ImageSourceModule module;
 	private PlayerServicesMockup services;

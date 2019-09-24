@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import com.googlecode.gwt.test.GwtModule;
+import com.googlecode.gwt.test.GwtTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +35,8 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.sourcelist.mockup.SourceListViewMockup;
 
-public class SourceListPresenterTestCase {
+@GwtModule("com.lorepo.icplayer.Icplayer")
+public class SourceListPresenterTestCase extends GwtTest {
 
 	private static final String PAGE_VERSION = "2";
 	private SourceListModule module;

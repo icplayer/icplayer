@@ -11,7 +11,7 @@ import static junit.framework.Assert.assertEquals;
 public class AltTextServiceTestCase {
 
     @Test
-    public void given_text_in_input_when_tokens_then_returns_parsed_tokens() {
+    public void givenTextInInputWhenTokensThenReturnsParsedTokens() {
         String input = "lorem ipsum sed vinictus";
         int expectedTokenListSize = 1;
 
@@ -23,7 +23,7 @@ public class AltTextServiceTestCase {
     }
 
     @Test
-    public void given_text_and_alt_text_in_input_when_tokens_then_returns_parsed_tokens() {
+    public void givenTextAndAltTextInInputWhenTokensThenReturnsParsedTokens() {
         String input = "additionalText \\alt{visibleText|readableText} additionalText";
         int expectedTokenListSize = 3;
 
@@ -39,7 +39,7 @@ public class AltTextServiceTestCase {
     }
 
     @Test
-    public void given_alt_text_in_input_when_tokens_then_returns_parsed_tokens() {
+    public void givenAltTextInInputWhenTokensThenReturnsParsedTokens() {
         String input = "\\alt{visibleText|readableText}";
         int expectedTokenListSize = 1;
 
@@ -51,7 +51,7 @@ public class AltTextServiceTestCase {
     }
 
     @Test
-    public void given_only_alt_text_in_input_when_getting_visible_texts_then_returns_only_first_part_of_expression() {
+    public void givenOnlyAltTextInInputWhenGettingVisibleTextsThenReturnsOnlyFirstPartOfExpression() {
         String input = "\\alt{visibleText|readableText}";
         String expectedResult = "visibleText";
 
@@ -60,7 +60,7 @@ public class AltTextServiceTestCase {
     }
 
     @Test
-    public void given_text_with_alt_text_in_input_when_getting_visible_texts_then_returns_only_visible_text() {
+    public void givenTextWithAltTextInInputWhenGettingVisibleTextsThenReturnsOnlyVisibleText() {
         String input = "some text \\alt{visibleText|readableText} and more text";
         String expectedResult = "some text visibleText and more text";
 
@@ -69,7 +69,7 @@ public class AltTextServiceTestCase {
     }
 
     @Test
-    public void given_text_with_alt_text_and_lang_in_input_when_getting_visible_texts_then_returns_only_visible_text() {
+    public void givenTextWithAltTextAndLangInInputWhenGettingVisibleTextsThenReturnsOnlyVisibleText() {
         String input = "some text \\alt{visibleText|readableText}[lang lang] and more text";
         String expectedResult = "some text visibleText and more text";
 

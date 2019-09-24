@@ -416,11 +416,13 @@ public class GWTTextParserTestCase extends GwtTest{
 		NodeList<Element> options = el.getElementsByTagName("option");
 		
 		assertTrue(options.getLength()==4);
-		
+		System.out.println(el.toString());
+
+
 		Element child = options.getItem(2);
-		assertTrue(child.getChildCount()==1);
-		assertTrue(child.getAttribute("value").equals("\\alt{hello|world}[lang langTag]"));
-		assertTrue(child.getAttribute("aria-label").equals("world"));
+		assertEquals(1, child.getChildCount());
+		assertEquals("\\alt{hello|world}[lang langTag]", child.getAttribute("value"));
+		assertEquals("world", child.getAttribute("aria-label"));
 		
 		child = (Element) child.getChild(0);
 		assertTrue(checkCorrectAltTextElement(child,"hello","world","langTag"));

@@ -45,6 +45,7 @@ public class AlternativeTextService {
     }
 
     public static String getAltTextAsHtml(String source) {
+        source = escapeAltTextInTag(source);
         List<IToken> tokens = parseAltText(source);
         StringBuilder builder = new StringBuilder();
 
@@ -62,15 +63,17 @@ public class AlternativeTextService {
                     code
                 );
             } else {
-                // it doesn't matter which text we will get as they are the same
+                // it doesn't matter which text we will get as they are the same, if it is not alt token
                 builder.append(token.getReadableText());
             }
         }
 
-        return builder.toString();
+        String output = builder.toString();
+        return unescapeAltTextInTag(output);
     }
 
     public static List<IToken> parseAltText(String srcText) {
+        srcText = escapeAltTextInTag(srcText);
         final String pattern = "\\\\alt\\{";
         String input = srcText;
         int index = -1;
@@ -194,5 +197,27 @@ public class AlternativeTextService {
         }
 
         return -1;
+    }
+
+    private static String escapeAltTextInTag(String srcText){
+        String parsedText = srcText;
+        String oldParsedText = "";
+        String pattern = "<([^>]*?)\\\\alt\\{([^<]*?)>";
+        while(!oldParsedText.equals(parsedText)){ //it is possible that there will be multiple alt texts inside one tag, all must be escaped
+            oldParsedText = parsedText;
+            parsedText =  parsedText.replaceAll(pattern, "<$1\\\\altEscaped\\{$2>");
+        }
+        return parsedText;
+    }
+
+    private static String unescapeAltTextInTag(String srcText){
+        String pattern = "<([^>]*?)\\\\altEscaped\\{([^<]*?)>";
+        String parsedText = srcText;
+        String oldParsedText = "";
+        while(!oldParsedText.equals(parsedText)){ //it is possible that there will be multiple alt texts inside one tag, all must be unescaped
+            oldParsedText = parsedText;
+            parsedText =  parsedText.replaceAll(pattern, "<$1\\\\alt\\{$2>");
+        }
+        return parsedText;
     }
 }
