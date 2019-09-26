@@ -290,7 +290,7 @@ function AddonImage_Viewer_Public_create() {
 
             } else {
                 var isReverseOrder = presenter.configuration.currentFrame === 0;
-                presenter.changeFrame(false, isReverseOrder, false);
+                presenter.changeFrame(false, isReverseOrder, false, false);
             }
         }
 
@@ -455,7 +455,7 @@ function AddonImage_Viewer_Public_create() {
             presenter.configuration.backgroundImageWidth = $(this).width();
 
             $(this).remove();
-            presenter.changeFrame(true, false, false);
+            presenter.changeFrame(true, false, false, false);
 
             if (shouldShowWatermark()) {
                 var watermarkOptions = {
@@ -609,7 +609,7 @@ function AddonImage_Viewer_Public_create() {
             $(watermarkElement).remove();
         }
         presenter.setVisibility(configuration.currentVisibility);
-        presenter.changeFrame(presenter.changeFrameData.isPreview, presenter.changeFrameData.isReverseOrder, presenter.changeFrameData.triggerEvent);
+        presenter.changeFrame(presenter.changeFrameData.isPreview, presenter.changeFrameData.isReverseOrder, presenter.changeFrameData.triggerEvent, false);
     }
 
     function presenterLogic(view, model, isPreview) {
@@ -721,7 +721,7 @@ function AddonImage_Viewer_Public_create() {
 
         presenter.configuration.shouldCalcScore = true;
         presenter.configuration.currentFrame = currentFrame === framesCount - 1 ? 0 : currentFrame + 1;
-        presenter.changeFrame(false, false, true);
+        presenter.changeFrame(false, false, true, true);
     };
 
     presenter.previous = function() {
@@ -734,7 +734,7 @@ function AddonImage_Viewer_Public_create() {
 
         presenter.configuration.shouldCalcScore = true;
         presenter.configuration.currentFrame = currentFrame === 0 ? framesCount - 1 : currentFrame - 1;
-        presenter.changeFrame(false, true, true);
+        presenter.changeFrame(false, true, true, true);
     };
 
     presenter.isValidFrameNumber = function(frame, framesCount) {
@@ -806,7 +806,7 @@ function AddonImage_Viewer_Public_create() {
             var currentFrame = presenter.configuration.currentFrame;
             var isReverseOrder = currentFrame > frameNumber - 1;
             presenter.configuration.currentFrame = frameNumber - 1;
-            presenter.changeFrame(false, isReverseOrder, true);
+            presenter.changeFrame(false, isReverseOrder, true, true);
         }
     };
 
@@ -1413,10 +1413,12 @@ function AddonImage_Viewer_Public_create() {
             presenter.triggerFrameChangeEvent(presenter.configuration.currentFrame + 1);
         }
     };
-    presenter.changeFrame = function(isPreview, isReverseOrder, triggerEvent) {
+    presenter.changeFrame = function(isPreview, isReverseOrder, triggerEvent, readFrame) {
         presenter.changeBackgroundPosition(isPreview, presenter.$element, isReverseOrder);
         presenter.changeFrameLogic(isPreview, triggerEvent);
-        presenter.readFrame(presenter.configuration.currentFrame);
+        if (readFrame) {
+            presenter.readFrame(presenter.configuration.currentFrame);
+        }
     };
 
     presenter.stopAllAudio = function () {
@@ -1525,7 +1527,7 @@ function AddonImage_Viewer_Public_create() {
         if (presenter.configuration.isDoNotReset) return;
 
         presenter.setCurrentFrame();
-        presenter.changeFrame(false, false, false);
+        presenter.changeFrame(false, false, false, false);
 
         if (shouldShowWatermark()) {
             showWatermarkIfNotVisible();
