@@ -1089,7 +1089,9 @@ function AddonColoring_create(){
 
         var areasToFill = presenter.getAreasToFillFromSetState(upgradedState);
 
-        presenter.restoreColoringAtState(areasToFill, upgradedState)
+        if (upgradedState.colorsThatCanBeFilled) {
+            presenter.restoreColoringAtState(areasToFill, upgradedState)
+        }
     };
 
     presenter.restoreColoringAtState = function (filledAreasArray, state) {
