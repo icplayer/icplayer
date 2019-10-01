@@ -31,6 +31,7 @@ function AddonTable_create() {
     presenter.gapNavigation = false;
     presenter.addonKeyboardNavigationActive = false;
     presenter.gapIndex = 0;
+    presenter.isActivityAttempted = false;
 
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
@@ -153,6 +154,7 @@ function AddonTable_create() {
         delete presenter.enableAllGaps;
         delete presenter.disableGapCommand;
         delete presenter.disableAllGaps;
+        delete presenter.isAttempted;
     }
 
     function replaceInputsInPreview () {
@@ -323,8 +325,9 @@ function AddonTable_create() {
         }
 
         return JSON.stringify({
-            isVisible: presenter.configuration.isVisible,
             gaps: gaps,
+            isAttempted: presenter.isActivityAttempted,
+            isVisible: presenter.configuration.isVisible,
             spans: spans
         });
     };
@@ -334,18 +337,20 @@ function AddonTable_create() {
 
         presenter.setVisibility(state.isVisible);
         presenter.configuration.isVisible = state.isVisible;
+        presenter.isActivityAttempted = state.isAttempted === undefined ? false : state.isAttempted;
 
-        if(presenter.configuration.gapType == 'math'){
-            var checkSelector = setInterval(function () {
-                if ($(presenter.$view).find('.mathGap').length == presenter.gapsAnswers.length) {
-                    try{
-                    presenter.gapsContainer.setGapsState(state.gaps);
-                    presenter.gapsContainer.setSpansState(state.spans);
-                    clearInterval(checkSelector);
-                    }catch(e){}
-                }
-            }, 100);
-        }else{
+        if (presenter.configuration.gapType === 'math') {
+            var checkSelector = setInterval(
+                function () {
+                    if ($(presenter.$view).find('.mathGap').length === presenter.gapsAnswers.length) {
+                        try{
+                            presenter.gapsContainer.setGapsState(state.gaps);
+                            presenter.gapsContainer.setSpansState(state.spans);
+                            clearInterval(checkSelector);
+                        } catch (e) { }
+                    }
+                }, 100);
+        } else {
             presenter.gapsContainer.setGapsState(state.gaps);
             presenter.gapsContainer.setSpansState(state.spans);
         }
@@ -866,20 +871,25 @@ function AddonTable_create() {
 
     presenter.executeCommand = function (name, params) {
         var commands = {
-            'show': presenter.show,
-            'hide': presenter.hide,
+            'disableAllGaps': presenter.disableAllGaps,
+            'disableGap': presenter.disableGapCommand,
+            'enableAllGaps': presenter.enableAllGaps,
+            'enableGap': presenter.enableGapCommand,
             'getGapText': presenter.getGapTextCommand,
             'getGapValue': presenter.getGapTextCommand,
-            'markGapAsEmpty': presenter.markGapAsEmptyCommand,
+            'getView': presenter.getView,
+            'hide': presenter.hide,
+            'isAllOK': presenter.isAllOK,
+            'isAttempted': presenter.isAttempted,
             'markGapAsCorrect': presenter.markGapAsCorrectCommand,
+            'markGapAsEmpty': presenter.markGapAsEmptyCommand,
             'markGapAsWrong': presenter.markGapAsWrongCommand,
-            'enableGap': presenter.enableGapCommand,
-            'enableAllGaps': presenter.enableAllGaps,
-            'disableGap': presenter.disableGapCommand,
-            'disableAllGaps': presenter.disableAllGaps,
-            'getView' : presenter.getView,
-            'isAllOK' : presenter.isAllOK
+            'show': presenter.show
         };
+
+        if (commands.hasOwnProperty(name)) {
+            presenter.isActivityAttempted = true;
+        }
 
         return Commands.dispatch(commands, name, params, presenter);
     };
@@ -1236,7 +1246,7 @@ function AddonTable_create() {
         return {
             value: this.getValue(),
             item: this.getSource(),
-            droppedElement: this.getDroppedElement()
+            droppedElement: this.getDroppedElement(),
         };
     };
 
@@ -1671,6 +1681,8 @@ function AddonTable_create() {
     presenter.ValueChangeObserver.prototype.notify = function (data) {
         presenter.eventBus.sendEvent('ValueChanged', this.getEventData(data));
 
+        presenter.isActivityAttempted = true;
+
         if (presenter.isAllOK()) presenter.sendAllOKEvent();
     };
 
@@ -2033,6 +2045,14 @@ function AddonTable_create() {
             }
             presenter.speak(data);
         }
+    };
+
+    /**
+    * @method isAttempted has user interacted with addon
+    * @return boolean
+    */
+    presenter.isAttempted = function AddonTable_isAttempted () {
+        return presenter.isActivityAttempted;
     };
 
     return presenter;
