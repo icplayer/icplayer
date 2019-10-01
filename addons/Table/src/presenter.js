@@ -304,6 +304,7 @@ function AddonTable_create() {
         presenter.gapsContainer.reset();
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.isSetShowErrorsMode = false;
+        presenter.isActivityAttempted = false;
     };
 
     presenter.getState = function () {
@@ -2048,7 +2049,7 @@ function AddonTable_create() {
     };
 
     /**
-    * @method isAttempted has user interacted with addon
+    * @method isAttempted method returning if user has interacted with addon
     * @return boolean
     */
     presenter.isAttempted = function AddonTable_isAttempted () {
