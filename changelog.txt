@@ -1,3 +1,4 @@
+2019-10-02 Add destroy lifecycle management for modules. Use destroy in IWB addon. Fix problem with DropDown gap and disable. Remove hideAnswers from getState in Text module.
 2019-09-05 Fix ImageViewerPublic model upgrade.
 2019-09-23 Added TTS support to Image Viewer
 2019-09-17 Added a new text property for controlling how gap size attribute is calculated
