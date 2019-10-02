@@ -613,11 +613,13 @@ function AddonImage_Viewer_Public_create() {
     }
 
     function presenterLogic(view, model, isPreview) {
+        var upgradedModel = presenter.upgradeModel(model);
+
         presenter.imageLoadedDeferred = new jQuery.Deferred();
         presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
-        presenter.addonId = model.ID;
+        presenter.addonId = upgradedModel.ID;
         presenter.$view = $(view);
-        presenter.model = model;
+        presenter.model = upgradedModel;
         presenter.isPreview = isPreview;
         presenter.$element = $(presenter.$view.find('.image-viewer:first')[0]);
         presenter.$elementHelper = $(presenter.$view.find('.image-viewer-helper:first')[0]);
@@ -629,7 +631,7 @@ function AddonImage_Viewer_Public_create() {
             if (loadingSrc) $(loadingScreen.element).attr('src', loadingSrc);
         }
 
-        var configuration = presenter.validateModel(model);
+        var configuration = presenter.validateModel(upgradedModel);
         if (configuration.isError) {
             showErrorMessage(view, configuration.errorCode);
         } else {
@@ -653,7 +655,7 @@ function AddonImage_Viewer_Public_create() {
             }
 
             setContainerDimensions(view);
-            prepareLoadingScreen(model.Width, model.Height);
+            prepareLoadingScreen(upgradedModel.Width, upgradedModel.Height);
             presenter.adjustFrameCounter();
             loadLabels();
 
@@ -910,8 +912,7 @@ function AddonImage_Viewer_Public_create() {
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
-        this.upgradedModel = this.upgradeModel(model);
-        presenterLogic(view, this.upgradedModel, false);
+        presenterLogic(view, model, false);
 
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
