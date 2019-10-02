@@ -76,23 +76,6 @@ public class ImageSourcePresenterTestCase extends GwtTest {
 		display.click();
 		assertFalse(display.isSelected());
 	}
-	
-	
-
-	@Test
-	public void selectOnlyOne() {
-		
-		SourceListModule model2 = new SourceListModule();
-		SourceListViewMockup display2 = new SourceListViewMockup(model2);
-		SourceListPresenter presenter2 = new SourceListPresenter(model2, services);
-		presenter2.addView(display2);
-		
-		display.click();
-		assertTrue(display.isSelected());
-
-		display2.click("2");
-		assertFalse(display.isSelected());
-	}
 
 	@Test
 	public void checkEvents() {

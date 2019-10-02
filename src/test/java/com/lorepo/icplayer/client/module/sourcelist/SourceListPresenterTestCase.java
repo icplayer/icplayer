@@ -1,39 +1,25 @@
 package com.lorepo.icplayer.client.module.sourcelist;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import com.google.gwt.xml.client.Element;
+import com.googlecode.gwt.test.GwtModule;
+import com.googlecode.gwt.test.GwtTest;
+import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
+import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.module.api.event.CustomEvent;
+import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
+import com.lorepo.icplayer.client.module.api.event.dnd.*;
+import com.lorepo.icplayer.client.module.sourcelist.mockup.SourceListViewMockup;
+import org.junit.Before;
+import org.junit.Test;
+import org.powermock.reflect.Whitebox;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
-import com.googlecode.gwt.test.GwtModule;
-import com.googlecode.gwt.test.GwtTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-import org.xml.sax.SAXException;
-
-import com.google.gwt.xml.client.Element;
-import com.lorepo.icf.utils.XMLUtils;
-import com.lorepo.icf.utils.i18n.DictionaryWrapper;
-import com.lorepo.icplayer.client.mockup.services.PlayerServicesMockup;
-import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
-import com.lorepo.icplayer.client.module.api.event.CustomEvent;
-import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
-import com.lorepo.icplayer.client.module.sourcelist.mockup.SourceListViewMockup;
+import static org.junit.Assert.*;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
 public class SourceListPresenterTestCase extends GwtTest {
@@ -71,7 +57,7 @@ public class SourceListPresenterTestCase extends GwtTest {
 		display.click("sl1-3");
 		assertEquals("sl1-3", display.getSelectedId());
 	}
-	
+
 	@Test
 	public void selectOnlyOne() {
 		
@@ -86,12 +72,15 @@ public class SourceListPresenterTestCase extends GwtTest {
 		SourceListViewMockup display2 = new SourceListViewMockup(model2);
 		SourceListPresenter presenter2 = new SourceListPresenter(model2, services);
 		presenter2.addView(display2);
-		
-		display1.click("3");
-		display2.click("2");
+
+		String item1Id = model1.getId() + "-3";
+		String item2Id = model2.getId() + "-2";
+
+		display1.click(item1Id);
+		display2.click(item2Id);
 		
 //		assertNull(display1.getSelectedId());
-		assertEquals("2", display2.getSelectedId());
+		assertEquals(item2Id, display2.getSelectedId());
 	}
 	
 	@Test

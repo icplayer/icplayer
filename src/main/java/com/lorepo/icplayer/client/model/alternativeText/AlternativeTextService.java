@@ -16,6 +16,10 @@ import java.util.Map;
 public class AlternativeTextService {
     public static String getVisibleText(String source) {
         List<IToken> tokens = parseAltText(source);
+        return getVisibleText(tokens);
+    }
+
+    public static String getVisibleText(List<IToken> tokens) {
         StringBuilder builder = new StringBuilder();
 
         for (IToken token : tokens) {
@@ -27,6 +31,20 @@ public class AlternativeTextService {
 
     public static List<TextToSpeechVoice> getReadableText(String source) {
         List<IToken> tokens = parseAltText(source);
+        return getReadableText(tokens);
+    }
+
+    public static String getReadableTextAsString(List<IToken> tokens) {
+        StringBuilder builder = new StringBuilder();
+
+        for (IToken token : tokens) {
+            builder.append(token.getReadableText());
+        }
+
+        return builder.toString();
+    }
+
+    public static List<TextToSpeechVoice> getReadableText(List<IToken> tokens) {
         List<TextToSpeechVoice> textToSpeechVoices = new ArrayList<TextToSpeechVoice>();
 
         for (IToken token : tokens) {
