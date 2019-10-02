@@ -2855,16 +2855,13 @@ function AddonIWB_Toolbar_create() {
         }
 
         presenter._view = view;
-        view.addEventListener('DOMNodeRemoved', presenter.destroy);
 
         presenter.updateZoomConfiguration();
     };
 
-    presenter.destroy = function (event) {
-        if (event.target !== presenter._view) {
-            return;
-        }
-        
+    presenter.onDestroy = function () {
+        clearCanvases();
+
         presenter.points = [];
         presenter.points = null;
         presenter.mouse = null;
@@ -3077,7 +3074,6 @@ function AddonIWB_Toolbar_create() {
          * setBasicConfiguration
          * *******************************************************************
          */
-        presenter._view.removeEventListener('DOMNodeRemoved', presenter.destroy);
         presenter.$removeConfirmationBox.off();
         presenter.$removeConfirmationBoxClock.off();
         presenter.$removeConfirmationBoxStopwatch.off();
@@ -3483,7 +3479,6 @@ function AddonIWB_Toolbar_create() {
                'marker' : (presenter.markerUsed && presenter.markerCanvas) ? presenter.markerDataUrl : null
            };
 
-        clearCanvases();
 
         var stateColor;
         var stateThickness;
@@ -3809,3 +3804,7 @@ function AddonIWB_Toolbar_create() {
 
     return presenter;
 }
+
+AddonIWB_Toolbar_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};

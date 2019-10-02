@@ -58,7 +58,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private IDisplay view;
 	private IAddonDescriptor addonDescriptor;
 	private static Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "limited_show_answers", "text_identification", "image_identification", "limited_submit"));
-	private int interfaceVersion = 1;
+	private InterfaceVersion interfaceVersion = InterfaceVersion.DEFAULT;
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 		this.model = model;
@@ -238,7 +238,11 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 	
 	public void run() {
-		jsObject = initJavaScript("Addon" + model.getAddonId() + "_create");
+		this.setListenerOnRelease();
+		String addonName = "Addon" + model.getAddonId() + "_create";
+
+		this.interfaceVersion = InterfaceVersion.fromValue(this.getSupportedVersion(addonName));
+		jsObject = initJavaScript(addonName);
 
 		if(jsObject != null){
 			setProperTabindexValue(model);
@@ -247,6 +251,33 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			run(jsObject, view.getElement(), jsModel, model.getAddonId());
 		}
 	}
+	
+	public void setListenerOnRelease () {
+		this.model.setReleaseAction(new AddonModel.OnAddonReleaseAction() {
+			@Override
+			public void onRelease() {
+				destroy();
+			}
+		});
+	}
+	
+	public void destroy() {
+		if (this.interfaceVersion.version >= InterfaceVersion.DESTROY_LIFE_CYCLE.version) {
+			this.destroyAddon(jsObject, addonDescriptor.getAddonId());
+		}
+		
+	}
+	
+	private native void destroyAddon(JavaScriptObject obj, String addonId) /*-{
+		try {
+			if(obj.onDestroy) {
+			    obj.onDestroy();	
+			}
+		} catch (err) {
+			alert("[" + addonId + "] Exception in getScore(): \n" + err + addonId);
+			console.error(err);
+		}
+	}-*/;
 
 	private JavaScriptObject createModel(IPropertyProvider provider) {
 
@@ -394,7 +425,6 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 
 	private native String getState(JavaScriptObject obj, String addonId) /*-{
-	
 		try{
 			if(obj.getState != undefined){
 				return obj.getState();
