@@ -58,6 +58,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private IDisplay view;
 	private IAddonDescriptor addonDescriptor;
 	private static Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "limited_show_answers", "text_identification", "image_identification", "limited_submit"));
+	private int interfaceVersion = 1;
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 		this.model = model;
@@ -342,6 +343,23 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		
 		return $wnd.window[name]();
 	}-*/; 
+	
+	private native int getSupportedVersion(String name) /*-{
+		var addonFunction = $wnd.window[name];
+		if (!addonFunction ) {
+			return 1;
+		}
+		
+		if (!addonFunction.__supported_player_options__) {
+			return 1;
+		}
+		
+		if (!addonFunction.__supported_player_options__.interfaceVersion) {
+			return 1;
+		}
+		
+		return addonFunction.__supported_player_options__.interfaceVersion;
+	}-*/;
 
 	
 	private native void setPlayerController(JavaScriptObject obj, JavaScriptObject controller ) /*-{
