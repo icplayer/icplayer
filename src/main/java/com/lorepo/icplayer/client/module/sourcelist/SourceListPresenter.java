@@ -62,8 +62,8 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private IPlayerServices playerServices;
 	private String selectedId;
 
-	private Set<String> items = new HashSet<String>();
-	private HashMap<String, ItemWrapper> itemsWrapper = new HashMap<String, ItemWrapper>();
+	private Set<String> items = new HashSet<String>(); // items currently in module
+	private HashMap<String, ItemWrapper> itemsWrapper = new HashMap<String, ItemWrapper>(); // all items definitions
 
 	private JavaScriptObject jsObject;
 	private boolean isVisible;
@@ -151,7 +151,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	protected void returnItem(DraggableItem item) {
 		returned = true;
 		if(model.isRemovable()) {
-			if(item.getId().startsWith(getItemPrefix())) {
+			if (item.getId().startsWith(getItemPrefix())) {
 				items.add(item.getId());
 				String visibleText = itemsWrapper.get(item.getId()).getVisibleText();
 				view.addItem(item.getId(), visibleText, true);
@@ -174,7 +174,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	}
 
 	protected void removeItem(String id) {
-		if(items.contains(id)){
+		if (items.contains(id)) {
 			view.removeItem(id);
 			items.remove(id);
 		}
@@ -253,7 +253,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	@Override
 	public void addView(IModuleView display) {
 		
-		if(display instanceof IDisplay){
+		if (display instanceof IDisplay) {
 			view = (IDisplay) display;
 			view.setPresenter(this);
 			view.addListener(new IViewListener() {
@@ -436,7 +436,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	}
 	
 	private boolean shouldRevert() {
-		return (selectedId == null) ? false : true;
+		return selectedId != null;
 	}
 	
 	private boolean isRemovable() {
@@ -448,7 +448,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		
 		IStringType param = null;
 		
-		if(commandName.compareTo("reset") == 0) {
+		if (commandName.compareTo("reset") == 0) {
 			reset();
 		} else if (commandName.compareTo("getitem") == 0) {
 			if (params.size() > 0 && params.get(0) instanceof IStringType) {
@@ -472,7 +472,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		return "[error]";
 	}
 	
-	private Element getView(){
+	private Element getView() {
 		return view.getElement();
 	}
 	
@@ -513,7 +513,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 	}
 	
-	private void show(){
+	private void show() {
 		isVisible = true;
 		if(view != null){
 			view.show();
@@ -521,7 +521,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	}
 	
 	
-	private void hide(){
+	private void hide() {
 		isVisible = false;
 		if(view != null){
 			view.hide();
@@ -566,19 +566,19 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 	@Override
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
-		if (eventName == "ShowAnswers") {
+		if (eventName.equals("ShowAnswers")) {
 			canDrag = false;
 			return;
-		} else if (eventName == "HideAnswers") {
+		} else if (eventName.equals("HideAnswers")) {
 			canDrag = true;
 			return;
 		}
 		
-		if (eventName.toLowerCase() == "limitedcheck") {
+		if (eventName.toLowerCase().equals("limitedcheck")) {
 			return;
 		}
 		
-		if (eventName != "itemDragged" && eventName != "itemStopped") {
+		if (!eventName.equals("itemDragged") && !eventName.equals("itemStopped")) {
 			return;
 		}
 		
@@ -587,12 +587,12 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		if (!gotItem.startsWith(getItemPrefix())) {
 			return;
 		}
-		if (eventName == "itemDragged") {
+		if (eventName.equals("itemDragged")) {
 			selectItem(gotItem);
 			if (model.isRemovable()) {
 				view.hideItem(gotItem);
 			}
-		} else if (eventName == "itemStopped") {
+		} else if (eventName.equals("itemStopped")) {
 			if (model.isRemovable() && returned) {
 				view.showItem(gotItem);
 			}
