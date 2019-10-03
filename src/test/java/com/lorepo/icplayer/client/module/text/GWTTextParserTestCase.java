@@ -416,8 +416,6 @@ public class GWTTextParserTestCase extends GwtTest{
 		NodeList<Element> options = el.getElementsByTagName("option");
 		
 		assertTrue(options.getLength()==4);
-		System.out.println(el.toString());
-
 
 		Element child = options.getItem(2);
 		assertEquals(1, child.getChildCount());

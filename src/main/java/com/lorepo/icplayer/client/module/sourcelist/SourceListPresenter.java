@@ -13,6 +13,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
+import com.lorepo.icplayer.client.model.alternativeText.IToken;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IActivity;
@@ -35,8 +36,6 @@ import com.lorepo.icplayer.client.module.choice.IOptionListener;
 
 public class SourceListPresenter implements IPresenter, IStateful, ICommandReceiver, IOptionListener, IActivity, IWCAGPresenter {
 
-	private final int stateVersion = 1;
-
 	public interface IDisplay extends IModuleView{
 		public void addItem(String id, String item, boolean callMathJax);
 		public void removeItem(String id);
@@ -56,13 +55,15 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		public void showItem(String id);
 		void connectDOMNodeRemovedEvent(String id);
 	}
-	
+
+	private final int stateVersion = 1;
+
 	private IDisplay view;
 	private SourceListModule model;
 	private IPlayerServices playerServices;
 	private String selectedId;
 
-	private Set<String> items = new HashSet<String>(); // items currently in module
+	private Set<String> items = new HashSet<String>(); // items currently in module, "view" state
 	private HashMap<String, ItemWrapper> itemsWrapper = new HashMap<String, ItemWrapper>(); // all items definitions
 
 	private JavaScriptObject jsObject;
@@ -70,12 +71,12 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private boolean canDrag = true;
 	private boolean returned = false;
 	private boolean isTest = false;
-	
+
 	public SourceListPresenter(SourceListModule model, IPlayerServices services){
 		this.playerServices = services;
 		this.model = model;
 		this.isVisible = model.isVisible();
-		
+
 		connectHandlers();
 		loadItems();
 	}
@@ -87,9 +88,9 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 
 	private void connectHandlers() {
-	
+
 		EventBus eventBus = playerServices.getEventBus();
-		
+
 		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
 			public void onShowErrors(ShowErrorsEvent event) {
 				setShowErrorsMode();
@@ -101,7 +102,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 				setWorkMode();
 			}
 		});
-		
+
 		eventBus.addHandler(ItemSelectedEvent.TYPE, new ItemSelectedEvent.Handler() {
 			public void onItemSelected(ItemSelectedEvent event) {
 				if(event.getSource() != SourceListPresenter.this){
@@ -109,32 +110,32 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 				}
 			}
 		});
-		
+
 		eventBus.addHandler(ItemConsumedEvent.TYPE, new ItemConsumedEvent.Handler() {
 			public void onItemConsumed(ItemConsumedEvent event) {
 				itemConsumed(event);
 			}
 		});
-		
+
 		eventBus.addHandler(ItemReturnedEvent.TYPE, new ItemReturnedEvent.Handler() {
 			public void onItemReturned(ItemReturnedEvent event) {
 				returnItem(event.getItem());
 			}
 		});
-		
+
 		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
 				onEventReceived(event.eventName, event.getData());
 			}
 		});
-		
+
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			public void onResetPage(ResetPageEvent event) {
 				reset();
 			}
 		});
-		
+
 	}
 
 	private void itemConsumed(ItemConsumedEvent event) {
@@ -147,7 +148,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	private String getItemPrefix() {
 		return model.getId() + "-";
 	}
-	
+
 	protected void returnItem(DraggableItem item) {
 		returned = true;
 		if(model.isRemovable()) {
@@ -164,7 +165,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		deselectCurrentItem(false);
 		addItemsToView(true);
 		canDrag = true;
-		
+
 		isVisible = this.model.isVisible();
 		if (isVisible) {
 			view.show();
@@ -185,8 +186,9 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			String id = getItemPrefix() + (i + 1);
 			String unparsedText = model.getItem(i);
 
-			String itemVisibleText = AlternativeTextService.getVisibleText(unparsedText);
-			List<TextToSpeechVoice> itemReadableText = AlternativeTextService.getReadableText(unparsedText);
+			List<IToken> tokens = AlternativeTextService.parseAltText(unparsedText);
+			String itemVisibleText = AlternativeTextService.getVisibleText(tokens);
+			List<TextToSpeechVoice> itemReadableText = AlternativeTextService.getReadableText(tokens);
 
 			itemsWrapper.put(id, new ItemWrapper(unparsedText, itemVisibleText, itemReadableText));
 		}
@@ -217,7 +219,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		}
 	}
 
-	
+
 	private void clickItem(String id) {
 		DraggableItem draggableItem = new DraggableText(null, null);
 		final String oldSelection = selectedId;
@@ -228,7 +230,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			view.selectItem(id);
 			draggableItem = new DraggableText(selectedId, itemsWrapper.get(id).getUnparsedText());
 		}
-		
+
 		ItemSelectedEvent event = new ItemSelectedEvent(draggableItem);
 		playerServices.getEventBus().fireEventFromSource(event, this);
 	}
@@ -241,8 +243,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		ItemSelectedEvent event = new ItemSelectedEvent(draggableItem);
 		playerServices.getEventBus().fireEventFromSource(event, this);
 	}
-	
-	
+
 	private void deselectCurrentItem (boolean read) {
 		if (selectedId != null) {
 			view.deselectItem(selectedId, read);
@@ -252,7 +253,6 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 	@Override
 	public void addView(IModuleView display) {
-		
 		if (display instanceof IDisplay) {
 			view = (IDisplay) display;
 			view.setPresenter(this);
@@ -263,7 +263,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 					}
 					clickItem(id);
 				}
-				
+
 				public void onItemDragged(String id) {
 					if (!canDrag) {
 						return;
@@ -289,10 +289,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	@Override
 	public String getState() {
 		HashMap<String, String> state = new HashMap<String, String>();
-		state.put("stateVersion", String.valueOf(this.stateVersion));
+		state.put("stateVersion", String.valueOf(stateVersion));
 		state.put("isVisible", Boolean.toString(isVisible));
 		state.put("items", JSONUtils.toJSONString(items));
-		
+
 		return JSONUtils.toJSONString(state);
 	}
 
@@ -311,6 +311,10 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			setStateV1(decodedState);
 		}
 
+		refreshViewState();
+	}
+
+	public void refreshViewState() {
 		refreshView();
 
 		if (isVisible) {
@@ -320,30 +324,6 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		}
 	}
 
-	private void setStateV1(HashMap<String, String> decodedState) {
-		// original model state contained only items as array, later isVisible was added, but no version, so this function in fact handles two state types
-		if (decodedState.containsKey("isVisible")) {
-			isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
-			HashMap<String, String> items = JSONUtils.decodeHashMap(decodedState.get("items"));
-			this.items.addAll(items.keySet());
-		} else {
-			isVisible = true;
-			this.items.addAll(decodedState.keySet());
-		}
-	}
-
-	private void setStateV2(HashMap<String, String> decodedState) {
-		isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
-		this.items = JSONUtils.decodeSet(decodedState.get("items"));
-	}
-
-	public List<TextToSpeechVoice> getTextToSpeechVoices(String id) {
-		if (itemsWrapper.containsKey(id)) {
-			return itemsWrapper.get(id).getReadableText();
-		}
-		return null;
-	}
-	
 	private void refreshView() {
 		Set<String> currentLabels = view.getCurrentLabels();
 
@@ -367,7 +347,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 		return jsObject;
 	}
-	
+
 	private void jsOnEventReceived (String eventName, String jsonData) {
 		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}
@@ -426,28 +406,28 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		
 		return presenter;
 	}-*/;
-	
+
 	private void setDragMode() {
 		view.setDragMode();
 	}
-	
+
 	private void unsetDragMode() {
 		view.unsetDragMode();
 	}
-	
+
 	private boolean shouldRevert() {
 		return selectedId != null;
 	}
-	
+
 	private boolean isRemovable() {
 		return model.isRemovable();
 	}
-	
+
 	@Override
 	public String executeCommand(String commandName, List<IType> params) {
-		
+
 		IStringType param = null;
-		
+
 		if (commandName.compareTo("reset") == 0) {
 			reset();
 		} else if (commandName.compareTo("getitem") == 0) {
@@ -460,26 +440,26 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		} else if (commandName.compareTo("hide") == 0){
 			hide();
 		}
-		
+
 		return "";
 	}
-	
+
 	private String getItem(int index) {
 		if(view != null && index > 0 && index <= model.getItemCount()){
 			return model.getItem(index - 1);
 		}
-		
+
 		return "[error]";
 	}
-	
+
 	private Element getView() {
 		return view.getElement();
 	}
-	
+
 	private Element getItemView(String id){
 		return view.getItem(id);
 	}
-	
+
 	private boolean isDragPossible() {
 		return canDrag;
 	}
@@ -512,15 +492,14 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	public void onValueChange(IOptionDisplay option, boolean selected) {
 
 	}
-	
+
 	private void show() {
 		isVisible = true;
 		if(view != null){
 			view.show();
 		}
 	}
-	
-	
+
 	private void hide() {
 		isVisible = false;
 		if(view != null){
@@ -550,7 +529,6 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	@Override
 	public void selectAsActive(String className) {
 		this.getView().addClassName(className);
-		
 	}
 
 	@Override
@@ -573,17 +551,17 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			canDrag = true;
 			return;
 		}
-		
+
 		if (eventName.toLowerCase().equals("limitedcheck")) {
 			return;
 		}
-		
+
 		if (!eventName.equals("itemDragged") && !eventName.equals("itemStopped")) {
 			return;
 		}
-		
+
 		String gotItem = data.get("item");
-		
+
 		if (!gotItem.startsWith(getItemPrefix())) {
 			return;
 		}
@@ -599,6 +577,31 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 			deselectCurrentItem(true);
 			ItemSelectedEvent removeSelectionEvent = new ItemSelectedEvent(new DraggableText(null, null));
 			playerServices.getEventBus().fireEventFromSource(removeSelectionEvent, this);
-		}		
+		}
+	}
+
+	public List<TextToSpeechVoice> getTextToSpeechVoices(String id) {
+		if (itemsWrapper.containsKey(id)) {
+			return itemsWrapper.get(id).getReadableText();
+		}
+		return null;
+	}
+
+	private void setStateV1(HashMap<String, String> decodedState) {
+		// original model state contained only items as array, later isVisible was added, but no version, so this function in fact handles two state types
+		if (decodedState.containsKey("isVisible")) {
+			isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
+			HashMap<String, String> items = JSONUtils.decodeHashMap(decodedState.get("items"));
+
+			this.items.retainAll(items.keySet());
+		} else {
+			isVisible = true;
+			this.items.retainAll(decodedState.keySet());
+		}
+	}
+
+	private void setStateV2(HashMap<String, String> decodedState) {
+		isVisible = Boolean.parseBoolean(decodedState.get("isVisible"));
+		this.items = JSONUtils.decodeSet(decodedState.get("items"));
 	}
 }

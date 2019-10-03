@@ -1,7 +1,5 @@
 package com.lorepo.icplayer.client.model.alternativeText;
 
-
-
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.lorepo.icf.utils.StringUtils;

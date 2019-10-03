@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.sourcelist.mockup;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.google.gwt.dom.client.Element;
@@ -95,8 +96,7 @@ public class SourceListViewMockup implements IDisplay {
 
 	@Override
 	public Set<String> getCurrentLabels() {
-		// TODO Auto-generated method stub
-		return null;
+		return new HashSet<String>(items.keySet());
 	}
 
 	@Override

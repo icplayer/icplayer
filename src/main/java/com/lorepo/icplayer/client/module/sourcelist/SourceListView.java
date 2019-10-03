@@ -474,10 +474,10 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	private void speakOption (int index) {
 		if (index >= 0 && index < labelsIds.size()) {
 			String labelId = labelsIds.get(index);
-			final Label label = labels.get(labelId);
+			final Element labelElement = labels.get(labelId).getElement();
 			List<TextToSpeechVoice> option = presenter.getTextToSpeechVoices(labelId);
 			
-			if (ElementHTMLUtils.hasClass(label.getElement(), SELECTED_STYLE)) {
+			if (ElementHTMLUtils.hasClass(labelElement, SELECTED_STYLE)) {
 				List<TextToSpeechVoice> optionAndSelectedTexts = new ArrayList<TextToSpeechVoice>(option);
 				optionAndSelectedTexts.add( TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""));
 				this.speak(optionAndSelectedTexts);

@@ -78,8 +78,7 @@ public class SourceListPresenterTestCase extends GwtTest {
 
 		display1.click(item1Id);
 		display2.click(item2Id);
-		
-//		assertNull(display1.getSelectedId());
+
 		assertEquals(item2Id, display2.getSelectedId());
 	}
 	
@@ -87,7 +86,7 @@ public class SourceListPresenterTestCase extends GwtTest {
 	public void deselectOnSecondClick() {
 		display.click("sl1-3");
 		assertEquals("sl1-3", display.getSelectedId());
-		
+
 //		display.click("sl1-3");
 //		assertNull(display.getSelectedId());
 	}

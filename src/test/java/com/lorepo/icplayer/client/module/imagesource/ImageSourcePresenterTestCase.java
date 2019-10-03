@@ -24,12 +24,8 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.imagesource.mockup.ImageSourceViewMockup;
-import com.lorepo.icplayer.client.module.sourcelist.SourceListModule;
-import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter;
-import com.lorepo.icplayer.client.module.sourcelist.mockup.SourceListViewMockup;
 
-@GwtModule("com.lorepo.icplayer.Icplayer")
-public class ImageSourcePresenterTestCase extends GwtTest {
+public class ImageSourcePresenterTestCase {
 
 	private ImageSourceModule module;
 	private PlayerServicesMockup services;

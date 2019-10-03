@@ -555,7 +555,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void space(KeyDownEvent event) {
-		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
+		if((!moduleHasFocus || activeGap.getGapType().equals("draggable"))){
 			event.preventDefault(); 
 		}
 				
@@ -569,14 +569,19 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			}
 			String oldTextValue = activeGap.getTextValue();
 			this.listener.onGapClicked(activeGap.getId());
-			if (isWCAGon && activeGap.getDroppedElement()!=null) {
-				String elementText = getDroppedElementText(activeGap.getDroppedElement());
-				if (elementText.length()>0) {
+
+			if (isWCAGon && activeGap.getDroppedElement() != null) {
+				String elementText = activeGap.getWCAGTextValue();
+				boolean currentElementEmpty = elementText.isEmpty();
+				boolean hadValue = oldTextValue.length() > 0;
+				boolean currentValueEmpty = activeGap.getTextValue().isEmpty();
+
+				if (!currentElementEmpty) {
 					List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-					textVoices.add(TextToSpeechVoice.create(elementText,this.getLang()));
+					textVoices.add(TextToSpeechVoice.create(elementText, this.getLang()));
 					textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.INSERT_INDEX)));
 					this.speak(textVoices);
-				} else if (oldTextValue.length()>0 && activeGap.getTextValue().length()==0) {
+				} else if (hadValue && currentValueEmpty) {
 					List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 					textVoices.add(TextToSpeechVoice.create(oldTextValue,this.getLang()));
 					textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.REMOVED_INDEX)));
