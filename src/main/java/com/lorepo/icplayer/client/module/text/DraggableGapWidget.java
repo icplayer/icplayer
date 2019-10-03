@@ -263,6 +263,12 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	
 	private void setDisabledInternally(boolean value) {
 		this._disabled = value;
+		
+		if (disabled) {
+			addStyleDependentName("disabled");
+		} else{
+			removeStyleDependentName("disabled");
+		}
 	}
 	
 
