@@ -31,7 +31,6 @@ function AddonTable_create() {
     presenter.gapNavigation = false;
     presenter.addonKeyboardNavigationActive = false;
     presenter.gapIndex = 0;
-    presenter.isActivityAttempted = false;
 
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
@@ -304,7 +303,7 @@ function AddonTable_create() {
         presenter.gapsContainer.reset();
         presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.isSetShowErrorsMode = false;
-        presenter.isActivityAttempted = false;
+        presenter.attemptedGaps = [];
     };
 
     presenter.getState = function () {
@@ -327,7 +326,6 @@ function AddonTable_create() {
 
         return JSON.stringify({
             gaps: gaps,
-            isAttempted: presenter.isActivityAttempted,
             isVisible: presenter.configuration.isVisible,
             spans: spans
         });
@@ -338,7 +336,7 @@ function AddonTable_create() {
 
         presenter.setVisibility(state.isVisible);
         presenter.configuration.isVisible = state.isVisible;
-        presenter.isActivityAttempted = state.isAttempted === undefined ? false : state.isAttempted;
+        presenter.attemptedGaps = state.attemptedGaps === undefined ? presenter.attemptedGaps : state.attemptedGaps;
 
         if (presenter.configuration.gapType === 'math') {
             var checkSelector = setInterval(
@@ -1040,6 +1038,7 @@ function AddonTable_create() {
         this.mathShowAnswersValue = "";
         this.mathCSSClass = "math-answer";
         this.valueChangeObserver = new presenter.ValueChangeObserver();
+        this.isAttempted = false;
     };
 
     presenter.GapUtils.prototype = Object.create(DraggableDroppableObject.prototype);
@@ -1212,6 +1211,10 @@ function AddonTable_create() {
         this.valueChangeObserver.notify(this.getValueChangeEventData());
     };
 
+    /**
+     *
+     * @returns {{objectID: (string|*), isCorrect: boolean, value: string}}
+     */
     presenter.GapUtils.prototype.getValueChangeEventData = function () {
         return {
             objectID: this.getObjectID(),
@@ -1248,10 +1251,17 @@ function AddonTable_create() {
             value: this.getValue(),
             item: this.getSource(),
             droppedElement: this.getDroppedElement(),
+            isAttempted: this.isAttempted
         };
     };
 
-    presenter.GapUtils.prototype.setState = function (value, source, isEnabled, droppedElement) {
+    presenter.GapUtils.prototype.setState = function (configuration) {
+        var value = configuration.value;
+        var source = configuration.source;
+        var isEnabled = configuration.isEnabled;
+        var droppedElement = configuration.droppable;
+        this.isAttempted = configuration.isAttempted === undefined ? false : configuration.isAttempted;
+
         if (presenter.configuration.gapType === "draggable") {
             DraggableDroppableObject.prototype.setState.call(this, value, source, droppedElement);
         } else {
@@ -1276,6 +1286,11 @@ function AddonTable_create() {
 
         this.removeAllClasses();
         this.removeCssClass("gapFilled");
+        this.isAttempted = false;
+    };
+
+    presenter.GapUtils.prototype.setAttempted = function (value) {
+        this.isAttempted = value;
     };
 
 
@@ -1653,7 +1668,14 @@ function AddonTable_create() {
 
     presenter.GapsContainerObject.prototype.setGapsState = function (state) {
         state.map(function (stateData, index) {
-            this.gaps[index].setState(stateData.value, "", stateData.isEnabled);
+            var configuration = {
+                value: stateData.value,
+                source: "",
+                isEnabled: stateData.isEnabled,
+                droppedElement: undefined
+            };
+
+            this.gaps[index].setState(configuration);
             this.gaps[index].$view.trigger('change');
         }, this);
     };
@@ -1661,7 +1683,14 @@ function AddonTable_create() {
     presenter.GapsContainerObject.prototype.setSpansState = function (state, undefinedAttr) {
         if ((state !== undefinedAttr) && (state !== null)) {
             state.map(function (stateData, index) {
-                this.gaps[index].setState(stateData.value, stateData.item, undefined, stateData.droppedElement);
+                var configuration = {
+                    value: stateData.value,
+                    source: stateData.item,
+                    isEnabled: undefined,
+                    droppedElement: stateData.droppedElement
+                };
+
+                this.gaps[index].setState(configuration);
 
                 if (stateData.value == "") {
                     this.gaps[index].destroyDraggableProperty();
@@ -1677,12 +1706,34 @@ function AddonTable_create() {
         this.gaps[index].setMathShowAnswersValue(value);
     };
 
+    presenter.GapsContainerObject.prototype.isGapAttempted = function (index) {
+        return this.gaps[index].isAttempted;
+    };
+
+    presenter.GapsContainerObject.prototype.isAnyGapAttempted = function () {
+        return this.gaps.some(function (gap) {
+            return gap.isAttempted;
+        });
+    };
+
+    presenter.GapsContainerObject.prototype.setIsAttemptedByGapId = function(objectID, value) {
+        for (var index = 0; index < this.gaps.length; index++) {
+            if (this.gaps[index].getObjectID() === objectID) {
+                this.gaps[index].setAttempted(value);
+                break;
+            }
+        }
+    };
+
+
     presenter.ValueChangeObserver = function () {};
 
     presenter.ValueChangeObserver.prototype.notify = function (data) {
         presenter.eventBus.sendEvent('ValueChanged', this.getEventData(data));
 
-        presenter.isActivityAttempted = true;
+        if (data.objectID) {
+            presenter.gapsContainer.setIsAttemptedByGapId(data.objectID, true);
+        }
 
         if (presenter.isAllOK()) presenter.sendAllOKEvent();
     };
@@ -2053,7 +2104,20 @@ function AddonTable_create() {
     * @return boolean
     */
     presenter.isAttempted = function AddonTable_isAttempted () {
-        return presenter.isActivityAttempted;
+        return presenter.gapsContainer.isAnyGapAttempted();
+    };
+
+
+    /**
+     * @param gapIndex - index of gap to check
+     * @returns boolean
+     */
+    presenter.isGapAttempted = function AddonTableisGapAttempted (gapIndex) {
+        if (gapIndex > 0) {
+            gapIndex = gapIndex - 1;
+        }
+
+        return presenter.gapsContainer.isGapAttempted(gapIndex);
     };
 
     return presenter;

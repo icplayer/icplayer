@@ -399,34 +399,55 @@ TestCase("[Table] [Gap Utils] SetState", {
     },
 
     'test should set value of gap with provided value': function () {
-        this.gap.setState(this.expectedValue, this.expectedSource, this.expectedIsEnabled);
+
+        this.gap.setState({
+            value: this.expectedValue,
+            source: this.expectedSource,
+            isEnabled: this.expectedIsEnabled
+        });
 
         assertTrue(this.stubs.setValue.calledOnce);
         assertTrue(this.stubs.setValue.calledWith(this.expectedValue));
     },
 
     'test should set view value of gap with provided value': function () {
-        this.gap.setState(this.expectedValue, this.expectedSource, this.expectedIsEnabled);
+         this.gap.setState({
+            value: this.expectedValue,
+            source: this.expectedSource,
+            isEnabled: this.expectedIsEnabled
+        });
 
         assertTrue(this.stubs.setViewValue.calledOnce);
         assertTrue(this.stubs.setViewValue.calledWith(this.expectedValue));
     },
 
     'test should setIsEnabled of gap with provided value isEnabled': function () {
-        this.gap.setState(this.expectedValue, this.expectedSource, this.expectedIsEnabled);
+         this.gap.setState({
+            value: this.expectedValue,
+            source: this.expectedSource,
+            isEnabled: this.expectedIsEnabled
+        });
 
         assertTrue(this.stubs.setIsEnabled.calledOnce);
         assertTrue(this.stubs.setIsEnabled.calledWith(this.expectedIsEnabled));
     },
 
     'test shouldnt setIsEnabled of gap if isEnabled arg is undefined': function () {
-        this.gap.setState(this.expectedValue, this.expectedSource);
+         this.gap.setState({
+            value: this.expectedValue,
+            source: this.expectedSource,
+        });
+
 
         assertFalse(this.stubs.setIsEnabled.called);
     },
 
     'test setSpanState should set Source of gap with provided value': function () {
-        this.gap.setState(this.expectedValue, this.expectedSource, this.expectedIsEnabled);
+        this.gap.setState({
+            value: this.expectedValue,
+            source: this.expectedSource,
+            isEnabled: this.expectedIsEnabled
+        });
 
         assertTrue(this.stubs.setSource.calledOnce);
         assertTrue(this.stubs.setSource.calledWith(this.expectedSource));
@@ -463,7 +484,11 @@ TestCase("[Table] [Gap Utils] SetState of not draggable gaps", {
     },
 
     'test should set value of gap with provided value': function () {
-        this.gap.setState(this.expectedValue, this.expectedSource, this.expectedIsEnabled);
+        this.gap.setState({
+            value: this.expectedValue,
+            source: this.expectedSource,
+            isEnabled: this.expectedIsEnabled
+        });
 
         assertTrue(this.stubs.valStub.calledOnce);
         assertTrue(this.stubs.valStub.calledWith(this.expectedValue));

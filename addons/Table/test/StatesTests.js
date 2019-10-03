@@ -18,7 +18,8 @@ TestCase("[Table] Get State", {
 
         this.expectedGapsState = {
             gaps: "sflknhdjfas.ljdkfsafdas",
-            yupikayey: "1337"
+            yupikayey: "1337",
+            isAttempted: true
         };
 
         this.expectedSpansState = {
@@ -81,24 +82,7 @@ TestCase("[Table] Get State", {
 
         assertNotNull(testedState.spans);
         assertEquals(this.expectedSpansState, testedState.spans);
-    },
-
-    'test given isActivtyAttempted set to false when getting state then isAttempted in state is false': function () {
-        this.presenter.isActivityAttempted = false;
-
-        var testedState = JSON.parse(this.presenter.getState());
-
-        assertFalse(testedState.isAttempted);
-    },
-
-    'test given isActivtyAttempted set to true when getting state then isAttempted in state is true': function () {
-        this.presenter.isActivityAttempted = true;
-
-        var testedState = JSON.parse(this.presenter.getState());
-
-        assertTrue(testedState.isAttempted);
     }
-
 
 });
 
@@ -168,50 +152,5 @@ TestCase("[Table] Set State", {
 
         assertTrue(this.stubs.setSpansState.calledOnce);
         assertTrue(this.stubs.setSpansState.calledWith(this.expectedSpansState));
-    }
-});
-
-
-TestCase("[Table] Set isAttempted state", {
-    setUp: function () {
-        this.presenter = AddonTable_create();
-        this.presenter.configuration = {};
-        this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
-
-        this.stubs = {
-            setGapsState: sinon.stub(this.presenter.gapsContainer, 'setGapsState'),
-            setSpansState: sinon.stub(this.presenter.gapsContainer, 'setSpansState'),
-            setVisibility: sinon.stub(this.presenter, 'setVisibility')
-        };
-    },
-
-    tearDown: function () {
-        this.presenter.gapsContainer.setGapsState.restore();
-        this.presenter.gapsContainer.setSpansState.restore();
-        this.presenter.setVisibility.restore();
-    },
-
-    'test given empty state when setting state then isAttempted should return false': function () {
-        this.presenter.setState('{}');
-
-        assertFalse(this.presenter.isAttempted())
-    },
-
-    'test given isAttempted set to false in state when setting state then isAttempted should return false': function () {
-        this.presenter.setState(
-            JSON.stringify({
-                isAttempted: false
-            })
-        );
-
-        assertFalse(this.presenter.isAttempted())
-    },
-
-    'test given isAttempted set to true in state when setting state then isAttempted should return true': function () {
-        this.presenter.setState(JSON.stringify({
-            isAttempted: true
-        }));
-
-        assertTrue(this.presenter.isAttempted())
     }
 });

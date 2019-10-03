@@ -626,9 +626,15 @@ TestCase("[Table] [Gaps Container Object] SetGapsState / SetSpansState", {
     'test setGapsState should setState with value and isEnabled from state and empty source': function () {
         this.container.setGapsState(this.state);
 
-        assertTrue(this.gapsStubs.setState1.calledWith(this.expectedValue1, "", this.expectedIsEnabled1));
-        assertTrue(this.gapsStubs.setState2.calledWith(this.expectedValue2, "", this.expectedIsEnabled2));
-        assertTrue(this.gapsStubs.setState3.calledWith(this.expectedValue3, "", this.expectedIsEnabled3));
+        assertTrue(this.gapsStubs.setState1.calledWith({
+            value: this.expectedValue1, source: "", isEnabled: this.expectedIsEnabled1, droppedElement: undefined
+        }));
+        assertTrue(this.gapsStubs.setState2.calledWith({
+            value: this.expectedValue2, source: "", isEnabled: this.expectedIsEnabled2, droppedElement: undefined
+        }));
+        assertTrue(this.gapsStubs.setState3.calledWith({
+            value: this.expectedValue3, source: "", isEnabled: this.expectedIsEnabled3, droppedElement: undefined
+        }));
     },
 
     'test setSpansState should setState to all gaps': function () {
@@ -642,8 +648,23 @@ TestCase("[Table] [Gaps Container Object] SetGapsState / SetSpansState", {
     'test setSpansState should setState with value and source from state': function () {
         this.container.setSpansState(this.state);
 
-        assertTrue(this.gapsStubs.setState1.calledWith(this.expectedValue1, this.expectedSource1));
-        assertTrue(this.gapsStubs.setState2.calledWith(this.expectedValue2, this.expectedSource2));
-        assertTrue(this.gapsStubs.setState3.calledWith(this.expectedValue3, this.expectedSource3));
+        assertTrue(this.gapsStubs.setState1.calledWith({
+            value: this.expectedValue1,
+            source: this.expectedSource1,
+            isEnabled: undefined,
+            droppedElement: undefined
+        }));
+        assertTrue(this.gapsStubs.setState2.calledWith({
+            value: this.expectedValue2,
+            source: this.expectedSource2,
+            isEnabled: undefined,
+            droppedElement: undefined
+        }));
+        assertTrue(this.gapsStubs.setState3.calledWith({
+            value: this.expectedValue3,
+            source: this.expectedSource3,
+            isEnabled: undefined,
+            droppedElement: undefined
+        }));
     }
 });

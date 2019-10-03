@@ -67,10 +67,14 @@ TestCase("[Table] [Value Change Observer] GetEventData", {
 TestCase("[Table] [Value Change Observer] Notify", {
     setUp: function () {
         this.presenter = AddonTable_create();
+        this.presenter.gapsContainer = {
+            setIsAttemptedByGapId: sinon.spy()
+        };
 
         this.stubs = {
             sendEvent: sinon.stub(),
-            getEventData: sinon.stub(this.presenter.ValueChangeObserver.prototype, 'getEventData')
+            getEventData: sinon.stub(this.presenter.ValueChangeObserver.prototype, 'getEventData'),
+            setIsAttemptedByGapId: this.presenter.gapsContainer.setIsAttemptedByGapId
         };
 
         this.presenter.eventBus = {
@@ -98,9 +102,20 @@ TestCase("[Table] [Value Change Observer] Notify", {
     'test should send ValueChanged event by event bus with provided data by getEventData': function () {
         this.stubs.getEventData.returns(this.expectedData);
 
-        this.valueChangeObserver.notify();
+        this.valueChangeObserver.notify({});
 
         assertTrue(this.stubs.sendEvent.calledOnce);
         assertTrue(this.stubs.sendEvent.calledWith('ValueChanged', this.expectedData));
+    },
+
+    'test given objectID in when notifying valuechangeobserver then calls setisAttemptedByGapId': function () {
+        this.stubs.getEventData.returns(this.expectedData);
+
+        this.valueChangeObserver.notify({
+            objectID: 'id'
+        });
+
+        assertTrue(this.stubs.setIsAttemptedByGapId.calledOnce);
     }
+
 });
