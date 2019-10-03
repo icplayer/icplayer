@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="libs/slf4j-api-1.7.25.jar"/>
 	<classpathentry kind="lib" path="libs/slf4j-simple-1.7.25.jar"/>
 	<classpathentry kind="lib" path="libs/gwt-test-utils-0.46.jar"/>
+    <classpathentry kind="lib" path="libs/jackson-core-asl-1.9.1.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
