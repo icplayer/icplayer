@@ -274,7 +274,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			    obj.onDestroy();	
 			}
 		} catch (err) {
-			alert("[" + addonId + "] Exception in getScore(): \n" + err + addonId);
+			alert("[" + addonId + "] Exception in onDestroy(): \n" + err + addonId);
 			console.error(err);
 		}
 	}-*/;
