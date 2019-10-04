@@ -43,11 +43,13 @@
 			});
 		},
 		timer: function IcPlayerTimerHelper(originalFunction) {
+        	// performance.now is much more precise, but is isn't supported in IE9
+        	var timingMethodObject = performance.now ? performance : Date;
         	function timerFunction() {
-                var enterTime = new Date();
+                var enterTime = timingMethodObject.now();
                 originalFunction();
-                var exitTime = new Date();
-                var timeInMillis = (exitTime.getTime() - enterTime.getTime()) / 1000;
+                var exitTime = timingMethodObject.now();
+                var timeInMillis = (exitTime - enterTime);
                 console.log("Function " + originalFunction.name + " took " + timeInMillis + " ms");
             }
 
