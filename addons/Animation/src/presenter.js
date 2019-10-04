@@ -264,8 +264,7 @@ function AddonAnimation_create (){
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': elementWidth, 'height': elementHeight, 'position':'absolute'});
         var $animationDOM = $(presenter.DOMElements.animation);
         $animationDOM.append(clickhandler);
-        // $(presenter.DOMElements.animation).append(presenter.frames[0]);
-        presenter.frames.forEach((e) => {
+        presenter.frames.forEach(function(e) {
             $animationDOM.append(e);
         });
 
