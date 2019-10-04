@@ -249,7 +249,7 @@ function AddonAnimation_create (){
                     ctx = canvas.getContext('2d');
                     drawImageIOSFix(ctx, image, i*source_width, 0, source_width, source_height, 0, 0, elementWidth, elementHeight);
                     presenter.frames[i] = canvas;
-                    $(canvas).remove();
+                    $(canvas).hide();
                 }
             } catch (e) {
                 if (e.name == "NS_ERROR_NOT_AVAILABLE") {
@@ -262,8 +262,14 @@ function AddonAnimation_create (){
         makeFrames();
 
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': elementWidth, 'height': elementHeight, 'position':'absolute'});
-        $(presenter.DOMElements.animation).append(clickhandler);
-        $(presenter.DOMElements.animation).append(presenter.frames[0]);
+        var $animationDOM = $(presenter.DOMElements.animation);
+        $animationDOM.append(clickhandler);
+        // $(presenter.DOMElements.animation).append(presenter.frames[0]);
+        presenter.frames.forEach((e) => {
+            $animationDOM.append(e);
+        });
+
+        $(presenter.frames[0]).show();
 
         $(presenter.DOMElements.animation).css({
             width: elementWidth + 'px',
@@ -334,8 +340,8 @@ function AddonAnimation_create (){
     }
 
     function changeFrame() {
-    	$(presenter.DOMElements.animation).find('canvas').remove();
-    	$(presenter.DOMElements.animation).append(presenter.frames[presenter.configuration.currentFrame]);
+    	$(presenter.DOMElements.animation).find('canvas').hide();
+    	$(presenter.DOMElements.animation).find(presenter.frames[presenter.configuration.currentFrame]).show();
 
         if (presenter.configuration.animationState === presenter.ANIMATION_STATE.STOPPED) {
             showLabelsForFrame(0);
