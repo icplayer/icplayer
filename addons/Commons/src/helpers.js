@@ -47,10 +47,11 @@
         	var timingMethodObject = performance.now ? performance : Date;
         	function timerFunction() {
                 var enterTime = timingMethodObject.now();
-                originalFunction();
+                var result = originalFunction();
                 var exitTime = timingMethodObject.now();
                 var timeInMillis = (exitTime - enterTime);
                 console.log("Function " + originalFunction.name + " took " + timeInMillis + " ms");
+                return result;
             }
 
             return timerFunction;
