@@ -239,20 +239,25 @@ function AddonAnimation_create (){
         }
 
         presenter.frames = [];
+        presenter.images = [];
         var makeFrames = function() {
-            var ctx, i;
+            var i;
             try {
-                for (i=0; i < presenter.configuration.framesCount; i++) {
-                    var canvas = document.createElement('canvas');
-                    canvas.setAttribute('width', elementWidth);
-                    canvas.setAttribute('height', elementHeight);
-                    ctx = canvas.getContext('2d');
-                    drawImageIOSFix(ctx, image, i*source_width, 0, source_width, source_height, 0, 0, elementWidth, elementHeight);
-                    presenter.frames[i] = canvas;
-                    $(canvas).hide();
+                for (i = 0; i < presenter.configuration.framesCount; i++) {
+                    presenter.images.push(new presenter.ImageWrapper({
+                        destinationHeight: elementHeight,
+                        destinationWidth: elementWidth,
+                        destinationX: 0,
+                        destinationY: 0,
+                        image: image,
+                        sourceHeight: source_height,
+                        sourceWidth: source_width,
+                        sourceX: i * source_width,
+                        sourceY: 0
+                    }));
                 }
             } catch (e) {
-                if (e.name == "NS_ERROR_NOT_AVAILABLE") {
+                if (e.name === "NS_ERROR_NOT_AVAILABLE") {
                     makeFrames();
                 } else {
                     throw e;
@@ -261,14 +266,29 @@ function AddonAnimation_create (){
         };
         makeFrames();
 
-        var clickhandler = $("<div></div>").css({"background":"transparent", 'width': elementWidth, 'height': elementHeight, 'position':'absolute'});
         var $animationDOM = $(presenter.DOMElements.animation);
+        var clickhandler = $("<div></div>").css({"background":"transparent", 'width': elementWidth, 'height': elementHeight, 'position':'absolute'});
         $animationDOM.append(clickhandler);
-        presenter.frames.forEach(function(e) {
-            $animationDOM.append(e);
-        });
 
-        $(presenter.frames[0]).show();
+        presenter.canvas = document.createElement('canvas');
+        presenter.canvas.setAttribute('width', elementWidth);
+        presenter.canvas.setAttribute('height', elementHeight);
+        $animationDOM.append(presenter.canvas);
+
+        presenter.canvasContext = presenter.canvas.getContext('2d');
+
+        drawImageIOSFix(
+            presenter.canvasContext,
+            presenter.images[0].image,
+            presenter.images[0].sourceX,
+            presenter.images[0].sourceY,
+            presenter.images[0].sourceWidth,
+            presenter.images[0].sourceHeight,
+            presenter.images[0].destinationX,
+            presenter.images[0].destinationY,
+            presenter.images[0].destinationWidth,
+            presenter.images[0].destinationHeight
+        );
 
         $(presenter.DOMElements.animation).css({
             width: elementWidth + 'px',
@@ -339,8 +359,21 @@ function AddonAnimation_create (){
     }
 
     function changeFrame() {
-    	$(presenter.DOMElements.animation).find('canvas').hide();
-    	$(presenter.DOMElements.animation).find(presenter.frames[presenter.configuration.currentFrame]).show();
+        var i = presenter.configuration.currentFrame;
+
+        drawImageIOSFix(
+            presenter.canvasContext,
+            presenter.images[i].image,
+            presenter.images[i].sourceX,
+            presenter.images[i].sourceY,
+            presenter.images[i].sourceWidth,
+            presenter.images[i].sourceHeight,
+            presenter.images[i].destinationX,
+            presenter.images[i].destinationY,
+            presenter.images[i].destinationWidth,
+            presenter.images[i].destinationHeight
+        );
+
 
         if (presenter.configuration.animationState === presenter.ANIMATION_STATE.STOPPED) {
             showLabelsForFrame(0);
@@ -385,7 +418,9 @@ function AddonAnimation_create (){
 
         if (presenter.configuration.currentFrame < presenter.configuration.framesCount - 1) {
             presenter.configuration.currentFrame++;
-            changeFrame();
+            var timedChangeFrame = window.Helpers.timer(changeFrame);
+            timedChangeFrame();
+            // changeFrame();
         } else {
             if (presenter.configuration.loop || presenter.configuration.resetOnEnd) {
                 presenter.configuration.currentFrame = 0;
@@ -472,6 +507,7 @@ function AddonAnimation_create (){
         presenter.model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(presenter.model);
         presenter.configuration.isPreview = isPreview;
+        presenter.view = view;
 
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
@@ -498,6 +534,11 @@ function AddonAnimation_create (){
 
     presenter.createPreview = function(view, model){
         presenterLogic(view, model, true);
+    };
+
+    presenter.destroy = function AddonAnimation_destroy() {
+        presenter.canvas = null;
+        presenter.canvasContext = null;
     };
 
     presenter.run = function(view, model){
@@ -1056,6 +1097,32 @@ function AddonAnimation_create (){
     presenter.isEnterable = function() {return false};
 
     presenter.markerWCAG = {}; // This is a marker identifying the addon as supporting WCAG to the editor
+
+    /**
+     *
+     * @param configuration {object}
+     * @param configuration.image source image
+     * @param configuration.sourceX {number} source x position
+     * @param configuration.sourceY {number} source y position
+     * @param configuration.sourceWidth {number} source width
+     * @param configuration.sourceHeight {number} source height
+     * @param configuration.destinationWidth {number} source image
+     * @param configuration.destinationHeight {number} source image
+     * @param configuration.destinationX {number} source image
+     * @param configuration.destinationY {number} source image
+     * @constructor
+     */
+    presenter.ImageWrapper = function (configuration) {
+        this.image = configuration.image;
+        this.sourceX = configuration.sourceX;
+        this.sourceY = configuration.sourceY;
+        this.sourceWidth = configuration.sourceWidth;
+        this.sourceHeight = configuration.sourceHeight;
+        this.destinationWidth = configuration.destinationWidth;
+        this.destinationHeight = configuration.destinationHeight;
+        this.destinationX = configuration.destinationX;
+        this.destinationY = configuration.destinationY;
+    };
 
     return presenter;
 }

@@ -41,7 +41,18 @@
 				var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
 				return v.toString(16);
 			});
-		}
+		},
+		timer: function IcPlayerTimerHelper(originalFunction) {
+        	function timerFunction() {
+                var enterTime = new Date();
+                originalFunction();
+                var exitTime = new Date();
+                var timeInMillis = (exitTime.getTime() - enterTime.getTime()) / 1000;
+                console.log("Function " + originalFunction.name + " took " + timeInMillis + " ms");
+            }
+
+            return timerFunction;
+        }
     }
 })(window);
 
