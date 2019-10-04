@@ -411,16 +411,14 @@ function AddonAnimation_create (){
         $.doTimeout(presenter.configuration.queueName, presenter.configuration.frameDuration, presenter.onTimeoutCallback);
     };
 
-    presenter.onTimeoutCallback = function () {
+    presenter.onTimeoutCallback = function AddonAnimation_onTimeoutCallback() {
         if (presenter.configuration.animationState !== presenter.ANIMATION_STATE.PLAYING) {
                 return false;
         }
 
         if (presenter.configuration.currentFrame < presenter.configuration.framesCount - 1) {
             presenter.configuration.currentFrame++;
-            var timedChangeFrame = window.Helpers.timer(changeFrame);
-            timedChangeFrame();
-            // changeFrame();
+            changeFrame();
         } else {
             if (presenter.configuration.loop || presenter.configuration.resetOnEnd) {
                 presenter.configuration.currentFrame = 0;
