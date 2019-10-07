@@ -294,17 +294,9 @@ function AddonAnimation_create (){
         presenter.canvasContext = presenter.canvas.getContext('2d');
 
         // draw first frame
-        drawImageIOSFix(
+        presenter.drawImage(
             presenter.canvasContext,
-            presenter.images[0].image,
-            presenter.images[0].sourceX,
-            presenter.images[0].sourceY,
-            presenter.images[0].sourceWidth,
-            presenter.images[0].sourceHeight,
-            presenter.images[0].destinationX,
-            presenter.images[0].destinationY,
-            presenter.images[0].destinationWidth,
-            presenter.images[0].destinationHeight
+            presenter.images[0]
         );
     };
 
