@@ -503,7 +503,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		activeGap.setFocusGap(true);
 		moduleHasFocus = true;
 		
-		this.readGap(activeGap.getGapType(), clicks, activeGap.getWCAGTextValue(),activeGap.getGapState(), activeGap.getLangTag());
+		this.readGap(activeGap, clicks);
 	}
 
 	@Override
@@ -639,35 +639,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	public String getLang () {
 		return this.module.getLangAttribute();
 	}
-
-	private void readGap (String type, int index, String content, int gapState, String langTag) {
-		if(langTag == null){
-			langTag = this.module.getLangAttribute();
-		}
-		final String gapType = type == "dropdown" ? this.module.getSpeechTextItem(TextModel.DROPDOWN_INDEX) : this.module.getSpeechTextItem(TextModel.GAP_INDEX);
-
-		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-		textVoices.add(TextToSpeechVoice.create(gapType + " " + Integer.toString(index + 1)));
-		if ( type.equals("dropdown") && ( content.equals("-") || content.equals("---"))) {
-			if(!this.isShowErrorsMode) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX)));
-			}
-		} else {
-			textVoices.add(TextToSpeechVoice.create(content, langTag));
-		}
-		
-		if(this.isShowErrorsMode) {
-			if(gapState==1) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.CORRECT_INDEX)));
-			}else if(gapState==2) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.WRONG_INDEX)));
-			}else if(gapState==3) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX)));
-			}
-		}
-
-		this.speak(textVoices);
-	}
 	
 	public String getSpeechText (int index) {
 		return this.module.getSpeechTextItem(index);
@@ -724,6 +695,81 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private void setSizeAttributeToLongestAnswerSize(GapWidget gap, GapInfo info) {
 		int longestAnswer = info.getLongestAnswerLength();
 		gap.setSizeAttribute(longestAnswer);
+	}
+
+	private void readGap(TextElementDisplay gap, int index) {
+		List<TextToSpeechVoice> textVoices = prepareGapSpeechTexts(gap, index);
+		this.speak(textVoices);
+	}
+
+	private List<TextToSpeechVoice> prepareGapSpeechTexts(TextElementDisplay gap, int index) {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+
+		textVoices.add(
+				TextToSpeechVoice.create(getGapTypeAndIndexText(gap, index))
+		);
+		textVoices.addAll(
+				getContent(gap)
+		);
+
+		TextToSpeechVoice showErrorFeedback = getCorrectnessFeedback(gap.getGapState());
+		if (isShowErrorsMode && showErrorFeedback != null) {
+			textVoices.add(showErrorFeedback);
+		}
+
+		return textVoices;
+	}
+
+	private List<TextToSpeechVoice> getContent(TextElementDisplay gap) {
+		List<TextToSpeechVoice> content = new ArrayList<TextToSpeechVoice>();
+		String langTag = getGapOrModuleLangTag(gap);
+		String type = gap.getGapType();
+		String textValue = gap.getWCAGTextValue();
+
+		if ( type.equals("dropdown") && ( textValue.equals("-") || textValue.equals("---"))) {
+			if (!this.isShowErrorsMode) {
+				content.add(
+						TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX))
+				);
+			}
+		} else if (gap instanceof AltTextGap) {
+			content.addAll(
+					((AltTextGap) gap).getReadableText()
+			);
+		} else {
+			content.add(TextToSpeechVoice.create(textValue, langTag));
+		}
+
+		return content;
+	}
+
+	private TextToSpeechVoice getCorrectnessFeedback(int gapState) {
+		if (gapState == 1) {
+			return TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.CORRECT_INDEX));
+		} else if (gapState == 2) {
+			return TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.WRONG_INDEX));
+		} else if (gapState == 3) {
+			return TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX));
+		}
+
+		return null;
+	}
+
+	private String getGapOrModuleLangTag(TextElementDisplay gap) {
+		String gapLangTag = gap.getLangTag();
+		if (gapLangTag != null) {
+			return gapLangTag;
+		}
+
+		return getLang();
+	}
+
+	private String getGapTypeAndIndexText(TextElementDisplay gap, int index) {
+		String gapType = gap.getGapType().equals("dropdown") ?
+				this.module.getSpeechTextItem(TextModel.DROPDOWN_INDEX) :
+				this.module.getSpeechTextItem(TextModel.GAP_INDEX);
+
+		return gapType + " " + Integer.toString(index + 1);
 	}
 
 }

@@ -8,13 +8,15 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.lorepo.icplayer.client.model.alternativeText.IToken;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class DraggableGapWidget extends HTML implements TextElementDisplay {
+public class DraggableGapWidget extends HTML implements TextElementDisplay, AltTextGap {
 
 	private static final String EMPTY_GAP_STYLE = "ic_draggableGapEmpty";
 	private static final String FILLED_GAP_STYLE = "ic_draggableGapFilled";
@@ -23,7 +25,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private boolean disabled = false;
 	private boolean isWorkMode = true;
 	private String answerText = "";
-	private String wcagText = "";
+	private List<TextToSpeechVoice> wcagText = new ArrayList<TextToSpeechVoice>();
 	private boolean isFilledGap = false;
 	private JavaScriptObject jsObject = null;
 	private final ITextViewListener listener;
@@ -206,6 +208,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			}
 			setStylePrimaryName(EMPTY_GAP_STYLE);
 			answerText = "";
+			wcagText.clear();
 			droppedElementHelper = "";
 			if (!isDragMode) {
 				JavaScriptUtils.destroyDraggable(getElement());
@@ -214,7 +217,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			String markup = StringUtils.markup2html(text);
 			List<IToken> tokens = AlternativeTextService.parseAltText(markup);
 			String visibleText = AlternativeTextService.getVisibleText(tokens);
-			wcagText = AlternativeTextService.getReadableTextAsString(tokens);
+			wcagText = AlternativeTextService.getReadableText(tokens);
 
 			super.setHTML(visibleText);
 			answerText = TextParser.removeHtmlFormatting(visibleText);
@@ -237,7 +240,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	
 	@Override
 	public String getWCAGTextValue() {
-		return wcagText;
+		return answerText;
 	}
 	
 	@Override
@@ -360,5 +363,10 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public int getGapState() {
 		return this.gapState;
+	}
+
+	@Override
+	public List<TextToSpeechVoice> getReadableText() {
+		return this.wcagText;
 	}
 }
