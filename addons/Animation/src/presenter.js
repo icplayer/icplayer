@@ -1104,10 +1104,10 @@ function AddonAnimation_create (){
      * @param configuration.sourceY {number} source y position
      * @param configuration.sourceWidth {number} source width
      * @param configuration.sourceHeight {number} source height
-     * @param configuration.destinationWidth {number} source image
-     * @param configuration.destinationHeight {number} source image
-     * @param configuration.destinationX {number} source image
-     * @param configuration.destinationY {number} source image
+     * @param configuration.destinationWidth {number} destination width
+     * @param configuration.destinationHeight {number} destination height
+     * @param configuration.destinationX {number} where source should be placed in destination x position
+     * @param configuration.destinationY {number} where source should be placed in destination y position
      * @constructor
      */
     presenter.ImageWrapper = function (configuration) {
