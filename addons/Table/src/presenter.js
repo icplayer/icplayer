@@ -1241,17 +1241,18 @@ function AddonTable_create() {
 
     presenter.GapUtils.prototype.getGapState = function () {
         return {
-            value: this.getValue(),
-            isEnabled: this.isEnabled
+            isAttempted: this.isAttempted,
+            isEnabled: this.isEnabled,
+            value: this.getValue()
         };
     };
 
     presenter.GapUtils.prototype.getState = function () {
         return {
-            value: this.getValue(),
-            item: this.getSource(),
             droppedElement: this.getDroppedElement(),
-            isAttempted: this.isAttempted
+            isAttempted: this.isAttempted,
+            item: this.getSource(),
+            value: this.getValue()
         };
     };
 
@@ -1669,10 +1670,11 @@ function AddonTable_create() {
     presenter.GapsContainerObject.prototype.setGapsState = function (state) {
         state.map(function (stateData, index) {
             var configuration = {
-                value: stateData.value,
-                source: "",
+                droppedElement: undefined,
+                isAttempted: stateData.isAttempted === undefined ? false : stateData.isAttempted,
                 isEnabled: stateData.isEnabled,
-                droppedElement: undefined
+                source: "",
+                value: stateData.value
             };
 
             this.gaps[index].setState(configuration);
