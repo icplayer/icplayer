@@ -103,7 +103,7 @@ TestCase("Model upgrade", {
     },
 
      'test given model without tts properties when upgrading model then tts properties will be added': function () {
-        var expectedSpeechText = {Stop: {Stop: "stop"}};
+        var expectedSpeechText = {Stop: {Stop: "stopped"}};
 
         var upgradedModel = this.presenter.upgradeTextToSpeech({});
 

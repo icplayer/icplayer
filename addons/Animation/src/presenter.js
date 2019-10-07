@@ -308,6 +308,21 @@ function AddonAnimation_create (){
         );
     };
 
+    presenter.drawImage = function AddonAnimation_drawImage(ctx, image) {
+        drawImageIOSFix(
+            ctx,
+            image.image,
+            image.sourceX,
+            image.sourceY,
+            image.sourceWidth,
+            image.sourceHeight,
+            image.destinationX,
+            image.destinationY,
+            image.destinationWidth,
+            image.destinationHeight
+        );
+    };
+
     function loadImages() {
         showLoadingScreen();
 
@@ -367,19 +382,7 @@ function AddonAnimation_create (){
     function changeFrame() {
         var i = presenter.configuration.currentFrame;
 
-        drawImageIOSFix(
-            presenter.canvasContext,
-            presenter.images[i].image,
-            presenter.images[i].sourceX,
-            presenter.images[i].sourceY,
-            presenter.images[i].sourceWidth,
-            presenter.images[i].sourceHeight,
-            presenter.images[i].destinationX,
-            presenter.images[i].destinationY,
-            presenter.images[i].destinationWidth,
-            presenter.images[i].destinationHeight
-        );
-
+        presenter.drawImage(presenter.canvasContext, presenter.images[i]);
 
         if (presenter.configuration.animationState === presenter.ANIMATION_STATE.STOPPED) {
             showLabelsForFrame(0);
