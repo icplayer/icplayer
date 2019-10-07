@@ -1964,17 +1964,18 @@ function AddonSlideshow_create() {
     };
 
     presenter.readSlide = function(index, continueAfterTTS) {
-        if (isWCAGOn) {
+        var audiodescription = presenter.configuration.slides.content[index].audiodescription;
+        if (isWCAGOn && audiodescription.length > 0) {
             presenter.pause();
             if (continueAfterTTS) {
                 presenter.speakWithCallback(
                     [window.TTSUtils.getTextVoiceObject(
-                        presenter.configuration.slides.content[index].audiodescription,
+                        audiodescription,
                         presenter.configuration.lang)],
                     readSlideCallback);
             } else {
                 presenter.speak([window.TTSUtils.getTextVoiceObject(
-                        presenter.configuration.slides.content[index].audiodescription,
+                        audiodescription,
                         presenter.configuration.lang)]);
             }
         }

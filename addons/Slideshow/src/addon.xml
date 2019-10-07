@@ -9,7 +9,7 @@
 		<property name="Slides" nameLabel="Slideshow_property_slides" type="list">
 			<property name="Image" nameLabel="Slideshow_property_image" type="image" />
 			<property name="Start" nameLabel="Slideshow_property_start" type="string" />
-			<property name="Audiodescription" nameLabel="Slideshow_property_audiodescription" type="string" />
+			<property name="Audiodescription" nameLabel="Slideshow_property_audiodescription" type="text" />
 		</property>
 		<property name="Texts" nameLabel="Slideshow_property_texts" type="list">
 			<property name="Text" nameLabel="Slideshow_property_text" type="string" isLocalized="true" />
