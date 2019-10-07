@@ -135,25 +135,17 @@ public class PlayerApp {
 
 	public static native int getScreenHeight() /*-{
 		if ($wnd.isFrameInDifferentDomain) {
-			return 900;
+			var offsetIframe = $wnd.iframeSize.offsetTop;
+			return $wnd.parent.innerHeight - offsetIframe;
 		} else {
-			if ($wnd.location !== $wnd.parent.location) {
-				var offsetIframe = $wnd.iframeSize.offsetTop;
-				return $wnd.parent.innerHeight - offsetIframe;
-			} else {
-				// innerHeight can be unreliable on orientation change
-				// i.e. https://bugs.chromium.org/p/chromium/issues/detail?id=231319
-				return $wnd.outerHeight || $wnd.innerHeight;
-			}
+			// innerHeight can be unreliable on orientation change
+			// i.e. https://bugs.chromium.org/p/chromium/issues/detail?id=231319
+			return $wnd.outerHeight || $wnd.innerHeight;
 		}
 	}-*/;
 
 	public static native int getPageHeight() /*-{
-		if ($wnd.isFrameInDifferentDomain) {
-			return 1200;
-		} else {
-			return $wnd.$('table.ic_player').css('height').replace('px', '');
-		}
+    	return $wnd.$('table.ic_player').css('height').replace('px', '');
 	}-*/;
 
 	public static native void removeStaticFooter() /*-{
