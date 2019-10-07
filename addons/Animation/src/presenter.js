@@ -238,7 +238,6 @@ function AddonAnimation_create (){
             image = getCanvasFromImg(animationImage);
         }
 
-        presenter.frames = [];
         presenter.images = [];
         var makeFrames = function() {
             var i;
@@ -270,25 +269,10 @@ function AddonAnimation_create (){
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': elementWidth, 'height': elementHeight, 'position':'absolute'});
         $animationDOM.append(clickhandler);
 
-        presenter.canvas = document.createElement('canvas');
-        presenter.canvas.setAttribute('width', elementWidth);
-        presenter.canvas.setAttribute('height', elementHeight);
+
+        presenter.createCanvas(elementWidth, elementHeight);
         $animationDOM.append(presenter.canvas);
 
-        presenter.canvasContext = presenter.canvas.getContext('2d');
-
-        drawImageIOSFix(
-            presenter.canvasContext,
-            presenter.images[0].image,
-            presenter.images[0].sourceX,
-            presenter.images[0].sourceY,
-            presenter.images[0].sourceWidth,
-            presenter.images[0].sourceHeight,
-            presenter.images[0].destinationX,
-            presenter.images[0].destinationY,
-            presenter.images[0].destinationWidth,
-            presenter.images[0].destinationHeight
-        );
 
         $(presenter.DOMElements.animation).css({
             width: elementWidth + 'px',
@@ -301,6 +285,28 @@ function AddonAnimation_create (){
 
         $(animationImage).remove();
     }
+
+    presenter.createCanvas = function AddonAnimation_createCanvas(elementWidth, elementHeight) {
+        presenter.canvas = document.createElement('canvas');
+        presenter.canvas.setAttribute('width', elementWidth);
+        presenter.canvas.setAttribute('height', elementHeight);
+
+        presenter.canvasContext = presenter.canvas.getContext('2d');
+
+        // draw first frame
+        drawImageIOSFix(
+            presenter.canvasContext,
+            presenter.images[0].image,
+            presenter.images[0].sourceX,
+            presenter.images[0].sourceY,
+            presenter.images[0].sourceWidth,
+            presenter.images[0].sourceHeight,
+            presenter.images[0].destinationX,
+            presenter.images[0].destinationY,
+            presenter.images[0].destinationWidth,
+            presenter.images[0].destinationHeight
+        );
+    };
 
     function loadImages() {
         showLoadingScreen();
@@ -505,7 +511,6 @@ function AddonAnimation_create (){
         presenter.model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(presenter.model);
         presenter.configuration.isPreview = isPreview;
-        presenter.view = view;
 
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
