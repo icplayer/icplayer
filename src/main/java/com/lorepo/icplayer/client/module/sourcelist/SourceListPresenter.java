@@ -188,7 +188,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 			List<IToken> tokens = AlternativeTextService.parseAltText(unparsedText);
 			String itemVisibleText = AlternativeTextService.getVisibleText(tokens);
-			List<TextToSpeechVoice> itemReadableText = AlternativeTextService.getReadableText(tokens);
+			List<TextToSpeechVoice> itemReadableText = AlternativeTextService.getReadableText(tokens, model.getLangAttribute());
 
 			itemsWrapper.put(id, new ItemWrapper(unparsedText, itemVisibleText, itemReadableText));
 		}

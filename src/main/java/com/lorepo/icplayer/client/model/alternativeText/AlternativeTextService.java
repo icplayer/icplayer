@@ -43,6 +43,10 @@ public class AlternativeTextService {
     }
 
     public static List<TextToSpeechVoice> getReadableText(List<IToken> tokens) {
+        return getReadableText(tokens, null);
+    }
+
+    public static List<TextToSpeechVoice> getReadableText(List<IToken> tokens, String defaultLangAttribute) {
         List<TextToSpeechVoice> textToSpeechVoices = new ArrayList<TextToSpeechVoice>();
 
         for (IToken token : tokens) {
@@ -51,7 +55,7 @@ public class AlternativeTextService {
             if (token.getLanguage() != null) {
                 ttsv = TextToSpeechVoice.create(token.getReadableText(), token.getLanguage());
             } else {
-                ttsv = TextToSpeechVoice.create(token.getReadableText());
+                ttsv = TextToSpeechVoice.create(token.getReadableText(), defaultLangAttribute);
             }
 
             textToSpeechVoices.add(ttsv);

@@ -8,6 +8,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -573,12 +574,17 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			if (isWCAGon && activeGap.getDroppedElement() != null) {
 				String elementText = activeGap.getWCAGTextValue();
 				boolean currentElementEmpty = elementText.isEmpty();
-				boolean hadValue = oldTextValue.length() > 0;
+				boolean hadValue = !oldTextValue.isEmpty();
 				boolean currentValueEmpty = activeGap.getTextValue().isEmpty();
 
 				if (!currentElementEmpty) {
 					List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-					textVoices.add(TextToSpeechVoice.create(elementText, this.getLang()));
+
+					if (activeGap instanceof AltTextGap) {
+						textVoices.addAll(((AltTextGap) activeGap).getReadableText());
+					} else {
+						textVoices.add(TextToSpeechVoice.create(elementText, this.getLang()));
+					}
 					textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.INSERT_INDEX)));
 					this.speak(textVoices);
 				} else if (hadValue && currentValueEmpty) {
@@ -733,6 +739,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				);
 			}
 		} else if (gap instanceof AltTextGap) {
+			JavaScriptUtils.log(gap.getTextValue());
 			content.addAll(
 					((AltTextGap) gap).getReadableText()
 			);

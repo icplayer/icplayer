@@ -217,7 +217,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 			String markup = StringUtils.markup2html(text);
 			List<IToken> tokens = AlternativeTextService.parseAltText(markup);
 			String visibleText = AlternativeTextService.getVisibleText(tokens);
-			wcagText = AlternativeTextService.getReadableText(tokens);
+			wcagText = AlternativeTextService.getReadableText(tokens, getLangTag());
 
 			super.setHTML(visibleText);
 			answerText = TextParser.removeHtmlFormatting(visibleText);
