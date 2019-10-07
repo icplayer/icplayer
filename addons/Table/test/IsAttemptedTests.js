@@ -46,8 +46,6 @@ TestCase("[Table] Is attempted", {
     },
 
     'test given valid gap id when notifying observer gap value has changed then isAttempted returns false': function () {
-                debugger;
-
         this.presenter.valueChangeObserver.notify({
             objectID: this.gapId
         });
