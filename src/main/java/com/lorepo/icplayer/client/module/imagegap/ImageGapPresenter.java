@@ -769,7 +769,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		boolean isEnabled = !this.model.isDisabled();
-		return (isVisible || isTextToSpeechOn) && isEnabled;
+		return isVisible && isEnabled;
 	}
 	
 	private String getImageSourceAltText(String id) {

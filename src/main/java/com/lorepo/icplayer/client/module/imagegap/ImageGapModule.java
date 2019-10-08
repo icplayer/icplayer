@@ -352,6 +352,10 @@ public class ImageGapModule extends BasicModuleModel implements IWCAGModuleModel
 		return isActivity;
 	}
 
+	public void setDisabled(boolean disable) {
+		this.isDisabled = disable;
+	}
+
 	public boolean isDisabled() {
 		return isDisabled;
 	}
