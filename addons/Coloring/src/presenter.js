@@ -22,6 +22,9 @@ function AddonColoring_create(){
     presenter.lastEvent = null;
     presenter.imageHasBeenLoaded = false;
 
+    presenter.initialState = null;
+    presenter.isCanvasInitiated = false;
+
     presenter.AREA_TYPE = {
         NORMAL: 0,
         TRANSPARENT: 1,
@@ -400,6 +403,7 @@ function AddonColoring_create(){
 
                 presenter.recolorImage();
                 presenter.runEndedDeferred.resolve();
+                presenter.isCanvasInitiated = true;
             }
         });
     }
@@ -979,6 +983,10 @@ function AddonColoring_create(){
 
     presenter.getState = function(){
 
+        if (!presenter.isCanvasInitiated && presenter.initialState != null) {
+            return presenter.initialState;
+        }
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1067,6 +1075,10 @@ function AddonColoring_create(){
     };
 
     presenter.setState = function(state){
+        if (!presenter.isCanvasInitiated) {
+            presenter.initialState = state;
+        }
+
         if (ModelValidationUtils.isStringEmpty(state)) {
             return;
         }
