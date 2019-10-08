@@ -290,7 +290,7 @@ function AddonImage_Viewer_Public_create() {
 
             } else {
                 var isReverseOrder = presenter.configuration.currentFrame === 0;
-                presenter.changeFrame(false, isReverseOrder, false);
+                presenter.changeFrame(false, isReverseOrder, false, false);
             }
         }
 
@@ -455,7 +455,7 @@ function AddonImage_Viewer_Public_create() {
             presenter.configuration.backgroundImageWidth = $(this).width();
 
             $(this).remove();
-            presenter.changeFrame(true, false, false);
+            presenter.changeFrame(true, false, false, false);
 
             if (shouldShowWatermark()) {
                 var watermarkOptions = {
@@ -609,15 +609,17 @@ function AddonImage_Viewer_Public_create() {
             $(watermarkElement).remove();
         }
         presenter.setVisibility(configuration.currentVisibility);
-        presenter.changeFrame(presenter.changeFrameData.isPreview, presenter.changeFrameData.isReverseOrder, presenter.changeFrameData.triggerEvent);
+        presenter.changeFrame(presenter.changeFrameData.isPreview, presenter.changeFrameData.isReverseOrder, presenter.changeFrameData.triggerEvent, false);
     }
 
     function presenterLogic(view, model, isPreview) {
+        var upgradedModel = presenter.upgradeModel(model);
+
         presenter.imageLoadedDeferred = new jQuery.Deferred();
         presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
-        presenter.addonId = model.ID;
+        presenter.addonId = upgradedModel.ID;
         presenter.$view = $(view);
-        presenter.model = model;
+        presenter.model = upgradedModel;
         presenter.isPreview = isPreview;
         presenter.$element = $(presenter.$view.find('.image-viewer:first')[0]);
         presenter.$elementHelper = $(presenter.$view.find('.image-viewer-helper:first')[0]);
@@ -629,7 +631,7 @@ function AddonImage_Viewer_Public_create() {
             if (loadingSrc) $(loadingScreen.element).attr('src', loadingSrc);
         }
 
-        var configuration = presenter.validateModel(model);
+        var configuration = presenter.validateModel(upgradedModel);
         if (configuration.isError) {
             showErrorMessage(view, configuration.errorCode);
         } else {
@@ -653,7 +655,7 @@ function AddonImage_Viewer_Public_create() {
             }
 
             setContainerDimensions(view);
-            prepareLoadingScreen(model.Width, model.Height);
+            prepareLoadingScreen(upgradedModel.Width, upgradedModel.Height);
             presenter.adjustFrameCounter();
             loadLabels();
 
@@ -721,7 +723,7 @@ function AddonImage_Viewer_Public_create() {
 
         presenter.configuration.shouldCalcScore = true;
         presenter.configuration.currentFrame = currentFrame === framesCount - 1 ? 0 : currentFrame + 1;
-        presenter.changeFrame(false, false, true);
+        presenter.changeFrame(false, false, true, true);
     };
 
     presenter.previous = function() {
@@ -734,7 +736,7 @@ function AddonImage_Viewer_Public_create() {
 
         presenter.configuration.shouldCalcScore = true;
         presenter.configuration.currentFrame = currentFrame === 0 ? framesCount - 1 : currentFrame - 1;
-        presenter.changeFrame(false, true, true);
+        presenter.changeFrame(false, true, true, true);
     };
 
     presenter.isValidFrameNumber = function(frame, framesCount) {
@@ -806,7 +808,7 @@ function AddonImage_Viewer_Public_create() {
             var currentFrame = presenter.configuration.currentFrame;
             var isReverseOrder = currentFrame > frameNumber - 1;
             presenter.configuration.currentFrame = frameNumber - 1;
-            presenter.changeFrame(false, isReverseOrder, true);
+            presenter.changeFrame(false, isReverseOrder, true, true);
         }
     };
 
@@ -910,8 +912,7 @@ function AddonImage_Viewer_Public_create() {
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
-        this.upgradedModel = this.upgradeModel(model);
-        presenterLogic(view, this.upgradedModel, false);
+        presenterLogic(view, model, false);
 
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
@@ -1413,10 +1414,12 @@ function AddonImage_Viewer_Public_create() {
             presenter.triggerFrameChangeEvent(presenter.configuration.currentFrame + 1);
         }
     };
-    presenter.changeFrame = function(isPreview, isReverseOrder, triggerEvent) {
+    presenter.changeFrame = function(isPreview, isReverseOrder, triggerEvent, readFrame) {
         presenter.changeBackgroundPosition(isPreview, presenter.$element, isReverseOrder);
         presenter.changeFrameLogic(isPreview, triggerEvent);
-        presenter.readFrame(presenter.configuration.currentFrame);
+        if (readFrame) {
+            presenter.readFrame(presenter.configuration.currentFrame);
+        }
     };
 
     presenter.stopAllAudio = function () {
@@ -1525,7 +1528,7 @@ function AddonImage_Viewer_Public_create() {
         if (presenter.configuration.isDoNotReset) return;
 
         presenter.setCurrentFrame();
-        presenter.changeFrame(false, false, false);
+        presenter.changeFrame(false, false, false, false);
 
         if (shouldShowWatermark()) {
             showWatermarkIfNotVisible();
