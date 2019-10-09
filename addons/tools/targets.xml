@@ -1,13 +1,44 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <project name="Addon" basedir=".">
-    <target name="test" description="Run jsTestDriver tests">
+    <!-- set the operating system test properties -->
+    <condition property="isWindows">
+        <os family="windows" />
+    </condition>
+
+    <condition property="isUnix">
+        <os family="unix" />
+    </condition>
+
+    <target name="browsersOnWindows" if="isWindows">
+        <property name="firefox.path" value="C:\Program Files\Mozilla Firefox\firefox.exe" />
+        <echo>Found firefox at ${firefox.path}</echo>
+        <property name="googleChrome.path" value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" />
+    </target>
+
+    <target name="browsersOnUnix" if="isUnix">
+        <exec executable="which firefox" failonerror="true">
+            <outputproperty name="firefox.path" />
+        </exec>
+        <exec executable="which google-chrome" failonerror="true">
+            <outputproperty name="googleChrome.path" />
+            <echo>Found browser at ${googleChrome.path}</echo>
+        </exec>
+    </target>
+
+    <target name="test" description="Run jsTestDriver tests" depends="browsersOnWindows, browsersOnUnix">
         <mkdir dir="test-reports" />
-        <java jar="../tools/JsTestDriver.jar" fork="true">
+        <exec executable="java" failonerror="true">
+            <arg line="-jar"/>
+            <arg path="../tools/JsTestDriver-1.3.5.jar"/>
             <arg line="--tests all"/>
             <arg line="--config jsTestDriver.conf" />
             <arg line="--testOutput test-reports" />
             <arg line="--captureConsole" />
-        </java>
+            <arg line="--port 9876"/>
+            <arg line="--browser"/>
+            <arg value="${googleChrome.path};--disable-gpu;--headless;--remote-debugging-port=9222"/>
+            <arg line="--browserTimeout 18000"/>
+        </exec>
     </target>
 </project>

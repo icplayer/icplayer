@@ -6,7 +6,7 @@
     <property name="src" location="src/main/java"/>
     <property name="src-test" location="src/test/java"/>
     <property name="icfoundation-src" location="../icfoundation/src/main/java"/>
-    <property name="jstestdriver.jar" location="addons/tools/JsTestDriver.jar"/>
+    <property name="jstestdriver.jar" location="addons/tools/JsTestDriver-1.3.5.jar"/>
     <property name="libs" location="src/main/java/com/lorepo/icplayer/public/libs"/>
     <property name="jsoup-lib" location="libs/jsoup-1.10.3.jar"/>
 
@@ -146,10 +146,40 @@
         </junit>
     </target>
 
-    <target name="test.single.addon"  description="Test single addon, -Daddon.id=Addon_Id">
+    <!-- set the operating system test properties -->
+    <condition property="isWindows">
+        <os family="windows" />
+    </condition>
+
+    <condition property="isUnix">
+        <os family="unix" />
+    </condition>
+
+    <target name="browsersOnWindows" if="isWindows">
+        <property name="firefox.path" value="C:\Program Files\Mozilla Firefox\firefox.exe" />
+        <echo>Found firefox at ${firefox.path}</echo>
+        <property name="googleChrome.path" value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" />
+    </target>
+
+    <target name="browsersOnUnix" if="isUnix">
+        <exec executable="which firefox" failonerror="true">
+            <outputproperty name="firefox.path" />
+        </exec>
+        <exec executable="which google-chrome" failonerror="true">
+            <outputproperty name="googleChrome.path" />
+            <echo>Found browser at ${googleChrome.path}</echo>
+        </exec>
+    </target>
+
+    <target name="test.single.addon" description="Test single addon, -Daddon.id=Addon_Id" depends="browsersOnWindows">
         <echo>Testing addon with ID ${addon.id}</echo>
 
         <mkdir dir="addons/${addon.id}/test-reports"/>
+        <exec executable="python" failonerror="true" outputproperty="firefox.profile">
+            <arg line="-c"/>
+            <arg value="import tempfile;print(tempfile.mkdtemp('','jstestdriver.'))"/>
+        </exec>
+        <copy file="addons/tools/prefs.js" todir="${firefox.profile}"/>
         <exec executable="java" failonerror="true">
             <arg line="-jar"/>
             <arg path="${jstestdriver.jar}"/>
@@ -159,10 +189,27 @@
             <arg line="--testOutput"/>
             <arg path="addons/${addon.id}/test-reports"/>
             <arg line="--captureConsole"/>
+            <arg line="--port 9876"/>
+            <arg line="--browser"/>
+<!--            <arg value="${googleChrome.path};&#45;&#45;disable-gpu;&#45;&#45;headless;&#45;&#45;remote-debugging-port=9222"/>-->
+            <arg value="${firefox.path};-profile ${firefox.profile} -no-remote"/>
+<!--            <arg line="&#45;&#45;raiseOnFailure true"/>-->
+<!--            <arg line="&#45;&#45;browserTimeout 18000"/>-->
+<!--            <arg line="&#45;&#45;reset"/>-->
+<!--            <arg line="&#45;&#45;runnerMode DEBUG"/>-->
+<!--            <arg line="&#45;&#45;verbose"/>-->
+        </exec>
+<!--        <exec executable="taskkill">-->
+<!--            <arg line="/F /T /IM firefox.exe"/>-->
+<!--        </exec>-->
+        <exec executable="taskkill">
+            <arg line="/T"/>
+            <arg line="/IM firefox.exe"/>
+            <arg line="/FI 'WINDOWTITLE eq Remote Console Runner - Mozilla Firefox'"/>
         </exec>
     </target>
 
-    <target name="test.addons" depends="bundle-libs">
+    <target name="test.addons" depends="bundle-libs, browsersOnWindows, browsersOnUnix">
         <loadfile property="addons.list" srcFile="addons/addons.list"/>
         <for list="${addons.list}" param="addonid" delimiter="${line.separator}">
             <sequential>
