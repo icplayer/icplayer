@@ -1,3 +1,4 @@
+2019-10-09 Add destroy lifecycle management for modules. Use destroy in IWB addon. Fix problem with DropDown gap and disable. Remove hideAnswers from getState in Text module.
 2019-10-07 Fixed issues on Edge and mlibro
 2019-10-03 Fixed TTS reading Image Viewer alt text after entering a page
 2019-09-27 Fix ImageViewerPublic model upgrade.

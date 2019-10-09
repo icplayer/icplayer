@@ -16,11 +16,30 @@ public class AddonModel extends BasicModuleModel {
 	private String addonId;
 	private ArrayList<IAddonParam>	addonParams = new ArrayList<IAddonParam>();
 	
+	public interface OnAddonReleaseAction {
+		public void onRelease();
+	}
+	
+	private OnAddonReleaseAction onAddonReleaseAction = null;
+	
 	
 	public AddonModel() {
 		super("Addon", "Addon");
 	}
 
+	@Override
+	public void release() {
+		super.release();
+		
+		if (this.onAddonReleaseAction != null) {
+			this.onAddonReleaseAction.onRelease();
+			this.onAddonReleaseAction = null;
+		}
+	}
+	
+	public void setReleaseAction (OnAddonReleaseAction action) {
+		this.onAddonReleaseAction = action;
+	}
 	
 	@Override
 	public String getModuleTypeName() {
