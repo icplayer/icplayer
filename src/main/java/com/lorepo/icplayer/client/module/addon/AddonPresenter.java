@@ -516,8 +516,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		boolean isVisible = this.model.isVisible();
-		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible && !isDisabled();
+		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
+		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible;
 	}
 	
 	@Override
