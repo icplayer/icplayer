@@ -1,3 +1,4 @@
+2019-10-09 Fixed Slider working incorrectly when inside overflow: auto
 2019-10-03 Fixed TTS reading Image Viewer alt text after entering a page
 2019-09-27 Fix ImageViewerPublic model upgrade.
 2019-09-23 Added TTS support to Image Viewer

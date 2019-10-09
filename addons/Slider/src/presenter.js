@@ -399,8 +399,8 @@ function AddonSlider_create () {
         setAddonPosition();
 
         return {
-            x:(eventData.pageX - presenter.configuration.offset.left) - popupLeft,
-            y:(eventData.pageY - presenter.configuration.offset.top) - popupTop
+            x:(eventData.offsetX + $(eventData.target).offset().left - presenter.configuration.offset.left) - popupLeft,
+            y:(eventData.offsetY + $(eventData.target).offset().top - presenter.configuration.offset.top) - popupTop
         };
     }
 
