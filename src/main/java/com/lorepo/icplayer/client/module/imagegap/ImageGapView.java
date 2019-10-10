@@ -118,6 +118,8 @@ public class ImageGapView extends Image implements IDisplay, IWCAGModuleView, IW
 	@Override
 	public void setDisabled(boolean disable) {
 		this.disabled = disable;
+		this.module.setDisabled(disable);
+
 		if (disabled) {
 			addStyleDependentName(DISABLED_STYLE);
 			removeDroppable(getElement());
