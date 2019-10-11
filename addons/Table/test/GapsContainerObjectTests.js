@@ -627,13 +627,13 @@ TestCase("[Table] [Gaps Container Object] SetGapsState / SetSpansState", {
         this.container.setGapsState(this.state);
 
         assertTrue(this.gapsStubs.setState1.calledWith({
-            value: this.expectedValue1, source: "", isEnabled: this.expectedIsEnabled1, droppedElement: undefined
+            value: this.expectedValue1, source: "", isAttempted: false, isEnabled: this.expectedIsEnabled1, droppedElement: undefined
         }));
         assertTrue(this.gapsStubs.setState2.calledWith({
-            value: this.expectedValue2, source: "", isEnabled: this.expectedIsEnabled2, droppedElement: undefined
+            value: this.expectedValue2, source: "", isAttempted: false, isEnabled: this.expectedIsEnabled2, droppedElement: undefined
         }));
         assertTrue(this.gapsStubs.setState3.calledWith({
-            value: this.expectedValue3, source: "", isEnabled: this.expectedIsEnabled3, droppedElement: undefined
+            value: this.expectedValue3, source: "", isAttempted: false, isEnabled: this.expectedIsEnabled3, droppedElement: undefined
         }));
     },
 

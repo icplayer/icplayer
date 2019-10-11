@@ -11,18 +11,20 @@ TestCase("[Table] Is attempted", {
             sendEvent: sinon.spy()
         };
 
-        this.gapId = 'someObjectId';
         this.gap = new this.presenter.GapUtils({
             addonID: "addonID",
-            objectID: this.gapId,
+            objectID: "someObjectId",
             connectEvents: function(){},
             createView: function(){},
             eventBus:  function(){},
             fillGap: function () {},
             getSelectedItem: function(){},
             makeGapEmpty: function () {},
-            setValue: function () {},
-            setViewValue: function () {}
+            setValue: function (value) {
+                this.value = value
+            },
+            setViewValue: function () {},
+            showAnswersValue: ["value"]
         });
 
         this.presenter.gapsContainer.addGap(this.gap);
@@ -37,21 +39,43 @@ TestCase("[Table] Is attempted", {
         this.presenter.isAllOK.restore();
     },
 
-    'test given not exsting gap id when notifying observer gap value has changed then isAttempted returns false': function () {
-        this.presenter.valueChangeObserver.notify({
-            objectID: 'not_valid'
-        });
+    'test given gap with isAttempted set to false when checking if table isAttempted then returns false': function () {
+        this.gap.setAttempted(false);
 
         assertFalse(this.presenter.isAttempted());
     },
 
-    'test given valid gap id when notifying observer gap value has changed then isAttempted returns false': function () {
-        this.presenter.valueChangeObserver.notify({
-            objectID: this.gapId
-        });
+    'test given gap with isAttempted set to true when checking if table isAttempted then returns true': function () {
+        this.gap.setAttempted(true);
+
 
         assertTrue(this.presenter.isAttempted());
-    }
+    },
 
+    'test given gap with filled empty text when notyfing of change then checking if table isAttempted returns false ': function () {
+        this.gap.setValue("");
+        this.gap.notify();
+
+        assertFalse(this.presenter.isAttempted());
+    },
+
+    'test given gap with some text when notyfing of change then checking if table isAttempted returns true': function () {
+        this.gap.setValue("value");
+        this.gap.notify();
+
+        assertTrue(this.presenter.isAttempted());
+    },
+
+    'test given gap with text changed to empty when notyfing of change then checking if table isAttempted returns false': function () {
+        debugger;
+
+        this.gap.setValue("value");
+        this.gap.notify();
+
+        this.gap.setValue("");
+        this.gap.notify();
+
+        assertFalse(this.presenter.isAttempted());
+    }
 
 });

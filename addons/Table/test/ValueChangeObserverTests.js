@@ -106,16 +106,6 @@ TestCase("[Table] [Value Change Observer] Notify", {
 
         assertTrue(this.stubs.sendEvent.calledOnce);
         assertTrue(this.stubs.sendEvent.calledWith('ValueChanged', this.expectedData));
-    },
-
-    'test given objectID in data in when notifying valuechangeobserver then calls setisAttemptedByGapId': function () {
-        this.stubs.getEventData.returns(this.expectedData);
-
-        this.valueChangeObserver.notify({
-            objectID: 'id'
-        });
-
-        assertTrue(this.stubs.setIsAttemptedByGapId.calledOnce);
     }
 
 });

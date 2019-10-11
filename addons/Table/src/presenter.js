@@ -886,10 +886,6 @@ function AddonTable_create() {
             'show': presenter.show
         };
 
-        if (commands.hasOwnProperty(name)) {
-            presenter.isActivityAttempted = true;
-        }
-
         return Commands.dispatch(commands, name, params, presenter);
     };
 
@@ -1208,6 +1204,12 @@ function AddonTable_create() {
     };
 
     presenter.GapUtils.prototype.notify = function () {
+        if (this.isValueEmpty()) {
+            this.isAttempted = false;
+        } else {
+            this.isAttempted = true;
+        }
+
         this.valueChangeObserver.notify(this.getValueChangeEventData());
     };
 
@@ -1732,10 +1734,6 @@ function AddonTable_create() {
 
     presenter.ValueChangeObserver.prototype.notify = function (data) {
         presenter.eventBus.sendEvent('ValueChanged', this.getEventData(data));
-
-        if (data.objectID) {
-            presenter.gapsContainer.setIsAttemptedByGapId(data.objectID, true);
-        }
 
         if (presenter.isAllOK()) presenter.sendAllOKEvent();
     };
