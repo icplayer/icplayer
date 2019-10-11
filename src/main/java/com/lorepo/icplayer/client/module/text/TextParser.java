@@ -39,6 +39,7 @@ public class TextParser {
 	private boolean useEscapeCharacterInGap = false;
 	private List<String> gapsOrder;
 	private boolean hasSyntaxError = false;
+	private String langTag = "";
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -69,6 +70,10 @@ public class TextParser {
 	
 	public void setOpenLinksinNewTab(boolean linksTarget) {
 		openLinksinNewTab = linksTarget;
+	}
+
+	public void setLangTag(String langTag) {
+		this.langTag = langTag == null ? "" : langTag;
 	}
 
 	// parse srcText for editor in HTMLWidget as rendered view
@@ -255,8 +260,10 @@ public class TextParser {
 	};
 	
 	private String matchGap(String expression, Map<String,String> gapOptions) {
-		String langTag = gapOptions!=null && gapOptions.containsKey("lang") ? gapOptions.get("lang") : "";
+		boolean gapOptionsIncludeLang = gapOptions != null && gapOptions.containsKey("lang");
+		String langTag = gapOptionsIncludeLang ? gapOptions.get("lang") : this.langTag;
 		int index = expression.indexOf(":");
+
 		String replaceText = null;
 		try{
 			if (index > 0) {
@@ -395,7 +402,7 @@ public class TextParser {
 	}
 
 	private String matchDraggableFilledGap(String expression, Map<String,String> gapOptions) {
-		String langTag = gapOptions!=null && gapOptions.containsKey("lang") ? gapOptions.get("lang") : "";
+		String langTag = getLangTagForGap(gapOptions);
 		String replaceText = null;
 		int index = expression.indexOf("|");
 		if (index > 0) {
@@ -425,7 +432,7 @@ public class TextParser {
 	}
 	
 	private String matchDraggableGap(String expression, Map<String,String> gapOptions) {
-		String langTag = gapOptions!=null && gapOptions.containsKey("lang") ? gapOptions.get("lang") : "";
+		String langTag = getLangTagForGap(gapOptions);
 		String replaceText = null;
 
 		int index = expression.indexOf(":");
@@ -464,6 +471,11 @@ public class TextParser {
 		}
 
 		return replaceText;
+	}
+
+	private String getLangTagForGap(Map<String,String> gapOptions) {
+		boolean gapOptionsIncludeLang = gapOptions != null && gapOptions.containsKey("lang");
+		return gapOptionsIncludeLang ? gapOptions.get("lang") : this.langTag;
 	}
 
 	private String[] getAnswerAndValue(String value, boolean escape) {

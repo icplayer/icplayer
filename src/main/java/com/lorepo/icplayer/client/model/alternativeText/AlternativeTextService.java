@@ -32,16 +32,6 @@ public class AlternativeTextService {
         return getReadableText(tokens);
     }
 
-    public static String getReadableTextAsString(List<IToken> tokens) {
-        StringBuilder builder = new StringBuilder();
-
-        for (IToken token : tokens) {
-            builder.append(token.getReadableText());
-        }
-
-        return builder.toString();
-    }
-
     public static List<TextToSpeechVoice> getReadableText(List<IToken> tokens) {
         return getReadableText(tokens, null);
     }
