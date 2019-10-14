@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<project name="icplayer" default="dist" basedir=".">
+<project name="icplayer" default="dist" basedir="." xmlns:if="ant:if" xmlns:unless="ant:unless">
     <taskdef name="for" classname="com.icplayer.ac.ForTask" classpath="addons/addon-compiler.jar"/>
 
     <property file="build.properties"/>
@@ -24,6 +24,29 @@
         <pathelement location="${jsoup-lib}"/>
         <pathelement location="../icfoundation/war/WEB-INF/classes"/>
     </path>
+
+    <script language="javascript"><![CDATA[
+        function noop () {}
+        var listener = new org.apache.tools.ant.BuildListener() {
+            buildFinished: function(e) {
+                project.executeTarget("server.kill");
+            },
+            buildStarted: noop,
+            messageLogged: noop,
+            targetStarted: noop,
+            targetFinished: noop,
+            taskStarted: noop,
+            taskFinished: noop
+        }
+        project.addBuildListener(listener)
+    ]]></script>
+    <condition property="isWindows">
+        <os family="windows" />
+    </condition>
+
+    <condition property="isUnix">
+        <os family="unix" />
+    </condition>
 
     <target name="clean" description="Cleans this project">
         <delete dir="war/WEB-INF/classes" failonerror="false"/>
@@ -146,71 +169,151 @@
         </junit>
     </target>
 
-    <!-- set the operating system test properties -->
-    <condition property="isWindows">
-        <os family="windows" />
-    </condition>
-
-    <condition property="isUnix">
-        <os family="unix" />
-    </condition>
-
-    <target name="browsersOnWindows" if="isWindows">
-        <property name="firefox.path" value="C:\Program Files\Mozilla Firefox\firefox.exe" />
-        <echo>Found firefox at ${firefox.path}</echo>
-        <property name="googleChrome.path" value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" />
-    </target>
-
-    <target name="browsersOnUnix" if="isUnix">
-        <exec executable="which firefox" failonerror="true">
+    <target name="browser.init">
+        <!-- You can override this, ex disable google chrome by -DgoogleChrome.path='' -->
+        <property name="googleChrome.path" if:set="isWindows" unless:set="googleChrome.path" 
+                  value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" />
+        <exec executable="which google-chrome" if:set="isUnix" unless:set="googleChrome.path" failonerror="true">
+            <outputproperty name="googleChrome.path" />
+        </exec>
+        <available property="googleChrome.available" type="file" file="${googleChrome.path}"/>
+        <echo if:set="googleChrome.available">Google Chrome found at ${googleChrome.path}</echo>
+    
+        <property name="firefox.path" if:set="isWindows" unless:set="firefox.path"
+                  value="C:\Program Files\Mozilla Firefox\firefox.exe" />
+        <exec executable="which firefox" if:set="isUnit" unless:set="firefox.path" failonerror="true">
             <outputproperty name="firefox.path" />
         </exec>
-        <exec executable="which google-chrome" failonerror="true">
-            <outputproperty name="googleChrome.path" />
-            <echo>Found browser at ${googleChrome.path}</echo>
-        </exec>
+        <available property="firefox.available" type="file" file="${firefox.path}"/>
+        <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
+
+        <property name="msie.path" if:set="isWindows" unless:set="msie.path"
+                  value="C:\Program Files\internet explorer\iexplore.exe" />
+        <available property="msie.available" type="file" file="${msie.path}"/>
+        <echo if:set="msie.available">Microsoft Internet Explorer found at ${msie.path}</echo>
+
+        <property name="edge.path" if:set="isWindows" unless:set="edge.path"
+                  value="C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe" />
+        <available property="edge.available" type="file" file="${edge.path}"/>
+        <echo if:set="edge.available">Microsoft Edge found at ${edge.path}</echo>
     </target>
 
-    <target name="test.single.addon" description="Test single addon, -Daddon.id=Addon_Id" depends="browsersOnWindows">
-        <echo>Testing addon with ID ${addon.id}</echo>
+    <target name="server.ping">
+        <condition property="server.has.ping">
+            <socket server="localhost" port="9876"/>
+        </condition>
+    </target>
 
-        <mkdir dir="addons/${addon.id}/test-reports"/>
-        <exec executable="python" failonerror="true" outputproperty="firefox.profile">
+    <target name="server.check" depends="server.ping" unless="server.has.ping">
+        <antcall target="server.start"/>
+    </target>
+
+    <target name="server.get.pid">
+        <exec executable="jps">
+            <arg value="-l"/>
+            <redirector outputproperty="server.pid">
+                <outputfilterchain>
+                    <linecontains>
+                        <contains value="${jstestdriver.jar}"/>
+                    </linecontains>
+                    <replacestring from=" ${jstestdriver.jar}"/>
+                </outputfilterchain>
+            </redirector>
+        </exec>
+        <condition property="server.has.pid">
+            <length string="${server.pid}" when="greater" length="0"/>
+        </condition>
+    </target>
+
+    <target name="server.kill" depends="server.get.pid" if="server.has.pid">
+        <echo>Kill jsTestDriver server with PID ${server.pid}</echo>
+        <exec executable="taskkill" osfamily="winnt">
+            <arg line="/T"/>
+            <arg line="/F"/>
+            <arg line="/PID"/>
+            <arg value="${server.pid}"/>
+        </exec>
+        <exec executable="taskkill" osfamily="winnt">
+            <arg line="/T"/>
+            <arg line="/F"/>
+            <arg line="/IM"/>
+            <arg value="MicrosoftEdge.exe"/>
+        </exec>
+        <exec executable="pkill" osfamily="unix">
+            <arg line="-9"/>
+            <arg line="-P"/>
+            <arg value="${server.pid}"/>
+        </exec>
+        <delete dir="${firefox.profile}"/>
+    </target>
+
+    <target name="server.start" depends="server.kill, browser.init">
+        <echo>Start a new server</echo>
+        <!-- Generate firefox profile -->
+        <exec executable="python" failonerror="true" outputproperty="firefox.profile" if:set="firefox.available">
             <arg line="-c"/>
             <arg value="import tempfile;print(tempfile.mkdtemp('','jstestdriver.'))"/>
         </exec>
-        <copy file="addons/tools/prefs.js" todir="${firefox.profile}"/>
-        <exec executable="java" failonerror="true">
-            <arg line="-jar"/>
-            <arg path="${jstestdriver.jar}"/>
+        <!-- Mark the first run as complete, stop to open the second tab -->
+        <copy file="addons/tools/prefs.js" todir="${firefox.profile}" if:set="firefox.available"/>
+
+        <condition property="googleChrome.command"
+                   value="${googleChrome.path};--disable-gpu --headless --remote-debugging-port=9222,"
+                   else="">
+            <isset property="googleChrome.available"/>
+        </condition>
+        <condition property="firefox.command"
+                   value="${firefox.path};-headless -profile ${firefox.profile} -no-remote,"
+                   else="">
+            <isset property="firefox.available"/>
+        </condition>
+        <condition property="msie.command"
+                   value="${msie.path},"
+                   else="">
+            <isset property="msie.available"/>
+        </condition>
+        <condition property="edge.command"
+                   value="C:\Windows\explorer.exe;microsoft-edge:%s,"
+                   else="">
+            <isset property="edge.available"/>
+        </condition>
+
+        <parallel>
+            <daemons>
+                <java jar="${jstestdriver.jar}" fork="true" failonerror="true">
+                    <arg line="--port 9876"/>
+                    <arg line="--browser"/>
+                    <arg value="${googleChrome.command}${firefox.command}${msie.command}${edge.command}"/>
+<!--                    <arg line="&#45;&#45;runnerMode INFO"/>-->
+<!--                    <arg value="&#45;&#45;verbose"/>-->
+                </java>
+            </daemons>
+        </parallel>
+    </target>
+
+    <target name="test.single.addon" depends="server.check" description="Test single addon, -Daddon.id=Addon_Id">
+        <echo>Testing addon with ID ${addon.id}</echo>
+
+        <mkdir dir="addons/${addon.id}/test-reports"/>
+        <java jar="${jstestdriver.jar}" fork="true" failonerror="true">
             <arg line="--tests all"/>
             <arg line="--config"/>
             <arg path="addons/${addon.id}/jsTestDriver.conf"/>
             <arg line="--testOutput"/>
             <arg path="addons/${addon.id}/test-reports"/>
-            <arg line="--captureConsole"/>
-            <arg line="--port 9876"/>
-            <arg line="--browser"/>
-<!--            <arg value="${googleChrome.path};&#45;&#45;disable-gpu;&#45;&#45;headless;&#45;&#45;remote-debugging-port=9222"/>-->
-            <arg value="${firefox.path};-profile ${firefox.profile} -no-remote"/>
-<!--            <arg line="&#45;&#45;raiseOnFailure true"/>-->
-<!--            <arg line="&#45;&#45;browserTimeout 18000"/>-->
-<!--            <arg line="&#45;&#45;reset"/>-->
+            <arg line="--reset"/>
 <!--            <arg line="&#45;&#45;runnerMode DEBUG"/>-->
 <!--            <arg line="&#45;&#45;verbose"/>-->
-        </exec>
-<!--        <exec executable="taskkill">-->
-<!--            <arg line="/F /T /IM firefox.exe"/>-->
-<!--        </exec>-->
-        <exec executable="taskkill">
-            <arg line="/T"/>
-            <arg line="/IM firefox.exe"/>
-            <arg line="/FI 'WINDOWTITLE eq Remote Console Runner - Mozilla Firefox'"/>
-        </exec>
+        </java>
+        <!-- Kill active server if exists -->
+<!--        <antcall target="server.kill" unless:set="subtask"/>-->
     </target>
 
-    <target name="test.addons" depends="bundle-libs, browsersOnWindows, browsersOnUnix">
+    <target name="test.addons" depends="bundle-libs, server.check">
         <loadfile property="addons.list" srcFile="addons/addons.list"/>
+        <echo >Waiting 10 seconds for other browsers at http://localhost:9876/capture</echo>
+<!--        <sleep seconds="30"/>-->
+        <echo>Start testing</echo>
         <for list="${addons.list}" param="addonid" delimiter="${line.separator}">
             <sequential>
                 <antcall target="test.single.addon">
