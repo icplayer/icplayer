@@ -11,6 +11,7 @@ import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.dom.ElementHTMLUtils;
+import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
@@ -147,6 +148,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		makeSortable(this, getElement(), jsObject, workMode);
 	};
 
+	public ScaleInformation getScaleInformation() {
+		return this.playerServices.getScaleInformation();
+	}
+
 	private native void makeSortable(OrderingView x, Element e, JavaScriptObject jsObject, boolean workMode)/*-{
 		var selector = jsObject.axis == "y" ? "tbody" : "tbody tr";
 		var displayType = jsObject.axis == "y" ? "table-row" : "table-cell";
@@ -183,9 +188,9 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 				scale = getContentScale();
 				moduleOffset = ui.item.parent().offset();
 				if (isEdge()) {
-					var scaleInfo = $wnd.player.getPlayerServices().getScaleInformation();
-					scale.X = scaleInfo.scaleX;
-					scale.Y = scaleInfo.scaleY;
+					var scaleInfo = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::getScaleInformation()();
+					scale.X = scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleX;
+					scale.Y = scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleY;
 				}
 				
                 var changeLeft = ui.placeholder.clientLeft - ui.originalPosition.left;

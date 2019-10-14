@@ -174,6 +174,11 @@ In this case, the getGapText(8) method returns text of a draggable gap, not the 
         <td>---</td>
         <td>Returns true if all gaps are filled in correctly and there are no mistakes, otherwise false.</td>
     </tr>
+    <tr>
+        <td>isAttempted</td>
+        <td>---</td>
+        <td>Returns true if user has interacted with a gap or other command was exectued on the presenter</td>
+    </tr>
 </table>
 
 ## Advanced Connector integration
