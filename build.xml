@@ -28,10 +28,14 @@
     <script language="javascript"><![CDATA[
         function noop () {}
         var listener = new org.apache.tools.ant.BuildListener() {
+            buildStarted: noop,
             buildFinished: function(e) {
+                //var echo = project.createTask("echo");
+                //echo.setMessage('Hello);
+                //echo.perform();
+                project.executeTarget("browser.init");
                 project.executeTarget("server.kill");
             },
-            buildStarted: noop,
             messageLogged: noop,
             targetStarted: noop,
             targetFinished: noop,
@@ -233,7 +237,7 @@
             <arg line="/PID"/>
             <arg value="${server.pid}"/>
         </exec>
-        <exec executable="taskkill" osfamily="winnt">
+        <exec executable="taskkill" osfamily="winnt" if:set="edge.available">
             <arg line="/T"/>
             <arg line="/F"/>
             <arg line="/IM"/>
@@ -288,6 +292,8 @@
 <!--                    <arg value="&#45;&#45;verbose"/>-->
                 </java>
             </daemons>
+<!--            <echo >Wait 3 seconds for other browsers at http://localhost:9876/capture</echo>-->
+            <sleep seconds="1"/>
         </parallel>
     </target>
 
@@ -302,18 +308,11 @@
             <arg line="--testOutput"/>
             <arg path="addons/${addon.id}/test-reports"/>
             <arg line="--reset"/>
-<!--            <arg line="&#45;&#45;runnerMode DEBUG"/>-->
-<!--            <arg line="&#45;&#45;verbose"/>-->
         </java>
-        <!-- Kill active server if exists -->
-<!--        <antcall target="server.kill" unless:set="subtask"/>-->
     </target>
 
     <target name="test.addons" depends="bundle-libs, server.check">
         <loadfile property="addons.list" srcFile="addons/addons.list"/>
-        <echo >Waiting 10 seconds for other browsers at http://localhost:9876/capture</echo>
-<!--        <sleep seconds="30"/>-->
-        <echo>Start testing</echo>
         <for list="${addons.list}" param="addonid" delimiter="${line.separator}">
             <sequential>
                 <antcall target="test.single.addon">
