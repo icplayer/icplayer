@@ -31,9 +31,8 @@
             buildStarted: noop,
             buildFinished: function(e) {
                 //var echo = project.createTask("echo");
-                //echo.setMessage('Hello);
+                //echo.setMessage('');
                 //echo.perform();
-                project.executeTarget("browser.init");
                 project.executeTarget("server.kill");
             },
             messageLogged: noop,
@@ -209,7 +208,11 @@
     </target>
 
     <target name="server.check" depends="server.ping" unless="server.has.ping">
-        <antcall target="server.start"/>
+        <antcall target="server.kill"/>
+        <!-- Execute target in the same project scope -->
+        <script language="javascript">
+            project.executeTarget("server.start");
+        </script>
     </target>
 
     <target name="server.get.pid">
@@ -227,6 +230,7 @@
         <condition property="server.has.pid">
             <length string="${server.pid}" when="greater" length="0"/>
         </condition>
+        <echo if:set="server.has.pid">Found PID ${server.pid} of ${jstestdriver.jar}</echo>
     </target>
 
     <target name="server.kill" depends="server.get.pid" if="server.has.pid">
@@ -251,7 +255,7 @@
         <delete dir="${firefox.profile}"/>
     </target>
 
-    <target name="server.start" depends="server.kill, browser.init">
+    <target name="server.start" depends="browser.init">
         <echo>Start a new server</echo>
         <!-- Generate firefox profile -->
         <exec executable="python" failonerror="true" outputproperty="firefox.profile" if:set="firefox.available">
