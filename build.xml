@@ -195,26 +195,22 @@
         <available property="msie.available" type="file" file="${msie.path}"/>
         <echo if:set="msie.available">Microsoft Internet Explorer found at ${msie.path}</echo>
 
-        <property name="edge.path" if:set="isWindows" unless:set="edge.path"
+        <property name="msedge.path" if:set="isWindows" unless:set="msedge.path"
                   value="C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe" />
-        <available property="edge.available" type="file" file="${edge.path}"/>
-        <echo if:set="edge.available">Microsoft Edge found at ${edge.path}</echo>
+        <available property="msedge.available" type="file" file="${msedge.path}"/>
+        <echo if:set="msedge.available">Microsoft msedge found at ${msedge.path}</echo>
     </target>
 
-    <target name="server.ping">
+    <target name="server.check">
         <condition property="server.has.ping">
             <and>
                 <socket server="localhost" port="9876"/>
-                <isreachable url="http://localhost:9876" timeout="3"/>
+<!--                <isreachable url="http://localhost:9876" timeout="3"/>-->
             </and>
         </condition>
-        <echo if:set="server.has.ping">Ping exists for ${addon.id}</echo>
-    </target>
-
-    <target name="server.check" depends="server.ping" unless="server.has.ping">
-        <antcall target="server.kill"/>
+        <antcall target="server.kill" unless:set="server.has.ping"/>
         <!-- Execute target in the same project scope -->
-        <script language="javascript">
+        <script language="javascript" unless:set="server.has.ping">
             project.executeTarget("server.start");
         </script>
     </target>
@@ -245,7 +241,7 @@
             <arg line="/PID"/>
             <arg value="${server.pid}"/>
         </exec>
-        <exec executable="taskkill" osfamily="winnt" if:set="edge.available">
+        <exec executable="taskkill" osfamily="winnt" if:set="msedge.available">
             <arg line="/T"/>
             <arg line="/F"/>
             <arg line="/IM"/>
@@ -284,10 +280,10 @@
                    else="">
             <isset property="msie.available"/>
         </condition>
-        <condition property="edge.command"
+        <condition property="msedge.command"
                    value="C:\Windows\explorer.exe;microsoft-edge:%s,"
                    else="">
-            <isset property="edge.available"/>
+            <isset property="msedge.available"/>
         </condition>
 
         <parallel>
@@ -295,7 +291,8 @@
                 <java jar="${jstestdriver.jar}" fork="true" failonerror="true">
                     <arg line="--port 9876"/>
                     <arg line="--browser"/>
-                    <arg value="${googleChrome.command}${firefox.command}${msie.command}${edge.command}"/>
+                    <arg value="${googleChrome.command}${firefox.command}${msie.command}${msedge.command}"/>
+<!--                    <arg line="&#45;&#45;browserTimeout 180000"/>-->
 <!--                    <arg line="&#45;&#45;runnerMode INFO"/>-->
 <!--                    <arg value="&#45;&#45;verbose"/>-->
                 </java>
@@ -316,7 +313,8 @@
         <echo>Testing addon with ID "${addon.id}"</echo>
 
         <mkdir dir="addons/${addon.id}/test-reports"/>
-        <java jar="${jstestdriver.jar}" fork="true" timeout="30000" resultproperty="jstestdriver.code">
+        <!-- One minute to test the addon should be enough -->
+        <java jar="${jstestdriver.jar}" fork="true" timeout="60000" resultproperty="jstestdriver.code">
             <arg line="--tests all"/>
             <arg line="--config"/>
             <arg path="addons/${addon.id}/jsTestDriver.conf"/>
