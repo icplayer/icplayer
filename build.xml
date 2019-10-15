@@ -181,7 +181,7 @@
         </exec>
         <available property="googleChrome.available" type="file" file="${googleChrome.path}"/>
         <echo if:set="googleChrome.available">Google Chrome found at ${googleChrome.path}</echo>
-    
+
         <property name="firefox.path" if:set="isWindows" unless:set="firefox.path"
                   value="C:\Program Files\Mozilla Firefox\firefox.exe" />
         <exec executable="which firefox" if:set="isUnit" unless:set="firefox.path" failonerror="true">
@@ -313,6 +313,7 @@
             <arg path="addons/${addon.id}/jsTestDriver.conf"/>
             <arg line="--testOutput"/>
             <arg path="addons/${addon.id}/test-reports"/>
+            <arg line="--captureConsole"/>
             <arg line="--reset"/>
         </java>
         <condition property="jstestdriver.failure">
