@@ -302,14 +302,7 @@
         </parallel>
     </target>
 
-    <target name="addon.id.check">
-        <condition property="addon.id.isvalid">
-          <matches pattern="^[\w\d_]+" string="${addon.id}"/>
-        </condition>
-        <echo unless:set="addon.id.isvalid">Skip testing addon with ID "${addon.id}"</echo>
-    </target>
-
-    <target name="test.single.addon" depends="addon.id.check, server.check" if="addon.id.isvalid" description="Test single addon, -Daddon.id=Addon_Id">
+    <target name="test.single.addon" depends="server.check" description="Test single addon, -Daddon.id=Addon_Id">
         <echo>Testing addon with ID "${addon.id}"</echo>
 
         <mkdir dir="addons/${addon.id}/test-reports"/>
@@ -329,6 +322,9 @@
     </target>
 
     <target name="test.addons" depends="bundle-libs, server.check">
+        <antcall target="test.single.addon">
+            <param name="addon.id" value="Commons"/>
+        </antcall>
         <loadfile property="addons.list" srcFile="addons/addons.list"/>
         <for list="${addons.list}" param="addonid" delimiter="${line.separator}">
             <sequential>
