@@ -203,8 +203,12 @@
 
     <target name="server.ping">
         <condition property="server.has.ping">
-            <socket server="localhost" port="9876"/>
+            <and>
+                <socket server="localhost" port="9876"/>
+                <isreachable url="http://localhost:9876" timeout="3"/>
+            </and>
         </condition>
+        <echo if:set="server.has.ping">Ping exists for ${addon.id}</echo>
     </target>
 
     <target name="server.check" depends="server.ping" unless="server.has.ping">
@@ -301,11 +305,18 @@
         </parallel>
     </target>
 
-    <target name="test.single.addon" depends="server.check" description="Test single addon, -Daddon.id=Addon_Id">
-        <echo>Testing addon with ID ${addon.id}</echo>
+    <target name="addon.id.check">
+        <condition property="addon.id.isvalid">
+          <matches pattern="^[\w\d_]+" string="${addon.id}"/>
+        </condition>
+        <echo unless:set="addon.id.isvalid">Skip testing addon with ID "${addon.id}"</echo>
+    </target>
+
+    <target name="test.single.addon" depends="addon.id.check, server.check" if="addon.id.isvalid" description="Test single addon, -Daddon.id=Addon_Id">
+        <echo>Testing addon with ID "${addon.id}"</echo>
 
         <mkdir dir="addons/${addon.id}/test-reports"/>
-        <java jar="${jstestdriver.jar}" fork="true" failonerror="true">
+        <java jar="${jstestdriver.jar}" fork="true" timeout="30000" resultproperty="jstestdriver.code">
             <arg line="--tests all"/>
             <arg line="--config"/>
             <arg path="addons/${addon.id}/jsTestDriver.conf"/>
@@ -313,6 +324,10 @@
             <arg path="addons/${addon.id}/test-reports"/>
             <arg line="--reset"/>
         </java>
+        <condition property="jstestdriver.failure">
+            <isfailure code="${jstestdriver.code}" />
+        </condition>
+        <antcall target="server.kill" if:set="jstestdriver.failure"/>
     </target>
 
     <target name="test.addons" depends="bundle-libs, server.check">
