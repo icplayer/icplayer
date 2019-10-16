@@ -156,7 +156,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	@Override
 	public String getState() {
 		if (isShowAnswers()) {
-			hideAnswers();
+			return this.currentState;
 		}
 
 		if (view == null)
