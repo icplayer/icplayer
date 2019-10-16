@@ -199,6 +199,19 @@
                   value="C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe" />
         <available property="msedge.available" type="file" file="${msedge.path}"/>
         <echo if:set="msedge.available">Microsoft msedge found at ${msedge.path}</echo>
+
+        <fail message="No available browser found!">
+            <condition>
+                <not>
+                    <or>
+                        <isset property="googleChrome.available"/>
+                        <isset property="firefox.available"/>
+                        <isset property="msedge.available"/>
+                        <isset property="msie.available"/>
+                    </or>
+                </not>
+            </condition>
+        </fail>
     </target>
 
     <target name="server.check">
