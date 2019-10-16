@@ -176,7 +176,7 @@
         <!-- You can override this, ex disable google chrome by -DgoogleChrome.path='' -->
         <property name="googleChrome.path" if:set="isWindows" unless:set="googleChrome.path" 
                   value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" />
-        <exec executable="which" if:set="isUnix" unless:set="googleChrome.path" outputproperty="googleChrome.path">
+        <exec executable="/usr/bin/which" if:set="isUnix" unless:set="googleChrome.path" outputproperty="googleChrome.path">
             <arg line="google-chrome"/>
         </exec>
         <available property="googleChrome.available" type="file" file="${googleChrome.path}"/>
@@ -184,7 +184,7 @@
 
         <property name="firefox.path" if:set="isWindows" unless:set="firefox.path"
                   value="C:\Program Files\Mozilla Firefox\firefox.exe" />
-        <exec executable="which" if:set="isUnit" unless:set="firefox.path" outputproperty="firefox.path">
+        <exec executable="/usr/bin/which" if:set="isUnit" unless:set="firefox.path" outputproperty="firefox.path">
             <arg line="firefox"/>
         </exec>
         <available property="firefox.available" type="file" file="${firefox.path}"/>
