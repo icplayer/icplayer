@@ -1504,11 +1504,13 @@ function AddonSlideshow_create() {
         presenter.configuration.isVisible = false;
     };
 
-    presenter.getState = function() {
+    presenter.onDestroy = function () {
         if (presenter.configuration.isDomReferenceArrayComplete) {
             presenter.pauseAudioResource();
         }
+    };
 
+    presenter.getState = function() {
         return JSON.stringify({
             isVisible: presenter.configuration.isVisible
         });
@@ -1875,6 +1877,11 @@ function AddonSlideshow_create() {
 
     presenter._internal_state = {
         deferredQueue: deferredSyncQueue
+    };
+
+
+    AddonSlideshow_create.__supported_player_options__ = {
+        interfaceVersion: 2
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
