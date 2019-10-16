@@ -42,7 +42,10 @@ TestCase("[Slider] Configuration", {
     'test proper config with default values': function () {
         var model = {
             "Is Visible": "True",
-            ImageElement : "/files/serve/image.png"
+            ImageElement : "/files/serve/image.png",
+            "Alternative texts": [{"Alternative text": '', "Step number": ''}],
+            speechTexts: {Step: {Step: ''}},
+            langAttribute: ''
         };
 
         var conversionResult = this.presenter.convertModel(model);
@@ -65,7 +68,10 @@ TestCase("[Slider] Configuration", {
             ImageElement : "/files/serve/image.png",
             Stepwise: "True",
             StepsCount: 6,
-            InitialStep: 3
+            InitialStep: 3,
+            "Alternative texts": [{"Alternative text": '', "Step number": ''}],
+            speechTexts: {Step: {Step: ''}},
+            langAttribute: ''
         };
 
         var conversionResult = this.presenter.convertModel(model);

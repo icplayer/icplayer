@@ -765,6 +765,7 @@ function AddonImage_Viewer_Public_create() {
             };
 
             $.when(presenter.imageLoaded).then(loadImageEndCallback);
+            presenter.readFrame(presenter.configuration.currentFrame);
         }
     };
 
