@@ -176,16 +176,16 @@
         <!-- You can override this, ex disable google chrome by -DgoogleChrome.path='' -->
         <property name="googleChrome.path" if:set="isWindows" unless:set="googleChrome.path" 
                   value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" />
-        <exec executable="which google-chrome" if:set="isUnix" unless:set="googleChrome.path" failonerror="true">
-            <outputproperty name="googleChrome.path" />
+        <exec executable="which" if:set="isUnix" unless:set="googleChrome.path" outputproperty="googleChrome.path">
+            <arg line="google-chrome"/>
         </exec>
         <available property="googleChrome.available" type="file" file="${googleChrome.path}"/>
         <echo if:set="googleChrome.available">Google Chrome found at ${googleChrome.path}</echo>
 
         <property name="firefox.path" if:set="isWindows" unless:set="firefox.path"
                   value="C:\Program Files\Mozilla Firefox\firefox.exe" />
-        <exec executable="which firefox" if:set="isUnit" unless:set="firefox.path" failonerror="true">
-            <outputproperty name="firefox.path" />
+        <exec executable="which" if:set="isUnit" unless:set="firefox.path" outputproperty="firefox.path">
+            <arg line="firefox"/>
         </exec>
         <available property="firefox.available" type="file" file="${firefox.path}"/>
         <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
