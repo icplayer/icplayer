@@ -16,7 +16,8 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private static final String FILLED_GAP_STYLE = "ic_draggableGapFilled";
 	private static final String EMPTY_TEXT = "&nbsp;";
 	private final GapInfo gapInfo;
-	private boolean disabled = false;
+	private boolean disabled = false;	// As outside state, we need to separate internal state of DnD gap from external state e.g when show answers is called.
+	private boolean _disabled = false;	// For internal usage
 	private boolean isWorkMode = true;
 	private String answerText = "";
 	private boolean isFilledGap = false;
@@ -27,6 +28,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private boolean isShowAnswersMode = false;
 	private boolean isSelected = false;
 	private int gapState = 0;
+	
 
 	public DraggableGapWidget(GapInfo gi, final ITextViewListener listener) {
 		super(DOM.getElementById(gi.getId()));
@@ -47,7 +49,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 				public void onClick(ClickEvent event) {
 					event.stopPropagation();
 					event.preventDefault();
-					if (listener != null && !disabled && isWorkMode) {
+					if (listener != null && isWorkMode && !_disabled) {
 						listener.onGapClicked(gapInfo.getId());
 					}
 				}
@@ -101,14 +103,14 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	}
 
 	private boolean isDragPossible() {
-		if (!isWorkMode || this.disabled) {
+		if (!isWorkMode || this._disabled) {
 			return false;
 		}
 		return true;
 	}
 
 	private void dropHandler(String droppedElement) {
-		if (listener != null && !disabled && isWorkMode) {
+		if (listener != null && !_disabled && isWorkMode) {
 			listener.onGapDropped(gapInfo.getId());
 			droppedElementHelper = droppedElementToString(droppedElement);
 		}
@@ -255,12 +257,20 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
-		if (disabled) {
+		this.setDisabledInternally(disabled);
+	}
+	
+	
+	private void setDisabledInternally(boolean value) {
+		this._disabled = value;
+		
+		if (value) {
 			addStyleDependentName("disabled");
 		} else{
 			removeStyleDependentName("disabled");
 		}
 	}
+	
 
 	@Override
 	public void markGapAsEmpty() {
@@ -284,14 +294,14 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	public void setStyleShowAnswers() {
 		isShowAnswersMode = true;
 		addStyleDependentName("correct-answer");
-		setDisabled(true);
+		setDisabledInternally(true);
 	}
 
 	@Override
 	public void removeStyleHideAnswers() {
 		isShowAnswersMode = false;
 		removeStyleDependentName("correct-answer");
-		setDisabled(false);
+		setDisabled(this.disabled);
 	}
 
 	@Override
