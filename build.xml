@@ -187,6 +187,8 @@
         <exec executable="which" if:set="isUnix" unless:set="firefox.path" outputproperty="firefox.path">
             <arg line="firefox"/>
         </exec>
+        <echo>Firefox found at ${firefox.path}</echo>
+        <property name="firefox.path" value="/usr/bin/firefox" unless:set="firefox.path"/>
         <available property="firefox.available" type="file" file="${firefox.path}"/>
         <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
 
@@ -230,12 +232,12 @@
 
     <target name="server.get.pid">
         <exec executable="jps" outputproperty="jps.output">
-                <arg value="-lvm"/>
+                <arg value="-lv"/>
         </exec>
         <echo>${jps.output}</echo>
         <echo>TEMP ${java.io.tmpdir}</echo>
         <exec executable="jps" failifexecutionfails="true" failonerror="true">
-            <arg value="-l"/>
+            <arg value="-lv"/>
             <redirector outputproperty="server.pid">
                 <outputfilterchain>
                     <linecontains>
