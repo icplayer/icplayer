@@ -240,6 +240,10 @@
                 </outputfilterchain>
             </redirector>
         </exec>
+        <exec executable="jps" outputproperty="jps.output">
+                <arg value="-l"/>
+        </exec>
+        <echo>${jps.output}</echo>
         <condition property="server.has.pid">
             <length string="${server.pid}" when="greater" length="0"/>
         </condition>
