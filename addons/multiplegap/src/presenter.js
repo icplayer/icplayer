@@ -1032,7 +1032,7 @@ function Addonmultiplegap_create(){
         if (presenter.isShowAnswersActive) {
             return presenter.tmpErrorCount;  // It's saved in showAnswers
         }
-        
+
         if (presenter.itemCounterMode) {
             var isEmpty = getItemsCount() === 0,
               result = 0;
@@ -1228,7 +1228,7 @@ function Addonmultiplegap_create(){
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        
+
         return presenter.countItems() > 0;
     };
     
@@ -1293,20 +1293,14 @@ function Addonmultiplegap_create(){
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        presenter.isShowAnswersActive = true;
         presenter.setWorkMode();
-        
-        presenter.tmpState = [];
+
+        presenter.tmpState = getPlaceholders();
         presenter.tmpScore = presenter.getScore();
         presenter.tmpErrorCount = presenter.getErrorCount();
-        presenter.$view.find('.placeholder').each(function(i, placeholder) {
-            presenter.tmpState.push({
-                item : $(placeholder).attr('draggableItem'),
-                value : $(placeholder).attr('draggableValue'),
-                type : $(placeholder).attr('draggableType')
-            });
-        });
-        
+
+        presenter.isShowAnswersActive = true;
+
         presenter.$view.find('.placeholder').remove();
         var moduleID,
           iteratedObject;
