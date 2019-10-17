@@ -44,11 +44,11 @@
         project.addBuildListener(listener)
     ]]></script>
     <condition property="isWindows">
-        <os family="windows" />
+        <os family="windows"/>
     </condition>
 
     <condition property="isUnix">
-        <os family="unix" />
+        <os family="unix"/>
     </condition>
 
     <target name="clean" description="Cleans this project">
@@ -175,28 +175,28 @@
     <target name="browser.init">
         <!-- You can override this, ex disable google chrome by -DgoogleChrome.path='' -->
         <property name="googleChrome.path" if:set="isWindows" unless:set="googleChrome.path" 
-                  value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" />
-        <exec executable="/usr/bin/which" if:set="isUnix" unless:set="googleChrome.path" outputproperty="googleChrome.path">
+                  value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"/>
+        <exec executable="which" if:set="isUnix" unless:set="googleChrome.path" outputproperty="googleChrome.path">
             <arg line="google-chrome"/>
         </exec>
         <available property="googleChrome.available" type="file" file="${googleChrome.path}"/>
         <echo if:set="googleChrome.available">Google Chrome found at ${googleChrome.path}</echo>
 
         <property name="firefox.path" if:set="isWindows" unless:set="firefox.path"
-                  value="C:\Program Files\Mozilla Firefox\firefox.exe" />
-        <exec executable="/usr/bin/which" if:set="isUnix" unless:set="firefox.path" outputproperty="firefox.path">
+                  value="C:\Program Files\Mozilla Firefox\firefox.exe"/>
+        <exec executable="which" if:set="isUnix" unless:set="firefox.path" outputproperty="firefox.path">
             <arg line="firefox"/>
         </exec>
         <available property="firefox.available" type="file" file="${firefox.path}"/>
         <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
 
         <property name="msie.path" if:set="isWindows" unless:set="msie.path"
-                  value="C:\Program Files\internet explorer\iexplore.exe" />
+                  value="C:\Program Files\internet explorer\iexplore.exe"/>
         <available property="msie.available" type="file" file="${msie.path}"/>
         <echo if:set="msie.available">Microsoft Internet Explorer found at ${msie.path}</echo>
 
         <property name="msedge.path" if:set="isWindows" unless:set="msedge.path"
-                  value="C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe" />
+                  value="C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe"/>
         <available property="msedge.available" type="file" file="${msedge.path}"/>
         <echo if:set="msedge.available">Microsoft msedge found at ${msedge.path}</echo>
 
@@ -229,7 +229,7 @@
     </target>
 
     <target name="server.get.pid">
-        <exec executable="jps" searchpath="true" failifexecutionfails="true">
+        <exec executable="jps" failifexecutionfails="true" failonerror="true">
             <arg value="-l"/>
             <redirector outputproperty="server.pid">
                 <outputfilterchain>
@@ -248,19 +248,19 @@
 
     <target name="server.kill" depends="server.get.pid" if="server.has.pid">
         <echo>Kill jsTestDriver server with PID ${server.pid}</echo>
-        <exec executable="taskkill" osfamily="winnt" failifexecutionfails="true">
+        <exec executable="taskkill" osfamily="windows" failifexecutionfails="true">
             <arg line="/T"/>
             <arg line="/F"/>
             <arg line="/PID"/>
             <arg value="${server.pid}"/>
         </exec>
-        <exec executable="taskkill" osfamily="winnt" if:set="msedge.available" failifexecutionfails="true">
+        <exec executable="taskkill" osfamily="windows" if:set="msedge.available" failifexecutionfails="true">
             <arg line="/T"/>
             <arg line="/F"/>
             <arg line="/IM"/>
             <arg value="MicrosoftEdge.exe"/>
         </exec>
-        <exec executable="pkill" osfamily="unix" searchpath="true" failifexecutionfails="true">
+        <exec executable="pkill" osfamily="unix" failifexecutionfails="true">
             <arg line="-9"/>
             <arg line="-P"/>
             <arg value="${server.pid}"/>
@@ -271,7 +271,7 @@
     <target name="server.start" depends="browser.init">
         <echo>Start a new server</echo>
         <!-- Generate firefox profile -->
-        <exec executable="python" if:set="firefox.available" searchpath="true" outputproperty="firefox.profile"
+        <exec executable="python" if:set="firefox.available" outputproperty="firefox.profile"
               failonerror="true" failifexecutionfails="true">
             <arg line="-c"/>
             <arg value="import tempfile;print(tempfile.mkdtemp('','jstestdriver.'))"/>
@@ -331,7 +331,7 @@
             <arg line="--reset"/>
         </java>
         <condition property="jstestdriver.failure">
-            <isfailure code="${jstestdriver.code}" />
+            <isfailure code="${jstestdriver.code}"/>
         </condition>
         <antcall target="server.kill" if:set="jstestdriver.failure"/>
         <condition property="browser.unresponsive">
@@ -357,7 +357,7 @@
             <arg line="--reset"/>
         </java>
         <condition property="jstestdriver.failure">
-            <isfailure code="${jstestdriver.code}" />
+            <isfailure code="${jstestdriver.code}"/>
         </condition>
         <antcall target="server.kill" if:set="jstestdriver.failure"/>
     </target>
@@ -412,7 +412,7 @@
     <target name="validate-translations-javascript">
         <echo message="Validating JSON in files:"/>
 
-        <exec executable="python" searchpath="true" failonerror="true" failifexecutionfails="true">
+        <exec executable="python" failonerror="true" failifexecutionfails="true">
             <arg value="validate_translations_javascript.py"/>
         </exec>
 
