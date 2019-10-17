@@ -279,7 +279,7 @@
         <copy file="addons/tools/prefs.js" todir="${firefox.profile}" if:set="firefox.available"/>
 
         <condition property="googleChrome.command"
-                   value="${googleChrome.path};--disable-gpu --headless --remote-debugging-port=9222,"
+                   value="${googleChrome.path};--disable-gpu --headless --no-sandbox --remote-debugging-port=9222,"
                    else="">
             <isset property="googleChrome.available"/>
         </condition>
