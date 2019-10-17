@@ -334,6 +334,32 @@
             <isfailure code="${jstestdriver.code}" />
         </condition>
         <antcall target="server.kill" if:set="jstestdriver.failure"/>
+        <condition property="browser.unresponsive">
+            <equals arg1="1" arg2="${jstestdriver.code}"/>
+        </condition>
+        <!-- Try to test addon one more time, after BrowserPanicException -->
+        <antcall target="retest.single.addon" if:set="browser.unresponsive">
+            <param name="addon.id" value="${addon.id}"/>
+        </antcall>
+    </target>
+
+    <target name="retest.single.addon" depends="server.start" description="Test single addon, -Daddon.id=Addon_Id">
+        <echo>Re-testing addon with ID "${addon.id}"</echo>
+
+        <!-- One minute to test the addon should be enough -->
+        <java jar="${jstestdriver.jar}" fork="true" timeout="60000" resultproperty="jstestdriver.code">
+            <arg line="--tests all"/>
+            <arg line="--config"/>
+            <arg path="addons/${addon.id}/jsTestDriver.conf"/>
+            <arg line="--testOutput"/>
+            <arg path="addons/${addon.id}/test-reports"/>
+            <arg line="--captureConsole"/>
+            <arg line="--reset"/>
+        </java>
+        <condition property="jstestdriver.failure">
+            <isfailure code="${jstestdriver.code}" />
+        </condition>
+        <antcall target="server.kill" if:set="jstestdriver.failure"/>
     </target>
 
     <target name="test.addons" depends="bundle-libs, server.check">
