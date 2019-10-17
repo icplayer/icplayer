@@ -229,6 +229,11 @@
     </target>
 
     <target name="server.get.pid">
+        <exec executable="jps" outputproperty="jps.output">
+                <arg value="-lvm"/>
+        </exec>
+        <echo>${jps.output}</echo>
+        <echo>TEMP ${java.io.tmpdir}</echo>
         <exec executable="jps" failifexecutionfails="true" failonerror="true">
             <arg value="-l"/>
             <redirector outputproperty="server.pid">
@@ -240,10 +245,6 @@
                 </outputfilterchain>
             </redirector>
         </exec>
-        <exec executable="jps" outputproperty="jps.output">
-                <arg value="-l"/>
-        </exec>
-        <echo>${jps.output}</echo>
         <condition property="server.has.pid">
             <length string="${server.pid}" when="greater" length="0"/>
         </condition>
