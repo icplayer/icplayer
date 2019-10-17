@@ -232,18 +232,17 @@
 
     <target name="server.get.pid">
         <exec executable="jps" outputproperty="jps.output">
-                <arg value="-lv"/>
+            <arg value="-lv"/>
         </exec>
         <echo>${jps.output}</echo>
-        <echo>TEMP ${java.io.tmpdir}</echo>
         <exec executable="jps" failifexecutionfails="true" failonerror="true">
-            <arg value="-lv"/>
+            <arg value="-lvm"/>
             <redirector outputproperty="server.pid">
                 <outputfilterchain>
                     <linecontains>
                         <contains value="${jstestdriver.jar}"/>
                     </linecontains>
-                    <replacestring from=" ${jstestdriver.jar}"/>
+                    <replaceregex pattern="^(\d+)\s.*$" replace="\1"/>
                 </outputfilterchain>
             </redirector>
         </exec>
@@ -369,7 +368,7 @@
         <antcall target="server.kill" if:set="jstestdriver.failure"/>
     </target>
 
-    <target name="test.addons" depends="bundle-libs, server.check">
+    <target name="test.addons" depends="bundle-libs">
         <antcall target="test.single.addon">
             <param name="addon.id" value="Commons"/>
         </antcall>
