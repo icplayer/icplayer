@@ -184,7 +184,7 @@
 
         <property name="firefox.path" if:set="isWindows" unless:set="firefox.path"
                   value="C:\Program Files\Mozilla Firefox\firefox.exe" />
-        <exec executable="/usr/bin/which" if:set="isUnit" unless:set="firefox.path" outputproperty="firefox.path">
+        <exec executable="/usr/bin/which" if:set="isUnix" unless:set="firefox.path" outputproperty="firefox.path">
             <arg line="firefox"/>
         </exec>
         <available property="firefox.available" type="file" file="${firefox.path}"/>
@@ -229,7 +229,7 @@
     </target>
 
     <target name="server.get.pid">
-        <exec executable="jps">
+        <exec executable="jps" searchpath="true" failifexecutionfails="true">
             <arg value="-l"/>
             <redirector outputproperty="server.pid">
                 <outputfilterchain>
@@ -248,30 +248,31 @@
 
     <target name="server.kill" depends="server.get.pid" if="server.has.pid">
         <echo>Kill jsTestDriver server with PID ${server.pid}</echo>
-        <exec executable="taskkill" osfamily="winnt">
+        <exec executable="taskkill" osfamily="winnt" failifexecutionfails="true">
             <arg line="/T"/>
             <arg line="/F"/>
             <arg line="/PID"/>
             <arg value="${server.pid}"/>
         </exec>
-        <exec executable="taskkill" osfamily="winnt" if:set="msedge.available">
+        <exec executable="taskkill" osfamily="winnt" if:set="msedge.available" failifexecutionfails="true">
             <arg line="/T"/>
             <arg line="/F"/>
             <arg line="/IM"/>
             <arg value="MicrosoftEdge.exe"/>
         </exec>
-        <exec executable="pkill" osfamily="unix">
+        <exec executable="pkill" osfamily="unix" searchpath="true" failifexecutionfails="true">
             <arg line="-9"/>
             <arg line="-P"/>
             <arg value="${server.pid}"/>
         </exec>
-        <delete dir="${firefox.profile}"/>
+        <delete dir="${firefox.profile}" failonerror="true"/>
     </target>
 
     <target name="server.start" depends="browser.init">
         <echo>Start a new server</echo>
         <!-- Generate firefox profile -->
-        <exec executable="python" failonerror="true" outputproperty="firefox.profile" if:set="firefox.available">
+        <exec executable="python" if:set="firefox.available" searchpath="true" outputproperty="firefox.profile"
+              failonerror="true" failifexecutionfails="true">
             <arg line="-c"/>
             <arg value="import tempfile;print(tempfile.mkdtemp('','jstestdriver.'))"/>
         </exec>
@@ -385,7 +386,7 @@
     <target name="validate-translations-javascript">
         <echo message="Validating JSON in files:"/>
 
-        <exec executable="python" failonerror="true">
+        <exec executable="python" searchpath="true" failonerror="true" failifexecutionfails="true">
             <arg value="validate_translations_javascript.py"/>
         </exec>
 
