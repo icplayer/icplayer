@@ -184,10 +184,12 @@
 
         <property name="firefox.path" if:set="isWindows" unless:set="firefox.path"
                   value="C:\Program Files\Mozilla Firefox\firefox.exe"/>
-        <exec executable="which" osfamily="unix" unless:set="firefox.path" outputproperty="firefox.path">
-            <arg line="firefox"/>
-        </exec>
-        <available property="firefox.available" type="file" file="${firefox.path}"/>
+<!--        <exec executable="which" osfamily="unix" unless:set="firefox.path" outputproperty="firefox.path">-->
+<!--            <arg line="firefox"/>-->
+<!--        </exec>-->
+        <property name="firefox.path" value="/usr/bin/firefox"/>
+<!--        <available property="firefox.available" type="file" file="${firefox.path}"/>-->
+        <property name="firefox.available" value="true"/>
         <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
 
         <property name="msie.path" if:set="isWindows" unless:set="msie.path"
@@ -260,8 +262,12 @@
             <arg line="/IM"/>
             <arg value="MicrosoftEdge.exe"/>
         </exec>
+        <exec executable="pgrep" osfamily="unix" failifexecutionfails="false">
+            <arg line="-l"/>
+            <arg line="-P"/>
+            <arg value="${server.pid}"/>
+        </exec>
         <exec executable="pkill" osfamily="unix" failifexecutionfails="true">
-            <arg line="-9"/>
             <arg line="-P"/>
             <arg value="${server.pid}"/>
         </exec>
