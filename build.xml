@@ -172,33 +172,39 @@
         </junit>
     </target>
 
-    <target name="browser.init">
+    <target name="browser.init.windows" if="isWindows">
         <!-- You can override this, ex disable google chrome by -DgoogleChrome.path='' -->
-        <property name="googleChrome.path" if:set="isWindows" unless:set="googleChrome.path" 
+        <property name="googleChrome.path" unless:set="googleChrome.path"
                   value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"/>
-        <exec executable="which" osfamily="unix" unless:set="googleChrome.path" outputproperty="googleChrome.path">
+        <property name="firefox.path" unless:set="firefox.path"
+                  value="C:\Program Files\Mozilla Firefox\firefox.exe"/>
+        <property name="msie.path" unless:set="msie.path"
+                  value="C:\Program Files\internet explorer\iexplore.exe"/>
+        <property name="msedge.path" unless:set="msedge.path"
+                  value="C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe"/>
+
+    </target>
+
+    <target name="browser.init.unix" if="isUnix">
+        <!-- You can override this, ex disable google chrome by -DgoogleChrome.path='' -->
+        <exec executable="which" unless:set="googleChrome.path" outputproperty="googleChrome.path">
             <arg line="google-chrome"/>
         </exec>
+        <exec executable="which" unless:set="firefox.path" outputproperty="firefox.path">
+            <arg line="firefox"/>
+        </exec>
+    </target>
+
+    <target name="browser.init" depends="browser.init.windows, browser.init.unix">
         <available property="googleChrome.available" type="file" file="${googleChrome.path}"/>
         <echo if:set="googleChrome.available">Google Chrome found at ${googleChrome.path}</echo>
 
-        <property name="firefox.path" if:set="isWindows" unless:set="firefox.path"
-                  value="C:\Program Files\Mozilla Firefox\firefox.exe"/>
-<!--        <exec executable="which" osfamily="unix" unless:set="firefox.path" outputproperty="firefox.path">-->
-<!--            <arg line="firefox"/>-->
-<!--        </exec>-->
-        <property name="firefox.path" value="/usr/bin/firefox"/>
-<!--        <available property="firefox.available" type="file" file="${firefox.path}"/>-->
-        <property name="firefox.available" value="true"/>
+        <available property="firefox.available" type="file" file="${firefox.path}"/>
         <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
 
-        <property name="msie.path" if:set="isWindows" unless:set="msie.path"
-                  value="C:\Program Files\internet explorer\iexplore.exe"/>
         <available property="msie.available" type="file" file="${msie.path}"/>
         <echo if:set="msie.available">Microsoft Internet Explorer found at ${msie.path}</echo>
 
-        <property name="msedge.path" if:set="isWindows" unless:set="msedge.path"
-                  value="C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe"/>
         <available property="msedge.available" type="file" file="${msedge.path}"/>
         <echo if:set="msedge.available">Microsoft msedge found at ${msedge.path}</echo>
 
@@ -268,6 +274,7 @@
             <arg value="${server.pid}"/>
         </exec>
         <exec executable="pkill" osfamily="unix" failifexecutionfails="true">
+            <arg line="-SIGKILL"/>
             <arg line="-P"/>
             <arg value="${server.pid}"/>
         </exec>
