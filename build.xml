@@ -193,7 +193,6 @@
 <!--        <exec executable="which" unless:set="firefox.path" outputproperty="firefox.path">-->
 <!--            <arg line="firefox"/>-->
 <!--        </exec>-->
-        <property name="firefox.path" value="/usr/bin/firefox"/>
     </target>
 
     <target name="browser.init" depends="browser.init.windows, browser.init.unix">
@@ -201,6 +200,7 @@
         <echo if:set="googleChrome.available">Google Chrome found at ${googleChrome.path}</echo>
 
 <!--        <available property="firefox.available" type="file" file="${firefox.path}"/>-->
+        <property name="firefox.path" value="/usr/bin/firefox"/>
         <property name="firefox.available" value="true"/>
         <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
 
