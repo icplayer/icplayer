@@ -186,22 +186,23 @@
     </target>
 
     <target name="browser.init.unix" if="isUnix">
-        <!-- You can override this, ex disable google chrome by -Dfirefox.path='' -->
-        <exec executable="which" unless:set="firefox.path" outputproperty="firefox.path">
-            <arg line="firefox"/>
-        </exec>
         <!-- You can override this, ex disable google chrome by -DgoogleChrome.path='' -->
         <exec executable="which" unless:set="googleChrome.path" outputproperty="googleChrome.path">
             <arg line="google-chrome"/>
         </exec>
+<!--        <exec executable="which" unless:set="firefox.path" outputproperty="firefox.path">-->
+<!--            <arg line="firefox"/>-->
+<!--        </exec>-->
+        <property name="firefox.path" value="/usr/bin/firefox"/>
     </target>
 
     <target name="browser.init" depends="browser.init.windows, browser.init.unix">
-        <available property="firefox.available" type="file" file="${firefox.path}"/>
-        <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
-
         <available property="googleChrome.available" type="file" file="${googleChrome.path}"/>
         <echo if:set="googleChrome.available">Google Chrome found at ${googleChrome.path}</echo>
+
+<!--        <available property="firefox.available" type="file" file="${firefox.path}"/>-->
+        <property name="firefox.available" value="true"/>
+        <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
 
         <available property="msie.available" type="file" file="${msie.path}"/>
         <echo if:set="msie.available">Microsoft Internet Explorer found at ${msie.path}</echo>
@@ -361,7 +362,7 @@
         <echo>Re-testing addon with ID "${addon.id}"</echo>
 
         <!-- One minute to test the addon should be enough -->
-        <java jar="${jstestdriver.jar}" fork="true" timeout="60000" resultproperty="jstestdriver.code">
+        <java jar="${jstestdriver.jar}" fork="true" timeout="60000" resultproperty="jstestdriver.code2">
             <arg line="--tests all"/>
             <arg line="--config"/>
             <arg path="addons/${addon.id}/jsTestDriver.conf"/>
@@ -370,10 +371,10 @@
             <arg line="--captureConsole"/>
             <arg line="--reset"/>
         </java>
-        <condition property="jstestdriver.failure">
-            <isfailure code="${jstestdriver.code}"/>
+        <condition property="jstestdriver.failure2">
+            <isfailure code="${jstestdriver.code2}"/>
         </condition>
-        <antcall target="server.kill" if:set="jstestdriver.failure"/>
+        <antcall target="server.kill" if:set="jstestdriver.failure2"/>
     </target>
 
     <target name="test.addons" depends="bundle-libs">
