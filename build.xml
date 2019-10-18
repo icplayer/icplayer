@@ -270,6 +270,7 @@
             <arg value="${server.pid}"/>
         </exec>
         <delete dir="${firefox.profile}" failonerror="true"/>
+        <sleep seconds="1"/>
     </target>
 
     <target name="server.start" depends="browser.init">
