@@ -187,8 +187,6 @@
         <exec executable="which" if:set="isUnix" unless:set="firefox.path" outputproperty="firefox.path">
             <arg line="firefox"/>
         </exec>
-        <echo>Firefox found at ${firefox.path}</echo>
-        <property name="firefox.path" value="/usr/bin/firefox" unless:set="firefox.path"/>
         <available property="firefox.available" type="file" file="${firefox.path}"/>
         <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
 
@@ -231,10 +229,6 @@
     </target>
 
     <target name="server.get.pid">
-        <exec executable="jps" outputproperty="jps.output">
-            <arg value="-lv"/>
-        </exec>
-        <echo>${jps.output}</echo>
         <exec executable="jps" failifexecutionfails="true" failonerror="true">
             <arg value="-lvm"/>
             <redirector outputproperty="server.pid">
@@ -369,6 +363,7 @@
     </target>
 
     <target name="test.addons" depends="bundle-libs">
+        <echo>${ant.version}</echo>
         <antcall target="test.single.addon">
             <param name="addon.id" value="Commons"/>
         </antcall>
