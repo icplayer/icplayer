@@ -186,21 +186,22 @@
     </target>
 
     <target name="browser.init.unix" if="isUnix">
+        <!-- You can override this, ex disable google chrome by -Dfirefox.path='' -->
+        <exec executable="which" unless:set="firefox.path" outputproperty="firefox.path">
+            <arg line="firefox"/>
+        </exec>
         <!-- You can override this, ex disable google chrome by -DgoogleChrome.path='' -->
         <exec executable="which" unless:set="googleChrome.path" outputproperty="googleChrome.path">
             <arg line="google-chrome"/>
         </exec>
-        <exec executable="which" unless:set="firefox.path" outputproperty="firefox.path">
-            <arg line="firefox"/>
-        </exec>
     </target>
 
     <target name="browser.init" depends="browser.init.windows, browser.init.unix">
-        <available property="googleChrome.available" type="file" file="${googleChrome.path}"/>
-        <echo if:set="googleChrome.available">Google Chrome found at ${googleChrome.path}</echo>
-
         <available property="firefox.available" type="file" file="${firefox.path}"/>
         <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
+
+        <available property="googleChrome.available" type="file" file="${googleChrome.path}"/>
+        <echo if:set="googleChrome.available">Google Chrome found at ${googleChrome.path}</echo>
 
         <available property="msie.available" type="file" file="${msie.path}"/>
         <echo if:set="msie.available">Microsoft Internet Explorer found at ${msie.path}</echo>
@@ -268,14 +269,13 @@
             <arg line="/IM"/>
             <arg value="MicrosoftEdge.exe"/>
         </exec>
-        <exec executable="pgrep" osfamily="unix" failifexecutionfails="false">
-            <arg line="-l"/>
+        <exec executable="pkill" osfamily="unix" failifexecutionfails="true">
+            <arg line="-9"/>
             <arg line="-P"/>
             <arg value="${server.pid}"/>
         </exec>
-        <exec executable="pkill" osfamily="unix" failifexecutionfails="true">
-            <arg line="-SIGKILL"/>
-            <arg line="-P"/>
+        <exec executable="kill" osfamily="unix" failifexecutionfails="true">
+            <arg line="-9"/>
             <arg value="${server.pid}"/>
         </exec>
         <delete dir="${firefox.profile}" failonerror="true"/>
