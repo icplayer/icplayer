@@ -325,8 +325,8 @@
         <echo>Testing addon with ID "${addon.id}"</echo>
 
         <mkdir dir="addons/${addon.id}/test-reports"/>
-        <!-- One minute to test the addon should be enough -->
-        <java jar="${jstestdriver.jar}" fork="true" timeout="60000" resultproperty="jstestdriver.code">
+        <!-- Three minutes to test the addon should be enough -->
+        <java jar="${jstestdriver.jar}" fork="true" timeout="180000" resultproperty="jstestdriver.code">
             <arg line="--tests all"/>
             <arg line="--config"/>
             <arg path="addons/${addon.id}/jsTestDriver.conf"/>
