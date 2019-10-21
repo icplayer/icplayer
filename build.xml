@@ -367,7 +367,7 @@
         <antcall target="server.kill" if:set="jstestdriver.failure2"/>
     </target>
 
-    <target name="test.addons" depends="bundle-libs">
+    <target name="test.addons" depends="bundle-libs, browser.init">
         <echo>${ant.version}</echo>
         <antcall target="test.single.addon">
             <param name="addon.id" value="Commons"/>
