@@ -172,7 +172,7 @@
         </junit>
     </target>
 
-    <target name="browser.init">
+    <target name="browser.init" unless="browser.initialized">
         <!-- You can override this, ex disable google chrome by -DgoogleChrome.path='' -->
         <property name="googleChrome.path" if:set="isWindows" unless:set="googleChrome.path" 
                   value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"/>
@@ -212,6 +212,7 @@
                 </not>
             </condition>
         </fail>
+        <property name="browser.initialized" value="true"/>
     </target>
 
     <target name="server.check">
