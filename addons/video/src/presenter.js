@@ -9,8 +9,24 @@ function Addonvideo_create() {
 
     var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
     var currentTime;
-
+    var errorMessageIsVisible = false;
     var escapedSeparator = '&&separator&&';
+    var isOnlineVideoWatcher = null;
+
+    function removeOnlineWatcher () {
+        if (isOnlineVideoWatcher !== null) {
+            clearInterval(isOnlineVideoWatcher);
+            isOnlineVideoWatcher = null;
+        }
+    }
+
+    function runOnlineWatcher (timeout) {
+        if (timeout === undefined) {
+            timeout = 500;
+        }
+        removeOnlineWatcher();
+        isOnlineVideoWatcher = setTimeout(presenter.checkNetworkStatus, timeout);
+    }
 
     presenter.currentMovie = 0;
     presenter.videoContainer = null;
@@ -298,11 +314,16 @@ function Addonvideo_create() {
         presenter.pageLoaded = pageLoadedDeferred.promise();
     };
 
+    presenter.loadVideo = function video_loadVideoFunction () {
+        presenter.metadadaLoaded = false;
+        presenter.videoObject.load();
+        runOnlineWatcher(100);
+    };
+
     presenter.onEventReceived = function (eventName, eventData) {
         presenter.pageLoadedDeferred.resolve();
         if (eventData.value == 'dropdownClicked') {
-            presenter.metadadaLoaded = false;
-            presenter.videoObject.load();
+            presenter.loadVideo();
         }
     };
 
@@ -429,7 +450,7 @@ function Addonvideo_create() {
         if (presenter.controlBar !== null) {
             presenter.controlBar.destroy();
         }
-
+        removeOnlineWatcher();
         presenter.stop();
 
         presenter.videoView.removeEventListener('DOMNodeRemoved', presenter.destroy);
@@ -478,8 +499,7 @@ function Addonvideo_create() {
         video.style.zIndex = 20000;
         video.className = video.className + " " + presenter.$view[0].className;
         body.appendChild(video);
-        presenter.metadadaLoaded = false;
-        presenter.videoObject.load();
+        presenter.loadVideo();
         presenter.scalePosterToWindowSize();
         presenter.scaleCaptionsContainerToVideoNewVideoSize();
     };
@@ -522,8 +542,7 @@ function Addonvideo_create() {
             presenter.stylesBeforeFullscreen.changedStyles = false;
             var video = presenter.videoContainer.get(0);
             presenter.videoView.appendChild(video);
-            presenter.metadadaLoaded = false;
-            presenter.videoObject.load();
+            presenter.loadVideo();
             video.style.position = presenter.stylesBeforeFullscreen.style.position;
             video.style.top = presenter.stylesBeforeFullscreen.style.top;
             video.style.left = presenter.stylesBeforeFullscreen.style.left;
@@ -948,7 +967,6 @@ function Addonvideo_create() {
 
         presenter.videoObject = presenter.videoContainer.find('video')[0];
         presenter.$videoObject = $(presenter.videoObject);
-
         presenter.setDimensions();
 
         presenter.checkPlayButtonVisibility();
@@ -1211,6 +1229,7 @@ function Addonvideo_create() {
     };
 
     presenter.reload = function () {
+        removeOnlineWatcher();
         presenter.showPlayButton();
         presenter.isVideoLoaded = false;
         $(presenter.videoContainer).find('.captions').remove();
@@ -1405,25 +1424,43 @@ function Addonvideo_create() {
         presenter.$view.find('.video-container-video').text(files[presenter.currentMovie].AlternativeText);
     };
 
-    presenter.isOnlineResourceOnly = function() {
-        for (var i = 0; i < presenter.configuration.files.length; i++) {
-            var videoFile = presenter.configuration.files[i];
-            var isMP4Local = videoFile["MP4 video"] && videoFile["MP4 video"].trim().indexOf("file:/") == 0;
-            var isOggLocal = videoFile["Ogg video"] && videoFile["Ogg video"].trim().indexOf("file:/") == 0;
-            var isWebMLocal = videoFile["WebM video"] && videoFile["WebM video"].trim().indexOf("file:/") == 0;
-            if (!isMP4Local && !isOggLocal && !isWebMLocal) {
-                return true;
-            }
-            return false;
+    presenter.showOfflineError = function () {
+        if (errorMessageIsVisible) return;
+        presenter.pause();
+        errorMessageIsVisible = true;
+        var errorWrapper = document.createElement("div");
+        errorWrapper.classList.add("error-message");
+        errorWrapper.innerHTML = presenter.configuration.offlineMessage;
+
+        presenter.$view[0].append(errorWrapper);
+        presenter.$view.find(".video-container").hide();
+    };
+
+    presenter.hideOfflineError = function () {
+        if (!errorMessageIsVisible) return;
+        errorMessageIsVisible = false;
+        presenter.$view.find(".video-container").show();
+        presenter.$view.find(".error-message").remove();
+        presenter.loadVideo();  // Something was changed, so now it's possible to display that video
+    };
+
+    presenter.checkNetworkStatus = function () {
+        var video = presenter.videoObject;
+        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/networkState
+        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState
+        if (
+            video.networkState === video.NETWORK_NO_SOURCE  // There is no data source
+            && !window.navigator.onLine                     // And device is not connected
+            && video.readyState === video.HAVE_NOTHING) {   // And video never received data
+            presenter.showOfflineError();
+        } else {
+            presenter.hideOfflineError();
         }
+
+        runOnlineWatcher();     // In case if device receive connection or lost it
     };
 
     presenter.setVideo = function () {
-        if (!window.navigator.onLine && presenter.isOnlineResourceOnly()) {
-                presenter.$view.html(presenter.configuration.offlineMessage);
-                return;
-        }
-
         if (presenter.videoObject) {
             $(presenter.videoObject).unbind("ended");
             $(presenter.videoObject).unbind("error");
@@ -1482,8 +1519,7 @@ function Addonvideo_create() {
             });
             // Android devices have problem with loading content.
             presenter.videoObject.addEventListener("stalled", presenter.onStalledEventHandler, false);
-            presenter.videoObject.load();
-            presenter.metadadaLoaded = false;
+            presenter.loadVideo();
 
             if (files[presenter.currentMovie]['Loop video']) {
                 if (typeof presenter.videoObject.loop == 'boolean') {
@@ -1878,13 +1914,11 @@ function Addonvideo_create() {
     presenter.loadVideoAtPlayOnMobiles = function () {
         if (MobileUtils.isSafariMobile(navigator.userAgent)) {
             if (!presenter.isVideoLoaded) {
-                presenter.videoObject.load();
-                presenter.metadadaLoaded = false;
+                presenter.loadVideo();
             }
         }
         if (!presenter.isVideoLoaded) {
-            presenter.videoObject.load();
-            presenter.metadadaLoaded = false;
+            presenter.loadVideo();
         }
     };
 

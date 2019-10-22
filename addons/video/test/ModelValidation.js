@@ -11,6 +11,7 @@ TestCase("[Video] Model validation", {
             "Hide subtitles": "False",
             'Hide default controls': "True",
             'Show play button': "True",
+            "offlineMessage":"This video is not available offline. Please connect to the Internet to watch it.",
             Files: [{
                 Poster: "ok",
                 Subtitles: "okdaokdoa",
@@ -56,6 +57,7 @@ TestCase("[Video] Model validation", {
             shouldHideSubtitles: false,
             defaultControls: false,
             showPlayButton: true,
+            "offlineMessage":"This video is not available offline. Please connect to the Internet to watch it.",
             files: [{
                 Poster: "ok",
                 Subtitles: "okdaokdoa",
