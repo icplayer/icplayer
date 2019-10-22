@@ -1,3 +1,4 @@
+2019-10-22 Fix problem with offline device and video available offline
 2019-10-18 Fixed styles in Flash Cards module
 2019-10-14 Optimize drawing frames in Animation addon
 2019-10-11 Added isAttempted command to Table.
