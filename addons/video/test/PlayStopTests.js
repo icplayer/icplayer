@@ -1,3 +1,11 @@
+function mockedVideoObject(state) {
+    return {
+        paused: state,
+        play: function () {this.paused = false;},
+        pause: function () {this.paused = true;}
+    };
+}
+
 TestCase("[Video] Play Stop and Pause Commands Tests", {
     setUp: function() {
         this.presenter = Addonvideo_create();
@@ -19,6 +27,8 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
     },
 
     'test play when video is paused': function() {
+        this.presenter.videoObject = mockedVideoObject(true);
+
         assertTrue('Make sure that video is in pause state', this.presenter.videoObject.paused);
 
         this.presenter.play();
@@ -27,7 +37,7 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
     },
 
     'test play when video is playing': function() {
-        this.presenter.videoObject.play();
+        this.presenter.videoObject = mockedVideoObject(false);
         assertFalse('Make sure that video is playing', this.presenter.videoObject.paused);
 
         sinon.stub(this.presenter.videoObject, 'play');
@@ -38,7 +48,7 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
     },
 
     'test stop when video is playing': function() {
-        this.presenter.videoObject.play();
+        this.presenter.videoObject = mockedVideoObject(false);
         assertFalse('Make sure that video is playing', this.presenter.videoObject.paused);
 
         this.presenter.stop();
@@ -58,7 +68,7 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
     },
 
     'test pause when video is playing': function() {
-        this.presenter.videoObject.play();
+        this.presenter.videoObject = mockedVideoObject(false);
 
         assertFalse('Make sure that video is playing', this.presenter.videoObject.paused);
         sinon.stub(this.presenter.videoObject, 'pause');

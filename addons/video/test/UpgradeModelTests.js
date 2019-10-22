@@ -84,6 +84,7 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
         }],
         "Show video": "",
         'Show play button': 'False',
+        "offlineMessage":"This video is not available offline. Please connect to the Internet to watch it.",
         "speechTexts": {
             AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled"},
             AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled"}
