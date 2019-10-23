@@ -286,6 +286,8 @@ function Addonmultiplegap_create(){
         });
         
         container.click (presenter.acceptDraggable);
+
+        var originalGeneratePosition = null;
         container.droppable ({
             drop: function (event, ui) {
                 if (!presenter.configuration.isVisible) {
@@ -294,12 +296,49 @@ function Addonmultiplegap_create(){
                 event.stopPropagation();
                 event.preventDefault();
                 container.click();
+            },
+            activate: function (event, ui) {
+                if (presenter.$view.find('.dragging').length > 0 && originalGeneratePosition == null) {
+                    originalGeneratePosition = $.ui.draggable.prototype._generatePosition;
+                    $.ui.draggable.prototype._generatePosition = scaledOriginalPositionDecorator($.ui.ddmanager.current, originalGeneratePosition);
+                }
+            },
+            deactivate: function (event, ui) {
+                if (originalGeneratePosition != null) {
+                    $.ui.draggable.prototype._generatePosition = originalGeneratePosition;
+                    originalGeneratePosition = null;
+                }
             }
         });
 
         presenter.container = container;
         presenter.$view.append(container);
     };
+
+    function scaledOriginalPositionDecorator(obj, fn) {
+
+        function getScale() {
+            var $content = $("#content");
+            if($content.size() > 0) {
+                var contentElem = $content[0];
+                var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+                var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+                return {X: scaleX, Y: scaleY};
+            } else if (presenter.playerController) {
+                var scale = presenter.playerController.getScaleInformation();
+                return {X: scale.scaleX, Y: scale.scaleY}
+            } else {
+                return {X: 1.0, Y: 1.0};
+            }
+        }
+
+        obj.isGeneratePositionScaled = true; //add marker to draggable for use in the droppable intersect fix
+        return function (event) {
+            var scale = getScale();
+            var pos = fn.apply(obj, [event]);
+            return {left: pos.left / scale.X, top: pos.top / scale.Y};
+        }
+    }
     
     presenter.setUpEventListeners = function Multiplegap_setUpEventListeners (isPreview) {
         if (!isPreview) {
