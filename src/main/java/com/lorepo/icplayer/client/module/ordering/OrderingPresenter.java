@@ -51,6 +51,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	private boolean isSolved = false;
 	private String currentState = "";
 	private String currentState_view = "";
+	private int tmpErrorCount = 0;
+	private int tmpScore = 0;
 	private boolean isShowAnswersActive = false;
 	private boolean isShowErrorsActive = false;
 	private boolean isVisible;
@@ -116,7 +118,9 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 		if (this.isShowErrorsActive)
 			setWorkMode();
-
+		
+		this.tmpScore = getScore();
+		this.tmpErrorCount = getErrorCount();
 		this.currentState = getState();
 		this.currentState_view = view.getState();
 
@@ -156,7 +160,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	@Override
 	public String getState() {
 		if (isShowAnswers()) {
-			hideAnswers();
+			return this.currentState;
 		}
 
 		if (view == null)
@@ -204,7 +208,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	@Override
 	public int getErrorCount() {
 		if (isShowAnswers()) {
-			hideAnswers();
+			return this.tmpErrorCount;	// It's saved in showAnswers
 		}
 
 		int errors = 0;
@@ -263,17 +267,13 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public int getMaxScore() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		return module.isActivity() ? module.getMaxScore() : 0;
 	}
 
 	@Override
 	public int getScore() {
 		if (isShowAnswers()) {
-			hideAnswers();
+			return this.tmpScore;	// It's saved in showAnserts
 		}
 
 		return module.isActivity() ? getMaxScore() - view.getErrorCount() : 0;
