@@ -3238,7 +3238,7 @@ function AddonIWB_Toolbar_create() {
         */
         presenter._setState.images.forEach(function (image) {
             $(image).off();
-            // image.src = '';
+            image.src = '';
         });
         presenter._setState.images.length = 0;
         presenter._setState.images = null;
