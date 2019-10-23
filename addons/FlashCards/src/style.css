@@ -74,6 +74,7 @@
     backface-visibility: hidden;
     transition: transform 0.5s;
     transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;
 }
 .flashcards-card-front {
     background: #eee;
