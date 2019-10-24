@@ -25,6 +25,8 @@
         <pathelement location="../icfoundation/war/WEB-INF/classes"/>
     </path>
 
+    <property name="reports.path" value="addons/reports.txt"/>
+
     <script language="javascript"><![CDATA[
         function noop () {}
         var listener = new org.apache.tools.ant.BuildListener() {
@@ -270,8 +272,8 @@
             <arg line="-9"/>
             <arg value="${server.pid}"/>
         </exec>
-        <delete dir="${firefox.profile}" failonerror="true"/>
         <sleep seconds="1"/>
+        <delete dir="${firefox.profile}" failonerror="true"/>
     </target>
 
     <target name="server.start" depends="browser.init">
@@ -322,10 +324,92 @@
         </parallel>
     </target>
 
+    <macrodef name="reset-addons-reports">
+        <sequential>
+            <delete file="${reports.path}" failonerror="false"/>
+            <touch file="${reports.path}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="attach-results-to-addons-reports">
+        <attribute name="addon.id"/>
+
+        <sequential>
+            <fileset id="error.files" dir="addons/@{addon.id}/test-reports" includes="TEST-*.xml">
+                <contains text="&lt;error " casesensitive="no"/>
+            </fileset>
+
+            <fileset id="failure.files" dir="addons/@{addon.id}/test-reports" includes="TEST-*.xml">
+                <contains text="&lt;failure " casesensitive="no"/>
+            </fileset>
+
+            <local name="has-errors"/>
+            <condition property="has-errors">
+                <resourcecount when="greater" count="0" refid="error.files"/>
+            </condition>
+
+            <local name="has-failures"/>
+            <condition property="has-failures">
+                <resourcecount when="greater" count="0" refid="failure.files"/>
+            </condition>
+
+            <local name="error.filenames"/>
+            <pathconvert pathsep="${line.separator}   [errors] " property="error.filenames" refid="error.files">
+                <mapper type="flatten"/>
+            </pathconvert>
+
+            <local name="failure.filenames"/>
+            <pathconvert pathsep="${line.separator} [failures] " property="failure.filenames" refid="failure.files">
+                <mapper type="flatten"/>
+            </pathconvert>
+
+            <echo file="${reports.path}" append="true" if:set="has-errors"
+                  message="   [errors] ${error.filenames}${line.separator}"/>
+            <echo file="${reports.path}" append="true" if:set="has-failures"
+                  message=" [failures] ${failure.filenames}${line.separator}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="count-lines">
+        <attribute name="property"/>
+        <attribute name="string"/>
+
+        <sequential>
+            <resourcecount property="@{property}">
+                <tokens>
+                    <concat>
+                        <filterchain>
+                            <tokenfilter>
+                                <linetokenizer/>
+                            </tokenfilter>
+                        </filterchain>
+                        <propertyresource name="@{string}"/>
+                    </concat>
+                </tokens>
+            </resourcecount>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="summary-addons-reports">
+        <sequential>
+            <local name="reports.list"/>
+            <loadfile property="reports.list" srcFile="${reports.path}" quiet="true"/>
+            <local name="reports.total"/>
+            <count-lines property="reports.total" string="reports.list" if:set="reports.list"/>
+
+            <local name="reports.message"/>
+            <property name="reports.message" value="Found problems in ${reports.total} reports:&#x0A;${reports.list}" if:set="reports.list"/>
+            <fail if="reports.list" message="${reports.message}"/>
+        </sequential>
+    </macrodef>
+
     <target name="test.single.addon" depends="server.check" description="Test single addon, -Daddon.id=Addon_Id">
         <echo>Testing addon with ID "${addon.id}"</echo>
 
+        <reset-addons-reports unless:set="subtask"/>
+        <delete dir="addons/${addon.id}/test-reports" failonerror="false"/>
         <mkdir dir="addons/${addon.id}/test-reports"/>
+
         <!-- Three minutes to test the addon should be enough -->
         <java jar="${jstestdriver.jar}" fork="true" timeout="180000" resultproperty="jstestdriver.code">
             <arg line="--tests all"/>
@@ -347,6 +431,9 @@
         <antcall target="retest.single.addon" if:set="browser.unresponsive">
             <param name="addon.id" value="${addon.id}"/>
         </antcall>
+
+        <attach-results-to-addons-reports addon.id="${addon.id}"/>
+        <summary-addons-reports unless:set="subtask"/>
     </target>
 
     <target name="retest.single.addon" depends="server.start" description="Test single addon, -Daddon.id=Addon_Id">
@@ -370,17 +457,24 @@
 
     <target name="test.addons" depends="bundle-libs, browser.init">
         <echo>${ant.version}</echo>
+
+        <reset-addons-reports/>
+
         <antcall target="test.single.addon">
             <param name="addon.id" value="Commons"/>
+            <param name="subtask" value="true"/>
         </antcall>
         <loadfile property="addons.list" srcFile="addons/addons.list"/>
         <for list="${addons.list}" param="addonid" delimiter="${line.separator}">
             <sequential>
                 <antcall target="test.single.addon">
                     <param name="addon.id" value="@{addonid}"/>
+                    <param name="subtask" value="true"/>
                 </antcall>
             </sequential>
         </for>
+
+        <summary-addons-reports/>
     </target>
 
     <target name="test" depends="test.prod" description="Run development and production mode tests">
