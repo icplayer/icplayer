@@ -961,6 +961,7 @@ function AddonAnimation_create (){
 
     function drawImageIOSFix(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh) {
         var vertSquashRatio = detectVerticalSquash(img);
+        ctx.clearRect(0, 0, presenter.canvas.width, presenter.canvas.height);
         ctx.drawImage(img, sx * vertSquashRatio, sy * vertSquashRatio,
             sw * vertSquashRatio, sh * vertSquashRatio,
             dx, dy, dw, dh );
