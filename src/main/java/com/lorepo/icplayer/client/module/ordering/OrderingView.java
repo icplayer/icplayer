@@ -172,6 +172,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			return @com.lorepo.icf.utils.JavaScriptUtils::getContentScale()();
 		});
 		scale = {X:1.0, Y:1.0};
+		var isInnerScale = false; //is there scaling on the content element within iframe
 		var moduleOffset = {left: 0.0, top: 0.0};
 
 		function isEdge() {
@@ -187,7 +188,14 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			start: function(event, ui) {
 				scale = getContentScale();
 				moduleOffset = ui.item.parent().offset();
-				if (isEdge()) {
+				
+				if (scale.X == 1.0 || scale.Y == 1.0) {
+					isInnerScale = false;
+				} else {
+					isInnerScale = true;
+				}
+
+				if (!isInnerScale && isEdge()) {
 					var scaleInfo = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::getScaleInformation()();
 					scale.X = scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleX;
 					scale.Y = scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleY;
@@ -228,7 +236,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
                 var newLeft = 0.0;
                 var newTop = 0.0;
 
-				if (isEdge()) {
+				if (!isInnerScale && isEdge()) {
                     newLeft = (ui.position.left - moduleOffset.left * (scale.X-1)) / scale.X;
                     var changeTop = ui.position.top - ui.originalPosition.top;
                     newTop = changeTop/scale.Y + ui.originalPosition.top;
