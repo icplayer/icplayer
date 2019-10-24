@@ -319,6 +319,9 @@
 <!--                    <arg value="&#45;&#45;verbose"/>-->
                 </java>
             </daemons>
+            <waitfor maxwait="5" maxwaitunit="second">
+                <socket server="localhost" port="9876"/>
+            </waitfor>
 <!--            <echo >Wait 3 seconds for other browsers at http://localhost:9876/capture</echo>-->
             <sleep seconds="1"/>
         </parallel>
