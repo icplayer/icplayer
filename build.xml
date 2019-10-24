@@ -251,7 +251,7 @@
             <arg line="/PID"/>
             <arg value="${server.pid}"/>
         </exec>
-        <exec executable="taskkill" osfamily="windows" if:set="msedge.available" failifexecutionfails="true">
+        <exec executable="taskkill" osfamily="windows" if:set="msedge.autoclose" failifexecutionfails="true">
             <arg line="/T"/>
             <arg line="/F"/>
             <arg line="/IM"/>
