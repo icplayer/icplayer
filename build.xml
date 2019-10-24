@@ -32,9 +32,6 @@
         var listener = new org.apache.tools.ant.BuildListener() {
             buildStarted: noop,
             buildFinished: function(e) {
-                //var echo = project.createTask("echo");
-                //echo.setMessage('');
-                //echo.perform();
                 project.executeTarget("server.kill");
             },
             messageLogged: noop,
@@ -219,10 +216,7 @@
 
     <target name="server.check">
         <condition property="server.has.ping">
-            <and>
-                <socket server="localhost" port="9876"/>
-<!--                <isreachable url="http://localhost:9876" timeout="3"/>-->
-            </and>
+            <socket server="localhost" port="9876"/>
         </condition>
         <antcall target="server.kill" unless:set="server.has.ping"/>
         <!-- Execute target in the same project scope -->
