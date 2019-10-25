@@ -8,16 +8,29 @@ TestCase("[Animation] events tests", {
         $.doTimeout = function () {};
         this.presenter.eventBus = {
             sendEvent: sinon.spy()
-        }
+        };
 
-        this.presenter.frames = [];
+        this.presenter.playerController = {
+            isWCAGOn: sinon.stub()
+        };
+        this.presenter.playerController.isWCAGOn.returns(false);
+
+        this.stubs = {
+            drawImage: sinon.stub(this.presenter, 'drawImage')
+        };
+
+        this.presenter.images = [];
         for (var i = 0; i < 200; i++) {
-            this.presenter.frames.push($("<div></div>"));
+            this.presenter.images.push({});
         }
 
         this.presenter.configuration.labels = {
             content: ""
         }
+    },
+
+    tearDown: function () {
+        this.presenter.drawImage.restore();
     },
 
     'test event end animation will be called if animation was ended without loop': function () {

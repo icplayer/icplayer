@@ -711,6 +711,8 @@ public class PlayerController implements IPlayerController{
 	    	if (this.playerView.getHeaderView() == null) {
 	    		this.playerView.createHeader();
 	    		this.headerController.setView(this.playerView.getHeaderView());
+	    	} else {
+	    		this.headerController.closePage();
 	    	}
 	    	
 			this.headerController.setPage(header);
@@ -731,6 +733,8 @@ public class PlayerController implements IPlayerController{
 			if (this.playerView.getFooterView() == null) {
 	    		this.playerView.createFooter();
 	    		this.footerController.setView(this.playerView.getFooterView());
+	    	} else {
+	    		this.footerController.closePage();
 	    	}
 			
 			this.footerController.setPage(footer);

@@ -18,7 +18,8 @@ TestCase("[Table] Get State", {
 
         this.expectedGapsState = {
             gaps: "sflknhdjfas.ljdkfsafdas",
-            yupikayey: "1337"
+            yupikayey: "1337",
+            isAttempted: true
         };
 
         this.expectedSpansState = {
@@ -82,6 +83,7 @@ TestCase("[Table] Get State", {
         assertNotNull(testedState.spans);
         assertEquals(this.expectedSpansState, testedState.spans);
     }
+
 });
 
 TestCase("[Table] Set State", {
