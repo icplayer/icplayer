@@ -1,3 +1,4 @@
+2019-10-28 Fixed issues with scaling of multiplegap
 2019-10-24 When table is not activity or does not have gaps, then return true in isAttempted
 2019-10-24 Fixed problem with animation and transparency.
 2019-10-23 Fixed error in destroy method in IWB Toolbar module
