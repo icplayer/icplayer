@@ -535,7 +535,7 @@ function AddonCatch_create() {
     };
 
     presenter.setVisibility = function (isVisible) {
-        presenter.$view.css('visibility', isVisible ? 'visibility' : 'hidden');
+        presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
     };
 
     presenter.show = function () {
