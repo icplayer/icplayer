@@ -183,12 +183,17 @@ function AddonCatch_create() {
     };
 
     presenter.onDestroy = function () {
-        objects.forEach( function(value) {
-            value.obj.stop(true);
-            value.obj.remove();
-        });
+        presenter.clearCatchObjects(objects);
 
         objects = null;
+    };
+
+    presenter.clearCatchObjects = function (objects) {
+        objects.forEach( function(value) {
+            value.obj.stop();
+            value.obj.remove();
+            value.obj = null;
+        });
     };
 
     function makePlate () {
