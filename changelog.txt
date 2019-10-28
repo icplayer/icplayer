@@ -1,4 +1,6 @@
-2019-10-23 Fixed issues with scaling of multiplegap
+2019-10-28 Fixed issues with scaling of multiplegap
+2019-10-24 When table is not activity or does not have gaps, then return true in isAttempted
+2019-10-24 Fixed problem with animation and transparency.
 2019-10-23 Fixed error in destroy method in IWB Toolbar module
 2019-10-18 Fixed styles in Flash Cards module
 2019-10-17 Fix problem with hideAnswers in getScore, getErrorCount, getState in multiple gap addon
