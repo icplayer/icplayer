@@ -1,4 +1,7 @@
-2019-10-28 Added Count Errors property to Text Coloring
+2019-10-29 Added Count Errors property to Text Coloring
+2019-10-29 Added clearing Catch addon objects on page change.
+2019-10-29 Fixed getting readable text in Text module
+2019-10-28 Fixed issues with scaling of multiplegap
 2019-10-24 When table is not activity or does not have gaps, then return true in isAttempted
 2019-10-24 Fixed problem with animation and transparency.
 2019-10-23 Fixed error in destroy method in IWB Toolbar module

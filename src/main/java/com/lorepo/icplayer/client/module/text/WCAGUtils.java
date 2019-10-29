@@ -113,6 +113,29 @@ public class WCAGUtils {
 		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if more than 1
 	}
 
+	private static int getGapEndIndex(String text, int gapIndex) {
+		int openBrackets = 0;
+		int closeBrackets = 0;
+		int index = 0;
+		for (int i = gapIndex; i < text.length(); i++){
+			char c = text.charAt(i);
+			if (c == '{') {
+				openBrackets++;
+			}
+
+			if(c == '}'){
+				closeBrackets++;
+			}
+
+			if(openBrackets == closeBrackets && openBrackets != 0) {
+				index = i;
+				break;
+			}
+		}
+
+		return index;
+	}
+
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<TextElementDisplay> textElements, String lang) {
 		String text = getCleanText(model.getOriginalText());
 		int gapNumber = 1;
@@ -142,8 +165,8 @@ public class WCAGUtils {
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));              // gap type and number
 				result.add(TextToSpeechVoice.create(elementContent, langTag));                                        // gap content
 				result.add(getElementStatus(element, model));
-				
-				final int endGapIndex = text.indexOf(GAP_END, gapIndex) + GAP_END.length();
+
+				final int endGapIndex = getGapEndIndex(text, gapIndex) + GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
 			if (isClosestFilledGap) {
