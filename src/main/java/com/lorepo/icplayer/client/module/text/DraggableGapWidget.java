@@ -8,9 +8,15 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
+import com.lorepo.icplayer.client.model.alternativeText.IToken;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
-public class DraggableGapWidget extends HTML implements TextElementDisplay {
+import java.util.ArrayList;
+import java.util.List;
+
+public class DraggableGapWidget extends HTML implements TextElementDisplay, AltTextGap {
 
 	private static final String EMPTY_GAP_STYLE = "ic_draggableGapEmpty";
 	private static final String FILLED_GAP_STYLE = "ic_draggableGapFilled";
@@ -20,6 +26,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private boolean _disabled = false;	// For internal usage
 	private boolean isWorkMode = true;
 	private String answerText = "";
+	private List<TextToSpeechVoice> wcagText = new ArrayList<TextToSpeechVoice>();
 	private boolean isFilledGap = false;
 	private JavaScriptObject jsObject = null;
 	private final ITextViewListener listener;
@@ -183,7 +190,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public void setDroppedElement(String element) {
 		droppedElementHelper = StringUtils.unescapeXML(element);
-		if(droppedElementHelper != ""){
+		if (!droppedElementHelper.equals("")) {
 			JavaScriptUtils.makeDroppedDraggableText(getElement(), getAsJavaScript(), droppedElementHelper);
 		}
 	}
@@ -203,15 +210,20 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			}
 			setStylePrimaryName(EMPTY_GAP_STYLE);
 			answerText = "";
+			wcagText.clear();
 			droppedElementHelper = "";
 			if (!isDragMode) {
 				JavaScriptUtils.destroyDraggable(getElement());
 			}
 		} else {
 			String markup = StringUtils.markup2html(text);
-			super.setHTML(markup);
-			answerText = TextParser.removeHtmlFormatting(text);
-			droppedElementHelper = getElement(text);
+			List<IToken> tokens = AlternativeTextService.parseAltText(markup);
+			String visibleText = AlternativeTextService.getVisibleText(tokens);
+			wcagText = AlternativeTextService.getReadableText(tokens, getLangTag());
+
+			super.setHTML(visibleText);
+			answerText = TextParser.removeHtmlFormatting(visibleText);
+			droppedElementHelper = getElement(visibleText);
 			setStylePrimaryName(FILLED_GAP_STYLE);
 			if(droppedElementHelper.length() != 0 && !isShowAnswersMode){
 				JavaScriptUtils.makeDroppedDraggableText(this.getElement(), getAsJavaScript(), droppedElementHelper);
@@ -361,5 +373,10 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public int getGapState() {
 		return this.gapState;
+	}
+
+	@Override
+	public List<TextToSpeechVoice> getReadableText() {
+		return this.wcagText;
 	}
 }
