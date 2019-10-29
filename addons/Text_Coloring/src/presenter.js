@@ -634,6 +634,7 @@ function AddonText_Coloring_create() {
 
     presenter.upgradeModel = function(model) {
         var upgradedModel = upgradeModelAddModeProperty(model);
+        upgradedModel = upgradeModelAddCountErrorsProperty(upgradedModel);
         return upgradedModel;
     };
 
@@ -643,6 +644,17 @@ function AddonText_Coloring_create() {
 
         if(!upgradedModel['Mode']){
             upgradedModel['Mode'] = presenter.MODE.DEFAULT;
+        }
+
+        return upgradedModel;
+    }
+
+    function upgradeModelAddCountErrorsProperty(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!upgradedModel['countErrors']) {
+            upgradedModel['countErrors'] = false;
         }
 
         return upgradedModel;
@@ -674,7 +686,8 @@ function AddonText_Coloring_create() {
             hideColorsButtons: ModelValidationUtils.validateBoolean(model.hideColorsButtons),
             eraserButtonText: presenter.parseEraserButtonText(model.eraserButtonText),
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            mode: mode
+            mode: mode,
+            countErrors: ModelValidationUtils.validateBoolean(model.countErrors)
         };
     };
 
@@ -1340,9 +1353,14 @@ function AddonText_Coloring_create() {
     };
 
     presenter.isAllOK = function () {
-        return presenter.configuration.filteredTokens.filter(filterSelectablesTokens).every(function (token) {
-            return presenter.getScoreForWordMarking(token.index, token.selectionColorID);
-        });
+        if (presenter.configuration.countErrors) {
+            return presenter.getMaxScore() === presenter.getScore() - presenter.getErrorCount();
+        } else {
+            return presenter.configuration.filteredTokens.filter(filterSelectablesTokens).every(function (token) {
+                return presenter.getScoreForWordMarking(token.index, token.selectionColorID);
+            });
+        }
+
     };
 
     presenter.addCorrectClass = function (tokenIndex) {
