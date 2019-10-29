@@ -182,6 +182,20 @@ function AddonCatch_create() {
         }
     };
 
+    presenter.onDestroy = function () {
+        presenter.clearCatchObjects(objects);
+
+        objects = null;
+    };
+
+    presenter.clearCatchObjects = function (objects) {
+        objects.forEach( function(value) {
+            value.obj.stop();
+            value.obj.remove();
+            value.obj = null;
+        });
+    };
+
     function makePlate () {
         var plateImage = presenter.configuration.plateImage !== "" && presenter.configuration.plateImage !== undefined ? presenter.configuration.plateImage : getImageUrlFromResources('plate.png');
 
@@ -689,3 +703,7 @@ function AddonCatch_create() {
 
     return presenter;
 }
+
+AddonCatch_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};
