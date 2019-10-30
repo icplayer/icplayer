@@ -1879,11 +1879,6 @@ function AddonSlideshow_create() {
         deferredQueue: deferredSyncQueue
     };
 
-
-    AddonSlideshow_create.__supported_player_options__ = {
-        interfaceVersion: 2
-    };
-
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
         event.preventDefault();
         presenter.shiftPressed = event.shiftKey;
@@ -2042,3 +2037,7 @@ function AddonSlideshow_create() {
 
     return presenter;
 }
+
+AddonSlideshow_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};
