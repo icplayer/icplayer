@@ -409,9 +409,9 @@ public class TextParser {
 		int index = expression.indexOf("|");
 		if (index > 0) {
 			String placeholder = expression.substring(0, index).trim();
+			placeholder = StringUtils.unescapeXML(placeholder);
 			String answer = expression.substring(index + 1).trim();
 
-			placeholder = StringUtils.unescapeXML(placeholder);
 			String id = baseId + "-" + idCounter;
 			idCounter++;
 			
@@ -420,14 +420,15 @@ public class TextParser {
 			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
 			gi.setPlaceHolder(placeholder);
 
-			addPossibleAnswersToFilledDraggableGapInfo(gi, answer);
+			addAnswersToFilledDraggableGapInfo(gi, answer);
 			parserResult.gapInfos.add(gi);
 		}
 		return replaceText;
 	}
 
-	private void addPossibleAnswersToFilledDraggableGapInfo(GapInfo gi, String answer) {
-		String[] answers = answer.split("\\|");
+	private void addAnswersToFilledDraggableGapInfo(GapInfo gi, String answer) {
+		String answersWithEscapedAltText = TextParser.escapeAltText(answer);
+		String[] answers = answersWithEscapedAltText.split("\\|");
 		for (String singleAnswer : answers) {
 			gi.addAnswer(singleAnswer);
 		}
@@ -449,7 +450,7 @@ public class TextParser {
 
 			GapInfo gi = new GapInfo(id, Integer.parseInt(answerIndex), isCaseSensitive, isIgnorePunctuation, 0, langTag);
 
-			addPossibleAnswersToDraggableGapInfo(gi, answerValue);
+			addAnswersToDraggableGapInfo(gi, answerValue);
 
 			parserResult.gapInfos.add(gi);
 		}
@@ -457,27 +458,39 @@ public class TextParser {
 		return replaceText;
 	}
 
-	private String getSpanElementCodeForDraggableFilledGap(String id, String placeholder) {
+	private String getSpanElementCode(String id, String innerHTML, String[] classes) {
 		DomElementManipulator spanElement = new DomElementManipulator("span");
-		spanElement.addClass("ic_draggableGapEmpty");
-		spanElement.addClass("ic_filled_gap");
-		spanElement.setInnerHTMLText(placeholder);
 		spanElement.setHTMLAttribute("id", id);
+		spanElement.setInnerHTMLText(innerHTML);
+		for (String className : classes) {
+			spanElement.addClass(className);
+		}
 
 		return spanElement.getHTMLCode();
+	}
+
+	private String getSpanElementCodeForDraggableFilledGap(String id, String placeholder) {
+		String[] classes = {
+			"ic_draggableGapEmpty",
+			"ic_filled_gap"
+		};
+
+		return getSpanElementCode(id, placeholder, classes);
 	}
 
 	private String getSpanElementCodeForDraggableGap(String id) {
-		DomElementManipulator spanElement = new DomElementManipulator("span");
-		spanElement.setHTMLAttribute("id", id);
-		spanElement.addClass("ic_draggableGapEmpty");
-		spanElement.setInnerHTMLText(DomElementManipulator.getFromHTMLCodeUnicode("&#160"));
+		String[] classes = {
+			"ic_draggableGapEmpty"
+		};
+		String innerHTML = DomElementManipulator.getFromHTMLCodeUnicode("&#160");
 
-		return spanElement.getHTMLCode();
+		return getSpanElementCode(id, innerHTML, classes);
 	}
 
-	private void addPossibleAnswersToDraggableGapInfo(GapInfo gi, String answerValue) {
-		String[] answers = answerValue.split("\\|"); // answers are divided by | sign
+	private void addAnswersToDraggableGapInfo(GapInfo gi, String answerValue) {
+		String answersWithEscapedAltText = TextParser.escapeAltText(answerValue);
+
+		String[] answers = answersWithEscapedAltText.split("\\|"); // answers are divided by | sign
 		String answerToken = null;
 
 		for (String singleAnswer : answers) {
@@ -487,7 +500,7 @@ public class TextParser {
 				answerToken = singleAnswer;
 			}
 			// check if answer contains math expression
-			if (answerToken.contains("\\(") || answerToken.contains("\\)")) {
+			if (answerToken.indexOf("\\(") < 0 || answerToken.indexOf("\\)") > 0) {
 				gi.addAnswer(answerToken);
 				answerToken = null;
 			}

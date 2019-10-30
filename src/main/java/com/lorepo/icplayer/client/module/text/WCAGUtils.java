@@ -7,6 +7,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
+import javax.xml.soap.Text;
+
 
 public class WCAGUtils {
 	final static String GAP_START = "\\gap{";
@@ -78,7 +80,7 @@ public class WCAGUtils {
 	
 	// TODO change to ENUM
 	private static TextToSpeechVoice getElementStatus (TextElementDisplay element, TextModel model) {
-		if (!element.isWorkingMode()) {
+		if (element != null && !element.isWorkingMode()) {
 			if (element.getGapState() == 1) {
 				return TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.CORRECT_INDEX));
 			}
@@ -159,8 +161,9 @@ public class WCAGUtils {
 			final TextElementDisplay element = !isClosestBreak ? getElement(textElements, gapNumber - 1) : null;
 			String langTag = element != null && element.getLangTag() != null ? element.getLangTag() : lang;
 
-			final String elementContent = element != null ? getElementTextElementContent(element) : null;
+			final String elementContent = element != null ? getElementTextElementContent(element) : "";
 			final List<TextToSpeechVoice> content = new ArrayList<TextToSpeechVoice>();
+
 			if (element instanceof AltTextGap) {
 				content.addAll(((AltTextGap) element).getReadableText());
 			} else {
@@ -181,8 +184,8 @@ public class WCAGUtils {
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));
 				result.addAll(content);
 				result.add(getElementStatus(element, model));
-				
-				final int endGapIndex = text.indexOf(FILLED_GAP_END, filledGapIndex) + FILLED_GAP_END.length();
+
+				final int endGapIndex = WCAGUtils.getGapEndIndex(text, filledGapIndex) + FILLED_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
 			if (isClosestDropdown) {
