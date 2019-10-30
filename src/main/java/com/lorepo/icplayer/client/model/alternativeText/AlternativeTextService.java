@@ -124,7 +124,7 @@ public class AlternativeTextService {
             }
         }
 
-        // alt text was only at the begining and there is more text which needs to be added to the token list
+        // alt text was only at the beginning and there is more text which needs to be added to the token list
         if (input.length() > 0) {
             altTokens.add(new Token(input));
         }

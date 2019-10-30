@@ -404,73 +404,98 @@ public class TextParser {
 	private String matchDraggableFilledGap(String expression, Map<String,String> gapOptions) {
 		String langTag = getLangTagForGap(gapOptions);
 		String replaceText = null;
+
+		// filled gap has it's placeholder defined in element before first pipe sign
 		int index = expression.indexOf("|");
 		if (index > 0) {
 			String placeholder = expression.substring(0, index).trim();
-			placeholder = StringUtils.unescapeXML(placeholder);
 			String answer = expression.substring(index + 1).trim();
-			String[] answers = answer.split("\\|");
+
+			placeholder = StringUtils.unescapeXML(placeholder);
 			String id = baseId + "-" + idCounter;
 			idCounter++;
 			
-			DomElementManipulator spanElement = new DomElementManipulator("span");
-			spanElement.addClass("ic_draggableGapEmpty");
-			spanElement.addClass("ic_filled_gap");
-			spanElement.setInnerHTMLText(placeholder);
-			spanElement.setHTMLAttribute("id", id);
-			
-			replaceText = spanElement.getHTMLCode();
-			
+			replaceText = getSpanElementCodeForDraggableFilledGap(id, placeholder);
+
 			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
 			gi.setPlaceHolder(placeholder);
-			for (int i = 0; i < answers.length; i++) {
-				gi.addAnswer(answers[i]);
-			}
+
+			addPossibleAnswersToFilledDraggableGapInfo(gi, answer);
 			parserResult.gapInfos.add(gi);
 		}
 		return replaceText;
+	}
+
+	private void addPossibleAnswersToFilledDraggableGapInfo(GapInfo gi, String answer) {
+		String[] answers = answer.split("\\|");
+		for (String singleAnswer : answers) {
+			gi.addAnswer(singleAnswer);
+		}
 	}
 	
 	private String matchDraggableGap(String expression, Map<String,String> gapOptions) {
 		String langTag = getLangTagForGap(gapOptions);
 		String replaceText = null;
 
-		int index = expression.indexOf(":");
-		if (index > 0) {
-			String value = expression.substring(0, index).trim();
-			String answer = expression.substring(index + 1).trim();
+		// expression is for example 1:someText
+		int colonIndex = expression.indexOf(":");
+		if (colonIndex > 0) {
+			String answerIndex = expression.substring(0, colonIndex).trim(); // this gets number before colon
+			String answerValue = expression.substring(colonIndex + 1).trim(); // this gets text after colon
 			String id = baseId + "-" + idCounter;
 			idCounter++;
-			
-			DomElementManipulator spanElement = new DomElementManipulator("span");
-			spanElement.setHTMLAttribute("id", id);
-			spanElement.addClass("ic_draggableGapEmpty");
-			spanElement.setInnerHTMLText(DomElementManipulator.getFromHTMLCodeUnicode("&#160"));
-			replaceText = spanElement.getHTMLCode();
-			
-			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
-					isCaseSensitive, isIgnorePunctuation, 0, langTag);
-			String[] answers = answer.split("\\|");
-			String answerToken = null;
-			for (int i = 0; i < answers.length; i++) {
-				if (answerToken != null) {
-					answerToken += "|" + answers[i];
-				} else {
-					answerToken = answers[i];
-				}
-				if (answerToken.indexOf("\\(") < 0
-						|| answerToken.indexOf("\\)") > 0) {
-					gi.addAnswer(answerToken);
-					answerToken = null;
-				}
-			}
-			if (answerToken != null) {
-				gi.addAnswer(answerToken);
-			}
+
+			replaceText = getSpanElementCodeForDraggableGap(id);
+
+			GapInfo gi = new GapInfo(id, Integer.parseInt(answerIndex), isCaseSensitive, isIgnorePunctuation, 0, langTag);
+
+			addPossibleAnswersToDraggableGapInfo(gi, answerValue);
+
 			parserResult.gapInfos.add(gi);
 		}
 
 		return replaceText;
+	}
+
+	private String getSpanElementCodeForDraggableFilledGap(String id, String placeholder) {
+		DomElementManipulator spanElement = new DomElementManipulator("span");
+		spanElement.addClass("ic_draggableGapEmpty");
+		spanElement.addClass("ic_filled_gap");
+		spanElement.setInnerHTMLText(placeholder);
+		spanElement.setHTMLAttribute("id", id);
+
+		return spanElement.getHTMLCode();
+	}
+
+	private String getSpanElementCodeForDraggableGap(String id) {
+		DomElementManipulator spanElement = new DomElementManipulator("span");
+		spanElement.setHTMLAttribute("id", id);
+		spanElement.addClass("ic_draggableGapEmpty");
+		spanElement.setInnerHTMLText(DomElementManipulator.getFromHTMLCodeUnicode("&#160"));
+
+		return spanElement.getHTMLCode();
+	}
+
+	private void addPossibleAnswersToDraggableGapInfo(GapInfo gi, String answerValue) {
+		String[] answers = answerValue.split("\\|"); // answers are divided by | sign
+		String answerToken = null;
+
+		for (String singleAnswer : answers) {
+			if (answerToken != null) {
+				answerToken += "|" + singleAnswer;
+			} else {
+				answerToken = singleAnswer;
+			}
+			// check if answer contains math expression
+			if (answerToken.contains("\\(") || answerToken.contains("\\)")) {
+				gi.addAnswer(answerToken);
+				answerToken = null;
+			}
+		}
+
+		if (answerToken != null) {
+			gi.addAnswer(answerToken);
+		}
 	}
 
 	private String getLangTagForGap(Map<String,String> gapOptions) {

@@ -35,7 +35,6 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		this.langTag = langTag;
 	}
 
-
 	public void addAnswer(String answer) {
 		answer = StringUtils.unescapeXML(answer);
 		answer = answer.replaceAll("&nbsp;", " ");
