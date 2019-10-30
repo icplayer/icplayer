@@ -7,8 +7,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
-import javax.xml.soap.Text;
-
 
 public class WCAGUtils {
 	final static String GAP_START = "\\gap{";

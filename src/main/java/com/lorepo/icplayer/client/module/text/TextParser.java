@@ -425,14 +425,6 @@ public class TextParser {
 		}
 		return replaceText;
 	}
-
-	private void addAnswersToFilledDraggableGapInfo(GapInfo gi, String answer) {
-		String answersWithEscapedAltText = TextParser.escapeAltText(answer);
-		String[] answers = answersWithEscapedAltText.split("\\|");
-		for (String singleAnswer : answers) {
-			gi.addAnswer(singleAnswer);
-		}
-	}
 	
 	private String matchDraggableGap(String expression, Map<String,String> gapOptions) {
 		String langTag = getLangTagForGap(gapOptions);
@@ -456,59 +448,6 @@ public class TextParser {
 		}
 
 		return replaceText;
-	}
-
-	private String getSpanElementCode(String id, String innerHTML, String[] classes) {
-		DomElementManipulator spanElement = new DomElementManipulator("span");
-		spanElement.setHTMLAttribute("id", id);
-		spanElement.setInnerHTMLText(innerHTML);
-		for (String className : classes) {
-			spanElement.addClass(className);
-		}
-
-		return spanElement.getHTMLCode();
-	}
-
-	private String getSpanElementCodeForDraggableFilledGap(String id, String placeholder) {
-		String[] classes = {
-			"ic_draggableGapEmpty",
-			"ic_filled_gap"
-		};
-
-		return getSpanElementCode(id, placeholder, classes);
-	}
-
-	private String getSpanElementCodeForDraggableGap(String id) {
-		String[] classes = {
-			"ic_draggableGapEmpty"
-		};
-		String innerHTML = DomElementManipulator.getFromHTMLCodeUnicode("&#160");
-
-		return getSpanElementCode(id, innerHTML, classes);
-	}
-
-	private void addAnswersToDraggableGapInfo(GapInfo gi, String answerValue) {
-		String answersWithEscapedAltText = TextParser.escapeAltText(answerValue);
-
-		String[] answers = answersWithEscapedAltText.split("\\|"); // answers are divided by | sign
-		String answerToken = null;
-
-		for (String singleAnswer : answers) {
-			if (answerToken != null) {
-				answerToken += "|" + singleAnswer;
-			} else {
-				answerToken = singleAnswer;
-			}
-			// check if answer contains math expression
-			if (answerToken.indexOf("\\(") < 0 || answerToken.indexOf("\\)") > 0) {
-				gi.addAnswer(answerToken);
-				answerToken = null;
-			}
-		}
-
-		if (answerToken != null) {
-			gi.addAnswer(answerToken);
-		}
 	}
 
 	private String getLangTagForGap(Map<String,String> gapOptions) {
@@ -1045,7 +984,7 @@ public class TextParser {
 
 		return buttonElement.getHTMLCode() + audioElement.getHTMLCode();
 	}
-	
+
 	public String parseAltText(String srcText) {
 		return AlternativeTextService.getAltTextAsHtml(srcText);
 	}
@@ -1059,18 +998,18 @@ public class TextParser {
 		String parsedText = srcText.replaceAll("\\\\altEscaped([^\\|\\{\\}]*?)&altTextSeperator&([^\\|\\{\\}]*?)&altTextEnd&", "\\\\alt\\{$1\\|$2\\}");
 		return parsedText;
 	}
-	
+
 	private String getReadableAltText(String srcText){
 		String parsedText =  srcText.replaceAll("\\\\alt\\{.*?\\|(.*?)\\}(\\[[a-zA-Z0-9_\\- ]*?\\])*", "$1");
 		return parsedText;
 	}
-	
+
 	public Map<String,String> getGapOptions(String expression) {
 		final String pattern = 	"^\\[[a-zA-Z0-9_\\- ]*?\\]";
 		Map<String,String> result = new HashMap<String,String>();
 		RegExp regExp = RegExp.compile(pattern);
 		MatchResult matchResult;
-		
+
 		while ((matchResult = regExp.exec(expression)) != null) {
 			if (matchResult.getGroupCount() <= 0) {
 				break;
@@ -1086,12 +1025,12 @@ public class TextParser {
 		}
 		return result;
 	};
-	
+
 	public static String removeGapOptions(String expression) {
 		final String pattern = 	"^\\[[a-zA-Z0-9_\\- ]*?\\]";
 		RegExp regExp = RegExp.compile(pattern);
 		MatchResult matchResult;
-		
+
 		while ((matchResult = regExp.exec(expression)) != null) {
 			if (matchResult.getGroupCount() <= 0) {
 				break;
@@ -1107,7 +1046,7 @@ public class TextParser {
 		}
 		return expression;
 	};
-	
+
 	public void skipGaps() {
 		skipGaps = true;
 	}
@@ -1115,8 +1054,8 @@ public class TextParser {
 	public void setGapWidth(int gapWidth) {
 		this.gapWidth = gapWidth;
 	}
-	
-	
+
+
 	public void setGapMaxLength(int gapMaxLength) {
 		this.gapMaxLength = gapMaxLength;
 	}
@@ -1124,14 +1063,75 @@ public class TextParser {
 	public void setUseEscapeCharacterInGap(boolean isUsing) {
 		this.useEscapeCharacterInGap = isUsing;
 	}
-	
+
 	public List<String> getGapsOrder () {
 		return this.gapsOrder;
 	}
-	
+
 	public static String removeHtmlFormatting( String html) {
 		Element el = (new HTML(html)).getElement();
 		return el.getInnerText();
+	}
+
+	private String getSpanElementCode(String id, String innerHTML, String[] classes) {
+		DomElementManipulator spanElement = new DomElementManipulator("span");
+		spanElement.setHTMLAttribute("id", id);
+		spanElement.setInnerHTMLText(innerHTML);
+		for (String className : classes) {
+			spanElement.addClass(className);
+		}
+
+		return spanElement.getHTMLCode();
+	}
+
+	private String getSpanElementCodeForDraggableFilledGap(String id, String placeholder) {
+		String[] classes = {
+				"ic_draggableGapEmpty",
+				"ic_filled_gap",
+		};
+
+		return getSpanElementCode(id, placeholder, classes);
+	}
+
+	private String getSpanElementCodeForDraggableGap(String id) {
+		String[] classes = {
+				"ic_draggableGapEmpty",
+		};
+		String innerHTML = DomElementManipulator.getFromHTMLCodeUnicode("&#160");
+
+		return getSpanElementCode(id, innerHTML, classes);
+	}
+
+	private void addAnswersToDraggableGapInfo(GapInfo gi, String answerValue) {
+		String answersWithEscapedAltText = TextParser.escapeAltText(answerValue);
+
+		String[] answers = answersWithEscapedAltText.split("\\|"); // answers are divided by | sign
+		String answerToken = null;
+
+		for (String singleAnswer : answers) {
+			if (answerToken != null) {
+				answerToken += "|" + singleAnswer;
+			} else {
+				answerToken = singleAnswer;
+			}
+			// check if answer contains math expression
+			if (answerToken.indexOf("\\(") < 0 || answerToken.indexOf("\\)") > 0) {
+				gi.addAnswer(answerToken);
+				answerToken = null;
+			}
+		}
+
+		if (answerToken != null) {
+			gi.addAnswer(answerToken);
+		}
+	}
+
+	private void addAnswersToFilledDraggableGapInfo(GapInfo gi, String answer) {
+		String answersWithEscapedAltText = TextParser.escapeAltText(answer);
+		String[] answers = answersWithEscapedAltText.split("\\|");
+		for (String singleAnswer : answers) {
+			gi.addAnswer(singleAnswer);
+		}
 	}
 
 }
