@@ -13,6 +13,7 @@ import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.lorepo.icplayer.client.module.IEnterable;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -210,7 +211,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			// show 1st answer
 			Iterator<String> answers = gi.getAnswers();
-			gapsViewsElements.get(gi.getId()).setText(answers.hasNext() ? answers.next() : "");
+			String answer = answers.hasNext() ? answers.next() : "";
+			gapsViewsElements.get(gi.getId()).setText(answer);
 		}
 
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {

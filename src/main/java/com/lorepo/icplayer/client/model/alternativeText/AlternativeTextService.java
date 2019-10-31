@@ -4,6 +4,7 @@ import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icplayer.client.module.text.TextParser;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AlternativeTextService {
+
     public static String getVisibleText(String source) {
         List<IToken> tokens = parseAltText(source);
         return getVisibleText(tokens);
@@ -82,6 +84,49 @@ public class AlternativeTextService {
         return unescapeAltTextInTag(output);
     }
 
+    // this function won't allow some math formulas in visible (and readable) text, since it disallows pipe and brackets after "alt{"
+    public static String escapeAltText(String srcText){
+        String parsedText = srcText.replaceAll("\\\\alt\\{([^\\|\\{\\}]*?)\\|([^\\|\\{\\}]*?)\\}", "\\\\altEscaped$1&altTextSeperator&$2&altTextEnd&");
+        return parsedText;
+    }
+
+    // this function shouldn't have same constraints as escapeAltText function
+    public static String escapeAltTextWithAllVisibleText(String srcText) {
+        List<IToken> tokens = parseAltText(srcText);
+        StringBuilder builder = new StringBuilder();
+
+        for (IToken token : tokens) {
+            if (token.isAlt()) {
+                String visible = token.getVisibleText();
+                String readable = token.getReadableText();
+                String escapedText = AlternativeTextTemplates.TEMPLATES.altTextEscaped(visible, readable).asString();
+
+                builder.append(escapedText);
+
+                if (token.getLanguage() != null) {
+                    builder.append(AlternativeTextTemplates.TEMPLATES.langTag(token.getLanguage()).asString());
+                }
+            } else {
+                builder.append(token.getVisibleText());
+            }
+        }
+
+        return builder.toString();
+    }
+
+    public static String unescapeAltText(String srcText) {
+        return unescapeAltText(srcText, false);
+    }
+
+    // if matchAllVisibleText is true, it will match all characters in given string, between altEscaped and &altTextSeparator$
+    // otherwise it won't match pipe and bracket signs where visible text should be
+    public static String unescapeAltText(String srcText, boolean matchAllVisibleText) {
+        String visibleTextRegexp = matchAllVisibleText ? "(.*)" : "([^\\|\\{\\}]*?)";
+        String regexp = "\\\\altEscaped" + visibleTextRegexp + "&altTextSeperator&([^\\|\\{\\}]*?)&altTextEnd&";
+
+        return srcText.replaceAll(regexp, "\\\\alt\\{$1\\|$2\\}");
+    }
+
     public static List<IToken> parseAltText(String srcText) {
         srcText = escapeAltTextInTag(srcText);
         final String pattern = "\\\\alt\\{";
@@ -104,7 +149,7 @@ public class AlternativeTextService {
                 altTokens.add(new Token(textToBeginingOfAltText)); // remove text from character 0 to position of \alt and add it as normal text
             }
             input = input.substring(matchResult.getIndex() + group.length()); // remove .*\alt{.* from input
-            index = findClosingBracket(input);
+            index = TextParser.findClosingBracket(input);
 
             String expression = input.substring(0, index); // inside of brackets {visibleText|readableText}
             input = input.substring(index + 1); // remove closing bracket
@@ -188,25 +233,6 @@ public class AlternativeTextService {
         wrapper.appendElement(visibleTextElement);
         return wrapper;
 
-    }
-
-    private static int findClosingBracket(String input) {
-
-        int counter = 0;
-
-        for (int index = 0; index < input.length(); index++) {
-
-            if (input.charAt(index) == '{') {
-                counter++;
-            } else if (input.charAt(index) == '}') {
-                counter--;
-                if (counter < 0) {
-                    return index;
-                }
-            }
-        }
-
-        return -1;
     }
 
     private static String escapeAltTextInTag(String srcText){

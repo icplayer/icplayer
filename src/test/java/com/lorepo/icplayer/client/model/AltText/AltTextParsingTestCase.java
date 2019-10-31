@@ -8,7 +8,7 @@ import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 
-public class AltTextServiceTestCase {
+public class AltTextParsingTestCase {
 
     @Test
     public void givenTextInInputWhenTokensThenReturnsParsedTokens() {

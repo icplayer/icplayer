@@ -37,9 +37,11 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	}
 
 	public void addAnswer(String answer) {
+		boolean matchAllVisbileText = true;
 		answer = StringUtils.unescapeXML(answer);
 		answer = answer.replaceAll("&nbsp;", " ");
-		answer = TextParser.unescapeAltText(answer);
+		// this is needed for showing visible text when show answer is called on gap
+		answer = AlternativeTextService.unescapeAltText(answer, matchAllVisbileText);
 		answers.add(answer);
 		if(isIgnorePunctuation) { answer = removePunctuation(answer); }
 		checkAnswers.add(isCaseSensitive ? answer : answer.toLowerCase());

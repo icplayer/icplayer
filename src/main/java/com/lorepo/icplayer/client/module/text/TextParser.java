@@ -99,9 +99,9 @@ public class TextParser {
 					parserResult.parsedText = parseGaps(srcText);
 					parserResult.parsedText = parseAudio(parserResult.parsedText);
 					if (!useMathGaps) {
-						parserResult.parsedText = escapeAltText(parserResult.parsedText);
+						parserResult.parsedText = AlternativeTextService.escapeAltText(parserResult.parsedText);
 						parserResult.parsedText = parseOldSyntax(parserResult.parsedText);
-						parserResult.parsedText = unescapeAltText(parserResult.parsedText);
+						parserResult.parsedText = AlternativeTextService.unescapeAltText(parserResult.parsedText);
 					}
 					parserResult.parsedText = parseExternalLinks(parserResult.parsedText);
 					parserResult.parsedText = parseLinks(parserResult.parsedText);
@@ -310,7 +310,7 @@ public class TextParser {
 			return "";
 		}
 		String gapString = "";
-		for(String key : gapOptions.keySet()){
+		for (String key : gapOptions.keySet()) {
 			gapString+="["+key+" "+gapOptions.get(key)+"]";
 		}
 		return gapString;
@@ -506,8 +506,8 @@ public class TextParser {
 				String value = expression.substring(0, index).trim();
 				String answerValues = StringUtils.removeNewlines(expression.substring(index + 1));
 				String[] answers = answerValues.split("\\|");
-				for(int i=0;i<answers.length;i++){
-					answers[i]=unescapeAltText(answers[i]);
+				for (int i = 0; i < answers.length; i++) {
+					answers[i]= AlternativeTextService.unescapeAltText(answers[i]);
 				}
 				if (answers.length > 1) {
 
@@ -584,8 +584,8 @@ public class TextParser {
 		int index = expression.indexOf(":");
 		if (index > 0) {
 			String[] answers = expression.split("\\|");
-			for(int i=0;i<answers.length;i++){
-				answers[i]=unescapeAltText(answers[i]);
+			for (int i = 0; i < answers.length; i++) {
+				answers[i]=  AlternativeTextService.unescapeAltText(answers[i]);
 			}
 			
 			if (answers.length > 1) {
@@ -989,17 +989,7 @@ public class TextParser {
 		return AlternativeTextService.getAltTextAsHtml(srcText);
 	}
 
-	public static String escapeAltText(String srcText){
-		String parsedText = srcText.replaceAll("\\\\alt\\{([^\\|\\{\\}]*?)\\|([^\\|\\{\\}]*?)\\}", "\\\\altEscaped$1&altTextSeperator&$2&altTextEnd&");
-		return parsedText;
-	}
-
-	public static String unescapeAltText(String srcText){
-		String parsedText = srcText.replaceAll("\\\\altEscaped([^\\|\\{\\}]*?)&altTextSeperator&([^\\|\\{\\}]*?)&altTextEnd&", "\\\\alt\\{$1\\|$2\\}");
-		return parsedText;
-	}
-
-	private String getReadableAltText(String srcText){
+	private String getReadableAltText(String srcText) {
 		String parsedText =  srcText.replaceAll("\\\\alt\\{.*?\\|(.*?)\\}(\\[[a-zA-Z0-9_\\- ]*?\\])*", "$1");
 		return parsedText;
 	}
@@ -1103,7 +1093,7 @@ public class TextParser {
 	}
 
 	private void addAnswersToDraggableGapInfo(GapInfo gi, String answerValue) {
-		String answersWithEscapedAltText = TextParser.escapeAltText(answerValue);
+		String answersWithEscapedAltText = AlternativeTextService.escapeAltTextWithAllVisibleText(answerValue);
 
 		String[] answers = answersWithEscapedAltText.split("\\|"); // answers are divided by | sign
 		String answerToken = null;
@@ -1127,7 +1117,7 @@ public class TextParser {
 	}
 
 	private void addAnswersToFilledDraggableGapInfo(GapInfo gi, String answer) {
-		String answersWithEscapedAltText = TextParser.escapeAltText(answer);
+		String answersWithEscapedAltText = AlternativeTextService.escapeAltText(answer);
 		String[] answers = answersWithEscapedAltText.split("\\|");
 		for (String singleAnswer : answers) {
 			gi.addAnswer(singleAnswer);
