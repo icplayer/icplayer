@@ -1153,7 +1153,8 @@ function AddonText_Coloring_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'setEraserMode': presenter.setEraserMode,
-            'setColor': presenter.setColorCommand
+            'setColor': presenter.setColorCommand,
+            'isAttempted': presenter.isAttempted
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -1208,6 +1209,18 @@ function AddonText_Coloring_create() {
             presenter.setActiveColor(colorID);
             presenter.setColorButtonAsActive(colorID);
         }
+    };
+ 
+     presenter.isAttempted = function () {
+        var words = presenter.configuration.filteredTokens;
+        var attempted = false;
+        for (var i = 0; i &lt; words.length; i++) {
+            if (words[i].isSelected) {
+                attempted = true;
+                break;
+            }
+        };
+        return attempted;
     };
 
     presenter.setEraserButtonAsActive = function () {
