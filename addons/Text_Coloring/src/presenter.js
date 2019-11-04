@@ -1214,7 +1214,7 @@ function AddonText_Coloring_create() {
      presenter.isAttempted = function () {
         var words = presenter.configuration.filteredTokens;
         var attempted = false;
-        for (var i = 0; i &lt; words.length; i++) {
+        for (var i = 0; i < words.length; i++) {
             if (words[i].isSelected) {
                 attempted = true;
                 break;
