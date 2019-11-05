@@ -1364,6 +1364,7 @@ var ice_dictionary_fr = {
     "Text_Coloring_property_hide_color_buttons": "Cacher Colorier les boutons",
     "Text_Coloring_property_show_set_eraser_mode_button": "Afficher le bouton du mode effacer",
     "Text_Coloring_property_eraser_button_text": "Texte du bouton effacer",
+	"Text_Coloring_property_count_errors": "Count Errors",
     "Text_Selection_info": "Permet de sélectionner des parties spécifiques du texte. Il fonctionne en deux modes – le mode 'Cliquer sur les phrases à sélectionner', où vous pouvez cliquer soit sur les mauvaises réponses, soit sur les bonnes, ou le mode 'Tout sélectionner', où toutes les phrases sont sélectionnables mais où vous ne cliquerez que sur les bonnes réponses.",
     "Text_Selection_name": "Sélection de texte",
     "Text_Selection_property_mode": "Mode",

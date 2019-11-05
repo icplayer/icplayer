@@ -12,6 +12,16 @@ function Addonmultiplegap_create(){
     var isWCAGOn = false;
 
     var presenter = function(){};
+
+    function getPlaceholders() {
+        return jQuery.map(presenter.$view.find('.placeholder:not(.placeholder-show-answers)'), function (placeholder) {
+            return {
+                item: $(placeholder).attr('draggableItem'),
+                value: $(placeholder).attr('draggableValue'),
+                type: $(placeholder).attr('draggableType')
+            };
+        });
+    }
     
     presenter.ORIENTATIONS = {
         HORIZONTAL: 0,
@@ -286,6 +296,8 @@ function Addonmultiplegap_create(){
         });
         
         container.click (presenter.acceptDraggable);
+
+        var originalGeneratePosition = null;
         container.droppable ({
             drop: function (event, ui) {
                 if (!presenter.configuration.isVisible) {
@@ -294,12 +306,49 @@ function Addonmultiplegap_create(){
                 event.stopPropagation();
                 event.preventDefault();
                 container.click();
+            },
+            activate: function (event, ui) {
+                if (presenter.$view.find('.dragging').length > 0 && originalGeneratePosition == null) {
+                    originalGeneratePosition = $.ui.draggable.prototype._generatePosition;
+                    $.ui.draggable.prototype._generatePosition = scaledOriginalPositionDecorator($.ui.ddmanager.current, originalGeneratePosition);
+                }
+            },
+            deactivate: function (event, ui) {
+                if (originalGeneratePosition != null) {
+                    $.ui.draggable.prototype._generatePosition = originalGeneratePosition;
+                    originalGeneratePosition = null;
+                }
             }
         });
 
         presenter.container = container;
         presenter.$view.append(container);
     };
+
+    function scaledOriginalPositionDecorator(obj, fn) {
+
+        function getScale() {
+            var $content = $("#content");
+            if($content.size() > 0) {
+                var contentElem = $content[0];
+                var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+                var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+                return {X: scaleX, Y: scaleY};
+            } else if (presenter.playerController) {
+                var scale = presenter.playerController.getScaleInformation();
+                return {X: scale.scaleX, Y: scale.scaleY}
+            } else {
+                return {X: 1.0, Y: 1.0};
+            }
+        }
+
+        obj.isGeneratePositionScaled = true; //add marker to draggable for use in the droppable intersect fix
+        return function (event) {
+            var scale = getScale();
+            var pos = fn.apply(obj, [event]);
+            return {left: pos.left / scale.X, top: pos.top / scale.Y};
+        }
+    }
     
     presenter.setUpEventListeners = function Multiplegap_setUpEventListeners (isPreview) {
         if (!isPreview) {
@@ -983,10 +1032,6 @@ function Addonmultiplegap_create(){
     }
     
     presenter.getMaxScore = function() {
-        if(presenter.isShowAnswersActive){
-            presenter.hideAnswers();
-        }
-        
         if (presenter.itemCounterMode) {
             return presenter.configuration.isActivity ? 1 : 0;
         }
@@ -1003,9 +1048,10 @@ function Addonmultiplegap_create(){
     }
     
     presenter.getScore = function() {
-        if(presenter.isShowAnswersActive){
-            presenter.hideAnswers();
+        if (presenter.isShowAnswersActive) {
+            return presenter.tmpScore;  // It's saved in showAnswers
         }
+
         if (presenter.itemCounterMode) {
             var score = isAllCorrect() ? 1 : 0;
 
@@ -1022,9 +1068,10 @@ function Addonmultiplegap_create(){
     };
     
     presenter.getErrorCount = function() {
-        if(presenter.isShowAnswersActive){
-            presenter.hideAnswers();
+        if (presenter.isShowAnswersActive) {
+            return presenter.tmpErrorCount;  // It's saved in showAnswers
         }
+
         if (presenter.itemCounterMode) {
             var isEmpty = getItemsCount() === 0,
               result = 0;
@@ -1136,22 +1183,19 @@ function Addonmultiplegap_create(){
     };
     
     presenter.getState = function() {
-        if(presenter.isShowAnswersActive){
-            presenter.hideAnswers();
+        function getBaseState(placeholders) {
+            return JSON.stringify({
+                placeholders: placeholders,
+                isVisible: presenter.configuration.isVisible
+            });
         }
-        
-        var placeholders = jQuery.map(presenter.$view.find('.placeholder:not(.placeholder-show-answers)'), function(placeholder) {
-            return {
-                item : $(placeholder).attr('draggableItem'),
-                value : $(placeholder).attr('draggableValue'),
-                type : $(placeholder).attr('draggableType')
-            };
-        });
-        
-        return JSON.stringify({
-            placeholders: placeholders,
-            isVisible: presenter.configuration.isVisible
-        });
+
+
+        if (presenter.isShowAnswersActive) {
+            return getBaseState(this.tmpState); // This state is saved during showAnswers
+        } else {
+            return getBaseState(getPlaceholders());
+        }
     };
     
     presenter.upgradeState = function (parsedState) {
@@ -1223,7 +1267,7 @@ function Addonmultiplegap_create(){
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        
+
         return presenter.countItems() > 0;
     };
     
@@ -1288,18 +1332,14 @@ function Addonmultiplegap_create(){
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        presenter.isShowAnswersActive = true;
         presenter.setWorkMode();
-        
-        presenter.tmpState = [];
-        presenter.$view.find('.placeholder').each(function(i, placeholder) {
-            presenter.tmpState.push({
-                item : $(placeholder).attr('draggableItem'),
-                value : $(placeholder).attr('draggableValue'),
-                type : $(placeholder).attr('draggableType')
-            });
-        });
-        
+
+        presenter.tmpState = getPlaceholders();
+        presenter.tmpScore = presenter.getScore();
+        presenter.tmpErrorCount = presenter.getErrorCount();
+
+        presenter.isShowAnswersActive = true;
+
         presenter.$view.find('.placeholder').remove();
         var moduleID,
           iteratedObject;

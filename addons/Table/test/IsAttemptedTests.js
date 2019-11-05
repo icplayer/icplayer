@@ -2,7 +2,8 @@ TestCase("[Table] Is attempted", {
     setUp: function () {
         this.presenter = AddonTable_create();
         this.presenter.configuration = {
-            gapType: 'not_math'
+            gapType: 'not_math',
+            isNotActivity: false
         };
         this.presenter.valueChangeObserver = new this.presenter.ValueChangeObserver();
         this.presenter.gapsContainer = new this.presenter.GapsContainerObject();
@@ -67,8 +68,6 @@ TestCase("[Table] Is attempted", {
     },
 
     'test given gap with text changed to empty when notyfing of change then checking if table isAttempted returns false': function () {
-        debugger;
-
         this.gap.setValue("value");
         this.gap.notify();
 
@@ -76,6 +75,20 @@ TestCase("[Table] Is attempted", {
         this.gap.notify();
 
         assertFalse(this.presenter.isAttempted());
+    },
+
+    'test given table without gaps when is attempted is called then will return true': function () {
+        this.presenter.gapsContainer.gaps = [];
+
+        assertTrue(this.presenter.isAttempted());
+    },
+
+    'test given table which is not activity when is attempted is called then will return true': function () {
+        this.presenter.configuration.isNotActivity = true;
+        this.gap.setValue("");
+        this.gap.notify();
+
+        assertTrue(this.presenter.isAttempted());
     }
 
 });

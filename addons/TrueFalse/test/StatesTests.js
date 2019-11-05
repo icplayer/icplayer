@@ -16,11 +16,12 @@ TestCase("Get and Set State Tests", {
 
     'test get state in active show answers mode' : function() {
         this.presenter.isShowAnswersActive = true;
-        this.presenter.currentState = '[false, true, false]';
+        this.presenter.currentState = [false, true, false];
 
         var state = this.presenter.getState();
 
-        assertEquals('{\"selectedElements\":[false,false,false]}', state);
+        assertEquals('{\"selectedElements\":[false,true,false]}', state);
+        assertEquals(true, this.presenter.isShowAnswersActive);
     },
 
     'test set state function sets data properly' : function() {

@@ -2088,7 +2088,11 @@ function AddonTable_create() {
     * @return boolean
     */
     presenter.isAttempted = function AddonTable_isAttempted () {
-        return presenter.gapsContainer.isAnyGapAttempted();
+        if (presenter.configuration.isNotActivity) {
+            return true;
+        }
+
+        return presenter.gapsContainer.getLength() === 0 ? true : presenter.gapsContainer.isAnyGapAttempted();
     };
 
 
