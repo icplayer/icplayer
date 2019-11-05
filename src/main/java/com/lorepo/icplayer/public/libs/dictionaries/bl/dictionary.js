@@ -1363,6 +1363,7 @@ var ice_dictionary_bl = {
 	"Text_Coloring_property_hide_color_buttons": "Скрий бутони за цвят",
 	"Text_Coloring_property_show_set_eraser_mode_button": "Покажи бутон с гумичка",
 	"Text_Coloring_property_eraser_button_text": "Текст на бутона с гумичка",
+	"Text_Coloring_property_count_errors": "Count Errors",
 	"Text_Selection_info": "Позволява да се маркират определени части текст. Работи в два режима – 'Маркиране на определени изрази', където може да въведете верни и грешни отговори и 'Маркиране на всички', където всичко изрази могат да се маркират, а вие трябва да отбележите само верните отговори.",
 	"Text_Selection_name": "Маркиране на текст",
 	"Text_Selection_property_mode": "Режим",

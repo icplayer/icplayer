@@ -1347,10 +1347,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private boolean isActivity() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		return module.isActivity();
 	}
 

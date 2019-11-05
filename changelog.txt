@@ -1,5 +1,17 @@
-2019-10-18 Remove side effect from getState in paragraph module.
+2019-11-05 Remove side effect from getState in paragraph module.
+2019-11-05 Remove hideAnswers in getState, getScore and getErrorCount in table addon.
+2019-10-30 Fixed Slider working incorrectly when inside overflow: auto
+2019-10-29 Added Count Errors property to Text Coloring
+2019-10-29 Added clearing Catch addon objects on page change.
+2019-10-29 Fixed getting readable text in Text module
+2019-10-28 Fixed issues with scaling of multiplegap
+2019-10-24 When table is not activity or does not have gaps, then return true in isAttempted
+2019-10-24 Fixed problem with animation and transparency.
+2019-10-23 Fixed error in destroy method in IWB Toolbar module
 2019-10-18 Fixed styles in Flash Cards module
+2019-10-17 Fix problem with hideAnswers in getScore, getErrorCount, getState in multiple gap addon
+2019-10-16 TrueFalse is not hidding show answers during getState
+2019-10-16 Remove hideAnswers from getState in ordering module.
 2019-10-14 Optimize drawing frames in Animation addon
 2019-10-11 Added isAttempted command to Table.
 2019-10-10 Added TTS support to Slider
