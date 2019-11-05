@@ -1,3 +1,4 @@
+2019-11-05 Remove hideAnswers in getState, getScore and getErrorCount in table addon.
 2019-10-30 Fixed Slider working incorrectly when inside overflow: auto
 2019-10-29 Added Count Errors property to Text Coloring
 2019-10-29 Added clearing Catch addon objects on page change.
