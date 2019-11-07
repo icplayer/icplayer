@@ -94,6 +94,7 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		if (isIgnorePunctuation) {
 			text = removePunctuation(text);
 		}
+		text = AlternativeTextService.getVisibleText(text);
 		for (String answer : checkAnswers) {
 			String parsedAnswer = AlternativeTextService.getVisibleText(answer);
 			if (parsedAnswer.compareTo(text) == 0) {

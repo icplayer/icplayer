@@ -13,7 +13,6 @@ import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
-import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.lorepo.icplayer.client.module.IEnterable;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -566,11 +565,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
      private String getElementText(GapInfo gap) {
-		String t =  getElementText(gap.getId());
-		if(t.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
-			t = gap.getPlaceHolder();
+		String userAnswer =  getElementText(gap.getId());
+		if (userAnswer.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
+			userAnswer = gap.getPlaceHolder();
 		}
-		return t;
+		return userAnswer;
 	}
 	
 	@Override
@@ -1015,7 +1014,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		GapInfo gap = getGapInfoById(itemID);
 		String enteredValue = getElementText(gap);
-		if (enteredValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
+		if (enteredValue.equals(gap.getPlaceHolder()) && !gap.isCorrect(gap.getPlaceHolder())) {
 			enteredValue = "";
 		}
 		if (gap.isCorrect(enteredValue)) {

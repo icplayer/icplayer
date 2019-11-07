@@ -225,7 +225,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 			answerText = TextParser.removeHtmlFormatting(visibleText);
 			droppedElementHelper = getElement(visibleText);
 			setStylePrimaryName(FILLED_GAP_STYLE);
-			if(droppedElementHelper.length() != 0 && !isShowAnswersMode){
+			if (!droppedElementHelper.isEmpty() && !isShowAnswersMode){
 				JavaScriptUtils.makeDroppedDraggableText(this.getElement(), getAsJavaScript(), droppedElementHelper);
 			}
 		}
