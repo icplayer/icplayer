@@ -307,14 +307,6 @@ function AddonTable_create() {
     };
 
     presenter.getState = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
-        if(isConnectedWithMath){
-            presenter.gapsContainer.unlockAllGaps();
-        }
-
         var spans;
         var gaps = presenter.gapsContainer.getGapsState();
 
@@ -921,10 +913,6 @@ function AddonTable_create() {
             return 0;
         }
 
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
         return presenter.gapsContainer.getScore();
     };
 
@@ -935,10 +923,6 @@ function AddonTable_create() {
 
         if (presenter.gapsContainer == undefined) {
             return 0;
-        }
-
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
         }
 
         return presenter.gapsContainer.getErrorCount();
@@ -2104,7 +2088,11 @@ function AddonTable_create() {
     * @return boolean
     */
     presenter.isAttempted = function AddonTable_isAttempted () {
-        return presenter.gapsContainer.isAnyGapAttempted();
+        if (presenter.configuration.isNotActivity) {
+            return true;
+        }
+
+        return presenter.gapsContainer.getLength() === 0 ? true : presenter.gapsContainer.isAnyGapAttempted();
     };
 
 

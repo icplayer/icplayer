@@ -1364,6 +1364,7 @@ var ice_dictionary_mx = {
 	"Text_Coloring_property_hide_color_buttons": "Ocultar los botones",
 	"Text_Coloring_property_show_set_eraser_mode_button": "Mostrar el botón de borrador",
 	"Text_Coloring_property_eraser_button_text": "Etiqueta para botón de borrador",
+	"Text_Coloring_property_count_errors": "Count Errors",
 	"Text_Selection_info": "Permite seleccionar partes específicas del texto. Funciona en dos modos: 1. 'Marcar frases para seleccionar', donde se pueden definir las respuestas correctas y incorrectas, 2. 'Todo seleccionable', donde todas las palabras están listas para seleccionar pero hay que encontrar las orrectas.",
 	"Text_Selection_name": "Selección de Texto",
 	"Text_Selection_property_mode": "Modo",

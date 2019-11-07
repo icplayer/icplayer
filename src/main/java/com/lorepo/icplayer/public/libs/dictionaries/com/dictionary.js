@@ -1364,6 +1364,7 @@ var ice_dictionary_en = {
 	"Text_Coloring_property_hide_color_buttons": "Hide Color Buttons",
 	"Text_Coloring_property_show_set_eraser_mode_button": "Show set eraser mode button",
 	"Text_Coloring_property_eraser_button_text": "Eraser button text",
+	"Text_Coloring_property_count_errors": "Count Errors",
 	"Text_Selection_info": "Allows to select dpecific parts of text. It works in two modes – 'Mark phrases to select', where you can mark wrong and correct answers or 'All selectable', where all phrases are selectable and you can mark only the correct answers.",
 	"Text_Selection_name": "Text Selection",
 	"Text_Selection_property_mode": "Mode",

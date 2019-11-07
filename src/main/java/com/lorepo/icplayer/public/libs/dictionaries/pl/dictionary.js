@@ -1363,6 +1363,7 @@ var ice_dictionary_pl = {
 	"Text_Coloring_property_hide_color_buttons": "Ukryj przyciski z kolorami",
 	"Text_Coloring_property_show_set_eraser_mode_button": "Pokaż przycisk ustawienia trybu gumki",
 	"Text_Coloring_property_eraser_button_text": "Tekst przycisku gumki",
+	"Text_Coloring_property_count_errors": "Count Errors",
 	"Text_Selection_info" : "Pozwala na zaznaczanie wybranych partii tekstu; działa w dwóch trybach – „Mark phrases to select”, w którym można zdefiniować poprawne i błędne odpowiedzi oraz „All selectable”, gdzie można określić tylko poprawne odpowiedzi, a wszystkie wyrażenia są gotowe do zaznaczenia.",
 	"Text_Selection_name" : "Zaznaczanie tekstu",
 	"Text_Selection_property_mode" : "Tryb",

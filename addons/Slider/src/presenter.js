@@ -402,10 +402,26 @@ function AddonSlider_create () {
 
         setAddonPosition();
 
-        return {
-            x:(eventData.pageX - presenter.configuration.offset.left) - popupLeft,
-            y:(eventData.pageY - presenter.configuration.offset.top) - popupTop
-        };
+        if (eventData.offsetX != null && eventData.offsetY != null) {
+            position = {
+                x:(eventData.offsetX + $(eventData.target).offset().left - presenter.configuration.offset.left) - popupLeft,
+                y:(eventData.offsetY + $(eventData.target).offset().top - presenter.configuration.offset.top) - popupTop
+            };
+        } else {
+            var scroll = getScroll();
+            position = {
+                x: (scroll.left + eventData.pageX - presenter.configuration.offset.left) - popupLeft,
+                y: (scroll.top + eventData.pageY - presenter.configuration.offset.top) - popupTop
+            }
+        }
+
+        return position;
+    }
+
+    function getScroll() {
+        var top = $('body').scrollTop();
+        var left = $('body').scrollLeft();
+        return {top: top, left: left};
     }
 
     function setAddonPosition() {
@@ -446,7 +462,7 @@ function AddonSlider_create () {
     };
 
     function presenterLogic(view, model, preview) {
-        var upgradedModel = presenter.upgradeModel(model);;
+        var upgradedModel = presenter.upgradeModel(model);
 
         presenter.imageLoadedDeferred = new jQuery.Deferred();
         presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
