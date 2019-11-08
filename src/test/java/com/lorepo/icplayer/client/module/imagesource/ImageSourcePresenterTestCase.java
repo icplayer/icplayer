@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.googlecode.gwt.test.GwtModule;
+import com.googlecode.gwt.test.GwtTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
@@ -22,9 +24,6 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.imagesource.mockup.ImageSourceViewMockup;
-import com.lorepo.icplayer.client.module.sourcelist.SourceListModule;
-import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter;
-import com.lorepo.icplayer.client.module.sourcelist.mockup.SourceListViewMockup;
 
 public class ImageSourcePresenterTestCase {
 
@@ -71,23 +70,6 @@ public class ImageSourcePresenterTestCase {
 		assertTrue(display.isSelected());
 		
 		display.click();
-		assertFalse(display.isSelected());
-	}
-	
-	
-
-	@Test
-	public void selectOnlyOne() {
-		
-		SourceListModule model2 = new SourceListModule();
-		SourceListViewMockup display2 = new SourceListViewMockup(model2);
-		SourceListPresenter presenter2 = new SourceListPresenter(model2, services);
-		presenter2.addView(display2);
-		
-		display.click();
-		assertTrue(display.isSelected());
-
-		display2.click("2");
 		assertFalse(display.isSelected());
 	}
 

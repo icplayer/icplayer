@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 
 public class GapInfo implements IGapCommonUtilsProvider {
 
@@ -35,11 +36,12 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		this.langTag = langTag;
 	}
 
-
 	public void addAnswer(String answer) {
+		boolean matchAllVisbileText = true;
 		answer = StringUtils.unescapeXML(answer);
 		answer = answer.replaceAll("&nbsp;", " ");
-		
+		// this is needed for showing visible text when show answer is called on gap
+		answer = AlternativeTextService.unescapeAltText(answer, matchAllVisbileText);
 		answers.add(answer);
 		if(isIgnorePunctuation) { answer = removePunctuation(answer); }
 		checkAnswers.add(isCaseSensitive ? answer : answer.toLowerCase());
@@ -85,16 +87,17 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	}
 
 	public boolean isCorrect(String text) {
-
 		boolean correct = false;
-		if(!isCaseSensitive){
+		if (!isCaseSensitive) {
 			text = text.toLowerCase();
 		}
-		if(isIgnorePunctuation){
+		if (isIgnorePunctuation) {
 			text = removePunctuation(text);
 		}
-		for(String answer : checkAnswers){
-			if(answer.compareTo(text) == 0){
+		text = AlternativeTextService.getVisibleText(text);
+		for (String answer : checkAnswers) {
+			String parsedAnswer = AlternativeTextService.getVisibleText(answer);
+			if (parsedAnswer.compareTo(text) == 0) {
 				correct = true;
 				break;
 			}
