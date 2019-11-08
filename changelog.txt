@@ -1,4 +1,8 @@
-2019-10-29 Add alt text support for SourceList
+2019-11-08 Add alt text support for SourceList
+2019-11-05 Added isAttempted command to Text Coloring.
+2019-11-05 Remove side effect from getState in paragraph module.
+2019-11-05 Remove hideAnswers in getState, getScore and getErrorCount in table addon.
+2019-10-30 Fixed Slider working incorrectly when inside overflow: auto
 2019-10-29 Added Count Errors property to Text Coloring
 2019-10-29 Added clearing Catch addon objects on page change.
 2019-10-29 Fixed getting readable text in Text module
