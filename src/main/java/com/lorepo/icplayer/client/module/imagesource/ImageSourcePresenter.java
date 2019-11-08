@@ -28,6 +28,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 
 public class ImageSourcePresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
@@ -474,7 +475,9 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
+		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") 
+				&& !this.getView().getStyle().getDisplay().equals("none")
+				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return isVisible && !this.view.getDisabled();
 	}
 	

@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 import java.util.*;
 
@@ -1409,7 +1410,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		final boolean isWithGaps = view.getChildrenCount() > 0;
 		final boolean isEnabled = !this.module.isDisabled();
-		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled;
+		final boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled && !isGroupDivHidden;
 	}
 
 	@Override
