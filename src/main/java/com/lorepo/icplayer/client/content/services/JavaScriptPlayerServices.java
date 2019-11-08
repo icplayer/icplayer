@@ -424,6 +424,10 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getFooterModule(Ljava/lang/String;)(id);
 		};
 
+		playerServices.getModuleMetadata = function (moduleID) {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getModuleMetadata(Ljava/lang/String;)(moduleID);
+		};
+
 		playerServices.setAbleChangeLayout = function(isAbleChangeLayout){
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setAbleChangeLayout(Z)(isAbleChangeLayout); 
 		};
@@ -496,7 +500,7 @@ public class JavaScriptPlayerServices {
 		playerServices.sendExternalEvent = function(eventType, data) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendExternalEvent(Ljava/lang/String;Ljava/lang/String;)(eventType, data);
 		};
-
+		
 		playerServices.getScaleInformation = function() {
 			var scaleInfo = x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getScaleInformation()();
 			var jsScaleInfo = {
@@ -996,5 +1000,9 @@ public class JavaScriptPlayerServices {
 
 	public String getContentMetadataValue(String key) {
 		return playerServices.getContentMetadata(key);
+	}
+
+	public JavaScriptObject getModuleMetadata(String moduleID) {
+		return this.playerServices.getModule(moduleID).getModel().getMetadata().toJavaScript();
 	}
 }
