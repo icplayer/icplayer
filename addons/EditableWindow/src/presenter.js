@@ -55,11 +55,19 @@ function AddonEditableWindow_create() {
         $view: undefined
     };
 
+    presenter.initJQueryCache = function($view) {
+        presenter.jQueryElementsCache.$fullscreenButton = $view.find(presenter.cssClasses.fullScreenButton.getSelector());
+        presenter.jQueryElementsCache.$buttonMenu = $view.find(presenter.cssClasses.buttonMenu.getSelector());
+        presenter.jQueryElementsCache.$container = $view.find(presenter.cssClasses.container.getSelector());
+        presenter.jQueryElementsCache.$fixedContainer = $view.find(presenter.cssClasses.fixedContainer.getSelector());
+        presenter.jQueryElementsCache.$view =$view;
+    };
+
     presenter.run = function (view, model) {
         presenter.configuration.view = view;
         // container is the div that will be draggable and resizable
         presenter.configuration.container = view.getElementsByClassName(presenter.cssClasses.container.getName())[0];
-        presenter.configuration.$container = $(presenter.configuration.container);
+        presenter.initJQueryCache($(view));
 
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
 
@@ -93,12 +101,6 @@ function AddonEditableWindow_create() {
         var $header = $container.find(".header");
         var $headerText = $container.find(".header-text");
         var disableResizeHeight = presenter.configuration.model.disableResizeHeight;
-
-        presenter.jQueryElementsCache.$fullscreenButton = $(presenter.configuration.view).find(presenter.cssClasses.fullScreenButton.getSelector());
-        presenter.jQueryElementsCache.$buttonMenu = $view.find(presenter.cssClasses.buttonMenu.getSelector());
-        presenter.jQueryElementsCache.$container = $view.find(presenter.cssClasses.container.getSelector());
-        presenter.jQueryElementsCache.$fixedContainer = $view.find(presenter.cssClasses.fixedContainer.getSelector());
-        presenter.jQueryElementsCache.$view = $view;
 
         $headerText.text(title);
         $header.addClass(headerStyle);
@@ -227,10 +229,10 @@ function AddonEditableWindow_create() {
     };
 
     presenter.closeButtonClickedCallback = function () {
-        var $view = presenter.configuration.$container;
-        var $button = $(presenter.configuration.view).find(presenter.cssClasses.fullScreenButton.getSelector());
         if (presenter.temporaryState.isFullScreen) {
-            presenter.closeFullScreen($view, $button);
+            var $view = presenter.jQueryElementsCache.$container;
+
+            presenter.closeFullScreen($view);
         }
 
         presenter.hide();
@@ -320,7 +322,7 @@ function AddonEditableWindow_create() {
 
     // during scroll window needs to be repositioned, so it blocks whole lesson view
     presenter.updateFullScreenWindowTop = function () {
-        var $view = presenter.configuration.$container;
+        var $view = presenter.jQueryElementsCache.$container;
         var top = presenter.temporaryState.scrollTop;
         var properties = {
             top: top
@@ -356,7 +358,7 @@ function AddonEditableWindow_create() {
 
     presenter.handleAudioContent = function () {
         var $view = $(presenter.configuration.view);
-        var $container = presenter.configuration.$container;
+        var $container = presenter.jQueryElementsCache.$container;
         var audioSource = presenter.configuration.model.audioFile;
         var $audioElement = $view.find("audio");
         $audioElement.attr("src", audioSource);
@@ -682,7 +684,7 @@ function AddonEditableWindow_create() {
     };
 
     presenter.centerPosition = function () {
-        var $view = presenter.configuration.$container;
+        var $view = presenter.jQueryElementsCache.$container;
         var width = $view.width();
         var availableWidth = presenter.getAvailableWidth();
 
@@ -847,7 +849,6 @@ function AddonEditableWindow_create() {
             }
 
             $(presenter.configuration.view).off();
-            presenter.configuration.$container = null;
             presenter.configuration.container = null;
             presenter.configuration = null;
             presenter.jQueryElementsCache = null;

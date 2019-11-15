@@ -4,7 +4,11 @@ TestCase("[EditableWindow] Handling scroll event", {
 
         this.presenter.temporaryState = {
             isFullScreen: false,
-            scrollTop: 0
+            scrollTop: 0,
+            scaleInfo: {
+                scaleX: 1.0,
+                scaleY: 1.0
+            }
         };
 
         this.mocks = {
@@ -44,6 +48,20 @@ TestCase("[EditableWindow] Handling scroll event", {
 
         assertEquals('number', typeof this.presenter.temporaryState.scrollTop);
         assertEquals(100, this.presenter.temporaryState.scrollTop);
-    }
+    },
+
+    'test given some scaleY in state when scroll event comes then scroll value in state will be number and will be properly scaled': function () {
+        this.presenter.temporaryState.scaleInfo.scaleY = 0.5;
+
+
+        var eventData = {
+            value: '100'
+        };
+
+        this.presenter.handleScrollEvent(eventData);
+
+        assertEquals('number', typeof this.presenter.temporaryState.scrollTop);
+        assertEquals(200, this.presenter.temporaryState.scrollTop);
+    },
 });
 
