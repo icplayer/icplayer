@@ -13,6 +13,7 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 import java.util.HashMap;
 
@@ -126,8 +127,10 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		return (isVisible || isTextToSpeechOn);
+		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") 
+				&& !this.getView().getStyle().getDisplay().equals("none")
+				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return (isVisible && isTextToSpeechOn);
 	}
 
 	@Override
