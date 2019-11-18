@@ -24,6 +24,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 public class PageProgressPresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
 
@@ -328,8 +329,10 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		return (isVisible || isTextToSpeechOn);
+		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") 
+				&& !this.getView().getStyle().getDisplay().equals("none")
+				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return (isVisible && isTextToSpeechOn);
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
 import com.lorepo.icplayer.client.utils.DomElementManipulator;
 
@@ -38,6 +39,7 @@ public class TextParser {
 	private boolean useEscapeCharacterInGap = false;
 	private List<String> gapsOrder;
 	private boolean hasSyntaxError = false;
+	private String langTag = "";
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -70,6 +72,10 @@ public class TextParser {
 		openLinksinNewTab = linksTarget;
 	}
 
+	public void setLangTag(String langTag) {
+		this.langTag = langTag == null ? "" : langTag;
+	}
+
 	// parse srcText for editor in HTMLWidget as rendered view
 	public ParserResult parse(String srcText, boolean editorMode) {
 		this.editorMode = editorMode;
@@ -93,9 +99,9 @@ public class TextParser {
 					parserResult.parsedText = parseGaps(srcText);
 					parserResult.parsedText = parseAudio(parserResult.parsedText);
 					if (!useMathGaps) {
-						parserResult.parsedText = escapeAltText(parserResult.parsedText);
+						parserResult.parsedText = AlternativeTextService.escapeAltText(parserResult.parsedText);
 						parserResult.parsedText = parseOldSyntax(parserResult.parsedText);
-						parserResult.parsedText = unescapeAltText(parserResult.parsedText);
+						parserResult.parsedText = AlternativeTextService.unescapeAltText(parserResult.parsedText);
 					}
 					parserResult.parsedText = parseExternalLinks(parserResult.parsedText);
 					parserResult.parsedText = parseLinks(parserResult.parsedText);
@@ -254,8 +260,10 @@ public class TextParser {
 	};
 	
 	private String matchGap(String expression, Map<String,String> gapOptions) {
-		String langTag = gapOptions!=null && gapOptions.containsKey("lang") ? gapOptions.get("lang") : "";
+		boolean gapOptionsIncludeLang = gapOptions != null && gapOptions.containsKey("lang");
+		String langTag = gapOptionsIncludeLang ? gapOptions.get("lang") : this.langTag;
 		int index = expression.indexOf(":");
+
 		String replaceText = null;
 		try{
 			if (index > 0) {
@@ -302,7 +310,7 @@ public class TextParser {
 			return "";
 		}
 		String gapString = "";
-		for(String key : gapOptions.keySet()){
+		for (String key : gapOptions.keySet()) {
 			gapString+="["+key+" "+gapOptions.get(key)+"]";
 		}
 		return gapString;
@@ -394,75 +402,57 @@ public class TextParser {
 	}
 
 	private String matchDraggableFilledGap(String expression, Map<String,String> gapOptions) {
-		String langTag = gapOptions!=null && gapOptions.containsKey("lang") ? gapOptions.get("lang") : "";
+		String langTag = getLangTagForGap(gapOptions);
 		String replaceText = null;
+
+		// filled gap has it's placeholder defined in element before first pipe sign
 		int index = expression.indexOf("|");
 		if (index > 0) {
 			String placeholder = expression.substring(0, index).trim();
 			placeholder = StringUtils.unescapeXML(placeholder);
 			String answer = expression.substring(index + 1).trim();
-			String[] answers = answer.split("\\|");
+
 			String id = baseId + "-" + idCounter;
 			idCounter++;
 			
-			DomElementManipulator spanElement = new DomElementManipulator("span");
-			spanElement.addClass("ic_draggableGapEmpty");
-			spanElement.addClass("ic_filled_gap");
-			spanElement.setInnerHTMLText(placeholder);
-			spanElement.setHTMLAttribute("id", id);
-			
-			replaceText = spanElement.getHTMLCode();
-			
+			replaceText = getSpanElementCodeForDraggableFilledGap(id, placeholder);
+
 			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
 			gi.setPlaceHolder(placeholder);
-			for (int i = 0; i < answers.length; i++) {
-				gi.addAnswer(answers[i]);
-			}
+
+			addAnswersToFilledDraggableGapInfo(gi, answer);
 			parserResult.gapInfos.add(gi);
 		}
 		return replaceText;
 	}
 	
 	private String matchDraggableGap(String expression, Map<String,String> gapOptions) {
-		String langTag = gapOptions!=null && gapOptions.containsKey("lang") ? gapOptions.get("lang") : "";
+		String langTag = getLangTagForGap(gapOptions);
 		String replaceText = null;
 
-		int index = expression.indexOf(":");
-		if (index > 0) {
-			String value = expression.substring(0, index).trim();
-			String answer = expression.substring(index + 1).trim();
+		// expression is for example 1:someText
+		int colonIndex = expression.indexOf(":");
+		if (colonIndex > 0) {
+			String answerIndex = expression.substring(0, colonIndex).trim(); // this gets number before colon
+			String answerValue = expression.substring(colonIndex + 1).trim(); // this gets text after colon
 			String id = baseId + "-" + idCounter;
 			idCounter++;
-			
-			DomElementManipulator spanElement = new DomElementManipulator("span");
-			spanElement.setHTMLAttribute("id", id);
-			spanElement.addClass("ic_draggableGapEmpty");
-			spanElement.setInnerHTMLText(DomElementManipulator.getFromHTMLCodeUnicode("&#160"));
-			replaceText = spanElement.getHTMLCode();
-			
-			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
-					isCaseSensitive, isIgnorePunctuation, 0, langTag);
-			String[] answers = answer.split("\\|");
-			String answerToken = null;
-			for (int i = 0; i < answers.length; i++) {
-				if (answerToken != null) {
-					answerToken += "|" + answers[i];
-				} else {
-					answerToken = answers[i];
-				}
-				if (answerToken.indexOf("\\(") < 0
-						|| answerToken.indexOf("\\)") > 0) {
-					gi.addAnswer(answerToken);
-					answerToken = null;
-				}
-			}
-			if (answerToken != null) {
-				gi.addAnswer(answerToken);
-			}
+
+			replaceText = getSpanElementCodeForDraggableGap(id);
+
+			GapInfo gi = new GapInfo(id, Integer.parseInt(answerIndex), isCaseSensitive, isIgnorePunctuation, 0, langTag);
+
+			addAnswersToDraggableGapInfo(gi, answerValue);
+
 			parserResult.gapInfos.add(gi);
 		}
 
 		return replaceText;
+	}
+
+	private String getLangTagForGap(Map<String,String> gapOptions) {
+		boolean gapOptionsIncludeLang = gapOptions != null && gapOptions.containsKey("lang");
+		return gapOptionsIncludeLang ? gapOptions.get("lang") : this.langTag;
 	}
 
 	private String[] getAnswerAndValue(String value, boolean escape) {
@@ -516,8 +506,8 @@ public class TextParser {
 				String value = expression.substring(0, index).trim();
 				String answerValues = StringUtils.removeNewlines(expression.substring(index + 1));
 				String[] answers = answerValues.split("\\|");
-				for(int i=0;i<answers.length;i++){
-					answers[i]=unescapeAltText(answers[i]);
+				for (int i = 0; i < answers.length; i++) {
+					answers[i]= AlternativeTextService.unescapeAltText(answers[i]);
 				}
 				if (answers.length > 1) {
 
@@ -594,8 +584,8 @@ public class TextParser {
 		int index = expression.indexOf(":");
 		if (index > 0) {
 			String[] answers = expression.split("\\|");
-			for(int i=0;i<answers.length;i++){
-				answers[i]=unescapeAltText(answers[i]);
+			for (int i = 0; i < answers.length; i++) {
+				answers[i]=  AlternativeTextService.unescapeAltText(answers[i]);
 			}
 			
 			if (answers.length > 1) {
@@ -654,7 +644,7 @@ public class TextParser {
 	/**
 	 * Try to match variable
 	 * 
-	 * @param subSequence
+	 * @param key
 	 * @return null if no match found
 	 */
 	private String matchVariable(String key) {
@@ -887,7 +877,7 @@ public class TextParser {
 	/**
 	 * Replace external link with anchor
 	 * 
-	 * @param expression
+	 * @param href
 	 * @return
 	 */
 	private String externalLink2Anchor(String href) {
@@ -995,112 +985,21 @@ public class TextParser {
 		return buttonElement.getHTMLCode() + audioElement.getHTMLCode();
 	}
 
-
-	public static DomElementManipulator getAltTextElement(String visibleText, String altText){
-		return getAltTextElement(visibleText, altText, "");
-	}
-	
-	public static DomElementManipulator getAltTextElement(String visibleText, String altText, String langTag) {
-		DomElementManipulator wrapper = new DomElementManipulator("span");
-		wrapper.setHTMLAttribute("aria-label", altText);
-		if (langTag.length() > 0) {
-		    wrapper.setHTMLAttribute("lang", langTag);
-		}
-		DomElementManipulator visibleTextElement = new DomElementManipulator("span");
-		visibleTextElement.setHTMLAttribute("aria-hidden", "true");
-		visibleTextElement.setInnerHTMLText(visibleText);
-		
-		wrapper.appendElement(visibleTextElement);
-		return wrapper;
-		
-	}
-	
 	public String parseAltText(String srcText) {
-		srcText = this.escapeAltTextInTag(srcText);
-		final String pattern = 	"\\\\alt\\{";
-		String input = srcText;
-		String output = "";
-		String replaceText;
-		int index = -1;
-		RegExp regExp = RegExp.compile(pattern);
-		MatchResult matchResult;
-		
-		while ((matchResult = regExp.exec(input)) != null) {
-			if (matchResult.getGroupCount() <= 0) {
-				break;
-			}
-
-			String group = matchResult.getGroup(0);
-			output += input.substring(0, matchResult.getIndex());
-			input = input.substring(matchResult.getIndex() + group.length());
-			index = findClosingBracket(input);
-
-			String expression = input.substring(0, index);
-			input = input.substring(index + 1);
-			Map<String,String> gapOptions = this.getGapOptions(input);
-			input = removeGapOptions(input);
-			int seperatorIndex = expression.indexOf("|");
-			if (seperatorIndex > 0) {				
-				String visibleText = expression.substring(0, seperatorIndex);
-				String altText = expression.substring(seperatorIndex + 1);
-				if (gapOptions!=null && gapOptions.containsKey("lang")) {
-					replaceText =  StringUtils.unescapeXML(getAltTextElement(visibleText, altText, gapOptions.get("lang")).getHTMLCode());
-				} else {
-					replaceText =  StringUtils.unescapeXML(getAltTextElement(visibleText, altText).getHTMLCode());
-				}
-			} else {
-				replaceText = "#ERR";
-			}
-			output = output + replaceText;
-		}
-		return this.unescapeAltTextInTag(output + input);
-	}
-	
-	public static String escapeAltText(String srcText){
-		String parsedText = srcText.replaceAll("\\\\alt\\{([^\\|\\{\\}]*?)\\|([^\\|\\{\\}]*?)\\}", "\\\\altEscaped$1&altTextSeperator&$2&altTextEnd&");
-		return parsedText;
+		return AlternativeTextService.getAltTextAsHtml(srcText);
 	}
 
-	public static String unescapeAltText(String srcText){
-		String parsedText = srcText.replaceAll("\\\\altEscaped([^\\|\\{\\}]*?)&altTextSeperator&([^\\|\\{\\}]*?)&altTextEnd&", "\\\\alt\\{$1\\|$2\\}");
-		return parsedText;
-	}
-	
-	private String escapeAltTextInTag(String srcText){
-		String parsedText = srcText;
-		String oldParsedText = "";
-		String pattern = "<([^>]*?)\\\\alt\\{([^<]*?)>";
-		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be multiple alt texts inside one tag, all must be escaped
-			oldParsedText = parsedText;
-			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\altEscaped\\{$2>");
-		}
-		return parsedText;
-	}
-	
-	private String unescapeAltTextInTag(String srcText){
-		String pattern = "<([^>]*?)\\\\altEscaped\\{([^<]*?)>";
-		String parsedText = srcText;
-		String oldParsedText = "";
-		while(!oldParsedText.equals(parsedText)){ //it is possible that there will be multiple alt texts inside one tag, all must be unescaped
-			oldParsedText = parsedText;
-			parsedText =  parsedText.replaceAll(pattern, "<$1\\\\alt\\{$2>");
-		}
-		return parsedText;
-	}
-	
-	
-	
-	private String getReadableAltText(String srcText){
+	private String getReadableAltText(String srcText) {
 		String parsedText =  srcText.replaceAll("\\\\alt\\{.*?\\|(.*?)\\}(\\[[a-zA-Z0-9_\\- ]*?\\])*", "$1");
 		return parsedText;
 	}
-	
+
 	public Map<String,String> getGapOptions(String expression) {
 		final String pattern = 	"^\\[[a-zA-Z0-9_\\- ]*?\\]";
 		Map<String,String> result = new HashMap<String,String>();
 		RegExp regExp = RegExp.compile(pattern);
 		MatchResult matchResult;
-		
+
 		while ((matchResult = regExp.exec(expression)) != null) {
 			if (matchResult.getGroupCount() <= 0) {
 				break;
@@ -1116,12 +1015,12 @@ public class TextParser {
 		}
 		return result;
 	};
-	
+
 	public static String removeGapOptions(String expression) {
 		final String pattern = 	"^\\[[a-zA-Z0-9_\\- ]*?\\]";
 		RegExp regExp = RegExp.compile(pattern);
 		MatchResult matchResult;
-		
+
 		while ((matchResult = regExp.exec(expression)) != null) {
 			if (matchResult.getGroupCount() <= 0) {
 				break;
@@ -1137,7 +1036,7 @@ public class TextParser {
 		}
 		return expression;
 	};
-	
+
 	public void skipGaps() {
 		skipGaps = true;
 	}
@@ -1145,8 +1044,8 @@ public class TextParser {
 	public void setGapWidth(int gapWidth) {
 		this.gapWidth = gapWidth;
 	}
-	
-	
+
+
 	public void setGapMaxLength(int gapMaxLength) {
 		this.gapMaxLength = gapMaxLength;
 	}
@@ -1154,14 +1053,75 @@ public class TextParser {
 	public void setUseEscapeCharacterInGap(boolean isUsing) {
 		this.useEscapeCharacterInGap = isUsing;
 	}
-	
+
 	public List<String> getGapsOrder () {
 		return this.gapsOrder;
 	}
-	
+
 	public static String removeHtmlFormatting( String html) {
 		Element el = (new HTML(html)).getElement();
 		return el.getInnerText();
+	}
+
+	private String getSpanElementCode(String id, String innerHTML, String[] classes) {
+		DomElementManipulator spanElement = new DomElementManipulator("span");
+		spanElement.setHTMLAttribute("id", id);
+		spanElement.setInnerHTMLText(innerHTML);
+		for (String className : classes) {
+			spanElement.addClass(className);
+		}
+
+		return spanElement.getHTMLCode();
+	}
+
+	private String getSpanElementCodeForDraggableFilledGap(String id, String placeholder) {
+		String[] classes = {
+				"ic_draggableGapEmpty",
+				"ic_filled_gap",
+		};
+
+		return getSpanElementCode(id, placeholder, classes);
+	}
+
+	private String getSpanElementCodeForDraggableGap(String id) {
+		String[] classes = {
+				"ic_draggableGapEmpty",
+		};
+		String innerHTML = DomElementManipulator.getFromHTMLCodeUnicode("&#160");
+
+		return getSpanElementCode(id, innerHTML, classes);
+	}
+
+	private void addAnswersToDraggableGapInfo(GapInfo gi, String answerValue) {
+		String answersWithEscapedAltText = AlternativeTextService.escapeAltTextWithAllVisibleText(answerValue);
+
+		String[] answers = answersWithEscapedAltText.split("\\|"); // answers are divided by | sign
+		String answerToken = null;
+
+		for (String singleAnswer : answers) {
+			if (answerToken != null) {
+				answerToken += "|" + singleAnswer;
+			} else {
+				answerToken = singleAnswer;
+			}
+			// check if answer contains math expression
+			if (answerToken.indexOf("\\(") < 0 || answerToken.indexOf("\\)") > 0) {
+				gi.addAnswer(answerToken);
+				answerToken = null;
+			}
+		}
+
+		if (answerToken != null) {
+			gi.addAnswer(answerToken);
+		}
+	}
+
+	private void addAnswersToFilledDraggableGapInfo(GapInfo gi, String answer) {
+		String answersWithEscapedAltText = AlternativeTextService.escapeAltText(answer);
+		String[] answers = answersWithEscapedAltText.split("\\|");
+		for (String singleAnswer : answers) {
+			gi.addAnswer(singleAnswer);
+		}
 	}
 
 }

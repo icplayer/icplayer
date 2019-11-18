@@ -8,6 +8,7 @@ import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
+import com.lorepo.icplayer.client.metadata.IMetadata;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.group.GroupPropertyProvider;
 import com.lorepo.icplayer.client.module.LayoutDefinition;
@@ -381,5 +382,10 @@ public class ModuleModelMockup implements IModuleModel {
 	public boolean isVisible() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public IMetadata getMetadata() {
+		return null;
 	}
 }

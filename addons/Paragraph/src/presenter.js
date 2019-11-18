@@ -126,8 +126,6 @@ function AddonParagraph_create() {
             return;
         }
 
-        presenter.view.addEventListener('DOMNodeRemoved', presenter.destroy);
-
         presenter.$view.on('click', function viewClickHandler(e) {
             e.stopPropagation();
             e.preventDefault();
@@ -389,11 +387,14 @@ function AddonParagraph_create() {
         return upgradedModel;
     };
 
-    presenter.destroy = function AddonParagraph_destroy(event) {
-        if (event.target !== presenter.view) {
-            return;
+    presenter.onDestroy = function AddonParagraph_destroy() {
+        // iOS fix to hide keyboard after page change
+        // https://github.com/tinymce/tinymce/issues/3441
+        if(isIOSSafari()){
+            var iframe = presenter.$view.find('iframe');
+            iframe.focus();
+            document.activeElement.blur();
         }
-        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
 
         presenter.placeholder = null;
         presenter.editor.destroy();
@@ -715,13 +716,6 @@ function AddonParagraph_create() {
             tinymceState = '';
         }
 
-        // iOS fix to hide keyboard after page change
-        // https://github.com/tinymce/tinymce/issues/3441
-        if(isIOSSafari()){
-            var iframe = presenter.$view.find('iframe');
-            iframe.focus();
-            document.activeElement.blur();
-        }
 
         return JSON.stringify({
             'tinymceState' : tinymceState,
@@ -809,3 +803,7 @@ function AddonParagraph_create() {
 
     return presenter;
 }
+
+AddonParagraph_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};

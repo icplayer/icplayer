@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 import java.util.*;
 
@@ -210,7 +211,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			// show 1st answer
 			Iterator<String> answers = gi.getAnswers();
-			gapsViewsElements.get(gi.getId()).setText(answers.hasNext() ? answers.next() : "");
+			String answer = answers.hasNext() ? answers.next() : "";
+			gapsViewsElements.get(gi.getId()).setText(answer);
 		}
 
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
@@ -564,11 +566,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
      private String getElementText(GapInfo gap) {
-		String t =  getElementText(gap.getId());
-		if(t.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
-			t = gap.getPlaceHolder();
+		String userAnswer =  getElementText(gap.getId());
+		if (userAnswer.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
+			userAnswer = gap.getPlaceHolder();
 		}
-		return t;
+		return userAnswer;
 	}
 	
 	@Override
@@ -1013,7 +1015,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		GapInfo gap = getGapInfoById(itemID);
 		String enteredValue = getElementText(gap);
-		if (enteredValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
+		if (enteredValue.equals(gap.getPlaceHolder()) && !gap.isCorrect(gap.getPlaceHolder())) {
 			enteredValue = "";
 		}
 		if (gap.isCorrect(enteredValue)) {
@@ -1409,7 +1411,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		final boolean isWithGaps = view.getChildrenCount() > 0;
 		final boolean isEnabled = !this.module.isDisabled();
-		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled;
+		final boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled && !isGroupDivHidden;
 	}
 
 	@Override

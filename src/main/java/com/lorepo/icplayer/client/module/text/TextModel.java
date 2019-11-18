@@ -175,6 +175,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		parser.setGapMaxLength(gapMaxLength);
 		parser.setOpenLinksinNewTab(openLinksinNewTab);
 		parser.setUseEscapeCharacterInGap(this.useEscapeCharacterInGap);
+		parser.setLangTag(this.getLangAttribute());
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
 		originalText = parsedTextInfo.originalText;
