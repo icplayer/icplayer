@@ -673,7 +673,7 @@ public class PlayerController implements IPlayerController{
 
 	public native int getIFrameScroll (PlayerController x) /*-{
 		var iframeScroll = 0;
-				
+
 		$wnd.addEventListener('message', function (event) {
 			var data = event.data;
 	
@@ -682,10 +682,6 @@ public class PlayerController implements IPlayerController{
 				x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(iframeScroll);
 			}
 		}, false);
-
-		$wnd.addEventListener('scroll', function() {
-			x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(window.pageYOffset);
-		}
 	}-*/;
 
 	@Override

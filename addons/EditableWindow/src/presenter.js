@@ -204,13 +204,12 @@ function AddonEditableWindow_create() {
     // menu with buttons is now outside of draggable container and its position needs to be updated when container changes position or size
     presenter.updateButtonMenuPosition = function () {
         // selector needs to be scoped to addon id, otherwise if more than one addon were added to lesson then it wouldn't properly position $buttonMenu
-        var buttonParentSelector = '#' + presenter.configuration.model.id + ' ' + presenter.cssClasses.container.getSelector();
+        var $buttonParent = $('#' + presenter.configuration.model.id + ' ' + presenter.cssClasses.container.getSelector());
         var $buttonMenu = presenter.jQueryElementsCache.$buttonMenu;
 
-        // icons are positioned by setting right and top css values
-        // so div which wraps icons must be placed in top right corner of menu
-        var rightWindowBorder = parseInt($(buttonParentSelector).css('left'), 10) + $(buttonParentSelector).width();
-        var topWindowBorder = parseInt($(buttonParentSelector).css('top'), 10);
+        // icons are positioned by setting right and top css values, so div which wraps icons must be placed in top right corner of menu
+        var rightWindowBorder = parseInt($buttonParent.css('left'), 10) + $buttonParent.width();
+        var topWindowBorder = parseInt($buttonParent.css('top'), 10);
 
         $buttonMenu.css({
             top: topWindowBorder,
@@ -222,6 +221,11 @@ function AddonEditableWindow_create() {
         $view.find(presenter.cssClasses.closeButton.getSelector()).click(presenter.closeButtonClickedCallback);
         $view.find(presenter.cssClasses.fullScreenButton.getSelector()).click(presenter.fullScreenButtonClickedCallback);
         $view.find(presenter.cssClasses.wrapper.getSelector()).click(presenter.viewClickedCallback);
+
+        // scaling will break fixed positioning, but mobile views aren't placed in iframe so, player won't be updating scroll position
+        if (MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
+           window.addEventListener('scroll', presenter.handleScroll);
+        }
     };
 
     presenter.viewClickedCallback = function () {
@@ -251,13 +255,16 @@ function AddonEditableWindow_create() {
     };
 
     presenter.openFullScreen = function ($view) {
+        presenter.updateScaleInfo();
         // so height of the window will take whole available space
-        var height = window.iframeSize.windowInnerHeight || presenter.configuration.model.height;
+        var height = (window.iframeSize.windowInnerHeight || window.innerHeight) / presenter.temporaryState.scaleInfo.scaleY;
+        var width = window.innerWidth / presenter.temporaryState.scaleInfo.scaleX;
 
         presenter.temporaryState.isFullScreen = true;
 
         presenter.saveViewPropertiesToState($view);
         $view.height(height);
+        $view.width(width);
         presenter.addFullScreenClasses($view);
 
         presenter.updateFullScreenWindowTop();
@@ -329,13 +336,13 @@ function AddonEditableWindow_create() {
         };
 
         // this is needed when embedding page has header and iFrame is not at the top of the page
-        if (top > presenter.temporaryState.iFrameOffset) {
+        if (top > presenter.temporaryState.iFrameOffset && presenter.temporaryState.scaleInfo.scaleY === 1.0) {
             properties.top = (top - presenter.temporaryState.iFrameOffset) + 'px';
         }
 
         // on android scroll down/up can hide/show navbar which adds/subtracts available height
         if (MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
-            properties.height = window.iframeSize.windowInnerHeight || presenter.configuration.model.width;
+            properties.height = (window.iframeSize.windowInnerHeight || window.innerHeight) / presenter.temporaryState.scaleInfo.scaleY;
         }
 
         $view.css(properties);
@@ -770,6 +777,15 @@ function AddonEditableWindow_create() {
         }
     };
 
+    presenter.handleScroll = function() {
+        presenter.updateScaleInfo();
+        var scale = presenter.temporaryState.scaleInfo.scaleY;
+
+        if (presenter.temporaryState.scaleInfo.scaleY !== 1) {
+            presenter.updateScrollTop(window.pageYOffset / scale);
+        }
+    };
+
     presenter.handleScrollEvent = function (eventData) {
         var scrollValue = parseInt(eventData.value, 10);
 
@@ -777,7 +793,7 @@ function AddonEditableWindow_create() {
     };
 
     presenter.updateScrollTop = function(value) {
-        presenter.temporaryState.scrollTop = value / presenter.temporaryState.scaleInfo.scaleY;
+        presenter.temporaryState.scrollTop = value ;
 
         if (presenter.temporaryState.isFullScreen) {
             presenter.updateFullScreenWindowTop();
@@ -864,6 +880,8 @@ function AddonEditableWindow_create() {
         $view.off('click', presenter.cssClasses.closeButton.getSelector(), presenter.closeButtonClickedCallback);
         $view.off('click', presenter.cssClasses.fullScreenButton.getSelector(), presenter.fullScreenButtonClickedCallback);
         $view.off('click', presenter.cssClasses.wrapper.getSelector(), presenter.viewClickedCallback);
+
+        window.removeEventListener('scroll', presenter.handleScroll);
     };
 
     // small util class for aggregating classes and getting their selectors

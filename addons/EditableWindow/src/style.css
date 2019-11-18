@@ -10,7 +10,6 @@ div.addon-editable-window-container.addon-editable-window-container-full-screen.
 }
 
 div.addon-editable-window-container-full-screen {
-    min-width: 100%;
     left: 0 !important;
 }
 
