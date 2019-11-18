@@ -298,7 +298,7 @@ public class PlayerApp {
 		if (isHeaderStatic) {
 			var pagePanel = page.parent();
 			var contentHeight = $wnd.$(".ic_content").css("height").replace("px", "");
-			var height = parseInt(contentHeight, 10)+parseInt(headerHeight, 10);
+			var height = parseInt(contentHeight, 10) + icFooterHeight;
 			
 			pagePanel.css("height", height);
 			$wnd.$(".ic_content").parent().css("height", height);
