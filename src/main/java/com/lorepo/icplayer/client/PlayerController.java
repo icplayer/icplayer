@@ -682,6 +682,10 @@ public class PlayerController implements IPlayerController{
 				x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(iframeScroll);
 			}
 		}, false);
+
+		$wnd.addEventListener('scroll', function() {
+			x.@com.lorepo.icplayer.client.PlayerController::setIframeScroll(I)(window.pageYOffset);
+		}
 	}-*/;
 
 	@Override

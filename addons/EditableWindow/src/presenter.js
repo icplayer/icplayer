@@ -92,8 +92,8 @@ function AddonEditableWindow_create() {
     };
 
     presenter.init = function () {
-        var $view = $(presenter.configuration.view);
-        var $container = presenter.configuration.$container;
+        var $view = presenter.jQueryElementsCache.$view;
+        var $container = presenter.jQueryElementsCache.$container;
         var hasHtml = presenter.configuration.hasHtml;
         var textareaId = presenter.configuration.textareaId;
         var title = presenter.configuration.model.title;
@@ -771,8 +771,13 @@ function AddonEditableWindow_create() {
     };
 
     presenter.handleScrollEvent = function (eventData) {
-        var scrollValue = eventData.value;
-        presenter.temporaryState.scrollTop = parseInt(scrollValue, 10) / presenter.temporaryState.scaleInfo.scaleY;
+        var scrollValue = parseInt(eventData.value, 10);
+
+        presenter.updateScrollTop(scrollValue);
+    };
+
+    presenter.updateScrollTop = function(value) {
+        presenter.temporaryState.scrollTop = value / presenter.temporaryState.scaleInfo.scaleY;
 
         if (presenter.temporaryState.isFullScreen) {
             presenter.updateFullScreenWindowTop();
