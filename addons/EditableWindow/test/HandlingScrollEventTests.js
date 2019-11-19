@@ -4,7 +4,11 @@ TestCase("[EditableWindow] Handling scroll event", {
 
         this.presenter.temporaryState = {
             isFullScreen: false,
-            scrollTop: 0
+            scrollTop: 0,
+            scaleInfo: {
+                scaleX: 1.0,
+                scaleY: 1.0
+            }
         };
 
         this.mocks = {

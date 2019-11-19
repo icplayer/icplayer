@@ -673,7 +673,7 @@ public class PlayerController implements IPlayerController{
 
 	public native int getIFrameScroll (PlayerController x) /*-{
 		var iframeScroll = 0;
-				
+
 		$wnd.addEventListener('message', function (event) {
 			var data = event.data;
 	

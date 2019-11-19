@@ -34,20 +34,40 @@ function AddonEditableWindow_create() {
 
     // these values are numbers and won't have "px" ending
     presenter.temporaryState = {
-        isFullScreen: false,
-        scrollTop: 0,
         addonFullScreenHeight: 0,
-        addonTop: 0,
+        addonHeight: 0,
         addonLeft: 0,
+        addonTop: 0,
         addonWidth: 0,
-        addonHeight: 0
+        isFullScreen: false,
+        scaleInfo: {
+            scaleX: 1.0,
+            scaleY: 1.0
+        },
+        scrollTop: 0
+    };
+
+    presenter.jQueryElementsCache = {
+        $buttonMenu: undefined,
+        $container: undefined,
+        $fixedContainer: undefined,
+        $fullscreenButton: undefined,
+        $view: undefined
+    };
+
+    presenter.initJQueryCache = function($view) {
+        presenter.jQueryElementsCache.$fullscreenButton = $view.find(presenter.cssClasses.fullScreenButton.getSelector());
+        presenter.jQueryElementsCache.$buttonMenu = $view.find(presenter.cssClasses.buttonMenu.getSelector());
+        presenter.jQueryElementsCache.$container = $view.find(presenter.cssClasses.container.getSelector());
+        presenter.jQueryElementsCache.$fixedContainer = $view.find(presenter.cssClasses.fixedContainer.getSelector());
+        presenter.jQueryElementsCache.$view =$view;
     };
 
     presenter.run = function (view, model) {
         presenter.configuration.view = view;
         // container is the div that will be draggable and resizable
         presenter.configuration.container = view.getElementsByClassName(presenter.cssClasses.container.getName())[0];
-        presenter.configuration.$container = $(presenter.configuration.container);
+        presenter.initJQueryCache($(view));
 
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
 
@@ -72,8 +92,8 @@ function AddonEditableWindow_create() {
     };
 
     presenter.init = function () {
-        var $view = $(presenter.configuration.view);
-        var $container = presenter.configuration.$container;
+        var $view = presenter.jQueryElementsCache.$view;
+        var $container = presenter.jQueryElementsCache.$container;
         var hasHtml = presenter.configuration.hasHtml;
         var textareaId = presenter.configuration.textareaId;
         var title = presenter.configuration.model.title;
@@ -114,15 +134,19 @@ function AddonEditableWindow_create() {
             presenter.configuration.maxHeight = moduleHeight;
         }
 
-        // containment option disallows moving window outside of specifed dom element
+        // containment option disallows moving window outside of specified dom element
         $container.draggable({
             cancel: 'video, audio',
-            containment: 'document',
-            start: function () {
+            start: function (event, ui) {
                 presenter.show();
+                presenter.updateScaleInfo();
+
+                ui.helper.css('position', 'absolute'); // it removes mini jump on the beginning of dragging
+                ui.position.top = ui.offset.top / presenter.temporaryState.scaleInfo.scaleX;
+                ui.position.let = ui.offset.left / presenter.temporaryState.scaleInfo.scaleY;
             },
-            drag: presenter.updateButtonMenuPosition,
-            stop: presenter.updateButtonMenuPosition
+            drag: presenter.updateMenuPosition,
+            stop: presenter.updateMenuPosition
         });
 
         $container.resizable({
@@ -131,7 +155,6 @@ function AddonEditableWindow_create() {
             minWidth: presenter.configuration.minWidth,
             maxWidth: presenter.configuration.maxWidth,
             resize: function (event, ui) {
-                presenter.changeViewPositionToFixed();
                 presenter.updateButtonMenuPosition();
                 if (hasHtml) {
                     var heightOffset = presenter.configuration.heightOffset;
@@ -147,31 +170,50 @@ function AddonEditableWindow_create() {
                 }
             },
             stop: function (event, ui) {
-                presenter.changeViewPositionToFixed();
                 presenter.updateButtonMenuPosition();
                 if (hasHtml) {
                     $container.find("iframe").css("visibility", "visible")
                 }
-            },
+            }
         });
 
         presenter.addHandlers($view);
     };
 
+    presenter.updateScaleInfo = function AddonEditableWindow_getScaleInfo() {
+        presenter.temporaryState.scaleInfo = presenter.configuration.playerController.getScaleInformation();
+    };
+
+    /**
+     * @param event
+     * @param ui
+     * @param ui.helper
+     * @param ui.position
+     * @param ui.position.top
+     * @param ui.position.left
+     * @param ui.offset
+     */
+    presenter.updateMenuPosition = function AddonEditableWindow_updateMenuPosition(event, ui) {
+        ui.position.top = ui.position.top / presenter.temporaryState.scaleInfo.scaleX;
+        ui.position.left = ui.position.left / presenter.temporaryState.scaleInfo.scaleY;
+
+        presenter.updateButtonMenuPosition();
+    };
 
     // because draggable prevents event bubbling, button wasn't clickable on android
     // menu with buttons is now outside of draggable container and its position needs to be updated when container changes position or size
     presenter.updateButtonMenuPosition = function () {
-        var $view = $(presenter.configuration.view);
-        var $buttonMenu = $view.find(presenter.cssClasses.buttonMenu.getSelector());
-        // selector needs to be scoped to addon id, otherwise if more than one addon were added to lesson then it wouldn't properly position buttonMenu
-        var buttonParentSelector = '#' + presenter.configuration.model.id + ' ' + presenter.cssClasses.container.getSelector();
+        // selector needs to be scoped to addon id, otherwise if more than one addon were added to lesson then it wouldn't properly position $buttonMenu
+        var $buttonParent = $('#' + presenter.configuration.model.id + ' ' + presenter.cssClasses.container.getSelector());
+        var $buttonMenu = presenter.jQueryElementsCache.$buttonMenu;
 
-        $buttonMenu.position({
-            my: "left top",
-            at: "right top",
-            of: buttonParentSelector,
-            collision: "fit"
+        // icons are positioned by setting right and top css values, so div which wraps icons must be placed in top right corner of menu
+        var rightWindowBorder = parseInt($buttonParent.css('left'), 10) + $buttonParent.width();
+        var topWindowBorder = parseInt($buttonParent.css('top'), 10);
+
+        $buttonMenu.css({
+            top: topWindowBorder,
+            left: rightWindowBorder
         });
     };
 
@@ -179,6 +221,11 @@ function AddonEditableWindow_create() {
         $view.find(presenter.cssClasses.closeButton.getSelector()).click(presenter.closeButtonClickedCallback);
         $view.find(presenter.cssClasses.fullScreenButton.getSelector()).click(presenter.fullScreenButtonClickedCallback);
         $view.find(presenter.cssClasses.wrapper.getSelector()).click(presenter.viewClickedCallback);
+
+        // scaling will break fixed positioning, but mobile views aren't placed in iframe so, player won't be updating scroll position
+        if (MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
+           window.addEventListener('scroll', presenter.handleScroll);
+        }
     };
 
     presenter.viewClickedCallback = function () {
@@ -186,47 +233,49 @@ function AddonEditableWindow_create() {
     };
 
     presenter.closeButtonClickedCallback = function () {
-        var $view = presenter.configuration.$container;
-        var $button = $view.find(presenter.cssClasses.fullScreenButton.getSelector());
         if (presenter.temporaryState.isFullScreen) {
-            presenter.closeFullScreen($view, $button);
+            var $view = presenter.jQueryElementsCache.$container;
+
+            presenter.closeFullScreen($view);
         }
 
         presenter.hide();
     };
 
     presenter.fullScreenButtonClickedCallback = function () {
-        var $view = presenter.configuration.$container;
-        var $button = $(presenter.configuration.view).find(presenter.cssClasses.fullScreenButton.getSelector());
+        var $view = presenter.jQueryElementsCache.$container;
 
         if (presenter.temporaryState.isFullScreen) {
-            presenter.closeFullScreen($view, $button);
+            presenter.closeFullScreen($view);
         } else {
-            presenter.openFullScreen($view, $button);
+            presenter.openFullScreen($view);
         }
 
         presenter.updateButtonMenuPosition();
     };
 
-    presenter.openFullScreen = function ($view, $button) {
+    presenter.openFullScreen = function ($view) {
+        presenter.updateScaleInfo();
         // so height of the window will take whole available space
-        var height = window.iframeSize.windowInnerHeight || presenter.configuration.model.width;
+        var height = (window.iframeSize.windowInnerHeight || window.innerHeight) / presenter.temporaryState.scaleInfo.scaleY;
+        var width = window.innerWidth / presenter.temporaryState.scaleInfo.scaleX;
 
         presenter.temporaryState.isFullScreen = true;
 
         presenter.saveViewPropertiesToState($view);
         $view.height(height);
-        presenter.addFullScreenClasses($view, $button);
+        $view.width(width);
+        presenter.addFullScreenClasses($view);
 
         presenter.updateFullScreenWindowTop();
         presenter.resizeTinyMce($view.width(), height);
     };
 
-    presenter.closeFullScreen = function ($view, $button) {
+    presenter.closeFullScreen = function ($view) {
         presenter.temporaryState.isFullScreen = false;
 
         presenter.setViewPropertiesFromState($view);
-        presenter.removeFullScreenClasses($view, $button);
+        presenter.removeFullScreenClasses($view);
         presenter.resizeTinyMce($view.width(), $view.height());
     };
 
@@ -248,18 +297,21 @@ function AddonEditableWindow_create() {
         });
     };
 
-    presenter.addFullScreenClasses = function ($view, $button) {
-        $button.removeClass(presenter.cssClasses.openFullScreenButton.getName());
-        $button.addClass(presenter.cssClasses.closeFullScreenButton.getName());
+    presenter.addFullScreenClasses = function ($view) {
+        presenter.jQueryElementsCache.$fixedContainer.addClass(presenter.cssClasses.containerFullScreen.getName());
+        presenter.jQueryElementsCache.$fullscreenButton.removeClass(presenter.cssClasses.openFullScreenButton.getName());
+        presenter.jQueryElementsCache.$fullscreenButton.addClass(presenter.cssClasses.closeFullScreenButton.getName());
         $view.addClass(presenter.cssClasses.containerFullScreen.getName());
 
         $view.resizable('disable');
         $view.draggable('disable');
     };
 
-    presenter.removeFullScreenClasses = function ($view, $button) {
-        $button.removeClass(presenter.cssClasses.closeFullScreenButton.getName());
-        $button.addClass(presenter.cssClasses.openFullScreenButton.getName());
+    presenter.removeFullScreenClasses = function ($view) {
+        presenter.jQueryElementsCache.$fixedContainer.removeClass(presenter.cssClasses.containerFullScreen.getName());
+        presenter.jQueryElementsCache.$fullscreenButton.removeClass(presenter.cssClasses.closeFullScreenButton.getName());
+        presenter.jQueryElementsCache.$fullscreenButton.addClass(presenter.cssClasses.openFullScreenButton.getName());
+
         $view.removeClass(presenter.cssClasses.containerFullScreen.getName());
 
         $view.resizable('enable');
@@ -277,20 +329,20 @@ function AddonEditableWindow_create() {
 
     // during scroll window needs to be repositioned, so it blocks whole lesson view
     presenter.updateFullScreenWindowTop = function () {
-        var $view = presenter.configuration.$container;
+        var $view = presenter.jQueryElementsCache.$container;
         var top = presenter.temporaryState.scrollTop;
         var properties = {
             top: top
         };
 
         // this is needed when embedding page has header and iFrame is not at the top of the page
-        if (top > presenter.temporaryState.iFrameOffset) {
+        if (top > presenter.temporaryState.iFrameOffset && presenter.temporaryState.scaleInfo.scaleY === 1.0) {
             properties.top = (top - presenter.temporaryState.iFrameOffset) + 'px';
         }
 
         // on android scroll down/up can hide/show navbar which adds/subtracts available height
         if (MobileUtils.isMobileUserAgent(window.navigator.userAgent)) {
-            properties.height = window.iframeSize.windowInnerHeight || presenter.configuration.model.width;
+            properties.height = (window.iframeSize.windowInnerHeight || window.innerHeight) / presenter.temporaryState.scaleInfo.scaleY;
         }
 
         $view.css(properties);
@@ -313,16 +365,11 @@ function AddonEditableWindow_create() {
 
     presenter.handleAudioContent = function () {
         var $view = $(presenter.configuration.view);
-        var $container = presenter.configuration.$container;
+        var $container = presenter.jQueryElementsCache.$container;
         var audioSource = presenter.configuration.model.audioFile;
         var $audioElement = $view.find("audio");
         $audioElement.attr("src", audioSource);
         presenter.configuration.heightOffset += 35;
-    };
-
-    // jQuery changes position of element to absolute when it is both resizable and draggable after resize
-    presenter.changeViewPositionToFixed = function () {
-        presenter.configuration.container.style.position = 'fixed';
     };
 
     presenter.handleHtmlContent = function () {
@@ -515,11 +562,11 @@ function AddonEditableWindow_create() {
     };
 
     presenter.fetchIframeContent = function (callback) {
-        var view = presenter.configuration.view;
+        var $view = presenter.jQueryElementsCache.$view;
         var isIframeLoaded = presenter.configuration.isIframeLoaded;
 
         if (isIframeLoaded) {
-            var content = $(view).find(".content-iframe").contents().find("body").html();
+            var content = $view.find(".content-iframe").contents().find("body").html();
             if (content == null || content == "") {
                 var timeout = setTimeout(function () {
                     presenter.fetchIframeContent(callback);
@@ -529,7 +576,6 @@ function AddonEditableWindow_create() {
                 presenter.configuration.iframeContent = content;
                 callback(content);
 
-                var $view = $(presenter.configuration.view);
                 $view.find(".addon-editable-reset-button").click(function () {
                     presenter.reset();
                 });
@@ -645,7 +691,7 @@ function AddonEditableWindow_create() {
     };
 
     presenter.centerPosition = function () {
-        var $view = presenter.configuration.$container;
+        var $view = presenter.jQueryElementsCache.$container;
         var width = $view.width();
         var availableWidth = presenter.getAvailableWidth();
 
@@ -731,9 +777,23 @@ function AddonEditableWindow_create() {
         }
     };
 
+    presenter.handleScroll = function() {
+        presenter.updateScaleInfo();
+        var scale = presenter.temporaryState.scaleInfo.scaleY;
+
+        if (presenter.temporaryState.scaleInfo.scaleY !== 1) {
+            presenter.updateScrollTop(window.pageYOffset / scale);
+        }
+    };
+
     presenter.handleScrollEvent = function (eventData) {
-        var scrollValue = eventData.value;
-        presenter.temporaryState.scrollTop = parseInt(scrollValue, 10);
+        var scrollValue = parseInt(eventData.value, 10);
+
+        presenter.updateScrollTop(scrollValue);
+    };
+
+    presenter.updateScrollTop = function(value) {
+        presenter.temporaryState.scrollTop = value ;
 
         if (presenter.temporaryState.isFullScreen) {
             presenter.updateFullScreenWindowTop();
@@ -810,9 +870,9 @@ function AddonEditableWindow_create() {
             }
 
             $(presenter.configuration.view).off();
-            presenter.configuration.$container = null;
             presenter.configuration.container = null;
             presenter.configuration = null;
+            presenter.jQueryElementsCache = null;
         }
     };
 
@@ -820,6 +880,8 @@ function AddonEditableWindow_create() {
         $view.off('click', presenter.cssClasses.closeButton.getSelector(), presenter.closeButtonClickedCallback);
         $view.off('click', presenter.cssClasses.fullScreenButton.getSelector(), presenter.fullScreenButtonClickedCallback);
         $view.off('click', presenter.cssClasses.wrapper.getSelector(), presenter.viewClickedCallback);
+
+        window.removeEventListener('scroll', presenter.handleScroll);
     };
 
     // small util class for aggregating classes and getting their selectors
@@ -836,6 +898,7 @@ function AddonEditableWindow_create() {
     };
 
     presenter.cssClasses = {
+        fixedContainer: new presenter.CssClass("addon-editable-window-fixed-container"),
         container: new presenter.CssClass("addon-editable-window-container"),
         containerFullScreen: new presenter.CssClass("addon-editable-window-container-full-screen"),
         closeButton: new presenter.CssClass("addon-editable-close-button"),

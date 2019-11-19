@@ -1,5 +1,7 @@
-div.addon-editable-window-container {
+div.addon-editable-window-fixed-container {
     position: fixed;
+    top: 0;
+    left: 0;
 }
 
 div.addon-editable-window-container.addon-editable-window-container-full-screen.ui-draggable-disabled {
@@ -7,8 +9,7 @@ div.addon-editable-window-container.addon-editable-window-container-full-screen.
     background-image: initial;
 }
 
-div.addon-editable-window-container.addon-editable-window-container-full-screen {
-    width: 100% !important;
+div.addon-editable-window-container-full-screen {
     left: 0 !important;
 }
 
