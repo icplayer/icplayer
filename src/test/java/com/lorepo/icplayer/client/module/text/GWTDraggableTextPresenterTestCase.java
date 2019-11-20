@@ -7,6 +7,7 @@ import com.lorepo.icplayer.client.module.text.mockup.TextViewMockup;
 import org.junit.Before;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 @GwtModule("com.lorepo.icplayer.Icplayer")
@@ -26,16 +27,11 @@ public class GWTDraggableTextPresenterTestCase extends GwtTest {
 	}
 	
 	@Test
-	public void testGivenViewListenerWhenGapDraggedThenWillNotCallRefreshMath() throws Exception {
+	public void testGivenViewListenerWhenGapDraggedThenWillCallRefreshMathOnlyForGap() {
 		display.getListener().onGapDragged("");
 
 		assertFalse(display.wasRefreshMathCalled());
+		assertTrue(display.wasRefreshGapMathCalled());
 	}
 
-	@Test
-	public void testGivenViewListenerWhenGapClickedThenWillNotCallRefreshMath() throws Exception {
-		display.getListener().onGapClicked("");
-
-		assertFalse(display.wasRefreshMathCalled());
-	}
 }

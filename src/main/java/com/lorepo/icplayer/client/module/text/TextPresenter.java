@@ -73,6 +73,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		TextElementDisplay getChild(int index);
 		void setValue(String id, String value);
 		void refreshMath();
+		void refreshGapMath(String id);
 		void hide();
 		void show(boolean b);
 		Element getElement();
@@ -802,7 +803,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String score = Integer.toString(getItemScore(gapId));
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
 		playerServices.getEventBus().fireEvent(valueEvent);
-		if(Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
+		if (Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
 			removeFromGap(gapId, false);
 		}
 	}
@@ -816,6 +817,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if (shouldFireEvent) {
 			sendRemoveFromGapValueChangedEvent(gapId);
 		}
+
+		view.refreshGapMath(gapId);
     }
 
 	protected void gapFocused(String gapId, Element element) {
