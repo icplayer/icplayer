@@ -15,8 +15,8 @@ public class TextViewMockup implements IDisplay {
 
 	private ITextViewListener listener;
 	private HashMap<String, String> values = new HashMap<String, String>();
-	
-	
+	private int refreshMathCallCount = 0;
+
 	public TextViewMockup(TextModel module) {
 		// TODO Auto-generated constructor stub
 	}
@@ -102,8 +102,11 @@ public class TextViewMockup implements IDisplay {
 
 	@Override
 	public void refreshMath() {
-		// TODO Auto-generated method stub
-		
+		refreshMathCallCount++;
+	}
+
+	public boolean wasRefreshMathCalled() {
+		return refreshMathCallCount > 0;
 	}
 
 	@Override
