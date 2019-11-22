@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter {
 
@@ -514,7 +515,9 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		return !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
+		return !this.view.getElement().getStyle().getVisibility().equals("hidden") 
+				&& !this.view.getElement().getStyle().getDisplay().equals("none")
+				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 	}
 
 	@Override

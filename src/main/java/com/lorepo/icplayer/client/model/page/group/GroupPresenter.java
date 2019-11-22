@@ -175,12 +175,13 @@ public class GroupPresenter implements IPresenter, IStateful{
 
 	@Override
 	public void setState(String state) {
-		isVisible = Boolean.parseBoolean(state);
-		if(!isVisible){
-			hide(); 
-		}
-		else{
-			show();
+		if (group.isDiv()) {
+			isVisible = Boolean.parseBoolean(state);
+			if(!isVisible){
+				view.hide(); 
+			} else {
+				view.show();
+			}
 		}
 	}
 }
