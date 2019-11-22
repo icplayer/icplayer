@@ -71,4 +71,6 @@ public class GWTTextViewTestCase extends GwtTest {
 		assertFalse(this.gapWidget2.isSelected());
 		assertFalse(this.gapWidget3.isSelected());		
 	}
+
+
 }

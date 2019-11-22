@@ -1,3 +1,4 @@
+2019-11-22 Fixed issues with text from draggable gaps dissapearing when dragged out of text
 2019-11-18 Fix problem with static footer and page size
 2019-11-18 Fixed issues with Slovak letters in crossword
 2019-11-08 Fixed issues with module group visibility

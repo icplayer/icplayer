@@ -73,6 +73,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		TextElementDisplay getChild(int index);
 		void setValue(String id, String value);
 		void refreshMath();
+		void refreshGapMath(String id);
 		void hide();
 		void show(boolean b);
 		Element getElement();
@@ -802,7 +803,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String score = Integer.toString(getItemScore(gapId));
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
 		playerServices.getEventBus().fireEvent(valueEvent);
-		if(Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
+		if (Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
 			removeFromGap(gapId, false);
 		}
 	}
@@ -810,19 +811,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void removeFromGap(String gapId, boolean shouldFireEvent) {
 		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
 
-		String value = "";
-		String score = "0";
-		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
-		consumedItems.remove(gapId);
-		values.remove(gapId);
-		view.setValue(gapId, "");
+		removeFromItems(gapId);
 		fireItemReturnedEvent(previouslyConsumedItem);
-		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
-		if(shouldFireEvent){
-			playerServices.getEventBus().fireEvent(valueEvent);
+
+		if (shouldFireEvent) {
+			sendRemoveFromGapValueChangedEvent(gapId);
 		}
-		view.refreshMath();
-	}
+
+		view.refreshGapMath(gapId);
+    }
 
 	protected void gapFocused(String gapId, Element element) {
 		InputElement input = InputElement.as(element);
@@ -1446,6 +1443,21 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		} else if (eventName.equals("HideAnswers")) {
 			hideAnswers();
 		}
+	}
+
+	private void sendRemoveFromGapValueChangedEvent(String gapId) {
+		String value = "";
+		String score = "0";
+		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
+		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
+
+		playerServices.getEventBus().fireEvent(valueEvent);
+	}
+
+	private void removeFromItems(String gapId) {
+		consumedItems.remove(gapId);
+		values.remove(gapId);
+		view.setValue(gapId, "");
 	}
 
 }
