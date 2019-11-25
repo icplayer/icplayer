@@ -196,6 +196,9 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		syntaxError = parsedTextInfo.hasSyntaxError;
 		if (getBaseURL() != null) {
 			parsedText = StringUtils.updateLinks(parsedText, getBaseURL());
+			for (LinkInfo link: linkInfos) {
+				link.setBaseUrl(getBaseURL()); 
+			}
 		}
 	}
 

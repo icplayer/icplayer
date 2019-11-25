@@ -1,3 +1,4 @@
+2019-11-25 Fixed issue with updating links in text leading to their previous address
 2019-11-08 Added modules metadata.
 2019-11-08 Add alt text support for SourceList
 2019-11-05 Added isAttempted command to Text Coloring.
