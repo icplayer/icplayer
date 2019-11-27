@@ -40,6 +40,7 @@ public class TextParser {
 	private List<String> gapsOrder;
 	private boolean hasSyntaxError = false;
 	private String langTag = "";
+	private boolean isNumericOnly = false;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -290,7 +291,11 @@ public class TextParser {
 	private DomElementManipulator createGapInputElement(String id, String answer, Map<String,String> gapOptions) {
 		DomElementManipulator inputElement = new DomElementManipulator("input");
 		inputElement.setHTMLAttribute("id", id);
-		inputElement.setHTMLAttribute("type", "edit");
+		if (!isNumericOnly) {
+			inputElement.setHTMLAttribute("type", "edit");
+		} else {
+			inputElement.setHTMLAttribute("type", "number");
+		}
 		inputElement.setHTMLAttribute("data-gap", "editable");
 		if (this.editorMode) {
 			inputElement.setHTMLAttribute("data-gap-value", "\\gap{" + answer + "}"+createGapOptionString(gapOptions));
@@ -881,7 +886,7 @@ public class TextParser {
 	 * @return
 	 */
 	private String externalLink2Anchor(String href) {
-		
+
 		String replaceText = null;
 		String id = baseId + "-" + UUID.uuid(4);
 		String target = (openLinksinNewTab) ? "_blank" : "_self";
@@ -1122,6 +1127,10 @@ public class TextParser {
 		for (String singleAnswer : answers) {
 			gi.addAnswer(singleAnswer);
 		}
+	}
+	
+	public void setIsNumericOnly(boolean isNumericOnly) {
+		this.isNumericOnly = isNumericOnly;
 	}
 
 }

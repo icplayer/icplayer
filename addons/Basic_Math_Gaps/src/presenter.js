@@ -47,7 +47,9 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeGapType(model);
+        var upgradedModel = presenter.upgradeGapType(model);
+        upgradedModel = presenter.upgradeNumericKeyboard(upgradedModel);
+        return upgradedModel;
     };
 
     presenter.upgradeGapType = function (model) {
@@ -56,6 +58,17 @@ function AddonBasic_Math_Gaps_create(){
 
         if(model.gapType == undefined) {
             upgradedModel["gapType"] = "Editable";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeNumericKeyboard = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if(model.useNumericKeyboard == undefined) {
+            upgradedModel["useNumericKeyboard"] = "False";
         }
 
         return upgradedModel;
@@ -428,7 +441,8 @@ function AddonBasic_Math_Gaps_create(){
         var validatedIsEquation = ModelValidationUtils.validateBoolean(model['isEquation']),
             validatedIsDisabled = ModelValidationUtils.validateBoolean(model['isDisabled']),
             validatedIsActivity = !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
-            validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+            validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']),
+            validatedUseNumericKeyboard = ModelValidationUtils.validateBoolean(model['useNumericKeyboard']);
 
         var validatedDecimalSeparator = presenter.validateDecimalSeparator(model['decimalSeparator']);
 
@@ -472,7 +486,8 @@ function AddonBasic_Math_Gaps_create(){
             'decimalSeparator' : validatedDecimalSeparator.value,
             'gapWidth' : validatedGapWidth.value,
             'isDraggable': validatedGapType.value,
-            'Signs' : validatedSigns.value
+            'Signs' : validatedSigns.value,
+            'useNumericKeyboard' : validatedUseNumericKeyboard
         }
     };
 
@@ -1267,7 +1282,11 @@ function AddonBasic_Math_Gaps_create(){
     presenter.EditableInputGap.constructor = presenter.EditableInputGap;
 
     presenter.EditableInputGap.prototype.createView = function () {
-        var $inputGap = $('<input type="text" value="" id="' + this.objectID + '" />');
+        var inputType = "text";
+        if (presenter.configuration.useNumericKeyboard) {
+            inputType = "Number";
+        }
+        var $inputGap = $('<input type="' + inputType + '" value="" id="' + this.objectID + '" />');
         $inputGap.css({
             width: presenter.configuration.gapWidth + "px"
         });

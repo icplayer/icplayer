@@ -686,7 +686,8 @@ function AddonTable_create() {
             isTabindexEnabled: isTabindexEnabled,
             columnsCount: validatedColumns.value,
             rowsCount: validatedRows.value,
-            langTag: model["langAttribute"]
+            langTag: model["langAttribute"],
+            useNumericKeyboard: ModelValidationUtils.validateBoolean(model["useNumericKeyboard"])
         };
     };
 
@@ -746,13 +747,23 @@ function AddonTable_create() {
         return upgradedModel;
     };
 
+    presenter.addUseNumericKeyboard = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
+        if(model.useNumericKeyboard == undefined) {
+            upgradedModel["useNumericKeyboard"] = "False";
+        }
+
+        return upgradedModel;
+    };
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.addColumnsWidth(model);
         upgradedModel = presenter.addRowHeights(upgradedModel);
         upgradedModel = presenter.addLangTag(upgradedModel);
         upgradedModel = presenter.addSpeechTexts(upgradedModel);
+        upgradedModel = presenter.addUseNumericKeyboard(upgradedModel);
 
         return upgradedModel;
     };
@@ -1378,7 +1389,11 @@ function AddonTable_create() {
         if(presenter.configuration.gapType == 'math'){
             return $(presenter.$view).find("input[id='"+this.objectID+"']");
         }else{
-            var $inputGap = $('<input type="text" value="" id="' + this.objectID + '" />');
+            var inputType ="text";
+            if (presenter.configuration.useNumericKeyboard) {
+                inputType = "number";
+            }
+            var $inputGap = $('<input type="' + inputType + '" value="" id="' + this.objectID + '" />');
             $inputGap.css({
                 width: presenter.configuration.gapWidth + "px"
             });

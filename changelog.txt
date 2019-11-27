@@ -1,3 +1,4 @@
+2019-11-27 Added use numeric keyboard property to Basic Math Gaps, Table, Text and Writing Calculations
 2019-11-08 Added modules metadata.
 2019-11-08 Add alt text support for SourceList
 2019-11-05 Added isAttempted command to Text Coloring.
