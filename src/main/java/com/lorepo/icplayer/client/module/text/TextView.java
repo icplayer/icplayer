@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, IWCAGModuleView{
+public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, IWCAGModuleView {
 	private final TextModel module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
@@ -377,6 +377,17 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	@Override
 	public void refreshMath () {
 		MathJax.refreshMathJax(getElement());
+	}
+
+	@Override
+	public void refreshGapMath(String id) {
+		for (TextElementDisplay element: this.textElements) {
+			if (element.hasId(id) && element instanceof DraggableGapWidget) {
+				Element e = ((DraggableGapWidget) element).getElement();
+				MathJax.refreshMathJax(e);
+				break;
+			}
+		}
 	}
 
 	public void rerenderMathJax () {

@@ -14,6 +14,7 @@ import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 
 public class ReportPresenter implements IPresenter, IWCAGPresenter{
@@ -146,7 +147,9 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		return !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
+		return !this.view.getElement().getStyle().getVisibility().equals("hidden") 
+				&& !this.view.getElement().getStyle().getDisplay().equals("none")
+				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 	}
 
 

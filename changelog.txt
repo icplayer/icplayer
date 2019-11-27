@@ -1,4 +1,8 @@
 2019-11-27 Added use numeric keyboard property to Basic Math Gaps, Table, Text and Writing Calculations
+2019-11-22 Fixed issues with text from draggable gaps dissapearing when dragged out of text
+2019-11-18 Fix problem with static footer and page size
+2019-11-18 Fixed issues with Slovak letters in crossword
+2019-11-08 Fixed issues with module group visibility
 2019-11-08 Added modules metadata.
 2019-11-08 Add alt text support for SourceList
 2019-11-05 Added isAttempted command to Text Coloring.

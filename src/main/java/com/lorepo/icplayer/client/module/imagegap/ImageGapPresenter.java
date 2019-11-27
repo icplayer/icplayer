@@ -30,6 +30,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
 
@@ -769,7 +770,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		boolean isEnabled = !this.model.isDisabled();
-		return isVisible && isEnabled;
+		boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return isVisible && isEnabled && !isGroupDivHidden;
 	}
 	
 	private String getImageSourceAltText(String id) {
