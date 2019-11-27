@@ -1769,7 +1769,7 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.GapsContainerFactoryObject.prototype._getElementId = function (index) {
-        return (presenter.configuration.addonID + "-" + index);     // Do not change it! It's used in sending events
+        return (presenter.configuration.addonID + "-" + index);
     };
 
     presenter.ValueChangeObserver = function () {};
