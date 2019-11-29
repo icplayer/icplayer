@@ -174,7 +174,6 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 		this.isShowAnswersActive = false;
 
-		reset();
 		view.resetStyles();
 		view.setDisabled(false);
 		setState(currentState);
