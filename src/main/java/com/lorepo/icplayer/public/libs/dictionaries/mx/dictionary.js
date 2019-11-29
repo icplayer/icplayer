@@ -1617,6 +1617,7 @@ var ice_dictionary_mx = {
 	"Basic_Math_Gaps_property_gap_signs_division": "División",
 	"Basic_Math_Gaps_property_gap_signs_multiplication": "Multiplicación",
 	"Basic_Math_Gaps_property_gap_type": "Tipo de hueco",
+	"Basic_Math_Gaps_property_user_action_events": "User action events",
 	"Lesson_Progress_info": "",
 	"Lesson_Progress_name": "Progreso de lección",
 	"Lesson_Progress_property_show_progress_bar": "Mostrar barra de progreso",
