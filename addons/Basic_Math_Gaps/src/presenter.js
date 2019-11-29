@@ -104,9 +104,10 @@ function AddonBasic_Math_Gaps_create(){
         }
 
         presenter.createGaps();
-
-        if (!isPreview) presenter.addFocusOutEventListener();
-        if (!isPreview) presenter._addSendEventHandler();
+        if (!isPreview) {
+            presenter.addFocusOutEventListener();
+            presenter._addSendEventHandler();
+        }
 
         presenter.$view.find('input').click(function(e) {
             e.stopPropagation();
@@ -135,7 +136,7 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.addFocusOutEventListener = function () {
-        if(presenter.configuration.isDisabled) {
+        if (presenter.configuration.isDisabled) {
             return;
         }
 
@@ -443,6 +444,11 @@ function AddonBasic_Math_Gaps_create(){
         }
 
         return { value: false };
+    };
+
+    presenter.onDestroy = function () {
+        this.$view.off();
+        presenter.$view.find('input').off();
     };
 
     presenter.validateModel = function(model) {
@@ -1787,3 +1793,7 @@ function AddonBasic_Math_Gaps_create(){
 
     return presenter;
 }
+
+AddonBasic_Math_Gaps_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};
