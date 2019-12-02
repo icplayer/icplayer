@@ -1620,6 +1620,7 @@ var ice_dictionary_pl = {
 	"Basic_Math_Gaps_property_gap_signs_multiplication": "Mnożenie",
     "Basic_Math_Gaps_property_gap_type": "Typ luki",
 	"Basic_Math_Gaps_use_numeric_keyboard": "Use numeric keyboard",
+	"Basic_Math_Gaps_property_user_action_events": "User action events",
 	"Lesson_Progress_info" : "Pozwala na dodanie do prezentacji gotowego paska postępu wskazującego wynik procentowy dla wszystkich odpowiedzi podanych w danej lekcji. Możliwe jest indywidualne dostosowanie wyglądu dla każdej części paska postępu.",
 	"Lesson_Progress_name" : "Postęp lekcji",
 	"Lesson_Progress_property_show_progress_bar": "Pokaż pasek postępu",

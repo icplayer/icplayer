@@ -10,6 +10,7 @@
         <property name="isDisabled" displayName="Is Disabled" nameLabel="Basic_Math_Gaps_property_is_disabled" type="boolean" />
         <property name="gapWidth" displayName="Gap width" nameLabel="Basic_Math_Gaps_property_gap_width" type="string" />
         <property name="gapType" displayName="Gap Type" nameLabel="Basic_Math_Gaps_property_gap_type" type="{Editable, Draggable}"/>
+        <property name="userActionEvents" displayName="User action events" nameLabel="Basic_Math_Gaps_property_user_action_events" type="boolean"/>
         <property name='Signs' displayName="Gap Signs" nameLabel="Basic_Math_Gaps_property_gap_signs" type='list'>
             <property name='Addition' displayName="Addition" nameLabel="Basic_Math_Gaps_property_gap_signs_addition" type='string' />
             <property name='Subtraction' displayName="Subtraction" nameLabel="Basic_Math_Gaps_property_gap_signs_subtraction" type='string' />

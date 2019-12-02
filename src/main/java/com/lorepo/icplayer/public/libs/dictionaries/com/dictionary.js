@@ -1629,6 +1629,7 @@ var ice_dictionary_en = {
 	"Basic_Math_Gaps_property_gap_signs_multiplication": "Multiplication",
     "Basic_Math_Gaps_property_gap_type": "Gap Type",
 	"Basic_Math_Gaps_use_numeric_keyboard": "Use numeric keyboard",
+	"Basic_Math_Gaps_property_user_action_events": "User action events",
 	"Lesson_Progress_info": "",
 	"Lesson_Progress_name": "Lesson Progress",
 	"Lesson_Progress_property_show_progress_bar": "Show Progress Bar",

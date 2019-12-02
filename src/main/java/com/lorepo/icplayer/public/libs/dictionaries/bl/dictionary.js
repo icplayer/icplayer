@@ -1628,6 +1628,7 @@ var ice_dictionary_bl = {
 	"Basic_Math_Gaps_property_gap_signs_multiplication": "Умножение",
     "Basic_Math_Gaps_property_gap_type": "Вид празно място",
 	"Basic_Math_Gaps_use_numeric_keyboard": "Use numeric keyboard",
+	"Basic_Math_Gaps_property_user_action_events": "User action events",
 	"Lesson_Progress_info": "",
 	"Lesson_Progress_name": "Напредък по урока",
 	"Lesson_Progress_property_show_progress_bar": "Покажи лентата с напредъка",
