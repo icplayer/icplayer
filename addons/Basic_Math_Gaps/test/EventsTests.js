@@ -32,6 +32,7 @@ TestCase("[Basic Math Gaps] Events Tests", {
             '</div>');
 
         this.presenter.addFocusOutEventListener();
+        this.presenter._addSendEventHandler();
 
         var input = this.presenter.$view.find('#input1');
 
@@ -60,6 +61,29 @@ TestCase("[Basic Math Gaps] Events Tests", {
         $(input).trigger('focusout');
 
         assertFalse(this.presenter.sendEvent.calledOnce);
+    },
+
+    'test given addon with user action events when focus out is called then event is not called': function () {
+        this.presenter.$view = $(
+            '<div class="basic-math-gaps-wrapper">' +
+                '<div class="basic-math-gaps-container">' +
+                    '<input value="1" id="input1" />' +
+                    '<span class="element">+</span>' +
+                    '<input value="2" id="input2" />' +
+                    '<span class="element">=</span>' +
+                    '<span class="element">3</span>' +
+                '</div>' +
+            '</div>');
+
+        this.presenter.configuration.userActionsEventsEnabled = true;
+        this.presenter.addFocusOutEventListener();
+        this.presenter._addSendEventHandler();
+
+        var input = this.presenter.$view.find('#input1');
+
+        $(input).trigger('focusout');
+
+        assertFalse(this.presenter.sendEvent.called);
     }
 });
 
