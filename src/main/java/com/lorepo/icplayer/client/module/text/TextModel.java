@@ -564,7 +564,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0);
 
-				if (value!= isDisabled) {
+				if (value != isDisabled) {
 					isDisabled = value;
 					sendPropertyChangedEvent(this);
 				}

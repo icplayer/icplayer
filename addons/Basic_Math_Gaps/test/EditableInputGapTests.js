@@ -5,7 +5,8 @@ TestCase("[Basic Math Gaps] EditableInputGap", {
             'isActivity' : false,
             'isDisabled' : false,
             'gapsValues' : ['1', '2'],
-            'addonID': 'Super hiper addon ID'
+            'addonID': 'Super hiper addon ID',
+            'useNumericKeyboard': false
         };
         this.presenter.$view = $(
             '<div class="basic-math-gaps-wrapper">' +
@@ -46,5 +47,20 @@ TestCase("[Basic Math Gaps] EditableInputGap", {
         this.gap.onEdit(null);
 
         assert(this.sendEventStub.calledWith(0, "1", true));
+    },
+
+    'test given input and not using numeric keyboard when creating gap view then gap type is text': function () {
+
+        var inputType = this.gap.createView().attr('type');
+
+        assertEquals("text", inputType.toLowerCase());
+    },
+
+    'test given input and using numeric keyboard when creating gap view then gap type is number': function () {
+        this.presenter.configuration.useNumericKeyboard = true;
+
+        var inputType = this.gap.createView().attr('type');
+
+        assertEquals("number", inputType.toLowerCase());
     }
 });

@@ -65,7 +65,7 @@ function AddonWritingCalculations_create() {
         var upgradedModel = {};
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if(model.useNumericKeyboard == undefined) {
+        if(model.useNumericKeyboard === undefined) {
             upgradedModel["useNumericKeyboard"] = "False";
         }
 

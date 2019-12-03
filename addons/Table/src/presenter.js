@@ -751,7 +751,7 @@ function AddonTable_create() {
         var upgradedModel = {};
         jQuery.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if(model.useNumericKeyboard == undefined) {
+        if(model.useNumericKeyboard === undefined) {
             upgradedModel["useNumericKeyboard"] = "False";
         }
 
@@ -1389,7 +1389,7 @@ function AddonTable_create() {
         if(presenter.configuration.gapType == 'math'){
             return $(presenter.$view).find("input[id='"+this.objectID+"']");
         }else{
-            var inputType ="text";
+            var inputType = "text";
             if (presenter.configuration.useNumericKeyboard) {
                 inputType = "number";
             }

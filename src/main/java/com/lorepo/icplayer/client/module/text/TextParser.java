@@ -274,7 +274,7 @@ public class TextParser {
 				idCounter++;
 				DomElementManipulator inputElement = this.createGapInputElement(id, answer, gapOptions);
 
-				GapInfo gi = new GapInfo(id, Integer.parseInt(value), isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
+				GapInfo gi = new GapInfo(id, Integer.parseInt(value), isCaseSensitive, isIgnorePunctuation, gapMaxLength, isNumericOnly, langTag);
 				String[] answers = answer.split("\\|");
 				for (int i = 0; i < answers.length; i++) {
 					gi.addAnswer(answers[i]);
@@ -333,7 +333,7 @@ public class TextParser {
 			String id = baseId + "-" + idCounter;
 			idCounter++;
 			placeholder = StringUtils.unescapeXML(placeholder);
-			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
+			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength,isNumericOnly, langTag);
 			gi.setPlaceHolder(placeholder);
 			String[] answers = answer.split("\\|");
 			int maxValue = 0;
@@ -395,7 +395,7 @@ public class TextParser {
 			idCounter++;
 			
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
-					isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
+					isCaseSensitive, isIgnorePunctuation, gapMaxLength, isNumericOnly, langTag);
 			String[] answers = answer.split("\\|");
 			for (int i = 0; i < answers.length; i++) {
 				gi.addAnswer(answers[i]);
@@ -422,7 +422,7 @@ public class TextParser {
 			
 			replaceText = getSpanElementCodeForDraggableFilledGap(id, placeholder);
 
-			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
+			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength, isNumericOnly, langTag);
 			gi.setPlaceHolder(placeholder);
 
 			addAnswersToFilledDraggableGapInfo(gi, answer);
@@ -445,7 +445,7 @@ public class TextParser {
 
 			replaceText = getSpanElementCodeForDraggableGap(id);
 
-			GapInfo gi = new GapInfo(id, Integer.parseInt(answerIndex), isCaseSensitive, isIgnorePunctuation, 0, langTag);
+			GapInfo gi = new GapInfo(id, Integer.parseInt(answerIndex), isCaseSensitive, isIgnorePunctuation, 0, isNumericOnly, langTag);
 
 			addAnswersToDraggableGapInfo(gi, answerValue);
 

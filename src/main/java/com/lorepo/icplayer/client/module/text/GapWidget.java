@@ -77,6 +77,10 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 			}
 			setMaxLength(max_length);
 		}
+		
+		if (this.gapInfo.isNumericOnly()) {
+			this.getElement().setPropertyString("type","number");
+		}
 
 		onAttach();
 
