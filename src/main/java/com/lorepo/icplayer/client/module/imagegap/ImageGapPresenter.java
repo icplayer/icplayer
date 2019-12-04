@@ -176,6 +176,8 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 		view.resetStyles();
 		view.setDisabled(false);
+		view.clearAltText();
+		view.setImageUrl("");
 		setState(currentState);
 		readyToDraggableItem = userReadyToDraggableItem;
 		userReadyToDraggableItem = null;
@@ -273,7 +275,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			view.setLangTag("");
 		}
 	}
-
+	
 	private void insertItem() {
 		if (readyToDraggableItem != null) {
 			view.setAltText(getImageSourceAltText(readyToDraggableItem.getId()));
