@@ -469,7 +469,7 @@ function AddonBasic_Math_Gaps_create(){
             validatedIsDisabled = ModelValidationUtils.validateBoolean(model['isDisabled']),
             validatedIsActivity = !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
             validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']),
-            validatedUseNumericKeyboard = ModelValidationUtils.validateBoolean(model['useNumericKeyboard']);
+            validatedUseNumericKeyboard = ModelValidationUtils.validateBoolean(model['useNumericKeyboard']),
             validatedUserActionEvents = ModelValidationUtils.validateBoolean(model['userActionEvents']);
 
         var validatedDecimalSeparator = presenter.validateDecimalSeparator(model['decimalSeparator']);

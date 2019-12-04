@@ -291,11 +291,7 @@ public class TextParser {
 	private DomElementManipulator createGapInputElement(String id, String answer, Map<String,String> gapOptions) {
 		DomElementManipulator inputElement = new DomElementManipulator("input");
 		inputElement.setHTMLAttribute("id", id);
-		if (!isNumericOnly) {
-			inputElement.setHTMLAttribute("type", "edit");
-		} else {
-			inputElement.setHTMLAttribute("type", "number");
-		}
+		inputElement.setHTMLAttribute("type", "edit");
 		inputElement.setHTMLAttribute("data-gap", "editable");
 		if (this.editorMode) {
 			inputElement.setHTMLAttribute("data-gap-value", "\\gap{" + answer + "}"+createGapOptionString(gapOptions));
