@@ -47,7 +47,8 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeGapType(model);
+        var nModel = presenter.upgradeGapType(model);
+        return presenter.upgradeUserActionEvents(nModel);
     };
 
     presenter.upgradeGapType = function (model) {
@@ -56,6 +57,17 @@ function AddonBasic_Math_Gaps_create(){
 
         if(model.gapType == undefined) {
             upgradedModel["gapType"] = "Editable";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeUserActionEvents = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (model['userActionEvents'] === undefined) {
+            upgradedModel['userActionEvents'] = 'False';
         }
 
         return upgradedModel;
@@ -92,8 +104,10 @@ function AddonBasic_Math_Gaps_create(){
         }
 
         presenter.createGaps();
-
-        if (!isPreview) presenter.addFocusOutEventListener();
+        if (!isPreview) {
+            presenter.addFocusOutEventListener();
+            presenter._addSendEventHandler();
+        }
 
         presenter.$view.find('input').click(function(e) {
             e.stopPropagation();
@@ -122,17 +136,16 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.addFocusOutEventListener = function () {
-        if(presenter.configuration.isDisabled) {
+        if (presenter.configuration.isDisabled) {
             return;
         }
 
         presenter._addFocusOutEventListener();
     };
 
-    presenter._addFocusOutEventListener = function () {
+    presenter._addSendEventHandler = function () {
         var inputs = presenter.$view.find('input');
-
-        inputs.focusout(function() {
+        inputs.on("BMG:send_event", function () {
             var item = presenter.$view.find('input').index( this),
                 value = $(this).val().trim(),
                 score = (($(this).val().trim() == presenter.configuration.gapsValues[item]) || (presenter.reconvertSign(presenter.configuration.Signs, $(this).val().trim()) == presenter.configuration.gapsValues[item]));
@@ -144,6 +157,16 @@ function AddonBasic_Math_Gaps_create(){
 
             presenter.sendEvent(item, value, score);
         });
+    };
+
+    presenter._addFocusOutEventListener = function () {
+        var inputs = presenter.$view.find('input');
+
+        if (!presenter.configuration.userActionsEventsEnabled) {
+            inputs.focusout(function () {
+                $(this).trigger("BMG:send_event");
+            });
+        }
     };
 
 
@@ -423,12 +446,18 @@ function AddonBasic_Math_Gaps_create(){
         return { value: false };
     };
 
+    presenter.onDestroy = function () {
+        this.$view.off();
+        presenter.$view.find('input').off();
+    };
+
     presenter.validateModel = function(model) {
 
         var validatedIsEquation = ModelValidationUtils.validateBoolean(model['isEquation']),
             validatedIsDisabled = ModelValidationUtils.validateBoolean(model['isDisabled']),
             validatedIsActivity = !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
-            validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
+            validatedIsVisible = ModelValidationUtils.validateBoolean(model['Is Visible']),
+            validatedUserActionEvents = ModelValidationUtils.validateBoolean(model['userActionEvents']);
 
         var validatedDecimalSeparator = presenter.validateDecimalSeparator(model['decimalSeparator']);
 
@@ -472,7 +501,8 @@ function AddonBasic_Math_Gaps_create(){
             'decimalSeparator' : validatedDecimalSeparator.value,
             'gapWidth' : validatedGapWidth.value,
             'isDraggable': validatedGapType.value,
-            'Signs' : validatedSigns.value
+            'Signs' : validatedSigns.value,
+            'userActionsEventsEnabled': validatedUserActionEvents
         }
     };
 
@@ -1278,6 +1308,14 @@ function AddonBasic_Math_Gaps_create(){
     presenter.EditableInputGap.prototype.onEdit = function (event) {
         this.notifyEdit();
         this.value = this.getValue();
+
+        if(presenter.configuration.isDisabled) {
+            return;
+        }
+
+        if (presenter.configuration.userActionsEventsEnabled) {
+            presenter.$view.find("#" + this.getObjectID()).trigger("BMG:send_event");
+        }
     };
 
     presenter.EditableInputGap.prototype.lock = function () {
@@ -1755,3 +1793,7 @@ function AddonBasic_Math_Gaps_create(){
 
     return presenter;
 }
+
+AddonBasic_Math_Gaps_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};

@@ -3,7 +3,8 @@ TestCase("[Basic Math Gaps] Upgrade model", {
         this.presenter = AddonBasic_Math_Gaps_create();
         this.spies = {
             upgradeModel: sinon.spy(this.presenter, 'upgradeModel'),
-            upgradeGapType: sinon.spy(this.presenter, 'upgradeGapType')
+            upgradeGapType: sinon.spy(this.presenter, 'upgradeGapType'),
+            upgradeUserActionEvents: sinon.spy(this.presenter, 'upgradeUserActionEvents')
         };
     },
 
@@ -27,5 +28,24 @@ TestCase("[Basic Math Gaps] Upgrade model", {
         var upgradedModel = this.presenter.upgradeGapType({});
 
         assertEquals(expectedModel, upgradedModel);
+    },
+
+    'test given model without user actions events field when upgrade model is called then upgradeUserActionEvents is called ': function () {
+        this.presenter.upgradeModel({});
+
+        assertTrue(this.spies.upgradeUserActionEvents.calledOnce);
+    },
+
+    'test given model without user actions events field when upgrade model is called then will return this field as false': function () {
+        var o = this.presenter.upgradeModel({});
+
+        assertEquals(o.userActionEvents, 'False');
+    },
+
+    'test given model with user actions events field when upgrade model is called then field is not changed': function () {
+        var o = this.presenter.upgradeModel({'userActionEvents': 'True'});
+
+        assertEquals(o.userActionEvents, 'True');
     }
+
 });
