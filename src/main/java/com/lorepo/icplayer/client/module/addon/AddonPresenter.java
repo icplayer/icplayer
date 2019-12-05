@@ -42,6 +42,7 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IAddonDescriptor;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
 
 
@@ -516,7 +517,9 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") && !this.view.getElement().getStyle().getDisplay().equals("none");
+		boolean isVisible = !this.view.getElement().getStyle().getVisibility().equals("hidden") 
+				&& !this.view.getElement().getStyle().getDisplay().equals("none")
+				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		return (isTextToSpeechOn || this.haveWCAGSupport(this.jsObject)) && isVisible;
 	}
 	

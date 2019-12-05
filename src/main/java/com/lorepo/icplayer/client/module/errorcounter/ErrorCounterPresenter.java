@@ -22,6 +22,7 @@ import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, IStateful, IWCAGPresenter, IButton {
 
@@ -278,8 +279,10 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		return (isVisible || isTextToSpeechOn);
+		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") 
+				&& !this.getView().getStyle().getDisplay().equals("none")
+				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return (isVisible && isTextToSpeechOn);
 	}
 
 
