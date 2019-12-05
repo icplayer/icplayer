@@ -44,7 +44,7 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.stopPlaying = function stopPlaying() {
-        presenter.mediaRecorder.stopPlaying;
+        presenter.mediaRecorder.stopPlaying();
     };
 
     presenter.getErrorCount = function getErrorCount() {
@@ -106,7 +106,7 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.destroy = function destroy(event) {
-        if (event.target == presenter.view) {
+        if (event.target === presenter.view) {
             event.target.removeEventListener('DOMNodeRemoved', presenter.destroy);
             presenter.mediaRecorder.destroy();
             event.target = null;
