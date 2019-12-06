@@ -59,7 +59,11 @@ public class LinkInfo {
 	}
 	
 	public void setBaseUrl(String newBaseUrl) {
-		if(href.startsWith("#") || href.startsWith("/") || href.startsWith("http") 
+		if (this.type.equals(LinkType.PAGE)) {
+			return;
+		}
+
+		if(href.startsWith("#") || href.startsWith("/") || href.startsWith("http")
 				|| href.startsWith("file") || href.startsWith("javascript")){
 			return;
 		}
