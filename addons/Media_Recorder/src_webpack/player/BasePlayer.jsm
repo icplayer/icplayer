@@ -55,8 +55,12 @@ export class BasePlayer extends Player {
     }
 
     stopStreaming() {
-        if (!this.mediaNode.paused)
+        // for some reason Edge doesn't send pause event in stopPlaying
+        // and setting stopNextStopEvent to true will cause it to not send stop event after finishing playing recorded sound
+        if (!this.mediaNode.paused && !DevicesUtils.isEdge()) {
             this.stopNextStopEvent = true;
+        }
+
         this.stopPlaying();
         this._enableEventsHandling();
     }

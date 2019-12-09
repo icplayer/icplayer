@@ -310,6 +310,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private void setCorrectImage() {
 		String[] answers = model.getAnswerId().split(";");
+
+		if (answers[0].isEmpty()) {
+		    return;
+		}
+
 		ImageSourcePresenter imageSourcePresenter = (ImageSourcePresenter) playerServices.getModule(answers[0]);
 		view.setImageUrl(imageSourcePresenter.getImageUrl());
 		view.setAltText(imageSourcePresenter.getAltText());
