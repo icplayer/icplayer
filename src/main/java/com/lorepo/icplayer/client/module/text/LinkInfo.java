@@ -59,7 +59,7 @@ public class LinkInfo {
 	}
 	
 	public void setBaseUrl(String newBaseUrl) {
-		if (this.type.equals(LinkType.PAGE)) {
+		if (this.type.equals(LinkType.PAGE) || this.type.equals(LinkType.DEFINITION)) {
 			return;
 		}
 
