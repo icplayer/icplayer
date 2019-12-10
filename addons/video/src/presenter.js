@@ -1033,7 +1033,8 @@ function Addonvideo_create() {
     presenter.buildControlsBars = function () {
         var config = {
             videoObject: presenter.videoObject,
-            parentElement: presenter.videoContainer[0]
+            parentElement: presenter.videoContainer[0],
+            isVolumeEnabled: !(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream)
         };
 
         var controls = new window.CustomControlsBar(config);
