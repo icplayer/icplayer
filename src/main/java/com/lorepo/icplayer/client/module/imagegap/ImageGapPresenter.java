@@ -174,9 +174,10 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 		this.isShowAnswersActive = false;
 
-		reset();
 		view.resetStyles();
 		view.setDisabled(false);
+		view.clearAltText();
+		view.setImageUrl("");
 		setState(currentState);
 		readyToDraggableItem = userReadyToDraggableItem;
 		userReadyToDraggableItem = null;
@@ -274,7 +275,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			view.setLangTag("");
 		}
 	}
-
+	
 	private void insertItem() {
 		if (readyToDraggableItem != null) {
 			view.setAltText(getImageSourceAltText(readyToDraggableItem.getId()));
@@ -309,6 +310,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private void setCorrectImage() {
 		String[] answers = model.getAnswerId().split(";");
+
+		if (answers[0].isEmpty()) {
+		    return;
+		}
+
 		ImageSourcePresenter imageSourcePresenter = (ImageSourcePresenter) playerServices.getModule(answers[0]);
 		view.setImageUrl(imageSourcePresenter.getImageUrl());
 		view.setAltText(imageSourcePresenter.getAltText());

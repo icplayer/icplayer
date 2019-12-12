@@ -63,7 +63,10 @@ function AddonLimited_Show_Answers_create() {
         presenter.configuration.worksWithModulesList.forEach(function (moduleId) {
             var module = player.getPlayerServices().getModule(moduleId);
             if (module && module.onEventReceived) {
-                module.onEventReceived(presenter.EVENTS_MAP[eventName]);
+                try {
+                    module.onEventReceived(presenter.EVENTS_MAP[eventName]);
+                }catch (e) {
+                }
             }
         });
 

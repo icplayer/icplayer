@@ -1,4 +1,9 @@
-2019-11-27 Added use numeric keyboard property to Basic Math Gaps, Table, Text and Writing Calculations
+2019-12-12 Added use numeric keyboard property to Basic Math Gaps, Table, Text and Writing Calculations
+2019-12-09 Fix problem with Basic Math Gaps and jQuery copy.
+2019-12-09 Fix problem with show answers and Image Gap module
+2019-12-06 Fix problem with LinkInfo to page
+2019-12-05 Fixed issue with updating links in text leading to their previous address
+2019-12-04 Fixed issues with echo on FireFox, events on Edge and suspended analyzer on Chrome in Media Recorder addon
 2019-11-27 Add new property to Basic Maths Gaps: User action events.
 2019-11-22 Fixed issues with text from draggable gaps dissapearing when dragged out of text
 2019-11-18 Fix problem with static footer and page size

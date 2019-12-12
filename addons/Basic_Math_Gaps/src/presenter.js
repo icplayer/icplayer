@@ -432,14 +432,17 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.validateSigns = function(signs) {
+        var availableFields = ["Addition", "Subtraction", "Division", "Multiplication"];
+
         if (typeof signs == "undefined") {
             signs = [{Addition: "", Subtraction: "", Division: "", Multiplication: ""}];
         }
 
         var regexp = new RegExp("[\=\\[\\]]");
 
-        for (var i = 0; i < Object.keys(signs[0]).length; i++) {
-            if (regexp.test(signs[0][Object.keys(signs[0])[i]])) {
+        for (var i = 0; i < availableFields.length; i++) {
+            var field = availableFields[i];
+            if (regexp.test(signs[0][field])) {
                 return presenter.getErrorObject('E05');
             }
         }
