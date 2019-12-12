@@ -45,6 +45,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	private boolean isActivity = true;
 	private boolean isDisabled = false;
 	private boolean isCaseSensitive = false;
+	private boolean useNumericKeyboard = false;
 	private boolean isIgnorePunctuation = false;
 	private boolean isKeepOriginalOrder = false;
 	private boolean isClearPlaceholderOnFocus = false;
@@ -74,6 +75,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		addPropertyIsActivity();
 		addPropertyIsDisabled();
 		addPropertyIsCaseSensitive();
+		addPropertyUseNumericKeyboard();
 		addPropertyIsIgnorePunctuation();
 		addPropertyOpenLinksinNewTab();
 		addPropertyText(true);
@@ -131,6 +133,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 				isActivity = XMLUtils.getAttributeAsBoolean(textElement, "isActivity", true);
 				isDisabled = XMLUtils.getAttributeAsBoolean(textElement, "isDisabled", false);
 				isCaseSensitive = XMLUtils.getAttributeAsBoolean(textElement, "isCaseSensitive", false);
+				useNumericKeyboard = XMLUtils.getAttributeAsBoolean(textElement, "useNumericKeyboard", false);
 				isIgnorePunctuation = XMLUtils.getAttributeAsBoolean(textElement, "isIgnorePunctuation", false);
 				isKeepOriginalOrder = XMLUtils.getAttributeAsBoolean(textElement, "isKeepOriginalOrder", false);
 				isClearPlaceholderOnFocus = XMLUtils.getAttributeAsBoolean(textElement, "isClearPlaceholderOnFocus", false);
@@ -176,6 +179,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		parser.setOpenLinksinNewTab(openLinksinNewTab);
 		parser.setUseEscapeCharacterInGap(this.useEscapeCharacterInGap);
 		parser.setLangTag(this.getLangAttribute());
+		parser.setIsNumericOnly(useNumericKeyboard);
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
 		originalText = parsedTextInfo.originalText;
@@ -220,6 +224,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		XMLUtils.setBooleanAttribute(text, "isClearPlaceholderOnFocus", this.isClearPlaceholderOnFocus);
 		XMLUtils.setBooleanAttribute(text, "isDisabled", this.isDisabled);
 		XMLUtils.setBooleanAttribute(text, "isCaseSensitive", this.isCaseSensitive);
+		XMLUtils.setBooleanAttribute(text, "useNumericKeyboard", this.useNumericKeyboard);
 		XMLUtils.setBooleanAttribute(text, "openLinksinNewTab", this.openLinksinNewTab);
 		XMLUtils.setBooleanAttribute(text, "blockWrongAnswers", this.blockWrongAnswers);
 		XMLUtils.setBooleanAttribute(text, "userActionEvents", this.userActionEvents);
@@ -562,7 +567,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0);
 
-				if (value!= isDisabled) {
+				if (value != isDisabled) {
 					isDisabled = value;
 					sendPropertyChangedEvent(this);
 				}
@@ -656,6 +661,45 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("case_sensitive");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+	
+	private void addPropertyUseNumericKeyboard() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= useNumericKeyboard) {
+					useNumericKeyboard = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return useNumericKeyboard ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("text_module_use_numeric_keyboard");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_use_numeric_keyboard");
 			}
 
 			@Override
@@ -1029,6 +1073,10 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 
 	public boolean isCaseSensitive() {
 		return isCaseSensitive;
+	}
+	
+	public boolean getUseNumericKeyboard() {
+		return useNumericKeyboard;
 	}
 
 	public boolean isIgnorePunctuation() {

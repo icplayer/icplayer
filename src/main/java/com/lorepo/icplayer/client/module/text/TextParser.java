@@ -40,6 +40,7 @@ public class TextParser {
 	private List<String> gapsOrder;
 	private boolean hasSyntaxError = false;
 	private String langTag = "";
+	private boolean isNumericOnly = false;
 
 	private HashMap<String, String> variables = new HashMap<String, String>();
 	private ParserResult parserResult;
@@ -273,7 +274,7 @@ public class TextParser {
 				idCounter++;
 				DomElementManipulator inputElement = this.createGapInputElement(id, answer, gapOptions);
 
-				GapInfo gi = new GapInfo(id, Integer.parseInt(value), isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
+				GapInfo gi = new GapInfo(id, Integer.parseInt(value), isCaseSensitive, isIgnorePunctuation, gapMaxLength, isNumericOnly, langTag);
 				String[] answers = answer.split("\\|");
 				for (int i = 0; i < answers.length; i++) {
 					gi.addAnswer(answers[i]);
@@ -328,7 +329,7 @@ public class TextParser {
 			String id = baseId + "-" + idCounter;
 			idCounter++;
 			placeholder = StringUtils.unescapeXML(placeholder);
-			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
+			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength,isNumericOnly, langTag);
 			gi.setPlaceHolder(placeholder);
 			String[] answers = answer.split("\\|");
 			int maxValue = 0;
@@ -390,7 +391,7 @@ public class TextParser {
 			idCounter++;
 			
 			GapInfo gi = new GapInfo(id, Integer.parseInt(value),
-					isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
+					isCaseSensitive, isIgnorePunctuation, gapMaxLength, isNumericOnly, langTag);
 			String[] answers = answer.split("\\|");
 			for (int i = 0; i < answers.length; i++) {
 				gi.addAnswer(answers[i]);
@@ -417,7 +418,7 @@ public class TextParser {
 			
 			replaceText = getSpanElementCodeForDraggableFilledGap(id, placeholder);
 
-			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength, langTag);
+			GapInfo gi = new GapInfo(id, 1, isCaseSensitive, isIgnorePunctuation, gapMaxLength, isNumericOnly, langTag);
 			gi.setPlaceHolder(placeholder);
 
 			addAnswersToFilledDraggableGapInfo(gi, answer);
@@ -440,7 +441,7 @@ public class TextParser {
 
 			replaceText = getSpanElementCodeForDraggableGap(id);
 
-			GapInfo gi = new GapInfo(id, Integer.parseInt(answerIndex), isCaseSensitive, isIgnorePunctuation, 0, langTag);
+			GapInfo gi = new GapInfo(id, Integer.parseInt(answerIndex), isCaseSensitive, isIgnorePunctuation, 0, isNumericOnly, langTag);
 
 			addAnswersToDraggableGapInfo(gi, answerValue);
 
@@ -881,7 +882,7 @@ public class TextParser {
 	 * @return
 	 */
 	private String externalLink2Anchor(String href) {
-		
+
 		String replaceText = null;
 		String id = baseId + "-" + UUID.uuid(4);
 		String target = (openLinksinNewTab) ? "_blank" : "_self";
@@ -1122,6 +1123,10 @@ public class TextParser {
 		for (String singleAnswer : answers) {
 			gi.addAnswer(singleAnswer);
 		}
+	}
+	
+	public void setIsNumericOnly(boolean isNumericOnly) {
+		this.isNumericOnly = isNumericOnly;
 	}
 
 }
