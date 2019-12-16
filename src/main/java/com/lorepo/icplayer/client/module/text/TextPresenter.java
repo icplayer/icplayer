@@ -899,7 +899,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private GapInfo getGapInfoById(String gapId) {
 		GapInfo gap = gapInfos.get(gapId);
 		if (gap == null) {
-			gap = new GapInfo("stub", 0, false, false, 0);
+			gap = new GapInfo("stub", 0, false, false, 0, false);
 			for (GapInfo gap1 : module.getGapInfos()) {
 				if (gap1.getId().compareTo(gapId) == 0) {
 					gap = gap1;

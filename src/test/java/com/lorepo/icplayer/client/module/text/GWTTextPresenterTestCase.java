@@ -340,13 +340,13 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		TextModel module = new TextModel();
 		module.setIsVisible(true);
 		
-		GapInfo gapInfo1 = new GapInfo("1", 1, false, false, 1);
+		GapInfo gapInfo1 = new GapInfo("1", 1, false, false, 1, false);
 		gapInfo1.addAnswer("1Answer");
 		
-		GapInfo gapInfo2 = new GapInfo("2", 2, false, false, 1);
+		GapInfo gapInfo2 = new GapInfo("2", 2, false, false, 1, false);
 		gapInfo2.addAnswer("2Answer");
 		
-		GapInfo gapInfo3 = new GapInfo("3", 3, false, false, 1);
+		GapInfo gapInfo3 = new GapInfo("3", 3, false, false, 1, false);
 		gapInfo3.addAnswer("3Answer");
 		
 		module.gapInfos.add(gapInfo1);
@@ -399,7 +399,7 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		TextModel module = new TextModel();
 		module.setIsVisible(true);
 		
-		GapInfo gapInfo1 = new GapInfo("1", 1, false, false, 1);
+		GapInfo gapInfo1 = new GapInfo("1", 1, false, false, 1, false);
 		gapInfo1.setPlaceHolder(placeHolder);
 		
 		

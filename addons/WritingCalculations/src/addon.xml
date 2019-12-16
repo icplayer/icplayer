@@ -19,5 +19,6 @@
         <property displayName="Commutativity" name="Commutativity" nameLabel="WritingCalculations_property_commutativity" type="boolean" />
         <property displayName="Is not activity" name="Is not activity" nameLabel="WritingCalculations_property_is_not_activity" type="boolean"/>
         <property displayName="Enable more digits in gap" name="Multisigns" nameLabel="WritingCalculations_property_is_not_activity" type="boolean"/>
+        <property displayName="Use numeric keyboard" name="useNumericKeyboard" nameLabel="WritingCalculations_use_numeric_keyboard" type="boolean" />
     </model>
 </addon>

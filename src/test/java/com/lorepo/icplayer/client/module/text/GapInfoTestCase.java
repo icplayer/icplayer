@@ -11,7 +11,7 @@ public class GapInfoTestCase {
 
     @Before
     public void setUp() {
-        this.gapInfo = new GapInfo("someId", 0, false, false, 1);
+        this.gapInfo = new GapInfo("someId", 0, false, false, 1, false);
     }
 
     @Test

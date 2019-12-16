@@ -50,7 +50,7 @@ public class GWTPageModuleMetadataTestCase extends GwtTest {
 	public void parseModulesMetadata() throws SAXException, IOException {
 		String expected = getFromFile(PAGE_MODULES_METADATA_PATH);
 		Page page = loadFromFile(new Page("Page 1", "Page1"), PAGE_MODULES_METADATA_PATH);
-		
+
 		Diff diff = new Diff(expected, page.toXML()); 
 		diff.overrideElementQualifier(new ElementNameAndAttributeQualifier());
 
