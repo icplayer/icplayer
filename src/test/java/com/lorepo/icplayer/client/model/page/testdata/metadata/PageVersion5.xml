@@ -79,7 +79,7 @@
 				</layout>
 			</layouts>
 			<text draggable="false" math="false" allAnswersGapSizeCalculationStyle="true" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false"
-			    isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false"
+			    isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" useNumericKeyboard="false"
 			     openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All"
 			     number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed="">
 			</text>
@@ -103,7 +103,7 @@
 				</layout>
 			</layouts>
 			<text draggable="false" math="false" allAnswersGapSizeCalculationStyle="true" gapMaxLength="0" gapWidth="80" isActivity="true" isIgnorePunctuation="false"
-			    isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" 
+			    isKeepOriginalOrder="false" isClearPlaceholderOnFocus="false" isDisabled="false" isCaseSensitive="false" useNumericKeyboard="false"
 			    openLinksinNewTab="true" blockWrongAnswers="false" userActionEvents="false" useEscapeCharacterInGap="false" valueType="All"
 			    number="" gap="" dropdown="" correct="" wrong="" empty="" insert="" removed="">
 			</text>

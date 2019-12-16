@@ -18,22 +18,25 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	private boolean isIgnorePunctuation;
 	private String placeHolder = "";
 	private String langTag = null;
+	private boolean isNumericOnly = false;
 	
-	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength){
+	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength, boolean isNumericOnly){
 		this.id = id;
 		this.value = value;
 		this.isCaseSensitive = isCaseSensitive;
 		this.isIgnorePunctuation = isIgnorePunctuation;
 		this.maxLength = maxLength;
+		this.isNumericOnly = isNumericOnly;
 	}
 	
-	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength, String langTag){
+	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength, boolean isNumericOnly, String langTag){
 		this.id = id;
 		this.value = value;
 		this.isCaseSensitive = isCaseSensitive;
 		this.isIgnorePunctuation = isIgnorePunctuation;
 		this.maxLength = maxLength;
 		this.langTag = langTag;
+		this.isNumericOnly = isNumericOnly;
 	}
 
 	public void addAnswer(String answer) {
@@ -150,6 +153,10 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	 */
 	public Iterator<String> getAnswers() {
 		return answers.iterator();
+	}
+	
+	public boolean isNumericOnly() {
+		return isNumericOnly;
 	}
 
 }
