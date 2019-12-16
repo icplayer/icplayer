@@ -2,6 +2,7 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
     setUp: function() {
         this.presenter = Addonvideo_create();
         this.presenter.videoObject = document.createElement('video');
+        this.presenter.videoObject.src = "https://www.mauthor.com/file/serve/4963160974426112\n";
 
         this.presenter.isVideoLoaded = true;
         this.presenter.posterPlayButton = $(document.createElement("div"));
@@ -14,13 +15,13 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
     },
 
     tearDown: function () {
+        this.presenter.videoObject.src = '';
         this.presenter.removeClassFromView.restore();
         this.presenter.addClassToView.restore();
     },
 
     'test play when video is paused': function() {
         assertTrue('Make sure that video is in pause state', this.presenter.videoObject.paused);
-
         this.presenter.play();
 
         assertFalse('Play command should change video state to playing', this.presenter.videoObject.paused);

@@ -52,6 +52,10 @@
         }
         this.refreshDataIntervalFunction = setInterval(this.refreshDataIntervalFunction, this.configuration.mouseDontMoveRefreshTime);
 
+        if (!this.configuration.isVolumeEnabled) {
+            this.elements.volume.element.style.display = 'none';
+        }
+
     }
 
     /**
@@ -583,7 +587,9 @@
     @return {null}
     */
     CustomControlsBar.prototype.addVolumeClickCallback = function (callback) {
-        addNewCallback.call(this, this.elements.volume, callback, 'click');
+        if (this.configuration.isVolumeEnabled) {
+            addNewCallback.call(this, this.elements.volume, callback, 'click');
+        }
     };
 
     /**
@@ -802,7 +808,8 @@
             maxMediaTime: 0,
             actualMediaTime: 0,
             videoObject: null,
-            parentElement: null
+            parentElement: null,
+            isVolumeEnabled: true
         }
     }
 })(window);
