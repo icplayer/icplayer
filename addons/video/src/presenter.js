@@ -1034,7 +1034,7 @@ function Addonvideo_create() {
         var config = {
             videoObject: presenter.videoObject,
             parentElement: presenter.videoContainer[0],
-            isVolumeEnabled: !(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream)
+            isVolumeEnabled: !MobileUtils.isSafariMobile(navigator.userAgent)
         };
 
         var controls = new window.CustomControlsBar(config);
