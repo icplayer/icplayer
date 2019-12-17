@@ -87,7 +87,8 @@ UpgradeModelTests.prototype.testUpgradeToCurrentVersion = function() {
         "speechTexts": {
             AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled"},
             AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled"}
-        }
+        },
+        "offlineMessage":"This video is not available offline. Please connect to the Internet to watch it."
     };
 
     var upgradedModel = this.presenter.upgradeModel(this.model);
@@ -109,4 +110,13 @@ UpgradeModelTests.prototype.testUpgradeModelForShowPlayButtonShouldNotChangeProp
     var upgradedModel = this.presenter.upgradeModel(this.model);
 
     assertEquals('lorem ipsum dolor sit amet', upgradedModel['Show play button']);
+};
+
+UpgradeModelTests.prototype.testGivenModelWithOfflineMessageWhenUpgradeIsCalledThenIsNotChangingIt = function () {
+    var expected = 'different message';
+    this.model['offlineMessage'] = expected;
+
+    var upgradedModel = this.presenter.upgradeModel(this.model);
+
+    assertEquals(expected, upgradedModel['offlineMessage']);
 };
