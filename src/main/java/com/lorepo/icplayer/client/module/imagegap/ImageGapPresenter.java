@@ -736,7 +736,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	private boolean isGapAttempted() {
-		return !getImageId().isEmpty();
+		return !getImageId().equals("");
 	}
 
 	private void markGapAsCorrect() {
