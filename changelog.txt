@@ -1,4 +1,4 @@
-2019-12-16 Lock only addons which are set in config in eKeyboard addon.
+2020-01-07 Lock only addons which are set in config in eKeyboard addon.
 2019-12-12 Added use numeric keyboard property to Basic Math Gaps, Table, Text and Writing Calculations
 2019-12-09 Fix problem with Basic Math Gaps and jQuery copy.
 2019-12-09 Fix problem with show answers and Image Gap module

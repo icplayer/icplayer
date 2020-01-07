@@ -59,3 +59,20 @@ Cross Lesson addon is used to link to other lessons and courses.
         <td>Hides the addon</td>
     </tr>
 </table>
+
+
+## Managing in custom LMS
+In case of managing cross lesson addon in custom LMS, there is need to connect to player external event bus:
+
+    player.onExternalEvent((eventName: string, data: string) => {
+    });
+    
+Cross lesson addon calls that method with provided data:
+* eventName: `"crossLesson"`
+* data: JSON string which contains:
+  * lessonID: Id from `Defined lesson id` property.
+  * type: Type from `Type` property.
+  * page: Optional value from `page` property.
+  * courseID: Optional value from `Course ID` property.
+  
+Optional values may be not defined in JSON string. It depends on addon configuration.

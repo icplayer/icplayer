@@ -46,42 +46,61 @@ TestCase("[Commons - Controls-bar] Adding and calling callbacks for elements", {
         assertTrue(this.callback.calledOnce);
 
     },
+
     'test add callback for pause button' : function () {
         this.controlBar.addPauseCallback(this.callback);
         assertTrue(checkElementCallback(this.controlBar.elements.pauseButton, this.callback));
         this.controlBar.elements.pauseButton.element.click();
         assertTrue(this.callback.calledOnce);
     },
+
     'test add callback for stop button' : function () {
         this.controlBar.addStopCallback(this.callback);
         assertTrue(checkElementCallback(this.controlBar.elements.stopButton, this.callback));
         this.controlBar.elements.stopButton.element.click();
         assertTrue(this.callback.calledOnce);
     },
+
     'test add callback for volume button' : function () {
         this.controlBar.addVolumeClickCallback(this.callback);
         assertTrue(checkElementCallback(this.controlBar.elements.volume, this.callback));
         this.controlBar.elements.volume.element.click();
         assertTrue(this.callback.calledOnce);
     },
+
+    'test given disabled volume bar when callback is added then it\'s not working': function () {
+        this.controlBar = new CustomControlsBar({
+            parentElement: this.parentElement,
+            isVolumeEnabled: false
+        });
+
+        this.controlBar.addVolumeClickCallback(this.callback);
+        assertFalse(checkElementCallback(this.controlBar.elements.volume, this.callback));
+        this.controlBar.elements.volume.element.click();
+        assertFalse(this.callback.calledOnce);
+    },
+
     'test add callback for fullscreen button' : function () {
         this.controlBar.addFullscreenCallback(this.callback);
         assertTrue(checkElementCallback(this.controlBar.elements.fullscreen, this.callback));
         this.controlBar.elements.fullscreen.element.click();
         assertTrue(this.callback.calledOnce);
     },
+
     'test add callback for closefullscreen button' : function () {
         this.controlBar.addCloseFullscreenCallback(this.callback);
         assertTrue(checkElementCallback(this.controlBar.elements.closeFullscreen, this.callback));
         this.controlBar.elements.closeFullscreen.element.click();
         assertTrue(this.callback.calledOnce);
     },
+
     'test add callback for progressbar button' : function () {
         this.controlBar.addProgressBarClickCallback(this.callback);
         assertTrue(checkElementCallback(this.controlBar.elements.progressBarWrapper, this.callback));
         this.controlBar.elements.progressBarWrapper.element.click();
         assertTrue(this.callback.calledOnce);
     },
+
      'test add callback for volumebar button' : function () {
         this.controlBar.addVolumeBarClickCallback(this.callback);
         assertTrue(checkElementCallback(this.controlBar.elements.volumeBarWrapper, this.callback));
