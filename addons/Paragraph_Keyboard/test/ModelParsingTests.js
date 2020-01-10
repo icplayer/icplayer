@@ -151,5 +151,54 @@ TestCase("[Paragraph] Model parsing", {
 
         assertEquals(false, validatedModel.error);
 
+    },
+
+    'test given manual grading and title when properties set than should be the same in model': function () {
+        var model = {
+            'ID': 'Paragraph ID',
+            'Manual grading': false,
+            'Title': 'Sample'
+        };
+
+        var upgradedModel = this.presenter.upgradeModel(model);
+        var validatedModel = this.presenter.parseModel(upgradedModel);
+
+        assertEquals('Sample', validatedModel.title);
+        assertEquals(false, validatedModel.manualGrading);
+    },
+
+    'test given manual grading and title when properties are empty than should be empty and false in model': function () {
+        var model = {
+            'ID': 'Paragraph ID'
+        };
+
+        var upgradedModel = this.presenter.upgradeModel(model);
+        var validatedModel = this.presenter.parseModel(upgradedModel);
+
+        assertEquals('', validatedModel.title);
+        assertEquals(false, validatedModel.manualGrading);
+    },
+
+    'test given weight when properties set than should be the same in model': function () {
+        var model = {
+            'ID': 'Paragraph ID',
+            'Weight': '0'
+        };
+
+        var upgradedModel = this.presenter.upgradeModel(model);
+        var validatedModel = this.presenter.parseModel(upgradedModel);
+
+        assertEquals('0', validatedModel.weight);
+    },
+
+    'test given weight when properties are empty than should be empty in model': function () {
+        var model = {
+            'ID': 'Paragraph ID'
+        };
+
+        var upgradedModel = this.presenter.upgradeModel(model);
+        var validatedModel = this.presenter.parseModel(upgradedModel);
+
+        assertEquals('', validatedModel.weight);
     }
 });

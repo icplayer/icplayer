@@ -13,6 +13,9 @@ function AddonIframe_create() {
     presenter.configuration = null;
     presenter.$view = null;
     presenter.eventBus = null;
+    presenter.isEditor = false;
+    presenter.isVisible = true;
+    presenter.originalDisplay = "block";
 
     presenter.actionID = {
         SET_WORK_MODE : "SET_WORK_MODE",
@@ -69,6 +72,7 @@ function AddonIframe_create() {
     };
 
     presenter.createPreview = function AddonIFrame_Communication_create_preview (view, model) {
+        presenter.isEditor = true;
         presenter.initialize(view, model);
         if (presenter.configuration.isValid) {
             presenter.setVisibility(true);
@@ -95,6 +99,13 @@ function AddonIframe_create() {
         window.addEventListener("message", presenter.getMessage, false);
 
         var iframe = $(view).find("iframe");
+
+        if (presenter.configuration.allowFullScreen) {  // It must be done before src setup.
+            iframe.attr("allowfullscreen", "allowfullscreen");
+            iframe.attr("webkitallowfullscreen", "webkitallowfullscreen");
+            iframe.attr("mozallowfullscreen", "mozallowfullscreen");
+        }
+
         if(presenter.configuration.haveURL) {
             iframe.attr("src", presenter.configuration.iframeURL);
         }
@@ -102,14 +113,13 @@ function AddonIframe_create() {
             iframe.attr("src", presenter.getIframeIndexSource());
         }
 
-        if (presenter.configuration.allowFullScreen) {
-            iframe.attr("allowfullscreen", "allowfullscreen");
-            iframe.attr("webkitallowfullscreen", "webkitallowfullscreen");
-            iframe.attr("mozallowfullscreen", "mozallowfullscreen");
-        }
-
         presenter.$view = $(view);
         presenter.view = view;
+
+         var display = presenter.$view.css('display');
+        if (display != null && display.length > 0) {
+            presenter.originalDisplay = display;
+        }
 
         presenter.iframeContent = iframe.get(0).contentWindow;
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
@@ -220,8 +230,11 @@ function AddonIframe_create() {
     };
 
     presenter.setVisibility = function (isVisible) {
+        presenter.isVisible = isVisible;
         presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
-        presenter.$view.css('display', isVisible ? 'block' : 'none');
+        if(!presenter.isEditor) {
+            presenter.$view.css('display', isVisible ? presenter.originalDisplay : 'none');
+        }
     };
 
     presenter.show = function AddonIFrame_Communication_show () {
@@ -267,6 +280,12 @@ function AddonIframe_create() {
             var parsedState = JSON.parse(state);
             presenter.iframeState = parsedState.iframeState;
             presenter.iframeScore = parsedState.iframeScore;
+            if(typeof(parsedState.isVisible) === "boolean") {
+                presenter.isVisible = parsedState.isVisible;
+            }else{
+                presenter.isVisible = presenter.configuration.isVisibleByDefault;
+            }
+            presenter.setVisibility(presenter.isVisible);
         }
         catch (error) {
             presenter.iframeState = undefined;
@@ -274,7 +293,11 @@ function AddonIframe_create() {
     };
 
     presenter.getState = function AddonIFrame_Communication_get_state () {
-        return JSON.stringify({iframeState: presenter.iframeState, iframeScore: presenter.iframeScore } );
+        return JSON.stringify({
+            iframeState: presenter.iframeState,
+            iframeScore: presenter.iframeScore,
+            isVisible:presenter.isVisible,
+        });
     };
 
     presenter.getScore = function AddonIFrame_Communication_get_score () {
@@ -353,6 +376,11 @@ function AddonIframe_create() {
                 presenter.iframeState = state.iframeState;
             }
             presenter.iframeScore = state.iframeScore;
+            if(typeof(presenter.isVisible) === "boolean") {
+                presenter.isVisible = state.isVisible
+            }else{
+                presenter.isVisible = presenter.configuration.isVisibleByDefault;
+            }
         }
     };
 

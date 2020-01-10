@@ -5,9 +5,13 @@
 		<property name="Default font family" nameLabel="Paragraph_property_default_font_family" type="string" />
 		<property name="Default font size" nameLabel="Paragraph_property_default_font_size" type="string" />
 		<property name="Hide toolbar" nameLabel="Paragraph_property_hide_toolbar" type="boolean" />
+		<property name="Editable placeholder" nameLabel="Paragraph_property_editable_placeholder" type="boolean" />
 		<property name="Custom toolbar" nameLabel="Paragraph_property_custom_toolbar" type="string" />
 		<property name="Custom CSS" nameLabel="Paragraph_property_custom_css" type="file" />
         <property name="Placeholder Text" nameLabel="Paragraph_property_placeholder_text" type="html"/>
         <property name="Layout Type" nameLabel="Paragraph_property_layout_type" type="{Default, French}"/>
+		<property name="Manual grading" nameLabel="Paragraph_property_manual_grading" type="boolean" />
+		<property name="Title" nameLabel="Paragraph_property_title" type="string" />
+		<property name="Weight" nameLabel="Paragraph_property_weight" type="string" />
 	</model>
 </addon>

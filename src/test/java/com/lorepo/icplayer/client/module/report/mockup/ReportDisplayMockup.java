@@ -15,7 +15,7 @@ public class ReportDisplayMockup implements IDisplay{
 	}
 
 	@Override
-	public void addRow(String name, PageScore pageScore) {
+	public void addRow(String name, Integer i, PageScore pageScore) {
 		rowCount ++;
 	}
 

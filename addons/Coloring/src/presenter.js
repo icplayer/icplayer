@@ -22,6 +22,9 @@ function AddonColoring_create(){
     presenter.lastEvent = null;
     presenter.imageHasBeenLoaded = false;
 
+    presenter.initialState = null;
+    presenter.isCanvasInitiated = false;
+
     presenter.AREA_TYPE = {
         NORMAL: 0,
         TRANSPARENT: 1,
@@ -400,6 +403,7 @@ function AddonColoring_create(){
 
                 presenter.recolorImage();
                 presenter.runEndedDeferred.resolve();
+                presenter.isCanvasInitiated = true;
             }
         });
     }
@@ -486,10 +490,11 @@ function AddonColoring_create(){
             client = fixTouch(event.touches[0] || event.changedTouches[0]);
         }
 
-        return {
-            x: parseInt(client.x - rect.left, 10),
-            y: parseInt(client.y - rect.top, 10)
-        };
+        var positionX = parseInt(client.x - rect.left, 10);
+        var positionY = parseInt(client.y - rect.top, 10);
+        var scaledPoint = scalePoint({x: positionX, y: positionY});
+
+        return {x: scaledPoint.x, y: scaledPoint.y};
     }
 
     presenter.errorCodes = {
@@ -978,6 +983,10 @@ function AddonColoring_create(){
 
     presenter.getState = function(){
 
+        if (!presenter.isCanvasInitiated && presenter.initialState != null) {
+            return presenter.initialState;
+        }
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1066,6 +1075,10 @@ function AddonColoring_create(){
     };
 
     presenter.setState = function(state){
+        if (!presenter.isCanvasInitiated) {
+            presenter.initialState = state;
+        }
+
         if (ModelValidationUtils.isStringEmpty(state)) {
             return;
         }
@@ -1088,7 +1101,9 @@ function AddonColoring_create(){
 
         var areasToFill = presenter.getAreasToFillFromSetState(upgradedState);
 
-        presenter.restoreColoringAtState(areasToFill, upgradedState)
+        if (upgradedState.colorsThatCanBeFilled) {
+            presenter.restoreColoringAtState(areasToFill, upgradedState)
+        }
     };
 
     presenter.restoreColoringAtState = function (filledAreasArray, state) {
@@ -1102,7 +1117,7 @@ function AddonColoring_create(){
         presenter.floodFill({
             x: areaToFillObject.area.x,
             y: areaToFillObject.area.y,
-            color: [255, 255, 255, 255]
+            color: presenter.getColorAtPoint(areaToFillObject.area.x, areaToFillObject.area.y)
         },
 
         areaToFillObject.color,
@@ -1312,6 +1327,19 @@ function AddonColoring_create(){
 
         presenter.isShowAnswersActive = false;
     };
+
+    function scalePoint({x, y}) {
+        var scaledPoint = {x: x, y: y};
+        if (!presenter.playerController)
+            return scaledPoint;
+
+        var scale = presenter.playerController.getScaleInformation();
+        if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
+            scaledPoint.x = Math.floor(scaledPoint.x / scale.scaleX);
+            scaledPoint.y = Math.floor(scaledPoint.y / scale.scaleY);
+        }
+        return scaledPoint;
+    }
 
     return presenter;
 }

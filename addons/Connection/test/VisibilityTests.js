@@ -40,7 +40,9 @@ TestCase('[Connection] Visibility tests', {
     'test when in preview mode, setVisibility should be called with true': function () {
         var model = {
             "Is Visible": "True",
-            "Single connection mode": "True"
+            "Single connection mode": "True",
+            "initialConnections": [],
+            "disabledConnectionColor": ""
         };
 
         this.presenter.initialize(this.view, model, true);
@@ -51,7 +53,9 @@ TestCase('[Connection] Visibility tests', {
     'test when in preview mode and addon is not visible, setVisibility should be called with true': function () {
         var model = {
             "Is Visible": "False",
-            "Single connection mode": "True"
+            "Single connection mode": "True",
+            "initialConnections": [],
+            "disabledConnectionColor": ""
         };
 
         this.presenter.initialize(this.view, model, true);
@@ -62,7 +66,9 @@ TestCase('[Connection] Visibility tests', {
     'test when not in preview mode and addon is visible, setVisibility should be called with true': function () {
         var model = {
             "Is Visible": "True",
-            "Single connection mode": "True"
+            "Single connection mode": "True",
+            "initialConnections": [],
+            "disabledConnectionColor": ""
         };
 
         this.presenter.initialize(this.view, model, false);
@@ -73,7 +79,9 @@ TestCase('[Connection] Visibility tests', {
     'test when not in preview mode and addon is not visible, setVisibility should be called with false': function () {
         var model = {
             "Is Visible": "False",
-            "Single connection mode": "True"
+            "Single connection mode": "True",
+            "initialConnections": [],
+            "disabledConnectionColor": ""
         };
 
 

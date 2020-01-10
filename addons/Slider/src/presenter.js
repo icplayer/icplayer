@@ -4,6 +4,8 @@ function AddonSlider_create () {
     presenter.$view = null;
     presenter.savedState = null;
     presenter.counter = 0;
+    presenter.isTouched = false;
+    presenter.isWCAGOn = false;
 
     var playerController, onStepChangeEvent;
 
@@ -16,7 +18,10 @@ function AddonSlider_create () {
         'ES_01' : "Element source was not given!",
         'SC_01' : "Steps count incorrect!",
         'SC_02' : "Steps count cannot be less than 2!",
-        'IS_01' : "Initial step incorrect! It must be a positive number between 1 and steps count!"
+        'IS_01' : "Initial step incorrect! It must be a positive number between 1 and steps count!",
+        'AT_01' : "Step number must be a positive number between 1 and steps count",
+        "AT_02" : "Step number has been provided but the alternative text is missing",
+        "AT_03" : "Duplicate step number!"
     };
 
     presenter.addonID = '';
@@ -151,6 +156,7 @@ function AddonSlider_create () {
 
     };
 
+
     function mouseDownCallback (eventData) {
         if (presenter.configuration.isErrorMode && presenter.configuration.shouldBlockInErrorMode) return;
 
@@ -162,8 +168,7 @@ function AddonSlider_create () {
     }
 
     function touchStartCallback (event) {
-        event.preventDefault();
-        event.stopPropagation();
+        presenter.isTouched = true;
 
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
         
@@ -205,6 +210,7 @@ function AddonSlider_create () {
     };
 
     function touchEndCallback (event) {
+        presenter.isTouched = false;
         event.preventDefault();
         event.stopPropagation();
 
@@ -253,6 +259,13 @@ function AddonSlider_create () {
             var mousePositions = getMousePositions(eventData);
             var relativeDistance;
 
+            if(presenter.isTouched) {
+                var scale = playerController.getScaleInformation();
+                if (scale.scaleX !== 1.0 || scale.scaleY !== 1.0) {
+                    mousePositions.x = mousePositions.x / scale.scaleX;
+                    mousePositions.y = mousePositions.y / scale.scaleY;
+                }
+            }
 
             if(presenter.continuousEvents && presenter.continuousEventsSteps == "Smooth"){
                 presenter.configuration.newStep = presenter.whichStepZoneSmooth(mousePositions, presenter.configuration);
@@ -318,13 +331,15 @@ function AddonSlider_create () {
                 }
             }
 
-            //presenter.configuration.newStep = presenter.whichStepZone(mousePositions, presenter.configuration);
         }
-        eventData.preventDefault();
+        if(eventData.preventDefault) {
+            eventData.preventDefault();
+        }
     }
 
     function touchMoveCallback (event) {
         event.stopPropagation();
+        event.preventDefault();
 
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
 
@@ -387,10 +402,26 @@ function AddonSlider_create () {
 
         setAddonPosition();
 
-        return {
-            x:(eventData.pageX - presenter.configuration.offset.left) - popupLeft,
-            y:(eventData.pageY - presenter.configuration.offset.top) - popupTop
-        };
+        if (eventData.offsetX != null && eventData.offsetY != null) {
+            position = {
+                x:(eventData.offsetX + $(eventData.target).offset().left - presenter.configuration.offset.left) - popupLeft,
+                y:(eventData.offsetY + $(eventData.target).offset().top - presenter.configuration.offset.top) - popupTop
+            };
+        } else {
+            var scroll = getScroll();
+            position = {
+                x: (scroll.left + eventData.pageX - presenter.configuration.offset.left) - popupLeft,
+                y: (scroll.top + eventData.pageY - presenter.configuration.offset.top) - popupTop
+            }
+        }
+
+        return position;
+    }
+
+    function getScroll() {
+        var top = $('body').scrollTop();
+        var left = $('body').scrollLeft();
+        return {top: top, left: left};
     }
 
     function setAddonPosition() {
@@ -399,22 +430,55 @@ function AddonSlider_create () {
         presenter.configuration.offset.top = presenter.$addonContainer.offset().top;
     }
 
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = presenter.upgradeTTS(model);
+        return upgradedModel;
+    };
+
+    presenter.upgradeTTS = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (upgradedModel['speechTexts'] === undefined) {
+            upgradedModel['speechTexts'] = {
+                Step: {Step: "Step"}
+            };
+        }
+
+        if (upgradedModel['langAttribute'] === undefined) {
+            upgradedModel['langAttribute'] = "";
+        }
+
+        if (upgradedModel['Alternative texts'] === undefined) {
+            upgradedModel['Alternative texts'] = [
+                {
+                    "Alternative text": "",
+                    "Step number": ""
+                }
+            ];
+        }
+
+        return upgradedModel;
+    };
+
     function presenterLogic(view, model, preview) {
+        var upgradedModel = presenter.upgradeModel(model);
+
         presenter.imageLoadedDeferred = new jQuery.Deferred();
         presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
 
-        presenter.addonID = model.ID;
+        presenter.addonID = upgradedModel.ID;
         presenter.$view = $(view);
         presenter.view = view;
-        onStepChangeEvent = model.onStepChange;
-        presenter.continuousEvents = ModelValidationUtils.validateBoolean(model["Continuous events"]);
-        presenter.continuousEventsSteps = model["Continuous events steps"];
+        onStepChangeEvent = upgradedModel.onStepChange;
+        presenter.continuousEvents = ModelValidationUtils.validateBoolean(upgradedModel["Continuous events"]);
+        presenter.continuousEventsSteps = upgradedModel["Continuous events steps"];
 
         presenter.$addonContainer = presenter.$view.find(CLASSES_NAMES.WRAPPER.SELECTOR);
 
         DOMOperationsUtils.setReducedSize(presenter.$view, presenter.$addonContainer);
 
-        presenter.configuration = presenter.convertModel(model);
+        presenter.configuration = presenter.convertModel(upgradedModel);
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
@@ -677,6 +741,56 @@ function AddonSlider_create () {
         return { isError: false, stepsCount: convertedStepsCount.value };
     };
 
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    presenter.convertSpeechTexts = function(speechTextsModel) {
+        var speechTexts = {
+            step: getSpeechTextProperty(speechTextsModel["Step"]["Step"], "Step")
+        };
+        return speechTexts;
+    };
+
+    presenter.validateAlternativeTexts = function(altTextsModel, stepsCount) {
+        var altTexts = [];
+        for (var i = 0; i < stepsCount; i++) {
+            altTexts.push('');
+        }
+
+        for (var i = 0; i < altTextsModel.length; i++) {
+            var altText = altTextsModel[i];
+
+            if (altText["Step number"].length == 0) continue;
+
+            if (isNaN(altText["Step number"])) {
+                return { isError : true, errorCode : 'AT_01' };
+            }
+
+            if (
+                    (altText["Step number"].length > 0 && altText["Alternative text"].length == 0) ||
+                    (altText["Step number"].length == 0 && altText["Alternative text"].length > 0)
+            ) {
+                return { isError : true, errorCode : 'AT_02' };
+            }
+
+            var stepNumber = Number(altText["Step number"]);
+            if (stepNumber < 1 || stepNumber > stepsCount) {
+                return { isError : true, errorCode : 'AT_01' };
+            }
+            if (altTexts[stepNumber - 1] != '') {
+                return { isError : true, errorCode : 'AT_03' };
+            }
+
+            altTexts[stepNumber - 1] = altText['Alternative text'];
+        }
+        return { isError : false, value : altTexts };
+    };
 
     presenter.convertModel = function(model) {
         var orientation = model.Orientation === 'Portrait' ? presenter.ORIENTATION.PORTRAIT : presenter.ORIENTATION.LANDSCAPE;
@@ -710,6 +824,13 @@ function AddonSlider_create () {
 
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 
+        var speechTexts = presenter.convertSpeechTexts(model["speechTexts"]);
+
+        var validatedAltTexts = presenter.validateAlternativeTexts(model['Alternative texts'], stepsCount);
+        if (validatedAltTexts.isError) {
+            return {isError: true, errorCode: validatedAltTexts.errorCode};
+        }
+
         return {
             imageSrc : model.ImageElement,
             orientation : orientation,
@@ -720,7 +841,10 @@ function AddonSlider_create () {
             isVisible: isVisible,
             isError : false,
             isErrorMode: false,
-            shouldBlockInErrorMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"])
+            shouldBlockInErrorMode: ModelValidationUtils.validateBoolean(model["Block in error checking mode"]),
+            speechTexts: speechTexts,
+            lang: model["langAttribute"],
+            altTexts: validatedAltTexts.value
         };
     };
 
@@ -866,6 +990,79 @@ function AddonSlider_create () {
 
         presenter.moveToStep(elements.imageElement, presenter.configuration.currentStep, presenter.configuration);
         presenter.setVisibility(presenter.configuration.isVisible);
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+
+        var keys = {
+            ENTER: 13,
+            ARROW_LEFT: 37,
+            ARROW_UP: 38,
+            ARROW_RIGHT: 39,
+            ARROW_DOWN: 40
+        };
+
+        function nextStep () {
+            presenter.nextStep(event);
+            presenter.readStep(presenter.configuration.currentStep);
+        }
+
+        function prevStep () {
+            presenter.previousStep(event);
+            presenter.readStep(presenter.configuration.currentStep);
+        }
+
+        function readCurrentStep () {
+            presenter.readStep(presenter.configuration.currentStep);
+        }
+
+        var mapping = {};
+        mapping[keys.ARROW_LEFT] = prevStep;
+        mapping[keys.ARROW_UP] = prevStep;
+        mapping[keys.ARROW_DOWN] = nextStep;
+        mapping[keys.ARROW_RIGHT] = nextStep;
+        mapping[keys.ENTER] = readCurrentStep;
+
+        try {
+            mapping[keycode]();
+        } catch (er) {
+        }
+
+    };
+
+    presenter.isEnterable = function() {
+        return false;
+    };
+
+    presenter.readStep = function(index) {
+        var voices = [];
+        var altText = presenter.configuration.altTexts[index - 1];
+        if (altText.length == 0) {
+            voices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.step + ' ' + index));
+        } else {
+            voices.push(window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.step));
+            voices.push(window.TTSUtils.getTextVoiceObject(altText, presenter.configuration.lang));
+        }
+        presenter.speak(voices);
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        presenter.isWCAGOn = isOn;
+    };
+
+    presenter.speak = function(data) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
     };
 
     presenter.setShowErrorsMode = function() {

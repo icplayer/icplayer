@@ -34,7 +34,7 @@
                 <echo>Copying @{addonid} addon</echo>
                 <copyAddon src="${addons.src}" dest="${addons.dest}" addon="@{addonid}"/>
             	<copy file="${addons.src}/@{addonid}/src/icon.png" tofile="${addons.dest}/@{addonid}.png"/>
-            	<copy todir="${addons.dest}/resources" failonerror="false">
+            	<copy todir="${addons.dest}/resources" failonerror="false" quiet="true">
             		<fileset dir="${addons.src}/@{addonid}/src/resources"/>
             	</copy>
             </sequential>

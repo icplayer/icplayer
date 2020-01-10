@@ -1,4 +1,4 @@
-SetColumnsWidthValidation = TestCase("Set Columns Width Validation");
+SetColumnsWidthValidation = TestCase("[Connection] Set Columns Width Validation");
 
 SetColumnsWidthValidation.prototype.testWidthHasBeenSet = function() {
     // Given

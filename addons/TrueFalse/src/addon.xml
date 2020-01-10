@@ -26,5 +26,6 @@
                 <property name="incorrect" nameLabel="TrueFalse_property_incorrect" type="string"/>
             </property>
 		</property>
+		<property name="isDisabled" displayName="Is disabled" nameLabel="TrueFalse_property_is_disabled" type="boolean" />
 	</model>
 </addon>

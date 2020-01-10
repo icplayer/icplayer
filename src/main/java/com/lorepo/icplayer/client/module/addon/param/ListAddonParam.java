@@ -256,7 +256,10 @@ public class ListAddonParam extends StringAddonParam{
 			template.add(param);
 			
 			for(AddonParamProvider provider : propertyProviders){
-				provider.addParam(param);
+				IAddonParam childParam = addonParamFactory.createAddonParam(getAddonModel(), child.getType());
+				childParam.setName(child.getName());
+				childParam.setDisplayName(child.getDisplayName());
+				provider.addParam(childParam);
 			}
 		}
 		

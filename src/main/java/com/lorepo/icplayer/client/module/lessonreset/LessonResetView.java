@@ -20,6 +20,7 @@ public class LessonResetView extends PushButton implements IDisplay {
 	private IPlayerServices playerServices;
 	private boolean isDisabled = false;
 	private boolean isShowAnswersMode = false;
+	private String originalDisplay = "";
 	
 	public LessonResetView(LessonResetModule module, IPlayerServices services) {
 		this.playerServices = services;
@@ -31,7 +32,7 @@ public class LessonResetView extends PushButton implements IDisplay {
 	
 	private void createUI() {
 		StyleUtils.applyInlineStyle(this, module);
-		
+		originalDisplay = getElement().getStyle().getDisplay();
 		StyleUtils.setButtonStyleName("ic_button_lesson_reset", this, module);
 
 		getUpFace().setText(module.getTitle());
@@ -113,5 +114,15 @@ public class LessonResetView extends PushButton implements IDisplay {
 	@Override
 	public String getName() {
 		return "LessonReset";
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
 	}
 }

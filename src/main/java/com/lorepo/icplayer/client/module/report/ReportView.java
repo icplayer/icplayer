@@ -26,12 +26,13 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	private Grid grid;
 	private int lastRow;
 	private IViewListener listener;
-	private HashMap<Integer, String> pageLinks;
+	private HashMap<Integer, Integer> pageIds;
 	private boolean isWCAGOn = false;
 	private boolean isWCAGActive = false;
 	private PageController pageController;
 	private int currentWCAGSelectedRowIndex = 1;
 	private int currentWCAGSelectedColumnIndex = 0;
+	private String originalDisplay = "";
 	
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
 	
@@ -44,12 +45,13 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	
 	private void createUI(boolean isPreview){
 		
-		pageLinks = new HashMap<Integer, String>();
+		pageIds = new HashMap<Integer, Integer>();
 		grid = new Grid(2, getColumnCount());
 		lastRow = 1;
 
 		grid.setStyleName("ic_report");
 		StyleUtils.applyInlineStyle(grid, module);
+		originalDisplay = grid.getElement().getStyle().getDisplay();
 		grid.setCellSpacing(0);
 
 		grid.getRowFormatter().addStyleName(0, "ic_report-header");
@@ -89,8 +91,8 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		int row = cell.getRowIndex();
 		if(cell.getCellIndex() == 0 && row > 0 && row < grid.getRowCount()-1){
 			if(listener != null){
-				String link = pageLinks.get(row);
-				listener.onClicked(link);
+				int pageId = pageIds.get(row);
+				listener.onClicked(pageId);
 			}
 		}
 	}
@@ -102,10 +104,10 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 	}
 
 	@Override
-	public void addRow(String pageName, PageScore pageScore){
+	public void addRow(String pageName, Integer pageId, PageScore pageScore){
 
 		appendEmptyRow();
-		pageLinks.put(lastRow, pageName);
+		pageIds.put(lastRow, pageId);
 		grid.setText(lastRow, 0, pageName);
 		grid.getCellFormatter().addStyleName(lastRow, 0, "ic_reportPage");
 
@@ -268,8 +270,8 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 		if (listener != null 
 			&& this.currentWCAGSelectedColumnIndex == 0 
 			&& this.currentWCAGSelectedRowIndex != grid.getRowCount()-1) {
-				String link = pageLinks.get(this.currentWCAGSelectedRowIndex);
-				listener.onClicked(link);
+				Integer pageId = pageIds.get(this.currentWCAGSelectedRowIndex);
+				listener.onClicked(pageId);
 		}
 	}
 
@@ -350,6 +352,16 @@ public class ReportView extends Composite implements IDisplay, IWCAG, IWCAGModul
 			return "";
 		} else {
 			return this.module.getSpeechTextItem(columnIndex);
+		}
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
 		}
 	}
 }

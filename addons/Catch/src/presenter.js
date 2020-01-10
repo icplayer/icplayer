@@ -170,6 +170,7 @@ function AddonCatch_create() {
 
         return {
             items: validatedItems.value,
+            plateImage: model['Plate image'],
             levelsItems: presenter.calculateLevelsItems(validatedItems.value),
             pointsToFinish: validatedPointsToFinish.value,
             countErrors: ModelValidationUtils.validateBoolean(model["Count errors"]),
@@ -181,9 +182,25 @@ function AddonCatch_create() {
         }
     };
 
+    presenter.onDestroy = function () {
+        presenter.clearCatchObjects(objects);
+
+        objects = null;
+    };
+
+    presenter.clearCatchObjects = function (objects) {
+        objects.forEach( function(value) {
+            value.obj.stop();
+            value.obj.remove();
+            value.obj = null;
+        });
+    };
+
     function makePlate () {
+        var plateImage = presenter.configuration.plateImage !== "" && presenter.configuration.plateImage !== undefined ? presenter.configuration.plateImage : getImageUrlFromResources('plate.png');
+
         $plateElement = $('<img class="plate" />');
-        $plateElement.attr('src', getImageUrlFromResources('plate.png'));
+        $plateElement.attr('src', plateImage);
 
         presenter.$view.append($plateElement);
 
@@ -532,7 +549,7 @@ function AddonCatch_create() {
     };
 
     presenter.setVisibility = function (isVisible) {
-        presenter.$view.css('visibility', isVisible ? 'visibility' : 'hidden');
+        presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
     };
 
     presenter.show = function () {
@@ -573,7 +590,7 @@ function AddonCatch_create() {
     };
 
     presenter.getScore = function () {
-        return points;
+        return presenter.configuration.countErrors ? Math.max((points - errors), 0) : points;
     };
 
     presenter.getState = function () {
@@ -686,3 +703,7 @@ function AddonCatch_create() {
 
     return presenter;
 }
+
+AddonCatch_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};

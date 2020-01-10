@@ -51,7 +51,7 @@ public class GWTInlineChoiceWCAGTestCase extends GwtTest {
 		this.textView.addListener(listenerMock);
 		pageControllerMock = mock(PageController.class);
 		this.textView.setPageController(pageControllerMock);
-		
+
 		InlineChoiceInfo choiceInfo = new InlineChoiceInfo("sddsf1", "answer", 1);
 		choiceInfo.addDistractor("option 2");
 		choiceInfo.addDistractor("option 3");

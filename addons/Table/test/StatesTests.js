@@ -18,7 +18,8 @@ TestCase("[Table] Get State", {
 
         this.expectedGapsState = {
             gaps: "sflknhdjfas.ljdkfsafdas",
-            yupikayey: "1337"
+            yupikayey: "1337",
+            isAttempted: true
         };
 
         this.expectedSpansState = {
@@ -36,12 +37,12 @@ TestCase("[Table] Get State", {
         this.presenter.GapsContainerObject.prototype.getGapsState.restore();
     },
 
-    'test should hide answers if show answers is active': function () {
+    'test should not hide answers if show answers is active': function () {
         this.presenter.isShowAnswersActive = true;
 
         this.presenter.getState();
 
-        assertTrue(this.stubs.hideAnswers.calledOnce);
+        assertFalse(this.stubs.hideAnswers.calledOnce);
     },
 
     'test should return isVisible attribute in state equals to what is in configuration': function () {
@@ -82,6 +83,7 @@ TestCase("[Table] Get State", {
         assertNotNull(testedState.spans);
         assertEquals(this.expectedSpansState, testedState.spans);
     }
+
 });
 
 TestCase("[Table] Set State", {

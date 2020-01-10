@@ -3,6 +3,7 @@ package com.lorepo_patchers.icplayer.client.page;
 import org.mockito.Mockito;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.googlecode.gwt.test.patchers.PatchClass;
 import com.googlecode.gwt.test.patchers.PatchMethod;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
@@ -37,5 +38,10 @@ public class KeyboardNavigationControllerPatcher {
 	@PatchMethod
 	private static void sendParentScrollAndOffsetRequest(KeyboardNavigationController self) {
 
+	}
+	
+	@PatchMethod
+	private static boolean	isParentGroupDivHidden(Element e) {
+		return false;
 	}
 }

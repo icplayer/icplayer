@@ -24,6 +24,7 @@ import com.lorepo.icplayer.client.framework.module.IStyledModule;
 import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.layout.Size;
+import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.model.page.properties.PageHeightModifications;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
@@ -138,8 +139,11 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			return x.@com.lorepo.icplayer.client.model.page.Page::getPreview()();
 		}
 
-		page.isVisited = function() {
-			return x.@com.lorepo.icplayer.client.model.page.Page::isVisited()();
+		page.isVisited = function(checkReportable) {
+			if (!checkReportable) {
+				checkReportable = false;
+			}
+			return x.@com.lorepo.icplayer.client.model.page.Page::isVisited(Z)(checkReportable);
 		}
 
 		page.getModulesAsJS = function() {
@@ -552,7 +556,6 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		styleListener = listener;
 	}
 	
-	@Override
 	public SemiResponsiveStyles getSemiResponsiveStyles() {
 		return this.semiResponsiveStyles;
 	}
@@ -895,7 +898,17 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	}
 
 	public boolean isVisited() {
-
+		return isVisited(false);
+	}
+	
+	/*
+	 * If checkNonReportable is set to false, isVisted always returns false for non-reportable page
+	 * If checkNonReportable is set to true, non-reportable pages will be treated the same way as any other. 
+	 * */
+	public boolean isVisited(boolean checkNonReportable) {
+		if (checkNonReportable) {
+			return playerServices.isPageVisited(this);
+		}
 		String pageId;
 		int index = 0;
 		int pageCount = playerServices.getModel().getPageCount();
@@ -964,7 +977,16 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 
 	@Override
 	public void addGroupModules(Group group) {
-		this.groupedModules.add(group);
+		boolean groupAlreadyInList = false;
+		for(Group g : groupedModules) {
+			if(g.getId().equals(group.getId())) {
+				groupAlreadyInList = true;
+				break;
+			}
+		}
+		if(groupAlreadyInList ==false) {
+			groupedModules.add(group);
+		}
 	}
 
 	@Override
@@ -1141,5 +1163,14 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 				this.pageSizes.remove(key);
 			}
 		}
+	}
+
+	public Group getGroupById(String id) {
+		for(Group g : groupedModules) {
+			if(g.getId().equals(id)) {
+				return g;
+			}
+		}
+		return null;
 	}
 }

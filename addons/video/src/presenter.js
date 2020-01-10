@@ -10,6 +10,8 @@ function Addonvideo_create() {
     var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
     var currentTime;
 
+    var escapedSeparator = '&&separator&&';
+
     presenter.currentMovie = 0;
     presenter.videoContainer = null;
     presenter.$view = null;
@@ -73,7 +75,8 @@ function Addonvideo_create() {
         defaultControls: null,
         files: [],
         height: 0,
-        showPlayButton: false
+        showPlayButton: false,
+        offlineMessage: ""
     };
 
     presenter.lastSentCurrentTime = 0;
@@ -125,6 +128,7 @@ function Addonvideo_create() {
         var upgradedModel = presenter.upgradePoster(model);
         upgradedModel = presenter.upgradeTimeLabels(upgradedModel);
         upgradedModel = presenter.upgradeSpeechTexts(upgradedModel);
+        upgradedModel = presenter.upgradeOfflineMessage(upgradedModel);
         return presenter.upgradeShowPlayButton(upgradedModel);
     };
 
@@ -156,6 +160,17 @@ function Addonvideo_create() {
                 AudioDescriptionEnabled: {AudioDescriptionEnabled: "Audio description enabled"},
                 AudioDescriptionDisabled: {AudioDescriptionDisabled: "Audio description disabled"}
             }
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeOfflineMessage = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["offlineMessage"]) {
+            upgradedModel["offlineMessage"] = "This video is not available offline. Please connect to the Internet to watch it."
         }
 
         return upgradedModel;
@@ -839,7 +854,8 @@ function Addonvideo_create() {
             files: validatedFiles.files,
             height: parseInt(model.Height, 10),
             showPlayButton: ModelValidationUtils.validateBoolean(model['Show play button']),
-            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"])
+            isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
+            offlineMessage: model["offlineMessage"]
         }
     };
 
@@ -1017,7 +1033,8 @@ function Addonvideo_create() {
     presenter.buildControlsBars = function () {
         var config = {
             videoObject: presenter.videoObject,
-            parentElement: presenter.videoContainer[0]
+            parentElement: presenter.videoContainer[0],
+            isVolumeEnabled: !MobileUtils.isSafariMobile(navigator.userAgent)
         };
 
         var controls = new window.CustomControlsBar(config);
@@ -1389,7 +1406,25 @@ function Addonvideo_create() {
         presenter.$view.find('.video-container-video').text(files[presenter.currentMovie].AlternativeText);
     };
 
+    presenter.isOnlineResourceOnly = function() {
+        for (var i = 0; i < presenter.configuration.files.length; i++) {
+            var videoFile = presenter.configuration.files[i];
+            var isMP4Local = videoFile["MP4 video"] && videoFile["MP4 video"].trim().indexOf("file:/") == 0;
+            var isOggLocal = videoFile["Ogg video"] && videoFile["Ogg video"].trim().indexOf("file:/") == 0;
+            var isWebMLocal = videoFile["WebM video"] && videoFile["WebM video"].trim().indexOf("file:/") == 0;
+            if (!isMP4Local && !isOggLocal && !isWebMLocal) {
+                return true;
+            }
+            return false;
+        }
+    };
+
     presenter.setVideo = function () {
+        if (!window.navigator.onLine && presenter.isOnlineResourceOnly()) {
+                presenter.$view.html(presenter.configuration.offlineMessage);
+                return;
+        }
+
         if (presenter.videoObject) {
             $(presenter.videoObject).unbind("ended");
             $(presenter.videoObject).unbind("error");
@@ -1490,7 +1525,7 @@ function Addonvideo_create() {
             $(captionElement).addClass('audio-description');
         }
         $(captionElement).addClass(caption.cssClass);
-        $(captionElement).html(caption.text);
+        $(captionElement).html(window.TTSUtils.parsePreviewAltText(caption.text));
         $(captionElement).css({
             top: caption.top,
             left: caption.left
@@ -1568,11 +1603,33 @@ function Addonvideo_create() {
         }
     };
 
+    presenter.escapeAltText = function(text) {
+        function replacer(match, p1, offset, string) {
+          return '[' + p1.replace(/\|/g, escapedSeparator) + ']';
+        }
+        return text.replace(/\[(.*?)\]/g, replacer);
+    };
+    
+    presenter.unescapeAndConvertAltText = function(text) {
+        function replacer(match, p1, offset, string) {
+          var parts = p1.split(escapedSeparator);
+          if (parts.length === 2) {
+              return '\\alt{' + parts[0] + '|' + parts[1] + '}';
+          }
+          if (parts.length === 3) {
+              return '\\alt{' + parts[0] + '|' + parts[1] + '}[lang ' + parts[2] + ']';
+          }
+          return '[' + parts.join('|') + ']';
+        }
+        return text.replace(/\[(.*?)\]/g, replacer);
+    };
+
     presenter.convertLinesToAudioDescriptions = function (lines) {
         presenter.descriptions = [];
 
         for (var i = 0; i < lines.length; i++) {
-            var parts = lines[i].split('|');
+            var line = presenter.escapeAltText(lines[i]);
+            var parts = line.split('|');
             if (parts.length == 6) {
                 var description = {
                     start: parts[0],
@@ -1580,7 +1637,7 @@ function Addonvideo_create() {
                     left: (StringUtils.endsWith(parts[3], 'px') ? parts[2] : parts[2] + 'px'),
                     cssClass: parts[3],
                     langTag: parts[4],
-                    text: parts[5]
+                    text: presenter.unescapeAndConvertAltText(parts[5])
                 };
 
                 description.element = createCaptionElement(description, true);
@@ -1649,6 +1706,7 @@ function Addonvideo_create() {
             'seek': presenter.seekCommand,
             'play': presenter.play,
             'stop': presenter.stop,
+            'pause': presenter.pause,
             'showSubtitles': presenter.showSubtitles,
             'hideSubtitles': presenter.hideSubtitles,
             'showAudioDescription': presenter.showAudioDescription,

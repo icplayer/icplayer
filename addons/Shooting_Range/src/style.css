@@ -10,6 +10,11 @@
     width: 100%;
 }
 
+.addon-Shooting_Range-wrapper-level {
+    background-color: lightgray;
+    width: 100%;
+}
+
 .addon-Shooting_Range-wrapper-answers-wrapper {
     top: 0px;
     bottom: 0px;

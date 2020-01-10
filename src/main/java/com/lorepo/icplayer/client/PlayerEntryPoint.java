@@ -10,9 +10,11 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	private PlayerApp theApplication;
 	private JavaScriptObject pageLoadedListener;
+	private JavaScriptObject externalEventListener;
 	private JavaScriptObject pageScrollToListener;
 	private JavaScriptObject statusChangedListener;
 	private JavaScriptObject outstretchHeightListener;
+	private JavaScriptObject contextMetadata;
 
 	/**
 	 * This is the entry point method.
@@ -77,6 +79,10 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.onPageLoaded = function(listener) {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::pageLoadedListener = listener;
 			};
+			
+			player.onExternalEvent = function(listener) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::externalEventListener = listener;
+			};
 
 			player.onOutstretchHeight = function(listener) {
 				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::outstretchHeightListener = listener;
@@ -92,7 +98,11 @@ public class PlayerEntryPoint implements EntryPoint {
 			
 			player.isAbleChangeLayout = function(){
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::isAbleChangeLayout()(); 
-			}
+			};
+
+			player.setContextMetadata = function(contextData){
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::contextMetadata = contextData;
+			};
 		}
 
 		// CreatePlayer
@@ -223,6 +233,16 @@ public class PlayerEntryPoint implements EntryPoint {
 	public void onScrollTo(int top) {
 		fireScrollTo(this.pageScrollToListener, top);
 	}
+	
+	private static native void fireExternalEvent(JavaScriptObject callback, String eventType, String data)/*-{
+		if (callback != null) {
+			callback(eventType, data);
+		}
+	}-*/;
+	
+	public void onExternalEvent(String eventType, String data) {
+		fireExternalEvent(this.externalEventListener, eventType, data);
+	}
 
 	public JavaScriptObject getPageScrollToObject() {
 		return this.pageScrollToListener;
@@ -230,5 +250,9 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	public void fireOutstretchHeightEvent() {
 		fireCallback(this.outstretchHeightListener);
+	}
+
+	public JavaScriptObject getContextMetadata() {
+		return this.contextMetadata;
 	}
 }

@@ -1,17 +1,9 @@
 package com.lorepo.icplayer.client.module.text;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
-import com.lorepo.icf.properties.IBooleanProperty;
-import com.lorepo.icf.properties.IEnumSetProperty;
-import com.lorepo.icf.properties.IHtmlProperty;
-import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.properties.IPropertyProvider;
-import com.lorepo.icf.properties.IStaticListProperty;
+import com.lorepo.icf.properties.*;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
@@ -20,6 +12,9 @@ import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // in old lessons some characters aren't escaped (e.g: > or <), in new lessons they are
 // only after editing and saving text in old lessons characters will be escaped
@@ -38,8 +33,10 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	public List<GapInfo> gapInfos = new ArrayList<GapInfo>();
 	public List<InlineChoiceInfo> choiceInfos = new ArrayList<InlineChoiceInfo>();
 	public List<LinkInfo> linkInfos = new ArrayList<LinkInfo>();
+	public List<AudioInfo> audioInfos = new ArrayList<AudioInfo>();
 
 	public String moduleText = "";
+	public String defaultModuleText = "";
 	private boolean useDraggableGaps;
 	private boolean useMathGaps;
 	private boolean openLinksinNewTab = true;
@@ -48,6 +45,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	private boolean isActivity = true;
 	private boolean isDisabled = false;
 	private boolean isCaseSensitive = false;
+	private boolean useNumericKeyboard = false;
 	private boolean isIgnorePunctuation = false;
 	private boolean isKeepOriginalOrder = false;
 	private boolean isClearPlaceholderOnFocus = false;
@@ -57,10 +55,16 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
+	private boolean syntaxError = false;
 	private String originalText;
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String langAttribute = "";
-
+	private boolean allCharactersGapSizeStyle = true;
+	
+	final static String GAP_SIZE_CALCULATION_STYLE_LABEL = "text_module_gap_size_calculation";
+	final static String ALL_CHARACTES_CALCULATION_STYLE = "text_module_gap_calculation_all_characters_method"; // old method
+	final static String LONGEST_ANSWER_CALCULATION_STYLE = "text_module_gap_calculation_longest_answer_method"; // new method
+	
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
 		gapUniqueId = UUID.uuid(6);
@@ -71,6 +75,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		addPropertyIsActivity();
 		addPropertyIsDisabled();
 		addPropertyIsCaseSensitive();
+		addPropertyUseNumericKeyboard();
 		addPropertyIsIgnorePunctuation();
 		addPropertyOpenLinksinNewTab();
 		addPropertyText(true);
@@ -82,6 +87,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		addPropertyUseEscapeCharacterInGap();
 		addPropertySpeechTexts();
 		addPropertyLangAttribute();
+		addPropertyGapSizeCalculationMethod();
 	}
 
 	@Override
@@ -90,6 +96,10 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		if (rawText != null) {
 			setText(rawText);
 		}
+	}
+
+	public String getDefaultModuleText() {
+		return defaultModuleText;
 	}
 
 	public String getGapUniqueId() {
@@ -123,6 +133,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 				isActivity = XMLUtils.getAttributeAsBoolean(textElement, "isActivity", true);
 				isDisabled = XMLUtils.getAttributeAsBoolean(textElement, "isDisabled", false);
 				isCaseSensitive = XMLUtils.getAttributeAsBoolean(textElement, "isCaseSensitive", false);
+				useNumericKeyboard = XMLUtils.getAttributeAsBoolean(textElement, "useNumericKeyboard", false);
 				isIgnorePunctuation = XMLUtils.getAttributeAsBoolean(textElement, "isIgnorePunctuation", false);
 				isKeepOriginalOrder = XMLUtils.getAttributeAsBoolean(textElement, "isKeepOriginalOrder", false);
 				isClearPlaceholderOnFocus = XMLUtils.getAttributeAsBoolean(textElement, "isClearPlaceholderOnFocus", false);
@@ -134,6 +145,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 				userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
 				useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
 				langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
+				allCharactersGapSizeStyle = XMLUtils.getAttributeAsBoolean(textElement, "allAnswersGapSizeCalculationStyle", true);
 				this.speechTextItems.get(TextModel.NUMBER_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "number"));
 				this.speechTextItems.get(TextModel.GAP_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "gap"));
 				this.speechTextItems.get(TextModel.DROPDOWN_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "dropdown"));
@@ -146,6 +158,8 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 				if (rawText == null) {
 					rawText = StringUtils.unescapeXML(XMLUtils.getText(textElement));
 				}
+
+				defaultModuleText = rawText;
 				setText(rawText);
 			}
 		}
@@ -164,6 +178,8 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		parser.setGapMaxLength(gapMaxLength);
 		parser.setOpenLinksinNewTab(openLinksinNewTab);
 		parser.setUseEscapeCharacterInGap(this.useEscapeCharacterInGap);
+		parser.setLangTag(this.getLangAttribute());
+		parser.setIsNumericOnly(useNumericKeyboard);
 		ParserResult parsedTextInfo = parser.parse(moduleText);
 		parsedText = parsedTextInfo.parsedText;
 		originalText = parsedTextInfo.originalText;
@@ -173,14 +189,20 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 			gapInfos.clear();
 			choiceInfos.clear();
 			linkInfos.clear();
-			
+			audioInfos.clear();
+
 			return;
 		}
 		gapInfos = parsedTextInfo.gapInfos;
 		choiceInfos = parsedTextInfo.choiceInfos;
 		linkInfos = parsedTextInfo.linkInfos;
+        audioInfos = parsedTextInfo.audioInfos;
+		syntaxError = parsedTextInfo.hasSyntaxError;
 		if (getBaseURL() != null) {
 			parsedText = StringUtils.updateLinks(parsedText, getBaseURL());
+			for (LinkInfo link: linkInfos) {
+				link.setBaseUrl(getBaseURL()); 
+			}
 		}
 	}
 
@@ -202,10 +224,12 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		XMLUtils.setBooleanAttribute(text, "isClearPlaceholderOnFocus", this.isClearPlaceholderOnFocus);
 		XMLUtils.setBooleanAttribute(text, "isDisabled", this.isDisabled);
 		XMLUtils.setBooleanAttribute(text, "isCaseSensitive", this.isCaseSensitive);
+		XMLUtils.setBooleanAttribute(text, "useNumericKeyboard", this.useNumericKeyboard);
 		XMLUtils.setBooleanAttribute(text, "openLinksinNewTab", this.openLinksinNewTab);
 		XMLUtils.setBooleanAttribute(text, "blockWrongAnswers", this.blockWrongAnswers);
 		XMLUtils.setBooleanAttribute(text, "userActionEvents", this.userActionEvents);
 		XMLUtils.setBooleanAttribute(text, "useEscapeCharacterInGap", this.useEscapeCharacterInGap);
+		XMLUtils.setBooleanAttribute(text, "allAnswersGapSizeCalculationStyle", this.allCharactersGapSizeStyle);
 		if (this.langAttribute.compareTo("") != 0) {
 			text.setAttribute("langAttribute", this.langAttribute);
 		}
@@ -489,6 +513,10 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		return linkInfos;
 	}
 
+	public List<AudioInfo> getAudioInfos() {
+		return audioInfos;
+	}
+
 	public boolean isActivity() {
 		return isActivity;
 	}
@@ -539,7 +567,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 			public void setValue(String newValue) {
 				boolean value = (newValue.compareToIgnoreCase("true") == 0);
 
-				if (value!= isDisabled) {
+				if (value != isDisabled) {
 					isDisabled = value;
 					sendPropertyChangedEvent(this);
 				}
@@ -633,6 +661,45 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("case_sensitive");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+	
+	private void addPropertyUseNumericKeyboard() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= useNumericKeyboard) {
+					useNumericKeyboard = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return useNumericKeyboard ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("text_module_use_numeric_keyboard");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_use_numeric_keyboard");
 			}
 
 			@Override
@@ -927,6 +994,66 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 
 		addProperty(property);
 	}
+	
+	private void addPropertyGapSizeCalculationMethod() {
+		IProperty property = new IEnumSetProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				// handling lacking or same labels
+				boolean isLongestSizeCalculationStyle = newValue.equals(DictionaryWrapper.get(LONGEST_ANSWER_CALCULATION_STYLE));
+				boolean isAllAnswersSizeCalculationStyle = newValue.equals(DictionaryWrapper.get(ALL_CHARACTES_CALCULATION_STYLE));
+				
+				if (isLongestSizeCalculationStyle && isAllAnswersSizeCalculationStyle) { 
+					// special case, when labels are the same
+					allCharactersGapSizeStyle = true;
+				} else if (isLongestSizeCalculationStyle && !isAllAnswersSizeCalculationStyle) {
+					// user selected new method
+					allCharactersGapSizeStyle = false;
+				} else {
+					allCharactersGapSizeStyle = true;
+				}
+				
+				valueType = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return valueType;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get(GAP_SIZE_CALCULATION_STYLE_LABEL);
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return 2;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				if (index == 0){
+					return DictionaryWrapper.get(ALL_CHARACTES_CALCULATION_STYLE);
+				} else {
+					return DictionaryWrapper.get(LONGEST_ANSWER_CALCULATION_STYLE);
+				}
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get(GAP_SIZE_CALCULATION_STYLE_LABEL);
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
 
 	public boolean isDisabled() {
 		return isDisabled;
@@ -946,6 +1073,10 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 
 	public boolean isCaseSensitive() {
 		return isCaseSensitive;
+	}
+	
+	public boolean getUseNumericKeyboard() {
+		return useNumericKeyboard;
 	}
 
 	public boolean isIgnorePunctuation() {
@@ -974,6 +1105,10 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 
 	public boolean isUsingEscapeCharacterInGap() {
 		return this.useEscapeCharacterInGap;
+	}
+	
+	public boolean isOldGapSizeCalculation() {
+		return this.allCharactersGapSizeStyle;
 	}
 	
 	public String getSpeechTextItem (int index) {
@@ -1029,4 +1164,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		return this.originalText;
 	}
 	
+	public boolean hasSyntaxError () {
+		return syntaxError;
+	}
 }

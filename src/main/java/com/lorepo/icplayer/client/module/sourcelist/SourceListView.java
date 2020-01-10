@@ -1,20 +1,8 @@
 package com.lorepo.icplayer.client.module.sourcelist;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.DragStartEvent;
-import com.google.gwt.event.dom.client.DragStartHandler;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.MouseUpEvent;
-import com.google.gwt.event.dom.client.MouseUpHandler;
-import com.google.gwt.event.dom.client.TouchEndEvent;
-import com.google.gwt.event.dom.client.TouchEndHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
@@ -29,9 +17,15 @@ import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter.IDisplay
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.DOMUtils;
 import com.lorepo.icplayer.client.utils.MathJax;
+import com.lorepo.icplayer.client.utils.MathJaxElement;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 
-public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGModuleView {
+public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGModuleView, MathJaxElement{
 
 	private static final String SELECTED_STYLE = "ic_sourceListItem-selected";
 	private final SourceListModule module;
@@ -47,16 +41,21 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	private ArrayList <String> labelsIds = new ArrayList <String>();
 	private PageController pageController;
 	private boolean isWCAGOn = false;
-
+	private boolean mathJaxIsLoaded = false;
+	private JavaScriptObject mathJaxHook = null;
+	private String originalDisplay = "";
+	
 	public SourceListView(SourceListModule module, boolean isPreview){
 		this.module = module;
 		createUI(isPreview);
+		mathJaxLoaded();
 	}
 
 	private void createUI(boolean isPreview) {
 		this.isPreview = isPreview;
 		setStyleName(module.getStyleClass().isEmpty() ? "ic_sourceList" : module.getStyleClass());
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		if (!isPreview) {
 			setVisible(module.isVisible());
 		}
@@ -77,6 +76,11 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	}
 
 	@Override
+	public void mathJaxLoaded() {
+		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
+	}
+	
+	@Override
 	public void setDragMode() {
 		isDragged = true;
 	}
@@ -86,8 +90,9 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 		isDragged = false;
 	
 		if (this.labelToRemove != null && this.idOfLabelToRemove != null) {
-			this.removeItem(this.idOfLabelToRemove);
+			labelsIds.remove(this.idOfLabelToRemove);
 			this.remove(this.labelToRemove);
+
 			this.labelToRemove = null;
 			this.idOfLabelToRemove = null;
 		}
@@ -130,6 +135,10 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 			refreshMath(label.getElement());
 		}
 
+		connectLabelEventHandlers(label, id);
+	}
+
+	public void connectLabelEventHandlers(HTML label, final String id) {
 		label.addTouchEndHandler(new TouchEndHandler() {
 			@Override
 			public void onTouchEnd(TouchEndEvent event) {
@@ -254,17 +263,32 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	public void refreshMath(Element element) {
 		MathJax.refreshMathJax(element);
 	}
+	
+	@Override
+	public void refreshMath() {
+		MathJax.refreshMathJax(getElement());
+	}
+	
+	
+	@Override
+	public void mathJaxIsLoadedCallback() {
+		if (!this.mathJaxIsLoaded) {
+			this.mathJaxIsLoaded = true;
+			this.refreshMath();
+		}
+	}
 
 	@Override
 	public void show() {
 		setVisible(true);
-		refreshMath(getElement());
+		if (this.mathJaxIsLoaded) {
+			refreshMath();
+		}
 	}
 
 	@Override
 	public void hide() {
 		setVisible(false);
-		refreshMath(getElement());
 	}
 
 	@Override
@@ -427,31 +451,36 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	}
 	
 	private void speak (TextToSpeechVoice t1) {
-		if (this.pageController != null) {
-			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-			textVoices.add(t1);
-			
-			this.pageController.speak(textVoices);
-		}
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(t1);
+
+		speak(textVoices);
 	}
 	
 	private void speak (TextToSpeechVoice t1, TextToSpeechVoice t2) {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+		textVoices.add(t1);
+		textVoices.add(t2);
+
+		speak(textVoices);
+	}
+
+	private void speak (List<TextToSpeechVoice> textVoices) {
 		if (this.pageController != null) {
-			List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-			textVoices.add(t1);
-			textVoices.add(t2);
-			
 			this.pageController.speak(textVoices);
 		}
 	}
 	
 	private void speakOption (int index) {
 		if (index >= 0 && index < labelsIds.size()) {
-			final Label label = labels.get(labelsIds.get(index));
-			TextToSpeechVoice option = TextToSpeechVoice.create(label.getText(), this.module.getLangAttribute());
+			String labelId = labelsIds.get(index);
+			final Element labelElement = labels.get(labelId).getElement();
+			List<TextToSpeechVoice> option = presenter.getTextToSpeechVoices(labelId);
 			
-			if (ElementHTMLUtils.hasClass(label.getElement(), SELECTED_STYLE)) {
-				this.speak(option, TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""));
+			if (ElementHTMLUtils.hasClass(labelElement, SELECTED_STYLE)) {
+				List<TextToSpeechVoice> optionAndSelectedTexts = new ArrayList<TextToSpeechVoice>(option);
+				optionAndSelectedTexts.add( TextToSpeechVoice.create(this.module.getSpeechTextItem(0), ""));
+				this.speak(optionAndSelectedTexts);
 			} else {
 				this.speak(option);
 			}
@@ -472,5 +501,34 @@ public class SourceListView extends FlowPanel implements IDisplay, IWCAG, IWCAGM
 	@Override
 	public String getLang () {
 		return this.module.getLangAttribute();
+	}
+	
+	@Override
+	protected void onDetach() {
+		this.removeHook();
+		
+		super.onDetach();
+	};
+
+	@Override
+	public void removeHook() {
+		if (this.mathJaxHook != null) {
+			MathJax.removeMessageHookCallback(this.mathJaxHook);
+		}		
+	}
+
+	@Override
+	public String getElementId() {
+		return this.module.getId();
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
 	}
 }

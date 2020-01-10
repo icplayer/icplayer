@@ -1,0 +1,15 @@
+.cross-lesson-wrapper {
+    border: solid 0px black;
+    padding: 0;
+    margin: 0;
+    display: block;
+}
+
+.cross-lesson-text,
+.cross-lesson-image {
+    border: 0 solid black;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    position: absolute;
+}

@@ -4,7 +4,14 @@ function AddonNavigation_Bar_create() {
     presenter.pagesOk = [];
     presenter.allPagesDisplayed = false;
     presenter.pageTitles = [];
+    presenter.visitedPages = [];
+    presenter.originalIndex = 0;
+
     var isWCAGOn = false;
+
+    presenter.state = {
+        bookmarks: []
+    };
 
     presenter.__internalElements = {
         goToPage: goToPage
@@ -179,8 +186,11 @@ function AddonNavigation_Bar_create() {
         presenter.eventBus.addEventListener('closePage', this);
 
         for(var i = 0; i < presenter.pageCount; i++) {
-            presenter.pageTitles.push(presenter.presentation.getPage(i).getName());
+            var page = presenter.presentation.getPage(i);
+            presenter.pageTitles.push(page.getName());
+            presenter.visitedPages.push(page.isVisited(true));
         }
+        presenter.originalIndex = presenter.playerController.getCurrentPageIndex();
     };
 
     presenter.playButton = function(element){
@@ -196,7 +206,11 @@ function AddonNavigation_Bar_create() {
         } else {
             var pageNumber = $element.attr('data-page-number');
             if (pageNumber !== null && pageNumber !== undefined && !isNaN(pageNumber)){
-                presenter.playPage(pageNumber-1 , presenter.configuration.speechTexts.goToPageNumber + ' ' + pageNumber);
+                if ($element.hasClass('disabled')) {
+                   presenter.playPage(pageNumber - 1, presenter.configuration.speechTexts.disabledPage + ' ' + pageNumber);
+                } else {
+                    presenter.playPage(pageNumber - 1, presenter.configuration.speechTexts.goToPageNumber + ' ' + pageNumber);
+                }
             }
         }
     };
@@ -217,9 +231,13 @@ function AddonNavigation_Bar_create() {
     };
 
     function goToPage(whereTo, index) {
-        var currentIndex = presenter.playerController.getCurrentPageIndex(),
-            goToIndex = 0;
-
+        var currentIndex = 0;
+        if (movedFromIndex) {
+            currentIndex = movedFromIndex;
+        } else {
+            currentIndex = presenter.playerController.getCurrentPageIndex();
+        }
+        var goToIndex = 0;
         switch (whereTo) {
             case NAVIGATION_PAGE.FIRST:
                 if (currentIndex !== 0) {
@@ -233,12 +251,12 @@ function AddonNavigation_Bar_create() {
                 break;
             case NAVIGATION_PAGE.NEXT:
                 if (currentIndex !== (presenter.pageCount - 1)) {
-                    goToIndex = presenter.currentIndex + 1;
+                    goToIndex = currentIndex + 1;
                 }
                 break;
             case NAVIGATION_PAGE.PREVIOUS:
                 if (currentIndex !== 0) {
-                    goToIndex = presenter.currentIndex - 1;
+                    goToIndex = currentIndex - 1;
                 }
                 break;
             case NAVIGATION_PAGE.OTHER:
@@ -248,7 +266,9 @@ function AddonNavigation_Bar_create() {
                 break;
         }
 
-        presenter.commander.gotoPageIndex(goToIndex);
+         if (presenter.visitedPages[goToIndex] || !presenter.configuration.blockNotVisited) {
+             presenter.commander.gotoPageIndex(goToIndex);
+         }
     }
 
     function handleMouseActions(dotsLeftIndex, dotsRightIndex, elementWidth, elementHeight, preview, horizontalGap) {
@@ -331,6 +351,7 @@ function AddonNavigation_Bar_create() {
                 presenter.setPageStyles();
             }
 
+            presenter.refreshBookmarks();
             if(isWCAGOn) {
                 presenter.$view.find(".dotted-element-right:first").addClass('navigationbar-element-mouse-hover');
             }
@@ -358,6 +379,7 @@ function AddonNavigation_Bar_create() {
                 presenter.setPageStyles();
             }
 
+            presenter.refreshBookmarks();
             if(isWCAGOn) {
                 presenter.$view.find(".dotted-element-left:first").addClass('navigationbar-element-mouse-hover');
             }
@@ -396,6 +418,9 @@ function AddonNavigation_Bar_create() {
                 	function() {
                     	$(this).removeClass(removeClassNames);
                     	$(this).addClass(addClassName);
+                    	if (presenter.configuration.blockNotVisited) {
+                            presenter.setDisabledPagesStyle();
+                        }
                 	}
             	);
             }
@@ -411,6 +436,9 @@ function AddonNavigation_Bar_create() {
                 function() {
                     $(this).removeClass(removeClassNames);
                     $(this).addClass(addClassName);
+                    if (presenter.configuration.blockNotVisited) {
+                        presenter.setDisabledPagesStyle();
+                    }
                 }
             );
         });
@@ -432,6 +460,9 @@ function AddonNavigation_Bar_create() {
                 	function() {
                     	$(this).removeClass('navigationbar-element-mouse-hover');
                     	$(this).addClass('navigationbar-element');
+                    	 if (presenter.configuration.blockNotVisited) {
+                            presenter.setDisabledPagesStyle();
+                        }
                 	}
             	);
             }
@@ -447,6 +478,9 @@ function AddonNavigation_Bar_create() {
                 function() {
                     $(this).removeClass('navigationbar-element-mouse-click');
                     $(this).addClass('navigationbar-element');
+                    if (presenter.configuration.blockNotVisited) {
+                        presenter.setDisabledPagesStyle();
+                    }
                 }
             );
         });
@@ -679,6 +713,10 @@ function AddonNavigation_Bar_create() {
             $(this).css('line-height', elementHeight + 'px');
         });
 
+        if (presenter.configuration.blockNotVisited) {
+            presenter.setDisabledPagesStyle();
+        }
+
         return dotsIndexes;
     }
 
@@ -696,6 +734,10 @@ function AddonNavigation_Bar_create() {
 
         if (!preview) {
             handleMouseActions(dotsIndexes.leftIndex, dotsIndexes.rightIndex, elementWidth, elementHeight, preview, horizontalGap);
+        }
+
+        if (presenter.configuration.blockNotVisited) {
+            presenter.setDisabledPagesStyle();
         }
     }
 
@@ -729,7 +771,9 @@ function AddonNavigation_Bar_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeFrom_01(model);
+        var upgradedModel = presenter.upgradeFrom_01(model);
+        upgradedModel = presenter.upgradeFrom_02(upgradedModel);
+        return upgradedModel;
     };
 
     presenter.upgradeFrom_01 = function (model) {
@@ -758,6 +802,19 @@ function AddonNavigation_Bar_create() {
         return upgradedModel;
     };
 
+     presenter.upgradeFrom_02 = function (model) {
+         var upgradedModel = {};
+         $.extend(true, upgradedModel, model);
+
+         if (!upgradedModel['blockNotVisited']) {
+             upgradedModel['blockNotVisited'] = 'False';
+         }
+         if (!upgradedModel['speechTexts']['DisabledPage']) {
+             upgradedModel['speechTexts']['DisabledPage'] = {DisabledPage: ''};
+         }
+         return upgradedModel;
+     };
+
     presenter.validateModel = function (model) {
         var validatedModel = {
             isError: false,
@@ -771,7 +828,8 @@ function AddonNavigation_Bar_create() {
             lastPageSeparated: ModelValidationUtils.validateBoolean(model["lastPageSeparated"]),
             langTag: model['langAttribute'],
             speechTexts: getSpeechTexts(model['speechTexts']),
-            playTitle: 0 === model['playTitle'].toLowerCase().localeCompare('true')
+            playTitle: 0 === model['playTitle'].toLowerCase().localeCompare('true'),
+            blockNotVisited: ModelValidationUtils.validateBoolean(model["blockNotVisited"])
         };
 
         if (!model['Styles']) {
@@ -814,7 +872,8 @@ function AddonNavigation_Bar_create() {
             prevPage: 'Go to previous page',
             titled: 'Titled',
             dottedRight: 'Show more pages',
-            dottedLeft: 'Show earlier pages'
+            dottedLeft: 'Show earlier pages',
+            disabledPage: 'Disabled page'
         };
 
         if (!speechTexts) {
@@ -828,6 +887,7 @@ function AddonNavigation_Bar_create() {
             titled:     getSpeechTextProperty(speechTexts['Titled']['Titled'], speechTextsModel.titled),
             dottedRight:   getSpeechTextProperty(speechTexts['DottedRight']['DottedRight'], speechTextsModel.dottedRight),
             dottedLeft:      getSpeechTextProperty(speechTexts['DottedLeft']['DottedLeft'], speechTextsModel.dottedLeft),
+            disabledPage:      getSpeechTextProperty(speechTexts['DisabledPage']['DisabledPage'], speechTextsModel.disabledPage),
         };
         return speechTextsModel;
     }
@@ -874,6 +934,38 @@ function AddonNavigation_Bar_create() {
         });
     };
 
+    presenter.setDisabledPagesStyle = function() {
+        if (!presenter.playerController) return;
+
+        for (var page = 0; page < presenter.pageCount; page++) {
+            if (!presenter.visitedPages[page]) {
+                presenter.addAdditionalStyleToPage(page+1, '', '', 'disabled');
+            }
+        }
+        var currentIndex = 0;
+        if (movedFromIndex) {
+            currentIndex = movedFromIndex;
+        } else {
+            currentIndex = presenter.playerController.getCurrentPageIndex();
+        }
+        if (!presenter.visitedPages[0] || currentIndex == 0) {
+            var $el = presenter.$wrapper.find('.navigationbar-element-first:first');
+            $el.addClass('navigationbar-element-first-inactive disabled');
+        }
+        if (currentIndex > 0 && !presenter.visitedPages[currentIndex-1]) {
+            var $el = presenter.$wrapper.find('.navigationbar-element-previous:first');
+            $el.addClass('navigationbar-element-previous-inactive disabled');
+        }
+        if (currentIndex < presenter.pageCount - 1 && !presenter.visitedPages[currentIndex+1]) {
+            var $el = presenter.$wrapper.find('.navigationbar-element-next:first');
+            $el.addClass('navigationbar-element-next-inactive disabled');
+        }
+        if (!presenter.visitedPages[presenter.pageCount-1] || currentIndex == presenter.pageCount-1) {
+            var $el = presenter.$wrapper.find('.navigationbar-element-last:first');
+            $el.addClass('navigationbar-element-last-inactive disabled');
+        }
+    };
+
     function presenterLogic(view, model, isPreview) {
     	presenter.$view = $(view);
         presenter.$wrapper = presenter.$view.find('.navigationbar-wrapper:first');
@@ -916,6 +1008,9 @@ function AddonNavigation_Bar_create() {
         if(model['Styles']) {
             presenter.setPageStyles();
         }
+        if (presenter.configuration.blockNotVisited && !isPreview) {
+            presenter.setDisabledPagesStyle();
+        }
     }
 
     presenter.setShowErrorsMode = function(){
@@ -934,21 +1029,21 @@ function AddonNavigation_Bar_create() {
     };
 
     presenter.isCurrentPageOk = function () {
-        if(presenter.presentation.getPage(presenter.currentIndex).isReportable()){
-            var percentageScore = presenter.getPercentageScore(presenter.currentIndex);
-            var $page = presenter.$wrapper.find("[data-page-number='" + (presenter.currentIndex + 1) + "']");
-            var id = presenter.presentation.getPage(presenter.currentIndex).getId();
+        if(presenter.presentation.getPage(presenter.originalIndex).isReportable()){
+            var percentageScore = presenter.getPercentageScore(presenter.originalIndex);
+            var $page = presenter.$wrapper.find("[data-page-number='" + (presenter.originalIndex + 1) + "']");
+            var id = presenter.presentation.getPage(presenter.originalIndex).getId();
             var pageScore = presenter.scoreService.getPageScoreById(id);
 
             if((percentageScore == 100 && pageScore.errorCount == 0) || isNaN(percentageScore)){
                 $page.addClass("navigationbar-page-ok");
-                presenter.pagesOk.push(presenter.currentIndex + 1);
+                presenter.pagesOk.push(presenter.originalIndex + 1);
             }
 
             if(percentageScore < 100 || pageScore.errorCount > 0){
                 $page.removeClass("navigationbar-page-ok");
                 for(var k = presenter.pagesOk.length - 1; k >= 0; k--) {
-                    if(presenter.pagesOk[k] === (presenter.currentIndex + 1)) {
+                    if(presenter.pagesOk[k] === (presenter.originalIndex + 1)) {
                         presenter.pagesOk.splice(k, 1);
                     }
                 }
@@ -1021,6 +1116,59 @@ function AddonNavigation_Bar_create() {
 
     presenter.hideAnswers = function () {
         presenter.isShowAnswersActive = false;
+    };
+
+    presenter.getState = function(){
+        return JSON.stringify(presenter.state);
+    };
+
+    presenter.setState = function(state){
+        if (state === null || state === "" || state === undefined) {
+            return;
+        }
+        var parsedState = JSON.parse(state);
+        if (parsedState.bookmarks != null) {
+            presenter.state.bookmarks = parsedState.bookmarks;
+        }
+        presenter.refreshBookmarks();
+    };
+
+    presenter.executeCommand = function (name, params) {
+        var commands = {
+            'bookmarkCurrentPage': presenter.bookmarkCurrentPage,
+            'removeBookmark' : presenter.removeBookmark
+        };
+
+        return Commands.dispatch(commands, name, params, presenter);
+    };
+
+    presenter.bookmarkCurrentPage = function(){
+        var page = presenter.originalIndex + 1;
+        if ( presenter.state.bookmarks.indexOf(page) == -1) {
+            presenter.state.bookmarks.push(page);
+        }
+        presenter.refreshBookmarks();
+    };
+
+    presenter.removeBookmark = function(){
+        var page = presenter.originalIndex + 1;
+        var index = presenter.state.bookmarks.indexOf(page);
+        if ( index != -1) {
+            presenter.state.bookmarks.splice(index, 1);
+        }
+        presenter.refreshBookmarks();
+    };
+
+    presenter.refreshBookmarks = function() {
+        for (var i = 0; i < presenter.pageCount; i++) {
+            var page = i+1;
+            if ( presenter.state.bookmarks.indexOf(page) != -1) {
+                presenter.$wrapper.find("span[data-page-number='" + page + "']").addClass('bookmark');
+            } else {
+                presenter.$wrapper.find("span[data-page-number='" + page + "']").removeClass('bookmark');
+            }
+
+        }
     };
 
     return presenter;

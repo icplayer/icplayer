@@ -18,5 +18,4 @@ public interface IStyledModule {
 	public void setStyleClass(String styleClass);
 	public String getClassNamePrefix();
 	public void syncSemiResponsiveStyles(Set<PageLayout> actualSemiResponsiveLayouts);
-	public SemiResponsiveStyles getSemiResponsiveStyles();
 }

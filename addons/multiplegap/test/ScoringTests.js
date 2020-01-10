@@ -48,7 +48,7 @@ TestCase("[Multiple Gap] Scoring", {
 
     },
 
-    'test score should be 0 when redundant items are present': function() {
+    'test given correct and redundant elements when getting score then score should not be affected by redundant elements': function() {
         this.presenter.$view = $(
             '<div class="multiplegap_Images_HORIZONTAL" id="multiplegap2" style="width: 498px; height: 195px; position: absolute; left: 100px; top: 310px;">' +
                 '<div class="multiplegap_container multiplegap_horizontal multiplegap_images ui-droppable" style="width: 498px; height: 195px;">' +
@@ -67,11 +67,13 @@ TestCase("[Multiple Gap] Scoring", {
 
         this.presenter.configuration.itemsAnswersID = ["500_2"];
         this.presenter.configuration.isActivity = true;
+        sinon.stub(this.presenter, 'countItems').returns(2);
 
         this.presenter.isShowAnswersActive = false;
         this.presenter.itemCounterMode = false;
 
-        assertEquals(0, this.presenter.getScore());
+        assertEquals(1, this.presenter.getScore());
+        assertEquals(1, this.presenter.getErrorCount());
 
     }
 });

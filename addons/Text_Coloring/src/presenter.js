@@ -1,7 +1,8 @@
 /*
  KNOWN ISSUES
     Text parsing:
-        Do not change the space special character support due to backward compatibility
+        Do not change the space special character (&nbsp;) support due to backward compatibility #6613
+        Do not add html escape support due to backward compatibility #6902
 */
 
 function AddonText_Coloring_create() {
@@ -143,6 +144,7 @@ function AddonText_Coloring_create() {
         this.savePreviousState();
         this.onBlock();
         presenter.unmarkToken(presenter.$wordTokens);
+        presenter.hideTokenClasses(presenter.$wordTokens);
         presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
             var colorDefinition = presenter.getColorDefinitionById(token.color);
             if (colorDefinition !== undefined) {
@@ -189,6 +191,8 @@ function AddonText_Coloring_create() {
         if (this.previousEraserMode) {
             presenter.setEraserButtonAsActive();
         }
+
+        presenter.showTokenClasses(presenter.$wordTokens);
     };
 
     TextColoringStateMachine.prototype.isCorrect = function () {
@@ -630,6 +634,7 @@ function AddonText_Coloring_create() {
 
     presenter.upgradeModel = function(model) {
         var upgradedModel = upgradeModelAddModeProperty(model);
+        upgradedModel = upgradeModelAddCountErrorsProperty(upgradedModel);
         return upgradedModel;
     };
 
@@ -639,6 +644,17 @@ function AddonText_Coloring_create() {
 
         if(!upgradedModel['Mode']){
             upgradedModel['Mode'] = presenter.MODE.DEFAULT;
+        }
+
+        return upgradedModel;
+    }
+
+    function upgradeModelAddCountErrorsProperty(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!upgradedModel['countErrors']) {
+            upgradedModel['countErrors'] = false;
         }
 
         return upgradedModel;
@@ -670,7 +686,8 @@ function AddonText_Coloring_create() {
             hideColorsButtons: ModelValidationUtils.validateBoolean(model.hideColorsButtons),
             eraserButtonText: presenter.parseEraserButtonText(model.eraserButtonText),
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            mode: mode
+            mode: mode,
+            countErrors: ModelValidationUtils.validateBoolean(model.countErrors)
         };
     };
 
@@ -847,6 +864,7 @@ function AddonText_Coloring_create() {
             }
 
             word = word.substring(selectablePart.getStopOfIndex(), word.length);
+            selectablePart.pattern = /\\color{[^}]+}{[^}]+}/g;
         }
 
         if (word.length > 0)
@@ -1007,6 +1025,38 @@ function AddonText_Coloring_create() {
         });
     };
 
+
+    presenter.hideTokenClasses = function ($element) {
+        if (!$element) return;
+        $element.each(function(){
+            var $this = $(this);
+            var classNames = $this.attr('class').split(/\s+/);
+            var disabledClasses = [];
+            for (var i = 0; i < classNames.length; i++) {
+                if (classNames[i] != presenter.defaults.css.selectableWord){
+                    $this.removeClass(classNames[i]);
+                    disabledClasses.push(classNames[i]);
+                }
+            }
+            this.dataset.disabledClasses = disabledClasses.join(' ');
+        });
+    };
+
+    presenter.showTokenClasses = function ($element) {
+        if (!$element) return;
+        $element.each(function(){
+            var $this = $(this);
+            var disabledClasses = this.dataset.disabledClasses;
+            if (disabledClasses) {
+                var classNames = disabledClasses.split(/\s+/);
+                for (var i = 0; i < classNames.length; i++) {
+                    $this.addClass(classNames[i]);
+                }
+                this.dataset.disabledClasses = '';
+            }
+        });
+    };
+
     presenter.addColorData = function ($element) {
         presenter.setTokenData($element, true, presenter.configuration.activeColorID);
     };
@@ -1103,7 +1153,8 @@ function AddonText_Coloring_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'setEraserMode': presenter.setEraserMode,
-            'setColor': presenter.setColorCommand
+            'setColor': presenter.setColorCommand,
+            'isAttempted': presenter.isAttempted
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -1158,6 +1209,18 @@ function AddonText_Coloring_create() {
             presenter.setActiveColor(colorID);
             presenter.setColorButtonAsActive(colorID);
         }
+    };
+ 
+     presenter.isAttempted = function () {
+        var words = presenter.configuration.filteredTokens;
+        var attempted = false;
+        for (var i = 0; i < words.length; i++) {
+            if (words[i].isSelected) {
+                attempted = true;
+                break;
+            }
+        };
+        return attempted;
     };
 
     presenter.setEraserButtonAsActive = function () {
@@ -1303,9 +1366,14 @@ function AddonText_Coloring_create() {
     };
 
     presenter.isAllOK = function () {
-        return presenter.configuration.filteredTokens.filter(filterSelectablesTokens).every(function (token) {
-            return presenter.getScoreForWordMarking(token.index, token.selectionColorID);
-        });
+        if (presenter.configuration.countErrors) {
+            return presenter.getMaxScore() === presenter.getScore() - presenter.getErrorCount();
+        } else {
+            return presenter.configuration.filteredTokens.filter(filterSelectablesTokens).every(function (token) {
+                return presenter.getScoreForWordMarking(token.index, token.selectionColorID);
+            });
+        }
+
     };
 
     presenter.addCorrectClass = function (tokenIndex) {

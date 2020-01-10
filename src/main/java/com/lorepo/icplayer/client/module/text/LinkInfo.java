@@ -17,6 +17,7 @@ public class LinkInfo {
 	private String 	href;
 	private LinkType type;
 	private String target;
+	private String updatedHref;
 	
 	
 	/**
@@ -31,6 +32,7 @@ public class LinkInfo {
 		this.type = type;
 		this.href = href;
 		this.target = target;
+		this.updatedHref = "";
 	}
 
 
@@ -45,11 +47,29 @@ public class LinkInfo {
 
 
 	public String getHref() {
-		return href;
+		if (this.updatedHref.length() > 0) {
+			return updatedHref;
+		} else {
+			return href;
+		}
 	}
 
 	public String getTarget() {
 		return target;
+	}
+	
+	public void setBaseUrl(String newBaseUrl) {
+		if (this.type.equals(LinkType.PAGE) || this.type.equals(LinkType.DEFINITION)) {
+			return;
+		}
+
+		if(href.startsWith("#") || href.startsWith("/") || href.startsWith("http")
+				|| href.startsWith("file") || href.startsWith("javascript")){
+			return;
+		}
+		else{
+			updatedHref = newBaseUrl + href;
+		}
 	}
 
 }

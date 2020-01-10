@@ -59,6 +59,7 @@ public class PlayerApp {
 			offsetTop: 0,
 			height: 0,
 			frameOffset: 64,
+			frameScale: 1.0,
 			windowInnerHeight: 0,
 			isEditorPreview: false
 		};
@@ -134,25 +135,17 @@ public class PlayerApp {
 
 	public static native int getScreenHeight() /*-{
 		if ($wnd.isFrameInDifferentDomain) {
-			return 900;
+			var offsetIframe = $wnd.iframeSize.offsetTop;
+			return $wnd.parent.innerHeight - offsetIframe;
 		} else {
-			if ($wnd.location !== $wnd.parent.location) {
-				var offsetIframe = $wnd.iframeSize.offsetTop;
-				return $wnd.parent.innerHeight - offsetIframe;
-			} else {
-				// innerHeight can be unreliable on orientation change
-				// i.e. https://bugs.chromium.org/p/chromium/issues/detail?id=231319
-				return $wnd.outerHeight || $wnd.innerHeight;
-			}
+			// innerHeight can be unreliable on orientation change
+			// i.e. https://bugs.chromium.org/p/chromium/issues/detail?id=231319
+			return $wnd.outerHeight || $wnd.innerHeight;
 		}
 	}-*/;
 
 	public static native int getPageHeight() /*-{
-		if ($wnd.isFrameInDifferentDomain) {
-			return 1200;
-		} else {
-			return $wnd.$('table.ic_player').css('height').replace('px', '');
-		}
+    	return $wnd.$('table.ic_player').css('height').replace('px', '');
 	}-*/;
 
 	public static native void removeStaticFooter() /*-{
@@ -205,7 +198,11 @@ public class PlayerApp {
 					if($wnd.iframeSize.isEditorPreview){
 						playerOffset = 0;
 					}
-					var top = scroll > playerOffset ? scroll - playerOffset : 0;
+					var iframeScale = 1.0;
+					if ($wnd.iframeSize.frameScale != null){
+						iframeScale = $wnd.iframeSize.frameScale;
+					} 
+					var top = scroll > playerOffset ? (scroll - playerOffset)/iframeScale : 0;
 					$wnd.$(".ic_static_header").css("top", top);
 				}
 			});
@@ -265,8 +262,12 @@ public class PlayerApp {
 				if ((typeof event.data == 'string' || event.data instanceof String) && event.data.indexOf('I_FRAME_SIZES:') === 0) {
 					var scroll = $wnd.iframeSize.offsetTop;
 					offsetIframe = $wnd.iframeSize.notScaledOffset;
-					sum = $wnd.iframeSize.windowInnerHeight - offsetIframe - icFooterHeight + scroll;
-					if (sum >= ($wnd.iframeSize.height - icFooterHeight)) {
+					iframeScale = 1.0;
+					if ($wnd.iframeSize.frameScale != null){
+						iframeScale = $wnd.iframeSize.frameScale;
+					}
+					sum = ($wnd.iframeSize.windowInnerHeight - icFooterHeight + scroll)/iframeScale - offsetIframe;
+					if (parseInt(sum) >= (parseInt($wnd.iframeSize.height) - parseInt(icFooterHeight))) {
 						$wnd.$(".ic_static_footer").css("top", "auto");
 					} else {
 						$wnd.$(".ic_static_footer").css("top", sum + "px");
@@ -296,8 +297,10 @@ public class PlayerApp {
 
 		if (isHeaderStatic) {
 			var pagePanel = page.parent();
-			var contentHeight = $wnd.$(".ic_content").css("height").replace("px", "");
-			var height = parseInt(contentHeight, 10)+parseInt(headerHeight, 10);
+			var pageHeight = page.css("height").replace("px", "");
+			var replacedHeaderHeight = headerHeight.replace("px", "");
+			
+			var height = parseInt(pageHeight, 10) + parseInt(icFooterHeight, 10) + parseInt(replacedHeaderHeight, 10);
 			
 			pagePanel.css("height", height);
 			$wnd.$(".ic_content").parent().css("height", height);
@@ -445,6 +448,10 @@ public class PlayerApp {
 		return $wnd.$(".ic_static_header").length > 0;
 	}-*/;
 
+	public JavaScriptObject getContextMetadata() {
+		return this.entryPoint.getContextMetadata();
+	}
+
 
 	/**
 	 * Init player after content is loaded
@@ -564,6 +571,9 @@ public class PlayerApp {
 			if (this.loadedState.get("isReportable") != null) {
 				this.playerController.getPlayerServices().getReportableService().loadFromString(this.loadedState.get("isReportable"));
 			}
+			if (this.loadedState.get("visitedPages") != null) {
+				this.playerController.loadVisitedPagesFromString(this.loadedState.get("visitedPages"));
+			}
 		}
 
 		//All reportable values for pages should be loaded before start.
@@ -649,12 +659,14 @@ public class PlayerApp {
 		String score = playerController.getPlayerServices().getScoreService().getAsString();
 		String time = playerController.getPlayerServices().getTimeService().getAsString();
 		String isReportable = playerController.getPlayerServices().getReportableService().getAsString();
+		String visitedPages = playerController.getVisitedPagesAsString();
 
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("state", state);
 		data.put("score", score);
 		data.put("time", time);
 		data.put("isReportable", isReportable);
+		data.put("visitedPages", visitedPages);
 
 		return JSONUtils.toJSONString(data);
 	}

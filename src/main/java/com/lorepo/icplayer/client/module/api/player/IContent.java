@@ -13,6 +13,7 @@ public interface IContent {
     public IAddonDescriptor getAddonDescriptor(String addonId);
     public Page findPageByName(String pageName);
     public String getBaseUrl();
+    public String getMetadataValue(String key);
     public IChapter getTableOfContents();
     public IChapter getCommonPages();
     public List<IAsset> getAssets();

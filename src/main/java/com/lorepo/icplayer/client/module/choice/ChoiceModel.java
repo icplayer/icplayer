@@ -165,8 +165,17 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel{
 	
 	public int calculateMaxScore() {
 		int maxScore = 0;
-		for (ChoiceOption option : options) {
-			maxScore += option.getValue();
+
+		if(isMulti) {
+			for (ChoiceOption option : options) {
+				maxScore += option.getValue();
+			}
+		} else {
+			for (ChoiceOption option : options) {
+				if(option.getValue() > maxScore) {
+					maxScore = option.getValue();
+				}
+			}
 		}
 		
 		return maxScore;

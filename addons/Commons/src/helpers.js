@@ -41,7 +41,21 @@
 				var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
 				return v.toString(16);
 			});
-		}
+		},
+		timer: function IcPlayerTimerHelper(originalFunction) {
+        	// performance.now is much more precise, but is isn't supported in IE9
+        	var timingMethodObject = performance.now ? performance : Date;
+        	function timerFunction() {
+                var enterTime = timingMethodObject.now();
+                var result = originalFunction();
+                var exitTime = timingMethodObject.now();
+                var timeInMillis = (exitTime - enterTime);
+                console.log("Function " + originalFunction.name + " took " + timeInMillis + " ms");
+                return result;
+            }
+
+            return timerFunction;
+        }
     }
 })(window);
 

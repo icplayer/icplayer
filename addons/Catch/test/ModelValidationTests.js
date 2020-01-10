@@ -15,7 +15,8 @@ TestCase("[Catch] Model validation", {
             }],
             'Points to finish': '3',
             'Item_Width': '20',
-            'Item_Height': '20'
+            'Item_Height': '20',
+            'Plate image': '/file/serve/4596439640440880'
         };
     },
 
@@ -36,6 +37,7 @@ TestCase("[Catch] Model validation", {
         assertEquals(3, validated.items[1].levels[1]);
 
         assertEquals(3, validated.pointsToFinish);
+        assertEquals('/file/serve/4596439640440880', validated.plateImage);
     },
 
     'test empty image property' : function () {

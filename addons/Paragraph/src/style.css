@@ -12,3 +12,11 @@ div.paragraph-wrapper textarea {
 	width: 100%;
 	height: 100%;
 }
+
+div.paragraph-lock {
+	width: 100%;
+	height: 100%;
+	background: #e8eef3;
+	position: absolute;
+	top: 1px;
+}

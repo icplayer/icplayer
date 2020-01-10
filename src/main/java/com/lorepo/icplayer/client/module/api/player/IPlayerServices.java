@@ -1,13 +1,14 @@
 package com.lorepo.icplayer.client.module.api.player;
 
-import java.util.HashMap;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+
+import java.util.HashMap;
 
 
 /**
@@ -28,6 +29,7 @@ public interface IPlayerServices {
 	public IReportableService getReportableService();
 	public JavaScriptObject getAsJSObject();
 	public IPresenter getModule(String moduleName);
+	public GroupPresenter getGroup(String groupId);  
 	public boolean isBookMode();
 	public boolean hasCover();
 	public void sendAnalytics(String event, HashMap<String,String> params);
@@ -45,5 +47,9 @@ public interface IPlayerServices {
 	public void setAbleChangeLayout(boolean isAbleChangeLayout); 
 	public boolean isAbleChangeLayout();
 	public boolean changeSemiResponsiveLayout(String layoutID);
-
+	public boolean isPageVisited(IPage page);
+	public JavaScriptObject getContextMetadata();
+	public String getContentMetadata(String key);
+	public void sendResizeEvent();
+	public void sendExternalEvent(String eventType, String data);
 }

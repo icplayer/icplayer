@@ -11,6 +11,7 @@ function AddonTextAudio_create() {
     presenter.isVocabularyAudioLoaded = false;
     presenter.isVocabularyPlaying = false;
     presenter.buzzAudio = [];
+    presenter.disabledTime = 0;
     presenter.audio = {};
     presenter.current_slide_data = {
         slide_id: -1,
@@ -52,6 +53,15 @@ function AddonTextAudio_create() {
         'VI03': 'Vocabulary time intervals are not set'
     };
 
+    function isModuleEnabledDecorator (expectedValue) {
+        return function (fn) {
+            return function () {
+                if (expectedValue === presenter.configuration.isEnabled) {
+                    return fn.apply(this, arguments);
+                }
+            }
+        }
+    }
 
     presenter.getErrorObject = function AddonTextAudio_getErrorObject (ec) {
         return {
@@ -152,8 +162,22 @@ function AddonTextAudio_create() {
         presenter.$view.find('span.active').removeClass('active');
     };
 
+    presenter.upgradeIsDisabled = function (model) {
+        var upgradedModel = {};
+
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        presenter.originalIsDisabledModel = upgradedModel['isDisabled'];
+        if (upgradedModel['isDisabled'] === undefined) {
+            upgradedModel['isDisabled'] = 'False';
+        }
+
+        return upgradedModel;
+    };
+
     presenter.upgradeModel = function AddonTextAudio_upgradeModel (model) {
     	var upgradedModel = presenter.upgradeControls(model);
+    	upgradedModel = presenter.upgradeIsDisabled(upgradedModel);
 
         return presenter.upgradeClickAction(upgradedModel);
     };
@@ -338,14 +362,14 @@ function AddonTextAudio_create() {
         }
     };
 
-    presenter.playPauseCallback = function AddonTextAudio_playPauseCallback () {
+    presenter.playPauseCallback = isModuleEnabledDecorator(true)(function AddonTextAudio_playPauseCallback () {
         if (presenter.$playPauseBtn.hasClass('textaudio-pause-btn')) {
             presenter.pause();
         }
         else {
             presenter.play();
         }
-    };
+    });
 
     presenter.displayTimer = function AddonTextAudio_displayTimer (current, duration) {
         presenter.$view.find('#currentTime').html(presenter.formatTime(current) + ' / ');
@@ -405,7 +429,7 @@ function AddonTextAudio_create() {
                 var that = this;
                 if(!presenter.configuration.isClickDisabled){
                     presenter.slidesSpanElements.push(that);
-                    $(that).on('click', function addonTextAudio_textWrapperTextElementOnClick (e) {
+                    $(that).on('click', isModuleEnabledDecorator(true)(function addonTextAudio_textWrapperTextElementOnClick (e) {
                         e.stopPropagation();
 
                         var isVocabularyInterval = presenter.configuration.clickAction == 'play_vocabulary_interval';
@@ -468,7 +492,7 @@ function AddonTextAudio_create() {
                                     presenter.goTo(slide_id, presenter.selectionId);
                                 }
                         }
-                    });
+                    }));
                 }
             });
 
@@ -612,7 +636,7 @@ function AddonTextAudio_create() {
         presenter.changeSlideFromData(slide_data);
     };
 
-    presenter.progressMouseDownCallback = function AddonTextAudio_progressMouseDownCallback (event) {
+    presenter.progressMouseDownCallback = isModuleEnabledDecorator(true)(function AddonTextAudio_progressMouseDownCallback (event) {
         if ($(event.target).hasClass('textaudio-slider-btn')) {
             presenter.mouseData.oldPosition = event.pageX;
             presenter.mouseData.isMouseDragged = true;
@@ -621,7 +645,7 @@ function AddonTextAudio_create() {
                 presenter.pause();
             }
         }
-    };
+    });
 
     presenter.progressMouseUpCallback = function AddonTextAudio_progressMouseUpCallback () {
         var duration;
@@ -637,7 +661,7 @@ function AddonTextAudio_create() {
         }
     };
 
-    presenter.progressMouseMoveCallback = function AddonTextAudio_progressMouseMoveCallback (event) {
+    presenter.progressMouseMoveCallback = isModuleEnabledDecorator(true)(function AddonTextAudio_progressMouseMoveCallback (event) {
         var relativeDistance, barWidth, oldWidth;
         if (presenter.mouseData.isMouseDragged){
             relativeDistance = event.pageX - presenter.mouseData.oldPosition;
@@ -653,7 +677,7 @@ function AddonTextAudio_create() {
             presenter.$progressSlider.css('left',Math.round(barWidth));
             presenter.mouseData.oldPosition = event.pageX;
         }
-    };
+    });
 
     presenter.isMoreThanOneFingerGesture = function addonTextAudio_isMoreThanOneFingerGesture (event) {
         var touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
@@ -662,7 +686,7 @@ function AddonTextAudio_create() {
         return touchPoints.length> 1;
     };
 
-    presenter.progressTouchStartCallback = function addonTextAudio_progressTouchStartCallback (event) {
+    presenter.progressTouchStartCallback = isModuleEnabledDecorator(true)(function addonTextAudio_progressTouchStartCallback (event) {
         if (presenter.isMoreThanOneFingerGesture(event)) return;
         var touch, touchPoints = (typeof event.changedTouches != 'undefined') ? event.changedTouches : [event];
 
@@ -671,13 +695,13 @@ function AddonTextAudio_create() {
         else
             touch = touchPoints[0];
         presenter.progressMouseDownCallback(touch);
-    };
+    });
 
     presenter.progressTouchEndCallback =  function AddonTextAudio_progressTouchEndCallback () {
         presenter.progressMouseUpCallback();
     };
 
-    presenter.progressTouchMoveCallback = function AddonTextAudio_progressTouchMoveCallback (event) {
+    presenter.progressTouchMoveCallback = isModuleEnabledDecorator(true)(function AddonTextAudio_progressTouchMoveCallback (event) {
         if (presenter.isMoreThanOneFingerGesture(event)) return;
 
         var touch;
@@ -688,7 +712,7 @@ function AddonTextAudio_create() {
         else
             touch = touchPoints[0];
         presenter.progressMouseMoveCallback(touch);
-    };
+    });
 
     presenter.attachProgressListeners = function AddonTextAudio_attachProgressListeners () {
         presenter.isMobileDevice = MobileUtils.isMobileUserAgent(navigator.userAgent) || MobileUtils.isEventSupported('touchend');
@@ -709,11 +733,11 @@ function AddonTextAudio_create() {
         }
     };
 
-    presenter.toogleVolumeLayer = function AddonTextAudio_toogleVolumeLayer (){
+    presenter.toogleVolumeLayer = isModuleEnabledDecorator(true)(function AddonTextAudio_toogleVolumeLayer (){
         presenter.onVolumeChanged();
         presenter.$volumeLayer.toggle();
         presenter.$playerTime.toggle();
-    };
+    });
 
     presenter.createHtmlPlayer = function AddonTextAudio_createHtmlPlayer () {
         var $volumeControlBackground;
@@ -785,9 +809,9 @@ function AddonTextAudio_create() {
         presenter.$audioWrapper.append(presenter.$customPlayer);
     };
 
-    presenter.volumeLayerOnClick = function AddonTextAudio_volumeLayerOnClick (e) {
+    presenter.volumeLayerOnClick = isModuleEnabledDecorator(true)(function AddonTextAudio_volumeLayerOnClick (e) {
         presenter.audio.volume = e.offsetX / $(this).width();
-    };
+    });
 
     presenter.createView = function AddonTextAudio_createView (view, model, isPreview) {
         presenter.$view.bind('click', function (event) {
@@ -840,6 +864,13 @@ function AddonTextAudio_create() {
             presenter.audio.addEventListener('playing', presenter.onAudioPlaying, false);
             presenter.audio.addEventListener('play', presenter.onAudioPlay, false);
             presenter.audio.addEventListener('pause', presenter.onAudioPause, false);
+
+            presenter.configuration.isEnabled = true;   // At start addon is always enabled, so we need to reset flag and set correct value.
+            if (presenter.isEnabledByDefault) {
+                presenter.enable();
+            } else {
+                presenter.disable();
+            }
         }
     };
 
@@ -889,20 +920,28 @@ function AddonTextAudio_create() {
         event.stopPropagation();
     };
 
+    presenter.canPlayMp3 = function () {
+        return presenter.audio.canPlayType && "" != presenter.audio.canPlayType('audio/mpeg');
+    };
+
+    presenter.canPlayOgg = function () {
+        return presenter.audio.canPlayType && "" != presenter.audio.canPlayType('audio/ogg; codecs="vorbis"');
+    };
+
+    presenter.setAudioSrc = function () {
+        var canPlayMp3 = presenter.canPlayMp3();
+        var canPlayOgg = presenter.canPlayOgg();
+
+        if (canPlayMp3) {
+            presenter.audio.setAttribute("src", presenter.originalFile .mp3);
+        } else if (canPlayOgg) {
+            presenter.audio.setAttribute("src", presenter.originalFile .ogg);
+        }
+    };
+
     presenter.loadFiles = function AddonTextAudio_loadFiles () {
-        var canPlayMp3 = false;
-        var canPlayOgg = false;
-
         if (presenter.audio.canPlayType) {
-            canPlayMp3 = presenter.audio.canPlayType && "" != presenter.audio.canPlayType('audio/mpeg');
-            canPlayOgg = presenter.audio.canPlayType && "" != presenter.audio.canPlayType('audio/ogg; codecs="vorbis"');
-
-            if (canPlayMp3) {
-                presenter.audio.setAttribute("src", presenter.originalFile .mp3);
-            } else if (canPlayOgg) {
-                presenter.audio.setAttribute("src", presenter.originalFile .ogg);
-            }
-
+            presenter.setAudioSrc();
             if (presenter.configuration.clickAction == 'play_vocabulary_interval') {
                 presenter.vocabulary = new buzz.sound([
                     presenter.configuration.vocabulary_mp3,
@@ -1113,6 +1152,7 @@ function AddonTextAudio_create() {
         }
 
         presenter.isVisibleByDefault = presenter.configuration.isVisible;
+        presenter.isEnabledByDefault = presenter.configuration.isEnabled;
 
         presenter.createView(view, upgradedModel, isPreview);
 
@@ -1416,7 +1456,8 @@ function AddonTextAudio_create() {
             vocabulary_ogg: model.vocabulary_ogg,
             vocabularyIntervals: validatedVocabularyIntervals.intervals,
             isClickDisabled: ModelValidationUtils.validateBoolean(model.isClickDisabled),
-            showSlides: model.showSlides
+            showSlides: model.showSlides,
+            isEnabled: !ModelValidationUtils.validateBoolean(model["isDisabled"])
         };
     };
 
@@ -1426,7 +1467,9 @@ function AddonTextAudio_create() {
             'stop': presenter.stop,
             'pause': presenter.pause,
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'enable': presenter.enable,
+            'disable': presenter.disable
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -1446,7 +1489,7 @@ function AddonTextAudio_create() {
         }
     };
 
-    presenter.play = function addonTextAudio_play () {
+    presenter.play = isModuleEnabledDecorator(true)(function addonTextAudio_play () {
         presenter.startTimeMeasurement();
         if (presenter.audio.paused) {
             presenter.stopClicked = false;
@@ -1458,9 +1501,9 @@ function AddonTextAudio_create() {
                     addClass('textaudio-pause-btn');
             }
         }
-    };
+    });
 
-    presenter.stop = function addonTextAudio_stop () {
+    function forceStop () {
         if (presenter.configuration.controls === "Custom" && presenter.isLoaded) {
             presenter.stopClicked = true;
             presenter.$playPauseBtn.
@@ -1476,11 +1519,15 @@ function AddonTextAudio_create() {
         if (!presenter.isLoaded) {
             presenter.audio.addEventListener("loadeddata", presenter.stopAudioLoadedData);
         }
-    };
+    }
+
+    presenter.stop = isModuleEnabledDecorator(true)(function addonTextAudio_stop () {
+        forceStop();
+    });
 
     presenter.stopAudioLoadedData = function AddonTextAudio_StopAudioLoadedData () {
         presenter.isLoaded = true;
-        presenter.stop();
+        forceStop();
     };
 
     presenter.playPartStop = function addonTextAudio_playPartStop () {
@@ -1495,7 +1542,7 @@ function AddonTextAudio_create() {
         presenter.stop();
     };
 
-    presenter.pause = function addonTextAudio_pause () {
+    presenter.pause = isModuleEnabledDecorator(true)(function addonTextAudio_pause () {
         presenter.stopTimeMeasurement();
 
         if (!presenter.audio.paused) {
@@ -1506,7 +1553,7 @@ function AddonTextAudio_create() {
                     addClass('textaudio-play-btn');
             }
         }
-    };
+    });
 
     presenter.show = function addonTextAudio_show () {
         presenter.setVisibility(true);
@@ -1524,11 +1571,20 @@ function AddonTextAudio_create() {
     };
 
     presenter.reset = function addonTextAudio_reset () {
-        presenter.stop();
+        presenter.disabledTime = 0;
+        if (presenter.isEnabledByDefault) {
+            presenter.enable();
+        } else {
+            presenter.disable();
+        }
+
+        forceStop();
 
         presenter.hasBeenStarted = false;
         presenter.isPlaying = false;
         presenter.playedByClick = false;
+
+
 
         presenter.configuration.isVisible = presenter.isVisibleByDefault;
         if (presenter.configuration.isVisible) {
@@ -1538,13 +1594,36 @@ function AddonTextAudio_create() {
         }
     };
 
+    presenter.enable = isModuleEnabledDecorator(false)(function () {
+        presenter.configuration.isEnabled = true;
+        presenter.$view.removeClass('disabled');
+
+        if (presenter.configuration.controls === "Browser") {
+            presenter.setAudioSrc();
+            presenter.audio.currentTime = presenter.disabledTime;
+        }
+    });
+
+    presenter.disable = isModuleEnabledDecorator(true)(function () {
+        presenter.pause();
+        presenter.configuration.isEnabled = false;
+        presenter.$view.addClass('disabled');
+
+        if (presenter.configuration.controls === "Browser") {
+            presenter.disabledTime = presenter.audio.currentTime;
+            presenter.audio.removeAttribute('src');
+            presenter.audio.load();
+        }
+    });
+
     presenter.clearSelection = function addonTextAudio_clearSelection () {
         presenter.$view.find('.textaudio-text span.active').removeClass('active');
     };
 
     presenter.getState = function addonTextAudio_getState () {
         return JSON.stringify({
-            isVisible : presenter.configuration.isVisible
+            isVisible : presenter.configuration.isVisible,
+            isEnabled: presenter.configuration.isEnabled
         });
     };
 
@@ -1554,10 +1633,21 @@ function AddonTextAudio_create() {
 
         presenter.stop();
 
-        if (JSON.parse(stateString).isVisible) {
+        var data = JSON.parse(stateString);
+
+        if (data.isVisible) {
             presenter.show();
         } else {
             presenter.hideAddon();
+        }
+
+        // Fix due to a bug that put wrong state. If the value in model is undefined, than module is enabled
+        if (presenter.originalIsDisabledModel === undefined) {
+            presenter.enable();
+        }else if (!data.isEnabled && data.isEnabled !== undefined) {
+            presenter.disable();
+        } else {
+            presenter.enable();
         }
 
         return false;
@@ -1567,6 +1657,11 @@ function AddonTextAudio_create() {
         if (presenter.configuration.onEndEventCode) {
             presenter.playerController.getCommands().executeEventCode(presenter.configuration.onEndEventCode);
         }
+    };
+
+    // For tests purposes.
+    presenter.__internalElements = {
+        isEnabledDecorator: isModuleEnabledDecorator
     };
 
     return presenter;

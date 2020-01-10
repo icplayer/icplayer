@@ -13,9 +13,11 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 import java.util.HashMap;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 
 public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButton{
@@ -125,8 +127,10 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
-		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
-		return (isVisible || isTextToSpeechOn);
+		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") 
+				&& !this.getView().getStyle().getDisplay().equals("none")
+				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return (isVisible && isTextToSpeechOn);
 	}
 
 	@Override
@@ -134,5 +138,11 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 		if (eventName.equals("ShowAnswers")) {
 			updateDisplay();
 		}
+	}
+
+	@Override
+	public JavaScriptObject getAsJavaScript() {
+		// TODO Auto-generated method stub
+		return JavaScriptObject.createObject();
 	}
 }

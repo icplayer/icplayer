@@ -25,7 +25,6 @@ class StyledModule extends AbsolutePositioningModule implements IStyledModule {
 		styleListener = listener;
 	}
 	
-	@Override
 	public SemiResponsiveStyles getSemiResponsiveStyles() {
 		return this.semiResponsiveStyles;
 	}

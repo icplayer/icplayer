@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
-<project name="icplayer" default="dist" basedir=".">
+<project name="icplayer" default="dist" basedir="." xmlns:if="ant:if" xmlns:unless="ant:unless">
     <taskdef name="for" classname="com.icplayer.ac.ForTask" classpath="addons/addon-compiler.jar"/>
 
     <property file="build.properties"/>
     <property name="src" location="src/main/java"/>
     <property name="src-test" location="src/test/java"/>
     <property name="icfoundation-src" location="../icfoundation/src/main/java"/>
-    <property name="jstestdriver.jar" location="addons/tools/JsTestDriver.jar"/>
+    <property name="jstestdriver.jar" location="addons/tools/JsTestDriver-1.3.5.jar"/>
     <property name="libs" location="src/main/java/com/lorepo/icplayer/public/libs"/>
     <property name="jsoup-lib" location="libs/jsoup-1.10.3.jar"/>
 
@@ -24,6 +24,31 @@
         <pathelement location="${jsoup-lib}"/>
         <pathelement location="../icfoundation/war/WEB-INF/classes"/>
     </path>
+
+    <property name="reports.path" value="addons/reports.txt"/>
+
+    <script language="javascript"><![CDATA[
+        function noop () {}
+        var listener = new org.apache.tools.ant.BuildListener() {
+            buildStarted: noop,
+            buildFinished: function(e) {
+                project.executeTarget("server.kill");
+            },
+            messageLogged: noop,
+            targetStarted: noop,
+            targetFinished: noop,
+            taskStarted: noop,
+            taskFinished: noop
+        }
+        project.addBuildListener(listener)
+    ]]></script>
+    <condition property="isWindows">
+        <os family="windows"/>
+    </condition>
+
+    <condition property="isUnix">
+        <os family="unix"/>
+    </condition>
 
     <target name="clean" description="Cleans this project">
         <delete dir="war/WEB-INF/classes" failonerror="false"/>
@@ -146,31 +171,307 @@
         </junit>
     </target>
 
-    <target name="test.single.addon"  description="Test single addon, -Daddon.id=Addon_Id">
-        <echo>Testing addon with ID ${addon.id}</echo>
+    <target name="browser.init" unless="browser.initialized">
+        <!-- You can override this, ex disable google chrome by -DgoogleChrome.path='' -->
+        <property name="googleChrome.path" if:set="isWindows" unless:set="googleChrome.path" 
+                  value="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"/>
+        <exec executable="which" osfamily="unix" unless:set="googleChrome.path" outputproperty="googleChrome.path">
+            <arg line="google-chrome"/>
+        </exec>
+        <available property="googleChrome.available" type="file" file="${googleChrome.path}"/>
+        <echo if:set="googleChrome.available">Google Chrome found at ${googleChrome.path}</echo>
 
+        <property name="firefox.path" if:set="isWindows" unless:set="firefox.path"
+                  value="C:\Program Files\Mozilla Firefox\firefox.exe"/>
+        <exec executable="which" osfamily="unix" unless:set="firefox.path" outputproperty="firefox.path">
+            <arg line="firefox"/>
+        </exec>
+        <available property="firefox.available" type="file" file="${firefox.path}"/>
+        <echo if:set="firefox.available">Firefox found at ${firefox.path}</echo>
+
+        <property name="msie.path" if:set="isWindows" unless:set="msie.path"
+                  value="C:\Program Files\internet explorer\iexplore.exe"/>
+        <available property="msie.available" type="file" file="${msie.path}"/>
+        <echo if:set="msie.available">Microsoft Internet Explorer found at ${msie.path}</echo>
+
+        <property name="msedge.path" if:set="isWindows" unless:set="msedge.path"
+                  value="C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe"/>
+        <available property="msedge.available" type="file" file="${msedge.path}"/>
+        <echo if:set="msedge.available">Microsoft msedge found at ${msedge.path}</echo>
+
+        <fail message="No available browser found!">
+            <condition>
+                <not>
+                    <or>
+                        <isset property="googleChrome.available"/>
+                        <isset property="firefox.available"/>
+                        <isset property="msedge.available"/>
+                        <isset property="msie.available"/>
+                    </or>
+                </not>
+            </condition>
+        </fail>
+        <property name="browser.initialized" value="true"/>
+    </target>
+
+    <target name="server.check">
+        <condition property="server.has.ping">
+            <socket server="localhost" port="9876"/>
+        </condition>
+        <antcall target="server.kill" unless:set="server.has.ping"/>
+        <!-- Execute target in the same project scope -->
+        <script language="javascript" unless:set="server.has.ping">
+            project.executeTarget("server.start");
+        </script>
+    </target>
+
+    <target name="server.get.pid">
+        <exec executable="jps" failifexecutionfails="true" failonerror="true">
+            <arg value="-lvm"/>
+            <redirector outputproperty="server.pid">
+                <outputfilterchain>
+                    <linecontains>
+                        <contains value="${jstestdriver.jar}"/>
+                    </linecontains>
+                    <replaceregex pattern="^(\d+)\s.*$" replace="\1"/>
+                </outputfilterchain>
+            </redirector>
+        </exec>
+        <condition property="server.has.pid">
+            <length string="${server.pid}" when="greater" length="0"/>
+        </condition>
+        <echo if:set="server.has.pid">Found PID ${server.pid} of ${jstestdriver.jar}</echo>
+    </target>
+
+    <target name="server.kill" depends="server.get.pid" if="server.has.pid">
+        <echo>Kill jsTestDriver server with PID ${server.pid}</echo>
+        <exec executable="taskkill" osfamily="windows" failifexecutionfails="true">
+            <arg line="/T"/>
+            <arg line="/F"/>
+            <arg line="/PID"/>
+            <arg value="${server.pid}"/>
+        </exec>
+        <exec executable="taskkill" osfamily="windows" if:set="msedge.autoclose" failifexecutionfails="true">
+            <arg line="/T"/>
+            <arg line="/F"/>
+            <arg line="/IM"/>
+            <arg value="MicrosoftEdge.exe"/>
+        </exec>
+        <exec executable="pkill" osfamily="unix" failifexecutionfails="true">
+            <arg line="-9"/>
+            <arg line="-P"/>
+            <arg value="${server.pid}"/>
+        </exec>
+        <exec executable="kill" osfamily="unix" failifexecutionfails="true">
+            <arg line="-9"/>
+            <arg value="${server.pid}"/>
+        </exec>
+        <sleep seconds="1"/>
+        <delete dir="${firefox.profile}" failonerror="true"/>
+    </target>
+
+    <target name="server.start" depends="browser.init">
+        <echo>Start a new server</echo>
+        <!-- Generate firefox profile -->
+        <exec executable="python" if:set="firefox.available" outputproperty="firefox.profile"
+              failonerror="true" failifexecutionfails="true">
+            <arg line="-c"/>
+            <arg value="import tempfile;print(tempfile.mkdtemp('','jstestdriver.'))"/>
+        </exec>
+        <!-- Mark the first run as complete, stop to open the second tab -->
+        <copy file="addons/tools/prefs.js" todir="${firefox.profile}" if:set="firefox.available"/>
+
+        <condition property="googleChrome.command"
+                   value="${googleChrome.path};--disable-gpu --headless --no-sandbox --remote-debugging-port=9222,"
+                   else="">
+            <isset property="googleChrome.available"/>
+        </condition>
+        <condition property="firefox.command"
+                   value="${firefox.path};-headless -profile ${firefox.profile} -no-remote,"
+                   else="">
+            <isset property="firefox.available"/>
+        </condition>
+        <condition property="msie.command"
+                   value="${msie.path},"
+                   else="">
+            <isset property="msie.available"/>
+        </condition>
+        <condition property="msedge.command"
+                   value="C:\Windows\explorer.exe;microsoft-edge:%s,"
+                   else="">
+            <isset property="msedge.available"/>
+        </condition>
+
+        <parallel>
+            <daemons>
+                <java jar="${jstestdriver.jar}" fork="true">
+                    <arg line="--port 9876"/>
+                    <arg line="--browser"/>
+                    <arg value="${googleChrome.command}${firefox.command}${msie.command}${msedge.command}"/>
+<!--                    <arg line="&#45;&#45;browserTimeout 180000"/>-->
+<!--                    <arg line="&#45;&#45;runnerMode INFO"/>-->
+<!--                    <arg value="&#45;&#45;verbose"/>-->
+                </java>
+            </daemons>
+            <waitfor maxwait="5" maxwaitunit="second">
+                <socket server="localhost" port="9876"/>
+            </waitfor>
+<!--            <echo >Wait 3 seconds for other browsers at http://localhost:9876/capture</echo>-->
+            <sleep seconds="1"/>
+        </parallel>
+    </target>
+
+    <macrodef name="reset-addons-reports">
+        <sequential>
+            <delete file="${reports.path}" failonerror="false"/>
+            <touch file="${reports.path}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="attach-results-to-addons-reports">
+        <attribute name="addon.id"/>
+
+        <sequential>
+            <fileset id="error.files" dir="addons/@{addon.id}/test-reports" includes="TEST-*.xml">
+                <contains text="&lt;error " casesensitive="no"/>
+            </fileset>
+
+            <fileset id="failure.files" dir="addons/@{addon.id}/test-reports" includes="TEST-*.xml">
+                <contains text="&lt;failure " casesensitive="no"/>
+            </fileset>
+
+            <local name="has-errors"/>
+            <condition property="has-errors">
+                <resourcecount when="greater" count="0" refid="error.files"/>
+            </condition>
+
+            <local name="has-failures"/>
+            <condition property="has-failures">
+                <resourcecount when="greater" count="0" refid="failure.files"/>
+            </condition>
+
+            <local name="error.filenames"/>
+            <pathconvert pathsep="${line.separator}   [errors] " property="error.filenames" refid="error.files">
+                <mapper type="flatten"/>
+            </pathconvert>
+
+            <local name="failure.filenames"/>
+            <pathconvert pathsep="${line.separator} [failures] " property="failure.filenames" refid="failure.files">
+                <mapper type="flatten"/>
+            </pathconvert>
+
+            <echo file="${reports.path}" append="true" if:set="has-errors"
+                  message="   [errors] ${error.filenames}${line.separator}"/>
+            <echo file="${reports.path}" append="true" if:set="has-failures"
+                  message=" [failures] ${failure.filenames}${line.separator}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="count-lines">
+        <attribute name="property"/>
+        <attribute name="string"/>
+
+        <sequential>
+            <resourcecount property="@{property}">
+                <tokens>
+                    <concat>
+                        <filterchain>
+                            <tokenfilter>
+                                <linetokenizer/>
+                            </tokenfilter>
+                        </filterchain>
+                        <propertyresource name="@{string}"/>
+                    </concat>
+                </tokens>
+            </resourcecount>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="summary-addons-reports">
+        <sequential>
+            <local name="reports.list"/>
+            <loadfile property="reports.list" srcFile="${reports.path}" quiet="true"/>
+            <local name="reports.total"/>
+            <count-lines property="reports.total" string="reports.list" if:set="reports.list"/>
+
+            <local name="reports.message"/>
+            <property name="reports.message" value="Found problems in ${reports.total} reports:&#x0A;${reports.list}" if:set="reports.list"/>
+            <fail if="reports.list" message="${reports.message}"/>
+        </sequential>
+    </macrodef>
+
+    <target name="test.single.addon" depends="server.check" description="Test single addon, -Daddon.id=Addon_Id">
+        <echo>Testing addon with ID "${addon.id}"</echo>
+
+        <reset-addons-reports unless:set="subtask"/>
+        <delete dir="addons/${addon.id}/test-reports" failonerror="false"/>
         <mkdir dir="addons/${addon.id}/test-reports"/>
-        <exec executable="java" failonerror="true">
-            <arg line="-jar"/>
-            <arg path="${jstestdriver.jar}"/>
+
+        <!-- Three minutes to test the addon should be enough -->
+        <java jar="${jstestdriver.jar}" fork="true" timeout="180000" resultproperty="jstestdriver.code">
             <arg line="--tests all"/>
             <arg line="--config"/>
             <arg path="addons/${addon.id}/jsTestDriver.conf"/>
             <arg line="--testOutput"/>
             <arg path="addons/${addon.id}/test-reports"/>
             <arg line="--captureConsole"/>
-        </exec>
+            <arg line="--reset"/>
+        </java>
+        <condition property="jstestdriver.failure">
+            <isfailure code="${jstestdriver.code}"/>
+        </condition>
+        <antcall target="server.kill" if:set="jstestdriver.failure"/>
+        <condition property="browser.unresponsive">
+            <equals arg1="1" arg2="${jstestdriver.code}"/>
+        </condition>
+        <!-- Try to test addon one more time, after BrowserPanicException -->
+        <antcall target="retest.single.addon" if:set="browser.unresponsive">
+            <param name="addon.id" value="${addon.id}"/>
+        </antcall>
+
+        <attach-results-to-addons-reports addon.id="${addon.id}"/>
+        <summary-addons-reports unless:set="subtask"/>
     </target>
 
-    <target name="test.addons" depends="bundle-libs">
+    <target name="retest.single.addon" depends="server.start" description="Test single addon, -Daddon.id=Addon_Id">
+        <echo>Re-testing addon with ID "${addon.id}"</echo>
+
+        <!-- One minute to test the addon should be enough -->
+        <java jar="${jstestdriver.jar}" fork="true" timeout="60000" resultproperty="jstestdriver.code2">
+            <arg line="--tests all"/>
+            <arg line="--config"/>
+            <arg path="addons/${addon.id}/jsTestDriver.conf"/>
+            <arg line="--testOutput"/>
+            <arg path="addons/${addon.id}/test-reports"/>
+            <arg line="--captureConsole"/>
+            <arg line="--reset"/>
+        </java>
+        <condition property="jstestdriver.failure2">
+            <isfailure code="${jstestdriver.code2}"/>
+        </condition>
+        <antcall target="server.kill" if:set="jstestdriver.failure2"/>
+    </target>
+
+    <target name="test.addons" depends="bundle-libs, browser.init">
+        <echo>${ant.version}</echo>
+
+        <reset-addons-reports/>
+
+        <antcall target="test.single.addon">
+            <param name="addon.id" value="Commons"/>
+            <param name="subtask" value="true"/>
+        </antcall>
         <loadfile property="addons.list" srcFile="addons/addons.list"/>
         <for list="${addons.list}" param="addonid" delimiter="${line.separator}">
             <sequential>
                 <antcall target="test.single.addon">
                     <param name="addon.id" value="@{addonid}"/>
+                    <param name="subtask" value="true"/>
                 </antcall>
             </sequential>
         </for>
+
+        <summary-addons-reports/>
     </target>
 
     <target name="test" depends="test.prod" description="Run development and production mode tests">
@@ -209,7 +510,7 @@
     <target name="validate-translations-javascript">
         <echo message="Validating JSON in files:"/>
 
-        <exec executable="python" failonerror="true">
+        <exec executable="python" failonerror="true" failifexecutionfails="true">
             <arg value="validate_translations_javascript.py"/>
         </exec>
 

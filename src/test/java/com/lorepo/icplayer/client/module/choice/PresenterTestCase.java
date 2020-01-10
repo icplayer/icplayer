@@ -217,6 +217,40 @@ public class PresenterTestCase {
 	}
 
 	@Test
+	public void givenIsMultiTrueWhenGetMaxScoreThanScoresShouldBeAdded() {
+
+		PlayerServicesMockup services = new PlayerServicesMockup();
+		ChoiceModel model = new ChoiceModel();
+		model.setMulti(true);
+
+		//From ChoiceModel: "A" - value = 1, "B? - value = 0
+		model.addOption(new ChoiceOption("1", "C", 1));
+		model.addOption(new ChoiceOption("2", "D", 2));
+		ChoiceViewMockup display = new ChoiceViewMockup(model);
+		ChoicePresenter presenter = new ChoicePresenter(model, services);
+		presenter.addView(display);
+		
+		assertEquals(presenter.getMaxScore(), 4);
+	}
+
+	@Test
+	public void givenIsMultiTrueWhenGetMaxScoreThanMaxValueShouldBeMaxScore() {
+
+		PlayerServicesMockup services = new PlayerServicesMockup();
+		ChoiceModel model = new ChoiceModel();
+		model.setMulti(false);
+
+		//From ChoiceModel: "A" - value = 1, "B" - value = 0
+		model.addOption(new ChoiceOption("1", "C", 1));
+		model.addOption(new ChoiceOption("2", "D", 2));
+		ChoiceViewMockup display = new ChoiceViewMockup(model);
+		ChoicePresenter presenter = new ChoicePresenter(model, services);
+		presenter.addView(display);
+
+		assertEquals(presenter.getMaxScore(), 2);
+	}
+
+	@Test
 	public void scoreFromXML() throws SAXException, IOException {
 		
 		InputStream inputStream = getClass().getResourceAsStream("testdata/choice1.xml");

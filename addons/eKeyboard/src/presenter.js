@@ -397,8 +397,13 @@ function AddoneKeyboard_create(){
                 presenter.display = $.extend(defaultDisplay, customDisplay);
 
                 if (MobileUtils.isMobileUserAgent(navigator.userAgent) && presenter.configuration.lockInput) {
-                    $('input').addClass('ui-keyboard-lockedinput');
-                    $('input').attr("readonly", true);
+                    presenter.configuration.$inputs.each(
+                        function (index, element) {
+                            var $el = $(element);
+                            $el.addClass('ui-keyboard-lockedinput');
+                            $el.attr('readonly', true);
+                        }
+                    );
                 }
 
                 presenter.removeEventListeners();
@@ -999,7 +1004,7 @@ function AddoneKeyboard_create(){
 
 
     presenter.destroy = function destroy_addon_eKeyboard_function () {
-        if (presenter.isPreview) {
+        if (presenter.isPreview || !presenter.configuration) {
             return;
         }
 

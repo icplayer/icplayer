@@ -5,8 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 
-public class GapInfo {
+public class GapInfo implements IGapCommonUtilsProvider {
 
 	private String id;
 	private List<String> answers = new ArrayList<String>();
@@ -17,29 +18,33 @@ public class GapInfo {
 	private boolean isIgnorePunctuation;
 	private String placeHolder = "";
 	private String langTag = null;
+	private boolean isNumericOnly = false;
 	
-	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength){
+	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength, boolean isNumericOnly){
 		this.id = id;
 		this.value = value;
 		this.isCaseSensitive = isCaseSensitive;
 		this.isIgnorePunctuation = isIgnorePunctuation;
 		this.maxLength = maxLength;
+		this.isNumericOnly = isNumericOnly;
 	}
 	
-	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength, String langTag){
+	public GapInfo(String id, int value, boolean isCaseSensitive, boolean isIgnorePunctuation, int maxLength, boolean isNumericOnly, String langTag){
 		this.id = id;
 		this.value = value;
 		this.isCaseSensitive = isCaseSensitive;
 		this.isIgnorePunctuation = isIgnorePunctuation;
 		this.maxLength = maxLength;
 		this.langTag = langTag;
+		this.isNumericOnly = isNumericOnly;
 	}
 
-
 	public void addAnswer(String answer) {
+		boolean matchAllVisbileText = true;
 		answer = StringUtils.unescapeXML(answer);
 		answer = answer.replaceAll("&nbsp;", " ");
-		
+		// this is needed for showing visible text when show answer is called on gap
+		answer = AlternativeTextService.unescapeAltText(answer, matchAllVisbileText);
 		answers.add(answer);
 		if(isIgnorePunctuation) { answer = removePunctuation(answer); }
 		checkAnswers.add(isCaseSensitive ? answer : answer.toLowerCase());
@@ -85,16 +90,17 @@ public class GapInfo {
 	}
 
 	public boolean isCorrect(String text) {
-
 		boolean correct = false;
-		if(!isCaseSensitive){
+		if (!isCaseSensitive) {
 			text = text.toLowerCase();
 		}
-		if(isIgnorePunctuation){
+		if (isIgnorePunctuation) {
 			text = removePunctuation(text);
 		}
-		for(String answer : checkAnswers){
-			if(answer.compareTo(text) == 0){
+		text = AlternativeTextService.getVisibleText(text);
+		for (String answer : checkAnswers) {
+			String parsedAnswer = AlternativeTextService.getVisibleText(answer);
+			if (parsedAnswer.compareTo(text) == 0) {
 				correct = true;
 				break;
 			}
@@ -129,12 +135,28 @@ public class GapInfo {
 	public String getPlaceHolder() {
 		return placeHolder;
 	}
+	
+	public int getLongestAnswerLength() {
+		int longestAnswer = 0;
+		
+		for (String answer : answers) {
+			if (longestAnswer < answer.length()) {
+				longestAnswer = answer.length();
+			}
+		}
+		
+		return longestAnswer;
+	}
 
 	/**
 	 * @return answers
 	 */
 	public Iterator<String> getAnswers() {
 		return answers.iterator();
+	}
+	
+	public boolean isNumericOnly() {
+		return isNumericOnly;
 	}
 
 }

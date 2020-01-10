@@ -8,17 +8,25 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
+import com.lorepo.icplayer.client.model.alternativeText.IToken;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
-public class DraggableGapWidget extends HTML implements TextElementDisplay {
+import java.util.ArrayList;
+import java.util.List;
+
+public class DraggableGapWidget extends HTML implements TextElementDisplay, AltTextGap {
 
 	private static final String EMPTY_GAP_STYLE = "ic_draggableGapEmpty";
 	private static final String FILLED_GAP_STYLE = "ic_draggableGapFilled";
 	private static final String EMPTY_TEXT = "&nbsp;";
 	private final GapInfo gapInfo;
-	private boolean disabled = false;
+	private boolean disabled = false;	// As outside state, we need to separate internal state of DnD gap from external state e.g when show answers is called.
+	private boolean _disabled = false;	// For internal usage
 	private boolean isWorkMode = true;
 	private String answerText = "";
+	private List<TextToSpeechVoice> wcagText = new ArrayList<TextToSpeechVoice>();
 	private boolean isFilledGap = false;
 	private JavaScriptObject jsObject = null;
 	private final ITextViewListener listener;
@@ -27,6 +35,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	private boolean isShowAnswersMode = false;
 	private boolean isSelected = false;
 	private int gapState = 0;
+	
 
 	public DraggableGapWidget(GapInfo gi, final ITextViewListener listener) {
 		super(DOM.getElementById(gi.getId()));
@@ -47,7 +56,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 				public void onClick(ClickEvent event) {
 					event.stopPropagation();
 					event.preventDefault();
-					if (listener != null && !disabled && isWorkMode) {
+					if (listener != null && isWorkMode && !_disabled) {
 						listener.onGapClicked(gapInfo.getId());
 					}
 				}
@@ -101,14 +110,14 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	}
 
 	private boolean isDragPossible() {
-		if (!isWorkMode || this.disabled) {
+		if (!isWorkMode || this._disabled) {
 			return false;
 		}
 		return true;
 	}
 
 	private void dropHandler(String droppedElement) {
-		if (listener != null && !disabled && isWorkMode) {
+		if (listener != null && !_disabled && isWorkMode) {
 			listener.onGapDropped(gapInfo.getId());
 			droppedElementHelper = droppedElementToString(droppedElement);
 		}
@@ -181,7 +190,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public void setDroppedElement(String element) {
 		droppedElementHelper = StringUtils.unescapeXML(element);
-		if(droppedElementHelper != ""){
+		if (!droppedElementHelper.equals("")) {
 			JavaScriptUtils.makeDroppedDraggableText(getElement(), getAsJavaScript(), droppedElementHelper);
 		}
 	}
@@ -201,17 +210,22 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 			}
 			setStylePrimaryName(EMPTY_GAP_STYLE);
 			answerText = "";
+			wcagText.clear();
 			droppedElementHelper = "";
 			if (!isDragMode) {
 				JavaScriptUtils.destroyDraggable(getElement());
 			}
 		} else {
 			String markup = StringUtils.markup2html(text);
-			super.setHTML(markup);
-			answerText = TextParser.removeHtmlFormatting(text);
-			droppedElementHelper = getElement(text);
+			List<IToken> tokens = AlternativeTextService.parseAltText(markup);
+			String visibleText = AlternativeTextService.getVisibleText(tokens);
+			wcagText = AlternativeTextService.getReadableText(tokens, getLangTag());
+
+			super.setHTML(visibleText);
+			answerText = TextParser.removeHtmlFormatting(visibleText);
+			droppedElementHelper = getElement(visibleText);
 			setStylePrimaryName(FILLED_GAP_STYLE);
-			if(droppedElementHelper.length() != 0 && !isShowAnswersMode){
+			if (!droppedElementHelper.isEmpty() && !isShowAnswersMode){
 				JavaScriptUtils.makeDroppedDraggableText(this.getElement(), getAsJavaScript(), droppedElementHelper);
 			}
 		}
@@ -255,12 +269,20 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
-		if (disabled) {
+		this.setDisabledInternally(disabled);
+	}
+	
+	
+	private void setDisabledInternally(boolean value) {
+		this._disabled = value;
+		
+		if (value) {
 			addStyleDependentName("disabled");
 		} else{
 			removeStyleDependentName("disabled");
 		}
 	}
+	
 
 	@Override
 	public void markGapAsEmpty() {
@@ -284,14 +306,14 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	public void setStyleShowAnswers() {
 		isShowAnswersMode = true;
 		addStyleDependentName("correct-answer");
-		setDisabled(true);
+		setDisabledInternally(true);
 	}
 
 	@Override
 	public void removeStyleHideAnswers() {
 		isShowAnswersMode = false;
 		removeStyleDependentName("correct-answer");
-		setDisabled(false);
+		setDisabled(this.disabled);
 	}
 
 	@Override
@@ -351,5 +373,10 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay {
 	@Override
 	public int getGapState() {
 		return this.gapState;
+	}
+
+	@Override
+	public List<TextToSpeechVoice> getReadableText() {
+		return this.wcagText;
 	}
 }

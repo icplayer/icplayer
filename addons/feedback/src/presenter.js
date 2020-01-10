@@ -302,6 +302,7 @@ function Addonfeedback_create() {
         presenter.centerInner(text_inner);
         if (textParser !== null && !preview) {
             textParser.connectLinks(presenter.feedbackContainer);
+            presenter.connectHTMLLinks(presenter.feedbackContainer);
         }
 
         if (!preview) {
@@ -469,6 +470,20 @@ function Addonfeedback_create() {
         if (newID == undefined) return;
 
         presenter.setResponse(newID);
+    };
+
+    presenter.connectHTMLLinks = function ($element) {
+        $element.find('a').each(function(){
+            $(this).click(function(){
+                var url = $(this).attr('href');
+                var target = $(this).attr('target');
+                if (target != null && target.length > 0) {
+                    window.open(url, target);
+                } else {
+                    window.open(url);
+                }
+            });
+        });
     };
 
 

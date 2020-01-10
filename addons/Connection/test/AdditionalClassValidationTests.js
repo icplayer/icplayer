@@ -1,4 +1,4 @@
-AdditionalClassValidation = TestCase("Additional Class Validation");
+AdditionalClassValidation = TestCase("[Connection] Additional Class Validation");
 
 AdditionalClassValidation.prototype.testClassNameDefined = function() {
     var presenter = AddonConnection_create();

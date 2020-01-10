@@ -74,5 +74,20 @@ TestCase("[External Link Button] Model validation", {
         assertEquals(this.presenter.DISPLAY_CONTENT_TYPE.BOTH, validatedModel.displayContent);
         assertTrue(validatedModel.isVisible);
         assertTrue(validatedModel.isVisibleByDefault);
-    }
+    },
+
+	'test trailing spaces in uri are removed': function() {
+    	 var model = {
+            'Is Visible': "True",
+            'Image': "/file/server/123456",
+            'URI': '  callto:123456789   	 	',
+            'Title': 'Call me!'
+        };
+
+        // when
+        var validatedModel = this.presenter.validateModel(model);
+
+        // then
+        assertEquals('callto:123456789', validatedModel.URI);
+	}
 });

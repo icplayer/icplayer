@@ -19,6 +19,7 @@ public class LimitedResetView extends PushButton implements IDisplay {
 	private IPlayerServices playerServices;
 	private boolean isDisabled = false;
 	private boolean isShowAnswersMode = false;
+	private String originalDisplay = "";
 	
 	public LimitedResetView(LimitedResetModule module, IPlayerServices services) {
 		this.playerServices = services;
@@ -30,6 +31,7 @@ public class LimitedResetView extends PushButton implements IDisplay {
 	
 	private void createUI() {
 		StyleUtils.applyInlineStyle(this, module);
+		originalDisplay = getElement().getStyle().getDisplay();
 		
 		StyleUtils.setButtonStyleName("ic_button_limited_reset", this, module);
 
@@ -103,5 +105,15 @@ public class LimitedResetView extends PushButton implements IDisplay {
 	@Override
 	public String getName() {
 		return "LimitedReset";
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
 	}
 }

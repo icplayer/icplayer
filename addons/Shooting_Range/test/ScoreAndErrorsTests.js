@@ -32,6 +32,6 @@ TestCase("[Shooting_Range - score and errors] error count", {
     'test get error count reset value in state': function () {
         this.presenter.getErrorCount();
 
-        assertEquals(0, this.presenter.state.errorCount);
+        assertEquals(4, this.presenter.state.errorCount);
     }
 });

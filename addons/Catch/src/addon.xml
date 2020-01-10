@@ -12,5 +12,6 @@
         <property name="Item_Height" nameLabel="Catch_property_item_height" type="string" isLocalized="true" />
         <property name="Points to finish" nameLabel="Catch_property_points_to_finish" type="string" isLocalized="true" />
         <property name="Count errors" nameLabel="Catch_property_count_errors" type="boolean" isLocalized="true" />
+        <property name='Plate image' nameLabel="Catch_property_plate_image" type='image' />
     </model>
 </addon>

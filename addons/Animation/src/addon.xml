@@ -20,5 +20,13 @@
 		<property name="Watermark size" nameLabel="Animation_property_watermark_size" type="string" />
 		<property name="Don't reset on end" nameLabel="Animation_property_do_not_reset_on_end" type="boolean" />
 		<property name="Is click disabled" nameLabel="Animation_property_is_click_disabled" type="boolean" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Animation_property_speech_texts" type="staticlist">
+            <property name="Stop" nameLabel="Animation_property_stop_speech_text" type="staticrow">
+                <property name="Stop" nameLabel="Animation_property_stop_speech_text" type="string"/>
+            </property>
+		</property>
+		<property name="Alternative Text" displayName="Alternative Text" nameLabel="Animation_property_alt_text" type="text" />
+		<property name="Preview Alternative Text" displayName="Preview Alternative Text" nameLabel="Animation_property_alt_text_prev" type="text" />
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="Animation_property_lang_attribute" type="string" />
 	</model>
 </addon>

@@ -9,6 +9,7 @@ import com.lorepo.icplayer.client.utils.DevicesUtils;
 public abstract class ExecutableButton extends PushButton {
 	protected IPlayerServices playerServices;
 	private long hoverTimeout = -1;
+	private String originalDisplay = "placeholder-value";
 	
 	public ExecutableButton(IPlayerServices playerServices) {
 		this.playerServices = playerServices;
@@ -67,5 +68,18 @@ public abstract class ExecutableButton extends PushButton {
             super.addStyleDependentName(styleSuffix);
         }
     }
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (originalDisplay.equals("placeholder-value")) {
+			originalDisplay = getElement().getStyle().getDisplay();
+		}
+		if (visible) {
+			super.setVisible(true);
+			getElement().getStyle().setProperty("display", originalDisplay);	
+		} else {
+			super.setVisible(false);
+		}
+	}
 	
 }

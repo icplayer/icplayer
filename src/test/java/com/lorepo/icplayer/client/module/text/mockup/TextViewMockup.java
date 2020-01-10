@@ -1,29 +1,29 @@
 package com.lorepo.icplayer.client.module.text.mockup;
 
+import com.google.gwt.dom.client.Element;
+import com.lorepo.icplayer.client.module.text.*;
+import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
+import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.lorepo.icplayer.client.module.text.GapInfo;
-import com.lorepo.icplayer.client.module.text.ITextViewListener;
-import com.lorepo.icplayer.client.module.text.InlineChoiceInfo;
-import com.lorepo.icplayer.client.module.text.LinkInfo;
-import com.lorepo.icplayer.client.module.text.TextModel;
-import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
-import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
 
 public class TextViewMockup implements IDisplay {
 
 	private ITextViewListener listener;
 	private HashMap<String, String> values = new HashMap<String, String>();
-	
-	
+	private int refreshMathCallCount = 0;
+	private int refreshGapMathCallCount = 0;
+
 	public TextViewMockup(TextModel module) {
 		// TODO Auto-generated constructor stub
+	}
+	
+	public void callAudioButtonClickedListenerWith(AudioInfo audio) {
+		this.listener.onAudioButtonClicked(audio);
 	}
 
 	@Override
@@ -74,6 +74,11 @@ public class TextViewMockup implements IDisplay {
 	}
 
 	@Override
+	public void connectAudios(Iterator<AudioInfo> iterator) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
 	public int getChildrenCount() {
 		// TODO Auto-generated method stub
 		return 0;
@@ -98,8 +103,20 @@ public class TextViewMockup implements IDisplay {
 
 	@Override
 	public void refreshMath() {
-		// TODO Auto-generated method stub
-		
+		refreshMathCallCount++;
+	}
+
+	@Override
+	public void refreshGapMath(String id) {
+		refreshGapMathCallCount++;
+	}
+
+	public boolean wasRefreshGapMathCalled() {
+		return refreshGapMathCallCount > 0;
+	}
+
+	public boolean wasRefreshMathCalled() {
+		return refreshMathCallCount > 0;
 	}
 
 	@Override

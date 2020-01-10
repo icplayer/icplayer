@@ -42,9 +42,9 @@ public class GWTTextViewTestCase extends GwtTest {
 
 		this.model = new TextModel();
 		this.textView = new TextView(this.model, false);
-		GapInfo gapInfo1 = new GapInfo("sddsf1", 12, false, true, 0);
+		GapInfo gapInfo1 = new GapInfo("sddsf1", 12, false, true, 0, false);
 		InlineChoiceInfo gapInfo2 = new InlineChoiceInfo("sddsf2", "12", 0);
-		GapInfo gapInfo3 = new GapInfo("sddsf3", 12, false, true, 0);
+		GapInfo gapInfo3 = new GapInfo("sddsf3", 12, false, true, 0, false);
 		
 		this.gapWidget1 = new GapWidget(gapInfo1, null);
 		this.gapWidget2 = new InlineChoiceWidget(gapInfo2, null, this.textView);
@@ -71,4 +71,6 @@ public class GWTTextViewTestCase extends GwtTest {
 		assertFalse(this.gapWidget2.isSelected());
 		assertFalse(this.gapWidget3.isSelected());		
 	}
+
+
 }

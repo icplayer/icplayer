@@ -31,11 +31,16 @@ import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyListener;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.content.services.PlayerServices;
+import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.framework.module.IStyleListener;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.Page.LayoutType;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.module.api.player.IPage;
+import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
 import com.lorepo.icplayer.client.xml.page.parsers.PageParser_v1;
 import com.lorepo.icplayer.client.module.text.TextParser;
@@ -399,5 +404,93 @@ public class PageTestCase {
 		}
 
 		assertEquals("percentage", foundValue);
+	}
+	
+	@Test
+	public void testGivenCheckNonReportableIsTrueWhenTestingIfPageIsVisitedThenReturnCorrectValues(){
+		Page page1 = new Page("Page 1", "");
+		Page page2 = new Page("Page 2", "");
+		PlayerServices mockedServices = Mockito.mock(PlayerServices.class);
+		Mockito.doReturn(true).when(mockedServices).isPageVisited(page1);
+		Mockito.doReturn(false).when(mockedServices).isPageVisited(page2);
+		page1.setPlayerServices(mockedServices);
+		page2.setPlayerServices(mockedServices);
+		
+		
+		boolean resultForPage1 = page1.isVisited(true);
+		boolean resultForPage2 = page2.isVisited(true);
+		
+		assertTrue(resultForPage1);
+		assertFalse(resultForPage2);
+	}
+	
+	@Test
+	public void testGivenNoArgumentsWhenTestingIfPageIsVisitedThenSetCheckNonReportableToFalseAndReturnCorrectValue(){
+		Page page1 = Mockito.mock(Page.class);
+		
+		Mockito.doReturn(true).when(page1).isVisited(false);
+		Mockito.doCallRealMethod().when(page1).isVisited();
+		
+		boolean resultForPage1 = page1.isVisited();
+		
+		assertTrue(resultForPage1);
+		Mockito.verify(page1, Mockito.times(1)).isVisited(false);
+	}
+	
+	@Test
+	public void testGivenCurrentlyDisplayedPageWhenTestingIfPageIsVisitedThenReturnTrue(){
+		Page page1 = new Page("Page 1", "");
+		Page page2 = new Page("Page 2", "");
+		
+		Content mockedModel = Mockito.mock(Content.class);
+		Mockito.doReturn(2).when(mockedModel).getPageCount();
+		Mockito.doReturn(page1).when(mockedModel).getPage(0);
+		Mockito.doReturn(page2).when(mockedModel).getPage(1);
+		
+		PlayerServices mockedServices = Mockito.mock(PlayerServices.class);
+		Mockito.doReturn(mockedModel).when(mockedServices).getModel();
+		Mockito.doReturn(1).when(mockedServices).getCurrentPageIndex();
+		
+		page2.setPlayerServices(mockedServices);
+		
+		boolean result = page2.isVisited(false);
+		
+		assertTrue(result);
+	}
+	
+	@Test
+	public void testGivenCheckNonReportableIsFalseWhenTestingIfPageIsVisitedThenReturnCorrectValues(){
+		Page page1 = new Page("Page 1", "");
+		Page page2 = new Page("Page 2", "");
+		Page page3 = new Page("Page 3", "");
+		
+		Content mockedModel = Mockito.mock(Content.class);
+		Mockito.doReturn(2).when(mockedModel).getPageCount();
+		Mockito.doReturn(page1).when(mockedModel).getPage(0);
+		Mockito.doReturn(page2).when(mockedModel).getPage(1);
+		
+		PageScore score1 = Mockito.mock(PageScore.class);
+		Mockito.doReturn(false).when(score1).hasScore();
+		
+		PageScore score2 = Mockito.mock(PageScore.class);
+		Mockito.doReturn(true).when(score2).hasScore();
+		
+		ScoreService mockedScoreService = Mockito.mock(ScoreService.class);
+		Mockito.doReturn(score1).when(mockedScoreService).getPageScoreById(page1.getId());
+		Mockito.doReturn(score2).when(mockedScoreService).getPageScoreById(page2.getId());
+		
+		PlayerServices mockedServices = Mockito.mock(PlayerServices.class);
+		Mockito.doReturn(mockedModel).when(mockedServices).getModel();
+		Mockito.doReturn(2).when(mockedServices).getCurrentPageIndex();
+		Mockito.doReturn(mockedScoreService).when(mockedServices).getScoreService();
+		
+		page1.setPlayerServices(mockedServices);
+		page2.setPlayerServices(mockedServices);
+		
+		boolean resultForPage1 = page1.isVisited(false);
+		boolean resultForPage2 = page2.isVisited(false);
+		
+		assertFalse(resultForPage1);
+		assertTrue(resultForPage2);
 	}
 }

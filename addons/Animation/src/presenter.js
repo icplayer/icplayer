@@ -4,6 +4,8 @@ function AddonAnimation_create (){
     var presenter = function () {};
     presenter.DOMElements = {};
     presenter.configuration = {};
+    
+    var isSpeaking = false; //tts is currently attempting to play the alternative text (but not the preview alt text)
 
     presenter.ERROR_CODES = {
         'AI_01': "Animation image wasn't set or was set incorrectly!",
@@ -44,7 +46,8 @@ function AddonAnimation_create (){
     presenter.eventBus = null;
 
     presenter.upgradeModel = function (model) {
-        return presenter.addFramesToLabels(model);
+        var upgradedModel = presenter.addFramesToLabels(model);
+        return presenter.upgradeTextToSpeech(upgradedModel);
     };
 
     presenter.addFramesToLabels = function (model) {
@@ -58,6 +61,49 @@ function AddonAnimation_create (){
         }
 
         return upgradedModel;
+    };
+
+    presenter.upgradeTextToSpeech = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel['Alternative Text']) {
+            upgradedModel['Alternative Text'] = ''
+        }
+
+        if (!upgradedModel['Preview Alternative Text']) {
+            upgradedModel['Preview Alternative Text'] = ''
+        }
+
+        if (!upgradedModel['speechTexts']) {
+            upgradedModel['speechTexts'] = {
+                Stop: {Stop: "stopped"}
+            };
+        }
+
+        if (!upgradedModel['langAttribute']) {
+            upgradedModel['langAttribute'] = '';
+        }
+
+        return upgradedModel;
+    };
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    presenter.getspeechTexts = function(speechTexts) {
+        var speechTexts = {
+            stop:    getSpeechTextProperty(speechTexts['Stop']['Stop'], "Stopped")
+        };
+
+        return speechTexts;
     };
 
     function setDOMElementsHrefsAndSelectors(view) {
@@ -192,21 +238,25 @@ function AddonAnimation_create (){
             image = getCanvasFromImg(animationImage);
         }
 
-        presenter.frames = [];
+        presenter.images = [];
         var makeFrames = function() {
-            var ctx, i;
+            var i;
             try {
-                for (i=0; i < presenter.configuration.framesCount; i++) {
-                    var canvas = document.createElement('canvas');
-                    canvas.setAttribute('width', elementWidth);
-                    canvas.setAttribute('height', elementHeight);
-                    ctx = canvas.getContext('2d');
-                    drawImageIOSFix(ctx, image, i*source_width, 0, source_width, source_height, 0, 0, elementWidth, elementHeight);
-                    presenter.frames[i] = canvas;
-                    $(canvas).remove();
+                for (i = 0; i < presenter.configuration.framesCount; i++) {
+                    presenter.images.push(new presenter.ImageWrapper({
+                        destinationHeight: elementHeight,
+                        destinationWidth: elementWidth,
+                        destinationX: 0,
+                        destinationY: 0,
+                        image: image,
+                        sourceHeight: source_height,
+                        sourceWidth: source_width,
+                        sourceX: i * source_width,
+                        sourceY: 0
+                    }));
                 }
             } catch (e) {
-                if (e.name == "NS_ERROR_NOT_AVAILABLE") {
+                if (e.name === "NS_ERROR_NOT_AVAILABLE") {
                     makeFrames();
                 } else {
                     throw e;
@@ -215,9 +265,14 @@ function AddonAnimation_create (){
         };
         makeFrames();
 
+        var $animationDOM = $(presenter.DOMElements.animation);
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': elementWidth, 'height': elementHeight, 'position':'absolute'});
-        $(presenter.DOMElements.animation).append(clickhandler);
-        $(presenter.DOMElements.animation).append(presenter.frames[0]);
+        $animationDOM.append(clickhandler);
+
+
+        presenter.createCanvas(elementWidth, elementHeight);
+        $animationDOM.append(presenter.canvas);
+
 
         $(presenter.DOMElements.animation).css({
             width: elementWidth + 'px',
@@ -230,6 +285,35 @@ function AddonAnimation_create (){
 
         $(animationImage).remove();
     }
+
+    presenter.createCanvas = function AddonAnimation_createCanvas(elementWidth, elementHeight) {
+        presenter.canvas = document.createElement('canvas');
+        presenter.canvas.setAttribute('width', elementWidth);
+        presenter.canvas.setAttribute('height', elementHeight);
+
+        presenter.canvasContext = presenter.canvas.getContext('2d');
+
+        // draw first frame
+        presenter.drawImage(
+            presenter.canvasContext,
+            presenter.images[0]
+        );
+    };
+
+    presenter.drawImage = function AddonAnimation_drawImage(ctx, image) {
+        drawImageIOSFix(
+            ctx,
+            image.image,
+            image.sourceX,
+            image.sourceY,
+            image.sourceWidth,
+            image.sourceHeight,
+            image.destinationX,
+            image.destinationY,
+            image.destinationWidth,
+            image.destinationHeight
+        );
+    };
 
     function loadImages() {
         showLoadingScreen();
@@ -288,8 +372,9 @@ function AddonAnimation_create (){
     }
 
     function changeFrame() {
-    	$(presenter.DOMElements.animation).find('canvas').remove();
-    	$(presenter.DOMElements.animation).append(presenter.frames[presenter.configuration.currentFrame]);
+        var i = presenter.configuration.currentFrame;
+
+        presenter.drawImage(presenter.canvasContext, presenter.images[i]);
 
         if (presenter.configuration.animationState === presenter.ANIMATION_STATE.STOPPED) {
             showLabelsForFrame(0);
@@ -327,7 +412,7 @@ function AddonAnimation_create (){
         $.doTimeout(presenter.configuration.queueName, presenter.configuration.frameDuration, presenter.onTimeoutCallback);
     };
 
-    presenter.onTimeoutCallback = function () {
+    presenter.onTimeoutCallback = function AddonAnimation_onTimeoutCallback() {
         if (presenter.configuration.animationState !== presenter.ANIMATION_STATE.PLAYING) {
                 return false;
         }
@@ -343,7 +428,7 @@ function AddonAnimation_create (){
             } else {
                 presenter.configuration.animationState = presenter.ANIMATION_STATE.ENDED;
                 $.doTimeout(presenter.configuration.queueName, false);
-                presenter.sendEndAnimationEvent();
+                presenter.endAnimationHandler();
                 return false;
             }
         }
@@ -449,6 +534,11 @@ function AddonAnimation_create (){
         presenterLogic(view, model, true);
     };
 
+    presenter.destroy = function AddonAnimation_destroy() {
+        presenter.canvas = null;
+        presenter.canvasContext = null;
+    };
+
     presenter.run = function(view, model){
         presenterLogic(view, model, false);
     };
@@ -549,6 +639,16 @@ function AddonAnimation_create (){
             presenter.stop();
         } else {
             presenter.playAnimation();
+            if (presenter.playerController.isWCAGOn()) {
+                isSpeaking = true;
+
+                var speakCallback = function () {
+                    isSpeaking = false;
+                    presenter.endAnimationHandler();
+                };
+
+                presenter.speakWithDelay([window.TTSUtils.getTextVoiceObject(presenter.configuration.altText, presenter.configuration.lang)], speakCallback);
+            }
         }
     });
 
@@ -724,6 +824,8 @@ function AddonAnimation_create (){
     };
 
     presenter.validateModel = function(model) {
+        var speechTexts = presenter.getspeechTexts(model['speechTexts']);
+
         if (ModelValidationUtils.isStringEmpty(model["Preview image"])) {
             return { isError: true, errorCode: "PI_01" };
         }
@@ -782,7 +884,11 @@ function AddonAnimation_create (){
             isVisibleByDefault: isVisibleByDefault,
             isVisible: isVisibleByDefault,
             watermarkOptions: validatedOptions,
-            addonID: model.ID
+            addonID: model.ID,
+            altText: model['Alternative Text'],
+            altTextPreview: model['Preview Alternative Text'],
+            lang: model['langAttribute'],
+            speechTexts: speechTexts
         };
     };
 
@@ -855,6 +961,7 @@ function AddonAnimation_create (){
 
     function drawImageIOSFix(ctx, img, sx, sy, sw, sh, dx, dy, dw, dh) {
         var vertSquashRatio = detectVerticalSquash(img);
+        ctx.clearRect(0, 0, presenter.canvas.width, presenter.canvas.height);
         ctx.drawImage(img, sx * vertSquashRatio, sy * vertSquashRatio,
             sw * vertSquashRatio, sh * vertSquashRatio,
             dx, dy, dw, dh );
@@ -869,6 +976,151 @@ function AddonAnimation_create (){
         };
         
         presenter.eventBus.sendEvent('ValueChanged', eventData);
+    };
+
+    presenter.endAnimationHandler = function () {
+        if (presenter.configuration.animationState == presenter.ANIMATION_STATE.ENDED &&
+            (!presenter.playerController.isWCAGOn() || !isSpeaking)) {
+            presenter.sendEndAnimationEvent();
+            if (presenter.playerController.isWCAGOn()) {
+                presenter.stop();
+            }
+        }
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function(data, callback) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && presenter.playerController.isWCAGOn()) {
+            tts.speakWithCallback(data, callback);
+        }
+    };
+
+    var delayedSpeakInterval = null; // only used by speakWithDelay, which is why they are here and not at the top of the file
+    var delayedSpeakTimeout = null;
+    //This method works like speak, except that it waits for TTS to be idle instead of interrupting it
+    presenter.speakWithDelay = function (data, callback) {
+        presenter.stopDelayedTTS();
+
+        function setSpeakInterval (data, callback) {
+            delayedSpeakInterval = setInterval(function () {
+                var speechSynthSpeaking = false;
+                var responsiveVoiceSpeaking = false;
+
+                // Detect if TTS is idle
+                if ('speechSynthesis' in window) {
+                    speechSynthSpeaking = window.speechSynthesis.speaking;
+                }
+                if (window.responsiveVoice) {
+                    responsiveVoiceSpeaking = window.responsiveVoice.isPlaying();
+                }
+
+                if (!speechSynthSpeaking && !responsiveVoiceSpeaking) {
+                    // If TTS is idle, pass data to TTS and break the loop
+                    clearInterval(delayedSpeakInterval);
+                    delayedSpeakInterval = null;
+                    var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+                    if (tts && presenter.playerController.isWCAGOn()) {
+                        tts.speakWithCallback(data, callback);
+                    }
+                }
+            }, 200);
+        }
+
+        /*
+        * The timeout is used to ensure that if animation is triggered by another addon,
+        * that addon has the opportunity to use TTS first, since animation acts as feedback
+        */
+        delayedSpeakTimeout = setTimeout(function(){ setSpeakInterval(data, callback); }, 300);
+    };
+
+    presenter.stopDelayedTTS = function() {
+        if(delayedSpeakTimeout) {
+            clearTimeout(delayedSpeakTimeout);
+            delayedSpeakTimeout = null;
+        }
+         if(delayedSpeakInterval) {
+            clearInterval(delayedSpeakInterval);
+            delayedSpeakInterval = null;
+        }
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+
+        var keys = {
+            ENTER: 13,
+            SPACE: 32
+        };
+
+        var enter = function() {
+            event.preventDefault();
+            presenter.stopDelayedTTS();
+            if(!isShiftKeyDown) {
+                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.altTextPreview, presenter.configuration.lang)]);
+            }
+        };
+
+        var space = function() {
+            event.preventDefault();
+            presenter.stopDelayedTTS();
+            if (presenter.configuration.animationState == presenter.ANIMATION_STATE.PLAYING ||
+                presenter.configuration.animationState == presenter.ANIMATION_STATE.ENDED ||
+                isSpeaking) {
+                presenter.stop();
+                presenter.speak([window.TTSUtils.getTextVoiceObject(presenter.configuration.speechTexts.stop)]);
+                isSpeaking = false;
+            } else {
+                presenter.stop();
+                presenter.play();
+            }
+        };
+
+        var mapping = {};
+        mapping[keys.ENTER] = enter;
+        mapping[keys.SPACE] = space;
+
+        try {
+            mapping[keycode]();
+        } catch (er) {
+        }
+    };
+
+    presenter.isEnterable = function() {return false};
+
+    presenter.markerWCAG = {}; // This is a marker identifying the addon as supporting WCAG to the editor
+
+    /**
+     *
+     * @param configuration {object}
+     * @param configuration.image source image
+     * @param configuration.sourceX {number} source x position
+     * @param configuration.sourceY {number} source y position
+     * @param configuration.sourceWidth {number} source width
+     * @param configuration.sourceHeight {number} source height
+     * @param configuration.destinationWidth {number} destination width
+     * @param configuration.destinationHeight {number} destination height
+     * @param configuration.destinationX {number} where source should be placed in destination x position
+     * @param configuration.destinationY {number} where source should be placed in destination y position
+     * @constructor
+     */
+    presenter.ImageWrapper = function (configuration) {
+        this.image = configuration.image;
+        this.sourceX = configuration.sourceX;
+        this.sourceY = configuration.sourceY;
+        this.sourceWidth = configuration.sourceWidth;
+        this.sourceHeight = configuration.sourceHeight;
+        this.destinationWidth = configuration.destinationWidth;
+        this.destinationHeight = configuration.destinationHeight;
+        this.destinationX = configuration.destinationX;
+        this.destinationY = configuration.destinationY;
     };
 
     return presenter;

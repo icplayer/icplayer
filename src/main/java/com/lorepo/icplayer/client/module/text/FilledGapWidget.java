@@ -7,11 +7,17 @@ import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.user.client.Element;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
 
-public class FilledGapWidget extends GapWidget implements TextElementDisplay{
+public class FilledGapWidget extends GapWidget implements TextElementDisplay {
 
 	public FilledGapWidget(GapInfo gi, final ITextViewListener listener){
-		
 		super(gi, listener);
+	}
+
+	// initialize will be called in super constructor and in reconnectHandlers
+	@Override
+	protected void initialize(final ITextViewListener listener) {
+		super.initialize(listener);
+
 		Element element = getElement();
 		
 		if (element.getAttribute("class").contains("ui-droppable")) {
@@ -20,9 +26,14 @@ public class FilledGapWidget extends GapWidget implements TextElementDisplay{
 			setStylePrimaryName("ic_filled_gap");
 		}
 		
-		getElement().setPropertyString("placeholder", gi.getPlaceHolder());
-		
+		element.setPropertyString("placeholder", this.gapInfo.getPlaceHolder());
+	}
+	
+	@Override
+	protected void connectHandlers(final ITextViewListener listener) {
 		if (listener != null) {
+			super.connectHandlers(listener);
+			
 			addFocusHandler(new FocusHandler() {
 				public void onFocus(FocusEvent event) {
 					listener.onGapFocused(getGapInfo().getId(), event.getRelativeElement());

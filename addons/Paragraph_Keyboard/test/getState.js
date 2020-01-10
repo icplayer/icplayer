@@ -1,7 +1,7 @@
 TestCase("[Paragraph] getState method", {
     setUp: function () {
         this.presenter = AddonParagraph_Keyboard_create();
-
+        this.presenter.cacheTinymceState = "";
     },
 
     'test getState for existing editor': function () {

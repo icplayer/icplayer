@@ -141,6 +141,19 @@ function getScorm_1_2() {
 		return false;
 	}
 	
+	scorm.setFailed = function() {
+		if (initialized == true) {
+			return API.LMSSetValue("cmi.core.lesson_status", "failed");
+		}
+		return false;
+	}
+	
+	scorm.setPassed = function() {
+		if (initialized == true) {
+			return API.LMSSetValue("cmi.core.lesson_status", "passed");
+		}
+		return false;
+	}
 
 	scorm.setSessionTime = function(time) {
 		/**

@@ -1,7 +1,5 @@
 package com.lorepo.icplayer.client.content.services;
 
-import java.util.HashMap;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.ResettableEventBus;
@@ -11,17 +9,12 @@ import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.player.IAssetsService;
-import com.lorepo.icplayer.client.module.api.player.IContent;
-import com.lorepo.icplayer.client.module.api.player.IJsonServices;
-import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
-import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-import com.lorepo.icplayer.client.module.api.player.IReportableService;
-import com.lorepo.icplayer.client.module.api.player.IScoreService;
-import com.lorepo.icplayer.client.module.api.player.IStateService;
-import com.lorepo.icplayer.client.module.api.player.ITimeService;
+import com.lorepo.icplayer.client.module.api.player.*;
 import com.lorepo.icplayer.client.page.PageController;
+
+import java.util.HashMap;
 
 public class PlayerServices implements IPlayerServices {
 
@@ -122,6 +115,13 @@ public class PlayerServices implements IPlayerServices {
 		return pageController.findModule(moduleId);
 	}
 
+	
+	@Override
+	public GroupPresenter getGroup(String groupId) {
+		return pageController.findGroup(groupId); 
+	}
+	
+	
 	@Override
 	public IPresenter getHeaderModule(String moduleId) {
 		return playerController.findHeaderModule(moduleId);
@@ -209,15 +209,25 @@ public class PlayerServices implements IPlayerServices {
 		
 		this.fixDroppable();
 	}
-	
-	public void fixDroppable() {
+
+	@Override
+	public JavaScriptObject getContextMetadata() {
+		return this.application.getContextMetadata();
+	}
+
+    @Override
+    public void sendResizeEvent() {
+        this.pageController.sendResizeEvent();
+    }
+
+    public void fixDroppable() {
 		if (this.jQueryPrepareOffsetsFunction == null) {
 			this.jQueryPrepareOffsetsFunction = this.getJQueryUIPrepareOffsetFunction();
 		}
 		
 		if (this.scaleInformation.scaleX != 1.0 && this.scaleInformation.scaleY != 1.0) {
 			this.jQueryUiDroppableScaleFix(this.jQueryPrepareOffsetsFunction);
-			this.jQueryUiDroppableIntersectFix();
+			this.jQueryUiDroppableIntersectFix(this);
 		}
 	}
 	
@@ -249,18 +259,32 @@ public class PlayerServices implements IPlayerServices {
 		$wnd.$.ui.ddmanager.prepareOffsets = scaleFixDecorator(originalPrepare);
 	}-*/;
 
-	private native void jQueryUiDroppableIntersectFix()  /*-{
+	
+	private native void jQueryUiDroppableIntersectFix(PlayerServices x)  /*-{
 		
 		// function from jquery-ui adjusted with scaling (getBoundingClientRect function)
 		// https://github.com/jquery/jquery-ui/blob/1.8.20/ui/jquery.ui.droppable.js
-		$wnd.$.ui.intersect = $wnd.$.ui.intersect = function(draggable, droppable, toleranceMode) {
+		var getScaleInformation = $entry(function() {
+			var scale = {X: 1.0, Y:1.0};
+			var scaleInfo = x.@com.lorepo.icplayer.client.content.services.PlayerServices::getScaleInformation()();
+			scale.X = scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleX;
+			scale.Y = scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleY;
+			return scale;
+		});
+		
+		$wnd.$.ui.intersect = $wnd.$.ui.intersect = function(draggable, droppable, toleranceMode) {			
 			if (!droppable.offset) return false;
-	
-			var x1 = (draggable.positionAbs || draggable.position.absolute).left, x2 = x1 + draggable.element[0].getBoundingClientRect().width,
-				y1 = (draggable.positionAbs || draggable.position.absolute).top, y2 = y1 + draggable.element[0].getBoundingClientRect().height;
+			if (!draggable.isGeneratePositionScaled) { //a decorator applying scaling to draggable._generatePosition is being used
+				var x1 = (draggable.positionAbs || draggable.position.absolute).left, x2 = x1 + draggable.element[0].getBoundingClientRect().width,
+					y1 = (draggable.positionAbs || draggable.position.absolute).top, y2 = y1 + draggable.element[0].getBoundingClientRect().height;
+			} else {
+				var scale = getScaleInformation();
+				var x1 = draggable.position.left * scale.X - draggable.originalPosition.left, x2 = x1 + draggable.helperProportions.width * scale.X,
+					y1 = draggable.position.top * scale.Y - draggable.originalPosition.top, y2 = y1 + draggable.helperProportions.height * scale.Y;
+			}
 			var l = droppable.offset.left, r = l + droppable.element[0].getBoundingClientRect().width,
 				t = droppable.offset.top, b = t + droppable.element[0].getBoundingClientRect().height;
-		
+
 			switch (toleranceMode) {
 				case 'fit':
 					return (l <= x1 && x2 <= r
@@ -312,5 +336,21 @@ public class PlayerServices implements IPlayerServices {
 			return pc.isWCAGOn();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean isPageVisited(IPage page) {
+		return this.playerController.getVisitedPages().contains(page);
+	}
+
+	@Override
+	public void sendExternalEvent(String eventType, String data) {
+		this.playerController.sendExternalEvent(eventType, data);
+
+	}
+
+	@Override
+	public String getContentMetadata(String key) {
+		return this.getModel().getMetadataValue(key);
 	}
 }

@@ -91,6 +91,33 @@ TestCase("[Slideshow] Validation", {
         assertNotUndefined(validationResult.errorCode);
     },
 
+    'test given model with no audio files and "no audio" checked when validating model then do not return error': function() {
+        this.model.Audio = [{
+            MP3: "",
+            OGG: ""
+        }];
+        this.model["No audio"] = "True";
+        this.model["Presentation duration"] = "12";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertFalse(validationResult.isError);
+    },
+
+    'test given model with "no audio" checked and invalid presentation duration when validating model then do return error': function() {
+        this.model.Audio = [{
+            MP3: "",
+            OGG: ""
+        }];
+        this.model["No audio"] = "True";
+        this.model["Presentation duration"] = "xxx";
+
+        var validationResult = this.presenter.validateModel(this.model);
+
+        assertTrue(validationResult.isError);
+        assertEquals(validationResult.errorCode, 'N_01');
+    },
+
     'test slides error': function() {
         this.model.Slides = [{
             Start: "00:00"

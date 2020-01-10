@@ -1,11 +1,5 @@
 package com.lorepo.icplayer.client.module.text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.InputElement;
@@ -22,26 +16,16 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.module.IEnterable;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
-import com.lorepo.icplayer.client.module.api.IActivity;
-import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.module.api.IModuleView;
-import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.IStateful;
-import com.lorepo.icplayer.client.module.api.event.CustomEvent;
-import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
-import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
-import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
-import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
-import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
+import com.lorepo.icplayer.client.module.api.*;
+import com.lorepo.icplayer.client.module.api.event.*;
+import com.lorepo.icplayer.client.module.api.event.dnd.*;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
+
+import java.util.*;
 
 public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IEnterable {
 
@@ -84,10 +68,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectDraggableGaps(Iterator<GapInfo> giIterator);
 		void connectInlineChoices(List<InlineChoiceInfo> list);
 		void connectLinks(Iterator<LinkInfo> giIterator);
+		void connectAudios(Iterator<AudioInfo> iterator);
 		int getChildrenCount();
 		TextElementDisplay getChild(int index);
 		void setValue(String id, String value);
 		void refreshMath();
+		void refreshGapMath(String id);
 		void hide();
 		void show(boolean b);
 		Element getElement();
@@ -122,6 +108,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private int currentScore = 0;
 	private int currentErrorCount = 0;
 	private int currentMaxScore = 0;
+	private boolean isTextSetByCommand = false;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -225,7 +212,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			// show 1st answer
 			Iterator<String> answers = gi.getAnswers();
-			gapsViewsElements.get(gi.getId()).setText(answers.hasNext() ? answers.next() : "");
+			String answer = answers.hasNext() ? answers.next() : "";
+			gapsViewsElements.get(gi.getId()).setText(answer);
 		}
 
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
@@ -239,6 +227,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void showAnswers() {
+		resetAudio();
+
 		if (!module.isActivity()) {
 			if (this.isShowErrorsMode) {
 				setWorkMode();
@@ -314,6 +304,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
 		}
+		resetAudio();
 		this.view.setShowErrorsMode();
 		this.isShowErrorsMode = true;
 	}
@@ -325,10 +316,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public String getState() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		HashMap<String, String> state = new HashMap<String, String>();
 		state.put("gapUniqueId", module.getGapUniqueId());
 		state.put("values", JSONUtils.toJSONString(values));
@@ -467,6 +454,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public void reset() {
+		if (isTextSetByCommand) {
+			setText(this.module.getDefaultModuleText());
+		}
+
 		if (module.isActivity() && isShowAnswers()) {
 			hideAnswers();
 		}
@@ -486,6 +477,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			child.setDisabled(module.isDisabled());
 		}
 
+		resetAudio();
+
 		if (enteredText != null) {
 			updateViewText();
 		}
@@ -498,6 +491,21 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		updateScore();
 
 		this.currentState = "";
+	}
+
+	private void resetAudio() {
+		List<AudioInfo> audioInfos = module.getAudioInfos();
+		for (int i = 0; i < audioInfos.size(); i++) {
+			AudioInfo audioInfo = audioInfos.get(i);
+			AudioButtonWidget button = audioInfo.getButton();
+			AudioWidget audio = audioInfo.getAudio();
+			boolean isElementExists = button != null && audio != null;
+
+			if (isElementExists && !audio.isPaused()) {
+				audio.reset();
+				button.setStartPlayingStyleClass();
+			}
+		}
 	}
 
 	@Override
@@ -559,11 +567,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
      private String getElementText(GapInfo gap) {
-		String t =  getElementText(gap.getId());
-		if(t.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
-			t = gap.getPlaceHolder();
+		String userAnswer =  getElementText(gap.getId());
+		if (userAnswer.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
+			userAnswer = gap.getPlaceHolder();
 		}
-		return t;
+		return userAnswer;
 	}
 	
 	@Override
@@ -594,16 +602,44 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		view.connectInlineChoices(module.getChoiceInfos());
 		view.connectLinks(module.getLinkInfos().iterator());
+		view.connectAudios(module.getAudioInfos().iterator());
 		view.sortGapsOrder();
 	}
 
 	private void connectViewListener() {
 		view.addListener(new ITextViewListener() {
 			@Override
+			public void onAudioButtonClicked(AudioInfo audioInfo) {
+				AudioWidget audio = audioInfo.getAudio();
+				AudioButtonWidget button = audioInfo.getButton();
+
+				if (audio.isPaused()) {
+					// in future if audio can be paused and replayed from stopped moment 
+					// reset would need to omit audio which was currently pressed
+					resetAudio();
+
+					audio.play();
+					button.setStopPlayingStyleClass();
+				} else {
+					audio.reset();
+					button.setStartPlayingStyleClass();
+				}
+			}
+
+			@Override
+			public void onAudioEnded(AudioInfo audioInfo) {
+				AudioWidget audio = audioInfo.getAudio();
+				AudioButtonWidget button = audioInfo.getButton();
+
+				audio.reset();
+				button.setStartPlayingStyleClass();
+			}
+
+			@Override
 			public void onUserAction(String id, String newValue) {
 				valueChangedOnUserAction(id, newValue);
 			}
-			
+
 			@Override
 			public void onValueChanged(String id, String newValue) {
 				valueChanged(id, newValue);
@@ -767,7 +803,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String score = Integer.toString(getItemScore(gapId));
 		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
 		playerServices.getEventBus().fireEvent(valueEvent);
-		if(Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
+		if (Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
 			removeFromGap(gapId, false);
 		}
 	}
@@ -775,18 +811,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void removeFromGap(String gapId, boolean shouldFireEvent) {
 		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
 
-		String value = "";
-		String score = "0";
-		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
-		consumedItems.remove(gapId);
-		values.remove(gapId);
-		view.setValue(gapId, "");
+		removeFromItems(gapId);
 		fireItemReturnedEvent(previouslyConsumedItem);
-		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
-		if(shouldFireEvent){
-			playerServices.getEventBus().fireEvent(valueEvent);
+
+		if (shouldFireEvent) {
+			sendRemoveFromGapValueChangedEvent(gapId);
 		}
-	}
+
+		view.refreshGapMath(gapId);
+    }
 
 	protected void gapFocused(String gapId, Element element) {
 		InputElement input = InputElement.as(element);
@@ -866,7 +899,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private GapInfo getGapInfoById(String gapId) {
 		GapInfo gap = gapInfos.get(gapId);
 		if (gap == null) {
-			gap = new GapInfo("stub", 0, false, false, 0);
+			gap = new GapInfo("stub", 0, false, false, 0, false);
 			for (GapInfo gap1 : module.getGapInfos()) {
 				if (gap1.getId().compareTo(gapId) == 0) {
 					gap = gap1;
@@ -955,6 +988,20 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 				markGapAsEmpty(gapIndex);
 			}
+		} else if (commandName.compareTo("getscore") == 0) {
+			return String.valueOf(getScore());
+		} else if (commandName.compareTo("geterrorcount") == 0) {
+			return String.valueOf(getErrorCount());
+		} else if (commandName.compareTo("getmaxscore") == 0) {
+			return String.valueOf(getMaxScore());
+		} else if (commandName.compareTo("setshowerrorsmode") == 0) {
+			setShowErrorsMode();
+		} else if (commandName.compareTo("setworkmode") == 0) {
+			setWorkMode();
+		} else if (commandName.compareTo("showanswers") == 0) {
+			showAnswers();
+		} else if (commandName.compareTo("hideanswers") == 0) {
+			hideAnswers();
 		}
 
 		return "";
@@ -965,7 +1012,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		GapInfo gap = getGapInfoById(itemID);
 		String enteredValue = getElementText(gap);
-		if (enteredValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
+		if (enteredValue.equals(gap.getPlaceHolder()) && !gap.isCorrect(gap.getPlaceHolder())) {
 			enteredValue = "";
 		}
 		if (gap.isCorrect(enteredValue)) {
@@ -1103,6 +1150,34 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		presenter.onEventReceived = function (eventName, data) {
 			x.@com.lorepo.icplayer.client.module.text.TextPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
+		};
+
+		presenter.getScore = function() {
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getScore()();
+		};
+
+		presenter.getErrorCount = function() {
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getErrorCount()();
+		};
+
+		presenter.getMaxScore = function() {
+			return x.@com.lorepo.icplayer.client.module.text.TextPresenter::getMaxScore()();
+		};
+
+		presenter.setShowErrorsMode = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setShowErrorsMode()();
+		};
+
+		presenter.setWorkMode = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::setWorkMode()();
+		};
+
+		presenter.showAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::showAnswers()();
+		};
+
+		presenter.hideAnswers = function() {
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::hideAnswers()();
 		};
 
 		return presenter;
@@ -1271,10 +1346,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private boolean isActivity() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		return module.isActivity();
 	}
 
@@ -1293,6 +1364,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void setText(String text) {
+		isTextSetByCommand = true;
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -1336,7 +1408,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		final boolean isWithGaps = view.getChildrenCount() > 0;
 		final boolean isEnabled = !this.module.isDisabled();
-		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled;
+		final boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled && !isGroupDivHidden;
 	}
 
 	@Override
@@ -1370,6 +1443,21 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		} else if (eventName.equals("HideAnswers")) {
 			hideAnswers();
 		}
+	}
+
+	private void sendRemoveFromGapValueChangedEvent(String gapId) {
+		String value = "";
+		String score = "0";
+		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
+		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
+
+		playerServices.getEventBus().fireEvent(valueEvent);
+	}
+
+	private void removeFromItems(String gapId) {
+		consumedItems.remove(gapId);
+		values.remove(gapId);
+		view.setValue(gapId, "");
 	}
 
 }
