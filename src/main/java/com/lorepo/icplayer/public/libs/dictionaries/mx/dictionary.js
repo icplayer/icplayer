@@ -1911,6 +1911,7 @@ var ice_dictionary_mx = {
     "dont_generate_correct_order": "Don't generate correct order",
     "alternative_text": "Alternative text",
     "edit_alternative_text": "Edit alternative text",
+	"edit_math": "Edit math",
 	"check_answers_button_edit_block": "Page edition is blocked",
 	"check_answers_button_no_edit_block": "Page edition is not blocked",
 	"alt_text": "Alternative Text",

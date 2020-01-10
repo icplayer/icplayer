@@ -1926,6 +1926,7 @@ var ice_dictionary_bl = {
 	"dont_generate_correct_order": "Не генерирай правилната последователност",
 	"alternative_text": "Алтернативен текст",
 	"edit_alternative_text": "Редактирай алтернативния текст",
+	"edit_math": "Edit math",
 	"check_answers_button_edit_block": "Редактирането на страницата е блокирано",
 	"check_answers_button_no_edit_block": "Редактирането на страницата не е блокирано",
 	"alt_text": "Алтернативен текст",

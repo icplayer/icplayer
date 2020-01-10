@@ -1910,6 +1910,7 @@ var ice_dictionary_pl = {
 	"dont_generate_correct_order": "Nie generuj poprawnej kombinacji",
 	"alternative_text": "Tekst alternatywny",
 	"edit_alternative_text": "Edytuj tekst alternatywny",
+	"edit_math": "Edit math",
 	"check_answers_button_edit_block": "Edycja strony jest zablokowana",
 	"check_answers_button_no_edit_block": "Edycja strony nie jest zablokowana",
   "alt_text": "Alternative Text",
