@@ -50,5 +50,26 @@ TestCase("[Commons - Controls-bar] Show hide elements", {
         this.controlsBar.hideControls();
         var afterShow = this.controlsBar.elements.mainDiv.element.style.display;
         assertEquals(expectedStyle, afterShow);
+    },
+
+    'test given disabled volume bar when controls are created then volume is hidden': function () {
+        var expectedStyle = 'none';
+        var controlsBar = new CustomControlsBar({
+            isVolumeEnabled: false
+        });
+
+        var afterShow = controlsBar.elements.volume.element.style.display;
+
+        assertEquals(expectedStyle, afterShow);
+    },
+
+    'test given enabled volume bar when controls are created then volume is visible': function () {
+        var expectedStyle = '';
+        var controlsBar = new CustomControlsBar({
+            isVolumeVisible: true
+        });
+
+        var afterShow = controlsBar.elements.volume.element.style.display;
+        assertEquals(expectedStyle, afterShow);
     }
 });

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<project name="Commons" basedir="." default="Addon.test">
+<project name="Commons" basedir=".">
     <property file="build.properties" />
     <property name="commons.version" value="4.2.1" />
     <property name="commons.lib.directory" value="lib" />
     <property name="publish-directory" value="${publish.dir}" />
-    <import file="../tools/targets.xml" />
 
-    <target name="compile" description="Compile and minimize source files into one, optimized one" depends="Addon.test">
+    <target name="compile" description="Compile and minimize source files into one, optimized one">
         <mkdir dir="bin" />
         <mkdir dir="bin/commons-${commons.version}" />
 

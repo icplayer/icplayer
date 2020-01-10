@@ -28,7 +28,8 @@ TestCase("[Commons - Controls-bar] Creating controls bar", {
             maxMediaTime: 0,
             actualMediaTime: 0,
             videoObject: null,
-            parentElement: null
+            parentElement: null,
+            isVolumeEnabled: true
         };
         var controlBar = new CustomControlsBar();
 
@@ -44,7 +45,8 @@ TestCase("[Commons - Controls-bar] Creating controls bar", {
             maxMediaTime: 7,
             actualMediaTime: 2,
             videoObject: null,
-            parentElement: divElement
+            parentElement: divElement,
+            isVolumeEnabled: false
         };
 
         var configuration = {
@@ -52,7 +54,8 @@ TestCase("[Commons - Controls-bar] Creating controls bar", {
             mouseDontMoveRefreshTime: 100,
             maxMediaTime: 7,
             actualMediaTime: 2,
-            parentElement: divElement
+            parentElement: divElement,
+            isVolumeEnabled: false
         };
 
         var controlBar = new CustomControlsBar(configuration);
