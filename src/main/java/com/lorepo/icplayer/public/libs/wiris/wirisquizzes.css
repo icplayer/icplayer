@@ -74,11 +74,14 @@ div.wiristabs div.wirisalgorithmlanguage {
     padding-bottom: 10px;
 }
 div.wiristabs .wiriscaswrapper {
-    bottom: 170px;
+    bottom: 0px;
     left: 10px;
     position: absolute;
     right: 10px;
-    top: 10px;
+    top: 15px;
+}
+div.wirisoutputoptionswrapper  {
+    padding-top: 10px;
 }
 div.wiristabs div.wiriscasbottomwrapper {
     bottom: 0;
@@ -144,19 +147,21 @@ div.wiristabs a.wiristablink.wirisselected {
     border-right: none;
 }
 a.wirishelp {
-    background: url("manual.png?v=3.63.0") no-repeat scroll left top transparent;
+    background: url("manual.png?v=3.77.2") no-repeat scroll left top transparent;
     display: block;
     height: 17px;
     margin: 0;
     width: 17px;
 }
+
 span.wirishelp {
-    position: absolute;
-    top: 3px;
-    right: 10px;
+    float: right;
+	margin-right: -3px;
+	margin-top: -25px;
 }
+
 span.wirisloading {
-    background: url("loading.gif?v=3.63.0") no-repeat scroll left top transparent;
+    background: url("loading.gif?v=3.77.2") no-repeat scroll left top transparent;
     display: inline-block;
     height: 16px;
     width: 16px;
@@ -171,6 +176,9 @@ div.wiristabs fieldset.wirisfieldset {
     border-color: #999;
     margin-bottom: 10px;
     padding-bottom: 5px;
+}
+div.wiristabs fieldset.wirisfieldset.wiriscaswrapper {
+	padding-top: 16px;
 }
 div.wiristabs fieldset.wiristestcorrectanswerfieldset {
     padding: 16px 10px;
@@ -191,8 +199,8 @@ div.wiristabs fieldset.wirisfieldset div.wirisfieldsetwrapper.wiriscollapsed {
     max-height: 0;
 }
 div.wiristabs fieldset.wirisfieldset div.wirisfieldsetwrapper.wirisexpanded {
-    overflow: hidden;
-    max-height: 300px;
+    overflow-y: auto;
+    max-height: 350px;
 }
 div.wiristabs fieldset.wirisfieldset div.wirisfieldsetwrapper {
     -webkit-transition: max-height .25s;
@@ -208,11 +216,11 @@ div.wiristabs fieldset.wirisfieldset legend a:hover {
     text-decoration: underline;
 }
 div.wiristabs fieldset.wirisfieldset legend a.wiriscollapsed {
-    background: url("fieldset-collapsed.png?v=3.63.0") no-repeat 3px 50%;
+    background: url("fieldset-collapsed.png?v=3.77.2") no-repeat 3px 50%;
     padding-left: 14px;
 }
 div.wiristabs fieldset.wirisfieldset legend a.wirisexpanded {
-    background: url("fieldset-expanded.png?v=3.63.0") no-repeat 3px 50%;
+    background: url("fieldset-expanded.png?v=3.77.2") no-repeat 3px 50%;
     padding-left: 14px;
 }
 div.wiristabs div.wiristolerance {
@@ -299,15 +307,15 @@ div.wirismessage {
 }
 div.wirismessage.wiriserror {
     color: #701703;
-    background: url("warning.png?v=3.63.0") no-repeat left top;
+    background: url("warning.png?v=3.77.2") no-repeat left top;
 }
 div.wirismessage.wiriswarning {
     color: #70370a;
-    background: url("warning2.png?v=3.63.0") no-repeat left top;
+    background: url("warning2.png?v=3.77.2") no-repeat left top;
 }
 div.wirismessage.wirisinfo {
     color: #265970;
-    background: url("warning3.png?v=3.63.0") no-repeat left top;
+    background: url("warning3.png?v=3.77.2") no-repeat left top;
 }
 
 div.wiristabs div.wirissecondaryfieldset {
@@ -383,7 +391,7 @@ div.wiristabs ul.wirisactionslist li a:hover {
     background-color: #fff;
 }
 
-fieldset.wiriscalclauncher {
+fieldset.wirisalgorithmeditorlauncher {
     border: none !important;
     padding-left: 0;
 }
@@ -391,11 +399,13 @@ fieldset.wiriscalclauncher {
 .wiriscaswrapper {
     padding: 20px 15px;
 }
-div.wiristabs .wiriscaswrapper {
+.wiriscaswrapper>div {
+    height: calc(100% - 20px);
     overflow: auto;
+    position: relative;
 }
 
-div.wirisjnlp {
+div.wiriscalcme {
     margin-bottom: 15px;
 }
 
@@ -571,7 +581,6 @@ div.wiristabs table.wirisoutputcontrolslist td {
 Styles for principal page
 **/
 div fieldset.wirisfieldsetvalidationandvariables {
-    padding: 7px;
     border: solid 1px #999;
     border-radius: 10px;
     margin: 10px 10px 10px 0;
@@ -587,7 +596,7 @@ div fieldset.wirisfieldsetvalidationandvariables legend {
     width: initial;
     line-height: initial;
     font-size: medium;
-    display: initial;
+    display: block;
     margin: 0;
 }
 
@@ -641,15 +650,15 @@ ul.wiristestassertionslist {
 }
 
 ul.wiristestassertionslist span.wiriscorrect {
-    background: url("correct.gif?v=3.63.0") no-repeat left;
+    background: url("correct.gif?v=3.77.2") no-repeat left;
 }
 
 ul.wiristestassertionslist span.wirisincorrect {
-    background: url("incorrect.gif?v=3.63.0") no-repeat left;
+    background: url("incorrect.gif?v=3.77.2") no-repeat left;
 }
 
 ul.wiristestassertionslist span.wirispartiallycorrect {
-    background: url("percent.gif?v=3.63.0") no-repeat left;
+    background: url("percent.gif?v=3.77.2") no-repeat left;
 }
 
 ul.wiristestassertionslist span {
@@ -688,17 +697,17 @@ input.wirisembeddedtextinput {
 */
 input.wirisembeddedmathinput,
 img.wirisembeddedmathinput {
-    background: #fff url("editor16.png?v=3.63.0") no-repeat;
+    background: #fff url("editor16.png?v=3.77.2") no-repeat;
 }
 input.wirisembeddedauthoringfield,
 img.wirisembeddedauthoringfield {
-    background: #fff url("studio16.png?v=3.63.0") no-repeat;
+    background: #fff url("studio16.png?v=3.77.2") no-repeat;
 }
 
 input.wirisembeddedstudioinput,
 img.wirisembeddedstudioinput,
 span.wirisembeddedstudioinput {
-    background: #fff url("studio24.png?v=3.63.0") no-repeat;
+    background: #fff url("studio24.png?v=3.77.2") no-repeat;
 }
 input.wirisembeddedstudioinput,
 img.wirisembeddedstudioinput {
@@ -788,7 +797,7 @@ div.wirisanswerfielddecoration.wiriseditordecoration div.wiriseditorwrapper.wrs_
 
 div.wirisanswerfielddecoration.wirisembeddeddecoration.wiriscorrect,
 div.wirisanswerfielddecoration.wiriseditordecoration.wiriscorrect div.wiriseditorwrapper {
-    background-image: url("correct.gif?v=3.63.0");
+    background-image: url("correct.gif?v=3.77.2");
 }
 div.wirisanswerfielddecoration.wirisembeddeddecoration.wiriscorrect input[type="text"],
 div.wirisanswerfielddecoration.wirisembeddeddecoration.wiriscorrect img.wirisembeddedmathinput {
@@ -798,7 +807,7 @@ div.wirisanswerfielddecoration.wirisembeddeddecoration.wiriscorrect img.wirisemb
 
 div.wirisanswerfielddecoration.wirisembeddeddecoration.wirisincorrect,
 div.wirisanswerfielddecoration.wiriseditordecoration.wirisincorrect div.wiriseditorwrapper {
-    background-image: url("incorrect.gif?v=3.63.0");
+    background-image: url("incorrect.gif?v=3.77.2");
 }
 div.wirisanswerfielddecoration.wirisembeddeddecoration.wirisincorrect input[type="text"],
 div.wirisanswerfielddecoration.wirisembeddeddecoration.wirisincorrect img.wirisembeddedmathinput {
@@ -808,7 +817,7 @@ div.wirisanswerfielddecoration.wirisembeddeddecoration.wirisincorrect img.wirise
 
 div.wirisanswerfielddecoration.wirisembeddeddecoration.wirispartiallycorrect,
 div.wirisanswerfielddecoration.wiriseditordecoration.wirispartiallycorrect div.wiriseditorwrapper {
-    background-image: url("percent.gif?v=3.63.0");
+    background-image: url("percent.gif?v=3.77.2");
 }
 div.wirisanswerfielddecoration.wirisembeddeddecoration.wirispartiallycorrect input[type="text"],
 div.wirisanswerfielddecoration.wirisembeddeddecoration.wirispartiallycorrect img.wirisembeddedmathinput {
@@ -860,10 +869,10 @@ table.wiristable th {
 }
 
 .wirisfillwithcorrectbutton {
-    background: url("uparrow24b.png?v=3.63.0");
+    background: url("uparrow24b.png?v=3.77.2");
 }
 .wirisrefreshbutton {
-    background: url("refresh24b.png?v=3.63.0");
+    background: url("refresh24b.png?v=3.77.2");
 }
 .wiriscorrectanswerlabel {
     border: solid 1px #a3a3a3;
@@ -894,21 +903,8 @@ div.wirisembeddedstudio div.wiristabs {
     display: inline-block;
 }
 
-a.wirisrevealcalclauncher {
+a.wirisalgorithmeditorlegend {
     cursor: pointer;
-    font-weight: normal !important;
-}
-
-div.wiristabs fieldset.wirisfieldset legend a.wirisexpanded.wirisrevealcalclauncher {
-    padding-left: 0;
-    padding-right: 14px;
-    background: url("fieldset-expanded.png?v=3.63.0") no-repeat right 50%;
-}
-
-div.wiristabs fieldset.wirisfieldset legend a.wiriscollapsed.wirisrevealcalclauncher {
-    padding-left: 0;
-    padding-right: 14px;
-    background: url("fieldset-collapsed.png?v=3.63.0") no-repeat right 50%;
 }
 
 div.wiriscalcquizzescontainer {
@@ -916,7 +912,7 @@ div.wiriscalcquizzescontainer {
     bottom: 0;
     top: 48px;
     width: 100%;
-    background: url("loading.gif?v=3.63.0") no-repeat center center;
+    background: url("loading.gif?v=3.77.2") no-repeat center center;
     z-index: 100;
 }
 
@@ -945,6 +941,19 @@ p.wiriscalcquizzesbeta {
     font-size: 14px;
 }
 
+p.wirisoutputoptionwarning {
+    margin: 10px 0px 10px 0px;
+    font-size: 13px;
+    opacity: 0.54;
+}
+
+p.wirisoutputoptionsbottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+
 /***
 Some CSS specially for moodle 2 standard theme.
 **/
@@ -954,23 +963,16 @@ Some CSS specially for moodle 2 standard theme.
     clear: left; /* Issue WQFM-153*/
 }
 
-/* We need to do this trick, because otherwise
-the upper border of the legend would disappear due to the overflow: auto;
-in wiriscaswrapper */
-.wiriscaswrapper legend {
+.wiriscaswrapper>legend {
     position: relative;
     top: 1px;
+    background-color: white;
 }
 
-/* Hack to give the help span the right alignment inside the algorithm
-wrapper in Firefox.
-*/
-@-moz-document url-prefix() {
-    fieldset.wiriscaswrapper span.wirishelp {
-        position: fixed;
-        right: 21px;
-        top: 14px;
-    }
+fieldset.wiriscaswrapper span.wirishelp {
+    position: relative;
+    right: 0px;
+    top: -10px;
 }
 
 div.wirisauxiliarcalcme {
@@ -982,4 +984,12 @@ div.wirisauxiliarcalcme {
 div.wirisalgorithmwrapper fieldset.wiriscaswrapper {
     border: solid 1px #999;
     border-radius: 8px;
+}
+
+body.wiriscalchidden {
+    margin: 0px;
+}
+
+body .wiriscalchidden {
+    display: none;
 }
