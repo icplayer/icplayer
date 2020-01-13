@@ -42,6 +42,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Line_Number", "activities_menu");
 		addDescriptor("Line_Selection", "activities_menu");
 		addDescriptor("Math", "activities_menu");
+		addDescriptor("MathText", "activities_menu");
 		addDescriptor("multiplegap", "activities_menu");
 		addDescriptor("Paragraph", "activities_menu");
 		addDescriptor("Paragraph_Keyboard", "activities_menu");
