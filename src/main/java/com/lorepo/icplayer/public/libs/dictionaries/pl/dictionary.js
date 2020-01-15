@@ -1911,6 +1911,7 @@ var ice_dictionary_pl = {
 	"alternative_text": "Tekst alternatywny",
 	"edit_alternative_text": "Edytuj tekst alternatywny",
 	"edit_math": "Edit math",
+	"math_connection_error": "An error has occured when connecting to the Wiris service",
 	"check_answers_button_edit_block": "Edycja strony jest zablokowana",
 	"check_answers_button_no_edit_block": "Edycja strony nie jest zablokowana",
   "alt_text": "Alternative Text",

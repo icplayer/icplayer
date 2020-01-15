@@ -184,4 +184,16 @@ public class AddonDescriptorFactory {
 	public Collection<AddonEntry> getEntries() {
 		return addonList.values();
 	}
+	
+	public void setWirisEnabled(boolean isEnabled) {
+		if (isEnabled) {
+			if (!addonList.containsKey("MathText")) {
+				addDescriptor("MathText", "activities_menu");
+			}
+		} else {
+			if (addonList.containsKey("MathText")) {
+				addonList.remove("MathText");
+			}
+		}
+	}
 }

@@ -1912,6 +1912,7 @@ var ice_dictionary_fr = {
     "alternative_text": "Alternative text",
     "edit_alternative_text": "Edit alternative text",
 	"edit_math": "Edit math",
+	"math_connection_error": "An error has occured when connecting to the Wiris service",
     "check_answers_button_edit_block": "Page edition is blocked",
     "check_answers_button_no_edit_block": "Page edition is not blocked",
     "alt_text": "Alternative Text",
