@@ -3,24 +3,27 @@ TestCase("[MathText] setAdditionalConfigBasedOnType tests", {
         this.presenter = AddonMathText_create();
     },
 
-    'when type is text, isActivity and showEditor should be false': function(){
-        this.presenter.setAdditionalConfigBasedOnType(this.presenter.TYPES_DEFINITIONS.TEXT);
+    'test when type is text, isActivity and showEditor should be false': function(){
+        var configuration = {};
+        this.presenter.setAdditionalConfigBasedOnType(configuration, this.presenter.TYPES_DEFINITIONS.TEXT);
 
-        assertFalse(this.presenter.configuration.isActivity);
-        assertFalse(this.presenter.configuration.showEditor);
+        assertFalse(configuration.isActivity);
+        assertFalse(configuration.showEditor);
     },
 
-    'when type is editor, isActivity should be false and showEditor should be true': function(){
-        this.presenter.setAdditionalConfigBasedOnType(this.presenter.TYPES_DEFINITIONS.EDITOR);
+    'test when type is editor, isActivity should be false and showEditor should be true': function(){
+        var configuration = {};
+        this.presenter.setAdditionalConfigBasedOnType(configuration, this.presenter.TYPES_DEFINITIONS.EDITOR);
 
-        assertFalse(this.presenter.configuration.isActivity);
-        assertTrue(this.presenter.configuration.showEditor);
+        assertFalse(configuration.isActivity);
+        assertTrue(configuration.showEditor);
     },
 
-    'when type is activity, isActivity and showEditor should be true': function(){
-        this.presenter.setAdditionalConfigBasedOnType(this.presenter.TYPES_DEFINITIONS.ACTIVITY);
+    'test when type is activity, isActivity and showEditor should be true': function(){
+        var configuration = {};
+        this.presenter.setAdditionalConfigBasedOnType(configuration, this.presenter.TYPES_DEFINITIONS.ACTIVITY);
 
-        assertTrue(this.presenter.configuration.isActivity);
-        assertTrue(this.presenter.configuration.showEditor);
+        assertTrue(configuration.isActivity);
+        assertTrue(configuration.showEditor);
     }
 });
