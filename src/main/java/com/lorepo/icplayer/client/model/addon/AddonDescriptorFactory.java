@@ -24,7 +24,7 @@ public class AddonDescriptorFactory {
 	}
 
 	/**
-	 * Init list of local addonsframeOffset
+	 * Init list of local addons
 	 */
 	private void registerLocalDescriptors() {
 		addonList = new HashMap<String, AddonEntry>();
