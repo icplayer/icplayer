@@ -108,4 +108,39 @@ public class PageViewMockup implements IPageDisplay {
 		// TODO Auto-generated method stub
 		
 	}
+
+
+	@Override
+	public void setAsStaticHeader() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setAsStaticFooter() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setAsNonStaticFooter() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setTopOffset(int value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void setBottomOffset(int value) {
+		// TODO Auto-generated method stub
+		
+	}
 }

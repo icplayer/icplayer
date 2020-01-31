@@ -727,8 +727,7 @@ public class PlayerController implements IPlayerController{
 			
 			// Rest of header initialization
 			if (this.isHeaderStatic()) {
-				pageController.setTopOffset(header.getHeight());
-				//pageController.setHeight(page.getHeight() + header.getHeight());
+				pageController.setTopOffset(PlayerUtils.getRealHeaderSize());
 			}
 	    } else {
 			this.playerView.removeHeaderView();
@@ -773,13 +772,13 @@ public class PlayerController implements IPlayerController{
 				
 				int headerHeight = 0;
 				if (headerPage != null) {
-					headerHeight = headerPage.getHeight();
+					headerHeight = PlayerUtils.getRealHeaderSize();
 				}
 				
 				// Check if static footer is required.
 				if (PlayerUtils.getScreenHeight() < page.getHeight() + headerHeight + PlayerUtils.getAbsTopOffset()) {
 					this.footerController.setAsStaticFooter();
-					pageController.setBottomOffset(footer.getHeight());
+					pageController.setBottomOffset(PlayerUtils.getRealFooterSize());
 				} else {
 					this.footerController.setAsNonStaticFooter();
 				}

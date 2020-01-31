@@ -60,6 +60,14 @@ public class PlayerUtils {
 		return PlayerUtils.getPlayerOffset();
 	}
 	
+	public static native int getRealHeaderSize() /*-{
+		return $wnd.$(".ic_header").height();
+	}-*/;
+	
+	public static native int getRealFooterSize() /*-{
+		return $wnd.$(".ic_footer").height();
+	}-*/;
+	
 	public static native int getScreenHeight() /*-{
 		if ($wnd.isFrameInDifferentDomain) {
 			var offsetIframe = $wnd.iframeSize.offsetTop;
