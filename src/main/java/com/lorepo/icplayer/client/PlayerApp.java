@@ -184,50 +184,50 @@ public class PlayerApp {
 	}-*/;
 
 	public static native void setPageTopAndStaticHeader (int top) /*-{
-		var page = $wnd.$(".ic_page");
-		var pagePanel = page.parent();
-		page.css("top", top);
-
-		$wnd.$(".ic_header").parent().addClass("ic_static_header");
-		$wnd.$(".ic_static_header").css("width", page.css("width"));
-		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
-			$wnd.addEventListener('message', function(event) {
-				if ((typeof event.data == 'string' || event.data instanceof String) && event.data.indexOf('I_FRAME_SIZES:') === 0) {
-					var scroll = $wnd.iframeSize.offsetTop;
-					var playerOffset = $wnd.iframeSize.frameOffset || 64;
-					if($wnd.iframeSize.isEditorPreview){
-						playerOffset = 0;
-					}
-					var iframeScale = 1.0;
-					if ($wnd.iframeSize.frameScale != null){
-						iframeScale = $wnd.iframeSize.frameScale;
-					} 
-					var top = scroll > playerOffset ? (scroll - playerOffset)/iframeScale : 0;
-					$wnd.$(".ic_static_header").css("top", top);
-				}
-			});
-		} else {
-			var logoHeight = $wnd.$("#_icplayer").offset().top;
-
-			if (logoHeight > 0) {
-				$wnd.addEventListener('scroll', function () {
-					var scroll = $wnd.scrollY;
-					if (scroll < logoHeight) {
-						$wnd.$(".ic_static_header").css("top", logoHeight - scroll);
-					} else {
-						$wnd.$(".ic_static_header").css("top", 0);
-					}
-				});
-			} else {
-				$wnd.$(".ic_static_header").css("top", 0);
-			}
-		}
-
-		var pageHeight = page.css("height").replace("px", "");
-		var height = parseInt(pageHeight, 10) + parseInt(top, 10);
-		
-		pagePanel.css("height", height);
-		$wnd.$(".ic_content").parent().css("height", height);
+//		var page = $wnd.$(".ic_page");
+//		var pagePanel = page.parent();
+//		page.css("top", top);
+//
+//		$wnd.$(".ic_header").parent().addClass("ic_static_header");
+//		$wnd.$(".ic_static_header").css("width", page.css("width"));
+//		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
+//			$wnd.addEventListener('message', function(event) {
+//				if ((typeof event.data == 'string' || event.data instanceof String) && event.data.indexOf('I_FRAME_SIZES:') === 0) {
+//					var scroll = $wnd.iframeSize.offsetTop;
+//					var playerOffset = $wnd.iframeSize.frameOffset || 64;
+//					if($wnd.iframeSize.isEditorPreview){
+//						playerOffset = 0;
+//					}
+//					var iframeScale = 1.0;
+//					if ($wnd.iframeSize.frameScale != null){
+//						iframeScale = $wnd.iframeSize.frameScale;
+//					} 
+//					var top = scroll > playerOffset ? (scroll - playerOffset)/iframeScale : 0;
+//					$wnd.$(".ic_static_header").css("top", top);
+//				}
+//			});
+//		} else {
+//			var logoHeight = $wnd.$("#_icplayer").offset().top;
+//
+//			if (logoHeight > 0) {
+//				$wnd.addEventListener('scroll', function () {
+//					var scroll = $wnd.scrollY;
+//					if (scroll < logoHeight) {
+//						$wnd.$(".ic_static_header").css("top", logoHeight - scroll);
+//					} else {
+//						$wnd.$(".ic_static_header").css("top", 0);
+//					}
+//				});
+//			} else {
+//				$wnd.$(".ic_static_header").css("top", 0);
+//			}
+//		}
+//
+//		var pageHeight = page.css("height").replace("px", "");
+//		var height = parseInt(pageHeight, 10) + parseInt(top, 10);
+//		
+//		pagePanel.css("height", height);
+//		$wnd.$(".ic_content").parent().css("height", height);
 	}-*/;
 	
 	public native static void setFooterWidth() /*-{
@@ -240,71 +240,72 @@ public class PlayerApp {
 	}-*/;
 
 	public static native void setStaticFooter (int headerHeight, boolean isHeaderStatic) /*-{
-		var footer = $wnd.$(".ic_footer");
-		if (footer.length == 0) return;
-		var page = $wnd.$(".ic_page");
-
-		footer.parent().addClass("ic_static_footer");
-		footer.css("top", 0);
-
-		var pageHeight = parseInt(page.css("height").replace('px', ''), 10);
-		var icFooterHeight = parseInt(footer.css('height').replace('px', ''), 10);
-
-		page.css("height", pageHeight + icFooterHeight);
-
-		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
-			var offsetIframe = $wnd.iframeSize.frameOffset;
-			var sum = $wnd.iframeSize.windowInnerHeight - offsetIframe - icFooterHeight;
-
-			$wnd.$(".ic_static_footer").css("top", sum + "px");
-
-			$wnd.addEventListener('message', function (event) {
-				if ((typeof event.data == 'string' || event.data instanceof String) && event.data.indexOf('I_FRAME_SIZES:') === 0) {
-					var scroll = $wnd.iframeSize.offsetTop;
-					offsetIframe = $wnd.iframeSize.notScaledOffset;
-					iframeScale = 1.0;
-					if ($wnd.iframeSize.frameScale != null){
-						iframeScale = $wnd.iframeSize.frameScale;
-					}
-					sum = ($wnd.iframeSize.windowInnerHeight - icFooterHeight + scroll)/iframeScale - offsetIframe;
-					if (parseInt(sum) >= (parseInt($wnd.iframeSize.height) - parseInt(icFooterHeight))) {
-						$wnd.$(".ic_static_footer").css("top", "auto");
-					} else {
-						$wnd.$(".ic_static_footer").css("top", sum + "px");
-					}
-				}
-			});
-		} else {
-			var referrer = $doc.referrer;
-
-			if (referrer.indexOf($wnd.location.origin) > -1) {
-				var offsetIframe = $wnd.get_iframe() ? $wnd.get_iframe().offset().top : 0;
-				var sum = parseInt(window.top.innerHeight, 10) - offsetIframe - icFooterHeight;
-				$wnd.$(".ic_static_footer").css("top", sum + "px");
-
-				$wnd.parent.addEventListener('scroll', function () {
-					var parentScroll = $wnd.parent.scrollY;
-					sum = parseInt(window.top.innerHeight, 10) - offsetIframe - icFooterHeight + parentScroll;
-
-					if (sum >= (($wnd.get_iframe() ? $wnd.get_iframe().height() : 0) - icFooterHeight)) {
-						$wnd.$(".ic_static_footer").css("top", "auto");
-					} else {
-						$wnd.$(".ic_static_footer").css("top", sum + "px");
-					}
-				});
-			}
-		}
-
-		if (isHeaderStatic) {
-			var pagePanel = page.parent();
-			var pageHeight = page.css("height").replace("px", "");
-			var replacedHeaderHeight = headerHeight.replace("px", "");
-			
-			var height = parseInt(pageHeight, 10) + parseInt(icFooterHeight, 10) + parseInt(replacedHeaderHeight, 10);
-			
-			pagePanel.css("height", height);
-			$wnd.$(".ic_content").parent().css("height", height);
-		}
+//		debugger;
+//		var footer = $wnd.$(".ic_footer");
+//		if (footer.length == 0) return;
+//		var page = $wnd.$(".ic_page");
+//
+//		footer.parent().addClass("ic_static_footer");
+//		footer.css("top", 0);
+//
+//		var pageHeight = parseInt(page.css("height").replace('px', ''), 10);
+//		var icFooterHeight = parseInt(footer.css('height').replace('px', ''), 10);
+//
+//		page.css("height", pageHeight + icFooterHeight);
+//
+//		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
+//			var offsetIframe = $wnd.iframeSize.frameOffset;
+//			var sum = $wnd.iframeSize.windowInnerHeight - offsetIframe - icFooterHeight;
+//
+//			$wnd.$(".ic_static_footer").css("top", sum + "px");
+//
+//			$wnd.addEventListener('message', function (event) {
+//				if ((typeof event.data == 'string' || event.data instanceof String) && event.data.indexOf('I_FRAME_SIZES:') === 0) {
+//					var scroll = $wnd.iframeSize.offsetTop;
+//					offsetIframe = $wnd.iframeSize.notScaledOffset;
+//					iframeScale = 1.0;
+//					if ($wnd.iframeSize.frameScale != null){
+//						iframeScale = $wnd.iframeSize.frameScale;
+//					}
+//					sum = ($wnd.iframeSize.windowInnerHeight - icFooterHeight + scroll)/iframeScale - offsetIframe;
+//					if (parseInt(sum) >= (parseInt($wnd.iframeSize.height) - parseInt(icFooterHeight))) {
+//						$wnd.$(".ic_static_footer").css("top", "auto");
+//					} else {
+//						$wnd.$(".ic_static_footer").css("top", sum + "px");
+//					}
+//				}
+//			});
+//		} else {
+//			var referrer = $doc.referrer;
+//
+//			if (referrer.indexOf($wnd.location.origin) > -1) {
+//				var offsetIframe = $wnd.get_iframe() ? $wnd.get_iframe().offset().top : 0;
+//				var sum = parseInt(window.top.innerHeight, 10) - offsetIframe - icFooterHeight;
+//				$wnd.$(".ic_static_footer").css("top", sum + "px");
+//
+//				$wnd.parent.addEventListener('scroll', function () {
+//					var parentScroll = $wnd.parent.scrollY;
+//					sum = parseInt(window.top.innerHeight, 10) - offsetIframe - icFooterHeight + parentScroll;
+//
+//					if (sum >= (($wnd.get_iframe() ? $wnd.get_iframe().height() : 0) - icFooterHeight)) {
+//						$wnd.$(".ic_static_footer").css("top", "auto");
+//					} else {
+//						$wnd.$(".ic_static_footer").css("top", sum + "px");
+//					}
+//				});
+//			}
+//		}
+//
+//		if (isHeaderStatic) {
+//			var pagePanel = page.parent();
+//			var pageHeight = page.css("height").replace("px", "");
+//			var replacedHeaderHeight = headerHeight.replace("px", "");
+//			
+//			var height = parseInt(pageHeight, 10) + parseInt(icFooterHeight, 10) + parseInt(replacedHeaderHeight, 10);
+//			
+//			pagePanel.css("height", height);
+//			$wnd.$(".ic_content").parent().css("height", height);
+//		}
 	}-*/;
 	
 	// moveStaticElementsWhenScaled should be called only once to start animation
@@ -484,13 +485,13 @@ public class PlayerApp {
 		playerController.addPageLoadListener(new ILoadListener() {
 			@Override
 			public void onFinishedLoading(Object obj) {
-				if (contentModel.getMetadataValue("staticHeader").compareTo("true") == 0 && playerController.hasHeader()) {
-					makeHeaderStatic();
-				}
-
-				if (contentModel.getMetadataValue("staticFooter").compareTo("true") == 0 && playerController.hasFooter()) {
-					makeFooterStatic();
-				}
+//				if (contentModel.getMetadataValue("staticHeader").compareTo("true") == 0 && playerController.hasHeader()) {
+//					makeHeaderStatic();
+//				}
+//
+//				if (contentModel.getMetadataValue("staticFooter").compareTo("true") == 0 && playerController.hasFooter()) {
+//					makeFooterStatic();
+//				}
 
 				setLangAttribute(contentModel.getMetadataValue("lang"));
 				

@@ -3,6 +3,8 @@ package com.lorepo.icplayer.client.page;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.lorepo.icf.utils.URLUtils;
@@ -194,5 +196,31 @@ public class AbsolutePageView extends AbsolutePanel implements IPageDisplay {
 		} else {
 			setHeight(this.height + difference);
 		}
+	}
+	
+	@Override
+	public void setAsStaticHeader() {
+		this.setStyleName("ic_static_header");
+	}
+	
+	@Override
+	public void setAsStaticFooter() {
+		this.setStyleName("ic_static_footer");
+	}
+	
+	@Override
+	public void setAsNonStaticFooter() {
+		this.removeStyleName("ic_static_footer");
+	}
+	
+	@Override
+	public void setTopOffset(int value) {
+		// Move to bottom main page if header is static
+		DOM.setIntStyleAttribute(this.getElement(), "top", value);
+	}
+	
+	@Override
+	public void setBottomOffset(int value) {
+		this.getElement().getStyle().setMarginBottom(value, Unit.PX);
 	}
 }

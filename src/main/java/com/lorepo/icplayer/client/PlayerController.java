@@ -38,6 +38,7 @@ import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.page.PagePopupPanel;
 import com.lorepo.icplayer.client.ui.PlayerView;
+import com.lorepo.icplayer.client.utils.PlayerUtils;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.page.PageFactory;
 
@@ -362,13 +363,13 @@ public class PlayerController implements IPlayerController{
 		this.keyboardController.reset();
 		pageController.setPage(page);
 		if (this.headerController != null && pageController != this.pageController2) {
-		    this.setHeader(page);
+		    this.setHeader(pageController, page);
 		}
 		this.keyboardController.addHeaderToNavigation(this.headerController);
 		this.keyboardController.addMainToNavigation(this.pageController1);
 		this.keyboardController.addSecondToNavigation(this.pageController2);
 		if (this.footerController != null && pageController != this.pageController2) {
-			this.setFooter(page);
+			this.setFooter(pageController, page);
 		}
 		this.keyboardController.addFooterToNavigation(this.footerController);
 		this.keyboardController.restore();
@@ -699,7 +700,7 @@ public class PlayerController implements IPlayerController{
 		return false;
 	}
 	
-	private void setHeader(Page page) {
+	private void setHeader(PageController pageController, Page page) {
 		Page header = null;
 		
 		if (page.hasHeader()) {
@@ -715,14 +716,36 @@ public class PlayerController implements IPlayerController{
 	    		this.headerController.closePage();
 	    	}
 	    	
+			if (this.isHeaderStatic()) {
+				header.setWidth(page.getWidth());
+				this.headerController.setAsStaticHeader();
+			}
+			
+			// Initialize header at first
 			this.headerController.setPage(header);
+			
+			
+			// Rest of header initialization
+			if (this.isHeaderStatic()) {
+				pageController.setTopOffset(header.getHeight());
+				//pageController.setHeight(page.getHeight() + header.getHeight());
+			}
 	    } else {
 			this.playerView.removeHeaderView();
 		}
 	}
 	
-	private void setFooter(Page page) {
+	private boolean isHeaderStatic() {
+		return contentModel.getMetadataValue("staticHeader").compareTo("true") == 0;
+	}
+	
+	private boolean isFooterStatic() {
+		return contentModel.getMetadataValue("staticFooter").compareTo("true") == 0;
+	}
+	
+	private void setFooter(PageController pageController, Page page) {
 		Page footer = null;
+		Page headerPage = this.getModel().getHeader(page);
 		
 		if (page.hasFooter()) {
 			footer = this.getModel().getFooter(page);
@@ -737,7 +760,30 @@ public class PlayerController implements IPlayerController{
 	    		this.footerController.closePage();
 	    	}
 			
+			if (this.isFooterStatic()) {
+				footer.setWidth(page.getWidth());
+			}
+			
+			// At first initialize footer
 			this.footerController.setPage(footer);
+			
+			
+			// Rest of static footer initialization
+			if (this.isFooterStatic()) {
+				
+				int headerHeight = 0;
+				if (headerPage != null) {
+					headerHeight = headerPage.getHeight();
+				}
+				
+				// Check if static footer is required.
+				if (PlayerUtils.getScreenHeight() < page.getHeight() + headerHeight + PlayerUtils.getAbsTopOffset()) {
+					this.footerController.setAsStaticFooter();
+					pageController.setBottomOffset(footer.getHeight());
+				} else {
+					this.footerController.setAsNonStaticFooter();
+				}
+			}
 		} else {
 			this.playerView.removeFooterView();
 		}

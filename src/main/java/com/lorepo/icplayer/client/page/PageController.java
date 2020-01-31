@@ -49,6 +49,11 @@ public class PageController implements ITextToSpeechController {
 		void removeAllModules();
 		void outstretchHeight(int y, int difference, boolean isRestore, boolean dontMoveModules);
 		void recalculatePageDimensions();
+		void setAsStaticHeader();
+		void setAsStaticFooter();
+		void setAsNonStaticFooter();
+		void setTopOffset(int value);
+		void setBottomOffset(int value);
 		HashMap<String, Widget> getWidgets();
 	}
 	
@@ -91,6 +96,18 @@ public class PageController implements ITextToSpeechController {
 
 	public void setView(IPageDisplay view) {
 		pageView = view;
+	}
+	
+	public void setAsStaticHeader () {
+		this.pageView.setAsStaticHeader();
+	}
+	
+	public void setAsStaticFooter () {
+		this.pageView.setAsStaticFooter();
+	}
+	
+	public void setAsNonStaticFooter () {
+		this.pageView.setAsNonStaticFooter();
 	}
 
 	protected void setModuleFactory(IModuleFactory factory) {
@@ -625,6 +642,18 @@ public class PageController implements ITextToSpeechController {
 		CustomEvent scrollEvent = new CustomEvent(eventName, eventData);
 
 		this.playerService.getEventBus().fireEvent(scrollEvent);
+	}
+	
+	public void setTopOffset(int value) {
+		this.pageView.setTopOffset(value);
+	}
+	
+	public void setBottomOffset(int value) {
+		this.pageView.setBottomOffset(value);
+	}
+	
+	public void setHeight(int height) {
+		this.pageView.setHeight(height);
 	}
 	
 }
