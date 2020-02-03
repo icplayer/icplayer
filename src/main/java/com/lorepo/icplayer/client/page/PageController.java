@@ -164,8 +164,18 @@ public class PageController implements ITextToSpeechController {
 			pageView.setHeight(page.getHeight());
 		}
 	}
+	
+	public void refreshPageSize() {
+		if (this.currentPage.getWidth() > 0) {
+			pageView.setWidth(this.currentPage.getWidth());
+		}
+		
+		if (this.currentPage.getHeight() > 0) {
+			pageView.setHeight(this.currentPage.getHeight());
+		}
+	}
 
-	private void setCurrentPageSemiResponsiveLayouts() {
+	public void setCurrentPageSemiResponsiveLayouts() {
 		String layoutID = this.contentModel.getActualSemiResponsiveLayoutID();
 		Set<PageLayout> actualSemiResponsiveLayouts = this.contentModel.getActualSemiResponsiveLayouts();
 

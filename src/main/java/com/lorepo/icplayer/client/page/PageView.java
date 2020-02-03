@@ -8,6 +8,8 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ScrollEvent;
@@ -139,7 +141,7 @@ public class PageView extends SimplePanel implements IPageDisplay {
 			@Override
 			public void onSuccess(Float result) {
 				if (PlayerUtils.isInIframe()) {
-					int offset = PlayerUtils.getIframeNotScaledOffset();
+					float offset = PlayerUtils.getAbsTopOffset();
 					float scale = PlayerUtils.getFrameScale();
 					int iframeSize = PlayerUtils.getIframeInnerHeight();
 					float sum = (iframeSize - page.getHeight() + result) / scale - offset;
@@ -272,8 +274,10 @@ public class PageView extends SimplePanel implements IPageDisplay {
 
 			@Override
 			public void onSuccess(String result) {
-				if (result.startsWith("I_FRAME_SCROLL")) {
-					callback.onSuccess(Float.parseFloat(result.substring("I_FRAME_SCROLL:".length())));
+				if (result.startsWith("I_FRAME_SIZES:")) {
+					JSONValue value = JSONParser.parseStrict(result.substring("I_FRAME_SIZES:".length()));
+					float parsedValue = (float) value.isObject().get("offsetTop").isNumber().doubleValue();
+					callback.onSuccess(parsedValue);
 				}
 			}
 		});

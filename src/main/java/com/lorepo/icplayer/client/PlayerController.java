@@ -716,18 +716,17 @@ public class PlayerController implements IPlayerController{
 	    		this.headerController.closePage();
 	    	}
 	    	
-			if (this.isHeaderStatic()) {
-				header.setWidth(page.getWidth());
-				this.headerController.setAsStaticHeader();
-			}
-			
 			// Initialize header at first
 			this.headerController.setPage(header);
 			
 			
 			// Rest of header initialization
 			if (this.isHeaderStatic()) {
+				header.setWidth(page.getWidth());
+				this.headerController.setAsStaticHeader();
+				
 				pageController.setTopOffset(PlayerUtils.getRealHeaderSize());
+				this.headerController.refreshPageSize();
 			}
 	    } else {
 			this.playerView.removeHeaderView();
@@ -759,16 +758,12 @@ public class PlayerController implements IPlayerController{
 	    		this.footerController.closePage();
 	    	}
 			
-			if (this.isFooterStatic()) {
-				footer.setWidth(page.getWidth());
-			}
-			
 			// At first initialize footer
 			this.footerController.setPage(footer);
 			
-			
 			// Rest of static footer initialization
 			if (this.isFooterStatic()) {
+				footer.setWidth(page.getWidth());
 				
 				int headerHeight = 0;
 				if (headerPage != null) {
@@ -782,6 +777,8 @@ public class PlayerController implements IPlayerController{
 				} else {
 					this.footerController.setAsNonStaticFooter();
 				}
+				
+				this.footerController.refreshPageSize();
 			}
 		} else {
 			this.playerView.removeFooterView();

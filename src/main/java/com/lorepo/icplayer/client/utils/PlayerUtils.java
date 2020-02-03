@@ -17,7 +17,7 @@ public class PlayerUtils {
 	}-*/;
 	
 	public native static int getIframeOffset() /*-{
-		if ($wnd.isFrameInDifferentDomain) {
+		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
 			return $wnd.iframeSize.frameOffset || 64;
 		} else {
 			return $wnd.get_iframe().offset().top;
@@ -66,6 +66,10 @@ public class PlayerUtils {
 	
 	public static native int getRealFooterSize() /*-{
 		return $wnd.$(".ic_footer").height();
+	}-*/;
+	
+	public static native float getOffsetTop() /*-{
+		return $wnd.iframeSize.offsetTop;
 	}-*/;
 	
 	public static native int getScreenHeight() /*-{

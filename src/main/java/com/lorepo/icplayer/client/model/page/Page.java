@@ -642,7 +642,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		size.setWidth(width);
 		this.setCurrentSize(size);
 	}
-
+	
 	@Override
 	public void setHeight(int height) {
 		Size size = this.pageSizes.get(this.semiResponsiveLayoutID);
