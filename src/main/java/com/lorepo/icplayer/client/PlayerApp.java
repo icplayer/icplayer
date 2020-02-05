@@ -172,13 +172,14 @@ public class PlayerApp {
 	public native static void setStaticScaledFooterStyles () /*-{
 		var footer = $wnd.document.getElementsByClassName('ic_static_footer');
 		if (footer.length > 0) {
+			var playerOffset = @com.lorepo.icplayer.client.utils.PlayerUtils::getAbsTopOffset()();
 			var height = footer[0].offsetHeight,
 				scale = $wnd.player.getPlayerServices().getScaleInformation().scaleY,
 				windowHeight = $wnd.outerHeight || $wnd.innerHeight;
 	
 			footer[0].style.position = 'absolute';
 			footer[0].style.bottom = 'initial';				
-			footer[0].style.top = windowHeight / scale - height + 'px'; 
+			footer[0].style.top = ((windowHeight / scale - height) - playerOffset) + 'px'; 
 		}
 	}-*/;
 	
@@ -220,10 +221,12 @@ public class PlayerApp {
 
 
 
-		function step() {
+		function step() {		
 			var currentScale = $wnd.player.getPlayerServices().getScaleInformation().scaleY,
 				currentScroll = $wnd.pageYOffset,
 				currentWindowHeight = $wnd.innerHeight;	
+				
+			var playerOffset = @com.lorepo.icplayer.client.utils.PlayerUtils::getAbsTopOffset()() / currentScale;
 			if ($wnd.window.visualViewport && $wnd.window.visualViewport.scale == 1) {
 				currentWindowHeight = $wnd.window.visualViewport.height;
 			}
@@ -237,7 +240,8 @@ public class PlayerApp {
 			previousScroll = currentScroll;
 			previousWindowHeight = currentWindowHeight;
 			
-			var top = currentScroll / currentScale;
+			var top = (currentScroll / currentScale);
+			var headerTop = top - playerOffset;
 			
 			// on iOS there is 'bounce' area which can hide header and footer
 			// when top is overscrolled it will be lower than 0
@@ -247,12 +251,12 @@ public class PlayerApp {
 			                              $wnd.document.documentElement.offsetHeight);
 			    isOverscrolledBottom = (currentScroll + currentWindowHeight) > documentHeight;
 			
-			if (top < 0) {
-				top = 0;
+			if (headerTop < 0) {
+				headerTop = 0;
 			}
 			
 			if (header.length > 0) {
-				header[0].style.top = (top) + 'px';
+				header[0].style.top = headerTop + 'px';
 			}
 			
 			if (footer.length > 0) {
@@ -263,7 +267,7 @@ public class PlayerApp {
 				if (isOverscrolledBottom) {
 					 footerTop = documentHeight / currentScale - icFooterHeight;
 				}
-				footer[0].style.top = footerTop + 'px';
+				footer[0].style.top = (footerTop - playerOffset) + 'px';
 			}
 			
 			// next frame
