@@ -60,7 +60,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		this.getElement().setAttribute("size", Integer.toString(size));
 	}
 	
-	protected void initialize (ITextViewListener listener) {
+	private final void initialize (ITextViewListener listener) {
 
 		setStylePrimaryName("ic_gap");
 
@@ -87,7 +87,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		this.connectHandlers(listener);		
 	}
 	
-	private void removeHandlers () {
+	protected void removeHandlers () {
 		for (HandlerRegistration handler: this.handlers) {
 			handler.removeHandler();
 		}
