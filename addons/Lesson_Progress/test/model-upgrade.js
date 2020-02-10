@@ -18,7 +18,7 @@ TestCase("[Lesson_Progress] Upgrading model test", {
         assertEquals('False', upgradedModel['Calculate_Score_On_Page_Change']);
     },
 
-    'test given model with Calculate_Score_On_Page_Change set to True when upgrading model then will return model with that field set to False': function () {
+    'test given model with Calculate_Score_On_Page_Change set to True when upgrading model then will return model with that field set to True': function () {
         this.model['Calculate_Score_On_Page_Change'] = 'True';
         var upgradedModel = this.presenter.upgradeModel(this.model);
 
