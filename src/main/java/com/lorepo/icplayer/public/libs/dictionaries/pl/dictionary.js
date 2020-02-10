@@ -1636,6 +1636,7 @@ var ice_dictionary_pl = {
 	"Lesson_Progress_property_show_errors": "Pokaż błędy",
 	"Lesson_Progress_property_show_mistakes": "Pokaż pomyłki",
 	"Lesson_Progress_property_show_all_answers": "Pokaż wszystkie odpowiedzi",
+	"Lesson_Progress_property_calculate_score_on_page_change": "Calculate score on page change",
 	"Next_info" : "Moduł Dalej działa podobnie jak przycisk Następna strona, jednak najpierw pozwala sprawdzić, czy użytkownik spróbował rozwiązać wszystkie zadania na stronie i czy użyto przycisku Zgłoś gotowość.",
 	"Next_name" : "Dalej",
 	"Next_property_text": "Tekst",

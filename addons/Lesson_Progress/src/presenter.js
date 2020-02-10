@@ -57,7 +57,9 @@ function AddonLesson_Progress_create(){
         removeHidden(presenter.configuration.showMaxScore, presenter.$maxScore);
         removeHidden(presenter.configuration.showCorrectAnswers, presenter.$correctAnswers);
 
-        presenter.setShowErrorsMode();
+        if (presenter.configuration.calculateScoreOnPageChange && !isPreview) {
+            presenter.setShowErrorsMode();
+        }
     }
 
     function removeHidden(shouldRemove, $element) {
