@@ -31,7 +31,8 @@ function AddonLesson_Progress_create(){
             showErrors: ModelValidationUtils.validateBoolean(model['Show_Errors']),
             showMistakes: ModelValidationUtils.validateBoolean(model['Show_Mistakes']),
             showMaxScore: ModelValidationUtils.validateBoolean(model['Show_All_Answers']),
-            showCorrectAnswers: ModelValidationUtils.validateBoolean(model['Show_Correct_Answers'])
+            showCorrectAnswers: ModelValidationUtils.validateBoolean(model['Show_Correct_Answers']),
+            calculateScoreOnPageChange: ModelValidationUtils.validateBoolean(model['Calculate_Score_On_Page_Change'])
         }
     };
 
@@ -45,6 +46,8 @@ function AddonLesson_Progress_create(){
         presenter.$mistakes = presenter.$view.find('.mistakes');
         presenter.$maxScore = presenter.$view.find('.max-score');
         presenter.$correctAnswers = presenter.$view.find('.correct-answers');
+
+        model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
 
         removeHidden(presenter.configuration.showProgressBar, presenter.$progressBarContainer);
@@ -53,6 +56,8 @@ function AddonLesson_Progress_create(){
         removeHidden(presenter.configuration.showMistakes, presenter.$mistakes);
         removeHidden(presenter.configuration.showMaxScore, presenter.$maxScore);
         removeHidden(presenter.configuration.showCorrectAnswers, presenter.$correctAnswers);
+
+        presenter.setShowErrorsMode();
     }
 
     function removeHidden(shouldRemove, $element) {
@@ -190,6 +195,16 @@ function AddonLesson_Progress_create(){
     };
 
     presenter.setState = function(state){
+    };
+
+    presenter.upgradeModel = function(model) {
+        var upgradedModel = $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel['Calculate_Score_On_Page_Change']) {
+            upgradedModel['Calculate_Score_On_Page_Change'] = 'False';
+        }
+
+        return upgradedModel;
     };
 
     return presenter;
