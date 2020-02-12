@@ -1637,6 +1637,7 @@ var ice_dictionary_fr = {
     "Lesson_Progress_property_show_errors": "Afficher les erreurs",
     "Lesson_Progress_property_show_mistakes": "Afficher les fautes",
     "Lesson_Progress_property_show_all_answers": "Afficher toutes les réponses",
+    "Lesson_Progress_property_calculate_score_on_page_change": "Calculate score on page change",
     "Next_info": "Le module Suivant fonctionne de la même manière que le bouton Page suivante permettant de passer à la page suivante. Cependant, il vérifie d'abord que tous les exercices de la page ont été faits et que le bouton Valider a été utilisé.",
     "Next_name": "Suivant",
     "Next_property_text": "Texte",
