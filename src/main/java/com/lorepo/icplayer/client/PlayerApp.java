@@ -142,8 +142,8 @@ public class PlayerApp {
 			try {
 				var currentLocation = $wnd.location.href;
 
-				$wnd.parent.$('iframe').each(function() {
-					if (this.src == currentLocation) {
+				$wnd.parent.$('iframe').each(function() {	// Find current iframe in parent window.
+					if (this.contentWindow === $wnd) {
 						$wnd.playerIFrame = $wnd.$(this);
 					}
 				});
