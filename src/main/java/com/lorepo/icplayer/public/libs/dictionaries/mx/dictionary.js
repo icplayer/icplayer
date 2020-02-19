@@ -1637,6 +1637,7 @@ var ice_dictionary_mx = {
 	"Lesson_Progress_property_show_errors": "Mostrar errores",
 	"Lesson_Progress_property_show_mistakes": "Mostrar intentos",
 	"Lesson_Progress_property_show_all_answers": "Mostrar todas las respuestas",
+	"Lesson_Progress_property_calculate_score_on_page_change": "Calculate score on page change",
 	"Next_info": "El módulo Siguiente funciona de una manera similar al módulo Botón de Página Siguiente, sin embargo el módulo Siguinete primero va comprobar, si todas las actividades en la página actual se han intentado realizar y si se ha utilizado el botón Entregar.",
 	"Next_name": "Siguiente",
 	"Next_property_text": "Texto",

@@ -1644,6 +1644,7 @@ var ice_dictionary_bl = {
 	"Lesson_Progress_property_show_errors": "Покажи по-сериозните грешки",
 	"Lesson_Progress_property_show_mistakes": "Покажи грешките",
 	"Lesson_Progress_property_show_all_answers": "Покажи всички отговори",
+	"Lesson_Progress_property_calculate_score_on_page_change": "Calculate score on page change",
 	"Next_info": "Модулът Следващ работи подобно на бутона Следваща страница - позволява преминаването към следващата страница, като обаче първо проверява дали всички задачи на настоящата страница са изпълнени и дали е използван бутона Изпрати.",
 	"Next_name": "Следващ",
 	"Next_property_text": "Текст",
