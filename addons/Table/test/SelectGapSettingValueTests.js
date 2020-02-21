@@ -1,14 +1,3 @@
-function addOptionsToSelect(select, options) {
-    options.forEach(
-        function (option) {
-            var optionElement = document.createElement('option');
-            optionElement.value = option;
-            optionElement.text = option;
-            select.appendChild(optionElement);
-        }
-    );
-}
-
 TestCase("[Table] Select gap show answers tests", {
     setUp: function () {
         this.presenter = AddonTable_create();
@@ -23,28 +12,24 @@ TestCase("[Table] Select gap show answers tests", {
             escapeXMLEntities: sinon.stub()
         };
 
-        this.gapID = 'gapID';
+        this.gap = new this.presenter.SelectGap("gapId", "correctAnswer", 1);
 
-        this.selectElement = document.createElement('select');
-        this.selectElement.id = this.gapID;
+        this.stubs = {
+            setViewValueStub: sinon.stub(this.gap.$view, "val")
+        };
     },
 
     tearDown: function () {
-        this.selectElement.remove();
+        this.gap.$view.val.restore();
     },
 
-    'test given options in correct answer when show answer called then escapes xml entities from answer': function () {
-        var options = [ '---', 'value' ];
-        addOptionsToSelect(this.selectElement, options);
-        var correctAnswer = options[1];
-        this.presenter.textParser.escapeXMLEntities.returns(correctAnswer);
+    'test given select gap when show answer called then calls escapeXMLEntities and sets the view value': function () {
+        var expectedValue = "value";
+        this.presenter.textParser.escapeXMLEntities.returns(expectedValue);
 
-        var gap = new this.presenter.SelectGap(this.gapID, correctAnswer, 1);
-        gap.showAnswers();
+        this.gap.showAnswers();
 
-        assertEquals(correctAnswer, this.selectElement.selectedOptions[0].text);
-        assertTrue(this.presenter.textParser.escapeXMLEntities.called)
+        assertTrue(this.presenter.textParser.escapeXMLEntities.called);
+        assertTrue(this.stubs.setViewValueStub.calledWith(expectedValue));
     }
-
-
 });
