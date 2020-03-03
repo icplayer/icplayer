@@ -22,7 +22,7 @@ public class GWTOptionViewTestCase extends GwtTest {
 	}
 
 	@Test
-	public void givenChoiceOptionWithParentIdSetWhenCreatingOptionViewThenElementIdIsNotSet()  {
+	public void givenChoiceOptionWithParentIdSetWhenCreatingOptionViewThenElementIdIsSet()  {
 		String expectedId = "parentID_ic_option_1";
 
 		ChoiceOption module = new ChoiceOption("1","", 1);
