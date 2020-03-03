@@ -46,13 +46,16 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		TextParser parser = new TextParser();
 		parserResult = parser.parse(choiceOption.getText());
 		this.setHTML(parserResult.parsedText);
-		
+
 		if(isMulti){
 			setStylePrimaryName("ic_moption");
 		}
 		else{
 			setStylePrimaryName("ic_soption");
 		}
+
+		String optionId = choiceOption.getParentId() + "_ic_option_" + choiceOption.getID();
+		getElement().setId(optionId);
 	}
 	
 	public boolean isEnable() {
