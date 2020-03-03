@@ -54,8 +54,7 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 			setStylePrimaryName("ic_soption");
 		}
 
-		String optionId = choiceOption.getParentId() + "_ic_option_" + choiceOption.getID();
-		getElement().setId(optionId);
+		setElementId();
 	}
 	
 	public boolean isEnable() {
@@ -290,4 +289,17 @@ public class OptionView extends ToggleButton implements IOptionDisplay{
 		}
 		super.addStyleDependentName(styleSuffix);
 	}
+
+	private void setElementId() {
+		// if parent id is not set, then it may be possible that html ids will be duplicated in different modules
+		boolean isParentIdSet = !choiceOption.getParentId().equals("");
+		if (isParentIdSet) {
+			getElement().setId(getViewId());
+		}
+	}
+
+	private String getViewId() {
+		return choiceOption.getParentId() + "_ic_option_" + choiceOption.getID();
+	}
+
 }
