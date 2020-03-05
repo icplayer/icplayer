@@ -103,8 +103,13 @@ public class LimitedCheckView extends PushButton implements IDisplay {
         }
 
         changeModulesMode();
-
-        CustomEvent limitedCheckEvent = new CustomEvent("LimitedCheck", totalScore.getEventData(module));
+        
+        CustomEvent limitedCheckEvent = null;
+        if (updateCheckCount) {
+        	limitedCheckEvent = new CustomEvent("LimitedCheck", totalScore.getEventData(module));
+        } else {
+        	limitedCheckEvent = new CustomEvent("LimitedCheck", totalScore.getPageReloadedEventData(module));
+        }
         eventBus.fireEventFromSource(limitedCheckEvent, this);
     }
 
