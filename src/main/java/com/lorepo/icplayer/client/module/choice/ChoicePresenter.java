@@ -563,7 +563,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		presenter.isOptionSelected = function(index) {
 			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::isOptionSelected(I)(index);
 		}
-		
+
 		presenter.onEventReceived = function (eventName, data) {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
 		};

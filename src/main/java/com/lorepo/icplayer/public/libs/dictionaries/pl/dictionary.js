@@ -965,6 +965,7 @@ var ice_dictionary_pl = {
 	"Limited_Check_property_uncheck_text" : "Tekst na zaznaczonym przycisku",
 	"Limited_Check_property_works_with" : "Współpracuje z",
 	"Limited_Check_property_mistakes_from_provided_modules" : "Policz pomyłki z podanych modułów",
+	"Limited_Check_property_maintain_state" : "Maintain state",
 	"Limited_Reset_name": "Usuń wybrane wyniki",
 	"Limited_Reset_info": "Umożliwia dodanie przycisku, którego kliknięcie pozwala usunąć wyniki w wybranych modułach.",
 	"Limited_Reset_property_title" : "Tytuł",

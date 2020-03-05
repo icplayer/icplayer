@@ -70,6 +70,14 @@ public class LimitedCheckView extends PushButton implements IDisplay {
     }
 
     private void onCheck() {
+    	onCheck(true);
+    }
+    
+    public void setChecked() {
+    	onCheck(false);
+    }
+    
+    private void onCheck(boolean updateCheckCount) {
         EventBus eventBus = playerServices.getEventBus();
         IPlayerCommands commands = playerServices.getCommands();
         boolean mistakesFromProvidedModules = module.getMistakesFromProvidedModules();
@@ -85,16 +93,23 @@ public class LimitedCheckView extends PushButton implements IDisplay {
 
         presenters = getModulesPresenters();
         TotalScore totalScore = TotalScore.getFromPresenters(presenters);
-
-        if (mistakesFromProvidedModules) {
-            commands.updateCurrentPageScoreWithMistakes(totalScore.errors);
-        } else {
-            commands.updateCurrentPageScore(true);
+        
+        if (updateCheckCount) {
+	        if (mistakesFromProvidedModules) {
+	            commands.updateCurrentPageScoreWithMistakes(totalScore.errors);
+	        } else {
+	            commands.updateCurrentPageScore(true);
+	        }
         }
 
         changeModulesMode();
-
-        CustomEvent limitedCheckEvent = new CustomEvent("LimitedCheck", totalScore.getEventData(module));
+        
+        CustomEvent limitedCheckEvent = null;
+        if (updateCheckCount) {
+        	limitedCheckEvent = new CustomEvent("LimitedCheck", totalScore.getEventData(module));
+        } else {
+        	limitedCheckEvent = new CustomEvent("LimitedCheck", totalScore.getPageReloadedEventData(module));
+        }
         eventBus.fireEventFromSource(limitedCheckEvent, this);
     }
 

@@ -17,7 +17,7 @@ public class ChoiceOption extends BasicPropertyProvider{
 	private int		value;
 	private String feedback = "";
 	private String id;
-	
+	private String parentId = "";
 	
 	public ChoiceOption(String id){
 		
@@ -56,8 +56,15 @@ public class ChoiceOption extends BasicPropertyProvider{
 	public String getFeedback(){
 		return feedback;
 	}
-	
-	
+
+	public void setParentId(String id) {
+		parentId = id;
+	}
+
+	public String getParentId() {
+		return parentId;
+	}
+
 	protected void setFeedback(String feedback){
 		this.feedback = feedback;
 	}
