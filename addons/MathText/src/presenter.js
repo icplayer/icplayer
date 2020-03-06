@@ -20,6 +20,8 @@ function AddonMathText_create() {
         ACTIVITY: 'activity'
     };
 
+    presenter.WIRIS_DISABLED_MESSAGE = "This addon requires internet access and enabled Wiris to work correctly";
+
     presenter.EMPTY_MATHTEXT = '<math xmlns="http://www.w3.org/1998/Math/MathML"/>';
     presenter.WIRIS_RENDER_URL = "https://www.wiris.net/demo/editor/render?";
     presenter.ERROR_CODES = {
@@ -67,13 +69,8 @@ function AddonMathText_create() {
             if (xmlhttp.readyState == XMLHttpRequest.DONE) {
                 if (xmlhttp.status === 200) {
                     $(presenter.wrapper).html(xmlhttp.response);
-                } else if (xmlhttp.status === 400) {
-                    $(presenter.wrapper).html("Server returned 400: " + xmlhttp.response);
-                } else if (xmlhttp.status === 0) {
-                    // MDN: It is worth noting that browsers report a status of 0 in case of XMLHttpRequest errors too
-                    $(presenter.wrapper).html("Request status 0. Problem with request parameters.");
                 } else {
-                    $(presenter.wrapper).html("Server returned: " + xmlhttp.response);
+                    $(presenter.wrapper).html(presenter.WIRIS_DISABLED_MESSAGE);
                 }
 
                 $(presenter.wrapper).css('color', presenter.configuration.formulaColor);
@@ -207,6 +204,8 @@ function AddonMathText_create() {
             presenter.eventBus.addEventListener('HideAnswers', this);
         }
 
+        if (!presenter.isWirisEnabled()) return;
+
         if (presenter.configuration.isActivity) {
             presenter.editorListener = {
                 caretPositionChanged: function () {},
@@ -239,7 +238,7 @@ function AddonMathText_create() {
             return;
         }
 
-        if (presenter.configuration.showEditor) {
+        if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
             presenter.editor.getEditorModel().removeEditorListener(presenter.editorListener);
             presenter.removeWIRISEditor();
         }
@@ -254,7 +253,17 @@ function AddonMathText_create() {
         return window.com.wiris.jsEditor.JsEditor.getInstance(presenter.wrapper);
     };
 
+    presenter.isWirisEnabled = function() {
+        return window.hasOwnProperty('com') && window.com.hasOwnProperty('wiris');
+    };
+
     presenter.initializeEditor = function AddonMathText_initializeEditor (isPreview) {
+        if (!presenter.isWirisEnabled()) {
+            $(presenter.wrapper).html(presenter.WIRIS_DISABLED_MESSAGE);
+            return;
+        }
+
+        console.log("somehow i got here");
         presenter.editor = window.com.wiris.jsEditor.JsEditor.newInstance(
             {
                 'language': presenter.configuration.language,
@@ -284,7 +293,7 @@ function AddonMathText_create() {
             presenter.setWorkMode();
         }
 
-        if (presenter.configuration.showEditor && !presenter.state.isShowAnswers) {
+        if (presenter.configuration.showEditor && !presenter.state.isShowAnswers && presenter.isWirisEnabled()) {
             presenter.state.isShowAnswers = true;
             presenter.$view.find('input').attr('disabled', true);
             presenter.editor.setToolbarHidden(true);
@@ -297,7 +306,7 @@ function AddonMathText_create() {
     };
 
     presenter.hideAnswers = function AddonMathText_hideAnswers () {
-        if (presenter.configuration.showEditor && presenter.state.isShowAnswers) {
+        if (presenter.configuration.showEditor && presenter.state.isShowAnswers && presenter.isWirisEnabled()) {
             presenter.editor.setToolbarHidden(false);
             presenter.$view.find('input').removeAttr('disabled');
 
@@ -315,7 +324,7 @@ function AddonMathText_create() {
             presenter.hideAnswers();
         }
 
-        if (presenter.configuration.showEditor && !presenter.state.isCheckAnswers) {
+        if (presenter.configuration.showEditor && !presenter.state.isCheckAnswers && presenter.isWirisEnabled()) {
             presenter.state.isCheckAnswers = true;
             presenter.$view.find('input').attr('disabled', true);
             presenter.editor.setToolbarHidden(true);
@@ -342,7 +351,7 @@ function AddonMathText_create() {
             presenter.wrapper.classList.remove('correct');
             presenter.wrapper.classList.remove('wrong');
 
-            if (presenter.configuration.showEditor) {
+            if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
                 presenter.$view.find('input').removeAttr('disabled');
                 presenter.editor.setToolbarHidden(false);
             }
@@ -365,7 +374,7 @@ function AddonMathText_create() {
         presenter.state.wasChanged = true;
         presenter.state.hasUserInteracted = false;
 
-        if (presenter.configuration.showEditor) {
+        if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
             presenter.state.currentAnswer = presenter.configuration.initialText;
             presenter.editor.setMathML(presenter.configuration.initialText);
         }
@@ -422,7 +431,7 @@ function AddonMathText_create() {
              return;
          }
 
-         if (presenter.configuration.showEditor) {
+         if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
              if (value) {
                  presenter.$view.find('input').attr('disabled', true);
              } else {
@@ -436,7 +445,7 @@ function AddonMathText_create() {
      presenter.setState = function (state) {
          var parsedState = JSON.parse(state);
 
-         if (presenter.configuration.showEditor) {
+         if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
              presenter.editor.setMathML(parsedState.text);
              presenter.state.currentAnswer = parsedState.text;
          }
@@ -450,7 +459,7 @@ function AddonMathText_create() {
     presenter.getState = function() {
         var currentText = presenter.configuration.initialText;
 
-        if (presenter.configuration.showEditor) {
+        if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
             currentText = presenter.editor.getMathML();
         }
 
@@ -468,7 +477,7 @@ function AddonMathText_create() {
         }
 
         var score = 0;
-        if (presenter.configuration.isActivity && presenter.configuration.showEditor) {
+        if (presenter.configuration.isActivity && presenter.configuration.showEditor && presenter.isWirisEnabled()) {
             if (presenter.state.wasChanged) {
                 score = presenter.checkIfAnswerIsCorrect(presenter.editor.getMathML()) ? 1 : 0;
                 presenter.state.wasChanged = false;
