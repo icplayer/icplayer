@@ -133,7 +133,9 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
         HashMap<String, String> state = new HashMap<String, String>();
 
         state.put("isVisible", Boolean.toString(isVisible));
-        state.put("isShowErrorsMode", Boolean.toString(view.isShowErrorsMode()));
+        if (model.getMaintainState()) {
+        	state.put("isShowErrorsMode", Boolean.toString(view.isShowErrorsMode()));
+        }
 
         return json.toJSONString(state);
     }
@@ -152,7 +154,7 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
             }
         }
         
-        if (decodedState.containsKey("isShowErrorsMode")) {
+        if (model.getMaintainState() && decodedState.containsKey("isShowErrorsMode")) {
         	boolean isShowErrorsMode = Boolean.parseBoolean(decodedState.get("isShowErrorsMode"));
         	if (isShowErrorsMode) {
         		Timer t = new Timer(){
