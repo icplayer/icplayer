@@ -45,6 +45,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel{
 	}
 	
 	public void addOption(ChoiceOption option) {
+		option.setParentId(getId());
 	
 		if (isMulti && option.getValue() > 0) {
 			maxScore += option.getValue();

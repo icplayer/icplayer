@@ -852,6 +852,7 @@ var ice_dictionary_en = {
 	"Limited_Check_property_uncheck_text" : "Uncheck text",
 	"Limited_Check_property_works_with" : "Works with",
 	"Limited_Check_property_mistakes_from_provided_modules" : "Count mistakes from provided modules",
+	"Limited_Check_property_maintain_state" : "Maintain state",
 	"Limited_Reset_name": "Limited Reset",
 	"Limited_Reset_info": "Allows to add a button clicking on which will reset answers given in specified modules.",
 	"Limited_Reset_property_title" : "Title",
