@@ -23,7 +23,7 @@ function AddonMathText_create() {
     presenter.WIRIS_DISABLED_MESSAGE = "This addon requires internet access and enabled Wiris to work correctly";
 
     presenter.EMPTY_MATHTEXT = '<math xmlns="http://www.w3.org/1998/Math/MathML"/>';
-    presenter.WIRIS_RENDER_URL = "https://www.wiris.net/demo/editor/render?";
+    presenter.WIRIS_RENDER_URL = "https://www.wiris.net/client/editor/render?";
     presenter.ERROR_CODES = {
         'initialText_STR02': "Value provided to text property is not a valid string.",
         'correctAnswer_STR02': "Value provided to text property is not a valid string.",
@@ -263,7 +263,6 @@ function AddonMathText_create() {
             return;
         }
 
-        console.log("somehow i got here");
         presenter.editor = window.com.wiris.jsEditor.JsEditor.newInstance(
             {
                 'language': presenter.configuration.language,
