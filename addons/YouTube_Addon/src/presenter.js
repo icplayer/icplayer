@@ -28,6 +28,8 @@
     }
 
      function doesConnectionExist() {
+         return true; // This method is temporarily disabled due to issues with youtube api
+
          var xhr = new ( window.ActiveXObject || XMLHttpRequest )( "Microsoft.XMLHTTP" );
 
          //YouTube API key is generated in lorepocorporate google account
