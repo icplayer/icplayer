@@ -1,3 +1,4 @@
+2020-04-20 Added resetPage and resetPageByName commands
 2020-03-05 Fix issue with XML entities in dropdown gap breaking show answers
 2020-03-05 Added HTML IDs to Choice options
 2020-03-04 Added maintain state property to Limited Check addon

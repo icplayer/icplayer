@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.content.services;
 
 import com.lorepo.icplayer.client.IPlayerController;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.PageController;
@@ -55,6 +56,31 @@ public class PlayerCommands implements IPlayerCommands {
 	public void reset() {
 		pageController.resetPageScore();
 		pageController.sendResetEvent();
+	}
+	
+	public void resetPageByName(String pageName) {
+		for (IPage page: controller.getModel().getAllPages()) {
+			if (page.getName().equals(pageName)) {
+				resetPage(page);
+			}
+		}
+	}
+	
+	@Override
+	public void resetPage(int index) {
+		IPage page = controller.getModel().getPage(index);
+		resetPage(page);
+	}
+	
+	private void resetPage(IPage page) {
+		if (page == pageController.getPage()) {
+			this.reset();
+		} else {
+			controller.getStateService().resetPageStates(page);			
+			PageScore oldScore = controller.getScoreService().getPageScoreById(page.getId());
+			PageScore newScore = oldScore.reset();
+			controller.getScoreService().setPageScore(page, newScore);		
+		}
 	}
 
 	@Override

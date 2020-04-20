@@ -344,6 +344,14 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageStamp()();
 			}
 			
+			commands.resetPage = function(index) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPage(I)(index - 1);
+			}
+			
+			commands.resetPageByName = function(pageName) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPageByName(Ljava/lang/String;)(pageName);
+			}
+			
 			return commands;
 		};
 
@@ -1013,5 +1021,13 @@ public class JavaScriptPlayerServices {
 
 	public String escapeXMLEntities(String text) {
 		return StringUtils.escapeXML(text);
+	}
+	
+	private void resetPage(int index) {
+		this.playerServices.getCommands().resetPage(index);
+	}
+	
+	private void resetPageByName(String pageName) {
+		this.playerServices.getCommands().resetPageByName(pageName);
 	}
 }

@@ -198,4 +198,16 @@ public class CommandsMockup implements IPlayerCommands {
 		return null;
 	}
 
+	@Override
+	public void resetPage(int index) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void resetPageByName(String pageName) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
