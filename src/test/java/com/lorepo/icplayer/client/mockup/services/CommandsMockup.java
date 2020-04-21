@@ -205,7 +205,7 @@ public class CommandsMockup implements IPlayerCommands {
 	}
 
 	@Override
-	public void resetPageByName(String pageName) {
+	public void resetPageById(String id) {
 		// TODO Auto-generated method stub
 		
 	}

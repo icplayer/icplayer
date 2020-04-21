@@ -58,9 +58,9 @@ public class PlayerCommands implements IPlayerCommands {
 		pageController.sendResetEvent();
 	}
 	
-	public void resetPageByName(String pageName) {
+	public void resetPageById(String id) {
 		for (IPage page: controller.getModel().getAllPages()) {
-			if (page.getName().equals(pageName)) {
+			if (page.getId().equals(id)) {
 				resetPage(page);
 			}
 		}

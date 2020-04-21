@@ -348,8 +348,8 @@ public class JavaScriptPlayerServices {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPage(I)(index - 1);
 			}
 			
-			commands.resetPageByName = function(pageName) {
-				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPageByName(Ljava/lang/String;)(pageName);
+			commands.resetPageById = function(id) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPageById(Ljava/lang/String;)(id);
 			}
 			
 			return commands;
@@ -1027,7 +1027,7 @@ public class JavaScriptPlayerServices {
 		this.playerServices.getCommands().resetPage(index);
 	}
 	
-	private void resetPageByName(String pageName) {
-		this.playerServices.getCommands().resetPageByName(pageName);
+	private void resetPageById(String id) {
+		this.playerServices.getCommands().resetPageById(id);
 	}
 }
