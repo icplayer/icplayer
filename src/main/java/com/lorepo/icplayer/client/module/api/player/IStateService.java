@@ -9,4 +9,5 @@ public interface IStateService {
 	void loadFromString(String string);
 	HashMap<String, String> getStates();
 	void resetStates();
+	void resetPageStates(IPage page);
 }
