@@ -157,6 +157,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 			view.show();
 		} else{
 			view.hide();
+            isVisible = false;
 		}
 		view.setErrorCheckingMode(false);
 		view.setDisabled(false);

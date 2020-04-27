@@ -7,6 +7,8 @@ public interface IPlayerCommands {
 	public void checkAnswers();
 	public void uncheckAnswers();
 	public void reset();
+	public void resetPage(int index);
+	public void resetPageById(String id);
 	public void updateCurrentPageScore(boolean incrementCheckCounter);
 	public void resetPageScore();
 	public PageScore getCurrentPageScore();

@@ -1327,7 +1327,8 @@ function AddonTable_create() {
     };
 
     presenter.SelectGap.prototype.setViewValue = function (value) {
-        this.$view.val(value);
+        var escaped = presenter.textParser.escapeXMLEntities(value);
+        this.$view.val(escaped);
     };
 
     presenter.SelectGap.prototype.lock = function () {

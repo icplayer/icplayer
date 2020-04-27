@@ -81,6 +81,17 @@
         return this.parser.parseGaps(text, options);
     };
 
+    /**
+
+
+     @method parseGaps
+     @param {String} text the string which will be processed
+     @return {String} Text with escaped XML entities
+     */
+    window.TextParserProxy.prototype.escapeXMLEntities = function (text) {
+        return this.parser.escapeXMLEntities(text);
+    };
+
 
 
 })(window);

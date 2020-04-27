@@ -24,6 +24,7 @@ public class LimitedCheckModule extends BasicModuleModel implements IWCAGModuleM
 	private String rawWorksWith = "";
 	private List<String> modules = new LinkedList<String>();
 	private boolean mistakesFromProvidedModules = false;
+	private boolean maintainState = false;
 
 	public LimitedCheckModule() {
 		super("Limited Check", DictionaryWrapper.get("Limited_Check_name"));
@@ -32,6 +33,7 @@ public class LimitedCheckModule extends BasicModuleModel implements IWCAGModuleM
 		addPropertyUnCheckText();
 		addPropertyWorksWith();
 		addPropertyCountMistakesFromProvidedModules();
+		addPropertyMaintainState();
 	}
 
 	protected void setCheckText(String checkText) {
@@ -208,6 +210,48 @@ public class LimitedCheckModule extends BasicModuleModel implements IWCAGModuleM
 	public boolean getMistakesFromProvidedModules() {
 		return mistakesFromProvidedModules;
 	}
+	
+	private void addPropertyMaintainState() {
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != maintainState) {
+					maintainState = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return maintainState ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("Limited_Check_property_maintain_state");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("Limited_Check_property_maintain_state");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+
+	public boolean getMaintainState() {
+		return maintainState;
+	}
 
 	@Override
 	protected void parseModuleNode(Element node) {
@@ -223,7 +267,8 @@ public class LimitedCheckModule extends BasicModuleModel implements IWCAGModuleM
 					unCheckText = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "unCheckText"));
 					rawWorksWith = XMLUtils.getCharacterDataFromElement(childElement);
 					mistakesFromProvidedModules = XMLUtils.getAttributeAsBoolean(childElement, "mistakesFromProvidedModules");
-
+					maintainState = XMLUtils.getAttributeAsBoolean(childElement, "maintainState");
+					
 					modules = ModuleUtils.getListFromRawText(rawWorksWith);
 				}
 			}
@@ -248,7 +293,8 @@ public class LimitedCheckModule extends BasicModuleModel implements IWCAGModuleM
 		limitedCheckElement.setAttribute("checkText", encodedCheck);
 		limitedCheckElement.setAttribute("unCheckText", encodedUnCheck);
 		XMLUtils.setBooleanAttribute(limitedCheckElement, "mistakesFromProvidedModules", mistakesFromProvidedModules);
-
+		XMLUtils.setBooleanAttribute(limitedCheckElement, "maintainState", maintainState);
+		
 		CDATASection cdata = XMLUtils.createCDATASection(rawWorksWith);
 
 		limitedCheckElement.appendChild(cdata);

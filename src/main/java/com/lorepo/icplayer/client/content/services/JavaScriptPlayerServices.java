@@ -16,6 +16,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
@@ -343,6 +344,14 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageStamp()();
 			}
 			
+			commands.resetPage = function(index) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPage(I)(index - 1);
+			}
+			
+			commands.resetPageById = function(id) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPageById(Ljava/lang/String;)(id);
+			}
+			
 			return commands;
 		};
 
@@ -404,6 +413,10 @@ public class JavaScriptPlayerServices {
 									x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name, data);
 								});
 			};
+
+			commands.escapeXMLEntities = function (text) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::escapeXMLEntities(Ljava/lang/String;)(text);
+			}
 
 			return commands;
 		};
@@ -1004,5 +1017,17 @@ public class JavaScriptPlayerServices {
 
 	public JavaScriptObject getModuleMetadata(String moduleID) {
 		return this.playerServices.getModule(moduleID).getModel().getMetadata().toJavaScript();
+	}
+
+	public String escapeXMLEntities(String text) {
+		return StringUtils.escapeXML(text);
+	}
+	
+	private void resetPage(int index) {
+		this.playerServices.getCommands().resetPage(index);
+	}
+	
+	private void resetPageById(String id) {
+		this.playerServices.getCommands().resetPageById(id);
 	}
 }
