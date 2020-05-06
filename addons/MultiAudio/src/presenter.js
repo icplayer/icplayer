@@ -258,6 +258,7 @@ function AddonMultiAudio_create(){
                         presenter.stop();
                         presenter.draggableItems[itemID].removeClass('playing');
                     }
+                    ui.helper.zIndex(100);
                 }
             });
 
