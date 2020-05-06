@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.*;
+import com.lorepo.icplayer.client.module.api.event.dnd.DraggableAudio;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
@@ -929,6 +930,8 @@ public class JavaScriptPlayerServices {
 
 		if(type.compareTo("image") == 0) {
 			item = new DraggableImage(id, value);
+		} else if (type.compareTo("audio") == 0) {
+			item = new DraggableAudio(id, value);
 		} else {
 			item = new DraggableText(id, value);
 		}

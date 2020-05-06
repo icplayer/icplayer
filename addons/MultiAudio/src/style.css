@@ -4,6 +4,53 @@
 }
 
 .wrapper-addon-audio {
-    height: 30px;
+    height: 100%;
     position: relative;
+}
+
+.multiaudio-item-wrapper {
+    width: 110px;
+    height: 45px;
+    display: block;
+    background-color: #3792cb;
+    padding: 5px;
+    margin: 2px;
+}
+
+.multiaudio-selected {
+    border: 1px solid orange;
+}
+
+.multiaudio-item-wrapper .multiaudio-item-grab-area {
+    background-color: rgba(0,0,0,0.15);
+    width: 32px;
+    height: 44px;
+    margin-right: 5px;
+    display:inline-block;
+    cursor: pointer;
+}
+
+.multiaudio-item-wrapper .multiaudio-item-button {
+    width: 71px;
+    height: 44px;
+    display:inline-block;
+    background: white;
+}
+
+.multiaudio-item-wrapper .multiaudio-item-icon {
+    width: 100%;
+    height: 100%;
+    display:block;
+    background: #3792cb;
+    mask: url('resources/volume_up-24px.svg') no-repeat center;
+    -webkit-mask: url('resources/volume_up-24px.svg') no-repeat center;
+}
+
+.multiaudio-item-wrapper.playing .multiaudio-item-icon {
+    width: 100%;
+    height: 100%;
+    display:block;
+    background: #3792cb;
+    mask: url('resources/volume_off-24px.svg') no-repeat center;
+    -webkit-mask: url('resources/volume_off-24px.svg') no-repeat center;
 }
