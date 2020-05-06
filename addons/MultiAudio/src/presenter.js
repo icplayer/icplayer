@@ -37,13 +37,13 @@ function AddonMultiAudio_create(){
                 var itemID = getItemIdFromEvent(eventData.item);
                 if (itemID != null) {
                     createDraggableItem(itemID);
-                    hideDraggableItem(itemID);
                 }
             }
         } else if (eventName == "itemDragged") {
             if (presenter.globalModel["Interface"] == "Draggable items") {
                 var itemID = getItemIdFromEvent(eventData.item);
                 presenter.fireSelectedDraggableEvent(itemID);
+                hideDraggableItem(itemID);
             }
         } else if (eventName == "itemStopped") {
             if (presenter.globalModel["Interface"] == "Draggable items") {
