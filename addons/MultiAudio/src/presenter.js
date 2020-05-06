@@ -581,9 +581,12 @@ function AddonMultiAudio_create(){
         var state = {
             'visible' : "" + this.visible,
             'currentAudio' : "" + this.currentAudio,
-            'currentTime'   : "" + this.audio.currentTime,
-            'draggableItems': Object.keys(presenter.draggableItems).join(',')
+            'currentTime'   : "" + this.audio.currentTime
         };
+        var draggableKeys = Object.keys(presenter.draggableItems);
+        if (draggableKeys.length != 0) {
+            state['draggableItems'] = Object.keys(presenter.draggableItems).join(',')
+        }
         return this.convertStateToString(state);
     };
 
@@ -622,11 +625,17 @@ function AddonMultiAudio_create(){
         this.currentAudio = currentAudio;
         presenter.loadFiles(this.audio, this.globalModel);
 
-        if ('draggableItems' in state && presenter.globalModel["Interface"] == "Draggable items") {
-            var loadedDraggableItems = state['draggableItems'].split(',');
+        if (presenter.globalModel["Interface"] == "Draggable items") {
             var keys = Object.keys(presenter.draggableItems);
-            for (var i = 0; i < keys.length; i++) {
-                if (loadedDraggableItems.indexOf(keys[i]) == -1) {
+            if ('draggableItems' in state) {
+                var loadedDraggableItems = state['draggableItems'].split(',');
+                for (var i = 0; i < keys.length; i++) {
+                    if (loadedDraggableItems.indexOf(keys[i]) == -1) {
+                        removeDraggableItem(keys[i]);
+                    }
+                }
+            } else {
+                for (var i = 0; i < keys.length; i++) {
                     removeDraggableItem(keys[i]);
                 }
             }
