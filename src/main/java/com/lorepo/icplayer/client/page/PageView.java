@@ -127,7 +127,7 @@ public class PageView extends SimplePanel implements IPageDisplay {
 	@Override
 	public void setAsStaticFooter() {
 		this.isStaticFooter = true;
-		this.setStyleName("ic_static_footer");
+		this.addStyleName("ic_static_footer");
 		if (this.innerPanel != null) {
 			DOM.setStyleAttribute(this.innerPanel.getElement(), "top", "0");
 		}
@@ -188,7 +188,7 @@ public class PageView extends SimplePanel implements IPageDisplay {
 	
 	@Override
 	public void setAsStaticHeader() {
-		this.setStyleName("ic_static_header");
+		this.addStyleName("ic_static_header");
 		this.onScroll(new AsyncCallback<Float>() {
 
 			@Override

@@ -722,7 +722,6 @@ public class PlayerController implements IPlayerController{
 			
 			// Rest of header initialization
 			if (this.isHeaderStatic()) {
-				header.setWidth(page.getWidth());
 				this.headerController.setAsStaticHeader();
 				
 				pageController.setTopOffset(PlayerUtils.getRealHeaderSize());
@@ -763,8 +762,6 @@ public class PlayerController implements IPlayerController{
 			
 			// Rest of static footer initialization
 			if (this.isFooterStatic()) {
-				footer.setWidth(page.getWidth());
-				
 				int headerHeight = 0;
 				if (headerPage != null) {
 					headerHeight = PlayerUtils.getRealHeaderSize();
