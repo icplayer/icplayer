@@ -19,6 +19,7 @@
 
 .multiaudio-selected {
     border: 1px solid orange;
+    z-index: 100;
 }
 
 .multiaudio-item-wrapper .multiaudio-item-grab-area {

@@ -51,8 +51,10 @@ function AddonMultiAudio_create(){
                 if (itemID != null) {
                     showDraggableItem(itemID);
                 }
-                presenter.fireSelectedDraggableEvent();
             }
+        } else if (eventName == "ItemSelected") {
+            var itemID = getItemIdFromEvent(eventData.item);
+            applySelectedClass(itemID);
         }
     };
 
@@ -61,6 +63,20 @@ function AddonMultiAudio_create(){
         if (addonAndItemIds.length != 2) return null;
         if (addonAndItemIds[0] != presenter.addonID) return null;
         return addonAndItemIds[1];
+    }
+
+    function applySelectedClass(itemID) {
+        if (presenter.globalModel["Interface"] != "Draggable items") return;
+        var keys = Object.keys(presenter.draggableItems);
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            var item = presenter.draggableItems[key];
+            if (key == itemID) {
+                item.addClass('multiaudio-selected');
+            } else {
+                item.removeClass('multiaudio-selected');
+            }
+        }
     }
 
     function getEventObject(_item, _value, _score) {
@@ -236,7 +252,7 @@ function AddonMultiAudio_create(){
             $grab.addClass('multiaudio-item-grab-area');
             $el.append($grab);
 
-            $grab.dblclick(function(){presenter.handleGrabAreaDblClick(itemID)});
+            $grab.click(function(){presenter.handleGrabAreaClick(itemID)});
 
             var $button = $('<div></div>');
             $button.addClass('multiaudio-item-button');
@@ -258,7 +274,6 @@ function AddonMultiAudio_create(){
                         presenter.stop();
                         presenter.draggableItems[itemID].removeClass('playing');
                     }
-                    ui.helper.zIndex(100);
                 }
             });
 
@@ -305,12 +320,11 @@ function AddonMultiAudio_create(){
         eventBus.sendEvent('ItemSelected', eventData);
     };
 
-    presenter.handleGrabAreaDblClick = function(itemID) {
+    presenter.handleGrabAreaClick = function(itemID) {
+        if (presenter.draggableItems[itemID].hasClass('ui-draggable-dragging')) return;
         if (presenter.draggableItems[itemID].hasClass('multiaudio-selected')) {
-            presenter.draggableItems[itemID].removeClass('multiaudio-selected');
             presenter.fireSelectedDraggableEvent();
         } else {
-            presenter.draggableItems[itemID].addClass('multiaudio-selected');
             presenter.fireSelectedDraggableEvent(itemID);
         }
     };
@@ -402,6 +416,7 @@ function AddonMultiAudio_create(){
         eventBus = presenter.playerController.getEventBus();
         presenter.addonID = model.ID;
         eventBus.addEventListener('ValueChanged', this);
+        eventBus.addEventListener('ItemSelected', this);
         eventBus.addEventListener('ItemConsumed', this);
         eventBus.addEventListener('ItemReturned', this);
         eventBus.addEventListener('itemStopped', this);
