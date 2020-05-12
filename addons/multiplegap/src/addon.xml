@@ -3,7 +3,7 @@
 <addon id='multiplegap' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
 	<model>
 		<property name='Orientation' nameLabel="multiplegap_property_orientation" type='{horizontal, vertical}' />
-		<property name="Source type" nameLabel="multiplegap_property_source_type" type="{images, texts}" />
+		<property name="Source type" nameLabel="multiplegap_property_source_type" type="{images, texts, audio}" />
 		<property name="Items" nameLabel="multiplegap_property_items" type="list">
 			<property name="Answer ID" nameLabel="multiplegap_property_answer_id" type="string" />
 		</property>
