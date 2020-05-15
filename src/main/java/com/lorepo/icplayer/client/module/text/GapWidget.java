@@ -80,6 +80,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		
 		if (this.gapInfo.isNumericOnly()) {
 			this.getElement().setPropertyString("type","number");
+			this.getElement().setPropertyString("step","any");
 		}
 
 		onAttach();

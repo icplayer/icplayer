@@ -1400,6 +1400,9 @@ function AddonTable_create() {
             });
 
             $inputGap.addClass("ic_gap");
+            if (presenter.configuration.useNumericKeyboard) {
+                $inputGap.attr("step", "any");
+            }
 
             return $inputGap;
         }
