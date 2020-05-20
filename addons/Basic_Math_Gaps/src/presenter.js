@@ -1322,6 +1322,9 @@ function AddonBasic_Math_Gaps_create(){
         $inputGap.css({
             width: presenter.configuration.gapWidth + "px"
         });
+        if ((presenter.configuration.useNumericKeyboard)) {
+            $inputGap.attr("step", "any");
+        }
 
         return $inputGap;
     };

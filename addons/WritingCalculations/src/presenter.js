@@ -353,6 +353,9 @@ function AddonWritingCalculations_create() {
                 if(!presenter.multisigns){
                     input.attr("maxlength", 1);
                 }
+                if (presenter.useNumericKeyboard) {
+                    input.attr("step", "any");
+                }
                 container.append(input);
                 break;
             case this.ELEMENT_TYPE.LINE:
