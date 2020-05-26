@@ -710,7 +710,6 @@ function AddonParagraph_create() {
     };
 
     presenter.getState = function AddonParagraph_getState() {
-        console.log("getState");
         var tinymceState;
         if (presenter.editor != undefined && presenter.editor.hasOwnProperty("id")) {
             try{
@@ -731,8 +730,6 @@ function AddonParagraph_create() {
     };
 
     presenter.setState = function AddonParagraph_setState(state) {
-        console.log("SET STATE");
-        console.log(state);
         var parsedState = JSON.parse(state),
             tinymceState = parsedState.tinymceState;
 
