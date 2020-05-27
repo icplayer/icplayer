@@ -250,7 +250,7 @@ public class PlayerApp {
 		var pageHeight = parseInt(page.css("height").replace('px', ''), 10);
 		var icFooterHeight = parseInt(footer.css('height').replace('px', ''), 10);
 
-		page.css("height", pageHeight + icFooterHeight);
+		page.css("marginBottom", icFooterHeight);
 
 		if ($wnd.isFrameInDifferentDomain || $wnd.isInIframe) {
 			var offsetIframe = $wnd.iframeSize.frameOffset;
@@ -302,7 +302,6 @@ public class PlayerApp {
 			
 			var height = parseInt(pageHeight, 10) + parseInt(icFooterHeight, 10) + parseInt(replacedHeaderHeight, 10);
 			
-			pagePanel.css("height", height);
 			$wnd.$(".ic_content").parent().css("height", height);
 		}
 	}-*/;
