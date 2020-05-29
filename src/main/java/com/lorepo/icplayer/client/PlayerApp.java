@@ -399,7 +399,7 @@ public class PlayerApp {
 		}
 
 		function step() {
-			console.log("Step");
+
 			var currentScale = $wnd.player.getPlayerServices()
 					.getScaleInformation().scaleY, currentScroll = $wnd.pageYOffset, currentWindowHeight = $wnd.innerHeight;
 					
