@@ -177,7 +177,7 @@ function AddonParagraph_create() {
             : layoutType === "French"
                 ? presenter.getSpecifyToolbar(layoutType)
                 : presenter.configuration.toolbar;
-				
+
         return {
             plugins: presenter.configuration.plugins,
             selector : selector,
@@ -390,40 +390,45 @@ function AddonParagraph_create() {
     presenter.onDestroy = function AddonParagraph_destroy() {
         // iOS fix to hide keyboard after page change
         // https://github.com/tinymce/tinymce/issues/3441
-        if(isIOSSafari()){
-            var iframe = presenter.$view.find('iframe');
-            iframe.focus();
-            document.activeElement.blur();
+        try {
+            if (isIOSSafari()) {
+                var iframe = presenter.$view.find('iframe');
+                iframe.focus();
+                document.activeElement.blur();
+            }
+
+            presenter.placeholder = null;
+            presenter.editor.destroy();
+            presenter.jQueryTinyMCEHTML.off();
+
+            presenter.$view.off();
+            presenter.$tinyMCEToolbar.off();
+
+            tinymce.AddOnManager.PluginManager.items.length = 0;
+            presenter.$tinyMCEToolbar = null;
+            presenter.jQueryTinyMCEHTML = null;
+            presenter.configuration = null;
+            presenter.$view = null;
+            presenter.view = null;
+            presenter.editor = null;
+            presenter.isVisibleValue = null;
+            presenter.findIframeAndSetStyles = null;
+            presenter.getSpecifyToolbar = null;
+            presenter.addStylesToButton = null;
+            presenter.getButton = null;
+            presenter.onBlur = null;
+            presenter.onFocus = null;
+            presenter.onInit = null;
+            presenter.setIframeHeight = null;
+            presenter.destroy = null;
+            presenter.tinyMceContainer = null;
+            presenter.editor = null;
+            presenter.playerController = null;
+            presenter.LANGUAGES = null;
+        } catch (e) {
+            // In case that the first layout is different than the default one
+            // the addon may not fully initialize before onDestroy is called
         }
-
-        presenter.placeholder = null;
-        presenter.editor.destroy();
-        presenter.jQueryTinyMCEHTML.off();
-
-        presenter.$view.off();
-        presenter.$tinyMCEToolbar.off();
-
-        tinymce.AddOnManager.PluginManager.items.length = 0;
-        presenter.$tinyMCEToolbar = null;
-        presenter.jQueryTinyMCEHTML = null;
-        presenter.configuration = null;
-        presenter.$view = null;
-        presenter.view = null;
-        presenter.editor = null;
-        presenter.isVisibleValue = null;
-        presenter.findIframeAndSetStyles = null;
-        presenter.getSpecifyToolbar = null;
-        presenter.addStylesToButton = null;
-        presenter.getButton = null;
-        presenter.onBlur = null;
-        presenter.onFocus = null;
-        presenter.onInit = null;
-        presenter.setIframeHeight = null;
-        presenter.destroy = null;
-        presenter.tinyMceContainer = null;
-        presenter.editor = null;
-        presenter.playerController = null;
-        presenter.LANGUAGES = null;
     };
 
     presenter.addPlugins = function AddonParagraph_addPlugins() {

@@ -1,4 +1,5 @@
 2020-06-02 Fix problem with page size when static footer is enabled
+2020-05-26 Fixed issue with Paragraph when the default layout is not the initial one
 2020-05-15 Fixed numeric gaps displaying a warning when a fraction is inputed
 2020-05-06 Added draggable items interface for multiaudio and support for it in multiplegap
 2020-04-21 Added resetPage and resetPageByName commands
