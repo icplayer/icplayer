@@ -1,3 +1,4 @@
+2020-06-02 Fix problem with page size when static footer is enabled
 2020-05-15 Fixed numeric gaps displaying a warning when a fraction is inputed
 2020-05-06 Added draggable items interface for multiaudio and support for it in multiplegap
 2020-04-21 Added resetPage and resetPageByName commands
@@ -203,7 +204,7 @@
 2018-05-28 Fixed issues with hover style in reset button on mobile
 2018-05-28 Fixed issue with TTS in multiplegap after reset
 2018-05-28 Added TTS support for Image Identification
-2018-05-25 Added a test to check for special character handling in text coloring  
+2018-05-25 Added a test to check for special character handling in text coloring
 2018-05-24 Fixed conflicts between WCAG mode and NVDA
 2018-05-24 Added TTS support for Zoom Image
 2018-05-21 Added TTS support for Heading
@@ -261,7 +262,7 @@
 2018-03-05 Added Timer addon
 2018-03-02 Fixed problem with scaling in Connection addon
 2018-03-02 Added property to set ordering items to starting position
-2018-03-01 Fixed problem with gap parsing with opening tag character 
+2018-03-01 Fixed problem with gap parsing with opening tag character
 2018-03-01 Fixed problem with opening gaps on mobile devices in eKeyboard module
 2018-02-28 Fixed problem with restoring state in video addon
 2018-02-28 Fixed problem with hover in iOS
@@ -274,7 +275,7 @@
 2018-02-20 Added Page mapping ids translations, Size and ModuleDimensions equals implementations
 2018-02-20 Added TTS support for SHow Answers Button
 2018-02-15 Added TTS support for the Text's Draggable Gap
-2018-02-15 Added TTS support for Check Answers Button 
+2018-02-15 Added TTS support for Check Answers Button
 2018-02-15 Fixed issue with scaling in Figure Drawing on mobile devices
 2018-02-14 Fixed issue with reseting module in Catch module
 2018-02-13 Fixed issues with Glossary scaling on mobile devices
@@ -290,7 +291,7 @@
 2018-01-30 Fixed Double State Button not activating on keyboard input.
 2018-01-29 Fixed Image gap and multiplegap not getting image source alt text
 2018-01-26 Fixed addon TrueFalse now only adds text as checkbox alt text
-2018-01-24 Fixed addon TrueFalse not being read correctly by NVDA 
+2018-01-24 Fixed addon TrueFalse not being read correctly by NVDA
 2018-01-23 Fixed url resolving for modules
 2018-01-23 Fixed Choice chosen element not reseting
 2018-01-23 Fixed tests in TTS and Text Identification
@@ -598,7 +599,7 @@
 2016-04-14 Added blocking wrong answers in Text Identification module
 2016-04-14 Added blocking wrong answers in Text module
 2016-04-13 Fixed rendering latex in Text module
-2016-04-11 Added sending continuous events and stick steps in Slider module 
+2016-04-11 Added sending continuous events and stick steps in Slider module
 2016-04-08 Fixed dragging element in Ordering module
 2016-04-08 Added french layout to Paragraph
 2016-04-08 Added list and combo views in Table of Contents module
@@ -1017,7 +1018,7 @@
 2015-02-09 Added getView(), show() and hide() commands to Error Counter module
 2015-02-06 Added parsing HTML in Text Audio module
 2015-02-06 Fixed issue with Show Answer in Shape Tracing module
-2015-02-06 Added new css class to Basic Math Gaps module 
+2015-02-06 Added new css class to Basic Math Gaps module
 2015-02-06 Added Show Answers to Count and Graph module
 2015-02-06 Added new property Signs to to Basic Math Gaps module
 2015-02-05 Added translations for almost all remaining addons properties names
@@ -1425,7 +1426,7 @@
 2014-03-11 Player API extended to return page id
 2014-03-07 Added AllOK event and isAllOK command in Text module
 2014-03-07 Fixed problem with parsing addon properties
-2014-03-07 Fixed issue with icon pages on navigation bar for mLibro. 
+2014-03-07 Fixed issue with icon pages on navigation bar for mLibro.
 2014-03-07 New addon connecting dots and updated fractions
 2014-03-06 Added enableAllGaps and disableAllGaps commands in Table module
 2014-03-06 Added enableAllGaps and disableAllGaps commands in Text module
@@ -1588,7 +1589,7 @@
 2013-09-05 Popup z-index = 100
 2013-09-04 Added Book API
 2013-09-03 Fixed Paragraph for non existing tinymce editor
-2013-09-03 Added default sizes to ic_popup_page CSS class 
+2013-09-03 Added default sizes to ic_popup_page CSS class
 2013-09-02 Fixed PlayerUtils for object with unavailable API
 2013-09-02 Fixed problem addon resources
 2013-09-02 Fixed problem with gaps on popups
