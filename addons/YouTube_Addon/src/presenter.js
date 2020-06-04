@@ -7,7 +7,7 @@
  
     function createVideoThumbnailAsync(videoID, viewContainer, addonWidth, addonHeight) {
 
-        var feedURL = "https://mauthor.com/api/v2/youtube/thumbnail?video_id=" + videoID;
+        var feedURL = "https://test-7733-dot-mauthor-dev.appspot.com/api/v2/youtube/thumbnail?video_id=" + videoID;
 
         $.when($.get(feedURL)).then(function (jsonResponse) {
             if (jsonResponse.items.length > 0) {
@@ -36,7 +36,8 @@
          var xhr = new ( window.ActiveXObject || XMLHttpRequest )( "Microsoft.XMLHTTP" );
 
          //YouTube API key is generated in lorepocorporate google account
-         xhr.open( "HEAD", "https://mauthor.com/api/v2/youtube/", false );
+         xhr.open( "HEAD", "https://test-7733-dot-mauthor-dev.appspot.com/api/v2/youtube/", false );
+
 
          try {
              xhr.send();
