@@ -2,7 +2,7 @@ ValidateState = TestCase("Validate Get And Set State Multi Audio");
 
 ValidateState.prototype.setUp = function() {
     this.presenter = AddonMultiAudio_create();
-    this.model = {
+    this.presenter.globalModel = {
     		"Files" : [{
     		           "ID"  		 : "1",
     		           "Mp3" 		 : "/file/serve/123",

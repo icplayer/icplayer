@@ -52,9 +52,9 @@ function AddonMultiAudio_create(){
                     showDraggableItem(itemID);
                 }
             }
-        } else if (eventName == "ItemSelected") {
+        } else if (eventName == "ItemSelected" && eventData.item !== null) { // when ImageSource deselects item, then item is null
             var itemID = getItemIdFromEvent(eventData.item);
-            applySelectedClass(itemID);
+            this.applySelectedClass(itemID);
         }
     };
 
@@ -65,7 +65,7 @@ function AddonMultiAudio_create(){
         return addonAndItemIds[1];
     }
 
-    function applySelectedClass(itemID) {
+    presenter.applySelectedClass = function(itemID) {
         if (presenter.globalModel["Interface"] != "Draggable items") return;
         var keys = Object.keys(presenter.draggableItems);
         for (var i = 0; i < keys.length; i++) {
