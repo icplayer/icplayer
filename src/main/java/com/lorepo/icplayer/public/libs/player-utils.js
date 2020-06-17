@@ -65,7 +65,8 @@
                         pageScaledScore = page.isVisited() ? 1 : 0;
                     }
 
-                    var weight = page.getPageWeight() || 1;
+                    var _weight = page.getPageWeight();
+                    var weight =  !_weight && _weight !== 0 ? 1 : _weight;
                     sumOfScaledScore += pageScaledScore * weight;
                     sumOfScore += score.score;
                     sumOfErrors += score.errorCount;
@@ -92,7 +93,11 @@
 
             var scaledScore = 0;
             if (count > 0) {
-                scaledScore = Math.floor((sumOfScaledScore / sumOfWeights) * 100) / 100;
+                if (sumOfWeights) {
+                    scaledScore = Math.floor((sumOfScaledScore / sumOfWeights) * 100) / 100;
+                } else {
+                    scaledScore = 1;
+                }
             }
 
             totalTime = parseInt(this.timeService.getTotalTime(), 10);
