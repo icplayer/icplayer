@@ -20,7 +20,7 @@ TestCase("[Feedback] GetResponseIndex tests", {
         assertEquals(4, index);
     },
 
-    'test given not proper response ID when exectuing command then returns its index': function() {
+    'test given not proper response ID when exectuing command then returns -1': function() {
         var index = this.presenter.executeCommand("getresponseindex", "Unique response ID");
 
         assertEquals(-1, index);
