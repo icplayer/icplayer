@@ -431,10 +431,11 @@ function Addonfeedback_create() {
             'change': presenter.changeCommand,
             'setDefaultResponse': presenter.setDefaultResponse,
             'next': presenter.next,
-            'previous': presenter.previous
+            'previous': presenter.previous,
+            'getResponseIndex': presenter.getResponseIndex
         };
 
-        Commands.dispatch(commands, name, params, presenter);
+        return Commands.dispatch(commands, name, params, presenter);
     };
 
     presenter.setVisibility = function(isVisible) {
