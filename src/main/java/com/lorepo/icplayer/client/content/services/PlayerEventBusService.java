@@ -13,12 +13,7 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.event.builders.ValueChangedBuilder;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
+import com.lorepo.icplayer.client.module.api.event.dnd.*;
 import com.lorepo.icplayer.client.module.api.player.IPlayerEventBusService;
 
 public class PlayerEventBusService implements IPlayerEventBusService {	
@@ -116,6 +111,8 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 
 		if (type.compareTo("image") == 0) {
 			item = new DraggableImage(id, value);
+		} else if (type.compareTo("audio") == 0) {
+			item = new DraggableAudio(id, value);
 		} else {
 			item = new DraggableText(id, value);
 		}

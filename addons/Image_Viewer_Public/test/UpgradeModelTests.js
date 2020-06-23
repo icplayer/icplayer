@@ -42,7 +42,13 @@ UpgradeModelTests.prototype.testUpgradeModel = function() {
         "test" : "test",
         'Do not reset' : false,
         'Random frame' : false,
-        'Initial frame' : ""
+        'Initial frame' : "",
+        "langAttribute": "",
+        "Alternative texts": [{
+            "Alternative text": "",
+            "frame": ""
+        }]
+
     };
 
     // When

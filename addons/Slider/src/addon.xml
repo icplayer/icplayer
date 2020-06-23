@@ -9,7 +9,17 @@
 		<property name="InitialStep" nameLabel="Slider_property_initial_step" type="string" />
 		<property name="onStepChange" nameLabel="Slider_property_on_step_change" type="event" />
 		<property name="Block in error checking mode" nameLabel="Slider_property_block_in_error_checking_mode" type="boolean" />
-        <property name="Continuous events" nameLabel="Slider_property_continuous_events" type="boolean" />
+		<property name="Continuous events" nameLabel="Slider_property_continuous_events" type="boolean" />
         <property name="Continuous events steps" nameLabel="Slider_property_continuous_events_steps" type="{Stick, Smooth}" />
+		<property name="Alternative texts" nameLabel="Slider_property_alternative_texts" type="list">
+			<property name="Alternative text" nameLabel="Slider_property_alternative_text" type="text" />
+			<property name="Step number" nameLabel="Slider_property_step_number" type="string" />
+		</property>
+		<property name="langAttribute" nameLabel="Slider_property_lang_attribute" type="string" />
+		<property name="speechTexts" nameLabel="Slider_property_speech_texts" type="staticlist">
+			<property name="Step" nameLabel="Slider_property_step" type="staticrow">
+				<property name="Step" nameLabel="Slider_property_step" type="string"/>
+			</property>
+		</property>
 	</model>
 </addon>

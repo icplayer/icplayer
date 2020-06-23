@@ -22,8 +22,9 @@ abstract class AbstractDraggableEvent<H extends EventHandler> extends PlayerEven
 		HashMap<String, String> data = new HashMap<String, String>();
 		if(item instanceof DraggableImage){
 			data.put("type", "image");
-		}
-		else{
+		} else if (item instanceof DraggableAudio){
+			data.put("type", "audio");
+		} else{
 			data.put("type", "string");
 		}
 		

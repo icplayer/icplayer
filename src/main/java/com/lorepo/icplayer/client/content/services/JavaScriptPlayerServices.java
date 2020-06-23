@@ -15,6 +15,7 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
@@ -23,6 +24,7 @@ import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.event.*;
+import com.lorepo.icplayer.client.module.api.event.dnd.DraggableAudio;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
 import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
@@ -198,6 +200,14 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageStamp()();
 			}
 			
+			commands.resetPage = function(index) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPage(I)(index - 1);
+			}
+
+			commands.resetPageById = function(id) {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPageById(Ljava/lang/String;)(id);
+			}
+
 			return commands;
 		};
 
@@ -259,6 +269,10 @@ public class JavaScriptPlayerServices {
 									x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendEvent(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(name, data);
 								});
 			};
+
+			commands.escapeXMLEntities = function (text) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::escapeXMLEntities(Ljava/lang/String;)(text);
+			}
 
 			return commands;
 		};
@@ -828,6 +842,22 @@ public class JavaScriptPlayerServices {
 		return playerServices.getContentMetadata(key);
 	}
 
+	public JavaScriptObject getModuleMetadata(String moduleID) {
+		return this.playerServices.getModule(moduleID).getModel().getMetadata().toJavaScript();
+	}
+
+	public String escapeXMLEntities(String text) {
+		return StringUtils.escapeXML(text);
+	}
+
+	private void resetPage(int index) {
+		this.playerServices.getCommands().resetPage(index);
+	}
+
+	private void resetPageById(String id) {
+		this.playerServices.getCommands().resetPageById(id);
+	}
+
 	public JsArray<AdaptiveConnection> getAdaptiveConnectionCurrentPage() {
 		return this.playerServices.getAdaptiveLearningService().getConnectionsForPage();
 	}
@@ -854,10 +884,6 @@ public class JavaScriptPlayerServices {
 
 	public void addNextAdaptivePage(String pageId) {
 		this.playerServices.getAdaptiveLearningService().addNextPage(pageId);
-	}
-
-	public JavaScriptObject getModuleMetadata(String moduleID) {
-		return this.playerServices.getModule(moduleID).getModel().getMetadata().toJavaScript();
 	}
 
 	public String getPageDifficulty(String pageId) {

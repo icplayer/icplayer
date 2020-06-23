@@ -17,6 +17,7 @@ function AddonImage_Viewer_Public_create() {
     presenter.lastReceivedEvent = null;
     presenter.isMouseDown = false;
     presenter.eventBus = null;
+    presenter.isWCAGSelected = false;
 
     presenter.ERROR_CODES = {
         'IM_01': "Image must be uploaded to display Addon!",
@@ -65,8 +66,9 @@ function AddonImage_Viewer_Public_create() {
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.upgradeFrom_01(model);
-
-        return presenter.upgradeFrom_02(upgradedModel);
+        upgradedModel =  presenter.upgradeFrom_02(upgradedModel);
+        upgradedModel = presenter.upgradeAddAltTexts(upgradedModel);
+        return upgradedModel;
     };
 
     presenter.upgradeFrom_01 = function (model) {
@@ -90,6 +92,25 @@ function AddonImage_Viewer_Public_create() {
 
         if (!upgradedModel["Initial frame"]) {
             upgradedModel["Initial frame"] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeAddAltTexts = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["langAttribute"]) {
+            upgradedModel["langAttribute"] = "";
+        }
+
+        if (!upgradedModel["Alternative texts"]) {
+            upgradedModel["Alternative texts"] =
+                [{
+                    "Alternative text": "",
+                    "frame": ""
+                }];
         }
 
         return upgradedModel;
@@ -269,7 +290,7 @@ function AddonImage_Viewer_Public_create() {
 
             } else {
                 var isReverseOrder = presenter.configuration.currentFrame === 0;
-                presenter.changeFrame(false, isReverseOrder, false);
+                presenter.changeFrame(false, isReverseOrder, false, false);
             }
         }
 
@@ -434,7 +455,7 @@ function AddonImage_Viewer_Public_create() {
             presenter.configuration.backgroundImageWidth = $(this).width();
 
             $(this).remove();
-            presenter.changeFrame(true, false, false);
+            presenter.changeFrame(true, false, false, false);
 
             if (shouldShowWatermark()) {
                 var watermarkOptions = {
@@ -588,15 +609,17 @@ function AddonImage_Viewer_Public_create() {
             $(watermarkElement).remove();
         }
         presenter.setVisibility(configuration.currentVisibility);
-        presenter.changeFrame(presenter.changeFrameData.isPreview, presenter.changeFrameData.isReverseOrder, presenter.changeFrameData.triggerEvent);
+        presenter.changeFrame(presenter.changeFrameData.isPreview, presenter.changeFrameData.isReverseOrder, presenter.changeFrameData.triggerEvent, false);
     }
 
     function presenterLogic(view, model, isPreview) {
+        var upgradedModel = presenter.upgradeModel(model);
+
         presenter.imageLoadedDeferred = new jQuery.Deferred();
         presenter.imageLoaded = presenter.imageLoadedDeferred.promise();
-        presenter.addonId = model.ID;
+        presenter.addonId = upgradedModel.ID;
         presenter.$view = $(view);
-        presenter.model = model;
+        presenter.model = upgradedModel;
         presenter.isPreview = isPreview;
         presenter.$element = $(presenter.$view.find('.image-viewer:first')[0]);
         presenter.$elementHelper = $(presenter.$view.find('.image-viewer-helper:first')[0]);
@@ -608,7 +631,7 @@ function AddonImage_Viewer_Public_create() {
             if (loadingSrc) $(loadingScreen.element).attr('src', loadingSrc);
         }
 
-        var configuration = presenter.validateModel(model);
+        var configuration = presenter.validateModel(upgradedModel);
         if (configuration.isError) {
             showErrorMessage(view, configuration.errorCode);
         } else {
@@ -632,7 +655,7 @@ function AddonImage_Viewer_Public_create() {
             }
 
             setContainerDimensions(view);
-            prepareLoadingScreen(model.Width, model.Height);
+            prepareLoadingScreen(upgradedModel.Width, upgradedModel.Height);
             presenter.adjustFrameCounter();
             loadLabels();
 
@@ -700,7 +723,7 @@ function AddonImage_Viewer_Public_create() {
 
         presenter.configuration.shouldCalcScore = true;
         presenter.configuration.currentFrame = currentFrame === framesCount - 1 ? 0 : currentFrame + 1;
-        presenter.changeFrame(false, false, true);
+        presenter.changeFrame(false, false, true, true);
     };
 
     presenter.previous = function() {
@@ -713,7 +736,7 @@ function AddonImage_Viewer_Public_create() {
 
         presenter.configuration.shouldCalcScore = true;
         presenter.configuration.currentFrame = currentFrame === 0 ? framesCount - 1 : currentFrame - 1;
-        presenter.changeFrame(false, true, true);
+        presenter.changeFrame(false, true, true, true);
     };
 
     presenter.isValidFrameNumber = function(frame, framesCount) {
@@ -742,6 +765,7 @@ function AddonImage_Viewer_Public_create() {
             };
 
             $.when(presenter.imageLoaded).then(loadImageEndCallback);
+            presenter.readFrame(presenter.configuration.currentFrame);
         }
     };
 
@@ -785,7 +809,7 @@ function AddonImage_Viewer_Public_create() {
             var currentFrame = presenter.configuration.currentFrame;
             var isReverseOrder = currentFrame > frameNumber - 1;
             presenter.configuration.currentFrame = frameNumber - 1;
-            presenter.changeFrame(false, isReverseOrder, true);
+            presenter.changeFrame(false, isReverseOrder, true, true);
         }
     };
 
@@ -889,8 +913,7 @@ function AddonImage_Viewer_Public_create() {
         presenter.pageLoadedDeferred = new $.Deferred();
         presenter.pageLoaded = presenter.pageLoadedDeferred.promise();
 
-        this.upgradedModel = this.upgradeModel(model);
-        presenterLogic(view, this.upgradedModel, false);
+        presenterLogic(view, model, false);
 
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
@@ -921,6 +944,23 @@ function AddonImage_Viewer_Public_create() {
         if (parsedFrame < 1) return { isError:true, errorCode:"FN_03" };
 
         return { isError: false, frames : parsedFrame };
+    };
+
+    presenter.validateAlternativeTexts = function (altTexts, framesNumber) {
+        var parsedAltTexts = [];
+
+        for (var i = 0; i < framesNumber; i++) parsedAltTexts.push("");
+
+        if (altTexts.length != 1 || altTexts[0]["Alternative text"] != "") {
+            for (var i = 0; i < altTexts.length; i++) {
+                var alt = altTexts[i];
+                var parsedNumber = presenter.validateFrameNumber(alt.frame);
+                if (parsedNumber.isError) return parsedNumber;
+                parsedAltTexts[parsedNumber.frames - 1] = alt["Alternative text"];
+            }
+        }
+        return { isError: false, altTexts: parsedAltTexts };
+
     };
 
     presenter.validateSound = function(soundsArray) {
@@ -1236,6 +1276,9 @@ function AddonImage_Viewer_Public_create() {
         var validatedInitialFrame = this.validateInitialFrame(model["Initial frame"], validatedFrames.frames);
         if(validatedInitialFrame.errorCode) return { isError: true, errorCode: validatedInitialFrame.errorCode };
 
+        var validatedAltTexts = presenter.validateAlternativeTexts(model["Alternative texts"], validatedFrames.frames);
+        if(validatedAltTexts.errorCode) return { isError: true, errorCode: validatedAltTexts.errorCode };
+
         var validatedSound = presenter.validateSound(model.Sounds);
         var isClickDisabled = ModelValidationUtils.validateBoolean(model.isClickDisabled);
         var frameSize = presenter.validateFrameSize(model["Frame size"]);
@@ -1266,7 +1309,9 @@ function AddonImage_Viewer_Public_create() {
             isRandomFrame: isRandomFrame,
             initialFrame: validatedInitialFrame,
             showFrameCounter: ModelValidationUtils.validateBoolean(model["Show frame counter"]),
-            shouldCalcScore: false
+            shouldCalcScore: false,
+            lang: model["langAttribute"],
+            altTexts: validatedAltTexts.altTexts
         };
     };
 
@@ -1370,9 +1415,12 @@ function AddonImage_Viewer_Public_create() {
             presenter.triggerFrameChangeEvent(presenter.configuration.currentFrame + 1);
         }
     };
-    presenter.changeFrame = function(isPreview, isReverseOrder, triggerEvent) {
+    presenter.changeFrame = function(isPreview, isReverseOrder, triggerEvent, readFrame) {
         presenter.changeBackgroundPosition(isPreview, presenter.$element, isReverseOrder);
         presenter.changeFrameLogic(isPreview, triggerEvent);
+        if (readFrame) {
+            presenter.readFrame(presenter.configuration.currentFrame);
+        }
     };
 
     presenter.stopAllAudio = function () {
@@ -1481,7 +1529,7 @@ function AddonImage_Viewer_Public_create() {
         if (presenter.configuration.isDoNotReset) return;
 
         presenter.setCurrentFrame();
-        presenter.changeFrame(false, false, false);
+        presenter.changeFrame(false, false, false, false);
 
         if (shouldShowWatermark()) {
             showWatermarkIfNotVisible();
@@ -1609,6 +1657,70 @@ function AddonImage_Viewer_Public_create() {
         }
 
         presenter.isShowAnswersActive = false;
+    };
+
+    presenter.readFrame = function (frameId) {
+        if (playerController && playerController.isWCAGOn()) {
+            var voiceObjects = presenter.getTextVoiceObjectForFrame(frameId);
+            if (presenter.isWCAGSelected) {
+                presenter.speak(voiceObjects);
+            } else {
+                presenter.speakWhenIdle(voiceObjects);
+            }
+        }
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+
+        if (keycode == window.KeyboardControllerKeys.ENTER) {
+            if (!isShiftKeyDown) {
+                event.preventDefault();
+                presenter.readFrame(presenter.configuration.currentFrame);
+            } else {
+                presenter.setWCAGStatus(false);
+            }
+
+        } else if (keycode == window.KeyboardControllerKeys.SPACE) {
+            event.preventDefault();
+            if (!presenter.configuration.isClickDisabled) {
+                hideWatermarkIfVisible();
+                presenter.next();
+            }
+
+        } else if (keycode == window.KeyboardControllerKeys.ESCAPE) {
+            presenter.isWCAGSelected = false;
+        }
+    };
+
+    presenter.setWCAGStatus = function(isOn) {
+        presenter.isWCAGSelected = isOn;
+    };
+
+    presenter.getTextVoiceObjectForFrame = function (frameId) {
+        return [window.TTSUtils.getTextVoiceObject(presenter.configuration.altTexts[frameId], presenter.configuration.lang)];
+    };
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function(data, callback) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+
+        if (tts && playerController.isWCAGOn()) {
+            tts.speakWithCallback(data, callback);
+        }
+    };
+
+    presenter.speakWhenIdle = function (data, callback) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts && playerController.isWCAGOn()) {
+            tts.speakWhenIdle(data, callback);
+        }
     };
 
     return presenter;

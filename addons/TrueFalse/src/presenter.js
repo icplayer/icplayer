@@ -498,15 +498,22 @@ function AddonTrueFalse_create() {
     };
 
     presenter.getState = function () {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-
-        return JSON.stringify({
-            selectedElements: getSelectedElements(),
+        function getStateBase(selectedElements) {
+            return {
+            selectedElements: selectedElements,
             isVisible: presenter.isVisible,
             isDisabled: presenter.isDisabled
-        });
+            }
+        }
+
+        var state = {};
+        if (presenter.isShowAnswersActive) {
+            state = getStateBase(presenter.currentState); // This is saved on ShowAnswers
+        } else {
+            state = getStateBase(getSelectedElements());
+        }
+
+        return JSON.stringify(state);
     };
 
     presenter.setState = function (state) {

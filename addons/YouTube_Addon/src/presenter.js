@@ -1,10 +1,13 @@
  function AddonYouTube_Addon_create(){
     var presenter = function() {
     };
+
+    presenter.playerController = null;
+    presenter.ismLibro = false;
  
     function createVideoThumbnailAsync(videoID, viewContainer, addonWidth, addonHeight) {
 
-        var feedURL = "https://www.googleapis.com/youtube/v3/videos?id=" + videoID + "&key=AIzaSyAhdKL4WhiNG-fPIIC64LR95FNUOwddISs&part=snippet";
+        var feedURL = "https://mauthor.com/api/v2/youtube/thumbnail?video_id=" + videoID;
 
         $.when($.get(feedURL)).then(function (jsonResponse) {
             if (jsonResponse.items.length > 0) {
@@ -28,10 +31,12 @@
     }
 
      function doesConnectionExist() {
+         if (!presenter.ismLibro) return true;
+
          var xhr = new ( window.ActiveXObject || XMLHttpRequest )( "Microsoft.XMLHTTP" );
 
          //YouTube API key is generated in lorepocorporate google account
-         xhr.open( "HEAD", "https://www.googleapis.com/youtube/v3/videos?id=7lCDEYXw3mM&key=AIzaSyAhdKL4WhiNG-fPIIC64LR95FNUOwddISs&part=status", false );
+         xhr.open( "HEAD", "https://mauthor.com/api/v2/youtube/", false );
 
          try {
              xhr.send();
@@ -182,6 +187,15 @@
 
      presenter.setVisibility = function (isVisible) {
          presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+     };
+
+     presenter.setPlayerController = function (controller) {
+         presenter.playerController = controller;
+         var context = controller.getContextMetadata();
+         if (context != null && "ismLibro" in context) {
+             presenter.ismLibro = context["ismLibro"];
+         }
+
      };
 
      presenter.show = function() {

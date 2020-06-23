@@ -11,6 +11,7 @@ import com.lorepo.icf.utils.RandomUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.dom.ElementHTMLUtils;
+import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
@@ -147,6 +148,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		makeSortable(this, getElement(), jsObject, workMode);
 	};
 
+	public ScaleInformation getScaleInformation() {
+		return this.playerServices.getScaleInformation();
+	}
+
 	private native void makeSortable(OrderingView x, Element e, JavaScriptObject jsObject, boolean workMode)/*-{
 		var selector = jsObject.axis == "y" ? "tbody" : "tbody tr";
 		var displayType = jsObject.axis == "y" ? "table-row" : "table-cell";
@@ -167,6 +172,12 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			return @com.lorepo.icf.utils.JavaScriptUtils::getContentScale()();
 		});
 		scale = {X:1.0, Y:1.0};
+		var isInnerScale = false; //is there scaling on the content element within iframe
+		var moduleOffset = {left: 0.0, top: 0.0};
+
+		function isEdge() {
+		    return navigator.appName == 'Microsoft Internet Explorer' || (navigator.appName == "Netscape" && navigator.appVersion.indexOf('Edge') > -1);
+		}
 
 		$wnd.$(e).find(selector).sortable({
 			placeholder: "ic_ordering-placeholder",
@@ -176,8 +187,22 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			cursorAt: { left: 5 },
 			start: function(event, ui) {
 				scale = getContentScale();
+				moduleOffset = ui.item.parent().offset();
+				
+				if (scale.X == 1.0 || scale.Y == 1.0) {
+					isInnerScale = false;
+				} else {
+					isInnerScale = true;
+				}
+
+				if (!isInnerScale && isEdge()) {
+					var scaleInfo = x.@com.lorepo.icplayer.client.module.ordering.OrderingView::getScaleInformation()();
+					scale.X = scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleX;
+					scale.Y = scaleInfo.@com.lorepo.icplayer.client.content.services.dto.ScaleInformation::scaleY;
+				}
+				
                 var changeLeft = ui.placeholder.clientLeft - ui.originalPosition.left;
-                var newLeft = ui.originalPosition.left + changeLeft / scale.X - ui.item.parent().offset().left;
+                var newLeft = ui.originalPosition.left + changeLeft / scale.X - moduleOffset.left;
                 var newTop = ui.placeholder.clientTop / scale.Y;
 
                 ui.helper.css({
@@ -208,9 +233,18 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 				}
 			},
 			sort: function(event, ui) {
-			    var changeLeft = ui.position.left - ui.originalPosition.left;
-                var newLeft = ui.originalPosition.left + changeLeft / scale.X;
-                var newTop = ui.position.top / scale.Y;
+                var newLeft = 0.0;
+                var newTop = 0.0;
+
+				if (!isInnerScale && isEdge()) {
+                    newLeft = (ui.position.left - moduleOffset.left * (scale.X-1)) / scale.X;
+                    var changeTop = ui.position.top - ui.originalPosition.top;
+                    newTop = changeTop/scale.Y + ui.originalPosition.top;
+                } else {
+                    var changeLeft = ui.position.left - ui.originalPosition.left;
+                    newLeft = ui.originalPosition.left / scale.X + changeLeft / scale.X;
+                    newTop = ui.position.top / scale.Y;
+                }
 
 				if (jsObject.axis == "y") {
 					ui.helper.css({

@@ -23,6 +23,12 @@ public class TotalScore {
 		return data;
 	}
 	
+	public HashMap<String, String> getPageReloadedEventData(LimitedCheckModule module) {
+		HashMap<String, String> data = getEventData(module);
+		data.put("value", "PageLoaded");
+		return data;
+	}
+	
 	public HashMap<String, String> getModeButton(LimitedCheckModule module, boolean mode) {
 		HashMap<String, String> data = new HashMap<String, String>();
 		

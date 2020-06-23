@@ -20,6 +20,11 @@ ModelValidationTests.prototype.setUp = function() {
             Frames: "",
             Top: "",
             Left: ""
+        }],
+        langAttribute: "",
+        "Alternative texts": [{
+            "Alternative text": "",
+            frame: ""
         }]
     };
 };

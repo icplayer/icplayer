@@ -8,6 +8,7 @@ function AddonWritingCalculations_create() {
     presenter.playerController = null;
     presenter.answers = [];
     presenter.isCommutativity;
+    presenter.useNumericKeyboard = false;
     var eventBus;
 
     presenter.ELEMENT_TYPE = {
@@ -55,13 +56,31 @@ function AddonWritingCalculations_create() {
         presenter.setVisibility(true);
     };
 
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = presenter.upgradeNumericKeyboard(model);
+        return upgradedModel;
+    };
+
+    presenter.upgradeNumericKeyboard = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if(model.useNumericKeyboard === undefined) {
+            upgradedModel["useNumericKeyboard"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
     function presenterLogic(view, model) {
+        model = presenter.upgradeModel(model);
         presenter.array = presenter.convertStringToArray(model.Value);
         presenter.isCommutativity = ModelValidationUtils.validateBoolean(model['Commutativity']) || false;
         presenter.$view = $(view);
         presenter.model = presenter.upgradeModel(model);
         presenter.signs = presenter.readSigns( presenter.model['Signs'][0] );
         presenter.isNotActivity = ModelValidationUtils.validateBoolean(model['Is not activity']);
+        presenter.useNumericKeyboard = ModelValidationUtils.validateBoolean(model['useNumericKeyboard']);
         presenter.multisigns = ModelValidationUtils.validateBoolean(model['Multisigns']);
         presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         presenter.isVisibleByDefault = ModelValidationUtils.validateBoolean(model['Is Visible']);
@@ -325,10 +344,17 @@ function AddonWritingCalculations_create() {
             case this.ELEMENT_TYPE.EMPTY_SPACE:
                 break;
             case this.ELEMENT_TYPE.EMPTY_BOX:
-                var input = $("<input type='text'>");
+                var inputType = "text";
+                if (presenter.useNumericKeyboard) {
+                    inputType = "number";
+                }
+                var input = $("<input type='" + inputType + "'>");
                 input.addClass("writing-calculations-input");
                 if(!presenter.multisigns){
                     input.attr("maxlength", 1);
+                }
+                if (presenter.useNumericKeyboard) {
+                    input.attr("step", "any");
                 }
                 container.append(input);
                 break;

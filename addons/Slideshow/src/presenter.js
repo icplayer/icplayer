@@ -6,6 +6,9 @@ function AddonSlideshow_create() {
     presenter.eventBus = null;
     presenter.noAudioPlayer = null;
 
+    var isWCAGOn = false;
+    presenter.isSpeaking = false;
+
     var DOMElements = {};
     var loadedImagesDeferred = $.Deferred(),
         loadedAudioDeferred = $.Deferred(),
@@ -242,6 +245,9 @@ function AddonSlideshow_create() {
                                     $slideElement.hide();
                                 }
                             }
+                        }
+                        if (presenter.isPlaying) {
+                            presenter.readSlide(index, true);
                         }
                         setButtonActive(presenter.NAVIGATION_BUTTON.PREVIOUS);
                         setButtonActive(presenter.NAVIGATION_BUTTON.NEXT);
@@ -1165,6 +1171,7 @@ function AddonSlideshow_create() {
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = upgradeModelNoAudio(model);
+        upgradedModel = upgradeModelAudiodescription(upgradedModel);
         return upgradedModel;
     };
 
@@ -1173,6 +1180,20 @@ function AddonSlideshow_create() {
         $.extend(true, upgradedModel, model);
         if (!upgradedModel['No audio']) {
             upgradedModel['No audio'] = 'False'
+        }
+        return upgradedModel;
+    }
+
+    function upgradeModelAudiodescription(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+        for (var i = 0; i < upgradedModel.Slides.length; i++) {
+            if (!upgradedModel.Slides[i]['Audiodescription']) {
+                upgradedModel.Slides[i]['Audiodescription'] = '';
+            }
+        }
+        if(!upgradedModel['langAttribute']) {
+            upgradedModel['langAttribute'] = '';
         }
         return upgradedModel;
     }
@@ -1436,6 +1457,7 @@ function AddonSlideshow_create() {
         switch (presenter.configuration.audioState) {
             case presenter.AUDIO_STATE.STOP:
                 presenter.switchSlideShowStopToPlay();
+                presenter.readSlide(0, true);
                 break;
             case presenter.AUDIO_STATE.PAUSE:
                 presenter.switchSlideShowPauseToPlay();
@@ -1444,6 +1466,7 @@ function AddonSlideshow_create() {
                 presenter.sendValueChangedEvent("playing");
                 if(!presenter.isPlaying) {
                     presenter.playAudioAction();
+                    presenter.readSlide(0, true);
                 }
                 break;
         }
@@ -1481,11 +1504,13 @@ function AddonSlideshow_create() {
         presenter.configuration.isVisible = false;
     };
 
-    presenter.getState = function() {
+    presenter.onDestroy = function () {
         if (presenter.configuration.isDomReferenceArrayComplete) {
             presenter.pauseAudioResource();
         }
+    };
 
+    presenter.getState = function() {
         return JSON.stringify({
             isVisible: presenter.configuration.isVisible
         });
@@ -1585,7 +1610,8 @@ function AddonSlideshow_create() {
 
             var slide = {
                 image:slidesArray[i].Image,
-                start:sanitizedTime.sinitizedTimer
+                start:sanitizedTime.sinitizedTimer,
+                audiodescription:slidesArray[i].Audiodescription
             };
 
             slides.content.push(slide);
@@ -1829,7 +1855,8 @@ function AddonSlideshow_create() {
             isVisible: isVisibleByDefault,
             addonID: model['ID'],
             noAudio: noAudio,
-            maxTime: maxDurationResult.value
+            maxTime: maxDurationResult.value,
+            lang: model['langAttribute']
         };
     };
 
@@ -1852,5 +1879,165 @@ function AddonSlideshow_create() {
         deferredQueue: deferredSyncQueue
     };
 
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        event.preventDefault();
+        presenter.shiftPressed = event.shiftKey;
+
+        var keys = {
+            ENTER: 13,
+            ESC: 27,
+            SPACE: 32,
+            ARROW_LEFT: 37,
+            ARROW_UP: 38,
+            ARROW_RIGHT: 39,
+            ARROW_DOWN: 40
+        };
+
+        var leftArrowHandler = function () {
+            presenter.previous();
+
+            presenter.readSlide(presenter.getCurrentSlideIndex(), false);
+        };
+
+        var rightArrowHandler = function () {
+            presenter.next();
+            presenter.readSlide(presenter.getCurrentSlideIndex(), false);
+        };
+
+        var spaceHandler = function () {
+            if (presenter.isPlaying) {
+                presenter.pause();
+            } else {
+                if (presenter.isSpeaking) {
+                    presenter.stopSpeech();
+                } else {
+                    presenter.play();
+                }
+            }
+        };
+
+        var upArrowHandler = function () {
+            if (!presenter.noAudioPlayer && presenter.configuration.audioLoadComplete) {
+                var volume = presenter.configuration.buzzAudio.getVolume();
+                volume += 10;
+                if (volume > 100) {
+                    volume = 100;
+                }
+                presenter.configuration.buzzAudio.setVolume(volume);
+            }
+        };
+
+        var downArrowHandler = function () {
+            if (!presenter.noAudioPlayer && presenter.configuration.audioLoadComplete) {
+                var volume = presenter.configuration.buzzAudio.getVolume();
+                volume -= 10;
+                if (volume < 0) {
+                    volume = 0;
+                }
+                presenter.configuration.buzzAudio.setVolume(volume);
+            }
+        };
+
+        var escapeHandler = function () {
+            presenter.pause();
+            presenter.stopSpeech();
+        };
+
+        var enterHandler = function () {
+            if (!isWCAGOn) {
+                presenter.pause();
+                presenter.stopSpeech();
+            }
+        };
+
+        var mapping = {};
+
+        mapping[keys.ENTER] = enterHandler;
+        mapping[keys.ESC] = escapeHandler;
+        mapping[keys.SPACE] = spaceHandler;
+        mapping[keys.ARROW_LEFT] = leftArrowHandler;
+        mapping[keys.ARROW_UP] = upArrowHandler;
+        mapping[keys.ARROW_RIGHT] = rightArrowHandler;
+        mapping[keys.ARROW_DOWN] = downArrowHandler;
+
+        try {
+            mapping[keycode]();
+        } catch (er) {};
+    };
+
+    presenter.readSlide = function(index, continueAfterTTS) {
+        var audiodescription = presenter.configuration.slides.content[index].audiodescription;
+        if (isWCAGOn && audiodescription.length > 0) {
+            presenter.pause();
+            if (continueAfterTTS) {
+                presenter.speakWithCallback(
+                    [window.TTSUtils.getTextVoiceObject(
+                        audiodescription,
+                        presenter.configuration.lang)],
+                    readSlideCallback);
+            } else {
+                presenter.speak([window.TTSUtils.getTextVoiceObject(
+                        audiodescription,
+                        presenter.configuration.lang)]);
+            }
+        }
+    };
+
+    function readSlideCallback() {
+        if (presenter.isSpeaking) {
+            presenter.isSpeaking = false;
+            presenter.play();
+        }
+    }
+
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    presenter.speakWithCallback = function(data, callback) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && isWCAGOn) {
+            presenter.isSpeaking = true;
+            tts.speakWithCallback(data, callback);
+        }
+    };
+
+    presenter.speak = function(data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && isWCAGOn) {
+            presenter.isSpeaking = false;
+            tts.speak(data);
+        }
+    };
+
+    presenter.stopSpeech = function() {
+         var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && isWCAGOn) {
+            presenter.isSpeaking = false;
+            tts.speakWithCallback([window.TTSUtils.getTextVoiceObject("-")], presenter.pause);
+        }
+    };
+
+    presenter.isEnterable = function() {
+        presenter.pause();
+        presenter.stopSpeech();
+        return false;
+    };
+
     return presenter;
 }
+
+AddonSlideshow_create.__supported_player_options__ = {
+    interfaceVersion: 2
+};

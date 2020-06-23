@@ -24,6 +24,7 @@ import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, IActivity, ICommandReceiver, IWCAGPresenter {
 
@@ -560,7 +561,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		presenter.isOptionSelected = function(index) {
 			return x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::isOptionSelected(I)(index);
 		}
-		
+
 		presenter.onEventReceived = function (eventName, data) {
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
 		};
@@ -707,7 +708,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		boolean isEnabled = !this.module.isDisabled();
-		return (isVisible || isTextToSpeechOn) && isEnabled;
+		boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return isVisible && isEnabled && !isGroupDivHidden;
 	}
 
 

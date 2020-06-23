@@ -23,6 +23,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.module.text.LinkInfo.LinkType;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 import java.util.*;
 
@@ -72,6 +73,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		TextElementDisplay getChild(int index);
 		void setValue(String id, String value);
 		void refreshMath();
+		void refreshGapMath(String id);
 		void hide();
 		void show(boolean b);
 		Element getElement();
@@ -210,7 +212,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			// show 1st answer
 			Iterator<String> answers = gi.getAnswers();
-			gapsViewsElements.get(gi.getId()).setText(answers.hasNext() ? answers.next() : "");
+			String answer = answers.hasNext() ? answers.next() : "";
+			gapsViewsElements.get(gi.getId()).setText(answer);
 		}
 
 		for (InlineChoiceInfo choice : module.getChoiceInfos()) {
@@ -313,10 +316,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public String getState() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		HashMap<String, String> state = new HashMap<String, String>();
 		state.put("gapUniqueId", module.getGapUniqueId());
 		state.put("values", JSONUtils.toJSONString(values));
@@ -568,11 +567,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
      private String getElementText(GapInfo gap) {
-		String t =  getElementText(gap.getId());
-		if(t.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
-			t = gap.getPlaceHolder();
+		String userAnswer =  getElementText(gap.getId());
+		if (userAnswer.isEmpty() && !gap.getPlaceHolder().isEmpty()) {
+			userAnswer = gap.getPlaceHolder();
 		}
-		return t;
+		return userAnswer;
 	}
 	
 	@Override
@@ -725,7 +724,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		});
 	}
 	
-	protected void dropdownClicked(String id) {		
+	protected void dropdownClicked(String id) {
 		this.sendValueChangedEvent("", "dropdownClicked", "");
 	}
 
@@ -806,7 +805,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		String score = Integer.toString(getItemScore(gapId));
 		this.sendValueChangedEvent(itemID, value, score);
 
-		if(Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
+		if (Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
 			removeFromGap(gapId, false);
 		}
 	}
@@ -814,19 +813,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	protected void removeFromGap(String gapId, boolean shouldFireEvent) {
 		DraggableItem previouslyConsumedItem = consumedItems.get(gapId);
 
-		String value = "";
-		String score = "0";
-		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
-		consumedItems.remove(gapId);
-		values.remove(gapId);
-		view.setValue(gapId, "");
+		removeFromItems(gapId);
 		fireItemReturnedEvent(previouslyConsumedItem);
 
-		if(shouldFireEvent){
-			this.sendValueChangedEvent(itemID, value, score);
+		if (shouldFireEvent) {
+			sendRemoveFromGapValueChangedEvent(gapId);
 		}
-		view.refreshMath();
-	}
+
+		view.refreshGapMath(gapId);
+    }
 
 	protected void gapFocused(String gapId, Element element) {
 		InputElement input = InputElement.as(element);
@@ -906,7 +901,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private GapInfo getGapInfoById(String gapId) {
 		GapInfo gap = gapInfos.get(gapId);
 		if (gap == null) {
-			gap = new GapInfo("stub", 0, false, false, 0);
+			gap = new GapInfo("stub", 0, false, false, 0, false);
 			for (GapInfo gap1 : module.getGapInfos()) {
 				if (gap1.getId().compareTo(gapId) == 0) {
 					gap = gap1;
@@ -1019,7 +1014,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		GapInfo gap = getGapInfoById(itemID);
 		String enteredValue = getElementText(gap);
-		if (enteredValue == gap.getPlaceHolder() && !gap.isCorrect(gap.getPlaceHolder())) {
+		if (enteredValue.equals(gap.getPlaceHolder()) && !gap.isCorrect(gap.getPlaceHolder())) {
 			enteredValue = "";
 		}
 		if (gap.isCorrect(enteredValue)) {
@@ -1353,10 +1348,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private boolean isActivity() {
-		if (isShowAnswers()) {
-			hideAnswers();
-		}
-
 		return module.isActivity();
 	}
 
@@ -1419,7 +1410,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		final boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		final boolean isWithGaps = view.getChildrenCount() > 0;
 		final boolean isEnabled = !this.module.isDisabled();
-		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled;
+		final boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return (isTextToSpeechOn || isWithGaps) && isVisible && isEnabled && !isGroupDivHidden;
 	}
 
 	@Override
@@ -1454,14 +1446,25 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			hideAnswers();
 		}
 	}
-	
+
 	public void sendValueChangedEvent(String itemID, String value, String score) {
 		String moduleType = module.getModuleTypeName();
 		String id = module.getId();
 
 		this.playerServices.getEventBusService().sendValueChangedEvent(moduleType, id, itemID, value, score);
 	}
-	
-	
+	private void sendRemoveFromGapValueChangedEvent(String gapId) {
+		String value = "";
+		String score = "0";
+		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
+
+		this.sendValueChangedEvent(itemID, value, score);
+	}
+
+	private void removeFromItems(String gapId) {
+		consumedItems.remove(gapId);
+		values.remove(gapId);
+		view.setValue(gapId, "");
+	}
 
 }

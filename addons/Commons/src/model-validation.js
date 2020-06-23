@@ -515,6 +515,10 @@
             }
 
             var validationFunction = function (model, validatedModel) {
+                if (config && config.isConfigurationGenerator) {
+                    config = config.generate(this, validatedModel);
+                }
+
                 if (shouldValidateFunction && !shouldValidateFunction.call(this, validatedModel)) {
                     var undefinedValue =  generateValidValue(undefined);
                     undefinedValue.validatedFieldName = name;
@@ -537,6 +541,26 @@
             return validationFunction;
         }
     }
+
+    /**
+     * Generate a configuration of a field validation.
+     *
+     * This function allows to generate config dynamically.
+     * This is useful, when for example configuration for one field depends on already validated field.
+     * ConfigurationGenerator has a flag, which is checked during field validation and generate function is then called with proper arguments.
+     *
+     * @constructor
+     * @param {Function} generator - function which will generate config. First argument of this function is an object containing already validated properties.
+     * Second argument is local validation scope, for example current item when validating list.
+     */
+    function ConfigurationGenerator (generator) {
+        this.isConfigurationGenerator = true;
+        this.generator = generator;
+    }
+
+    ConfigurationGenerator.prototype.generate = function(validatedModel, localValidatedModel)  {
+        return this.generator.call(validatedModel, localValidatedModel);
+    };
 
     /**
      * Container for each model validator.
@@ -754,6 +778,58 @@
             return this.generateValidValue(validatedList);
         },
 
+         /**
+         * Validate HEX color. It can be represented as hash sign and sequence of 6 numbers.
+         *
+         * Check if provided string is valid hex color
+         * config: {
+         *      default=undefined {String}
+         *      canBeShort=true {boolean} - can validated color be also represented by 3 numbers
+         * }
+         *
+         * Error Codes:
+         * RGB01: Provided type is not a valid type
+         * RGB02: Provided value is too long
+         * RGB03: Provided value is not a valid hex color
+         *
+         * @namespace ModelValidators
+         * @class HEXColor
+         * @extends ModelValidators.Validator
+         */
+        HEXColor: function (valueToValidate, config) {
+            if (!isString(valueToValidate)) {
+                return this.generateErrorCode("RGB01");
+            }
+
+            var canBeShort = config['canBeShort'] === true;
+            var defaultValue = config['default'];
+            var regexp = /^$/;
+
+            if (valueToValidate.length > 7) {
+                return this.generateErrorCode("RGB02");
+            }
+
+            if (defaultValue !== undefined && valueToValidate === "") {
+                return this.generateValidValue(defaultValue);
+            }
+
+            if (canBeShort) {
+                // either #xxx or #xxxxxx
+                regexp = /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/;
+            } else {
+                // only #xxxxxx
+                regexp = /^#[0-9a-fA-F]{6}$/;
+            }
+
+            var isCorrect = regexp.test(valueToValidate);
+
+            if (isCorrect) {
+                return this.generateValidValue(valueToValidate);
+            } else {
+                return this.generateErrorCode("RGB03");
+            }
+        },
+
         /**
          * Validate possible value in enum.
          *
@@ -864,7 +940,44 @@
 
                 validationFunction.fieldName = name;
                 return validationFunction;
-            }
+            },
+
+            /**
+             * Change returned value of Enum to the one specified in config
+             * @param {String} name of property
+             * @param {Object} config - object which contains map of enum values
+             *      {
+             *          value[]: String
+             *      }
+             * @param {Function} next
+             */
+            EnumChangeValues: function (name, config, next) {
+                if (!isFunction(next)) {
+                    throw new Error("Next must be a function");
+                }
+
+                if (!isString(name)) {
+                    throw new Error("First argument must be a string");
+                }
+
+                var changeFunction = function (model, validatedModel) {
+                    var retValue = next.call(this, model, validatedModel);
+
+                    if (retValue.isValid &&
+                        config.hasOwnProperty(retValue.value) &&
+                        config[retValue.value]
+                    ) {
+                        retValue.value = config[retValue.value];
+                    }
+
+                    return retValue;
+                };
+
+                changeFunction.fieldName = name;
+                return changeFunction;
+            },
+
+            FieldConfigGenerator: ConfigurationGenerator
         }
     };
 

@@ -78,7 +78,7 @@ public class WCAGUtils {
 	
 	// TODO change to ENUM
 	private static TextToSpeechVoice getElementStatus (TextElementDisplay element, TextModel model) {
-		if (!element.isWorkingMode()) {
+		if (element != null && !element.isWorkingMode()) {
 			if (element.getGapState() == 1) {
 				return TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.CORRECT_INDEX));
 			}
@@ -113,6 +113,29 @@ public class WCAGUtils {
 		return noHTML.replaceAll("\\s{2,}", " ").trim(); // remove spaces if more than 1
 	}
 
+	private static int getGapEndIndex(String text, int gapIndex) {
+		int openBrackets = 0;
+		int closeBrackets = 0;
+		int index = 0;
+		for (int i = gapIndex; i < text.length(); i++){
+			char c = text.charAt(i);
+			if (c == '{') {
+				openBrackets++;
+			}
+
+			if(c == '}'){
+				closeBrackets++;
+			}
+
+			if(openBrackets == closeBrackets && openBrackets != 0) {
+				index = i;
+				break;
+			}
+		}
+
+		return index;
+	}
+
 	public static List<TextToSpeechVoice> getReadableText (TextModel model, ArrayList<TextElementDisplay> textElements, String lang) {
 		String text = getCleanText(model.getOriginalText());
 		int gapNumber = 1;
@@ -134,32 +157,40 @@ public class WCAGUtils {
 			final boolean isClosestBreak = lowestIndex == breakIndex;
 			
 			final TextElementDisplay element = !isClosestBreak ? getElement(textElements, gapNumber - 1) : null;
-			final String elementContent = element!=null ? getElementTextElementContent(element) : null;
-			String langTag = element!=null && element.getLangTag()!=null ? element.getLangTag() : lang;
-			
+			String langTag = element != null && element.getLangTag() != null ? element.getLangTag() : lang;
+
+			final String elementContent = element != null ? getElementTextElementContent(element) : "";
+			final List<TextToSpeechVoice> content = new ArrayList<TextToSpeechVoice>();
+
+			if (element instanceof AltTextGap) {
+				content.addAll(((AltTextGap) element).getReadableText());
+			} else {
+				content.add(TextToSpeechVoice.create(elementContent, langTag));
+			}
+
 			if (isClosestGap) {
 				result.add(TextToSpeechVoice.create(text.substring(0, gapIndex), lang));                           // text before gap
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));              // gap type and number
-				result.add(TextToSpeechVoice.create(elementContent, langTag));                                        // gap content
+				result.addAll(content);                                        // gap content
 				result.add(getElementStatus(element, model));
-				
-				final int endGapIndex = text.indexOf(GAP_END, gapIndex) + GAP_END.length();
+
+				final int endGapIndex = getGapEndIndex(text, gapIndex) + GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
 			if (isClosestFilledGap) {
 				result.add(TextToSpeechVoice.create(text.substring(0, filledGapIndex), lang));
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.GAP_INDEX) + " " + gapNumber++));
-				result.add(TextToSpeechVoice.create(elementContent, langTag));
+				result.addAll(content);
 				result.add(getElementStatus(element, model));
-				
-				final int endGapIndex = text.indexOf(FILLED_GAP_END, filledGapIndex) + FILLED_GAP_END.length();
+
+				final int endGapIndex = WCAGUtils.getGapEndIndex(text, filledGapIndex) + FILLED_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
 			if (isClosestDropdown) {
 				result.add(TextToSpeechVoice.create(text.substring(0, dropdownIndex), lang));
 				result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.DROPDOWN_INDEX) + " " + gapNumber++));
 				if ( !elementContent.equals("-") && !elementContent.equals("---")) {
-					result.add(TextToSpeechVoice.create(elementContent, langTag));
+					result.addAll(content);
 				} else {
 					result.add(TextToSpeechVoice.create(model.getSpeechTextItem(TextModel.EMPTY_INDEX)));
 				}
@@ -168,7 +199,7 @@ public class WCAGUtils {
 				final int endGapIndex = text.indexOf(DROP_DOWN_GAP_END, dropdownIndex) + DROP_DOWN_GAP_END.length();
 				text = text.substring(endGapIndex);
 			}
-			if(isClosestBreak){
+			if (isClosestBreak) {
 				result.add(TextToSpeechVoice.create(text.substring(0, breakIndex), lang));
 				final int endBreakIndex = breakIndex + BREAK_TEXT.length();
 				text = text.substring(endBreakIndex);

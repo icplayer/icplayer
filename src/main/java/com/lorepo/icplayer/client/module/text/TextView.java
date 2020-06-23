@@ -8,6 +8,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -26,7 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, IWCAGModuleView{
+public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, IWCAGModuleView {
 	private final TextModel module;
 	private ITextViewListener listener;
 	private ArrayList<TextElementDisplay> textElements = new ArrayList<TextElementDisplay>();
@@ -378,6 +379,17 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		MathJax.refreshMathJax(getElement());
 	}
 
+	@Override
+	public void refreshGapMath(String id) {
+		for (TextElementDisplay element: this.textElements) {
+			if (element.hasId(id) && element instanceof DraggableGapWidget) {
+				Element e = ((DraggableGapWidget) element).getElement();
+				MathJax.refreshMathJax(e);
+				break;
+			}
+		}
+	}
+
 	public void rerenderMathJax () {
 		MathJax.rerenderMathJax(getElement());
 		// If mathjax was re rendered then gaps lost handlers to thers DOM elements.
@@ -503,7 +515,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 		activeGap.setFocusGap(true);
 		moduleHasFocus = true;
 		
-		this.readGap(activeGap.getGapType(), clicks, activeGap.getWCAGTextValue(),activeGap.getGapState(), activeGap.getLangTag());
+		this.readGap(activeGap, clicks);
 	}
 
 	@Override
@@ -555,7 +567,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public void space(KeyDownEvent event) {
-		if((moduleHasFocus == false  ||  activeGap.getGapType() == "draggable" )){
+		if((!moduleHasFocus || activeGap.getGapType().equals("draggable"))){
 			event.preventDefault(); 
 		}
 				
@@ -569,14 +581,24 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			}
 			String oldTextValue = activeGap.getTextValue();
 			this.listener.onGapClicked(activeGap.getId());
-			if (isWCAGon && activeGap.getDroppedElement()!=null) {
-				String elementText = getDroppedElementText(activeGap.getDroppedElement());
-				if (elementText.length()>0) {
+
+			if (isWCAGon && activeGap.getDroppedElement() != null) {
+				String elementText = activeGap.getWCAGTextValue();
+				boolean currentElementEmpty = elementText.isEmpty();
+				boolean hadValue = !oldTextValue.isEmpty();
+				boolean currentValueEmpty = activeGap.getTextValue().isEmpty();
+
+				if (!currentElementEmpty) {
 					List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-					textVoices.add(TextToSpeechVoice.create(elementText,this.getLang()));
+
+					if (activeGap instanceof AltTextGap) {
+						textVoices.addAll(((AltTextGap) activeGap).getReadableText());
+					} else {
+						textVoices.add(TextToSpeechVoice.create(elementText, this.getLang()));
+					}
 					textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.INSERT_INDEX)));
 					this.speak(textVoices);
-				} else if (oldTextValue.length()>0 && activeGap.getTextValue().length()==0) {
+				} else if (hadValue && currentValueEmpty) {
 					List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 					textVoices.add(TextToSpeechVoice.create(oldTextValue,this.getLang()));
 					textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.REMOVED_INDEX)));
@@ -634,35 +656,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	public String getLang () {
 		return this.module.getLangAttribute();
 	}
-
-	private void readGap (String type, int index, String content, int gapState, String langTag) {
-		if(langTag == null){
-			langTag = this.module.getLangAttribute();
-		}
-		final String gapType = type == "dropdown" ? this.module.getSpeechTextItem(TextModel.DROPDOWN_INDEX) : this.module.getSpeechTextItem(TextModel.GAP_INDEX);
-
-		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
-		textVoices.add(TextToSpeechVoice.create(gapType + " " + Integer.toString(index + 1)));
-		if ( type.equals("dropdown") && ( content.equals("-") || content.equals("---"))) {
-			if(!this.isShowErrorsMode) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX)));
-			}
-		} else {
-			textVoices.add(TextToSpeechVoice.create(content, langTag));
-		}
-		
-		if(this.isShowErrorsMode) {
-			if(gapState==1) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.CORRECT_INDEX)));
-			}else if(gapState==2) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.WRONG_INDEX)));
-			}else if(gapState==3) {
-				textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX)));
-			}
-		}
-
-		this.speak(textVoices);
-	}
 	
 	public String getSpeechText (int index) {
 		return this.module.getSpeechTextItem(index);
@@ -719,6 +712,82 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	private void setSizeAttributeToLongestAnswerSize(GapWidget gap, GapInfo info) {
 		int longestAnswer = info.getLongestAnswerLength();
 		gap.setSizeAttribute(longestAnswer);
+	}
+
+	private void readGap(TextElementDisplay gap, int index) {
+		List<TextToSpeechVoice> textVoices = prepareGapSpeechTexts(gap, index);
+		this.speak(textVoices);
+	}
+
+	private List<TextToSpeechVoice> prepareGapSpeechTexts(TextElementDisplay gap, int index) {
+		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+
+		textVoices.add(
+				TextToSpeechVoice.create(getGapTypeAndIndexText(gap, index))
+		);
+		textVoices.addAll(
+				getContent(gap)
+		);
+
+		TextToSpeechVoice showErrorFeedback = getCorrectnessFeedback(gap.getGapState());
+		if (isShowErrorsMode && showErrorFeedback != null) {
+			textVoices.add(showErrorFeedback);
+		}
+
+		return textVoices;
+	}
+
+	private List<TextToSpeechVoice> getContent(TextElementDisplay gap) {
+		List<TextToSpeechVoice> content = new ArrayList<TextToSpeechVoice>();
+		String langTag = getGapOrModuleLangTag(gap);
+		String type = gap.getGapType();
+		String textValue = gap.getWCAGTextValue();
+
+		if ( type.equals("dropdown") && ( textValue.equals("-") || textValue.equals("---"))) {
+			if (!this.isShowErrorsMode) {
+				content.add(
+						TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX))
+				);
+			}
+		} else if (gap instanceof AltTextGap) {
+			JavaScriptUtils.log(gap.getTextValue());
+			content.addAll(
+					((AltTextGap) gap).getReadableText()
+			);
+		} else {
+			content.add(TextToSpeechVoice.create(textValue, langTag));
+		}
+
+		return content;
+	}
+
+	private TextToSpeechVoice getCorrectnessFeedback(int gapState) {
+		if (gapState == 1) {
+			return TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.CORRECT_INDEX));
+		} else if (gapState == 2) {
+			return TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.WRONG_INDEX));
+		} else if (gapState == 3) {
+			return TextToSpeechVoice.create(this.module.getSpeechTextItem(TextModel.EMPTY_INDEX));
+		}
+
+		return null;
+	}
+
+	private String getGapOrModuleLangTag(TextElementDisplay gap) {
+		String gapLangTag = gap.getLangTag();
+		if (gapLangTag != null) {
+			return gapLangTag;
+		}
+
+		return getLang();
+	}
+
+	private String getGapTypeAndIndexText(TextElementDisplay gap, int index) {
+		String gapType = gap.getGapType().equals("dropdown") ?
+				this.module.getSpeechTextItem(TextModel.DROPDOWN_INDEX) :
+				this.module.getSpeechTextItem(TextModel.GAP_INDEX);
+
+		return gapType + " " + Integer.toString(index + 1);
 	}
 
 }

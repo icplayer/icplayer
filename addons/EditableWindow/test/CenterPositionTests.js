@@ -26,7 +26,7 @@ TestCase("[EditableWindow] Centering position", {
             scrollTop: 0
         };
 
-        this.presenter.configuration = {
+        this.presenter.jQueryElementsCache = {
             $container: $(this.elementToBeCentered)
         };
 

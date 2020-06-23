@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
@@ -774,5 +775,18 @@ public final class KeyboardNavigationController {
 	public boolean isWCAGOn() {
 		return modeOn && isWCAGSupportOn;
 	}
+	
+	// Returns true if element e is contained within modules group div that's not visible, false otherwise
+	static public native boolean isParentGroupDivHidden (Element e) /*-{
+		var $_ = $wnd.$;
+		var isHidden = false;
+		$_(e).parents('.modules_group').each(function(index){
+			if ($_(this).css('display') == 'none' || $_(this).css('visibility') == 'hidden') {
+				isHidden = true;
+				return false;
+			}
+		});
+		return isHidden;
+	}-*/;
 	
 }

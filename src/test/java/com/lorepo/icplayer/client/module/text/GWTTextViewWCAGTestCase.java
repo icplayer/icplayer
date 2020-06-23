@@ -48,7 +48,7 @@ public class GWTTextViewWCAGTestCase extends GwtTest {
 
 		this.model = new TextModel();
 		this.textView = new TextView(this.model, false);
-		GapInfo gapInfo = new GapInfo("sddsf1", 12, false, true, 0);
+		GapInfo gapInfo = new GapInfo("sddsf1", 12, false, true, 0, false);
 		
 		this.gapWidget = new DraggableGapWidget(gapInfo, null);
 		

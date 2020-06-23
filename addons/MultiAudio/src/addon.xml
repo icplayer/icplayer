@@ -8,7 +8,7 @@
 			<property name="Ogg" nameLabel="MultiAudio_property_ogg" type="audio" />
 			<property name="Enable loop" nameLabel="MultiAudio_property_enable_loop" type="boolean" />
 		</property>
-		<property name="Interface" nameLabel="MultiAudio_property_interface" type="{None, Default controls, Display time}"/>
+		<property name="Interface" nameLabel="MultiAudio_property_interface" type="{None, Default controls, Display time, Draggable items}"/>
 		<property name="Narration" nameLabel="MultiAudio_property_narration" type="narration" isLocalized="true"/>
 	</model>
 </addon>

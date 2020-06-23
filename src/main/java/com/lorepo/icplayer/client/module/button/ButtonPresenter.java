@@ -22,6 +22,7 @@ import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.button.ButtonModule.ButtonType;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
 	
@@ -156,6 +157,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 			view.show();
 		} else{
 			view.hide();
+            isVisible = false;
 		}
 		view.setErrorCheckingMode(false);
 		view.setDisabled(false);
@@ -248,8 +250,9 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 		boolean isHidden = this.getView().getStyle().getVisibility().equals("hidden");
 		boolean isNone = this.getView().getStyle().getDisplay().equals("none");
 		boolean isEnabled = this.view.isEnabled();
+		boolean isGroupDivHidden  = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
 		
-		boolean isVisible = !isHidden && !isNone && isEnabled;
+		boolean isVisible = !isHidden && !isNone && isEnabled && !isGroupDivHidden;
 		return isVisible;
 	}
 

@@ -1,6 +1,60 @@
-2019-09-20 Added new properties for ValueChanged event and added method for injecting eventbus for addons
-2019-09-20 Added possibility for creating adaptive lessons
-2019-09-20 Added modules metadata.
+2020-06-23 Added new properties for ValueChanged event and added method for injecting eventbus for addons
+2020-06-23 Added possibility for creating adaptive lessons
+2020-06-19 Add getresponseindex to commands in Feedback addon
+2020-06-17 Fix page weight in utils.
+2020-06-08 Added checking if event item is null in MultiAudio
+2020-06-04 Modified youtube addon to use new mauthor api
+2020-06-02 Fix problem with page size when static footer is enabled
+2020-05-26 Fixed issue with Paragraph when the default layout is not the initial one
+2020-05-15 Fixed numeric gaps displaying a warning when a fraction is inputed
+2020-05-06 Added draggable items interface for multiaudio and support for it in multiplegap
+2020-04-21 Added resetPage and resetPageByName commands
+2020-04-17 Changed enabled youtube addon to work regardless of api quoata
+2020-03-05 Fix issue with XML entities in dropdown gap breaking show answers
+2020-03-05 Added HTML IDs to Choice options
+2020-03-04 Added maintain state property to Limited Check addon
+2020-02-10 Add new property for Lesson Progress to enable refreshing view on page load
+2020-01-07 Lock only addons which are set in config in eKeyboard addon.
+2019-12-12 Added use numeric keyboard property to Basic Math Gaps, Table, Text and Writing Calculations
+2019-12-09 Fix problem with Basic Math Gaps and jQuery copy.
+2019-12-09 Fix problem with show answers and Image Gap module
+2019-12-06 Fix problem with LinkInfo to page
+2019-12-05 Fixed issue with updating links in text leading to their previous address
+2019-12-04 Fixed issues with echo on FireFox, events on Edge and suspended analyzer on Chrome in Media Recorder addon
+2019-11-27 Add new property to Basic Maths Gaps: User action events.
+2019-11-22 Fixed issues with text from draggable gaps dissapearing when dragged out of text
+2019-11-18 Fix problem with static footer and page size
+2019-11-18 Fixed issues with Slovak letters in crossword
+2019-11-08 Fixed issues with module group visibility
+2019-11-08 Added modules metadata.
+2019-11-08 Add alt text support for SourceList
+2019-11-05 Added isAttempted command to Text Coloring.
+2019-11-05 Remove side effect from getState in paragraph module.
+2019-11-05 Remove hideAnswers in getState, getScore and getErrorCount in table addon.
+2019-10-30 Fixed Slider working incorrectly when inside overflow: auto
+2019-10-29 Added Count Errors property to Text Coloring
+2019-10-29 Added clearing Catch addon objects on page change.
+2019-10-29 Fixed getting readable text in Text module
+2019-10-28 Fixed issues with scaling of multiplegap
+2019-10-24 When table is not activity or does not have gaps, then return true in isAttempted
+2019-10-24 Fixed problem with animation and transparency.
+2019-10-23 Fixed error in destroy method in IWB Toolbar module
+2019-10-18 Fixed styles in Flash Cards module
+2019-10-17 Fix problem with hideAnswers in getScore, getErrorCount, getState in multiple gap addon
+2019-10-16 TrueFalse is not hidding show answers during getState
+2019-10-16 Remove hideAnswers from getState in ordering module.
+2019-10-14 Optimize drawing frames in Animation addon
+2019-10-11 Added isAttempted command to Table.
+2019-10-10 Added TTS support to Slider
+2019-10-10 Fix for moveToFrame command in Image Vierwer not calling tts
+2019-10-09 Added destroy method and fixed getting state in Slideshow module
+2019-10-09 Add destroy lifecycle management for modules. Use destroy in IWB addon. Fix problem with DropDown gap and disable. Remove hideAnswers from getState in Text module.
+2019-10-07 Fix Coloring issue when the first layer is not default
+2019-10-07 Fixed issues on Edge and mlibro
+2019-10-03 Fixed TTS reading Image Viewer alt text after entering a page
+2019-09-27 Fix ImageViewerPublic model upgrade.
+2019-09-26 Fixed disabling Image Gap module
+2019-09-23 Added TTS support to Image Viewer
 2019-09-17 Added a new text property for controlling how gap size attribute is calculated
 2019-09-17 Added TTS support to the Animation addon
 2019-09-13 Fixed TrueFalse showAnswers method when correct answers are empty.
@@ -157,7 +211,7 @@
 2018-05-28 Fixed issues with hover style in reset button on mobile
 2018-05-28 Fixed issue with TTS in multiplegap after reset
 2018-05-28 Added TTS support for Image Identification
-2018-05-25 Added a test to check for special character handling in text coloring  
+2018-05-25 Added a test to check for special character handling in text coloring
 2018-05-24 Fixed conflicts between WCAG mode and NVDA
 2018-05-24 Added TTS support for Zoom Image
 2018-05-21 Added TTS support for Heading
@@ -215,7 +269,7 @@
 2018-03-05 Added Timer addon
 2018-03-02 Fixed problem with scaling in Connection addon
 2018-03-02 Added property to set ordering items to starting position
-2018-03-01 Fixed problem with gap parsing with opening tag character 
+2018-03-01 Fixed problem with gap parsing with opening tag character
 2018-03-01 Fixed problem with opening gaps on mobile devices in eKeyboard module
 2018-02-28 Fixed problem with restoring state in video addon
 2018-02-28 Fixed problem with hover in iOS
@@ -228,7 +282,7 @@
 2018-02-20 Added Page mapping ids translations, Size and ModuleDimensions equals implementations
 2018-02-20 Added TTS support for SHow Answers Button
 2018-02-15 Added TTS support for the Text's Draggable Gap
-2018-02-15 Added TTS support for Check Answers Button 
+2018-02-15 Added TTS support for Check Answers Button
 2018-02-15 Fixed issue with scaling in Figure Drawing on mobile devices
 2018-02-14 Fixed issue with reseting module in Catch module
 2018-02-13 Fixed issues with Glossary scaling on mobile devices
@@ -244,7 +298,7 @@
 2018-01-30 Fixed Double State Button not activating on keyboard input.
 2018-01-29 Fixed Image gap and multiplegap not getting image source alt text
 2018-01-26 Fixed addon TrueFalse now only adds text as checkbox alt text
-2018-01-24 Fixed addon TrueFalse not being read correctly by NVDA 
+2018-01-24 Fixed addon TrueFalse not being read correctly by NVDA
 2018-01-23 Fixed url resolving for modules
 2018-01-23 Fixed Choice chosen element not reseting
 2018-01-23 Fixed tests in TTS and Text Identification
@@ -552,7 +606,7 @@
 2016-04-14 Added blocking wrong answers in Text Identification module
 2016-04-14 Added blocking wrong answers in Text module
 2016-04-13 Fixed rendering latex in Text module
-2016-04-11 Added sending continuous events and stick steps in Slider module 
+2016-04-11 Added sending continuous events and stick steps in Slider module
 2016-04-08 Fixed dragging element in Ordering module
 2016-04-08 Added french layout to Paragraph
 2016-04-08 Added list and combo views in Table of Contents module
@@ -971,7 +1025,7 @@
 2015-02-09 Added getView(), show() and hide() commands to Error Counter module
 2015-02-06 Added parsing HTML in Text Audio module
 2015-02-06 Fixed issue with Show Answer in Shape Tracing module
-2015-02-06 Added new css class to Basic Math Gaps module 
+2015-02-06 Added new css class to Basic Math Gaps module
 2015-02-06 Added Show Answers to Count and Graph module
 2015-02-06 Added new property Signs to to Basic Math Gaps module
 2015-02-05 Added translations for almost all remaining addons properties names
@@ -1379,7 +1433,7 @@
 2014-03-11 Player API extended to return page id
 2014-03-07 Added AllOK event and isAllOK command in Text module
 2014-03-07 Fixed problem with parsing addon properties
-2014-03-07 Fixed issue with icon pages on navigation bar for mLibro. 
+2014-03-07 Fixed issue with icon pages on navigation bar for mLibro.
 2014-03-07 New addon connecting dots and updated fractions
 2014-03-06 Added enableAllGaps and disableAllGaps commands in Table module
 2014-03-06 Added enableAllGaps and disableAllGaps commands in Text module
@@ -1542,7 +1596,7 @@
 2013-09-05 Popup z-index = 100
 2013-09-04 Added Book API
 2013-09-03 Fixed Paragraph for non existing tinymce editor
-2013-09-03 Added default sizes to ic_popup_page CSS class 
+2013-09-03 Added default sizes to ic_popup_page CSS class
 2013-09-02 Fixed PlayerUtils for object with unavailable API
 2013-09-02 Fixed problem addon resources
 2013-09-02 Fixed problem with gaps on popups

@@ -30,6 +30,7 @@ import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
 
@@ -79,9 +80,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		this.model = model;
 		this.playerServices = services;
 		isVisible = model.isVisible();
-		try{
+		try {
 			connectHandlers();
-		}catch(Exception e){
+		} catch (Exception e) {
 		}
 	}
 
@@ -148,7 +149,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			view.setDisabled(true);
 			view.removeClass("ui-state-disabled");
 		}
-		
+
 		if (!model.isActivity() || this.isShowAnswersActive) { return; }
 
 		this.isShowAnswersActive = true;
@@ -164,18 +165,19 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	private void hideAnswers() {
-		if(!model.isActivity() && isConnectedWithMath){
+		if (!model.isActivity() && isConnectedWithMath) {
 			this.isShowAnswersActive = false;
 			view.setDisabled(false);
 		}
-		
+
 		if ((!model.isActivity() || !this.isShowAnswersActive)) { return; }
 
 		this.isShowAnswersActive = false;
 
-		reset();
 		view.resetStyles();
 		view.setDisabled(false);
+		view.clearAltText();
+		view.setImageUrl("");
 		setState(currentState);
 		readyToDraggableItem = userReadyToDraggableItem;
 		userReadyToDraggableItem = null;
@@ -184,11 +186,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	@Override
 	public void setShowErrorsMode() {
 		if (this.isShowAnswersActive) hideAnswers();
-		if(!isShowErrorsMode){
+		if (!isShowErrorsMode) {
 			workModeDisabled = view.getDisabled();
 		}
-		
-		isShowErrorsMode = true;		
+
+		isShowErrorsMode = true;
 		view.setDisabled(true);
 		if (model.isActivity()) {
 			if (getScore() > 0) {
@@ -212,11 +214,15 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		if (isShowAnswersActive) {
 			hideAnswers();
 		}
-		
-		if(this.consumedItem != null) {
+
+		if (isShowErrorsMode) {
+			setWorkMode();
+		}
+
+		if (this.consumedItem != null) {
 			this.removeItem(false);
 		}
-		
+
 		readyToDraggableItem = null;
 		consumedItem = null;
 		view.clearAltText();
@@ -279,24 +285,24 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			view.setAltText(getImageSourceAltText(readyToDraggableItem.getId()));
 			view.setImageUrl(readyToDraggableItem.getValue());
 			consumedItem = readyToDraggableItem;
-			String langAtribute = getSourceLangTag(consumedItem.getId()); 
+			String langAttribute = getSourceLangTag(consumedItem.getId());
 			fireItemConsumedEvent();
 			String score = Integer.toString(getScore());
 			ValueChangedEvent valueEvent = new ValueChangedEvent(model.getId(), "", consumedItem.getId(), score);
 			playerServices.getEventBus().fireEvent(valueEvent);
-			if(getScore() == 1){
-				ValueChangedEvent isAllOKevent = new ValueChangedEvent(model.getId(), "all", "", "");
-				playerServices.getEventBus().fireEvent(isAllOKevent);
+			if (getScore() == 1) {
+				ValueChangedEvent isAllOKEvent = new ValueChangedEvent(model.getId(), "all", "", "");
+				playerServices.getEventBus().fireEvent(isAllOKEvent);
 			}
 			view.makeDraggable(this);
-			if(getScore() == 0 && model.shouldBlockWrongAnswers()){
+			if (getScore() == 0 && model.shouldBlockWrongAnswers()) {
 				removeItem(false);
 			}
-			view.setLangTag(langAtribute);
+			view.setLangTag(langAttribute);
 			view.readInserted();
 		}
 	}
-	
+
 	private String getSourceLangTag(String id) {
 		IPresenter presenter = playerServices.getModule(id);
 		if (presenter != null && presenter instanceof ImageSourcePresenter) {
@@ -308,6 +314,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	private void setCorrectImage() {
 		String[] answers = model.getAnswerId().split(";");
+
+		if (answers[0].isEmpty()) {
+		    return;
+		}
+
 		ImageSourcePresenter imageSourcePresenter = (ImageSourcePresenter) playerServices.getModule(answers[0]);
 		view.setImageUrl(imageSourcePresenter.getImageUrl());
 		view.setAltText(imageSourcePresenter.getAltText());
@@ -398,17 +409,17 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 
 	@Override
 	public int getErrorCount() {
-		return consumedItem != null && getScore() == 0 && model.isActivity() ? 1 : 0;
+	    return consumedItem != null && getScore() == 0 && model.isActivity() ? 1 : 0;
 	}
 
 	@Override
 	public int getMaxScore() {
-		return model.isActivity() ? 1 : 0;
+	    return model.isActivity() ? 1 : 0;
 	}
 
 	@Override
 	public int getScore() {
-		return model.isActivity() && isCorrect() ? 1 : 0;
+	    return model.isActivity() && isCorrect() ? 1 : 0;
 	}
 
 	public boolean isCorrect() {
@@ -517,11 +528,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	private boolean isActivity() {
 		return model.isActivity();
 	}
-	
+
 	private void markConnectionWithMath() {
 		isConnectedWithMath = true;
 	}
-	
+
 	private void jsOnEventReceived (String eventName, String jsonData) {
 		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}
@@ -658,26 +669,26 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		}
 		return currentEventData;
 	}
-	
+
 	private boolean isElementToDrag () {
 		return this.consumedItem != null || this.currentEventData != null;
 	}
 
 	private void itemDragged() {
-		if (!this.isElementToDrag()) { 
+		if (!this.isElementToDrag()) {
 			return;
 		}
-		
+
 		CustomEvent dragEvent = new CustomEvent("itemDragged", prepareEventData());
 		removeItem(true);
 		playerServices.getEventBus().fireEvent(dragEvent);
 	}
 
 	private void itemStopped() {
-		if (!this.isElementToDrag()) { 
+		if (!this.isElementToDrag()) {
 			return;
 		}
-		
+
 		CustomEvent stopEvent = new CustomEvent("itemStopped", prepareEventData());
 		playerServices.getEventBus().fireEvent(stopEvent);
 	}
@@ -695,13 +706,13 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	private boolean isAllOK() {
-		if(getScore() == 1){
+		if (getScore() == 1) {
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
-	
+
 	private Element getView() {
 		return view.getElement();
 	}
@@ -725,7 +736,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	private boolean isGapAttempted() {
-		return getImageId() != "";
+		return !getImageId().equals("");
 	}
 
 	private void markGapAsCorrect() {
@@ -741,9 +752,9 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	private boolean isAttempted() {
-		if(model.isActivity()){
+		if (model.isActivity()) {
 			return view.isAttempted();
-		}else{
+		} else {
 			return true;
 		}
 	}
@@ -756,22 +767,23 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	@Override
 	public void selectAsActive(String className) {
 		this.view.getElement().addClassName(className);
-		
+
 	}
 
 	@Override
 	public void deselectAsActive(String className) {
 		this.view.getElement().removeClassName(className);
-		
+
 	}
 
 	@Override
 	public boolean isSelectable(boolean isTextToSpeechOn) {
 		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden") && !this.getView().getStyle().getDisplay().equals("none");
 		boolean isEnabled = !this.model.isDisabled();
-		return (isVisible || isTextToSpeechOn) && isEnabled;
+		boolean isGroupDivHidden = KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return isVisible && isEnabled && !isGroupDivHidden;
 	}
-	
+
 	private String getImageSourceAltText(String id) {
 		IPresenter presenter = playerServices.getModule(id);
 		if(presenter instanceof ImageSourcePresenter) {

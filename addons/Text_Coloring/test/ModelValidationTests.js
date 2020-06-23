@@ -262,7 +262,8 @@ TestCase("[Text_Coloring] Model Validation flow", {
             showSetEraserButtonMode: false,
             hideColorsButtons: false,
             eraserButtonText: eraserButtonText,
-            mode: "MARK_PHRASES"
+            mode: "MARK_PHRASES",
+            countErrors: false
 
         };
 
@@ -306,5 +307,12 @@ TestCase("[Text_Coloring] parse Buttons position", {
         assertEquals("left", this.presenter.parseButtonsPosition("left"));
         assertEquals("bottom", this.presenter.parseButtonsPosition("bottom"));
         assertEquals("right", this.presenter.parseButtonsPosition("right"));
+    },
+
+    'test given model without countErrors when upgrading model should add countErrors field with def value': function () {
+        var upgradedModel = this.presenter.upgradeModel({});
+
+        assertTrue(upgradedModel.countErrors != undefined);
+        assertFalse(upgradedModel.countErrors);
     }
 });

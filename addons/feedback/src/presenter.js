@@ -15,12 +15,13 @@ function Addonfeedback_create() {
     presenter.STATUSES = {
         TRUE: "T",
         FALSE: "F",
-        NEUTRAL: "N"
+        NEUTRAL: "N",
+        CUSTOM: "C"
     };
 
     presenter.ERROR_MESSAGES = {
         RESPONSE_ID_NOT_UNIQUE: "Response ID \"%id%\" is not unique",
-        RESPONSE_STATUS_INVALID: "Response status \"%status%\" for response %n% (ID \"%id%\") is invalid, it has to be one of \"T\" (true), \"N\" (neutral) or \"F\" (false)",
+        RESPONSE_STATUS_INVALID: "Response status \"%status%\" for response %n% (ID \"%id%\") is invalid, it has to be one of \"T\" (true), \"N\" (neutral), \"F\" (false) or \"C\" (custom)",
         PREVIEW_RESPONSE_ID_INVALID: "Cannot preview response: there's no response with ID \"%id%\""
     };
 
@@ -248,7 +249,8 @@ function Addonfeedback_create() {
 
             if (model['Responses'][i]['Status'] != presenter.STATUSES.TRUE &&
                 model['Responses'][i]['Status'] != presenter.STATUSES.NEUTRAL &&
-                model['Responses'][i]['Status'] != presenter.STATUSES.FALSE) {
+                model['Responses'][i]['Status'] != presenter.STATUSES.FALSE &&
+                model['Responses'][i]['Status'] != presenter.STATUSES.CUSTOM) {
                 presenter.showErrorMessage(presenter.ERROR_MESSAGES.RESPONSE_STATUS_INVALID, { n: i + 1, id: model['Responses'][i]['Unique response ID'], status: model['Responses'][i]['Status']});
                 return;
             }
@@ -278,6 +280,10 @@ function Addonfeedback_create() {
 
                 case presenter.STATUSES.FALSE:
                     text.addClass("false_response");
+                    break;
+
+                case presenter.STATUSES.CUSTOM:
+                    text.addClass("custom_response");
                     break;
             }
 
@@ -425,10 +431,11 @@ function Addonfeedback_create() {
             'change': presenter.changeCommand,
             'setDefaultResponse': presenter.setDefaultResponse,
             'next': presenter.next,
-            'previous': presenter.previous
+            'previous': presenter.previous,
+            'getResponseIndex': presenter.getResponseIndex
         };
 
-        Commands.dispatch(commands, name, params, presenter);
+        return Commands.dispatch(commands, name, params, presenter);
     };
 
     presenter.setVisibility = function(isVisible) {

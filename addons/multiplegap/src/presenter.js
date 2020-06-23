@@ -12,6 +12,16 @@ function Addonmultiplegap_create(){
     var isWCAGOn = false;
 
     var presenter = function(){};
+
+    function getPlaceholders() {
+        return jQuery.map(presenter.$view.find('.placeholder:not(.placeholder-show-answers)'), function (placeholder) {
+            return {
+                item: $(placeholder).attr('draggableItem'),
+                value: $(placeholder).attr('draggableValue'),
+                type: $(placeholder).attr('draggableType')
+            };
+        });
+    }
     
     presenter.ORIENTATIONS = {
         HORIZONTAL: 0,
@@ -20,7 +30,8 @@ function Addonmultiplegap_create(){
     
     presenter.SOURCE_TYPES = {
         IMAGES: 0,
-        TEXTS: 1
+        TEXTS: 1,
+        AUDIO: 2
     };
     
     presenter.ERROR_CODES = {
@@ -203,6 +214,8 @@ function Addonmultiplegap_create(){
         var sourceType = presenter.SOURCE_TYPES.IMAGES;
         if (model['Source type'] == "texts") {
             sourceType = presenter.SOURCE_TYPES.TEXTS;
+        } else if (model['Source type'] == 'audio') {
+            sourceType = presenter.SOURCE_TYPES.AUDIO;
         }
         
         var validatedItems = presenter.validateItems(model);
@@ -286,6 +299,8 @@ function Addonmultiplegap_create(){
         });
         
         container.click (presenter.acceptDraggable);
+
+        var originalGeneratePosition = null;
         container.droppable ({
             drop: function (event, ui) {
                 if (!presenter.configuration.isVisible) {
@@ -294,12 +309,49 @@ function Addonmultiplegap_create(){
                 event.stopPropagation();
                 event.preventDefault();
                 container.click();
+            },
+            activate: function (event, ui) {
+                if (presenter.$view.find('.dragging').length > 0 && originalGeneratePosition == null) {
+                    originalGeneratePosition = $.ui.draggable.prototype._generatePosition;
+                    $.ui.draggable.prototype._generatePosition = scaledOriginalPositionDecorator($.ui.ddmanager.current, originalGeneratePosition);
+                }
+            },
+            deactivate: function (event, ui) {
+                if (originalGeneratePosition != null) {
+                    $.ui.draggable.prototype._generatePosition = originalGeneratePosition;
+                    originalGeneratePosition = null;
+                }
             }
         });
 
         presenter.container = container;
         presenter.$view.append(container);
     };
+
+    function scaledOriginalPositionDecorator(obj, fn) {
+
+        function getScale() {
+            var $content = $("#content");
+            if($content.size() > 0) {
+                var contentElem = $content[0];
+                var scaleX = contentElem.getBoundingClientRect().width / contentElem.offsetWidth;
+                var scaleY = contentElem.getBoundingClientRect().height / contentElem.offsetHeight;
+                return {X: scaleX, Y: scaleY};
+            } else if (presenter.playerController) {
+                var scale = presenter.playerController.getScaleInformation();
+                return {X: scale.scaleX, Y: scale.scaleY}
+            } else {
+                return {X: 1.0, Y: 1.0};
+            }
+        }
+
+        obj.isGeneratePositionScaled = true; //add marker to draggable for use in the droppable intersect fix
+        return function (event) {
+            var scale = getScale();
+            var pos = fn.apply(obj, [event]);
+            return {left: pos.left / scale.X, top: pos.top / scale.Y};
+        }
+    }
     
     presenter.setUpEventListeners = function Multiplegap_setUpEventListeners (isPreview) {
         if (!isPreview) {
@@ -313,6 +365,7 @@ function Addonmultiplegap_create(){
             presenter.eventBus.addEventListener ('HideAnswers', this);
             presenter.eventBus.addEventListener ('NotAllAttempted', this);
             presenter.eventBus.addEventListener ('Submitted', this);
+            presenter.eventBus.addEventListener ('ValueChanged', this);
         }
     };
     presenter.createLogic = function Multiplegap_createLogic (view, model, isPreview) {
@@ -373,6 +426,8 @@ function Addonmultiplegap_create(){
                 
             } else if(presenter.configuration.sourceType == presenter.SOURCE_TYPES.TEXTS && eventData.type == "string") {
                 presenter.saveSelected(eventData);
+            } else if(presenter.configuration.sourceType == presenter.SOURCE_TYPES.AUDIO && eventData.type == "audio") {
+                presenter.saveSelected(eventData);
             } else {
                 presenter.clearSelected();
             }
@@ -421,7 +476,7 @@ function Addonmultiplegap_create(){
         if(presenter.showErrorsMode || presenter.isShowAnswersActive || !presenter.isItemChecked) {
             return;
         }
-        
+
         presenter.performAcceptDraggable($(e.target), presenter.selectedItem, true, false, false);
         presenter.$view.find('.handler').show();
         presenter.$view.find('.multiplegap_container').removeClass('multiplegap_active');
@@ -572,7 +627,7 @@ function Addonmultiplegap_create(){
                 return;
             }
         }
-        
+
         var child;
         var placeholder;
         if(presenter.isShowAnswersActive){
@@ -580,7 +635,7 @@ function Addonmultiplegap_create(){
         }else{
             placeholder = $('<div class="placeholder"></div>');
         }
-        
+
         placeholder.css({
             width: presenter.configuration.items.width + 'px',
             height: presenter.configuration.items.height + 'px'
@@ -597,7 +652,7 @@ function Addonmultiplegap_create(){
         });
         
         presenter.$view.find('.multiplegap_placeholders').append(placeholder);
-        
+
         switch(presenter.configuration.sourceType) {
             case presenter.SOURCE_TYPES.IMAGES:
                 child = $('<img class="contents" alt="' + presenter.getAltText(item.item) + '" lang="'+ presenter.getItemLangAttribute(item.item) +'" />');
@@ -614,6 +669,10 @@ function Addonmultiplegap_create(){
             case presenter.SOURCE_TYPES.TEXTS:
                 child = $('<p class="contents"></p>');
                 child.html(presenter.parseItemValue(item.value));
+                break;
+
+            case presenter.SOURCE_TYPES.AUDIO:
+                child = createDraggableAudioItem(item.item);
                 break;
         }
         
@@ -695,6 +754,11 @@ function Addonmultiplegap_create(){
         if($.browser.msie) {
             handler.css({backgroundColor: "#000000", opacity: 0 });
         }
+
+        // If the source type is audio, the handler should only cover the grab area and leave the button uncovered
+        if (presenter.configuration.sourceType == presenter.SOURCE_TYPES.AUDIO) {
+            handler.css('width','50px');
+        }
         
         handler.click(presenter.removeDraggable);
         placeholder.append(handler);
@@ -730,6 +794,70 @@ function Addonmultiplegap_create(){
         }
 
     };
+
+    function createDraggableAudioItem (itemID) {
+        var $el = $('<div></div>');
+
+        var addonAndItemIds = itemID.split('-');
+        if (addonAndItemIds.length != 2) return;
+        var audioAddonID = addonAndItemIds[0];
+        var audioItemID = addonAndItemIds[1];
+
+        $el.attr('data-audio-id', audioItemID);
+        $el.attr('data-addon-id', audioAddonID);
+        $el.addClass('multiaudio-item-wrapper');
+
+        var $grab = $('<div></div>');
+        $grab.addClass('multiaudio-item-grab-area');
+        $el.append($grab);
+
+        var $button = $('<div></div>');
+        $button.addClass('multiaudio-item-button');
+        $el.append($button);
+
+        var $icon = $('<div></div>');
+        $icon.addClass('multiaudio-item-icon');
+        $button.append($icon);
+
+        $button.click(function (event) {
+            playDraggableAudio(event, audioItemID, audioAddonID)
+        });
+
+        return $el;
+    };
+
+    function playDraggableAudio(event, itemID, audioAddonID) {
+        var audioAddon = presenter.playerController.getModule(audioAddonID);
+        var $parent = $(event.currentTarget).parent();
+        if ($parent.hasClass('playing')) {
+            $parent.removeClass('playing');
+            audioAddon.stop();
+            audioAddon.jumpToID(itemID);
+        } else {
+            $parent.addClass('playing');
+            audioAddon.jumpToID(itemID);
+            audioAddon.play();
+        }
+    }
+
+    function stopDraggableAudioOnDrag(helper, draggableItem) {
+        if (presenter.configuration.sourceType != presenter.SOURCE_TYPES.AUDIO) return;
+
+        var addonAndItemIds = draggableItem.split('-');
+        if (addonAndItemIds.length != 2) return;
+
+        var audioAddonID = addonAndItemIds[0];
+        var audioAddon = presenter.playerController.getModule(audioAddonID);
+
+        var itemID = addonAndItemIds[1];
+
+        helper.find('.playing').each(function(){ //there should be no more than one such element
+            var $this = $(this);
+            $this.removeClass('playing');
+            audioAddon.stop();
+            audioAddon.jumpToID(itemID);
+        })
+    }
     
     function sendEvent(item, consumed) {
         if (consumed) {
@@ -778,6 +906,8 @@ function Addonmultiplegap_create(){
                     return;
                 }
                 ui.helper.zIndex(100);
+                stopDraggableAudioOnDrag(ui.helper, ui.helper.attr('draggableitem'));
+
             },
             stop : function(event, ui) {
                 placeholder.removeClass('dragging');
@@ -986,10 +1116,6 @@ function Addonmultiplegap_create(){
     }
     
     presenter.getMaxScore = function() {
-        if(presenter.isShowAnswersActive){
-            presenter.hideAnswers();
-        }
-        
         if (presenter.itemCounterMode) {
             return presenter.configuration.isActivity ? 1 : 0;
         }
@@ -1006,9 +1132,10 @@ function Addonmultiplegap_create(){
     }
     
     presenter.getScore = function() {
-        if(presenter.isShowAnswersActive){
-            presenter.hideAnswers();
+        if (presenter.isShowAnswersActive) {
+            return presenter.tmpScore;  // It's saved in showAnswers
         }
+
         if (presenter.itemCounterMode) {
             var score = isAllCorrect() ? 1 : 0;
 
@@ -1025,9 +1152,10 @@ function Addonmultiplegap_create(){
     };
     
     presenter.getErrorCount = function() {
-        if(presenter.isShowAnswersActive){
-            presenter.hideAnswers();
+        if (presenter.isShowAnswersActive) {
+            return presenter.tmpErrorCount;  // It's saved in showAnswers
         }
+
         if (presenter.itemCounterMode) {
             var isEmpty = getItemsCount() === 0,
               result = 0;
@@ -1139,22 +1267,19 @@ function Addonmultiplegap_create(){
     };
     
     presenter.getState = function() {
-        if(presenter.isShowAnswersActive){
-            presenter.hideAnswers();
+        function getBaseState(placeholders) {
+            return JSON.stringify({
+                placeholders: placeholders,
+                isVisible: presenter.configuration.isVisible
+            });
         }
-        
-        var placeholders = jQuery.map(presenter.$view.find('.placeholder:not(.placeholder-show-answers)'), function(placeholder) {
-            return {
-                item : $(placeholder).attr('draggableItem'),
-                value : $(placeholder).attr('draggableValue'),
-                type : $(placeholder).attr('draggableType')
-            };
-        });
-        
-        return JSON.stringify({
-            placeholders: placeholders,
-            isVisible: presenter.configuration.isVisible
-        });
+
+
+        if (presenter.isShowAnswersActive) {
+            return getBaseState(this.tmpState); // This state is saved during showAnswers
+        } else {
+            return getBaseState(getPlaceholders());
+        }
     };
     
     presenter.upgradeState = function (parsedState) {
@@ -1226,7 +1351,7 @@ function Addonmultiplegap_create(){
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        
+
         return presenter.countItems() > 0;
     };
     
@@ -1261,7 +1386,8 @@ function Addonmultiplegap_create(){
         return Commands.dispatch(commands, name, params, presenter);
     };
     
-    presenter.onEventReceived = function(eventName) {
+    presenter.onEventReceived = function(eventName, eventData) {
+
         if (eventName == 'PageLoaded') {
             presenter.pageLoadedDeferred.resolve();
         }
@@ -1272,6 +1398,27 @@ function Addonmultiplegap_create(){
         
         if (eventName == "HideAnswers" || eventName == "NotAllAttempted" || eventName == "Submitted") {
             presenter.hideAnswers();
+        }
+
+        if (eventName == "ValueChanged") {
+            if (presenter.configuration.sourceType == presenter.SOURCE_TYPES.AUDIO) {
+                presenter.$view.find(".multiaudio-item-wrapper").each(function(){
+                    var $this = $(this);
+                    if ($this.attr('data-addon-id') == eventData.source) {
+                        if ($this.attr('data-audio-id') == eventData.item) {
+                            if (eventData.value == "00:00") {
+                                $this.removeClass('playing');
+                            } else if (eventData.value == "playing") {
+                                $this.addClass('playing');
+                            }
+                        } else {
+                            if (eventData.value == "playing") {
+                                $this.removeClass('playing');
+                            }
+                        }
+                    }
+                });
+            }
         }
     };
     
@@ -1291,18 +1438,14 @@ function Addonmultiplegap_create(){
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
-        presenter.isShowAnswersActive = true;
         presenter.setWorkMode();
-        
-        presenter.tmpState = [];
-        presenter.$view.find('.placeholder').each(function(i, placeholder) {
-            presenter.tmpState.push({
-                item : $(placeholder).attr('draggableItem'),
-                value : $(placeholder).attr('draggableValue'),
-                type : $(placeholder).attr('draggableType')
-            });
-        });
-        
+
+        presenter.tmpState = getPlaceholders();
+        presenter.tmpScore = presenter.getScore();
+        presenter.tmpErrorCount = presenter.getErrorCount();
+
+        presenter.isShowAnswersActive = true;
+
         presenter.$view.find('.placeholder').remove();
         var moduleID,
           iteratedObject;

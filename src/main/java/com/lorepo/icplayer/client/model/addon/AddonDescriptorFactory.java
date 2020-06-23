@@ -42,6 +42,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Line_Number", "activities_menu");
 		addDescriptor("Line_Selection", "activities_menu");
 		addDescriptor("Math", "activities_menu");
+		addDescriptor("MathText", "activities_menu");
 		addDescriptor("multiplegap", "activities_menu");
 		addDescriptor("Paragraph", "activities_menu");
 		addDescriptor("Paragraph_Keyboard", "activities_menu");
@@ -183,5 +184,17 @@ public class AddonDescriptorFactory {
 
 	public Collection<AddonEntry> getEntries() {
 		return addonList.values();
+	}
+	
+	public void setWirisEnabled(boolean isEnabled) {
+		if (isEnabled) {
+			if (!addonList.containsKey("MathText")) {
+				addDescriptor("MathText", "activities_menu");
+			}
+		} else {
+			if (addonList.containsKey("MathText")) {
+				addonList.remove("MathText");
+			}
+		}
 	}
 }

@@ -1033,7 +1033,8 @@ function Addonvideo_create() {
     presenter.buildControlsBars = function () {
         var config = {
             videoObject: presenter.videoObject,
-            parentElement: presenter.videoContainer[0]
+            parentElement: presenter.videoContainer[0],
+            isVolumeEnabled: !MobileUtils.isSafariMobile(navigator.userAgent)
         };
 
         var controls = new window.CustomControlsBar(config);

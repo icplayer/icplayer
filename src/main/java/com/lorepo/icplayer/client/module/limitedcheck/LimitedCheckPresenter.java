@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.limitedcheck;
 import java.util.*;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icf.scripting.ICommandReceiver;
@@ -36,6 +37,8 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
         void setDisabled(boolean isDisabled);
 
         public ArrayList<IPresenter> getModulesPresenters();
+        
+        public void setChecked();
     }
 
     private LimitedCheckModule model;
@@ -130,6 +133,9 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
         HashMap<String, String> state = new HashMap<String, String>();
 
         state.put("isVisible", Boolean.toString(isVisible));
+        if (model.getMaintainState()) {
+        	state.put("isShowErrorsMode", Boolean.toString(view.isShowErrorsMode()));
+        }
 
         return json.toJSONString(state);
     }
@@ -146,6 +152,19 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
             } else {
                 hide();
             }
+        }
+        
+        if (model.getMaintainState() && decodedState.containsKey("isShowErrorsMode")) {
+        	boolean isShowErrorsMode = Boolean.parseBoolean(decodedState.get("isShowErrorsMode"));
+        	if (isShowErrorsMode) {
+        		Timer t = new Timer(){
+        			@Override
+        			public void run() {
+        				view.setChecked();
+        			}
+        		};
+        		t.schedule(0);
+        	}
         }
 
     }

@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.content.services;
 import java.util.HashMap;
 
 import com.lorepo.icf.utils.JSONUtils;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IStateService;
 
 public class StateService implements IStateService{
@@ -42,4 +43,14 @@ public class StateService implements IStateService{
 	public void resetStates() {
 		sessionState.clear();
 	}
+	
+	public void resetPageStates(IPage page) {
+		String id = page.getId();
+		for (String key: sessionState.keySet()) {
+			if (key.startsWith(id)) {
+				sessionState.remove(key);
+			}
+		}
+	}
+	
 }
