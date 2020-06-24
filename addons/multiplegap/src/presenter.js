@@ -920,7 +920,8 @@ function Addonmultiplegap_create(){
     };
     
     var getDraggedSrc = function(placeholder) {
-        if (placeholder.parents('.multiplegap_container').css("overflow") == "hidden") {
+        var isAudioGap = presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO;
+        if (placeholder.parents('.multiplegap_container').css("overflow") == "hidden" && !isAudioGap) {
             if (presenter.configuration.sourceType == presenter.SOURCE_TYPES.IMAGES) {
                 return $("[id='" + placeholder.attr('draggableitem') + "']");
             } else {
