@@ -222,6 +222,8 @@ var ice_dictionary_en = {
 	"please_wait" : "Please wait till page is saved before closing editor.",
 	"presentation_saved" : "Presentation saved.",
 	"page_saved" : "Page saved.",
+    "page_save_error": "Error occurred while saving the page",
+    "page_loading_error": "Error occurred while loading the page",
 	"saving_changes" : "Saving changes",
 	"cant_save_page" : "Can't save page: ",
 	"to_many_pages_warning" : "The Lesson has too many pages.<br />A large number of pages may cause many problems.<br />It is recommended to prepare more Lessons with fewer pages.<br /><p style='margin-top:5px'>Please see <a href='//www.mauthor.com/doc/en/page/Creating-a-new-presentation' target='_blank'>documentation</a> for more details.</p>",

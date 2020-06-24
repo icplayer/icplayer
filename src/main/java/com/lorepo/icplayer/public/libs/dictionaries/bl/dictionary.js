@@ -222,6 +222,8 @@ var ice_dictionary_bl = {
 	"please_wait" : "Страницата се запазва. Моля, не затваряйте редактора.",
 	"presentation_saved" : "Презентацията е запазена.",
 	"page_saved" : "Страницата е запазена.",
+    "page_save_error": "Error occurred while saving the page",
+    "page_loading_error": "Error occurred while loading the page",
 	"saving_changes" : "Запазване на промените",
 	"cant_save_page" : "Не може да се запази страницата: ",
 	"to_many_pages_warning" : "Урокът съдържа прекалено много страници.<br />Големият брой страници може да създаде проблеми.<br />Препоръчваме да създавате повече на брой уроци, но с по-малко страници.<br /><p style='margin-top:5px'>Моля, вижте <a href='//www.mauthor.com/doc/en/page/Creating-a-new-presentation' target='_blank'>следния линк</a> за повече информация.</p>",

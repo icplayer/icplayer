@@ -222,6 +222,8 @@ var ice_dictionary_pl = {
 	"please_wait" : "Zanim zamkniesz edytor zaczekaj, aż strona zostanie zapisana.",
 	"presentation_saved" : "Prezentacja zapisana.",
 	"page_saved" : "Strona zapisana.",
+	"page_save_error": "Error occurred while saving the page",
+    "page_loading_error": "Error occurred while loading the page",
 	"to_many_pages_warning" : "Lekcja zawiera zbyt wiele stron.<br />Duża liczba stron może powodować problemy .<br />Zaleca się przygotowywanie lekcji z mniejszą liczbą stron.<br />Aby uzyskać więcej szczegółów, proszę zapoznać się z dokumentacją <a href='//www.mauthor.com/doc/en/page/Creating-a-new-presentation' target='_blank'></a>.",
 	"saving_changes" : "Zapisywanie zmian",
 	"cant_save_page" : "Nie można zapisać strony: ",
