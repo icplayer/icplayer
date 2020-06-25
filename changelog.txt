@@ -1,3 +1,4 @@
+2020-06-20 Add checking if gap is audio gap
 2020-06-19 Add getresponseindex to commands in Feedback addon
 2020-06-17 Fix page weight in utils.
 2020-06-08 Added checking if event item is null in MultiAudio
