@@ -78,7 +78,7 @@
                     paginatedResults[count] = {
                         "page_number": (i + 1),
                         "page_name": page.getName(),
-                        "score": Math.floor(pageScaledScore * 100) / 100,
+                        "score": Math.round(pageScaledScore * 100) / 100,
                         "absolute_score": score['score'],
                         "max_score": score['maxScore'],
                         "errors_count": score['errorCount'] ? score['errorCount'] : 0,
@@ -94,7 +94,7 @@
             var scaledScore = 0;
             if (count > 0) {
                 if (sumOfWeights) {
-                    scaledScore = Math.floor((sumOfScaledScore / sumOfWeights) * 100) / 100;
+                    scaledScore = Math.round((sumOfScaledScore / sumOfWeights) * 100) / 100;
                 } else {
                     scaledScore = 1;
                 }
