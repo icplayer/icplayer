@@ -5,7 +5,8 @@ function AddonAdaptive_Next_create() {
 
     presenter.CONSTANTS = {
         NEXT_IMAGE: 'baseline-navigate_next-24px.svg',
-        PREV_IMAGE: 'baseline-navigate_before-24px.svg'
+        PREV_IMAGE: 'baseline-navigate_before-24px.svg',
+        DISABLED_CLASS: 'adaptive-next-button-element-disabled'
     };
 
     presenter.BUTTON_TYPE = {
@@ -32,7 +33,6 @@ function AddonAdaptive_Next_create() {
         }
 
         if (presenter.state.isDisabled) return;
-        if (presenter.state.isErrorMode) return;
 
         presenter.triggerButtonClickedEvent();
     };
@@ -277,10 +277,10 @@ function AddonAdaptive_Next_create() {
 
     presenter.toggleDisable = function(disable) {
         var element = presenter.$view.find('div[class*=adaptive-next-button-element]:first');
-        if(disable) {
-            element.addClass("disable");
+        if (disable) {
+            element.addClass(presenter.CONSTANTS.DISABLED_CLASS);
         } else {
-            element.removeClass("disable");
+            element.removeClass(presenter.CONSTANTS.DISABLED_CLASS);
         }
         presenter.state.isDisabled = disable;
     };

@@ -2049,5 +2049,7 @@ var ice_dictionary_en = {
 	"Cross_Lesson_property_lesson_id": "Defined lesson id",
 	"Cross_Lesson_property_course_id": "Course id",
 	"Cross_Lesson_property_page": "Page",
-	"Cross_Lesson_property_type": "Type"
+	"Cross_Lesson_property_type": "Type",
+	"Adaptive_next_name": "Adaptive next",
+    "Adaptive_next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor."
 };
