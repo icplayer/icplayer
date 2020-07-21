@@ -1,3 +1,4 @@
+2020-07-21 Changed icon of YouTube addon
 2020-06-26 Changed the way lesson score is rounded
 2020-06-20 Add checking if gap is audio gap
 2020-06-19 Add getresponseindex to commands in Feedback addon
