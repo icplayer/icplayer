@@ -4,12 +4,16 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.*;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
+import com.lorepo.icplayer.client.module.Printable;
+import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 
@@ -19,7 +23,7 @@ import java.util.List;
 // in old lessons some characters aren't escaped (e.g: > or <), in new lessons they are
 // only after editing and saving text in old lessons characters will be escaped
 
-public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
+public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
 	public static final int NUMBER_INDEX = 0;
 	public static final int GAP_INDEX = 1;
 	public static final int DROPDOWN_INDEX = 2;
@@ -52,6 +56,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	public String rawText;
 	public String gapUniqueId = "";
 	private String valueType = "All";
+	private String printableValue = "No";
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
@@ -64,6 +69,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	final static String GAP_SIZE_CALCULATION_STYLE_LABEL = "text_module_gap_size_calculation";
 	final static String ALL_CHARACTES_CALCULATION_STYLE = "text_module_gap_calculation_all_characters_method"; // old method
 	final static String LONGEST_ANSWER_CALCULATION_STYLE = "text_module_gap_calculation_longest_answer_method"; // new method
+	
 	
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
@@ -88,6 +94,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 		addPropertySpeechTexts();
 		addPropertyLangAttribute();
 		addPropertyGapSizeCalculationMethod();
+		addPropertyPrintable();
 	}
 
 	@Override
@@ -145,6 +152,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 				userActionEvents = XMLUtils.getAttributeAsBoolean(textElement, "userActionEvents", false);
 				useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
 				langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
+				printableValue = XMLUtils.getAttributeAsString(textElement, "printable");
 				allCharactersGapSizeStyle = XMLUtils.getAttributeAsBoolean(textElement, "allAnswersGapSizeCalculationStyle", true);
 				this.speechTextItems.get(TextModel.NUMBER_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "number"));
 				this.speechTextItems.get(TextModel.GAP_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "gap"));
@@ -161,6 +169,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 
 				defaultModuleText = rawText;
 				setText(rawText);
+				
 			}
 		}
 	}
@@ -234,6 +243,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 			text.setAttribute("langAttribute", this.langAttribute);
 		}
 		text.setAttribute("valueType", this.valueType);
+		text.setAttribute("printable", printableValue);
 		text.setAttribute("number", this.speechTextItems.get(TextModel.NUMBER_INDEX).getText());
 		text.setAttribute("gap", this.speechTextItems.get(TextModel.GAP_INDEX).getText());
 		text.setAttribute("dropdown", this.speechTextItems.get(TextModel.DROPDOWN_INDEX).getText());
@@ -1054,6 +1064,48 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 
 		addProperty(property);
 	}
+	
+	private void addPropertyPrintable() {
+		IProperty property = new IEnumSetProperty() {
+
+			@Override
+			public void setValue(String newValue) {	
+				printableValue = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return printableValue;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return 3;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				return Printable.getStringValues(index);
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
 
 	public boolean isDisabled() {
 		return isDisabled;
@@ -1166,5 +1218,25 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel {
 	
 	public boolean hasSyntaxError () {
 		return syntaxError;
+	}
+	
+	public PrintableMode getPrintable() {
+		return Printable.getPrintableModeFromString(printableValue);
+	}
+
+	@Override
+	public String getPrintableHTML(boolean showAnswers) {
+		if (getPrintable() == PrintableMode.NO) {
+			return null;
+		}
+		TextParser parser = new TextParser();
+		String result = parser.parseForPrinter(rawText, showAnswers);
+		result = "<div class=\"ic_text\" id=\"" + getId() +"\">" + result + "</div>";	
+		return result;
+	}
+
+	@Override
+	public PrintableMode getPrintableMode() {
+		return getPrintable();
 	}
 }

@@ -12,6 +12,7 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -544,7 +545,12 @@ public class PlayerApp {
 		this.loadActualLayoutCSSStyles();
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
-		loader.setDefaultLayoutID(contentModel.getActualSemiResponsiveLayoutID());
+		
+		JavaScriptUtils.log("init");
+		JavaScriptUtils.log(contentModel.getActualSemiResponsiveLayouts().toArray());
+		
+		changeLayout("4B71F920-B5A7-45D1-9C94-A02E49BDBC30");
+		
 
 		loader.addAddons(contentModel.getAddonDescriptors().values());
 
@@ -726,15 +732,22 @@ public class PlayerApp {
 	}
 
 	public boolean changeLayout(String layoutID) {
+		JavaScriptUtils.log("change layout app");
 		boolean isLayoutChanged = false;
 		boolean isAble = this.playerController.getPlayerServices().isAbleChangeLayout();
 		this.lastSentLayoutID = layoutID;
 		if (isAble) {
 			isLayoutChanged = this.contentModel.setActualLayoutID(layoutID);
+			JavaScriptUtils.log(isLayoutChanged);
 			if (isLayoutChanged) {
 				this.loadActualLayoutCSSStyles();
 				int pageIndex = this.playerController.getCurrentPageIndex();
+				JavaScriptUtils.log(pageIndex);
+				if (pageIndex < 0) {
+					pageIndex = startPageIndex;
+				}
 				this.playerController.switchToPage(pageIndex);
+				JavaScriptUtils.log("switched");
 			}
 		}
 		return isLayoutChanged;

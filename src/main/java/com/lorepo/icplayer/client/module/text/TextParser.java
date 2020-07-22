@@ -1,9 +1,11 @@
 package com.lorepo.icplayer.client.module.text;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
@@ -118,6 +120,7 @@ public class TextParser {
 		}
 
 		parserResult.hasSyntaxError = hasSyntaxError;
+		
 		return parserResult;
 	}
 
@@ -1127,6 +1130,76 @@ public class TextParser {
 	
 	public void setIsNumericOnly(boolean isNumericOnly) {
 		this.isNumericOnly = isNumericOnly;
+	}
+	
+	public String parseForPrinter (String srcText, boolean showAnswers) {
+		ParserResult parserResult = parse(srcText);	
+		String parsedText = parserResult.parsedText;
+		
+		HTML html = new HTML(parsedText);
+		
+		// Convert all inputs with initial text to a printer friendly format
+		NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
+		for (int i = 0; i < inputs.getLength(); i++) {
+			Element input = inputs.getItem(i);
+			String oldValue = input.getString();
+			
+			if (showAnswers) {
+				GapInfo gapInfo = parserResult.gapInfos.get(i);
+				Iterator<String> answers = gapInfo.getAnswers();
+				String value = "";
+				do {
+					value += answers.next();
+					if (answers.hasNext()) {
+						value += ", ";
+					}
+				} while(answers.hasNext());	
+				input.setAttribute("value", value);
+				input.setAttribute("size", Integer.toString(value.length()));
+			}
+			
+			String placeholder = input.getAttribute("placeholder");
+			if(placeholder.length() > 0) {
+				input.setAttribute("placeholder", "");
+			}
+			
+			String newValue = input.getString();
+			
+			if (placeholder.length() > 0) {
+				newValue += "(" + placeholder + ")";
+			}
+			
+			parsedText = parsedText.replace(oldValue, newValue);
+		}
+		
+		// Convert all dropdowns to a printer-friendly format
+		NodeList<Element> selects = html.getElement().getElementsByTagName("select");
+		for (int i = 0; i < selects.getLength(); i++) {
+			Element select = selects.getItem(i);
+			NodeList<Element> options = select.getElementsByTagName("option");
+			
+			String values = "[";
+			for (int j = 0; j < options.getLength(); j++) {
+				Element option = options.getItem(j);
+				String value = option.getInnerText();
+				if (!value.equals("---")) {
+					if (showAnswers) {
+						InlineChoiceInfo choiceInfo = parserResult.choiceInfos.get(i);
+						if (choiceInfo.getAnswer().equals(value)) {
+							value = "<u>" + value + "</u>";
+						}
+					}
+					values += value;
+					if (j + 1 != options.getLength()) {
+						values += " \\ ";
+					}
+				}
+			}
+			values += "]";
+			parsedText = parsedText.replace(select.getString(), values);
+		}
+		
+		return parsedText;
 	}
 
 }

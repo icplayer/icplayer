@@ -2026,5 +2026,9 @@ var ice_dictionary_mx = {
 	"Cross_Lesson_property_lesson_id": "Defined lesson id",
 	"Cross_Lesson_property_course_id": "Course id",
 	"Cross_Lesson_property_page": "Page",
-	"Cross_Lesson_property_type": "Type"
+	"Cross_Lesson_property_type": "Type",
+	"printable_name_label": "Printable",
+	"printable_mode_no": "No",
+	"printable_mode_yes": "Yes, don't randomize",
+	"printable_mode_yes_random": "Yes, randomize"
 };
