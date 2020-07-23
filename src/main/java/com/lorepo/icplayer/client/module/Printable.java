@@ -48,18 +48,18 @@ public final class Printable {
 		if (index == 0){
 			return "No";
 		} else if (index == 1) {
-			return "Yes, don't randomize";
+			return "Don't randomize";
 		} else if (index == 2) {
-			return "Yes, randomize";
+			return "Randomize";
 		} else {
 			return null;
 		}
 	}
 	
 	public static PrintableMode getPrintableModeFromString(String value) {
-		if (value.equals("Yes, don't randomize")){
+		if (value.equals("Don't randomize")){
 			return PrintableMode.YES;
-		} else if (value.equals("Yes, randomize")) {
+		} else if (value.equals("Randomize")) {
 			return PrintableMode.YES_RANDOM;
 		} else {
 			return PrintableMode.NO;

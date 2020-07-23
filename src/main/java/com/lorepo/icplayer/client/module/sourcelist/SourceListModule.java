@@ -10,7 +10,6 @@ import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.IStringListProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;

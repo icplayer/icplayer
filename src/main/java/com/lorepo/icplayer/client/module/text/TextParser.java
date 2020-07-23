@@ -5,7 +5,6 @@ import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
@@ -120,7 +119,6 @@ public class TextParser {
 		}
 
 		parserResult.hasSyntaxError = hasSyntaxError;
-		
 		return parserResult;
 	}
 

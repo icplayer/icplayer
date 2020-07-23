@@ -11,6 +11,7 @@
 		<property name="Choices" nameLabel="TrueFalse_property_choices" type="list">
 			<property name="Choice" nameLabel="TrueFalse_property_choice" type="html" isLocalized="true" />
 		</property>
+		<property name="printable" nameLabel="printable_name_label" type="{No, Randomize, Don't randomize}" />
 		<property name="Lang attribute" nameLabel="TrueFalse_property_lang_attribute" type="string" />
 		<property name="Speech texts" nameLabel="TrueFalse_property_speech_texts" type="staticlist">
 			<property name="Selected" displayName="selected" type="staticrow">

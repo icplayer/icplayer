@@ -36,6 +36,7 @@
         <property name="Show answers line color" nameLabel="Connection_property_show_answers_line_color" type="string" />
         <property name="blockWrongAnswers" displayName="Block wrong answers" nameLabel="Connection_property_block_wrong_answers" type="boolean" />
         <property name="removeDraggedElement" displayName="Remove dragged element" nameLabel="Connection_property_remove_dragged_element" type="boolean" />
+        <property name="printable" nameLabel="printable_name_label" type="{No, Randomize, Don't randomize}" />
 
         <property name="langAttribute" displayName="Lang attribute" nameLabel="Connection_property_lang_attribute" type="string" />
         <property name="speechTexts" displayName="Speech texts" nameLabel="Connection_property_speech_texts" type="staticlist">

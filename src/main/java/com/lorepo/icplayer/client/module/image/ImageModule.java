@@ -12,7 +12,6 @@ import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
 import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
@@ -83,7 +82,6 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, I
 				}
 			}
 		}
-		JavaScriptUtils.log(getPrintableHTML(true));
 	}
 	
 

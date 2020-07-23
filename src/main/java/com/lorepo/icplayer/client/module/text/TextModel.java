@@ -4,7 +4,6 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.*;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
@@ -57,6 +56,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	public String gapUniqueId = "";
 	private String valueType = "All";
 	private String printableValue = "No";
+	private boolean isSection = false;
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
@@ -69,8 +69,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	final static String GAP_SIZE_CALCULATION_STYLE_LABEL = "text_module_gap_size_calculation";
 	final static String ALL_CHARACTES_CALCULATION_STYLE = "text_module_gap_calculation_all_characters_method"; // old method
 	final static String LONGEST_ANSWER_CALCULATION_STYLE = "text_module_gap_calculation_longest_answer_method"; // new method
-	
-	
+
 	public TextModel() {
 		super("Text", DictionaryWrapper.get("text_module"));
 		gapUniqueId = UUID.uuid(6);
@@ -95,6 +94,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		addPropertyLangAttribute();
 		addPropertyGapSizeCalculationMethod();
 		addPropertyPrintable();
+		addPropertyIsSection();
 	}
 
 	@Override
@@ -153,6 +153,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 				useEscapeCharacterInGap = XMLUtils.getAttributeAsBoolean(textElement, "useEscapeCharacterInGap", false);
 				langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
 				printableValue = XMLUtils.getAttributeAsString(textElement, "printable");
+				isSection = XMLUtils.getAttributeAsBoolean(textElement, "isSection", false);
 				allCharactersGapSizeStyle = XMLUtils.getAttributeAsBoolean(textElement, "allAnswersGapSizeCalculationStyle", true);
 				this.speechTextItems.get(TextModel.NUMBER_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "number"));
 				this.speechTextItems.get(TextModel.GAP_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "gap"));
@@ -169,7 +170,6 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 
 				defaultModuleText = rawText;
 				setText(rawText);
-				
 			}
 		}
 	}
@@ -232,6 +232,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		XMLUtils.setBooleanAttribute(text, "isKeepOriginalOrder", this.isKeepOriginalOrder);
 		XMLUtils.setBooleanAttribute(text, "isClearPlaceholderOnFocus", this.isClearPlaceholderOnFocus);
 		XMLUtils.setBooleanAttribute(text, "isDisabled", this.isDisabled);
+		XMLUtils.setBooleanAttribute(text, "isSection", this.isSection);
 		XMLUtils.setBooleanAttribute(text, "isCaseSensitive", this.isCaseSensitive);
 		XMLUtils.setBooleanAttribute(text, "useNumericKeyboard", this.useNumericKeyboard);
 		XMLUtils.setBooleanAttribute(text, "openLinksinNewTab", this.openLinksinNewTab);
@@ -1238,5 +1239,47 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	@Override
 	public PrintableMode getPrintableMode() {
 		return getPrintable();
+	}
+	
+	private void addPropertyIsSection() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isSection) {
+					isSection = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return isDisabled ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("printable_is_section");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("printable_is_section");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public boolean isSection() {
+		return isSection;
 	}
 }

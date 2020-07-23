@@ -545,12 +545,7 @@ public class PlayerApp {
 		this.loadActualLayoutCSSStyles();
 
 		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
-		
-		JavaScriptUtils.log("init");
-		JavaScriptUtils.log(contentModel.getActualSemiResponsiveLayouts().toArray());
-		
-		changeLayout("4B71F920-B5A7-45D1-9C94-A02E49BDBC30");
-		
+		loader.setDefaultLayoutID(contentModel.getActualSemiResponsiveLayoutID());
 
 		loader.addAddons(contentModel.getAddonDescriptors().values());
 
@@ -732,22 +727,15 @@ public class PlayerApp {
 	}
 
 	public boolean changeLayout(String layoutID) {
-		JavaScriptUtils.log("change layout app");
 		boolean isLayoutChanged = false;
 		boolean isAble = this.playerController.getPlayerServices().isAbleChangeLayout();
 		this.lastSentLayoutID = layoutID;
 		if (isAble) {
 			isLayoutChanged = this.contentModel.setActualLayoutID(layoutID);
-			JavaScriptUtils.log(isLayoutChanged);
 			if (isLayoutChanged) {
 				this.loadActualLayoutCSSStyles();
 				int pageIndex = this.playerController.getCurrentPageIndex();
-				JavaScriptUtils.log(pageIndex);
-				if (pageIndex < 0) {
-					pageIndex = startPageIndex;
-				}
 				this.playerController.switchToPage(pageIndex);
-				JavaScriptUtils.log("switched");
 			}
 		}
 		return isLayoutChanged;
