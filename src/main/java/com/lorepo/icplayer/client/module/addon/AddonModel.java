@@ -3,15 +3,33 @@ package com.lorepo.icplayer.client.module.addon;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.properties.IAudioProperty;
+import com.lorepo.icf.properties.IEditableSelectProperty;
+import com.lorepo.icf.properties.IFileProperty;
+import com.lorepo.icf.properties.IHtmlProperty;
+import com.lorepo.icf.properties.IImageProperty;
+import com.lorepo.icf.properties.IListProperty;
+import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
+import com.lorepo.icf.properties.IStaticRowProperty;
+import com.lorepo.icf.properties.IVideoProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IPrintableModuleModel;
+import com.lorepo.icplayer.client.module.Printable;
+import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.addon.param.AddonParamFactory;
 import com.lorepo.icplayer.client.module.addon.param.IAddonParam;
 
-public class AddonModel extends BasicModuleModel {
+public class AddonModel extends BasicModuleModel implements IPrintableModuleModel {
 
 	private String addonId;
 	private ArrayList<IAddonParam>	addonParams = new ArrayList<IAddonParam>();
@@ -140,4 +158,136 @@ public class AddonModel extends BasicModuleModel {
 	public List<IAddonParam> getParams(){
 		return addonParams;
 	}
+
+	@Override
+	public String getPrintableHTML(boolean showAnswers) {
+		if (getPrintableMode() == PrintableMode.NO) return null;
+		
+		String addonName = "Addon" + getAddonId() + "_create";
+		JavaScriptObject jsModel = createJsModel(this);
+		
+		return getPrintableHTML(addonName, jsModel, showAnswers);
+	}
+	
+	private native String getPrintableHTML(String addonName, JavaScriptObject model, boolean showAnswers) /*-{
+		if($wnd.window[addonName] == null){
+			return null;
+		}
+		var presenter = $wnd.window[addonName]();
+		
+		if (!presenter.hasOwnProperty("getPrintableHTML")) {
+			return null;
+		}
+		
+		return presenter.getPrintableHTML(model, showAnswers);
+	}-*/;
+
+	@Override
+	public PrintableMode getPrintableMode() {
+		for (IAddonParam addonParam: addonParams) {
+			if(addonParam.getName().equals("printable")) {
+				IProperty prop = addonParam.getAsProperty();
+				return Printable.getPrintableModeFromString(prop.getValue());
+			}
+		}
+		return PrintableMode.NO;
+	}
+	
+	@Override
+	public boolean isSection() {
+		JavaScriptUtils.log("Addon Model is section");
+		JavaScriptUtils.log(addonId);
+		for (IAddonParam addonParam: addonParams) {
+			if(addonParam.getName().equals("isSection")) {
+				JavaScriptUtils.log(addonParam.getAsProperty().getValue());
+				JavaScriptUtils.log(addonParam.getAsProperty().getValue().equals("True"));
+				return addonParam.getAsProperty().getValue().equals("True");
+			}
+		}
+		return false;
+	}
+	
+	public JavaScriptObject createJsModel(IPropertyProvider provider) {
+
+		JavaScriptObject jsModel = JavaScriptObject.createArray();
+		for(int i=0; i < provider.getPropertyCount(); i++){
+			IProperty property = provider.getProperty(i);
+			if(property instanceof IListProperty){
+				IListProperty listProperty = (IListProperty) property;
+				JavaScriptObject listModel = JavaScriptObject.createArray();
+				for(int j = 0; j < listProperty.getChildrenCount(); j++){
+					JavaScriptObject providerModel = createJsModel(listProperty.getChild(j));
+					addToJSArray(listModel, providerModel);
+				}
+				addPropertyToJSObject(jsModel, property.getName(), listModel);
+			} else if (property instanceof IStaticListProperty) {
+				IStaticListProperty listProperty = (IStaticListProperty) property;
+				JavaScriptObject listModel = JavaScriptObject.createObject();
+				for(int j = 0; j < listProperty.getChildrenCount(); j++){
+					IPropertyProvider child = listProperty.getChild(j);
+					JavaScriptObject childModel = createJsModel(child);
+					String name = this.getStringFromJSObject(childModel, "name");
+					JavaScriptObject object = this.getObjectFromJSObject(childModel, "value");
+					this.addPropertyToJSObject(listModel, name, object);
+				}
+				addPropertyToJSObject(jsModel, property.getName(), listModel);
+			} else if (property instanceof IStaticRowProperty) {
+				jsModel = JavaScriptObject.createObject();
+				IStaticRowProperty listProperty = (IStaticRowProperty) property;
+				JavaScriptObject listModel = JavaScriptObject.createObject();
+				for(int j = 0; j < listProperty.getChildrenCount(); j++){
+					if (listProperty.getChild(j).getPropertyCount() > 0) {
+						addPropertyToModel(listModel,listProperty.getChild(j).getProperty(0));
+					}
+				}
+				addPropertyToJSObject(jsModel, "value", listModel);
+				addPropertyToJSObject(jsModel, "name", property.getName());
+			} else if (property instanceof IEditableSelectProperty) {
+				IEditableSelectProperty castedProperty = (IEditableSelectProperty)property;
+				JavaScriptObject editableSelectModel = JavaScriptObject.createObject();
+				addPropertyToJSObject(editableSelectModel, "value", castedProperty.getChild(castedProperty.getSelectedIndex()).getValue());
+				addPropertyToJSObject(editableSelectModel, "name", castedProperty.getChild(castedProperty.getSelectedIndex()).getName());
+				addPropertyToJSObject(jsModel, property.getName(), editableSelectModel);
+			} else{
+				addPropertyToModel(jsModel, property);
+			}
+		}
+		return jsModel;
+	}
+	
+	private void addPropertyToModel(JavaScriptObject jsModel, IProperty property){
+		String value = property.getValue();
+		
+		if(	property instanceof IAudioProperty || 
+			property instanceof IImageProperty ||
+			property instanceof IVideoProperty ||
+			property instanceof IFileProperty)
+		{
+			value = URLUtils.resolveURL(this.getBaseURL(), value);
+		}
+		else if(property instanceof IHtmlProperty){
+			value = StringUtils.updateLinks(value, this.getBaseURL());
+		}
+		addPropertyToJSObject(jsModel, property.getName(), value);
+	}
+	
+	private native String getStringFromJSObject (JavaScriptObject model, String name)  /*-{
+		return model[name];
+	}-*/; 
+	
+	private native JavaScriptObject getObjectFromJSObject (JavaScriptObject model, String name)  /*-{
+		return model[name];
+	}-*/;
+	
+	private native void addPropertyToJSObject(JavaScriptObject model, String name, String value)  /*-{
+		model[name] = value;
+	}-*/; 
+	
+	private native void addPropertyToJSObject(JavaScriptObject model, String name, JavaScriptObject obj)  /*-{
+		model[name] = obj;
+	}-*/; 
+	
+	private native void addToJSArray(JavaScriptObject model, JavaScriptObject obj)  /*-{
+		model.push(obj);
+	}-*/; 
 }

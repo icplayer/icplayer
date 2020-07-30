@@ -1,9 +1,12 @@
 package com.lorepo.icplayer.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JSONUtils;
@@ -12,8 +15,13 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
+import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Page;
+import com.lorepo.icplayer.client.model.page.PageList;
+import com.lorepo.icplayer.client.module.IPrintableModuleModel;
+import com.lorepo.icplayer.client.module.Printable.PrintableMode;
+import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
@@ -21,6 +29,7 @@ import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
 import com.lorepo.icplayer.client.xml.content.ContentFactory;
+import com.lorepo.icplayer.client.xml.page.PageFactory;
 
 public class PlayerApp {
 
@@ -749,4 +758,108 @@ public class PlayerApp {
 		String layoutID = this.contentModel.getLayoutIDByName(layoutName);
 		return this.changeLayout(layoutID);
 	}
+	
+	private void randomizePrintables(List<IPrintableModuleModel> printables) {
+		int startIndex = 0;
+		for (int i = 0; i < printables.size(); i++) {
+			IPrintableModuleModel printable = printables.get(i);
+			if (printable.isSection() && i > startIndex) {
+				randomizePrintableSection(printables, startIndex, i-1);
+				startIndex = i;
+			}
+		}
+		randomizePrintableSection(printables, startIndex, printables.size()-1);
+	}
+	
+	private void randomizePrintableSection(List<IPrintableModuleModel> printables, int startIndex, int endIndex) {
+		if (startIndex >= endIndex) return;
+		List<IPrintableModuleModel> randomizable = new ArrayList<IPrintableModuleModel>();
+		for (int i = startIndex; i <= endIndex; i++) {
+			IPrintableModuleModel printable = printables.get(i);
+			if (printable.getPrintableMode() == PrintableMode.YES_RANDOM) {
+				randomizable.add(printable);
+			}
+		}
+		
+		for(int index = 0; index < randomizable.size(); index += 1) {  
+		    Collections.swap(randomizable, index, index + Random.nextInt(randomizable.size() - index));  
+		}
+		
+		int randomizableIndex = 0;
+		for (int i = startIndex; i <= endIndex; i++) {
+			IPrintableModuleModel printable = printables.get(i);
+			if (printable.getPrintableMode() == PrintableMode.YES_RANDOM) {
+				printables.set(i, randomizable.get(randomizableIndex));
+				randomizableIndex++;
+			}
+		}
+	}
+	
+	public String generatePrintableHTML(boolean showAnswers) {
+		String result = "<div>";
+		
+		List<Page> pages = contentModel.getPages().getAllPages();
+		List<IPrintableModuleModel> printables = new ArrayList<IPrintableModuleModel>();
+		
+		for (Page page: pages) {
+			List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
+			ModuleList modules = page.getModules();
+			for (int i = 0; i < modules.size(); i++) {
+				IModuleModel model = modules.get(i);
+				if (model instanceof IPrintableModuleModel) {
+					IPrintableModuleModel printable = (IPrintableModuleModel) model;
+					if (printable.getPrintableMode() != PrintableMode.NO) {
+						pagePrintables.add(printable);
+					}
+				}
+			}
+			Collections.reverse(pagePrintables);
+			randomizePrintables(pagePrintables);
+			printables.addAll(pagePrintables);
+		}
+		
+		for (IPrintableModuleModel printable: printables) {
+			result += printable.getPrintableHTML(showAnswers);
+		}
+		
+		result += "</div>";
+		return result;
+	};
+	
+	public void preloadAllPages(final ILoadListener listener) {
+		List<Page> pages = contentModel.getPages().getAllPages();
+		boolean allPagesLoaded = true;
+		for (Page page: pages) {
+			if (!page.isLoaded()) {
+				allPagesLoaded = false;
+				String baseUrl = contentModel.getBaseUrl();
+				String url = URLUtils.resolveURL(baseUrl, page.getHref());
+				PageFactory factory = new PageFactory((Page) page);
+				factory.load(url, new IProducingLoadingListener() {
+					@Override
+					public void onFinishedLoading(Object producedItem) {
+						List<Page> pages = contentModel.getPages().getAllPages();
+						boolean allPagesLoaded = true;
+						for(Page p: pages) {
+							if (!p.isLoaded()) {
+								allPagesLoaded = false;
+								break;
+							}
+						}
+						if (allPagesLoaded) {
+							listener.onFinishedLoading("All pages have been loaded!");
+						}
+					}
+
+					@Override
+					public void onError(String error) {
+						listener.onError(error);
+					}
+				});
+			}
+		}
+		if (allPagesLoaded) {
+			listener.onFinishedLoading("All pages have been loaded!");
+		}
+	};
 }

@@ -7,4 +7,6 @@ public interface IPrintableModuleModel {
 	String getPrintableHTML(boolean showAnswers);
 	
 	PrintableMode getPrintableMode();
+	
+	boolean isSection();
 }

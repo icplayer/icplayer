@@ -1892,5 +1892,78 @@ function AddonConnection_create() {
     presenter.__internal__ = {
         Line: Line
     };
+
+    function drawSVGLine(svg, leftID, rightID, model) {
+        var leftSize = model["Left column"].length;
+        var rightSize = model["Right column"].length;
+        var leftIndex = 0;
+        var rightIndex = 0;
+        for (var i = 0; i < presenter.elements.length; i++) {
+            if (presenter.elements[i].id == leftID) {
+                leftIndex = i;
+            } else if (presenter.elements[i].id == rightID) {
+                rightIndex = i - leftSize;
+            }
+        }
+        var leftY = Math.floor((leftIndex + 0.5) * 100/leftSize)+"%";
+        var rightY = Math.floor((rightIndex + 0.5) * 100/rightSize)+"%";
+
+        var $line = $("<line x1=\"0\" x2=\"100%\" style=\"stroke:rgb(0,0,0);stroke-width:1\" />");
+        $line.attr('y1',leftY);
+        $line.attr('y2',rightY);
+        svg.append($line);
+
+    }
+
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        model = presenter.upgradeModel(model);
+        console.log(model);
+
+        var $root = $("<div></div>")
+        $root.attr('id', model.ID);
+        $root.addClass('addon_Connection');
+        $root.css("max-width", model["Width"]+"px");
+        $root.css("min-height", model["Height"]+"px");
+        $root.html('<table class="connectionContainer">' +
+            '    <tr>' +
+            '        <td class="connectionLeftColumn">' +
+            '            <table class="content"></table>' +
+            '        </td>' +
+            '        <td class="connectionMiddleColumn">' +
+            '            <svg class="connections"></svg>' +
+            '        </td>' +
+            '        <td class="connectionRightColumn">' +
+            '            <table class="content"></table>' +
+            '        </td>' +
+            '    </tr>' +
+            '</table>');
+
+        var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
+        var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
+        if (!isRandomLeft) {
+            this.loadElements($root[0], model, 'connectionLeftColumn', 'Left column', false);
+        } else {
+            this.loadRandomElementsLeft($root[0], model, 'connectionLeftColumn', 'Left column', false);
+        }
+        if (!isRandomRight) {
+            this.loadElements($root[0], model, 'connectionRightColumn', 'Right column', true);
+        } else {
+            this.loadRandomElementsRight($root[0], model, 'connectionRightColumn', 'Right column', true);
+        }
+
+        if (showAnswers) {
+            var connections = $root.find('svg');
+            console.log(presenter.elements);
+            for (var i = 0; i < model["Left column"].length; i++) {
+                var element = presenter.elements[i];
+                if (element.connects) {
+                    drawSVGLine(connections, element.id,element.connects, model);
+                }
+            }
+        }
+
+        return $root[0].outerHTML;
+    };
+
     return presenter;
 }

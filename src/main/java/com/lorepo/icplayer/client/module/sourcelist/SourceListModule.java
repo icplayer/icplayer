@@ -487,5 +487,10 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 	public PrintableMode getPrintableMode() {
 		return getPrintable();
 	}
+
+	@Override
+	public boolean isSection() {
+		return false;
+	}
 	
 }
