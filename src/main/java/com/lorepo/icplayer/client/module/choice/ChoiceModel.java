@@ -123,7 +123,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 			option.load(element, this.getBaseURL());
 			addOption(option);
 		}
-		
+
 	}
 
 	/**
@@ -658,30 +658,32 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	public PrintableMode getPrintable() {
 		return Printable.getPrintableModeFromString(printableValue);
 	}
+	
+	private String createPrintableOption(ChoiceOption option, boolean showAnswers) {
+		String optionHTML = "";
+		if (showAnswers && option.getValue() > 0) {
+			optionHTML += "<div>";
+			optionHTML += "<input type=\"checkbox\" checked> ";
+			optionHTML += option.getText();
+			optionHTML += " (" + Integer.toString(option.getValue()) + ")";
+			optionHTML += "</div>";
+		} else {
+			optionHTML += "<div>";
+			optionHTML += "<input type=\"checkbox\"> ";
+			optionHTML += option.getText();
+			optionHTML += "</div>";
+		}
+		return optionHTML;
+	}
 
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
 		if (getPrintable() == PrintableMode.NO) return null;
 		
 		List<String> optionHTMLs = new ArrayList<String>();
-		for (int i = 0; i < options.size(); i++) {
-			ChoiceOption option = options.get(i);
-			if (showAnswers && option.getValue() > 0) {
-				String optionHTML = "";
-				optionHTML += "<div>";
-				optionHTML += "<input type=\"checkbox\" checked> ";
-				optionHTML += option.getText();
-				optionHTML += " (" + Integer.toString(option.getValue()) + ")";
-				optionHTML += "</div>";
-				optionHTMLs.add(optionHTML);
-			} else {
-				String optionHTML = "";
-				optionHTML += "<div>";
-				optionHTML += "<input type=\"checkbox\"> ";
-				optionHTML += option.getText();
-				optionHTML += "</div>";
-				optionHTMLs.add(optionHTML);
-			}
+		for (ChoiceOption option: options) {
+			String optionHTML = createPrintableOption(option, showAnswers);
+			optionHTMLs.add(optionHTML);
 		}
 		
 		if (isRandomOrder()) {
