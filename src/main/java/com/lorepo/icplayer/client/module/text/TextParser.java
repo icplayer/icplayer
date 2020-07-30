@@ -1130,13 +1130,9 @@ public class TextParser {
 		this.isNumericOnly = isNumericOnly;
 	}
 	
-	public String parseForPrinter (String srcText, boolean showAnswers) {
-		ParserResult parserResult = parse(srcText);	
-		String parsedText = parserResult.parsedText;
-		
+	private String makePrintableInput(String parsedText, boolean showAnswers) {
 		HTML html = new HTML(parsedText);
 		
-		// Convert all inputs with initial text to a printer friendly format
 		NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
 		for (int i = 0; i < inputs.getLength(); i++) {
 			Element input = inputs.getItem(i);
@@ -1170,7 +1166,12 @@ public class TextParser {
 			parsedText = parsedText.replace(oldValue, newValue);
 		}
 		
-		// Convert all dropdowns to a printer-friendly format
+		return parsedText;
+	}
+	
+	private String makePrintableDropdowns(String parsedText, boolean showAnswers) {
+		HTML html = new HTML(parsedText);
+		
 		NodeList<Element> selects = html.getElement().getElementsByTagName("select");
 		for (int i = 0; i < selects.getLength(); i++) {
 			Element select = selects.getItem(i);
@@ -1196,6 +1197,18 @@ public class TextParser {
 			values += "]";
 			parsedText = parsedText.replace(select.getString(), values);
 		}
+		return parsedText;
+	}
+	
+	public String parseForPrinter (String srcText, boolean showAnswers) {
+		ParserResult parserResult = parse(srcText);	
+		String parsedText = parserResult.parsedText;
+		
+		// Convert all inputs with initial text to a printer friendly format
+		parsedText = makePrintableInput(parsedText, showAnswers);
+		
+		// Convert all dropdowns to a printer-friendly format
+		parsedText = makePrintableDropdowns(parsedText, showAnswers);
 		
 		return parsedText;
 	}
