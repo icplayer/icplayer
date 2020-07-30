@@ -225,13 +225,13 @@
 	   </addonModule>
 	</modules>
 	<groups>
-		<group id="Group1">
+		<group id="Group1" printable="No">
 			<scoring type="zeroMaxScore" max="5"/>
 			<groupedModulesList>
 				<groupModule moduleID="Choice5"/>
 			</groupedModulesList>
 		</group>
-		<group id="Group2">
+		<group id="Group2" printable="No">
 			<scoring type="defaultScore" max="3"/>
 			<groupedModulesList>
 				<groupModule moduleID="Audio1"/>
@@ -239,13 +239,13 @@
 				<groupModule moduleID="Basic_Math_Gaps1"/>
 			</groupedModulesList>
 		</group>
-		<group id="Group3">
+		<group id="Group3" printable="No">
 			<scoring type="defaultScore" max="4"/>
 			<groupedModulesList>
 				<groupModule moduleID="Title"/>
 			</groupedModulesList>
 			</group>
-		<group id="Group4">
+		<group id="Group4" printable="No">
 			<scoring type="defaultScore" max="6"/>
 			<groupedModulesList>
 				<groupModule moduleID="Fractions1"/>
