@@ -123,7 +123,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 			option.load(element, this.getBaseURL());
 			addOption(option);
 		}
-		
+
 	}
 
 	/**
@@ -681,8 +681,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 		if (getPrintable() == PrintableMode.NO) return null;
 		
 		List<String> optionHTMLs = new ArrayList<String>();
-		for (int i = 0; i < options.size(); i++) {
-			ChoiceOption option = options.get(i);
+		for (ChoiceOption option: options) {
 			String optionHTML = createPrintableOption(option, showAnswers);
 			optionHTMLs.add(optionHTML);
 		}
