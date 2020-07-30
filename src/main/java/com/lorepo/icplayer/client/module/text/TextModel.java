@@ -1257,7 +1257,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 
 			@Override
 			public String getValue() {
-				return isDisabled ? "True" : "False";
+				return isSection ? "True" : "False";
 			}
 
 			@Override
