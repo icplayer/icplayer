@@ -128,7 +128,7 @@
       </textModule>
    </modules>
    <groups>
-      <group id="Group0">
+      <group id="Group0" printable="No">
          <scoring type="zeroMaxScore" max="1" />
          <groupedModulesList>
             <groupModule moduleID="Audio1" />
@@ -146,7 +146,7 @@
             </layout>
          </layouts>
       </group>
-      <group id="Group1">
+      <group id="Group1" printable="No">
          <scoring type="defaultScore" max="1" />
          <groupedModulesList>
             <groupModule moduleID="Choice1" />
@@ -163,7 +163,7 @@
             </layout>
          </layouts>
       </group>
-      <group id="Group2">
+      <group id="Group2" printable="No">
          <scoring type="defaultScore" max="1" />
          <groupedModulesList>
             <groupModule moduleID="Title" />
@@ -181,7 +181,7 @@
             </layout>
          </layouts>
       </group>
-      <group id="Group3">
+      <group id="Group3" printable="No">
          <scoring type="defaultScore" max="1" />
          <groupedModulesList>
             <groupModule moduleID="PrevPage" />

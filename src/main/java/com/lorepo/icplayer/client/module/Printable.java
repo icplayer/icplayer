@@ -14,6 +14,16 @@ public final class Printable {
 		// The Printable class is static
 	}
 	
+	public static String getStringValues(PrintableMode mode) {
+		if (mode == PrintableMode.NO) {
+			return getStringValues(0);
+		} else if (mode == PrintableMode.YES) {
+			return getStringValues(1);
+		} else {
+			return getStringValues(2);
+		}
+	}
+	
 	public static String getStringValues(int index) {
 		if (index == 0){
 			return "No";
