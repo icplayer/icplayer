@@ -19,6 +19,7 @@ import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.PageList;
+import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
@@ -795,18 +796,76 @@ public class PlayerApp {
 		}
 	}
 	
-	public String generatePrintableHTML(boolean showAnswers) {
+	private IPrintableModuleModel generatePrintableGroup(final Group group, boolean showAnswers) {
+		List<IPrintableModuleModel> groupPrintables = new ArrayList<IPrintableModuleModel>();
+		for (int i = 0; i < group.size(); i++) {
+			IModuleModel model = group.get(i);
+			if (model instanceof IPrintableModuleModel) {
+				IPrintableModuleModel printable = (IPrintableModuleModel) model;
+				if (printable.getPrintableMode() != PrintableMode.NO) {
+					groupPrintables.add(printable);
+				}
+			}
+		}
+		Collections.reverse(groupPrintables);
+		randomizePrintables(groupPrintables);
+		
+		String parsed = "";
+		for (IPrintableModuleModel printable: groupPrintables) {
+			parsed += printable.getPrintableHTML(showAnswers);
+		}
+		final String finalParsed = parsed;
+		
+		return new IPrintableModuleModel(){
+
+			@Override
+			public String getPrintableHTML(boolean showAnswers) {
+				return finalParsed;
+			}
+
+			@Override
+			public PrintableMode getPrintableMode() {
+				return group.getPrintable();
+			}
+
+			@Override
+			public boolean isSection() {
+				return false;
+			}
+			
+		};
+	}
+	
+	public String generatePrintableHTML(boolean randomizePages, boolean showAnswers) {
 		String result = "<div>";
 		
 		List<Page> pages = contentModel.getPages().getAllPages();
+		if (randomizePages) {
+			for(int index = 0; index < pages.size(); index += 1) {  
+			    Collections.swap(pages, index, index + Random.nextInt(pages.size() - index));  
+			}
+		}
+		
 		List<IPrintableModuleModel> printables = new ArrayList<IPrintableModuleModel>();
 		
 		for (Page page: pages) {
+			List<Group> parsedGroups = new ArrayList<Group>();
 			List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 			ModuleList modules = page.getModules();
 			for (int i = 0; i < modules.size(); i++) {
 				IModuleModel model = modules.get(i);
-				if (model instanceof IPrintableModuleModel) {
+				if (model.hasGroup()) {
+					Group modelGroup = null;
+					for (Group group: page.getGroupedModules()) {
+						if (group.contains(model)) {
+							modelGroup = group;
+						}
+					}
+					if (modelGroup != null && !parsedGroups.contains(modelGroup)) {
+						parsedGroups.add(modelGroup);
+						pagePrintables.add(generatePrintableGroup(modelGroup, showAnswers));
+					}
+				}else if (model instanceof IPrintableModuleModel) {
 					IPrintableModuleModel printable = (IPrintableModuleModel) model;
 					if (printable.getPrintableMode() != PrintableMode.NO) {
 						pagePrintables.add(printable);
