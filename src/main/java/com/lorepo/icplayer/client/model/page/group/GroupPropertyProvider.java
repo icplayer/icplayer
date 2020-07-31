@@ -23,6 +23,7 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 			model.setGroupPropertyProvider(this);
 		}
 		registerLeftAndTopProperties();
+		addPropertyPrintable();
 		update();
 	}
 
@@ -43,7 +44,6 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 		addPropertyHeight();
 		addPropertyGroupToDiv();
 		addPropertyIsVisible();
-		addPropertyPrintable();
 	}
 
 	@Override
