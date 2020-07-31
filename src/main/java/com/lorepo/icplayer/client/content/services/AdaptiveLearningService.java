@@ -4,20 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsArrayInteger;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JSONValueAdapter;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
 import com.lorepo.icplayer.client.model.adaptive.AdaptivePageSteps;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveStructure;
-import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IPage;
-import com.lorepo.icplayer.client.page.PageController;
 
 public class AdaptiveLearningService implements IAdaptiveLearningService {
 	private AdaptiveStructure structure;
@@ -66,7 +61,7 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 	public void addNextPage(String pageID) {
 		this.setPagesFromStepNonReportable(pageID);
 		this.playerController.switchToPageById(pageID);
-		this.vistiedPageIndexes.add(this.playerController.getCurrentPageIndex());		
+		this.vistiedPageIndexes.add(this.playerController.getCurrentPageIndex());
 	}
 	
 	public void moveToNextPage() {
@@ -136,6 +131,18 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 	}
 
 	@Override
+	public boolean isFirstStep() {
+		int stepIndex = getCurrentPageStepIndex();
+		return stepIndex == 0;
+	}
+
+	@Override
+	public boolean isLastStep() {
+		int stepIndex = getCurrentPageStepIndex();
+		return stepIndex == this.structure.getStepsLength() - 1;
+	}
+
+	@Override
 	public int getPageStep(String pageID) {
 		return pageToSteps.getPageStep(pageID);
 	}
@@ -157,6 +164,11 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		if (page != null) {
 			page.setAsNonReportable();
 		}
+	}
+
+	private int getCurrentPageStepIndex() {
+		String id = this.playerController.getCurrentPageId();
+		return getPageStep(id);
 	}
 
 }

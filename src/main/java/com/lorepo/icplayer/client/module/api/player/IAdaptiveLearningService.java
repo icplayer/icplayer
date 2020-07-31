@@ -14,6 +14,8 @@ public interface IAdaptiveLearningService {
 	public void moveToNextPage();
 	public void moveToPrevPage();
 	public void resetHistory();
+	public boolean isFirstStep();
+	public boolean isLastStep();
 	
 	public String getStateAsString();
 	public void loadFromString(String state);

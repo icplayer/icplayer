@@ -11,6 +11,10 @@
     cursor: pointer;
 }
 
+.adaptive-next-button-element-disabled {
+    opacity: .35;
+}
+
 .adaptive-next-button-image {
     background-repeat: no-repeat;
     background-size: contain;

@@ -7,7 +7,7 @@ import java.util.List;
 
 public class AdaptivePageSteps {
 	private AdaptivePagesStepMap pagesToStep;
-	
+
 	public AdaptivePageSteps(String json) {
 		this.pagesToStep = this.getValues(json);
 	}
@@ -28,7 +28,7 @@ public class AdaptivePageSteps {
 
 		return idsList;
 	}
-	
+
 	private native AdaptivePagesStepMap getValues(String json) /*-{
 		var map = {};
 		if (json !== '' && json !== null && json !== undefined) { 

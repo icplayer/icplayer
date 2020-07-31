@@ -39,6 +39,16 @@ public class AdaptiveLearningServiceMockup implements IAdaptiveLearningService {
 	public void resetHistory() { }
 
 	@Override
+	public boolean isFirstStep() {
+		return false;
+	}
+
+	@Override
+	public boolean isLastStep() {
+		return false;
+	}
+
+	@Override
 	public String getStateAsString() {
 		return "";
 	}

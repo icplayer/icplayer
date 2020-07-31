@@ -459,6 +459,14 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageDifficulty(Ljava/lang/String;)(pageID);
 			}
 
+			adaptive.isLastStep = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isLastStep()();
+			}
+
+			adaptive.isFirstStep = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isFirstStep()();
+			}
+
 			return adaptive;
 		}
 
@@ -888,5 +896,13 @@ public class JavaScriptPlayerServices {
 
 	public String getPageDifficulty(String pageId) {
 		return this.playerServices.getAdaptiveLearningService().getPageDifficulty(pageId);
+	}
+
+	public boolean isLastStep() {
+		return this.playerServices.getAdaptiveLearningService().isLastStep();
+	}
+
+	public boolean isFirstStep() {
+		return this.playerServices.getAdaptiveLearningService().isFirstStep();
 	}
 }
