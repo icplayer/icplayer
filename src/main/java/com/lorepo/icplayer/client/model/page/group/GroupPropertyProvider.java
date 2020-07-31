@@ -2,12 +2,17 @@ package com.lorepo.icplayer.client.model.page.group;
 
 
 import com.lorepo.icf.properties.IBooleanProperty;
+import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.dimensions.DimensionName;
+import com.lorepo.icplayer.client.module.Printable;
+import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 
 public class GroupPropertyProvider extends ModulesPropertyProvider{
+	
+	private String printableValue = "";
 	
 	public GroupPropertyProvider(String name){
 		super(name);
@@ -18,6 +23,7 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 			model.setGroupPropertyProvider(this);
 		}
 		registerLeftAndTopProperties();
+		addPropertyPrintable();
 		update();
 	}
 
@@ -431,5 +437,55 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 	
 	public boolean isModificatedWidth() {
 		return super.isModificatedWidth(); 
+	}
+	
+	private void addPropertyPrintable() {
+		IProperty property = new IEnumSetProperty() {
+
+			@Override
+			public void setValue(String newValue) {	
+				printableValue = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return printableValue;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return 3;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				return Printable.getStringValues(index);
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public PrintableMode getPrintable() {
+		return Printable.getPrintableModeFromString(printableValue);
+	}
+	
+	public void setPrintable(PrintableMode mode) {
+		printableValue = Printable.getStringValues(mode);
 	}
 }

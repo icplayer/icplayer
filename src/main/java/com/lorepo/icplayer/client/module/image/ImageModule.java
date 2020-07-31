@@ -1,9 +1,13 @@
 package com.lorepo.icplayer.client.module.image;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IImageProperty;
@@ -12,9 +16,12 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
+import com.lorepo.icplayer.client.module.Printable;
+import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 
-public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
+public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
 
 	public enum DisplayMode{
 		stretch,
@@ -26,7 +33,7 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
 	private DisplayMode mode = DisplayMode.stretch;
 	private boolean animatedGifRefresh = false;
 	private String alternativeText = "";
-	
+	private String printableValue = "No";
 	
 	public ImageModule() {
 		super("Image", DictionaryWrapper.get("image_module"));
@@ -35,6 +42,7 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
 		addPropertyMode();
 		addPropertyAnimatedGifRefresh();
 		this.addPropertyAlternativeText();
+		addPropertyPrintable();
 	}
 
 	
@@ -68,6 +76,7 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
 					imagePath = StringUtils.unescapeXML(childElement.getAttribute("src"));
 					String modeName = childElement.getAttribute("mode");
 					setModeFromString(modeName);
+					printableValue = XMLUtils.getAttributeAsString(childElement, "printable");
 					animatedGifRefresh = XMLUtils.getAttributeAsBoolean(childElement, "animatedGifRefresh", false);
 					this.alternativeText = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "alt"));
 				}
@@ -94,6 +103,7 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
 		imageElement.setAttribute("src", StringUtils.escapeHTML(imagePath));
 		imageElement.setAttribute("alt", StringUtils.escapeXML(this.alternativeText));
 		imageElement.setAttribute("mode", mode.toString());
+		imageElement.setAttribute("printable", printableValue);
 		imageElement.setAttribute("animatedGifRefresh", Boolean.toString(animatedGifRefresh));
 
 		imageModule.appendChild(imageElement);
@@ -259,5 +269,90 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
 	
 	public DisplayMode getDisplayMode(){
 		return mode;
+	}
+	
+	private void addPropertyPrintable() {
+		IProperty property = new IEnumSetProperty() {
+
+			@Override
+			public void setValue(String newValue) {	
+				printableValue = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return printableValue;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return 3;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				return Printable.getStringValues(index);
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public PrintableMode getPrintable() {
+		return Printable.getPrintableModeFromString(printableValue);
+	}
+	
+	private void keepAspect(Image image, int width, int height) {
+		ImageViewUtils.keepAspect(image, getWidth(), getHeight());
+		Style style = image.getElement().getStyle();
+		style.setPosition(Style.Position.ABSOLUTE);
+		style.setLeft((width - image.getWidth())/2, Style.Unit.PX);
+	}
+
+	@Override
+	public String getPrintableHTML(boolean showAnswers) {
+		if (getPrintable() == PrintableMode.NO) return null;
+		
+		String rootStyle = "width:"+Integer.toString(getWidth())+"px;";
+		rootStyle += "height:"+Integer.toString(getHeight())+"px;";
+		rootStyle += "position: relative;";
+		String result = "<div class=\"ic_image\" id=\"" + getId() + "\" style=\"" + rootStyle + "\">";
+		
+		Image image = new Image();
+		image.setUrl(getUrl());
+		if(getDisplayMode() == DisplayMode.stretch){
+			image.setPixelSize(getWidth(), getHeight());
+		}
+		else if(getDisplayMode() == DisplayMode.keepAspect){
+			keepAspect(image, getWidth(), getHeight());
+		}
+		else if(getDisplayMode() == DisplayMode.originalSize){
+			image.setVisibleRect(0, 0, getWidth(), getHeight());
+		}
+		result += image.getElement().getString();
+		result += "</div>";
+		
+		return result;
+	}
+
+
+	@Override
+	public PrintableMode getPrintableMode() {
+		return getPrintable();
 	}
 }

@@ -12,6 +12,7 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
+import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;

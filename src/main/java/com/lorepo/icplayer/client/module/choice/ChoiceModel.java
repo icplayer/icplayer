@@ -1,10 +1,14 @@
 package com.lorepo.icplayer.client.module.choice;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import com.google.gwt.user.client.Random;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
+import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyListener;
@@ -13,9 +17,12 @@ import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
+import com.lorepo.icplayer.client.module.Printable;
+import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 
-public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel{
+public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel{
 
 	private boolean isMulti = false;
 	private ArrayList<ChoiceOption>	options = new ArrayList<ChoiceOption>();	
@@ -27,7 +34,8 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel{
 	private boolean isHorizontal = false;
 	private String langAttribute = "";
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
-
+	private String printableValue = "";
+	
 	public ChoiceModel() {
 		super("Choice", DictionaryWrapper.get("choice_module"));
 		
@@ -42,6 +50,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel{
 		addPropertyHorizontalLayout();
 		addPropertyLangAttribute();
 		addPropertySpeechTexts();
+		addPropertyPrintable();
 	}
 	
 	public void addOption(ChoiceOption option) {
@@ -96,6 +105,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel{
 			randomOrder = XMLUtils.getAttributeAsBoolean(choice, "randomOrder", false);
 			isHorizontal = XMLUtils.getAttributeAsBoolean(choice, "isHorizontal", false);
 			langAttribute = XMLUtils.getAttributeAsString(choice, "langAttribute");
+			printableValue = XMLUtils.getAttributeAsString(choice, "printable");
 			this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(choice, "selected"));
 			this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(choice, "deselected"));
 			this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(choice, "correct"));
@@ -113,6 +123,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel{
 			option.load(element, this.getBaseURL());
 			addOption(option);
 		}
+
 	}
 
 	/**
@@ -147,6 +158,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel{
 		choice.setAttribute("randomOrder", Boolean.toString(randomOrder));
 		choice.setAttribute("isHorizontal", Boolean.toString(isHorizontal));
 		choice.setAttribute("langAttribute", langAttribute);
+		choice.setAttribute("printable", printableValue);
 		choice.setAttribute("selected", this.speechTextItems.get(0).getText());
 		choice.setAttribute("deselected", this.speechTextItems.get(1).getText());
 		choice.setAttribute("correct", this.speechTextItems.get(2).getText());
@@ -599,5 +611,98 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel{
 	
 	public String getLangAttribute() {
 		return langAttribute;
+	}
+	
+	private void addPropertyPrintable() {
+		IProperty property = new IEnumSetProperty() {
+
+			@Override
+			public void setValue(String newValue) {	
+				printableValue = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return printableValue;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return 3;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				return Printable.getStringValues(index);
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public PrintableMode getPrintable() {
+		return Printable.getPrintableModeFromString(printableValue);
+	}
+	
+	private String createPrintableOption(ChoiceOption option, boolean showAnswers) {
+		String optionHTML = "";
+		if (showAnswers && option.getValue() > 0) {
+			optionHTML += "<div>";
+			optionHTML += "<input type=\"checkbox\" checked> ";
+			optionHTML += option.getText();
+			optionHTML += " (" + Integer.toString(option.getValue()) + ")";
+			optionHTML += "</div>";
+		} else {
+			optionHTML += "<div>";
+			optionHTML += "<input type=\"checkbox\"> ";
+			optionHTML += option.getText();
+			optionHTML += "</div>";
+		}
+		return optionHTML;
+	}
+
+	@Override
+	public String getPrintableHTML(boolean showAnswers) {
+		if (getPrintable() == PrintableMode.NO) return null;
+		
+		List<String> optionHTMLs = new ArrayList<String>();
+		for (ChoiceOption option: options) {
+			String optionHTML = createPrintableOption(option, showAnswers);
+			optionHTMLs.add(optionHTML);
+		}
+		
+		if (isRandomOrder()) {
+			for(int index = 0; index < optionHTMLs.size(); index += 1) {  
+			    Collections.swap(optionHTMLs, index, index + Random.nextInt(optionHTMLs.size() - index));  
+			}
+		}
+		
+		String result = "<div class=\"ic_choice\" id=\"" + getId() +"\">";
+		for (String optionHTML: optionHTMLs) {
+			result += optionHTML;
+		}
+		result += "</div>";
+		
+		return result;
+	}
+
+	@Override
+	public PrintableMode getPrintableMode() {
+		return getPrintable();
 	}
 }
