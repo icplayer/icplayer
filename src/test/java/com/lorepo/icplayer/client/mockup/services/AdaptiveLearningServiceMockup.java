@@ -22,7 +22,7 @@ public class AdaptiveLearningServiceMockup implements IAdaptiveLearningService {
 	}
 
 	@Override
-	public void addNextPage(String pageID) { }
+	public void addAndMoveToNextPage(String pageID) { }
 
 	@Override
 	public boolean isNextPageAvailable() {

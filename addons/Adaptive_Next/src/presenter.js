@@ -212,8 +212,7 @@ function AddonAdaptive_Next_create() {
             var isConditionMet = presenter.evaluateCondition(connections[i].conditions);
 
             if (isConditionMet) {
-                presenter.adaptiveLearningService.addNextPage(connections[i].target);
-                presenter.adaptiveLearningService.moveToNextPage();
+                presenter.adaptiveLearningService.addAndMoveToNextPage(connections[i].target);
                 return;
             }
         }

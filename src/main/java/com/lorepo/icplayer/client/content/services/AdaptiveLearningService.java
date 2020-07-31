@@ -58,10 +58,11 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		return this.currentPageIndex < this.vistiedPageIndexes.size() - 1;
 	}
 
-	public void addNextPage(String pageID) {
+	public void addAndMoveToNextPage(String pageID) {
 		this.setPagesFromStepNonReportable(pageID);
 		this.playerController.switchToPageById(pageID);
 		this.vistiedPageIndexes.add(this.playerController.getCurrentPageIndex());
+		this.currentPageIndex++;
 	}
 	
 	public void moveToNextPage() {
