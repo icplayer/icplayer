@@ -35,6 +35,7 @@ function AddonAssessments_Navigation_Bar_create(){
         navigationLeftIndex: 0,
         navigationRightIndex: 0,
         numberOfPages: 0,
+        defaultOrder: false
     };
 
     presenter.keyboardControllerObject = null;
