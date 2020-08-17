@@ -338,7 +338,9 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.Section.prototype.createPages = function (pages, pagesDescriptions) {
-        return shuffleArray(pages).map(function (page, index) {
+        var pagesToCreate = presenter.configuration.defaultOrder ? pages : shuffleArray(pages);
+
+        return pagesToCreate.map(function (page, index) {
             return new presenter.Page(page, pagesDescriptions[index], this.name, this.cssClass);
         }, this);
     };
@@ -867,7 +869,8 @@ function AddonAssessments_Navigation_Bar_create(){
     }
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeNumberAndWidthOfButtons(model);
+        var upgradedModel = presenter.upgradeNumberAndWidthOfButtons(model);
+        return presenter.upgradeDefaultOrder(upgradedModel);
     };
 
     presenter.upgradeNumberAndWidthOfButtons = function (model) {
@@ -880,6 +883,17 @@ function AddonAssessments_Navigation_Bar_create(){
 
         if(model.userButtonsNumber == undefined) {
             upgradedModel["userButtonsNumber"] = "";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeDefaultOrder = function (model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if(model.defaultOrder === undefined) {
+            upgradedModel["defaultOrder"] = "False";
         }
 
         return upgradedModel;
@@ -1014,6 +1028,7 @@ function AddonAssessments_Navigation_Bar_create(){
             addonID: model["ID"],
             sections: validatedSections.sections,
             addClassAreAllAttempted: ModelValidationUtils.validateBoolean(model["addClassAreAllAttempted"]),
+            defaultOrder: ModelValidationUtils.validateBoolean(model["defaultOrder"]),
             userButtonsNumber: validateButtonsNumber.value,
             userButtonsWidth: validateButtonsWidth.value,
             numberOfPages: numberOfPages

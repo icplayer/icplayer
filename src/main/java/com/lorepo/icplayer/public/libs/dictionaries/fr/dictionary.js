@@ -1726,6 +1726,7 @@ var ice_dictionary_fr = {
     "Assessments_Navigation_Bar_property_add_class_are_all_attempted": "Barre de navigation-page lancée en temps réel",
     "Assessments_Navigation_Bar_property_number_of_buttons": "Nombre de boutons",
     "Assessments_Navigation_Bar_property_width_of_buttons": "Largeur des boutons",
+    "Assessments_Navigation_Bar_property_default_order": "Default order",
     "Line_Selection_name" : "Sélection de ligne",
     "Line_Selection_info" : "Permet d'ajouyer des lignes sélectionnables dans la présentation",
     "Line_Selection_property_is_activity" : "Est un exercice",

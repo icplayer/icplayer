@@ -1733,6 +1733,7 @@ var ice_dictionary_bl = {
     "Assessments_Navigation_Bar_property_add_class_are_all_attempted": "Real-time navigationbar-page-attempted",
 	"Assessments_Navigation_Bar_property_number_of_buttons": "Брой бутони",
 	"Assessments_Navigation_Bar_property_width_of_buttons": "Широчина на бутоните",
+	"Assessments_Navigation_Bar_property_default_order": "Default order",
     "Line_Selection_name" : "Маркиране на линии",
     "Line_Selection_info" : "Позволява добавянето на линии, които могат да се маркират, към презентацията",
     "Line_Selection_property_is_activity" : "Задача с оценка",
