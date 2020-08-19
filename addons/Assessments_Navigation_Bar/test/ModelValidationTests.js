@@ -356,7 +356,8 @@ TestCase("[Assessments Navigation Bar] Model Validation", {
             userButtonsNumber: "3",
             userButtonsWidth: "40",
             ID: "addonID",
-            addClassAreAllAttempted: "True"
+            addClassAreAllAttempted: "True",
+            defaultOrder: "True"
         };
 
         this.expectedResult = {
@@ -372,7 +373,8 @@ TestCase("[Assessments Navigation Bar] Model Validation", {
             addonID: "addonID",
             userButtonsNumber: 3,
             userButtonsWidth: 40,
-            numberOfPages: 4
+            numberOfPages: 4,
+            defaultOrder: true
         };
     },
 
