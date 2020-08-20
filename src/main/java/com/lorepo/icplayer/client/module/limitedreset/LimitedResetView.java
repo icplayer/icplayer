@@ -11,6 +11,7 @@ import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.limitedreset.LimitedResetPresenter.IDisplay;
+import com.lorepo.icplayer.client.utils.DevicesUtils;
 
 public class LimitedResetView extends PushButton implements IDisplay {
 	private static final String DISABLED_STYLE = "disabled";
@@ -39,41 +40,18 @@ public class LimitedResetView extends PushButton implements IDisplay {
 		
 		if (playerServices != null) {
 			setVisible(module.isVisible());
-			
+
 			addClickHandler(new ClickHandler() {
-				
+
 				@Override
 				public void onClick(ClickEvent event) {
 
 					event.stopPropagation();
 					event.preventDefault();
-					
-					if (isDisabled) {
-						return;
-					}
-					
-					if (isShowAnswersMode) {
-						playerServices.getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
-						
-						isShowAnswersMode = false;
-					}
-					
-					playerServices.getCommands().resetPageScore();
 
-					for (String moduleID : module.getModules()) {
-						IPresenter presenter = playerServices.getModule(moduleID);
-						
-						if (presenter == null) {
-							continue;
-						}
-						
-						presenter.reset();
-					}
-					
-					ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "resetClicked", "");
-					playerServices.getEventBus().fireEvent(valueEvent);
+					clickHandler();
 				}
-			});		
+			});
 		}
 	}
 
@@ -106,7 +84,7 @@ public class LimitedResetView extends PushButton implements IDisplay {
 	public String getName() {
 		return "LimitedReset";
 	}
-	
+
 	@Override
 	public void setVisible(boolean visible) {
 		if (visible) {
@@ -114,6 +92,42 @@ public class LimitedResetView extends PushButton implements IDisplay {
 			getElement().getStyle().setProperty("display", originalDisplay);	
 		} else {
 			super.setVisible(false);
+		}
+	}
+
+	private void clickHandler() {
+		if (isDisabled) {
+			return;
+		}
+
+		if (isShowAnswersMode) {
+			playerServices.getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
+
+			isShowAnswersMode = false;
+		}
+
+		playerServices.getCommands().resetPageScore();
+
+		for (String moduleID : module.getModules()) {
+			IPresenter presenter = playerServices.getModule(moduleID);
+
+			if (presenter == null) {
+				continue;
+			}
+
+			presenter.reset();
+		}
+
+		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "resetClicked", "");
+		playerServices.getEventBus().fireEvent(valueEvent);
+
+		handleHoverClasses();
+	}
+
+	private void handleHoverClasses() {
+		if (DevicesUtils.isMobile()) {
+			this.removeStyleDependentName("up-hovering");
+			this.addStyleDependentName("up");
 		}
 	}
 }

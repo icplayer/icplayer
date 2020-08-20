@@ -10,7 +10,7 @@ public abstract class ExecutableButton extends PushButton {
 	protected IPlayerServices playerServices;
 	private long hoverTimeout = -1;
 	private String originalDisplay = "placeholder-value";
-	
+
 	public ExecutableButton(IPlayerServices playerServices) {
 		this.playerServices = playerServices;
 
