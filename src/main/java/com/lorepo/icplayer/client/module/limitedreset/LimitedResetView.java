@@ -126,7 +126,6 @@ public class LimitedResetView extends PushButton implements IDisplay {
 
 	private void handleHoverClasses() {
 		if (DevicesUtils.isMobile()) {
-
 			this.removeStyleDependentName("up-hovering");
 			this.addStyleDependentName("up");
 		}
