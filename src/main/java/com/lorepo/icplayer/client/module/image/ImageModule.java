@@ -316,37 +316,12 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, I
 	public PrintableMode getPrintable() {
 		return Printable.getPrintableModeFromString(printableValue);
 	}
-	
-	private void keepAspect(Image image, int width, int height) {
-		ImageViewUtils.keepAspect(image, getWidth(), getHeight());
-		Style style = image.getElement().getStyle();
-		style.setPosition(Style.Position.ABSOLUTE);
-		style.setLeft((width - image.getWidth())/2, Style.Unit.PX);
-	}
+
 
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
-		if (getPrintable() == PrintableMode.NO) return null;
-		
-		String rootStyle = "width:"+Integer.toString(getWidth())+"px;";
-		rootStyle += "height:"+Integer.toString(getHeight())+"px;";
-		rootStyle += "position: relative;";
-		String result = "<div class=\"ic_image\" id=\"" + getId() + "\" style=\"" + rootStyle + "\">";
-		
-		Image image = new Image();
-		image.setUrl(getUrl());
-		if(getDisplayMode() == DisplayMode.stretch){
-			image.setPixelSize(getWidth(), getHeight());
-		}
-		else if(getDisplayMode() == DisplayMode.keepAspect){
-			keepAspect(image, getWidth(), getHeight());
-		}
-		else if(getDisplayMode() == DisplayMode.originalSize){
-			image.setVisibleRect(0, 0, getWidth(), getHeight());
-		}
-		result += image.getElement().getString();
-		result += "</div>";
-		
+		ImagePrintable printable = new ImagePrintable(this);
+		String result = printable.getPrintableHTML(showAnswers);	
 		return result;
 	}
 

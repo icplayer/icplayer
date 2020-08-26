@@ -1080,8 +1080,8 @@ function AddonTrueFalse_create() {
         var $view = $("<div></div>");
         $view.attr('id',model.ID);
         $view.addClass('addon_TrueFalse');
+        $view.addClass('printable_module');
         $view.css("max-width", model["Width"]+"px");
-        $view.css("min-height", model["Height"]+"px");
         var $table = $("<table></table>");
         var $tbody = $("<tbody></tbody>");
 

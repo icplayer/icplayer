@@ -1895,18 +1895,28 @@ function AddonConnection_create() {
 
     function drawSVGLine(svg, leftID, rightID, model) {
         var leftSize = model["Left column"].length;
-        var rightSize = model["Right column"].length;
-        var leftIndex = 0;
-        var rightIndex = 0;
+
+        var leftTotalSize = 0;
+        var rightTotalSize = 0;
+        var leftPos = 0;
+        var rightPos = 0;
+
         for (var i = 0; i < presenter.elements.length; i++) {
+
             if (presenter.elements[i].id == leftID) {
-                leftIndex = i;
+                leftPos = leftTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
             } else if (presenter.elements[i].id == rightID) {
-                rightIndex = i - leftSize;
+                rightPos = rightTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
+            }
+
+            if (i < leftSize) {
+                leftTotalSize += presenter.elements[i].element.closest('tr').outerHeight(true);
+            } else {
+                rightTotalSize += presenter.elements[i].element.closest('tr').outerHeight(true);
             }
         }
-        var leftY = Math.floor((leftIndex + 0.5) * 100/leftSize)+"%";
-        var rightY = Math.floor((rightIndex + 0.5) * 100/rightSize)+"%";
+        var leftY = 100.0 * leftPos / leftTotalSize + "%";
+        var rightY = 100.0 * rightPos / rightTotalSize + "%";
 
         var $line = $("<line x1=\"0\" x2=\"100%\" style=\"stroke:rgb(0,0,0);stroke-width:1\" />");
         $line.attr('y1',leftY);
@@ -1917,11 +1927,11 @@ function AddonConnection_create() {
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         model = presenter.upgradeModel(model);
-        console.log(model);
 
         var $root = $("<div></div>")
         $root.attr('id', model.ID);
         $root.addClass('addon_Connection');
+        $root.addClass('printable_module');
         $root.css("max-width", model["Width"]+"px");
         $root.css("min-height", model["Height"]+"px");
         $root.html('<table class="connectionContainer">' +
@@ -1951,9 +1961,12 @@ function AddonConnection_create() {
             this.loadRandomElementsRight($root[0], model, 'connectionRightColumn', 'Right column', true);
         }
 
+        $root.css('visibility','hidden');
+        $('body').append($root);
+
+
         if (showAnswers) {
             var connections = $root.find('svg');
-            console.log(presenter.elements);
             for (var i = 0; i < model["Left column"].length; i++) {
                 var element = presenter.elements[i];
                 if (element.connects) {
@@ -1962,6 +1975,8 @@ function AddonConnection_create() {
             }
         }
 
+        $root.detach();
+        $root.css('visibility','visible');
         return $root[0].outerHTML;
     };
 
