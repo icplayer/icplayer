@@ -675,4 +675,5 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	public boolean isSection() {
 		return false;
 	}
+
 }

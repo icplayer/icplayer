@@ -1725,6 +1725,7 @@ var ice_dictionary_pl = {
     "Assessments_Navigation_Bar_property_add_class_are_all_attempted": "\"Navigationbar-page-attempted\" w czasie rzeczywistym",
 	"Assessments_Navigation_Bar_property_number_of_buttons": "Liczba przycisków",
 	"Assessments_Navigation_Bar_property_width_of_buttons": "Szerokość przycisków",
+	"Assessments_Navigation_Bar_property_default_order": "Default order",
     "Line_Selection_name" : "Wybór linii",
     "Line_Selection_info" : "Pozwala na dodanie do prezentacji wybieralnych linii.",
     "Line_Selection_property_is_activity" : "Jest ćwiczeniem",
