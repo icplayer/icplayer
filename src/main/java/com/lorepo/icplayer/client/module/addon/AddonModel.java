@@ -18,7 +18,6 @@ import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.IStaticRowProperty;
 import com.lorepo.icf.properties.IVideoProperty;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLUtils;
@@ -195,12 +194,8 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	
 	@Override
 	public boolean isSection() {
-		JavaScriptUtils.log("Addon Model is section");
-		JavaScriptUtils.log(addonId);
 		for (IAddonParam addonParam: addonParams) {
 			if(addonParam.getName().equals("isSection")) {
-				JavaScriptUtils.log(addonParam.getAsProperty().getValue());
-				JavaScriptUtils.log(addonParam.getAsProperty().getValue().equals("True"));
 				return addonParam.getAsProperty().getValue().equals("True");
 			}
 		}
