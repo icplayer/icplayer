@@ -63,7 +63,6 @@ public class PrintableContentParser {
 				}
 			}
 		}
-		Collections.reverse(groupPrintables);
 		if (randomizeModules) {
 			randomizePrintables(groupPrintables);
 		}
@@ -136,7 +135,6 @@ public class PrintableContentParser {
 					}
 				}
 			}
-			Collections.reverse(pagePrintables);
 			if (randomizeModules) {
 				randomizePrintables(pagePrintables);
 			}
