@@ -13,7 +13,7 @@ public class SourceListPrintable {
 	public String getPrintableHTML(boolean showAnswers) {
 		if (model.getPrintable() == PrintableMode.NO) return null;
 		
-		String result = "<div class=\"ic_sourceList printable_module\" id=\"" + model.getId() +"\">";
+		String result = "<div class=\"printable_ic_sourceList printable_module\" id=\"" + model.getId() +"\">";
 		int itemCount = model.getItemCount();
 		for (int i = 0; i < itemCount; i++) {
 			result += model.getItem(i);

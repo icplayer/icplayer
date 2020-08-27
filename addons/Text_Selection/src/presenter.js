@@ -1678,7 +1678,7 @@ function AddonText_Selection_create() {
 
         var $view = $("<div></div>");
         $view.attr("id", model.ID);
-        $view.addClass("addon_Text_Selection");
+        $view.addClass("printable_addon_Text_Selection");
         $view.addClass("printable_module");
         $view.css("max-width", model["Width"]+"px");
         $view.css("min-height", model["Height"]+"px");

@@ -35,7 +35,7 @@ public class ChoicePrintable {
 			optionHTMLs.add(optionHTML);
 		}
 		
-		String result = "<div class=\"ic_choice printable_module\" id=\"" + model.getId() +"\"><ol type=\"A\">";
+		String result = "<div class=\"printable_ic_choice printable_module\" id=\"" + model.getId() +"\"><ol type=\"A\">";
 		for (String optionHTML: optionHTMLs) {
 			result += optionHTML;
 		}

@@ -26,7 +26,7 @@ public class ImagePrintable {
 		String rootStyle = "width:"+Integer.toString(model.getWidth())+"px;";
 		rootStyle += "height:"+Integer.toString(model.getHeight())+"px;";
 		rootStyle += "position: relative;";
-		String result = "<div class=\"ic_image printable_module\" id=\"" + model.getId() + "\" style=\"" + rootStyle + "\">";
+		String result = "<div class=\"printable_ic_image printable_module\" id=\"" + model.getId() + "\" style=\"" + rootStyle + "\">";
 		
 		Image image = new Image();
 		image.setUrl(model.getUrl());

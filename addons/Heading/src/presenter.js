@@ -185,7 +185,7 @@ function AddonHeading_create () {
 
         var $root = $('<div></div>');
         $root.attr('id',configuration.ID);
-        $root.addClass('addon_Heading');
+        $root.addClass('printable_addon_Heading');
         $root.addClass('printable_module');
         $root.css("max-width", model["Width"]+"px");
         $root.css("min-height", model["Height"]+"px");

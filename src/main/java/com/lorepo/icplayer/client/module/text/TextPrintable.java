@@ -28,7 +28,7 @@ public class TextPrintable {
 		// Convert all dropdowns to a printer-friendly format
 		parsedText = makePrintableDropdowns(parsedText, showAnswers);
 		
-		String result = "<div class=\"ic_text printable_module\" id=\"" + model.getId() +"\">" + parsedText + "</div>";	
+		String result = "<div class=\"printable_ic_text printable_module\" id=\"" + model.getId() +"\">" + parsedText + "</div>";	
 		return result;
 	}
 	

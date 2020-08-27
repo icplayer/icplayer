@@ -1930,7 +1930,7 @@ function AddonConnection_create() {
 
         var $root = $("<div></div>")
         $root.attr('id', model.ID);
-        $root.addClass('addon_Connection');
+        $root.addClass('printable_addon_Connection');
         $root.addClass('printable_module');
         $root.css("max-width", model["Width"]+"px");
         $root.css("min-height", model["Height"]+"px");
