@@ -1227,12 +1227,8 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
-		if (getPrintable() == PrintableMode.NO) {
-			return null;
-		}
-		TextParser parser = new TextParser();
-		String result = parser.parseForPrinter(rawText, showAnswers);
-		result = "<div class=\"ic_text\" id=\"" + getId() +"\">" + result + "</div>";	
+		TextPrintable printable = new TextPrintable(this);
+		String result = printable.getPrintableHTML(showAnswers);
 		return result;
 	}
 

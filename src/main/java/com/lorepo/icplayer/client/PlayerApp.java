@@ -1,9 +1,12 @@
 package com.lorepo.icplayer.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JSONUtils;
@@ -12,7 +15,6 @@ import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
-import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -21,6 +23,7 @@ import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
 import com.lorepo.icplayer.client.xml.content.ContentFactory;
+import com.lorepo.icplayer.client.xml.page.PageFactory;
 
 public class PlayerApp {
 
@@ -749,4 +752,47 @@ public class PlayerApp {
 		String layoutID = this.contentModel.getLayoutIDByName(layoutName);
 		return this.changeLayout(layoutID);
 	}
+	
+	public String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
+		PrintableContentParser printableParser = new PrintableContentParser();
+		String result = printableParser.generatePrintableHTML(contentModel, randomizePages, randomizeModules, showAnswers);
+		return result;
+	};
+	
+	public void preloadAllPages(final ILoadListener listener) {
+		List<Page> pages = contentModel.getPages().getAllPages();
+		boolean allPagesLoaded = true;
+		for (Page page: pages) {
+			if (!page.isLoaded()) {
+				allPagesLoaded = false;
+				String baseUrl = contentModel.getBaseUrl();
+				String url = URLUtils.resolveURL(baseUrl, page.getHref());
+				PageFactory factory = new PageFactory((Page) page);
+				factory.load(url, new IProducingLoadingListener() {
+					@Override
+					public void onFinishedLoading(Object producedItem) {
+						List<Page> pages = contentModel.getPages().getAllPages();
+						boolean allPagesLoaded = true;
+						for(Page p: pages) {
+							if (!p.isLoaded()) {
+								allPagesLoaded = false;
+								break;
+							}
+						}
+						if (allPagesLoaded) {
+							listener.onFinishedLoading("All pages have been loaded!");
+						}
+					}
+
+					@Override
+					public void onError(String error) {
+						listener.onError(error);
+					}
+				});
+			}
+		}
+		if (allPagesLoaded) {
+			listener.onFinishedLoading("All pages have been loaded!");
+		}
+	};
 }

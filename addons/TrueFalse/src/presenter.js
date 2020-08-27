@@ -1074,5 +1074,56 @@ function AddonTrueFalse_create() {
 
     };
 
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        var model = presenter.upgradeModel(model);
+
+        var $view = $("<div></div>");
+        $view.attr('id',model.ID);
+        $view.addClass('printable_addon_TrueFalse');
+        $view.addClass('printable_module');
+        $view.css("max-width", model["Width"]+"px");
+        var $table = $("<table></table>");
+        var $tbody = $("<tbody></tbody>");
+
+        //Header row
+        var $trHead = $("<tr></tr>");
+        $trHead.append("<td></td>");
+        for (var i = 0; i < model.Choices.length; i++) {
+            var choice = model.Choices[0];
+            var $td = $("<td></td>");
+            $td.html(choice.Choice);
+            $trHead.append($td);
+        }
+        $tbody.append($trHead);
+
+        //Question rows
+        for (var i = 0; i < model.Questions.length; i++) {
+            var question = model.Questions[i];
+            var $tr = $("<tr></tr>");
+
+            var $questionCell = $("<td></td>");
+            $questionCell.html(question.Question);
+            $tr.append($questionCell);
+
+            var answers = [];
+            if (showAnswers) answers = question.Answer.split(',');
+
+            for (var j = 0; j < model.Choices.length; j++) {
+                var $td = $("<td></td>");
+                var $checkbox = $("<input type=\"checkbox\"> </input>")
+                if (showAnswers && answers.indexOf((j+1).toString()) != -1) {
+                    $checkbox.attr("checked", "checked");
+                }
+                $td.append($checkbox);
+                $tr.append($td);
+            }
+            $tbody.append($tr);
+        }
+
+        $table.append($tbody);
+        $view.append($table);
+        return $view[0].outerHTML;
+    };
+
     return presenter;
 }

@@ -2048,5 +2048,6 @@ var ice_dictionary_bl = {
 	"Cross_Lesson_property_page": "Page",
 	"Cross_Lesson_property_type": "Type",
 	"printable_name_label": "Printable",
-	"printable_is_section": "is section"
+	"printable_is_section": "is section",
+	"printable_preview": "Printable preview"
 };

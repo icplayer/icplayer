@@ -179,5 +179,26 @@ function AddonHeading_create () {
 
     presenter.isEnterable = function(){ return false;};
 
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        var model = presenter.upgradeModel(model);
+        var configuration = presenter.validateModel(model);
+
+        var $root = $('<div></div>');
+        $root.attr('id',configuration.ID);
+        $root.addClass('printable_addon_Heading');
+        $root.addClass('printable_module');
+        $root.css("max-width", model["Width"]+"px");
+        $root.css("min-height", model["Height"]+"px");
+
+        var $heading = $('<[tag]></[tag]]>'.replace('[tag]', configuration.heading));
+        var parsedContent = configuration.content;
+        parsedContent = parsedContent.replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with
+        parsedContent = parsedContent.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1'); // replace \alt{a|b} with a
+        $heading.html(parsedContent);
+        $root.append($heading);
+
+        return $root[0].outerHTML;
+    };
+
     return presenter;
 }

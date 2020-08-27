@@ -1673,5 +1673,35 @@ function AddonText_Selection_create() {
         return false;
     };
 
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        var model = presenter.upgradeModel(model);
+
+        var $view = $("<div></div>");
+        $view.attr("id", model.ID);
+        $view.addClass("printable_addon_Text_Selection");
+        $view.addClass("printable_module");
+        $view.css("max-width", model["Width"]+"px");
+        $view.css("min-height", model["Height"]+"px");
+
+        var content = model.Text;
+        if (model.Mode == "All selectable") {
+            if (showAnswers) {
+                content = content.replace(/\\correct{(.*?)}/g, '<u>$1</u>');
+            } else {
+                content = content.replace(/\\correct{(.*?)}/g, '$1');
+            }
+        } else {
+            if (showAnswers) {
+                content = content.replace(/\\correct{(.*?)}/g, '<u><strong>$1</strong></u>');
+            } else {
+                content = content.replace(/\\correct{(.*?)}/g, '<strong>$1</strong>');
+            }
+            content = content.replace(/\\wrong{(.*?)}/g, '<strong>$1</strong>');
+        }
+        $view.html(content);
+
+        return $view[0].outerHTML;
+    };
+
     return presenter;
 }

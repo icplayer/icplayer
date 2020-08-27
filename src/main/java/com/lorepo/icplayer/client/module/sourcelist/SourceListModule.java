@@ -470,22 +470,19 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
-		if (getPrintable() == PrintableMode.NO) return null;
-		
-		String result = "<div class=\"ic_sourceList\" id=\"" + getId() +"\">";
-		for (int i = 0; i < items.size(); i++) {
-			result += items.get(i);
-			if (i + 1 < items.size()) {
-				result += ", ";
-			}
-		}
-		result += "</div>";
+		SourceListPrintable printable = new SourceListPrintable(this);
+		String result = printable.getPrintableHTML(showAnswers);
 		return result;
 	}
 
 	@Override
 	public PrintableMode getPrintableMode() {
 		return getPrintable();
+	}
+
+	@Override
+	public boolean isSection() {
+		return false;
 	}
 	
 }

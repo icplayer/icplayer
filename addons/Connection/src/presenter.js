@@ -1892,5 +1892,93 @@ function AddonConnection_create() {
     presenter.__internal__ = {
         Line: Line
     };
+
+    function drawSVGLine(svg, leftID, rightID, model) {
+        var leftSize = model["Left column"].length;
+
+        var leftTotalSize = 0;
+        var rightTotalSize = 0;
+        var leftPos = 0;
+        var rightPos = 0;
+
+        for (var i = 0; i < presenter.elements.length; i++) {
+
+            if (presenter.elements[i].id == leftID) {
+                leftPos = leftTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
+            } else if (presenter.elements[i].id == rightID) {
+                rightPos = rightTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
+            }
+
+            if (i < leftSize) {
+                leftTotalSize += presenter.elements[i].element.closest('tr').outerHeight(true);
+            } else {
+                rightTotalSize += presenter.elements[i].element.closest('tr').outerHeight(true);
+            }
+        }
+        var leftY = 100.0 * leftPos / leftTotalSize + "%";
+        var rightY = 100.0 * rightPos / rightTotalSize + "%";
+
+        var $line = $("<line x1=\"0\" x2=\"100%\" style=\"stroke:rgb(0,0,0);stroke-width:1\" />");
+        $line.attr('y1',leftY);
+        $line.attr('y2',rightY);
+        svg.append($line);
+
+    }
+
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        model = presenter.upgradeModel(model);
+
+        var $root = $("<div></div>")
+        $root.attr('id', model.ID);
+        $root.addClass('printable_addon_Connection');
+        $root.addClass('printable_module');
+        $root.css("max-width", model["Width"]+"px");
+        $root.css("min-height", model["Height"]+"px");
+        $root.html('<table class="connectionContainer">' +
+            '    <tr>' +
+            '        <td class="connectionLeftColumn">' +
+            '            <table class="content"></table>' +
+            '        </td>' +
+            '        <td class="connectionMiddleColumn">' +
+            '            <svg class="connections"></svg>' +
+            '        </td>' +
+            '        <td class="connectionRightColumn">' +
+            '            <table class="content"></table>' +
+            '        </td>' +
+            '    </tr>' +
+            '</table>');
+
+        var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
+        var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
+        if (!isRandomLeft) {
+            this.loadElements($root[0], model, 'connectionLeftColumn', 'Left column', false);
+        } else {
+            this.loadRandomElementsLeft($root[0], model, 'connectionLeftColumn', 'Left column', false);
+        }
+        if (!isRandomRight) {
+            this.loadElements($root[0], model, 'connectionRightColumn', 'Right column', true);
+        } else {
+            this.loadRandomElementsRight($root[0], model, 'connectionRightColumn', 'Right column', true);
+        }
+
+        $root.css('visibility','hidden');
+        $('body').append($root);
+
+
+        if (showAnswers) {
+            var connections = $root.find('svg');
+            for (var i = 0; i < model["Left column"].length; i++) {
+                var element = presenter.elements[i];
+                if (element.connects) {
+                    drawSVGLine(connections, element.id,element.connects, model);
+                }
+            }
+        }
+
+        $root.detach();
+        $root.css('visibility','visible');
+        return $root[0].outerHTML;
+    };
+
     return presenter;
 }
