@@ -2,9 +2,11 @@ package com.lorepo.icplayer.client.module.text;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
@@ -100,6 +102,7 @@ public class TextParser {
 				if (!skipGaps) {
 					parserResult.parsedText = parseGaps(srcText);
 					parserResult.parsedText = parseAudio(parserResult.parsedText);
+					parserResult.parsedText = parseNumerableIndex(parserResult.parsedText);
 					if (!useMathGaps) {
 						parserResult.parsedText = AlternativeTextService.escapeAltText(parserResult.parsedText);
 						parserResult.parsedText = parseOldSyntax(parserResult.parsedText);
@@ -176,6 +179,7 @@ public class TextParser {
 		result.parsedText = parseOldSyntax(result.parsedText);
 		result.parsedText = parseDefinitions(result.parsedText);
 		result.parsedText = parseAudio(result.parsedText);
+		result.parsedText = parseNumerableIndex(result.parsedText);
 
 		result.hasSyntaxError = hasSyntaxError;
 		return result;
@@ -986,6 +990,48 @@ public class TextParser {
 
 		return buttonElement.getHTMLCode() + audioElement.getHTMLCode();
 	}
+	
+	private String getNumerableElement(String suffix, String gapValue) {
+		HTML html = new HTML("<div>1</div>");
+		Element htmlEl = html.getElement();
+		Element el = (Element)htmlEl.getChild(0);
+		el.setAttribute("data-numerable-suffix", suffix);
+		el.setAttribute("data-gap-value", gapValue);
+		el.getStyle().setDisplay(Display.INLINE_BLOCK);
+		return el.getString();
+		
+	}
+	
+	private String parseNumerableIndex(String srcText) {
+		final String patternString = "\\\\numerable_index\\{(.+?)\\}";
+		RegExp regexp = RegExp.compile(patternString);
+		MatchResult matchResult;
+
+		String input = srcText;
+		String output = "";
+
+		while ((matchResult = regexp.exec(input)) != null) {
+			JavaScriptUtils.log("MATCH RESULT");
+			if (matchResult.getGroupCount() > 0) {
+				String group = matchResult.getGroup(0);
+				JavaScriptUtils.log(group);
+				String suffix = matchResult.getGroup(1);
+				JavaScriptUtils.log(suffix);
+				int lastIndex = matchResult.getIndex();
+				int groupLength = group.length();
+
+				output += input.substring(0, lastIndex);
+				input = input.substring(lastIndex + groupLength);
+				output += getNumerableElement(suffix, group);
+			} else {
+				break;
+			}
+
+		}
+		output += input;
+
+		return output;
+	}
 
 	public String parseAltText(String srcText) {
 		return AlternativeTextService.getAltTextAsHtml(srcText);
@@ -1128,89 +1174,6 @@ public class TextParser {
 	
 	public void setIsNumericOnly(boolean isNumericOnly) {
 		this.isNumericOnly = isNumericOnly;
-	}
-	
-	private String makePrintableInput(String parsedText, boolean showAnswers) {
-		HTML html = new HTML(parsedText);
-		
-		NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
-		for (int i = 0; i < inputs.getLength(); i++) {
-			Element input = inputs.getItem(i);
-			String oldValue = input.getString();
-			
-			if (showAnswers) {
-				GapInfo gapInfo = parserResult.gapInfos.get(i);
-				Iterator<String> answers = gapInfo.getAnswers();
-				String value = "";
-				do {
-					value += answers.next();
-					if (answers.hasNext()) {
-						value += ", ";
-					}
-				} while(answers.hasNext());	
-				input.setAttribute("value", value);
-				input.setAttribute("size", Integer.toString(value.length()));
-			}
-			
-			String placeholder = input.getAttribute("placeholder");
-			if(placeholder.length() > 0) {
-				input.setAttribute("placeholder", "");
-			}
-			
-			String newValue = input.getString();
-			
-			if (placeholder.length() > 0) {
-				newValue += "(" + placeholder + ")";
-			}
-			
-			parsedText = parsedText.replace(oldValue, newValue);
-		}
-		
-		return parsedText;
-	}
-	
-	private String makePrintableDropdowns(String parsedText, boolean showAnswers) {
-		HTML html = new HTML(parsedText);
-		
-		NodeList<Element> selects = html.getElement().getElementsByTagName("select");
-		for (int i = 0; i < selects.getLength(); i++) {
-			Element select = selects.getItem(i);
-			NodeList<Element> options = select.getElementsByTagName("option");
-			
-			String values = "[";
-			for (int j = 0; j < options.getLength(); j++) {
-				Element option = options.getItem(j);
-				String value = option.getInnerText();
-				if (!value.equals("---")) {
-					if (showAnswers) {
-						InlineChoiceInfo choiceInfo = parserResult.choiceInfos.get(i);
-						if (choiceInfo.getAnswer().equals(value)) {
-							value = "<u>" + value + "</u>";
-						}
-					}
-					values += value;
-					if (j + 1 != options.getLength()) {
-						values += " \\ ";
-					}
-				}
-			}
-			values += "]";
-			parsedText = parsedText.replace(select.getString(), values);
-		}
-		return parsedText;
-	}
-	
-	public String parseForPrinter (String srcText, boolean showAnswers) {
-		ParserResult parserResult = parse(srcText);	
-		String parsedText = parserResult.parsedText;
-		
-		// Convert all inputs with initial text to a printer friendly format
-		parsedText = makePrintableInput(parsedText, showAnswers);
-		
-		// Convert all dropdowns to a printer-friendly format
-		parsedText = makePrintableDropdowns(parsedText, showAnswers);
-		
-		return parsedText;
 	}
 
 }
