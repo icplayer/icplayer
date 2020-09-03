@@ -145,8 +145,6 @@ public class PrintableContentParser {
 			}
 		}
 		
-		List<IPrintableModuleModel> printables = new ArrayList<IPrintableModuleModel>();
-		
 		for (Page page: pages) {
 			result += generatePrintableHTMLForPage(page, randomizePages, randomizeModules, showAnswers);
 		}
