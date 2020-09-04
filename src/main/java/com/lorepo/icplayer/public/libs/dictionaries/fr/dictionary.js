@@ -2030,5 +2030,7 @@ var ice_dictionary_fr = {
 	"Cross_Lesson_property_type": "Type",
 	"printable_name_label": "Printable",
 	"printable_is_section": "is section",
-	"printable_preview": "Printable preview"
+	"printable_preview": "Print preview",
+	"printable_lesson_preview": "Lesson preview",
+	"printable_preview_error_message": "An error has occurred while generating the preview"
 };

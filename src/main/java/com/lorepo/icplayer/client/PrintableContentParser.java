@@ -93,6 +93,42 @@ public class PrintableContentParser {
 		};
 	}
 	
+	public String generatePrintableHTMLForPage(Page page, boolean randomizePages, boolean randomizeModules, boolean showAnswers ) {
+		List<Group> parsedGroups = new ArrayList<Group>();
+		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
+		ModuleList modules = page.getModules();
+		for (int i = 0; i < modules.size(); i++) {
+			IModuleModel model = modules.get(i);
+			if (model.hasGroup()) {
+				Group modelGroup = null;
+				for (Group group: page.getGroupedModules()) {
+					if (group.contains(model)) {
+						modelGroup = group;
+					}
+				}
+				if (modelGroup != null && !parsedGroups.contains(modelGroup)) {
+					parsedGroups.add(modelGroup);
+					pagePrintables.add(generatePrintableGroup(modelGroup, randomizeModules, showAnswers));
+				}
+			}else if (model instanceof IPrintableModuleModel) {
+				IPrintableModuleModel printable = (IPrintableModuleModel) model;
+				if (printable.getPrintableMode() != PrintableMode.NO) {
+					pagePrintables.add(printable);
+				}
+			}
+		}
+		if (randomizeModules) {
+			randomizePrintables(pagePrintables);
+		}
+		
+		String result = "<div class=\"printable_page\">";
+		for (IPrintableModuleModel printable: pagePrintables) {
+			result += printable.getPrintableHTML(showAnswers);
+		}
+		result += "</div>";
+		return result;
+	}
+	
 	public String generatePrintableHTML(Content contentModel, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
 		List<Page> pages = contentModel.getPages().getAllPages();
 		String result = generatePrintableHTMLForPages(pages, randomizePages, randomizeModules, showAnswers);
@@ -109,40 +145,8 @@ public class PrintableContentParser {
 			}
 		}
 		
-		List<IPrintableModuleModel> printables = new ArrayList<IPrintableModuleModel>();
-		
 		for (Page page: pages) {
-			List<Group> parsedGroups = new ArrayList<Group>();
-			List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
-			ModuleList modules = page.getModules();
-			for (int i = 0; i < modules.size(); i++) {
-				IModuleModel model = modules.get(i);
-				if (model.hasGroup()) {
-					Group modelGroup = null;
-					for (Group group: page.getGroupedModules()) {
-						if (group.contains(model)) {
-							modelGroup = group;
-						}
-					}
-					if (modelGroup != null && !parsedGroups.contains(modelGroup)) {
-						parsedGroups.add(modelGroup);
-						pagePrintables.add(generatePrintableGroup(modelGroup, randomizeModules, showAnswers));
-					}
-				}else if (model instanceof IPrintableModuleModel) {
-					IPrintableModuleModel printable = (IPrintableModuleModel) model;
-					if (printable.getPrintableMode() != PrintableMode.NO) {
-						pagePrintables.add(printable);
-					}
-				}
-			}
-			if (randomizeModules) {
-				randomizePrintables(pagePrintables);
-			}
-			printables.addAll(pagePrintables);
-		}
-		
-		for (IPrintableModuleModel printable: printables) {
-			result += printable.getPrintableHTML(showAnswers);
+			result += generatePrintableHTMLForPage(page, randomizePages, randomizeModules, showAnswers);
 		}
 		
 		result += "</div>";
