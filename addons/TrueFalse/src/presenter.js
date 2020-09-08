@@ -1089,7 +1089,7 @@ function AddonTrueFalse_create() {
         var $trHead = $("<tr></tr>");
         $trHead.append("<td></td>");
         for (var i = 0; i < model.Choices.length; i++) {
-            var choice = model.Choices[0];
+            var choice = model.Choices[i];
             var $td = $("<td></td>");
             $td.html(choice.Choice);
             $trHead.append($td);

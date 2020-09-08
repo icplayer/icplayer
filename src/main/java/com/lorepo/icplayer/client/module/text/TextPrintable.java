@@ -45,14 +45,19 @@ public class TextPrintable {
 				GapInfo gapInfo = model.getGapInfos().get(i);
 				Iterator<String> answers = gapInfo.getAnswers();
 				String value = "";
+				int longestAnswer = 0;
 				do {
-					value += answers.next();
+					String nextAnswer = answers.next();
+					if (nextAnswer.length() > longestAnswer) {
+						longestAnswer = nextAnswer.length();
+					}
+					value += nextAnswer;
 					if (answers.hasNext()) {
 						value += ", ";
 					}
 				} while(answers.hasNext());	
 				input.setAttribute("value", value);
-				input.setAttribute("size", Integer.toString(value.length()));
+				input.setAttribute("size", Integer.toString(longestAnswer));
 			}
 			
 			String placeholder = input.getAttribute("placeholder");
