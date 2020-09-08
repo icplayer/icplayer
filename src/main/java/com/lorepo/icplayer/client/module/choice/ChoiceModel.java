@@ -662,7 +662,8 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
 		ChoicePrintable printable = new ChoicePrintable(this);
-		String result = printable.getPrintableHTML(showAnswers);
+		String className = this.getStyleClass();
+		String result = printable.getPrintableHTML(className, showAnswers);
 		return result;
 	}
 

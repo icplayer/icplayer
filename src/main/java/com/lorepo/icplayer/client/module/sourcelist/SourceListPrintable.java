@@ -10,10 +10,14 @@ public class SourceListPrintable {
 		this.model = model;
 	}
 	
-	public String getPrintableHTML(boolean showAnswers) {
+	public String getPrintableHTML(String className, boolean showAnswers) {
 		if (model.getPrintable() == PrintableMode.NO) return null;
 		
-		String result = "<div class=\"printable_ic_sourceList printable_module\" id=\"" + model.getId() +"\">";
+		if (className.length() > 0) {
+			className = "printable_module-" + className;
+		}
+		
+		String result = "<div class=\"printable_ic_sourceList printable_module " + className + "\" id=\"" + model.getId() +"\">";
 		int itemCount = model.getItemCount();
 		for (int i = 0; i < itemCount; i++) {
 			result += model.getItem(i);

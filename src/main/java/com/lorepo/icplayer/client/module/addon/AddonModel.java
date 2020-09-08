@@ -164,11 +164,12 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		
 		String addonName = "Addon" + getAddonId() + "_create";
 		JavaScriptObject jsModel = createJsModel(this);
+		String className = this.getStyleClass();
 		
-		return getPrintableHTML(addonName, jsModel, showAnswers);
+		return getPrintableHTML(addonName, jsModel, className, showAnswers);
 	}
 	
-	private native String getPrintableHTML(String addonName, JavaScriptObject model, boolean showAnswers) /*-{
+	private native String getPrintableHTML(String addonName, JavaScriptObject model, String className, boolean showAnswers) /*-{
 		if($wnd.window[addonName] == null){
 			return null;
 		}
@@ -178,7 +179,13 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 			return null;
 		}
 		
-		return presenter.getPrintableHTML(model, showAnswers);
+		var printableHTML = presenter.getPrintableHTML(model, showAnswers);
+		if (className) {
+			var $printable = $wnd.$(printableHTML);
+			$printable.addClass("printable_module-" + className);
+			printableHTML = $printable[0].outerHTML;
+		}
+		return printableHTML;
 	}-*/;
 
 	@Override

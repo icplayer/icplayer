@@ -15,7 +15,7 @@ public class TextPrintable {
 		this.model = model;
 	}
 	
-	public String getPrintableHTML(boolean showAnswers) {
+	public String getPrintableHTML(String className, boolean showAnswers) {
 		if (model.getPrintable() == PrintableMode.NO) {
 			return null;
 		}
@@ -28,7 +28,11 @@ public class TextPrintable {
 		// Convert all dropdowns to a printer-friendly format
 		parsedText = makePrintableDropdowns(parsedText, showAnswers);
 		
-		String result = "<div class=\"printable_ic_text printable_module\" id=\"" + model.getId() +"\">" + parsedText + "</div>";	
+		if (className.length() > 0) {
+			className = "printable_module-" + className;
+		}
+		
+		String result = "<div class=\"printable_ic_text printable_module " + className + "\" id=\"" + model.getId() +"\">" + parsedText + "</div>";	
 		return result;
 	}
 	

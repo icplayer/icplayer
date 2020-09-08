@@ -31,7 +31,7 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 	
 	public SourceListModule() {
 		super("Source list", DictionaryWrapper.get("source_list_module"));
-		
+
 		initData();
 		addPropertyItems(true);
 		addPropertyRemovable();
@@ -471,7 +471,8 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
 		SourceListPrintable printable = new SourceListPrintable(this);
-		String result = printable.getPrintableHTML(showAnswers);
+		String className = this.getStyleClass();
+		String result = printable.getPrintableHTML(className, showAnswers);
 		return result;
 	}
 

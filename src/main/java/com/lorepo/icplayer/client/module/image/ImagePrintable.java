@@ -20,13 +20,17 @@ public class ImagePrintable {
 		style.setLeft((width - image.getWidth())/2, Style.Unit.PX);
 	}
 
-	public String getPrintableHTML(boolean showAnswers) {
+	public String getPrintableHTML(String className, boolean showAnswers) {
 		if (model.getPrintable() == PrintableMode.NO) return null;
+		
+		if (className.length() > 0) {
+			className = "printable_module-" + className;
+		}
 		
 		String rootStyle = "width:"+Integer.toString(model.getWidth())+"px;";
 		rootStyle += "height:"+Integer.toString(model.getHeight())+"px;";
 		rootStyle += "position: relative;";
-		String result = "<div class=\"printable_ic_image printable_module\" id=\"" + model.getId() + "\" style=\"" + rootStyle + "\">";
+		String result = "<div class=\"printable_ic_image printable_module " + className + "\" id=\"" + model.getId() + "\" style=\"" + rootStyle + "\">";
 		
 		Image image = new Image();
 		image.setUrl(model.getUrl());
