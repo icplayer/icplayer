@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.sourcelist;
 
+import com.lorepo.icplayer.client.PrintableContentParser;
 import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 
 public class SourceListPrintable {
@@ -13,11 +14,7 @@ public class SourceListPrintable {
 	public String getPrintableHTML(String className, boolean showAnswers) {
 		if (model.getPrintable() == PrintableMode.NO) return null;
 		
-		if (className.length() > 0) {
-			className = "printable_module-" + className;
-		}
-		
-		String result = "<div class=\"printable_ic_sourceList printable_module " + className + "\" id=\"" + model.getId() +"\">";
+		String result = "<div class=\"printable_ic_sourceList\" id=\"" + model.getId() +"\">";
 		int itemCount = model.getItemCount();
 		for (int i = 0; i < itemCount; i++) {
 			result += model.getItem(i);
@@ -26,6 +23,9 @@ public class SourceListPrintable {
 			}
 		}
 		result += "</div>";
+		
+		result = PrintableContentParser.addClassToPrintableModule(result, className);
+		
 		return result;
 	}
 }

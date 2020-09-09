@@ -5,6 +5,7 @@ import java.util.Iterator;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icplayer.client.PrintableContentParser;
 import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 
 public class TextPrintable {
@@ -28,11 +29,8 @@ public class TextPrintable {
 		// Convert all dropdowns to a printer-friendly format
 		parsedText = makePrintableDropdowns(parsedText, showAnswers);
 		
-		if (className.length() > 0) {
-			className = "printable_module-" + className;
-		}
-		
-		String result = "<div class=\"printable_ic_text printable_module " + className + "\" id=\"" + model.getId() +"\">" + parsedText + "</div>";	
+		String result = "<div class=\"printable_ic_text\" id=\"" + model.getId() +"\">" + parsedText + "</div>";
+		result = PrintableContentParser.addClassToPrintableModule(result, className);
 		return result;
 	}
 	

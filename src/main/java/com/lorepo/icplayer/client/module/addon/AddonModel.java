@@ -21,6 +21,7 @@ import com.lorepo.icf.properties.IVideoProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLUtils;
+import com.lorepo.icplayer.client.PrintableContentParser;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.Printable;
@@ -166,10 +167,12 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		JavaScriptObject jsModel = createJsModel(this);
 		String className = this.getStyleClass();
 		
-		return getPrintableHTML(addonName, jsModel, className, showAnswers);
+		String result = getPrintableHTML(addonName, jsModel,showAnswers);
+		result = PrintableContentParser.addClassToPrintableModule(result, className);
+		return result;
 	}
 	
-	private native String getPrintableHTML(String addonName, JavaScriptObject model, String className, boolean showAnswers) /*-{
+	private native String getPrintableHTML(String addonName, JavaScriptObject model, boolean showAnswers) /*-{
 		if($wnd.window[addonName] == null){
 			return null;
 		}
@@ -179,13 +182,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 			return null;
 		}
 		
-		var printableHTML = presenter.getPrintableHTML(model, showAnswers);
-		if (className) {
-			var $printable = $wnd.$(printableHTML);
-			$printable.addClass("printable_module-" + className);
-			printableHTML = $printable[0].outerHTML;
-		}
-		return printableHTML;
+		return presenter.getPrintableHTML(model, showAnswers);
 	}-*/;
 
 	@Override
