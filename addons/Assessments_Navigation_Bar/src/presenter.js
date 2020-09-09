@@ -468,12 +468,45 @@ function AddonAssessments_Navigation_Bar_create(){
         return pages;
     };
 
+    presenter.filterSectionsWithTooManyPages = function(sections) {
+        var lessonPageCount = presenter.playerController.getPresentation().getPageCount();
+        var pagesInSections = sections.reduce(
+            function (accumulator, section) {
+                return accumulator + section.pages.length
+            },
+            0
+        );
+
+        if (pagesInSections > lessonPageCount) { // more pages in sections than in lesson
+            var addedSectionPagesCount = 0;
+            var i = 0; // if ever changed to let...
+            for (; i < sections.length && addedSectionPagesCount < lessonPageCount; ++i) {
+                addedSectionPagesCount += sections[i].pages.length;
+            }
+
+            var sectionsWithinPagesLimit = sections.slice(0, i);
+            var pagesDifference = addedSectionPagesCount - lessonPageCount;
+            if (pagesDifference > 0) { // this means that last section has more pages defined than it needs to has
+                var lastSectionPagesCount = sectionsWithinPagesLimit[i - 1].pages.length;
+                sectionsWithinPagesLimit[i - 1].pages = sectionsWithinPagesLimit[i - 1].pages.slice(0, lastSectionPagesCount - pagesDifference)
+            }
+
+            return sectionsWithinPagesLimit;
+        }
+
+        return sections;
+    };
 
     presenter.Sections.prototype.createSections = function (sections) {
-        return sections.map(function (section, index) {
-            var sectionCssClass = "section_" + index;
-            return new presenter.Section(section.pages, section.sectionName, section.pagesDescriptions, sectionCssClass);
-        })
+        if (presenter.playerController) {
+            sections = presenter.filterSectionsWithTooManyPages(sections);
+        }
+
+        return sections.map(
+            function (section, index) {
+                var sectionCssClass = "section_" + index;
+                return new presenter.Section(section.pages, section.sectionName, section.pagesDescriptions, sectionCssClass);
+        });
     };
 
     presenter.NavigationManager = function () {
@@ -1320,7 +1353,15 @@ function AddonAssessments_Navigation_Bar_create(){
         var parsedState = JSON.parse(state);
         var upgradedState = presenter.upgradeState(parsedState);
 
-        presenter.sections.allPages = getRestorePagesObjectArray(upgradedState.pages);
+        var restoredPages = getRestorePagesObjectArray(upgradedState.pages);
+
+        var pagesIndexesInSections = presenter.sections.allPages.map(function(page) {
+            return page.page;
+        });
+
+        presenter.sections.allPages = restoredPages.filter( function (page) {
+            return pagesIndexesInSections.indexOf(page.page) !== -1;
+        });
         presenter.navigationManager.restartLeftSideIndex();
         presenter.navigationManager.setSections();
         presenter.navigationManager.moveToCurrentPage();
