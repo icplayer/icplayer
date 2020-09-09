@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.user.client.Random;
+import com.lorepo.icplayer.client.PrintableContentParser;
 import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 
 public class ChoicePrintable {
@@ -15,7 +16,7 @@ public class ChoicePrintable {
 		this.model = model;
 	}
 	
-	public String getPrintableHTML(boolean showAnswers) {
+	public String getPrintableHTML(String className, boolean showAnswers) {
 		if (model.getPrintable() == PrintableMode.NO) return null;
 		
 		ArrayList<ChoiceOption> orderedOptions = new ArrayList<ChoiceOption>();
@@ -35,11 +36,13 @@ public class ChoicePrintable {
 			optionHTMLs.add(optionHTML);
 		}
 		
-		String result = "<div class=\"printable_ic_choice printable_module\" id=\"" + model.getId() +"\"><ol type=\"A\">";
+		String result = "<div class=\"printable_ic_choice\" id=\"" + model.getId() +"\"><ol type=\"A\">";
 		for (String optionHTML: optionHTMLs) {
 			result += optionHTML;
 		}
 		result += "</ol></div>";
+		
+		result = PrintableContentParser.addClassToPrintableModule(result, className);
 		
 		return result;
 	}

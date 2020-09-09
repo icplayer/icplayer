@@ -21,6 +21,7 @@ import com.lorepo.icf.properties.IVideoProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLUtils;
+import com.lorepo.icplayer.client.PrintableContentParser;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.Printable;
@@ -164,8 +165,11 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		
 		String addonName = "Addon" + getAddonId() + "_create";
 		JavaScriptObject jsModel = createJsModel(this);
+		String className = this.getStyleClass();
 		
-		return getPrintableHTML(addonName, jsModel, showAnswers);
+		String result = getPrintableHTML(addonName, jsModel,showAnswers);
+		result = PrintableContentParser.addClassToPrintableModule(result, className);
+		return result;
 	}
 	
 	private native String getPrintableHTML(String addonName, JavaScriptObject model, boolean showAnswers) /*-{
