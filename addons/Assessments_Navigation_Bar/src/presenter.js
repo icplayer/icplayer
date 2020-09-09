@@ -1337,12 +1337,25 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     function getRestorePagesObjectArray (pages) {
-        return pages.map(function (page) {
+        var restoredPages = pages.map(function (page) {
             var restoredPage = new presenter.Page(page.page, page.description, page.sectionName, page.sectionCssClass);
             restoredPage.setBookmarkOn(page.isBookmarkOn);
 
             return restoredPage;
         });
+
+        if (presenter.sections.allPages.length > 0) {
+            var pagesIndexesInSections = presenter.sections.allPages.map(function(page) {
+                return page.page;
+            });
+
+            return restoredPages.filter(function (page) {
+                return pagesIndexesInSections.indexOf(page.page) !== -1;
+            });
+        } else {
+            // if all pages are empty, then just return given state
+            return restoredPages;
+        }
     }
 
     presenter.setState = function(state){
@@ -1353,15 +1366,7 @@ function AddonAssessments_Navigation_Bar_create(){
         var parsedState = JSON.parse(state);
         var upgradedState = presenter.upgradeState(parsedState);
 
-        var restoredPages = getRestorePagesObjectArray(upgradedState.pages);
-
-        var pagesIndexesInSections = presenter.sections.allPages.map(function(page) {
-            return page.page;
-        });
-
-        presenter.sections.allPages = restoredPages.filter( function (page) {
-            return pagesIndexesInSections.indexOf(page.page) !== -1;
-        });
+        presenter.sections.allPages = getRestorePagesObjectArray(upgradedState.pages);
         presenter.navigationManager.restartLeftSideIndex();
         presenter.navigationManager.setSections();
         presenter.navigationManager.moveToCurrentPage();
