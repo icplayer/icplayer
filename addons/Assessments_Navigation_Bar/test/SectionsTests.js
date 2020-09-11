@@ -211,15 +211,17 @@ TestCase("[Assessments_Navigation_Bar] Filtering sections tests", {
         this.presenter = AddonAssessments_Navigation_Bar_create();
         this.stubs = {
             getPageCount: sinon.stub(),
-            getPresentation: sinon.stub()
+            getPresentation: sinon.stub(),
+            getPagesMapping: sinon.stub()
         };
 
         this.presentationStub = {
             getPageCount: this.stubs.getPageCount
         };
         this.playerControllerStub = {
-            getPresentation: this.stubs.getPresentation
-        }
+            getPresentation: this.stubs.getPresentation,
+            getPagesMapping: this.stubs.getPagesMapping
+        };
 
         this.stubs.getPresentation.returns(this.presentationStub);
         this.presenter.playerController = this.playerControllerStub;
@@ -229,6 +231,7 @@ TestCase("[Assessments_Navigation_Bar] Filtering sections tests", {
         var sectionPages = [1, 1, 1, 1];
         var sections = this.createSections(sectionPages);
         this.stubs.getPageCount.returns(sections.pageCount);
+        this.stubs.getPagesMapping.returns([0, 1, 2, 3]);
         var filtered = this.presenter.filterSectionsWithTooManyPages(sections.sections);
 
         assertEquals(sections.sections.length, filtered.length);
@@ -238,6 +241,7 @@ TestCase("[Assessments_Navigation_Bar] Filtering sections tests", {
         var sectionPages = [5, 1, 1, 1];
         var sections = this.createSections(sectionPages);
         this.stubs.getPageCount.returns(sections.pageCount);
+        this.stubs.getPagesMapping.returns([0, 1, 2, 3, 4, 5, 6, 7, 8]);
         var filtered = this.presenter.filterSectionsWithTooManyPages(sections.sections);
 
         assertEquals(sections.sections.length, filtered.length);
@@ -247,19 +251,22 @@ TestCase("[Assessments_Navigation_Bar] Filtering sections tests", {
         var sectionPages = [5, 1, 1, 1];
         var sections = this.createSections(sectionPages);
         this.stubs.getPageCount.returns(5 + 1);
+        this.stubs.getPagesMapping.returns([0, 1, 2, 3, 4, 5, null, null, null]);
         var filtered = this.presenter.filterSectionsWithTooManyPages(sections.sections);
 
         assertEquals(2, filtered.length);
     },
 
     'test given sections for which second section has more pages then needed when filtering section then returns 2 sections and second section pages are have correct length': function () {
-        var sectionPages = [5, 12, 1, 1];
+        var sectionPages = [5, 10, 1, 1];
         var sections = this.createSections(sectionPages);
         this.stubs.getPageCount.returns(5 + 2);
+        this.stubs.getPagesMapping.returns([0, 1, 2, 3, 4, 5, null, null, null, null, null, null]);
+
         var filtered = this.presenter.filterSectionsWithTooManyPages(sections.sections);
 
         assertEquals(2, filtered.length);
-        assertEquals(2, filtered[1].pages.length);
+        assertEquals(1, filtered[1].pages.length);
     },
 
     'test given sections which have less pages than lesson when filtering then returns original sections': function () {

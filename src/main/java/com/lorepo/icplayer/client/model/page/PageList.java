@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.model.page;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -41,12 +42,12 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	public String getName(){
 		return name;
 	}
-	
+
 	@Override
 	public String getId() {
 		return id;
-	}	
-	
+	}
+
 	private void generateId()
 	{
 		this.id = UUID.uuid(16);
@@ -59,7 +60,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			page.setPlayerServices(ps);
 		}
 	}
-	
+
 	public void setBaseURL(String baseURL) {
 		List<Page> pages = getAllPages();
 		for (Page page : pages) {
@@ -72,7 +73,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	public void addOnIndex(int index, IContentNode node){
 		nodes.add(index, node);
 	}
-	
+
 	@Override
 	public boolean add(IContentNode node){
 		return nodes.add(node);
@@ -98,7 +99,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 	public List<IContentNode> getPagesForChapter(IContentNode node) {
 		List<IContentNode> nodes = new Vector<IContentNode>();
-		
+
 		if(node instanceof Page){
 			nodes.add(node);
 		}
@@ -106,10 +107,10 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 			PageList chapter = (PageList) node;
 			nodes.addAll(chapter.getNodes());
 		}
-		
+
 		return nodes;
 	}
-	
+
 	public void insertBefore(int index, IContentNode node){
 		nodes.add(index, node);
 	}
@@ -123,21 +124,21 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	}
 
 
-	public boolean remove(IContentNode node){		
+	public boolean remove(IContentNode node){
 		boolean result = nodes.remove(node);
 
 		return result;
 	}
 
 
-	public boolean removeFromTree(IContentNode node, boolean removeAllNodes){		
+	public boolean removeFromTree(IContentNode node, boolean removeAllNodes){
 		boolean result = nodes.remove(node);
 		List<IContentNode> nodesList = null;
 		IChapter parentChapter = getParentChapter(node);
 		if(!removeAllNodes){
 			nodesList = getPagesForChapter(node);
 		}
-		
+
 
 		if(result){
 		}
@@ -151,7 +152,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 				}
 			}
 		}
-		
+
 		if(!removeAllNodes){
 			if(parentChapter != null){
 				for (IContentNode item : nodesList) {
@@ -260,36 +261,40 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	@Override
 	public void load(Element rootElement, String url) {
 		//for IXMLSerializable interface
-		load(rootElement, url, null, 0);
+		load(rootElement, url, null, 0, null);
 	}
 
 
-	public int load(Element rootElement, String url, ArrayList<Integer> subsetOfPages, int pageIndex) {
+	public int load(Element rootElement, String url, ArrayList<Integer> subsetOfPages, int pageIndex, ArrayList<Integer> pagesMapping) {
 		name = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(rootElement, "name"));
 		id = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(rootElement, "id"));
-		
+
 		if (id == "") {
 			generateId();
 		}
-		
+
 		boolean isLoadedWithSubset = subsetOfPages != null && subsetOfPages.size() > 0;
 		NodeList children = rootElement.getChildNodes();
-		
+
 		for(int i = 0; i < children.getLength(); i++){
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
 				if(node.getNodeName().compareTo("page") == 0){
-					if (isLoadedWithSubset && !subsetOfPages.contains(pageIndex)) { 
+					if (isLoadedWithSubset && !subsetOfPages.contains(pageIndex)) {
+                        if (pagesMapping != null) pagesMapping.add(null);
 						pageIndex++;
 						continue;
-					} else {		
+					} else {
+                        if (pagesMapping != null) {
+                            pagesMapping.add(pageIndex);
+                        }
 						Page page = loadPage(node);
 						add(page);
 						pageIndex++;
 					}
 				} else if(node.getNodeName().compareTo("chapter") == 0) {
 					PageList chapter = new PageList();
-					pageIndex = chapter.load(node, url, subsetOfPages, pageIndex);
+					pageIndex = chapter.load(node, url, subsetOfPages, pageIndex, pagesMapping);
 					nodes.add(chapter);
 				}
 			}
@@ -357,7 +362,7 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	public boolean contains(IContentNode node){
 		return nodes.contains(node);
 	}
-	
+
 	public List<IContentNode> getNodes(){
 		return nodes;
 	}
@@ -450,11 +455,11 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 
 	public IChapter getParentChapter(IContentNode node) {
 		IChapter parent = null;
-		
+
 		if (node == null) {
 			return this;
 		}
-		
+
 		for(IContentNode item : nodes){
 			if(item == node){
 				parent = this;

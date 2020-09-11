@@ -569,6 +569,10 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContentMetadataValue(Ljava/lang/String;)(key);
 		}
 
+		playerServices.getPagesMapping = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPagesMapping()();
+		}
+
 		return playerServices;
 	}-*/;
 
@@ -1016,6 +1020,10 @@ public class JavaScriptPlayerServices {
 
 	public String getContentMetadataValue(String key) {
 		return playerServices.getContentMetadata(key);
+	}
+
+	public JavaScriptObject getPagesMapping() {
+		return JavaScriptUtils.convertIntegerListToJSArray(playerServices.getModel().getPagesMapping());
 	}
 
 	public JavaScriptObject getModuleMetadata(String moduleID) {

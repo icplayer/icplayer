@@ -45,6 +45,7 @@ public class Content implements IContentBuilder, IContent {
 	private String footerPageName = "commons/footer";
 
 	private HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
+	private ArrayList<Integer> pagesMapping = new ArrayList<Integer>();
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
 
 	private int maxPagesCount = 100;
@@ -129,6 +130,17 @@ public class Content implements IContentBuilder, IContent {
 		}
 	}
 
+	public void setPagesSubsetMap(ArrayList<Integer> mapping) {
+		/*
+		Basic idea is that, if page is skipped then it has null set in array at its index, otherwise it has it real index in the page subset.
+		Ex:
+		Original pages: 0, 1, 2, 3, 4, 5
+		Subset: 0, 1, 2, 5
+		Mapping: 0, 1, 2, null, null, 3
+		So page at index 5 has now index 3.
+		* */
+		this.pagesMapping = mapping;
+	}
 
 	public IAsset getAsset(int index){
 
@@ -318,7 +330,12 @@ public class Content implements IContentBuilder, IContent {
 		return commonPages.findPageIndexById(pageId);
 	}
 
-	
+	@Override
+	public ArrayList<Integer> getPagesMapping() {
+		return this.pagesMapping;
+	}
+
+
 	public Page getDefaultHeader(){
 		return findPageByName(this.headerPageName);
 	}

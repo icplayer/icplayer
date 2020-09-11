@@ -469,6 +469,7 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.filterSectionsWithTooManyPages = function(sections) {
+        var mapping = presenter.playerController.getPagesMapping();
         var lessonPageCount = presenter.playerController.getPresentation().getPageCount();
         var pagesInSections = sections.reduce(
             function (accumulator, section) {
@@ -478,20 +479,15 @@ function AddonAssessments_Navigation_Bar_create(){
         );
 
         if (pagesInSections > lessonPageCount) { // more pages in sections than in lesson
-            var addedSectionPagesCount = 0;
-            var i = 0; // if ever changed to let...
-            for (; i < sections.length && addedSectionPagesCount < lessonPageCount; ++i) {
-                addedSectionPagesCount += sections[i].pages.length;
+            for (var i = 0; i < sections.length; i++) {
+                sections[i].pages = sections[i].pages.filter(function (page) {
+                    return mapping.indexOf(page) >= 0;
+                });
             }
 
-            var sectionsWithinPagesLimit = sections.slice(0, i);
-            var pagesDifference = addedSectionPagesCount - lessonPageCount;
-            if (pagesDifference > 0) { // this means that last section has more pages defined than it needs to has
-                var lastSectionPagesCount = sectionsWithinPagesLimit[i - 1].pages.length;
-                sectionsWithinPagesLimit[i - 1].pages = sectionsWithinPagesLimit[i - 1].pages.slice(0, lastSectionPagesCount - pagesDifference)
-            }
-
-            return sectionsWithinPagesLimit;
+            sections = sections.filter(function(section) {
+                return section.pages.length > 0;
+            });
         }
 
         return sections;
