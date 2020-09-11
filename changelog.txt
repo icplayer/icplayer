@@ -1,3 +1,4 @@
+2020-09-11 Fixed state of marker tool in IWB Toolbar not being saved
 2020-08-17 Added property to Assesment Navigation Bar for switching off the randomization
 2020-07-21 Changed icon of YouTube addon
 2020-06-26 Changed the way lesson score is rounded
