@@ -2127,5 +2127,96 @@ function AddonTable_create() {
         return presenter.gapsContainer.isGapAttempted(gapIndex);
     };
 
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
+        presenter.$view = $('<div></div>');
+        presenter.$wrapper = $('<div></div>');
+        presenter.$view.append(presenter.$wrapper);
+        presenter.$wrapper.addClass('printable_addon_Table');
+        var $table = presenter.generateTable(presenter.configuration.contents, false);
+        var result = $table[0].outerHTML;
+        result = parsePrintableGaps(result, showAnswers);
+        return result;
+    };
+
+    function parsePrintableGaps (html, showAnswers) {
+        html = parsePrintableEditableGaps(html, false, showAnswers);
+        html = parsePrintableEditableGaps(html, true, showAnswers);
+        html = parsePrintableDropdownGaps(html, false, showAnswers);
+        return html;
+    }
+
+    function parsePrintableEditableGaps (html, isFilledGap, showAnswers) {
+        var gapRegex = "";
+        if (isFilledGap) {
+            gapRegex = /\\filledGap{.*?}/g;
+        } else {
+            gapRegex = /\\gap{.*?}/g;
+        }
+        var found = html.match(gapRegex);
+        for (var i = 0; i < found.length; i++) {
+            var match = found[i];
+            var answers = [];
+            var initialValue = "";
+            if (isFilledGap) {
+                answers = match.replace("\\filledGap{","").replace("}","").split("|");
+                initialValue = answers.splice(0, 1);
+            } else {
+                answers = match.replace("\\gap{","").replace("}","").split("|");
+            }
+            var $input = $("<input></input>");
+            $input.css("border-width","0px");
+            $input.css("border-bottom-width","1px");
+            if (showAnswers) {
+                var answer = answers.join(", ");
+                $input.attr('size',answer.length);
+                $input.attr("value", answer);
+            } else {
+                var longestAnswer = "";
+                for (var j = 0; j < answers.length; j++) {
+                    if (answers[j].length > longestAnswer.length) {
+                        longestAnswer = answers[j];
+                    }
+                }
+                $input.attr('size',longestAnswer.length);
+            }
+            html = html.replace(match, initialValue + $input[0].outerHTML);
+        }
+        return html;
+    }
+
+    function parsePrintableDropdownGaps (html, keepOrder, showAnswers) {
+        var gapRegex = /{{.*?}}/g;
+        var found = html.match(gapRegex);
+        for (var i = 0; i < found.length; i++) {
+            var match = found[i];
+            var answers = match.replace("{{","").replace("}}","").split("|");
+            for (var j = 0; j < answers.length; j++) {
+                var correctRegex = /[0-9]*?:/;
+                if (correctRegex.test(answers[j])) {
+                    answers[j] = answers[j].replace(correctRegex, "");
+                    if (showAnswers) {
+                        answers[j] = "<u>" + answers[j] + "</u>";
+                    }
+                }
+            }
+
+            if (!keepOrder) {
+                for (var index = answers.length - 1; index > 0; index--) {
+                  var newIndex = Math.floor(Math.random() * (index+1));
+                  if (newIndex != index) {
+                      var temp = answers[index];
+                      answers[index] = answers[newIndex];
+                      answers[newIndex] = temp;
+                  }
+                }
+            }
+
+            var dropdown = "[" + answers.join(", ") + "]";
+            html = html.replace(match, dropdown);
+        }
+        return html;
+    }
+
     return presenter;
 }

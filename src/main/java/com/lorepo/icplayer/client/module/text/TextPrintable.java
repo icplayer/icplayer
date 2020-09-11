@@ -5,6 +5,7 @@ import java.util.Iterator;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 
 public class TextPrintable {
@@ -33,6 +34,7 @@ public class TextPrintable {
 	}
 	
 	private String makePrintableInput(String parsedText, boolean showAnswers) {
+		JavaScriptUtils.log("makePrintableInput");
 		HTML html = new HTML(parsedText);
 		
 		NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
@@ -41,24 +43,27 @@ public class TextPrintable {
 			String oldValue = input.getString();
 			input.setAttribute("style", "border-width:0px; border-bottom-width:1px");
 			
-			if (showAnswers) {
-				GapInfo gapInfo = model.getGapInfos().get(i);
-				Iterator<String> answers = gapInfo.getAnswers();
-				String value = "";
-				int longestAnswer = 0;
-				do {
-					String nextAnswer = answers.next();
-					if (nextAnswer.length() > longestAnswer) {
-						longestAnswer = nextAnswer.length();
-					}
+			GapInfo gapInfo = model.getGapInfos().get(i);
+			Iterator<String> answers = gapInfo.getAnswers();
+			String value = "";
+			int gapSize = 0;
+			do {
+				String nextAnswer = answers.next();
+				if (showAnswers) {
 					value += nextAnswer;
 					if (answers.hasNext()) {
 						value += ", ";
+					} else {
+						gapSize = value.length();
 					}
-				} while(answers.hasNext());	
-				input.setAttribute("value", value);
-				input.setAttribute("size", Integer.toString(longestAnswer));
-			}
+				} else {
+					if (nextAnswer.length() > value.length()) {
+						gapSize = value.length();
+					}
+				}
+			} while(answers.hasNext());	
+			input.setAttribute("value", value);
+			input.setAttribute("size", Integer.toString(value.length()));
 			
 			String placeholder = input.getAttribute("placeholder");
 			if(placeholder.length() > 0) {
@@ -68,12 +73,12 @@ public class TextPrintable {
 			String newValue = input.getString();
 			
 			if (placeholder.length() > 0) {
-				newValue += "(" + placeholder + ")";
+				newValue = placeholder + newValue;
 			}
 			
 			parsedText = parsedText.replace(oldValue, newValue);
 		}
-		
+		JavaScriptUtils.log("makePrintableInput DONE");
 		return parsedText;
 	}
 	
