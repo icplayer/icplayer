@@ -317,7 +317,8 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, I
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
 		ImagePrintable printable = new ImagePrintable(this);
-		String result = printable.getPrintableHTML(showAnswers);	
+		String className = this.getStyleClass();
+		String result = printable.getPrintableHTML(className, showAnswers);	
 		return result;
 	}
 

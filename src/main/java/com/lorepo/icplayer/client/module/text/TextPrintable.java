@@ -5,7 +5,7 @@ import java.util.Iterator;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.PrintableContentParser;
 import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 
 public class TextPrintable {
@@ -16,7 +16,7 @@ public class TextPrintable {
 		this.model = model;
 	}
 	
-	public String getPrintableHTML(boolean showAnswers) {
+	public String getPrintableHTML(String className, boolean showAnswers) {
 		if (model.getPrintable() == PrintableMode.NO) {
 			return null;
 		}
@@ -29,12 +29,12 @@ public class TextPrintable {
 		// Convert all dropdowns to a printer-friendly format
 		parsedText = makePrintableDropdowns(parsedText, showAnswers);
 		
-		String result = "<div class=\"printable_ic_text printable_module\" id=\"" + model.getId() +"\">" + parsedText + "</div>";	
+		String result = "<div class=\"printable_ic_text\" id=\"" + model.getId() +"\">" + parsedText + "</div>";
+		result = PrintableContentParser.addClassToPrintableModule(result, className);
 		return result;
 	}
 	
 	private String makePrintableInput(String parsedText, boolean showAnswers) {
-		JavaScriptUtils.log("makePrintableInput");
 		HTML html = new HTML(parsedText);
 		
 		NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
@@ -78,7 +78,6 @@ public class TextPrintable {
 			
 			parsedText = parsedText.replace(oldValue, newValue);
 		}
-		JavaScriptUtils.log("makePrintableInput DONE");
 		return parsedText;
 	}
 	
