@@ -149,18 +149,15 @@ function AddonStandard_Shapes_create(){
         presenter.$view = $(view);
         var containerDimensions = DOMOperationsUtils.getOuterDimensions(presenter.$view);
         var containerDistances = DOMOperationsUtils.calculateOuterDistances(containerDimensions);
-
         presenter.$view.css({
             width : (presenter.$view.width() - containerDistances.horizontal) + 'px',
             height : (presenter.$view.height() - containerDistances.vertical) + 'px'
         });
-
         presenter.configuration = presenter.validateModel(model);
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
-
         var canvasWrapper = presenter.$view.find('.standardshapes-wrapper:first')[0];
         var wrapperDimensions = DOMOperationsUtils.getOuterDimensions(canvasWrapper);
         var wrapperDistances = DOMOperationsUtils.calculateOuterDistances(wrapperDimensions);
@@ -665,6 +662,7 @@ function AddonStandard_Shapes_create(){
         $('body').append($printableView);
         presenterLogic($printableView[0], model);
         $printableView.detach();
+        $printableView.css("visibility", "");
         return $printableView[0].outerHTML;
     };
 
