@@ -1725,6 +1725,7 @@ var ice_dictionary_pl = {
     "Assessments_Navigation_Bar_property_add_class_are_all_attempted": "\"Navigationbar-page-attempted\" w czasie rzeczywistym",
 	"Assessments_Navigation_Bar_property_number_of_buttons": "Liczba przycisków",
 	"Assessments_Navigation_Bar_property_width_of_buttons": "Szerokość przycisków",
+	"Assessments_Navigation_Bar_property_default_order": "Default order",
     "Line_Selection_name" : "Wybór linii",
     "Line_Selection_info" : "Pozwala na dodanie do prezentacji wybieralnych linii.",
     "Line_Selection_property_is_activity" : "Jest ćwiczeniem",
@@ -2025,5 +2026,10 @@ var ice_dictionary_pl = {
 	"Cross_Lesson_property_lesson_id": "Defined lesson id",
 	"Cross_Lesson_property_course_id": "Course id",
 	"Cross_Lesson_property_page": "Page",
-	"Cross_Lesson_property_type": "Type"
+	"Cross_Lesson_property_type": "Type",
+	"printable_name_label": "Printable",
+	"printable_is_section": "is section",
+	"printable_preview": "Print preview",
+	"printable_lesson_preview": "Lesson preview",
+	"printable_preview_error_message": "An error has occurred while generating the preview"
 };

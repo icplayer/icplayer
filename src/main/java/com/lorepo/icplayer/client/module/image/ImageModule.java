@@ -12,9 +12,12 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
+import com.lorepo.icplayer.client.module.Printable;
+import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 
-public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
+public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
 
 	public enum DisplayMode{
 		stretch,
@@ -26,7 +29,7 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
 	private DisplayMode mode = DisplayMode.stretch;
 	private boolean animatedGifRefresh = false;
 	private String alternativeText = "";
-	
+	private String printableValue = "No";
 	
 	public ImageModule() {
 		super("Image", DictionaryWrapper.get("image_module"));
@@ -35,6 +38,7 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
 		addPropertyMode();
 		addPropertyAnimatedGifRefresh();
 		this.addPropertyAlternativeText();
+		addPropertyPrintable();
 	}
 
 	
@@ -68,6 +72,7 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
 					imagePath = StringUtils.unescapeXML(childElement.getAttribute("src"));
 					String modeName = childElement.getAttribute("mode");
 					setModeFromString(modeName);
+					printableValue = XMLUtils.getAttributeAsString(childElement, "printable");
 					animatedGifRefresh = XMLUtils.getAttributeAsBoolean(childElement, "animatedGifRefresh", false);
 					this.alternativeText = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "alt"));
 				}
@@ -94,6 +99,7 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
 		imageElement.setAttribute("src", StringUtils.escapeHTML(imagePath));
 		imageElement.setAttribute("alt", StringUtils.escapeXML(this.alternativeText));
 		imageElement.setAttribute("mode", mode.toString());
+		imageElement.setAttribute("printable", printableValue);
 		imageElement.setAttribute("animatedGifRefresh", Boolean.toString(animatedGifRefresh));
 
 		imageModule.appendChild(imageElement);
@@ -259,5 +265,72 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel {
 	
 	public DisplayMode getDisplayMode(){
 		return mode;
+	}
+	
+	private void addPropertyPrintable() {
+		IProperty property = new IEnumSetProperty() {
+
+			@Override
+			public void setValue(String newValue) {	
+				printableValue = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return printableValue;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return 3;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				return Printable.getStringValues(index);
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public PrintableMode getPrintable() {
+		return Printable.getPrintableModeFromString(printableValue);
+	}
+
+
+	@Override
+	public String getPrintableHTML(boolean showAnswers) {
+		ImagePrintable printable = new ImagePrintable(this);
+		String className = this.getStyleClass();
+		String result = printable.getPrintableHTML(className, showAnswers);	
+		return result;
+	}
+
+
+	@Override
+	public PrintableMode getPrintableMode() {
+		return getPrintable();
+	}
+
+
+	@Override
+	public boolean isSection() {
+		return false;
 	}
 }

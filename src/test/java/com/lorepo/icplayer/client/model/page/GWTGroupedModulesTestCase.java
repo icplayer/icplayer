@@ -75,7 +75,7 @@ public class GWTGroupedModulesTestCase extends GwtTest {
 		group.initGroupPropertyProvider();
 
 		String groupXML = group.toXML();
-		String xml = "<group id=\"" + group.getId() + "\">" 
+		String xml = "<group id=\"" + group.getId() + "\" printable=\"No\">" 
 				+ "<scoring type=\"defaultScore\" max=\"1\"/>"
 				+ "<groupedModulesList>"
 				+ "<groupModule moduleID=\"PrevPage\"/><groupModule moduleID=\"NextPage\"/>"

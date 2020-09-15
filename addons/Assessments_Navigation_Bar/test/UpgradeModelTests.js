@@ -3,18 +3,21 @@ TestCase("[Assessments_Navigation_Bar] Upgrade Model", {
     setUp: function () {
         this.presenter = AddonAssessments_Navigation_Bar_create();
         this.stubs = {
-            upgradeNumberAndWithOfButtons: sinon.stub(this.presenter, 'upgradeNumberAndWidthOfButtons')
+            upgradeNumberAndWithOfButtons: sinon.stub(this.presenter, 'upgradeNumberAndWidthOfButtons'),
+            upgradeDefaultOrder: sinon.stub(this.presenter, 'upgradeDefaultOrder')
         };
     },
 
     tearDown: function () {
         this.presenter.upgradeNumberAndWidthOfButtons.restore();
+        this.presenter.upgradeDefaultOrder.restore();
     },
 
-    "test should upgrade number of buttons and width of buttons property if there is none": function () {
+    "test given model without properties when upgrading model then calls upgrade functions": function () {
         this.presenter.upgradeModel({});
 
         assertTrue(this.stubs.upgradeNumberAndWithOfButtons.calledOnce);
+        assertTrue(this.stubs.upgradeDefaultOrder.calledOnce);
     }
 });
 
@@ -63,6 +66,43 @@ TestCase("[Assessments_Navigation_Bar] Upgrade number and width of buttons", {
         assertNotUndefined(upgradedModel.userButtonsWidth);
         assertEquals(validModel.userButtonsWidth, upgradedModel.userButtonsWidth);
     }
+});
+
+
+TestCase("[Assessments_Navigation_Bar] Upgrade default order", {
+
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+    },
+
+    "test given empty model when upgrading model then sets default order property to False": function () {
+        var upgradedModel = this.presenter.upgradeModel({});
+
+        assertNotUndefined(upgradedModel.defaultOrder);
+        assertEquals(upgradedModel.defaultOrder, "False");
+    },
+
+    "test given not empty model when upgrading model then sets default order property to False and does not change other poperty": function () {
+        var upgradedModel = this.presenter.upgradeModel({
+            someProp: 123
+        });
+
+        assertNotUndefined(upgradedModel.defaultOrder);
+        assertEquals(upgradedModel.defaultOrder, "False");
+        assertEquals(upgradedModel.someProp, 123);
+    },
+
+    'test given model with defaultOrder property when upgrading model then does not set that property': function () {
+        var validModel = {
+            defaultOrder: "5"
+        };
+
+        var upgradedModel = this.presenter.upgradeModel(validModel);
+
+        assertNotUndefined(upgradedModel.defaultOrder);
+        assertEquals(validModel.defaultOrder, upgradedModel.defaultOrder);
+    }
+
 });
 
 TestCase("[Assessments Navigation Bar] runLogic flow for upgrade model", {

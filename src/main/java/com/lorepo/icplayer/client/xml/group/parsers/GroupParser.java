@@ -8,6 +8,8 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.dimensions.ModuleDimensions;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.group.Group;
+import com.lorepo.icplayer.client.module.Printable;
+import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.semi.responsive.SemiResponsiveStyles;
 import com.lorepo.icplayer.client.semi.responsive.StylesDTO;
@@ -32,6 +34,9 @@ public class GroupParser {
 		
 		groupModule.appendChild(group.getSemiResponsivePositions().toXML());
 		groupModule.appendChild(group.stylesToXML());
+		
+		String printableValue = Printable.getStringValues(group.getPrintable());
+		groupModule.setAttribute("printable", printableValue);
 		return groupModule.toString();
 	}
 	
@@ -43,9 +48,12 @@ public class GroupParser {
 		group.setScoreFromString(DictionaryWrapper.get(scoring.getAttribute("type")));
 		int maxScore = Integer.parseInt(scoring.getAttribute("max"));
 		String id = groupNode.getAttribute("id");
+		String printableValue = groupNode.getAttribute("printable");
 
 		group.setId(id);
 		group.setMaxScore(maxScore);
+		PrintableMode printable = Printable.getPrintableModeFromString(printableValue);
+		group.setPrintable(printable);
 		
 		for (int j = 0; j < groupModuleElements.getLength(); j++) {
 			Element groupModule = (Element) groupModuleElements.item(j);

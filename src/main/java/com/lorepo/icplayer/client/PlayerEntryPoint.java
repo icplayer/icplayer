@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.lorepo.icf.utils.ILoadListener;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -102,6 +104,14 @@ public class PlayerEntryPoint implements EntryPoint {
 
 			player.setContextMetadata = function(contextData){
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::contextMetadata = contextData;
+			};
+			
+			player.getPrintableHTML = function(randomizePages, randomizeModules, showAnswers) {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::generatePrintableHTML(ZZZ)(randomizePages, randomizeModules, showAnswers);
+			};
+			
+			player.preloadAllPages = function(callback) {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::preloadAllPages(Lcom/google/gwt/core/client/JavaScriptObject;)(callback);
 			};
 		}
 
@@ -254,5 +264,26 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	public JavaScriptObject getContextMetadata() {
 		return this.contextMetadata;
+	}
+	
+	private String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
+		return theApplication.generatePrintableHTML(randomizePages, randomizeModules, showAnswers);
+	}
+	
+	private void preloadAllPages(final JavaScriptObject callback) {
+		theApplication.preloadAllPages(new ILoadListener() {
+
+			@Override
+			public void onFinishedLoading(Object obj) {
+				fireCallback(callback);
+				
+			}
+
+			@Override
+			public void onError(String error) {
+				JavaScriptUtils.log("Loading pages error: " + error);
+			}
+			
+		});
 	}
 }

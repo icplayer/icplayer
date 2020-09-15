@@ -27,5 +27,6 @@
             </property>
 		</property>
 		<property name="isDisabled" displayName="Is disabled" nameLabel="TrueFalse_property_is_disabled" type="boolean" />
+		<property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
 	</model>
 </addon>
