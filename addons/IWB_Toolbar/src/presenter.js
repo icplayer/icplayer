@@ -498,6 +498,7 @@ function AddonIWB_Toolbar_create() {
         presenter.tmp_ctx.clearRect(0, 0, presenter.iwb_tmp_canvas.width, presenter.iwb_tmp_canvas.height);
 
         presenter.points = [];
+        presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
     };
 
     presenter.markerMouseDownHandler = function IWB_Toolbar_markerMouseDownHandler(e) {

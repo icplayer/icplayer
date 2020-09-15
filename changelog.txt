@@ -1,5 +1,10 @@
-2020-06-23 Added new properties for ValueChanged event and added method for injecting eventbus for addons
-2020-06-23 Added possibility for creating adaptive lessons
+2020-09-15 Added new properties for ValueChanged event and added method for injecting eventbus for addons
+2020-09-15 Added possibility for creating adaptive lessons
+2020-09-11 Fixed state of marker tool in IWB Toolbar not being saved
+2020-08-17 Added property to Assesment Navigation Bar for switching off the randomization
+2020-07-21 Changed icon of YouTube addon
+2020-06-26 Changed the way lesson score is rounded
+2020-06-20 Add checking if gap is audio gap
 2020-06-19 Add getresponseindex to commands in Feedback addon
 2020-06-17 Fix page weight in utils.
 2020-06-08 Added checking if event item is null in MultiAudio

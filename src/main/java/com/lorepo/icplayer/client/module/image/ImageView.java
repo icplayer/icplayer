@@ -8,7 +8,6 @@ import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Image;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
@@ -92,20 +91,8 @@ public class ImageView extends AbsolutePanel implements IDisplay, IWCAG, IWCAGMo
 
 	
 	private void keepAspect(int width, int height) {
+		ImageViewUtils.keepAspect(image, width, height);
 		if(image.getWidth() > 0 && image.getHeight() > 0){
-		
-			float aspectX = width/(float)image.getWidth();
-			float aspectY = height/(float)image.getHeight();
-
-			if(aspectX < aspectY){
-				int newHeight = (int) (image.getHeight()*aspectX);
-				image.setPixelSize(width, newHeight);
-			}
-			else{
-				int newWidth = (int) (image.getWidth()*aspectY);
-				image.setPixelSize(newWidth, height);
-			}
-			
 			center();
 		}
 	}

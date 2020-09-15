@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
+import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticListProperty;
@@ -12,21 +13,25 @@ import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
+import com.lorepo.icplayer.client.module.Printable;
+import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 
-public class SourceListModule extends BasicModuleModel implements IWCAGModuleModel {
+public class SourceListModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
 	private ArrayList<String> items = new ArrayList<String>();
 	private boolean removable = true;
 	private boolean vertical = false;
 	private boolean randomOrder = false;
 	private String langAttribute = "";
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
+	private String printableValue = "No";
 	
 	public SourceListModule() {
 		super("Source list", DictionaryWrapper.get("source_list_module"));
-		
+
 		initData();
 		addPropertyItems(true);
 		addPropertyRemovable();
@@ -34,6 +39,7 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 		addPropertyRandomOrder();
 		addPropertySpeechTexts();
 		addPropertyLangAttribute();
+		addPropertyPrintable();
 	}
 
 	private void initData() {
@@ -62,6 +68,7 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 			vertical = XMLUtils.getAttributeAsBoolean(itemsElement, "vertical", false);
 			randomOrder = XMLUtils.getAttributeAsBoolean(itemsElement, "randomOrder", false);
 			langAttribute = XMLUtils.getAttributeAsString(itemsElement, "langAttribute");
+			printableValue = XMLUtils.getAttributeAsString(itemsElement, "printable");
 			this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(itemsElement, "selected"));
 			this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(itemsElement, "deselected"));
 		}
@@ -94,7 +101,8 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 		itemsElement.setAttribute("selected", this.speechTextItems.get(0).getText());
 		itemsElement.setAttribute("deselected", this.speechTextItems.get(1).getText());
 		itemsElement.setAttribute("langAttribute", langAttribute);
-
+		itemsElement.setAttribute("printable", printableValue);
+		
 		for (String item : items) {
 			Element itemElement = XMLUtils.createElement("item");
 			itemElement.appendChild(XMLUtils.createCDATASection(item));
@@ -412,6 +420,70 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 	
 	public String getLangAttribute () {
 		return this.langAttribute;
+	}
+	
+	private void addPropertyPrintable() {
+		IProperty property = new IEnumSetProperty() {
+
+			@Override
+			public void setValue(String newValue) {	
+				printableValue = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return printableValue;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return 3;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				return Printable.getStringValues(index);
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public PrintableMode getPrintable() {
+		return Printable.getPrintableModeFromString(printableValue);
+	}
+
+	@Override
+	public String getPrintableHTML(boolean showAnswers) {
+		SourceListPrintable printable = new SourceListPrintable(this);
+		String className = this.getStyleClass();
+		String result = printable.getPrintableHTML(className, showAnswers);
+		return result;
+	}
+
+	@Override
+	public PrintableMode getPrintableMode() {
+		return getPrintable();
+	}
+
+	@Override
+	public boolean isSection() {
+		return false;
 	}
 	
 }
