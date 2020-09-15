@@ -78,6 +78,7 @@ public class TextPrintable {
 			
 			parsedText = parsedText.replace(oldValue, newValue);
 		}
+
 		return parsedText;
 	}
 	

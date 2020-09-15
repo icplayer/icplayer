@@ -1928,11 +1928,11 @@ function AddonConnection_create() {
     presenter.getPrintableHTML = function (model, showAnswers) {
         model = presenter.upgradeModel(model);
 
-        var $root = $("<div></div>")
+        var $root = $("<div></div>");
         $root.attr('id', model.ID);
         $root.addClass('printable_addon_Connection');
-        $root.css("max-width", model["Width"]+"px");
-        $root.css("min-height", model["Height"]+"px");
+        $root.css("width", model["Width"]+"px");
+        $root.css("height", model["Height"]+"px");
         $root.html('<table class="connectionContainer">' +
             '    <tr>' +
             '        <td class="connectionLeftColumn">' +
@@ -1959,12 +1959,12 @@ function AddonConnection_create() {
         } else {
             this.loadRandomElementsRight($root[0], model, 'connectionRightColumn', 'Right column', true);
         }
-
-        $root.css('visibility','hidden');
-        $('body').append($root);
+        this.setColumnsWidth($root[0], model["Columns width"]);
 
 
         if (showAnswers) {
+            $root.css('visibility','hidden');
+            $('body').append($root);
             var connections = $root.find('svg');
             for (var i = 0; i < model["Left column"].length; i++) {
                 var element = presenter.elements[i];
@@ -1972,10 +1972,10 @@ function AddonConnection_create() {
                     drawSVGLine(connections, element.id,element.connects, model);
                 }
             }
+            $root.detach();
+            $root.css('visibility','visible');
         }
 
-        $root.detach();
-        $root.css('visibility','visible');
         return $root[0].outerHTML;
     };
 

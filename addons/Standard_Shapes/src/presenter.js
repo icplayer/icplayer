@@ -654,5 +654,19 @@ function AddonStandard_Shapes_create(){
         presenter.setVisibility(isVisible);
     };
 
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        var $printableView = $("<div></div>");
+        $printableView.addClass("printable_addon_Standard_Shapes");
+        $printableView.css("height", model.Height + "px");
+        $printableView.css("width", model.Width + "px");
+        var $wrapper = $("<div class=\"standardshapes-wrapper\"></div>");
+        $printableView.append($wrapper);
+        $printableView.css("visibility", "hidden");
+        $('body').append($printableView);
+        presenter.presenterLogic($printableView[0], model);
+        $printableView.detach();
+        return $printableView[0].outerHTML;
+    };
+
     return presenter;
 }

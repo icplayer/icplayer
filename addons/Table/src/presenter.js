@@ -2130,11 +2130,15 @@ function AddonTable_create() {
     presenter.getPrintableHTML = function (model, showAnswers) {
         presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
         presenter.$view = $('<div></div>');
+        presenter.$view.addClass('printable_addon_Table');
+        presenter.$view.css('min-height', model.Height + 'px');
+        presenter.$view.css('width', model.Width + 'px');
         presenter.$wrapper = $('<div></div>');
+        presenter.$wrapper.addClass('table-addon-wrapper');
         presenter.$view.append(presenter.$wrapper);
-        presenter.$wrapper.addClass('printable_addon_Table');
         var $table = presenter.generateTable(presenter.configuration.contents, false);
-        var result = $table[0].outerHTML;
+        presenter.$wrapper.append($table);
+        var result = presenter.$view[0].outerHTML;
         result = parsePrintableGaps(result, showAnswers);
         return result;
     };
