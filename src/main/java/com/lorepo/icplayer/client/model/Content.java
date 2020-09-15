@@ -29,7 +29,7 @@ import com.lorepo.icplayer.client.xml.content.IContentBuilder;
 
 public class Content implements IContentBuilder, IContent {
 
-	public final static String version = "2";
+	public final static String version = "3";
 	public enum ScoreType { first, last }
 
 	private static final String COMMONS_FOLDER = "commons/";
@@ -43,6 +43,7 @@ public class Content implements IContentBuilder, IContent {
 	private String		baseUrl = "";
 	private String headerPageName = "commons/header";
 	private String footerPageName = "commons/footer";
+	private String adaptiveStructure = "";
 
 	private HashMap<String, CssStyle> styles = new HashMap<String, CssStyle>();
 	private LayoutsContainer layoutsContainer = new LayoutsContainer();
@@ -223,6 +224,11 @@ public class Content implements IContentBuilder, IContent {
 		}
 		xml += 	"</assets>";
 
+		// Adaptive
+		xml += "<adaptive><![CDATA[";
+		xml += adaptiveStructure;
+		xml += 	"]]></adaptive>";
+
 		xml += 	"</interactiveContent>";
 		return xml;
 	}
@@ -253,6 +259,15 @@ public class Content implements IContentBuilder, IContent {
 		return xml;
 	}
 
+
+	public String getAdaptiveStructure() {
+		return adaptiveStructure;
+	}
+
+	@Override
+	public void setAdaptiveStructure(String structure) {
+		this.adaptiveStructure = structure;
+	}
 
 	@Override
 	public int getPageCount() {

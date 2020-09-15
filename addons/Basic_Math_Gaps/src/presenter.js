@@ -10,7 +10,10 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.setPlayerController = function (controller) {
         this.playerController = controller;
-        presenter.eventBus = this.playerController.getEventBus();
+    };
+
+    presenter.setEventBus = function(wrappedEventBus) {
+        presenter.eventBus = wrappedEventBus;
     };
 
     presenter.getErrorObject = function (errorCode) {

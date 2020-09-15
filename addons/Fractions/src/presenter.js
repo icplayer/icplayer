@@ -1126,7 +1126,10 @@ function AddonFractions_create(){
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
-        presenter.eventBus = presenter.playerController.getEventBus();
+    };
+
+    presenter.setEventBus = function(eventBus) {
+        presenter.eventBus = eventBus;
     };
 
     presenter.createEventData = function(partNumber,clickValue,checkScore) {

@@ -15,6 +15,7 @@ import com.lorepo.icplayer.client.xml.RequestFinishedCallback;
 import com.lorepo.icplayer.client.xml.XMLVersionAwareFactory;
 import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v0;
 import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v1;
+import com.lorepo.icplayer.client.xml.content.parsers.ContentParser_v2;
 import com.lorepo.icplayer.client.xml.content.parsers.IContentParser;
 
 public class ContentFactory extends XMLVersionAwareFactory {
@@ -24,6 +25,7 @@ public class ContentFactory extends XMLVersionAwareFactory {
 		this.setPagesSubset(pagesSubset);
 		this.addParser(new ContentParser_v0());
 		this.addParser(new ContentParser_v1());
+		this.addParser(new ContentParser_v2());
 	}
 	
 	public void setPagesSubset(ArrayList<Integer> pagesSubset) {
