@@ -4,19 +4,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsArrayInteger;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JSONValueAdapter;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
 import com.lorepo.icplayer.client.model.adaptive.AdaptivePageSteps;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveStructure;
-import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
-import com.lorepo.icplayer.client.page.PageController;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 
 public class AdaptiveLearningService implements IAdaptiveLearningService {
 	private AdaptiveStructure structure;
@@ -62,9 +58,11 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		return this.currentPageIndex < this.vistiedPageIndexes.size() - 1;
 	}
 
-	public void addNextPage(String pageID) {
+	public void addAndMoveToNextPage(String pageID) {
+		this.setPagesFromStepNonReportable(pageID);
 		this.playerController.switchToPageById(pageID);
-		this.vistiedPageIndexes.add(this.playerController.getCurrentPageIndex());		
+		this.vistiedPageIndexes.add(this.playerController.getCurrentPageIndex());
+		this.currentPageIndex++;
 	}
 	
 	public void moveToNextPage() {
@@ -80,8 +78,6 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 			this.playerController.switchToPage(this.vistiedPageIndexes.get(this.currentPageIndex));
 		}
 	}
-	
-
 
 	@Override
 	public String getStateAsString() {
@@ -115,6 +111,10 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		if (data.containsKey(JSON_KEYS.VISITED_PAGE_INDEXES.toString())) {
 			this.vistiedPageIndexes = JSONUtils.decodeIntegerArray(data.get(JSON_KEYS.VISITED_PAGE_INDEXES.toString()));
 		}
+
+		for (int index : this.vistiedPageIndexes) {
+			this.setPageNonReportable(this.playerController.getModel().getPage(index));
+		}
 	}
 
 	@Override
@@ -122,7 +122,6 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		this.vistiedPageIndexes.clear();
 		this.vistiedPageIndexes.add(0);
 		this.currentPageIndex = 0;
-		
 		
 		Integer currentPage = this.playerController.getCurrentPageIndex();
 
@@ -133,6 +132,18 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 	}
 
 	@Override
+	public boolean isFirstStep() {
+		int stepIndex = getCurrentPageStepIndex();
+		return stepIndex == 0;
+	}
+
+	@Override
+	public boolean isLastStep() {
+		int stepIndex = getCurrentPageStepIndex();
+		return stepIndex == this.structure.getStepsLength() - 1;
+	}
+
+	@Override
 	public int getPageStep(String pageID) {
 		return pageToSteps.getPageStep(pageID);
 	}
@@ -140,6 +151,25 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 	@Override
 	public String getPageDifficulty(String pageID) {
 		return structure.getDifficultyForPage(pageID);
+	}
+
+	private void setPagesFromStepNonReportable(String pageID) {
+		List<String> pagesIDsFromNewPageStep = this.pageToSteps.getOtherStepPages(pageID);
+
+		for (String stepPageID : pagesIDsFromNewPageStep) {
+			this.setPageNonReportable(this.playerController.getModel().getPageById(stepPageID));
+		}
+	}
+
+	private void setPageNonReportable(IPage page) {
+		if (page != null) {
+			page.setAsNonReportable();
+		}
+	}
+
+	private int getCurrentPageStepIndex() {
+		String id = this.playerController.getCurrentPageId();
+		return getPageStep(id);
 	}
 
 }

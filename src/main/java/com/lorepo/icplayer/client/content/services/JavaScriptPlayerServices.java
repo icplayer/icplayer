@@ -431,8 +431,8 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveConnectionCurrentPage()();
 			};
 
-			adaptive.addNextPage = function(pageID) {
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addNextAdaptivePage(Ljava/lang/String;)(pageID);
+			adaptive.addAndMoveToNextPage = function(pageID) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addAndMoveToNextPage(Ljava/lang/String;)(pageID);
 			};
 
 			adaptive.getPageConnections = function(pageID) {
@@ -457,6 +457,14 @@ public class JavaScriptPlayerServices {
 
 			adaptive.getPageDifficulty = function(pageID) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageDifficulty(Ljava/lang/String;)(pageID);
+			}
+
+			adaptive.isLastStep = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isLastStep()();
+			}
+
+			adaptive.isFirstStep = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isFirstStep()();
 			}
 
 			return adaptive;
@@ -882,11 +890,19 @@ public class JavaScriptPlayerServices {
 		return this.playerServices.getAdaptiveLearningService().isNextPageAvailable();
 	}
 
-	public void addNextAdaptivePage(String pageId) {
-		this.playerServices.getAdaptiveLearningService().addNextPage(pageId);
+	public void addAndMoveToNextPage(String pageId) {
+		this.playerServices.getAdaptiveLearningService().addAndMoveToNextPage(pageId);
 	}
 
 	public String getPageDifficulty(String pageId) {
 		return this.playerServices.getAdaptiveLearningService().getPageDifficulty(pageId);
+	}
+
+	public boolean isLastStep() {
+		return this.playerServices.getAdaptiveLearningService().isLastStep();
+	}
+
+	public boolean isFirstStep() {
+		return this.playerServices.getAdaptiveLearningService().isFirstStep();
 	}
 }

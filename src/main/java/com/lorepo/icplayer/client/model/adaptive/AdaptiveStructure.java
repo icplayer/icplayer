@@ -1,15 +1,18 @@
 package com.lorepo.icplayer.client.model.adaptive;
 
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.core.client.JsArrayString;
 
 
 public class AdaptiveStructure {
 	private AdaptiveAdjacencyList adjacencyList;
 	private AdaptivePageInformations pagesInfo;
+	private JsArrayString stepsIDs;
 	
 	public AdaptiveStructure(String json) {
 		this.adjacencyList = getListValues(json);
 		this.pagesInfo = getPageInfos(json);
+		this.stepsIDs = getStepsIDs(json);
 	}
 
 	public JsArray<AdaptiveConnection> getConnectionsForPage(String pageID) {
@@ -18,6 +21,10 @@ public class AdaptiveStructure {
 	
 	public String getDifficultyForPage(String pageID) {
 		return this.pagesInfo.getDifficultyDescription(pageID);
+	}
+
+	public int getStepsLength() {
+		return this.stepsIDs.length();
 	}
 
 	private native AdaptiveAdjacencyList getListValues(String json) /*-{
@@ -43,6 +50,8 @@ public class AdaptiveStructure {
 //      	{"ID":"PAGE_ID_1","stepID":"STEP_ID_1","pageName":"Page 1","previewURL":"","difficulty":1},
 //          {"ID":"PAGE_ID_2","stepID":"STEP_ID_2","pageName":"Page 2","previewURL":"","difficulty":2},
 //      ]
+// 		steps: ["STEP_ID_1", "STEP_ID_2"]
+
 		var difficultiesDefinitions = parsedJSON.difficulty;
 		var pagesInfos = parsedJSON.pages;
 
@@ -64,4 +73,14 @@ public class AdaptiveStructure {
 		return {};
 	}
 }-*/;
+
+	private native JsArrayString getStepsIDs(String json) /*-{
+		if (json && json !== '') {
+			var parsedJSON = JSON.parse(json);
+
+			return parsedJSON.steps;
+		} else {
+			return [];
+		}
+	}-*/;
 }

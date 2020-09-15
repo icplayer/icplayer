@@ -5,7 +5,9 @@ function AddonAdaptive_Next_create() {
 
     presenter.CONSTANTS = {
         NEXT_IMAGE: 'baseline-navigate_next-24px.svg',
-        PREV_IMAGE: 'baseline-navigate_before-24px.svg'
+        PREV_IMAGE: 'baseline-navigate_before-24px.svg',
+        DISABLED_CLASS: 'adaptive-next-button-element-disabled',
+        ELEMENT_CLASS: 'adaptive-next-button-element'
     };
 
     presenter.BUTTON_TYPE = {
@@ -15,9 +17,17 @@ function AddonAdaptive_Next_create() {
 
     presenter.state = {
         isVisible: true,
-        isDisabled: false,
+        isDisabled: false, // based on commands
         isErrorMode: false
     };
+
+    presenter.internalState = {
+        isDisabled: false // based on page location in steps
+    }
+
+    presenter.isDisabled = function () {
+        return presenter.state.isDisabled || presenter.internalState.isDisabled;
+    }
 
     presenter.executeUserEventCode = function() {
         if (presenter.playerController == null) return;
@@ -31,14 +41,13 @@ function AddonAdaptive_Next_create() {
             event.stopPropagation();
         }
 
-        if (presenter.state.isDisabled) return;
-        if (presenter.state.isErrorMode) return;
+        if (presenter.isDisabled()) return;
 
         presenter.triggerButtonClickedEvent();
     };
 
     function handleMouseActions() {
-        var $element = presenter.$view.find('div[class*=adaptive-next-button-element]');
+        var $element = presenter.$view.find('.' + presenter.CONSTANTS.ELEMENT_CLASS);
         $element.click(presenter.clickHandler);
     }
 
@@ -62,12 +71,16 @@ function AddonAdaptive_Next_create() {
             source = presenter.configuration.Image;
         }
 
-        element.css('background-image', 'url(' + source + ')');
+        element.attr('src', source);
+    }
+
+    presenter.isNextButton = function() {
+        return presenter.configuration.Direction === presenter.BUTTON_TYPE.NEXT
     }
 
     presenter.getResourceName = function () {
-        if (presenter.configuration.Direction === presenter.BUTTON_TYPE.NEXT) {
-            return presenter.CONSTANTS.NEXT_IMAGE
+        if (presenter.isNextButton()) {
+            return presenter.CONSTANTS.NEXT_IMAGE;
         } else {
             return presenter.CONSTANTS.PREV_IMAGE;
         }
@@ -81,13 +94,16 @@ function AddonAdaptive_Next_create() {
 
     presenter.initView = function () {
         var $wrapper = $(presenter.$view.find('.adaptive-next-wrapper')[0]);
-        var $element = presenter.$view.find('.adaptive-next-button-element');
+        var $element = presenter.$view.find('.' + presenter.CONSTANTS.ELEMENT_CLASS);
 
         presenter.createElement($element);
 
         setElementsDimensions(presenter.configuration, $wrapper, $element);
         presenter.toggleDisable(presenter.configuration.isDisabled);
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
+        if (presenter.adaptiveLearningService) {
+            presenter.addStepBasedBehaviour();
+        }
     };
 
     presenter.destroy = function (event) {
@@ -96,7 +112,7 @@ function AddonAdaptive_Next_create() {
         }
 
         presenter.view.removeEventListener("DOMNodeRemoved", presenter.destroy);
-        presenter.$view.find('div[class*=adaptive-next-button-element]').off("click", presenter.clickHandler);
+        presenter.$view.find('.' + presenter.CONSTANTS.ELEMENT_CLASS).off("click", presenter.clickHandler);
     };
 
     function presenterLogic(view, model, isPreview) {
@@ -196,8 +212,7 @@ function AddonAdaptive_Next_create() {
             var isConditionMet = presenter.evaluateCondition(connections[i].conditions);
 
             if (isConditionMet) {
-                presenter.adaptiveLearningService.addNextPage(connections[i].target);
-                presenter.adaptiveLearningService.moveToNextPage();
+                presenter.adaptiveLearningService.addAndMoveToNextPage(connections[i].target);
                 return;
             }
         }
@@ -276,14 +291,18 @@ function AddonAdaptive_Next_create() {
     };
 
     presenter.toggleDisable = function(disable) {
-        var element = presenter.$view.find('div[class*=adaptive-next-button-element]:first');
-        if(disable) {
-            element.addClass("disable");
-        } else {
-            element.removeClass("disable");
-        }
+        presenter.addDisabledClasses(disable);
         presenter.state.isDisabled = disable;
     };
+
+    presenter.addDisabledClasses = function(disable) {
+        var element = presenter.$view.find('.' + presenter.CONSTANTS.ELEMENT_CLASS);
+        if (disable) {
+            element.addClass(presenter.CONSTANTS.DISABLED_CLASS);
+        } else {
+            element.removeClass(presenter.CONSTANTS.DISABLED_CLASS);
+        }
+    }
 
     presenter.getState = function() {
         return JSON.stringify({
@@ -306,6 +325,9 @@ function AddonAdaptive_Next_create() {
         }
 
         presenter.toggleDisable(presenter.state.isDisabled);
+        if (presenter.adaptiveLearningService) {
+            presenter.addStepBasedBehaviour();
+        }
     };
 
     presenter.setShowErrorsMode = function () {
@@ -332,6 +354,16 @@ function AddonAdaptive_Next_create() {
             presenter.clickHandler();
         }
     };
+
+    presenter.addStepBasedBehaviour = function() {
+        var shouldBeDisabled = (presenter.adaptiveLearningService.isFirstStep() && !presenter.isNextButton()) ||
+            (presenter.adaptiveLearningService.isLastStep() && presenter.isNextButton());
+
+        presenter.internalState.isDisabled = shouldBeDisabled;
+        if (shouldBeDisabled) {
+            presenter.addDisabledClasses(shouldBeDisabled);
+        }
+    }
 
     function getImageUrlFromResources (fileName) {
         if (!presenter.playerController) {

@@ -22,7 +22,7 @@ public class AdaptiveLearningServiceMockup implements IAdaptiveLearningService {
 	}
 
 	@Override
-	public void addNextPage(String pageID) { }
+	public void addAndMoveToNextPage(String pageID) { }
 
 	@Override
 	public boolean isNextPageAvailable() {
@@ -37,6 +37,16 @@ public class AdaptiveLearningServiceMockup implements IAdaptiveLearningService {
 
 	@Override
 	public void resetHistory() { }
+
+	@Override
+	public boolean isFirstStep() {
+		return false;
+	}
+
+	@Override
+	public boolean isLastStep() {
+		return false;
+	}
 
 	@Override
 	public String getStateAsString() {
