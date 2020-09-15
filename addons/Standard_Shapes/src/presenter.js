@@ -663,7 +663,7 @@ function AddonStandard_Shapes_create(){
         $printableView.append($wrapper);
         $printableView.css("visibility", "hidden");
         $('body').append($printableView);
-        presenter.presenterLogic($printableView[0], model);
+        presenterLogic($printableView[0], model);
         $printableView.detach();
         return $printableView[0].outerHTML;
     };
