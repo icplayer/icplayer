@@ -261,15 +261,18 @@ public class PageList extends BasicPropertyProvider implements IChapter{
 	@Override
 	public void load(Element rootElement, String url) {
 		//for IXMLSerializable interface
-		load(rootElement, url, null, 0, null);
+		load(rootElement, url, null, 0);
 	}
 
+	public int load(Element rootElement, String url, ArrayList<Integer> subsetOfPages, int pageIndex) {
+		return load(rootElement, url, subsetOfPages, pageIndex, null);
+	}
 
 	public int load(Element rootElement, String url, ArrayList<Integer> subsetOfPages, int pageIndex, ArrayList<Integer> pagesMapping) {
 		name = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(rootElement, "name"));
 		id = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(rootElement, "id"));
 
-		if (id == "") {
+		if (id.equals("")) {
 			generateId();
 		}
 
