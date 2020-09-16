@@ -39,7 +39,7 @@ public class DefinitionEvent extends PlayerEvent<Handler> {
 		handler.onDefinitionClicked(this);
 	}
 
-
+	@Override
 	public HashMap<String, String> getData() {
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("word", definition);

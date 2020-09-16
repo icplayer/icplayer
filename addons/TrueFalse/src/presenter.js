@@ -409,6 +409,10 @@ function AddonTrueFalse_create() {
         playerController = controller;
     };
 
+    presenter.setEventBus = function (wrappedEventBus) {
+        eventBus = wrappedEventBus;
+    };
+
     presenter.setVisibility = function (isVisible) {
         presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
     };
@@ -454,7 +458,6 @@ function AddonTrueFalse_create() {
     presenter.run = function (view, model) {
         model = presenter.upgradeModel(model);
         presenter.$view = $(view);
-        eventBus = playerController.getEventBus();
         textParser = new TextParserProxy(playerController.getTextParser());
 
         presenter.validateModel(model);
@@ -1080,7 +1083,6 @@ function AddonTrueFalse_create() {
         var $view = $("<div></div>");
         $view.attr('id',model.ID);
         $view.addClass('printable_addon_TrueFalse');
-        $view.addClass('printable_module');
         $view.css("max-width", model["Width"]+"px");
         var $table = $("<table></table>");
         var $tbody = $("<tbody></tbody>");

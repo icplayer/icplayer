@@ -23,6 +23,7 @@ public interface IContentBuilder {
 	public void setHeaderPageName(String name);
 	public void setFooterPageName(String name);
 	public void addLayout(PageLayout pageLayout);
+	public void setAdaptiveStructure(String structure);
 	public PageList getPagesList();
 	public PageList getCommonPagesList();
 	public boolean setActualLayoutID(String id);

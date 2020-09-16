@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IPage;
@@ -21,6 +22,7 @@ public interface IPlayerController {
 	IAssetsService getAssetsService();
 	ITimeService getTimeService();
 	IReportableService getReportableService();
+	IAdaptiveLearningService getAdaptiveLearningService();
 	int getCurrentPageIndex();
 	IStateService getStateService();
 	void switchToPage(String pageName);
@@ -50,6 +52,7 @@ public interface IPlayerController {
 	boolean isPlayerInCrossDomain();
 	Set<IPage> getVisitedPages();
 	void sendExternalEvent(String eventType, String data);
+	String getCurrentPageId();
 
 	String getPageStamp();
 }

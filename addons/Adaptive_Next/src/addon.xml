@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Adaptive_Next' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+		<property name='Direction' nameLabel="Adaptive_Next_property_next_direction" type='{Next,Previous}' />
+		<property name='Is disabled' nameLabel="Adaptive_Next_property_next_is_disabled" type='boolean' />
+		<property name='Image' nameLabel="Adaptive_Next_property_next_image" type='image' isDefault="true" />
+	</model>
+</addon>

@@ -1228,7 +1228,8 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
 		TextPrintable printable = new TextPrintable(this);
-		String result = printable.getPrintableHTML(showAnswers);
+		String className = this.getStyleClass();
+		String result = printable.getPrintableHTML(className, showAnswers);
 		return result;
 	}
 

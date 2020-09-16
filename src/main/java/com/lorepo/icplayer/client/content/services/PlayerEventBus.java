@@ -40,7 +40,7 @@ public class PlayerEventBus extends ResettableEventBus {
 	@Override
 	public void fireEvent(Event<?> event) {
 		checkIfEventTypeIsEnabled(event);
-		
+
 		super.fireEvent(event);
 	}
 

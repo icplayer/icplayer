@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.Random;
+import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -152,4 +154,13 @@ public class PrintableContentParser {
 		result += "</div>";
 		return result;
 	};
+	
+	public static String addClassToPrintableModule(String printableHTML, String className) {
+		Element element = (new HTML(printableHTML)).getElement().getFirstChildElement();
+		element.addClassName("printable_module");
+		if (className.length() > 0) {
+			element.addClassName("printable_module-" + className);
+		}
+		return element.getString();
+	}
 }
