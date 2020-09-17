@@ -658,46 +658,12 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	public PrintableMode getPrintable() {
 		return Printable.getPrintableModeFromString(printableValue);
 	}
-	
-	private String createPrintableOption(ChoiceOption option, boolean showAnswers) {
-		String optionHTML = "";
-		if (showAnswers && option.getValue() > 0) {
-			optionHTML += "<div>";
-			optionHTML += "<input type=\"checkbox\" checked> ";
-			optionHTML += option.getText();
-			optionHTML += " (" + Integer.toString(option.getValue()) + ")";
-			optionHTML += "</div>";
-		} else {
-			optionHTML += "<div>";
-			optionHTML += "<input type=\"checkbox\"> ";
-			optionHTML += option.getText();
-			optionHTML += "</div>";
-		}
-		return optionHTML;
-	}
 
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
-		if (getPrintable() == PrintableMode.NO) return null;
-		
-		List<String> optionHTMLs = new ArrayList<String>();
-		for (ChoiceOption option: options) {
-			String optionHTML = createPrintableOption(option, showAnswers);
-			optionHTMLs.add(optionHTML);
-		}
-		
-		if (isRandomOrder()) {
-			for(int index = 0; index < optionHTMLs.size(); index += 1) {  
-			    Collections.swap(optionHTMLs, index, index + Random.nextInt(optionHTMLs.size() - index));  
-			}
-		}
-		
-		String result = "<div class=\"ic_choice\" id=\"" + getId() +"\">";
-		for (String optionHTML: optionHTMLs) {
-			result += optionHTML;
-		}
-		result += "</div>";
-		
+		ChoicePrintable printable = new ChoicePrintable(this);
+		String className = this.getStyleClass();
+		String result = printable.getPrintableHTML(className, showAnswers);
 		return result;
 	}
 
@@ -705,4 +671,10 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	public PrintableMode getPrintableMode() {
 		return getPrintable();
 	}
+	
+	@Override
+	public boolean isSection() {
+		return false;
+	}
+
 }

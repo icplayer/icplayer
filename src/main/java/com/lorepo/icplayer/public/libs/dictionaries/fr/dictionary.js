@@ -222,6 +222,8 @@ var ice_dictionary_fr = {
     "please_wait" : "Merci d'attendre que la page soit sauvegardée avant de fermer l'éditeur.",
     "presentation_saved" : "La présentation a été sauvegardée.",
     "page_saved" : "La page a été sauvegardée.",
+    "page_save_error": "Error occurred while saving the page",
+    "page_loading_error": "Error occurred while loading the page",
     "saving_changes" : "Modifications en cours de sauvegarde",
     "to_many_pages_warning" : "La leçon contient trop de pages.<br />S’il y a trop de pages, cela peut causer des problemes.<br />Il est recommandé de préparer plus de leçons contenant moins de pages.<br />Merci de lire <a href='//www.mauthor.com/doc/en/page/Creating-a-new-presentation' target='_blank'>l’aide</a>pour plus de détails.",
     "cant_save_page" : "Impossible de sauvegarder la page :",
@@ -2029,5 +2031,11 @@ var ice_dictionary_fr = {
 	"Cross_Lesson_property_page": "Page",
 	"Cross_Lesson_property_type": "Type",
 	"printable_name_label": "Printable",
-	"printable_is_section": "is section"
+	"printable_is_section": "is section",
+	"printable_preview": "Print preview",
+	"printable_lesson_preview": "Lesson preview",
+	"printable_preview_error_message": "An error has occurred while generating the preview",
+	"Cross_Lesson_property_type": "Type",
+	"Adaptive_Next_name": "Adaptive next",
+    "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor."
 };

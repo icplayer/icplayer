@@ -222,6 +222,8 @@ var ice_dictionary_mx = {
 	"please_wait": "Espera mientras se guarda la presentación",
 	"presentation_saved": "Presentación guardada.",
 	"page_saved": "Página guardada.",
+    "page_save_error": "Error occurred while saving the page",
+    "page_loading_error": "Error occurred while loading the page",
 	"saving_changes": "Guardando cambios",
 	"to_many_pages_warning" : "La lección tiene demasiadas páginas.<br />El gran número de páginas puede causar muchos problemas.<br />Se recomienda preparar más lecciones con menos páginas.<br />Por favor, vea <a href='//www.mauthor.com/doc/en/page/Creating-a-new-presentation' target='_blank'>documentation</a>para obtener más detalles.",
 	"cant_save_page": "No se puede guardar la página:",
@@ -2029,5 +2031,11 @@ var ice_dictionary_mx = {
 	"Cross_Lesson_property_page": "Page",
 	"Cross_Lesson_property_type": "Type",
 	"printable_name_label": "Printable",
-	"printable_is_section": "is section"
+	"printable_is_section": "is section",
+	"printable_preview": "Print preview",
+	"printable_lesson_preview": "Lesson preview",
+	"printable_preview_error_message": "An error has occurred while generating the preview",
+	"Cross_Lesson_property_type": "Type",
+	"Adaptive_Next_name": "Adaptive next",
+    "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor."
 };

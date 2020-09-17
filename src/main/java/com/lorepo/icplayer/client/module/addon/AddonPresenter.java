@@ -28,6 +28,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
+import com.lorepo.icplayer.client.content.services.PlayerEventBusWrapper;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -249,6 +250,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			setProperTabindexValue(model);
 			JavaScriptObject jsModel = createModel(model);
 			setPlayerController(jsObject, services.getAsJSObject());
+			setEventBus(jsObject);
 			run(jsObject, view.getElement(), jsModel, model.getAddonId());
 		}
 	}
@@ -281,92 +283,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}-*/;
 
 	private JavaScriptObject createModel(IPropertyProvider provider) {
-
-		JavaScriptObject jsModel = JavaScriptObject.createArray();
-		for(int i=0; i < provider.getPropertyCount(); i++){
-			IProperty property = provider.getProperty(i);
-			if(property instanceof IListProperty){
-				IListProperty listProperty = (IListProperty) property;
-				JavaScriptObject listModel = JavaScriptObject.createArray();
-				for(int j = 0; j < listProperty.getChildrenCount(); j++){
-					JavaScriptObject providerModel = createModel(listProperty.getChild(j));
-					addToJSArray(listModel, providerModel);
-				}
-				addPropertyToJSObject(jsModel, property.getName(), listModel);
-			} else if (property instanceof IStaticListProperty) {
-				IStaticListProperty listProperty = (IStaticListProperty) property;
-				JavaScriptObject listModel = JavaScriptObject.createObject();
-				for(int j = 0; j < listProperty.getChildrenCount(); j++){
-					IPropertyProvider child = listProperty.getChild(j);
-					JavaScriptObject childModel = createModel(child);
-					String name = this.getStringFromJSObject(childModel, "name");
-					JavaScriptObject object = this.getObjectFromJSObject(childModel, "value");
-					this.addPropertyToJSObject(listModel, name, object);
-				}
-				addPropertyToJSObject(jsModel, property.getName(), listModel);
-			} else if (property instanceof IStaticRowProperty) {
-				jsModel = JavaScriptObject.createObject();
-				IStaticRowProperty listProperty = (IStaticRowProperty) property;
-				JavaScriptObject listModel = JavaScriptObject.createObject();
-				for(int j = 0; j < listProperty.getChildrenCount(); j++){
-					if (listProperty.getChild(j).getPropertyCount() > 0) {
-						addPropertyToModel(listModel,listProperty.getChild(j).getProperty(0));
-					}
-				}
-				addPropertyToJSObject(jsModel, "value", listModel);
-				addPropertyToJSObject(jsModel, "name", property.getName());
-			} else if (property instanceof IEditableSelectProperty) {
-				IEditableSelectProperty castedProperty = (IEditableSelectProperty)property;
-				JavaScriptObject editableSelectModel = JavaScriptObject.createObject();
-				addPropertyToJSObject(editableSelectModel, "value", castedProperty.getChild(castedProperty.getSelectedIndex()).getValue());
-				addPropertyToJSObject(editableSelectModel, "name", castedProperty.getChild(castedProperty.getSelectedIndex()).getName());
-				addPropertyToJSObject(jsModel, property.getName(), editableSelectModel);
-			} else{
-				addPropertyToModel(jsModel, property);
-			}
-		}
-		return jsModel;
+		return model.createJsModel(provider);
 	}
-
-
-	private void addPropertyToModel(JavaScriptObject jsModel, IProperty property){
-		String value = property.getValue();
-		
-		if(	property instanceof IAudioProperty || 
-			property instanceof IImageProperty ||
-			property instanceof IVideoProperty ||
-			property instanceof IFileProperty)
-		{
-			value = URLUtils.resolveURL(model.getBaseURL(), value);
-		}
-		else if(property instanceof IHtmlProperty){
-			value = StringUtils.updateLinks(value, model.getBaseURL());
-		}
-		addPropertyToJSObject(jsModel, property.getName(), value);
-	}
-	
-	private native String getStringFromJSObject (JavaScriptObject model, String name)  /*-{
-		return model[name];
-	}-*/; 
-	
-	private native JavaScriptObject getObjectFromJSObject (JavaScriptObject model, String name)  /*-{
-		return model[name];
-	}-*/; 
-	
-	private native void addPropertyToJSObject(JavaScriptObject model, String name, String value)  /*-{
-		model[name] = value;
-	}-*/; 
-
-
-	private native void addPropertyToJSObject(JavaScriptObject model, String name, JavaScriptObject obj)  /*-{
-		model[name] = obj;
-	}-*/; 
-
-	private native void addToJSArray(JavaScriptObject model, JavaScriptObject obj)  /*-{
-		model.push(obj);
-	}-*/; 
-
-
 
 	private native JavaScriptObject initJavaScript(String name) /*-{
 		if($wnd.window[name] == null){
@@ -648,4 +566,15 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
 		
 	}
+	
+	private void setEventBus(JavaScriptObject presenter) {
+		PlayerEventBusWrapper eventBus = new PlayerEventBusWrapper(services, this.model.getAddonId().toLowerCase());
+		setEventBus(presenter, eventBus.getAsJSObject());
+	}
+	
+	private native void setEventBus(JavaScriptObject presenter, JavaScriptObject eventBusWrapper) /*-{
+		if(presenter.setEventBus != undefined) {
+			presenter.setEventBus(eventBusWrapper);
+		}
+	}-*/;
 }
