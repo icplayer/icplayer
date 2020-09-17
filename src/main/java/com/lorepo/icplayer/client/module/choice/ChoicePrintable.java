@@ -50,15 +50,19 @@ public class ChoicePrintable {
 	private String createPrintableOption(ChoiceOption option, boolean showAnswers) {
 		String optionHTML = "";
 		if (showAnswers && option.getValue() > 0) {
-			optionHTML += "<li><u>";
+			optionHTML += "<li id=\"" + getOptionViewId(option) + "\"><u>";
 			optionHTML += option.getText();
 			optionHTML += "</u> (" + Integer.toString(option.getValue()) + ")";
 			optionHTML += "</li>";
 		} else {
-			optionHTML += "<li>";
+			optionHTML += "<li id=\"" + getOptionViewId(option) + "\">";
 			optionHTML += option.getText();
 			optionHTML += "</li>";
 		}
 		return optionHTML;
+	}
+	
+	private String getOptionViewId(ChoiceOption option) {
+		return option.getParentId() + "_ic_option_" + option.getID();
 	}
 }

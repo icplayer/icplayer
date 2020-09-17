@@ -800,5 +800,24 @@ function AddonParagraph_Keyboard_create() {
         }
     };
 
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        var model = presenter.upgradeModel(model);
+        var configuration = presenter.parseModel(model);
+
+        var $wrapper = $('<div></div>');
+        $wrapper.addClass('printable_addon_Paragraph');
+        $wrapper.css("left", "0px");
+        $wrapper.css("right", "0px");
+        $wrapper.css("height", configuration.paragraphHeight + "px");
+        $wrapper.css("padding", "10px 10px 10px 0px");
+        var $paragraph = $('<div></div>');
+        $paragraph.css("left", "0px");
+        $paragraph.css("right", "0px");
+        $paragraph.css("height", "100%");
+        $paragraph.css("border", "1px solid");
+        $wrapper.append($paragraph);
+        return $wrapper[0].outerHTML;
+    };
+
     return presenter;
 }

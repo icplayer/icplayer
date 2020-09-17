@@ -70,9 +70,16 @@ public class PrintableContentParser {
 		}
 		
 		String parsed = "";
+		String groupClass = "";
+		if (group.getStyleClass().length() > 0) {
+			groupClass += "printable_" + group.getStyleClass();
+		}
+		parsed += "<div class=\"printable_modules_group " + groupClass + "\">";
 		for (IPrintableModuleModel printable: groupPrintables) {
 			parsed += printable.getPrintableHTML(showAnswers);
 		}
+		parsed += "</div>";
+
 		final String finalParsed = parsed;
 		
 		return new IPrintableModuleModel(){
@@ -95,7 +102,7 @@ public class PrintableContentParser {
 		};
 	}
 	
-	public String generatePrintableHTMLForPage(Page page, boolean randomizePages, boolean randomizeModules, boolean showAnswers ) {
+	public String generatePrintableHTMLForPage(Page page, boolean randomizeModules, boolean showAnswers ) {
 		List<Group> parsedGroups = new ArrayList<Group>();
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		ModuleList modules = page.getModules();
@@ -141,14 +148,17 @@ public class PrintableContentParser {
 	public String generatePrintableHTMLForPages(List<Page> pages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
 		String result = "<div>";
 		
-		if (randomizePages) {
+		if (randomizePages && pages.size() > 1) {
+			Page firstPage = pages.get(0);
+			pages.remove(0);
 			for(int index = 0; index < pages.size(); index += 1) {  
 			    Collections.swap(pages, index, index + Random.nextInt(pages.size() - index));  
 			}
+			pages.add(0, firstPage);
 		}
 		
 		for (Page page: pages) {
-			result += generatePrintableHTMLForPage(page, randomizePages, randomizeModules, showAnswers);
+			result += generatePrintableHTMLForPage(page, randomizeModules, showAnswers);
 		}
 		
 		result += "</div>";

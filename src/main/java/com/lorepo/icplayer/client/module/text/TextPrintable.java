@@ -43,34 +43,43 @@ public class TextPrintable {
 			String oldValue = input.getString();
 			input.setAttribute("style", "border-width:0px; border-bottom-width:1px");
 			
-			if (showAnswers) {
-				GapInfo gapInfo = model.getGapInfos().get(i);
-				Iterator<String> answers = gapInfo.getAnswers();
-				String value = "";
-				do {
-					value += answers.next();
+			GapInfo gapInfo = model.getGapInfos().get(i);
+			Iterator<String> answers = gapInfo.getAnswers();
+			String value = "";
+			int gapSize = 0;
+			do {
+				String nextAnswer = answers.next();
+				if (showAnswers) {
+					value += nextAnswer;
 					if (answers.hasNext()) {
 						value += ", ";
+					} else {
+						gapSize = value.length();
 					}
-				} while(answers.hasNext());	
-				input.setAttribute("value", value);
-				input.setAttribute("size", Integer.toString(value.length()));
-			}
+				} else {
+					if (nextAnswer.length() > gapSize) {
+						gapSize = nextAnswer.length();
+					}
+				}
+			} while(answers.hasNext());	
 			
 			String placeholder = input.getAttribute("placeholder");
 			if(placeholder.length() > 0) {
 				input.setAttribute("placeholder", "");
+				if (!showAnswers) {
+					value = placeholder;
+				}
 			}
+			
+			input.setAttribute("value", value);
+			input.setAttribute("size", Integer.toString(gapSize));
+			
 			
 			String newValue = input.getString();
 			
-			if (placeholder.length() > 0) {
-				newValue += "(" + placeholder + ")";
-			}
-			
 			parsedText = parsedText.replace(oldValue, newValue);
 		}
-		
+
 		return parsedText;
 	}
 	
