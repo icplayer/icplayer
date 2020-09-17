@@ -70,7 +70,11 @@ public class PrintableContentParser {
 		}
 		
 		String parsed = "";
-		parsed += "<div class=\"printable_modules_group\">";
+		String groupClass = "";
+		if (group.getStyleClass().length() > 0) {
+			groupClass += "printable_" + group.getStyleClass();
+		}
+		parsed += "<div class=\"printable_modules_group " + groupClass + "\">";
 		for (IPrintableModuleModel printable: groupPrintables) {
 			parsed += printable.getPrintableHTML(showAnswers);
 		}

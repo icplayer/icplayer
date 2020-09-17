@@ -57,24 +57,25 @@ public class TextPrintable {
 						gapSize = value.length();
 					}
 				} else {
-					if (nextAnswer.length() > value.length()) {
-						gapSize = value.length();
+					if (nextAnswer.length() > gapSize) {
+						gapSize = nextAnswer.length();
 					}
 				}
 			} while(answers.hasNext());	
-			input.setAttribute("value", value);
-			input.setAttribute("size", Integer.toString(value.length()));
 			
 			String placeholder = input.getAttribute("placeholder");
 			if(placeholder.length() > 0) {
 				input.setAttribute("placeholder", "");
+				if (!showAnswers) {
+					value = placeholder;
+				}
 			}
+			
+			input.setAttribute("value", value);
+			input.setAttribute("size", Integer.toString(gapSize));
+			
 			
 			String newValue = input.getString();
-			
-			if (placeholder.length() > 0) {
-				newValue = placeholder + newValue;
-			}
 			
 			parsedText = parsedText.replace(oldValue, newValue);
 		}

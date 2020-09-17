@@ -2183,9 +2183,12 @@ function AddonTable_create() {
                         longestAnswer = answers[j];
                     }
                 }
-                $input.attr('size',longestAnswer.length);
+                $input.attr('size', longestAnswer.length);
+                if (isFilledGap) {
+                    $input.attr("value", initialValue);
+                }
             }
-            html = html.replace(match, initialValue + $input[0].outerHTML);
+            html = html.replace(match, $input[0].outerHTML);
         }
         return html;
     }
