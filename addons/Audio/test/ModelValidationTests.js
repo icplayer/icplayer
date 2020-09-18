@@ -9,7 +9,8 @@ TestCase("[Audio] Model validation", {
             onEnd: "DoubleStateButton1.deselect();",
             defaultControls: "True",
             ID: "Some id",
-            forceLoadAudio: "True"
+            forceLoadAudio: "True",
+            Narration: "Lorem ipsum"
         };
 
 
@@ -23,5 +24,6 @@ TestCase("[Audio] Model validation", {
         assertTrue(validatedModel.defaultControls);
         assertTrue(validatedModel.forceLoadAudio);
         assertEquals("Some id", validatedModel.addonID);
+        assertEquals("Lorem ipsum", validatedModel.narration);
     }
 });

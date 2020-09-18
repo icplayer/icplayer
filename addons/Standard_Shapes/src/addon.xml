@@ -10,5 +10,6 @@
 		<property name="Line ending" nameLabel="Standard_Shapes_property_line_ending" type="{None, Circles, Arrows, None - Arrow, None - Circle, Circle - Arrow}" />
 		<property name="Stroke opacity" nameLabel="Standard_Shapes_property_stroke_opacity" type="string" />
 		<property name="Fill color" nameLabel="Standard_Shapes_property_fill_color" type="string" />
+		<property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
 	</model>
 </addon>
