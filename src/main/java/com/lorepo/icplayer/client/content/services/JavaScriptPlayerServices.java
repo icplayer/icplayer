@@ -1,11 +1,7 @@
 package com.lorepo.icplayer.client.content.services;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -22,15 +18,6 @@ import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
-import com.lorepo.icplayer.client.module.api.event.*;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableAudio;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
@@ -470,6 +457,10 @@ public class JavaScriptPlayerServices {
 			return adaptive;
 		}
 
+		playerServices.getPagesMapping = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPagesMapping()();
+		}
+
 		return playerServices;
 	}-*/;
 
@@ -848,6 +839,10 @@ public class JavaScriptPlayerServices {
 
 	public String getContentMetadataValue(String key) {
 		return playerServices.getContentMetadata(key);
+	}
+
+	public JavaScriptObject getPagesMapping() {
+		return JavaScriptUtils.convertMappingToJSArray(playerServices.getModel().getPagesMapping());
 	}
 
 	public JavaScriptObject getModuleMetadata(String moduleID) {
