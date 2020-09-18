@@ -10,8 +10,10 @@ import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.content.services.TimeService;
+import com.lorepo.icplayer.client.mockup.services.AdaptiveLearningServiceMockup;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.IAdaptiveLearningService;
 import com.lorepo.icplayer.client.module.api.player.IAssetsService;
 import com.lorepo.icplayer.client.module.api.player.IContent;
 import com.lorepo.icplayer.client.module.api.player.IPage;
@@ -26,11 +28,13 @@ public class PlayerControllerMockup implements IPlayerController {
 	private IScoreService	scoreService;
 	private ITimeService	timeService;
 	private StateService	stateService;
+	private AdaptiveLearningServiceMockup adaptiveLearningService;
 
 	public PlayerControllerMockup() {
 		scoreService = new ScoreService(ScoreType.last);
 		stateService = new StateService();
 		timeService = new TimeService();
+		adaptiveLearningService = new AdaptiveLearningServiceMockup();
 	}
 	
 	
@@ -262,7 +266,6 @@ public class PlayerControllerMockup implements IPlayerController {
 
 	@Override
 	public boolean isPlayerInCrossDomain() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -275,9 +278,21 @@ public class PlayerControllerMockup implements IPlayerController {
 
 
 	@Override
+	public IAdaptiveLearningService getAdaptiveLearningService() {
+		return this.adaptiveLearningService;
+	}
+
+
+	@Override
+	public String getCurrentPageId() {
+		return null;
+	}
+
+
+	@Override
 	public void sendExternalEvent(String eventType, String data) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

@@ -409,6 +409,10 @@ function AddonTrueFalse_create() {
         playerController = controller;
     };
 
+    presenter.setEventBus = function (wrappedEventBus) {
+        eventBus = wrappedEventBus;
+    };
+
     presenter.setVisibility = function (isVisible) {
         presenter.$view.css('visibility', isVisible ? 'visible' : 'hidden');
     };
@@ -454,7 +458,6 @@ function AddonTrueFalse_create() {
     presenter.run = function (view, model) {
         model = presenter.upgradeModel(model);
         presenter.$view = $(view);
-        eventBus = playerController.getEventBus();
         textParser = new TextParserProxy(playerController.getTextParser());
 
         presenter.validateModel(model);

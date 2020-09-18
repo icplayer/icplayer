@@ -22,6 +22,8 @@ public class PlayerServicesMockup implements IPlayerServices {
 	private final IScoreService	scoreService;
 	private IContent		contentModel;
 	private final IJsonServices	jsonMockup;
+	private final PlayerEventBusServiceMockup eventBusService;
+	private final AdaptiveLearningServiceMockup adaptiveLearningService;
 
 	public PlayerServicesMockup() {
 		contentModel = new Content();
@@ -29,6 +31,8 @@ public class PlayerServicesMockup implements IPlayerServices {
 		commands = new CommandsMockup();
 		scoreService = new ScoreService(ScoreType.last);
 		jsonMockup = new JsonMockup();
+		eventBusService = new PlayerEventBusServiceMockup(eventBus);
+		adaptiveLearningService = new AdaptiveLearningServiceMockup();
 	}
 
 
@@ -184,7 +188,7 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public void setScaleInformation(String scaleX, String scaleY,
 			String transform, String transformOrigin) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 
@@ -241,8 +245,8 @@ public class PlayerServicesMockup implements IPlayerServices {
 		// TODO Auto-generated method stub
 		return false;
   }
-  
-  
+
+
 	@Override
 	public JavaScriptObject getContextMetadata() {
 		// TODO Auto-generated method stub
@@ -265,4 +269,22 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return contentModel.getMetadataValue(key);
 	}
 
+	@Override
+	public void sendEvent(String eventName, JavaScriptObject eventData) { }
+
+
+	@Override
+	public void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed) {	}
+
+
+	@Override
+	public IPlayerEventBusService getEventBusService() {
+		return this.eventBusService;
+	}
+
+
+	@Override
+	public IAdaptiveLearningService getAdaptiveLearningService() {
+		return this.adaptiveLearningService;
+	}
 }

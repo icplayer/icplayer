@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.api.player;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.lorepo.icplayer.client.model.IAsset;
@@ -19,5 +20,6 @@ public interface IContent {
     public List<IAsset> getAssets();
 	public IPage getCommonPage(int index);
 	public int getCommonPageIndex(String pageId);
+	public List<Integer> getPagesMapping();
 	List<Page> getAllPages();
 }

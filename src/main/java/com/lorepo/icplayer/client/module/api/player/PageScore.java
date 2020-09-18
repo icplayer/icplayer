@@ -95,6 +95,13 @@ public class PageScore {
 	public int getMistakeCount() {
 		return mistakeCount;
 	}
+	
+	/**
+	 * @return scaled score
+	 */
+	public float getScaledScore() {
+		return maxScore == 0 ? 0 : score / maxScore;
+	}
 
 
 	public String getAsString() {

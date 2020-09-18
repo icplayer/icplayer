@@ -725,8 +725,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 	
 	protected void dropdownClicked(String id) {
-		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "dropdownClicked", "");
-		playerServices.getEventBus().fireEvent(valueEvent);
+		this.sendValueChangedEvent("", "dropdownClicked", "");
 	}
 
 	protected void valueChangeLogic(String id, String newValue) {
@@ -737,7 +736,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		String score = Integer.toString(getItemScore(id));
 		String itemID = id.substring(id.lastIndexOf("-")+1);
-		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, newValue, score);
 
 		if (score.equals("0") && module.shouldBlockWrongAnswers()) {
 			try {
@@ -748,7 +746,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 		}
 		
-		playerServices.getEventBus().fireEvent(valueEvent);
+		sendValueChangedEvent(itemID, newValue, score);
+
+		if (isAllOK()) {
+			sendValueChangedEvent("all", "", Integer.toString(getMaxScore()));
+		}
 	}
 	
 	protected void valueChangedOnUserAction(String id, String newValue) {
@@ -801,8 +803,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		
 		fireItemConsumedEvent();
 		String score = Integer.toString(getItemScore(gapId));
-		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
-		playerServices.getEventBus().fireEvent(valueEvent);
+		this.sendValueChangedEvent(itemID, value, score);
+
 		if (Integer.parseInt(score) == 0 && module.shouldBlockWrongAnswers()) {
 			removeFromGap(gapId, false);
 		}
@@ -1445,13 +1447,18 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 	}
 
+	public void sendValueChangedEvent(String itemID, String value, String score) {
+		String moduleType = module.getModuleTypeName();
+		String id = module.getId();
+
+		this.playerServices.getEventBusService().sendValueChangedEvent(moduleType, id, itemID, value, score);
+	}
 	private void sendRemoveFromGapValueChangedEvent(String gapId) {
 		String value = "";
 		String score = "0";
 		String itemID = gapId.substring(gapId.lastIndexOf("-") + 1);
-		ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), itemID, value, score);
 
-		playerServices.getEventBus().fireEvent(valueEvent);
+		this.sendValueChangedEvent(itemID, value, score);
 	}
 
 	private void removeFromItems(String gapId) {

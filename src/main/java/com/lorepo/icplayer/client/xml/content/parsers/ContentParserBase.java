@@ -81,6 +81,10 @@ public abstract class ContentParserBase implements IContentParser {
 					ArrayList<IAsset> assets = this.parseAssets(child);
 					content.setAssets(assets);
 				}
+				else if (name.compareTo("adaptive") == 0) {
+					String adaptiveStructure = parseAdaptiveStructure(child);
+					content.setAdaptiveStructure(adaptiveStructure);
+				}
 			}
 		}		
 
@@ -188,21 +192,33 @@ public abstract class ContentParserBase implements IContentParser {
 	
 	protected void parsePages(Content content, Element rootElement, ArrayList<Integer> pageSubset) {
 		NodeList children = rootElement.getChildNodes();
-		
-		content.getPagesList().load(rootElement, null, pageSubset, 0);
-		
+
+		ArrayList<Integer> pagesMapping = new ArrayList<Integer>();
+		content.getPagesList().load(rootElement, null, pageSubset, 0, pagesMapping);
+
+		ArrayList<Integer> pages = new ArrayList<Integer>();
+		int addedPages = 0;
+		for (Integer i : pagesMapping) {
+			if (i != null) {
+				pages.add(addedPages);
+				addedPages++;
+			} else {
+				pages.add(null);
+			}
+		}
+		content.setPagesSubsetMap(pages);
+
 		for(int i = 0; i < children.getLength(); i++){
 			if(children.item(i) instanceof Element){
 				Element node = (Element)children.item(i);
 				if(node.getNodeName().compareTo("folder") == 0){
-					content.getCommonPagesList().load(node, null, null, 0);
+					content.getCommonPagesList().load(node, null, null, 0, null);
 					break;
 				}
 			}
 		}
 	}
 
-	
 	public String getVersion() {
 		return this.version;
 	}
@@ -236,5 +252,9 @@ public abstract class ContentParserBase implements IContentParser {
 		styles.put("default", defaultStyle);
 	
 		return styles;
+	}
+	
+	protected String parseAdaptiveStructure(Element xml) {
+		return "";
 	}
 }

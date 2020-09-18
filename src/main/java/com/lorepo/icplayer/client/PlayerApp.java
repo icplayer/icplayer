@@ -610,6 +610,7 @@ public class PlayerApp {
 			playerController.getPlayerServices().getStateService().loadFromString(loadedState.get("state"));
 			playerController.getPlayerServices().getScoreService().loadFromString(loadedState.get("score"));
 			playerController.getPlayerServices().getTimeService().loadFromString(loadedState.get("time"));
+			playerController.getPlayerServices().getAdaptiveLearningService().loadFromString(loadedState.get("adaptiveLearning"));
 			if (this.loadedState.get("isReportable") != null) {
 				this.playerController.getPlayerServices().getReportableService()
 						.loadFromString(this.loadedState.get("isReportable"));
@@ -706,12 +707,14 @@ public class PlayerApp {
 		String time = playerController.getPlayerServices().getTimeService().getAsString();
 		String isReportable = playerController.getPlayerServices().getReportableService().getAsString();
 		String visitedPages = playerController.getVisitedPagesAsString();
+		String adaptivePageHistory = playerController.getAdaptiveLearningService().getStateAsString();
 
 		HashMap<String, String> data = new HashMap<String, String>();
 		data.put("state", state);
 		data.put("score", score);
 		data.put("time", time);
 		data.put("isReportable", isReportable);
+		data.put("adaptiveLearning", adaptivePageHistory);
 		data.put("visitedPages", visitedPages);
 
 		return JSONUtils.toJSONString(data);

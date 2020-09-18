@@ -1,35 +1,23 @@
 package com.lorepo.icplayer.client.content.services;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.DomEvent;
-import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.event.*;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableAudio;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableImage;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableItem;
-import com.lorepo.icplayer.client.module.api.event.dnd.DraggableText;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemConsumedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent;
-import com.lorepo.icplayer.client.module.api.event.dnd.ItemSelectedEvent;
 import com.lorepo.icplayer.client.module.api.player.IChapter;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
@@ -54,163 +42,17 @@ import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.module.text.TextPresenter;
 
 public class JavaScriptPlayerServices {
-
-	private static final String ITEM_SELECTED_EVENT_NAME = "ItemSelected";
-	private static final String ITEM_CONSUMED_EVENT_NAME = "ItemConsumed";
-	private static final String ITEM_RETURNED_EVENT_NAME = "ItemReturned";
-	private static final String VALUE_CHANGED_EVENT_NAME = "ValueChanged";
-	private static final String DEFINITION_EVENT_NAME = "Definition";
-	private static final String PAGE_LOADED_EVENT_NAME = "PageLoaded";
-	private static final String SHOW_ERRORS_EVENT_NAME = "ShowErrors";
-	private static final String RESIZE_WINDOW_EVENT_NAME = "ResizeWindow";
-
 	private final IPlayerServices playerServices;
 	private final JavaScriptObject jsObject;
 	private JavaScriptObject presentationObject;
-	private final HashMap<String, List<JavaScriptObject>> listeners = new HashMap<String, List<JavaScriptObject>>();
-	private final Map<String, List<JavaScriptObject>> pageLoadedListeners = new LinkedHashMap<String, List<JavaScriptObject>>();
-	private final Map<String, List<JavaScriptObject>> pageLoadedListenersDelayed = new LinkedHashMap<String, List<JavaScriptObject>>();
-	private final HashMap<String, List<JavaScriptObject>> listenersDelayed = new HashMap<String, List<JavaScriptObject>>();
 
 	public JavaScriptPlayerServices(IPlayerServices playerServices) {
 		this.playerServices = playerServices;
 		jsObject = initJSObject(this);
-		connectEventHandlers();
-	}
-
-	private void connectEventHandlers() {
-
-		EventBus eventBus = playerServices.getEventBus();
-
-		eventBus.addHandler(ItemSelectedEvent.TYPE, new ItemSelectedEvent.Handler() {
-			@Override
-			public void onItemSelected(ItemSelectedEvent event) {
-				fireEvent(ITEM_SELECTED_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(ItemConsumedEvent.TYPE, new ItemConsumedEvent.Handler() {
-			@Override
-			public void onItemConsumed(ItemConsumedEvent event) {
-				fireEvent(ITEM_CONSUMED_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(ItemReturnedEvent.TYPE, new ItemReturnedEvent.Handler() {
-			@Override
-			public void onItemReturned(ItemReturnedEvent event) {
-				fireEvent(ITEM_RETURNED_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
-			@Override
-			public void onScoreChanged(ValueChangedEvent event) {
-				fireEvent(VALUE_CHANGED_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(DefinitionEvent.TYPE, new DefinitionEvent.Handler() {
-			@Override
-			public void onDefinitionClicked(DefinitionEvent event) {
-				fireEvent(DEFINITION_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(PageLoadedEvent.TYPE, new PageLoadedEvent.Handler() {
-			@Override
-			public void onPageLoaded(PageLoadedEvent event) {
-				fireEvent(PAGE_LOADED_EVENT_NAME, event.getData());
-			}
-		});
-
-		eventBus.addHandler(CustomEvent.TYPE, new CustomEvent.Handler() {
-			@Override
-			public void onCustomEventOccurred(CustomEvent event) {
-				fireEvent(event.eventName, event.getData());
-			}
-		});
-
-		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
-			@Override
-			public void onShowErrors(ShowErrorsEvent event) {
-				fireEvent(SHOW_ERRORS_EVENT_NAME, new HashMap<String, String>());
-			}
-		});
-
-		eventBus.addHandler(ResizeWindowEvent.TYPE, new ResizeWindowEvent.Handler() {
-			@Override
-			public void onResizeWindowEvent(ResizeWindowEvent event) {
-				fireEvent(RESIZE_WINDOW_EVENT_NAME, new HashMap<String, String>());
-			}
-		});
-	}
-	
-	public void resetEventListeners() {
-		listeners.clear();
-		listenersDelayed.clear();
-		connectEventHandlers();
 	}
 
 	public JavaScriptObject getJavaScriptObject() {
 		return jsObject;
-	}
-
-	public void clearPageLoadedListeners() {
-		pageLoadedListeners.clear();
-		pageLoadedListenersDelayed.clear();
-	}
-
-	private void fireEvent(String eventName, HashMap<String, String> data) {
-		List<JavaScriptObject> eventListeners = listeners.get(eventName);
-		final JavaScriptObject jsData = JavaScriptUtils.createHashMap(data);
-
-		if (eventListeners != null) {
-			if (eventName == PAGE_LOADED_EVENT_NAME) {
-				final HashMap<String, String> pageLoadedData = new HashMap<String, String>();
-				pageLoadedData.putAll(data);
-
-				for (String eventSource : pageLoadedListeners.keySet()) {
-					pageLoadedData.put("source", eventSource);
-					final JavaScriptObject pageLoadedEventData = JavaScriptUtils.createHashMap(pageLoadedData);
-
-					for (JavaScriptObject listener : pageLoadedListeners.get(eventSource)) {
-						onEvent(listener, eventName, pageLoadedEventData);
-					}
-
-					pageLoadedListeners.get(eventSource).clear();
-				}
-				pageLoadedListeners.put(data.get("source"), new ArrayList<JavaScriptObject>());
-			}
-
-			for (JavaScriptObject listener : eventListeners) {
-				onEvent(listener, eventName, jsData);
-			}
-		}
-
-		List<JavaScriptObject> eventListenersDelayed = listenersDelayed.get(eventName);
-		if (eventListenersDelayed != null) {
-			if (eventName == PAGE_LOADED_EVENT_NAME) {
-				final HashMap<String, String> pageLoadedDataDelayed = new HashMap<String, String>();
-				pageLoadedDataDelayed.putAll(data);
-
-				for (String eventSource : pageLoadedListenersDelayed.keySet()) {
-					pageLoadedDataDelayed.put("source", eventSource);
-					final JavaScriptObject pageLoadedEventDataDelayed = JavaScriptUtils.createHashMap(pageLoadedDataDelayed);
-
-					for (JavaScriptObject listener : pageLoadedListenersDelayed.get(eventSource)) {
-						onEvent(listener, eventName, pageLoadedEventDataDelayed);
-					}
-
-					pageLoadedListenersDelayed.get(eventSource).clear();
-				}
-				pageLoadedListenersDelayed.put(data.get("source"), new ArrayList<JavaScriptObject>());
-			}
-
-			for (JavaScriptObject listenerDelayed : eventListenersDelayed) {
-				onEvent(listenerDelayed, eventName, jsData);
-			}
-		}
 	}
 
 	private native JavaScriptObject initJSObject(JavaScriptPlayerServices x) /*-{
@@ -348,11 +190,11 @@ public class JavaScriptPlayerServices {
 			commands.resetPage = function(index) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPage(I)(index - 1);
 			}
-			
+
 			commands.resetPageById = function(id) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPageById(Ljava/lang/String;)(id);
 			}
-			
+
 			return commands;
 		};
 
@@ -514,7 +356,7 @@ public class JavaScriptPlayerServices {
 		playerServices.sendExternalEvent = function(eventType, data) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendExternalEvent(Ljava/lang/String;Ljava/lang/String;)(eventType, data);
 		};
-		
+
 		playerServices.getScaleInformation = function() {
 			var scaleInfo = x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getScaleInformation()();
 			var jsScaleInfo = {
@@ -567,6 +409,56 @@ public class JavaScriptPlayerServices {
 
 		playerServices.getContentMetadataValue = function (key) {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContentMetadataValue(Ljava/lang/String;)(key);
+		}
+
+		playerServices.getAdaptiveLearningService = function () {
+			var adaptive = function() {};
+
+			adaptive.getCurrentPageConnections = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveConnectionCurrentPage()();
+			};
+
+			adaptive.addAndMoveToNextPage = function(pageID) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::addAndMoveToNextPage(Ljava/lang/String;)(pageID);
+			};
+
+			adaptive.getPageConnections = function(pageID) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAdaptiveConnectionForPage(Ljava/lang/String;)(pageID);
+			};
+
+			adaptive.moveToNextPage = function (pageID) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveToNextAdaptivePage()();
+			}
+
+			adaptive.moveToPrevPage = function () {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::moveToPrevAdaptivePage()();
+			}
+
+			adaptive.isNextAdaptivePageAvailable = function () {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isNextAdaptivePageAvaialable()();
+			}
+
+			adaptive.resetHistory = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetHistory()();
+			}
+
+			adaptive.getPageDifficulty = function(pageID) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageDifficulty(Ljava/lang/String;)(pageID);
+			}
+
+			adaptive.isLastStep = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isLastStep()();
+			}
+
+			adaptive.isFirstStep = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::isFirstStep()();
+			}
+
+			return adaptive;
+		}
+
+		playerServices.getPagesMapping = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPagesMapping()();
 		}
 
 		return playerServices;
@@ -654,37 +546,7 @@ public class JavaScriptPlayerServices {
 	}
 
 	private void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed) {
-		if (isDelayed) {
-			List<JavaScriptObject> eventListenersDelayed = listenersDelayed.get(eventName);
-
-			if (eventListenersDelayed == null) {
-				eventListenersDelayed = new ArrayList<JavaScriptObject>();
-				listenersDelayed.put(eventName, eventListenersDelayed);
-			}
-
-			if (eventName == PAGE_LOADED_EVENT_NAME) {
-				for (String eventSource : pageLoadedListenersDelayed.keySet()) {
-					pageLoadedListenersDelayed.get(eventSource).add(listener);
-				}
-			}
-
-			eventListenersDelayed.add(listener);
-		} else {
-
-			List<JavaScriptObject> eventListeners = listeners.get(eventName);
-			if (eventListeners == null) {
-				eventListeners = new ArrayList<JavaScriptObject>();
-				listeners.put(eventName, eventListeners);
-			}
-
-			if (eventName == PAGE_LOADED_EVENT_NAME) {
-				for (String eventSource : pageLoadedListeners.keySet()) {
-					pageLoadedListeners.get(eventSource).add(listener);
-				}
-			}
-
-			eventListeners.add(listener);
-		}
+		this.playerServices.addEventListener(eventName, listener, isDelayed);
 	}
 
 	private String parseText(String text){
@@ -825,6 +687,7 @@ public class JavaScriptPlayerServices {
 		JavaScriptUtils.addPropertyToJSArray(model, "errorCount", score.getErrorCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "mistakeCount", score.getMistakeCount());
 		JavaScriptUtils.addPropertyToJSArray(model, "weight", score.getWeight());
+		JavaScriptUtils.addPropertyToJSArray(model, "scaledScore", score.getScaledScore());
 		return model;
 	}
 
@@ -918,48 +781,8 @@ public class JavaScriptPlayerServices {
 	}
 
 	private void sendEvent(String eventName, JavaScriptObject eventData){
-
-		DraggableItem item;
-		GwtEvent<?> event = null;
-
-		String source = JavaScriptUtils.getArrayItemByKey(eventData, "source");
-		String type = JavaScriptUtils.getArrayItemByKey(eventData, "type");
-		String id = JavaScriptUtils.getArrayItemByKey(eventData, "item");
-		String value = JavaScriptUtils.getArrayItemByKey(eventData, "value");
-		String score = JavaScriptUtils.getArrayItemByKey(eventData, "score");
-
-		if(type.compareTo("image") == 0) {
-			item = new DraggableImage(id, value);
-		} else if (type.compareTo("audio") == 0) {
-			item = new DraggableAudio(id, value);
-		} else {
-			item = new DraggableText(id, value);
-		}
-
-		if (ITEM_CONSUMED_EVENT_NAME.compareTo(eventName) == 0) {
-			event = new ItemConsumedEvent(item);
-		} else if (ITEM_RETURNED_EVENT_NAME.compareTo(eventName) == 0) {
-			event = new ItemReturnedEvent(item);
-		} else if (ITEM_SELECTED_EVENT_NAME.compareTo(eventName) == 0) {
-			event = new ItemSelectedEvent(item);
-		} else if (VALUE_CHANGED_EVENT_NAME.compareTo(eventName) == 0) {
-			event = new ValueChangedEvent(source, id, value, score);
-		} else if (DEFINITION_EVENT_NAME.compareTo(eventName) == 0) {
-			String word = JavaScriptUtils.getArrayItemByKey(eventData, "word");
-			event = new DefinitionEvent(word);
-		} else {
-			String jsonString = JavaScriptUtils.toJsonString(eventData);
-			event = new CustomEvent(eventName, (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonString));
-		}
-
-		if (event != null) {
-			playerServices.getEventBus().fireEventFromSource(event, this);
-		}
+		this.playerServices.sendEvent(eventName, eventData);
 	}
-
-	private native void onEvent(JavaScriptObject listener, String name, JavaScriptObject data) /*-{
-		listener.onEventReceived(name, data);
-	}-*/;
 
 	private boolean isBookMode() {
 		return playerServices.isBookMode();
@@ -1018,6 +841,10 @@ public class JavaScriptPlayerServices {
 		return playerServices.getContentMetadata(key);
 	}
 
+	public JavaScriptObject getPagesMapping() {
+		return JavaScriptUtils.convertMappingToJSArray(playerServices.getModel().getPagesMapping());
+	}
+
 	public JavaScriptObject getModuleMetadata(String moduleID) {
 		return this.playerServices.getModule(moduleID).getModel().getMetadata().toJavaScript();
 	}
@@ -1025,12 +852,52 @@ public class JavaScriptPlayerServices {
 	public String escapeXMLEntities(String text) {
 		return StringUtils.escapeXML(text);
 	}
-	
+
 	private void resetPage(int index) {
 		this.playerServices.getCommands().resetPage(index);
 	}
-	
+
 	private void resetPageById(String id) {
 		this.playerServices.getCommands().resetPageById(id);
+	}
+
+	public JsArray<AdaptiveConnection> getAdaptiveConnectionCurrentPage() {
+		return this.playerServices.getAdaptiveLearningService().getConnectionsForPage();
+	}
+
+	public JsArray<AdaptiveConnection> getAdaptiveConnectionForPage(String pageID) {
+		return this.playerServices.getAdaptiveLearningService().getConnectionsForPage(pageID);
+	}
+
+	public void moveToNextAdaptivePage() {
+		this.playerServices.getAdaptiveLearningService().moveToNextPage();
+	}
+
+	public void moveToPrevAdaptivePage() {
+		this.playerServices.getAdaptiveLearningService().moveToPrevPage();
+	}
+
+	public void resetHistory() {
+		this.playerServices.getAdaptiveLearningService().resetHistory();
+	}
+
+	public boolean isNextAdaptivePageAvaialable() {
+		return this.playerServices.getAdaptiveLearningService().isNextPageAvailable();
+	}
+
+	public void addAndMoveToNextPage(String pageId) {
+		this.playerServices.getAdaptiveLearningService().addAndMoveToNextPage(pageId);
+	}
+
+	public String getPageDifficulty(String pageId) {
+		return this.playerServices.getAdaptiveLearningService().getPageDifficulty(pageId);
+	}
+
+	public boolean isLastStep() {
+		return this.playerServices.getAdaptiveLearningService().isLastStep();
+	}
+
+	public boolean isFirstStep() {
+		return this.playerServices.getAdaptiveLearningService().isFirstStep();
 	}
 }

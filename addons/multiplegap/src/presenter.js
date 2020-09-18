@@ -1095,7 +1095,10 @@ function Addonmultiplegap_create(){
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
-        presenter.eventBus = presenter.playerController.getEventBus();
+    };
+
+    presenter.setEventBus = function (eventBus) {
+        presenter.eventBus = eventBus;
     };
     
     function sendAllOKEvent () {
