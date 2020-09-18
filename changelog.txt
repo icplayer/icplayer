@@ -1,3 +1,4 @@
+2020-08-19 Added getNarration command for Audio
 2020-09-15 Added new properties for ValueChanged event and added method for injecting eventbus for addons
 2020-09-15 Added possibility for creating adaptive lessons
 2020-09-11 Fixed state of marker tool in IWB Toolbar not being saved

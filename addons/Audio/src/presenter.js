@@ -619,7 +619,8 @@ function AddonAudio_create(){
             useBrowserControls: useBrowserControls,
             isHtmlPlayer: defaultControls && !useBrowserControls,
             addonID: model.ID,
-            forceLoadAudio: ModelValidationUtils.validateBoolean(model.forceLoadAudio)
+            forceLoadAudio: ModelValidationUtils.validateBoolean(model.forceLoadAudio),
+            narration: model.Narration
         };
     };
 
@@ -629,10 +630,11 @@ function AddonAudio_create(){
             'stop': presenter.stop,
             'show': presenter.show,
             'hide': presenter.hide,
-            'pause': presenter.pause
+            'pause': presenter.pause,
+            'getNarration': presenter.getNarration
         };
 
-        Commands.dispatch(commands, name, params, presenter);
+        return Commands.dispatch(commands, name, params, presenter);
     };
 
     presenter.setVisibility = function AddonAudio_setVisibility (isVisible) {
@@ -735,6 +737,10 @@ function AddonAudio_create(){
         if (presenter.configuration.onEndEventCode) {
             presenter.playerController.getCommands().executeEventCode(presenter.configuration.onEndEventCode);
         }
+    };
+
+    presenter.getNarration = function AddonAudio_getNarration() {
+        return presenter.configuration.narration;
     };
 
     return presenter;

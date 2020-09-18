@@ -7,7 +7,8 @@ TestCase('[Audio] CallingCommands', {
         URL.createObjectURL = function (){return "XXX"};
 
         this.presenter.configuration = {
-            forceLoadAudio: false
+            forceLoadAudio: false,
+            narration: "123"
         };
         this.presenter.audio = {
             src: "xxx",
@@ -76,5 +77,12 @@ TestCase('[Audio] CallingCommands', {
         this.presenter.audio.paused = false;
         this.presenter.stop();
         assertTrue(this.presenter.audio.pause.calledOnce);
+    },
+
+    'test given narration in config when getnarration called then returns the narration from config': function () {
+        var expected = this.presenter.configuration.narration;
+        var given = this.presenter.getNarration();
+
+        assertEquals(expected, given);
     }
 });
