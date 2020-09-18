@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -102,7 +103,7 @@ public class PrintableContentParser {
 		};
 	}
 	
-	public String generatePrintableHTMLForPage(Page page, boolean randomizeModules, boolean showAnswers ) {
+	private String getPrintableHTMLForPage(Page page, boolean randomizeModules, boolean showAnswers ) {
 		List<Group> parsedGroups = new ArrayList<Group>();
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		ModuleList modules = page.getModules();
@@ -138,13 +139,6 @@ public class PrintableContentParser {
 		return result;
 	}
 	
-	public String generatePrintableHTML(Content contentModel, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
-		List<Page> pages = contentModel.getPages().getAllPages();
-		String result = generatePrintableHTMLForPages(pages, randomizePages, randomizeModules, showAnswers);
-		return result;
-	}
-	
-	
 	public String generatePrintableHTMLForPages(List<Page> pages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
 		String result = "<div>";
 		
@@ -158,12 +152,27 @@ public class PrintableContentParser {
 		}
 		
 		for (Page page: pages) {
-			result += generatePrintableHTMLForPage(page, randomizeModules, showAnswers);
+			String pageHTML = getPrintableHTMLForPage(page, randomizeModules, showAnswers);
+			JavaScriptUtils.log(page.getName());
+			JavaScriptUtils.log(getHTMLHeight(pageHTML, 1000));
+			result += pageHTML;
 		}
 		
 		result += "</div>";
 		return result;
 	};
+	
+	public String generatePrintableHTML(Content contentModel, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
+		List<Page> pages = contentModel.getPages().getAllPages();
+		String result = generatePrintableHTMLForPages(pages, randomizePages, randomizeModules, showAnswers);
+		return result;
+	}
+	
+	public String generatePrintableHTMLForPage(Page page, boolean randomizeModules, boolean showAnswers ) {
+		List<Page> pages = new ArrayList<Page>();
+		pages.add(page);
+		return generatePrintableHTMLForPages(pages, false, randomizeModules, showAnswers);
+	}
 	
 	public static String addClassToPrintableModule(String printableHTML, String className) {
 		Element element = (new HTML(printableHTML)).getElement().getFirstChildElement();
@@ -173,4 +182,33 @@ public class PrintableContentParser {
 		}
 		return element.getString();
 	}
+	
+	public static int getA4WidthInPixels(int dpi) {
+		double A4WidthInMM = 210;
+		double MMInInch = 25.4;
+		double d_dpi = dpi;
+		return (int)((A4WidthInMM / MMInInch) * d_dpi);
+	};
+	
+	public static int getA4HeightInPixels(int dpi) {
+		double A4HeightInMM = 297;
+		double MMInInch = 25.4;
+		double d_dpi = dpi;
+		return (int)((A4HeightInMM / MMInInch) * d_dpi);
+	};
+	
+	public static native int getHTMLHeight (String html, int pageWidth) /*-{
+		var $_ = $wnd.$;
+		var $wrapper = $_("<div></div>");
+		$wrapper.css("position", "absolute");
+		$wrapper.css("width", pageWidth + "px");
+		$wrapper.css("visibility", "hidden");
+		$wrapper.css("margin", "0px");
+		$wrapper.css("padding", "0px");
+		$wrapper.html(html);
+		$_("body").append($wrapper);
+		var height = $wrapper[0].getBoundingClientRect().height;
+		$wrapper.detach();
+		return height;
+	}-*/;
 }
