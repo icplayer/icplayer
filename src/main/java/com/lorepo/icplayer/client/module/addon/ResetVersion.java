@@ -2,7 +2,7 @@ package com.lorepo.icplayer.client.module.addon;
 
 public enum ResetVersion {
 	DEFAULT(1),
-	NO_WRONG_ANSWERS(2);
+	ONLY_WRONG_ANSWERS(2);
 	
 	int version;
 	
@@ -14,7 +14,7 @@ public enum ResetVersion {
 		if (version == 1) {
 			return ResetVersion.DEFAULT;
 		} else if (version == 2) {
-			return ResetVersion.NO_WRONG_ANSWERS;
+			return ResetVersion.ONLY_WRONG_ANSWERS;
 		}
 		
 		return ResetVersion.DEFAULT;

@@ -146,7 +146,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 	
 	private void reset(boolean onlyWrongAnswers) {
-		reset(jsObject, addonDescriptor.getAddonId(), onlyWrongAnswers, this.resetVersion == ResetVersion.NO_WRONG_ANSWERS);
+		reset(jsObject, addonDescriptor.getAddonId(), onlyWrongAnswers, this.resetVersion == ResetVersion.ONLY_WRONG_ANSWERS);
 	}
 
 	private native void reset(JavaScriptObject obj, String addonId, boolean onlyWrongAnswers, boolean supportedOnlyWrongAnswers) /*-{
