@@ -451,6 +451,7 @@ var ice_dictionary_en = {
 	"reset_property_confirm_info" : "Confirmation info",
     "reset_property_confirm_yes" : "Confirmation yes text",
     "reset_property_confirm_no" : "Confirmation no text",
+	"reset_property_reset_only_wrong": "Reset only wrong answers",
 	"block_wrong_answers" : "Block wrong answers",
 	"randomOrder" : "Random&nbsp;Order",
 	"All_elements_has_same_width" : "Even width for all elements",

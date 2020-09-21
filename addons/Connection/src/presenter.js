@@ -1316,7 +1316,8 @@ function AddonConnection_create() {
         isSelectionPossible = true;
     };
 
-    presenter.reset = function() {
+    presenter.reset = function(onlyWrongAnswers) {
+        // onlyWrongAnswers is supported by resetInterfaceVersion version 2.
         if (!presenter.isValid) {
             return;
         }
@@ -1326,7 +1327,23 @@ function AddonConnection_create() {
         }
 
         presenter.keyboardControllerObject.selectEnabled(true);
-        presenter.lineStack.clear();
+        if (!onlyWrongAnswers) {
+            presenter.lineStack.clear();
+        } else {
+            this.lineStack.setSendEvents(false);
+            var linesToRemove = [];
+            for (var i = 0; i < presenter.lineStack.length(); i++) {
+                var line = presenter.lineStack.get(i);
+                if (presenter.correctConnections.hasLine(line).length === 0) {
+                    linesToRemove.push(line)
+                }
+            }
+
+            linesToRemove.forEach(function (line) {
+                presenter.lineStack.remove(line);
+            });
+            this.lineStack.setSendEvents(true);
+        }
         isSelectionPossible = true;
         presenter.$connectionContainer.find('.selected').removeClass('selected');
         $(presenter.view).find('.connectionItem').each(function () {
@@ -1338,8 +1355,10 @@ function AddonConnection_create() {
         presenter.setVisibility(presenter.isVisibleByDefault);
         presenter.isVisible = presenter.isVisibleByDefault;
         presenter.disabledConnections = [];
-        presenter.addDisabledElementsFromInitialValues();
-        presenter.drawInitialValues();
+        if (!onlyWrongAnswers) {
+            presenter.addDisabledElementsFromInitialValues();
+            presenter.drawInitialValues();
+        }
     };
 
     presenter.getErrorCount = function () {
@@ -1984,3 +2003,7 @@ function AddonConnection_create() {
 
     return presenter;
 }
+
+AddonConnection_create.__supported_player_options__ = {
+    resetInterfaceVersion: 2
+};

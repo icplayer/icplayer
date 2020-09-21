@@ -435,8 +435,8 @@ public class PageController implements ITextToSpeechController {
 		}
 	}
 
-	public void sendResetEvent() {
-		playerService.getEventBus().fireEvent(new ResetPageEvent());
+	public void sendResetEvent(boolean onlyWrongAnswers) {
+		playerService.getEventBus().fireEvent(new ResetPageEvent(onlyWrongAnswers));
 	}
 
 	public PageScore getPageScore() {

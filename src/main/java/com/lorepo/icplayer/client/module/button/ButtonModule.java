@@ -44,6 +44,7 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 	private String popupTopPosition = "";
 	private String popupLeftPosition = "";
 	private boolean confirmReset = false;
+	private boolean resetOnlyWrong = false;
 	private String confirmInfo = "";
 	private String confirmYesInfo = "";
 	private String confirmNoInfo = "";
@@ -80,6 +81,7 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 					confirmInfo = StringUtils.unescapeXML(childElement.getAttribute("confirmInfo"));
 					confirmYesInfo = StringUtils.unescapeXML(childElement.getAttribute("confirmYesInfo"));
 					confirmNoInfo = StringUtils.unescapeXML(childElement.getAttribute("confirmNoInfo"));
+					resetOnlyWrong = XMLUtils.getAttributeAsBoolean(childElement, "resetOnlyWrong", false);
 					goToLastVisitedPage = XMLUtils.getAttributeAsBoolean(childElement, "goToLastVisitedPage", false);
 					if (type == ButtonType.reset) {
 						this.resetSpeechTextItems.get(ButtonModule.RESET_BUTTON_RESET_INDEX).setText(StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "resetReset")));
@@ -123,6 +125,7 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 		}
 		
 		if (type == ButtonType.reset) {
+			button.setAttribute("resetOnlyWrong", Boolean.toString(resetOnlyWrong));
 			button.setAttribute("confirmReset", Boolean.toString(confirmReset));
 			button.setAttribute("confirmInfo", StringUtils.escapeXML(confirmInfo));
 			button.setAttribute("confirmYesInfo", StringUtils.escapeXML(confirmYesInfo));
@@ -183,6 +186,7 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 			addPropertyOnClick();
 		}
 		else if(type == ButtonType.reset) {
+			addPropertyResetOnlyWrong();
 			addPropertyConfirmReset();
 			addPropertyConfirmInfo();
 			addPropertyConfirmYesInfo();
@@ -550,6 +554,42 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 		addProperty(property);
 	}
 	
+	private void addPropertyResetOnlyWrong() {
+		IProperty property = new IBooleanProperty() {
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= resetOnlyWrong) {
+					resetOnlyWrong = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				return resetOnlyWrong ? "True" : "False";
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("reset_property_reset_only_wrong");
+			}
+			
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("reset_property_reset_only_wrong");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+		
+		addProperty(property);
+	}
+	
 	private void addPropertyConfirmReset() {
 
 		IProperty property = new IBooleanProperty() {
@@ -606,6 +646,10 @@ public class ButtonModule extends BasicModuleModel implements IWCAGModuleModel {
 	
 	public boolean getGoToLastPage(){
 		return this.goToLastVisitedPage;
+	}
+	
+	public boolean getResetOnlyWrong() {
+		return this.resetOnlyWrong;
 	}
 	
 	private void addPropertyOnClick() {

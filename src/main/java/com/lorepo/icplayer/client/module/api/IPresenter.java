@@ -11,5 +11,5 @@ public interface IPresenter {
 	public void setWorkMode();
 	public void reset();
 	public void onEventReceived(String eventName, HashMap<String, String> data);
-	public JavaScriptObject getAsJavaScript(); 
+	public JavaScriptObject getAsJavaScript();
 }

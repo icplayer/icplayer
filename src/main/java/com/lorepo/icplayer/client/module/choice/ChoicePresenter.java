@@ -104,7 +104,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 			eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 				public void onResetPage(ResetPageEvent event) {
-					reset();
+					reset(event.getIsOnlyWrongAnswers());
 				}
 			});
 			
@@ -137,7 +137,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		this.currentState = getState();
 		this.isShowAnswersActive = true;
 
-		clearStylesAndSelection();
+		clearStylesAndSelection(false);
 		view.isShowErrorsMode(false);
 		view.setEnabled(false);
 		
@@ -157,7 +157,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if (!module.isActivity()) {
 			return;
 		}
-		clearStylesAndSelection();
+		clearStylesAndSelection(false);
 		setState(this.currentState);
 		this.isShowAnswersActive = false;
 		setWorkMode();
@@ -210,6 +210,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	
 	@Override
 	public void reset() {
+		this.reset(false);
+	}
+	
+	private void reset(boolean onlyWrongAnswers) {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -217,7 +221,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if(module.isVisible()) show();
 		else view.hide();
 
-		clearStylesAndSelection();
+		clearStylesAndSelection(onlyWrongAnswers);
 		
 		isDisabled = module.isDisabled();
 		view.setEnabled(!isDisabled);
@@ -227,10 +231,17 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 
 
-	private void clearStylesAndSelection() {
+	private void clearStylesAndSelection(boolean onlyWrongAnswers) {
 		for(IOptionDisplay optionView : view.getOptions()){
-			optionView.setDown(false);
-			optionView.resetStyles();
+			if (onlyWrongAnswers) {
+				if (optionView.isDown() && optionView.getModel().getValue() == 0) {
+					optionView.setDown(false);
+					optionView.resetStyles();
+				}
+			} else {
+				optionView.setDown(false);
+				optionView.resetStyles();
+			}
 		}
 	}
 

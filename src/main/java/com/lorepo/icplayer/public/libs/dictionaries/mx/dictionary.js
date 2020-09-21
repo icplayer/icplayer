@@ -451,6 +451,7 @@ var ice_dictionary_mx = {
     "reset_property_confirm_info" : "Pregunta de confirmación",
     "reset_property_confirm_yes" : "Texto del botón Sí",
     "reset_property_confirm_no" : "Texto del botón No",
+	"reset_property_reset_only_wrong": "Reset only wrong answers",
 	"block_wrong_answers": "Bloquear respuestas incorrectas",
 	"randomOrder": "Orden al azar",
 	"All_elements_has_same_width": "El mismo ancho para todos los elementos",
