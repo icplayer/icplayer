@@ -2,6 +2,10 @@ TestCase("[Connection] Answers manipulation tests", {
 
    setUp: function () {
        this.presenter = AddonConnection_create();
+       this.presenter.mathJaxLoaders = {
+            runLoader: true,
+            setStateLoader: true
+        };
 
        this.stubs = {
            selectEnabledStub: sinon.stub(),
