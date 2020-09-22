@@ -25,12 +25,17 @@ function AddonConnection_create() {
 
     presenter.isShowAnswersActive = false;
     presenter.isCheckActive = false;
-    presenter.isMathJaxLoaded = false;
+    presenter.initialState = null;
 
-    var deferredCommandQueue = window.DecoratorUtils.DeferredSyncQueue(isMathJaxLoadedChecker);
+    presenter.mathJaxLoaders = {
+        runLoader: false,
+        setStateLoader: true
+    };
 
-    function isMathJaxLoadedChecker() {
-        return presenter.isMathJaxLoaded;
+    var deferredCommandQueue = window.DecoratorUtils.DeferredSyncQueue(checkIsMathJaxLoaded);
+
+    function checkIsMathJaxLoaded() {
+        return presenter.mathJaxLoaders.runLoader && presenter.mathJaxLoaders.setStateLoader;
     }
 
     var connections;
@@ -615,7 +620,7 @@ function AddonConnection_create() {
                 presenter.drawInitialValues();
                 presenter.addDisabledElementsFromInitialValues();
 
-                presenter.isMathJaxLoaded = true;
+                presenter.mathJaxLoaders.runLoader = true;
                 deferredCommandQueue.resolve();
             });
         }
@@ -1328,7 +1333,7 @@ function AddonConnection_create() {
             });
             isSelectionPossible = true;
         }
-        );
+    );
 
     presenter.reset = deferredCommandQueue.decorate(
         function() {
@@ -1358,6 +1363,7 @@ function AddonConnection_create() {
         }
     );
 
+    // that method can return false results when called before mathjax is loaded, but cannot be moved to aysnc queue
     presenter.getErrorCount = function () {
         if (presenter.isNotActivity) return 0;
 
@@ -1377,6 +1383,7 @@ function AddonConnection_create() {
         return presenter.correctConnections.length() - presenter.correctConnections.getDisabledCount();
     };
 
+    // that method can return false results when called before mathjax is loaded, but cannot be moved to aysnc queue
     presenter.getScore = function () {
         if (presenter.isNotActivity) return 0;
 
@@ -1393,6 +1400,13 @@ function AddonConnection_create() {
     };
 
     presenter.getState = function () {
+        // this is needed because run/setState method waits for MathJax process to be finished
+        // if getState is called before MathJax EndProcess callback then state would be lost
+        // this fix that problem
+        if (!presenter.mathJaxLoaders.setStateLoader && presenter.initialState !== null) {
+            return presenter.initialState;
+        }
+
         var id = [];
         for (var i = 0; i < presenter.lineStack.ids.length; i++) {
             id.push(presenter.lineStack.ids[i].join(':'))
@@ -1405,9 +1419,11 @@ function AddonConnection_create() {
 
     presenter.setState = function (state) {
         var hookExecuted = false;
+        presenter.initialState = state;
+        presenter.mathJaxLoaders.setStateLoader = false;
 
         presenter.mathJaxProcessEnded.then(function () {
-            if (state != '' && !hookExecuted) {
+            if (state !== '' && !hookExecuted) {
                 presenter.lineStack.setSendEvents(false);
                 presenter.lineStack.clear();
 
@@ -1427,10 +1443,11 @@ function AddonConnection_create() {
 
                 presenter.lineStack.setSendEvents(true);
                 presenter.redraw();
-                presenter.isMathJaxLoaded = true;
                 deferredCommandQueue.resolve();
             }
 
+            presenter.initialState = null;
+            presenter.mathJaxLoaders.setStateLoader = true;
             hookExecuted = true;
         });
     };
