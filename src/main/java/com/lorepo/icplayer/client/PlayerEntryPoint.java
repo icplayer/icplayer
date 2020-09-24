@@ -107,7 +107,7 @@ public class PlayerEntryPoint implements EntryPoint {
 			};
 			
 			player.getPrintableHTML = function(randomizePages, randomizeModules, showAnswers) {
-				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::generatePrintableHTML(ZZZ)(randomizePages, randomizeModules, showAnswers);
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::generatePrintableHTML(ZZZI)(randomizePages, randomizeModules, showAnswers);
 			};
 			
 			player.preloadAllPages = function(callback) {
@@ -266,8 +266,8 @@ public class PlayerEntryPoint implements EntryPoint {
 		return this.contextMetadata;
 	}
 	
-	private String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
-		return theApplication.generatePrintableHTML(randomizePages, randomizeModules, showAnswers);
+	private String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi) {
+		return theApplication.generatePrintableHTML(randomizePages, randomizeModules, showAnswers, dpi);
 	}
 	
 	private void preloadAllPages(final JavaScriptObject callback) {

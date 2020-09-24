@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.HTML;
@@ -18,7 +19,33 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 
 public class PrintableContentParser {
 	
+	int dpi = 96;
+	String headerHTML = "";
+	String footerHTML = "";
+	int headerHeight = 0;
+	int footerHeight = 0;
+	Boolean enableTwoColumnPrint = false;
+	
+	public void setDPI(int dpi) {
+		this.dpi = dpi;
+	}
+	
+	public void setTwoColumnPrintEnabled(boolean enabled) {
+		enableTwoColumnPrint = enabled;
+	}
 
+	public void setHeader(Page header) {
+		headerHTML = parsePage(header, false, false);
+		int width = getA4WidthInPixels(10);
+		headerHeight = getHTMLHeight(headerHTML, width);
+	}
+	
+	public void setFooter(Page footer) {
+		footerHTML = parsePage(footer, false, false);
+		int width = getA4WidthInPixels(10);
+		footerHeight = getHTMLHeight(footerHTML, width);
+	}
+	
 	private void randomizePrintables(List<IPrintableModuleModel> printables) {
 		int startIndex = 0;
 		for (int i = 0; i < printables.size(); i++) {
@@ -103,7 +130,7 @@ public class PrintableContentParser {
 		};
 	}
 	
-	private String getPrintableHTMLForPage(Page page, boolean randomizeModules, boolean showAnswers ) {
+	private String parsePage(Page page, boolean randomizeModules, boolean showAnswers ) {
 		List<Group> parsedGroups = new ArrayList<Group>();
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		ModuleList modules = page.getModules();
@@ -130,14 +157,67 @@ public class PrintableContentParser {
 		if (randomizeModules) {
 			randomizePrintables(pagePrintables);
 		}
-		
-		String result = "<div class=\"printable_page\">";
+		String result = "";
 		for (IPrintableModuleModel printable: pagePrintables) {
 			result += printable.getPrintableHTML(showAnswers);
 		}
+		return result;
+	}
+	
+	private String wrapPrintablePage(String content, int pageWidth, int pageHeight) {
+		String pageDivCss = "width:" 
+				+ Integer.toString(pageWidth) 
+				+ "px; height:" 
+				+ Integer.toString(pageHeight) 
+				+ "px;";
+		
+		content = applyHeaderAndFooter(content, true);
+		
+		String result = "<div class=\"printable_page\" style=\"" + pageDivCss + "\">";
+		result += content;
 		result += "</div>";
 		return result;
 	}
+	
+	private String applyHeaderAndFooter(String content, boolean fullHeight) {
+		String result = fullHeight ? "<table style='width:100%; height:100%'>" : "<table>";
+		if (headerHeight > 0) {
+			String headerStyle = "height: " + Integer.toString(headerHeight) + "px;";
+			result += "<tr class='printable_header' style='" + headerStyle + "'><td>" + headerHTML + "</td></tr>";
+		}
+		if (enableTwoColumnPrint) {
+			result += "<tr><td class='printable_content' style='vertical-align: top; columns: 2; column-gap: 40px;'>" + content + "</td></tr>";
+		} else {
+			result += "<tr><td class='printable_content' style='vertical-align: top;'>" + content + "</td></tr>";
+		}
+		if (footerHeight > 0) {
+			String footerStyle = "height: " + Integer.toString(footerHeight) + "px;";
+			result += "<tr class='printable_footer' style='" + footerStyle + "'><td>" + footerHTML + "</td></tr>";
+		}
+		result += "</table>";
+		return result;
+	}
+	
+	private native JavaScriptObject splitPageModules(PrintableContentParser x, String html, int pageWidth, int pageHeight) /*-{
+		var pages = "";
+		var $wrapper = $wnd.$("<div></div>");
+		$wrapper.html(html);
+		
+		var printablePageHTML = "";
+		$wrapper.children().each(function(){
+			var moduleHTML = this.outerHTML;
+			var newPrintablePageHTML = printablePageHTML + moduleHTML;
+			var newPrintablePageWithHeaderAndFooter = x.@com.lorepo.icplayer.client.PrintableContentParser::applyHeaderAndFooter(Ljava/lang/String;Z)(newPrintablePageHTML, false);
+			var newHeight = x.@com.lorepo.icplayer.client.PrintableContentParser::getHTMLHeight(Ljava/lang/String;I)(newPrintablePageWithHeaderAndFooter, pageWidth);
+			if (newHeight > pageHeight) {
+				pages += x.@com.lorepo.icplayer.client.PrintableContentParser::wrapPrintablePage(Ljava/lang/String;II)(printablePageHTML, pageWidth, pageHeight);
+				printablePageHTML = moduleHTML;
+			} else {
+				printablePageHTML += moduleHTML;
+			}
+		});
+		return {pages: pages, tail: printablePageHTML};
+	}-*/;
 	
 	public String generatePrintableHTMLForPages(List<Page> pages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
 		String result = "<div>";
@@ -146,16 +226,33 @@ public class PrintableContentParser {
 			Page firstPage = pages.get(0);
 			pages.remove(0);
 			for(int index = 0; index < pages.size(); index += 1) {  
-			    Collections.swap(pages, index, index + Random.nextInt(pages.size() - index));  
 			}
 			pages.add(0, firstPage);
 		}
 		
+		
+		int pageMaxHeight = getA4HeightInPixels(10);
+		int pageWidth = getA4WidthInPixels(10);
+		String printablePageHTML = "";
+		
 		for (Page page: pages) {
-			String pageHTML = getPrintableHTMLForPage(page, randomizeModules, showAnswers);
-			JavaScriptUtils.log(page.getName());
-			JavaScriptUtils.log(getHTMLHeight(pageHTML, 1000));
-			result += pageHTML;
+			String pageHTML = parsePage(page, randomizeModules, showAnswers);
+			String newPrintablePageHTML = printablePageHTML + pageHTML;
+			if (getHTMLHeight(applyHeaderAndFooter(newPrintablePageHTML, false), pageWidth) > pageMaxHeight) {
+				if (printablePageHTML.length() > 0) {
+					result += wrapPrintablePage(printablePageHTML, pageWidth, pageMaxHeight);
+					printablePageHTML = pageHTML;
+				} else {
+					JavaScriptObject splitPageOutput = splitPageModules(this, pageHTML, pageWidth, pageMaxHeight);
+					result += JavaScriptUtils.getArrayItemByKey(splitPageOutput, "pages");
+					printablePageHTML = JavaScriptUtils.getArrayItemByKey(splitPageOutput, "tail");
+				}
+			} else {
+				printablePageHTML = newPrintablePageHTML;
+			}
+		}
+		if (printablePageHTML.length() > 0) {
+			result += wrapPrintablePage(printablePageHTML, pageWidth, pageMaxHeight);
 		}
 		
 		result += "</div>";
@@ -164,11 +261,12 @@ public class PrintableContentParser {
 	
 	public String generatePrintableHTML(Content contentModel, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
 		List<Page> pages = contentModel.getPages().getAllPages();
+		setTwoColumnPrintEnabled(Boolean.valueOf(contentModel.getMetadataValue("enableTwoColumnPrint")));
 		String result = generatePrintableHTMLForPages(pages, randomizePages, randomizeModules, showAnswers);
 		return result;
 	}
 	
-	public String generatePrintableHTMLForPage(Page page, boolean randomizeModules, boolean showAnswers ) {
+	public String generatePrintableHTMLForPage(Page page, boolean randomizeModules, boolean showAnswers) {
 		List<Page> pages = new ArrayList<Page>();
 		pages.add(page);
 		return generatePrintableHTMLForPages(pages, false, randomizeModules, showAnswers);
@@ -183,21 +281,21 @@ public class PrintableContentParser {
 		return element.getString();
 	}
 	
-	public static int getA4WidthInPixels(int dpi) {
-		double A4WidthInMM = 210;
+	public int getA4WidthInPixels(int margin) {
+		double A4WidthInMM = 210 - margin*2;
 		double MMInInch = 25.4;
 		double d_dpi = dpi;
 		return (int)((A4WidthInMM / MMInInch) * d_dpi);
 	};
 	
-	public static int getA4HeightInPixels(int dpi) {
-		double A4HeightInMM = 297;
+	public int getA4HeightInPixels(int margin) {
+		double A4HeightInMM = 297 - margin*2;
 		double MMInInch = 25.4;
 		double d_dpi = dpi;
 		return (int)((A4HeightInMM / MMInInch) * d_dpi);
 	};
 	
-	public static native int getHTMLHeight (String html, int pageWidth) /*-{
+	public native int getHTMLHeight (String html, int pageWidth) /*-{
 		var $_ = $wnd.$;
 		var $wrapper = $_("<div></div>");
 		$wrapper.css("position", "absolute");
