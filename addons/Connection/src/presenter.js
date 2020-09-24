@@ -25,6 +25,18 @@ function AddonConnection_create() {
 
     presenter.isShowAnswersActive = false;
     presenter.isCheckActive = false;
+    presenter.initialState = null;
+
+    presenter.mathJaxLoaders = {
+        runLoader: false,
+        setStateLoader: true
+    };
+
+    var deferredCommandQueue = window.DecoratorUtils.DeferredSyncQueue(checkIsMathJaxLoaded);
+
+    function checkIsMathJaxLoaded() {
+        return presenter.mathJaxLoaders.runLoader && presenter.mathJaxLoaders.setStateLoader;
+    }
 
     var connections;
     var singleMode = false;
@@ -607,6 +619,9 @@ function AddonConnection_create() {
                 presenter.registerListeners(presenter.view);
                 presenter.drawInitialValues();
                 presenter.addDisabledElementsFromInitialValues();
+
+                presenter.mathJaxLoaders.runLoader = true;
+                deferredCommandQueue.resolve();
             });
         }
 
@@ -1271,77 +1286,84 @@ function AddonConnection_create() {
         });
     }
 
-    presenter.setShowErrorsMode = function () {
-        presenter.isCheckActive = true;
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
-        if (presenter.isNotActivity) return 0;
-
-        connections.clearCanvas();
-        for (var i = 0; i < presenter.lineStack.length(); i++) {
-            var line = presenter.lineStack.get(i);
-            if (presenter.correctConnections.hasLine(line).length > 0) {
-                drawLine(presenter.lineStack.get(i), correctConnection);
-                var fromElementCorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).from[0].id);
-                var toElementCorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).to[0].id);
-                $(fromElementCorrect).addClass('connectionItem-correct');
-                $(toElementCorrect).addClass('connectionItem-correct');
-            } else {
-                drawLine(presenter.lineStack.get(i), incorrectConnection);
-                var fromElementIncorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).from[0].id);
-                var toElementIncorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).to[0].id);
-                $(fromElementIncorrect).addClass('connectionItem-wrong');
-                $(toElementIncorrect).addClass('connectionItem-wrong');
+    presenter.setShowErrorsMode = deferredCommandQueue.decorate(
+        function () {
+            presenter.isCheckActive = true;
+            if (presenter.isShowAnswersActive) {
+                presenter.hideAnswers();
             }
+            if (presenter.isNotActivity) return 0;
+
+            connections.clearCanvas();
+            for (var i = 0; i < presenter.lineStack.length(); i++) {
+                var line = presenter.lineStack.get(i);
+                if (presenter.correctConnections.hasLine(line).length > 0) {
+                    drawLine(presenter.lineStack.get(i), correctConnection);
+                    var fromElementCorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).from[0].id);
+                    var toElementCorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).to[0].id);
+                    $(fromElementCorrect).addClass('connectionItem-correct');
+                    $(toElementCorrect).addClass('connectionItem-correct');
+                } else {
+                    drawLine(presenter.lineStack.get(i), incorrectConnection);
+                    var fromElementIncorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).from[0].id);
+                    var toElementIncorrect = $(presenter.view).find('#'+presenter.lineStack.get(i).to[0].id);
+                    $(fromElementIncorrect).addClass('connectionItem-wrong');
+                    $(toElementIncorrect).addClass('connectionItem-wrong');
+                }
+            }
+            $(presenter.view).find('.connectionItem').each(function () {
+               if ($(this).hasClass('connectionItem-correct') && $(this).hasClass('connectionItem-wrong')) {
+                   $(this).removeClass('connectionItem-correct');
+               }
+            });
+            presenter.$connectionContainer.find('.selected').removeClass('selected');
+            selectedItem = null;
+            isSelectionPossible = false;
         }
-        $(presenter.view).find('.connectionItem').each(function () {
-           if ($(this).hasClass('connectionItem-correct') && $(this).hasClass('connectionItem-wrong')) {
-               $(this).removeClass('connectionItem-correct');
-           }
-        });
-        presenter.$connectionContainer.find('.selected').removeClass('selected');
-        selectedItem = null;
-        isSelectionPossible = false;
-    };
+    );
 
-    presenter.setWorkMode = function () {
-        presenter.isCheckActive = false;
-        presenter.gatherCorrectConnections();
-        presenter.redraw();
-        $(presenter.view).find('.connectionItem').each(function () {
-            $(this).removeClass('connectionItem-correct');
-            $(this).removeClass('connectionItem-wrong');
-        });
-        isSelectionPossible = true;
-    };
-
-    presenter.reset = function() {
-        if (!presenter.isValid) {
-            return;
+    presenter.setWorkMode = deferredCommandQueue.decorate(
+        function () {
+            presenter.isCheckActive = false;
+            presenter.gatherCorrectConnections();
+            presenter.redraw();
+            $(presenter.view).find('.connectionItem').each(function () {
+                $(this).removeClass('connectionItem-correct');
+                $(this).removeClass('connectionItem-wrong');
+            });
+            isSelectionPossible = true;
         }
+    );
 
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+    presenter.reset = deferredCommandQueue.decorate(
+        function() {
+            if (!presenter.isValid) {
+                return;
+            }
+
+            if (presenter.isShowAnswersActive) {
+                presenter.hideAnswers();
+            }
+
+            presenter.keyboardControllerObject.selectEnabled(true);
+            presenter.lineStack.clear();
+            isSelectionPossible = true;
+            presenter.$connectionContainer.find('.selected').removeClass('selected');
+            $(presenter.view).find('.connectionItem').each(function () {
+                $(this).removeClass('connectionItem-correct');
+                $(this).removeClass('connectionItem-wrong');
+            });
+
+            presenter.redraw();
+            presenter.setVisibility(presenter.isVisibleByDefault);
+            presenter.isVisible = presenter.isVisibleByDefault;
+            presenter.disabledConnections = [];
+            presenter.addDisabledElementsFromInitialValues();
+            presenter.drawInitialValues();
         }
+    );
 
-        presenter.keyboardControllerObject.selectEnabled(true);
-        presenter.lineStack.clear();
-        isSelectionPossible = true;
-        presenter.$connectionContainer.find('.selected').removeClass('selected');
-        $(presenter.view).find('.connectionItem').each(function () {
-            $(this).removeClass('connectionItem-correct');
-            $(this).removeClass('connectionItem-wrong');
-        });
-
-        presenter.redraw();
-        presenter.setVisibility(presenter.isVisibleByDefault);
-        presenter.isVisible = presenter.isVisibleByDefault;
-        presenter.disabledConnections = [];
-        presenter.addDisabledElementsFromInitialValues();
-        presenter.drawInitialValues();
-    };
-
+    // that method can return false results when called before mathjax is loaded, but cannot be moved to aysnc queue
     presenter.getErrorCount = function () {
         if (presenter.isNotActivity) return 0;
 
@@ -1361,6 +1383,7 @@ function AddonConnection_create() {
         return presenter.correctConnections.length() - presenter.correctConnections.getDisabledCount();
     };
 
+    // that method can return false results when called before mathjax is loaded, but cannot be moved to aysnc queue
     presenter.getScore = function () {
         if (presenter.isNotActivity) return 0;
 
@@ -1377,6 +1400,13 @@ function AddonConnection_create() {
     };
 
     presenter.getState = function () {
+        // this is needed because run/setState method waits for MathJax process to be finished
+        // if getState is called before MathJax EndProcess callback then state would be lost
+        // this fix that problem
+        if (!presenter.mathJaxLoaders.setStateLoader && presenter.initialState !== null) {
+            return presenter.initialState;
+        }
+
         var id = [];
         for (var i = 0; i < presenter.lineStack.ids.length; i++) {
             id.push(presenter.lineStack.ids[i].join(':'))
@@ -1389,9 +1419,11 @@ function AddonConnection_create() {
 
     presenter.setState = function (state) {
         var hookExecuted = false;
+        presenter.initialState = state;
+        presenter.mathJaxLoaders.setStateLoader = false;
 
         presenter.mathJaxProcessEnded.then(function () {
-            if (state != '' && !hookExecuted) {
+            if (state !== '' && !hookExecuted) {
                 presenter.lineStack.setSendEvents(false);
                 presenter.lineStack.clear();
 
@@ -1411,8 +1443,11 @@ function AddonConnection_create() {
 
                 presenter.lineStack.setSendEvents(true);
                 presenter.redraw();
+                deferredCommandQueue.resolve();
             }
 
+            presenter.initialState = null;
+            presenter.mathJaxLoaders.setStateLoader = true;
             hookExecuted = true;
         });
     };
@@ -1655,58 +1690,62 @@ function AddonConnection_create() {
         }
     };
 
-    presenter.showAnswers = function () {
-        if (presenter.isNotActivity) {
-            return;
-        }
+    presenter.showAnswers = deferredCommandQueue.decorate(
+        function () {
+            if (presenter.isNotActivity) {
+                return;
+            }
 
-        presenter.keyboardControllerObject.selectEnabled(false);
-        presenter.isShowAnswersActive = true;
-        presenter.tmpElements = [];
-        for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
-            presenter.tmpElements.push(presenter.lineStack.ids[elem].join(':'))
-        }
+            presenter.keyboardControllerObject.selectEnabled(false);
+            presenter.isShowAnswersActive = true;
+            presenter.tmpElements = [];
+            for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
+                presenter.tmpElements.push(presenter.lineStack.ids[elem].join(':'))
+            }
 
-        presenter.lineStack.clear();
-        presenter.redraw();
+            presenter.lineStack.clear();
+            presenter.redraw();
 
-        var elements = presenter.elements;
-        for (var i = 0, elementsLength = elements.length; i < elementsLength; i++) {
-            var connects = elements[i]['connects'].split(',');
-            for (var j = 0; j < connects.length; j++) {
-                if (connects[j] != "" && $.inArray(connects[j], presenter.uniqueIDs) >= 0) {
-                    var pair = [elements[i]['id'], connects[j]];
-                    var line = new Line(
-                        getElementById(pair[0]),
-                        getElementById(pair[1])
-                    );
-                    presenter.lineStack.push(line);
+            var elements = presenter.elements;
+            for (var i = 0, elementsLength = elements.length; i < elementsLength; i++) {
+                var connects = elements[i]['connects'].split(',');
+                for (var j = 0; j < connects.length; j++) {
+                    if (connects[j] != "" && $.inArray(connects[j], presenter.uniqueIDs) >= 0) {
+                        var pair = [elements[i]['id'], connects[j]];
+                        var line = new Line(
+                            getElementById(pair[0]),
+                            getElementById(pair[1])
+                        );
+                        presenter.lineStack.push(line);
+                    }
                 }
             }
-        }
 
-        presenter.lineStackSA = {
-            stack: presenter.lineStack ? presenter.lineStack.stack.concat([]) : []
-        };
-        presenter.redrawShowAnswers();
-        presenter.lineStack.clear();
-        isSelectionPossible = false;
+            presenter.lineStackSA = {
+                stack: presenter.lineStack ? presenter.lineStack.stack.concat([]) : []
+            };
+            presenter.redrawShowAnswers();
+            presenter.lineStack.clear();
+            isSelectionPossible = false;
 
-        for (var element = 0; element < presenter.tmpElements.length; element++) {
-            var pairs =  presenter.tmpElements[element].split(':');
-            pushConnection(new Line(getElementById(pairs[0]), getElementById(pairs[1])), false);
+            for (var element = 0; element < presenter.tmpElements.length; element++) {
+                var pairs =  presenter.tmpElements[element].split(':');
+                pushConnection(new Line(getElementById(pairs[0]), getElementById(pairs[1])), false);
+            }
         }
-    };
+    );
 
-    presenter.hideAnswers = function () {
-        if (presenter.isNotActivity) {
-            return;
+    presenter.hideAnswers = deferredCommandQueue.decorate(
+        function () {
+            if (presenter.isNotActivity) {
+                return;
+            }
+            presenter.keyboardControllerObject.selectEnabled(true);
+            presenter.redraw();
+            presenter.isShowAnswersActive = false;
+            isSelectionPossible = true;
         }
-        presenter.keyboardControllerObject.selectEnabled(true);
-        presenter.redraw();
-        presenter.isShowAnswersActive = false;
-        isSelectionPossible = true;
-    };
+    );
 
     presenter.keyboardController = function(keycode, isShiftDown, event) {
         presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
