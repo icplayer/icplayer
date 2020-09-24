@@ -230,7 +230,7 @@ public class PrintableContentParser {
 			pages.add(0, firstPage);
 		}
 		
-		
+
 		int pageMaxHeight = getA4HeightInPixels(10);
 		int pageWidth = getA4WidthInPixels(10);
 		String printablePageHTML = "";
@@ -261,6 +261,14 @@ public class PrintableContentParser {
 	
 	public String generatePrintableHTML(Content contentModel, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
 		List<Page> pages = contentModel.getPages().getAllPages();
+		Page header = contentModel.getDefaultHeader();
+		if (header != null) {
+			setHeader(header);
+		}
+		Page footer = contentModel.getDefaultFooter();
+		if (footer != null) {
+			setFooter(footer);
+		}
 		setTwoColumnPrintEnabled(Boolean.valueOf(contentModel.getMetadataValue("enableTwoColumnPrint")));
 		String result = generatePrintableHTMLForPages(pages, randomizePages, randomizeModules, showAnswers);
 		return result;

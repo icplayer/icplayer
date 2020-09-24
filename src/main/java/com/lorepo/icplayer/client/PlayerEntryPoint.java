@@ -106,8 +106,8 @@ public class PlayerEntryPoint implements EntryPoint {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::contextMetadata = contextData;
 			};
 			
-			player.getPrintableHTML = function(randomizePages, randomizeModules, showAnswers) {
-				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::generatePrintableHTML(ZZZI)(randomizePages, randomizeModules, showAnswers);
+			player.getPrintableHTML = function(randomizePages, randomizeModules, showAnswers, dpi) {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::generatePrintableHTML(ZZZI)(randomizePages, randomizeModules, showAnswers, dpi);
 			};
 			
 			player.preloadAllPages = function(callback) {
