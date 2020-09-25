@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -20,11 +23,32 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 public class PrintableContentParser {
 	
 	int dpi = 96;
-	String headerHTML = "";
-	String footerHTML = "";
+	SafeHtml headerHTML = null;
+	SafeHtml footerHTML = null;
 	int headerHeight = 0;
 	int footerHeight = 0;
 	Boolean enableTwoColumnPrint = false;
+	
+	private static class SplitPageResult extends JavaScriptObject {
+		
+		protected SplitPageResult() {};
+		
+		public final native String getPagesHtml() /*-{return this.pages;}-*/;
+		
+		public final native String getTailHtml() /*-{return this.tail;}-*/;
+	}
+	
+	public interface PrintableHtmlTemplates extends SafeHtmlTemplates {
+		@Template("<tr class=\"printable_header\" style=\"height:{0}px;\"><td>{1}</td></tr>")
+	    SafeHtml pageHeader(int height, SafeHtml content);
+		
+		@Template("<tr><td class='printable_content' style='vertical-align: top; columns: {0}; column-gap: 40px;'>{1}</td></tr>")
+	    SafeHtml pageContent(int columns, SafeHtml content);
+		
+		@Template("<tr class=\"printable_footer\" style=\"height:{0}px;\"><td>{1}</td></tr>")
+	    SafeHtml pageFooter(int height, SafeHtml content);
+	}
+	private static final PrintableHtmlTemplates TEMPLATE = GWT.create(PrintableHtmlTemplates.class);
 	
 	public void setDPI(int dpi) {
 		this.dpi = dpi;
@@ -35,15 +59,17 @@ public class PrintableContentParser {
 	}
 
 	public void setHeader(Page header) {
-		headerHTML = parsePage(header, false, false);
+		String headerRaw = parsePage(header, false, false);
 		int width = getA4WidthInPixels(10);
-		headerHeight = getHTMLHeight(headerHTML, width);
+		headerHeight = getHTMLHeight(headerRaw, width);
+		headerHTML = SafeHtmlUtils.fromTrustedString(headerRaw);
 	}
 	
 	public void setFooter(Page footer) {
-		footerHTML = parsePage(footer, false, false);
+		String footerRaw = parsePage(footer, false, false);
 		int width = getA4WidthInPixels(10);
-		footerHeight = getHTMLHeight(footerHTML, width);
+		footerHeight = getHTMLHeight(footerRaw, width);
+		footerHTML = SafeHtmlUtils.fromTrustedString(footerRaw);
 	}
 	
 	private void randomizePrintables(List<IPrintableModuleModel> printables) {
@@ -182,23 +208,21 @@ public class PrintableContentParser {
 	private String applyHeaderAndFooter(String content, boolean fullHeight) {
 		String result = fullHeight ? "<table style='width:100%; height:100%'>" : "<table>";
 		if (headerHeight > 0) {
-			String headerStyle = "height: " + Integer.toString(headerHeight) + "px;";
-			result += "<tr class='printable_header' style='" + headerStyle + "'><td>" + headerHTML + "</td></tr>";
+			result += TEMPLATE.pageHeader(headerHeight, headerHTML).asString();
 		}
-		if (enableTwoColumnPrint) {
-			result += "<tr><td class='printable_content' style='vertical-align: top; columns: 2; column-gap: 40px;'>" + content + "</td></tr>";
-		} else {
-			result += "<tr><td class='printable_content' style='vertical-align: top;'>" + content + "</td></tr>";
-		}
+
+		int columns = enableTwoColumnPrint ? 2 : 1;
+		SafeHtml safeContent = SafeHtmlUtils.fromTrustedString(content);
+		result += TEMPLATE.pageContent(columns, safeContent).asString();
+		
 		if (footerHeight > 0) {
-			String footerStyle = "height: " + Integer.toString(footerHeight) + "px;";
-			result += "<tr class='printable_footer' style='" + footerStyle + "'><td>" + footerHTML + "</td></tr>";
+			result += TEMPLATE.pageHeader(footerHeight, footerHTML).asString();
 		}
 		result += "</table>";
 		return result;
 	}
 	
-	private native JavaScriptObject splitPageModules(PrintableContentParser x, String html, int pageWidth, int pageHeight) /*-{
+	private native SplitPageResult splitPageModules(PrintableContentParser x, String html, int pageWidth, int pageHeight) /*-{
 		var pages = "";
 		var $wrapper = $wnd.$("<div></div>");
 		$wrapper.html(html);
@@ -226,6 +250,7 @@ public class PrintableContentParser {
 			Page firstPage = pages.get(0);
 			pages.remove(0);
 			for(int index = 0; index < pages.size(); index += 1) {  
+				Collections.swap(pages, index, index + Random.nextInt(pages.size() - index));  
 			}
 			pages.add(0, firstPage);
 		}
@@ -243,9 +268,9 @@ public class PrintableContentParser {
 					result += wrapPrintablePage(printablePageHTML, pageWidth, pageMaxHeight);
 					printablePageHTML = pageHTML;
 				} else {
-					JavaScriptObject splitPageOutput = splitPageModules(this, pageHTML, pageWidth, pageMaxHeight);
-					result += JavaScriptUtils.getArrayItemByKey(splitPageOutput, "pages");
-					printablePageHTML = JavaScriptUtils.getArrayItemByKey(splitPageOutput, "tail");
+					SplitPageResult splitPageOutput = splitPageModules(this, pageHTML, pageWidth, pageMaxHeight);
+					result += splitPageOutput.getPagesHtml();
+					printablePageHTML = splitPageOutput.getTailHtml();
 				}
 			} else {
 				printablePageHTML = newPrintablePageHTML;
