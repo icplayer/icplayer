@@ -184,3 +184,97 @@ TestCase("[Assessments_Navigation_Bar] Get Pages", {
         assertEquals([5, 6, 7, 8, 9, 10], result);
     }
 });
+
+TestCase("[Assessments_Navigation_Bar] Filtering sections tests", {
+    createSections: function(sectionPages) {
+        var pageIndex = 0;
+        var sections = sectionPages.map(function (sectionPagesCount) {
+            var pagesArray = [];
+            for (var i = 0; i < sectionPagesCount; i++) {
+                pagesArray.push(pageIndex + i);
+                pageIndex++;
+            }
+            return {
+                pages: pagesArray,
+                sectionName: "",
+                pagesDescription: pagesArray
+            }
+        });
+
+        return {
+            pageCount: pageIndex,
+            sections: sections
+        };
+    },
+
+    setUp: function () {
+        this.presenter = AddonAssessments_Navigation_Bar_create();
+        this.stubs = {
+            getPageCount: sinon.stub(),
+            getPresentation: sinon.stub(),
+            getPagesMapping: sinon.stub()
+        };
+
+        this.presentationStub = {
+            getPageCount: this.stubs.getPageCount
+        };
+        this.playerControllerStub = {
+            getPresentation: this.stubs.getPresentation,
+            getPagesMapping: this.stubs.getPagesMapping
+        };
+
+        this.stubs.getPresentation.returns(this.presentationStub);
+        this.presenter.playerController = this.playerControllerStub;
+    },
+
+    'test given sections with same amount of pages as presentation when filtering section then returns all sections': function () {
+        var sectionPages = [1, 1, 1, 1];
+        var sections = this.createSections(sectionPages);
+        this.stubs.getPageCount.returns(sections.pageCount);
+        this.stubs.getPagesMapping.returns([0, 1, 2, 3]);
+        var filtered = this.presenter.filterSectionsWithTooManyPages(sections.sections);
+
+        assertEquals(sections.sections.length, filtered.length);
+    },
+
+    'test given sections with same amount of pages as presentation and more than one page in section when filtering section then returns all sections': function () {
+        var sectionPages = [5, 1, 1, 1];
+        var sections = this.createSections(sectionPages);
+        this.stubs.getPageCount.returns(sections.pageCount);
+        this.stubs.getPagesMapping.returns([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+        var filtered = this.presenter.filterSectionsWithTooManyPages(sections.sections);
+
+        assertEquals(sections.sections.length, filtered.length);
+    },
+
+    'test given sections with more pages than presentation when filtering section then returns 2 sections': function () {
+        var sectionPages = [5, 1, 1, 1];
+        var sections = this.createSections(sectionPages);
+        this.stubs.getPageCount.returns(5 + 1);
+        this.stubs.getPagesMapping.returns([0, 1, 2, 3, 4, 5, null, null, null]);
+        var filtered = this.presenter.filterSectionsWithTooManyPages(sections.sections);
+
+        assertEquals(2, filtered.length);
+    },
+
+    'test given sections for which second section has more pages then needed when filtering section then returns 2 sections and second section pages are have correct length': function () {
+        var sectionPages = [5, 10, 1, 1];
+        var sections = this.createSections(sectionPages);
+        this.stubs.getPageCount.returns(5 + 2);
+        this.stubs.getPagesMapping.returns([0, 1, 2, 3, 4, 5, null, null, null, null, null, null]);
+
+        var filtered = this.presenter.filterSectionsWithTooManyPages(sections.sections);
+
+        assertEquals(2, filtered.length);
+        assertEquals(1, filtered[1].pages.length);
+    },
+
+    'test given sections which have less pages than lesson when filtering then returns original sections': function () {
+        var sectionPages = [1, 1, 1, 1];
+        var sections = this.createSections(sectionPages);
+        this.stubs.getPageCount.returns(199);
+        var filtered = this.presenter.filterSectionsWithTooManyPages(sections.sections);
+
+        assertEquals(sections.sections.length, filtered.length);
+    }
+});

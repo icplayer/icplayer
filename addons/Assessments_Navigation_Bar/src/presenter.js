@@ -468,12 +468,41 @@ function AddonAssessments_Navigation_Bar_create(){
         return pages;
     };
 
+    presenter.filterSectionsWithTooManyPages = function(sections) {
+        var mapping = presenter.playerController.getPagesMapping();
+        var lessonPageCount = presenter.playerController.getPresentation().getPageCount();
+        var pagesInSections = sections.reduce(
+            function (accumulator, section) {
+                return accumulator + section.pages.length
+            },
+            0
+        );
+
+        if (pagesInSections > lessonPageCount) { // more pages in sections than in lesson
+            for (var i = 0; i < sections.length; i++) {
+                sections[i].pages = sections[i].pages.filter(function (page) {
+                    return mapping.indexOf(page) >= 0;
+                });
+            }
+
+            sections = sections.filter(function(section) {
+                return section.pages.length > 0;
+            });
+        }
+
+        return sections;
+    };
 
     presenter.Sections.prototype.createSections = function (sections) {
-        return sections.map(function (section, index) {
-            var sectionCssClass = "section_" + index;
-            return new presenter.Section(section.pages, section.sectionName, section.pagesDescriptions, sectionCssClass);
-        })
+        if (presenter.playerController) {
+            sections = presenter.filterSectionsWithTooManyPages(sections);
+        }
+
+        return sections.map(
+            function (section, index) {
+                var sectionCssClass = "section_" + index;
+                return new presenter.Section(section.pages, section.sectionName, section.pagesDescriptions, sectionCssClass);
+        });
     };
 
     presenter.NavigationManager = function () {
@@ -1304,12 +1333,25 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     function getRestorePagesObjectArray (pages) {
-        return pages.map(function (page) {
+        var restoredPages = pages.map(function (page) {
             var restoredPage = new presenter.Page(page.page, page.description, page.sectionName, page.sectionCssClass);
             restoredPage.setBookmarkOn(page.isBookmarkOn);
 
             return restoredPage;
         });
+
+        if (presenter.sections.allPages.length > 0) {
+            var pagesIndexesInSections = presenter.sections.allPages.map(function(page) {
+                return page.page;
+            });
+
+            return restoredPages.filter(function (page) {
+                return pagesIndexesInSections.indexOf(page.page) !== -1;
+            });
+        } else {
+            // if all pages are empty, then just return given state
+            return restoredPages;
+        }
     }
 
     presenter.setState = function(state){
