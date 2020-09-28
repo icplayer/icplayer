@@ -1712,337 +1712,338 @@ function AddonConnection_create() {
         }
     };
 
-    presenter.showAnswers = function () {
-        if (presenter.isNotActivity) {
-            return;
-        }
+    presenter.showAnswers = deferredCommandQueue.decorate(
+        function () {
+            if (presenter.isNotActivity) {
+                return;
+            }
 
-        presenter.keyboardControllerObject.selectEnabled(false);
-        presenter.isShowAnswersActive = true;
-        presenter.tmpElements = [];
-        for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
-            presenter.tmpElements.push(presenter.lineStack.ids[elem].join(':'))
-        }
+            presenter.keyboardControllerObject.selectEnabled(false);
+            presenter.isShowAnswersActive = true;
+            presenter.tmpElements = [];
+            for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
+                presenter.tmpElements.push(presenter.lineStack.ids[elem].join(':'))
+            }
 
-        presenter.lineStack.clear();
-        presenter.redraw();
+            presenter.lineStack.clear();
+            presenter.redraw();
 
-        var elements = presenter.elements;
-        for (var i = 0, elementsLength = elements.length; i < elementsLength; i++) {
-            var connects = elements[i]['connects'].split(',');
-            for (var j = 0; j < connects.length; j++) {
-                if (connects[j] != "" && $.inArray(connects[j], presenter.uniqueIDs) >= 0) {
-                    var pair = [elements[i]['id'], connects[j]];
-                    var line = new Line(
-                        getElementById(pair[0]),
-                        getElementById(pair[1])
-                    );
-                    presenter.lineStack.push(line);
+            var elements = presenter.elements;
+            for (var i = 0, elementsLength = elements.length; i < elementsLength; i++) {
+                var connects = elements[i]['connects'].split(',');
+                for (var j = 0; j < connects.length; j++) {
+                    if (connects[j] != "" && $.inArray(connects[j], presenter.uniqueIDs) >= 0) {
+                        var pair = [elements[i]['id'], connects[j]];
+                        var line = new Line(
+                            getElementById(pair[0]),
+                            getElementById(pair[1])
+                        );
+                        presenter.lineStack.push(line);
+                    }
                 }
             }
-        }
 
-        presenter.lineStackSA = {
-            stack: presenter.lineStack ? presenter.lineStack.stack.concat([]) : []
-        };
-        presenter.redrawShowAnswers();
-        presenter.lineStack.clear();
-        isSelectionPossible = false;
+            presenter.lineStackSA = {
+                stack: presenter.lineStack ? presenter.lineStack.stack.concat([]) : []
+            };
+            presenter.redrawShowAnswers();
+            presenter.lineStack.clear();
+            isSelectionPossible = false;
 
-        for (var element = 0; element < presenter.tmpElements.length; element++) {
-            var pairs = presenter.tmpElements[element].split(':');
-            pushConnection(new Line(getElementById(pairs[0]), getElementById(pairs[1])), false);
-        }
-    }
-);
-
-presenter.hideAnswers = deferredCommandQueue.decorate(
-    function () {
-        if (presenter.isNotActivity) {
-            return;
-        }
-        presenter.keyboardControllerObject.selectEnabled(true);
-        presenter.redraw();
-        presenter.isShowAnswersActive = false;
-        isSelectionPossible = true;
-    }
-);
-
-presenter.keyboardController = function (keycode, isShiftDown, event) {
-    presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
-};
-
-function ConnectionKeyboardController(elements, columnsCount) {
-    KeyboardController.call(this, elements, columnsCount);
-}
-
-presenter.getTextToSpeechOrNull = function (playerController) {
-    if (playerController) {
-        return playerController.getModule('Text_To_Speech1');
-    }
-
-    return null;
-};
-
-presenter.setWCAGStatus = function (isOn) {
-    isWCAGOn = isOn;
-};
-
-function readConnected(isDrawing) {
-    var tts = presenter.getTextToSpeechOrNull(playerController);
-    if (tts && presenter.$view.hasClass('ic_active_module')) {
-        speak([getTextVoiceObject(
-            isDrawing ? presenter.speechTexts.connected : presenter.speechTexts.disconnected
-        )]);
-    }
-}
-
-function getConnections($element) {
-    var element = $element[0];
-    var result = [];
-    var lines = presenter.isShowAnswersActive ? presenter.lineStackSA : presenter.lineStack;
-
-    for (var i = 0; i < lines.stack.length; i++) {
-        var line = lines.stack[i];
-
-        if (element === line.from[0]) {
-            result.push(line.to);
-        }
-
-        if (element === line.to[0]) {
-            result.push(line.from);
-        }
-    }
-
-    return result;
-}
-
-function getConnectionsInfo(connections) {
-    var result = [];
-
-    for (var i = 0; i < connections.length; i++) {
-
-        result = result.concat(window.TTSUtils.getTextVoiceArrayFromElement(connections[i], presenter.langTag));
-
-        if (connections[i].hasClass(CORRECT_ITEM_CLASS) && presenter.isCheckActive) {
-            result.push(getTextVoiceObject(presenter.speechTexts.correct));
-        }
-
-        if (connections[i].hasClass(WRONG_ITEM_CLASS) && presenter.isCheckActive) {
-            result.push(getTextVoiceObject(presenter.speechTexts.wrong));
-        }
-    }
-
-    return result;
-}
-
-function readActivatedElementConnections() {
-    var tts = presenter.getTextToSpeechOrNull(playerController);
-    if (tts) {
-        var $active = presenter.getCurrentActivatedElement();
-        var connections = getConnections($active);
-        var TextVoiceArray = window.TTSUtils.getTextVoiceArrayFromElement($active, presenter.langTag);
-
-        if ($active.hasClass('selected') && !presenter.isShowAnswersActive) {
-            TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
-        }
-
-        if (connections.length) {
-            TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.connectedTo, ''));
-            TextVoiceArray = TextVoiceArray.concat(getConnectionsInfo(connections));
-        }
-
-        speak(TextVoiceArray);
-    }
-}
-
-function speak(data) {
-    var tts = presenter.getTextToSpeechOrNull(playerController);
-
-    if (tts && isWCAGOn) {
-        tts.speak(data);
-    }
-}
-
-ConnectionKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
-ConnectionKeyboardController.prototype.constructor = ConnectionKeyboardController;
-
-ConnectionKeyboardController.prototype.nextRow = function (event) {
-    event.preventDefault();
-    var new_position_index = this.keyboardNavigationCurrentElementIndex + 1;
-    if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
-        new_position_index = this.keyboardNavigationCurrentElementIndex;
-    }
-    if (new_position_index === presenter.columnSizes['Left column']) {
-        new_position_index = this.keyboardNavigationCurrentElementIndex;
-    }
-    this.markCurrentElement(new_position_index);
-    readActivatedElementConnections();
-};
-
-ConnectionKeyboardController.prototype.previousRow = function (event) {
-    event.preventDefault();
-    var new_position_index = this.keyboardNavigationCurrentElementIndex - 1;
-    if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
-        new_position_index = this.keyboardNavigationCurrentElementIndex
-    }
-    if (new_position_index === presenter.columnSizes['Left column'] - 1) {
-        new_position_index = this.keyboardNavigationCurrentElementIndex;
-    }
-    this.markCurrentElement(new_position_index);
-    readActivatedElementConnections();
-};
-
-function indexesInTheSameColumn(index1, index2) {
-    var leftColumnSize = presenter.columnSizes['Left column'];
-
-    return (index1 < leftColumnSize && index2 < leftColumnSize) || (index1 >= leftColumnSize && index2 >= leftColumnSize);
-}
-
-ConnectionKeyboardController.prototype.nextElement = function () {
-    var new_position_index = this.keyboardNavigationCurrentElementIndex + presenter.columnSizes['Left column'];
-
-    if (new_position_index >= this.keyboardNavigationElementsLen) {
-        new_position_index = this.keyboardNavigationElementsLen - 1;
-    }
-
-    if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
-        new_position_index = this.keyboardNavigationCurrentElementIndex;
-    }
-
-    this.markCurrentElement(new_position_index);
-    readActivatedElementConnections();
-};
-
-ConnectionKeyboardController.prototype.previousElement = function () {
-    var new_position_index = this.keyboardNavigationCurrentElementIndex - presenter.columnSizes['Right column'];
-
-    if (new_position_index < 0) {
-        new_position_index = 0;
-    }
-
-    if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
-        new_position_index = this.keyboardNavigationCurrentElementIndex;
-    }
-
-    this.markCurrentElement(new_position_index);
-    readActivatedElementConnections();
-};
-
-ConnectionKeyboardController.prototype.enter = function (event) {
-    if (event.shiftKey || event.ctrlKey) {
-        Object.getPrototypeOf(ConnectionKeyboardController.prototype).escape.call(this);
-    } else {
-        Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
-        readActivatedElementConnections();
-    }
-};
-
-ConnectionKeyboardController.prototype.select = function (event) {
-    event.preventDefault();
-    if (presenter.getCurrentActivatedElement().hasClass('selected')) {
-        speak([getTextVoiceObject(presenter.speechTexts.deselected)]);
-    }
-
-    Object.getPrototypeOf(ConnectionKeyboardController.prototype).select.call(this);
-
-    if (presenter.getCurrentActivatedElement().hasClass('selected')) {
-        speak([getTextVoiceObject(presenter.speechTexts.selected)]);
-    }
-};
-
-
-presenter.__internal__ = {
-    Line: Line
-};
-
-function drawSVGLine(svg, leftID, rightID, model) {
-    var leftSize = model["Left column"].length;
-
-    var leftTotalSize = 0;
-    var rightTotalSize = 0;
-    var leftPos = 0;
-    var rightPos = 0;
-
-    for (var i = 0; i < presenter.elements.length; i++) {
-
-        if (presenter.elements[i].id == leftID) {
-            leftPos = leftTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
-        } else if (presenter.elements[i].id == rightID) {
-            rightPos = rightTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
-        }
-
-        if (i < leftSize) {
-            leftTotalSize += presenter.elements[i].element.closest('tr').outerHeight(true);
-        } else {
-            rightTotalSize += presenter.elements[i].element.closest('tr').outerHeight(true);
-        }
-    }
-    var leftY = 100.0 * leftPos / leftTotalSize + "%";
-    var rightY = 100.0 * rightPos / rightTotalSize + "%";
-
-    var $line = $("<line x1=\"0\" x2=\"100%\" style=\"stroke:rgb(0,0,0);stroke-width:1\" />");
-    $line.attr('y1', leftY);
-    $line.attr('y2', rightY);
-    svg.append($line);
-
-}
-
-presenter.getPrintableHTML = function (model, showAnswers) {
-    model = presenter.upgradeModel(model);
-
-    var $root = $("<div></div>");
-    $root.attr('id', model.ID);
-    $root.addClass('printable_addon_Connection');
-    $root.css("width", model["Width"] + "px");
-    $root.css("height", model["Height"] + "px");
-    $root.html('<table class="connectionContainer">' +
-        '    <tr>' +
-        '        <td class="connectionLeftColumn">' +
-        '            <table class="content"></table>' +
-        '        </td>' +
-        '        <td class="connectionMiddleColumn">' +
-        '            <svg class="connections"></svg>' +
-        '        </td>' +
-        '        <td class="connectionRightColumn">' +
-        '            <table class="content"></table>' +
-        '        </td>' +
-        '    </tr>' +
-        '</table>');
-
-    var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
-    var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
-    if (!isRandomLeft) {
-        this.loadElements($root[0], model, 'connectionLeftColumn', 'Left column', false);
-    } else {
-        this.loadRandomElementsLeft($root[0], model, 'connectionLeftColumn', 'Left column', false);
-    }
-    if (!isRandomRight) {
-        this.loadElements($root[0], model, 'connectionRightColumn', 'Right column', true);
-    } else {
-        this.loadRandomElementsRight($root[0], model, 'connectionRightColumn', 'Right column', true);
-    }
-    this.setColumnsWidth($root[0], model["Columns width"]);
-
-
-    if (showAnswers) {
-        $root.css('visibility', 'hidden');
-        $('body').append($root);
-        var connections = $root.find('svg');
-        for (var i = 0; i < model["Left column"].length; i++) {
-            var element = presenter.elements[i];
-            if (element.connects) {
-                drawSVGLine(connections, element.id, element.connects, model);
+            for (var element = 0; element < presenter.tmpElements.length; element++) {
+                var pairs = presenter.tmpElements[element].split(':');
+                pushConnection(new Line(getElementById(pairs[0]), getElementById(pairs[1])), false);
             }
         }
-        $root.detach();
-        $root.css('visibility', 'visible');
+    );
+
+    presenter.hideAnswers = deferredCommandQueue.decorate(
+        function () {
+            if (presenter.isNotActivity) {
+                return;
+            }
+            presenter.keyboardControllerObject.selectEnabled(true);
+            presenter.redraw();
+            presenter.isShowAnswersActive = false;
+            isSelectionPossible = true;
+        }
+    );
+
+    presenter.keyboardController = function (keycode, isShiftDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
+    };
+
+    function ConnectionKeyboardController(elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
     }
 
-    return $root[0].outerHTML;
-};
+    presenter.getTextToSpeechOrNull = function (playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
 
-return presenter;
+        return null;
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+        isWCAGOn = isOn;
+    };
+
+    function readConnected(isDrawing) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts && presenter.$view.hasClass('ic_active_module')) {
+            speak([getTextVoiceObject(
+                isDrawing ? presenter.speechTexts.connected : presenter.speechTexts.disconnected
+            )]);
+        }
+    }
+
+    function getConnections($element) {
+        var element = $element[0];
+        var result = [];
+        var lines = presenter.isShowAnswersActive ? presenter.lineStackSA : presenter.lineStack;
+
+        for (var i = 0; i < lines.stack.length; i++) {
+            var line = lines.stack[i];
+
+            if (element === line.from[0]) {
+                result.push(line.to);
+            }
+
+            if (element === line.to[0]) {
+                result.push(line.from);
+            }
+        }
+
+        return result;
+    }
+
+    function getConnectionsInfo(connections) {
+        var result = [];
+
+        for (var i = 0; i < connections.length; i++) {
+
+            result = result.concat(window.TTSUtils.getTextVoiceArrayFromElement(connections[i], presenter.langTag));
+
+            if (connections[i].hasClass(CORRECT_ITEM_CLASS) && presenter.isCheckActive) {
+                result.push(getTextVoiceObject(presenter.speechTexts.correct));
+            }
+
+            if (connections[i].hasClass(WRONG_ITEM_CLASS) && presenter.isCheckActive) {
+                result.push(getTextVoiceObject(presenter.speechTexts.wrong));
+            }
+        }
+
+        return result;
+    }
+
+    function readActivatedElementConnections() {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts) {
+            var $active = presenter.getCurrentActivatedElement();
+            var connections = getConnections($active);
+            var TextVoiceArray = window.TTSUtils.getTextVoiceArrayFromElement($active, presenter.langTag);
+
+            if ($active.hasClass('selected') && !presenter.isShowAnswersActive) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
+            }
+
+            if (connections.length) {
+                TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.connectedTo, ''));
+                TextVoiceArray = TextVoiceArray.concat(getConnectionsInfo(connections));
+            }
+
+            speak(TextVoiceArray);
+        }
+    }
+
+    function speak(data) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+
+        if (tts && isWCAGOn) {
+            tts.speak(data);
+        }
+    }
+
+    ConnectionKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    ConnectionKeyboardController.prototype.constructor = ConnectionKeyboardController;
+
+    ConnectionKeyboardController.prototype.nextRow = function (event) {
+        event.preventDefault();
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + 1;
+        if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+        if (new_position_index === presenter.columnSizes['Left column']) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+        this.markCurrentElement(new_position_index);
+        readActivatedElementConnections();
+    };
+
+    ConnectionKeyboardController.prototype.previousRow = function (event) {
+        event.preventDefault();
+        var new_position_index = this.keyboardNavigationCurrentElementIndex - 1;
+        if (new_position_index >= this.keyboardNavigationElementsLen || new_position_index < 0) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex
+        }
+        if (new_position_index === presenter.columnSizes['Left column'] - 1) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+        this.markCurrentElement(new_position_index);
+        readActivatedElementConnections();
+    };
+
+    function indexesInTheSameColumn(index1, index2) {
+        var leftColumnSize = presenter.columnSizes['Left column'];
+
+        return (index1 < leftColumnSize && index2 < leftColumnSize) || (index1 >= leftColumnSize && index2 >= leftColumnSize);
+    }
+
+    ConnectionKeyboardController.prototype.nextElement = function () {
+        var new_position_index = this.keyboardNavigationCurrentElementIndex + presenter.columnSizes['Left column'];
+
+        if (new_position_index >= this.keyboardNavigationElementsLen) {
+            new_position_index = this.keyboardNavigationElementsLen - 1;
+        }
+
+        if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+
+        this.markCurrentElement(new_position_index);
+        readActivatedElementConnections();
+    };
+
+    ConnectionKeyboardController.prototype.previousElement = function () {
+        var new_position_index = this.keyboardNavigationCurrentElementIndex - presenter.columnSizes['Right column'];
+
+        if (new_position_index < 0) {
+            new_position_index = 0;
+        }
+
+        if (indexesInTheSameColumn(new_position_index, this.keyboardNavigationCurrentElementIndex)) {
+            new_position_index = this.keyboardNavigationCurrentElementIndex;
+        }
+
+        this.markCurrentElement(new_position_index);
+        readActivatedElementConnections();
+    };
+
+    ConnectionKeyboardController.prototype.enter = function (event) {
+        if (event.shiftKey || event.ctrlKey) {
+            Object.getPrototypeOf(ConnectionKeyboardController.prototype).escape.call(this);
+        } else {
+            Object.getPrototypeOf(ConnectionKeyboardController.prototype).enter.call(this);
+            readActivatedElementConnections();
+        }
+    };
+
+    ConnectionKeyboardController.prototype.select = function (event) {
+        event.preventDefault();
+        if (presenter.getCurrentActivatedElement().hasClass('selected')) {
+            speak([getTextVoiceObject(presenter.speechTexts.deselected)]);
+        }
+
+        Object.getPrototypeOf(ConnectionKeyboardController.prototype).select.call(this);
+
+        if (presenter.getCurrentActivatedElement().hasClass('selected')) {
+            speak([getTextVoiceObject(presenter.speechTexts.selected)]);
+        }
+    };
+
+
+    presenter.__internal__ = {
+        Line: Line
+    };
+
+    function drawSVGLine(svg, leftID, rightID, model) {
+        var leftSize = model["Left column"].length;
+
+        var leftTotalSize = 0;
+        var rightTotalSize = 0;
+        var leftPos = 0;
+        var rightPos = 0;
+
+        for (var i = 0; i < presenter.elements.length; i++) {
+
+            if (presenter.elements[i].id == leftID) {
+                leftPos = leftTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
+            } else if (presenter.elements[i].id == rightID) {
+                rightPos = rightTotalSize + presenter.elements[i].element.closest('tr').outerHeight(true) / 2;
+            }
+
+            if (i < leftSize) {
+                leftTotalSize += presenter.elements[i].element.closest('tr').outerHeight(true);
+            } else {
+                rightTotalSize += presenter.elements[i].element.closest('tr').outerHeight(true);
+            }
+        }
+        var leftY = 100.0 * leftPos / leftTotalSize + "%";
+        var rightY = 100.0 * rightPos / rightTotalSize + "%";
+
+        var $line = $("<line x1=\"0\" x2=\"100%\" style=\"stroke:rgb(0,0,0);stroke-width:1\" />");
+        $line.attr('y1', leftY);
+        $line.attr('y2', rightY);
+        svg.append($line);
+
+    }
+
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        model = presenter.upgradeModel(model);
+
+        var $root = $("<div></div>");
+        $root.attr('id', model.ID);
+        $root.addClass('printable_addon_Connection');
+        $root.css("width", model["Width"] + "px");
+        $root.css("height", model["Height"] + "px");
+        $root.html('<table class="connectionContainer">' +
+            '    <tr>' +
+            '        <td class="connectionLeftColumn">' +
+            '            <table class="content"></table>' +
+            '        </td>' +
+            '        <td class="connectionMiddleColumn">' +
+            '            <svg class="connections"></svg>' +
+            '        </td>' +
+            '        <td class="connectionRightColumn">' +
+            '            <table class="content"></table>' +
+            '        </td>' +
+            '    </tr>' +
+            '</table>');
+
+        var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
+        var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
+        if (!isRandomLeft) {
+            this.loadElements($root[0], model, 'connectionLeftColumn', 'Left column', false);
+        } else {
+            this.loadRandomElementsLeft($root[0], model, 'connectionLeftColumn', 'Left column', false);
+        }
+        if (!isRandomRight) {
+            this.loadElements($root[0], model, 'connectionRightColumn', 'Right column', true);
+        } else {
+            this.loadRandomElementsRight($root[0], model, 'connectionRightColumn', 'Right column', true);
+        }
+        this.setColumnsWidth($root[0], model["Columns width"]);
+
+
+        if (showAnswers) {
+            $root.css('visibility', 'hidden');
+            $('body').append($root);
+            var connections = $root.find('svg');
+            for (var i = 0; i < model["Left column"].length; i++) {
+                var element = presenter.elements[i];
+                if (element.connects) {
+                    drawSVGLine(connections, element.id, element.connects, model);
+                }
+            }
+            $root.detach();
+            $root.css('visibility', 'visible');
+        }
+
+        return $root[0].outerHTML;
+    };
+
+    return presenter;
 }
 
 AddonConnection_create.__supported_player_options__ = {
