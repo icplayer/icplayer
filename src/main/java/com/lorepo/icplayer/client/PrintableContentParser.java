@@ -27,6 +27,7 @@ public class PrintableContentParser {
 	SafeHtml footerHTML = null;
 	int headerHeight = 0;
 	int footerHeight = 0;
+	int contentHeight = 0;
 	Boolean enableTwoColumnPrint = false;
 	
 	private static class SplitPageResult extends JavaScriptObject {
@@ -39,13 +40,33 @@ public class PrintableContentParser {
 	}
 	
 	public interface PrintableHtmlTemplates extends SafeHtmlTemplates {
-		@Template("<tr class=\"printable_header\" style=\"height:{0}px;\"><td>{1}</td></tr>")
+		@Template("<tr class=\"printable_header\" style=\"height:{0}px;width:100%;\"><td>{1}</td></tr>")
 	    SafeHtml pageHeader(int height, SafeHtml content);
 		
-		@Template("<tr><td class='printable_content' style='vertical-align: top; columns: {0}; column-gap: 40px;'>{1}</td></tr>")
+		@Template("<tr><td class='printable_content' style='"
+				+ "vertical-align: top;"
+				+ " columns: {0};"
+				+ "-webkit-columns:{0};"
+				+ "-moz-columns: {0};"
+				+ " column-gap: 40px;"
+				+ "'>{1}</td></tr>")
 	    SafeHtml pageContent(int columns, SafeHtml content);
 		
-		@Template("<tr class=\"printable_footer\" style=\"height:{0}px;\"><td>{1}</td></tr>")
+		@Template("<tr><td class='printable_content'><div style='"
+				+ "vertical-align: top;"
+				+ "height: {0}px;"
+				+ "width: 100%;"
+				+ " columns: {1};"
+				+ "-webkit-columns:{1};"
+				+ "-moz-columns: {1};"
+				+ " column-gap: 40px;"
+				+ " column-fill: auto;"
+				+ "-webkit-column-fill: auto;"
+				+ "-moz-column-fill: auto;"
+				+ "'>{2}</div></td></tr>")
+	    SafeHtml pageContentFullHeight(int height, int columns, SafeHtml content);
+		
+		@Template("<tr class=\"printable_footer\" style=\"height:{0}px;width:100%;\"><td>{1}</td></tr>")
 	    SafeHtml pageFooter(int height, SafeHtml content);
 	}
 	private static final PrintableHtmlTemplates TEMPLATE = GWT.create(PrintableHtmlTemplates.class);
@@ -213,10 +234,15 @@ public class PrintableContentParser {
 
 		int columns = enableTwoColumnPrint ? 2 : 1;
 		SafeHtml safeContent = SafeHtmlUtils.fromTrustedString(content);
-		result += TEMPLATE.pageContent(columns, safeContent).asString();
+
+		if (fullHeight) {
+			result += TEMPLATE.pageContentFullHeight(contentHeight, columns, safeContent).asString();
+		} else {
+			result += TEMPLATE.pageContent(columns, safeContent).asString();
+		}
 		
 		if (footerHeight > 0) {
-			result += TEMPLATE.pageHeader(footerHeight, footerHTML).asString();
+			result += TEMPLATE.pageFooter(footerHeight, footerHTML).asString();
 		}
 		result += "</table>";
 		return result;
@@ -243,6 +269,10 @@ public class PrintableContentParser {
 		return {pages: pages, tail: printablePageHTML};
 	}-*/;
 	
+	private String wrapOpeningPlayerPage(String content) {
+		return "<div class=\"printable_opening_player_page\">" + content + "</div>";
+	}
+	
 	public String generatePrintableHTMLForPages(List<Page> pages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
 		String result = "<div>";
 		
@@ -257,23 +287,35 @@ public class PrintableContentParser {
 		
 
 		int pageMaxHeight = getA4HeightInPixels(10);
+		contentHeight = pageMaxHeight - footerHeight - headerHeight;
 		int pageWidth = getA4WidthInPixels(10);
 		String printablePageHTML = "";
+		boolean twoColumnPrintOriginalValue = enableTwoColumnPrint;
 		
+		boolean firstPage = true;
 		for (Page page: pages) {
 			String pageHTML = parsePage(page, randomizeModules, showAnswers);
 			String newPrintablePageHTML = printablePageHTML + pageHTML;
+			if (firstPage && enableTwoColumnPrint) { // First mauthor page is always in single column
+				enableTwoColumnPrint = false;
+			}
 			if (getHTMLHeight(applyHeaderAndFooter(newPrintablePageHTML, false), pageWidth) > pageMaxHeight) {
-				if (printablePageHTML.length() > 0) {
-					result += wrapPrintablePage(printablePageHTML, pageWidth, pageMaxHeight);
-					printablePageHTML = pageHTML;
+				SplitPageResult splitPageOutput = splitPageModules(this, newPrintablePageHTML, pageWidth, pageMaxHeight);
+				result += splitPageOutput.getPagesHtml();
+				if (firstPage) {
+					printablePageHTML = wrapOpeningPlayerPage(splitPageOutput.getTailHtml());
 				} else {
-					SplitPageResult splitPageOutput = splitPageModules(this, pageHTML, pageWidth, pageMaxHeight);
-					result += splitPageOutput.getPagesHtml();
 					printablePageHTML = splitPageOutput.getTailHtml();
 				}
 			} else {
+				if (firstPage) {
+					newPrintablePageHTML = wrapOpeningPlayerPage(newPrintablePageHTML);
+				}
 				printablePageHTML = newPrintablePageHTML;
+			}
+			if (firstPage){
+				enableTwoColumnPrint = twoColumnPrintOriginalValue;
+				firstPage = false;
 			}
 		}
 		if (printablePageHTML.length() > 0) {

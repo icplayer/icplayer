@@ -1062,3 +1062,9 @@ hr, table, fieldset {
 	page-break-after: always;
 	overflow: hidden;
 }
+
+.printable_opening_player_page {
+	column-span:all;
+	-webkit-column-span:all;
+	-moz-column-span:all;
+}
