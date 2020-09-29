@@ -673,5 +673,25 @@ function AddonImage_Identification_create(){
 
     presenter.isEnterable = function() {return false};
 
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        model = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(model);
+
+        presenter.$view = $("<div></div>");
+        presenter.$view.attr(presenter.configuration.addonID);
+        presenter.$view.addClass("printable_addon_Image_Identification");
+        presenter.$view.css("max-width", model.Width+"px");
+        presenter.$view.css("max-height", model.Height+"px");
+        loadImage(presenter.configuration.imageSrc, true);
+        var $img = presenter.$view.find('.image-identification-element');
+        $img.removeClass('image-identification-element');
+        $img.addClass('printable-image-identification-element');
+        if (showAnswers && presenter.configuration.shouldBeSelected) {
+            $img.addClass("printable-image-identification-correct");
+        }
+
+        return presenter.$view[0].outerHTML;
+    };
+
     return presenter;
 }

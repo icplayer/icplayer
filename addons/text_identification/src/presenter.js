@@ -648,5 +648,25 @@ function Addontext_identification_create() {
         }
     }
 
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        presenter.moduleID = model.ID;
+        model = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(model);
+
+        presenter.$view = $('<div></div>');
+        presenter.$view.addClass('printable_addon_Text_Identification');
+
+        var $wrapper = $('<div></div>');
+        $wrapper.addClass('printable_addon_Text_Identification-wrapper');
+        var textSrc = model.Text ? model.Text : "";
+        $wrapper.html(textSrc);
+        if (showAnswers && presenter.configuration.shouldBeSelected) {
+            $wrapper.addClass('printable_addon_Text_Identification-correct');
+        }
+        presenter.$view.append($wrapper);
+
+        return presenter.$view[0].outerHTML;
+    };
+
     return presenter;
 }

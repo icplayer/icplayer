@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.ordering;
 
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PrintableContentParser;
 
 public class OrderingPrintable {
@@ -13,7 +14,7 @@ public class OrderingPrintable {
 	public String getPrintableHTML(String className, boolean showAnswers) {
 		for (int i = 0; i < model.getItemCount(); i++) {
 			OrderingItem item = model.getItem(i);
-			item.getText();
+			//JavaScriptUtils.log(item.getText());
 		}
 		String result = "<div>HELLO WORLD ORDERING</div>";
 		result = PrintableContentParser.addClassToPrintableModule(result, className);
