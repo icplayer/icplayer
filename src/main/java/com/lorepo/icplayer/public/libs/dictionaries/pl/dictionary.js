@@ -2034,6 +2034,7 @@ var ice_dictionary_pl = {
 	"printable_preview": "Print preview",
 	"printable_lesson_preview": "Lesson preview",
 	"printable_preview_error_message": "An error has occurred while generating the preview",
+	"printable_enable_two_column_layout": "Printable two-column layout",
 	"Cross_Lesson_property_type": "Type",
 	"Adaptive_Next_name": "Adaptive next",
     "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor."
