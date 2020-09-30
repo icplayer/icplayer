@@ -4,9 +4,8 @@
 	<model>
 		<property name='Items' nameLabel="AudioPlaylist_property_files" type='list' isDefault="true">
 			<property name="Name" nameLabel="AudioPlaylist_property_name" type="string" />
-			<property name="Mp3" nameLabel="AudioPlaylistproperty_mp3" type="audio" />
+			<property name="Mp3" nameLabel="AudioPlaylist_property_mp3" type="audio" />
 			<property name="Ogg" nameLabel="AudioPlaylist_property_ogg" type="audio" />
 		</property>
-		<property name="forceLoadAudio" nameLabel="AudioPlaylist_property_force_load_audio" type="boolean"/>
 	</model>
 </addon>

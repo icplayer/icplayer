@@ -7,12 +7,29 @@ function AddonAudioPlaylist_create() {
     var audioIsLoaded = false;
 
     function deferredQueueDecoratorChecker() {
-        if (!presenter.configuration.forceLoadAudio) {
-            return true;
-        }
-
-        return audioIsLoaded;
+        return true; // TODO: for now
     }
+
+    var classList = {
+        addonWrapper: 'wrapper-addon-audio-playlist',
+        controls: 'addon-audio-playlist-controls',
+        prev: 'audio-playlist-prev-btn',
+        next: 'audio-playlist-next-btn',
+        playPauseButton: 'audio-playlist-play-pause-btn',
+        playButton: 'audio-playlist-play-btn',
+        pauseButton: 'audio-playlist-pause-btn',
+        timer: 'audio-playlist-timer',
+        bar: 'audio-playlist-bar',
+        barFilling: 'audio-playlist-bar--fill',
+        duration: 'audio-playlist-max-time',
+        volume: 'audio-playlist-volume-btn',
+        items: 'addon-audio-playlist-items',
+        item: 'addon-audio-playlist-item',
+        itemName: 'addon-audio-playlist-item--name',
+        itemSelected: 'addon-audio-playlist-item-selected',
+        itemButton: 'addon-audio-playlist-item--button',
+        itemPlay: "addon-audio-playlist-item--button-playing"
+    };
 
     presenter.playerController = null;
     presenter.wrapper = null;
@@ -74,6 +91,24 @@ function AddonAudioPlaylist_create() {
 
     presenter.destroy = function AddonAudioPlaylist_destroy() {
         presenter.playerController = null;
+
+        presenter.viewItems.playPauseButton.removeEventListener('click', AddonAudioPlaylist__playPauseButtonHandler);
+        presenter.viewItems.playPauseButton.removeEventListener('touch', AddonAudioPlaylist__playPauseButtonHandler);
+
+        presenter.viewItems.nextButton.removeEventListener('click', AddonAudioPlaylist__nextButtonHandler);
+        presenter.viewItems.nextButton.removeEventListener('touch', AddonAudioPlaylist__nextButtonHandler);
+
+        presenter.viewItems.prevButton.removeEventListener('click', AddonAudioPlaylist__prevButtonHandler);
+        presenter.viewItems.prevButton.removeEventListener('touch', AddonAudioPlaylist__prevButtonHandler);
+
+        presenter.audio.removeEventListener('loadeddata', AddonAudioPlaylist__onLoadedMetadataCallback);
+        presenter.audio.removeEventListener('timeupdate', AddonAudioPlaylist__onTimeUpdateCallback);
+        presenter.audio.removeEventListener('volumechange', AddonAudioPlaylist___onVolumeChanged);
+        presenter.audio.removeEventListener('ended', AddonAudioPlaylist___onAudioEnded);
+        presenter.audio.removeEventListener('playing', AddonAudioPlaylist___onAudioPlaying);
+        presenter.audio.removeEventListener('pause', AddonAudioPlaylist___onAudioPause);
+        presenter.pause();
+        presenter.audio = null;
 
         deferredSyncQueue = null;
     };
@@ -151,7 +186,6 @@ function AddonAudioPlaylist_create() {
             ModelValidators.utils.FieldRename(
                 "Is Visible", "isVisible", ModelValidators.Boolean("isVisible")
             ),
-            ModelValidators.Boolean("forceLoadAudio"),
             ModelValidators.utils.FieldRename(
                 "Items",
                 "items",
@@ -183,9 +217,9 @@ function AddonAudioPlaylist_create() {
         if (!presenter.audio) return;
         if (presenter.audio.src && presenter.audio.paused) {
             presenter.audio.play();
-            presenter.viewItems.playPauseButton.classList.remove('audio-playlist-play-btn');
-            presenter.viewItems.playPauseButton.classList.add('audio-playlist-pause-btn');
-            presenter.items[presenter.state.currentItemIndex].button.classList.add("addon-audio-playlist-item--button-playing");
+            presenter.viewItems.playPauseButton.classList.remove(classList.playButton);
+            presenter.viewItems.playPauseButton.classList.add(classList.pauseButton);
+            presenter.items[presenter.state.currentItemIndex].button.classList.add(classList.itemPlay);
             presenter.state.isPlaying = true;
         }
     });
@@ -196,27 +230,27 @@ function AddonAudioPlaylist_create() {
             if (!presenter.audio.paused) {
                 presenter.audio.pause();
             }
-            presenter.viewItems.playPauseButton.classList.add('audio-playlist-play-btn');
-            presenter.viewItems.playPauseButton.classList.remove('audio-playlist-pause-btn');
-            presenter.items[presenter.state.currentItemIndex].button.classList.remove("addon-audio-playlist-item--button-playing");
+            presenter.viewItems.playPauseButton.classList.add(classList.playButton);
+            presenter.viewItems.playPauseButton.classList.remove(classList.pauseButton);
+            presenter.items[presenter.state.currentItemIndex].button.classList.remove(classList.itemPlay);
 
             presenter.state.isPlaying = false;
         }
     });
 
     presenter.assignViewItems = function (view) {
-        presenter.wrapper = view.getElementsByClassName('wrapper-addon-audio-playlist')[0];
+        presenter.wrapper = view.getElementsByClassName(classList.addonWrapper)[0];
         presenter.viewItems = {
-            mainController: view.getElementsByClassName('addon-audio-playlist-controls')[0],
-            prevButton: view.getElementsByClassName('audio-playlist-prev-btn')[0],
-            nextButton: view.getElementsByClassName('audio-playlist-next-btn')[0],
-            playPauseButton: view.getElementsByClassName('audio-playlist-play-pause-btn')[0],
-            currentTime: view.getElementsByClassName('audio-playlist-timer')[0],
-            timerBar: view.getElementsByClassName('audio-playlist-bar')[0],
-            timerSlider: view.getElementsByClassName('audio-playlist-bar--fill')[0],
-            maxTime: view.getElementsByClassName('audio-playlist-max-time')[0],
-            volumeButton: view.getElementsByClassName('audio-playlist-volume-btn')[0],
-            items: view.getElementsByClassName('addon-audio-playlist-items')[0],
+            mainController: view.getElementsByClassName(classList.controls)[0],
+            prevButton: view.getElementsByClassName(classList.prev)[0],
+            nextButton: view.getElementsByClassName(classList.next)[0],
+            playPauseButton: view.getElementsByClassName(classList.playPauseButton)[0],
+            currentTime: view.getElementsByClassName(classList.timer)[0],
+            timerBar: view.getElementsByClassName(classList.bar)[0],
+            timerSlider: view.getElementsByClassName(classList.barFilling)[0],
+            maxTime: view.getElementsByClassName(classList.duration)[0],
+            volumeButton: view.getElementsByClassName(classList.volume)[0],
+            items: view.getElementsByClassName(classList.items)[0]
         };
     };
 
@@ -242,14 +276,14 @@ function AddonAudioPlaylist_create() {
         }
 
         presenter.pause();
-        presenter.items[presenter.state.currentItemIndex].row.classList.remove("addon-audio-playlist-item-selected");
-        presenter.items[presenter.state.currentItemIndex].button.classList.remove("addon-audio-playlist-item--button-playing");
+        presenter.items[presenter.state.currentItemIndex].row.classList.remove(classList.selectedItem);
+        presenter.items[presenter.state.currentItemIndex].button.classList.remove(classList.itemPlay);
 
         presenter.state.currentItemIndex = index;
         if (presenter.audio) {
             presenter.audio.src = this.items[presenter.state.currentItemIndex].src;
         }
-        presenter.items[presenter.state.currentItemIndex].row.classList.add("addon-audio-playlist-item-selected");
+        presenter.items[presenter.state.currentItemIndex].row.classList.add(classList.selectedItem);
 
     };
 
@@ -269,6 +303,17 @@ function AddonAudioPlaylist_create() {
         presenter.audio.addEventListener('ended', AddonAudioPlaylist___onAudioEnded);
         presenter.audio.addEventListener('playing', AddonAudioPlaylist___onAudioPlaying);
         presenter.audio.addEventListener('pause', AddonAudioPlaylist___onAudioPause);
+
+        // TODO: memory cleaning
+        presenter.items.forEach(function (item) {
+            var audio = document.createElement("audio");
+            audio.addEventListener("durationchange", function AudioLoader(ev) {
+                item.time.innerText = StringUtils.timeFormat(isNaN(audio.duration) ? 0 : audio.duration);
+                audio.removeEventListener("durationchange", AudioLoader);
+                audio = null;
+            });
+            audio.src = item.src;
+        });
     };
 
     presenter.updateMainTrackDuration = function AddonAudioPlaylist_updateMainTrackDuration(duration) {
@@ -297,20 +342,24 @@ function AddonAudioPlaylist_create() {
 
     function AddonAudioPlaylistItemWrapper__buttonHandler(ev) {
         ev.preventDefault();
-        presenter.changeItem(index);
-        presenter.play();
+        presenter.changeItem(this.index);
+        if (presenter.state.isPlaying) {
+            presenter.pause();
+        } else {
+            presenter.play();
+        }
     }
 
     function AddonAudioPlaylist__onLoadedMetadataCallback() {
         AddonAudioPlaylist__onTimeUpdateCallback();
-        presenter.updateMainTrackDuration(presenter.audio.duration)
+        presenter.updateMainTrackDuration(presenter.audio.duration);
+        audioIsLoaded = true;
     }
 
     function AddonAudioPlaylist__onTimeUpdateCallback() {
         var currentTime = presenter.audio.currentTime;
         var duration = isNaN(presenter.audio.duration) ? 1 : presenter.audio.duration;
-        var currentTimeString = StringUtils.timeFormat(currentTime);
-        presenter.viewItems.currentTime.innerText = currentTimeString;
+        presenter.viewItems.currentTime.innerText = StringUtils.timeFormat(currentTime);
 
         var fillPercent = Math.round(currentTime / duration * 100);
         presenter.viewItems.timerSlider.style.width = fillPercent + "%";
@@ -340,10 +389,10 @@ function AddonAudioPlaylist_create() {
         var name = document.createElement("span");
         var time = document.createElement("span");
 
-        row.classList.add("addon-audio-playlist-item");
-        name.classList.add("addon-audio-playlist-item--name");
-        playButton.classList.add("addon-audio-playlist-item--button");
-        playButton.classList.add("audio-playlist-play-btn");
+        row.classList.add(classList.item);
+        name.classList.add(classList.itemName);
+        playButton.classList.add(classList.itemButton);
+        playButton.classList.add(classList.playButton);
 
         row.appendChild(playButton);
         row.appendChild(name);
@@ -353,13 +402,15 @@ function AddonAudioPlaylist_create() {
         time.innerText = "00:00";
 
         // TODO: memory cleaning
-        playButton.addEventListener("click", AddonAudioPlaylistItemWrapper__buttonHandler);
-        playButton.addEventListener("touch", AddonAudioPlaylistItemWrapper__buttonHandler);
+        playButton.addEventListener("click", AddonAudioPlaylistItemWrapper__buttonHandler.bind(this));
+        playButton.addEventListener("touch", AddonAudioPlaylistItemWrapper__buttonHandler.bind(this));
 
         this.name = item.name;
         this.src = item.mp3 || item.ogg;
         this.button = playButton;
         this.row = row;
+        this.time = time;
+        this.index = index;
     }
 
     return presenter;
