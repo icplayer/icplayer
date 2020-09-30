@@ -209,11 +209,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}	
 	
 	@Override
-	public void reset() {
-		this.reset(false);
-	}
-	
-	private void reset(boolean onlyWrongAnswers) {
+	public void reset(boolean onlyWrongAnswers) {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -228,6 +224,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if (module.isActivity()) {
 			saveScore();
 		}
+	}
+	
+	private void reset() {
+		this.reset(false);
 	}
 
 
@@ -545,8 +545,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::hide()();
 		}
 
-		presenter.reset = function() {
-			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::reset()();
+		presenter.reset = function(onlyWrongAnswers) {
+			x.@com.lorepo.icplayer.client.module.choice.ChoicePresenter::reset(Z)(onlyWrongAnswers);
 		}
 
 		presenter.isAttempted = function() {

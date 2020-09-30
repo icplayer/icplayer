@@ -9,7 +9,7 @@ public interface IPresenter {
 	public IModuleModel getModel();
 	public void setShowErrorsMode();
 	public void setWorkMode();
-	public void reset();
+	public void reset(boolean onlyWrongAnswers);
 	public void onEventReceived(String eventName, HashMap<String, String> data);
 	public JavaScriptObject getAsJavaScript();
 }
