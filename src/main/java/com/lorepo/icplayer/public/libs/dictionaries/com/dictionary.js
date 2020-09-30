@@ -2057,6 +2057,8 @@ var ice_dictionary_en = {
 	"printable_lesson_preview": "Lesson preview",
 	"printable_preview_error_message": "An error has occurred while generating the preview",
 	"Cross_Lesson_property_type": "Type",
+	"AudioPlaylist_name": "Audio Playlist",
+    "AudioPlaylist_info": "The Audio Playlist module allows you to add multiple audio files and order them into playlist.",
 	"Adaptive_Next_name": "Adaptive next",
     "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor."
 };

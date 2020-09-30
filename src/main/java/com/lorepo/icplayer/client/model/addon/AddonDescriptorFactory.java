@@ -106,6 +106,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Viewer_3D", "media_menu");
 		addDescriptor("Animation", "media_menu");
 		addDescriptor("Audio", "media_menu");
+		addDescriptor("AudioPlaylist", "media_menu");
 		addDescriptor("Coloring", "media_menu");
 		addDescriptor("Drawing", "media_menu");
 		addDescriptor("EdgeAnimation", "media_menu");
