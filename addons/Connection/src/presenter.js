@@ -1995,8 +1995,8 @@ function AddonConnection_create() {
         var $root = $("<div></div>");
         $root.attr('id', model.ID);
         $root.addClass('printable_addon_Connection');
-        $root.css("width", model["Width"] + "px");
-        $root.css("height", model["Height"] + "px");
+        $root.css("max-width", model["Width"]+"px");
+        $root.css("min-height", model["Height"]+"px");
         $root.html('<table class="connectionContainer">' +
             '    <tr>' +
             '        <td class="connectionLeftColumn">' +
