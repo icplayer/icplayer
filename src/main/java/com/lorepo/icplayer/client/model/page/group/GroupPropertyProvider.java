@@ -6,9 +6,9 @@ import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.dimensions.DimensionName;
-import com.lorepo.icplayer.client.module.Printable;
-import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class GroupPropertyProvider extends ModulesPropertyProvider{
 	

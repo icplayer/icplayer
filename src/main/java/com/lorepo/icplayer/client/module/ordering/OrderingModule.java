@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
@@ -18,12 +19,13 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
-import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
-import com.lorepo.icplayer.client.module.Printable;
-import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.choice.ChoicePrintable;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
+import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
+import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableController;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
 	public static final String ERROR_NUMBER_OF_ITEMS = "Error - only one item";
@@ -48,6 +50,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	private boolean isValid = true;
 	private String validationError = "";
 	private String printableValue = "";
+	private PrintableController printableController = null;
 
 	public OrderingModule() {
 		super("Ordering", DictionaryWrapper.get("ordering_module"));
@@ -931,6 +934,17 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	
 	public String getValidationError() {
 		return this.validationError;
+	}
+
+	@Override
+	public JavaScriptObject getPrintableContext() {
+		return null;
+	}
+
+	@Override
+	public void setPrintableController(PrintableController controller) {
+		this.printableController = controller;
+		
 	}
 	
 	

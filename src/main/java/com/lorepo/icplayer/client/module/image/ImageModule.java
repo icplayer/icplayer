@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.image;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -12,10 +13,11 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
-import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
-import com.lorepo.icplayer.client.module.Printable;
-import com.lorepo.icplayer.client.module.Printable.PrintableMode;
+import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
+import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableController;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
 
@@ -30,6 +32,7 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, I
 	private boolean animatedGifRefresh = false;
 	private String alternativeText = "";
 	private String printableValue = "No";
+	private PrintableController printableController = null;
 	
 	public ImageModule() {
 		super("Image", DictionaryWrapper.get("image_module"));
@@ -332,5 +335,18 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, I
 	@Override
 	public boolean isSection() {
 		return false;
+	}
+
+
+	@Override
+	public JavaScriptObject getPrintableContext() {
+		return null;
+	}
+
+
+	@Override
+	public void setPrintableController(PrintableController controller) {
+		this.printableController = controller;
+		
 	}
 }

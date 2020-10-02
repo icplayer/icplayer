@@ -2,9 +2,9 @@ package com.lorepo.icplayer.client.module.image;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Image;
-import com.lorepo.icplayer.client.PrintableContentParser;
-import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.image.ImageModule.DisplayMode;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class ImagePrintable {
 	

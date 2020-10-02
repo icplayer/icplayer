@@ -678,7 +678,7 @@ function AddonImage_Identification_create(){
         presenter.configuration = presenter.validateModel(model);
 
         presenter.$view = $("<div></div>");
-        presenter.$view.attr(presenter.configuration.addonID);
+        presenter.$view.attr("id", presenter.configuration.addonID);
         presenter.$view.addClass("printable_addon_Image_Identification");
         presenter.$view.css("max-width", model.Width+"px");
         presenter.$view.css("max-height", model.Height+"px");

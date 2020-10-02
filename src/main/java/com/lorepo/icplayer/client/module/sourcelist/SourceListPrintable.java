@@ -1,7 +1,7 @@
 package com.lorepo.icplayer.client.module.sourcelist;
 
-import com.lorepo.icplayer.client.PrintableContentParser;
-import com.lorepo.icplayer.client.module.Printable.PrintableMode;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class SourceListPrintable {
 	

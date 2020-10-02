@@ -21,18 +21,20 @@ import com.lorepo.icf.properties.IVideoProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.XMLUtils;
-import com.lorepo.icplayer.client.PrintableContentParser;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
-import com.lorepo.icplayer.client.module.IPrintableModuleModel;
-import com.lorepo.icplayer.client.module.Printable;
-import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.addon.param.AddonParamFactory;
 import com.lorepo.icplayer.client.module.addon.param.IAddonParam;
+import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
+import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
+import com.lorepo.icplayer.client.printable.PrintableController;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class AddonModel extends BasicModuleModel implements IPrintableModuleModel {
 
 	private String addonId;
 	private ArrayList<IAddonParam>	addonParams = new ArrayList<IAddonParam>();
+	private PrintableController printableController = null;
 	
 	public interface OnAddonReleaseAction {
 		public void onRelease();
@@ -166,13 +168,14 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		String addonName = "Addon" + getAddonId() + "_create";
 		JavaScriptObject jsModel = createJsModel(this);
 		String className = this.getStyleClass();
+		JavaScriptObject printController = getPrintableControllerAsJsObject();
 		
-		String result = getPrintableHTML(addonName, jsModel,showAnswers);
+		String result = getPrintableHTML(addonName, jsModel, printController, showAnswers);
 		result = PrintableContentParser.addClassToPrintableModule(result, className);
 		return result;
 	}
 	
-	private native String getPrintableHTML(String addonName, JavaScriptObject model, boolean showAnswers) /*-{
+	private native String getPrintableHTML(String addonName, JavaScriptObject model, JavaScriptObject controller, boolean showAnswers) /*-{
 		if($wnd.window[addonName] == null){
 			return null;
 		}
@@ -180,6 +183,10 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		
 		if (!presenter.hasOwnProperty("getPrintableHTML")) {
 			return null;
+		}
+		
+		if (presenter.hasOwnProperty("setPrintableController") && controller != null) {
+			presenter.setPrintableController(controller);
 		}
 		
 		return presenter.getPrintableHTML(model, showAnswers);
@@ -205,6 +212,39 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		}
 		return false;
 	}
+	
+	@Override
+	public JavaScriptObject getPrintableContext() {
+		String addonName = "Addon" + getAddonId() + "_create";
+		JavaScriptObject jsModel = createJsModel(this);
+		return getPrintableContext(addonName, jsModel);
+	} 
+	
+	@Override
+	public void setPrintableController(PrintableController controller) {
+		printableController = controller;
+	}
+	
+	private JavaScriptObject getPrintableControllerAsJsObject() {
+		if (printableController != null) {
+			return printableController.getAsJavaScript();
+		} else {
+			return null;
+		}
+	}
+	
+	private native JavaScriptObject getPrintableContext(String addonName, JavaScriptObject model) /*-{
+		if ($wnd.window[addonName] == null) {
+			return null;
+		}
+		var presenter = $wnd.window[addonName]();
+		
+		if (!presenter.hasOwnProperty("getPrintableContext")) {
+			return null;
+		}
+		
+		return presenter.getPrintableContext(model);
+	}-*/;
 	
 	public JavaScriptObject createJsModel(IPropertyProvider provider) {
 
@@ -288,5 +328,5 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	
 	private native void addToJSArray(JavaScriptObject model, JavaScriptObject obj)  /*-{
 		model.push(obj);
-	}-*/; 
+	}-*/;
 }
