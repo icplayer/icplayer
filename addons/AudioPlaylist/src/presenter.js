@@ -31,7 +31,15 @@ function AddonAudioPlaylist_create() {
         itemPlay: "addon-audio-playlist-item--button-playing"
     };
 
+    var eventNames = {
+        playing: "playing",
+        pause: "pause",
+        end: "end",
+        next: "next"
+    };
+
     presenter.playerController = null;
+    presenter.eventBus = null;
     presenter.wrapper = null;
     presenter.viewItems = {
         prevButton: null,
@@ -50,11 +58,13 @@ function AddonAudioPlaylist_create() {
     presenter.state = {
         isVisible: false,
         isPlaying: false,
-        currentItemIndex: 0
+        currentItemIndex: 0,
+        sentTime: "00:00"
     };
 
     presenter.setPlayerController = function AddonAudioPlaylist_setPlayerController(controller) {
         presenter.playerController = controller;
+        presenter.eventBus = controller.getEventBus();
     };
 
     presenter.run = function AddonAudioPlaylist_run(view, model) {
@@ -200,10 +210,14 @@ function AddonAudioPlaylist_create() {
 
     presenter.executeCommand = function AddonAudioPlaylist_executeCommand(name, params) {
         var commands = {
-            'play': presenter.play,
             'show': presenter.show,
             'hide': presenter.hide,
+            'play': presenter.play,
             'pause': presenter.pause,
+            'stop': presenter.stop,
+            'jumpTo': presenter.changeItem,
+            'previous': presenter.prev,
+            'next': presenter.next,
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -235,6 +249,14 @@ function AddonAudioPlaylist_create() {
             presenter.items[presenter.state.currentItemIndex].button.classList.remove(classList.itemPlay);
 
             presenter.state.isPlaying = false;
+        }
+    });
+
+    presenter.stop = deferredSyncQueue.decorate(function AddonAudioPlaylist_stop() {
+        if (!presenter.audio) return;
+        if (presenter.audio.readyState > 0) {
+            presenter.pause();
+            presenter.audio.currentTime = 0;
         }
     });
 
@@ -276,15 +298,22 @@ function AddonAudioPlaylist_create() {
         }
 
         presenter.pause();
-        presenter.items[presenter.state.currentItemIndex].row.classList.remove(classList.selectedItem);
+        presenter.items[presenter.state.currentItemIndex].row.classList.remove(classList.itemSelected);
         presenter.items[presenter.state.currentItemIndex].button.classList.remove(classList.itemPlay);
 
         presenter.state.currentItemIndex = index;
         if (presenter.audio) {
             presenter.audio.src = this.items[presenter.state.currentItemIndex].src;
         }
-        presenter.items[presenter.state.currentItemIndex].row.classList.add(classList.selectedItem);
-
+        presenter.items[presenter.state.currentItemIndex].row.classList.add(classList.itemSelected);
+        presenter.sendEvent(
+            "ValueChanged",
+            {
+                value: eventNames.next,
+                item: presenter.state.currentItemIndex,
+                source: presenter.configuration.ID,
+                score: ""
+            });
     };
 
     presenter.addHandlers = function AddonAudioPlaylist_addHandlers() {
@@ -321,14 +350,33 @@ function AddonAudioPlaylist_create() {
         presenter.viewItems.maxTime.innerText = StringUtils.timeFormat(duration);
     };
 
+    presenter.next = function () {
+        presenter.changeItem(presenter.state.currentItemIndex + 1);
+    };
+
+    presenter.prev = function () {
+        presenter.changeItem(presenter.state.currentItemIndex - 1);
+    };
+
+    presenter.sendEvent = function (name, data) {
+        if (presenter.eventBus) {
+            presenter.eventBus.sendEvent(name, data);
+        }
+    };
+
     function AddonAudioPlaylist__nextButtonHandler(ev) {
         ev.preventDefault();
-        presenter.changeItem(presenter.state.currentItemIndex + 1);
+        presenter.next();
     }
 
     function AddonAudioPlaylist__prevButtonHandler(ev) {
         ev.preventDefault();
-        presenter.changeItem(presenter.state.currentItemIndex - 1);
+        if (presenter.audio.readyState > 0 && presenter.audio.currentTime > 0) {
+            presenter.pause();
+            presenter.audio.currentTime = 0;
+        } else {
+            presenter.prev();
+        }
     }
 
     function AddonAudioPlaylist__playPauseButtonHandler(ev) {
@@ -359,10 +407,21 @@ function AddonAudioPlaylist_create() {
     function AddonAudioPlaylist__onTimeUpdateCallback() {
         var currentTime = presenter.audio.currentTime;
         var duration = isNaN(presenter.audio.duration) ? 1 : presenter.audio.duration;
-        presenter.viewItems.currentTime.innerText = StringUtils.timeFormat(currentTime);
+        var time = StringUtils.timeFormat(currentTime);
+        presenter.viewItems.currentTime.innerText = time;
 
         var fillPercent = Math.round(currentTime / duration * 100);
         presenter.viewItems.timerSlider.style.width = fillPercent + "%";
+
+        if (time !== presenter.state.sentTime) {
+            presenter.sendEvent("ValueChanged", {
+                value: time,
+                item: presenter.state.currentItemIndex,
+                source: presenter.configuration.ID,
+                score: ""
+            });
+            presenter.state.sentTime = time;
+        }
     }
 
     function AddonAudioPlaylist___onVolumeChanged() {
@@ -371,15 +430,31 @@ function AddonAudioPlaylist_create() {
 
     function AddonAudioPlaylist___onAudioEnded() {
         presenter.pause();
-        //TODO: send event
+        presenter.sendEvent("ValueChanged", {
+            value: eventNames.end,
+            item: presenter.state.currentItemIndex,
+            source: presenter.configuration.ID,
+            score: ""
+        });
+        presenter.next();
     }
 
     function AddonAudioPlaylist___onAudioPlaying() {
-        //TODO: send event
+        presenter.sendEvent("ValueChanged", {
+            value: eventNames.playing,
+            item: presenter.state.currentItemIndex,
+            source: presenter.configuration.ID,
+            score: ""
+        });
     }
 
     function AddonAudioPlaylist___onAudioPause() {
-        //TODO: send event
+        presenter.sendEvent("ValueChanged", {
+            value: eventNames.pause,
+            item: presenter.state.currentItemIndex,
+            source: presenter.configuration.ID,
+            score: ""
+        });
     }
 
 
