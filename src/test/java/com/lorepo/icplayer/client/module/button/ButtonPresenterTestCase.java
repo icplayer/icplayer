@@ -60,7 +60,7 @@ public class ButtonPresenterTestCase {
 		display.setVisible(false);
 		display.setErrorCheckingMode(true);
 		display.setDisabled(true);
-		services.getEventBus().fireEvent(new ResetPageEvent());
+		services.getEventBus().fireEvent(new ResetPageEvent(false));
 		
 		assertTrue(display.isVisible());
 		assertFalse(display.isErrorCheckingMode());
@@ -73,7 +73,7 @@ public class ButtonPresenterTestCase {
 		assertFalse(display.isVisible());
 		String stateObj = presenter.getState();
 		
-		services.getEventBus().fireEvent(new ResetPageEvent());
+		services.getEventBus().fireEvent(new ResetPageEvent(false));
 		assertTrue(display.isVisible());
 		
 		presenter.setState(stateObj);

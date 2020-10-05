@@ -127,7 +127,7 @@ public class ImageGapPresenterTestCase {
 		
 		assertEquals("/path", display.getImageUrl());
 		
-		services.getEventBus().fireEvent(new ResetPageEvent());
+		services.getEventBus().fireEvent(new ResetPageEvent(false));
 		assertEquals("", display.getImageUrl());
 		
 	}
@@ -165,7 +165,7 @@ public class ImageGapPresenterTestCase {
 		ItemSelectedEvent event = new ItemSelectedEvent(item);
 		services.getEventBus().fireEventFromSource(event, this);
 		display.getListener().onClicked();
-		services.getEventBus().fireEvent(new ResetPageEvent());
+		services.getEventBus().fireEvent(new ResetPageEvent(false));
 		
 		assertEquals(0, presenter.getScore());
 		assertEquals("", display.getImageUrl());
