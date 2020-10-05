@@ -68,7 +68,7 @@ public class ButtonView extends Composite implements IDisplay, IWCAG, IWCAGModul
 			button = new GotoPageButton(module.getOnClick(), module.getPageIndex(), playerServices);
 		}
 		else if(ButtonType.reset == type){
-			button = new ResetButton(pageService, module.getConfirmReset(), module.getConfirmInfo(), module.getConfirmYesInfo(), module.getConfirmNoInfo());
+			button = new ResetButton(pageService, module.getConfirmReset(), module.getConfirmInfo(), module.getConfirmYesInfo(), module.getConfirmNoInfo(), module.getResetOnlyWrong());
 		}
 		else{
 			button = new StandardButton(module, playerServices);

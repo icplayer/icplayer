@@ -451,6 +451,7 @@ var ice_dictionary_pl = {
     "reset_property_confirm_info" : "Alert z potwierdzeniem resetu",
     "reset_property_confirm_yes" : "Tekst potwierdzenia - tak",
     "reset_property_confirm_no" : "Tekst potwierdzenia - nie",
+	"reset_property_reset_only_wrong": "Reset only wrong answers",
 	"block_wrong_answers" : "Zablokuj błędne odpowiedzi",
 	"randomOrder" : "Kolejność&nbsp;losowa",
 	"All_elements_has_same_width" : "Jednakowa szer. dla wszystkich elementów",

@@ -104,7 +104,7 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean onlyWrongAnswers) {
 		// Module is not an activity
 	}
 

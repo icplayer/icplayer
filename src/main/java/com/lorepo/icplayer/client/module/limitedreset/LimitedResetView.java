@@ -67,7 +67,7 @@ public class LimitedResetView extends PushButton implements IDisplay {
 							continue;
 						}
 						
-						presenter.reset();
+						presenter.reset(module.getResetOnlyWrongAnswers());
 					}
 					
 					ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "resetClicked", "");
