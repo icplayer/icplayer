@@ -92,7 +92,7 @@ public class TextPrintable {
 			Element select = selects.getItem(i);
 			NodeList<Element> options = select.getElementsByTagName("option");
 			
-			String values = "[";
+			String values = "";
 			for (int j = 0; j < options.getLength(); j++) {
 				Element option = options.getItem(j);
 				String value = option.getInnerText();
@@ -105,11 +105,10 @@ public class TextPrintable {
 					}
 					values += value;
 					if (j + 1 != options.getLength()) {
-						values += " \\ ";
+						values += " / ";
 					}
 				}
 			}
-			values += "]";
 			parsedText = parsedText.replace(select.getString(), values);
 		}
 		return parsedText;
