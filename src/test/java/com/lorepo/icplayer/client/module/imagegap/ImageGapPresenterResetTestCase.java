@@ -22,7 +22,7 @@ public class ImageGapPresenterResetTestCase {
 
     @Test
     public void givenNotErrorsModeWhenResettingModuleThenDoesNotCallSetWorkMode() {
-        presenterSpy.reset();
+        presenterSpy.reset(false);
 
         Mockito.verify(presenterSpy, Mockito.never()).setWorkMode();
     }
@@ -30,7 +30,7 @@ public class ImageGapPresenterResetTestCase {
     @Test
     public void givenErrorsModeWhenResettingModuleThenCallsSetWorkMode() {
         presenterSpy.setShowErrorsMode();
-        presenterSpy.reset();
+        presenterSpy.reset(false);
 
         Mockito.verify(presenterSpy, Mockito.times(1)).setWorkMode();
     }
