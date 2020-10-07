@@ -241,7 +241,7 @@ public class SourceListPresenterTestCase extends GwtTest {
 
 		assertNull(display.getItems().get(id));
 		
-		services.getEventBus().fireEvent(new ResetPageEvent());
+		services.getEventBus().fireEvent(new ResetPageEvent(false));
 		
 		assertNotNull(display.getItems().get(id));
 	}

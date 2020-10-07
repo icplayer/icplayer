@@ -1040,3 +1040,31 @@ hr, table, fieldset {
     font-family: Arial, Helvetica, sans-serif;
     z-index: 1100;
  }
+ 
+ /* PRINTABLE */
+ 
+.printable_module {
+	margin-bottom: 10px;
+	column-break-inside: avoid;
+	-webkit-column-break-inside: avoid;
+}
+
+.printable_modules_group {
+	margin-bottom: 10px;
+	column-break-inside: avoid;
+	-webkit-column-break-inside: avoid;
+}
+
+.printable_page {
+	background: #FFF;
+	padding: 10px;
+	page-break-inside: avoid;
+	page-break-after: always;
+	overflow: hidden;
+}
+
+.printable_opening_player_page {
+	column-span:all;
+	-webkit-column-span:all;
+	-moz-column-span:all;
+}

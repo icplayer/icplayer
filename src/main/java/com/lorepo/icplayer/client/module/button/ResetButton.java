@@ -23,6 +23,7 @@ class ResetButton extends ExecutableButton {
 	private String confInfoNo = "";
 	private boolean confReset;
 	private IPlayerCommands pageService;
+	private boolean resetOnlyWrong = false;
 
 	public static native void removeHoveringFromButtons() /*-{
 	  var reset = $wnd.$('[id^="Reset"]');
@@ -35,7 +36,7 @@ class ResetButton extends ExecutableButton {
 	  });
 	}-*/;
 
-	public ResetButton(final IPlayerCommands pageService, final boolean confirmReset, final String confirmInfo, final String confirmYesInfo, final String confirmNoInfo){
+	public ResetButton(final IPlayerCommands pageService, final boolean confirmReset, final String confirmInfo, final String confirmYesInfo, final String confirmNoInfo, final boolean resetOnlyWrong){
 		super(null);
 
 		setStyleName("ic_button_reset");
@@ -45,6 +46,7 @@ class ResetButton extends ExecutableButton {
 		this.confInfoYes = confirmYesInfo;
 		this.confInfoNo = confirmNoInfo;
 		this.pageService = pageService;
+		this.resetOnlyWrong = resetOnlyWrong;
 
 		addMouseOverHandler(new MouseOverHandler() {
 
@@ -104,7 +106,7 @@ class ResetButton extends ExecutableButton {
 	        yesButton.addClickHandler(new ClickHandler() {
 	            @Override
 	            public void onClick(ClickEvent event) {
-	            	pageService.reset();
+	            	pageService.reset(resetOnlyWrong);
 	                dialogBox.hide();
 	                removeHoveringFromButtons();
 	              }
@@ -114,7 +116,7 @@ class ResetButton extends ExecutableButton {
             dialogBox.setPopupPosition(left, top);
             dialogBox.show();
         } else {
-            this.pageService.reset();
+            this.pageService.reset(resetOnlyWrong);
         }
 
         if (DevicesUtils.isMobile()) {

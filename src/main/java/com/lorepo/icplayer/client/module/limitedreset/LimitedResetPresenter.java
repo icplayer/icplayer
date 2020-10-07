@@ -149,7 +149,7 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 	}
 	
 	@Override
-	public void reset() {
+	public void reset(boolean onlyWrongAnswers) {
 		// Module is not an activity
 	}
 	

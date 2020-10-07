@@ -133,7 +133,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			public void onResetPage(ResetPageEvent event) {
-				reset();
+				reset(event.getIsOnlyWrongAnswers());
 			}
 		});
 
@@ -162,7 +162,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean isOnlyWrongAnswers) {
 		deselectCurrentItem(false);
 		addItemsToView(true);
 		canDrag = true;
@@ -361,7 +361,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		}
 		
 		presenter.reset = function() { 
-			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::reset()();
+			return x.@com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter::reset(Z)(false);
 		};
 		
 		presenter.show = function() {
@@ -430,7 +430,7 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		IStringType param = null;
 
 		if (commandName.compareTo("reset") == 0) {
-			reset();
+			reset(false);
 		} else if (commandName.compareTo("getitem") == 0) {
 			if (params.size() > 0 && params.get(0) instanceof IStringType) {
 				param = (IStringType) params.get(0);

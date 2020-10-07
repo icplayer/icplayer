@@ -141,7 +141,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			@Override
 			public void onResetPage(ResetPageEvent event) {
-				reset();
+				reset(event.getIsOnlyWrongAnswers());
 			}
 		});
 
@@ -453,7 +453,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean isOnlyWrongAnswers) {
 		if (isTextSetByCommand) {
 			setText(this.module.getDefaultModuleText());
 		}
@@ -966,7 +966,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		} else if (commandName.compareTo("hide") == 0) {
 			hide();
 		} else if (commandName.compareTo("reset") == 0) {
-			reset();
+			reset(false);
 		} else if (commandName.compareTo("isallok") == 0) {
 			return String.valueOf(isAllOK());
 		} else if (commandName.compareTo("markgapascorrect") == 0 && params.size() == 1) {
@@ -1129,7 +1129,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		};
 
 		presenter.reset = function() {
-			x.@com.lorepo.icplayer.client.module.text.TextPresenter::reset()();
+			x.@com.lorepo.icplayer.client.module.text.TextPresenter::reset(Z)(false);
 		};
 
 		if (presenter.isActivity()) {

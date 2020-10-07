@@ -72,7 +72,7 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
 
         eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
             public void onResetPage(ResetPageEvent event) {
-                reset();
+                reset(event.getIsOnlyWrongAnswers());
             }
         });
 
@@ -200,7 +200,7 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
     }
 
     @Override
-    public void reset() {
+    public void reset(boolean isOnlyWrongAnswers) {
         setWorkMode();
         if (view != null) {
             view.setShowAnswersMode(false);

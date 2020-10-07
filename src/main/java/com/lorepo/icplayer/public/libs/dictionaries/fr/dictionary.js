@@ -451,6 +451,7 @@ var ice_dictionary_fr = {
     "reset_property_confirm_info" : "Confirmation info",
     "reset_property_confirm_yes" : "Confirmation yes text",
     "reset_property_confirm_no" : "Confirmation no text",
+    "reset_property_reset_only_wrong": "Reset only wrong answers",
     "block_wrong_answers" : "Bloquer les mauvaises réponses",
     "randomOrder" : "Affichage&nbsp;aléatoire",
     "All_elements_has_same_width" : "Largeur identique pour tous les éléments",
@@ -2035,6 +2036,7 @@ var ice_dictionary_fr = {
 	"printable_preview": "Print preview",
 	"printable_lesson_preview": "Lesson preview",
 	"printable_preview_error_message": "An error has occurred while generating the preview",
+	"printable_enable_two_column_layout": "Printable two-column layout",
 	"Cross_Lesson_property_type": "Type",
 	"Adaptive_Next_name": "Adaptive next",
     "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor."

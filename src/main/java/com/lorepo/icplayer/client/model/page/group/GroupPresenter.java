@@ -50,7 +50,7 @@ public class GroupPresenter implements IPresenter, IStateful{
 		
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			public void onResetPage(ResetPageEvent event) {
-				reset();
+				reset(event.getIsOnlyWrongAnswers());
 			}
 		});
 	}
@@ -83,7 +83,7 @@ public class GroupPresenter implements IPresenter, IStateful{
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean onlyWrongAnswers) {
 		isVisible = group.isVisible();
 		if(view != null){
 			if(isVisible){

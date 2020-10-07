@@ -118,7 +118,7 @@ public class PresenterTestCase {
 		services.getEventBus().fireEvent(new ShowErrorsEvent());
 		assertEquals(68, display.value);
 		
-		services.getEventBus().fireEvent(new ResetPageEvent());
+		services.getEventBus().fireEvent(new ResetPageEvent(false));
 		assertEquals(0, display.value);
 	}
 

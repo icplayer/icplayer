@@ -22,7 +22,7 @@ public class CommandsMockup implements IPlayerCommands {
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean onlyWrongAnswers) {
 	}
 
 	@Override
