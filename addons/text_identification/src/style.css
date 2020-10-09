@@ -24,3 +24,12 @@
     background-size: 100%;
     background-position: 0 0;
 }
+
+.printable_addon_Text_Identification-wrapper {
+    display: inline-block;
+    padding: 5px;
+}
+
+.printable_addon_Text_Identification-correct {
+    border: 3px solid #999;
+}

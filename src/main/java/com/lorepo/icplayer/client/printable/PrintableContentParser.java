@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client;
+package com.lorepo.icplayer.client.printable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,6 +8,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates.Template;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Random;
@@ -16,9 +17,8 @@ import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.group.Group;
-import com.lorepo.icplayer.client.module.IPrintableModuleModel;
-import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class PrintableContentParser {
 	
@@ -129,7 +129,7 @@ public class PrintableContentParser {
 		}
 	}
 	
-	private IPrintableModuleModel generatePrintableGroup(final Group group, boolean randomizeModules, boolean showAnswers) {
+	private IPrintableModuleModel generatePrintableGroup(final Group group, PrintableController controller, boolean randomizeModules, boolean showAnswers) {
 		List<IPrintableModuleModel> groupPrintables = new ArrayList<IPrintableModuleModel>();
 		for (int i = 0; i < group.size(); i++) {
 			IModuleModel model = group.get(i);
@@ -151,6 +151,7 @@ public class PrintableContentParser {
 		}
 		parsed += "<div class=\"printable_modules_group " + groupClass + "\">";
 		for (IPrintableModuleModel printable: groupPrintables) {
+			printable.setPrintableController(controller);
 			parsed += printable.getPrintableHTML(showAnswers);
 		}
 		parsed += "</div>";
@@ -168,6 +169,15 @@ public class PrintableContentParser {
 			public PrintableMode getPrintableMode() {
 				return group.getPrintable();
 			}
+			
+			@Override
+			public JavaScriptObject getPrintableContext() {
+				return null;
+			}
+			
+			@Override
+			public void setPrintableController(PrintableController controller) {
+			}
 
 			@Override
 			public boolean isSection() {
@@ -180,6 +190,8 @@ public class PrintableContentParser {
 	private String parsePage(Page page, boolean randomizeModules, boolean showAnswers ) {
 		List<Group> parsedGroups = new ArrayList<Group>();
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
+		PrintableController pagePrintableController = new PrintableController(page);
+		
 		ModuleList modules = page.getModules();
 		for (int i = 0; i < modules.size(); i++) {
 			IModuleModel model = modules.get(i);
@@ -192,7 +204,7 @@ public class PrintableContentParser {
 				}
 				if (modelGroup != null && !parsedGroups.contains(modelGroup)) {
 					parsedGroups.add(modelGroup);
-					pagePrintables.add(generatePrintableGroup(modelGroup, randomizeModules, showAnswers));
+					pagePrintables.add(generatePrintableGroup(modelGroup, pagePrintableController, randomizeModules, showAnswers));
 				}
 			}else if (model instanceof IPrintableModuleModel) {
 				IPrintableModuleModel printable = (IPrintableModuleModel) model;
@@ -206,6 +218,7 @@ public class PrintableContentParser {
 		}
 		String result = "";
 		for (IPrintableModuleModel printable: pagePrintables) {
+			printable.setPrintableController(pagePrintableController);
 			result += printable.getPrintableHTML(showAnswers);
 		}
 		return result;
@@ -262,10 +275,10 @@ public class PrintableContentParser {
 		$wrapper.children().each(function(){
 			var moduleHTML = this.outerHTML;
 			var newPrintablePageHTML = printablePageHTML + moduleHTML;
-			var newPrintablePageWithHeaderAndFooter = x.@com.lorepo.icplayer.client.PrintableContentParser::applyHeaderAndFooter(Ljava/lang/String;Z)(newPrintablePageHTML, false);
-			var newHeight = x.@com.lorepo.icplayer.client.PrintableContentParser::getHTMLHeight(Ljava/lang/String;I)(newPrintablePageWithHeaderAndFooter, pageWidth);
+			var newPrintablePageWithHeaderAndFooter = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::applyHeaderAndFooter(Ljava/lang/String;Z)(newPrintablePageHTML, false);
+			var newHeight = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getHTMLHeight(Ljava/lang/String;I)(newPrintablePageWithHeaderAndFooter, pageWidth);
 			if (newHeight > pageHeight) {
-				pages += x.@com.lorepo.icplayer.client.PrintableContentParser::wrapPrintablePage(Ljava/lang/String;II)(printablePageHTML, pageWidth, pageHeight);
+				pages += x.@com.lorepo.icplayer.client.printable.PrintableContentParser::wrapPrintablePage(Ljava/lang/String;II)(printablePageHTML, pageWidth, pageHeight);
 				printablePageHTML = moduleHTML;
 			} else {
 				printablePageHTML += moduleHTML;

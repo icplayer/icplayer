@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.module.sourcelist;
 
 import java.util.ArrayList;
 
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
@@ -10,14 +12,16 @@ import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.properties.IStringListProperty;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
-import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
-import com.lorepo.icplayer.client.module.Printable;
-import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
+import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
+import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableController;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 
 public class SourceListModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
@@ -28,6 +32,7 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 	private String langAttribute = "";
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String printableValue = "No";
+	private PrintableController printableController = null;
 	
 	public SourceListModule() {
 		super("Source list", DictionaryWrapper.get("source_list_module"));
@@ -484,6 +489,23 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 	@Override
 	public boolean isSection() {
 		return false;
+	}
+
+	@Override
+	public JavaScriptObject getPrintableContext() {
+		JavaScriptObject context = JavaScriptUtils.createJSObject();
+		JavaScriptObject itemsArray = JavaScriptObject.createArray();
+		for (String item: items) {
+			JavaScriptUtils.addElementToJSArray(itemsArray, item);
+		}
+		JavaScriptUtils.addObjectAsPropertyToJSArray(context, "items", itemsArray);
+		return context;
+	}
+
+	@Override
+	public void setPrintableController(PrintableController controller) {
+		this.printableController = controller;
+		
 	}
 	
 }

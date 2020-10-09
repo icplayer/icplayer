@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
+import com.lorepo.icf.properties.IEnumSetProperty;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IPropertyListener;
@@ -18,9 +20,14 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
+import com.lorepo.icplayer.client.module.choice.ChoicePrintable;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
+import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
+import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableController;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
-public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel {
+public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
 	public static final String ERROR_NUMBER_OF_ITEMS = "Error - only one item";
 	public static final String ERROR_NO_COMBINATION = "Error - all correct combinations have been used";
 	public static final String ERROR_POSITION_NOT_INTEGER = "Error - starting position not a integer";
@@ -42,6 +49,8 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private boolean isValid = true;
 	private String validationError = "";
+	private String printableValue = "";
+	private PrintableController printableController = null;
 
 	public OrderingModule() {
 		super("Ordering", DictionaryWrapper.get("ordering_module"));
@@ -60,6 +69,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		addPropertyDontGenerateCorrectOrder();
 		addPropertySpeechTexts();
 		addPropertyLangAttribute();
+		addPropertyPrintable();
 	}
 
 	public void validate() {
@@ -152,6 +162,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			this.speechTextItems.get(3).setText(XMLUtils.getAttributeAsString(ordering, "correct"));
 			this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(ordering, "wrong"));
 			this.langAttribute = XMLUtils.getAttributeAsString(ordering, "lang");
+			printableValue = XMLUtils.getAttributeAsString(ordering, "printable");
 		}
 
 		// Read item nodes
@@ -255,6 +266,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		ordering.setAttribute("replaced_with", this.speechTextItems.get(2).getText());
 		ordering.setAttribute("correct", this.speechTextItems.get(3).getText());
 		ordering.setAttribute("wrong", this.speechTextItems.get(4).getText());
+		ordering.setAttribute("printable", printableValue);
 		
 		orderingModule.appendChild(ordering);
 
@@ -749,6 +761,69 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		addProperty(property);
 	}
 	
+	private void addPropertyPrintable() {
+		IProperty property = new IEnumSetProperty() {
+
+			@Override
+			public void setValue(String newValue) {	
+				printableValue = newValue;
+			}
+
+			@Override
+			public String getValue() {
+				return printableValue;
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public int getAllowedValueCount() {
+				return 3;
+			}
+
+			@Override
+			public String getAllowedValue(int index) {
+				return Printable.getStringValues(index);
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get(Printable.NAME_LABEL);
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public PrintableMode getPrintable() {
+		return Printable.getPrintableModeFromString(printableValue);
+	}
+	
+	@Override
+	public String getPrintableHTML(boolean showAnswers) {
+		OrderingPrintable printable = new OrderingPrintable(this);
+		String className = this.getStyleClass();
+		return printable.getPrintableHTML(className, showAnswers);
+	}
+
+	@Override
+	public PrintableMode getPrintableMode() {
+		return getPrintable();
+	}
+	
+	@Override
+	public boolean isSection() {
+		return false;
+	}
+	
 	public String getSpeechTextItem (int index) {
 		if (index < 0 || index >= this.speechTextItems.size()) {
 			return "";
@@ -859,6 +934,17 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	
 	public String getValidationError() {
 		return this.validationError;
+	}
+
+	@Override
+	public JavaScriptObject getPrintableContext() {
+		return null;
+	}
+
+	@Override
+	public void setPrintableController(PrintableController controller) {
+		this.printableController = controller;
+		
 	}
 	
 	

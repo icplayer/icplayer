@@ -6,8 +6,8 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icplayer.client.PrintableContentParser;
-import com.lorepo.icplayer.client.module.Printable.PrintableMode;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class TextPrintable {
 	
