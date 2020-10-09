@@ -155,7 +155,7 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 	}
 	
 	@Override
-	public void reset() {
+	public void reset(boolean onlyWrongAnswers) {
 		if (model.isVisible()) {
 			view.show();
 		} else {

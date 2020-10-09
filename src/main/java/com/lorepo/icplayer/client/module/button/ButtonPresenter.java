@@ -68,7 +68,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 		
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			public void onResetPage(ResetPageEvent event) {
-				reset();
+				reset(event.getIsOnlyWrongAnswers());
 			}
 		});
 	}
@@ -152,7 +152,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 	}
 	
 	@Override
-	public void reset() {
+	public void reset(boolean onlyWrongAnswers) {
 		if (model.isVisible()) {
 			view.show();
 		} else{

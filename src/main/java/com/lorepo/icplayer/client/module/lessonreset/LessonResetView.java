@@ -61,7 +61,7 @@ public class LessonResetView extends PushButton implements IDisplay {
 					playerServices.getEventBus().fireEvent(new ValueChangedEvent(module.getId(), "Lesson Reset", "", ""));
 					playerServices.getScoreService().lessonScoreReset(module.getResetChecks(), module.getResetMistakes());
 					playerServices.getStateService().resetStates();
-					playerServices.getEventBus().fireEvent(new ResetPageEvent());
+					playerServices.getEventBus().fireEvent(new ResetPageEvent(false));
 				}
 			});		
 		}
@@ -81,7 +81,7 @@ public class LessonResetView extends PushButton implements IDisplay {
 		
 		playerServices.getScoreService().lessonScoreReset(module.getResetChecks(), module.getResetMistakes());
 		playerServices.getStateService().resetStates();
-		playerServices.getEventBus().fireEvent(new ResetPageEvent());
+		playerServices.getEventBus().fireEvent(new ResetPageEvent(false));
 	}
 	
 	@Override

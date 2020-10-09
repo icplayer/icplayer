@@ -155,7 +155,7 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean isOnlyWrongAnswers) {
 		// Module is not an activity
 	}
 	

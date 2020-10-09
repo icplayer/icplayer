@@ -168,7 +168,7 @@ public class ImageSourcePresenterTestCase {
 
 		assertFalse(display.isVisible());
 		
-		services.getEventBus().fireEvent(new ResetPageEvent());
+		services.getEventBus().fireEvent(new ResetPageEvent(false));
 		
 		assertTrue(display.isVisible());
 	}

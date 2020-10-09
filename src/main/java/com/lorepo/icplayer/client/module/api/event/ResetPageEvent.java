@@ -4,7 +4,14 @@ import com.google.gwt.event.shared.EventHandler;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent.Handler;
 
 public class ResetPageEvent extends PlayerEvent<Handler> {
-
+	protected boolean onlyWrongAnswers = false;
+	
+	public ResetPageEvent(boolean onlyWrongAnswers) {
+		super();
+		this.onlyWrongAnswers = onlyWrongAnswers;
+	}
+	
+	
 	public interface Handler extends EventHandler {
 		void onResetPage(ResetPageEvent event);
 	}
@@ -24,6 +31,10 @@ public class ResetPageEvent extends PlayerEvent<Handler> {
 	@Override
 	public String getName() {
 		return "Reset";
+	}
+	
+	public boolean getIsOnlyWrongAnswers () {
+		return this.onlyWrongAnswers;
 	}
 }
 

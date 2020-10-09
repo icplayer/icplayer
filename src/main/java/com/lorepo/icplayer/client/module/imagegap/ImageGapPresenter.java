@@ -106,7 +106,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			@Override
 			public void onResetPage(ResetPageEvent event) {
-				reset();
+				reset(event.getIsOnlyWrongAnswers());
 			}
 		});
 
@@ -210,7 +210,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean isOnlyWrongAnswers) {
 		if (isShowAnswersActive) {
 			hideAnswers();
 		}
@@ -465,7 +465,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		} else if(commandName.compareTo("enable") == 0) {
 			enable();
 		} else if(commandName.compareTo("reset") == 0) {
-			reset();
+			reset(false);
 		} else if (commandName.compareTo("getscore") == 0) {
 			return String.valueOf(getScore());
 		} else if (commandName.compareTo("geterrorcount") == 0) {
@@ -521,7 +521,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	private void setUserValue(int index, String value) {
-		reset();
+		reset(false);
 		setState(value);
 	}
 
@@ -582,7 +582,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		}
 
 		presenter.reset = function() {
-			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::reset()();
+			x.@com.lorepo.icplayer.client.module.imagegap.ImageGapPresenter::reset(Z)(false);
 		}
 
 		presenter.markGapAsCorrect = function() {

@@ -53,9 +53,13 @@ public class PlayerCommands implements IPlayerCommands {
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean onlyWrongAnswers) {
 		pageController.resetPageScore();
-		pageController.sendResetEvent();
+		pageController.sendResetEvent(onlyWrongAnswers);
+		
+		if (onlyWrongAnswers) {
+			pageController.updateScore(false);
+		}
 	}
 	
 	public void resetPageById(String id) {
@@ -74,7 +78,7 @@ public class PlayerCommands implements IPlayerCommands {
 	
 	private void resetPage(IPage page) {
 		if (page == pageController.getPage()) {
-			this.reset();
+			this.reset(false);
 		} else {
 			controller.getStateService().resetPageStates(page);			
 			PageScore oldScore = controller.getScoreService().getPageScoreById(page.getId());

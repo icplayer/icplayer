@@ -451,6 +451,7 @@ var ice_dictionary_bl = {
 	"reset_property_confirm_info" : "Информация за потвърждение",
     "reset_property_confirm_yes" : "Текст за потвърждаване",
     "reset_property_confirm_no" : "Текст за отказ",
+	"reset_property_reset_only_wrong": "Reset only wrong answers",
 	"block_wrong_answers" : "Блокирай грешните отговори",
 	"randomOrder" : "Разбъркано",
 	"All_elements_has_same_width" : "Еднаква широчина на всички елементи",
