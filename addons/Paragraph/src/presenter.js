@@ -822,7 +822,7 @@ function AddonParagraph_create() {
         $paragraph.css("height", "100%");
         $paragraph.css("border", "1px solid");
         $paragraph.css("padding", "10px");
-        $paragraph.text(configuration.placeholderText);
+        $paragraph.html(configuration.placeholderText);
         $wrapper.append($paragraph);
         return $wrapper[0].outerHTML;
     };

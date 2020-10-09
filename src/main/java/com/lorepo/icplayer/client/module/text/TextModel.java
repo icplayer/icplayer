@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.text;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
@@ -9,12 +10,13 @@ import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
-import com.lorepo.icplayer.client.module.IPrintableModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
-import com.lorepo.icplayer.client.module.Printable;
-import com.lorepo.icplayer.client.module.Printable.PrintableMode;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
+import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
+import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableController;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +67,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String langAttribute = "";
 	private boolean allCharactersGapSizeStyle = true;
+	private PrintableController printableController = null;
 	
 	final static String GAP_SIZE_CALCULATION_STYLE_LABEL = "text_module_gap_size_calculation";
 	final static String ALL_CHARACTES_CALCULATION_STYLE = "text_module_gap_calculation_all_characters_method"; // old method
@@ -1278,5 +1281,16 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	
 	public boolean isSection() {
 		return isSection;
+	}
+
+	@Override
+	public JavaScriptObject getPrintableContext() {
+		return null;
+	}
+
+	@Override
+	public void setPrintableController(PrintableController controller) {
+		this.printableController = controller;
+		
 	}
 }
