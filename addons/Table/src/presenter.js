@@ -2174,13 +2174,11 @@ function AddonTable_create() {
             } else {
                 answers = match.replace("\\gap{","").replace("}","").split("|");
             }
-            var $input = $("<input></input>");
-            $input.css("border-width","0px");
-            $input.css("border-bottom-width","1px");
+            var $span = $("<span></span>");
+            $span.css("border-bottom","1px solid");
             if (showAnswers) {
                 var answer = answers.join(", ");
-                $input.attr('size',answer.length);
-                $input.attr("value", answer);
+                $span.html(answer);
             } else {
                 var longestAnswer = "";
                 for (var j = 0; j < answers.length; j++) {
@@ -2188,12 +2186,12 @@ function AddonTable_create() {
                         longestAnswer = answers[j];
                     }
                 }
-                $input.attr('size', longestAnswer.length);
-                if (isFilledGap) {
-                    $input.attr("value", initialValue);
-                }
+                var emptySize = longestAnswer.length - initialValue.length;
+                var value = initialValue;
+                for (var i = 0; i < emptySize; i++) value += "&nbsp; &nbsp;"
+                $span.html(value);
             }
-            html = html.replace(match, $input[0].outerHTML);
+            html = html.replace(match, $span[0].outerHTML);
         }
         return html;
     }
@@ -2226,7 +2224,7 @@ function AddonTable_create() {
                 }
             }
 
-            var dropdown = "[" + answers.join(", ") + "]";
+            var dropdown = answers.join(" / ");
             html = html.replace(match, dropdown);
         }
         return html;
