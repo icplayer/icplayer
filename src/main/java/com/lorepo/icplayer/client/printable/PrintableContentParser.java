@@ -8,6 +8,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates.Template;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Random;
@@ -39,33 +40,33 @@ public class PrintableContentParser {
 	}
 	
 	public interface PrintableHtmlTemplates extends SafeHtmlTemplates {
-		@Template("<tr class=\"printable_header\" style=\"height:{0}px;width:100%;\"><td>{1}</td></tr>")
+		@Template("<tr class=\"printable_header single_column_print\" style=\"height:{0}px;width:100%;\"><td>{1}</td></tr>")
 	    SafeHtml pageHeader(int height, SafeHtml content);
 		
-		@Template("<tr><td class='printable_content' style='"
+		@Template("<tr><td class='printable_content {0}' style='"
 				+ "vertical-align: top;"
-				+ " columns: {0};"
-				+ "-webkit-columns:{0};"
-				+ "-moz-columns: {0};"
-				+ " column-gap: 40px;"
-				+ "'>{1}</td></tr>")
-	    SafeHtml pageContent(int columns, SafeHtml content);
-		
-		@Template("<tr><td class='printable_content'><div style='"
-				+ "vertical-align: top;"
-				+ "height: {0}px;"
-				+ "width: 100%;"
 				+ " columns: {1};"
 				+ "-webkit-columns:{1};"
 				+ "-moz-columns: {1};"
 				+ " column-gap: 40px;"
+				+ "'>{2}</td></tr>")
+	    SafeHtml pageContent(String classes, int columns, SafeHtml content);
+		
+		@Template("<tr><td class='printable_content {0}'><div style='"
+				+ "vertical-align: top;"
+				+ "height: {1}px;"
+				+ "width: 100%;"
+				+ " columns: {2};"
+				+ "-webkit-columns:{2};"
+				+ "-moz-columns: {2};"
+				+ " column-gap: 40px;"
 				+ " column-fill: auto;"
 				+ "-webkit-column-fill: auto;"
 				+ "-moz-column-fill: auto;"
-				+ "'>{2}</div></td></tr>")
-	    SafeHtml pageContentFullHeight(int height, int columns, SafeHtml content);
+				+ "'>{3}</div></td></tr>")
+	    SafeHtml pageContentFullHeight(String classes, int height, int columns, SafeHtml content);
 		
-		@Template("<tr class=\"printable_footer\" style=\"height:{0}px;width:100%;\"><td>{1}</td></tr>")
+		@Template("<tr class=\"printable_footer single_column_print\" style=\"height:{0}px;width:100%;\"><td>{1}</td></tr>")
 	    SafeHtml pageFooter(int height, SafeHtml content);
 	}
 	private static final PrintableHtmlTemplates TEMPLATE = GWT.create(PrintableHtmlTemplates.class);
@@ -244,13 +245,18 @@ public class PrintableContentParser {
 			result += TEMPLATE.pageHeader(headerHeight, headerHTML).asString();
 		}
 
-		int columns = enableTwoColumnPrint ? 2 : 1;
+		int columns = 1;
+		String column_class = "single_column_print";
+		if (enableTwoColumnPrint) {
+			columns = 2;
+			column_class = "double_column_print";
+		}
 		SafeHtml safeContent = SafeHtmlUtils.fromTrustedString(content);
 
 		if (fullHeight) {
-			result += TEMPLATE.pageContentFullHeight(contentHeight, columns, safeContent).asString();
+			result += TEMPLATE.pageContentFullHeight(column_class, contentHeight, columns, safeContent).asString();
 		} else {
-			result += TEMPLATE.pageContent(columns, safeContent).asString();
+			result += TEMPLATE.pageContent(column_class, columns, safeContent).asString();
 		}
 		
 		if (footerHeight > 0) {
@@ -282,7 +288,7 @@ public class PrintableContentParser {
 	}-*/;
 	
 	private String wrapOpeningPlayerPage(String content) {
-		return "<div class=\"printable_opening_player_page\">" + content + "</div>";
+		return "<div class=\"printable_opening_player_page single_column_print\">" + content + "</div>";
 	}
 	
 	public String generatePrintableHTMLForPages(List<Page> pages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
