@@ -763,6 +763,14 @@ public class PlayerApp {
 		return result;
 	};
 	
+	public String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi, int seed) {
+		PrintableContentParser printableParser = new PrintableContentParser();
+		printableParser.setRandomSeed(seed);
+		printableParser.setDPI(dpi);
+		String result = printableParser.generatePrintableHTML(contentModel, randomizePages, randomizeModules, showAnswers);
+		return result;
+	};
+	
 	public void preloadAllPages(final ILoadListener listener) {
 		List<Page> pages = contentModel.getPages().getAllPages();
 		boolean allPagesLoaded = true;

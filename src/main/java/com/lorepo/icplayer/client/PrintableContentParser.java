@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -10,8 +11,8 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -29,6 +30,7 @@ public class PrintableContentParser {
 	int footerHeight = 0;
 	int contentHeight = 0;
 	Boolean enableTwoColumnPrint = false;
+	Random random = null;
 	
 	private static class SplitPageResult extends JavaScriptObject {
 		
@@ -71,8 +73,16 @@ public class PrintableContentParser {
 	}
 	private static final PrintableHtmlTemplates TEMPLATE = GWT.create(PrintableHtmlTemplates.class);
 	
+	public PrintableContentParser() {
+		random = new Random();
+	}
+	
 	public void setDPI(int dpi) {
 		this.dpi = dpi;
+	}
+	
+	public void setRandomSeed(int seed) {
+		random.setSeed(seed);
 	}
 	
 	public void setTwoColumnPrintEnabled(boolean enabled) {
@@ -116,7 +126,7 @@ public class PrintableContentParser {
 		}
 		
 		for(int index = 0; index < randomizable.size(); index += 1) {  
-		    Collections.swap(randomizable, index, index + Random.nextInt(randomizable.size() - index));  
+		    Collections.swap(randomizable, index, index + random.nextInt(randomizable.size() - index));  
 		}
 		
 		int randomizableIndex = 0;
@@ -285,7 +295,7 @@ public class PrintableContentParser {
 			Page firstPage = pages.get(0);
 			pages.remove(0);
 			for(int index = 0; index < pages.size(); index += 1) {  
-				Collections.swap(pages, index, index + Random.nextInt(pages.size() - index));  
+				Collections.swap(pages, index, index + random.nextInt(pages.size() - index));  
 			}
 			pages.add(0, firstPage);
 		}
