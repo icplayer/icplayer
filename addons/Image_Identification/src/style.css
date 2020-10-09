@@ -16,3 +16,11 @@
     background-size: 100%;
     background-position: 0 0;
 }
+
+.printable-image-identification-element {
+    width: 100%;
+}
+
+.printable-image-identification-correct {
+    border: 3px solid #999;
+}

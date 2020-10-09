@@ -19,6 +19,7 @@ import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
@@ -756,8 +757,9 @@ public class PlayerApp {
 		return this.changeLayout(layoutID);
 	}
 	
-	public String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
+	public String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi) {
 		PrintableContentParser printableParser = new PrintableContentParser();
+		printableParser.setDPI(dpi);
 		String result = printableParser.generatePrintableHTML(contentModel, randomizePages, randomizeModules, showAnswers);
 		return result;
 	};

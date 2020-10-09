@@ -41,5 +41,6 @@
                 <property name="Wrong" nameLabel="multiplegap_property_wrong" type="string"/>
             </property>
 		</property>
+		<property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
 	</model>
 </addon>

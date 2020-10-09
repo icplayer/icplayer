@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.module;
+package com.lorepo.icplayer.client.printable;
 
 public final class Printable {
 	

@@ -61,6 +61,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	private IAddonDescriptor addonDescriptor;
 	private static Set<String> buttonAddons = new HashSet<String>(Arrays.asList("single_state_button", "double_state_button", "show_answers", "limited_show_answers", "text_identification", "image_identification", "limited_submit"));
 	private InterfaceVersion interfaceVersion = InterfaceVersion.DEFAULT;
+	private ResetVersion resetVersion = ResetVersion.DEFAULT;
 	
 	public AddonPresenter(AddonModel model, IPlayerServices services){
 		this.model = model;
@@ -86,7 +87,7 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			public void onResetPage(ResetPageEvent event) {
-				reset();
+				reset(event.getIsOnlyWrongAnswers());
 			}
 		});
 	}
@@ -140,15 +141,25 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}-*/;
 	
 	@Override
-	public void reset() {
-		reset(jsObject, addonDescriptor.getAddonId());
+	public void reset(boolean onlyWrongAnswers) {
+		reset(jsObject, addonDescriptor.getAddonId(), onlyWrongAnswers, this.resetVersion == ResetVersion.ONLY_WRONG_ANSWERS);
+	}
+	
+	private void reset() {
+		this.reset(false);
 	}
 
-	private native void reset(JavaScriptObject obj, String addonId) /*-{
-	
+	private native void reset(JavaScriptObject obj, String addonId, boolean onlyWrongAnswers, boolean supportedOnlyWrongAnswers) /*-{
+		// supportedOnlyWrongAnswers is added because some of modules could not support reset with additional flag (like Catch module).
+		// In case like this, we need to be sure if this module can accept this flag in reset method.
+		// It can be added to any module if resetInterfaceVersion is set to 2.
 		try{
-			if(obj.reset != undefined){
-				obj.reset();
+			if (obj.reset != undefined) {
+				if (supportedOnlyWrongAnswers) {
+					obj.reset(onlyWrongAnswers);
+				} else {
+					obj.reset();
+				}
 			}
 		}
 		catch(err){
@@ -244,6 +255,8 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		String addonName = "Addon" + model.getAddonId() + "_create";
 
 		this.interfaceVersion = InterfaceVersion.fromValue(this.getSupportedVersion(addonName));
+		this.resetVersion = ResetVersion.fromValue(this.getSupportedResetVersion(addonName));
+		
 		jsObject = initJavaScript(addonName);
 
 		if(jsObject != null){
@@ -309,6 +322,23 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 		}
 		
 		return addonFunction.__supported_player_options__.interfaceVersion;
+	}-*/;
+	
+	private native int getSupportedResetVersion(String name) /*-{
+		var addonFunction = $wnd.window[name];
+		if (!addonFunction ) {
+			return 1;
+		}
+		
+		if (!addonFunction.__supported_player_options__) {
+			return 1;
+		}
+		
+		if (!addonFunction.__supported_player_options__.resetInterfaceVersion) {
+			return 1;
+		}
+		
+		return addonFunction.__supported_player_options__.resetInterfaceVersion;
 	}-*/;
 
 	

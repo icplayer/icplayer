@@ -106,7 +106,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			public void onResetPage(ResetPageEvent event) {
-				reset();
+				reset(event.getIsOnlyWrongAnswers());
 			}
 		});
 		
@@ -146,7 +146,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean isOnlyWrongAnswers) {
 		view.setDisabled(false);
 		deselectImage();
 		isImageVisible = true;
@@ -313,7 +313,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		};
 		
 		presenter.reset = function() { 
-			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::reset()();
+			return x.@com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter::reset(Z)(false);
 		}
 		
 		presenter.getAltText = function() {
@@ -425,7 +425,7 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		} else if (commandName.compareTo("hide") == 0) {
 			hide();
 		} else if (commandName.compareTo("reset") == 0) {
-			reset();
+			reset(false);
 		} else if (commandName.compareTo("getimageurl") == 0) {
 			return getImageUrl();
 		}else if (commandName.compareTo("disable") == 0) {

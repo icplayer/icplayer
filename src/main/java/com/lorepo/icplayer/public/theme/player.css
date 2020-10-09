@@ -532,6 +532,23 @@ hr, table, fieldset {
 	opacity: 0.4;
 }
 
+.printable_ic_ordering .item-wrapper {
+	border: 1px solid #999;
+	padding: 5px 10px 5px 5px;
+	margin: 2px;
+	display:inline-block;
+}
+
+.printable_ic_ordering .number-box {
+	border: 1px solid #999;
+	width:2em;
+	height: 2em;
+	line-height:2em;
+	text-align: center;
+	vertical-align: middle;
+	margin-right: 10px;
+}
+
 /**
  * Page counters
  */
@@ -1040,3 +1057,31 @@ hr, table, fieldset {
     font-family: Arial, Helvetica, sans-serif;
     z-index: 1100;
  }
+ 
+ /* PRINTABLE */
+ 
+.printable_module {
+	margin-bottom: 10px;
+	column-break-inside: avoid;
+	-webkit-column-break-inside: avoid;
+}
+
+.printable_modules_group {
+	margin-bottom: 10px;
+	column-break-inside: avoid;
+	-webkit-column-break-inside: avoid;
+}
+
+.printable_page {
+	background: #FFF;
+	padding: 10px;
+	page-break-inside: avoid;
+	page-break-after: always;
+	overflow: hidden;
+}
+
+.printable_opening_player_page {
+	column-span:all;
+	-webkit-column-span:all;
+	-moz-column-span:all;
+}

@@ -120,7 +120,7 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 	}
 	
 	@Override
-	public void reset() {
+	public void reset(boolean isOnlyWrongAnswers) {
 		// Module is not an activity
 	}
 

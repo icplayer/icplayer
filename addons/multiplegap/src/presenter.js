@@ -10,6 +10,7 @@ function Addonmultiplegap_create(){
 
     function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
     var isWCAGOn = false;
+    var printableController = null;
 
     var presenter = function(){};
 
@@ -1603,6 +1604,60 @@ function Addonmultiplegap_create(){
         if (tts && isWCAGOn) {
             tts.speak(data);
         }
+    };
+
+    presenter.setPrintableController = function (controller) {
+        printableController = controller;
+    };
+
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
+
+        var $view = $("<div></div>");
+        $view.attr("id", model.ID);
+        $view.addClass("printable_addon_multiplegap");
+
+        var $wrapper = $("<div></div>");
+        $wrapper.css("max-width", model.Width+"px");
+        $wrapper.css("min-height", model.Height+"px");
+        $wrapper.css("border", "1px solid");
+        $wrapper.css("padding", "5px");
+
+        if (showAnswers && printableController != null) {
+            var answerArray = [];
+            var contextDict = {};
+
+            for (var i = 0; i < presenter.configuration.itemsAnswersID.length; i++) {
+                var splitItemAnswerID = presenter.configuration.itemsAnswersID[i].split("-");
+                if (splitItemAnswerID.length == 2 && !isNaN(splitItemAnswerID[1])) {
+                    var answerAddonID = splitItemAnswerID[0];
+                    var answerItemIndex = splitItemAnswerID[1] - 1;
+                    if (!(answerAddonID in contextDict)) {
+                        contextDict[answerAddonID] = printableController.getPrintableContext(answerAddonID);
+                    }
+                    if (contextDict[answerAddonID] != null
+                        && contextDict[answerAddonID].items != null
+                        && answerItemIndex >= 0
+                        && answerItemIndex < contextDict[answerAddonID].items.length) {
+                        answerArray.push(contextDict[answerAddonID].items[answerItemIndex]);
+                    }
+                }
+            }
+
+            var answerHTML = "";
+            if (presenter.configuration.orientation == presenter.ORIENTATIONS.HORIZONTAL) {
+                answerHTML = answerArray.join(", ");
+            } else {
+                answerHTML = answerArray.join("</br>");
+            }
+            $wrapper.html(answerHTML);
+        }
+
+        $view.append($wrapper);
+
+
+        return $view[0].outerHTML;
     };
 
     return presenter;

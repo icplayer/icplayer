@@ -110,7 +110,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 						
 						@Override
 						public void onResetPage(ResetPageEvent event) {
-							reset();
+							reset(event.getIsOnlyWrongAnswers());
 						}
 					});
 			
@@ -150,7 +150,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	}
 	
 	@Override
-	public void reset() {
+	public void reset(boolean onlyWrongAnswers) {
 		
 		if(module.isVisible()) show();
 		else view.hide();
@@ -231,7 +231,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 			hide();
 		}
 		else if(commandName.compareTo("reset") == 0){
-			reset();
+			reset(false);
 		}
 		
 		return "";
@@ -285,7 +285,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 		}
 		
 		presenter.reset = function(){ 
-			x.@com.lorepo.icplayer.client.module.pageprogress.PageProgressPresenter::reset()();
+			x.@com.lorepo.icplayer.client.module.pageprogress.PageProgressPresenter::reset(Z)(false);
 		}
 		
 		presenter.getView = function() { 

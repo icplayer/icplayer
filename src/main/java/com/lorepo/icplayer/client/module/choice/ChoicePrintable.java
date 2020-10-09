@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.gwt.user.client.Random;
-import com.lorepo.icplayer.client.PrintableContentParser;
-import com.lorepo.icplayer.client.module.Printable.PrintableMode;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
+import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class ChoicePrintable {
 

@@ -92,7 +92,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 			eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 				@Override
 				public void onResetPage(ResetPageEvent event) {
-					reset();
+					reset(event.getIsOnlyWrongAnswers());
 				}
 			});
 
@@ -248,7 +248,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean isOnlyWrongAnswers) {
 		if (isShowAnswers()) {
 			hideAnswers();
 		}
@@ -337,7 +337,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		}
 
 		presenter.reset = function() {
-			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::reset()();
+			x.@com.lorepo.icplayer.client.module.ordering.OrderingPresenter::reset(Z)(false);
 		}
 		
 		presenter.onEventReceived = function (eventName, data) {
@@ -413,7 +413,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		}
 
 		if (commandName.compareTo("reset") == 0) {
-			reset();
+			reset(false);
 		}
 
 		if (commandName.compareTo("getscore") == 0) {

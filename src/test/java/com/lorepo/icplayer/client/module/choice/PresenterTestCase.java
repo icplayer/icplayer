@@ -49,7 +49,7 @@ public class PresenterTestCase {
 		optionView.setDown(true);
 		assertTrue(optionView.isDown());
 		
-		services.getEventBus().fireEvent(new ResetPageEvent());
+		services.getEventBus().fireEvent(new ResetPageEvent(false));
 		
 		assertFalse(optionView.isDown());
 	}

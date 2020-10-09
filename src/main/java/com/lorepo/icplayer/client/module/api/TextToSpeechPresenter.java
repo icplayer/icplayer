@@ -74,8 +74,8 @@ public class TextToSpeechPresenter implements ITextToSpeechPresenter {
 	}
 	
 	@Override
-	public void reset() {
-		presenter.reset();
+	public void reset(boolean isOnlyWrongAnswers) {
+		presenter.reset(isOnlyWrongAnswers);
 	}
 
 	@Override

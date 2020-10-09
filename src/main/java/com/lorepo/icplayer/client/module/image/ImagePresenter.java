@@ -52,13 +52,13 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful, 
 		
 		eventBus.addHandler(ResetPageEvent.TYPE, new ResetPageEvent.Handler() {
 			public void onResetPage(ResetPageEvent event) {
-				reset();
+				reset(event.getIsOnlyWrongAnswers());
 			}
 		});
 	}
 	
 	@Override
-	public void reset() {
+	public void reset(boolean isOnlyWrongAnswers) {
 
 		isVisible = module.isVisible();
 		if(view != null){

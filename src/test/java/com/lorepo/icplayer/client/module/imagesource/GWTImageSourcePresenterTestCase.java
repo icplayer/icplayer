@@ -128,7 +128,7 @@ public class GWTImageSourcePresenterTestCase extends GwtTest{
 		assertEquals(0, initialLeft);
 		assertEquals(0, initialTop);
 		
-		presenter.reset();
+		presenter.reset(false);
 
 		initialLeft = Whitebox.getInternalState(display, "initialLeft");
 		initialTop = Whitebox.getInternalState(display, "initialTop");

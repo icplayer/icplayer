@@ -7,6 +7,7 @@ import com.google.gwt.xml.client.CDATASection;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.properties.IStringListProperty;
 import com.lorepo.icf.utils.StringUtils;
@@ -21,20 +22,62 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 	private String title = "";
 	private String rawWorksWith = "";
 	private List<String> modules = new LinkedList<String>();
+	private boolean resetOnlyWrong = false;
 
 	public LimitedResetModule() {
 		super("Limited Reset", DictionaryWrapper.get("Limited_Reset_name"));
 		
 		addPropertyTitle();
 		addPropertyWorksWith();
+		addPropertyResetOnlyWrong();
 	}
 	
 	public String getTitle () {
 		return title;
 	}
 	
+	public boolean getResetOnlyWrongAnswers() {
+		return this.resetOnlyWrong;
+	}
+	
 	public List<String> getModules() {
 		return modules;
+	}
+	
+	private void addPropertyResetOnlyWrong() {
+		IProperty property = new IBooleanProperty() {
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value!= resetOnlyWrong) {
+					resetOnlyWrong = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+			
+			@Override
+			public String getValue() {
+				return resetOnlyWrong ? "True" : "False";
+			}
+			
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("reset_property_reset_only_wrong");
+			}
+			
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("reset_property_reset_only_wrong");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+		
+		addProperty(property);
 	}
 	
 	private void addPropertyTitle() {
@@ -120,7 +163,7 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 					
 					title = XMLUtils.getAttributeAsString(childElement, "title");
 					rawWorksWith = XMLUtils.getCharacterDataFromElement(childElement);
-					
+					resetOnlyWrong = XMLUtils.getAttributeAsBoolean(childElement, "resetOnlyWrong", false);
 					modules = ModuleUtils.getListFromRawText(rawWorksWith);
 				}
 			}
@@ -141,6 +184,7 @@ public class LimitedResetModule extends BasicModuleModel implements IWCAGModuleM
 		
 		Element limitedResetElement = XMLUtils.createElement("limitedReset");
 		limitedResetElement.setAttribute("title", encodedTitle);
+		limitedResetElement.setAttribute("resetOnlyWrong", Boolean.toString(resetOnlyWrong));
 		
 		CDATASection cdata = XMLUtils.createCDATASection(rawWorksWith);
 

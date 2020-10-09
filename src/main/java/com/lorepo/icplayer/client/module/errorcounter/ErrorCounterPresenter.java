@@ -81,7 +81,7 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 					
 					@Override
 					public void onResetPage(ResetPageEvent event) {
-						reset();
+						reset(event.getIsOnlyWrongAnswers());
 					}
 				});
 
@@ -108,7 +108,7 @@ public class ErrorCounterPresenter implements IPresenter, ICommandReceiver, ISta
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean onlyWrongAnswers) {
 		if (module.isVisible()) {
 			show();
 		} else {

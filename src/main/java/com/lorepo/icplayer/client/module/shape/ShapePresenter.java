@@ -45,7 +45,7 @@ public class ShapePresenter implements IPresenter, IStateful, ICommandReceiver {
 					
 				@Override
 				public void onResetPage(ResetPageEvent event) {
-					reset();
+					reset(event.getIsOnlyWrongAnswers());
 				}
 		});
 	}
@@ -169,7 +169,7 @@ public class ShapePresenter implements IPresenter, IStateful, ICommandReceiver {
 	}
 
 	@Override
-	public void reset() {
+	public void reset(boolean isOnlyWrongAnswers) {
 		if (model.isVisible()) {
 			show();
 		} else {
