@@ -76,6 +76,7 @@ div.audio-playlist-slider {
 .addon-audio-playlist-items-wrapper {
     height: calc(100% - 62px);
     padding: 0 25px;
+    overflow-y: auto;
 }
 
 div.addon-audio-playlist-items {
