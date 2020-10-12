@@ -28,7 +28,12 @@ function AddonAudioPlaylist_create() {
         itemName: 'addon-audio-playlist-item--name',
         itemSelected: 'addon-audio-playlist-item-selected',
         itemButton: 'addon-audio-playlist-item--button',
-        itemPlay: "addon-audio-playlist-item--button-playing"
+        itemPlay: 'addon-audio-playlist-item--button-playing',
+        volumeWrapper: 'addon-audio-playlist-volume-wrapper',
+        volumeWrapperExpanded: 'addon-audio-playlist-volume-wrapper--expanded',
+        volumeBar: 'addon-audio-playlist-volume-bar',
+        volumeBarHidden: 'addon-audio-playlist-volume-bar--hidden',
+        volumeBarFill: 'addon-audio-playlist-volume-bar-fill'
     };
 
     var eventNames = {
@@ -50,7 +55,10 @@ function AddonAudioPlaylist_create() {
         timerSlider: null,
         maxTime: null,
         volumeButton: null,
-        items: null
+        items: null,
+        volumeWrapper: null,
+        volumeBar: null,
+        volumeBarFill: null
     };
 
     presenter.items = [];
@@ -59,7 +67,8 @@ function AddonAudioPlaylist_create() {
         isVisible: false,
         isPlaying: false,
         currentItemIndex: 0,
-        sentTime: "00:00"
+        sentTime: "00:00",
+        showingVolume: false,
     };
 
     presenter.setPlayerController = function AddonAudioPlaylist_setPlayerController(controller) {
@@ -110,6 +119,15 @@ function AddonAudioPlaylist_create() {
 
         presenter.viewItems.prevButton.removeEventListener('click', AddonAudioPlaylist__prevButtonHandler);
         presenter.viewItems.prevButton.removeEventListener('touch', AddonAudioPlaylist__prevButtonHandler);
+
+        presenter.viewItems.volumeButton.removeEventListener('click', AddonAudioPlaylist__volumeButtonHandler);
+        presenter.viewItems.volumeButton.removeEventListener('touch', AddonAudioPlaylist__volumeButtonHandler);
+
+        presenter.viewItems.volumeBar.removeEventListener('click', AddonAudioPlaylist__volumeBarHandler);
+        presenter.viewItems.volumeBar.removeEventListener('touch', AddonAudioPlaylist__volumeBarHandler);
+
+        presenter.viewItems.timerBar.removeEventListener('click', AddonAudioPlaylist__progresBarHandler);
+        presenter.viewItems.timerBar.removeEventListener('touch', AddonAudioPlaylist__progresBarHandler);
 
         presenter.audio.removeEventListener('loadeddata', AddonAudioPlaylist__onLoadedMetadataCallback);
         presenter.audio.removeEventListener('timeupdate', AddonAudioPlaylist__onTimeUpdateCallback);
@@ -217,7 +235,7 @@ function AddonAudioPlaylist_create() {
             'stop': presenter.stop,
             'jumpTo': presenter.changeItem,
             'previous': presenter.prev,
-            'next': presenter.next,
+            'next': presenter.next
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -272,7 +290,10 @@ function AddonAudioPlaylist_create() {
             timerSlider: view.getElementsByClassName(classList.barFilling)[0],
             maxTime: view.getElementsByClassName(classList.duration)[0],
             volumeButton: view.getElementsByClassName(classList.volume)[0],
-            items: view.getElementsByClassName(classList.items)[0]
+            items: view.getElementsByClassName(classList.items)[0],
+            volumeWrapper: view.getElementsByClassName(classList.volumeWrapper)[0],
+            volumeBar: view.getElementsByClassName(classList.volumeBar)[0],
+            volumeBarFill: view.getElementsByClassName(classList.volumeBarFill)[0]
         };
     };
 
@@ -325,6 +346,14 @@ function AddonAudioPlaylist_create() {
 
         presenter.viewItems.prevButton.addEventListener('click', AddonAudioPlaylist__prevButtonHandler);
         presenter.viewItems.prevButton.addEventListener('touch', AddonAudioPlaylist__prevButtonHandler);
+
+        presenter.viewItems.volumeButton.addEventListener('click', AddonAudioPlaylist__volumeButtonHandler);
+        presenter.viewItems.volumeButton.addEventListener('touch', AddonAudioPlaylist__volumeButtonHandler);
+
+        presenter.viewItems.volumeBar.addEventListener('click', AddonAudioPlaylist__volumeBarHandler);
+        presenter.viewItems.volumeBar.addEventListener('touch', AddonAudioPlaylist__volumeBarHandler);
+        presenter.viewItems.timerBar.addEventListener('click', AddonAudioPlaylist__progresBarHandler);
+        presenter.viewItems.timerBar.addEventListener('touch', AddonAudioPlaylist__progresBarHandler);
 
         presenter.audio.addEventListener('loadeddata', AddonAudioPlaylist__onLoadedMetadataCallback);
         presenter.audio.addEventListener('timeupdate', AddonAudioPlaylist__onTimeUpdateCallback);
@@ -390,7 +419,9 @@ function AddonAudioPlaylist_create() {
 
     function AddonAudioPlaylistItemWrapper__buttonHandler(ev) {
         ev.preventDefault();
-        presenter.changeItem(this.index);
+        if (presenter.state.currentItemIndex !== this.index) {
+            presenter.changeItem(this.index);
+        }
         if (presenter.state.isPlaying) {
             presenter.pause();
         } else {
@@ -487,6 +518,46 @@ function AddonAudioPlaylist_create() {
         this.time = time;
         this.index = index;
     }
+
+    function AddonAudioPlaylist__volumeButtonHandler(ev) {
+        if (presenter.state.showingVolume) {
+            presenter.viewItems.volumeWrapper.classList.remove(classList.volumeWrapperExpanded);
+            presenter.viewItems.volumeBar.classList.add(classList.volumeBarHidden);
+        } else {
+            presenter.viewItems.volumeWrapper.classList.add(classList.volumeWrapperExpanded);
+            presenter.viewItems.volumeBar.classList.remove(classList.volumeBarHidden);
+        }
+
+        presenter.state.showingVolume = !presenter.state.showingVolume;
+    }
+
+    function AddonAudioPlaylist__volumeBarHandler(ev) {
+        var width = presenter.viewItems.volumeBar.offsetWidth;
+        var clickedWidth = ev.offsetX;
+
+        var value = clickedWidth / width;
+        var percent = Math.round(value  * 100);
+
+        if (presenter.audio) {
+            presenter.audio.volume = value;
+        }
+
+        presenter.viewItems.volumeBarFill.style.width = percent + "%";
+    }
+
+    function AddonAudioPlaylist__progresBarHandler(ev) {
+        var width = presenter.viewItems.timerBar.offsetWidth;
+        var clickedWidth = ev.offsetX;
+
+        var percent = clickedWidth / width;
+
+        if (presenter.audio) {
+            presenter.audio.currentTime = Math.round(presenter.audio.duration * percent);
+        }
+
+        // presenter.viewItems.volumeBarFill.style.width = percent + "%";
+    }
+
 
     return presenter;
 }
