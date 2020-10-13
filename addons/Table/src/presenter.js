@@ -2198,29 +2198,26 @@ function AddonTable_create() {
 
     function parsePrintableDropdownGaps (html, keepOrder, showAnswers) {
         var gapRegex = /{{.*?}}/g;
+        var correctRegex = /[0-9]*?:/;
+
         var found = html.match(gapRegex);
         if (found == null) return html;
         for (var i = 0; i < found.length; i++) {
             var match = found[i];
             var answers = match.replace("{{","").replace("}}","").split("|");
+
+            if (!keepOrder) {
+                answers.sort(function(a,b){
+                    return a.replace(correctRegex, "").localeCompare(b.replace(correctRegex, ""))
+                });
+            }
+
             for (var j = 0; j < answers.length; j++) {
-                var correctRegex = /[0-9]*?:/;
                 if (correctRegex.test(answers[j])) {
                     answers[j] = answers[j].replace(correctRegex, "");
                     if (showAnswers) {
                         answers[j] = "<u>" + answers[j] + "</u>";
                     }
-                }
-            }
-
-            if (!keepOrder) {
-                for (var index = answers.length - 1; index > 0; index--) {
-                  var newIndex = Math.floor(Math.random() * (index+1));
-                  if (newIndex != index) {
-                      var temp = answers[index];
-                      answers[index] = answers[newIndex];
-                      answers[newIndex] = temp;
-                  }
                 }
             }
 

@@ -3,15 +3,14 @@ package com.lorepo.icplayer.client.printable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates.Template;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.HTML;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.Content;
@@ -30,7 +29,7 @@ public class PrintableContentParser {
 	int footerHeight = 0;
 	int contentHeight = 0;
 	Boolean enableTwoColumnPrint = false;
-	Random random = null;
+	SeededRandom random = new SeededRandom();
 	
 	private static class SplitPageResult extends JavaScriptObject {
 		
@@ -74,7 +73,7 @@ public class PrintableContentParser {
 	private static final PrintableHtmlTemplates TEMPLATE = GWT.create(PrintableHtmlTemplates.class);
 	
 	public PrintableContentParser() {
-		random = new Random();
+		setRandomSeed(Random.nextInt());
 	}
 	
 	public void setDPI(int dpi) {
@@ -82,7 +81,7 @@ public class PrintableContentParser {
 	}
 	
 	public void setRandomSeed(int seed) {
-		random.setSeed(seed);
+		this.random.setSeed(seed);
 	}
 	
 	public void setTwoColumnPrintEnabled(boolean enabled) {
@@ -201,6 +200,7 @@ public class PrintableContentParser {
 		List<Group> parsedGroups = new ArrayList<Group>();
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		PrintableController pagePrintableController = new PrintableController(page);
+		pagePrintableController.setSeededRandom(random);
 		
 		ModuleList modules = page.getModules();
 		for (int i = 0; i < modules.size(); i++) {

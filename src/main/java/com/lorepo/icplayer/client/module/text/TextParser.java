@@ -1168,49 +1168,5 @@ public class TextParser {
 		
 		return parsedText;
 	}
-	
-	private String makePrintableDropdowns(String parsedText, boolean showAnswers) {
-		HTML html = new HTML(parsedText);
-		
-		NodeList<Element> selects = html.getElement().getElementsByTagName("select");
-		for (int i = 0; i < selects.getLength(); i++) {
-			Element select = selects.getItem(i);
-			NodeList<Element> options = select.getElementsByTagName("option");
-			
-			String values = "[";
-			for (int j = 0; j < options.getLength(); j++) {
-				Element option = options.getItem(j);
-				String value = option.getInnerText();
-				if (!value.equals("---")) {
-					if (showAnswers) {
-						InlineChoiceInfo choiceInfo = parserResult.choiceInfos.get(i);
-						if (choiceInfo.getAnswer().equals(value)) {
-							value = "<u>" + value + "</u>";
-						}
-					}
-					values += value;
-					if (j + 1 != options.getLength()) {
-						values += " \\ ";
-					}
-				}
-			}
-			values += "]";
-			parsedText = parsedText.replace(select.getString(), values);
-		}
-		return parsedText;
-	}
-	
-	public String parseForPrinter (String srcText, boolean showAnswers) {
-		ParserResult parserResult = parse(srcText);	
-		String parsedText = parserResult.parsedText;
-		
-		// Convert all inputs with initial text to a printer friendly format
-		parsedText = makePrintableInput(parsedText, showAnswers);
-		
-		// Convert all dropdowns to a printer-friendly format
-		parsedText = makePrintableDropdowns(parsedText, showAnswers);
-		
-		return parsedText;
-	}
 
 }
