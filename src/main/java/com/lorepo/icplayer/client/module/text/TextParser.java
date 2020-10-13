@@ -1129,44 +1129,5 @@ public class TextParser {
 	public void setIsNumericOnly(boolean isNumericOnly) {
 		this.isNumericOnly = isNumericOnly;
 	}
-	
-	private String makePrintableInput(String parsedText, boolean showAnswers) {
-		HTML html = new HTML(parsedText);
-		
-		NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
-		for (int i = 0; i < inputs.getLength(); i++) {
-			Element input = inputs.getItem(i);
-			String oldValue = input.getString();
-			
-			if (showAnswers) {
-				GapInfo gapInfo = parserResult.gapInfos.get(i);
-				Iterator<String> answers = gapInfo.getAnswers();
-				String value = "";
-				do {
-					value += answers.next();
-					if (answers.hasNext()) {
-						value += ", ";
-					}
-				} while(answers.hasNext());	
-				input.setAttribute("value", value);
-				input.setAttribute("size", Integer.toString(value.length()));
-			}
-			
-			String placeholder = input.getAttribute("placeholder");
-			if(placeholder.length() > 0) {
-				input.setAttribute("placeholder", "");
-			}
-			
-			String newValue = input.getString();
-			
-			if (placeholder.length() > 0) {
-				newValue += "(" + placeholder + ")";
-			}
-			
-			parsedText = parsedText.replace(oldValue, newValue);
-		}
-		
-		return parsedText;
-	}
 
 }
