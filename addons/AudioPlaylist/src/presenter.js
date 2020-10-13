@@ -7,7 +7,7 @@ function AddonAudioPlaylist_create() {
     var audioIsLoaded = false;
 
     function deferredQueueDecoratorChecker() {
-        return true; // TODO: for now
+        return audioIsLoaded;
     }
 
     var classList = {
@@ -68,7 +68,7 @@ function AddonAudioPlaylist_create() {
         isPlaying: false,
         currentItemIndex: 0,
         sentTime: "00:00",
-        showingVolume: false,
+        showingVolume: false
     };
 
     presenter.setPlayerController = function AddonAudioPlaylist_setPlayerController(controller) {
@@ -108,42 +108,60 @@ function AddonAudioPlaylist_create() {
         presenter.changeItem(this.state.currentItemIndex);
     };
 
+    presenter.getViewItemsWithClickAndTouchHandlers = function AddonAudioPlaylist_getViewItemsWithClickAndTouchHandlers() {
+        return [
+            { item: presenter.viewItems.playPauseButton, handler: AddonAudioPlaylist__playPauseButtonHandler },
+            { item: presenter.viewItems.nextButton, handler: AddonAudioPlaylist__nextButtonHandler },
+            { item: presenter.viewItems.prevButton, handler: AddonAudioPlaylist__prevButtonHandler },
+            { item: presenter.viewItems.volumeButton, handler: AddonAudioPlaylist__volumeButtonHandler },
+            { item: presenter.viewItems.volumeBar, handler: AddonAudioPlaylist__volumeBarHandler },
+            { item: presenter.timerBar.volumeBar, handler: AddonAudioPlaylist__progresBarHandler }
+        ];
+    };
+
+    presenter.getAudioHandlers = function AddonAudioPlaylist_getAudioHandlers() {
+        return [
+            { event: 'loadeddata', handler: AddonAudioPlaylist__onLoadedMetadataCallback },
+            { event: 'timeupdate', handler: AddonAudioPlaylist__onTimeUpdateCallback },
+            { event: 'ended', handler: AddonAudioPlaylist___onAudioEnded },
+            { event: 'playing', handler: AddonAudioPlaylist___onAudioPlaying },
+            { event: 'pause', handler: AddonAudioPlaylist___onAudioPause }
+        ]
+    };
+
     presenter.destroy = function AddonAudioPlaylist_destroy() {
         presenter.playerController = null;
+        var i;
 
-        presenter.viewItems.playPauseButton.removeEventListener('click', AddonAudioPlaylist__playPauseButtonHandler);
-        presenter.viewItems.playPauseButton.removeEventListener('touch', AddonAudioPlaylist__playPauseButtonHandler);
+        var elements = presenter.getViewItemsWithClickAndTouchHandlers();
 
-        presenter.viewItems.nextButton.removeEventListener('click', AddonAudioPlaylist__nextButtonHandler);
-        presenter.viewItems.nextButton.removeEventListener('touch', AddonAudioPlaylist__nextButtonHandler);
+        for (i = 0; i < elements.length; i++) {
+            elements[i].item.removeEventListener('click', elements[i].handler);
+            elements[i].item.removeEventListener('touch', elements[i].handler);
+        }
 
-        presenter.viewItems.prevButton.removeEventListener('click', AddonAudioPlaylist__prevButtonHandler);
-        presenter.viewItems.prevButton.removeEventListener('touch', AddonAudioPlaylist__prevButtonHandler);
+        elements = presenter.getAudioHandlers();
 
-        presenter.viewItems.volumeButton.removeEventListener('click', AddonAudioPlaylist__volumeButtonHandler);
-        presenter.viewItems.volumeButton.removeEventListener('touch', AddonAudioPlaylist__volumeButtonHandler);
+        for (i = 0; i < elements.length; i++) {
+            presenter.audio.removeEventListener(elements[i].event, elements[i].handler);
+        }
 
-        presenter.viewItems.volumeBar.removeEventListener('click', AddonAudioPlaylist__volumeBarHandler);
-        presenter.viewItems.volumeBar.removeEventListener('touch', AddonAudioPlaylist__volumeBarHandler);
-
-        presenter.viewItems.timerBar.removeEventListener('click', AddonAudioPlaylist__progresBarHandler);
-        presenter.viewItems.timerBar.removeEventListener('touch', AddonAudioPlaylist__progresBarHandler);
-
-        presenter.audio.removeEventListener('loadeddata', AddonAudioPlaylist__onLoadedMetadataCallback);
-        presenter.audio.removeEventListener('timeupdate', AddonAudioPlaylist__onTimeUpdateCallback);
-        presenter.audio.removeEventListener('volumechange', AddonAudioPlaylist___onVolumeChanged);
-        presenter.audio.removeEventListener('ended', AddonAudioPlaylist___onAudioEnded);
-        presenter.audio.removeEventListener('playing', AddonAudioPlaylist___onAudioPlaying);
-        presenter.audio.removeEventListener('pause', AddonAudioPlaylist___onAudioPause);
         presenter.pause();
         presenter.audio = null;
+
+        for (i = 0; i < presenter.items.length; i++) {
+            presenter.items[i].button.removeEventListener('durationchange', presenter.items[i].buttonHandler);
+
+            if (presenter.items[i].audio) {
+                presenter.items[i].audio.removeEventListener('durationchange', presenter.items[i].audioDurationChange);
+                presenter.items[i].audio = null;
+            }
+        }
 
         deferredSyncQueue = null;
     };
 
-    presenter.onEventReceived = function AddonAudioPlaylist_onEventReceived(eventName, eventData) {
-
-    };
+    presenter.onEventReceived = function AddonAudioPlaylist_onEventReceived(eventName, eventData) {    };
 
 
     presenter.show = function AddonAudioPlaylist_show() {
@@ -185,12 +203,6 @@ function AddonAudioPlaylist_create() {
             return;
         }
 
-        /*
-        * The If statement resolves an issue on Mobile Safari, where presenter.stop call from setState would be resolved
-        * right after the first presenter.play call. The problem occurs because the deferred queue is resolved
-        * on loadedmetadata event and Mobile Safari only downloads the audio/video src file on the first interaction
-        * with the tag, rather than when the page itself is loaded.
-        * */
         if (audioIsLoaded) {
             presenter.stop();
         }
@@ -222,7 +234,8 @@ function AddonAudioPlaylist_create() {
                     ModelValidators.utils.FieldRename("Mp3", "mp3", ModelValidators.String("mp3", {default: ""})),
                     ModelValidators.utils.FieldRename("Ogg", "ogg", ModelValidators.String("ogg", {default: ""}))
                 ])
-            )
+            ),
+            ModelValidators.utils.FieldRename("Stop playing", "stopPlaying", ModelValidators.Boolean("stopPlaying"))
         ]);
     };
 
@@ -262,6 +275,7 @@ function AddonAudioPlaylist_create() {
             if (!presenter.audio.paused) {
                 presenter.audio.pause();
             }
+
             presenter.viewItems.playPauseButton.classList.add(classList.playButton);
             presenter.viewItems.playPauseButton.classList.remove(classList.pauseButton);
             presenter.items[presenter.state.currentItemIndex].button.classList.remove(classList.itemPlay);
@@ -338,39 +352,24 @@ function AddonAudioPlaylist_create() {
     };
 
     presenter.addHandlers = function AddonAudioPlaylist_addHandlers() {
-        presenter.viewItems.playPauseButton.addEventListener('click', AddonAudioPlaylist__playPauseButtonHandler);
-        presenter.viewItems.playPauseButton.addEventListener('touch', AddonAudioPlaylist__playPauseButtonHandler);
+        var elements = presenter.getViewItemsWithClickAndTouchHandlers();
 
-        presenter.viewItems.nextButton.addEventListener('click', AddonAudioPlaylist__nextButtonHandler);
-        presenter.viewItems.nextButton.addEventListener('touch', AddonAudioPlaylist__nextButtonHandler);
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].item.addEventListener('click', elements[i].handler);
+            elements[i].item.addEventListener('touch', elements[i].handler);
+        }
 
-        presenter.viewItems.prevButton.addEventListener('click', AddonAudioPlaylist__prevButtonHandler);
-        presenter.viewItems.prevButton.addEventListener('touch', AddonAudioPlaylist__prevButtonHandler);
+        elements = presenter.getAudioHandlers();
 
-        presenter.viewItems.volumeButton.addEventListener('click', AddonAudioPlaylist__volumeButtonHandler);
-        presenter.viewItems.volumeButton.addEventListener('touch', AddonAudioPlaylist__volumeButtonHandler);
+        for (i = 0; i < elements.length; i++) {
+            presenter.audio.addEventListener(elements[i].event, elements[i].handler);
+        }
 
-        presenter.viewItems.volumeBar.addEventListener('click', AddonAudioPlaylist__volumeBarHandler);
-        presenter.viewItems.volumeBar.addEventListener('touch', AddonAudioPlaylist__volumeBarHandler);
-        presenter.viewItems.timerBar.addEventListener('click', AddonAudioPlaylist__progresBarHandler);
-        presenter.viewItems.timerBar.addEventListener('touch', AddonAudioPlaylist__progresBarHandler);
-
-        presenter.audio.addEventListener('loadeddata', AddonAudioPlaylist__onLoadedMetadataCallback);
-        presenter.audio.addEventListener('timeupdate', AddonAudioPlaylist__onTimeUpdateCallback);
-        presenter.audio.addEventListener('volumechange', AddonAudioPlaylist___onVolumeChanged);
-        presenter.audio.addEventListener('ended', AddonAudioPlaylist___onAudioEnded);
-        presenter.audio.addEventListener('playing', AddonAudioPlaylist___onAudioPlaying);
-        presenter.audio.addEventListener('pause', AddonAudioPlaylist___onAudioPause);
-
-        // TODO: memory cleaning
+        // adds the audio duration
         presenter.items.forEach(function (item) {
-            var audio = document.createElement("audio");
-            audio.addEventListener("durationchange", function AudioLoader(ev) {
-                item.time.innerText = StringUtils.timeFormat(isNaN(audio.duration) ? 0 : audio.duration);
-                audio.removeEventListener("durationchange", AudioLoader);
-                audio = null;
-            });
-            audio.src = item.src;
+            item.audio = document.createElement("audio");
+            item.audio.addEventListener("durationchange", item.audioDurationChange);
+            item.audio.src = item.src;
         });
     };
 
@@ -418,15 +417,7 @@ function AddonAudioPlaylist_create() {
     }
 
     function AddonAudioPlaylistItemWrapper__buttonHandler(ev) {
-        ev.preventDefault();
-        if (presenter.state.currentItemIndex !== this.index) {
-            presenter.changeItem(this.index);
-        }
-        if (presenter.state.isPlaying) {
-            presenter.pause();
-        } else {
-            presenter.play();
-        }
+
     }
 
     function AddonAudioPlaylist__onLoadedMetadataCallback() {
@@ -455,12 +446,9 @@ function AddonAudioPlaylist_create() {
         }
     }
 
-    function AddonAudioPlaylist___onVolumeChanged() {
-        //TODO: update volume level
-    }
-
     function AddonAudioPlaylist___onAudioEnded() {
         presenter.pause();
+
         presenter.sendEvent("ValueChanged", {
             value: eventNames.end,
             item: presenter.state.currentItemIndex,
@@ -468,6 +456,10 @@ function AddonAudioPlaylist_create() {
             score: ""
         });
         presenter.next();
+
+        if (!presenter.configuration.stopPlaying) {
+            presenter.play();
+        }
     }
 
     function AddonAudioPlaylist___onAudioPlaying() {
@@ -486,37 +478,6 @@ function AddonAudioPlaylist_create() {
             source: presenter.configuration.ID,
             score: ""
         });
-    }
-
-
-    function AddonAudioPlaylistItemWrapper(item, index) {
-        var row = document.createElement("div");
-        var playButton = document.createElement("button");
-        var name = document.createElement("span");
-        var time = document.createElement("span");
-
-        row.classList.add(classList.item);
-        name.classList.add(classList.itemName);
-        playButton.classList.add(classList.itemButton);
-        playButton.classList.add(classList.playButton);
-
-        row.appendChild(playButton);
-        row.appendChild(name);
-        row.appendChild(time);
-
-        name.innerText = item.name;
-        time.innerText = "00:00";
-
-        // TODO: memory cleaning
-        playButton.addEventListener("click", AddonAudioPlaylistItemWrapper__buttonHandler.bind(this));
-        playButton.addEventListener("touch", AddonAudioPlaylistItemWrapper__buttonHandler.bind(this));
-
-        this.name = item.name;
-        this.src = item.mp3 || item.ogg;
-        this.button = playButton;
-        this.row = row;
-        this.time = time;
-        this.index = index;
     }
 
     function AddonAudioPlaylist__volumeButtonHandler(ev) {
@@ -554,9 +515,58 @@ function AddonAudioPlaylist_create() {
         if (presenter.audio) {
             presenter.audio.currentTime = Math.round(presenter.audio.duration * percent);
         }
-
-        // presenter.viewItems.volumeBarFill.style.width = percent + "%";
     }
+
+    /*
+    Wrapper for audio item
+    * */
+    function AddonAudioPlaylistItemWrapper(item, index) {
+        var row = document.createElement("div");
+        var playButton = document.createElement("button");
+        var name = document.createElement("span");
+        var time = document.createElement("span");
+
+        row.classList.add(classList.item);
+        name.classList.add(classList.itemName);
+        playButton.classList.add(classList.itemButton);
+        playButton.classList.add(classList.playButton);
+
+        row.appendChild(playButton);
+        row.appendChild(name);
+        row.appendChild(time);
+
+        name.innerText = item.name;
+        time.innerText = "00:00";
+
+        playButton.addEventListener("click", this.buttonHandler);
+        playButton.addEventListener("touch", this.buttonHandler);
+
+        this.name = item.name;
+        this.src = item.mp3 || item.ogg;
+        this.button = playButton;
+        this.row = row;
+        this.time = time;
+        this.index = index;
+        this.audio = null;
+    }
+
+    AddonAudioPlaylistItemWrapper.prototype.audioDurationChange = function AddonAudioPlaylistItemWrapper__audioDurationChange(ev) {
+        this.item.time.innerText = StringUtils.timeFormat(isNaN(this.item.audio.duration) ? 0 : this.item.audio.duration);
+        this.item.audio.removeEventListener("durationchange", AddonAudioPlaylistItemWrapper__audioDurationChange);
+        this.item.audio = null;
+    };
+
+    AddonAudioPlaylistItemWrapper.prototype.buttonHandler = function AddonAudioPlaylistItemWrapper__buttonHandler(ev) {
+        ev.preventDefault();
+        if (presenter.state.currentItemIndex !== this.index) {
+            presenter.changeItem(this.index);
+        }
+        if (presenter.state.isPlaying) {
+            presenter.pause();
+        } else {
+            presenter.play();
+        }
+    };
 
 
     return presenter;

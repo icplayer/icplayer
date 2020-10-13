@@ -7,5 +7,6 @@
 			<property name="Mp3" nameLabel="AudioPlaylist_property_mp3" type="audio" />
 			<property name="Ogg" nameLabel="AudioPlaylist_property_ogg" type="audio" />
 		</property>
+		<property name="Stop playing" nameLabel="AudioPlaylist_property_stop_playing" type="boolean" />
 	</model>
 </addon>
