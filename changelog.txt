@@ -1,3 +1,4 @@
+2020-10-14 Add new addon AudioPlaylist
 2020-09-25 Add possibility to reset only wrong answers.
 2020-09-22 Added queuing commands to Connection when it is being loaded, fix issue with getting state of loading connection
 2020-09-18 Added handling situation where Assessment Navigation Bar had more pages than lesson
