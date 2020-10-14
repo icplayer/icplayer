@@ -185,7 +185,6 @@ div.audio-playlist-timer {
 }
 
 div.audio-playlist-bar {
-    cursor: pointer;
     background-color: #BDC2C7;
     float: left;
     height: 10px;
@@ -197,14 +196,23 @@ div.audio-playlist-bar {
 }
 
 div.audio-playlist-bar--fill {
-    position: absolute;
-    left: 1px; /* this looks better than 0 */
-    top: 0;
-    bottom: 0;
     height: 10px;
     width: 0;
     background-color: #0A8DBD;
     border-radius: 5px;
+}
+
+.addon-audio-playlist-bar--ball {
+    cursor: pointer;
+    position: absolute;
+    background: url("resources/audio-slider-btn.png");
+    width: 14px;
+    height: 14px;
+    background-size: contain;
+    margin-top: -2px;
+    margin-left: -2px;
+    top: 0;
+    left: 0;
 }
 
 div.audio-playlist-max-time {
@@ -229,7 +237,6 @@ div.audio-playlist-max-time {
 
 .addon-audio-playlist-volume-bar {
     margin: auto;
-    cursor: pointer;
     background-color: #BDC2C7;
     height: 5px;
     margin-left: 0;
@@ -241,6 +248,7 @@ div.audio-playlist-max-time {
 
 .addon-audio-playlist-volume-bar-fill {
     position: absolute;
+    cursor: pointer;
     left: 1px;
     top: 0;
     bottom: 0;
