@@ -12,9 +12,11 @@ import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 public class TextPrintable {
 	
 	private TextModel model = null;
+	private float spaceSize = 0;
 	
 	public TextPrintable(TextModel model) {
 		this.model = model;
+		this.spaceSize = getTextWidthInPixels("&nbsp;");
 	}
 	
 	public String getPrintableHTML(String className, boolean showAnswers) {
@@ -44,12 +46,13 @@ public class TextPrintable {
 			String oldValue = input.getString();
 			Element span = DOM.createSpan();
 			
+			span.addClassName("printable_gap");
 			span.setAttribute("style", "border-bottom: 1px solid;");
 			
 			GapInfo gapInfo = model.getGapInfos().get(i);
 			Iterator<String> answers = gapInfo.getAnswers();
 			String value = "";
-			int gapSize = 0;
+			String longestAnswer = "";
 			do {
 				String nextAnswer = answers.next();
 				if (showAnswers) {
@@ -57,11 +60,11 @@ public class TextPrintable {
 					if (answers.hasNext()) {
 						value += ", ";
 					} else {
-						gapSize = value.length();
+						longestAnswer = value;
 					}
 				} else {
-					if (nextAnswer.length() > gapSize) {
-						gapSize = nextAnswer.length();
+					if (nextAnswer.length() > longestAnswer.length()) {
+						longestAnswer = nextAnswer;
 					}
 				}
 			} while(answers.hasNext());	
@@ -71,12 +74,50 @@ public class TextPrintable {
 				value = placeholder;
 			}
 			
-			int emptySize = gapSize - value.length();
-			for (int j = 0; j < emptySize; j++) value += "&nbsp; &nbsp;";
-			span.setInnerHTML(value);
-			
-			
-			String newValue = span.getString();
+			if (!showAnswers) {
+				float gapWidth = 0;
+				if (model.getGapWidth() > 0) {
+					gapWidth = model.getGapWidth();
+				} else {
+					gapWidth = getTextWidthInPixels(longestAnswer);
+				}
+				float valueWidth = 0;
+				if (value.length() > 0) {
+					valueWidth = getTextWidthInPixels(value);
+				}
+				
+				int spaceCount = (int) Math.ceil((gapWidth - valueWidth) / this.spaceSize);
+				int maxSplitFreeWidth = 50; //must be at least minSplitSize * 2
+				int minSplitSize = 20;
+				if (spaceCount > maxSplitFreeWidth) {
+					// If the gap is more than 50 spaces wide, 
+					// it will break into lines, with no part smaller than minSplitSize
+					for (int j = 0; j < minSplitSize; j++) {
+						value += "&nbsp;";
+					}
+					
+					boolean nextNbsp = false;
+					for (int j = 0; j < spaceCount - minSplitSize * 2; j++) {
+						if (nextNbsp) {
+							value += "&nbsp;";
+						} else {
+							value += " ";
+						}
+						nextNbsp = !nextNbsp;
+					}
+					
+					for (int j = 0; j < minSplitSize; j++) {
+						value += "&nbsp;";
+					}
+				} else {
+					for (int j = 0; j < spaceCount; j++) {
+						value += "&nbsp;";
+					}
+				}
+			}
+
+			span.setInnerHTML(value);	
+			String newValue = " " + span.getString();
 			
 			parsedText = parsedText.replace(oldValue, newValue);
 		}
@@ -109,8 +150,27 @@ public class TextPrintable {
 					}
 				}
 			}
-			parsedText = parsedText.replace(select.getString(), values);
+			
+			Element span = DOM.createSpan();
+			span.addClassName("printable_dropdown");
+			span.setInnerHTML(values);
+			parsedText = parsedText.replace(select.getString(), span.getString());
 		}
 		return parsedText;
 	}
+	
+	private native float getTextWidthInPixels(String html) /*-{
+		var $_ = $wnd.$;
+		var $wrapper = $_("<div></div>");
+		$wrapper.css("position", "absolute");
+		$wrapper.css("visibility", "hidden");
+		$wrapper.css("margin", "0px");
+		$wrapper.css("padding", "0px");
+		$wrapper.addClass("printable_gap");
+		$wrapper.html(html);
+		$_("body").append($wrapper);
+		var width = $wrapper[0].getBoundingClientRect().width;
+		$wrapper.detach();
+		return width;
+	}-*/;
 }
