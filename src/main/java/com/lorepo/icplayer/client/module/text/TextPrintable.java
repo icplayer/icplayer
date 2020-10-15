@@ -69,6 +69,8 @@ public class TextPrintable {
 				}
 			} while(answers.hasNext());	
 			
+			if (longestAnswer.length() == 0) longestAnswer = "&nbsp;&nbsp;&nbsp;";
+			
 			String placeholder = input.getAttribute("placeholder");
 			if(placeholder.length() > 0 && !showAnswers) {
 				value = placeholder;

@@ -2188,6 +2188,8 @@ function AddonTable_create() {
                         longestAnswer = answers[j];
                     }
                 }
+                if (longestAnswer.length == 0) longestAnswer = "&nbsp;&nbsp;&nbsp;";
+
                 var value = initialValue;
                 var gapWidth = 0;
                 if (presenter.configuration.gapWidth.isSet) {
