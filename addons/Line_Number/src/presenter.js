@@ -1308,15 +1308,15 @@ function AddonLine_Number_create() {
             presenter.hideAnswers();
         }
 
-        var rangeCopy = $.extend(true, {}, presenter.configuration.drawnRangesData);
+        var drawnRangeCopy = $.extend(true, {}, presenter.configuration.drawnRangesData);
 
-        $.each(rangeCopy, function() {
+        $.each(drawnRangeCopy.ranges, function() {
             this.start.element = null;
             this.end.element = null;
         });
 
         return JSON.stringify({
-            drawnRangesData: rangeCopy,
+            drawnRangesData: drawnRangeCopy,
             isVisible: presenter.configuration.isCurrentlyVisible,
             isDisabled: presenter.configuration.isDisabled,
             points: presenter.checkedPoints
