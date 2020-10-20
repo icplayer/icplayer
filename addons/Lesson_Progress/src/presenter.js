@@ -101,7 +101,7 @@ function AddonLesson_Progress_create(){
             }
         }
 
-        var progress = sumOfProgress / count;
+        var progress = count !== 0 ? sumOfProgress / count : 0;
         return {
             progress: parseInt(progress, 10),
             sumOfMaxScore: scoreService.getMaxScore(),
@@ -125,7 +125,7 @@ function AddonLesson_Progress_create(){
         }
 
         if (presenter.configuration.showMistakes) {
-            presenter.$mistakes.find('.value').html(lessonScore.sumOfMistakes);
+            presenter.$mistakes.find('.value').html(lessonScore.sumOfMistakes);s
         }
 
         if (presenter.configuration.showErrors) {
