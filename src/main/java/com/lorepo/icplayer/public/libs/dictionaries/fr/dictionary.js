@@ -2039,6 +2039,17 @@ var ice_dictionary_fr = {
 	"printable_preview_error_message": "An error has occurred while generating the preview",
 	"printable_enable_two_column_layout": "Printable two-column layout",
 	"Cross_Lesson_property_type": "Type",
+    "AudioPlaylist_name": "Audio Playlist",
+    "AudioPlaylist_info": "The Audio Playlist module allows you to add multiple audio files and order them into playlist.",
+    "editor.batch_upload.getting_unpack_id.error": "An error occurred while trying to upload the package.",
+    "editor.batch_upload.getting_unpack_id.success": "The package was uploaded correctly and the editor will start checking if the files were unpacked in the background.",
+    "editor.batch_upload.unpack.200_success": "The package was unpacked correctly. The files will be inserted into the module's property.",
+    "editor.batch_upload.unpack.500_error": "A server error occurred and the package was not unpacked correctly.",
+    "editor.batch_upload.unpack_error": "The package was not unpacked correctly",
+    "editor.batch_upload.property_update.error_loading_page": "An error occurred while loading a page, to which the unpacked files are to be added.",
+    "editor.batch_upload.property_update.error_page_save": "An error occurred while saving a page.",
+    "editor.batch_upload.property_update.success": "The batch upload was finished correctly and the files were added to the module.",
+    "editor_batch_upload": "Upload",
 	"Adaptive_Next_name": "Adaptive next",
     "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor."
 };
