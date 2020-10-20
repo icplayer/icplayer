@@ -125,7 +125,7 @@ function AddonLesson_Progress_create(){
         }
 
         if (presenter.configuration.showMistakes) {
-            presenter.$mistakes.find('.value').html(lessonScore.sumOfMistakes);s
+            presenter.$mistakes.find('.value').html(lessonScore.sumOfMistakes);
         }
 
         if (presenter.configuration.showErrors) {
