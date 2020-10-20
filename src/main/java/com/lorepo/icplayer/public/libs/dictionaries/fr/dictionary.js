@@ -1269,6 +1269,7 @@ var ice_dictionary_fr = {
     "Table_property_ignore_punctuation": "Ignorer la ponctuation",
     "Table_property_gap_width": "Largeur du champ",
     "Table_property_gap_type": "Type de champ",
+	"Table_property_keep_order": "Keep original order",
     "Table_property_new_width_calculate": "Déterminer la largeur des colonnes",
 	"Table_property_use_numeric_keyboard": "Use numeric keyboard",
     "Table_Of_Contents_info": "Affiche la table des matières ainsi que les liens vers les pages correspondantes de la présentation.",

@@ -1268,6 +1268,7 @@ var ice_dictionary_pl = {
 	"Table_property_ignore_punctuation": "Ignoruj interpunkcję",
 	"Table_property_gap_width": "Szerokość luki",
     "Table_property_gap_type": "Typ luki",
+	"Table_property_keep_order": "Keep original order",
 	"Table_Of_Contents_info" : "Wyświetla spis treści całej prezentacji z odsyłaczami do odpowiednich stron.",
 	"Table_Of_Contents_name" : "Spis treści",
 	"Table_Of_Contents_property_header": "Nagłówek",

@@ -1155,6 +1155,7 @@ var ice_dictionary_en = {
 	"Table_property_ignore_punctuation": "Ignore punctuation",
 	"Table_property_gap_width": "Gap width",
     "Table_property_gap_type": "Gap type",
+	"Table_property_keep_order": "Keep original order",
 	"Table_Of_Contents_info": "Displays a presentation's table of contents together with links to the corresponding pages.",
 	"Table_Of_Contents_name": "Table Of Contents",
 	"Table_Of_Contents_property_header": "Header",

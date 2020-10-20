@@ -238,6 +238,10 @@ public class JavaScriptPlayerServices {
 				if (!('isCaseSensitive' in options)) {
 					options.isCaseSensitive = false;
 				}
+				
+				if (!('isKeepOriginalOrder' in options)) {
+					options.isKeepOriginalOrder = false;
+				}
 
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::parseGaps(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(text, options);
 			};
@@ -560,6 +564,8 @@ public class JavaScriptPlayerServices {
 		TextParser parser = new TextParser();
 		Boolean isCaseSensitive = Boolean.valueOf(JavaScriptUtils.getArrayItemByKey(options, "isCaseSensitive"));
 		parser.setCaseSensitiveGaps(isCaseSensitive);
+		Boolean isKeepOriginalOrder = Boolean.valueOf(JavaScriptUtils.getArrayItemByKey(options, "isKeepOriginalOrder"));
+		parser.setKeepOriginalOrder(isKeepOriginalOrder);
 		ParserResult result = parser.parse(text);
 
 		JavaScriptObject inlineGaps = inLineChoiceToJs(result.choiceInfos);

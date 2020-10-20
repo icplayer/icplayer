@@ -56,7 +56,10 @@ function AddonTable_create() {
 
     function getParsedHTMLView () {
         return presenter.textParser.parseGaps(presenter.$view.html(),
-            { isCaseSensitive: presenter.configuration.isCaseSensitive }
+            {
+                isCaseSensitive: presenter.configuration.isCaseSensitive,
+                isKeepOriginalOrder: presenter.configuration.keepOriginalOrder
+            }
         );
     }
 
@@ -692,7 +695,8 @@ function AddonTable_create() {
             columnsCount: validatedColumns.value,
             rowsCount: validatedRows.value,
             langTag: model["langAttribute"],
-            useNumericKeyboard: ModelValidationUtils.validateBoolean(model["useNumericKeyboard"])
+            useNumericKeyboard: ModelValidationUtils.validateBoolean(model["useNumericKeyboard"]),
+            keepOriginalOrder: ModelValidationUtils.validateBoolean(model["keepOriginalOrder"])
         };
     };
 
@@ -763,12 +767,24 @@ function AddonTable_create() {
         return upgradedModel;
     };
 
+    presenter.addKeepOriginalOrder = function(model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if(model.keepOriginalOrder === undefined) {
+            upgradedModel["keepOriginalOrder"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.addColumnsWidth(model);
         upgradedModel = presenter.addRowHeights(upgradedModel);
         upgradedModel = presenter.addLangTag(upgradedModel);
         upgradedModel = presenter.addSpeechTexts(upgradedModel);
         upgradedModel = presenter.addUseNumericKeyboard(upgradedModel);
+        upgradedModel = presenter.addKeepOriginalOrder(upgradedModel);
 
         return upgradedModel;
     };
@@ -2151,7 +2167,7 @@ function AddonTable_create() {
     function parsePrintableGaps (html, showAnswers) {
         html = parsePrintableEditableGaps(html, false, showAnswers);
         html = parsePrintableEditableGaps(html, true, showAnswers);
-        html = parsePrintableDropdownGaps(html, false, showAnswers);
+        html = parsePrintableDropdownGaps(html, showAnswers);
         return html;
     }
 
@@ -2250,31 +2266,27 @@ function AddonTable_create() {
 		return width;
     }
 
-    function parsePrintableDropdownGaps (html, keepOrder, showAnswers) {
+    function parsePrintableDropdownGaps (html, showAnswers) {
         var gapRegex = /{{.*?}}/g;
+        var correctRegex = /[0-9]*?:/;
         var found = html.match(gapRegex);
         if (found == null) return html;
         for (var i = 0; i < found.length; i++) {
             var match = found[i];
             var answers = match.replace("{{","").replace("}}","").split("|");
+
+            if (!presenter.configuration.keepOriginalOrder) {
+                answers.sort(function(a,b){
+                    return a.replace(correctRegex, "").localeCompare(b.replace(correctRegex, ""))
+                });
+            }
+
             for (var j = 0; j < answers.length; j++) {
-                var correctRegex = /[0-9]*?:/;
                 if (correctRegex.test(answers[j])) {
                     answers[j] = answers[j].replace(correctRegex, "");
                     if (showAnswers) {
                         answers[j] = "<u>" + answers[j] + "</u>";
                     }
-                }
-            }
-
-            if (!keepOrder) {
-                for (var index = answers.length - 1; index > 0; index--) {
-                  var newIndex = Math.floor(Math.random() * (index+1));
-                  if (newIndex != index) {
-                      var temp = answers[index];
-                      answers[index] = answers[newIndex];
-                      answers[newIndex] = temp;
-                  }
                 }
             }
 

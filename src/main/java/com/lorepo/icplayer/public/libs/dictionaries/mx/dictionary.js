@@ -1269,6 +1269,7 @@ var ice_dictionary_mx = {
 	"Table_property_ignore_punctuation": "Ignorar la puntuación",
 	"Table_property_gap_width": "Anchura del hueco",
 	"Table_property_gap_type": "Tipo de hueco",
+	"Table_property_keep_order": "Keep original order",
 	"Table_property_new_width_calculate": "Fijar el ancho de columnas",
 	"Table_property_use_numeric_keyboard": "Use numeric keyboard",
 	"Table_Of_Contents_info": "Muestra tabla de contenidos de la presentación con los enlaces a las páginas correspondientes.",

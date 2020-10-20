@@ -15,13 +15,12 @@ public class SourceListPrintable {
 		if (model.getPrintable() == PrintableMode.NO) return null;
 		
 		String result = "<div class=\"printable_ic_sourceList\" id=\"" + model.getId() +"\">";
+		result += "<ul>";
 		int itemCount = model.getItemCount();
 		for (int i = 0; i < itemCount; i++) {
-			result += model.getItem(i);
-			if (i + 1 < itemCount) {
-				result += ", ";
-			}
+			result += "<li>" + model.getItem(i) + "</li>";
 		}
+		result += "</ul>";
 		result += "</div>";
 		
 		result = PrintableContentParser.addClassToPrintableModule(result, className);
