@@ -77,6 +77,22 @@ public class ContentDataLoader {
 			}
 		}
 	}
+	
+	public String getAddonsCSS() {
+		String css = "";
+		Iterator<AddonDescriptor> iterator = descriptors.iterator();
+		while (iterator.hasNext()) {
+			css += iterator.next().getCSS();
+		}
+
+		css = css.trim();
+		css = css.replace("url(\'resources/", 
+				"url(\'" + GWT.getModuleBaseForStaticFiles() + "addons/resources/");
+		css = css.replace("url(\"resources/", 
+				"url(\"" + GWT.getModuleBaseForStaticFiles() + "addons/resources/");
+		
+		return css;
+	}
 
 	private void loadDescriptor(final AddonDescriptor descriptor) {
 		IAddonLoader loader = addonsLoaderFactory.getAddonLoader(descriptor);
@@ -118,18 +134,8 @@ public class ContentDataLoader {
 	}
 	
 	private void addCSSFromAddons() {
-
-		String css = "";
-		Iterator<AddonDescriptor> iterator = descriptors.iterator();
-		while (iterator.hasNext()) {
-			css += iterator.next().getCSS();
-		}
-
-		css = css.trim();
-		css = css.replace("url(\'resources/", 
-				"url(\'" + GWT.getModuleBaseForStaticFiles() + "addons/resources/");
-		css = css.replace("url(\"resources/", 
-				"url(\"" + GWT.getModuleBaseForStaticFiles() + "addons/resources/");
+		String css = this.getAddonsCSS();
+		
 		if (!css.isEmpty()) {
 			DOMInjector.injectStyleAtStart(css);
 		}

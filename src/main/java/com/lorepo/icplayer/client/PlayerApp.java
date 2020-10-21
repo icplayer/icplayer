@@ -578,7 +578,7 @@ public class PlayerApp {
 		CssStyle actualStyle = contentModel.getStyle(actualCSSID);
 		String cssValue = actualStyle.getValue();
 		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
-		DOMInjector.appendStyle(css);
+		DOMInjector.appendStyle(this.getCurrentUserStyles());
 	}
 
 	private void makeHeaderStatic() {
@@ -771,6 +771,24 @@ public class PlayerApp {
 		String result = printableParser.generatePrintableHTML(contentModel, randomizePages, randomizeModules, showAnswers);
 		return result;
 	};
+
+	private String getCurrentUserStyles() {
+		String actualCSSID = this.contentModel.getActualSemiResponsiveLayoutID();
+		CssStyle actualStyle = contentModel.getStyle(actualCSSID);
+		String cssValue = actualStyle.getValue();
+		String css = URLUtils.resolveCSSURL(contentModel.getBaseUrl(), cssValue);
+		
+		return css;
+	}
+	
+	public String getCurrentStyles () {
+		ContentDataLoader loader = new ContentDataLoader(contentModel.getBaseUrl());
+		loader.setDefaultLayoutID(contentModel.getActualSemiResponsiveLayoutID());
+
+		loader.addAddons(contentModel.getAddonDescriptors().values());
+		
+		return loader.getAddonsCSS() + "\n" + this.getCurrentUserStyles();
+	}
 	
 	public void preloadAllPages(final ILoadListener listener) {
 		List<Page> pages = contentModel.getPages().getAllPages();
