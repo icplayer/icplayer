@@ -74,6 +74,21 @@
                 key++;
             }
             return str;
+        },
+
+         /**
+         Formats time to match the 00:00 format.
+         @method timeFormat
+
+         @param {number} seconds time in seconds to be formatted
+         @return {String} formatted time
+         */
+        timeFormat: function (seconds) {
+            var minutes = Math.floor(seconds / 60);
+            minutes = (minutes >= 10) ? minutes : "0" + minutes;
+            seconds = Math.floor(seconds % 60);
+            seconds = (seconds >= 10) ? seconds : "0" + seconds;
+            return minutes + ":" + seconds;
         }
 
     }
