@@ -8,13 +8,16 @@ import java.util.List;
 import com.google.gwt.user.client.Random;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
+import com.lorepo.icplayer.client.printable.PrintableController;
 
 public class OrderingPrintable {
 
 	OrderingModule model = null;
+	PrintableController controller = null;
 	
-	public OrderingPrintable(OrderingModule model) {
+	public OrderingPrintable(OrderingModule model, PrintableController controller) {
 		this.model = model;
+		this.controller = controller;
 	}
 	
 	public String getPrintableHTML(String className, boolean showAnswers) {
@@ -40,7 +43,7 @@ public class OrderingPrintable {
 		}
 		
 		for(int index = 0; index < unorderedItems.size(); index += 1) {  
-			Collections.swap(unorderedItems, index, index + Random.nextInt(unorderedItems.size() - index));  
+			Collections.swap(unorderedItems, index, index + nextInt(unorderedItems.size() - index));  
 		}
 		
 		for (int i = 0; i < parsedItems.length; i++) {
@@ -74,6 +77,16 @@ public class OrderingPrintable {
 		result += "</td><td>";
 		result += item.getText();
 		result += "</td></tr></table></div></div>";
+		return result;
+	}
+	
+	private int nextInt(int upperBound) {
+		int result = 0;
+		if (controller != null) {
+			result = controller.nextInt(upperBound);
+		} else {
+			result = Random.nextInt(upperBound);
+		}
 		return result;
 	}
 	
