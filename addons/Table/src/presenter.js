@@ -2157,6 +2157,7 @@ function AddonTable_create() {
 
     function parsePrintableEditableGaps (html, isFilledGap, showAnswers) {
         var gapRegex = "";
+        var spaceWidth = getTextWidthInPixels('&nbsp;');
         if (isFilledGap) {
             gapRegex = /\\filledGap{.*?}/g;
         } else {
@@ -2170,11 +2171,12 @@ function AddonTable_create() {
             var initialValue = "";
             if (isFilledGap) {
                 answers = match.replace("\\filledGap{","").replace("}","").split("|");
-                initialValue = answers.splice(0, 1);
+                initialValue = answers.splice(0, 1)[0];
             } else {
                 answers = match.replace("\\gap{","").replace("}","").split("|");
             }
             var $span = $("<span></span>");
+            $span.addClass("printable_gap");
             $span.css("border-bottom","1px solid");
             if (showAnswers) {
                 var answer = answers.join(", ");
@@ -2186,25 +2188,85 @@ function AddonTable_create() {
                         longestAnswer = answers[j];
                     }
                 }
-                var emptySize = longestAnswer.length - initialValue.length;
+                if (longestAnswer.length == 0) longestAnswer = "&nbsp;&nbsp;&nbsp;";
+
                 var value = initialValue;
-                for (var i = 0; i < emptySize; i++) value += "&nbsp; &nbsp;"
+                var gapWidth = 0;
+                if (presenter.configuration.gapWidth.isSet) {
+                    gapWidth = presenter.configuration.gapWidth.value;
+                } else {
+                    gapWidth = getTextWidthInPixels(longestAnswer);
+                }
+                var initialValueLength = 0;
+                if (initialValue.length > 0) {
+                    initialValueLength = getTextWidthInPixels(initialValue);
+                }
+                var spaceCount = Math.ceil((gapWidth - initialValueLength) / spaceWidth);
+                var maxSplitFreeWidth = 50; //must be at least minSplitSize * 2
+				var minSplitSize = 20;
+
+				if (spaceCount > maxSplitFreeWidth) {
+                    for (var j = 0; j < minSplitSize; j++) {
+						value += "&nbsp;";
+					}
+
+					var nextNbsp = false;
+                    for (var j = 0; j < spaceCount - 2 * minSplitSize; j++) {
+                        if (nextNbsp) {
+                            value += "&nbsp;";
+                        } else {
+                            value += " ";
+                        }
+                        nextNbsp = !nextNbsp;
+                    }
+
+					for (var j = 0; j < minSplitSize; j++) {
+						value += "&nbsp;";
+					}
+                } else {
+                    for (var j = 0; j < spaceCount; j++) {
+						value += "&nbsp;";
+					}
+                }
+
                 $span.html(value);
             }
-            html = html.replace(match, $span[0].outerHTML);
+            html = html.replace(match, " " + $span[0].outerHTML);
         }
         return html;
     }
 
+    function getTextWidthInPixels(html) {
+        var $wrapper = $("<div></div>");
+		$wrapper.css("position", "absolute");
+		$wrapper.css("visibility", "hidden");
+		$wrapper.css("margin", "0px");
+		$wrapper.css("padding", "0px");
+		$wrapper.addClass("printable_gap");
+		$wrapper.html(html);
+		$("body").append($wrapper);
+		var width = $wrapper[0].getBoundingClientRect().width;
+		$wrapper.detach();
+		return width;
+    }
+
     function parsePrintableDropdownGaps (html, keepOrder, showAnswers) {
         var gapRegex = /{{.*?}}/g;
+        var correctRegex = /[0-9]*?:/;
+
         var found = html.match(gapRegex);
         if (found == null) return html;
         for (var i = 0; i < found.length; i++) {
             var match = found[i];
             var answers = match.replace("{{","").replace("}}","").split("|");
+
+            if (!keepOrder) {
+                answers.sort(function(a,b){
+                    return a.replace(correctRegex, "").localeCompare(b.replace(correctRegex, ""))
+                });
+            }
+
             for (var j = 0; j < answers.length; j++) {
-                var correctRegex = /[0-9]*?:/;
                 if (correctRegex.test(answers[j])) {
                     answers[j] = answers[j].replace(correctRegex, "");
                     if (showAnswers) {
@@ -2213,19 +2275,10 @@ function AddonTable_create() {
                 }
             }
 
-            if (!keepOrder) {
-                for (var index = answers.length - 1; index > 0; index--) {
-                  var newIndex = Math.floor(Math.random() * (index+1));
-                  if (newIndex != index) {
-                      var temp = answers[index];
-                      answers[index] = answers[newIndex];
-                      answers[newIndex] = temp;
-                  }
-                }
-            }
-
-            var dropdown = answers.join(" / ");
-            html = html.replace(match, dropdown);
+            var $dropdown = $("<span></span>");
+            $dropdown.html(answers.join(" / "));
+            $dropdown.addClass("printable_dropdown");
+            html = html.replace(match, $dropdown[0].outerHTML);
         }
         return html;
     }
