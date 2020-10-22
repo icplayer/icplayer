@@ -171,6 +171,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		JavaScriptObject printController = getPrintableControllerAsJsObject();
 		
 		String result = getPrintableHTML(addonName, jsModel, printController, showAnswers);
+		if (result == null || result.length() == 0) return null;
 		result = PrintableContentParser.addClassToPrintableModule(result, className);
 		return result;
 	}

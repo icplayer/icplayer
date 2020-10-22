@@ -21,7 +21,7 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.CSS_CLASSES = {
         ALL_ATTEMPTED: "all-attempted"
     };
-    
+
     presenter.attemptedButtons = [];
 
     presenter.configuration = {
@@ -180,7 +180,7 @@ function AddonAssessments_Navigation_Bar_create(){
         this.$view[0].addEventListener("mouseover", this, false);
         this.$view[0].addEventListener("mouseout", this, false);
     };
-    
+
     presenter.Button.prototype.addCssClass = function (cssClass) {
         this.$view.addClass(cssClass);
     };
@@ -481,7 +481,7 @@ function AddonAssessments_Navigation_Bar_create(){
         if (pagesInSections > lessonPageCount) { // more pages in sections than in lesson
             for (var i = 0; i < sections.length; i++) {
                 sections[i].pages = sections[i].pages.filter(function (page) {
-                    return mapping.indexOf(page) >= 0;
+                    return mapping[page] >= 0;
                 });
             }
 
@@ -1362,7 +1362,9 @@ function AddonAssessments_Navigation_Bar_create(){
         var parsedState = JSON.parse(state);
         var upgradedState = presenter.upgradeState(parsedState);
 
-        presenter.sections.allPages = getRestorePagesObjectArray(upgradedState.pages);
+        var restoredPages = getRestorePagesObjectArray(upgradedState.pages);
+        // This if fix on wrong state when filter of sections worked wrong
+        presenter.sections.allPages = restoredPages.length === presenter.sections.allPages.length ? restoredPages : presenter.sections.allPages;
         presenter.navigationManager.restartLeftSideIndex();
         presenter.navigationManager.setSections();
         presenter.navigationManager.moveToCurrentPage();
@@ -1399,7 +1401,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     function currentPageAreAllAttempted() {
         if(presenter.presentation.getPage(presenter.currentPageIndex).isReportable()){
-            
+
             var modules = getAllModulesImplementingIsAttempted(presenter.currentPageIndex);
 
             if(areAllModulesAttempted(modules)){
@@ -1498,7 +1500,7 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.buildKeyboardController = function () {
         presenter.keyboardControllerObject = new AssesmentsNavigationKeyboardController(presenter.getElementsForKeyboardNavigation(), 1);
     };
-    
+
     presenter.getElementsForKeyboardNavigation = function () {
         var elements = this.$view.find(".element:visible");
         return elements;
