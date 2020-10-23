@@ -8,7 +8,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates.Template;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Random;
@@ -29,6 +28,7 @@ public class PrintableContentParser {
 	int footerHeight = 0;
 	int contentHeight = 0;
 	Boolean enableTwoColumnPrint = false;
+	SeededRandom random = new SeededRandom();
 	
 	private static class SplitPageResult extends JavaScriptObject {
 		
@@ -71,8 +71,16 @@ public class PrintableContentParser {
 	}
 	private static final PrintableHtmlTemplates TEMPLATE = GWT.create(PrintableHtmlTemplates.class);
 	
+	public PrintableContentParser() {
+		setRandomSeed(Random.nextInt());
+	}
+	
 	public void setDPI(int dpi) {
 		this.dpi = dpi;
+	}
+	
+	public void setRandomSeed(int seed) {
+		this.random.setSeed(seed);
 	}
 	
 	public void setTwoColumnPrintEnabled(boolean enabled) {
@@ -116,7 +124,7 @@ public class PrintableContentParser {
 		}
 		
 		for(int index = 0; index < randomizable.size(); index += 1) {  
-		    Collections.swap(randomizable, index, index + Random.nextInt(randomizable.size() - index));  
+		    Collections.swap(randomizable, index, index + random.nextInt(randomizable.size() - index));  
 		}
 		
 		int randomizableIndex = 0;
@@ -191,6 +199,7 @@ public class PrintableContentParser {
 		List<Group> parsedGroups = new ArrayList<Group>();
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		PrintableController pagePrintableController = new PrintableController(page);
+		pagePrintableController.setSeededRandom(random);
 		
 		ModuleList modules = page.getModules();
 		for (int i = 0; i < modules.size(); i++) {
@@ -298,7 +307,7 @@ public class PrintableContentParser {
 			Page firstPage = pages.get(0);
 			pages.remove(0);
 			for(int index = 0; index < pages.size(); index += 1) {  
-				Collections.swap(pages, index, index + Random.nextInt(pages.size() - index));  
+				Collections.swap(pages, index, index + random.nextInt(pages.size() - index));  
 			}
 			pages.add(0, firstPage);
 		}
