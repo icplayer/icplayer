@@ -2269,6 +2269,7 @@ function AddonTable_create() {
     function parsePrintableDropdownGaps (html, showAnswers) {
         var gapRegex = /{{.*?}}/g;
         var correctRegex = /[0-9]*?:/;
+        
         var found = html.match(gapRegex);
         if (found == null) return html;
         for (var i = 0; i < found.length; i++) {

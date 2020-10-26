@@ -111,10 +111,6 @@ public class AdaptiveLearningService implements IAdaptiveLearningService {
 		if (data.containsKey(JSON_KEYS.VISITED_PAGE_INDEXES.toString())) {
 			this.vistiedPageIndexes = JSONUtils.decodeIntegerArray(data.get(JSON_KEYS.VISITED_PAGE_INDEXES.toString()));
 		}
-
-		for (int index : this.vistiedPageIndexes) {
-			this.setPageNonReportable(this.playerController.getModel().getPage(index));
-		}
 	}
 
 	@Override

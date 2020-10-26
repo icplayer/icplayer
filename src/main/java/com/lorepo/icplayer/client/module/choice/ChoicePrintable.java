@@ -7,13 +7,16 @@ import java.util.List;
 import com.google.gwt.user.client.Random;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
+import com.lorepo.icplayer.client.printable.PrintableController;
 
 public class ChoicePrintable {
 
 	ChoiceModel model = null;
+	PrintableController controller = null;
 	
-	public ChoicePrintable(ChoiceModel model) {
+	public ChoicePrintable(ChoiceModel model, PrintableController controller) {
 		this.model = model;
+		this.controller = controller;
 	}
 	
 	public String getPrintableHTML(String className, boolean showAnswers) {
@@ -26,7 +29,7 @@ public class ChoicePrintable {
 		
 		if (model.isRandomOrder()) {
 			for(int index = 0; index < orderedOptions.size(); index += 1) {  
-			    Collections.swap(orderedOptions, index, index + Random.nextInt(orderedOptions.size() - index));  
+			    Collections.swap(orderedOptions, index, index + nextInt(orderedOptions.size() - index));  
 			}
 		}
 		
@@ -64,5 +67,15 @@ public class ChoicePrintable {
 	
 	private String getOptionViewId(ChoiceOption option) {
 		return model.getId() + "_ic_option_" + option.getID();
+	}
+	
+	private int nextInt(int upperBound) {
+		int result = 0;
+		if (controller != null) {
+			result = controller.nextInt(upperBound);
+		} else {
+			result = Random.nextInt(upperBound);
+		}
+		return result;
 	}
 }

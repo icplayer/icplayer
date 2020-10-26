@@ -8,10 +8,15 @@ public class PrintableController {
 
 	private JavaScriptObject jsObject = null;
 	private Page page = null;
+	private SeededRandom random = new SeededRandom();
 	
 	PrintableController(Page page) {
 		this.page = page;
 	};
+	
+	public void setSeededRandom(SeededRandom random) {
+		this.random = random;
+	}
 	
 	public JavaScriptObject getPrintableContext(String addonID) {
 		IModuleModel model = page.getModules().getModuleById(addonID);
@@ -21,6 +26,10 @@ public class PrintableController {
 		} else {
 			return null;
 		}
+	}
+	
+	public int nextInt(int upperBound) {
+		return random.nextInt(upperBound);
 	}
 	
 	public JavaScriptObject getAsJavaScript() {
@@ -36,6 +45,10 @@ public class PrintableController {
 		
 		controller.getPrintableContext = function(addonID) {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::getPrintableContext(Ljava/lang/String;)(addonID);
+		};
+		
+		controller.nextInt = function(upperBound) {
+			return x.@com.lorepo.icplayer.client.printable.PrintableController::nextInt(I)(upperBound);
 		};
 		
 		return controller;

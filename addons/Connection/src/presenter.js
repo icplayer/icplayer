@@ -1075,7 +1075,7 @@ function AddonConnection_create() {
         var elementCounterLeft = 0;
         var columnLength = model[columnModel].length;
         while (elementCounterLeft < model[columnModel].length) {
-            var i = Math.floor((Math.random() * columnLength));
+            var i = nextInt(columnLength);
             if (presenter.isElementLeftUnique(i)) {
                 presenter.appendElements(i, model, columnModel, column, isRightColumn);
                 elementCounterLeft++;
@@ -1088,13 +1088,21 @@ function AddonConnection_create() {
         var elementCounterRight = 0;
         var columnLength = model[columnModel].length;
         while (elementCounterRight < model[columnModel].length) {
-            var i = Math.floor((Math.random() * columnLength));
+            var i = nextInt(columnLength);
             if (presenter.isElementRightUnique(i)) {
                 presenter.appendElements(i, model, columnModel, column, isRightColumn);
                 elementCounterRight++;
             }
         }
     };
+
+    function nextInt(upperBound) {
+        if (presenter.printableController) {
+            return presenter.printableController.nextInt(upperBound);
+        } else {
+            return Math.floor((Math.random() * upperBound))
+        }
+    }
 
     presenter.isElementLeftUnique = function (element) {
         var isElement = false;
@@ -2023,6 +2031,10 @@ function AddonConnection_create() {
         svg.append($line);
 
     }
+
+    presenter.setPrintableController = function (controller) {
+        presenter.printableController = controller;
+    };
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         model = presenter.upgradeModel(model);
