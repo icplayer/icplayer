@@ -1112,7 +1112,9 @@ function AddonTrueFalse_create() {
 
             for (var j = 0; j < model.Choices.length; j++) {
                 var $td = $("<td></td>");
-                $td.addClass(model.ID + "_checkbox-" + (i+1) + "-" + (j+1));
+                $td.addClass("checkbox-" + (i+1) + "-" + (j+1));
+                var $inputDiv = $("<div></div>");
+                $td.append($inputDiv);
                 var $checkbox = $("<input type=\"checkbox\"> </input>")
                 if (showAnswers && answers.indexOf((j+1).toString()) != -1) {
                     $checkbox.attr("checked", "checked");
