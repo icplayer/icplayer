@@ -814,7 +814,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
-		OrderingPrintable printable = new OrderingPrintable(this);
+		OrderingPrintable printable = new OrderingPrintable(this, printableController);
 		String className = this.getStyleClass();
 		return printable.getPrintableHTML(className, showAnswers);
 	}

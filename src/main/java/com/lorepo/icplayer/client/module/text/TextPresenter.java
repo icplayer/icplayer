@@ -747,10 +747,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 		
 		sendValueChangedEvent(itemID, newValue, score);
-
-		if (isAllOK()) {
-			sendValueChangedEvent("all", "", Integer.toString(getMaxScore()));
-		}
 	}
 	
 	protected void valueChangedOnUserAction(String id, String newValue) {

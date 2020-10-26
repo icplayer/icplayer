@@ -764,6 +764,14 @@ public class PlayerApp {
 		return result;
 	};
 	
+	public String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi, int seed) {
+		PrintableContentParser printableParser = new PrintableContentParser();
+		printableParser.setRandomSeed(seed);
+		printableParser.setDPI(dpi);
+		String result = printableParser.generatePrintableHTML(contentModel, randomizePages, randomizeModules, showAnswers);
+		return result;
+	};
+
 	private String getCurrentUserStyles() {
 		String actualCSSID = this.contentModel.getActualSemiResponsiveLayoutID();
 		CssStyle actualStyle = contentModel.getStyle(actualCSSID);
