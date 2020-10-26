@@ -7,5 +7,6 @@
         <property name="langAttribute" displayName="Lang attribute" nameLabel="Heading_property_lang_attribute" type="string" />
         <property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
         <property name="isSection" nameLabel="printable_is_section" type="boolean"/>
+        <property name="isSplitInPrintBlocked" nameLabel="printable_block_split_label" type="boolean"/>
     </model>
 </addon>

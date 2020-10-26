@@ -51,6 +51,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	private String validationError = "";
 	private String printableValue = "";
 	private PrintableController printableController = null;
+	private boolean isSplitInPrintBlocked = false;
 
 	public OrderingModule() {
 		super("Ordering", DictionaryWrapper.get("ordering_module"));
@@ -70,6 +71,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		addPropertySpeechTexts();
 		addPropertyLangAttribute();
 		addPropertyPrintable();
+		addPropertyIsSplitInPrintBlocked();
 	}
 
 	public void validate() {
@@ -163,6 +165,8 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			this.speechTextItems.get(4).setText(XMLUtils.getAttributeAsString(ordering, "wrong"));
 			this.langAttribute = XMLUtils.getAttributeAsString(ordering, "lang");
 			printableValue = XMLUtils.getAttributeAsString(ordering, "printable");
+			isSplitInPrintBlocked = XMLUtils.getAttributeAsBoolean(ordering, "isSplitInPrintBlocked");
+			
 		}
 
 		// Read item nodes
@@ -267,6 +271,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		ordering.setAttribute("correct", this.speechTextItems.get(3).getText());
 		ordering.setAttribute("wrong", this.speechTextItems.get(4).getText());
 		ordering.setAttribute("printable", printableValue);
+		XMLUtils.setBooleanAttribute(ordering, "isSplitInPrintBlocked", isSplitInPrintBlocked);
 		
 		orderingModule.appendChild(ordering);
 
@@ -945,6 +950,48 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	public void setPrintableController(PrintableController controller) {
 		this.printableController = controller;
 		
+	}
+	
+	private void addPropertyIsSplitInPrintBlocked() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isSplitInPrintBlocked) {
+					isSplitInPrintBlocked = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return isSplitInPrintBlocked ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public boolean isSplitInPrintBlocked() {
+		return isSplitInPrintBlocked;
 	}
 	
 	

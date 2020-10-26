@@ -22,6 +22,7 @@ import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class PrintableContentParser {
 	
+	public static String SPLITTABLE_CLASS_NAME = "splittable";
 	int dpi = 96;
 	SafeHtml headerHTML = null;
 	SafeHtml footerHTML = null;
@@ -60,9 +61,6 @@ public class PrintableContentParser {
 				+ "-webkit-columns:{2};"
 				+ "-moz-columns: {2};"
 				+ " column-gap: 40px;"
-				+ " column-fill: auto;"
-				+ "-webkit-column-fill: auto;"
-				+ "-moz-column-fill: auto;"
 				+ "'>{3}</div></td></tr>")
 	    SafeHtml pageContentFullHeight(String classes, int height, int columns, SafeHtml content);
 		
@@ -153,7 +151,11 @@ public class PrintableContentParser {
 		if (group.getStyleClass().length() > 0) {
 			groupClass += "printable_" + group.getStyleClass();
 		}
-		parsed += "<div class=\"printable_modules_group " + groupClass + "\">";
+		String splittable_class = "";
+		if (!group.isSplitInPrintBlocked()) {
+			splittable_class = PrintableContentParser.SPLITTABLE_CLASS_NAME;
+		}
+		parsed += "<div class=\"printable_modules_group " + groupClass + " " + splittable_class + "\">";
 		for (IPrintableModuleModel printable: groupPrintables) {
 			printable.setPrintableController(controller);
 			parsed += printable.getPrintableHTML(showAnswers);
@@ -275,6 +277,12 @@ public class PrintableContentParser {
 		var $wrapper = $wnd.$("<div></div>");
 		$wrapper.html(html);
 		
+		var SPLITTABLE_CLASS_NAME = @com.lorepo.icplayer.client.printable.PrintableContentParser::SPLITTABLE_CLASS_NAME;
+		var enableTwoColumnPrint  = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getTwoColumnPrintEnabled()();
+		var maxEmptyHeight = pageHeight * 0.2;
+		if (enableTwoColumnPrint) maxEmptyHeight = maxEmptyHeight / 2;
+		var minSplitHeight = 100;
+		
 		var printablePageHTML = "";
 		var prevHeight = 0;
 		$wrapper.children().each(function(){
@@ -284,9 +292,15 @@ public class PrintableContentParser {
 			var newPrintablePageWithHeaderAndFooter = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::applyHeaderAndFooter(Ljava/lang/String;Z)(newPrintablePageHTML, false);
 			var newHeight = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getHTMLHeight(Ljava/lang/String;I)(newPrintablePageWithHeaderAndFooter, pageWidth);
 			if (newHeight > pageHeight) {
-				if (this.classList.contains('printable_addon_Table') && prevHeight < pageHeight - 200) {
-					var splitResult = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::splitModule(Ljava/lang/String;III)(moduleHTML, pageHeight - prevHeight - 50, 100, pageWidth);
-					console.log(splitResult);
+				if (prevHeight < pageHeight - maxEmptyHeight && this.classList.contains(SPLITTABLE_CLASS_NAME)) {
+					var maxHeadHeight = pageHeight - prevHeight - 50;
+					if (enableTwoColumnPrint) maxHeadHeight = maxHeadHeight * 2;
+					console.log("HEAD HEIGHt");
+					console.log(enableTwoColumnPrint.toString());
+					console.log(maxHeadHeight);
+					console.log(pageHeight);
+					console.log(prevHeight);
+					var splitResult = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::splitModule(Ljava/lang/String;IIIZ)(moduleHTML, maxHeadHeight, minSplitHeight, pageWidth, enableTwoColumnPrint);
 					printablePageHTML += splitResult.head;
 					moduleHTML = splitResult.tail;
 				}
@@ -305,7 +319,7 @@ public class PrintableContentParser {
 	}
 	
 	public String generatePrintableHTMLForPages(List<Page> pages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
-		String result = "<div>";
+		String result = "<div class='printable_lesson'>";
 		
 		if (randomizePages && pages.size() > 1) {
 			Page firstPage = pages.get(0);
@@ -379,10 +393,17 @@ public class PrintableContentParser {
 	}
 	
 	public static String addClassToPrintableModule(String printableHTML, String className) {
+		return addClassToPrintableModule(printableHTML, className, false);
+	}
+	
+	public static String addClassToPrintableModule(String printableHTML, String className, boolean isSplittable) {
 		Element element = (new HTML(printableHTML)).getElement().getFirstChildElement();
 		element.addClassName("printable_module");
 		if (className.length() > 0) {
 			element.addClassName("printable_module-" + className);
+		}
+		if (isSplittable) {
+			element.addClassName(SPLITTABLE_CLASS_NAME);
 		}
 		return element.getString();
 	}
@@ -416,7 +437,11 @@ public class PrintableContentParser {
 		return height;
 	}-*/;
 	
-	private native SplitResult splitModule (String html, int maxHeight, int minSplitHeight, int pageWidth) /*-{
+	private native SplitResult splitModule (String html, int maxHeight, int minSplitHeight, int pageWidth, boolean enableTwoColumnPrint) /*-{
+		console.log("ATTEMPT TO SPLIT");
+		console.log(maxHeight);
+		console.log(html);
+		
 		var $_ = $wnd.$;
 		var $wrapper = $_("<div></div>");
 		$wrapper.css("position", "absolute");
@@ -424,13 +449,17 @@ public class PrintableContentParser {
 		$wrapper.css("visibility", "hidden");
 		$wrapper.css("margin", "0px");
 		$wrapper.css("padding", "0px");
+		if (enableTwoColumnPrint) {
+			$wrapper.css("columns", "2");
+			$wrapper.css("-webkit-columns", "2");
+			$wrapper.css("-moz-columns", "2");
+		}
 		$wrapper.html(html);
-		$wrapper.children().css("min-height","");
 		$_("body").append($wrapper);
 		var wrapperRect = $wrapper[0].getBoundingClientRect();
 		var lastNode = null;
 		var lastNodeRect = null;
-		var descendants = $wrapper.find("*:not(ol *, tr *)");
+		var descendants = $wrapper.find("*:not(ol *, tr *, th)");
 		descendants.each(function(){
 			var currentValue = this;
 			var rect = currentValue.getBoundingClientRect();	
@@ -459,6 +488,7 @@ public class PrintableContentParser {
 		headRange.setEndAfter(lastNode);
 		var headWrapper = $doc.createElement("div");
 		headWrapper.appendChild(headRange.cloneContents());
+		headWrapper.childNodes.forEach(function(element, index, array){element.style.minHeight = "";});
 		var headHTML = headWrapper.innerHTML;
 		
 		var tailRange = $doc.createRange();
@@ -466,6 +496,7 @@ public class PrintableContentParser {
 		tailRange.setEndAfter($wrapper.children().last()[0]);	
 		var tailWrapper = $doc.createElement("div");
 		tailWrapper.appendChild(tailRange.cloneContents());
+		tailWrapper.childNodes.forEach(function(element, index, array){element.style.minHeight = "";});
 		var tailHTML = tailWrapper.innerHTML;
 		
 		$wrapper.detach();

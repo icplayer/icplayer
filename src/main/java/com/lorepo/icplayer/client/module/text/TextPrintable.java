@@ -33,7 +33,7 @@ public class TextPrintable {
 		parsedText = makePrintableDropdowns(parsedText, showAnswers);
 		
 		String result = "<div class=\"printable_ic_text\" id=\"" + model.getId() +"\">" + parsedText + "</div>";
-		result = PrintableContentParser.addClassToPrintableModule(result, className);
+		result = PrintableContentParser.addClassToPrintableModule(result, className, !model.isSplitInPrintBlocked());
 		return result;
 	}
 	
