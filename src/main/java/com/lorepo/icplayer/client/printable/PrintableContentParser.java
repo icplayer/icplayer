@@ -304,11 +304,6 @@ public class PrintableContentParser {
 				if (prevHeight < pageHeight - maxEmptyHeight && this.classList.contains(SPLITTABLE_CLASS_NAME)) {
 					var maxHeadHeight = pageHeight - prevHeight - 50;
 					if (enableTwoColumnPrint) maxHeadHeight = maxHeadHeight * 2;
-					console.log("HEAD HEIGHt");
-					console.log(enableTwoColumnPrint.toString());
-					console.log(maxHeadHeight);
-					console.log(pageHeight);
-					console.log(prevHeight);
 					var splitResult = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::splitModule(Ljava/lang/String;IIIZ)(moduleHTML, maxHeadHeight, minSplitHeight, pageWidth, enableTwoColumnPrint);
 					printablePageHTML += splitResult.head;
 					moduleHTML = splitResult.tail;
@@ -447,10 +442,6 @@ public class PrintableContentParser {
 	}-*/;
 	
 	private native SplitResult splitModule (String html, int maxHeight, int minSplitHeight, int pageWidth, boolean enableTwoColumnPrint) /*-{
-		console.log("ATTEMPT TO SPLIT");
-		console.log(maxHeight);
-		console.log(html);
-		
 		var $_ = $wnd.$;
 		var $wrapper = $_("<div></div>");
 		$wrapper.css("position", "absolute");
