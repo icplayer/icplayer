@@ -1965,44 +1965,50 @@ function AddonConnection_create() {
         Line: Line
     };
 
-    function drawSVGLine(svg, leftID, rightID, model) {
+    function drawSVGLine(svg, firstID, secondID, model) {
         var leftSize = model["Left column"].length;
 
-        var isLeftIDInLeftColumn = false;
-        var isLeftIDInRightColumn = false;
-        var isRightIDInLeftColumn = false;
-        var isRightIDInRightColumn = false;
+        var isFirstIDInLeftColumn = false;
+        var isFirstIDInRightColumn = false;
+        var isSecondIDInLeftColumn = false;
+        var isSecondIDInRightColumn = false;
 
         for (var i = 0; i < presenter.elements.length; i++) {
-            if (presenter.elements[i].id == leftID) {
+            if (presenter.elements[i].id == firstID) {
                 if (i < leftSize) {
-                    isLeftIDInLeftColumn = true;
+                    isFirstIDInLeftColumn = true;
                 } else {
-                    isLeftIDInRightColumn = true;
+                    isFirstIDInRightColumn = true;
                 }
             }
-            if (presenter.elements[i].id == rightID) {
+            if (presenter.elements[i].id == secondID) {
                 if (i < leftSize) {
-                    isRightIDInLeftColumn = true;
+                    isSecondIDInLeftColumn = true;
                 } else {
-                    isRightIDInRightColumn = true;
+                    isSecondIDInRightColumn = true;
                 }
             }
         }
 
         if (
-            (!isLeftIDInLeftColumn && !isLeftIDInRightColumn)
+            (!isFirstIDInLeftColumn && !isFirstIDInRightColumn)
             ||
-            (!isRightIDInLeftColumn && !isRightIDInRightColumn)) {
+            (!isSecondIDInLeftColumn && !isSecondIDInRightColumn)) {
             return;
         }
-        if (!isLeftIDInLeftColumn && !isRightIDInRightColumn
-            && isLeftIDInRightColumn && isRightIDInLeftColumn) {
-            var tmp = rightID;
-            rightID = leftID;
-            leftID = tmp;
+        if (!isFirstIDInLeftColumn && !isSecondIDInRightColumn
+            && isFirstIDInRightColumn && isSecondIDInLeftColumn) {
+            var tmp = secondID;
+            secondID = firstID;
+            firstID = tmp;
         }
 
+        drawSVGLineLeftToRight(svg, firstID, secondID, model);
+
+    }
+
+    function drawSVGLineLeftToRight(svg, leftID, rightID, model) {
+        var leftSize = model["Left column"].length;
         var leftTotalSize = 0;
         var rightTotalSize = 0;
         var leftPos = 0;
@@ -2029,7 +2035,6 @@ function AddonConnection_create() {
         $line.attr('y1', leftY);
         $line.attr('y2', rightY);
         svg.append($line);
-
     }
 
     presenter.setPrintableController = function (controller) {
