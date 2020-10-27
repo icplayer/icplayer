@@ -369,6 +369,8 @@ function AddonAudioPlaylist_create() {
         if (wasSelected && !presenter.configuration.stopPlaying) {
             presenter.play();
         }
+
+        return wasSelected;
     };
 
     presenter.addHandlers = function AddonAudioPlaylist_addHandlers() {
@@ -409,11 +411,11 @@ function AddonAudioPlaylist_create() {
     };
 
     presenter.next = function () {
-        presenter.changeItem(presenter.state.currentItemIndex + 1);
+        return presenter.changeItem(presenter.state.currentItemIndex + 1);
     };
 
     presenter.prev = function () {
-        presenter.changeItem(presenter.state.currentItemIndex - 1);
+        return presenter.changeItem(presenter.state.currentItemIndex - 1);
     };
 
     presenter.sendEvent = function (name, data) {
@@ -500,10 +502,6 @@ function AddonAudioPlaylist_create() {
             score: ""
         });
         presenter.next();
-
-        if (!presenter.configuration.stopPlaying) {
-            presenter.play();
-        }
     }
 
     function AddonAudioPlaylist___onAudioPlaying() {
@@ -542,13 +540,12 @@ function AddonAudioPlaylist_create() {
         var clickedWidth = ev.offsetX;
 
         var value = clickedWidth / width;
-        var percent = Math.round(value  * 100);
+        var percent = Math.round(value * 100);
+        presenter.viewItems.volumeBarFill.style.width = percent + "%";
 
         if (presenter.audio) {
             presenter.audio.volume = value;
         }
-
-        presenter.viewItems.volumeBarFill.style.width = percent + "%";
     }
 
     function AddonAudioPlaylist__sliderMouseDragStartHandler(ev) {
@@ -648,7 +645,6 @@ function AddonAudioPlaylist_create() {
     }
 
      function AddonAudioPlaylistItemWrapper__audioDurationChange(ev) {
-        console.log(this.name + " track duration loaded");
         this.time.innerText = StringUtils.timeFormat(isNaN(this.audio.duration) ? 0 : this.audio.duration);
         this.audio.removeEventListener("durationchange", AddonAudioPlaylistItemWrapper__audioDurationChange);
         this.audio = null;
