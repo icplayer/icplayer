@@ -1114,6 +1114,7 @@ function AddonTrueFalse_create() {
                 var $td = $("<td></td>");
                 $td.addClass("checkbox-" + (i+1) + "-" + (j+1));
                 var $inputDiv = $("<div></div>");
+                $inputDiv.addClass("placeholder");
                 $td.append($inputDiv);
                 var $checkbox = $("<input type=\"checkbox\"> </input>")
                 if (showAnswers && answers.indexOf((j+1).toString()) != -1) {
