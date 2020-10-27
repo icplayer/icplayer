@@ -113,6 +113,10 @@ function AddonAudioPlaylist_create() {
         if (!isPreview) {
             presenter.audio = presenter.view.getElementsByTagName("audio")[0];
             presenter.addHandlers();
+
+            if (MobileUtils.isSafariMobile(navigator.userAgent)) {
+                presenter.viewItems.volumeButton.style.visibility = "hidden";
+            }
         }
 
         updateBallPosition();
