@@ -3,12 +3,6 @@ function AddonAudioPlaylist_create() {
     };
 
     var eventBus;
-    var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
-    var audioIsLoaded = false;
-
-    function deferredQueueDecoratorChecker() {
-        return audioIsLoaded;
-    }
 
     presenter.ERROR_CODES = {
         'ID_STR01': "Value provided to text property is empty.",
@@ -122,7 +116,7 @@ function AddonAudioPlaylist_create() {
         }
 
         updateBallPosition();
-        presenter.changeItem(this.state.currentItemIndex);
+        presenter.selectItem(this.state.currentItemIndex);
     };
 
     presenter.getViewItemsWithClickAndTouchHandlers = function AddonAudioPlaylist_getViewItemsWithClickAndTouchHandlers() {
@@ -138,6 +132,7 @@ function AddonAudioPlaylist_create() {
     presenter.getAudioHandlers = function AddonAudioPlaylist_getAudioHandlers() {
         return [
             { event: 'loadeddata', handler: AddonAudioPlaylist__onLoadedMetadataCallback },
+            { event: 'durationchange', handler: AddonAudioPlaylist__onTimeDurationLoadedCallback },
             { event: 'timeupdate', handler: AddonAudioPlaylist__onTimeUpdateCallback },
             { event: 'ended', handler: AddonAudioPlaylist___onAudioEnded },
             { event: 'playing', handler: AddonAudioPlaylist___onAudioPlaying },
@@ -219,9 +214,7 @@ function AddonAudioPlaylist_create() {
             return;
         }
 
-        if (audioIsLoaded) {
-            presenter.stop();
-        }
+        presenter.stop();
 
         var state = JSON.parse(stateString);
 
@@ -274,7 +267,7 @@ function AddonAudioPlaylist_create() {
         presenter.view.style.visibility = isVisible ? "visible" : "hidden";
     };
 
-    presenter.play = deferredSyncQueue.decorate(function () {
+    presenter.play = function () {
         if (!presenter.audio) return;
         if (presenter.audio.src && presenter.audio.paused) {
             presenter.audio.play();
@@ -283,9 +276,9 @@ function AddonAudioPlaylist_create() {
             presenter.items[presenter.state.currentItemIndex].button.classList.add(classList.itemPlay);
             presenter.state.isPlaying = true;
         }
-    });
+    };
 
-    presenter.pause = deferredSyncQueue.decorate(function AddonAudioPlaylist_pause() {
+    presenter.pause = function AddonAudioPlaylist_pause() {
         if (!presenter.audio) return;
         if (presenter.audio.readyState > 0) {
             if (!presenter.audio.paused) {
@@ -298,15 +291,15 @@ function AddonAudioPlaylist_create() {
 
             presenter.state.isPlaying = false;
         }
-    });
+    };
 
-    presenter.stop = deferredSyncQueue.decorate(function AddonAudioPlaylist_stop() {
+    presenter.stop = function AddonAudioPlaylist_stop() {
         if (!presenter.audio) return;
         if (presenter.audio.readyState > 0) {
             presenter.pause();
             presenter.audio.currentTime = 0;
         }
-    });
+    };
 
     presenter.assignViewItems = function (view) {
         presenter.wrapper = view.getElementsByClassName(classList.addonWrapper)[0];
@@ -344,9 +337,9 @@ function AddonAudioPlaylist_create() {
         });
     };
 
-    presenter.changeItem = function AddonAudioPlaylist_changeItem(index) {
+    presenter.selectItem = function AddonAudioPlaylist_selectItem(index) {
         if (index < 0 || index > this.items.length - 1) {
-            return;
+            return false;
         }
 
         presenter.pause();
@@ -367,7 +360,13 @@ function AddonAudioPlaylist_create() {
             score: ""
         });
 
-        if (!presenter.configuration.stopPlaying) {
+        return true;
+    }
+
+    presenter.changeItem = function AddonAudioPlaylist_changeItem(index) {
+        var wasSelected = presenter.selectItem(index);
+
+        if (wasSelected && !presenter.configuration.stopPlaying) {
             presenter.play();
         }
     };
@@ -447,10 +446,13 @@ function AddonAudioPlaylist_create() {
         }
     }
 
+    function AddonAudioPlaylist__onTimeDurationLoadedCallback() {
+        presenter.updateMainTrackDuration(presenter.audio.duration);
+    }
+
     function AddonAudioPlaylist__onLoadedMetadataCallback() {
         AddonAudioPlaylist__onTimeUpdateCallback();
         presenter.updateMainTrackDuration(presenter.audio.duration);
-        audioIsLoaded = true;
     }
 
     function AddonAudioPlaylist__onTimeUpdateCallback() {
@@ -588,10 +590,8 @@ function AddonAudioPlaylist_create() {
             presenter.viewItems.timerSlider.style.width = percent + "%";
             updateBallPosition();
 
-            if (audioIsLoaded) {
-                var estimatedTime = Math.round(presenter.audio.duration * value);
-                presenter.viewItems.currentTime.innerText = StringUtils.timeFormat(estimatedTime);
-            }
+            var estimatedTime = Math.round(presenter.audio.duration * value);
+            presenter.viewItems.currentTime.innerText = StringUtils.timeFormat(estimatedTime);
         }
 
         presenter.dragData.position = pageX;
@@ -648,6 +648,7 @@ function AddonAudioPlaylist_create() {
     }
 
      function AddonAudioPlaylistItemWrapper__audioDurationChange(ev) {
+        console.log(this.name + " track duration loaded");
         this.time.innerText = StringUtils.timeFormat(isNaN(this.audio.duration) ? 0 : this.audio.duration);
         this.audio.removeEventListener("durationchange", AddonAudioPlaylistItemWrapper__audioDurationChange);
         this.audio = null;
