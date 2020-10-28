@@ -303,13 +303,24 @@ public class PrintableContentParser {
 	public String generatePrintableHTMLForPages(List<Page> pages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
 		String result = "<div>";
 		
-		if (randomizePages && pages.size() > 1) {
-			Page firstPage = pages.get(0);
-			pages.remove(0);
-			for(int index = 0; index < pages.size(); index += 1) {  
-				Collections.swap(pages, index, index + random.nextInt(pages.size() - index));  
+		if (randomizePages && pages.size() > 1) {		
+			List<Page> randomizablePages = new ArrayList<Page>();
+			for (Page page: pages) {
+				if (page.getRandomizeInPrint()) {
+					randomizablePages.add(page);
+				}
 			}
-			pages.add(0, firstPage);
+			
+			for(int index = 0; index < randomizablePages.size(); index += 1) {  
+				Collections.swap(randomizablePages, index, index + random.nextInt(randomizablePages.size() - index));  
+			}
+			
+			for (int index = 0; index < pages.size(); index++) {
+				if (pages.get(index).getRandomizeInPrint()) { 
+					pages.set(index, randomizablePages.get(0));
+					randomizablePages.remove(0);
+				}
+			}
 		}
 		
 

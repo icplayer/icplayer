@@ -493,4 +493,21 @@ public class PageTestCase {
 		assertFalse(resultForPage1);
 		assertTrue(resultForPage2);
 	}
+	
+	@Test
+	public void defaultRandomizeInPrintValue() throws Exception {
+
+		InputStream inputStream = getClass().getResourceAsStream("testdata/page.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+
+		DomElementManipulator manipulator = Mockito.mock(DomElementManipulator.class);
+		PowerMockito.whenNew(DomElementManipulator.class).withArguments(Mockito.any(String.class)).thenReturn(manipulator);
+		
+		Page page = new Page("Page 1", "");
+		loadPage("testdata/page.xml", page);
+		
+		assertFalse(page.getRandomizeInPrint());
+	}
+	
 }

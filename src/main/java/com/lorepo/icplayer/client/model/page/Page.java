@@ -52,7 +52,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		custom
 	}
 
-	public static final String version = "5";
+	public static final String version = "6";
 	
 	private String id;
 	private String name;
@@ -93,6 +93,8 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 	private int pageCustomWeight = 1;
 	private String semiResponsiveLayoutID = "default";
 	public PageHeightModifications heightModifications = new PageHeightModifications();
+	
+	private boolean randomizeInPrint = false;
 
 	private String defaultLayoutID;
 
@@ -111,6 +113,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		addPropertyScoreType();
 		addPropertyWeightScoreMode();
 		addPropertyWeightScoreValue();
+		addPropertyRandomizeInPrint();
 	}
 
 	/**
@@ -133,6 +136,10 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		}
 		page.isReportable = function() {
 			return x.@com.lorepo.icplayer.client.model.page.Page::isReportable()();
+		}
+		
+		page.getRandomizeInPrint = function() {
+			return x.@com.lorepo.icplayer.client.model.page.Page::getRandomizeInPrint()();
 		}
 
         page.getPreview = function(){
@@ -254,6 +261,7 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 		xml += " isReportable='" + reportable + "'";
 		xml += " scoring='" + scoringType + "'";
 		xml += " version='" + Page.version +"'";
+		xml += " randomizeInPrint='" + randomizeInPrint +"'";
 
 		xml += " header='" + StringUtils.escapeXML(this.headerId) + "'";
 		xml += " hasHeader='" + this.hasHeader + "'";
@@ -506,6 +514,44 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			@Override
 			public String getDisplayName() {
 				return DictionaryWrapper.get("is_reportable");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	private void addPropertyRandomizeInPrint() {
+
+		IBooleanProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != randomizeInPrint) {
+					randomizeInPrint = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return randomizeInPrint ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return "Randomize in print";
+			}
+
+			@Override
+			public String getDisplayName() {
+				return "Randomize in print";
 			}
 
 			@Override
@@ -1172,5 +1218,13 @@ public class Page extends BasicPropertyProvider implements IStyledModule, IPage,
 			}
 		}
 		return null;
+	}
+	
+	public void setRandomizeInPrint(boolean value) {
+		this.randomizeInPrint = value;
+	}
+	
+	public boolean getRandomizeInPrint() {
+		return this.randomizeInPrint;
 	}
 }
