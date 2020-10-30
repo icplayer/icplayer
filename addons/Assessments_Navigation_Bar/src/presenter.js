@@ -83,7 +83,7 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.changeToPage = function (index) {
         var mappings = presenter.playerController.getPagesMapping();
         var i = mappings[index];
-        if (i !== presenter.currentPageIndex) {
+        if (index !== presenter.currentPageIndex) {
             presenter.commander.gotoPageIndex(i);
         }
     };
