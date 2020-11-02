@@ -1,4 +1,5 @@
-2020-10-28 Fixed issue with opening popup page with YouTube addon
+2020-11-02 Fixed issue with opening popup page with YouTube addon
+2020-10-27 Fixed issue with AudioPlaylist on iOS
 2020-10-23 Fixed issue with setting pages as nonreportable by adaptive learning service
 2020-10-22 Remove allOK event from Text
 2020-10-22 Fixed problem with null elements in LineNumber after getState call
