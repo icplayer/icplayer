@@ -1153,7 +1153,7 @@ public class TextParser {
                     while ((matchResult = gapRegExp.exec(parsedText)) != null) {
                         for (int j = 0; j < matchResult.getGroupCount(); j++) {
                             String group = matchResult.getGroup(j);
-                            String wrappedGroup = "<div style='display: inline-block;'>" + group + "</div>";
+                            String wrappedGroup = "<div style=\"display: inline-block;\">" + group + "</div>";
                             if (parsedText.indexOf(wrappedGroup) != -1 || group.length() == inputReplacer.length()) {
                                 parsedText = oldParsedText;
                             } else {
