@@ -113,6 +113,7 @@ public class TextParser {
 				}
 				parserResult.parsedText = parseAltText(parserResult.parsedText);
 				parserResult.parsedText = parseDefinitions(parserResult.parsedText);
+				parserResult.parsedText = setNonBreakingGaps(parserResult.parsedText);
 			}
 		} catch (Exception e) {
 			parserResult.parsedText = "#ERROR#";
@@ -176,6 +177,7 @@ public class TextParser {
 		result.parsedText = parseOldSyntax(result.parsedText);
 		result.parsedText = parseDefinitions(result.parsedText);
 		result.parsedText = parseAudio(result.parsedText);
+		result.parsedText = setNonBreakingGaps(result.parsedText);
 
 		result.hasSyntaxError = hasSyntaxError;
 		return result;
@@ -1129,5 +1131,43 @@ public class TextParser {
 	public void setIsNumericOnly(boolean isNumericOnly) {
 		this.isNumericOnly = isNumericOnly;
 	}
+
+	public String setNonBreakingGaps(String srcText) {
+	    String inputReplacer = "##INPUT_ELEMENT_REPLACER##";
+        String pattern = "[^\\s>]*" + inputReplacer + "[^\\s<]*";
+
+        RegExp inputRegExp = RegExp.compile("<input[^<]*?>","g");
+        RegExp selectRegExp = RegExp.compile("<select.*?</select>","g");
+
+
+        String parsedText = srcText;
+        MatchResult inputs;
+        for (RegExp elementRegExp: new RegExp[]{inputRegExp, selectRegExp}) {
+            while ((inputs = elementRegExp.exec(parsedText)) != null) {
+                for (int i = 0; i < inputs.getGroupCount(); i++) {
+                    String inputElement = inputs.getGroup(i);
+                    String oldParsedText = parsedText;
+                    parsedText = parsedText.replace(inputElement, inputReplacer);
+                    MatchResult matchResult;// = gapRegExp.exec(parsedText);
+                    RegExp gapRegExp = RegExp.compile(pattern,"g");
+                    while ((matchResult = gapRegExp.exec(parsedText)) != null) {
+                        for (int j = 0; j < matchResult.getGroupCount(); j++) {
+                            String group = matchResult.getGroup(j);
+                            String wrappedGroup = "<div style='display: inline-block;'>" + group + "</div>";
+                            if (parsedText.indexOf(wrappedGroup) != -1 || group.length() == inputReplacer.length()) {
+                                parsedText = oldParsedText;
+                            } else {
+                                String groupWithInput = group.replace(inputReplacer, inputElement);
+                                String replaceText = "<div style='display: inline-block;'>" + groupWithInput + "</div>";
+                                parsedText = parsedText.replace(group, replaceText);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+		return parsedText;
+	};
+
 
 }

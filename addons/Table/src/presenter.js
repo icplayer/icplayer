@@ -2231,7 +2231,7 @@ function AddonTable_create() {
 
                 $span.html(value);
             }
-            html = html.replace(match, " " + $span[0].outerHTML);
+            html = html.replace(match, "&nbsp;" + $span[0].outerHTML);
         }
         return html;
     }

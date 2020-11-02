@@ -119,7 +119,7 @@ public class TextPrintable {
 			}
 
 			span.setInnerHTML(value);	
-			String newValue = " " + span.getString();
+			String newValue = "&nbsp;" + span.getString();
 			
 			parsedText = parsedText.replace(oldValue, newValue);
 		}
