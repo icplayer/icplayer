@@ -2136,8 +2136,7 @@ function AddonTable_create() {
         presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
         presenter.$view = $('<div></div>');
         presenter.$view.addClass('printable_addon_Table');
-        presenter.$view.css('min-height', model.Height + 'px');
-        presenter.$view.css('width', model.Width + 'px');
+        presenter.$view.css('max-width', model.Width + 'px');
         presenter.$wrapper = $('<div></div>');
         presenter.$wrapper.addClass('table-addon-wrapper');
         presenter.$view.append(presenter.$wrapper);

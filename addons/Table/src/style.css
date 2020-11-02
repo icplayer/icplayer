@@ -34,3 +34,10 @@
     height: 20px;
     width: 40px;
 }
+
+.printable_addon_Table tbody tr:first-child {
+    column-break-inside: avoid;
+	-webkit-column-break-inside: avoid;
+    column-break-after: avoid;
+	-webkit-column-break-after: avoid;
+}

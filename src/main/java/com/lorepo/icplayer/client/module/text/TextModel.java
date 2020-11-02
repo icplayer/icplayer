@@ -59,6 +59,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	private String valueType = "All";
 	private String printableValue = "No";
 	private boolean isSection = false;
+	private boolean isSplitInPrintBlocked = false;
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
@@ -98,6 +99,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		addPropertyGapSizeCalculationMethod();
 		addPropertyPrintable();
 		addPropertyIsSection();
+		addPropertyIsSplitInPrintBlocked();
 	}
 
 	@Override
@@ -157,6 +159,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 				langAttribute = XMLUtils.getAttributeAsString(textElement, "langAttribute");
 				printableValue = XMLUtils.getAttributeAsString(textElement, "printable");
 				isSection = XMLUtils.getAttributeAsBoolean(textElement, "isSection", false);
+				isSplitInPrintBlocked = XMLUtils.getAttributeAsBoolean(textElement, "isSplitInPrintBlocked", false);
 				allCharactersGapSizeStyle = XMLUtils.getAttributeAsBoolean(textElement, "allAnswersGapSizeCalculationStyle", true);
 				this.speechTextItems.get(TextModel.NUMBER_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "number"));
 				this.speechTextItems.get(TextModel.GAP_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "gap"));
@@ -236,6 +239,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		XMLUtils.setBooleanAttribute(text, "isClearPlaceholderOnFocus", this.isClearPlaceholderOnFocus);
 		XMLUtils.setBooleanAttribute(text, "isDisabled", this.isDisabled);
 		XMLUtils.setBooleanAttribute(text, "isSection", this.isSection);
+		XMLUtils.setBooleanAttribute(text, "isSplitInPrintBlocked", this.isSplitInPrintBlocked);
 		XMLUtils.setBooleanAttribute(text, "isCaseSensitive", this.isCaseSensitive);
 		XMLUtils.setBooleanAttribute(text, "useNumericKeyboard", this.useNumericKeyboard);
 		XMLUtils.setBooleanAttribute(text, "openLinksinNewTab", this.openLinksinNewTab);
@@ -1281,6 +1285,48 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	
 	public boolean isSection() {
 		return isSection;
+	}
+	
+	private void addPropertyIsSplitInPrintBlocked() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isSplitInPrintBlocked) {
+					isSplitInPrintBlocked = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return isSplitInPrintBlocked ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public boolean isSplitInPrintBlocked() {
+		return isSplitInPrintBlocked;
 	}
 
 	@Override
