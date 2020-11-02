@@ -47,6 +47,11 @@ public class PlayerServices implements IPlayerServices {
 	public void setApplication(PlayerApp application) {
 		this.application = application;
 	}
+
+	@Override
+	public PlayerApp getApplication() {
+		return this.application;
+	}
 	
 	@Override
 	public boolean isAbleChangeLayout() {
@@ -202,7 +207,7 @@ public class PlayerServices implements IPlayerServices {
 
 	@Override
 	public JavaScriptObject getContextMetadata() {
-		return this.application.getContextMetadata();
+		return this.application != null ? this.application.getContextMetadata() : null;
 	}
 
     @Override

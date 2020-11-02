@@ -227,6 +227,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 	}
 
 	@Override
+	public PlayerApp getApplication() {
+		return null;
+	}
+
+	@Override
 	public boolean changeSemiResponsiveLayout(String layoutID) {
 		// TODO Auto-generated method stub
 		return false;
