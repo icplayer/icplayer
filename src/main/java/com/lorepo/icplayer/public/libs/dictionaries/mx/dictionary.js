@@ -2032,6 +2032,7 @@ var ice_dictionary_mx = {
 	"Cross_Lesson_property_page": "Page",
 	"Cross_Lesson_property_type": "Type",
 	"printable_name_label": "Printable",
+	"printable_block_split_label": "Block splitting in print",
 	"printable_is_section": "is section",
 	"printable_preview": "Print preview",
 	"printable_lesson_preview": "Lesson preview",

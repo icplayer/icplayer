@@ -66,7 +66,13 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.presentation = controller.getPresentation();
-        presenter.currentPageIndex = presenter.playerController.getCurrentPageIndex();
+        var currentIndex = presenter.playerController.getCurrentPageIndex();
+        var mappings = presenter.playerController.getPagesMapping();
+        mappings.forEach(function (value, index) {
+            if (value === currentIndex) {
+                presenter.currentPageIndex = index;
+            }
+        });
         presenter.commander = controller.getCommands();
         presenter.eventBus = controller.getEventBus();
 
@@ -75,11 +81,11 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.changeToPage = function (index) {
-        if (index == presenter.currentPageIndex) {
-            return;
+        var mappings = presenter.playerController.getPagesMapping();
+        var i = mappings[index];
+        if (index !== presenter.currentPageIndex) {
+            presenter.commander.gotoPageIndex(i);
         }
-
-        presenter.commander.gotoPageIndex(index);
     };
 
     presenter.executeCommand = function (name, params) {
@@ -1399,10 +1405,16 @@ function AddonAssessments_Navigation_Bar_create(){
         return upgradedState;
     };
 
-    function currentPageAreAllAttempted() {
-        if(presenter.presentation.getPage(presenter.currentPageIndex).isReportable()){
+    function getPlayerIndex(lessonIndex) {
+        var mapping = presenter.playerController.getPagesMapping();
+        return mapping[lessonIndex];
+    }
 
-            var modules = getAllModulesImplementingIsAttempted(presenter.currentPageIndex);
+    function currentPageAreAllAttempted() {
+        var playerIndex = getPlayerIndex(presenter.currentPageIndex);
+        if(presenter.presentation.getPage(playerIndex).isReportable()){
+
+            var modules = getAllModulesImplementingIsAttempted(playerIndex);
 
             if(areAllModulesAttempted(modules)){
                 presenter.sections.addClassAllAttemptedToPage(presenter.currentPageIndex);
