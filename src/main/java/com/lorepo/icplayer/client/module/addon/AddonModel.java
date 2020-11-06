@@ -172,7 +172,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		
 		String result = getPrintableHTML(addonName, jsModel, printController, showAnswers);
 		if (result == null || result.length() == 0) return null;
-		result = PrintableContentParser.addClassToPrintableModule(result, className);
+		result = PrintableContentParser.addClassToPrintableModule(result, className, !isSplitInPrintBlocked());
 		return result;
 	}
 	
@@ -208,6 +208,15 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	public boolean isSection() {
 		for (IAddonParam addonParam: addonParams) {
 			if(addonParam.getName().equals("isSection")) {
+				return addonParam.getAsProperty().getValue().equals("True");
+			}
+		}
+		return false;
+	}
+	
+	public boolean isSplitInPrintBlocked() {
+		for (IAddonParam addonParam: addonParams) {
+			if(addonParam.getName().equals("isSplitInPrintBlocked")) {
 				return addonParam.getAsProperty().getValue().equals("True");
 			}
 		}

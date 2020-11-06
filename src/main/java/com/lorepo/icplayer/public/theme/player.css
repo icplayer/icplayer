@@ -1066,10 +1066,27 @@ hr, table, fieldset {
 	-webkit-column-break-inside: avoid;
 }
 
+.printable_module.splittable {
+	margin-bottom: 10px;
+	column-break-inside: inherit;
+	-webkit-column-break-inside: inherit;
+}
+
+.printable_module tr {
+	column-break-inside: avoid;
+	-webkit-column-break-inside: avoid;
+}
+
 .printable_modules_group {
 	margin-bottom: 10px;
 	column-break-inside: avoid;
 	-webkit-column-break-inside: avoid;
+}
+
+.printable_modules_group.splittable {
+	margin-bottom: 10px;
+	column-break-inside: inherit;
+	-webkit-column-break-inside: inherit;
 }
 
 .printable_page {
@@ -1084,4 +1101,10 @@ hr, table, fieldset {
 	column-span:all;
 	-webkit-column-span:all;
 	-moz-column-span:all;
+}
+
+.printable_lesson .printable_page:last-child .printable_content > div {
+	column-fill: auto;
+	-webkit-column-fill: auto;
+	-moz-column-fill: auto;
 }

@@ -21,6 +21,7 @@ import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class PrintableContentParser {
 	
+	public static String SPLITTABLE_CLASS_NAME = "splittable";
 	int dpi = 96;
 	SafeHtml headerHTML = null;
 	SafeHtml footerHTML = null;
@@ -30,11 +31,11 @@ public class PrintableContentParser {
 	Boolean enableTwoColumnPrint = false;
 	SeededRandom random = new SeededRandom();
 	
-	private static class SplitPageResult extends JavaScriptObject {
+	private static class SplitResult extends JavaScriptObject {
 		
-		protected SplitPageResult() {};
+		protected SplitResult() {};
 		
-		public final native String getPagesHtml() /*-{return this.pages;}-*/;
+		public final native String getHeadHtml() /*-{return this.head;}-*/;
 		
 		public final native String getTailHtml() /*-{return this.tail;}-*/;
 	}
@@ -60,9 +61,6 @@ public class PrintableContentParser {
 				+ "-webkit-columns:{2};"
 				+ "-moz-columns: {2};"
 				+ " column-gap: 40px;"
-				+ " column-fill: auto;"
-				+ "-webkit-column-fill: auto;"
-				+ "-moz-column-fill: auto;"
 				+ "'>{3}</div></td></tr>")
 	    SafeHtml pageContentFullHeight(String classes, int height, int columns, SafeHtml content);
 		
@@ -85,6 +83,10 @@ public class PrintableContentParser {
 	
 	public void setTwoColumnPrintEnabled(boolean enabled) {
 		enableTwoColumnPrint = enabled;
+	}
+	
+	public boolean getTwoColumnPrintEnabled() {
+		return enableTwoColumnPrint;
 	}
 
 	public void setHeader(Page header) {
@@ -157,7 +159,11 @@ public class PrintableContentParser {
 		if (group.getStyleClass().length() > 0) {
 			groupClass += "printable_" + group.getStyleClass();
 		}
-		parsed += "<div class=\"printable_modules_group " + groupClass + "\">";
+		String splittable_class = "";
+		if (!group.isSplitInPrintBlocked()) {
+			splittable_class = PrintableContentParser.SPLITTABLE_CLASS_NAME;
+		}
+		parsed += "<div class=\"printable_modules_group " + groupClass + " " + splittable_class + "\">";
 		for (IPrintableModuleModel printable: groupPrintables) {
 			printable.setPrintableController(controller);
 			parsed += printable.getPrintableHTML(showAnswers);
@@ -275,25 +281,41 @@ public class PrintableContentParser {
 		return result;
 	}
 	
-	private native SplitPageResult splitPageModules(PrintableContentParser x, String html, int pageWidth, int pageHeight) /*-{
+	private native SplitResult splitPageModules(PrintableContentParser x, String html, int pageWidth, int pageHeight) /*-{
 		var pages = "";
 		var $wrapper = $wnd.$("<div></div>");
 		$wrapper.html(html);
 		
+		var SPLITTABLE_CLASS_NAME = @com.lorepo.icplayer.client.printable.PrintableContentParser::SPLITTABLE_CLASS_NAME;
+		var enableTwoColumnPrint  = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getTwoColumnPrintEnabled()();
+		var maxEmptyHeight = pageHeight * 0.2;
+		if (enableTwoColumnPrint) maxEmptyHeight = maxEmptyHeight / 2;
+		var minSplitHeight = 100;
+		
 		var printablePageHTML = "";
+		var prevHeight = 0;
 		$wrapper.children().each(function(){
 			var moduleHTML = this.outerHTML;
+			
 			var newPrintablePageHTML = printablePageHTML + moduleHTML;
 			var newPrintablePageWithHeaderAndFooter = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::applyHeaderAndFooter(Ljava/lang/String;Z)(newPrintablePageHTML, false);
 			var newHeight = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getHTMLHeight(Ljava/lang/String;I)(newPrintablePageWithHeaderAndFooter, pageWidth);
 			if (newHeight > pageHeight) {
+				if (prevHeight < pageHeight - maxEmptyHeight && this.classList.contains(SPLITTABLE_CLASS_NAME)) {
+					var maxHeadHeight = pageHeight - prevHeight - 50;
+					if (enableTwoColumnPrint) maxHeadHeight = maxHeadHeight * 2;
+					var splitResult = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::splitModule(Ljava/lang/String;IIIZ)(moduleHTML, maxHeadHeight, minSplitHeight, pageWidth, enableTwoColumnPrint);
+					printablePageHTML += splitResult.head;
+					moduleHTML = splitResult.tail;
+				}
 				pages += x.@com.lorepo.icplayer.client.printable.PrintableContentParser::wrapPrintablePage(Ljava/lang/String;II)(printablePageHTML, pageWidth, pageHeight);
 				printablePageHTML = moduleHTML;
 			} else {
 				printablePageHTML += moduleHTML;
 			}
+			prevHeight = newHeight;
 		});
-		return {pages: pages, tail: printablePageHTML};
+		return {head: pages, tail: printablePageHTML};
 	}-*/;
 	
 	private String wrapOpeningPlayerPage(String content) {
@@ -301,7 +323,7 @@ public class PrintableContentParser {
 	}
 	
 	public String generatePrintableHTMLForPages(List<Page> pages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
-		String result = "<div>";
+		String result = "<div class='printable_lesson'>";
 		
 		if (randomizePages && pages.size() > 1) {
 			Page firstPage = pages.get(0);
@@ -327,8 +349,8 @@ public class PrintableContentParser {
 				enableTwoColumnPrint = false;
 			}
 			if (getHTMLHeight(applyHeaderAndFooter(newPrintablePageHTML, false), pageWidth) > pageMaxHeight) {
-				SplitPageResult splitPageOutput = splitPageModules(this, newPrintablePageHTML, pageWidth, pageMaxHeight);
-				result += splitPageOutput.getPagesHtml();
+				SplitResult splitPageOutput = splitPageModules(this, newPrintablePageHTML, pageWidth, pageMaxHeight);
+				result += splitPageOutput.getHeadHtml();
 				if (firstPage) {
 					printablePageHTML = wrapOpeningPlayerPage(splitPageOutput.getTailHtml());
 				} else {
@@ -375,10 +397,17 @@ public class PrintableContentParser {
 	}
 	
 	public static String addClassToPrintableModule(String printableHTML, String className) {
+		return addClassToPrintableModule(printableHTML, className, false);
+	}
+	
+	public static String addClassToPrintableModule(String printableHTML, String className, boolean isSplittable) {
 		Element element = (new HTML(printableHTML)).getElement().getFirstChildElement();
 		element.addClassName("printable_module");
 		if (className.length() > 0) {
 			element.addClassName("printable_module-" + className);
+		}
+		if (isSplittable) {
+			element.addClassName(SPLITTABLE_CLASS_NAME);
 		}
 		return element.getString();
 	}
@@ -410,5 +439,67 @@ public class PrintableContentParser {
 		var height = $wrapper[0].getBoundingClientRect().height;
 		$wrapper.detach();
 		return height;
+	}-*/;
+	
+	private native SplitResult splitModule (String html, int maxHeight, int minSplitHeight, int pageWidth, boolean enableTwoColumnPrint) /*-{
+		var $_ = $wnd.$;
+		var $wrapper = $_("<div></div>");
+		$wrapper.css("position", "absolute");
+		$wrapper.css("width", pageWidth + "px");
+		$wrapper.css("visibility", "hidden");
+		$wrapper.css("margin", "0px");
+		$wrapper.css("padding", "0px");
+		if (enableTwoColumnPrint) {
+			$wrapper.css("columns", "2");
+			$wrapper.css("-webkit-columns", "2");
+			$wrapper.css("-moz-columns", "2");
+		}
+		$wrapper.html(html);
+		$_("body").append($wrapper);
+		var wrapperRect = $wrapper[0].getBoundingClientRect();
+		var lastNode = null;
+		var lastNodeRect = null;
+		var descendants = $wrapper.find("*:not(ol *, tr *, th)");
+		descendants.each(function(){
+			var currentValue = this;
+			var rect = currentValue.getBoundingClientRect();	
+			var offsetY = rect.bottom - wrapperRect.y;
+			if (offsetY > maxHeight) return {head: "", tail: html};
+			if (offsetY < minSplitHeight || offsetY > wrapperRect.height - minSplitHeight) return;
+			if (lastNode == null) {
+				lastNode = currentValue;
+				lastNodeRect = rect;
+			} else {
+				if (
+				(rect.bottom > lastNodeRect.bottom) 
+				|| (
+				rect.bottom == lastNodeRect.bottom && 
+				rect.right > lastNodeRect.right )) {
+					lastNode = currentValue;
+					lastNodeRect = rect;
+				} 
+			}
+		});
+		
+		if (lastNode == null) return {head: "", tail: html};
+		
+		var headRange = $doc.createRange();
+		headRange.setStartBefore($wrapper.children().first()[0]);
+		headRange.setEndAfter(lastNode);
+		var headWrapper = $doc.createElement("div");
+		headWrapper.appendChild(headRange.cloneContents());
+		headWrapper.childNodes.forEach(function(element, index, array){element.style.minHeight = "";});
+		var headHTML = headWrapper.innerHTML;
+		
+		var tailRange = $doc.createRange();
+		tailRange.setStartAfter(lastNode);
+		tailRange.setEndAfter($wrapper.children().last()[0]);	
+		var tailWrapper = $doc.createElement("div");
+		tailWrapper.appendChild(tailRange.cloneContents());
+		tailWrapper.childNodes.forEach(function(element, index, array){element.style.minHeight = "";});
+		var tailHTML = tailWrapper.innerHTML;
+		
+		$wrapper.detach();
+		return {head: headHTML, tail: tailHTML};
 	}-*/;
 }
