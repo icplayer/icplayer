@@ -66,7 +66,7 @@ public class ChoicePrintable {
 	}
 	
 	private String getOptionViewId(ChoiceOption option) {
-		return option.getParentId() + "_ic_option_" + option.getID();
+		return model.getId() + "_ic_option_" + option.getID();
 	}
 	
 	private int nextInt(int upperBound) {
