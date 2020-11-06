@@ -37,6 +37,8 @@ public class GroupParser {
 		
 		String printableValue = Printable.getStringValues(group.getPrintable());
 		groupModule.setAttribute("printable", printableValue);
+		groupModule.setAttribute("isSplitInPrintBlocked", String.valueOf(group.isSplitInPrintBlocked()));
+		
 		return groupModule.toString();
 	}
 	
@@ -54,6 +56,7 @@ public class GroupParser {
 		group.setMaxScore(maxScore);
 		PrintableMode printable = Printable.getPrintableModeFromString(printableValue);
 		group.setPrintable(printable);
+		group.setSplitInPrintBlocked(XMLUtils.getAttributeAsBoolean(groupNode, "isSplitInPrintBlocked", false));
 		
 		for (int j = 0; j < groupModuleElements.getLength(); j++) {
 			Element groupModule = (Element) groupModuleElements.item(j);

@@ -63,5 +63,6 @@
 		</property>
 		<property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}" />
 		<property name="keepOriginalOrder" nameLabel="Table_property_keep_order" type="boolean" />
+		<property name="isSplitInPrintBlocked" nameLabel="printable_block_split_label" type="boolean"/>
 	</model>
 </addon>

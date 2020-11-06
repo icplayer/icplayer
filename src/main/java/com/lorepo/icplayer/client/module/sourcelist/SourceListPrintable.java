@@ -23,7 +23,7 @@ public class SourceListPrintable {
 		result += "</ul>";
 		result += "</div>";
 		
-		result = PrintableContentParser.addClassToPrintableModule(result, className);
+		result = PrintableContentParser.addClassToPrintableModule(result, className, model.isSplitInPrintBlocked());
 		
 		return result;
 	}

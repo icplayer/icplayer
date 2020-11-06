@@ -13,6 +13,7 @@ import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 public class GroupPropertyProvider extends ModulesPropertyProvider{
 	
 	private String printableValue = "";
+	private boolean isSplitInPrintBlocked = false;
 	
 	public GroupPropertyProvider(String name){
 		super(name);
@@ -24,6 +25,7 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 		}
 		registerLeftAndTopProperties();
 		addPropertyPrintable();
+		addPropertyIsSplitInPrintBlocked();
 		update();
 	}
 
@@ -487,5 +489,51 @@ public class GroupPropertyProvider extends ModulesPropertyProvider{
 	
 	public void setPrintable(PrintableMode mode) {
 		printableValue = Printable.getStringValues(mode);
+	}
+	
+	private void addPropertyIsSplitInPrintBlocked() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isSplitInPrintBlocked) {
+					isSplitInPrintBlocked = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return isSplitInPrintBlocked ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public boolean isSplitInPrintBlocked() {
+		return isSplitInPrintBlocked;
+	}
+	
+	public void setSplitInPrintBlocked(boolean value) {
+		isSplitInPrintBlocked = value;
 	}
 }

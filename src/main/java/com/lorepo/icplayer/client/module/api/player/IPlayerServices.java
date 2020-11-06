@@ -39,6 +39,7 @@ public interface IPlayerServices {
 	public ScaleInformation getScaleInformation();
 	public void setScaleInformation(String scaleX, String scaleY, String transform, String transformOrigin);
 	public void setApplication(PlayerApp application);
+	public PlayerApp getApplication();
 	
 	public void outstretchHeight(int y, int height, boolean dontMoveModules);
 	public boolean isPlayerInCrossDomain();

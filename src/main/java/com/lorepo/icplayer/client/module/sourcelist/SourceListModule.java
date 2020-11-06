@@ -33,6 +33,7 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String printableValue = "No";
 	private PrintableController printableController = null;
+	private boolean isSplitInPrintBlocked = false;
 	
 	public SourceListModule() {
 		super("Source list", DictionaryWrapper.get("source_list_module"));
@@ -45,6 +46,7 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 		addPropertySpeechTexts();
 		addPropertyLangAttribute();
 		addPropertyPrintable();
+		addPropertyIsSplitInPrintBlocked();
 	}
 
 	private void initData() {
@@ -76,6 +78,7 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 			printableValue = XMLUtils.getAttributeAsString(itemsElement, "printable");
 			this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(itemsElement, "selected"));
 			this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(itemsElement, "deselected"));
+			isSplitInPrintBlocked = XMLUtils.getAttributeAsBoolean(itemsElement, "isSplitInPrintBlocked", false);
 		}
 
 		items.clear();
@@ -107,6 +110,7 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 		itemsElement.setAttribute("deselected", this.speechTextItems.get(1).getText());
 		itemsElement.setAttribute("langAttribute", langAttribute);
 		itemsElement.setAttribute("printable", printableValue);
+		XMLUtils.setBooleanAttribute(itemsElement, "isSplitInPrintBlocked", this.isSplitInPrintBlocked);
 		
 		for (String item : items) {
 			Element itemElement = XMLUtils.createElement("item");
@@ -506,6 +510,48 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 	public void setPrintableController(PrintableController controller) {
 		this.printableController = controller;
 		
+	}
+	
+	private void addPropertyIsSplitInPrintBlocked() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != isSplitInPrintBlocked) {
+					isSplitInPrintBlocked = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return isSplitInPrintBlocked ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("printable_block_split_label");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+		};
+
+		addProperty(property);
+	}
+	
+	public boolean isSplitInPrintBlocked() {
+		return isSplitInPrintBlocked;
 	}
 	
 }
