@@ -1154,6 +1154,7 @@ var ice_dictionary_bl = {
 	"Table_property_ignore_punctuation": "Игнорирай пунктуация",
 	"Table_property_gap_width": "Широчина на празното място",
     "Table_property_gap_type": "Вид празно място",
+	"Table_property_keep_order": "Keep original order",
 	"Table_Of_Contents_info": "Показва съдържанието на презентацията с линкове към съответните страници.",
 	"Table_Of_Contents_name": "Съдържание",
 	"Table_Of_Contents_property_header": "Заглавка",

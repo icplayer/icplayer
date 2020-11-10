@@ -1965,9 +1965,50 @@ function AddonConnection_create() {
         Line: Line
     };
 
-    function drawSVGLine(svg, leftID, rightID, model) {
+    function drawSVGLine(svg, firstID, secondID, model) {
         var leftSize = model["Left column"].length;
 
+        var isFirstIDInLeftColumn = false;
+        var isFirstIDInRightColumn = false;
+        var isSecondIDInLeftColumn = false;
+        var isSecondIDInRightColumn = false;
+
+        for (var i = 0; i < presenter.elements.length; i++) {
+            if (presenter.elements[i].id == firstID) {
+                if (i < leftSize) {
+                    isFirstIDInLeftColumn = true;
+                } else {
+                    isFirstIDInRightColumn = true;
+                }
+            }
+            if (presenter.elements[i].id == secondID) {
+                if (i < leftSize) {
+                    isSecondIDInLeftColumn = true;
+                } else {
+                    isSecondIDInRightColumn = true;
+                }
+            }
+        }
+
+        if (
+            (!isFirstIDInLeftColumn && !isFirstIDInRightColumn)
+            ||
+            (!isSecondIDInLeftColumn && !isSecondIDInRightColumn)) {
+            return;
+        }
+        if (!isFirstIDInLeftColumn && !isSecondIDInRightColumn
+            && isFirstIDInRightColumn && isSecondIDInLeftColumn) {
+            var tmp = secondID;
+            secondID = firstID;
+            firstID = tmp;
+        }
+
+        drawSVGLineLeftToRight(svg, firstID, secondID, model);
+
+    }
+
+    function drawSVGLineLeftToRight(svg, leftID, rightID, model) {
+        var leftSize = model["Left column"].length;
         var leftTotalSize = 0;
         var rightTotalSize = 0;
         var leftPos = 0;
@@ -1994,7 +2035,6 @@ function AddonConnection_create() {
         $line.attr('y1', leftY);
         $line.attr('y2', rightY);
         svg.append($line);
-
     }
 
     presenter.setPrintableController = function (controller) {
@@ -2038,15 +2078,29 @@ function AddonConnection_create() {
         this.setColumnsWidth($root[0], model["Columns width"]);
 
 
+        var connected = [];
         if (showAnswers) {
-            $root.css('visibility', 'hidden');
-            $('body').append($root);
-            var connections = $root.find('svg');
             for (var i = 0; i < model["Left column"].length; i++) {
                 var element = presenter.elements[i];
                 if (element.connects) {
-                    drawSVGLine(connections, element.id, element.connects, model);
+                    connected.push({from: element.id, to:element.connects});
                 }
+            }
+        } else {
+            for (var i = 0; i < model["initialConnections"].length; i++) {
+                var connection = model["initialConnections"][i];
+                if (connection.from.length > 0 && connection.to.length > 0) {
+                    connected.push({from: connection.from, to: connection.to});
+                }
+            }
+        }
+        if (connected.length > 0) {
+            $root.css('visibility', 'hidden');
+            $('body').append($root);
+            var connectionsSVG = $root.find('svg');
+            for (var i = 0; i < connected.length; i++) {
+                var connection = connected[i];
+                drawSVGLine(connectionsSVG, connection.from, connection.to, model);
             }
             $root.detach();
             $root.css('visibility', 'visible');
