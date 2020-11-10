@@ -191,6 +191,11 @@ public abstract class PageParserBase implements IPageParser{
 		page.setDefaultLayoutID("default");
 		
 		page.setScoring(XMLUtils.getAttributeAsString(xml, "scoring"));
+		page = loadRandomizeInPrint(page, xml);
+		return page;
+	}
+	
+	protected IPageBuilder loadRandomizeInPrint(IPageBuilder page, Element xml) {
 		return page;
 	}
 	
