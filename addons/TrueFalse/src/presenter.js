@@ -1112,11 +1112,14 @@ function AddonTrueFalse_create() {
 
             for (var j = 0; j < model.Choices.length; j++) {
                 var $td = $("<td></td>");
+                $td.addClass("checkbox-container");
                 var $checkbox = $("<input type=\"checkbox\"> </input>")
                 if (showAnswers && answers.indexOf((j+1).toString()) != -1) {
                     $checkbox.attr("checked", "checked");
                 }
                 $td.append($checkbox);
+                var $checkboxSpan = $("<span></span>");
+                $td.append($checkboxSpan);
                 $tr.append($td);
             }
             $tbody.append($tr);
