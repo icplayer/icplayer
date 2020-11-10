@@ -322,16 +322,29 @@ public class PrintableContentParser {
 		return "<div class=\"printable_opening_player_page single_column_print\">" + content + "</div>";
 	}
 	
-	public String generatePrintableHTMLForPages(List<Page> pages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
+	public String generatePrintableHTMLForPages(List<Page> sourcePages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
 		String result = "<div class='printable_lesson'>";
-		
-		if (randomizePages && pages.size() > 1) {
-			Page firstPage = pages.get(0);
-			pages.remove(0);
-			for(int index = 0; index < pages.size(); index += 1) {  
-				Collections.swap(pages, index, index + random.nextInt(pages.size() - index));  
+		List<Page> pages = new ArrayList<Page>();
+
+		if (randomizePages && sourcePages.size() > 1) {
+			List<Page> randomizablePages = new ArrayList<Page>();
+			List<Page> nonRandomizablePages = new ArrayList<Page>();
+			for (Page page: sourcePages) {
+				if (page.getRandomizeInPrint()) {
+					randomizablePages.add(page);
+				} else {
+					nonRandomizablePages.add(page);
+				}
 			}
-			pages.add(0, firstPage);
+			
+			for(int index = 0; index < randomizablePages.size(); index += 1) {  
+				Collections.swap(randomizablePages, index, index + random.nextInt(randomizablePages.size() - index));  
+			}
+
+			for (Page page: nonRandomizablePages) pages.add(page);
+			for (Page page: randomizablePages) pages.add(page);
+		} else {
+			pages = sourcePages;
 		}
 		
 

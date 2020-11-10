@@ -11,6 +11,7 @@ import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v1;
 import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v2;
 import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v3;
 import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v4;
+import com.lorepo.icplayer.client.xml.module.parsers.ModuleParser_v5;
 
 public class ModuleXMLParsersFactory {
 
@@ -25,6 +26,7 @@ public class ModuleXMLParsersFactory {
 		this.addParser(new ModuleParser_v2());
 		this.addParser(new ModuleParser_v3());
 		this.addParser(new ModuleParser_v4());
+		this.addParser(new ModuleParser_v5());
 	}
 	
 	public void addParser(IModuleModelParser parser) {

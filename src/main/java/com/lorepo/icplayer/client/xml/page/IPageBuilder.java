@@ -36,4 +36,5 @@ public interface IPageBuilder {
 	public void setDefaultLayoutID(String defaultLayoutID);
 	public void setInlineStyles(HashMap<String, String> inlineStyles);
 	public void setStylesClasses(HashMap<String, String> stylesClasses);
+	public void setRandomizeInPrint(boolean value);
 }
