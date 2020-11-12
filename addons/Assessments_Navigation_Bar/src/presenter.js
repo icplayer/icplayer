@@ -476,25 +476,16 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.filterSectionsWithTooManyPages = function(sections) {
         var mapping = presenter.playerController.getPagesMapping();
-        var lessonPageCount = presenter.playerController.getPresentation().getPageCount();
-        var pagesInSections = sections.reduce(
-            function (accumulator, section) {
-                return accumulator + section.pages.length
-            },
-            0
-        );
 
-        if (pagesInSections > lessonPageCount) { // more pages in sections than in lesson
-            for (var i = 0; i < sections.length; i++) {
-                sections[i].pages = sections[i].pages.filter(function (page) {
-                    return mapping[page] >= 0;
-                });
-            }
-
-            sections = sections.filter(function(section) {
-                return section.pages.length > 0;
+        for (var i = 0; i < sections.length; i++) {
+            sections[i].pages = sections[i].pages.filter(function (page) {
+                return mapping[page] >= 0;
             });
         }
+
+        sections = sections.filter(function(section) {
+            return section.pages.length > 0;
+        });
 
         return sections;
     };
