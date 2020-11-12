@@ -345,12 +345,9 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.Section.prototype.createPages = function (pages, pagesDescriptions) {
-        var mapping = presenter.playerController.getPagesMapping();
         var pagesToCreate = presenter.configuration.defaultOrder ? pages : shuffleArray(pages);
 
-        return pagesToCreate.filter(function (el) {
-            return mapping[el] > -1;
-        }).map(function (page, index) {
+        return pagesToCreate.map(function (page, index) {
             return new presenter.Page(page, pagesDescriptions[index], this.name, this.cssClass);
         }, this);
     };
@@ -479,25 +476,16 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.filterSectionsWithTooManyPages = function(sections) {
         var mapping = presenter.playerController.getPagesMapping();
-        var lessonPageCount = presenter.playerController.getPresentation().getPageCount();
-        var pagesInSections = sections.reduce(
-            function (accumulator, section) {
-                return accumulator + section.pages.length
-            },
-            0
-        );
 
-        if (pagesInSections > lessonPageCount) { // more pages in sections than in lesson
-            for (var i = 0; i < sections.length; i++) {
-                sections[i].pages = sections[i].pages.filter(function (page) {
-                    return mapping[page] >= 0;
-                });
-            }
-
-            sections = sections.filter(function(section) {
-                return section.pages.length > 0;
+        for (var i = 0; i < sections.length; i++) {
+            sections[i].pages = sections[i].pages.filter(function (page) {
+                return mapping[page] >= 0;
             });
         }
+
+        sections = sections.filter(function(section) {
+            return section.pages.length > 0;
+        });
 
         return sections;
     };
