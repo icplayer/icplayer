@@ -345,9 +345,12 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.Section.prototype.createPages = function (pages, pagesDescriptions) {
+        var mapping = presenter.playerController.getPagesMapping();
         var pagesToCreate = presenter.configuration.defaultOrder ? pages : shuffleArray(pages);
 
-        return pagesToCreate.map(function (page, index) {
+        return pagesToCreate.filter(function (el) {
+            return mapping[el] > -1;
+        }).map(function (page, index) {
             return new presenter.Page(page, pagesDescriptions[index], this.name, this.cssClass);
         }, this);
     };
