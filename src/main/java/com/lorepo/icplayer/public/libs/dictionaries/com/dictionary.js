@@ -1079,6 +1079,7 @@ var ice_dictionary_en = {
 	"Single_State_Button_property_image": "Image",
 	"Single_State_Button_property_on_click": "On click",
 	"Single_State_Button_property_disable": "Disable",
+	"Single_State_Button_property_enable_in_error_mode": "Enable in error mode",
 	"External_Link_Button_info": "Allows users to create hyperlinks to external resources.",
 	"External_Link_Button_name": "External Link Button",
 	"External_Link_Button_property_title": "Title",
