@@ -6,6 +6,10 @@ TestCase("[Single State Button] Click handler", {
             isDisabled: false,
             isErrorMode: false
         };
+
+        this.presenter.state = {
+            isErrorMode: false
+        };
         
         this.event = {
             stopPropagation: function() {}
@@ -30,12 +34,22 @@ TestCase("[Single State Button] Click handler", {
     },
 
     'test addon in error checking mode': function () {
-        this.presenter.configuration.isErrorMode = true;
+        this.presenter.setShowErrorsMode();
 
         this.presenter.clickHandler(this.event);
 
         assertFalse(this.presenter.executeUserEventCode.called);
         assertFalse(this.presenter.triggerButtonClickedEvent.called);
+    },
+
+    'test given addon in error checking mode and button enabled in error mode when calling click handler then calls code': function () {
+        this.presenter.setShowErrorsMode();
+        this.presenter.configuration.enableInErrorMode = true;
+
+        this.presenter.clickHandler(this.event);
+
+        assertTrue(this.presenter.executeUserEventCode.called);
+        assertTrue(this.presenter.triggerButtonClickedEvent.called);
     },
 
     'test button click is enabled and addon in working mode': function () {
