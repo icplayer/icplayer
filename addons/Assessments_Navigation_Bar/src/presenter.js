@@ -39,6 +39,8 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.keyboardControllerObject = null;
+    //this field is set based on the metadata. It overrides the defaultOrder property
+    presenter.randomizeLesson = null;
 
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
@@ -73,6 +75,10 @@ function AddonAssessments_Navigation_Bar_create(){
                 presenter.currentPageIndex = index;
             }
         });
+        var context = controller.getContextMetadata();
+         if (context != null && "randomizeLesson" in context) {
+             presenter.randomizeLesson = context["randomizeLesson"];
+         }
         presenter.commander = controller.getCommands();
         presenter.eventBus = controller.getEventBus();
 
@@ -345,7 +351,11 @@ function AddonAssessments_Navigation_Bar_create(){
     };
 
     presenter.Section.prototype.createPages = function (pages, pagesDescriptions) {
-        var pagesToCreate = presenter.configuration.defaultOrder ? pages : shuffleArray(pages);
+        var keepDefaultOrder = presenter.configuration.defaultOrder;
+        if (presenter.randomizeLesson != null) {
+            keepDefaultOrder = !presenter.randomizeLesson;
+        }
+        var pagesToCreate = keepDefaultOrder ? pages : shuffleArray(pages);
 
         return pagesToCreate.map(function (page, index) {
             return new presenter.Page(page, pagesDescriptions[index], this.name, this.cssClass);
