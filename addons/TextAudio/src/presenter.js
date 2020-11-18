@@ -1,6 +1,8 @@
 function AddonTextAudio_create() {
     var presenter = function() {};
 
+    presenter.markerWCAG = {};
+
     presenter.originalFile = {};
     presenter.vocabularyFile = {};
     presenter.eventBus = null;
@@ -183,11 +185,35 @@ function AddonTextAudio_create() {
         return upgradedModel;
     };
 
+    presenter.upgradeSpeechTexts = function (model) {
+         var upgradedModel = {};
+
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel['Preview Alternative Text']) {
+            upgradedModel['Preview Alternative Text'] = ''
+        }
+
+        if (!upgradedModel['speechTexts']) {
+            upgradedModel['speechTexts'] = {
+                Play: {Play: "play"},
+                Pause: {Pause: "pause"},
+                Stop: {Stop: "stop"},
+            };
+        }
+
+        if (!upgradedModel['langAttribute']) {
+            upgradedModel['langAttribute'] = '';
+        }
+
+        return upgradedModel;
+    }
+
     presenter.upgradeModel = function AddonTextAudio_upgradeModel (model) {
     	var upgradedModel = presenter.upgradeControls(model);
     	upgradedModel = presenter.upgradeIsDisabled(upgradedModel);
-
-        return presenter.upgradeClickAction(upgradedModel);
+        upgradedModel = presenter.upgradeClickAction(upgradedModel);
+        return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
     presenter.upgradeClickAction = function AddonTextAudio_upgradeClickAction (model) {
@@ -1470,7 +1496,9 @@ function AddonTextAudio_create() {
             vocabularyIntervals: validatedVocabularyIntervals.intervals,
             isClickDisabled: ModelValidationUtils.validateBoolean(model.isClickDisabled),
             showSlides: model.showSlides,
-            isEnabled: !ModelValidationUtils.validateBoolean(model["isDisabled"])
+            isEnabled: !ModelValidationUtils.validateBoolean(model["isDisabled"]),
+            speechTexts: model.speechTexts,
+            langAttribute: model.langAttribute
         };
     };
 
@@ -1727,7 +1755,47 @@ function AddonTextAudio_create() {
 
     TextAudioKeyboardController.prototype.mark = function (element) {
         window.KeyboardController.prototype.mark.call(this, element);
-        this.getTarget(element, false)[0].scrollIntoView();
+
+        var $element = this.getTarget(element, false);
+
+        if (presenter.isWCAGOn) {
+          presenter.speakCurrentElement($element);
+        }
+
+        $element[0].scrollIntoView();
+    }
+
+    presenter.speakCurrentElement = function ($element) {
+        var text;
+        if ($element.hasClass("textaudio-play-pause-btn")) {
+            text = TTSUtils.getTextVoiceObject(
+                presenter.isPlaying ? presenter.configuration.speechTexts['Pause']['Pause'] : presenter.configuration.speechTexts['Play']['Play'],
+                presenter.configuration.langAttribute
+            );
+            presenter.speak([text]);
+        } else if ($element.hasClass("textaudio-stop-btn")) {
+            text = TTSUtils.getTextVoiceObject(
+                presenter.configuration.speechTexts['Stop']['Stop'],
+                presenter.configuration.langAttribute
+            );
+            presenter.speak([text]);
+        }
+    }
+
+    presenter.getTextToSpeechOrNull = function AddonTextAudio_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
     }
 
     return presenter;
