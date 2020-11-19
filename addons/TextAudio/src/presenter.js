@@ -190,10 +190,6 @@ function AddonTextAudio_create() {
 
         $.extend(true, upgradedModel, model); // Deep copy of model object
 
-        if (!upgradedModel['Preview Alternative Text']) {
-            upgradedModel['Preview Alternative Text'] = ''
-        }
-
         if (!upgradedModel['speechTexts']) {
             upgradedModel['speechTexts'] = {
                 Play: {Play: "play"},
