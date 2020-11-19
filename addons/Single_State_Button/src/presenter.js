@@ -8,6 +8,10 @@ function AddonSingle_State_Button_create() {
         BOTH: 3
     };
 
+    presenter.state = {
+        isErrorMode: false
+    };
+
     presenter.executeUserEventCode = function() {
         if (presenter.playerController == null) return;
         if (presenter.configuration.onClickEvent.isEmpty) return;
@@ -20,8 +24,9 @@ function AddonSingle_State_Button_create() {
             event.stopPropagation();
         }
 
+        var allowClickInErrorMode = presenter.state.isErrorMode && presenter.configuration.enableInErrorMode;
         if (presenter.configuration.isDisabled) return;
-        if (presenter.configuration.isErrorMode) return;
+        if (presenter.configuration.isErrorMode && !allowClickInErrorMode) return;
 
         presenter.executeUserEventCode();
         presenter.triggerButtonClickedEvent();
@@ -121,7 +126,8 @@ function AddonSingle_State_Button_create() {
     };
 
     presenter.upgradeModel = function(model) {
-        return presenter.upgradeDisable(model);
+        var upgradedModel = presenter.upgradeDisable(model);
+        return presenter.upgradeEnableInErrorMode(upgradedModel);
     };
 
     presenter.upgradeDisable = function (model) {
@@ -134,6 +140,17 @@ function AddonSingle_State_Button_create() {
 
         return upgradedModel;
     };
+
+    presenter.upgradeEnableInErrorMode = function AddonSingleStateButton_upgradeEnableInErrorMode(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel['Enable in error mode']) {
+            upgradedModel['Enable in error mode'] = "False";
+        }
+
+        return upgradedModel;
+    }
 
     presenter.validateString = function (imageSrc) {
         var isEmpty = ModelValidationUtils.isStringEmpty(imageSrc);
@@ -165,6 +182,7 @@ function AddonSingle_State_Button_create() {
         var isDisabled = ModelValidationUtils.validateBoolean(model.Disable);
         var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
+        var enableInErrorMode = ModelValidationUtils.validateBoolean(model['Enable in error mode']);
 
         return {
             displayContent: presenter.determineDisplayContent(title, image),
@@ -176,7 +194,8 @@ function AddonSingle_State_Button_create() {
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
             isErrorMode: false,
-            isTabindexEnabled: isTabindexEnabled
+            isTabindexEnabled: isTabindexEnabled,
+            enableInErrorMode: enableInErrorMode
         };
     };
 
@@ -223,7 +242,8 @@ function AddonSingle_State_Button_create() {
     };
 
     presenter.reset = function() {
-        presenter.configuration.isErrorMode = false;
+        presenter.setWorkMode();
+
         presenter.configuration.isVisible = presenter.configuration.isVisibleByDefault;
         if (presenter.configuration.isVisible) {
             this.show();
@@ -276,25 +296,27 @@ function AddonSingle_State_Button_create() {
 
     presenter.setShowErrorsMode = function () {
         presenter.configuration.isErrorMode = true;
+        presenter.state.isErrorMode = true;
     };
 
     presenter.setWorkMode = function () {
         presenter.configuration.isErrorMode = false;
+        presenter.state.isErrorMode = false;
     };
 
     presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
+        if (eventName === "ShowAnswers") {
             presenter.configuration.isErrorMode = true;
         }
 
-        if (eventName == "HideAnswers") {
+        if (eventName === "HideAnswers") {
             presenter.configuration.isErrorMode = false;
         }
     };
 
     presenter.keyboardController = function(keyCode, isShiftDown, event) {
         event.preventDefault();
-        if (keyCode == window.KeyboardControllerKeys.ENTER) {
+        if (keyCode === window.KeyboardControllerKeys.ENTER) {
             presenter.clickHandler();
         }
     };
