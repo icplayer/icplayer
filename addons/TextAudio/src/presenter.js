@@ -1764,14 +1764,17 @@ function AddonTextAudio_create() {
     presenter.speakCurrentElement = function ($element) {
         var text;
         if ($element.hasClass("textaudio-play-pause-btn")) {
+            var textToSpeak = presenter.isPlaying ?
+                TTSUtils.getSpeechTextProperty(presenter.configuration.speechTexts['Pause']['Pause'], "Pause") :
+                TTSUtils.getSpeechTextProperty(presenter.configuration.speechTexts['Play']['Play'], "Play");
             text = TTSUtils.getTextVoiceObject(
-                presenter.isPlaying ? presenter.configuration.speechTexts['Pause']['Pause'] : presenter.configuration.speechTexts['Play']['Play'],
+                textToSpeak,
                 presenter.configuration.langAttribute
             );
             presenter.speak([text]);
         } else if ($element.hasClass("textaudio-stop-btn")) {
             text = TTSUtils.getTextVoiceObject(
-                presenter.configuration.speechTexts['Stop']['Stop'],
+                TTSUtils.getSpeechTextProperty(presenter.configuration.speechTexts['Stop']['Stop'], "Stop"),
                 presenter.configuration.langAttribute
             );
             presenter.speak([text]);
