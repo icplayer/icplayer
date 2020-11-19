@@ -1078,6 +1078,7 @@ var ice_dictionary_bl = {
 	"Single_State_Button_property_image": "Изображение",
 	"Single_State_Button_property_on_click": "При кликване",
 	"Single_State_Button_property_disable": "Изключи",
+	"Single_State_Button_property_enable_in_error_mode": "Enable in error checking mode",
 	"External_Link_Button_info": "Позволява ви да слагате линкове към външни ресурси.",
 	"External_Link_Button_name": "Бутон за външна връзка",
 	"External_Link_Button_property_title": "Заглавие",
