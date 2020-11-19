@@ -90,7 +90,6 @@ function AddonFractions_create(){
     };
 
     presenter.isAttempted = function(){
-        presenter.hideAnswers();
         if(!presenter.configuration.isAnswer) {
             return true;
         }
