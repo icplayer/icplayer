@@ -1366,8 +1366,8 @@ function AddonAssessments_Navigation_Bar_create(){
         if (state === null || state === "" || state === undefined) {
             return;
         }
-        if (presenter.randomizeLesson !== null) {
-            //Randomize lesson metadata overrides state
+        if (presenter.randomizeLesson === false) {
+            //Randomize lesson == false overrides state
             return;
         }
 
