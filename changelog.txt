@@ -1,5 +1,8 @@
 2020-11-20 Changed randomizeLesson in Assessment Navigation Bar to override addon state
+2020-11-19 Add new property for SingleStateButton which allows clicking in error mode.
 2020-11-17 Added support for randomizeLesson metadata in Assessment Navigation Bar
+2020-11-13 Fixed issue with isAttempted disabling ShowErrors mode in Fractions
+2020-11-12 Removed gap wrapping in Text
 2020-11-02 Added gaps not breaking from text that is directly adjacent to it in Text and Table 
 2020-11-02 Fixed issues with navigation in assessment navigation bar.
 2020-11-02 Fixed issue with opening popup page with YouTube addon
