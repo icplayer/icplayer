@@ -40,6 +40,7 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.keyboardControllerObject = null;
     //this field is set based on the metadata. It overrides the defaultOrder property
+    // If set to false it prevents state import
     presenter.randomizeLesson = null;
 
     presenter.showErrorMessage = function(message, substitutions) {
@@ -1363,6 +1364,10 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.setState = function(state){
         if (state === null || state === "" || state === undefined) {
+            return;
+        }
+        if (presenter.randomizeLesson === false) {
+            //Randomize lesson == false overrides state
             return;
         }
 
