@@ -517,6 +517,15 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		return jsObject;
 	}
 
+	@Override
+	public void setEnabled(boolean value) {
+		if (value) {
+			enable();
+		} else {
+			disable();
+		}
+	}
+
 	public boolean isAllOK() {
 		return getScore() == getMaxScore() && getErrorCount() == 0;
 	}
