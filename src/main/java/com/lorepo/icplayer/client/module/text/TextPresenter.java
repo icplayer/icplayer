@@ -27,7 +27,7 @@ import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 import java.util.*;
 
-public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IEnterable {
+public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IEnterable, IGradualShowAnswersPresenter {
 
 	public interface TextElementDisplay {
 		boolean hasId(String id);
@@ -1047,6 +1047,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		return jsObject;
+	}
+
+	@Override
+	public int getActivitiesCount() {
+		return gapInfos.size();
 	}
 	
 	private void jsOnEventReceived (String eventName, String jsonData) {
