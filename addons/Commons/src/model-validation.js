@@ -14,7 +14,7 @@
 
      @param value string representation of {Boolean} starting with capital letter.
 
-     @return {Boolean} parsed value
+     @return {boolean} parsed value
      */
     ModelValidationUtils.validateBoolean = function validateBoolean(value) {
         return value === 'True';

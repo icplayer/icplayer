@@ -40,7 +40,15 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.keyboardControllerObject = null;
     //this field is set based on the metadata. It overrides the defaultOrder property
+    // If set to false it prevents state import
     presenter.randomizeLesson = null;
+
+    presenter.ASSESSMENT_USER_TYPES = {
+        NONE: 0,
+        TEACHER: 1,
+        STUDENT: 2,
+    }
+    presenter.assessmentUser = presenter.ASSESSMENT_USER_TYPES.NONE;
 
     presenter.showErrorMessage = function(message, substitutions) {
         var errorContainer;
@@ -76,8 +84,17 @@ function AddonAssessments_Navigation_Bar_create(){
             }
         });
         var context = controller.getContextMetadata();
-         if (context != null && "randomizeLesson" in context) {
-             presenter.randomizeLesson = context["randomizeLesson"];
+         if (context != null) {
+            if ("randomizeLesson" in context) {
+                 presenter.randomizeLesson = context["randomizeLesson"];
+            }
+            if ("assessmentUser" in context) {
+               if (context["assessmentUser"] == "teacher") {
+                    presenter.assessmentUser = presenter.ASSESSMENT_USER_TYPES.TEACHER;
+               } else if (context["assessmentUser"] == "student") {
+                    presenter.assessmentUser = presenter.ASSESSMENT_USER_TYPES.STUDENT;
+               }
+            }
          }
         presenter.commander = controller.getCommands();
         presenter.eventBus = controller.getEventBus();
@@ -352,14 +369,24 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.Section.prototype.createPages = function (pages, pagesDescriptions) {
         var keepDefaultOrder = presenter.configuration.defaultOrder;
-        if (presenter.randomizeLesson != null) {
+        if (presenter.assessmentUser != presenter.ASSESSMENT_USER_TYPES.NONE) {
+            if (presenter.assessmentUser == presenter.ASSESSMENT_USER_TYPES.TEACHER) {
+                keepDefaultOrder = true;
+            } else {
+                // presenter.assessmentUser set to student
+                keepDefaultOrder = false;
+            }
+        } else if (presenter.randomizeLesson != null) {
             keepDefaultOrder = !presenter.randomizeLesson;
         }
         var pagesToCreate = keepDefaultOrder ? pages : shuffleArray(pages);
 
         return pagesToCreate.map(function (page, index) {
+            if (page == -1) return null;
             return new presenter.Page(page, pagesDescriptions[index], this.name, this.cssClass);
-        }, this);
+        }, this).filter(function(page) {
+            return page != null;
+        });
     };
 
     presenter.Sections = function (sections) {
@@ -487,10 +514,21 @@ function AddonAssessments_Navigation_Bar_create(){
     presenter.filterSectionsWithTooManyPages = function(sections) {
         var mapping = presenter.playerController.getPagesMapping();
 
-        for (var i = 0; i < sections.length; i++) {
-            sections[i].pages = sections[i].pages.filter(function (page) {
-                return mapping[page] >= 0;
-            });
+        if (presenter.assessmentUser == presenter.ASSESSMENT_USER_TYPES.TEACHER) {
+            for (var i = 0; i < sections.length; i++) {
+                for(var j = 0; j < sections[i].pages.length; j++) {
+                    var page = sections[i].pages[j];
+                    if (mapping[page] == -1) {
+                        sections[i].pages[j] = -1;
+                    }
+                }
+            }
+        } else {
+            for (var i = 0; i < sections.length; i++) {
+                sections[i].pages = sections[i].pages.filter(function (page) {
+                    return mapping[page] >= 0;
+                });
+            }
         }
 
         sections = sections.filter(function(section) {
@@ -1363,6 +1401,10 @@ function AddonAssessments_Navigation_Bar_create(){
 
     presenter.setState = function(state){
         if (state === null || state === "" || state === undefined) {
+            return;
+        }
+        if (presenter.randomizeLesson === false) {
+            //Randomize lesson == false overrides state
             return;
         }
 
