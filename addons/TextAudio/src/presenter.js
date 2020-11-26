@@ -1,6 +1,8 @@
 function AddonTextAudio_create() {
     var presenter = function() {};
 
+    presenter.markerWCAG = {};
+
     presenter.originalFile = {};
     presenter.vocabularyFile = {};
     presenter.eventBus = null;
@@ -25,6 +27,14 @@ function AddonTextAudio_create() {
     presenter.previousSelectionId = -1;
     presenter.mouseData = {};
     presenter.slidesMade = false;
+    presenter.keyboardControllerObject = null;
+    presenter.isWCAGOn = false;
+
+    var controls = {
+        CUSTOM: "Custom",
+        BROWSER: "Browser",
+        NONE: "None"
+    };
 
     /**
      * play_interval_or_vocabulary - this option if for compatibility sake. If user had both
@@ -175,11 +185,31 @@ function AddonTextAudio_create() {
         return upgradedModel;
     };
 
+    presenter.upgradeSpeechTexts = function (model) {
+         var upgradedModel = {};
+
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel['speechTexts']) {
+            upgradedModel['speechTexts'] = {
+                Play: {Play: "play"},
+                Pause: {Pause: "pause"},
+                Stop: {Stop: "stop"},
+            };
+        }
+
+        if (!upgradedModel['langAttribute']) {
+            upgradedModel['langAttribute'] = '';
+        }
+
+        return upgradedModel;
+    }
+
     presenter.upgradeModel = function AddonTextAudio_upgradeModel (model) {
     	var upgradedModel = presenter.upgradeControls(model);
     	upgradedModel = presenter.upgradeIsDisabled(upgradedModel);
-
-        return presenter.upgradeClickAction(upgradedModel);
+        upgradedModel = presenter.upgradeClickAction(upgradedModel);
+        return presenter.upgradeSpeechTexts(upgradedModel);
     };
 
     presenter.upgradeClickAction = function AddonTextAudio_upgradeClickAction (model) {
@@ -268,7 +298,7 @@ function AddonTextAudio_create() {
         duration = isNaN(duration) ? 0 : duration;
         presenter.displayTimer(0, duration);
 
-        if (presenter.configuration.controls === "Custom"){
+        if (presenter.configuration.controls === controls.CUSTOM){
             presenter.$playerTime.html('0:00 / ' + presenter.formatTime(duration))
         }
     };
@@ -308,7 +338,7 @@ function AddonTextAudio_create() {
             presenter.displayTimer(currentTime, duration);
         }
 
-        if (presenter.configuration.controls === "Custom"){
+        if (presenter.configuration.controls === controls.CUSTOM){
             presenter.$playerTime.html(presenter.formatTime(currentTime) + ' / ' + presenter.formatTime(duration));
             bar_width = presenter.$progressWrapper.width() * currentTime / duration;
             presenter.$progressBar.width(Math.round(bar_width));
@@ -342,7 +372,7 @@ function AddonTextAudio_create() {
 
     presenter.onVolumeChanged = function AddonTextAudio_onVolumeChanged () {
         var volume, volume_class;
-        if (presenter.configuration.controls === "Custom"){
+        if (presenter.configuration.controls === controls.CUSTOM){
             volume = presenter.audio.volume;
             volume_class = '';
             presenter.$volumeControl.css('left', volume * presenter.$volumeLayer.width());
@@ -405,6 +435,8 @@ function AddonTextAudio_create() {
         if (slide_id < 0) {
             textWrapper.html('');
         } else {
+            presenter.slidesSpanElements = [];
+
             if(presenter.configuration.showSlides == "Show all slides" && slide_id >=1){
                 var textElement = $('<div class="textaudio-text"></div>');
                 textElement.addClass('slide-id-'+slide_id);
@@ -591,6 +623,7 @@ function AddonTextAudio_create() {
 
             if (slide_data.slide_id != presenter.current_slide_data.slide_id) {
                 presenter.makeSlide(textWrapper, slide_data.slide_id);
+                presenter.actualizeKeyboardControllerElements();
             }
             presenter.highlightSelection(textWrapper, slide_data.selection_id);
 
@@ -817,16 +850,16 @@ function AddonTextAudio_create() {
         presenter.$view.bind('click', function (event) {
             event.stopPropagation();
         });
-        presenter.originalFile .mp3 = model.mp3;
-        presenter.originalFile .ogg = model.ogg;
+        presenter.originalFile.mp3 = model.mp3;
+        presenter.originalFile.ogg = model.ogg;
 
         presenter.audio = document.createElement('audio');
         presenter.$audioWrapper = presenter.$view.find(".wrapper-addon-textaudio .textaudio-player");
 
-        if (presenter.configuration.controls === "Browser") {
+        if (presenter.configuration.controls === controls.BROWSER) {
             presenter.audio.setAttribute("controls", "controls");
             presenter.audio.setAttribute("preload", "auto");
-        } else if (presenter.configuration.controls === "Custom") {
+        } else if (presenter.configuration.controls === controls.CUSTOM) {
             presenter.createHtmlPlayer();
         }
 
@@ -1164,6 +1197,8 @@ function AddonTextAudio_create() {
             }
 
             presenter.showLoadingArea(presenter.configuration.clickAction);
+
+            presenter.buildTextAudioKeyboardController()
         }
     };
 
@@ -1457,7 +1492,9 @@ function AddonTextAudio_create() {
             vocabularyIntervals: validatedVocabularyIntervals.intervals,
             isClickDisabled: ModelValidationUtils.validateBoolean(model.isClickDisabled),
             showSlides: model.showSlides,
-            isEnabled: !ModelValidationUtils.validateBoolean(model["isDisabled"])
+            isEnabled: !ModelValidationUtils.validateBoolean(model["isDisabled"]),
+            speechTexts: model.speechTexts,
+            langAttribute: model.langAttribute
         };
     };
 
@@ -1495,7 +1532,7 @@ function AddonTextAudio_create() {
             presenter.stopClicked = false;
             presenter.pauseZero();
             presenter.audio.play();
-            if (presenter.configuration.controls === "Custom") {
+            if (presenter.configuration.controls === controls.CUSTOM) {
                 presenter.$playPauseBtn.
                     removeClass('textaudio-play-btn').
                     addClass('textaudio-pause-btn');
@@ -1504,7 +1541,7 @@ function AddonTextAudio_create() {
     });
 
     function forceStop () {
-        if (presenter.configuration.controls === "Custom" && presenter.isLoaded) {
+        if (presenter.configuration.controls === controls.CUSTOM && presenter.isLoaded) {
             presenter.stopClicked = true;
             presenter.$playPauseBtn.
                 addClass('textaudio-play-btn').
@@ -1547,7 +1584,7 @@ function AddonTextAudio_create() {
 
         if (!presenter.audio.paused) {
             presenter.audio.pause();
-            if (presenter.configuration.controls === "Custom") {
+            if (presenter.configuration.controls === controls.CUSTOM) {
                 presenter.$playPauseBtn.
                     removeClass('textaudio-pause-btn').
                     addClass('textaudio-play-btn');
@@ -1598,7 +1635,7 @@ function AddonTextAudio_create() {
         presenter.configuration.isEnabled = true;
         presenter.$view.removeClass('disabled');
 
-        if (presenter.configuration.controls === "Browser") {
+        if (presenter.configuration.controls === controls.BROWSER) {
             presenter.setAudioSrc();
             presenter.audio.currentTime = presenter.disabledTime;
         }
@@ -1609,7 +1646,7 @@ function AddonTextAudio_create() {
         presenter.configuration.isEnabled = false;
         presenter.$view.addClass('disabled');
 
-        if (presenter.configuration.controls === "Browser") {
+        if (presenter.configuration.controls === controls.BROWSER) {
             presenter.disabledTime = presenter.audio.currentTime;
             presenter.audio.removeAttribute('src');
             presenter.audio.load();
@@ -1663,6 +1700,102 @@ function AddonTextAudio_create() {
     presenter.__internalElements = {
         isEnabledDecorator: isModuleEnabledDecorator
     };
+
+    presenter.setWCAGStatus = function (isOn) {
+        presenter.isWCAGOn = isOn;
+    };
+
+    presenter.getNewCurrentAudioKeyboardElements = function () {
+        var elements;
+        switch (presenter.configuration.controls) {
+            case controls.CUSTOM:
+                elements = [
+                    presenter.$playPauseBtn,
+                    presenter.$stopBtn
+                ];
+                break;
+            default:
+                elements = [];
+                break;
+        }
+
+        return elements.concat(presenter.slidesSpanElements.map(
+            function(spanElement) {
+                return $(spanElement);
+            }
+        ));
+    }
+
+    presenter.actualizeKeyboardControllerElements = function () {
+        if (presenter.keyboardControllerObject) {
+            var elements = presenter.getNewCurrentAudioKeyboardElements();
+            presenter.keyboardControllerObject.setElements(elements);
+        }
+    }
+
+    presenter.buildTextAudioKeyboardController = function () {
+        var elements = presenter.getNewCurrentAudioKeyboardElements();
+        presenter.keyboardControllerObject = new TextAudioKeyboardController(elements, 1);
+    }
+
+    presenter.keyboardController = function (keycode, isShiftDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftDown, event);
+    };
+
+    function TextAudioKeyboardController(elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    TextAudioKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    TextAudioKeyboardController.prototype.constructor = TextAudioKeyboardController;
+
+    TextAudioKeyboardController.prototype.mark = function (element) {
+        window.KeyboardController.prototype.mark.call(this, element);
+
+        var $element = this.getTarget(element, false);
+
+        if (presenter.isWCAGOn) {
+          presenter.speakCurrentElement($element);
+        }
+
+        $element[0].scrollIntoView();
+    }
+
+    presenter.speakCurrentElement = function ($element) {
+        var text;
+        if ($element.hasClass("textaudio-play-pause-btn")) {
+            var textToSpeak = presenter.isPlaying ?
+                TTSUtils.getSpeechTextProperty(presenter.configuration.speechTexts['Pause']['Pause'], "Pause") :
+                TTSUtils.getSpeechTextProperty(presenter.configuration.speechTexts['Play']['Play'], "Play");
+            text = TTSUtils.getTextVoiceObject(
+                textToSpeak,
+                presenter.configuration.langAttribute
+            );
+            presenter.speak([text]);
+        } else if ($element.hasClass("textaudio-stop-btn")) {
+            text = TTSUtils.getTextVoiceObject(
+                TTSUtils.getSpeechTextProperty(presenter.configuration.speechTexts['Stop']['Stop'], "Stop"),
+                presenter.configuration.langAttribute
+            );
+            presenter.speak([text]);
+        }
+    }
+
+    presenter.getTextToSpeechOrNull = function AddonTextAudio_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function (data) {
+        var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    }
 
     return presenter;
 }
