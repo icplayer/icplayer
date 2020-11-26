@@ -1403,8 +1403,9 @@ function AddonAssessments_Navigation_Bar_create(){
         if (state === null || state === "" || state === undefined) {
             return;
         }
-        if (presenter.randomizeLesson === false) {
-            //Randomize lesson == false overrides state
+        if (presenter.randomizeLesson === false
+        || presenter.assessmentUser == presenter.ASSESSMENT_USER_TYPES.TEACHER) {
+            //Randomize lesson == false and assessmentUser == teacher override state
             return;
         }
 
