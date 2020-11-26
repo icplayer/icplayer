@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.text;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -320,5 +321,13 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	@Override
 	public String getLangTag() {
 		return null;
+	}
+
+	@Override
+	public void showAnswers() {
+		int index = choiceInfo.getAnswerIndex();
+		if (index != -1) {
+			this.setSelectedIndex(index + 1);
+		}
 	}
 }

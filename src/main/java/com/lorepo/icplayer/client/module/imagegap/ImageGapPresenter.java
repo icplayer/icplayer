@@ -506,6 +506,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 		return jsObject;
 	}
 
+	@Override
+	public void setDisabled(boolean value) {
+		view.setDisabled(value);
+	}
+
 	private String getValue() {
 		return getState();
 	}

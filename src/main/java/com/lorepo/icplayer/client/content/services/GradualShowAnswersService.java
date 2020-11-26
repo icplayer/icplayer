@@ -1,30 +1,35 @@
 package com.lorepo.icplayer.client.content.services;
 
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IGradualShowAnswersPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.event.GradualHideAnswerEvent;
 import com.lorepo.icplayer.client.module.api.event.builders.GradualShowAnswersBuilder;
 import com.lorepo.icplayer.client.module.api.player.IGradualShowAnswersService;
+import com.lorepo.icplayer.client.module.api.player.IPageController;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.page.PageController;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GradualShowAnswersService implements IGradualShowAnswersService {
-    private final IPlayerServices playerServices;
+    private final IPageController pageController;
     private int currentModule = 0;
     private int currentModuleItem = 0;
-    private final List<IGradualShowAnswersPresenter> presenters;
+    private List<IGradualShowAnswersPresenter> presenters;
 
-    public GradualShowAnswersService(IPlayerServices playerServices) {
-        this.playerServices = playerServices;
 
-        presenters = new ArrayList<IGradualShowAnswersPresenter>();
+    public GradualShowAnswersService(IPageController pageController) {
+        this.pageController = pageController;
 
-        for (IPresenter presenter : this.playerServices.getCommands().getPageController().getPresenters()) {
-            if (presenter instanceof IGradualShowAnswersPresenter) {
-                presenters.add((IGradualShowAnswersPresenter) presenter);
-            }
-        }
+        setCurrentPagePresenters();
+    }
+
+    @Override
+    public void hideAll() {
+        this.pageController.getPlayerServices().getEventBus().fireEvent(new GradualHideAnswerEvent());
+        setDisabled(false);
     }
 
     /**
@@ -32,6 +37,12 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
      */
     @Override
     public boolean showNext() {
+        boolean firstCall = !this.pageController.getPlayerServices().getPlayerStateService().isGradualShowAnswersMode();
+        if (firstCall) {
+            //TODO: switch off other modes?
+            setDisabled(true);
+        }
+
         IGradualShowAnswersPresenter currentPresenter = getNextPresenter();
 
         if (currentPresenter != null) {
@@ -53,13 +64,40 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
 
     @Override
     public void reset() {
+        resetCounters();
+    }
+
+    @Override
+    public void refreshCurrentPagePresenters() {
+        setCurrentPagePresenters();
+    }
+
+    private void resetCounters() {
         this.currentModuleItem = 0;
         this.currentModule = 0;
     }
 
-    private void switchOffOtherModes() {
-
+    private void setDisabled(boolean value) {
+        for (IPresenter presenter : this.pageController.getPresenters()) {
+            presenter.setDisabled(value);
+        }
     }
+
+    private void setCurrentPagePresenters() {
+        presenters = new ArrayList<IGradualShowAnswersPresenter>();
+
+        List<IPresenter> pagePresenters = this.pageController.getPresenters();
+        if (pagePresenters != null) {
+            for (IPresenter presenter : pagePresenters) {
+                if (presenter instanceof IGradualShowAnswersPresenter) {
+                    presenters.add((IGradualShowAnswersPresenter) presenter);
+                }
+            }
+        }
+
+        resetCounters();
+    }
+
 
     private IGradualShowAnswersPresenter getNextPresenter() {
         if (this.currentModule < this.presenters.size()) {
@@ -69,8 +107,8 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     }
 
     private void sendEvent(String moduleID, int itemIndex) {
-        GradualShowAnswersBuilder builder = new GradualShowAnswersBuilder(moduleID, String.valueOf(itemIndex));
+        GradualShowAnswersBuilder builder = new GradualShowAnswersBuilder(moduleID, itemIndex);
 
-        this.playerServices.getEventBus().fireEvent(builder.build());
+        this.pageController.getPlayerServices().getEventBus().fireEvent(builder.build());
     }
 }

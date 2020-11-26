@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.content.services;
 
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
+import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
 public class PlayerStateService implements IPlayerStateService {
     public enum Mode {
@@ -13,6 +14,11 @@ public class PlayerStateService implements IPlayerStateService {
     }
 
     private Mode currentMode = Mode.WORK;
+    private IPlayerServices services;
+
+    public PlayerStateService(IPlayerServices services) {
+        this.services = services;
+    }
 
     @Override
     public boolean isCheckErrorsMode() {

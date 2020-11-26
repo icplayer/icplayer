@@ -75,34 +75,30 @@ public class PlayerEventBus extends ResettableEventBus {
 			String name = getEventName(event);
 			IPlayerStateService playerStateService = this.playerServices.getPlayerStateService();
 
-			switch (name) {
-				case WorkModeEvent.NAME:
-				case ResetPageEvent.NAME:
-					playerStateService.setWorkMode();
-					break;
-				case ShowErrorsEvent.NAME:
-					playerStateService.setCheckErrorsMode(true);
-					break;
-				case GradualShowAnswerEvent.NAME:
-					playerStateService.setGradualShowAnswersMode(true);
-					break;
-				case ValueChangedEvent.NAME:
-					if (event instanceof ValueChangedEvent) {
-						String value = ((ValueChangedEvent) event).getValue();
-						if (value != null && value.equals("LimitedShowAnswers")) {
-							playerStateService.setLimitedShowAnswersMode(true);
-						} else if (value != null && value.equals("LimitedHideAnswers")) {
-							playerStateService.setLimitedShowAnswersMode(false);
-						}
+			// strings in switch are not supported in -source 1.6
+			if (WorkModeEvent.NAME.equals(name) || ResetPageEvent.NAME.equals(name)) {
+				playerStateService.setWorkMode();
+			} else if (ShowErrorsEvent.NAME.equals(name)) {
+				playerStateService.setCheckErrorsMode(true);
+			} else if (GradualShowAnswerEvent.NAME.equals(name)) {
+				playerStateService.setGradualShowAnswersMode(true);
+			} else if (GradualHideAnswerEvent.NAME.equals(name)) {
+				playerStateService.setGradualShowAnswersMode(false);
+			} else if (ValueChangedEvent.NAME.equals(name)) {
+				if (event instanceof ValueChangedEvent) {
+					String value = ((ValueChangedEvent) event).getValue();
+					if (value != null && value.equals("LimitedShowAnswers")) {
+						playerStateService.setLimitedShowAnswersMode(true);
+					} else if (value != null && value.equals("LimitedHideAnswers")) {
+						playerStateService.setLimitedShowAnswersMode(false);
 					}
-				case "LimitedHideAnswers":
-					playerStateService.setLimitedShowAnswersMode(false);
-					break;
-				case "LimitedShowAnswers":
-					playerStateService.setLimitedShowAnswersMode(true);
-					break;
-				default:
-					break;
+				}
+
+				playerStateService.setLimitedShowAnswersMode(false);
+			} else if ("LimitedHideAnswers".equals(name)) {
+				playerStateService.setLimitedShowAnswersMode(false);
+			} else if ("LimitedShowAnswers".equals(name)) {
+				playerStateService.setLimitedShowAnswersMode(true);
 			}
 		}
 	}

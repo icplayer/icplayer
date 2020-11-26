@@ -148,6 +148,11 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		return longestAnswer;
 	}
 
+	@Override
+	public String getFirstCorrectAnswer() {
+		return answers.size() > 0 ? answers.get(0) : "";
+	}
+
 	/**
 	 * @return answers
 	 */

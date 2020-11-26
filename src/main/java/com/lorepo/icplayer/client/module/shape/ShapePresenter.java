@@ -189,6 +189,11 @@ public class ShapePresenter implements IPresenter, IStateful, ICommandReceiver {
 	}
 
 	@Override
+	public void setDisabled(boolean value) {
+		// Module is not an activity
+	}
+
+	@Override
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
 		// TODO Auto-generated method stub
 		

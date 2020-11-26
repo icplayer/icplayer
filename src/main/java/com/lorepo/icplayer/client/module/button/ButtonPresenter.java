@@ -186,7 +186,12 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 
 		return jsObject;
 	}
-	
+
+	@Override
+	public void setDisabled(boolean value) {
+		view.setDisabled(value);
+	}
+
 	public void execute(){
 		if(this.view != null){
 			this.view.execute();	

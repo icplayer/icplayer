@@ -347,6 +347,12 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 		return gapInfo.getLangTag();
 	}
 
+	@Override
+	public void showAnswers() {
+		String answer = gapInfo.getFirstCorrectAnswer();
+		this.setText(answer);;
+	}
+
 	public void select() {
 		this.addStyleName("keyboard_navigation_active_element");
 		this.addStyleName("keyboard_navigation_active_element_text");

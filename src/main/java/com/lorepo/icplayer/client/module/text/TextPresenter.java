@@ -29,6 +29,8 @@ import java.util.*;
 
 public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IEnterable, IGradualShowAnswersPresenter {
 
+	private boolean isGradualShowAnswers = false;
+
 	public interface TextElementDisplay {
 		boolean hasId(String id);
 		void setShowErrorsMode(boolean isActivity);
@@ -57,6 +59,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		boolean isWorkingMode();
 		int getGapState();
 		String getLangTag();
+		void showAnswers();
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -171,10 +174,45 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				onEventReceived(event.eventName, event.getData());
 			}
 		});
+
+		eventBus.addHandler(GradualShowAnswerEvent.TYPE, new GradualShowAnswerEvent.Handler() {
+			@Override
+			public void onGradualShowAnswers(GradualShowAnswerEvent event) {
+				if (event.getModuleID().equals(module.getId())) {
+					if (!isGradualShowAnswers) {
+						isGradualShowAnswers = true;
+						currentState = getState();
+					}
+
+					int itemIndex = event.getItem();
+					handleGradualShowAnswers(itemIndex);
+				}
+			}
+		});
+
+		eventBus.addHandler(GradualHideAnswerEvent.TYPE, new GradualHideAnswerEvent.Handler() {
+			@Override
+			public void onGradualHideAnswers(GradualHideAnswerEvent event) {
+				handleGradualHideAnswers();
+			}
+		});
 	}
 	
 	private boolean isShowAnswers() {
 		return module.isActivity() ? this.isShowAnswersActive : false;
+	}
+
+	private void handleGradualShowAnswers(int itemIndex) {
+		// TODO: add remembering the state when hideGradualShowAnswers is called
+		boolean smallerThanSizes = itemIndex < view.getChildrenCount();
+		if (smallerThanSizes) {
+			TextElementDisplay gap = view.getChild(itemIndex);
+			gap.showAnswers();
+		}
+	}
+	private void handleGradualHideAnswers() {
+		this.isGradualShowAnswers = false;
+		setState(this.currentState);
 	}
 
 	private void blockAllGaps() {
@@ -184,20 +222,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 	}
 
-	int getOptionIndex(InlineChoiceInfo choice, String optionName) {
-		int index = 0;
-
-		Iterator<String> distractors = choice.getDistractors();
-		while (distractors.hasNext()) {
-			String distractor = distractors.next();
-			distractor = StringUtils.unescapeXML(distractor);
-			if (distractor.equals(optionName)) return index;
-			index++;
-		}
-
-		return -1;
-	}
-	
 	private void setShowAnswersTextInGaps() {
 		List<GapInfo> gapsInfos = module.getGapInfos();
 		Map<String, TextElementDisplay> gapsViewsElements = new HashMap<String, TextElementDisplay>();
@@ -211,8 +235,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			GapInfo gi = gapsInfos.get(index);
 
 			// show 1st answer
-			Iterator<String> answers = gi.getAnswers();
-			String answer = answers.hasNext() ? answers.next() : "";
+			String answer = gi.getFirstCorrectAnswer();
 			gapsViewsElements.get(gi.getId()).setText(answer);
 		}
 
@@ -220,9 +243,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			Element elem = DOM.getElementById(choice.getId());
 			SelectElement sElem = (SelectElement) elem;
 
-			int correctIndex = getOptionIndex(choice, choice.getAnswer());
-			if (correctIndex != -1)
+			int correctIndex = choice.getAnswerIndex();
+			if (correctIndex != -1) {
 				sElem.setSelectedIndex(correctIndex + 1);
+			}
 		}
 	}
 
@@ -1050,10 +1074,21 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	@Override
-	public int getActivitiesCount() {
-		return gapInfos.size();
+	public void setDisabled(boolean value) {
+		if (value) {
+			disableAllGaps();
+		} else {
+			enableAllGaps();
+		}
 	}
-	
+
+	@Override
+	public int getActivitiesCount() {
+		JavaScriptUtils.log(view.getChildrenCount());
+		JavaScriptUtils.log(module.getGapInfos());
+		return view.getChildrenCount();
+	}
+
 	private void jsOnEventReceived (String eventName, String jsonData) {
 		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}

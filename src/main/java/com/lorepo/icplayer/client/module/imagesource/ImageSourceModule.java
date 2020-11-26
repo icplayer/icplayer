@@ -24,7 +24,7 @@ public class ImageSourceModule extends BasicModuleModel implements IWCAGModuleMo
 	private boolean removable = true;
 	private boolean isDisabled = false;
 	private String altText = "";
-	private final ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String langAttribute = "";
 
 	public static final int SELECTED_INDEX = 0;
@@ -97,11 +97,6 @@ public class ImageSourceModule extends BasicModuleModel implements IWCAGModuleMo
 
 		return imageSourceModule.toString();
 
-	}
-
-	@Override
-	public int getActivitiesCount() {
-		return 0;
 	}
 
 	private void addPropertyIsDisabled() {

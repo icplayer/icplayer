@@ -93,6 +93,14 @@ public class JavaScriptPlayerServices {
 			var commands = function() {
 			};
 
+			commands.showNextAnswer = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showNextAnswer()();
+			}
+
+			commands.hideGradualAnswers = function() {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hideGradualAnswers()();
+			}
+
 			commands.enableKeyboardNavigation = function() {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::enableKeyboardNavigation()();
 			};
@@ -805,6 +813,14 @@ public class JavaScriptPlayerServices {
 	
 	private void enableKeyboardNavigation() {
 		playerServices.getCommands().enableKeyboardNavigation();
+	}
+
+	private boolean showNextAnswer() {
+		return playerServices.getGradualShowAnswersService().showNext();
+	}
+
+	private void hideGradualAnswers() {
+		playerServices.getGradualShowAnswersService().hideAll();
 	}
 
 	private void disableKeyboardNavigation() {

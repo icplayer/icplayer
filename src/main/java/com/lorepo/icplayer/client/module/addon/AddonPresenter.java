@@ -438,6 +438,16 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 
 	@Override
+	public void setDisabled(boolean value) {
+		List<IType> params = new ArrayList<IType>();
+		if (value) {
+			executeCommand("disable", params);
+		} else {
+			executeCommand("enable", params);
+		}
+	}
+
+	@Override
 	public IWCAG getWCAGController() {
 		return this;
 	}

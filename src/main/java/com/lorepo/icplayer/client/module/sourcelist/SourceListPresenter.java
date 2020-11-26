@@ -349,6 +349,11 @@ public class SourceListPresenter implements IPresenter, IStateful, ICommandRecei
 		return jsObject;
 	}
 
+	@Override
+	public void setDisabled(boolean value) {
+		canDrag = !value;
+	}
+
 	private void jsOnEventReceived (String eventName, String jsonData) {
 		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}

@@ -129,7 +129,14 @@ public class GroupPresenter implements IPresenter, IStateful{
 
 		return jsObject;
 	}
-	
+
+	@Override
+	public void setDisabled(boolean value) {
+		for (IPresenter presenter : presenters) {
+			presenter.setDisabled(value);
+		}
+	}
+
 	public void addPresenter(IPresenter p) {
 		presenters.add(p); 
 	}

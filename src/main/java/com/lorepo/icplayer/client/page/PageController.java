@@ -11,6 +11,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.NavigationModuleIndentifier;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.IPlayerController;
+import com.lorepo.icplayer.client.content.services.GradualShowAnswersService;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
@@ -26,6 +27,7 @@ import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.*;
 import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.player.IPage;
+import com.lorepo.icplayer.client.module.api.player.IPageController;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
 import com.lorepo.icplayer.client.page.Score.Result;
@@ -36,7 +38,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public class PageController implements ITextToSpeechController {
+public class PageController implements ITextToSpeechController, IPageController {
 
 	public interface IPageDisplay {
 		void addModuleViewIntoGroup(IModuleView view, IModuleModel module, String groupId);
@@ -67,11 +69,13 @@ public class PageController implements ITextToSpeechController {
 	private final static String PAGE_TTS_MODULE_ID = "Text_To_Speech1";
 	private boolean isReadingOn = false;
 	private Content contentModel;
+	private GradualShowAnswersService gradualShowAnswersService;
 	
 	public PageController(IPlayerController playerController) {
 		this.playerController = playerController;
 		playerServiceImpl = new PlayerServices(playerController, this);
 		init(playerServiceImpl);
+		gradualShowAnswersService = new GradualShowAnswersService(this);
 	}
 
 	public PageController(IPlayerServices playerServices) {
@@ -131,6 +135,11 @@ public class PageController implements ITextToSpeechController {
 		pageView.refreshMathJax();
 		this.restoreOutstretchHeights();
 		playerService.getEventBus().fireEvent(new PageLoadedEvent(page.getName()));
+
+		// header and footer?
+		if (gradualShowAnswersService != null) {
+			gradualShowAnswersService.refreshCurrentPagePresenters();
+		}
 	}
 
 	public void sendResizeEvent() {
@@ -552,6 +561,11 @@ public class PageController implements ITextToSpeechController {
 
 	public List<IPresenter> getPresenters() {
 		return presenters;
+	}
+
+	@Override
+	public GradualShowAnswersService getGradualShowAnswersService() {
+		return gradualShowAnswersService;
 	}
 
 	public HashMap<String, Widget> getWidgets() {

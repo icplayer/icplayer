@@ -37,7 +37,7 @@ public class ImageGapModule extends BasicModuleModel implements IWCAGModuleModel
 	private boolean blockWrongAnswers = false;
 
 	private final HashMap<String, String> events = new HashMap<String, String>();
-	private final ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 
 	public ImageGapModule() {
 		super("Image gap", DictionaryWrapper.get("image_gap_module"));
@@ -131,11 +131,6 @@ public class ImageGapModule extends BasicModuleModel implements IWCAGModuleModel
 		imageGapModule.appendChild(gap);
 
 		return imageGapModule.toString();
-	}
-
-	@Override
-	public int getActivitiesCount() {
-		return 0;
 	}
 
 	private Node eventToXML(String eventName) {

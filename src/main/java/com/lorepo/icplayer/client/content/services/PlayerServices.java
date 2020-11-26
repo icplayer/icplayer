@@ -26,7 +26,6 @@ public class PlayerServices implements IPlayerServices {
 	private JavaScriptObject jQueryPrepareOffsetsFunction = null;
 	private boolean isAbleChangeLayout = true;
 	private PlayerApp application = null;
-	private final GradualShowAnswersService gradualShowAnswersService;
 	private final PlayerStateService playerStateService;
 
 	public PlayerServices(IPlayerController controller, PageController pageController) {
@@ -35,8 +34,7 @@ public class PlayerServices implements IPlayerServices {
 		scaleInformation = new ScaleInformation();
 		playerCommands = new PlayerCommands(pageController, playerController);
 		eventBusService = new PlayerEventBusService(this);
-		playerStateService = new PlayerStateService();
-		gradualShowAnswersService = new GradualShowAnswersService(this);
+		playerStateService = new PlayerStateService(this);
 	}
 	
 	@Override
@@ -356,7 +354,7 @@ public class PlayerServices implements IPlayerServices {
 
 	@Override
 	public IGradualShowAnswersService getGradualShowAnswersService() {
-		return gradualShowAnswersService;
+		return pageController.getGradualShowAnswersService();
 	}
 
 	@Override

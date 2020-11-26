@@ -7,7 +7,7 @@ public class GradualShowAnswerEvent extends PlayerEvent<GradualShowAnswerEvent.H
     public static final String NAME = "GradualShowAnswers";
 
     public static Type<GradualShowAnswerEvent.Handler> TYPE = new Type<GradualShowAnswerEvent.Handler>();
-    private String item = "0";
+    private int item = 0;
     private String moduleID = "";
 
     public interface Handler extends EventHandler {
@@ -29,7 +29,7 @@ public class GradualShowAnswerEvent extends PlayerEvent<GradualShowAnswerEvent.H
         handler.onGradualShowAnswers(this);
     }
 
-    public String getItem() {
+    public int getItem() {
         return item;
     }
 
@@ -37,7 +37,7 @@ public class GradualShowAnswerEvent extends PlayerEvent<GradualShowAnswerEvent.H
         return moduleID;
     }
 
-    public void setItem(String item) {
+    public void setItem(int item) {
         this.item = item;
     }
 

@@ -142,7 +142,11 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 
 	@Override
 	public JavaScriptObject getAsJavaScript() {
-		// TODO Auto-generated method stub
 		return JavaScriptObject.createObject();
+	}
+
+	@Override
+	public void setDisabled(boolean value) {
+		// this module only shows value
 	}
 }

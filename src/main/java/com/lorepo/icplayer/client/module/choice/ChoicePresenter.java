@@ -416,7 +416,6 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 	/**
 	 * Update module score
-	 * @param value
 	 */
 	void saveScore() {
 
@@ -518,11 +517,11 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 
 	@Override
-	public void setEnabled(boolean value) {
+	public void setDisabled(boolean value) {
 		if (value) {
-			enable();
-		} else {
 			disable();
+		} else {
+			enable();
 		}
 	}
 

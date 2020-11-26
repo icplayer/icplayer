@@ -25,7 +25,7 @@ public interface IPlayerCommands {
 	public void executeEventCode(String code);
 	
 	public void sendPageAllOkOnValueChanged(boolean sendEvent);
-	public PageController getPageController();
+	public IPageController getPageController();
 	public void setNavigationPanelsAutomaticAppearance(boolean shouldAppear);
 	public void showNavigationPanels();
 	public void hideNavigationPanels();
