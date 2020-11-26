@@ -597,6 +597,7 @@ var ice_dictionary_bl = {
 	"Audio_property_narration": "Разказване",
 	"Audio_property_on_end": "При завършване",
 	"Audio_property_force_load_audio": "Зареди аудио",
+	"Audio_property_enable_playback_speed_controls": "Enable playback speed controls",
     "TextAudio_info": "С плъгина Аудио с текст можете да пускате различни звуци за фон на презентацията си и да им слагате субтитри. За да работи плъгинът без проблем на най-често срещаните браузъри, трябва да качите аудиофайла в два формата: mp3 и ogg.",
 	"TextAudio_name": "Аудио с текст",
 	"TextAudio_property_default_controls": "Настройки по подразбиране",

@@ -7,6 +7,7 @@ function AddonAudio_create(){
     var currentTimeAlreadySent;
     var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
     var audioIsLoaded = false;
+    var presenter.playbackRate = 1.0;
 
     function deferredQueueDecoratorChecker() {
         if (!presenter.configuration.forceLoadAudio) {
@@ -38,7 +39,7 @@ function AddonAudio_create(){
     presenter.upgradeModel = function AddonAudio_upgradeModel (model) {
         var upgradedModel = presenter.upgradeEnableLoop(model);
         upgradedModel = presenter.upgradeForceLoadAudio(upgradedModel);
-
+        upgradedModel = presenter.upgradeEnablePlaybackSpeedControls(upgradedModel);
         return upgradedModel;
     };
 
@@ -63,6 +64,17 @@ function AddonAudio_create(){
 
         return upgradedModel;
     };
+
+    presenter.upgradeEnablePlaybackSpeedControls = function (model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model); // Deep copy of model object
+
+            if (!upgradedModel["enablePlaybackSpeedControls"]) {
+                upgradedModel["enablePlaybackSpeedControls"] = "False";
+            }
+
+            return upgradedModel;
+        };
 
     presenter.createTimeUpdateEventData = function AddonAudio_createTimeUpdateEventData (data) {
         return {
@@ -616,7 +628,8 @@ function AddonAudio_create(){
             isHtmlPlayer: defaultControls && !useBrowserControls,
             addonID: model.ID,
             forceLoadAudio: ModelValidationUtils.validateBoolean(model.forceLoadAudio),
-            narration: model.Narration
+            narration: model.Narration,
+            enablePlaybackSpeedControls: ModelValidationUtils.validateBoolean(model.enablePlaybackSpeedControls)
         };
     };
 
@@ -627,7 +640,8 @@ function AddonAudio_create(){
             'show': presenter.show,
             'hide': presenter.hide,
             'pause': presenter.pause,
-            'getNarration': presenter.getNarration
+            'getNarration': presenter.getNarration,
+            'setPlaybackRate': presenter.setPlaybackRate
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -670,6 +684,13 @@ function AddonAudio_create(){
             presenter.audio.currentTime = 0;
         }
     });
+
+    presenter.setPlaybackRate = function (value) {
+        if (!presenter.audio) return;
+        if (isNaN(value)) return;
+        presenter.playbackRate = value;
+        presenter.audio.playbackRate = value;
+    };
 
     presenter.show = function AddonAudio_show () {
         this.setVisibility(true);
