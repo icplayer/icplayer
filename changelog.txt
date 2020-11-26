@@ -1,3 +1,5 @@
+2020-11-26 Fixed issue with assessmentUser==teacher being overrriden by student's state
+2020-11-26 Added WCAG support for TextAudio
 2020-11-25 Added support for assessmentUser metadata in Assessment Navigation Bar
 2020-11-20 Changed randomizeLesson in Assessment Navigation Bar to override addon state
 2020-11-19 Add new property for SingleStateButton which allows clicking in error mode.
