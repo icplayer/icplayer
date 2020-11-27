@@ -35,6 +35,7 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 		public Element getElement();
 		public void uncheckAnswers();
 		public String getTitlePostfix();
+		boolean isDisabled();
 	}
 	
 	private CheckButtonModule model;
@@ -128,7 +129,7 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 	}
 	
 	@Override
-	public String executeCommand(String commandName, List<IType> _) {
+	public String executeCommand(String commandName, List<IType> args) {
 		String value = "";
 		
 		if (commandName.compareTo("show") == 0) {
@@ -188,6 +189,11 @@ public class CheckButtonPresenter implements IPresenter, IStateful, ICommandRece
 	@Override
 	public void setDisabled(boolean value) {
 		view.setDisabled(value);
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return view.isDisabled();
 	}
 
 	private void jsOnEventReceived (String eventName, String jsonData) {

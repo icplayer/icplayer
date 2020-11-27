@@ -95,4 +95,9 @@ public class TextToSpeechPresenter implements ITextToSpeechPresenter {
 
 	}
 
+	@Override
+	public boolean isDisabled() {
+		return false;
+	}
+
 }

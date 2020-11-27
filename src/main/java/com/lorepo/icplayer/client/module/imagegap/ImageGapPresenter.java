@@ -442,7 +442,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	}
 
 	@Override
-	public String executeCommand(String commandName, List<IType> _) {
+	public String executeCommand(String commandName, List<IType> args) {
 
 		String value = "";
 
@@ -509,6 +509,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	@Override
 	public void setDisabled(boolean value) {
 		view.setDisabled(value);
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return view.getDisabled();
 	}
 
 	private String getValue() {

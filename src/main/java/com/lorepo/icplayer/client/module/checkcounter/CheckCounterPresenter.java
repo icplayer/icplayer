@@ -149,4 +149,9 @@ public class CheckCounterPresenter implements IPresenter, IWCAGPresenter, IButto
 	public void setDisabled(boolean value) {
 		// this module only shows value
 	}
+
+	@Override
+	public boolean isDisabled() {
+		return false;
+	}
 }

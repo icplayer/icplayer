@@ -222,7 +222,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	}
 	
 	@Override
-	public String executeCommand(String commandName, List<IType> _) {
+	public String executeCommand(String commandName, List<IType> args) {
 		
 		if(commandName.compareTo("show") == 0){
 			show();
@@ -313,6 +313,11 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	@Override
 	public void setDisabled(boolean value) {
 		// Module is not an activity
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return false;
 	}
 
 	@Override

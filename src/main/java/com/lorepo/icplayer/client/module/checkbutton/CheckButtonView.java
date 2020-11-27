@@ -25,6 +25,7 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 	private IPlayerServices playerServices;
 	private PageController pageController;
 	private String originalDisplay;
+	private boolean isDisabled;
 
 	public CheckButtonView(CheckButtonModule module, IPlayerServices services) {
 		this.playerServices = services;
@@ -93,11 +94,17 @@ public class CheckButtonView extends PushButton implements IDisplay, IWCAG, IWCA
 	
 	@Override
 	public void setDisabled(boolean isDisabled) {
+		this.isDisabled = isDisabled;
 		if (isDisabled) {
 			addStyleName(DISABLED_STYLE);
 		} else{
 			removeStyleName(DISABLED_STYLE);
 		}
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return isDisabled;
 	}
 
 	@Override

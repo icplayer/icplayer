@@ -132,9 +132,13 @@ public class GroupPresenter implements IPresenter, IStateful{
 
 	@Override
 	public void setDisabled(boolean value) {
-		for (IPresenter presenter : presenters) {
-			presenter.setDisabled(value);
-		}
+		// calling setDisabled from this place would break gradual show answers, as it saves the state of the presenter
+		// and it cannot check if all presenters in group are disabled
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return false;
 	}
 
 	public void addPresenter(IPresenter p) {

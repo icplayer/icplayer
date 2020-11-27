@@ -35,6 +35,7 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
         public void setShowAnswersMode(boolean b);
 
         void setDisabled(boolean isDisabled);
+        boolean isDisabled();
 
         public ArrayList<IPresenter> getModulesPresenters();
         
@@ -230,6 +231,11 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
     @Override
     public void setDisabled(boolean value) {
         view.setDisabled(value);
+    }
+
+    @Override
+    public boolean isDisabled() {
+        return view.isDisabled();
     }
 
     private void jsOnEventReceived(String eventName, String jsonData) {

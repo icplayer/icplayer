@@ -97,7 +97,12 @@ public class LimitedResetView extends PushButton implements IDisplay {
 			removeStyleName(DISABLED_STYLE);
 		}
 	}
-	
+
+	@Override
+	public boolean isDisabled() {
+		return isDisabled;
+	}
+
 	public void setShowAnswersMode(boolean isShowAnswersMode) {
 		this.isShowAnswersMode = isShowAnswersMode;
 	}

@@ -100,6 +100,11 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful, 
 
 	}
 
+	@Override
+	public boolean isDisabled() {
+		return false;
+	}
+
 	private void jsOnEventReceived (String eventName, String jsonData) {
 		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}
@@ -156,7 +161,7 @@ public class ImagePresenter implements IPresenter, ICommandReceiver, IStateful, 
 
 
 	@Override
-	public String executeCommand(String commandName, List<IType> _) {
+	public String executeCommand(String commandName, List<IType> args) {
 		
 		if(commandName.compareTo("show") == 0){
 			show();

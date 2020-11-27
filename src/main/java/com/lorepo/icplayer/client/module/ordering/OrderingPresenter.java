@@ -30,6 +30,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	public interface IDisplay extends IModuleView {
 		void addReorderListener(IReorderListener listener);
 		void setWorkStatus(boolean b);
+		boolean isDisabled();
 		void setCorrectAnswersStyles();
 		void setCorrectAnswer();
 		void removeCorrectAnswersStyles();
@@ -312,6 +313,11 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	@Override
 	public void setDisabled(boolean value) {
 		view.setWorkStatus(!value);
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return view.isDisabled();
 	}
 
 	private void jsOnEventReceived (String eventName, String jsonData) {

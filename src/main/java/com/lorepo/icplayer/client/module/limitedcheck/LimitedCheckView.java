@@ -191,6 +191,11 @@ public class LimitedCheckView extends PushButton implements IDisplay {
     }
 
     @Override
+    public boolean isDisabled() {
+        return isDisabled;
+    }
+
+    @Override
     public void setShowErrorsMode(boolean isShowErrorsMode) {
 
         this.isShowErrorsMode = isShowErrorsMode;

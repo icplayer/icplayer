@@ -661,6 +661,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
+	public boolean isDisabled() {
+		return workMode;
+	}
+
+	@Override
 	public void setCorrectAnswer() {
 		if(selectedWidget!=null){
 			selectedWidget.removeStyleName("ic_drag-source");

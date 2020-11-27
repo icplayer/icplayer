@@ -297,6 +297,11 @@ public class ImageSourcePresenter implements IPresenter, IStateful, ICommandRece
 		view.setDisabled(value);
 	}
 
+	@Override
+	public boolean isDisabled() {
+		return view.getDisabled();
+	}
+
 	private void jsOnEventReceived (String eventName, String jsonData) {
 		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}

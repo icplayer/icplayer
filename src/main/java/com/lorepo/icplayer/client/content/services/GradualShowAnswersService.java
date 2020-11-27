@@ -1,23 +1,23 @@
 package com.lorepo.icplayer.client.content.services;
 
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IGradualShowAnswersPresenter;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.GradualHideAnswerEvent;
 import com.lorepo.icplayer.client.module.api.event.builders.GradualShowAnswersBuilder;
 import com.lorepo.icplayer.client.module.api.player.IGradualShowAnswersService;
 import com.lorepo.icplayer.client.module.api.player.IPageController;
-import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-import com.lorepo.icplayer.client.page.PageController;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GradualShowAnswersService implements IGradualShowAnswersService {
     private final IPageController pageController;
     private int currentModule = 0;
     private int currentModuleItem = 0;
     private List<IGradualShowAnswersPresenter> presenters;
+    private Map<String, Boolean> presenterDisabledState;
 
 
     public GradualShowAnswersService(IPageController pageController) {
@@ -29,7 +29,8 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     @Override
     public void hideAll() {
         this.pageController.getPlayerServices().getEventBus().fireEvent(new GradualHideAnswerEvent());
-        setDisabled(false);
+        enablePresenters();
+        resetCounters();
     }
 
     /**
@@ -40,7 +41,7 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         boolean firstCall = !this.pageController.getPlayerServices().getPlayerStateService().isGradualShowAnswersMode();
         if (firstCall) {
             //TODO: switch off other modes?
-            setDisabled(true);
+            disablePresenters();
         }
 
         IGradualShowAnswersPresenter currentPresenter = getNextPresenter();
@@ -77,14 +78,30 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         this.currentModule = 0;
     }
 
-    private void setDisabled(boolean value) {
+    private void enablePresenters() {
         for (IPresenter presenter : this.pageController.getPresenters()) {
-            presenter.setDisabled(value);
+            String key = presenter.getModel().getId();
+            Boolean wasDisabled = presenterDisabledState.get(key);
+
+            // if it was disabled then leave it disabled
+            if (wasDisabled != null && !wasDisabled) {
+                presenter.setDisabled(false);
+            }
+        }
+    }
+
+    private void disablePresenters() {
+        for (IPresenter presenter : this.pageController.getPresenters()) {
+            // remember the state of presenters, so it can be restored when the mode is switched off
+            presenterDisabledState.put(presenter.getModel().getId(), presenter.isDisabled());
+
+            presenter.setDisabled(true);
         }
     }
 
     private void setCurrentPagePresenters() {
         presenters = new ArrayList<IGradualShowAnswersPresenter>();
+        presenterDisabledState = new HashMap<String, Boolean>();
 
         List<IPresenter> pagePresenters = this.pageController.getPresenters();
         if (pagePresenters != null) {

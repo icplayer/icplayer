@@ -112,6 +112,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private int currentErrorCount = 0;
 	private int currentMaxScore = 0;
 	private boolean isTextSetByCommand = false;
+	private boolean isDisabled = false;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -178,12 +179,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		eventBus.addHandler(GradualShowAnswerEvent.TYPE, new GradualShowAnswerEvent.Handler() {
 			@Override
 			public void onGradualShowAnswers(GradualShowAnswerEvent event) {
-				if (event.getModuleID().equals(module.getId())) {
-					if (!isGradualShowAnswers) {
-						isGradualShowAnswers = true;
-						currentState = getState();
-					}
+				if (!isGradualShowAnswers) {
+					isGradualShowAnswers = true;
+					currentState = getState();
+				}
 
+				if (event.getModuleID().equals(module.getId())) {
 					int itemIndex = event.getItem();
 					handleGradualShowAnswers(itemIndex);
 				}
@@ -212,6 +213,12 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 	private void handleGradualHideAnswers() {
 		this.isGradualShowAnswers = false;
+
+		for (int i = 0; i < view.getChildrenCount(); i++) {
+			TextElementDisplay child = view.getChild(i);
+			child.reset();
+		}
+
 		setState(this.currentState);
 	}
 
@@ -1075,6 +1082,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public void setDisabled(boolean value) {
+		isDisabled = value;
 		if (value) {
 			disableAllGaps();
 		} else {
@@ -1082,10 +1090,15 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 	}
 
+	// module also has isDisabled - but I think it should not be changed and used as it is set in editor by lesson creator
+	// so it doesn't have anything to do with lesson state
+	@Override
+	public boolean isDisabled() {
+		return isDisabled;
+	}
+
 	@Override
 	public int getActivitiesCount() {
-		JavaScriptUtils.log(view.getChildrenCount());
-		JavaScriptUtils.log(module.getGapInfos());
 		return view.getChildrenCount();
 	}
 

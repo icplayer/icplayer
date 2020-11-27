@@ -130,6 +130,11 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 	}
 
 	@Override
+	public boolean isDisabled() {
+		return false;
+	}
+
+	@Override
 	public IWCAG getWCAGController() {
 		return (IWCAG) this.view;
 	}

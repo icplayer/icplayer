@@ -525,6 +525,11 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		}
 	}
 
+	@Override
+	public boolean isDisabled() {
+		return isDisabled;
+	}
+
 	public boolean isAllOK() {
 		return getScore() == getMaxScore() && getErrorCount() == 0;
 	}
