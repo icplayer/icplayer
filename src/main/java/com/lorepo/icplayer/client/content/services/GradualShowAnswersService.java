@@ -28,9 +28,11 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
 
     @Override
     public void hideAll() {
-        this.pageController.getPlayerServices().getEventBus().fireEvent(new GradualHideAnswerEvent());
-        enablePresenters();
-        resetCounters();
+        if (pageController.getPlayerServices().getPlayerStateService().isGradualShowAnswersMode()) {
+            this.pageController.getPlayerServices().getEventBus().fireEvent(new GradualHideAnswerEvent());
+            enablePresenters();
+            resetCounters();
+        }
     }
 
     /**

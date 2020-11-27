@@ -73,6 +73,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectLinks(Iterator<LinkInfo> giIterator);
 		void connectAudios(Iterator<AudioInfo> iterator);
 		int getChildrenCount();
+		int getGapCount();
 		TextElementDisplay getChild(int index);
 		void setValue(String id, String value);
 		void refreshMath();
@@ -1099,7 +1100,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public int getActivitiesCount() {
-		return view.getChildrenCount();
+		return view.getGapCount();
 	}
 
 	private void jsOnEventReceived (String eventName, String jsonData) {

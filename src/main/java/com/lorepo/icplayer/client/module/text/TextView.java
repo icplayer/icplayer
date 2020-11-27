@@ -357,6 +357,11 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	@Override
+	public int getGapCount() {
+		return gapsWidgets.size();
+	}
+
+	@Override
 	public TextElementDisplay getChild (int index) {
 		return textElements.get(index);
 	}
