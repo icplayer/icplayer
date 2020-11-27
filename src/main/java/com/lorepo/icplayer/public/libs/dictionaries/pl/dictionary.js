@@ -598,6 +598,7 @@ var ice_dictionary_pl = {
 	"Audio_property_narration": "Narracja",
 	"Audio_property_on_end": "Na koniec",
 	"Audio_property_force_load_audio": "Force load audio",
+	"Audio_property_enable_playback_speed_controls": "Enable playback speed controls",
 	"TextAudio_info" : "Umożliwia odtwarzanie w prezentacji różnego rodzaju nagrań przy jednoczesnym podświetleniu bieżącej transkrypcji. Aby Addon działał poprawnie na wszystkich popularnych przeglądarkach, należy wgrać plik w dwóch formatach: mp3 i ogg.",
 	"TextAudio_name" : "Tekst i narracja",
 	"TextAudio_property_default_controls": "Kontrolki domyślne",

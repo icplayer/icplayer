@@ -598,6 +598,7 @@ var ice_dictionary_fr = {
     "Audio_property_narration": "Narration",
     "Audio_property_on_end": "A la fin",
     "Audio_property_force_load_audio": "Force load audio",
+    "Audio_property_enable_playback_speed_controls": "Enable playback speed controls",
     "TextAudio_info": "Avec le module externe TextAudio, il est possible de lancer plusieurs séquences sonores dans une présentation avec les transcriptions. Pour que le module fonctionne correctement sur les navigateurs les plus courants, il est nécessaire de télécharger un fichier audio dans deux formats : MP3 et OGG.",
     "TextAudio_name": "Texte Audio",
     "TextAudio_property_default_controls": "Contôles par défaut",
