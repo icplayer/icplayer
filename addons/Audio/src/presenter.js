@@ -7,7 +7,9 @@ function AddonAudio_create(){
     var currentTimeAlreadySent;
     var deferredSyncQueue = window.DecoratorUtils.DeferredSyncQueue(deferredQueueDecoratorChecker);
     var audioIsLoaded = false;
-    var presenter.playbackRate = 1.0;
+
+    presenter.playbackRate = 1.0;
+    var playbackRateList = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
 
     function deferredQueueDecoratorChecker() {
         if (!presenter.configuration.forceLoadAudio) {
@@ -66,15 +68,15 @@ function AddonAudio_create(){
     };
 
     presenter.upgradeEnablePlaybackSpeedControls = function (model) {
-            var upgradedModel = {};
-            $.extend(true, upgradedModel, model); // Deep copy of model object
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
 
-            if (!upgradedModel["enablePlaybackSpeedControls"]) {
-                upgradedModel["enablePlaybackSpeedControls"] = "False";
-            }
+        if (!upgradedModel["enablePlaybackSpeedControls"]) {
+            upgradedModel["enablePlaybackSpeedControls"] = "False";
+        }
 
-            return upgradedModel;
-        };
+        return upgradedModel;
+    };
 
     presenter.createTimeUpdateEventData = function AddonAudio_createTimeUpdateEventData (data) {
         return {
@@ -304,6 +306,9 @@ function AddonAudio_create(){
     function AddonAudio_createHtmlPlayer() {
         presenter.$customPlayer = $('<div>').
             addClass('audioplayer');
+        if (presenter.configuration.enablePlaybackSpeedControls) {
+            presenter.$customPlayer.addClass('playback-speed-control-enabled');
+        }
 
         presenter.$playPauseBtn = $('<div>').
             addClass('play-pause-btn').
@@ -358,6 +363,15 @@ function AddonAudio_create(){
             presenter.$customPlayer.append(presenter.$volumeLayer);
         }
 
+        presenter.$playbackRateControls = null;
+        if (presenter.configuration.enablePlaybackSpeedControls) {
+            presenter.$playbackRateControls = $('<div>');
+            presenter.$playbackRateControls.addClass('audio-playback-rate');
+            presenter.$playbackRateControls.append(createPlaybackRateSelectElement());
+            displayPlaybackRate();
+            presenter.$customPlayer.append(presenter.$playbackRateControls);
+        }
+
         presenter.$playerTime = $('<div>').
             addClass('player-time').
             text('00:00 / --:--');
@@ -365,9 +379,52 @@ function AddonAudio_create(){
 
         presenter.$customPlayer.on('click mousedown mouseup', function(event){
             event.stopPropagation();
-            event.preventDefault();
         });
         presenter.$audioWrapper.append(presenter.$customPlayer);
+    }
+
+    function createPlaybackRateSelectElement () {
+        var $select = $('<select>');
+        for (var i = 0; i < playbackRateList.length; i++) {
+            var $option = $('<option>');
+            $option.text('×' + playbackRateList[i]);
+            $option.attr('value', playbackRateList[i]);
+            if (playbackRateList[i] == 1) {
+                $option.attr('selected', 'selected');
+            }
+            $select.append($option);
+        }
+
+        $select.on('change', function(){
+            presenter.setPlaybackRate($select.val());
+        })
+
+        return $select;
+
+    }
+
+    function displayPlaybackRate () {
+        if (presenter.$playbackRateControls != null) {
+            var $select = presenter.$playbackRateControls.find('select');
+            if ($select.val() == presenter.playbackRate) {
+                if (playbackRateList.indexOf(presenter.playbackRate) != -1) {
+                    $select.find('.custom-option').remove();
+                }
+                return;
+            }
+            $select.find('.custom-option').remove();
+            if (playbackRateList.indexOf(presenter.playbackRate) != -1) {
+                $select.val(presenter.playbackRate);
+            } else {
+                var $customOption = $('<option>');
+                $customOption.text('×' + presenter.playbackRate);
+                $customOption.attr('value', presenter.playbackRate);
+                $customOption.addClass('custom-option');
+                $select.append($customOption);
+                $select.val(presenter.playbackRate);
+
+            }
+        }
     }
 
     function AddonAudio_createView(view, model, isPreview){
@@ -688,8 +745,10 @@ function AddonAudio_create(){
     presenter.setPlaybackRate = function (value) {
         if (!presenter.audio) return;
         if (isNaN(value)) return;
-        presenter.playbackRate = value;
-        presenter.audio.playbackRate = value;
+        var parsedValue = parseFloat(value);
+        presenter.playbackRate = parsedValue;
+        presenter.audio.playbackRate = parsedValue;
+        displayPlaybackRate();
     };
 
     presenter.show = function AddonAudio_show () {
@@ -722,7 +781,8 @@ function AddonAudio_create(){
 
     presenter.getState = function AddonAudio_getState () {
         return JSON.stringify({
-            isVisible : presenter.configuration.isVisible
+            isVisible : presenter.configuration.isVisible,
+            playbackRate: presenter.playbackRate
         });
     };
 
@@ -741,10 +801,14 @@ function AddonAudio_create(){
             presenter.stop();
         };
 
-        if (JSON.parse(stateString).isVisible) {
+        var parsedJson = JSON.parse(stateString);
+        if (parsedJson.isVisible) {
             this.show();
         } else {
             this.hideAddon();
+        }
+        if (parsedJson['playbackRate'] != undefined) {
+            presenter.setPlaybackRate(parsedJson['playbackRate']);
         }
 
         return false;
