@@ -1,11 +1,13 @@
 package com.lorepo.icplayer.client.module.api.player;
 
-import com.lorepo.icplayer.client.page.PageController;
-
 public interface IPlayerCommands {
 
 	public void checkAnswers();
 	public void uncheckAnswers();
+	void showAnswers(String source);
+	void hideAnswers(String source);
+	void showNextAnswer();
+	void hideGradualAnswers();
 	public void reset(boolean onlyWrongAnswers);
 	public void resetPage(int index);
 	public void resetPageById(String id);

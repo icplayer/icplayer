@@ -53,15 +53,15 @@ public class LessonResetView extends PushButton implements IDisplay {
 					}
 
 					if (isShowAnswersMode) {
-						playerServices.getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
+						playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
 						
 						isShowAnswersMode = false;
 					}
-					
-					playerServices.getEventBus().fireEvent(new ValueChangedEvent(module.getId(), "Lesson Reset", "", ""));
+
+					playerServices.getEventBusService().getEventBus().fireEvent(new ValueChangedEvent(module.getId(), "Lesson Reset", "", ""));
 					playerServices.getScoreService().lessonScoreReset(module.getResetChecks(), module.getResetMistakes());
 					playerServices.getStateService().resetStates();
-					playerServices.getEventBus().fireEvent(new ResetPageEvent(false));
+					playerServices.getEventBusService().getEventBus().fireEvent(new ResetPageEvent(false));
 				}
 			});		
 		}
@@ -74,14 +74,14 @@ public class LessonResetView extends PushButton implements IDisplay {
 		}
 		
 		if (isShowAnswersMode) {
-			playerServices.getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
+			playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
 			
 			isShowAnswersMode = false;
 		}
 		
 		playerServices.getScoreService().lessonScoreReset(module.getResetChecks(), module.getResetMistakes());
 		playerServices.getStateService().resetStates();
-		playerServices.getEventBus().fireEvent(new ResetPageEvent(false));
+		playerServices.getEventBusService().getEventBus().fireEvent(new ResetPageEvent(false));
 	}
 	
 	@Override

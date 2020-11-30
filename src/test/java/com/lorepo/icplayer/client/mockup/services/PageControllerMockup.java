@@ -1,7 +1,7 @@
 package com.lorepo.icplayer.client.mockup.services;
 
-import com.lorepo.icplayer.client.content.services.GradualShowAnswersService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
+import com.lorepo.icplayer.client.module.api.player.IGradualShowAnswersService;
 import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPageController;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
@@ -26,7 +26,7 @@ public class PageControllerMockup implements IPageController {
     }
 
     @Override
-    public GradualShowAnswersService getGradualShowAnswersService() {
+    public IGradualShowAnswersService getGradualShowAnswersService() {
         return null;
     }
 

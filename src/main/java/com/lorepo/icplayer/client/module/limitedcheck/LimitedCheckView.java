@@ -9,6 +9,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.PushButton;
+import com.lorepo.icplayer.client.content.services.PlayerEventBus;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
@@ -78,7 +79,7 @@ public class LimitedCheckView extends PushButton implements IDisplay {
     }
     
     private void onCheck(boolean updateCheckCount) {
-        EventBus eventBus = playerServices.getEventBus();
+        PlayerEventBus eventBus = playerServices.getEventBusService().getEventBus();
         IPlayerCommands commands = playerServices.getCommands();
         boolean mistakesFromProvidedModules = module.getMistakesFromProvidedModules();
 
@@ -130,7 +131,7 @@ public class LimitedCheckView extends PushButton implements IDisplay {
         changeModulesMode();
 
         TotalScore totalScore = TotalScore.getFromPresenters(presenters);
-        playerServices.getEventBus().fireEventFromSource(new CustomEvent("LimitedCheck", totalScore.getModeButton(module, isShowErrorsMode)), this);
+        playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("LimitedCheck", totalScore.getModeButton(module, isShowErrorsMode)), this);
     }
 
     public ArrayList<IPresenter> getModulesPresenters() {

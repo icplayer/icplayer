@@ -13,4 +13,5 @@ public interface IPlayerStateService {
     void setLimitedCheckAnswersMode(boolean value);
     void setGradualShowAnswersMode(boolean value);
     void setWorkMode();
+    void switchOffModes();
 }

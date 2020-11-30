@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.content.services;
 
 import com.lorepo.icplayer.client.module.api.IGradualShowAnswersPresenter;
+import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.GradualHideAnswerEvent;
 import com.lorepo.icplayer.client.module.api.event.builders.GradualShowAnswersBuilder;
@@ -29,7 +30,7 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     @Override
     public void hideAll() {
         if (pageController.getPlayerServices().getPlayerStateService().isGradualShowAnswersMode()) {
-            this.pageController.getPlayerServices().getEventBus().fireEvent(new GradualHideAnswerEvent());
+            this.pageController.getPlayerServices().getEventBusService().getEventBus().fireEvent(new GradualHideAnswerEvent());
             enablePresenters();
             resetCounters();
         }
@@ -41,10 +42,6 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     @Override
     public boolean showNext() {
         boolean firstCall = !this.pageController.getPlayerServices().getPlayerStateService().isGradualShowAnswersMode();
-        if (firstCall) {
-            //TODO: switch off other modes?
-            disablePresenters();
-        }
 
         IGradualShowAnswersPresenter currentPresenter = getNextPresenter();
 
@@ -57,6 +54,9 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
                 return showNext();
             } else {
                 this.sendEvent(currentPresenter.getModel().getId(), this.currentModuleItem);
+                if (firstCall) {
+                    disablePresenters();
+                }
                 this.currentModuleItem++;
                 return true;
             }
@@ -117,6 +117,15 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         resetCounters();
     }
 
+    private void switchOffOtherModes() {
+        IPlayerStateService pss = this.pageController.getPlayerServices().getPlayerStateService();
+        if (pss.isCheckErrorsMode() || pss.isLimitedCheckAnswersMode()) {
+            this.pageController.getPlayerServices().getCommands().uncheckAnswers();
+        } else if (pss.isShowAnswersMode() || pss.isLimitedShowAnswersMode()) {
+            this.pageController.getPlayerServices().getCommands().hideAnswers("");
+        }
+    }
+
 
     private IGradualShowAnswersPresenter getNextPresenter() {
         if (this.currentModule < this.presenters.size()) {
@@ -128,6 +137,6 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     private void sendEvent(String moduleID, int itemIndex) {
         GradualShowAnswersBuilder builder = new GradualShowAnswersBuilder(moduleID, itemIndex);
 
-        this.pageController.getPlayerServices().getEventBus().fireEvent(builder.build());
+        this.pageController.getPlayerServices().getEventBusService().getEventBus().fireEvent(builder.build());
     }
 }

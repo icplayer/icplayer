@@ -6,6 +6,7 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.event.*;
@@ -75,9 +76,13 @@ public class PlayerEventBus extends ResettableEventBus {
 			String name = getEventName(event);
 			IPlayerStateService playerStateService = this.playerServices.getPlayerStateService();
 
+			JavaScriptUtils.log(name);
+
 			// strings in switch are not supported in -source 1.6
-			if (WorkModeEvent.NAME.equals(name) || ResetPageEvent.NAME.equals(name)) {
+			if (WorkModeEvent.NAME.equals(name)) {
 				playerStateService.setWorkMode();
+			} else if (ResetPageEvent.NAME.equals(name)) {
+				playerStateService.switchOffModes();
 			} else if (ShowErrorsEvent.NAME.equals(name)) {
 				playerStateService.setCheckErrorsMode(true);
 			} else if (GradualShowAnswerEvent.NAME.equals(name)) {
@@ -87,9 +92,9 @@ public class PlayerEventBus extends ResettableEventBus {
 			} else if (ValueChangedEvent.NAME.equals(name)) {
 				if (event instanceof ValueChangedEvent) {
 					String value = ((ValueChangedEvent) event).getValue();
-					if (value != null && value.equals("LimitedShowAnswers")) {
+					if (value != null && value.equals("ShowAnswers")) {
 						playerStateService.setLimitedShowAnswersMode(true);
-					} else if (value != null && value.equals("LimitedHideAnswers")) {
+					} else if (value != null && value.equals("HideAnswers")) {
 						playerStateService.setLimitedShowAnswersMode(false);
 					}
 				}

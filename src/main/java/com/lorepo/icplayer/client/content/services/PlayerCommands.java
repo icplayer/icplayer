@@ -53,6 +53,26 @@ public class PlayerCommands implements IPlayerCommands {
 	}
 
 	@Override
+	public void showAnswers(String source) {
+		pageController.showAnswers(source);
+	}
+
+	@Override
+	public void hideAnswers(String source) {
+		pageController.hideAnswers(source);
+	}
+
+	@Override
+	public void showNextAnswer() {
+		this.pageController.getGradualShowAnswersService().showNext();
+	}
+
+	@Override
+	public void hideGradualAnswers() {
+		this.pageController.getGradualShowAnswersService().hideAll();
+	}
+
+	@Override
 	public void reset(boolean onlyWrongAnswers) {
 		pageController.resetPageScore();
 		pageController.sendResetEvent(onlyWrongAnswers);

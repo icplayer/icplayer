@@ -26,10 +26,7 @@ import com.lorepo.icplayer.client.module.ModuleFactory;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.module.api.*;
 import com.lorepo.icplayer.client.module.api.event.*;
-import com.lorepo.icplayer.client.module.api.player.IPage;
-import com.lorepo.icplayer.client.module.api.player.IPageController;
-import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
-import com.lorepo.icplayer.client.module.api.player.PageScore;
+import com.lorepo.icplayer.client.module.api.player.*;
 import com.lorepo.icplayer.client.page.Score.Result;
 
 import java.util.ArrayList;
@@ -431,7 +428,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 	}
 
 	public void uncheckAnswers() {
-		playerService.getEventBus().fireEvent(new WorkModeEvent());
+		playerService.getEventBusService().getEventBus().fireEvent(new WorkModeEvent());
 	}
 
 	public void resetPageScore() {
@@ -445,7 +442,11 @@ public class PageController implements ITextToSpeechController, IPageController 
 	}
 
 	public void sendResetEvent(boolean onlyWrongAnswers) {
-		playerService.getEventBus().fireEvent(new ResetPageEvent(onlyWrongAnswers));
+		if (playerService.getPlayerStateService().isGradualShowAnswersMode()) {
+			playerService.getGradualShowAnswersService().hideAll();
+		}
+
+		playerService.getEventBusService().getEventBus().fireEvent(new ResetPageEvent(onlyWrongAnswers));
 	}
 
 	public PageScore getPageScore() {
@@ -555,6 +556,24 @@ public class PageController implements ITextToSpeechController, IPageController 
 		return playerService;
 	}
 
+	@Override
+	public void hideAnswers(String source) {
+		HashMap<String, String> data = new HashMap<String, String>();
+		data.put("source", source);
+		CustomEvent event = new CustomEvent("HideAnswers", data);
+
+		playerService.getEventBusService().getEventBus().fireEvent(event);
+	}
+
+	@Override
+	public void showAnswers(String source) {
+		HashMap<String, String> data = new HashMap<String, String>();
+		data.put("source", source);
+		CustomEvent event = new CustomEvent("ShowAnswers", data);
+
+		playerService.getEventBusService().getEventBus().fireEvent(event);
+	}
+
 	public IPlayerController getPlayerController() {
 		return playerController;
 	}
@@ -564,7 +583,7 @@ public class PageController implements ITextToSpeechController, IPageController 
 	}
 
 	@Override
-	public GradualShowAnswersService getGradualShowAnswersService() {
+	public IGradualShowAnswersService getGradualShowAnswersService() {
 		return gradualShowAnswersService;
 	}
 

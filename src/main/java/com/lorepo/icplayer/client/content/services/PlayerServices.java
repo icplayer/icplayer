@@ -76,7 +76,13 @@ public class PlayerServices implements IPlayerServices {
 		return playerCommands;
 	}
 
+	/**
+	 * @deprecated Call getEventBusService().getEventBus()
+	 * This method returns EventBus, not PlayerEventBus and it may cause issues with overridden methods in GWT
+	 * @return default event bus
+	 */
 	@Override
+	@Deprecated
 	public EventBus getEventBus() {
 		return this.eventBusService.getEventBus();
 	}

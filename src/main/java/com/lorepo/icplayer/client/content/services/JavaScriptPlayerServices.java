@@ -148,6 +148,14 @@ public class JavaScriptPlayerServices {
 			commands.uncheckAnswers = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::uncheckAnswers()();
 			};
+
+			commands.showAnswers = function(source) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showAnswers(Ljava/lang/String;)(source);
+			}
+
+			commands.hideAnswers = function(source) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hideAnswers(Ljava/lang/String;)(source);
+			}
 			
 			commands.sendPageAllOkOnValueChanged = function(sendEvent) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendPageAllOkOnValueChanged(Z)(sendEvent);
@@ -772,6 +780,14 @@ public class JavaScriptPlayerServices {
 
 	private void uncheckAnswers() {
 		playerServices.getCommands().uncheckAnswers();
+	}
+
+	private void showAnswers(String source) {
+		playerServices.getCommands().showAnswers(source);
+	}
+
+	private void hideAnswers(String source) {
+		playerServices.getCommands().hideAnswers(source);
 	}
 
 	private void sendPageAllOkOnValueChanged(boolean sendEvent) {

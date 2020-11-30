@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.content.services;
 
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 
@@ -53,6 +54,10 @@ public class PlayerStateService implements IPlayerStateService {
     @Override
     public void setCheckErrorsMode(boolean value) {
         if (value) {
+            if (!isWorkMode() && !isCheckErrorsMode()) {
+                switchOffModes();
+            }
+
             this.currentMode = Mode.CHECK_ANSWERS;
         } else if (this.isCheckErrorsMode()) {
             this.currentMode = Mode.WORK;
@@ -62,6 +67,10 @@ public class PlayerStateService implements IPlayerStateService {
     @Override
     public void setShowAnswersMode(boolean value) {
         if (value) {
+            JavaScriptUtils.log(!isWorkMode() && !isShowAnswersMode());
+            if (!isWorkMode() && !isShowAnswersMode()) {
+                switchOffModes();
+            }
             this.currentMode = Mode.SHOW_ANSWERS;
         } else if (this.isShowAnswersMode()) {
             this.currentMode = Mode.WORK;
@@ -71,6 +80,9 @@ public class PlayerStateService implements IPlayerStateService {
     @Override
     public void setLimitedShowAnswersMode(boolean value) {
         if (value) {
+            if (!isLimitedShowAnswersMode() && !isWorkMode()) {
+                switchOffModes();
+            }
             this.currentMode = Mode.LIMITED_SHOW_ANSWERS;
         } else if (this.isLimitedShowAnswersMode()) {
             this.currentMode = Mode.WORK;
@@ -80,6 +92,9 @@ public class PlayerStateService implements IPlayerStateService {
     @Override
     public void setLimitedCheckAnswersMode(boolean value) {
         if (value) {
+            if (!isLimitedCheckAnswersMode() && !isWorkMode()) {
+                switchOffModes();
+            }
             this.currentMode = Mode.LIMITED_CHECK_ANSWERS;
         } else if (this.isLimitedCheckAnswersMode()) {
             this.currentMode = Mode.WORK;
@@ -89,9 +104,29 @@ public class PlayerStateService implements IPlayerStateService {
     @Override
     public void setGradualShowAnswersMode(boolean value) {
         if (value) {
+            if (!isGradualShowAnswersMode() && !isWorkMode()) {
+                switchOffModes();
+            }
             this.currentMode = Mode.GRADUAL_SHOW_ANSWERS;
         } else if (this.isGradualShowAnswersMode()) {
             this.currentMode = Mode.WORK;
+        }
+    }
+
+    @Override
+    public void switchOffModes() {
+        JavaScriptUtils.log("switch off moides" + this.currentMode);
+        if (isWorkMode()) {
+            return;
+        } else if (isCheckErrorsMode() || isLimitedCheckAnswersMode()) {
+            JavaScriptUtils.log("swtiching off check");
+            this.services.getCommands().uncheckAnswers();
+        } else if (isShowAnswersMode() || isLimitedShowAnswersMode()) {
+            JavaScriptUtils.log("swtiching off show");
+            this.services.getCommands().hideAnswers("");
+        } else if(isGradualShowAnswersMode()) {
+            JavaScriptUtils.log("swtiching off gra");
+            this.services.getCommands().hideGradualAnswers();
         }
     }
 
