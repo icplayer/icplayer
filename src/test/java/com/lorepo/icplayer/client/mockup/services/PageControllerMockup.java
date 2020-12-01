@@ -21,6 +21,16 @@ public class PageControllerMockup implements IPageController {
     }
 
     @Override
+    public void hideAnswers(String source) {
+
+    }
+
+    @Override
+    public void showAnswers(String source) {
+
+    }
+
+    @Override
     public List<IPresenter> getPresenters() {
         return new ArrayList<IPresenter>();
     }

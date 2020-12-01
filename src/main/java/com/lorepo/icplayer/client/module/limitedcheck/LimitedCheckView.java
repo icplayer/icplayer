@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.PushButton;
 import com.lorepo.icplayer.client.content.services.PlayerEventBus;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;

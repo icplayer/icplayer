@@ -1,9 +1,7 @@
 package com.lorepo.icplayer.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.event.shared.UmbrellaException;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
 
@@ -25,22 +23,6 @@ public class PlayerEntryPoint implements EntryPoint {
 	 */
 	@Override
 	public void onModuleLoad() {
-		GWT.setUncaughtExceptionHandler(new GWT.UncaughtExceptionHandler() {
-			@Override
-			public void onUncaughtException(Throwable e) {
-				ensureNotUmbrellaError(e);
-			}
-
-			private void ensureNotUmbrellaError(Throwable e) {
-				for (Throwable th : ((UmbrellaException) e).getCauses()) {
-					if (th instanceof UmbrellaException) {
-						ensureNotUmbrellaError(th);
-					} else {
-						th.printStackTrace();
-					}
-				}
-			}
-		});
 		initJavaScriptAPI(this);
 	}
 

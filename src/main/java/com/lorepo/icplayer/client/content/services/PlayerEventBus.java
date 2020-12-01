@@ -6,7 +6,6 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.event.*;
@@ -50,7 +49,6 @@ public class PlayerEventBus extends ResettableEventBus {
 	@Override
 	public void fireEvent(GwtEvent<?> event) {
 		checkIfEventTypeIsEnabled(event);
-		setPlayerState(event);
 
 		super.fireEvent(event);
 	}
@@ -66,7 +64,6 @@ public class PlayerEventBus extends ResettableEventBus {
 	@Override
 	public void fireEventFromSource(GwtEvent<?> event, Object source) {
 		checkIfEventTypeIsEnabled(event);
-		setPlayerState(event);
 
 		super.fireEventFromSource(event, source);
 	}
@@ -75,8 +72,6 @@ public class PlayerEventBus extends ResettableEventBus {
 		if (this.playerServices != null) {
 			String name = getEventName(event);
 			IPlayerStateService playerStateService = this.playerServices.getPlayerStateService();
-
-			JavaScriptUtils.log(name);
 
 			// strings in switch are not supported in -source 1.6
 			if (WorkModeEvent.NAME.equals(name)) {

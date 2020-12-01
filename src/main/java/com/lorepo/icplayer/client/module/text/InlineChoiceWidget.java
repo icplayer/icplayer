@@ -1,7 +1,6 @@
 package com.lorepo.icplayer.client.module.text;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;

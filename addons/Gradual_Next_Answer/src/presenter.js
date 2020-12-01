@@ -67,6 +67,10 @@ function AddonGradual_Next_Answer_create() {
 
         presenter.configuration = validatedModel.value;
 
+        if (presenter.configuration.isHideAnswers) {
+            presenter.viewElements.button.classList.add("gradual-hide-answers-button");
+        }
+
         if (!isPreview) {
             presenter.addHandleOfMouseActions();
         }

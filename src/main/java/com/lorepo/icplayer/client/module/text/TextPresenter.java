@@ -29,8 +29,6 @@ import java.util.*;
 
 public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IEnterable, IGradualShowAnswersPresenter {
 
-	private boolean isGradualShowAnswers = false;
-
 	public interface TextElementDisplay {
 		boolean hasId(String id);
 		void setShowErrorsMode(boolean isActivity);
@@ -114,6 +112,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private int currentMaxScore = 0;
 	private boolean isTextSetByCommand = false;
 	private boolean isDisabled = false;
+	private boolean isGradualShowAnswers = false;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -122,7 +121,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		try{
 			connectHandlers();
 		} catch(Exception e) {
-			
+			JavaScriptUtils.error(e.getMessage());
 		}
 	}
 
@@ -205,7 +204,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void handleGradualShowAnswers(int itemIndex) {
-		// TODO: add remembering the state when hideGradualShowAnswers is called
 		boolean smallerThanSizes = itemIndex < view.getChildrenCount();
 		if (smallerThanSizes) {
 			TextElementDisplay gap = view.getChild(itemIndex);

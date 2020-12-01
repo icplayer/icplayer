@@ -1,10 +1,14 @@
 .gradual-show-answers-button {
-    background: url('resources/show-answers-button.png') no-repeat center;
+    background: url('resources/show-answer.png') no-repeat center;
     cursor: pointer;
     text-align: center;
 
     width: 100%;
     height: 100%;
+}
+
+.gradual-hide-answers-button {
+    background: url('resources/hide-answer.png') no-repeat center;
 }
 
 .gradual-show-answers-container {

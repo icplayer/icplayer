@@ -350,7 +350,7 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	@Override
 	public void showAnswers() {
 		String answer = gapInfo.getFirstCorrectAnswer();
-		this.setText(answer);;
+		this.setText(answer);
 	}
 
 	public void select() {

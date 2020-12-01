@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.content.services;
 
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IGradualShowAnswersPresenter;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -87,7 +88,11 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
 
             // if it was disabled then leave it disabled
             if (wasDisabled != null && !wasDisabled) {
-                presenter.setDisabled(false);
+                try {
+                    presenter.setDisabled(false);
+                } catch (Exception e) {
+                    JavaScriptUtils.error(e.getMessage());
+                }
             }
         }
     }
