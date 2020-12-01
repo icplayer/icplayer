@@ -127,8 +127,7 @@ public abstract class ContentParserBase implements IContentParser {
 		return name;
 	}
 
-	protected HashMap<String, AddonDescriptor> parseAddonDescriptors(Element rootElement) {
-		HashMap<String, AddonDescriptor> addonDescriptors = new HashMap<String, AddonDescriptor>();
+	protected HashMap<String, AddonDescriptor> parseAddonDescriptors(Element rootElement) { HashMap<String, AddonDescriptor> addonDescriptors = new HashMap<String, AddonDescriptor>();
 		NodeList descriptorNodes = rootElement.getElementsByTagName("addon-descriptor");
 		
 		for(int i = 0; i < descriptorNodes.getLength(); i++){

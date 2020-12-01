@@ -92,18 +92,16 @@ public class PlayerEventBus extends ResettableEventBus {
 			} else if (ValueChangedEvent.NAME.equals(name)) {
 				if (event instanceof ValueChangedEvent) {
 					String value = ((ValueChangedEvent) event).getValue();
-					if (value != null && value.equals("ShowAnswers")) {
+					if (value != null && value.equals("LimitedShowAnswers")) {
 						playerStateService.setLimitedShowAnswersMode(true);
-					} else if (value != null && value.equals("HideAnswers")) {
+					} else if (value != null && value.equals("LimitedHideAnswers")) {
 						playerStateService.setLimitedShowAnswersMode(false);
 					}
 				}
-
-				playerStateService.setLimitedShowAnswersMode(false);
-			} else if ("LimitedHideAnswers".equals(name)) {
-				playerStateService.setLimitedShowAnswersMode(false);
-			} else if ("LimitedShowAnswers".equals(name)) {
-				playerStateService.setLimitedShowAnswersMode(true);
+			} else if ("HideAnswers".equals(name)) {
+				playerStateService.setShowAnswersMode(false);
+			} else if ("ShowAnswers".equals(name)) {
+				playerStateService.setShowAnswersMode(true);
 			}
 		}
 	}

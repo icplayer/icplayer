@@ -1,0 +1,18 @@
+.gradual-show-answers-button {
+    background: url('resources/show-answers-button.png') no-repeat center;
+    cursor: pointer;
+    text-align: center;
+
+    width: 100%;
+    height: 100%;
+}
+
+.gradual-show-answers-container {
+    width: 100%;
+    height: 100%;
+}
+
+.gradual-show-answers-wrapper {
+    width: 100%;
+    height: 100%;
+}

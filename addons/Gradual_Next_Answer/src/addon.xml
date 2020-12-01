@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<addon id='Gradual_Next_Answer' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+	<model>
+        <property displayName="Is disabled" name="Is Disabled" nameLabel="Gradual_Next_Answer_property_disabled" type="boolean" />
+        <property displayName="Is hide answers" name="Is hide answers" nameLabel="Gradual_Next_Answer_property_is_hide_answers" type="boolean" />
+	</model>
+</addon>
