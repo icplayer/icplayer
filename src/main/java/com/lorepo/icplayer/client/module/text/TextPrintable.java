@@ -76,7 +76,7 @@ public class TextPrintable {
 				value = placeholder;
 			}
 			
-			if (!showAnswers) {
+			//if (!showAnswers) {
 				float gapWidth = 0;
 				if (model.getGapWidth() > 0) {
 					gapWidth = model.getGapWidth();
@@ -116,7 +116,7 @@ public class TextPrintable {
 						value += "&nbsp;";
 					}
 				}
-			}
+			//}
 
 			span.setInnerHTML(value);	
 			String newValue = "&nbsp;" + span.getString();
@@ -164,13 +164,27 @@ public class TextPrintable {
 	private native float getTextWidthInPixels(String html) /*-{
 		var $_ = $wnd.$;
 		var $wrapper = $_("<div></div>");
-		$wrapper.css("position", "absolute");
-		$wrapper.css("visibility", "hidden");
+		var $outerLessonWrapper = $_("<div></div>");
+		$outerLessonWrapper.css("position", "absolute");
+		$outerLessonWrapper.css("visibility", "hidden");
+		$outerLessonWrapper.addClass("printable_lesson");
+
+		var $outerPageWrapper = $_("<div></div>");
+		$outerPageWrapper.addClass("printable_page");
+		$outerLessonWrapper.append($outerPageWrapper);
+
+		var $outerModuleWrapper = $_("<div></div>");
+		$outerModuleWrapper.addClass("printable_module");
+		$outerModuleWrapper.addClass("printable_ic_text");
+		$outerPageWrapper.append($outerModuleWrapper);
+
 		$wrapper.css("margin", "0px");
 		$wrapper.css("padding", "0px");
 		$wrapper.addClass("printable_gap");
 		$wrapper.html(html);
-		$_("body").append($wrapper);
+		$outerModuleWrapper.append($wrapper);
+
+		$_("body").append($outerLessonWrapper);
 		var width = $wrapper[0].getBoundingClientRect().width;
 		$wrapper.detach();
 		return width;
