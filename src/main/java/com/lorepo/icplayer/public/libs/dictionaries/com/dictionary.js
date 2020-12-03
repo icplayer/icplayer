@@ -622,6 +622,8 @@ var ice_dictionary_en = {
 	"TextAudio_play": "Play",
 	"TextAudio_pause": "Pause",
 	"TextAudio_stop": "Stop",
+	"Gradual_Next_Answer_name": "Gradual Show Answer",
+	"Gradual_Next_Answer_info": "The Gradual Show Answer module allows you show next correct answer in modules or hide all showed answers.",
 	"Connection_info": "Allows to create an activity with two columns of items (texts or images) which match one another. The activity can work either in a single or a multiple connection mode where each item can be used in multiple links.",
 	"Connection_name": "Connection",
 	"Connection_property_is_not_activity": "Is not an activity",
