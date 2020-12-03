@@ -323,7 +323,6 @@ public class PrintableContentParser {
 	}
 	
 	public String generatePrintableHTMLForPages(List<Page> sourcePages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
-		showAnswers = true;
 		String result = "<div class='printable_lesson'>";
 		List<Page> pages = new ArrayList<Page>();
 
