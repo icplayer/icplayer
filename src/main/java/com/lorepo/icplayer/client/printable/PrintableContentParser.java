@@ -446,7 +446,7 @@ public class PrintableContentParser {
 		$outerLessonWrapper.css("visibility", "hidden");
 		$outerLessonWrapper.addClass("printable_lesson");
 
-		$outerPageWrapper = $_("<div></div>");
+		var $outerPageWrapper = $_("<div></div>");
 		$outerPageWrapper.addClass("printable_page");
 		$outerLessonWrapper.append($outerPageWrapper);
 
@@ -472,7 +472,7 @@ public class PrintableContentParser {
 		$outerLessonWrapper.css("visibility", "hidden");
 		$outerLessonWrapper.addClass("printable_lesson");
 
-		$outerPageWrapper = $_("<div></div>");
+		var $outerPageWrapper = $_("<div></div>");
 		$outerPageWrapper.addClass("printable_page");
 		$outerPageWrapper.css("position", "absolute");
 		$outerPageWrapper.css("top", "0px");

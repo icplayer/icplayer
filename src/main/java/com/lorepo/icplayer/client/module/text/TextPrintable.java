@@ -75,48 +75,46 @@ public class TextPrintable {
 			if(placeholder.length() > 0 && !showAnswers) {
 				value = placeholder;
 			}
-			
-			//if (!showAnswers) {
-				float gapWidth = 0;
-				if (model.getGapWidth() > 0) {
-					gapWidth = model.getGapWidth();
-				} else {
-					gapWidth = getTextWidthInPixels(longestAnswer);
+
+			float gapWidth = 0;
+			if (model.getGapWidth() > 0) {
+				gapWidth = model.getGapWidth();
+			} else {
+				gapWidth = getTextWidthInPixels(longestAnswer);
+			}
+			float valueWidth = 0;
+			if (value.length() > 0) {
+				valueWidth = getTextWidthInPixels(value);
+			}
+
+			int spaceCount = (int) Math.ceil((gapWidth - valueWidth) / this.spaceSize);
+			int maxSplitFreeWidth = 50; //must be at least minSplitSize * 2
+			int minSplitSize = 20;
+			if (spaceCount > maxSplitFreeWidth) {
+				// If the gap is more than 50 spaces wide,
+				// it will break into lines, with no part smaller than minSplitSize
+				for (int j = 0; j < minSplitSize; j++) {
+					value += "&nbsp;";
 				}
-				float valueWidth = 0;
-				if (value.length() > 0) {
-					valueWidth = getTextWidthInPixels(value);
+
+				boolean nextNbsp = false;
+				for (int j = 0; j < spaceCount - minSplitSize * 2; j++) {
+					if (nextNbsp) {
+						value += "&nbsp;";
+					} else {
+						value += " ";
+					}
+					nextNbsp = !nextNbsp;
 				}
-				
-				int spaceCount = (int) Math.ceil((gapWidth - valueWidth) / this.spaceSize);
-				int maxSplitFreeWidth = 50; //must be at least minSplitSize * 2
-				int minSplitSize = 20;
-				if (spaceCount > maxSplitFreeWidth) {
-					// If the gap is more than 50 spaces wide, 
-					// it will break into lines, with no part smaller than minSplitSize
-					for (int j = 0; j < minSplitSize; j++) {
-						value += "&nbsp;";
-					}
-					
-					boolean nextNbsp = false;
-					for (int j = 0; j < spaceCount - minSplitSize * 2; j++) {
-						if (nextNbsp) {
-							value += "&nbsp;";
-						} else {
-							value += " ";
-						}
-						nextNbsp = !nextNbsp;
-					}
-					
-					for (int j = 0; j < minSplitSize; j++) {
-						value += "&nbsp;";
-					}
-				} else {
-					for (int j = 0; j < spaceCount; j++) {
-						value += "&nbsp;";
-					}
+
+				for (int j = 0; j < minSplitSize; j++) {
+					value += "&nbsp;";
 				}
-			//}
+			} else {
+				for (int j = 0; j < spaceCount; j++) {
+					value += "&nbsp;";
+				}
+			}
 
 			span.setInnerHTML(value);	
 			String newValue = "&nbsp;" + span.getString();
