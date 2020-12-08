@@ -47,7 +47,10 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
 	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
 	private ArrayList<GapWidget> gapsWidgets = new ArrayList<GapWidget>();
-	
+	// textElements contains also audio "gaps", gapsWidgets contains only GapWidget (so no draggable gap), I need to have a list of all gaps which are activities
+	// I cannot modify other list in this module as it would probably break backward compatibility
+	private ArrayList<TextElementDisplay> gapsActivities = new ArrayList<TextElementDisplay>();
+
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
 		this.isPreview = isPreview;
@@ -106,6 +109,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			gap.setDisabled(module.isDisabled());
 			
 			textElements.add(gap);
+			gapsActivities.add(gap);
 		}
 	}
 	
@@ -128,6 +132,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
+			gapsActivities.add(gap);
 		}
 	}
 
@@ -150,6 +155,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				gap.setDisabled(module.isDisabled());
 				gapsWidgets.add(gap);
 				textElements.add(gap);
+				gapsActivities.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
 			}
@@ -205,6 +211,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						textElements.add(gap);
 						gapsWidgets.add(gap);
 						mathGapIds.add(id);
+						gapsActivities.add(gap);
 					}
 				} catch (Exception e) {
 					Window.alert("Can't create module: " + gi.getId());
@@ -358,12 +365,17 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public int getGapCount() {
-		return gapsWidgets.size();
+		return gapsActivities.size();
 	}
 
 	@Override
 	public TextElementDisplay getChild (int index) {
 		return textElements.get(index);
+	}
+
+	@Override
+	public TextElementDisplay getActivity(int index) {
+		return gapsActivities.get(index);
 	}
 
 	@Override

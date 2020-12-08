@@ -73,6 +73,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		int getChildrenCount();
 		int getGapCount();
 		TextElementDisplay getChild(int index);
+		TextElementDisplay getActivity(int index);
 		void setValue(String id, String value);
 		void refreshMath();
 		void refreshGapMath(String id);
@@ -206,7 +207,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private void handleGradualShowAnswers(int itemIndex) {
 		boolean smallerThanSizes = itemIndex < view.getChildrenCount();
 		if (smallerThanSizes) {
-			TextElementDisplay gap = view.getChild(itemIndex);
+			TextElementDisplay gap = view.getActivity(itemIndex);
 			gap.showAnswers();
 		}
 	}
