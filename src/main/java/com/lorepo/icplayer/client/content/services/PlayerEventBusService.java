@@ -217,7 +217,7 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 
 		List<JavaScriptObject> eventListeners = listeners.get(eventName);
 		if (eventListeners != null) {
-			if (eventName.equals(PAGE_LOADED_EVENT_NAME)) {
+			if (eventName == PAGE_LOADED_EVENT_NAME) {
 				final HashMap<String, String> pageLoadedData = new HashMap<String, String>();
 				pageLoadedData.putAll(data);
 
@@ -253,7 +253,7 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 			listeners.put(eventName, eventListeners);
 		}
 
-		if (eventName.equals(PAGE_LOADED_EVENT_NAME)) {
+		if (eventName == PAGE_LOADED_EVENT_NAME) {
 			for (String eventSource : pageLoadedListeners.keySet()) {
 				pageLoadedListeners.get(eventSource).add(listener);
 			}

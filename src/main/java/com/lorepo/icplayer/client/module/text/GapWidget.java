@@ -264,6 +264,11 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	}
 
 	@Override
+	public boolean isActivity() {
+		return true;
+	}
+
+	@Override
 	public void setDisabled(boolean disabled) {
 		isDisabled = disabled;
 		setEnabled(!disabled);

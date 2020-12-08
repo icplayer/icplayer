@@ -298,6 +298,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	}
 
 	@Override
+	public boolean isActivity() {
+		return true;
+	}
+
+	@Override
 	public boolean isDisabled() {
 		return disabled;
 	}

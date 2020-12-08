@@ -199,6 +199,11 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	}
 
 	@Override
+	public boolean isActivity() {
+		return true;
+	}
+
+	@Override
 	public boolean isDisabled() {
 		return isDisabled;
 	}

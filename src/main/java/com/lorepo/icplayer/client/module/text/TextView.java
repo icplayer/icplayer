@@ -21,10 +21,7 @@ import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 
 public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, IWCAGModuleView {
@@ -47,9 +44,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
 	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
 	private ArrayList<GapWidget> gapsWidgets = new ArrayList<GapWidget>();
-	// textElements contains also audio "gaps", gapsWidgets contains only GapWidget (so no draggable gap), I need to have a list of all gaps which are activities
-	// I cannot modify other list in this module as it would probably break backward compatibility
-	private ArrayList<TextElementDisplay> gapsActivities = new ArrayList<TextElementDisplay>();
 
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
@@ -109,7 +103,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			gap.setDisabled(module.isDisabled());
 			
 			textElements.add(gap);
-			gapsActivities.add(gap);
 		}
 	}
 	
@@ -132,7 +125,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			
 			gap.setDisabled(module.isDisabled());
 			textElements.add(gap);
-			gapsActivities.add(gap);
 		}
 	}
 
@@ -155,7 +147,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				gap.setDisabled(module.isDisabled());
 				gapsWidgets.add(gap);
 				textElements.add(gap);
-				gapsActivities.add(gap);
 			} catch (Exception e) {
 				Window.alert("Can't create module: " + gi.getId());
 			}
@@ -211,7 +202,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						textElements.add(gap);
 						gapsWidgets.add(gap);
 						mathGapIds.add(id);
-						gapsActivities.add(gap);
 					}
 				} catch (Exception e) {
 					Window.alert("Can't create module: " + gi.getId());
@@ -365,7 +355,14 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public int getGapCount() {
-		return gapsActivities.size();
+		int count = 0;
+
+		for (TextElementDisplay d : textElements) {
+			count += d.isActivity() ? 1: 0;
+		}
+
+		JavaScriptUtils.log(count);
+		return count;
 	}
 
 	@Override
@@ -375,7 +372,17 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 
 	@Override
 	public TextElementDisplay getActivity(int index) {
-		return gapsActivities.get(index);
+		int displayIndex = 0;
+
+		for (TextElementDisplay d : textElements) {
+			if (d.isActivity() && displayIndex == index) {
+				return d;
+			} else {
+				displayIndex++;
+			}
+		}
+
+		return null;
 	}
 
 	@Override

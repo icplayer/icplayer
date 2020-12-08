@@ -122,16 +122,6 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         resetCounters();
     }
 
-    private void switchOffOtherModes() {
-        IPlayerStateService pss = this.pageController.getPlayerServices().getPlayerStateService();
-        if (pss.isCheckErrorsMode() || pss.isLimitedCheckAnswersMode()) {
-            this.pageController.getPlayerServices().getCommands().uncheckAnswers();
-        } else if (pss.isShowAnswersMode() || pss.isLimitedShowAnswersMode()) {
-            this.pageController.getPlayerServices().getCommands().hideAnswers("");
-        }
-    }
-
-
     private IGradualShowAnswersPresenter getNextPresenter() {
         if (this.currentModule < this.presenters.size()) {
             return this.presenters.get(this.currentModule);

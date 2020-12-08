@@ -41,6 +41,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void markGapAsWrong();
 		void markGapAsEmpty();
 		boolean isAttempted();
+		boolean isActivity();
 		void setDisabled(boolean disabled);
 		boolean isDisabled();
 		void setStyleShowAnswers();
@@ -201,17 +202,17 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 	
 	private boolean isShowAnswers() {
-		return module.isActivity() ? this.isShowAnswersActive : false;
+		return module.isActivity() && this.isShowAnswersActive;
 	}
 
-	private void handleGradualShowAnswers(int itemIndex) {
-		boolean smallerThanSizes = itemIndex < view.getChildrenCount();
-		if (smallerThanSizes) {
-			TextElementDisplay gap = view.getActivity(itemIndex);
+	public void handleGradualShowAnswers(int itemIndex) {
+		TextElementDisplay gap = view.getActivity(itemIndex);
+		if (gap != null) {
 			gap.showAnswers();
 		}
 	}
-	private void handleGradualHideAnswers() {
+
+	public void handleGradualHideAnswers() {
 		this.isGradualShowAnswers = false;
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {

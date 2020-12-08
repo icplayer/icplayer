@@ -12,21 +12,14 @@ import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
-import com.lorepo.icplayer.client.module.api.IActivity;
-import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.module.api.IModuleView;
-import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.IStateful;
-import com.lorepo.icplayer.client.module.api.event.CustomEvent;
-import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
-import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
-import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
+import com.lorepo.icplayer.client.module.api.*;
+import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
-public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, IActivity, ICommandReceiver, IWCAGPresenter {
+public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, IActivity, ICommandReceiver, IWCAGPresenter, IGradualShowAnswersPresenter {
 
 	public interface IOptionDisplay{
 		public ChoiceOption getModel();
@@ -64,6 +57,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	private JavaScriptObject	jsObject;
 	private boolean isVisible;
 	private boolean isShowAnswersActive = false;
+	private boolean isGradualShowAnswers = false;
 	private String currentState = "";
 	private int currentScore;
 	private int currentMaxScore;
@@ -88,7 +82,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		
 		if (playerServices != null) {
 			
-			EventBus eventBus = playerServices.getEventBus();
+			EventBus eventBus = playerServices.getEventBusService().getEventBus();
 		
 			eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
 				public void onShowErrors(ShowErrorsEvent event) {
@@ -114,6 +108,31 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 					onEventReceived(event.eventName, event.getData());
 				}
 			});
+
+			eventBus.addHandler(GradualShowAnswerEvent.TYPE, new GradualShowAnswerEvent.Handler() {
+				@Override
+				public void onGradualShowAnswers(GradualShowAnswerEvent event) {
+					if (!isGradualShowAnswers) {
+						isGradualShowAnswers = true;
+						currentScore = getScore();
+						currentMaxScore = getMaxScore();
+						currentErrorCount = getErrorCount();
+						currentState = getState();
+					}
+
+					if (event.getModuleID().equals(module.getId())) {
+						int itemIndex = event.getItem();
+						handleGradualShowAnswers(itemIndex);
+					}
+				}
+			});
+
+			eventBus.addHandler(GradualHideAnswerEvent.TYPE, new GradualHideAnswerEvent.Handler() {
+				@Override
+				public void onGradualHideAnswers(GradualHideAnswerEvent event) {
+					handleGradualHideAnswers();
+				}
+			});
 			
 		}
 	}
@@ -124,6 +143,10 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		}
 		
 		return this.isShowAnswersActive;
+	}
+
+	private boolean shouldReturnSavedState() {
+		return isShowAnswers() || isGradualShowAnswers;
 	}
 	
 	private void showAnswers() {
@@ -253,7 +276,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 	@Override
 	public String getState() {
-		if (isShowAnswers()) {
+		if (shouldReturnSavedState()) {
 			return this.currentState;
 		}
 
@@ -275,7 +298,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	
 	@Override
 	public void setState(String stateObj) {
-		if (stateObj == "" || stateObj.equals("")) {
+		if (stateObj.equals("")) {
 			return;
 		}
 		
@@ -369,7 +392,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	// ------------------------------------------------------------------------
 	@Override
 	public int getErrorCount() {
-		if (isShowAnswers()) {
+		if (shouldReturnSavedState()) {
 			return this.currentErrorCount;
 		}
 
@@ -388,7 +411,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 	@Override
 	public int getMaxScore() {
-		if (isShowAnswers()) {
+		if (shouldReturnSavedState()) {
 			return this.currentMaxScore;
 		}
 
@@ -398,7 +421,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 
 	@Override
 	public int getScore() {
-		if (isShowAnswers()) {
+		if (shouldReturnSavedState()) {
 			return this.currentScore;
 		}
 
@@ -745,7 +768,36 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 			hideAnswers();
 		}
 	}
-	
+
+	@Override
+	public int getActivitiesCount() {
+		return module.getCorrectOptionCount();
+	}
+
+	@Override
+	public void handleGradualShowAnswers(int itemIndex) {
+		int currentCorrectOption = 0;
+		for (IOptionDisplay option : view.getOptions()) {
+			if (option.getModel().isCorrect()) {
+				if (currentCorrectOption == itemIndex) {
+					option.setDown(true);
+					option.setCorrectAnswerStyle();
+
+					break;
+				} else {
+					currentCorrectOption++;
+				}
+			}
+		}
+	}
+
+	@Override
+	public void handleGradualHideAnswers() {
+		isGradualShowAnswers = false;
+		clearStylesAndSelection(false);
+		setState(this.currentState);
+	}
+
 	public void sendValueChangedEvent(String itemID, String value, String score) {
 		String moduleType = this.module.getModuleTypeName();
 		String moduleID = this.module.getId();

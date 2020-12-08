@@ -81,6 +81,11 @@ public class AudioButtonWidget extends Button implements TextElementDisplay {
     }
 
     @Override
+    public boolean isActivity() {
+        return false;
+    }
+
+    @Override
     public void setDisabled(boolean disabled) {
         // TODO not implement
     }
