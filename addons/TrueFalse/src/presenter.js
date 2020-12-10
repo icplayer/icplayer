@@ -1112,6 +1112,7 @@ function AddonTrueFalse_create() {
 
             for (var j = 0; j < model.Choices.length; j++) {
                 var $td = $("<td></td>");
+                $td.addClass("checkbox-container");
                 $td.addClass("checkbox-" + (i+1) + "-" + (j+1));
                 var $inputDiv = $("<div></div>");
                 $inputDiv.addClass("placeholder");
@@ -1121,6 +1122,8 @@ function AddonTrueFalse_create() {
                     $checkbox.attr("checked", "checked");
                 }
                 $td.append($checkbox);
+                var $checkboxSpan = $("<span></span>");
+                $td.append($checkboxSpan);
                 $tr.append($td);
             }
             $tbody.append($tr);

@@ -441,34 +441,60 @@ public class PrintableContentParser {
 	
 	public native int getHTMLHeight (String html, int pageWidth) /*-{
 		var $_ = $wnd.$;
+		var $outerLessonWrapper = $_("<div></div>");
+		$outerLessonWrapper.css("position", "absolute");
+		$outerLessonWrapper.css("visibility", "hidden");
+		$outerLessonWrapper.addClass("printable_lesson");
+
+		var $outerPageWrapper = $_("<div></div>");
+		$outerPageWrapper.addClass("printable_page");
+		$outerLessonWrapper.append($outerPageWrapper);
+
 		var $wrapper = $_("<div></div>");
-		$wrapper.css("position", "absolute");
 		$wrapper.css("width", pageWidth + "px");
-		$wrapper.css("visibility", "hidden");
 		$wrapper.css("margin", "0px");
 		$wrapper.css("padding", "0px");
 		$wrapper.html(html);
-		$_("body").append($wrapper);
+		$outerPageWrapper.append($wrapper);
+
+		$_("body").append($outerLessonWrapper);
 		var height = $wrapper[0].getBoundingClientRect().height;
-		$wrapper.detach();
+		$outerLessonWrapper.detach();
 		return height;
 	}-*/;
 	
 	private native SplitResult splitModule (String html, int maxHeight, int minSplitHeight, int pageWidth, boolean enableTwoColumnPrint) /*-{
 		var $_ = $wnd.$;
+		var $outerLessonWrapper = $_("<div></div>");
+		$outerLessonWrapper.css("position", "absolute");
+		$outerLessonWrapper.css("top", "0px");
+		$outerLessonWrapper.css("left", "0px");
+		$outerLessonWrapper.css("visibility", "hidden");
+		$outerLessonWrapper.addClass("printable_lesson");
+
+		var $outerPageWrapper = $_("<div></div>");
+		$outerPageWrapper.addClass("printable_page");
+		$outerPageWrapper.css("position", "absolute");
+		$outerPageWrapper.css("top", "0px");
+		$outerPageWrapper.css("left", "0px");
+		$outerLessonWrapper.append($outerPageWrapper);
+
 		var $wrapper = $_("<div></div>");
 		$wrapper.css("position", "absolute");
+		$wrapper.css("top", "0px");
+		$wrapper.css("left", "0px");
 		$wrapper.css("width", pageWidth + "px");
-		$wrapper.css("visibility", "hidden");
 		$wrapper.css("margin", "0px");
 		$wrapper.css("padding", "0px");
+		$outerPageWrapper.append($wrapper);
+
 		if (enableTwoColumnPrint) {
 			$wrapper.css("columns", "2");
 			$wrapper.css("-webkit-columns", "2");
 			$wrapper.css("-moz-columns", "2");
 		}
 		$wrapper.html(html);
-		$_("body").append($wrapper);
+		$_("body").append($outerLessonWrapper);
 		var wrapperRect = $wrapper[0].getBoundingClientRect();
 		var lastNode = null;
 		var lastNodeRect = null;
@@ -512,7 +538,7 @@ public class PrintableContentParser {
 		tailWrapper.childNodes.forEach(function(element, index, array){element.style.minHeight = "";});
 		var tailHTML = tailWrapper.innerHTML;
 		
-		$wrapper.detach();
+		$outerLessonWrapper.detach();
 		return {head: headHTML, tail: tailHTML};
 	}-*/;
 }

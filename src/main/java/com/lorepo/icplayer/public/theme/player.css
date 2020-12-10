@@ -1064,6 +1064,9 @@ hr, table, fieldset {
 	margin-bottom: 10px;
 	column-break-inside: avoid;
 	-webkit-column-break-inside: avoid;
+	font-size: inherit;
+	color: inherit;
+    font-family: inherit;
 }
 
 .printable_module.splittable {
@@ -1072,9 +1075,34 @@ hr, table, fieldset {
 	-webkit-column-break-inside: inherit;
 }
 
+.printable_module table {
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+}
+
+.printable_module thead {
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+}
+
+.printable_module tbody {
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+}
+
 .printable_module tr {
 	column-break-inside: avoid;
 	-webkit-column-break-inside: avoid;
+	color: inherit;
+}
+
+.printable_module td {
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
 }
 
 .printable_modules_group {
@@ -1097,10 +1125,22 @@ hr, table, fieldset {
 	overflow: hidden;
 }
 
+.printable_page table {
+    font-size: inherit;
+    font-family: inherit;
+    color: inherit;
+}
+
 .printable_opening_player_page {
 	column-span:all;
 	-webkit-column-span:all;
 	-moz-column-span:all;
+}
+
+.printable_lesson {
+    font-size: 14px;
+    color: black;
+    font-family: open_sansregular;
 }
 
 .printable_lesson .printable_page:last-child .printable_content > div {
