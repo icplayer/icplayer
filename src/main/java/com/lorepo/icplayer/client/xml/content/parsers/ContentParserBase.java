@@ -134,8 +134,10 @@ public abstract class ContentParserBase implements IContentParser {
 		for(int i = 0; i < descriptorNodes.getLength(); i++){
 			Element node = (Element)descriptorNodes.item(i);
 			String addonId = node.getAttribute("addonId");
-			String href = StringUtils.unescapeXML(node.getAttribute("href"));
-			addonDescriptors.put(addonId, new AddonDescriptor(addonId, href));
+			if (addonId != "null") {
+                String href = StringUtils.unescapeXML(node.getAttribute("href"));
+                addonDescriptors.put(addonId, new AddonDescriptor(addonId, href));
+            }
 		}
 
 		return addonDescriptors;
