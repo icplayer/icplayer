@@ -207,7 +207,7 @@ public class Content implements IContentBuilder, IContent {
 		// Addons
 		xml += "<addons>";
 		for(AddonDescriptor descriptor : addonDescriptors.values()){
-		    if (descriptor.getAddonId() != "null") {
+		    if (descriptor.getAddonId() != null && !descriptor.getAddonId().equals("null")) {
 			    xml += "<addon-descriptor addonId='"+descriptor.getAddonId()+"' href='"+descriptor.getHref()+"'/>";
 			}
 		}
