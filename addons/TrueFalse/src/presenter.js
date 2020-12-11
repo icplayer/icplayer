@@ -7,6 +7,7 @@ function AddonTrueFalse_create() {
     presenter.type = "";
     presenter.lastEvent = null;
     presenter.isShowAnswersActive = false;
+    presenter.isGradualShowAnswersActive = false;
     presenter.keyboardNavigationActive = false;
     presenter.keyboardNavigationCurrentElement = null;
     presenter.keyboardNavigationElements = [];
@@ -465,8 +466,10 @@ function AddonTrueFalse_create() {
         presenter.addonID = model.ID;
         makeView(view, model, false);
 
-        eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            eventBus.addEventListener(events[i], this);
+        }
     };
 
     function isCorrectAnswer(element, values, index) {
@@ -507,7 +510,7 @@ function AddonTrueFalse_create() {
         }
 
         var state = {};
-        if (presenter.isShowAnswersActive) {
+        if (presenter.isShowAnswers()) {
             state = getStateBase(presenter.currentState); // This is saved on ShowAnswers
         } else {
             state = getStateBase(getSelectedElements());
@@ -585,6 +588,7 @@ function AddonTrueFalse_create() {
     presenter.reset = function () {
         presenter.isErrorMode = false;
         presenter.isShowAnswersActive = false;
+        presenter.isGradualShowAnswersActive = false;
 
         if (presenter.currentState) {
             delete presenter.currentState;
@@ -604,7 +608,7 @@ function AddonTrueFalse_create() {
     presenter.getErrorCount = function () {
         if (isNotActivity) return 0;
 
-        if (presenter.isShowAnswersActive) {
+        if (presenter.isShowAnswers()) {
             return presenter.currentScore.errorCount;
         }
 
@@ -614,7 +618,7 @@ function AddonTrueFalse_create() {
     presenter.getMaxScore = function () {
         if (isNotActivity) return 0;
 
-        if (presenter.isShowAnswersActive) {
+        if (presenter.isShowAnswers()) {
             return presenter.currentScore.maxScore;
         }
 
@@ -624,7 +628,7 @@ function AddonTrueFalse_create() {
     presenter.getScore = function () {
         if (isNotActivity) return 0;
 
-        if (presenter.isShowAnswersActive) {
+        if (presenter.isShowAnswers()) {
             return presenter.currentScore.score;
         }
 
@@ -796,15 +800,50 @@ function AddonTrueFalse_create() {
         presenter.markAsCorrect(parseInt(params[0], 10), parseInt(params[1], 10));
     };
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
+    presenter.onEventReceived = function (eventName, data) {
+        if (eventName === "ShowAnswers") {
             presenter.showAnswers();
-        }
-
-        if (eventName == "HideAnswers") {
+        } else if (eventName === "HideAnswers") {
             presenter.hideAnswers();
+        } else if (eventName === "GradualShowAnswers") {
+            if (!presenter.isGradualShowAnswersActive) {
+                presenter.currentScore = score();
+                presenter.currentState = getSelectedElements();
+                presenter.isGradualShowAnswersActive = true;
+            }
+            if (data.moduleID === presenter.addonID) {
+                presenter.gradualShowAnswers(parseInt(data.item, 10));
+            }
+        } else if (eventName === "GradualHideAnswers") {
+            presenter.gradualHideAnswers();
         }
     };
+
+    presenter.gradualShowAnswers = function (itemIndex) {
+        presenter.setCorrectAnswers(itemIndex + 1); // don't ask
+    }
+
+    presenter.gradualHideAnswers = function () {
+        presenter.isGradualShowAnswersActive = false;
+        workMode(true);
+
+        var state = JSON.stringify({
+            "selectedElements": presenter.currentState,
+            "isVisible": presenter.isVisible
+        });
+
+        presenter.setState(state);
+
+        delete presenter.currentState;
+    }
+
+    presenter.isShowAnswers = function () {
+        return presenter.isShowAnswersActive || presenter.isGradualShowAnswersActive;
+    }
+
+    presenter.getActivitiesCount = function () {
+        return questions.length;
+    }
 
     presenter.disable = function() {
         if (presenter.isShowAnswersActive) {
@@ -833,7 +872,11 @@ function AddonTrueFalse_create() {
         presenter.isErrorMode = false;
         workMode(true);
 
-        for (var i = 1; i < questions.length + 1; i++) {
+        presenter.setCorrectAnswers(questions.length)
+    };
+
+    presenter.setCorrectAnswers = function (length) {
+       for (var i = 1; i < length + 1; i++) {
             var $row = presenter.$view.find('#' + i);
             var correctValues = (questions[i - 1].Answer).split(',');
 
@@ -851,7 +894,7 @@ function AddonTrueFalse_create() {
                 }
             }
         }
-    };
+    }
 
     presenter.hideAnswers = function () {
         if (isNotActivity || !presenter.isShowAnswersActive) {

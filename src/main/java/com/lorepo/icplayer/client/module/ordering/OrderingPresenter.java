@@ -101,8 +101,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 				@Override
 				public void onGradualShowAnswers(GradualShowAnswerEvent event) {
 					if (!isGradualShowAnswers) {
+						setCurrentViewState();
 						isGradualShowAnswers = true;
-						currentState = getState();
 					}
 
 					if (event.getModuleID().equals(module.getId())) {
@@ -135,12 +135,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 		if (this.isShowErrorsActive)
 			setWorkMode();
-		
-		this.tmpScore = getScore();
-		this.tmpErrorCount = getErrorCount();
-		this.currentState = getState();
-		this.currentState_view = view.getState();
 
+		setCurrentViewState();
 		this.isShowAnswersActive = true;
 
 		view.setWorkStatus(false);
@@ -176,7 +172,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public String getState() {
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return this.currentState;
 		}
 
@@ -224,7 +220,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	// ------------------------------------------------------------------------
 	@Override
 	public int getErrorCount() {
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return this.tmpErrorCount;	// It's saved in showAnswers
 		}
 
@@ -289,7 +285,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public int getScore() {
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return this.tmpScore;	// It's saved in showAnserts
 		}
 
@@ -561,14 +557,19 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		return module.getItemCount() - 1;
 	}
 
-	@Override
 	public void handleGradualShowAnswers(int itemIndex) {
 		view.setCorrectAnswer(itemIndex + 1);
 	}
 
-	@Override
 	public void handleGradualHideAnswers() {
 		isGradualShowAnswers = false;
 		setState(currentState);
+	}
+
+	private void setCurrentViewState() {
+		this.tmpScore = getScore();
+		this.tmpErrorCount = getErrorCount();
+		this.currentState = getState();
+		this.currentState_view = view.getState();
 	}
 }

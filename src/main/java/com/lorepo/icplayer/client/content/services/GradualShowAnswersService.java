@@ -131,7 +131,6 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
 
     private void sendEvent(String moduleID, int itemIndex) {
         GradualShowAnswersBuilder builder = new GradualShowAnswersBuilder(moduleID, itemIndex);
-
         this.pageController.getPlayerServices().getEventBusService().getEventBus().fireEvent(builder.build());
     }
 }

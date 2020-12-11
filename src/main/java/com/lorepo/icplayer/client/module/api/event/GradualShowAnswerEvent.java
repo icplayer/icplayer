@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.module.api.event;
 
 import com.google.gwt.event.shared.EventHandler;
 
+import java.util.HashMap;
+
 public class GradualShowAnswerEvent extends PlayerEvent<GradualShowAnswerEvent.Handler> {
 
     public static final String NAME = "GradualShowAnswers";
@@ -45,4 +47,12 @@ public class GradualShowAnswerEvent extends PlayerEvent<GradualShowAnswerEvent.H
         this.moduleID = moduleID;
     }
 
+    @Override
+    public HashMap<String, String> getData() {
+        HashMap<String, String> data = super.getData();
+        data.put("item", String.valueOf(item));
+        data.put("moduleID", moduleID);
+
+        return data;
+    }
 }

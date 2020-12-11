@@ -113,11 +113,11 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 				@Override
 				public void onGradualShowAnswers(GradualShowAnswerEvent event) {
 					if (!isGradualShowAnswers) {
-						isGradualShowAnswers = true;
 						currentScore = getScore();
 						currentMaxScore = getMaxScore();
 						currentErrorCount = getErrorCount();
 						currentState = getState();
+						isGradualShowAnswers = true;
 					}
 
 					if (event.getModuleID().equals(module.getId())) {
@@ -774,7 +774,6 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		return module.getCorrectOptionCount();
 	}
 
-	@Override
 	public void handleGradualShowAnswers(int itemIndex) {
 		int currentCorrectOption = 0;
 		for (IOptionDisplay option : view.getOptions()) {
@@ -791,7 +790,6 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		}
 	}
 
-	@Override
 	public void handleGradualHideAnswers() {
 		isGradualShowAnswers = false;
 		clearStylesAndSelection(false);

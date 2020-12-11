@@ -182,8 +182,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			@Override
 			public void onGradualShowAnswers(GradualShowAnswerEvent event) {
 				if (!isGradualShowAnswers) {
+					setCurrentViewState();
 					isGradualShowAnswers = true;
-					currentState = getState();
 				}
 
 				if (event.getModuleID().equals(module.getId())) {
@@ -272,11 +272,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			return;
 		}
+		setCurrentViewState();
 
-		this.currentScore = getScore();
-		this.currentErrorCount = getErrorCount();
-		this.currentMaxScore = getMaxScore();
-		this.currentState = getState();
 		this.isShowAnswersActive = true;
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
@@ -456,7 +453,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return 0;
 		}
 
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return currentErrorCount;
 		}
 
@@ -546,7 +543,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return 0;
 		}
 
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return currentMaxScore;
 		}
 		
@@ -568,7 +565,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return 0;
 		}
 
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return currentScore;
 		}
 
@@ -1515,6 +1512,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		consumedItems.remove(gapId);
 		values.remove(gapId);
 		view.setValue(gapId, "");
+	}
+
+	private void setCurrentViewState() {
+		this.currentScore = getScore();
+		this.currentErrorCount = getErrorCount();
+		this.currentMaxScore = getMaxScore();
+		this.currentState = getState();
 	}
 
 }

@@ -115,17 +115,13 @@ public class PlayerStateService implements IPlayerStateService {
 
     @Override
     public void switchOffModes() {
-        JavaScriptUtils.log("switch off moides" + this.currentMode);
         if (isWorkMode()) {
             return;
         } else if (isCheckErrorsMode() || isLimitedCheckAnswersMode()) {
-            JavaScriptUtils.log("swtiching off check");
             this.services.getCommands().uncheckAnswers();
         } else if (isShowAnswersMode() || isLimitedShowAnswersMode()) {
-            JavaScriptUtils.log("swtiching off show");
             this.services.getCommands().hideAnswers("");
         } else if(isGradualShowAnswersMode()) {
-            JavaScriptUtils.log("swtiching off gra");
             this.services.getCommands().hideGradualAnswers();
         }
     }
