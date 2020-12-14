@@ -810,6 +810,7 @@ function AddonTrueFalse_create() {
                 presenter.currentScore = score();
                 presenter.currentState = getSelectedElements();
                 presenter.isGradualShowAnswersActive = true;
+                workMode(true);
             }
             if (data.moduleID === presenter.addonID) {
                 presenter.gradualShowAnswers(parseInt(data.item, 10));
