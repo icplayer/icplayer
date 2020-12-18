@@ -2048,7 +2048,6 @@ function AddonConnection_create() {
         $root.attr('id', model.ID);
         $root.addClass('printable_addon_Connection');
         $root.css("max-width", model["Width"]+"px");
-        $root.css("min-height", model["Height"]+"px");
         $root.html('<table class="connectionContainer">' +
             '    <tr>' +
             '        <td class="connectionLeftColumn">' +
@@ -2094,6 +2093,10 @@ function AddonConnection_create() {
                 }
             }
         }
+
+        var height = getPrintableTableHeight($root);
+        $root.css("height", height+"px");
+
         if (connected.length > 0) {
             $root.css('visibility', 'hidden');
             $('body').append($root);
@@ -2111,6 +2114,30 @@ function AddonConnection_create() {
 
     return presenter;
 }
+
+function getPrintableTableHeight($table) {
+        var $outerLessonWrapper = $("<div></div>");
+        $outerLessonWrapper.css("position", "absolute");
+        $outerLessonWrapper.css("visibility", "hidden");
+        $outerLessonWrapper.addClass("printable_lesson");
+
+        var $outerPageWrapper = $("<div></div>");
+        $outerPageWrapper.addClass("printable_page");
+        $outerLessonWrapper.append($outerPageWrapper);
+
+        var $outerModuleWrapper = $("<div></div>");
+        $outerModuleWrapper.addClass("printable_module");
+        $outerModuleWrapper.addClass("printable_addon_Connection");
+        $outerPageWrapper.append($outerModuleWrapper);
+
+		$outerModuleWrapper.append($table);
+
+		$("body").append($outerLessonWrapper);
+		var height = $table[0].getBoundingClientRect().height;
+		$outerLessonWrapper.detach();
+		$table.detach();
+		return height;
+    }
 
 AddonConnection_create.__supported_player_options__ = {
     resetInterfaceVersion: 2

@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.text;
 
 import java.util.Iterator;
+import java.util.ArrayList;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
@@ -39,10 +40,26 @@ public class TextPrintable {
 	
 	private String makePrintableInput(String parsedText, boolean showAnswers) {
 		HTML html = new HTML(parsedText);
-		
-		NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
-		for (int i = 0; i < inputs.getLength(); i++) {
-			Element input = inputs.getItem(i);
+
+		ArrayList<Element> gaps = new ArrayList<Element>();
+
+		if (this.model.hasDraggableGaps()) {
+			NodeList<Element> spans = html.getElement().getElementsByTagName("span");
+			for (int i = 0; i < spans.getLength(); i++) {
+				Element span = spans.getItem(i);
+				if (span.getClassName().indexOf("ic_draggableGap") != -1) {
+					gaps.add(span);
+				}
+			}
+		} else {
+			NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
+			for (int i = 0; i < inputs.getLength(); i++) {
+				gaps.add(inputs.getItem(i));
+			}
+		}
+
+		for (int i = 0; i < gaps.size(); i++) {
+			Element input = gaps.get(i);
 			String oldValue = input.getString();
 			Element span = DOM.createSpan();
 			
