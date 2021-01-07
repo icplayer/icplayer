@@ -1,3 +1,7 @@
+2020-12-17 Fixed stretching of Connection addon and added draggable gap support in Text for print
+2020-12-03 Fixxed issue with font size of printable lessons
+2020-11-27 Added playback rate control to the Audio addon
+2020-11-26 Fixed issue with assessmentUser==teacher being overrriden by student's state
 2020-11-26 Added WCAG support for TextAudio
 2020-11-25 Added support for assessmentUser metadata in Assessment Navigation Bar
 2020-11-20 Changed randomizeLesson in Assessment Navigation Bar to override addon state

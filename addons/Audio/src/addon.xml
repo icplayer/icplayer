@@ -11,5 +11,6 @@
 		<property name="Narration" nameLabel="Audio_property_narration" type="narration" isLocalized="true" />
 		<property name="onEnd" nameLabel="Audio_property_on_end" type="event"/>
 		<property name="forceLoadAudio" nameLabel="Audio_property_force_load_audio" type="boolean"/>
+		<property name="enablePlaybackSpeedControls" nameLabel="Audio_property_enable_playback_speed_controls" type="boolean"/>
 	</model>
 </addon>

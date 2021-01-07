@@ -2252,16 +2252,30 @@ function AddonTable_create() {
     }
 
     function getTextWidthInPixels(html) {
+        var $outerLessonWrapper = $("<div></div>");
+        $outerLessonWrapper.css("position", "absolute");
+        $outerLessonWrapper.css("visibility", "hidden");
+        $outerLessonWrapper.addClass("printable_lesson");
+
+        var $outerPageWrapper = $("<div></div>");
+        $outerPageWrapper.addClass("printable_page");
+        $outerLessonWrapper.append($outerPageWrapper);
+
+        var $outerModuleWrapper = $("<div></div>");
+        $outerModuleWrapper.addClass("printable_module");
+        $outerModuleWrapper.addClass("printable_addon_Table");
+        $outerPageWrapper.append($outerModuleWrapper);
+
         var $wrapper = $("<div></div>");
-		$wrapper.css("position", "absolute");
-		$wrapper.css("visibility", "hidden");
 		$wrapper.css("margin", "0px");
 		$wrapper.css("padding", "0px");
 		$wrapper.addClass("printable_gap");
+		$outerModuleWrapper.append($wrapper);
+
 		$wrapper.html(html);
-		$("body").append($wrapper);
+		$("body").append($outerLessonWrapper);
 		var width = $wrapper[0].getBoundingClientRect().width;
-		$wrapper.detach();
+		$outerLessonWrapper.detach();
 		return width;
     }
 

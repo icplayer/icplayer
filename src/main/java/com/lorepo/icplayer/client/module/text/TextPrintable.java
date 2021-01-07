@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.text;
 
 import java.util.Iterator;
+import java.util.ArrayList;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
@@ -39,10 +40,26 @@ public class TextPrintable {
 	
 	private String makePrintableInput(String parsedText, boolean showAnswers) {
 		HTML html = new HTML(parsedText);
-		
-		NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
-		for (int i = 0; i < inputs.getLength(); i++) {
-			Element input = inputs.getItem(i);
+
+		ArrayList<Element> gaps = new ArrayList<Element>();
+
+		if (this.model.hasDraggableGaps()) {
+			NodeList<Element> spans = html.getElement().getElementsByTagName("span");
+			for (int i = 0; i < spans.getLength(); i++) {
+				Element span = spans.getItem(i);
+				if (span.getClassName().indexOf("ic_draggableGap") != -1) {
+					gaps.add(span);
+				}
+			}
+		} else {
+			NodeList<Element> inputs = html.getElement().getElementsByTagName("input");
+			for (int i = 0; i < inputs.getLength(); i++) {
+				gaps.add(inputs.getItem(i));
+			}
+		}
+
+		for (int i = 0; i < gaps.size(); i++) {
+			Element input = gaps.get(i);
 			String oldValue = input.getString();
 			Element span = DOM.createSpan();
 			
@@ -75,46 +92,44 @@ public class TextPrintable {
 			if(placeholder.length() > 0 && !showAnswers) {
 				value = placeholder;
 			}
-			
-			if (!showAnswers) {
-				float gapWidth = 0;
-				if (model.getGapWidth() > 0) {
-					gapWidth = model.getGapWidth();
-				} else {
-					gapWidth = getTextWidthInPixels(longestAnswer);
+
+			float gapWidth = 0;
+			if (model.getGapWidth() > 0) {
+				gapWidth = model.getGapWidth();
+			} else {
+				gapWidth = getTextWidthInPixels(longestAnswer);
+			}
+			float valueWidth = 0;
+			if (value.length() > 0) {
+				valueWidth = getTextWidthInPixels(value);
+			}
+
+			int spaceCount = (int) Math.ceil((gapWidth - valueWidth) / this.spaceSize);
+			int maxSplitFreeWidth = 50; //must be at least minSplitSize * 2
+			int minSplitSize = 20;
+			if (spaceCount > maxSplitFreeWidth) {
+				// If the gap is more than 50 spaces wide,
+				// it will break into lines, with no part smaller than minSplitSize
+				for (int j = 0; j < minSplitSize; j++) {
+					value += "&nbsp;";
 				}
-				float valueWidth = 0;
-				if (value.length() > 0) {
-					valueWidth = getTextWidthInPixels(value);
+
+				boolean nextNbsp = false;
+				for (int j = 0; j < spaceCount - minSplitSize * 2; j++) {
+					if (nextNbsp) {
+						value += "&nbsp;";
+					} else {
+						value += " ";
+					}
+					nextNbsp = !nextNbsp;
 				}
-				
-				int spaceCount = (int) Math.ceil((gapWidth - valueWidth) / this.spaceSize);
-				int maxSplitFreeWidth = 50; //must be at least minSplitSize * 2
-				int minSplitSize = 20;
-				if (spaceCount > maxSplitFreeWidth) {
-					// If the gap is more than 50 spaces wide, 
-					// it will break into lines, with no part smaller than minSplitSize
-					for (int j = 0; j < minSplitSize; j++) {
-						value += "&nbsp;";
-					}
-					
-					boolean nextNbsp = false;
-					for (int j = 0; j < spaceCount - minSplitSize * 2; j++) {
-						if (nextNbsp) {
-							value += "&nbsp;";
-						} else {
-							value += " ";
-						}
-						nextNbsp = !nextNbsp;
-					}
-					
-					for (int j = 0; j < minSplitSize; j++) {
-						value += "&nbsp;";
-					}
-				} else {
-					for (int j = 0; j < spaceCount; j++) {
-						value += "&nbsp;";
-					}
+
+				for (int j = 0; j < minSplitSize; j++) {
+					value += "&nbsp;";
+				}
+			} else {
+				for (int j = 0; j < spaceCount; j++) {
+					value += "&nbsp;";
 				}
 			}
 
@@ -164,13 +179,27 @@ public class TextPrintable {
 	private native float getTextWidthInPixels(String html) /*-{
 		var $_ = $wnd.$;
 		var $wrapper = $_("<div></div>");
-		$wrapper.css("position", "absolute");
-		$wrapper.css("visibility", "hidden");
+		var $outerLessonWrapper = $_("<div></div>");
+		$outerLessonWrapper.css("position", "absolute");
+		$outerLessonWrapper.css("visibility", "hidden");
+		$outerLessonWrapper.addClass("printable_lesson");
+
+		var $outerPageWrapper = $_("<div></div>");
+		$outerPageWrapper.addClass("printable_page");
+		$outerLessonWrapper.append($outerPageWrapper);
+
+		var $outerModuleWrapper = $_("<div></div>");
+		$outerModuleWrapper.addClass("printable_module");
+		$outerModuleWrapper.addClass("printable_ic_text");
+		$outerPageWrapper.append($outerModuleWrapper);
+
 		$wrapper.css("margin", "0px");
 		$wrapper.css("padding", "0px");
 		$wrapper.addClass("printable_gap");
 		$wrapper.html(html);
-		$_("body").append($wrapper);
+		$outerModuleWrapper.append($wrapper);
+
+		$_("body").append($outerLessonWrapper);
 		var width = $wrapper[0].getBoundingClientRect().width;
 		$wrapper.detach();
 		return width;
