@@ -101,9 +101,9 @@ function AddonGradual_Next_Answer_create() {
     };
 
     presenter.getState = function () {
-        return {
+        return JSON.stringify({
             isVisible: this.state.isVisible
-        }
+        })
     }
 
     presenter.setState = function (state) {
