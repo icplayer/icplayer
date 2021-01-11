@@ -33,11 +33,7 @@ import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.addon.param.IAddonParam;
-import com.lorepo.icplayer.client.module.api.IActivity;
-import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.module.api.IModuleView;
-import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.IStateful;
+import com.lorepo.icplayer.client.module.api.*;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
 import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
@@ -47,7 +43,7 @@ import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
 
 
-public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IWCAG, IWCAGModuleView {
+public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IWCAG, IWCAGModuleView, IGradualShowAnswersPresenter {
 
 	public interface IDisplay extends IModuleView{
 		public Element getElement();
@@ -438,6 +434,16 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	}
 
 	@Override
+	public void setDisabled(boolean value) {
+		List<IType> params = new ArrayList<IType>();
+		if (value) {
+			executeCommand("disable", params);
+		} else {
+			executeCommand("enable", params);
+		}
+	}
+
+	@Override
 	public IWCAG getWCAGController() {
 		return this;
 	}
@@ -596,14 +602,26 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 	public void onEventReceived(String eventName, HashMap<String, String> data) {
 		
 	}
-	
+
+	@Override
+	public int getActivitiesCount() {
+		return jsObject == null ? 0 : getJSActivitiesCount(jsObject);
+	}
+
+	private native int getJSActivitiesCount(JavaScriptObject presenter) /*-{
+		if (presenter.getActivitiesCount !== undefined) {
+			return presenter.getActivitiesCount();
+		}
+		return 0;
+	}-*/;
+
 	private void setEventBus(JavaScriptObject presenter) {
 		PlayerEventBusWrapper eventBus = new PlayerEventBusWrapper(services, this.model.getAddonId().toLowerCase());
 		setEventBus(presenter, eventBus.getAsJSObject());
 	}
 	
 	private native void setEventBus(JavaScriptObject presenter, JavaScriptObject eventBusWrapper) /*-{
-		if(presenter.setEventBus != undefined) {
+		if (presenter.setEventBus != undefined) {
 			presenter.setEventBus(eventBusWrapper);
 		}
 	}-*/;

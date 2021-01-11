@@ -88,6 +88,16 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	public int getOptionCount(){
 		return options.size();
 	}
+
+	public int getCorrectOptionCount() {
+		int count = 0;
+
+		for (ChoiceOption option : options) {
+			count += option.getValue() > 0 ? 1 : 0;
+		}
+
+		return count;
+	}
 	
 	public boolean isMulti() {
 		return isMulti;

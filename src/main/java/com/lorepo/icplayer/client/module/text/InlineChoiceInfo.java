@@ -1,5 +1,7 @@
 package com.lorepo.icplayer.client.module.text;
 
+import com.lorepo.icf.utils.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -91,5 +93,29 @@ public class InlineChoiceInfo implements IGapCommonUtilsProvider {
 		}
 		
 		return longestAnswer;
+	}
+
+	@Override
+	public String getFirstCorrectAnswer() {
+		return getAnswer();
+	}
+
+	public int getAnswerIndex() {
+		String answer = getAnswer();
+		return getOptionIndex(answer);
+	}
+
+	public int getOptionIndex(String optionName) {
+		int index = 0;
+
+		Iterator<String> distractors = getDistractors();
+		while (distractors.hasNext()) {
+			String distractor = distractors.next();
+			distractor = StringUtils.unescapeXML(distractor);
+			if (distractor.equals(optionName)) return index;
+			index++;
+		}
+
+		return -1;
 	}
 }
