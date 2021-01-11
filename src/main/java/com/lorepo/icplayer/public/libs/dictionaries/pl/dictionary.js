@@ -623,6 +623,8 @@ var ice_dictionary_pl = {
 	"TextAudio_play": "Play",
 	"TextAudio_pause": "Pause",
 	"TextAudio_stop": "Stop",
+	"Gradual_Next_Answer_name": "Gradual Show Answer",
+	"Gradual_Next_Answer_info": "The Gradual Show Answer module allows you show next correct answer in modules or hide all showed answers.",
 	"Connection_info" : "Pozwala na utworzenie ćwiczenia składającego się z dwóch kolumn z elementami (tekstem lub obrazkami) do połączenia. Ćwiczenie może działać w trybie łączenia pojedynczego lub wielokrotnego (każdy element można wykorzystać w kilku połączeniach).",
 	"Connection_name" : "Ćwiczenie łączenia",
 	"Connection_property_is_not_activity" : "Nie jest ćwiczeniem",

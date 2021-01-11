@@ -5,6 +5,8 @@ import com.lorepo.icplayer.client.module.api.event.WorkModeEvent.Handler;
 
 public class WorkModeEvent extends PlayerEvent<Handler> {
 
+	public static final String NAME = "Uncheck";
+
 	public interface Handler extends EventHandler {
 		void onWorkMode(WorkModeEvent event);
 	}
@@ -18,7 +20,7 @@ public class WorkModeEvent extends PlayerEvent<Handler> {
 	
 	@Override
 	public String getName() {
-		return "Uncheck";
+		return NAME;
 	}
 
 	@Override

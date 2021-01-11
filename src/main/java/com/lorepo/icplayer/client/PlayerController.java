@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -317,6 +318,7 @@ public class PlayerController implements IPlayerController {
 
 
 	private void switchToPage(IPage page, final PageController pageController){
+		pageController.getGradualShowAnswersService().hideAll();
 		this.visitedPages.add(page);
 	    this.pageStamp = this.generatePageStamp(page.getId());
 		HashMap<String, String> params = new HashMap<String, String>();
@@ -390,18 +392,27 @@ public class PlayerController implements IPlayerController {
 	}
 
 	private void closeCurrentPages() {
-		this.closePopup();
-		this.pageController1.updateScore(false);
+		ArrayList<PageController> controllerArrayList = new ArrayList<PageController>();
+		controllerArrayList.add(this.pageController1);
 
 		if (this.isBookMode()) {
-			this.pageController2.updateScore(false);
+			controllerArrayList.add(this.pageController2);
+		}
+
+		for (PageController controller : controllerArrayList) {
+			controller.getGradualShowAnswersService().hideAll();
+		}
+
+		this.closePopup();
+
+		for (PageController controller : controllerArrayList) {
+			controller.updateScore(false);
 		}
 
 		this.updateState();
 
-		this.pageController1.closePage();
-		if(this.isBookMode()){
-			this.pageController2.closePage();
+		for (PageController controller : controllerArrayList) {
+			controller.closePage();
 		}
 	}
 

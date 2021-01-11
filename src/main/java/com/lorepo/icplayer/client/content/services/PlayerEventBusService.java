@@ -200,6 +200,20 @@ public class PlayerEventBusService implements IPlayerEventBusService {
 			}
 		});
 
+		eventBus.addHandler(GradualShowAnswerEvent.TYPE, new GradualShowAnswerEvent.Handler() {
+			@Override
+			public void onGradualShowAnswers(GradualShowAnswerEvent event) {
+				fireEvent(event.getName(), event.getData());
+			}
+		});
+
+		eventBus.addHandler(GradualHideAnswerEvent.TYPE, new GradualHideAnswerEvent.Handler() {
+			@Override
+			public void onGradualHideAnswers(GradualHideAnswerEvent event) {
+				fireEvent(event.getName(), event.getData());
+			}
+		});
+
 		eventBus.addHandler(ResizeWindowEvent.TYPE, new ResizeWindowEvent.Handler() {
 			@Override
 			public void onResizeWindowEvent(ResizeWindowEvent event) {

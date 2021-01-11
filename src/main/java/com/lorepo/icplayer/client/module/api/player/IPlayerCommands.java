@@ -1,11 +1,13 @@
 package com.lorepo.icplayer.client.module.api.player;
 
-import com.lorepo.icplayer.client.page.PageController;
-
 public interface IPlayerCommands {
 
 	public void checkAnswers();
 	public void uncheckAnswers();
+	void showAnswers(String source);
+	void hideAnswers(String source);
+	boolean showNextAnswer();
+	void hideGradualAnswers();
 	public void reset(boolean onlyWrongAnswers);
 	public void resetPage(int index);
 	public void resetPageById(String id);
@@ -25,7 +27,7 @@ public interface IPlayerCommands {
 	public void executeEventCode(String code);
 	
 	public void sendPageAllOkOnValueChanged(boolean sendEvent);
-	public PageController getPageController();
+	public IPageController getPageController();
 	public void setNavigationPanelsAutomaticAppearance(boolean shouldAppear);
 	public void showNavigationPanels();
 	public void hideNavigationPanels();

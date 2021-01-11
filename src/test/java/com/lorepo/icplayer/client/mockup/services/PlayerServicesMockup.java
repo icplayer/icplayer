@@ -10,6 +10,7 @@ import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
+import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.*;
 
@@ -44,7 +45,6 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 	@Override
 	public IPlayerCommands getCommands() {
-
 		return commands;
 	}
 
@@ -267,6 +267,16 @@ public class PlayerServicesMockup implements IPlayerServices {
 	public void sendExternalEvent(String eventType, String data) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public IPlayerStateService getPlayerStateService() {
+		return null;
+	}
+
+	@Override
+	public IGradualShowAnswersService getGradualShowAnswersService() {
+		return null;
 	}
 
 	@Override

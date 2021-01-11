@@ -8,6 +8,7 @@ import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
+import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.*;
 import com.lorepo.icplayer.client.page.PageController;
@@ -19,19 +20,21 @@ public class PlayerServices implements IPlayerServices {
 	private final IPlayerController playerController;
 	private final PageController pageController;
 	private JavaScriptPlayerServices jsServiceImpl;
-	private IPlayerEventBusService eventBusService;
+	private final IPlayerEventBusService eventBusService;
 	private IJsonServices jsonServices = new JsonServices();
 	private ScaleInformation scaleInformation;
 	private JavaScriptObject jQueryPrepareOffsetsFunction = null;
 	private boolean isAbleChangeLayout = true;
 	private PlayerApp application = null;
-	
+	private final PlayerStateService playerStateService;
+
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 		this.playerController = controller;
 		this.pageController = pageController;
 		scaleInformation = new ScaleInformation();
 		playerCommands = new PlayerCommands(pageController, playerController);
 		eventBusService = new PlayerEventBusService(this);
+		playerStateService = new PlayerStateService(this);
 	}
 	
 	@Override
@@ -73,7 +76,13 @@ public class PlayerServices implements IPlayerServices {
 		return playerCommands;
 	}
 
+	/**
+	 * @deprecated Call getEventBusService().getEventBus()
+	 * This method returns EventBus, not PlayerEventBus and it may cause issues with overridden methods in GWT
+	 * @return default event bus
+	 */
 	@Override
+	@Deprecated
 	public EventBus getEventBus() {
 		return this.eventBusService.getEventBus();
 	}
@@ -194,7 +203,7 @@ public class PlayerServices implements IPlayerServices {
 			scaleInfo.transform = transform;
 		} else {
 			throw new NullPointerException("ScaleInformation.transform cannot be null");
-		};
+		}
 		if (transformOrigin!=null) {
 			scaleInfo.transformOrigin = transformOrigin;
 		} else {
@@ -342,6 +351,16 @@ public class PlayerServices implements IPlayerServices {
 	public void sendExternalEvent(String eventType, String data) {
 		this.playerController.sendExternalEvent(eventType, data);
 
+	}
+
+	@Override
+	public IPlayerStateService getPlayerStateService() {
+		return playerStateService;
+	}
+
+	@Override
+	public IGradualShowAnswersService getGradualShowAnswersService() {
+		return pageController.getGradualShowAnswersService();
 	}
 
 	@Override

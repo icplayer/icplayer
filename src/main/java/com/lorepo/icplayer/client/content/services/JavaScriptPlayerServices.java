@@ -93,6 +93,14 @@ public class JavaScriptPlayerServices {
 			var commands = function() {
 			};
 
+			commands.showNextAnswer = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showNextAnswer()();
+			}
+
+			commands.hideGradualAnswers = function() {
+				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hideGradualAnswers()();
+			}
+
 			commands.enableKeyboardNavigation = function() {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::enableKeyboardNavigation()();
 			};
@@ -140,6 +148,14 @@ public class JavaScriptPlayerServices {
 			commands.uncheckAnswers = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::uncheckAnswers()();
 			};
+
+			commands.showAnswers = function(source) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showAnswers(Ljava/lang/String;)(source);
+			}
+
+			commands.hideAnswers = function(source) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::hideAnswers(Ljava/lang/String;)(source);
+			}
 			
 			commands.sendPageAllOkOnValueChanged = function(sendEvent) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendPageAllOkOnValueChanged(Z)(sendEvent);
@@ -766,6 +782,14 @@ public class JavaScriptPlayerServices {
 		playerServices.getCommands().uncheckAnswers();
 	}
 
+	private void showAnswers(String source) {
+		playerServices.getCommands().showAnswers(source);
+	}
+
+	private void hideAnswers(String source) {
+		playerServices.getCommands().hideAnswers(source);
+	}
+
 	private void sendPageAllOkOnValueChanged(boolean sendEvent) {
 		playerServices.getCommands().sendPageAllOkOnValueChanged(sendEvent);
 	}
@@ -805,6 +829,14 @@ public class JavaScriptPlayerServices {
 	
 	private void enableKeyboardNavigation() {
 		playerServices.getCommands().enableKeyboardNavigation();
+	}
+
+	private boolean showNextAnswer() {
+		return playerServices.getGradualShowAnswersService().showNext();
+	}
+
+	private void hideGradualAnswers() {
+		playerServices.getGradualShowAnswersService().hideAll();
 	}
 
 	private void disableKeyboardNavigation() {

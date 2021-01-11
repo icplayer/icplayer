@@ -1,8 +1,8 @@
 package com.lorepo.icplayer.client.mockup.services;
 
+import com.lorepo.icplayer.client.module.api.player.IPageController;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.PageScore;
-import com.lorepo.icplayer.client.page.PageController;
 
 public class CommandsMockup implements IPlayerCommands {
 
@@ -19,6 +19,26 @@ public class CommandsMockup implements IPlayerCommands {
 
 	@Override
 	public void uncheckAnswers() {
+	}
+
+	@Override
+	public void showAnswers(String source) {
+
+	}
+
+	@Override
+	public void hideAnswers(String source) {
+
+	}
+
+	@Override
+	public void showNextAnswer() {
+
+	}
+
+	@Override
+	public void hideGradualAnswers() {
+
 	}
 
 	@Override
@@ -100,9 +120,8 @@ public class CommandsMockup implements IPlayerCommands {
 	}
 
 	@Override
-	public PageController getPageController() {
-		// TODO Auto-generated method stub
-		return null;
+	public IPageController getPageController() {
+		return new PageControllerMockup();
 	}
 
 	@Override

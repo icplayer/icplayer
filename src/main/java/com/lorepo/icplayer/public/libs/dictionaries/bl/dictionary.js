@@ -2068,6 +2068,8 @@ var ice_dictionary_bl = {
 	"Cross_Lesson_property_type": "Type",
 	"AudioPlaylist_name": "Audio Playlist",
     "AudioPlaylist_info": "The Audio Playlist module allows you to add multiple audio files and order them into playlist.",
+	"Gradual_Next_Answer_name": "Gradual Show Answer",
+	"Gradual_Next_Answer_info": "The Gradual Show Answer module allows you show next correct answer in modules or hide all showed answers.",
     "editor.batch_upload.getting_unpack_id.error": "An error occurred while trying to upload the package.",
     "editor.batch_upload.getting_unpack_id.success": "The package was uploaded correctly and the editor will start checking if the files were unpacked in the background.",
     "editor.batch_upload.unpack.200_success": "The package was unpacked correctly. The files will be inserted into the module's property.",
