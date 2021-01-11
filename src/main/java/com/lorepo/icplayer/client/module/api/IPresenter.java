@@ -12,4 +12,6 @@ public interface IPresenter {
 	public void reset(boolean onlyWrongAnswers);
 	public void onEventReceived(String eventName, HashMap<String, String> data);
 	public JavaScriptObject getAsJavaScript();
+	void setDisabled(boolean value);
+	boolean isDisabled();
 }

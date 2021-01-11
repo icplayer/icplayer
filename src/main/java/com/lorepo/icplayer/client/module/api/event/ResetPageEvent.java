@@ -5,6 +5,8 @@ import com.lorepo.icplayer.client.module.api.event.ResetPageEvent.Handler;
 
 public class ResetPageEvent extends PlayerEvent<Handler> {
 	protected boolean onlyWrongAnswers = false;
+
+	public static final String NAME = "Reset";
 	
 	public ResetPageEvent(boolean onlyWrongAnswers) {
 		super();
@@ -30,7 +32,7 @@ public class ResetPageEvent extends PlayerEvent<Handler> {
 
 	@Override
 	public String getName() {
-		return "Reset";
+		return NAME;
 	}
 	
 	public boolean getIsOnlyWrongAnswers () {

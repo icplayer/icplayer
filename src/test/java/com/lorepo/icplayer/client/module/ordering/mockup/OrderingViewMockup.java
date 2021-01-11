@@ -33,6 +33,11 @@ public class OrderingViewMockup implements OrderingPresenter.IDisplay {
 	}
 
 	@Override
+	public boolean isDisabled() {
+		return false;
+	}
+
+	@Override
 	public void setCorrectAnswersStyles() {
 		// TODO Auto-generated method stub
 		
