@@ -2194,7 +2194,7 @@ function AddonTable_create() {
             $span.addClass("printable_gap");
             $span.css("border-bottom","1px solid");
             if (showAnswers) {
-                var answer = answers.join(", ");
+                var answer = answers[0];
                 $span.html(answer);
             } else {
                 var longestAnswer = "";
