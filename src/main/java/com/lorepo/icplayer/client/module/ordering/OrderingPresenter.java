@@ -11,27 +11,20 @@ import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
-import com.lorepo.icplayer.client.module.api.IActivity;
-import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.module.api.IModuleView;
-import com.lorepo.icplayer.client.module.api.IPresenter;
-import com.lorepo.icplayer.client.module.api.IStateful;
-import com.lorepo.icplayer.client.module.api.event.CustomEvent;
-import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
-import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent;
-import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
-import com.lorepo.icplayer.client.module.api.event.WorkModeEvent;
+import com.lorepo.icplayer.client.module.api.*;
+import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
-public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter {
-
+public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IGradualShowAnswersPresenter {
 	public interface IDisplay extends IModuleView {
 		void addReorderListener(IReorderListener listener);
 		void setWorkStatus(boolean b);
+		boolean isDisabled();
 		void setCorrectAnswersStyles();
 		void setCorrectAnswer();
+		void setCorrectAnswer(int howManyElements);
 		void removeCorrectAnswersStyles();
 		String getState();
 		void setState(String string);
@@ -56,6 +49,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	private int tmpScore = 0;
 	private boolean isShowAnswersActive = false;
 	private boolean isShowErrorsActive = false;
+	private boolean isGradualShowAnswers = false;
 	private boolean isVisible;
 
 	public OrderingPresenter(OrderingModule module, IPlayerServices services) {
@@ -73,7 +67,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	private void connectHandlers() {
 
 		if (playerServices != null) {
-			EventBus eventBus = playerServices.getEventBus();
+			EventBus eventBus = playerServices.getEventBusService().getEventBus();
 
 			eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
 				@Override
@@ -102,6 +96,28 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 					onEventReceived(event.eventName, event.getData());
 				}
 			});
+
+			eventBus.addHandler(GradualShowAnswerEvent.TYPE, new GradualShowAnswerEvent.Handler() {
+				@Override
+				public void onGradualShowAnswers(GradualShowAnswerEvent event) {
+					if (!isGradualShowAnswers) {
+						setCurrentViewState();
+						isGradualShowAnswers = true;
+					}
+
+					if (event.getModuleID().equals(module.getId())) {
+						int itemIndex = event.getItem();
+						handleGradualShowAnswers(itemIndex);
+					}
+				}
+			});
+
+			eventBus.addHandler(GradualHideAnswerEvent.TYPE, new GradualHideAnswerEvent.Handler() {
+				@Override
+				public void onGradualHideAnswers(GradualHideAnswerEvent event) {
+					handleGradualHideAnswers();
+				}
+			});
 			
 		}
 	}
@@ -119,12 +135,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 		if (this.isShowErrorsActive)
 			setWorkMode();
-		
-		this.tmpScore = getScore();
-		this.tmpErrorCount = getErrorCount();
-		this.currentState = getState();
-		this.currentState_view = view.getState();
 
+		setCurrentViewState();
 		this.isShowAnswersActive = true;
 
 		view.setWorkStatus(false);
@@ -160,7 +172,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public String getState() {
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return this.currentState;
 		}
 
@@ -208,7 +220,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	// ------------------------------------------------------------------------
 	@Override
 	public int getErrorCount() {
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return this.tmpErrorCount;	// It's saved in showAnswers
 		}
 
@@ -273,7 +285,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public int getScore() {
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return this.tmpScore;	// It's saved in showAnserts
 		}
 
@@ -308,7 +320,17 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 		return jsObject;
 	}
-	
+
+	@Override
+	public void setDisabled(boolean value) {
+		view.setWorkStatus(!value);
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return view.isDisabled();
+	}
+
 	private void jsOnEventReceived (String eventName, String jsonData) {
 		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}
@@ -527,5 +549,27 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 		} else if (eventName.equals("HideAnswers")) {
 			hideAnswers();
 		}
+	}
+
+	@Override
+	public int getActivitiesCount() {
+		// returning - 1 because when handling gradual show answers it will require N - 1 swaps
+		return module.getItemCount() - 1;
+	}
+
+	public void handleGradualShowAnswers(int itemIndex) {
+		view.setCorrectAnswer(itemIndex + 1);
+	}
+
+	public void handleGradualHideAnswers() {
+		isGradualShowAnswers = false;
+		setState(currentState);
+	}
+
+	private void setCurrentViewState() {
+		this.tmpScore = getScore();
+		this.tmpErrorCount = getErrorCount();
+		this.currentState = getState();
+		this.currentState_view = view.getState();
 	}
 }

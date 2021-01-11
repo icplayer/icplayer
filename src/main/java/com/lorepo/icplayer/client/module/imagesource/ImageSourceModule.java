@@ -98,7 +98,7 @@ public class ImageSourceModule extends BasicModuleModel implements IWCAGModuleMo
 		return imageSourceModule.toString();
 
 	}
-	
+
 	private void addPropertyIsDisabled() {
 		
 		IProperty property = new IBooleanProperty() {

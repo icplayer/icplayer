@@ -21,10 +21,7 @@ import com.lorepo.icplayer.client.page.PageController;
 import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 
 public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, IWCAGModuleView {
@@ -47,7 +44,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	// because of bug (#4498, commit b4c6f7ea1f4a299dc411de1cff408549aa22bf54) FilledGapWidgets aren't added to textElements array as FilledGapWidgets, but as GapWidgets (check connectFilledGaps vs connectGaps)
 	// later this causes issues with inheritance in reconnectHandlers function, so this array contains proper objects (because of poor filledGaps creation, they are added twice - as GapWidgets and FilledGapWidgets)
 	private ArrayList<GapWidget> gapsWidgets = new ArrayList<GapWidget>();
-	
+
 	public TextView (TextModel module, boolean isPreview) {
 		this.module = module;
 		this.isPreview = isPreview;
@@ -357,8 +354,35 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 	}
 
 	@Override
+	public int getGapCount() {
+		int count = 0;
+
+		for (TextElementDisplay d : textElements) {
+			count += d.isActivity() ? 1: 0;
+		}
+
+		JavaScriptUtils.log(count);
+		return count;
+	}
+
+	@Override
 	public TextElementDisplay getChild (int index) {
 		return textElements.get(index);
+	}
+
+	@Override
+	public TextElementDisplay getActivity(int index) {
+		int displayIndex = 0;
+
+		for (TextElementDisplay d : textElements) {
+			if (d.isActivity() && displayIndex == index) {
+				return d;
+			} else {
+				displayIndex++;
+			}
+		}
+
+		return null;
 	}
 
 	@Override

@@ -28,6 +28,7 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 		public void hide();
 		public Element getElement();
 		void setDisabled(boolean isDisabled);
+		boolean isDisabled();
 		public void setShowAnswersMode(boolean b);
 	}
 	
@@ -174,7 +175,17 @@ public class LimitedResetPresenter implements IPresenter, IStateful, ICommandRec
 
 		return jsObject;
 	}
-	
+
+	@Override
+	public void setDisabled(boolean value) {
+		view.setDisabled(value);
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return view.isDisabled();
+	}
+
 	private void jsOnEventReceived (String eventName, String jsonData) {
 		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}

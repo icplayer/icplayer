@@ -264,6 +264,11 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	}
 
 	@Override
+	public boolean isActivity() {
+		return true;
+	}
+
+	@Override
 	public void setDisabled(boolean disabled) {
 		isDisabled = disabled;
 		setEnabled(!disabled);
@@ -326,7 +331,12 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	public String getLangTag() {
 		return gapInfo.getLangTag();
 	}
-	
+
+	@Override
+	public void showAnswers() {
+		setText(gapInfo.getFirstCorrectAnswer());
+	}
+
 	public void select() {
 		this.addStyleName("keyboard_navigation_active_element");
 		this.addStyleName("keyboard_navigation_active_element_text");

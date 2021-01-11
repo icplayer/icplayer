@@ -222,7 +222,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	}
 	
 	@Override
-	public String executeCommand(String commandName, List<IType> _) {
+	public String executeCommand(String commandName, List<IType> args) {
 		
 		if(commandName.compareTo("show") == 0){
 			show();
@@ -267,7 +267,7 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 
 		return jsObject;
 	}
-	
+
 	private void jsOnEventReceived (String eventName, String jsonData) {
 		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}
@@ -308,6 +308,16 @@ public class PageProgressPresenter implements IPresenter, IStateful, ICommandRec
 	@Override
 	public void setWorkMode() {
 		// Module is not an activity
+	}
+
+	@Override
+	public void setDisabled(boolean value) {
+		// Module is not an activity
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return false;
 	}
 
 	@Override

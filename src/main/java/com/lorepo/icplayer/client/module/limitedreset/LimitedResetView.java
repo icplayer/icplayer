@@ -53,7 +53,7 @@ public class LimitedResetView extends PushButton implements IDisplay {
 					}
 					
 					if (isShowAnswersMode) {
-						playerServices.getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
+						playerServices.getEventBusService().getEventBus().fireEventFromSource(new CustomEvent("HideAnswers", new HashMap<String, String>()), this);
 						
 						isShowAnswersMode = false;
 					}
@@ -71,7 +71,7 @@ public class LimitedResetView extends PushButton implements IDisplay {
 					}
 					
 					ValueChangedEvent valueEvent = new ValueChangedEvent(module.getId(), "", "resetClicked", "");
-					playerServices.getEventBus().fireEvent(valueEvent);
+					playerServices.getEventBusService().getEventBus().fireEvent(valueEvent);
 				}
 			});		
 		}
@@ -97,7 +97,12 @@ public class LimitedResetView extends PushButton implements IDisplay {
 			removeStyleName(DISABLED_STYLE);
 		}
 	}
-	
+
+	@Override
+	public boolean isDisabled() {
+		return isDisabled;
+	}
+
 	public void setShowAnswersMode(boolean isShowAnswersMode) {
 		this.isShowAnswersMode = isShowAnswersMode;
 	}
