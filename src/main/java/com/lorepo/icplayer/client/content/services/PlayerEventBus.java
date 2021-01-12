@@ -31,10 +31,12 @@ public class PlayerEventBus extends ResettableEventBus {
 	
 	private void checkIfEventTypeIsEnabled(Event<?> event) {
 		String eventName = getEventName(event);
-		PlayerConfig config = playerServices.getPlayerConfig();
+		if (playerServices != null) {
+			PlayerConfig config = playerServices.getPlayerConfig();
 
-		if (Arrays.asList(config.getEvents().getDisabled()).contains(eventName)) {
-			throw new RuntimeException();
+			if (Arrays.asList(config.getEvents().getDisabled()).contains(eventName)) {
+				throw new RuntimeException();
+			}
 		}
 	}
 	
