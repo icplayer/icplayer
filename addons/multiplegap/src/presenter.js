@@ -478,7 +478,7 @@ function Addonmultiplegap_create(){
         e.stopPropagation();
         e.preventDefault();
         
-        if(presenter.showErrorsMode || presenter.isShowAnswersActive || !presenter.isItemChecked) {
+        if(presenter.showErrorsMode || presenter.isShowingAnswers() || !presenter.isItemChecked) {
             return;
         }
 
@@ -962,7 +962,7 @@ function Addonmultiplegap_create(){
     };
     
     presenter.isDragPossible = function() {
-        if (presenter.showErrorsMode || presenter.isShowAnswersActive) {
+        if (presenter.showErrorsMode || presenter.isShowingAnswers()) {
             return false;
         }
         return true;
@@ -999,7 +999,7 @@ function Addonmultiplegap_create(){
         e.stopPropagation();
         e.preventDefault();
         
-        if(presenter.showErrorsMode || presenter.isShowAnswersActive) {
+        if(presenter.showErrorsMode || presenter.isShowingAnswers()) {
             return;
         }
         presenter.performRemoveDraggable($(e.target));
