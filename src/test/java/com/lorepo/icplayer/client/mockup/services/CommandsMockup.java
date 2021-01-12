@@ -32,8 +32,8 @@ public class CommandsMockup implements IPlayerCommands {
 	}
 
 	@Override
-	public void showNextAnswer() {
-
+	public boolean showNextAnswer() {
+		return false;
 	}
 
 	@Override
