@@ -365,14 +365,18 @@
      * @param this {object} Draggable Droppable Object
      */
     DraggableDroppableObject.prototype.fillGap = function (selectedItem) {
-        this.notifyEdit();
+        // on some devices drop handler is called twice, but gap has already consumed item
+        // second call of this function will have undefined value here, which causes issues with EventBus
+        if (selectedItem.value !== undefined) {
+            this.notifyEdit();
 
-        this.setValue.call(this, selectedItem.value);
-        this.setViewValue.call(this, selectedItem.value);
-        this.setSource.call(this, selectedItem.item);
+            this.setValue.call(this, selectedItem.value);
+            this.setViewValue.call(this, selectedItem.value);
+            this.setSource.call(this, selectedItem.item);
 
-        this.sendItemConsumedEvent();
-        this.bindDraggableHandler();
+            this.sendItemConsumedEvent();
+            this.bindDraggableHandler();
+        }
     };
 
     DraggableDroppableObject.prototype.cursorAt = function (selectedItem) {
