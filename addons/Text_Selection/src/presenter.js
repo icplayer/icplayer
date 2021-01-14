@@ -1680,7 +1680,6 @@ function AddonText_Selection_create() {
         $view.attr("id", model.ID);
         $view.addClass("printable_addon_Text_Selection");
         $view.css("max-width", model["Width"]+"px");
-        $view.css("min-height", model["Height"]+"px");
 
         var content = model.Text;
         if (model.Mode == "All selectable") {

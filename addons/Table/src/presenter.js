@@ -2151,6 +2151,7 @@ function AddonTable_create() {
     presenter.getPrintableHTML = function (model, showAnswers) {
         presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
         presenter.$view = $('<div></div>');
+        presenter.$view.attr("id", model.ID);
         presenter.$view.addClass('printable_addon_Table');
         presenter.$view.css('max-width', model.Width + 'px');
         presenter.$wrapper = $('<div></div>');
