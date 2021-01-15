@@ -474,7 +474,8 @@
      */
     DraggableDroppableObject.prototype.bindDropHandler = function () {
         this.$view.droppable({
-            drop: DraggableDroppableObject._internal.getDropHandler.call(this)
+            drop: DraggableDroppableObject._internal.getDropHandler.call(this),
+            tolerance: "pointer"
         });
     };
 

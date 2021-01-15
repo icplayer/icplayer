@@ -1,3 +1,4 @@
+2021-01-15 Fixed issue with draggable elements sometimes triggering multiple gaps in Table
 2020-12-17 Fixed stretching of Connection addon and added draggable gap support in Text for print
 2020-12-03 Fixxed issue with font size of printable lessons
 2020-11-27 Added playback rate control to the Audio addon
