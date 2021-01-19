@@ -947,7 +947,6 @@ function AddonText_Selection_create() {
 
     presenter.parseWords = function (text, mode, selection_type) {
         text = presenter.markMathJax(text.replace(/&nbsp;/g, ' '));
-
         var previewHTML = '', runHTML = '';
         var spanIndex = 0;
         var spansMarkedCorrect = [], spansMarkedWrong = [];
@@ -1266,6 +1265,12 @@ function AddonText_Selection_create() {
                 $(elem).addClass("correct-answer");
             }
         }
+    }
+
+    presenter.showCorrectAnswer = function (item) {
+        var elementNumber = presenter.markers.markedCorrect[item];
+        var $elem = presenter.$view.find(".selectable[number='" + elementNumber + "']");
+        $elem.addClass("correct-answer");
     }
 
     presenter.hideAnswers = function () {
@@ -1729,7 +1734,7 @@ function AddonText_Selection_create() {
     };
 
     presenter.getActivitiesCount = function () {
-        return presenter.$view.find(".selectable").length;
+        return presenter.markers.markedCorrect.length;
     }
 
     presenter.isShowingAnswers = function () {
@@ -1738,7 +1743,7 @@ function AddonText_Selection_create() {
     }
 
     presenter.gradualShowAnswers = function (item) {
-        presenter.showAnswersForElements(item + 1);
+        presenter.showCorrectAnswer(item);
     };
 
     presenter.gradualHideAnswers = function () {
