@@ -27,6 +27,7 @@ function AddonConnection_create() {
     presenter.isValid = true;
 
     presenter.isShowAnswersActive = false;
+    presenter.isGradualShowAnswersActive = false;
     presenter.isCheckActive = false;
     presenter.initialState = null;
 
@@ -370,8 +371,10 @@ function AddonConnection_create() {
     presenter.setEventBus = function (wrappedEventBus) {
         eventBus = wrappedEventBus;
 
-        eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            eventBus.addEventListener(events[i], this);
+        }
     };
 
     presenter.createPreview = function (view, model) {
@@ -1429,6 +1432,33 @@ function AddonConnection_create() {
         return score;
     };
 
+    presenter.gradualShowAnswers = function (itemIndex) {
+        presenter.keyboardControllerObject.selectEnabled(false);
+        presenter.addCurrentAnswersToTemporary();
+
+        presenter.lineStack.clear();
+        presenter.redraw();
+
+        presenter.addCorrectAnswersToLineStack(itemIndex + 1);
+
+        presenter.redrawShowAnswers();
+        presenter.lineStack.clear();
+        isSelectionPossible = false;
+
+        presenter.restoreConnectionFromTemporary();
+    }
+
+    presenter.gradualHideAnswers = function () {
+        presenter.isGradualShowAnswersActive = false;
+        presenter.keyboardControllerObject.selectEnabled(true);
+        presenter.redraw();
+        isSelectionPossible = true;
+    }
+
+    presenter.getActivitiesCount = function () {
+        return presenter.elements.length;
+    }
+
     presenter.getState = function () {
         // this is needed because run/setState method waits for MathJax process to be finished
         // if getState is called before MathJax EndProcess callback then state would be lost
@@ -1671,7 +1701,9 @@ function AddonConnection_create() {
     };
 
     presenter.disableCommand = function (params) {
-        presenter.disable(params[0], params[1]);
+        if (params.length === 2) {
+            presenter.disable(params[0], params[1]);
+        }
     };
 
     presenter.disable = function (id1, id2) {
@@ -1679,7 +1711,9 @@ function AddonConnection_create() {
     };
 
     presenter.enableCommand = function (params) {
-        presenter.enable(params[0], params[1]);
+        if (params.length === 2) {
+            presenter.enable(params[0], params[1]);
+        }
     };
 
     presenter.enable = function (id1, id2) {
@@ -1710,15 +1744,56 @@ function AddonConnection_create() {
         return false;
     };
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
+    presenter.onEventReceived = function (eventName, data) {
+        if (eventName === "ShowAnswers") {
             presenter.showAnswers();
-        }
-
-        if (eventName == "HideAnswers") {
+        } else if (eventName === "HideAnswers") {
             presenter.hideAnswers();
+        } else if (eventName === "GradualShowAnswers") {
+            if (!presenter.isGradualShowAnswersActive) {
+                presenter.isGradualShowAnswersActive = true;
+            }
+            if (data.moduleID === addonID) {
+                presenter.gradualShowAnswers(parseInt(data.item, 10));
+            }
+        } else if (eventName === "GradualHideAnswers") {
+            presenter.gradualHideAnswers();
         }
     };
+
+    presenter.addCurrentAnswersToTemporary =function () {
+        presenter.tmpElements = [];
+        for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
+            presenter.tmpElements.push(presenter.lineStack.ids[elem].join(':'))
+        }
+    }
+
+    presenter.addCorrectAnswersToLineStack = function (length) {
+        for (var i = 0; i < length; i++) {
+            var connects = presenter.elements[i]['connects'].split(',');
+            for (var j = 0; j < connects.length; j++) {
+                if (connects[j] !== "" && $.inArray(connects[j], presenter.uniqueIDs) >= 0) {
+                    var pair = [presenter.elements[i]['id'], connects[j]];
+                    var line = new Line(
+                        getElementById(pair[0]),
+                        getElementById(pair[1])
+                    );
+                    presenter.lineStack.push(line);
+                }
+            }
+        }
+
+        presenter.lineStackSA = {
+            stack: presenter.lineStack ? presenter.lineStack.stack.concat([]) : []
+        };
+    }
+
+    presenter.restoreConnectionFromTemporary = function () {
+        for (var element = 0; element < presenter.tmpElements.length; element++) {
+            var pairs = presenter.tmpElements[element].split(':');
+            pushConnection(new Line(getElementById(pairs[0]), getElementById(pairs[1])), false);
+        }
+    }
 
     presenter.showAnswers = deferredCommandQueue.decorate(
         function () {
@@ -1728,40 +1803,18 @@ function AddonConnection_create() {
 
             presenter.keyboardControllerObject.selectEnabled(false);
             presenter.isShowAnswersActive = true;
-            presenter.tmpElements = [];
-            for (var elem = 0; elem < presenter.lineStack.ids.length; elem++) {
-                presenter.tmpElements.push(presenter.lineStack.ids[elem].join(':'))
-            }
+            presenter.addCurrentAnswersToTemporary();
 
             presenter.lineStack.clear();
             presenter.redraw();
 
-            var elements = presenter.elements;
-            for (var i = 0, elementsLength = elements.length; i < elementsLength; i++) {
-                var connects = elements[i]['connects'].split(',');
-                for (var j = 0; j < connects.length; j++) {
-                    if (connects[j] != "" && $.inArray(connects[j], presenter.uniqueIDs) >= 0) {
-                        var pair = [elements[i]['id'], connects[j]];
-                        var line = new Line(
-                            getElementById(pair[0]),
-                            getElementById(pair[1])
-                        );
-                        presenter.lineStack.push(line);
-                    }
-                }
-            }
+            presenter.addCorrectAnswersToLineStack(presenter.elements.length)
 
-            presenter.lineStackSA = {
-                stack: presenter.lineStack ? presenter.lineStack.stack.concat([]) : []
-            };
             presenter.redrawShowAnswers();
             presenter.lineStack.clear();
             isSelectionPossible = false;
 
-            for (var element = 0; element < presenter.tmpElements.length; element++) {
-                var pairs = presenter.tmpElements[element].split(':');
-                pushConnection(new Line(getElementById(pairs[0]), getElementById(pairs[1])), false);
-            }
+            presenter.restoreConnectionFromTemporary();
         }
     );
 

@@ -85,8 +85,18 @@ public class TextViewMockup implements IDisplay {
 	}
 
 	@Override
+	public int getGapCount() {
+		return 0;
+	}
+
+	@Override
 	public TextElementDisplay getChild(int index) {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TextElementDisplay getActivity(int index) {
 		return null;
 	}
 

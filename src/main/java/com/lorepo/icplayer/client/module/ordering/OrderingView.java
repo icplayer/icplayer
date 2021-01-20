@@ -24,6 +24,7 @@ import com.lorepo.icplayer.client.utils.MathJax;
 import com.lorepo.icplayer.client.utils.MathJaxElement;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	static public String WCAG_SELECTED_CLASS_NAME = "keyboard_navigation_active_element";
 	private JavaScriptObject mathJaxHook = null;
 	private String originalDisplay = "";
-	
+
 	private final String ITEM_CORRECT_CLASS = "ic_ordering-item-correct";
 	private final String ITEM_WRONG_CLASS = "ic_ordering-item-wrong";
 
@@ -130,20 +131,20 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		makeSortable();
 		getElement().setAttribute("lang", this.getLang());
 	}
-	
+
 	@Override
 	public void mathJaxLoaded() {
 		this.mathJaxHook = MathJax.setCallbackForMathJaxLoaded(this);
 	}
-	
+
 	private boolean isDisableDragging() {
 		return module.isDisableDragging();
 	}
-	
+
 	private boolean isPreview() {
 		return isPreview;
 	}
-	
+
 	private void makeSortable() {
 		makeSortable(this, getElement(), jsObject, workMode);
 	};
@@ -313,7 +314,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 					return;
 				}
 				isMouseUp = true;
-				
+
 				onWidgetClicked(widget);
 				selectItem(selectedWidget);
 			}
@@ -398,7 +399,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		onValueChanged(sourceIndex, destIndex);
 		wasChanged = true;
 	}
-	
+
 	public void markEnd(int destIndex) {
 		int sourceIndex = innerCellPanel.getWidgetIndex(selectedWidget);
 		moveWidget(sourceIndex, destIndex);
@@ -428,7 +429,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		if (listener != null) {
 			listener.onItemMoved(sourceIndex, destIndex);
 			this.refreshSelection();
-			
+
 		}
 	}
 
@@ -443,11 +444,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		int widgetsCount = innerCellPanel.getWidgetCount();
 		int availablePositions = this.module.availablePositions();
 		int unsetPositions = this.module.unsetPositions();
-		
+
 		if (module.isDontGenerateCorrectOrder()) {
 			do {
 				generateRandomItemOrder();
-			} while (initialOrder.equals(correctOrder) || 
+			} while (initialOrder.equals(correctOrder) ||
 					 initialOrder.equals(altCorrectOrder) ||
 					(initialOrder.equals(originalOrder) && widgetsCount > 2 && unsetPositions > 2 && availablePositions > 2));
 		}
@@ -455,7 +456,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			generateRandomItemOrder();
 		}
 	}
-	
+
 	private void generateRandomItemOrder() {
 
 		ArrayList<Widget> widgets = new ArrayList<Widget>();
@@ -464,10 +465,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		// place items with specified position in hashmap under correct position
 		while (innerCellPanel.getWidgetCount() > 0) {
 			Widget widget = innerCellPanel.getWidget(0);
-			
+
 			if (widget instanceof ItemWidget) {
 				Integer startingPosition = ((ItemWidget) widget).getStartingPosition();
-				
+
 				if (startingPosition != null) {
 					widgetsWithPositions.put(startingPosition - 1, widget);
 				} else {
@@ -479,10 +480,10 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 			innerCellPanel.remove(0);
 		}
-		
+
 		List<Integer> order = this.getRandomOrder(widgets.size());
-		
-		// insert all items into cell panel 
+
+		// insert all items into cell panel
 		for (int i = 0, itemToPlace = 0; i < widgetsWithPositions.size() + widgets.size(); i++) {
 			if (widgetsWithPositions.containsKey(i)) {
 				innerCellPanel.add(widgetsWithPositions.get(i));
@@ -495,7 +496,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 		initialOrder = getState();
 	}
-	
+
 	public List<Integer> getRandomOrder(int size) {
 		return RandomUtils.singlePermutation(size);
 	}
@@ -567,31 +568,31 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	public int getErrorCount() {
 		int index = 1;
 		int errors = 0;
-		
+
 		for (int i = 0; i < getWidgetCount(); i++) {
 
 			if (getWidget(i) instanceof ItemWidget) {
 
 				ItemWidget itemWidget = (ItemWidget) getWidget(i);
-				
+
 				if (module.isGraduallyScore() && !itemWidget.isCorrect(index)) {
 					errors++;
 				} else if(!itemWidget.isCorrect(index)) {
 					return 1;
 				}
-				
+
 				index++;
 			}
 		}
 
 		return errors;
 	}
-	
+
 	@Override
 	public void setShowErrorsMode() {
 		workMode = false;
 		makeSortable();
-		
+
 		if(selectedWidget!=null){
 			selectedWidget.removeStyleName("ic_drag-source");
 			selectedWidget = null;
@@ -661,6 +662,11 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	}
 
 	@Override
+	public boolean isDisabled() {
+		return workMode;
+	}
+
+	@Override
 	public void setCorrectAnswer() {
 		if(selectedWidget!=null){
 			selectedWidget.removeStyleName("ic_drag-source");
@@ -672,6 +678,36 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		}
 
 		placeItemsByOrder(correctOrder);
+	}
+
+	@Override
+	public void setCorrectAnswer(int howManyElements) {
+		List<Integer> order = getCurrentItemsOrder();
+
+		for (int i = 0; i < howManyElements; i++) {
+			int indexOfAnswer = order.indexOf(i);
+
+			// current order: 4, 2, 3, 1, 0
+			// if howManyElements = 1; then will swap elements with indexes 0 and 4
+			// order will be: 0, 2, 3, 1, 4
+
+			Collections.swap(order, i, indexOfAnswer);
+		}
+
+		placeItemsByOrder(order);
+	}
+
+	private List<Integer> getCurrentItemsOrder() {
+		ArrayList<Integer> currentOrder = new ArrayList<Integer>();
+		for (int i = 0; i < getWidgetCount(); i++) {
+			if (getWidget(i) instanceof ItemWidget) {
+
+				ItemWidget itemWidget = (ItemWidget) getWidget(i);
+				currentOrder.add(itemWidget.getIndex() - 1);
+			}
+		}
+
+		return currentOrder;
 	}
 
 	@Override
@@ -703,7 +739,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			selectedWidget.removeStyleName("ic_drag-source");
 			selectedWidget = null;
 		}
-		
+
 		randomizeViewItems();
 		for (int i = 0; i < getWidgetCount(); i++) {
 			Widget widget = getWidget(i);
@@ -726,7 +762,6 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 	/**
 	 * Update module score
-	 * @param value
 	 */
 	private void saveScore() {
 		if(playerServices != null){
@@ -760,7 +795,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			}
 		}
 	}
-	
+
 	@Override
 	public void show() {
 		setVisible(true);
@@ -778,28 +813,28 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 
 	@Override
 	public void escape (KeyDownEvent event) {
-		event.preventDefault(); 
+		event.preventDefault();
 		this.deselectCurrentItem();
 		currentWCAGSelectedItemIndex = 0;
 		this.isWCAGActive = false;
 	}
-	
+
 	private String prepearContentToRead (CellPanel cp) {
 		String result = "";
-		
+
 		for (int i=0; i<this.innerCellPanel.getWidgetCount(); i++) {
 			final Widget w = this.innerCellPanel.getWidget(i);
 			result += " " + (i+1) + ": " + w.getElement().getInnerHTML();
-			
+
 			final String lastChar = result.substring(result.length() - 1);
 			if (!".!?".contains(lastChar)) {
 				result += ".";
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	@Override
 	public void enter (KeyDownEvent event, boolean isExiting) {
 		this.isWCAGActive = !isExiting;
@@ -811,7 +846,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			this.readItem(this.currentWCAGSelectedItemIndex);
 		}
 	}
-	
+
 	@Override
 	public void space (KeyDownEvent event) {
 	    event.preventDefault();
@@ -819,95 +854,95 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		DomEvent.fireNativeEvent(Document.get().createMouseUpEvent(0, 0, 0, 0, 0, false, false, false, false, 0), this.getWidget(this.currentWCAGSelectedItemIndex));
 		this.selectCurrentItem();
 	}
-	
+
 	private native void clickElement (Element elementToClick) /*-{
 		elementToClick.click();
 	}-*/;
-	
+
 	@Override
 	public void tab (KeyDownEvent event) {
 		this.move(1);
 	}
-	
+
 	@Override
 	public void left (KeyDownEvent event) {
 		this.move(-1);
 	}
-	
+
 	@Override
 	public void right (KeyDownEvent event) {
 		this.move(1);
 	}
-	
+
 	@Override
 	public void up (KeyDownEvent event) {
-		event.preventDefault(); 
+		event.preventDefault();
 		this.move(-1);
 	}
-	
+
 	@Override
 	public void down (KeyDownEvent event) {
-		event.preventDefault(); 
+		event.preventDefault();
 		this.move(1);
 	}
-	
+
 	private void readItem (int index) {
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 		textVoices.addAll(getWidgetTextVoicesByIndex(index));
-		
+
 		Widget widget = this.innerCellPanel.getWidget(index);
 		if (ElementHTMLUtils.hasClass(widget.getElement(), "ic_drag-source")) {
 			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(0)));
 		}
-		
+
 		if (ElementHTMLUtils.hasClass(widget.getElement(), ITEM_CORRECT_CLASS)) {
 			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(3)));
 		}
-		
+
 		if (ElementHTMLUtils.hasClass(widget.getElement(), ITEM_WRONG_CLASS)) {
 			textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(4)));
 		}
-		
+
 		this.speak(textVoices);
 	}
-	
+
 	private void selectItem (Widget selectedWidget) {
 		if (selectedWidget != null) {
 			this.speak(TextToSpeechVoice.create(this.module.getSpeechTextItem(0)));
 		}
 	}
-	
+
 	private void move(int delta) {
 		this.deselectCurrentItem();
 		this.currentWCAGSelectedItemIndex += delta;
 		if (this.currentWCAGSelectedItemIndex < 0) {
 			this.currentWCAGSelectedItemIndex = 0;
 		}
-		
+
 		if (this.currentWCAGSelectedItemIndex >= this.getWidgetCount()) {
 			this.currentWCAGSelectedItemIndex = this.getWidgetCount() - 1;
 		}
 		this.selectCurrentItem();
-		
+
 		this.readItem(currentWCAGSelectedItemIndex);
 	}
-	
+
 	private void selectCurrentItem () {
 		this.getWidget(this.currentWCAGSelectedItemIndex).addStyleName(OrderingView.WCAG_SELECTED_CLASS_NAME);
 	}
-	
+
 	private void deselectCurrentItem () {
 		this.getWidget(this.currentWCAGSelectedItemIndex).removeStyleName(OrderingView.WCAG_SELECTED_CLASS_NAME);
 	}
-	
+
 	private void refreshSelection () {
-		if (this.isWCAGActive) { 
+		if (this.isWCAGActive) {
 			int savedWidget = this.currentWCAGSelectedItemIndex;
 			for (int i = 0; i < this.getWidgetCount(); i++) {
 				this.currentWCAGSelectedItemIndex = i;
 				this.deselectCurrentItem();
 			}
-			
+
 			this.currentWCAGSelectedItemIndex = savedWidget;
 			this.selectCurrentItem();
 		}
@@ -931,7 +966,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 		this.setWCAGStatus(true);
 		this.pageController = pc;
 	}
-	
+
 	private String getWidgetWCAGText(Element element, boolean breaks){
 		String html = breaks ? WCAGUtils.getImageAltTextsWithBreaks(element.getInnerHTML()) : WCAGUtils.getImageAltTexts(element.getInnerHTML());
 		Element clone = new HTML(html).getElement();
@@ -951,17 +986,17 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 			}
 		}
 		return clone.getInnerText();
-		
+
 	}
-	
+
 	private String getWidgetWCAGText (int index) {
 		return getWidgetWCAGText(this.innerCellPanel.getWidget(index).getElement(),false);
 	}
-	
+
 	private String getWidgetWCAGTextWithBreaks (int index) {
 		return getWidgetWCAGText(this.innerCellPanel.getWidget(index).getElement(),true);
 	}
-	
+
 	private List<TextToSpeechVoice> getWidgetTextVoicesByIndex(int index) {
 		String fullText = getWidgetWCAGTextWithBreaks (index);
 		String[] textArray = fullText.split(WCAGUtils.BREAK_TEXT);
@@ -976,24 +1011,24 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	public String getLang () {
 		return this.module.getLangAttribute();
 	}
-	
+
 	private void speak (TextToSpeechVoice t1) {
 		List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
 		textVoices.add(t1);
-		
+
 		this.speak(textVoices);
 	}
-	
+
 	private void speak (List<TextToSpeechVoice> textVoices) {
 		if (this.pageController != null) {
 			this.pageController.speak(textVoices);
 		}
 	}
-	
+
 	@Override
 	protected void onDetach() {
 		this.removeHook();
-		
+
 		super.onDetach();
 	};
 
@@ -1001,7 +1036,7 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	public void removeHook() {
 		if (this.mathJaxHook != null) {
 			MathJax.removeMessageHookCallback(this.mathJaxHook);
-		}		
+		}
 	}
 
 	@Override
@@ -1014,12 +1049,12 @@ public class OrderingView extends Composite implements IDisplay, IWCAG, IWCAGMod
 	public void setVisible(boolean visible) {
 		if (visible) {
 			super.setVisible(true);
-			getElement().getStyle().setProperty("display", originalDisplay);	
+			getElement().getStyle().setProperty("display", originalDisplay);
 		} else {
 			super.setVisible(false);
 		}
 	}
-	
-	
-	
+
+
+
 }

@@ -48,8 +48,8 @@ public class PresenterTestCase {
 		IOptionDisplay optionView = display.getOptions().get(0);
 		optionView.setDown(true);
 		assertTrue(optionView.isDown());
-		
-		services.getEventBus().fireEvent(new ResetPageEvent(false));
+
+		services.getEventBusService().getEventBus().fireEvent(new ResetPageEvent(false));
 		
 		assertFalse(optionView.isDown());
 	}
@@ -107,8 +107,8 @@ public class PresenterTestCase {
 		OptionViewMockup optionView1 = (OptionViewMockup) display.getOptions().get(0);
 		OptionViewMockup optionView2 = (OptionViewMockup) display.getOptions().get(1);
 		optionView2.setDown(true);
-		
-		services.getEventBus().fireEvent(new ShowErrorsEvent());
+
+		services.getEventBusService().getEventBus().fireEvent(new ShowErrorsEvent());
 		
 		assertEquals(StyleType.wrong, optionView1.getStyle());
 		assertEquals(StyleType.wrong, optionView2.getStyle());
@@ -131,7 +131,7 @@ public class PresenterTestCase {
 		OptionViewMockup optionView3 = (OptionViewMockup) display.getOptions().get(2);
 		optionView1.setDown(true);
 		
-		services.getEventBus().fireEvent(new ShowErrorsEvent());
+		services.getEventBusService().getEventBus().fireEvent(new ShowErrorsEvent());
 		
 		assertEquals(StyleType.correct, optionView1.getStyle());
 		assertEquals(StyleType.correct, optionView2.getStyle());
@@ -292,7 +292,7 @@ public class PresenterTestCase {
 		presenter.addView(display);
 		
 		eventReceived = false;
-		services.getEventBus().addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
+		services.getEventBusService().getEventBus().addHandler(ValueChangedEvent.TYPE, new ValueChangedEvent.Handler() {
 			@Override
 			public void onScoreChanged(ValueChangedEvent event) {
 				eventReceived = true;

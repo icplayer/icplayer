@@ -124,6 +124,15 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 		// Module is not an activity
 	}
 
+	@Override
+	public void setDisabled(boolean value) {
+
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return false;
+	}
 
 	@Override
 	public IWCAG getWCAGController() {
@@ -165,4 +174,5 @@ public class ReportPresenter implements IPresenter, IWCAGPresenter{
 		// TODO Auto-generated method stub
 		return JavaScriptObject.createObject();
 	}
+
 }

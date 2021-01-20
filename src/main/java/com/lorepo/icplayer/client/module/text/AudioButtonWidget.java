@@ -81,6 +81,11 @@ public class AudioButtonWidget extends Button implements TextElementDisplay {
     }
 
     @Override
+    public boolean isActivity() {
+        return false;
+    }
+
+    @Override
     public void setDisabled(boolean disabled) {
         // TODO not implement
     }
@@ -169,5 +174,10 @@ public class AudioButtonWidget extends Button implements TextElementDisplay {
     public String getLangTag() {
         // TODO not implement
         return null;
+    }
+
+    @Override
+    public void showAnswers() {
+
     }
 }

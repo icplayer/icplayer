@@ -89,5 +89,15 @@ public class TextToSpeechPresenter implements ITextToSpeechPresenter {
 		// TODO Auto-generated method stub
 		return JavaScriptObject.createObject();
 	}
-	
+
+	@Override
+	public void setDisabled(boolean value) {
+
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return false;
+	}
+
 }

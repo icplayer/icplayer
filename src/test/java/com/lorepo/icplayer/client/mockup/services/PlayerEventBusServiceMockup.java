@@ -7,15 +7,15 @@ import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerEventBusService;
 
 public class PlayerEventBusServiceMockup implements IPlayerEventBusService {
-	private EventBus eventBus;
+	private PlayerEventBus eventBus;
 	
 	public PlayerEventBusServiceMockup(EventBus eventBus) {
-		this.eventBus = eventBus;
+		this.eventBus = new PlayerEventBus(eventBus);
 	}
 
 	@Override
 	public PlayerEventBus getEventBus() {
-		return null;
+		return this.eventBus;
 	}
 
 	@Override

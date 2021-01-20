@@ -27,7 +27,7 @@ import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 import java.util.*;
 
-public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IEnterable {
+public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IEnterable, IGradualShowAnswersPresenter {
 
 	public interface TextElementDisplay {
 		boolean hasId(String id);
@@ -41,6 +41,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void markGapAsWrong();
 		void markGapAsEmpty();
 		boolean isAttempted();
+		boolean isActivity();
 		void setDisabled(boolean disabled);
 		boolean isDisabled();
 		void setStyleShowAnswers();
@@ -57,6 +58,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		boolean isWorkingMode();
 		int getGapState();
 		String getLangTag();
+		void showAnswers();
 	}
 
 	public interface IDisplay extends IModuleView {
@@ -70,7 +72,9 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void connectLinks(Iterator<LinkInfo> giIterator);
 		void connectAudios(Iterator<AudioInfo> iterator);
 		int getChildrenCount();
+		int getGapCount();
 		TextElementDisplay getChild(int index);
+		TextElementDisplay getActivity(int index);
 		void setValue(String id, String value);
 		void refreshMath();
 		void refreshGapMath(String id);
@@ -109,6 +113,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	private int currentErrorCount = 0;
 	private int currentMaxScore = 0;
 	private boolean isTextSetByCommand = false;
+	private boolean isDisabled = false;
+	private boolean isGradualShowAnswers = false;
 
 	public TextPresenter(TextModel module, IPlayerServices services) {
 		this.module = module;
@@ -117,7 +123,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		try{
 			connectHandlers();
 		} catch(Exception e) {
-			
+			JavaScriptUtils.error(e.getMessage());
 		}
 	}
 
@@ -171,10 +177,50 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				onEventReceived(event.eventName, event.getData());
 			}
 		});
+
+		eventBus.addHandler(GradualShowAnswerEvent.TYPE, new GradualShowAnswerEvent.Handler() {
+			@Override
+			public void onGradualShowAnswers(GradualShowAnswerEvent event) {
+				if (!isGradualShowAnswers) {
+					setCurrentViewState();
+					isGradualShowAnswers = true;
+				}
+
+				if (event.getModuleID().equals(module.getId())) {
+					int itemIndex = event.getItem();
+					handleGradualShowAnswers(itemIndex);
+				}
+			}
+		});
+
+		eventBus.addHandler(GradualHideAnswerEvent.TYPE, new GradualHideAnswerEvent.Handler() {
+			@Override
+			public void onGradualHideAnswers(GradualHideAnswerEvent event) {
+				handleGradualHideAnswers();
+			}
+		});
 	}
 	
 	private boolean isShowAnswers() {
-		return module.isActivity() ? this.isShowAnswersActive : false;
+		return module.isActivity() && this.isShowAnswersActive;
+	}
+
+	public void handleGradualShowAnswers(int itemIndex) {
+		TextElementDisplay gap = view.getActivity(itemIndex);
+		if (gap != null) {
+			gap.showAnswers();
+		}
+	}
+
+	public void handleGradualHideAnswers() {
+		this.isGradualShowAnswers = false;
+
+		for (int i = 0; i < view.getChildrenCount(); i++) {
+			TextElementDisplay child = view.getChild(i);
+			child.reset();
+		}
+
+		setState(this.currentState);
 	}
 
 	private void blockAllGaps() {
@@ -184,20 +230,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 	}
 
-	int getOptionIndex(InlineChoiceInfo choice, String optionName) {
-		int index = 0;
-
-		Iterator<String> distractors = choice.getDistractors();
-		while (distractors.hasNext()) {
-			String distractor = distractors.next();
-			distractor = StringUtils.unescapeXML(distractor);
-			if (distractor.equals(optionName)) return index;
-			index++;
-		}
-
-		return -1;
-	}
-	
 	private void setShowAnswersTextInGaps() {
 		List<GapInfo> gapsInfos = module.getGapInfos();
 		Map<String, TextElementDisplay> gapsViewsElements = new HashMap<String, TextElementDisplay>();
@@ -211,8 +243,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			GapInfo gi = gapsInfos.get(index);
 
 			// show 1st answer
-			Iterator<String> answers = gi.getAnswers();
-			String answer = answers.hasNext() ? answers.next() : "";
+			String answer = gi.getFirstCorrectAnswer();
 			gapsViewsElements.get(gi.getId()).setText(answer);
 		}
 
@@ -220,9 +251,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			Element elem = DOM.getElementById(choice.getId());
 			SelectElement sElem = (SelectElement) elem;
 
-			int correctIndex = getOptionIndex(choice, choice.getAnswer());
-			if (correctIndex != -1)
+			int correctIndex = choice.getAnswerIndex();
+			if (correctIndex != -1) {
 				sElem.setSelectedIndex(correctIndex + 1);
+			}
 		}
 	}
 
@@ -240,11 +272,8 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 			return;
 		}
+		setCurrentViewState();
 
-		this.currentScore = getScore();
-		this.currentErrorCount = getErrorCount();
-		this.currentMaxScore = getMaxScore();
-		this.currentState = getState();
 		this.isShowAnswersActive = true;
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
@@ -424,7 +453,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return 0;
 		}
 
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return currentErrorCount;
 		}
 
@@ -514,7 +543,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return 0;
 		}
 
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return currentMaxScore;
 		}
 		
@@ -536,7 +565,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return 0;
 		}
 
-		if (isShowAnswers()) {
+		if (isShowAnswers() || isGradualShowAnswers) {
 			return currentScore;
 		}
 
@@ -1048,7 +1077,29 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		return jsObject;
 	}
-	
+
+	@Override
+	public void setDisabled(boolean value) {
+		isDisabled = value;
+		if (value) {
+			disableAllGaps();
+		} else {
+			enableAllGaps();
+		}
+	}
+
+	// module also has isDisabled - but I think it should not be changed and used as it is set in editor by lesson creator
+	// so it doesn't have anything to do with lesson state
+	@Override
+	public boolean isDisabled() {
+		return isDisabled;
+	}
+
+	@Override
+	public int getActivitiesCount() {
+		return view.getGapCount();
+	}
+
 	private void jsOnEventReceived (String eventName, String jsonData) {
 		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}
@@ -1461,6 +1512,13 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		consumedItems.remove(gapId);
 		values.remove(gapId);
 		view.setValue(gapId, "");
+	}
+
+	private void setCurrentViewState() {
+		this.currentScore = getScore();
+		this.currentErrorCount = getErrorCount();
+		this.currentMaxScore = getMaxScore();
+		this.currentState = getState();
 	}
 
 }
