@@ -35,8 +35,8 @@
     width: 40px;
 }
 
-.printable_addon_Table {
-    height: fit-content;
+.printable_addon_Table .table-addon-wrapper {
+    height: auto;
 }
 
 .printable_addon_Table tbody tr:first-child {

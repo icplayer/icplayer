@@ -1148,3 +1148,22 @@ hr, table, fieldset {
 	-webkit-column-fill: auto;
 	-moz-column-fill: auto;
 }
+
+/*
+* printable image
+*/
+.printable_ic_image.keepAspect {
+    text-align: center;
+}
+
+.printable_ic_image.keepAspect {
+    object-fit: contain;
+}
+
+/*
+* printable Text
+*/
+
+.printable_ic_text div {
+    display: inline;
+}
