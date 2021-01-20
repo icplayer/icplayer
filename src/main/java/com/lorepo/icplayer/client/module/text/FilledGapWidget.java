@@ -72,4 +72,8 @@ public class FilledGapWidget extends GapWidget implements TextElementDisplay {
 		filledGapHandlers.clear();
 	}
 
+	@Override
+	public boolean isActivity() {
+		return true;
+	}
 }

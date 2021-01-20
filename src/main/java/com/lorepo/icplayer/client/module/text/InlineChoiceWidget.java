@@ -199,6 +199,11 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	}
 
 	@Override
+	public boolean isActivity() {
+		return true;
+	}
+
+	@Override
 	public boolean isDisabled() {
 		return isDisabled;
 	}
@@ -320,5 +325,13 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	@Override
 	public String getLangTag() {
 		return null;
+	}
+
+	@Override
+	public void showAnswers() {
+		int index = choiceInfo.getAnswerIndex();
+		if (index != -1) {
+			this.setSelectedIndex(index + 1);
+		}
 	}
 }

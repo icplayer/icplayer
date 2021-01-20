@@ -65,6 +65,10 @@ public class ChoiceOption extends BasicPropertyProvider{
 		return parentId;
 	}
 
+	public boolean isCorrect() {
+		return value > 0;
+	}
+
 	protected void setFeedback(String feedback){
 		this.feedback = feedback;
 	}
