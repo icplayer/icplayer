@@ -1,4 +1,4 @@
-2020-01-11 Add gradual show answers mode
+2020-01-20 Add gradual show answers mode
 2020-12-17 Fixed stretching of Connection addon and added draggable gap support in Text for print
 2020-12-03 Fixxed issue with font size of printable lessons
 2020-11-27 Added playback rate control to the Audio addon
