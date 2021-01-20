@@ -54,11 +54,19 @@ function AddonShow_Answers_create(){
     };
 
     presenter.sendEvent = function(eventName) {
-        var eventData = {
-            'source': presenter.configuration.addonID
-        };
+        var source = presenter.configuration.addonID;
+        if (eventName === presenter.EVENTS.SHOW_ANSWERS) {
+            presenter.playerController.getCommands().showAnswers(source);
+        } else if (eventName === presenter.EVENTS.HIDE_ANSWERS) {
+            presenter.playerController.getCommands().hideAnswers(source);
+        } else {
+            var eventData = {
+                'source': source
+            };
+            // fallback - but it should use commands for proper work with different modes
+            presenter.eventBus.sendEvent(eventName, eventData);
+        }
 
-        presenter.eventBus.sendEvent(eventName, eventData);
     };
 
     presenter.createPreview = function(view, model) {
