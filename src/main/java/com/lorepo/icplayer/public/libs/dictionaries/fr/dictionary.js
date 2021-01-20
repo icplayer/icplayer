@@ -623,6 +623,8 @@ var ice_dictionary_fr = {
 	"TextAudio_play": "Play",
 	"TextAudio_pause": "Pause",
 	"TextAudio_stop": "Stop",
+    "Gradual_Next_Answer_name": "Gradual Show Answer",
+	"Gradual_Next_Answer_info": "The Gradual Show Answer module allows you show next correct answer in modules or hide all showed answers.",
     "Connection_info": "Permet de créer une activité avec deux colonnes d'éléments (textes ou images) que l'on devra associer. Il est possible de paramétrer des connexions uniques ou multiples (un élément peut etre relié à plusieurs).",
     "Connection_name": "Connexion",
     "Connection_property_is_not_activity": "N'est pas un exercice",

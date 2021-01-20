@@ -7,11 +7,12 @@ import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent.Handler;
 
 public class ValueChangedEvent extends PlayerEvent<Handler> {
 	
-	private String moduleID;
-	private String itemID;
-	private String value;
-	private String score;
+	private final String moduleID;
+	private final String itemID;
+	private final String value;
+	private final String score;
 
+	public final static String NAME = "ValueChanged";
 
 	public ValueChangedEvent(String moduleID, String itemID, String value, String score){
 		this.moduleID = moduleID;
@@ -70,7 +71,7 @@ public class ValueChangedEvent extends PlayerEvent<Handler> {
 
 	@Override
 	public String getName() {
-		return "ValueChanged";
+		return NAME;
 	}
 	
 }
