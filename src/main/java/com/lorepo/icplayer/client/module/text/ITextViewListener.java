@@ -7,6 +7,7 @@ public interface ITextViewListener {
 	void onLinkClicked(LinkType type, String link, String target);
 	void onValueEdited(String id, String newValue);
 	void onValueChanged(String id, String newValue);
+	void onInlineValueChanged(String id, String newValue);
 	void onGapClicked(String controlId);
 	void onGapFocused(String controlId, Element element);
 	void onGapBlured(String gapId, Element element);
