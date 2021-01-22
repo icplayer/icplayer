@@ -55,7 +55,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 						value = "---";
 						addStyleName("ic_inlineChoice-default");
 					}
-					listener.onValueChanged(choiceInfo.getId(), value);
+					listener.onInlineValueChanged(choiceInfo.getId(), value);
 					TextView view = getView();
 					if(view.isWCAGon()){
 						List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();

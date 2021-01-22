@@ -675,6 +675,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 
 			@Override
+			public void onInlineValueChanged(String id, String newValue) {
+				inlineValueChanged(id, newValue);
+			}
+
+			@Override
 			public void onValueEdited(String id, String newValue) {
 				valueEdited(id, newValue);
 			}
@@ -774,7 +779,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 				JavaScriptUtils.log(nfe);
 			}
 		}
-		
+
 		sendValueChangedEvent(itemID, newValue, score);
 	}
 	
@@ -788,6 +793,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		if(!module.isUserActionEvents()){
 			valueChangeLogic(id, newValue);
 		}
+	}
+
+	protected void inlineValueChanged(String id, String newValue) {
+		valueChangeLogic(id, newValue);
 	}
 
 	protected void valueEdited(String id, String newValue) {
