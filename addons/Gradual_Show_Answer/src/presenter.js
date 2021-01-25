@@ -1,4 +1,4 @@
-function AddonGradual_Next_Answer_create() {
+function AddonGradual_Show_Answer_create() {
     var presenter = function () {
     };
 
@@ -35,12 +35,13 @@ function AddonGradual_Next_Answer_create() {
         return presenter.state.isDisabled;
     }
 
-    presenter.clickHandler = function AddonGradualNextAnswer_clickHandler(event) {
+    presenter.clickHandler = function AddonGradualShowAnswer_clickHandler(event) {
         if (event !== undefined) {
             event.stopPropagation();
         }
 
-        if (presenter.isDisabled()) return;
+        // if gradual show answers mode is on, this button must be clickable
+        if (presenter.isDisabled() && !presenter.state.isGradualShowAnswers) return;
 
         presenter.triggerButtonClickedEvent();
     };
@@ -94,7 +95,8 @@ function AddonGradual_Next_Answer_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'disable': presenter.disable
+            'disable': presenter.disable,
+            'enable': presenter.enable,
         };
 
         return Commands.dispatch(commands, name, params, presenter);
@@ -162,7 +164,7 @@ function AddonGradual_Next_Answer_create() {
         presenter.playerController = controller;
     };
 
-    presenter.destroy = function AddonGradual_Next_Answer__destroy() {
+    presenter.destroy = function AddonGradual_Show_Answer__destroy() {
         presenter.playerController = null;
         presenter.viewElements.button.removeEventListener("click", presenter.clickHandler);
         presenter.viewElements.button.removeEventListener("touch", presenter.clickHandler);
@@ -171,6 +173,6 @@ function AddonGradual_Next_Answer_create() {
     return presenter;
 }
 
-AddonGradual_Next_Answer_create.__supported_player_options__ = {
+AddonGradual_Show_Answer_create.__supported_player_options__ = {
     interfaceVersion: 2
 };

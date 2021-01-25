@@ -361,7 +361,6 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			count += d.isActivity() ? 1: 0;
 		}
 
-		JavaScriptUtils.log(count);
 		return count;
 	}
 
