@@ -72,19 +72,13 @@ public class TextPrintable {
 			String longestAnswer = "";
 			do {
 				String nextAnswer = answers.next();
-				if (showAnswers) {
-					value += nextAnswer;
-					if (answers.hasNext()) {
-						value += ", ";
-					} else {
-						longestAnswer = value;
-					}
-				} else {
-					if (nextAnswer.length() > longestAnswer.length()) {
-						longestAnswer = nextAnswer;
-					}
+				if (showAnswers && value.length() == 0) {
+					value = nextAnswer;
 				}
-			} while(answers.hasNext());	
+				if (nextAnswer.length() > longestAnswer.length()) {
+					longestAnswer = nextAnswer;
+				}
+			} while(answers.hasNext());
 			
 			if (longestAnswer.length() == 0) longestAnswer = "&nbsp;&nbsp;&nbsp;";
 			
