@@ -694,7 +694,7 @@ function AddonConnection_create() {
     };
 
     presenter.sendEvent = function (fromID, toID, value, score) {
-        if (!presenter.isShowAnswersActive) {
+        if (!presenter.isShowingAnswers()) {
             var eventData = presenter.createEventData(addonID, fromID, toID, presenter.model, value, score);
             eventBus.sendEvent('ValueChanged', eventData);
             if (presenter.isAllOK()) {
@@ -1299,6 +1299,11 @@ function AddonConnection_create() {
         });
     }
 
+    presenter.isShowingAnswers = function AddonConnection_isShowingAnswers(){
+        return presenter.isGradualShowAnswersActive || presenter.isShowAnswersActive;
+    }
+
+
     presenter.setShowErrorsMode = deferredCommandQueue.decorate(
         function () {
             presenter.isCheckActive = true;
@@ -1456,7 +1461,15 @@ function AddonConnection_create() {
     }
 
     presenter.getActivitiesCount = function () {
-        return presenter.elements.length;
+        var lineCounter = 0;
+        for (var i = 0; i < presenter.elements.length; i++) {
+            lineCounter += presenter.elements[i].connects
+                .split(',')
+                .filter(function(element) {
+                    return element !== ""
+                }).length;
+        }
+        return lineCounter;
     }
 
     presenter.getState = function () {
@@ -1862,7 +1875,7 @@ function AddonConnection_create() {
     function getConnections($element) {
         var element = $element[0];
         var result = [];
-        var lines = presenter.isShowAnswersActive ? presenter.lineStackSA : presenter.lineStack;
+        var lines = presenter.isShowingAnswers() ? presenter.lineStackSA : presenter.lineStack;
 
         for (var i = 0; i < lines.stack.length; i++) {
             var line = lines.stack[i];
@@ -1905,7 +1918,7 @@ function AddonConnection_create() {
             var connections = getConnections($active);
             var TextVoiceArray = window.TTSUtils.getTextVoiceArrayFromElement($active, presenter.langTag);
 
-            if ($active.hasClass('selected') && !presenter.isShowAnswersActive) {
+            if ($active.hasClass('selected') && !presenter.isShowingAnswers()) {
                 TextVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ''));
             }
 
