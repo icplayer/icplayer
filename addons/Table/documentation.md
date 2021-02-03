@@ -326,6 +326,10 @@ This module is fully compatible with [Show Answers module](/doc/page/Show-Answer
         <td>.draggable-gap.gapFilled</td>
         <td>A way of indicating a filled draggable gap.</td>
     </tr>
+    <tr>
+        <td>.table-addon-wrapper .table-addon-gap-highlight </td>
+        <td>A way of indicating that droppable object is over this gap.</td>
+    </tr>
 </table>
 
 ## Examples

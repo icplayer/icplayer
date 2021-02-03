@@ -12,6 +12,7 @@
      *  @param [configuration.wrong] {String} Class added when object moves to wrong state
      *  @param [configuration.showAnswers] {String} Class added when object moves to showAnswers state
      *  @param [configuration.block] {String} Class added when object moves to block state
+     *  @param [configuration.droppableHover] {String} Class added when draggable object is over view
      * @constructor StatefullAddonObject
      */
     function StatefullAddonObject (configuration) {
@@ -20,6 +21,7 @@
         this.wrongCSS = configuration.wrong || '';
         this.showAnswersCSS = configuration.showAnswers || '';
         this.blockCSS = configuration.block || '';
+        this.droppableHoverCSS  = configuration.droppableHover || '';
     }
 
     StatefullAddonObject._internal = {

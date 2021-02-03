@@ -93,6 +93,7 @@
         @param [cssConfiguration.wrong] {String} Class added to view DOM when object is determined as wrong
         @param [cssConfiguration.showAnswers] {String} Class added to view DOM when object is in show answers mode
         @param [cssConfiguration.block] [String] Class added to view DOM when object is in block state
+        @param [cssConfiguration.droppableHover] [String] Class added to view DOM when draggable object is over view
      @constructor
      */
     function DraggableDroppableObject (configuration, cssConfiguration) {
@@ -477,8 +478,13 @@
      * @method bindDropHandler
      */
     DraggableDroppableObject.prototype.bindDropHandler = function () {
+        var hoverClass = false;
+        if (this.droppableHoverCSS && this.droppableHoverCSS.length > 0) {
+            hoverClass = this.droppableHoverCSS;
+        }
         this.$view.droppable({
-            drop: DraggableDroppableObject._internal.getDropHandler.call(this)
+            drop: DraggableDroppableObject._internal.getDropHandler.call(this),
+            hoverClass: hoverClass
         });
     };
 

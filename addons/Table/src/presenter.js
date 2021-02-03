@@ -1043,7 +1043,8 @@ function AddonTable_create() {
             correct: "ic_gap-correct",
             wrong: "ic_gap-wrong",
             showAnswers: "ic_gap-show-answers",
-            block: "ic_gap-empty"
+            block: "ic_gap-empty",
+            droppableHover: "table-addon-gap-highlight"
         };
     };
 
