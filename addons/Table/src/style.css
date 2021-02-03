@@ -35,10 +35,6 @@
     width: 40px;
 }
 
-.table-addon-wrapper .table-addon-gap-highlight {
-    outline: 2px solid gray;
-}
-
 .printable_addon_Table .table-addon-wrapper {
     height: auto;
 }
