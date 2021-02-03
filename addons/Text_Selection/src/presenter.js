@@ -11,6 +11,7 @@ function AddonText_Selection_create() {
     presenter.areAllPhrasesSingleWord = true;
     presenter._keyboardController = null;
     presenter._firstElementSwitch = true;
+    presenter.isGradualShowAnswersActive = false;
     var isWCAGOn = false;
 
     var SELECTED_SECTION_START = "&\n&SELECTED_SECTION_START&\n&";
@@ -383,6 +384,8 @@ function AddonText_Selection_create() {
     presenter.turnOnShowAnswersListeners = function () {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener("GradualShowAnswers", this);
+        presenter.eventBus.addEventListener("GradualHideAnswers", this);
     };
 
     function getSpace(i) {
@@ -538,7 +541,7 @@ function AddonText_Selection_create() {
         if (!presenter.vaildateTagsInAltText(model.Text)){
             return getErrorObject('M06');
         }
-        
+
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
         var mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode);
         var selection_type = ModelValidationUtils.validateOption(presenter.SELECTION_TYPE, model['Selection type']);
@@ -944,7 +947,6 @@ function AddonText_Selection_create() {
 
     presenter.parseWords = function (text, mode, selection_type) {
         text = presenter.markMathJax(text.replace(/&nbsp;/g, ' '));
-
         var previewHTML = '', runHTML = '';
         var spanIndex = 0;
         var spansMarkedCorrect = [], spansMarkedWrong = [];
@@ -1076,6 +1078,8 @@ function AddonText_Selection_create() {
     presenter.getState = function () {
         if (presenter.isShowAnswers) {
             presenter.hideAnswers();
+        } else if (presenter.isGradualShowAnswersActive) {
+            presenter.gradualHideAnswers();
         }
 
         var allSelected = presenter.$view.find('.text_selection').find('.selected');
@@ -1246,12 +1250,14 @@ function AddonText_Selection_create() {
         presenter.turnOffEventListeners();
 
         presenter.isShowAnswers = true;
-        presenter.selected_elements = presenter.$view.find(".selected");
-        var selectable_elements = presenter.$view.find(".selectable");
+        presenter.saveAndRemoveSelection();
 
-        presenter.selected_elements.removeClass("selected");
+        var allSelectable = presenter.$view.find(".selectable");
+        presenter.showAnswersForElements(allSelectable.length);
+    };
 
-        for (var i = 0; i < selectable_elements.length; i++) {
+    presenter.showAnswersForElements = function (count) {
+        for (var i = 0; i < count; i++) {
             var elem = presenter.$view.find(".selectable")[i];
             var elem_number = parseInt($(elem).attr("number"), 10);
 
@@ -1259,7 +1265,13 @@ function AddonText_Selection_create() {
                 $(elem).addClass("correct-answer");
             }
         }
-    };
+    }
+
+    presenter.showCorrectAnswer = function (item) {
+        var elementNumber = presenter.markers.markedCorrect[item];
+        var $elem = presenter.$view.find(".selectable[number='" + elementNumber + "']");
+        $elem.addClass("correct-answer");
+    }
 
     presenter.hideAnswers = function () {
         if (!presenter.configuration.isActivity) {
@@ -1273,16 +1285,35 @@ function AddonText_Selection_create() {
         presenter.turnOnEventListeners();
 
         presenter.isShowAnswers = false;
-        presenter.$view.find(".correct-answer").removeClass("correct-answer");
-        if (presenter.selected_elements != null) presenter.selected_elements.addClass("selected");
+        presenter.restoreSelection();
     };
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
+    presenter.saveAndRemoveSelection = function () {
+        presenter.selected_elements = presenter.$view.find(".selected");
+        presenter.selected_elements.removeClass("selected");
+    }
+
+    presenter.restoreSelection = function () {
+        presenter.$view.find(".correct-answer").removeClass("correct-answer");
+        if (presenter.selected_elements != null) presenter.selected_elements.addClass("selected");
+    }
+
+    presenter.onEventReceived = function (eventName, data) {
+        if (eventName === "ShowAnswers") {
             presenter.showAnswers();
-        }
-        if (eventName == "HideAnswers") {
+        } else if (eventName === "HideAnswers") {
             presenter.hideAnswers();
+        } else if (eventName === "GradualShowAnswers") {
+            if (!presenter.isGradualShowAnswersActive) {
+                presenter.isGradualShowAnswersActive = true;
+                presenter.turnOffEventListeners();
+                presenter.saveAndRemoveSelection();
+            }
+            if (data.moduleID === presenter.configuration.addonID) {
+                presenter.gradualShowAnswers(parseInt(data.item, 10));
+            }
+        } else if (eventName === "GradualHideAnswers") {
+            presenter.gradualHideAnswers();
         }
     };
 
@@ -1700,6 +1731,26 @@ function AddonText_Selection_create() {
         $view.html(content);
 
         return $view[0].outerHTML;
+    };
+
+    presenter.getActivitiesCount = function () {
+        return presenter.markers.markedCorrect.length;
+    }
+
+    presenter.isShowingAnswers = function () {
+        return (presenter.configuration.isActivity && presenter.isShowAnswers)
+            || presenter.isGradualShowAnswersActive;
+    }
+
+    presenter.gradualShowAnswers = function (item) {
+        presenter.showCorrectAnswer(item);
+    };
+
+    presenter.gradualHideAnswers = function () {
+        presenter.isGradualShowAnswersActive = false;
+        presenter.turnOnEventListeners();
+        presenter.restoreSelection();
+
     };
 
     return presenter;

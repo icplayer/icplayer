@@ -5,6 +5,8 @@ import com.lorepo.icplayer.client.module.api.event.ShowErrorsEvent.Handler;
 
 public class ShowErrorsEvent extends PlayerEvent<Handler> {
 
+	public final static String NAME = "Check";
+
 	public interface Handler extends EventHandler {
 		void onShowErrors(ShowErrorsEvent event);
 	}
@@ -18,7 +20,7 @@ public class ShowErrorsEvent extends PlayerEvent<Handler> {
 	
 	@Override
 	public String getName() {
-		return "Check";
+		return NAME;
 	}
 
 	@Override

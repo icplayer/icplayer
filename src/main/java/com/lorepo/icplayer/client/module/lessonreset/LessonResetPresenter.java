@@ -31,6 +31,7 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 		public Element getElement();
 		void setDisabled(boolean isDisabled);
 		public void setShowAnswersMode(boolean b);
+		boolean isDisabled();
 		void execute();
 	}
 	
@@ -180,7 +181,17 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 
 		return jsObject;
 	}
-	
+
+	@Override
+	public void setDisabled(boolean value) {
+		view.setDisabled(value);
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return view.isDisabled();
+	}
+
 	private void jsOnEventReceived (String eventName, String jsonData) {
 		this.onEventReceived(eventName, jsonData == null ? new HashMap<String, String>() : (HashMap<String, String>)JavaScriptUtils.jsonToMap(jsonData));
 	}

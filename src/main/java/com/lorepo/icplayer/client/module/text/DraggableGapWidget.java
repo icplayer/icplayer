@@ -298,6 +298,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	}
 
 	@Override
+	public boolean isActivity() {
+		return true;
+	}
+
+	@Override
 	public boolean isDisabled() {
 		return disabled;
 	}
@@ -345,6 +350,12 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 	@Override
 	public String getLangTag() {
 		return gapInfo.getLangTag();
+	}
+
+	@Override
+	public void showAnswers() {
+		String answer = gapInfo.getFirstCorrectAnswer();
+		this.setText(answer);
 	}
 
 	public void select() {

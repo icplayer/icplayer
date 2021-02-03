@@ -122,7 +122,7 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 	}
 	
 	@Override
-	public String executeCommand(String commandName, List<IType> _) {
+	public String executeCommand(String commandName, List<IType> args) {
 		String value = "";
 		
 		if (commandName.compareTo("show") == 0) {
@@ -186,7 +186,17 @@ public class ButtonPresenter implements IPresenter, IStateful, ICommandReceiver,
 
 		return jsObject;
 	}
-	
+
+	@Override
+	public void setDisabled(boolean value) {
+		view.setDisabled(value);
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return !view.isEnabled();
+	}
+
 	public void execute(){
 		if(this.view != null){
 			this.view.execute();	

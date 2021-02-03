@@ -21,7 +21,12 @@ public class JavaScriptUtilsPatcher {
 	public static void log(Object message) {
 		System.out.println(message);
 	}
-	
+
+	@PatchMethod
+	public static void error(Object message) {
+		System.out.println(message);
+	}
+
 	@PatchMethod
 	public static void alert(String message) {
 		System.out.println(message);

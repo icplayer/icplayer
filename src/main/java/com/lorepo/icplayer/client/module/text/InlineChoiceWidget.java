@@ -55,7 +55,7 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 						value = "---";
 						addStyleName("ic_inlineChoice-default");
 					}
-					listener.onValueChanged(choiceInfo.getId(), value);
+					listener.onInlineValueChanged(choiceInfo.getId(), value);
 					TextView view = getView();
 					if(view.isWCAGon()){
 						List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
@@ -199,6 +199,11 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	}
 
 	@Override
+	public boolean isActivity() {
+		return true;
+	}
+
+	@Override
 	public boolean isDisabled() {
 		return isDisabled;
 	}
@@ -320,5 +325,13 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 	@Override
 	public String getLangTag() {
 		return null;
+	}
+
+	@Override
+	public void showAnswers() {
+		int index = choiceInfo.getAnswerIndex();
+		if (index != -1) {
+			this.setSelectedIndex(index + 1);
+		}
 	}
 }

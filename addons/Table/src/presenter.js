@@ -31,6 +31,7 @@ function AddonTable_create() {
     presenter.gapNavigation = false;
     presenter.addonKeyboardNavigationActive = false;
     presenter.gapIndex = 0;
+    presenter.isGradualShowAnswersActive = false;
 
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
@@ -64,7 +65,7 @@ function AddonTable_create() {
     }
 
     presenter.parseGaps = function (isPreview) {
-        if (presenter.configuration.gapType == "draggable") {
+        if (presenter.configuration.gapType === "draggable") {
             return presenter.parseGapsWrapper(presenter.DraggableDroppableGap, isPreview);
         } else {
             return presenter.parseGapsWrapper(presenter.EditableInputGap, isPreview);
@@ -123,7 +124,7 @@ function AddonTable_create() {
     presenter.initializeGaps = function (isPreview) {
         presenter.parseGaps(isPreview);
 
-        if(presenter.configuration.gapType == 'math'){
+        if(presenter.configuration.gapType === 'math'){
             presenter.gapsContainer.gaps = [];
             $(presenter.$view).find('input').each(function () {
                 $(this).replaceWith("\\gap{" +
@@ -160,7 +161,7 @@ function AddonTable_create() {
     }
 
     function replaceInputsInPreview () {
-        if (presenter.configuration.gapType == "draggable") {
+        if (presenter.configuration.gapType === "draggable") {
             var inputs = presenter.$wrapper.find("input");
 
             for (var i = 0; i < inputs.length; i++) {
@@ -175,7 +176,7 @@ function AddonTable_create() {
         presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
         presenter.isPreview = isPreview;
 
-        if(presenter.configuration.gapType == "math"){
+        if(presenter.configuration.gapType === "math"){
             var mathJaxDeferred = new jQuery.Deferred();
             presenter.mathJaxProcessEndedDeferred = mathJaxDeferred;
             presenter.mathJaxProcessEnded = mathJaxDeferred.promise();
@@ -195,7 +196,7 @@ function AddonTable_create() {
 
         presenter.mainLogic(isPreview);
 
-        if(presenter.configuration.gapType == "math"){
+        if(presenter.configuration.gapType === "math"){
             presenter.mathJaxProcessEnded.then(function() {
                 MathJax.CallBack.Queue().Push(function () {
                     if(!isPreview){
@@ -206,7 +207,7 @@ function AddonTable_create() {
                                 presenter.gapsContainer.gaps = [];
                                 $(presenter.$view).find('input').each(function (_, index) {
                                     for(var i = 0; i < presenter.gapsAnswers.length; i++){
-                                        if(presenter.gapsAnswers[i].id == $(this).attr('id')){
+                                        if(presenter.gapsAnswers[i].id === $(this).attr('id')){
                                             var correctAnswers = presenter.gapsAnswers[i].answers;
                                         }
                                     }
@@ -258,7 +259,7 @@ function AddonTable_create() {
             replaceInputsInPreview();
             presenter.setGapsClassAndWidth();
             presenter.$view.find('input').attr("size", "auto");
-            if (presenter.configuration.gapType == "draggable") {
+            if (presenter.configuration.gapType === "draggable") {
                 presenter.$view.find('input').addClass("draggable-gap");
             }
         }
@@ -285,6 +286,8 @@ function AddonTable_create() {
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
         presenter.eventBus.addEventListener('ItemSelected', this);
+        presenter.eventBus.addEventListener('GradualShowAnswers', this);
+        presenter.eventBus.addEventListener('GradualHideAnswers', this);
     };
 
     presenter.setTextParser = function (textParser) {
@@ -506,7 +509,7 @@ function AddonTable_create() {
                     if (controlArray[row][column]) return { isValid: false, errorCode: 'CO_05' };
                     controlArray[row][column] = true;
 
-                    if (r === 0 && c == 0) {
+                    if (r === 0 && c === 0) {
                         validatedContent[row][column] = {
                             content: content[i].Content,
                             rowSpan: rows.values.length,
@@ -889,7 +892,7 @@ function AddonTable_create() {
 
     presenter.isAllOK = function() {
         var score = presenter.getScore();
-        return score == presenter.getMaxScore() && score != 0;
+        return score === presenter.getMaxScore() && score !== 0;
     };
 
     presenter.executeCommand = function (name, params) {
@@ -929,7 +932,7 @@ function AddonTable_create() {
             return 0;
         }
 
-        if (presenter.gapsContainer == undefined) {
+        if (presenter.gapsContainer === undefined) {
             return 0;
         }
 
@@ -941,7 +944,7 @@ function AddonTable_create() {
             return 0;
         }
 
-        if (presenter.gapsContainer == undefined) {
+        if (presenter.gapsContainer === undefined) {
             return 0;
         }
 
@@ -953,7 +956,7 @@ function AddonTable_create() {
             return 0;
         }
 
-        if (presenter.gapsContainer == undefined) {
+        if (presenter.gapsContainer === undefined) {
             return 0;
         }
 
@@ -995,16 +998,22 @@ function AddonTable_create() {
     };
     
     presenter.onEventReceived = function (eventName, eventData) {
-        if (eventName == "ShowAnswers") {
+        if (eventName === "ShowAnswers") {
             presenter.showAnswers();
-        }
-
-        if (eventName == "HideAnswers") {
+        } else if (eventName === "HideAnswers") {
             presenter.hideAnswers();
-        }
-
-        if (eventName == "ItemSelected") {
+        } else if (eventName === "ItemSelected") {
             presenter.lastDraggedItem = eventData;
+        } else if (eventName === "GradualShowAnswers") {
+            if (!presenter.isGradualShowAnswersActive) {
+                presenter.isGradualShowAnswersActive = true;
+            }
+
+            if (eventData.moduleID === presenter.configuration.addonID) {
+                presenter.gradualShowAnswers(parseInt(eventData.item, 10));
+            }
+        } else if (eventName === "GradualHideAnswers") {
+            presenter.gradualHideAnswers();
         }
     };
     
@@ -1079,7 +1088,7 @@ function AddonTable_create() {
     };
 
     presenter.GapUtils.prototype.parseValue = function (value) {
-        if(presenter.configuration.gapType == 'math') {
+        if(presenter.configuration.gapType === 'math') {
             return value;
         }
 
@@ -1212,7 +1221,7 @@ function AddonTable_create() {
     };
 
     presenter.GapUtils.prototype.getErrorCount = function () {
-        if (this.getValue().trim() == "") {
+        if (this.getValue().trim() === "") {
             return 0;
         }
 
@@ -1367,7 +1376,7 @@ function AddonTable_create() {
     function addGapAnswers(htmlID, correctAnswer) {
         var isInTable = false;
         for (var i = 0; i < presenter.gapsAnswers.length; i++){
-            if(presenter.gapsAnswers[i].id == htmlID){
+            if(presenter.gapsAnswers[i].id === htmlID){
                 isInTable = true;
             }
         }
@@ -1408,7 +1417,7 @@ function AddonTable_create() {
     };
 
     presenter.EditableInputGap.prototype.createView = function () {
-        if(presenter.configuration.gapType == 'math'){
+        if(presenter.configuration.gapType === 'math'){
             return $(presenter.$view).find("input[id='"+this.objectID+"']");
         }else{
             var inputType = "text";
@@ -1531,7 +1540,7 @@ function AddonTable_create() {
 
     presenter.GapsContainerObject.prototype.replaceDOMViewWithGap = function () {
         this.gaps.filter(function (gap) {
-            return gap.gapType == presenter.GapUtils.GAP_TYPE.NORMAL;
+            return gap.gapType === presenter.GapUtils.GAP_TYPE.NORMAL;
         }).forEach(function (gap) {
             var gapID = "#" + gap.getObjectID(),
                 element = presenter.$view.find(gapID),
@@ -1573,9 +1582,13 @@ function AddonTable_create() {
         });
     };
 
+    presenter.GapsContainerObject.prototype.showAnswer = function (item) {
+        this.gaps[item].showAnswers();
+    }
+
     presenter.GapsContainerObject.prototype.showAnswersMath = function () {
         this.gaps.forEach(function (gap) {
-            if(gap.mathShowAnswersValue != ""){
+            if(gap.mathShowAnswersValue !== ""){
                 gap.showAnswers();
             }else{
                 gap.lock();
@@ -1720,7 +1733,7 @@ function AddonTable_create() {
 
                 this.gaps[index].setState(configuration);
 
-                if (stateData.value == "") {
+                if (stateData.value === "") {
                     this.gaps[index].destroyDraggableProperty();
                 }else{
                     this.gaps[index].addCssClass("gapFilled");
@@ -1786,7 +1799,7 @@ function AddonTable_create() {
     };
 
     presenter.shouldTriggerMathShowAnswers = function () {
-        return presenter.configuration.mathShowAnswersCounter == 0;
+        return presenter.configuration.mathShowAnswersCounter === 0;
     };
 
     //showAnswers from Math
@@ -1835,7 +1848,7 @@ function AddonTable_create() {
 
     TableKeyboardController.prototype.select = function (event) {
         event.preventDefault();
-        if (presenter.gapNavigation && presenter.configuration.gapType == 'draggable' && presenter.getCurrentGapsNumber() > 0) {
+        if (presenter.gapNavigation && presenter.configuration.gapType === 'draggable' && presenter.getCurrentGapsNumber() > 0) {
             var $gap = presenter.getGap(presenter.gapIndex);
 
             if (!$gap || !$gap.is('span')) return;
@@ -2078,7 +2091,7 @@ function AddonTable_create() {
 
     presenter.getGap = function (index) {
         var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice');
-        if ($gaps.length == 0) return;
+        if ($gaps.length === 0) return;
         if (index < 0) index = 0;
         if (index >= $gaps.length) index = $gaps.length-1;
         return $gaps.eq(index);
@@ -2086,7 +2099,7 @@ function AddonTable_create() {
 
     presenter.selectGap = function(index) {
         var $gaps = $(presenter.keyboardControllerObject.keyboardNavigationCurrentElement).find('.ic_gap, ic_inlineChoice');
-        if ($gaps.length == 0) return;
+        if ($gaps.length === 0) return;
         if(index < 0) index = 0;
         if(index >= $gaps.length) index = $gaps.length - 1;
         var $gap = $gaps.eq(index);
@@ -2114,7 +2127,7 @@ function AddonTable_create() {
             $gap.prop("selectedIndex", index);
             $gap.change();
             var value = $gap.val();
-            if (value.length == 0 || value == '-' || value == '---') {
+            if (value.length === 0 || value === '-' || value === '---') {
                 var data = [window.TTSUtils.getTextVoiceObject(presenter.speechTexts.empty)];
             } else {
                 var data = [window.TTSUtils.getTextVoiceObject($gap.val(), presenter.configuration.langTag)];
@@ -2203,7 +2216,7 @@ function AddonTable_create() {
                         longestAnswer = answers[j];
                     }
                 }
-                if (longestAnswer.length == 0) longestAnswer = "&nbsp;&nbsp;&nbsp;";
+                if (longestAnswer.length === 0) longestAnswer = "&nbsp;&nbsp;&nbsp;";
 
                 var value = initialValue;
                 var gapWidth = 0;
@@ -2310,6 +2323,21 @@ function AddonTable_create() {
             html = html.replace(match, $dropdown[0].outerHTML);
         }
         return html;
+    }
+
+    presenter.gradualShowAnswers = function(item) {
+        presenter.gapsContainer.showAnswer(item);
+        presenter.renderMathJax();
+    }
+
+    presenter.gradualHideAnswers = function() {
+         presenter.gapsContainer.hideAnswers();
+         presenter.renderMathJax();
+         presenter.isGradualShowAnswersActive = false;
+    }
+
+    presenter.getActivitiesCount = function () {
+        return presenter.gapsContainer.getLength();
     }
 
     return presenter;
