@@ -53,10 +53,12 @@ public class ChoicePrintable {
 	private String createPrintableOption(ChoiceOption option, boolean showAnswers) {
 		String optionHTML = "";
 		if (showAnswers && option.getValue() > 0) {
-			optionHTML += "<li id=\"" + getOptionViewId(option) + "\"><u>";
+			optionHTML += "<li id=\"" + getOptionViewId(option) + "\">";
+			optionHTML += "<div style=\"display:inline-block; border-bottom: 1px solid;\">";
 			optionHTML += option.getText();
-			optionHTML += "</u> (" + Integer.toString(option.getValue()) + ")";
-			optionHTML += "</li>";
+			optionHTML += "</div><div style=\"display:inline-block; margin-left:0.5em;\">";
+			optionHTML += "(" + Integer.toString(option.getValue()) + ")";
+			optionHTML += "</div></li>";
 		} else {
 			optionHTML += "<li id=\"" + getOptionViewId(option) + "\">";
 			optionHTML += option.getText();

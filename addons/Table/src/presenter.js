@@ -2164,6 +2164,7 @@ function AddonTable_create() {
     presenter.getPrintableHTML = function (model, showAnswers) {
         presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
         presenter.$view = $('<div></div>');
+        presenter.$view.attr("id", model.ID);
         presenter.$view.addClass('printable_addon_Table');
         presenter.$view.css('max-width', model.Width + 'px');
         presenter.$wrapper = $('<div></div>');
@@ -2207,7 +2208,7 @@ function AddonTable_create() {
             $span.addClass("printable_gap");
             $span.css("border-bottom","1px solid");
             if (showAnswers) {
-                var answer = answers.join(", ");
+                var answer = answers[0];
                 $span.html(answer);
             } else {
                 var longestAnswer = "";

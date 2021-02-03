@@ -89,7 +89,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Submit", "reporting_menu");
 		addDescriptor("Print_Report", "reporting_menu");
 		addDescriptor("Page_Progress_Panel", "reporting_menu");
-		addDescriptor("Gradual_Next_Answer", "reporting_menu");
+		addDescriptor("Gradual_Show_Answer", "reporting_menu");
 
 		// NAVIGATION
 		addDescriptor("External_Link_Button", "navigation_menu");
