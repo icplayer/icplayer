@@ -54,10 +54,6 @@ public class PlayerStateService implements IPlayerStateService {
     @Override
     public void setCheckErrorsMode(boolean value) {
         if (value) {
-            if (!isWorkMode() && !isCheckErrorsMode()) {
-                switchOffModes();
-            }
-
             this.currentMode = Mode.CHECK_ANSWERS;
         } else if (this.isCheckErrorsMode()) {
             this.currentMode = Mode.WORK;
@@ -67,10 +63,6 @@ public class PlayerStateService implements IPlayerStateService {
     @Override
     public void setShowAnswersMode(boolean value) {
         if (value) {
-            JavaScriptUtils.log(!isWorkMode() && !isShowAnswersMode());
-            if (!isWorkMode() && !isShowAnswersMode()) {
-                switchOffModes();
-            }
             this.currentMode = Mode.SHOW_ANSWERS;
         } else if (this.isShowAnswersMode()) {
             this.currentMode = Mode.WORK;
