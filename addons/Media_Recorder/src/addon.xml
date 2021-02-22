@@ -10,5 +10,6 @@
         <property name="isShowedTimer" nameLabel="Media_Recorder_property_is_showed_timer" type="boolean"/>
         <property name="isShowedDefaultRecordingButton" nameLabel="Media_Recorder_property_is_showed_default_recording_button" type="boolean"/>
         <property name="isResetRemovesRecording" nameLabel="Media_Recorder_property_is_reset_removes_recording" type="boolean" />
+        <property name="enableInErrorCheckingMode" nameLabel="Media_Recorder_property_enable_in_error_checking_mode" type="boolean" />
     </model>
 </addon>

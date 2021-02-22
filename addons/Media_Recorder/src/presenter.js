@@ -289,7 +289,9 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.setShowErrorsMode = function setShowErrorsMode() {
-        presenter.mediaRecorder.deactivate();
+        if (!presenter.mediaRecorder.model.enableInErrorCheckingMode) {
+            presenter.mediaRecorder.deactivate();
+        }
     };
 
     presenter.setWorkMode = function setWorkMode() {
@@ -388,6 +390,8 @@ var _AudioPlayer = __webpack_require__(37);
 
 var _DefaultRecordingPlayButton = __webpack_require__(40);
 
+var _upgradeModel = __webpack_require__(41);
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var MediaRecorder = exports.MediaRecorder = function () {
@@ -398,7 +402,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
     _createClass(MediaRecorder, [{
         key: "run",
         value: function run(view, model) {
-            var validatedModel = (0, _validateModel.validateModel)(model);
+            var upgradedModel = (0, _upgradeModel.upgradeModel)(model);
+            var validatedModel = (0, _validateModel.validateModel)(upgradedModel);
 
             if (window.DevicesUtils.isInternetExplorer()) {
                 this._showBrowserError(view);
@@ -407,7 +412,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
     }, {
         key: "createPreview",
         value: function createPreview(view, model) {
-            var validatedModel = (0, _validateModel.validateModel)(model);
+            var upgradedModel = (0, _upgradeModel.upgradeModel)(model);
+            var validatedModel = (0, _validateModel.validateModel)(upgradedModel);
 
             if (!validatedModel.isValid) this._showError(view, validatedModel);else this._updatePreview(view, validatedModel);
         }
@@ -885,7 +891,7 @@ function validateModel(model) {
     }), ModelValidators.String("stopRecordingSound", {
         trim: true,
         default: ""
-    }), ModelValidators.Boolean("isResetRemovesRecording"), ModelValidators.Boolean("isShowedTimer"), ModelValidators.Boolean("isShowedDefaultRecordingButton")]);
+    }), ModelValidators.Boolean("isResetRemovesRecording"), ModelValidators.Boolean("isShowedTimer"), ModelValidators.Boolean("isShowedDefaultRecordingButton"), ModelValidators.Boolean("enableInErrorCheckingMode")]);
 }
 
 /***/ }),
@@ -2780,6 +2786,33 @@ var DefaultRecordingPlayButton = exports.DefaultRecordingPlayButton = function (
 
     return DefaultRecordingPlayButton;
 }(_Button2.Button);
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.upgradeModel = upgradeModel;
+
+var _DefaultValues = __webpack_require__(15);
+
+function upgradeModel(model) {
+    var upgradedModel = addEnableInErrorCheckigMode(model);
+        return upgradedModel;
+}
+
+function addEnableInErrorCheckigMode(model) {
+    var upgradedModel = {};
+    $.extend(true, upgradedModel, model);
+
+    if (!upgradedModel["enableInErrorCheckingMode"]) {
+        upgradedModel["enableInErrorCheckingMode"] = "False";
+    }
+
+    return upgradedModel;
+}
 
 /***/ })
 /******/ ]);
