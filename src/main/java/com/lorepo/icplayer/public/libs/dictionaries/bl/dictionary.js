@@ -927,6 +927,7 @@ var ice_dictionary_bl = {
 	"MultiAudio_property_enable_loop": "Включи безкрайно повторение",
 	"MultiAudio_property_interface": "Интерфейс",
 	"MultiAudio_property_narration": "Разказване",
+	"MultiAudio_property_text": "Text",
 	"Multiple_Audio_Controls_Binder_info": "Специален плъгин, който контролира няколко аудио плейбека с помощта на бутон 'Двойно състояние'. За да го използвате, трябва да предоставите информация като например от кой бутон за двойно състояние се управлява всеки Аудио плъгин.",
 	"Multiple_Audio_Controls_Binder_name": "Управление на множество аудиофайлове",
 	"Multiple_Audio_Controls_Binder_property_connections": "Връзки",

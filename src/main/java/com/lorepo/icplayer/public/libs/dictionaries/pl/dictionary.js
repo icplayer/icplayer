@@ -1045,6 +1045,7 @@ var ice_dictionary_pl = {
 	"MultiAudio_property_enable_loop": "Włącz pętlę",
 	"MultiAudio_property_interface": "Interfejs",
 	"MultiAudio_property_narration": "Narracja",
+	"MultiAudio_property_text": "Text",
 	"Multiple_Audio_Controls_Binder_info" : "Addon pozwalający kontrolować odtwarzanie wielu plików audio w oparciu o ich interakcje z przyciskami dwustanowymi. Aby Addon działał poprawnie, należy dokładnie określić, który przycisk dwustanowy kontroluje dany plik dźwiękowy.",
 	"Multiple_Audio_Controls_Binder_name" : "Łącznik wielokrotnego sterowania audio",
 	"Multiple_Audio_Controls_Binder_property_connections": "Połączenia",

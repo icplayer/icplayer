@@ -1046,6 +1046,7 @@ var ice_dictionary_fr = {
     "MultiAudio_property_enable_loop": "Autoriser la boucle",
     "MultiAudio_property_interface": "Interface",
     "MultiAudio_property_narration": "Narration",
+    "MultiAudio_property_text": "Text",
     "Multiple_Audio_Controls_Binder_info": "Un module externe spécial qui contrôle des lecteurs audio multiples qui interagissent avec les modules externes Bouton à deux états. Pour que l'activité fonctionne, il suffit de fournir les informations indiquant quel module Audio est contrôlé par quel Bouton à deux états.",
     "Multiple_Audio_Controls_Binder_name": "Contrôle d'Audio multiple",
     "Multiple_Audio_Controls_Binder_property_connections": "Connexions",

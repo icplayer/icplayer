@@ -1046,6 +1046,7 @@ var ice_dictionary_mx = {
 	"MultiAudio_property_enable_loop": "Habilitar el bucle",
 	"MultiAudio_property_interface": "¿Que mostrar?",
 	"MultiAudio_property_narration": "Narración",
+	"MultiAudio_property_text": "Text",
 	"Multiple_Audio_Controls_Binder_info": "Un addon especial que relaciona múltiples addones de audio con los botones de estado doble. Para que funcione, solamente hay que proporcionar la información cual botón de estado doble controla a cual addon de audio.",
 	"Multiple_Audio_Controls_Binder_name": "Conector de audios con botones",
 	"Multiple_Audio_Controls_Binder_property_connections": "Conexiones",

@@ -17,6 +17,16 @@
     margin: 2px;
 }
 
+.multiaudio-item-wrapper.multiaudio-item-has-text {
+    min-width: 110px;
+    min-height: 45px;
+    width: fit-content;
+    height: auto;
+    display:flex;
+    flex-wrap: wrap;
+    padding: 3px;
+}
+
 .multiaudio-selected {
     border: 1px solid orange;
     z-index: 100;
@@ -31,11 +41,24 @@
     cursor: pointer;
 }
 
+.multiaudio-item-wrapper.multiaudio-item-has-text  .multiaudio-item-grab-area {
+    background-color: white;
+    min-width: 32px;
+    min-height: 44px;
+    width: auto;
+    height: 100%;
+    margin: 3px;
+}
+
 .multiaudio-item-wrapper .multiaudio-item-button {
     width: 71px;
     height: 44px;
     display:inline-block;
     background: white;
+}
+
+.multiaudio-item-wrapper.multiaudio-item-has-text .multiaudio-item-button {
+    margin: 3px;
 }
 
 .multiaudio-item-wrapper .multiaudio-item-icon {

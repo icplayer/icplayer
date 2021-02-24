@@ -932,6 +932,7 @@ var ice_dictionary_en = {
 	"MultiAudio_property_enable_loop": "Enable loop",
 	"MultiAudio_property_interface": "Interface",
 	"MultiAudio_property_narration": "Narration",
+	"MultiAudio_property_text": "Text",
 	"Multiple_Audio_Controls_Binder_info": "A special kind of addon that controls multiple audio playbacks based on their interactions with Double State Button addons. To make it work, it is enough to provide the information stating which Audio addon is controlled by which Double State Buttons.",
 	"Multiple_Audio_Controls_Binder_name": "Multiple Audio Controls Binder",
 	"Multiple_Audio_Controls_Binder_property_connections": "Connections",

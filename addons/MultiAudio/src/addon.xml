@@ -7,6 +7,7 @@
 			<property name="Mp3" nameLabel="MultiAudio_property_mp3" type="audio" />
 			<property name="Ogg" nameLabel="MultiAudio_property_ogg" type="audio" />
 			<property name="Enable loop" nameLabel="MultiAudio_property_enable_loop" type="boolean" />
+			<property name="Text" nameLabel="MultiAudio_property_text" type="html" isLocalized="true" />
 		</property>
 		<property name="Interface" nameLabel="MultiAudio_property_interface" type="{None, Default controls, Display time, Draggable items}"/>
 		<property name="Narration" nameLabel="MultiAudio_property_narration" type="narration" isLocalized="true"/>
