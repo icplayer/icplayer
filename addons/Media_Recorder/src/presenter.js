@@ -171,9 +171,14 @@ var RecordButton = exports.RecordButton = function (_Button) {
             this.onResetCallback();
         }
     }, {
+        key: "setUnclickView",
+        value: function setUnclickView() {
+            this.$view.removeClass("selected");
+        }
+    }, {
         key: "_eventHandler",
         value: function _eventHandler() {
-            if (this.state.isNew() || this.state.isLoaded() || this.state.isLoadedDefaultRecording()) this._startRecording();else if (this.state.isRecording()) this._stopRecording();
+            if (this.state.isNew() || this.state.isLoaded() || this.state.isLoadedDefaultRecording() || this.state.isBlockedSafari()) this._startRecording();else if (this.state.isRecording()) this._stopRecording();
         }
     }, {
         key: "_startRecording",
@@ -265,7 +270,7 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.stopPlaying = function stopPlaying() {
-        presenter.mediaRecorder.stopPlaying;
+        presenter.mediaRecorder.stopPlaying();
     };
 
     presenter.getErrorCount = function getErrorCount() {
@@ -289,7 +294,9 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.setShowErrorsMode = function setShowErrorsMode() {
-        presenter.mediaRecorder.deactivate();
+        if (!presenter.mediaRecorder.model.enableInErrorCheckingMode) {
+            presenter.mediaRecorder.deactivate();
+        }
     };
 
     presenter.setWorkMode = function setWorkMode() {
@@ -298,6 +305,14 @@ function AddonMedia_Recorder_create() {
 
     presenter.reset = function reset() {
         presenter.mediaRecorder.reset();
+    };
+
+    presenter.enable = function enable() {
+        presenter.mediaRecorder.enable();
+    };
+
+    presenter.disable = function disable() {
+        presenter.mediaRecorder.disable();
     };
 
     presenter.executeCommand = function executeCommand(name, params) {
@@ -310,14 +325,16 @@ function AddonMedia_Recorder_create() {
             'setWorkMode': presenter.setWorkMode,
             'reset': presenter.reset,
             'show': presenter.show,
-            'hide': presenter.hide
+            'hide': presenter.hide,
+            'enable': presenter.enable,
+            'disable': presenter.disable
         };
 
         return Commands.dispatch(commands, name, params, presenter);
     };
 
     presenter.destroy = function destroy(event) {
-        if (event.target == presenter.view) {
+        if (event.target === presenter.view) {
             event.target.removeEventListener('DOMNodeRemoved', presenter.destroy);
             presenter.mediaRecorder.destroy();
             event.target = null;
@@ -388,6 +405,8 @@ var _AudioPlayer = __webpack_require__(37);
 
 var _DefaultRecordingPlayButton = __webpack_require__(40);
 
+var _SafariRecorderState = __webpack_require__(41);
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var MediaRecorder = exports.MediaRecorder = function () {
@@ -398,16 +417,20 @@ var MediaRecorder = exports.MediaRecorder = function () {
     _createClass(MediaRecorder, [{
         key: "run",
         value: function run(view, model) {
-            var validatedModel = (0, _validateModel.validateModel)(model);
+            var upgradedModel = this._upgradeModel(model);
+            var validatedModel = (0, _validateModel.validateModel)(upgradedModel);
 
-            if (window.DevicesUtils.isInternetExplorer()) {
+            if (this._isBrowserNotSupported()) {
                 this._showBrowserError(view);
             } else if (validatedModel.isValid) this._runAddon(view, validatedModel.value);else this._showError(view, validatedModel);
+
+            this._notifyWebView();
         }
     }, {
         key: "createPreview",
         value: function createPreview(view, model) {
-            var validatedModel = (0, _validateModel.validateModel)(model);
+            var upgradedModel = this._upgradeModel(model);
+            var validatedModel = (0, _validateModel.validateModel)(upgradedModel);
 
             if (!validatedModel.isValid) this._showError(view, validatedModel);else this._updatePreview(view, validatedModel);
         }
@@ -435,6 +458,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
             });
             this.addonState.getVisibility().then(function (isVisible) {
                 _this.setVisibility(isVisible);
+            });
+            this.addonState.getEnabled().then(function (isEnable) {
+                _this._setEnableState(isEnable);
             });
         }
     }, {
@@ -476,6 +502,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.mediaAnalyserService.destroy();
             this.addonState.destroy();
             this.mediaState.destroy();
+            this.safariRecorderState.destroy();
             this.activationState.destroy();
 
             this.viewHandlers = null;
@@ -502,6 +529,16 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.model = null;
         }
     }, {
+        key: "enable",
+        value: function enable() {
+            this._setEnableState(true);
+        }
+    }, {
+        key: "disable",
+        value: function disable() {
+            this._setEnableState(false);
+        }
+    }, {
         key: "activate",
         value: function activate() {
             if (this.activationState.isInactive()) {
@@ -524,15 +561,18 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.deactivate();
             this.activate();
             this.setVisibility(this.model["Is Visible"]);
-            if (this.model.isResetRemovesRecording) {
-                this.player.reset();
-                this.addonState.reset();
-                this.timer.reset();
-                if (this.defaultRecordingPlayer.hasRecording) {
-                    this.mediaState.setLoadedDefaultRecording();
-                    this.timer.setDuration(this.defaultRecordingPlayer.duration);
-                } else this.mediaState.setNew();
-            }
+            this._setEnableState(!this.model.isDisabled);
+        }
+    }, {
+        key: "resetRecording",
+        value: function resetRecording() {
+            this.player.reset();
+            this.addonState.reset();
+            this.timer.reset();
+            if (this.defaultRecordingPlayer.hasRecording) {
+                this.mediaState.setLoadedDefaultRecording();
+                this.timer.setDuration(this.defaultRecordingPlayer.duration);
+            } else this.mediaState.setNew();
         }
     }, {
         key: "show",
@@ -558,7 +598,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this._loadLogic();
             this._loadDefaultRecording(this.model);
             this._activateButtons();
+            this._loadWebViewMessageListener();
             this.setVisibility(model["Is Visible"]);
+            this._setEnableState(!model.isDisabled);
         }
     }, {
         key: "_loadAddon",
@@ -581,6 +623,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.mediaState = new _MediaState.MediaState();
             this.activationState = new _ActivationState.ActivationState();
             this.addonState = new _AddonState.AddonState();
+            this.safariRecorderState = new _SafariRecorderState.SafariRecorderState();
         }
     }, {
         key: "_loadViewHandlers",
@@ -657,33 +700,40 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.recordButton.onStartRecording = function () {
                 _this2.mediaState.setBlocked();
-                _this2.resourcesProvider.getMediaResources().then(function (stream) {
-                    _this2.mediaState.setRecording();
-                    _this2.player.startStreaming(stream);
-                    _this2.recorder.startRecording(stream);
-                    _this2.timer.reset();
-                    _this2.timer.startDecrementalCountdown(_this2.recordingTimeLimiter.maxTime);
-                    _this2.recordingTimeLimiter.startCountdown();
-                    _this2.mediaAnalyserService.createAnalyserFromStream(stream).then(function (analyser) {
-                        return _this2.soundIntensity.startAnalyzing(analyser);
+                if (_this2.safariRecorderState.isAvailableResources()) {
+                    var stream = _this2.resourcesProvider.getStream();
+                    _this2._handleRecording(stream);
+                } else if (_this2.platform === 'mlibro') {
+                    _this2._handleMlibroStartRecording();
+                } else {
+                    _this2.resourcesProvider.getMediaResources().then(function (stream) {
+                        var isSafari = window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
+                        if (isSafari && _this2.safariRecorderState.isUnavailableResources()) {
+                            _this2._handleSafariRecordingInitialization();
+                            return;
+                        }
+                        _this2._handleRecording(stream);
                     });
-                });
+                }
             };
 
             this.recordButton.onStopRecording = function () {
-                _this2.mediaState.setLoading();
-                _this2.timer.stopCountdown();
-                _this2.recordingTimeLimiter.stopCountdown();
-                _this2.soundIntensity.stopAnalyzing();
-                _this2.mediaAnalyserService.closeAnalyzing();
-                _this2.player.stopStreaming();
-                _this2.recorder.stopRecording().then(function (blob) {
-                    _this2.addonState.setRecordingBlob(blob);
-                    var recording = URL.createObjectURL(blob);
-                    _this2.player.reset();
-                    _this2.player.setRecording(recording);
-                });
-                _this2.resourcesProvider.destroy();
+                if (_this2.platform === 'mlibro') _this2._handleMlibroStopRecording();else {
+                    _this2.mediaState.setLoading();
+                    _this2.timer.stopCountdown();
+                    _this2.recordingTimeLimiter.stopCountdown();
+                    _this2.soundIntensity.stopAnalyzing();
+                    _this2.mediaAnalyserService.closeAnalyzing();
+                    _this2.player.stopStreaming();
+                    _this2.recorder.stopRecording().then(function (blob) {
+                        _this2.addonState.setRecordingBlob(blob);
+                        var recording = URL.createObjectURL(blob);
+                        _this2.player.reset();
+                        _this2.player.setRecording(recording);
+                    });
+                    _this2.resourcesProvider.destroy();
+                    _this2.safariRecorderState.setUnavailableResources();
+                }
             };
 
             this.recordButton.onReset = function () {
@@ -777,6 +827,21 @@ var MediaRecorder = exports.MediaRecorder = function () {
             };
         }
     }, {
+        key: "_handleRecording",
+        value: function _handleRecording(stream) {
+            var _this3 = this;
+
+            this.mediaState.setRecording();
+            this.player.startStreaming(stream);
+            this.recorder.startRecording(stream);
+            this.timer.reset();
+            this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
+            this.recordingTimeLimiter.startCountdown();
+            this.mediaAnalyserService.createAnalyserFromStream(stream).then(function (analyser) {
+                return _this3.soundIntensity.startAnalyzing(analyser);
+            });
+        }
+    }, {
         key: "_loadDefaultRecording",
         value: function _loadDefaultRecording(model) {
             if (_isValid(model.defaultRecording) && model.isShowedDefaultRecordingButton) {
@@ -805,7 +870,10 @@ var MediaRecorder = exports.MediaRecorder = function () {
     }, {
         key: "_stopActions",
         value: function _stopActions() {
-            if (this.mediaState.isRecording()) if (this.model.isResetRemovesRecording) this.recordButton.reset();else this.recordButton.forceClick();
+            if (this.mediaState.isRecording()) if (this.model.isResetRemovesRecording) {
+                this.recordButton.reset();
+                this.resetRecording();
+            } else this.recordButton.forceClick();
             if (this.mediaState.isPlaying()) this.playButton.forceClick();
             if (this.mediaState.isPlayingDefaultRecording()) this.defaultRecordingPlayButton.forceClick();
         }
@@ -834,7 +902,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
         value: function _showBrowserError(view) {
             var $wrapper = $(view).find(".media-recorder-wrapper");
             $wrapper.addClass("media-recorder-wrapper-browser-not-supported");
-            $wrapper.text(_Errors.Errors["not_supported_browser"]);
+            $wrapper.text(_Errors.Errors["not_supported_browser"] + window.DevicesUtils.getBrowserVersion());
         }
     }, {
         key: "_updatePreview",
@@ -842,16 +910,148 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var valid_model = validatedModel.value;
             var timerViewHandler = $(view).find(".media-recorder-timer");
             var defaultButtonViewHandler = $(view).find(".media-recorder-default-recording-play-button");
+            var $wrapperViewHandler = $(view).find(".media-recorder-wrapper");
 
             if (valid_model.isShowedTimer == false) timerViewHandler.hide();else timerViewHandler.show();
 
             if (valid_model.isShowedDefaultRecordingButton == false) defaultButtonViewHandler.hide();else defaultButtonViewHandler.show();
+
+            if (valid_model.isDisabled) {
+                this.addonViewService = new _AddonViewService.AddonViewService($wrapperViewHandler);
+                this.addonViewService.deactivate();
+            }
         }
     }, {
         key: "_hideSelectedElements",
         value: function _hideSelectedElements() {
             if (this.model.isShowedTimer == false) this.viewHandlers.$timerView.hide();
             if (this.model.isShowedDefaultRecordingButton == false) this.viewHandlers.$defaultRecordingPlayButtonView.hide();
+        }
+    }, {
+        key: "_isBrowserNotSupported",
+        value: function _isBrowserNotSupported() {
+            var browser = window.DevicesUtils.getBrowserVersion().split(" ")[0].toLowerCase();
+            var browserVersion = window.DevicesUtils.getBrowserVersion().split(" ")[1];
+
+            if (browser.indexOf("safari") > -1 && browserVersion < 11) return true;
+
+            if (browser.indexOf("chrome") > -1 && browserVersion < 53) return true;
+
+            if (window.DevicesUtils.isInternetExplorer()) return true;
+
+            return false;
+        }
+    }, {
+        key: "_handleSafariRecordingInitialization",
+        value: function _handleSafariRecordingInitialization() {
+            this.mediaState.setBlockedSafari();
+            this.safariRecorderState.setAvailableResources();
+            this.recordButton.setUnclickView();
+            alert(_Errors.Errors["safari_select_recording_button_again"]);
+        }
+    }, {
+        key: "_notifyWebView",
+        value: function _notifyWebView() {
+            try {
+                window.external.notify(JSON.stringify({ type: "platform", target: this.model.ID }));
+            } catch (e) {
+                // silent message
+                // can't use a conditional expression
+                // https://social.msdn.microsoft.com/Forums/en-US/1a8b3295-cd4d-4916-9cf6-666de1d3e26c/windowexternalnotify-always-undefined?forum=winappswithcsharp
+            }
+        }
+    }, {
+        key: "_loadWebViewMessageListener",
+        value: function _loadWebViewMessageListener() {
+            var _this4 = this;
+
+            window.addEventListener('message', function (event) {
+                var eventData = JSON.parse(event.data);
+                var isTypePlatform = eventData.type ? eventData.type.toLowerCase() === 'platform' : false;
+                var isValueMlibro = eventData.value ? eventData.value.toLowerCase() === 'mlibro' : false;
+                if (isTypePlatform && isValueMlibro) _this4._handleWebViewBehaviour();
+            }, false);
+        }
+    }, {
+        key: "_handleWebViewBehaviour",
+        value: function _handleWebViewBehaviour() {
+            var _this5 = this;
+
+            if (this.platform === undefined || this.platform === null) {
+                this.platform = 'mlibro';
+                window.addEventListener('message', function (event) {
+                    var eventData = JSON.parse(event.data);
+                    var isTypeRecording = eventData.type ? eventData.type.toLowerCase() === 'recording' : false;
+                    var isTargetMe = eventData.target ? eventData.target === _this5.model.ID : false;
+                    var isStateLoading = _this5.mediaState.isLoading();
+                    if (isTypeRecording && isTargetMe && isStateLoading) {
+                        _this5.addonState.setRecordingBase64(eventData.value);
+                        _this5.player.reset();
+                        _this5.player.setRecording(eventData.value);
+                    } else {
+                        console.log("The recording has not been received");
+                    }
+                }, false);
+            }
+        }
+    }, {
+        key: "_handleMlibroStartRecording",
+        value: function _handleMlibroStartRecording() {
+            this.mediaState.setRecording();
+            this.timer.reset();
+            this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
+            this.recordingTimeLimiter.startCountdown();
+            window.external.notify(JSON.stringify({ type: "mediaRecord", target: this.model.ID }));
+        }
+    }, {
+        key: "_handleMlibroStopRecording",
+        value: function _handleMlibroStopRecording() {
+            this.mediaState.setLoading();
+            this.timer.stopCountdown();
+            this.recordingTimeLimiter.stopCountdown();
+            window.external.notify(JSON.stringify({ type: "mediaStop", target: this.model.ID }));
+        }
+    }, {
+        key: "_setEnableState",
+        value: function _setEnableState(isEnable) {
+            if (isEnable) {
+                this.addonState.setEnabled(true);
+                this.activate();
+            } else {
+                this.addonState.setEnabled(false);
+                this.deactivate();
+            }
+        }
+    }, {
+        key: "_upgradeModel",
+        value: function _upgradeModel(model) {
+            var upgradedModel = this._upgradeIsDisabled(model);
+            upgradedModel = this._upgradeEnableInErrorCheckigMode(upgradedModel);
+            return upgradedModel;
+        }
+    }, {
+        key: "_upgradeIsDisabled",
+        value: function _upgradeIsDisabled(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["isDisabled"]) {
+                upgradedModel["isDisabled"] = "False";
+            }
+
+            return upgradedModel;
+        }
+    }, {
+        key: "_upgradeEnableInErrorCheckigMode",
+        value: function _upgradeEnableInErrorCheckigMode(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["enableInErrorCheckingMode"]) {
+                upgradedModel["enableInErrorCheckingMode"] = "False";
+            }
+
+            return upgradedModel;
         }
     }]);
 
@@ -885,7 +1085,7 @@ function validateModel(model) {
     }), ModelValidators.String("stopRecordingSound", {
         trim: true,
         default: ""
-    }), ModelValidators.Boolean("isResetRemovesRecording"), ModelValidators.Boolean("isShowedTimer"), ModelValidators.Boolean("isShowedDefaultRecordingButton")]);
+    }), ModelValidators.Boolean("isResetRemovesRecording"), ModelValidators.Boolean("isShowedTimer"), ModelValidators.Boolean("isShowedDefaultRecordingButton"), ModelValidators.Boolean("enableInErrorCheckingMode"), ModelValidators.Boolean("isDisabled")]);
 }
 
 /***/ }),
@@ -979,7 +1179,8 @@ var MediaState = exports.MediaState = function () {
             LOADED: 4,
             PLAYING: 5,
             PLAYING_DEFAULT_RECORDING: 6,
-            LOADED_DEFAULT_RECORDING: 7
+            LOADED_DEFAULT_RECORDING: 7,
+            BLOCKED_SAFARI: 8
         };
 
         this._value = this.values.NEW;
@@ -1019,6 +1220,11 @@ var MediaState = exports.MediaState = function () {
         key: "isLoadedDefaultRecording",
         value: function isLoadedDefaultRecording() {
             return this._value === this.values.LOADED_DEFAULT_RECORDING;
+        }
+    }, {
+        key: "isBlockedSafari",
+        value: function isBlockedSafari() {
+            return this._value === this.values.BLOCKED_SAFARI;
         }
     }, {
         key: "isBlocked",
@@ -1066,6 +1272,11 @@ var MediaState = exports.MediaState = function () {
             this._value = this.values.BLOCKED;
         }
     }, {
+        key: "setBlockedSafari",
+        value: function setBlockedSafari() {
+            this._value = this.values.BLOCKED_SAFARI;
+        }
+    }, {
         key: "destroy",
         value: function destroy() {
             this._value = null;
@@ -1088,7 +1299,8 @@ var Errors = exports.Errors = {
     "maxTime_INT03": "Recording can not take more than 60 seconds",
     "maxTime_INT04": "Time in seconds cannot be negative value",
     "type_EV01": "Selected type is not supported",
-    "not_supported_browser": "Your browser is not supported."
+    "not_supported_browser": "Your browser is not supported: ",
+    "safari_select_recording_button_again": "Please click start recording button again. First time we tried to access your microphone. Now we will record it."
 };
 
 /***/ }),
@@ -1324,6 +1536,7 @@ var AddonState = exports.AddonState = function () {
 
         this.recording = null;
         this.visibility = null;
+        this.enabled = null;
     }
 
     _createClass(AddonState, [{
@@ -1334,6 +1547,11 @@ var AddonState = exports.AddonState = function () {
             _BlobService.BlobService.serialize(blob).then(function (recording) {
                 return _this.recording = recording;
             });
+        }
+    }, {
+        key: "setRecordingBase64",
+        value: function setRecordingBase64(recording) {
+            this.recording = recording;
         }
     }, {
         key: "getRecordingBlob",
@@ -1358,16 +1576,31 @@ var AddonState = exports.AddonState = function () {
             });
         }
     }, {
+        key: "setEnabled",
+        value: function setEnabled(isEnable) {
+            this.enabled = isEnable ? true : false;
+        }
+    }, {
+        key: "getEnabled",
+        value: function getEnabled() {
+            var self = this;
+            return new Promise(function (resolve) {
+                if (self.enabled != null) resolve(self.enabled);
+            });
+        }
+    }, {
         key: "reset",
         value: function reset() {
             this.recording = null;
             this.visibility = null;
+            this.enabled = null;
         }
     }, {
         key: "destroy",
         value: function destroy() {
             this.recording = null;
             this.visibility = null;
+            this.enabled = null;
         }
     }]);
 
@@ -1537,7 +1770,7 @@ var SoundIntensity = exports.SoundIntensity = function () {
     }, {
         key: "stopAnalyzing",
         value: function stopAnalyzing() {
-            clearInterval(this.interval);
+            if (this.interval) clearInterval(this.interval);
             this._clearIntensity();
         }
     }, {
@@ -1657,12 +1890,17 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
             var _this = this;
 
             return new Promise(function (resolve) {
-                _this.mediaStreamSource = _this.audioContext.createMediaStreamSource(stream);
+                // on Chrome when user hasn't interacted with the page before AudioContext was created it will be created in suspended state
+                // this will happen if MediaRecorder is on the first page user visits (constructor call will happen before user interaction)
+                // resume is then needed to unblock AudioContext (see https://goo.gl/7K7WLu)
+                _this.audioContext.resume().then(function () {
+                    _this.mediaStreamSource = _this.audioContext.createMediaStreamSource(stream);
 
-                var analyser = _AnalyserProvider.AnalyserProvider.create(_this.audioContext);
-                _this.mediaStreamSource.connect(analyser);
+                    var analyser = _AnalyserProvider.AnalyserProvider.create(_this.audioContext);
+                    _this.mediaStreamSource.connect(analyser);
 
-                resolve(analyser);
+                    resolve(analyser);
+                });
             });
         }
     }, {
@@ -1720,19 +1958,6 @@ var AnalyserProvider = exports.AnalyserProvider = function () {
     _createClass(AnalyserProvider, null, [{
         key: "create",
         value: function create(audioContext) {
-            if (DevicesUtils.isFirefox()) return this._createForFirefox(audioContext);else return this._createForOther(audioContext);
-        }
-    }, {
-        key: "_createForFirefox",
-        value: function _createForFirefox(audioContext) {
-            var analyser = this._createAnalyser(audioContext);
-            analyser.connect(audioContext.destination);
-
-            return analyser;
-        }
-    }, {
-        key: "_createForOther",
-        value: function _createForOther(audioContext) {
             return this._createAnalyser(audioContext);
         }
     }, {
@@ -2128,6 +2353,11 @@ var ResourcesProvider = exports.ResourcesProvider = function () {
             });
         }
     }, {
+        key: "getStream",
+        value: function getStream() {
+            return this.stream;
+        }
+    }, {
         key: "destroy",
         value: function destroy() {
             if (this.stream) {
@@ -2176,13 +2406,24 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
     _createClass(AudioRecorder, [{
         key: "_getOptions",
         value: function _getOptions() {
-            return {
+            var isEdge = DevicesUtils.isEdge();
+            var isSafari = DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1;
+
+            var options = {
                 type: 'audio',
-                numberOfAudioChannels: DevicesUtils.isEdge() ? 1 : 2,
+                numberOfAudioChannels: isEdge ? 1 : 2,
                 checkForInactiveTracks: true,
                 bufferSize: 16384,
                 disableLogs: true
             };
+
+            if (isSafari) {
+                options.recorderType = StereoAudioRecorder;
+                options.bufferSize = 4096;
+                options.sampleRate = 44100;
+            }
+
+            return options;
         }
     }]);
 
@@ -2235,14 +2476,12 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
     }, {
         key: "stopRecording",
         value: function stopRecording() {
-            var _this2 = this;
-
+            var self = this;
             var promise = new Promise(function (resolve) {
-                return _this2.recorder.stopRecording(function () {
-                    return resolve(_this2.recorder.getBlob());
+                return self.recorder.stopRecording(function () {
+                    return resolve(self.recorder.getBlob());
                 });
             });
-            var self = this;
             promise.then(function () {
                 return self._onStopRecordingCallback(self);
             });
@@ -2479,7 +2718,12 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
     }, {
         key: "stopStreaming",
         value: function stopStreaming() {
-            if (!this.mediaNode.paused) this.stopNextStopEvent = true;
+            // for some reason Edge doesn't send pause event in stopPlaying
+            // and setting stopNextStopEvent to true will cause it to not send stop event after finishing playing recorded sound
+            if (!this.mediaNode.paused && !DevicesUtils.isEdge()) {
+                this.stopNextStopEvent = true;
+            }
+
             this.stopPlaying();
             this._enableEventsHandling();
         }
@@ -2521,11 +2765,9 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
         value: function _enableEventsHandling() {
             var _this5 = this;
 
+            var self = this;
             this.mediaNode.onloadstart = function () {
                 return _this5.onStartLoadingCallback();
-            };
-            this.mediaNode.oncanplay = function () {
-                return _this5.onEndLoadingCallback();
             };
             this.mediaNode.onended = function () {
                 return _this5.onEndPlayingCallback();
@@ -2535,6 +2777,12 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             };
             this.mediaNode.onpause = function () {
                 return _this5._onPausedCallback();
+            };
+
+            if (this._isMobileSafari()) this.mediaNode.onloadedmetadata = function () {
+                self.onEndLoadingCallback();
+            };else this.mediaNode.oncanplay = function () {
+                return _this5.onEndLoadingCallback();
             };
         }
     }, {
@@ -2549,6 +2797,7 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             this.mediaNode.onpause = function () {
                 return null;
             };
+            this.mediaNode.onloadedmetadata = function () {};
         }
     }, {
         key: "_getDuration",
@@ -2570,6 +2819,11 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
                 playerMock.currentTime = 24 * 60 * 60; // fake big time
                 playerMock.volume = 0;
             });
+        }
+    }, {
+        key: "_isMobileSafari",
+        value: function _isMobileSafari() {
+            return window.DevicesUtils.getBrowserVersion().toLowerCase().indexOf("safari") > -1 && window.MobileUtils.isSafariMobile(navigator.userAgent);
         }
     }, {
         key: "_isNotOnlineResources",
@@ -2780,6 +3034,61 @@ var DefaultRecordingPlayButton = exports.DefaultRecordingPlayButton = function (
 
     return DefaultRecordingPlayButton;
 }(_Button2.Button);
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var SafariRecorderState = exports.SafariRecorderState = function () {
+    function SafariRecorderState() {
+        _classCallCheck(this, SafariRecorderState);
+
+        this.values = {
+            UNAVAILABLE_RESOURCES: 0,
+            AVAILABLE_RESOURCES: 1
+        };
+
+        this._value = this.values.UNAVAILABLE_RESOURCES;
+    }
+
+    _createClass(SafariRecorderState, [{
+        key: "isUnavailableResources",
+        value: function isUnavailableResources() {
+            return this._value === this.values.UNAVAILABLE_RESOURCES;
+        }
+    }, {
+        key: "isAvailableResources",
+        value: function isAvailableResources() {
+            return this._value === this.values.AVAILABLE_RESOURCES;
+        }
+    }, {
+        key: "setUnavailableResources",
+        value: function setUnavailableResources() {
+            this._value = this.values.UNAVAILABLE_RESOURCES;
+        }
+    }, {
+        key: "setAvailableResources",
+        value: function setAvailableResources() {
+            this._value = this.values.AVAILABLE_RESOURCES;
+        }
+    }, {
+        key: "destroy",
+        value: function destroy() {
+            this._value = null;
+            this.values = null;
+        }
+    }]);
+
+    return SafariRecorderState;
+}();
 
 /***/ })
 /******/ ]);
