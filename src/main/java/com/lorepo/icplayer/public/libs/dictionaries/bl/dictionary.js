@@ -2017,6 +2017,7 @@ var ice_dictionary_bl = {
     "Media_Recorder_property_is_reset_removes_recording": "Натискането на бутона за изчистване изтрива записа",
     "Media_Recorder_property_is_showed_default_recording_button": "Покажи бутона за пускане на записа по подразбиране",
     "Media_Recorder_property_is_showed_timer": "Покажи таймер",
+    "Media_Recorder_property_enable_in_error_checking_mode": "Enable in error checking mode",
 	"Editor_load_theme_error": "Грешка при зареждане на шаблона (кликнете върху <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">here</a> за повече информация)",
 	"Editor_begin_adding_tts":"Започни да добавяш TTS към презентацията",
 	"Editor_finish_adding_tts":"TTS беше добавен към презентацията",

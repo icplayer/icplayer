@@ -68,7 +68,9 @@ function AddonMedia_Recorder_create() {
     };
 
     presenter.setShowErrorsMode = function setShowErrorsMode() {
-        presenter.mediaRecorder.deactivate();
+        if (!presenter.mediaRecorder.model.enableInErrorCheckingMode) {
+            presenter.mediaRecorder.deactivate();
+        }
     };
 
     presenter.setWorkMode = function setWorkMode() {
