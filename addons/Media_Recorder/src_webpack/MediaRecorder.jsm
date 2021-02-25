@@ -600,6 +600,7 @@ export class MediaRecorder {
 
     _upgradeModel(model) {
         let upgradedModel = this._upgradeIsDisabled(model);
+        upgradedModel = this._upgradeEnableInErrorCheckigMode(upgradedModel);
         return upgradedModel;
     };
 
@@ -609,6 +610,17 @@ export class MediaRecorder {
 
         if (!upgradedModel["isDisabled"]) {
             upgradedModel["isDisabled"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    _upgradeEnableInErrorCheckigMode(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["enableInErrorCheckingMode"]) {
+            upgradedModel["enableInErrorCheckingMode"] = "False";
         }
 
         return upgradedModel;
