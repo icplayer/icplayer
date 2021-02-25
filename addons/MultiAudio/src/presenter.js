@@ -242,7 +242,6 @@ function AddonMultiAudio_create(){
     function createDraggableItem (itemID) {
         if (itemID in presenter.draggableItems) return;
 
-
         var $el = $('<div></div>');
             $el.attr('data-audio-id', itemID);
             $el.attr('data-addon-id', presenter.addonID);
@@ -251,6 +250,15 @@ function AddonMultiAudio_create(){
             var $grab = $('<div></div>');
             $grab.addClass('multiaudio-item-grab-area');
             $el.append($grab);
+
+            var itemText = presenter.getTextFromFileID(itemID);
+            if ($("<span>" + itemText + "</span>").text().length > 0) {
+                var $text = $('<span></span>');
+                $text.addClass('multiaudio-item-text');
+                $text.html(itemText);
+                $grab.append($text);
+                $el.addClass("multiaudio-item-has-text");
+            }
 
             $grab.click(function(){presenter.handleGrabAreaClick(itemID)});
 
@@ -280,6 +288,19 @@ function AddonMultiAudio_create(){
             presenter.globalView.find(".wrapper-addon-audio").append($el);
             presenter.draggableItems[itemID] = $el;
     };
+
+    presenter.getTextFromFileID = function(itemID) {
+        // This method is used by the multiplegap addon while creating the draggable audio widgets
+        var item = null;
+        for (var i = 0; i < presenter.globalModel.Files.length; i++) {
+            var tmpItem = presenter.globalModel.Files[i];
+            if (tmpItem.ID === itemID) {
+                item = tmpItem;
+            }
+        }
+        if (item === null) return null;
+        return item["Text"];
+    }
 
     function removeDraggableItem(itemID) {
         if (!(itemID in presenter.draggableItems)) return;
@@ -411,6 +432,22 @@ function AddonMultiAudio_create(){
 
     };
 
+    function upgradeModel(model) {
+        var upgradedModel = upgradeFileText(model);
+        return upgradedModel;
+    }
+
+    function upgradeFileText(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+        for (var i = 0; i < upgradedModel["Files"].length; i++) {
+            if (upgradedModel["Files"][i]["Text"] === undefined) {
+                upgradedModel["Files"][i]["Text"] = "";
+            }
+        }
+        return upgradedModel;
+    }
+
     presenter.run = function(view, model){
         this.initialize(view, model, false);
         eventBus = presenter.playerController.getEventBus();
@@ -428,13 +465,14 @@ function AddonMultiAudio_create(){
     };
 
     presenter.initialize = function(view, model, isPreview) {
-        this.globalModel = model;
+        var upgradedModel = upgradeModel(model);
+        this.globalModel = upgradedModel;
         this.globalView = $(view);
-        this.createView(view, model);
+        this.createView(view, upgradedModel);
         if (!isPreview) {
-        	this.loadFiles(this.audio, model);	
+        	this.loadFiles(this.audio, upgradedModel);
         }
-        this.visible = !!(model['Is Visible'] == 'True');
+        this.visible = !!(upgradedModel['Is Visible'] == 'True');
         this.defaultVisibility = this.visible;
 
         presenter.view = view;

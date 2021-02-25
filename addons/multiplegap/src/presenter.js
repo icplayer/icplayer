@@ -816,6 +816,18 @@ function Addonmultiplegap_create(){
         $grab.addClass('multiaudio-item-grab-area');
         $el.append($grab);
 
+        var audioAddon = presenter.playerController.getModule(audioAddonID);
+        if (audioAddon != null) {
+            var itemText = audioAddon.getTextFromFileID(audioItemID);
+            if (itemText !== null && $("<span>"+itemText+"</span>").text().length > 0) {
+                var $text = $('<span></span>');
+                $text.addClass('multiaudio-item-text');
+                $text.html(itemText);
+                $grab.append($text);
+                $el.addClass("multiaudio-item-has-text");
+            }
+        }
+
         var $button = $('<div></div>');
         $button.addClass('multiaudio-item-button');
         $el.append($button);
