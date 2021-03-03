@@ -23,7 +23,8 @@ function AddonCross_Lesson_create(){
     };
 
     function presenterLogic(view, model, preview) {
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
 
         if (presenter.configuration.isError) {
             presenter.createErrorView(view, presenter.configuration.errorCode);
@@ -54,7 +55,8 @@ function AddonCross_Lesson_create(){
             courseID: validatedCourseId.value,
             type: validatedType.value,
             page: model['Page'],
-            image: model['Image']
+            image: model['Image'],
+            openLessonInCurrentTab: ModelValidationUtils.validateBoolean(model.OpenLessonInCurrentTab)
         }
     };
 
@@ -137,7 +139,8 @@ function AddonCross_Lesson_create(){
         if (presenter.playerController) {
             var data = {
                 lessonID: presenter.configuration.lessonID,
-                type: presenter.configuration.type
+                type: presenter.configuration.type,
+                openLessonInCurrentTab: presenter.configuration.openLessonInCurrentTab
             };
             if (presenter.configuration.page) {
                 data.page = presenter.configuration.page;
@@ -182,6 +185,22 @@ function AddonCross_Lesson_create(){
         };
 
         Commands.dispatch(commands, name, [], presenter);
+    };
+
+    presenter.upgradeOpenLessonInCurrentTab = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["OpenLessonInCurrentTab"]) {
+            upgradedModel["OpenLessonInCurrentTab"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeModel = function AddonCross_Lesson_upgradeModel (model) {
+        var upgradedModel = presenter.upgradeOpenLessonInCurrentTab(model);
+        return upgradedModel;
     };
 
     return presenter;

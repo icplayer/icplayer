@@ -2066,6 +2066,7 @@ var ice_dictionary_en = {
 	"Cross_Lesson_property_course_id": "Course id",
 	"Cross_Lesson_property_page": "Page",
 	"Cross_Lesson_property_type": "Type",
+	"Cross_Lesson_property_open_in_current_tab": "Open in current tab",
 	"printable_name_label": "Printable",
 	"printable_block_split_label": "Block splitting in print",
 	"printable_is_section": "is section",
