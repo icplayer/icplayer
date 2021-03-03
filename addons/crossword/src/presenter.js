@@ -576,6 +576,8 @@ function Addoncrossword_create(){
         delete presenter.getErrorCount;
         delete presenter.setShowErrorsMode;
         delete presenter.setWorkMode;
+        delete presenter.show;
+        delete presenter.hide;
         delete presenter.reset;
         delete presenter.getState;
         delete presenter.setState;
@@ -589,9 +591,10 @@ function Addoncrossword_create(){
     presenter.initializeLogic = function(view, model) {
         presenter.$view = $(view);
         presenter.ID = model.ID;
+        presenter.isVisible = model["Is Visible"] == 'True';
 
-        var configuration = presenter.readConfiguration(model);
-        if(configuration.isError) {
+        presenter.configuration = presenter.readConfiguration(model);
+        if(presenter.configuration.isError) {
             presenter.showErrorMessage(configuration.errorMessage, configuration.errorMessageSubstitutions);
             presenter.destroyCommands();
             return;
@@ -745,6 +748,26 @@ function Addoncrossword_create(){
         presenter.setWorkMode();
     };
 
+    presenter.setVisibility = function(isVisible) {
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
+    };
+
+    presenter.show = function() {
+        if(presenter.isShowAnswersActive === true){
+            presenter.hideAnswers();
+        }
+        presenter.setVisibility(true);
+        presenter.isVisible = true;
+    };
+
+    presenter.hide = function() {
+        if(presenter.isShowAnswersActive === true){
+            presenter.hideAnswers();
+        }
+        presenter.setVisibility(false);
+        presenter.isVisible = false;
+    };
+
     presenter.isAttempted = function() {
         var countedConstantLetters = 0;
 
@@ -782,11 +805,19 @@ function Addoncrossword_create(){
     };
 
     presenter.getState = function() {
-        var s = [];
-        var cell;
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
+        var state = {
+            'cells' : getCellsStates(),
+            'isVisible' : presenter.isVisible,
+        };
+        return JSON.stringify(state);
+    };
+
+    function getCellsStates() {
+        var s = [];
+        var cell;
         for(var i = 0; i < presenter.rowCount; i++) {
             for(var j = 0; j < presenter.columnCount; j++) {
                 cell = presenter.$view.find('.cell_' + i + 'x' + j + ' input').attr('value');
@@ -796,21 +827,25 @@ function Addoncrossword_create(){
                 s.push(cell);
             }
         }
-
-        return "[\"" + s.join("\",\"") + "\"]";
-    };
+        return s;
+    }
 
     presenter.setState = function(state) {
         var s = $.parseJSON(state.toString());
-        var counter = 0;
+        setCellsStates(s.cells)
+        presenter.setVisibility(s.isVisible);
+        presenter.isVisible = s.isVisible
+    };
 
+    function setCellsStates(cellsStates) {
+        var counter = 0;
         for(var i = 0; i < presenter.rowCount; i++) {
             for(var j = 0; j < presenter.columnCount; j++) {
-                presenter.$view.find('.cell_' + i + 'x' + j + ' input').attr('value', s[counter]);
+                presenter.$view.find('.cell_' + i + 'x' + j + ' input').attr('value', cellsStates[counter]);
                 counter++;
             }
         }
-    };
+    }
 
     presenter.setPlayerController = function (controller) {
         playerController = controller;
@@ -820,7 +855,9 @@ function Addoncrossword_create(){
         if (presenter.configuration.isErrorMode) return;
 
         var commands = {
-            'isAllOK': presenter.isAllOK
+            'isAllOK': presenter.isAllOK,
+            'show': presenter.show,
+            'hide': presenter.hide
         };
 
         return Commands.dispatch(commands, name, params, presenter);
