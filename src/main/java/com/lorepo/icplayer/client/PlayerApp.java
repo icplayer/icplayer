@@ -760,6 +760,7 @@ public class PlayerApp {
 	public String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi) {
 		PrintableContentParser printableParser = new PrintableContentParser();
 		printableParser.setDPI(dpi);
+		printableParser.setState(loadedState);
 		String result = printableParser.generatePrintableHTML(contentModel, randomizePages, randomizeModules, showAnswers);
 		return result;
 	};
@@ -768,6 +769,7 @@ public class PlayerApp {
 		PrintableContentParser printableParser = new PrintableContentParser();
 		printableParser.setRandomSeed(seed);
 		printableParser.setDPI(dpi);
+		printableParser.setState(loadedState);
 		String result = printableParser.generatePrintableHTML(contentModel, randomizePages, randomizeModules, showAnswers);
 		return result;
 	};
