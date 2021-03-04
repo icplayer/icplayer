@@ -47,7 +47,7 @@ function AddonCross_Lesson_create(){
           ) {
             return {isError: true, errorCode: 'V_01'};
         }
-        var validatedCourseId = presenter.validateId(model['CourseID'], false);
+        var validatedCourseId = presenter.validateId(model['CourseID'], false, validatedType.value);
         if (!validatedCourseId.isValid) {
             return {isError: true, errorCode: 'V_02'};
         }
@@ -62,12 +62,18 @@ function AddonCross_Lesson_create(){
         }
     };
 
-    presenter.validateId = function(id, isRequired) {
+    presenter.validateId = function(id, isRequired, type) {
         var idReg = /^\d*$/;
         var isValid = false;
 
         if (id === "") {
-            isValid = !isRequired
+            if (type != resourceTypes.course) {
+                isValid = !isRequired;
+            } else {
+                return {
+                    isValid: isValid
+                }
+            }
         } else {
             isValid = idReg.test(id.trim());
         }
