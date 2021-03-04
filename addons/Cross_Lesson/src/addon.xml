@@ -7,6 +7,6 @@
 		<property name='LessonID' nameLabel="Cross_Lesson_property_lesson_id" type='string' />
 		<property name='CourseID' nameLabel="Cross_Lesson_property_course_id" type='string' />
 		<property name='Page' nameLabel="Cross_Lesson_property_Page" type='string' />
-		<property name='Type' nameLabel="Cross_Lesson_property_type" type='{lesson, ebook}' />
+		<property name='Type' nameLabel="Cross_Lesson_property_type" type='{lesson, ebook, course}' />
 	</model>
 </addon>
