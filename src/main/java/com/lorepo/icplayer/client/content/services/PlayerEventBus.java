@@ -2,7 +2,6 @@ package com.lorepo.icplayer.client.content.services;
 
 import java.util.Arrays;
 
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.web.bindery.event.shared.Event;
