@@ -16,6 +16,8 @@ import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TextBox;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -155,7 +157,28 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
 			}
-		}));		
+		}));
+
+		if (this.gapInfo.isNumericOnly()) {
+			addValueChangeHandler(new ValueChangeHandler<String>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<String> event) {
+					String expNotationPattern = "-?\\d+([,.]\\d+)?(e[+\\-]?\\d+)?";
+					String newText = event.getValue();
+
+					if (!newText.matches(expNotationPattern)) {
+						RegExp regExp = RegExp.compile(expNotationPattern);
+						MatchResult matcher = regExp.exec(newText);
+
+						if (matcher != null) {
+							setText(matcher.getGroup(0));
+						} else {
+							setText("");
+						}
+					}
+				}
+			});
+		}
 	}
 
 	private boolean shouldSendEvent() {
