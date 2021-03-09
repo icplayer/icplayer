@@ -41,14 +41,28 @@ function AddonGradual_Show_Answer_create() {
         }
 
         // if gradual show answers mode is on, this button must be clickable
-        if (presenter.isDisabled() && !presenter.state.isGradualShowAnswers) return;
-
+        if (
+            presenter.isDisabled() &&
+            (!presenter.state.isGradualShowAnswers ||
+            presenter.configuration.isHideAnswers)
+        )
+            return;
+  
+        var eventData = {
+            'source': presenter.addonID,
+            'value': presenter.configuration.isHideAnswers ? "HideAllAnswers" : "ShowNextAnswer",
+        };
+        presenter.sendEvent(eventData);
         presenter.triggerButtonClickedEvent();
     };
 
+    presenter.sendEvent = function (eventData) {
+        var eventBus = presenter.playerController.getEventBus();
+        eventBus.sendEvent('GradualShowAnswer', eventData);
+    }
+
     presenter.triggerButtonClickedEvent = function () {
         if (presenter.playerController == null) return;
-
         if (presenter.configuration.isHideAnswers) {
             presenter.playerController.getCommands().hideGradualAnswers();
         } else {
@@ -75,6 +89,10 @@ function AddonGradual_Show_Answer_create() {
 
         if (presenter.configuration.isHideAnswers) {
             presenter.viewElements.button.classList.add(classList.HIDE_ANSWERS);
+        }
+
+        if (presenter.configuration.isDisabled) {
+            presenter.disable();
         }
 
         if (!isPreview) {

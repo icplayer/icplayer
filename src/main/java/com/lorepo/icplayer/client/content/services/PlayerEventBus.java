@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.content.services;
 
 import java.util.Arrays;
 
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.web.bindery.event.shared.Event;
@@ -10,6 +11,7 @@ import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.event.dnd.ItemReturnedEvent.Handler;
+import com.lorepo.icplayer.client.module.api.player.IGradualShowAnswersService;
 
 public class PlayerEventBus extends ResettableEventBus {
 	private PlayerServices playerServices;
@@ -81,6 +83,9 @@ public class PlayerEventBus extends ResettableEventBus {
 			} else if (ResetPageEvent.NAME.equals(name)) {
 				playerStateService.switchOffModes();
 			} else if (ShowErrorsEvent.NAME.equals(name)) {
+				if (playerStateService.isGradualShowAnswersMode()) {
+					this.playerServices.getCommands().hideGradualAnswers();
+				}
 				playerStateService.setCheckErrorsMode(true);
 			} else if (GradualShowAnswerEvent.NAME.equals(name)) {
 				playerStateService.setGradualShowAnswersMode(true);
