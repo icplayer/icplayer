@@ -45,7 +45,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		 * When gap is rerendered by MathJax then will lost connection to DOM element (handlers doesn't work). 
 		 * In this case we need to drop old gap, find new one and set listeners to him.
 		 */
-		String value = this.getTextValue();
+		String value = super.getText();
 		boolean isDisabled = this.isDisabled();
 		this.removeHandlers();
 		this.onDetach();
