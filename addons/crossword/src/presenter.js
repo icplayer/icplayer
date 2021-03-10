@@ -13,6 +13,7 @@ function Addoncrossword_create(){
     presenter.maxScore         = null;
     presenter.score            = null;
     presenter.id               = null;
+    presenter.isVisible        = true;
     presenter.blankCellsBorderStyle  = "solid";
     presenter.blankCellsBorderWidth  = 0;
     presenter.blankCellsBorderColor  = "transparent";
@@ -563,7 +564,8 @@ function Addoncrossword_create(){
         presenter.blockWrongAnswers = presenter.isBlockWrongAnswers(model);
 
         return {
-            isError: false
+            isError: false,
+            isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
         };
     };
 
@@ -591,8 +593,6 @@ function Addoncrossword_create(){
     presenter.initializeLogic = function(view, model) {
         presenter.$view = $(view);
         presenter.ID = model.ID;
-        presenter.wasVisible = model["Is Visible"] == 'True';
-        presenter.isVisible = model["Is Visible"] == 'True';
 
         presenter.configuration = presenter.readConfiguration(model);
         if(presenter.configuration.isError) {
@@ -723,15 +723,19 @@ function Addoncrossword_create(){
         presenter.preview = false;
         eventBus = playerController.getEventBus();
         presenter.initializeLogic(view, model);
-        presenter.setVisibility(presenter.isVisible);
-        eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
+        if (!presenter.configuration.isError) {
+            presenter.setVisibility(presenter.configuration.isVisibleByDefault);
+            eventBus.addEventListener('ShowAnswers', this);
+            eventBus.addEventListener('HideAnswers', this);
+       }
     };
 
     presenter.createPreview = function(view, model) {
         presenter.preview = true;
         presenter.initializeLogic(view, model);
-        presenter.setVisibility(true);
+        if (!presenter.configuration.isError) {
+            presenter.setVisibility(true);
+        }
     };
 
     presenter.reset = function() {
@@ -739,8 +743,7 @@ function Addoncrossword_create(){
             presenter.hideAnswers();
         }
         resetCellsStates()
-        presenter.isVisible = presenter.wasVisible;
-        presenter.setVisibility(presenter.wasVisible);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault);
         presenter.setWorkMode();
     };
 
@@ -758,6 +761,7 @@ function Addoncrossword_create(){
     }
 
     presenter.setVisibility = function(isVisible) {
+        presenter.isVisible = isVisible;
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
@@ -766,7 +770,6 @@ function Addoncrossword_create(){
             presenter.hideAnswers();
         }
         presenter.setVisibility(true);
-        presenter.isVisible = true;
     };
 
     presenter.hide = function() {
@@ -774,7 +777,6 @@ function Addoncrossword_create(){
             presenter.hideAnswers();
         }
         presenter.setVisibility(false);
-        presenter.isVisible = false;
     };
 
     presenter.isAttempted = function() {
@@ -819,12 +821,10 @@ function Addoncrossword_create(){
         }
         var cells = getCellsStates();
         var isVisible = presenter.isVisible;
-        var wasVisible = presenter.wasVisible;
 
         return JSON.stringify({
             cells : cells,
-            isVisible : isVisible,
-            wasVisible : wasVisible,
+            isVisible : isVisible
         });
     };
 
@@ -846,9 +846,13 @@ function Addoncrossword_create(){
     presenter.setState = function(state) {
         var parsedState = $.parseJSON(state.toString());
         setCellsStates(parsedState.cells);
-        presenter.wasVisible = parsedState.wasVisible;
-        presenter.isVisible = parsedState.isVisible;
-        presenter.setVisibility(parsedState.isVisible);
+        presenter.isVisibleByDefault = parsedState.isVisibleByDefault;
+        if (typeof(parsedState.isVisible) === "boolean") {
+            presenter.isVisible = parsedState.isVisible;
+        } else {
+            presenter.isVisible = presenter.configuration.isVisibleByDefault;
+        }
+        presenter.setVisibility(presenter.isVisible);
     };
 
     function setCellsStates(cellsStates) {
