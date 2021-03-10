@@ -19,8 +19,7 @@ function AddonEvent_Listener_create() {
         'Done': 'do',
         'AllAttempted': 'aa',
         'NotAllAttempted': 'naa',
-        'LimitedCheck': 'lc',
-        'GradualShowAnswer': 'gsa',
+        'LimitedCheck': 'lc'
     };
 
     presenter.setPlayerController = function(controller) {

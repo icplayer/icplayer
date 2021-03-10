@@ -102,6 +102,9 @@ public class PlayerEventBus extends ResettableEventBus {
 			} else if ("HideAnswers".equals(name)) {
 				playerStateService.setShowAnswersMode(false);
 			} else if ("ShowAnswers".equals(name)) {
+				if (playerStateService.isGradualShowAnswersMode()) {
+					this.playerServices.getCommands().hideGradualAnswers();
+				}
 				playerStateService.setShowAnswersMode(true);
 			}
 		}

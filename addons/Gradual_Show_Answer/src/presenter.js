@@ -58,7 +58,7 @@ function AddonGradual_Show_Answer_create() {
 
     presenter.sendEvent = function (eventData) {
         var eventBus = presenter.playerController.getEventBus();
-        eventBus.sendEvent('GradualShowAnswer', eventData);
+        eventBus.sendEvent('ValueChanged', eventData);
     }
 
     presenter.triggerButtonClickedEvent = function () {
