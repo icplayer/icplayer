@@ -122,13 +122,15 @@ function AddonGradual_Show_Answer_create() {
 
     presenter.getState = function () {
         return JSON.stringify({
-            isVisible: this.state.isVisible
+            isVisible: presenter.configuration.isVisible,
+            isDisabled: presenter.state.isDisabled
         })
     }
 
     presenter.setState = function (state) {
         var parsedState = JSON.parse(state);
         presenter.state.isVisible = parsedState.isVisible;
+        presenter.state.isDisabled = parsedState.isDisabled;
 
         if (presenter.state.isVisible) {
             presenter.show();
@@ -139,10 +141,12 @@ function AddonGradual_Show_Answer_create() {
 
     presenter.show = function () {
         presenter.viewElements.button.style.visibility = 'visible';
+        presenter.configuration.isVisible = true;
     }
 
     presenter.hide = function () {
         presenter.viewElements.button.style.visibility = 'hidden';
+        presenter.configuration.isVisible = false;
     }
 
     presenter.disable = function () {
