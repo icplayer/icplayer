@@ -122,7 +122,7 @@ function AddonGradual_Show_Answer_create() {
 
     presenter.getState = function () {
         return JSON.stringify({
-            isVisible: presenter.configuration.isVisible,
+            isVisible: presenter.state.isVisible,
             isDisabled: presenter.state.isDisabled
         })
     }
@@ -141,12 +141,12 @@ function AddonGradual_Show_Answer_create() {
 
     presenter.show = function () {
         presenter.viewElements.button.style.visibility = 'visible';
-        presenter.configuration.isVisible = true;
+        presenter.state.isVisible = true;
     }
 
     presenter.hide = function () {
         presenter.viewElements.button.style.visibility = 'hidden';
-        presenter.configuration.isVisible = false;
+        presenter.state.isVisible = false;
     }
 
     presenter.disable = function () {
@@ -181,6 +181,19 @@ function AddonGradual_Show_Answer_create() {
             presenter.viewElements.button.classList.remove(classList.GRADUAL_ACTIVE);
         }
     }
+
+    presenter.reset = function () {
+        if (presenter.configuration.isDisabled) {
+            presenter.disable();
+        } else {
+            presenter.enable();
+        }
+        if (presenter.configuration.isVisible) {
+            presenter.show();
+        } else {
+            presenter.hide();
+        }
+    };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
