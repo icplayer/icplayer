@@ -34,6 +34,8 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	private boolean isWorkingMode = true;
 	private int gapState = 0;
 	private ArrayList<HandlerRegistration> handlers = new ArrayList<HandlerRegistration>();
+
+	private final String expNotationPattern = "-?\\d*([,.]\\d*)?(e[+\\-]?\\d*)?";
 	
 	protected final GapInfo gapInfo;
 	
@@ -81,6 +83,10 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 			}
 			setMaxLength(max_length);
 		}
+		if (this.gapInfo.isNumericOnly()) {
+			this.getElement().setPropertyString("type","number");
+			this.getElement().setPropertyString("step","any");
+		}
 
 		onAttach();
 
@@ -94,7 +100,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		
 		this.handlers.clear();
 	}
-	
+
 	protected void connectHandlers (final ITextViewListener listener) {
 		if (listener != null) {
 			this.handlers.add(addKeyUpHandler(new KeyUpHandler() {
@@ -103,6 +109,43 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 					if(shouldSendEvent()) {
 						listener.onValueEdited(gapInfo.getId(), getText());
 						listener.onUserAction(gapInfo.getId(), getText());
+					}
+					if (gapInfo.isNumericOnly()) {
+						String newText = getText();
+						if (newText.length() > 0 && !newText.matches(expNotationPattern)) {
+
+							RegExp regExp = RegExp.compile(expNotationPattern);
+							MatchResult matcher = regExp.exec(newText);
+
+							if (matcher != null) {
+								setText(matcher.getGroup(0));
+							} else {
+								setText("");
+							}
+						}
+					}
+				}
+			}));
+
+			this.handlers.add(addKeyPressHandler(new KeyPressHandler() {
+				@Override
+				public void onKeyPress(KeyPressEvent event) {
+					if (gapInfo.isNumericOnly()) {
+						String newText = "";
+						String oldText = getText();
+						if (getSelectionLength() > 0) {
+							newText = oldText.substring(0, getCursorPos())
+									+ event.getCharCode()
+									+ oldText.substring(getCursorPos() + getSelectionLength());
+						} else {
+							newText = oldText.substring(0, getCursorPos())
+									+ event.getCharCode()
+									+ oldText.substring(getCursorPos());
+						}
+						if (!newText.matches(expNotationPattern) && oldText.matches(expNotationPattern)) {
+							((TextBox)event.getSource()).cancelKey();
+
+						}
 					}
 				}
 			}));
@@ -155,48 +198,6 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 				event.stopPropagation();
 			}
 		}));
-
-		if (this.gapInfo.isNumericOnly()) {
-			addKeyPressHandler(new KeyPressHandler() {
-				@Override
-				public void onKeyPress(KeyPressEvent event) {
-					String newText;
-					if (getSelectionLength() > 0) {
-						newText = getText().substring(0, getCursorPos())
-								+ event.getCharCode()
-								+ getText().substring(getCursorPos() + getSelectionLength());
-					} else {
-						newText = getText().substring(0, getCursorPos())
-								+ event.getCharCode()
-								+ getText().substring(getCursorPos());
-					}
-
-					String expNotationPattern = "^-?\\d*([,.]\\d*)?(e[+\\-]?\\d*)?$";
-					if (!newText.matches(expNotationPattern)) {
-						((TextBox)event.getSource()).cancelKey();
-					}
-				}
-			});
-
-			addValueChangeHandler(new ValueChangeHandler<String>() {
-				@Override
-				public void onValueChange(ValueChangeEvent<String> event) {
-					String expNotationPattern = "-?\\d+([,.]\\d+)?(e[+\\-]?\\d+)?";
-					String newText = event.getValue();
-
-					if (!newText.matches(expNotationPattern)) {
-						RegExp regExp = RegExp.compile(expNotationPattern);
-						MatchResult matcher = regExp.exec(newText);
-
-						if (matcher != null) {
-							setText(matcher.getGroup(0));
-						} else {
-							setText("");
-						}
-					}
-				}
-			});
-		}
 	}
 
 	private boolean shouldSendEvent() {
