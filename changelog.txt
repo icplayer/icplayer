@@ -1,3 +1,4 @@
+2021-03-11 Increased maximum time in addon Media Recorder
 2021-02-24 Add Text property to Multiaudio addon
 2021-02-22 Added Enable in error checking mode property to Media Recorder
 2021-02-11 Fixed show answers and check sending unneeded events
