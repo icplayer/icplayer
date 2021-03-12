@@ -84,7 +84,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 			setMaxLength(max_length);
 		}
 		if (this.gapInfo.isNumericOnly()) {
-			this.getElement().setPropertyString("type","number");
+			this.getElement().setPropertyString("type","tel");
 			this.getElement().setPropertyString("step","any");
 		}
 
@@ -106,10 +106,6 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 			this.handlers.add(addKeyUpHandler(new KeyUpHandler() {
 				@Override
 				public void onKeyUp(KeyUpEvent event) {
-					if(shouldSendEvent()) {
-						listener.onValueEdited(gapInfo.getId(), getText());
-						listener.onUserAction(gapInfo.getId(), getText());
-					}
 					if (gapInfo.isNumericOnly()) {
 						String newText = getText();
 						if (newText.length() > 0 && !newText.matches(expNotationPattern)) {
@@ -123,6 +119,10 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 								setText("");
 							}
 						}
+					}
+					if(shouldSendEvent()) {
+						listener.onValueEdited(gapInfo.getId(), getText());
+						listener.onUserAction(gapInfo.getId(), getText());
 					}
 				}
 			}));
