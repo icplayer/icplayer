@@ -1,3 +1,5 @@
+2021-03-15 Added show and hide for Crossword
+2021-03-15 Fixed numeric TextBox for iPad
 2021-03-15 Fixed Test Puzzle error on firefox when entering a page in show errors mode
 2021-03-15 Fixed numeric TextBox for iPad
 2021-02-24 Add Text property to Multiaudio addon
