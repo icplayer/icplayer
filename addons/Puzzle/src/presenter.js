@@ -145,6 +145,27 @@ function AddonPuzzle_create() {
         }
     }
 
+    function InitPuzzleBoard() {
+        var rows = presenter.configuration.rows,
+            columns = presenter.configuration.columns;
+        for (var row = 0; row < rows; row++) {
+            board[row] = [];
+            indexBoard[row] = [];
+            for (var col = 0; col < columns; col++) {
+                mark = $(document.createElement('div'));
+                mark.addClass('mark');
+                mark.attr("position", row + "-" + col);
+                indexBoard[row][col] = mark;
+
+                puzzle = $(document.createElement("div"));
+                puzzle.addClass('puzzle');
+                puzzle.attr("position", row + "-" + col);
+                puzzle.attr("href", "javascript:void( 0 );").click(clickHandler);
+                board[row][col] = puzzle;
+            }
+        }
+    }
+
     function InitPuzzle(width, height) {
         var outerDistances = getOuterDistances();
         var markDimensions = getMarkDimensions();
@@ -165,22 +186,16 @@ function AddonPuzzle_create() {
         var markVerticalOffset = (puzzleOuterHeight - markDimensions.height) / 2;
 
         for (var row = 0; row < rows; row++) {
-            board[row] = [];
-            indexBoard[row] = [];
-
             for (var col = 0; col < columns; col++) {
-                mark = $(document.createElement('div'));
-                mark.addClass('mark');
+                mark = indexBoard[row][col];
                 mark.css({
                     top: ((puzzleHeight * row + markVerticalOffset) + "px"),
                     left: ((puzzleWidth * col + markHorizontalOffset) + "px")
                 });
-                mark.attr("position", row + "-" + col);
                 indexBoard[row][col] = mark;
                 Container.append(mark);
 
-                puzzle = $(document.createElement("div"));
-                puzzle.addClass('puzzle');
+                puzzle = board[row][col];
                 puzzle.css({
                     backgroundImage: "url( '" + jImg.attr("src") + "' )",
                     backgroundSize: width + "px " + height + "px",
@@ -194,15 +209,11 @@ function AddonPuzzle_create() {
                     width: puzzleWidth + 'px',
                     height: puzzleHeight + 'px'
                 });
-
-                puzzle.attr("href", "javascript:void( 0 );").click(clickHandler);
-                puzzle.attr("position", row + "-" + col);
                 board[row][col] = puzzle;
                 Container.append(puzzle);
 
                 // first add it to DOM, then apply draggable, so that it won't add position: relative to element
                 AddDraggableDroppable(puzzle);
-
             }
         }
 
@@ -222,7 +233,8 @@ function AddonPuzzle_create() {
             start: function(event,ui) {
                 // clear state if it was clicked before
                 clickNumber = 0;
-                PieceOld.removeClass('selected');
+                if (PieceOld)
+                    PieceOld.removeClass('selected');
 
                 // this prevents clickHandler from being called, because jquery would call it in such situation:
                 // user is dragging element, and lifts mouse button, and *pointer is still over element when drag stops*
@@ -710,11 +722,18 @@ function AddonPuzzle_create() {
             presenter.hideAnswers();
         }
 
+        presenter.setDraggableState("disable");
+        presenter.configuration.isErrorMode = true;
+
+        if (!presenter.isFullyLoaded()) {
+            return;
+        }
+
+        presenter.configuration.shouldCalcScore = true;
+
         var rows = presenter.configuration.rows,
             columns = presenter.configuration.columns,
             row, col;
-
-        presenter.configuration.shouldCalcScore = true;
 
         for (row = 0; row < rows; row++) {
             for (col = 0; col < columns; col++) {
@@ -726,9 +745,6 @@ function AddonPuzzle_create() {
                 }
             }
         }
-
-        presenter.setDraggableState("disable");
-        presenter.configuration.isErrorMode = true;
     };
 
     presenter.setPlayerController = function (controller) {
@@ -751,6 +767,7 @@ function AddonPuzzle_create() {
         eventBus.addEventListener('HideAnswers', this);
         presenter.configuration = presenter.validateModel(model);
         presenter.isPreview = false;
+        InitPuzzleBoard()
 
         jImg = Container.find("img:first");
         jImg.attr('src', model.Image);
@@ -762,6 +779,9 @@ function AddonPuzzle_create() {
                 presenter.hide();
             }
             presenter['imageLoadedDeferred'].resolve();
+            if (presenter.configuration.isErrorMode){
+                presenter.setShowErrorsMode()
+            }
         });
 
     };
