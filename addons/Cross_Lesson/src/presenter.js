@@ -148,7 +148,7 @@ function AddonCross_Lesson_create(){
     presenter.requestCrossLesson = function () {
         if (presenter.playerController) {
             var data = {
-                type: presenter.configuration.type
+                type: presenter.configuration.type,
                 openLessonInCurrentTab: presenter.configuration.openLessonInCurrentTab
             };
             if (presenter.configuration.lessonID) {
