@@ -8,5 +8,6 @@
 		<property name='CourseID' nameLabel="Cross_Lesson_property_course_id" type='string' />
 		<property name='Page' nameLabel="Cross_Lesson_property_Page" type='string' />
 		<property name='Type' nameLabel="Cross_Lesson_property_type" type='{lesson, ebook, course}' />
+		<property name="OpenLessonInCurrentTab" nameLabel="Cross_Lesson_property_open_in_current_tab" type="boolean"/>
 	</model>
 </addon>

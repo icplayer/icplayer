@@ -1,3 +1,8 @@
+2021-03-15 Fixed table stretching in print
+2021-03-15 Added show and hide for Crossword
+2021-03-15 Fixed numeric TextBox for iPad
+2021-03-15 Fixed Test Puzzle error on firefox when entering a page in show errors mode
+2021-03-15 Fixed numeric TextBox for iPad
 2021-02-24 Add Text property to Multiaudio addon
 2021-02-22 Added Enable in error checking mode property to Media Recorder
 2021-02-11 Fixed show answers and check sending unneeded events
