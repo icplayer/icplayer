@@ -1033,7 +1033,7 @@ function AddonBasic_Math_Gaps_create(){
 
     presenter.GapsContainerObject.prototype.setState = function (valuesArray, sourcesArray, droppedElementsArray) {
         this._gapsOrderArray.forEach(function (gapID, index) {
-            if (presenter.isDraggable) {
+            if (presenter.configuration.isDraggable) {
                 this._gaps[gapID].setState(valuesArray[index], sourcesArray[index], droppedElementsArray[index]);
             } else {
                 this._gaps[gapID].value = valuesArray[index];
