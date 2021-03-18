@@ -89,6 +89,10 @@
     text-align: right;
 }
 
+.save-button {
+    cursor: pointer;
+}
+
 .team-body {
     height: 70px;
 }

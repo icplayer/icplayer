@@ -272,7 +272,7 @@ function AddonScoreboard_create() {
     presenter.Scoreboard.prototype.moveScoreboard = function (savedScoreboardPosition) {
         var ic_page_height = this.$scoreboard.parent().height();
         this.$scoreboard.css({
-            'top' : savedScoreboardPosition.top < ic_page_height ? savedScoreboardPosition.top : '10px',
+            'top' : parseInt(savedScoreboardPosition.top, 10) < ic_page_height ? savedScoreboardPosition.top : '10px',
             'left' : savedScoreboardPosition.left,
         });
     };
@@ -418,7 +418,7 @@ function AddonScoreboard_create() {
 
     presenter.Team.prototype.teamNameEditHandler = function () {
         this.$teamNameInput = $('<input class="team-name-input"></input>');
-        this.$buttonSave = $('<div class="save">&#10003;</div>');
+        this.$buttonSave = $('<div class="save-button">&#10003;</div>');
 
         this.currentValue = this.teamName;
 
@@ -594,7 +594,7 @@ function AddonScoreboard_create() {
 
     presenter.onEventReceived = function (eventName, eventData) {
         if (eventName == "PageLoaded" && eventData.source == "header") {
-            var store = player.getPlayerServices().getHeaderModule("Variable_Storage1");
+            var store = player.getPlayerServices().getHeaderModule(presenter.configuration.Broadcast);
             if (store.getVariable("savedScoreboard")) {
                 presenter.removeAllTeams();
                 presenter.restoreAllScoreboardData(store.getVariable("savedScoreboard"));
@@ -603,7 +603,7 @@ function AddonScoreboard_create() {
     };
 
     presenter.getState = function () {
-        var store = player.getPlayerServices().getHeaderModule("Variable_Storage1");
+        var store = player.getPlayerServices().getHeaderModule(presenter.configuration.Broadcast);
         presenter.state.scoreboard = presenter.scoreboard.getState();
         store.setVariable("savedScoreboard", presenter.state);
     }
