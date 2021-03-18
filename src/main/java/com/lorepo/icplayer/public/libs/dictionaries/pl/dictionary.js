@@ -2064,5 +2064,8 @@ var ice_dictionary_pl = {
     "editor.batch_upload.property_update.success": "The batch upload was finished correctly and the files were added to the module.",
     "editor_batch_upload": "Upload",
 	"Adaptive_Next_name": "Adaptive next",
-    "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor."
+    "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor.",
+		"Scoreboard_info": "Scoreboard allows to conduct a competition by scoring the points of multiple teams.",
+		"Scoreboard_name": "Scoreboard",
+		"Scoreboard_broadcast": "Variable Storage id"
 };
