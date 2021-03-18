@@ -11,11 +11,15 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.event.dom.client.DropHandler;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.TextBox;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -30,6 +34,8 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	private boolean isWorkingMode = true;
 	private int gapState = 0;
 	private ArrayList<HandlerRegistration> handlers = new ArrayList<HandlerRegistration>();
+
+	private final String expNotationPattern = "-?\\d*([,.]\\d*)?(e[+\\-]?\\d*)?";
 	
 	protected final GapInfo gapInfo;
 	
@@ -77,9 +83,8 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 			}
 			setMaxLength(max_length);
 		}
-		
 		if (this.gapInfo.isNumericOnly()) {
-			this.getElement().setPropertyString("type","number");
+			this.getElement().setPropertyString("type","tel");
 			this.getElement().setPropertyString("step","any");
 		}
 
@@ -95,15 +100,52 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		
 		this.handlers.clear();
 	}
-	
+
 	protected void connectHandlers (final ITextViewListener listener) {
 		if (listener != null) {
 			this.handlers.add(addKeyUpHandler(new KeyUpHandler() {
 				@Override
 				public void onKeyUp(KeyUpEvent event) {
+					if (gapInfo.isNumericOnly()) {
+						String newText = getText();
+						if (newText.length() > 0 && !newText.matches(expNotationPattern)) {
+
+							RegExp regExp = RegExp.compile(expNotationPattern);
+							MatchResult matcher = regExp.exec(newText);
+
+							if (matcher != null) {
+								setText(matcher.getGroup(0));
+							} else {
+								setText("");
+							}
+						}
+					}
 					if(shouldSendEvent()) {
 						listener.onValueEdited(gapInfo.getId(), getText());
 						listener.onUserAction(gapInfo.getId(), getText());
+					}
+				}
+			}));
+
+			this.handlers.add(addKeyPressHandler(new KeyPressHandler() {
+				@Override
+				public void onKeyPress(KeyPressEvent event) {
+					if (gapInfo.isNumericOnly()) {
+						String newText = "";
+						String oldText = getText();
+						if (getSelectionLength() > 0) {
+							newText = oldText.substring(0, getCursorPos())
+									+ event.getCharCode()
+									+ oldText.substring(getCursorPos() + getSelectionLength());
+						} else {
+							newText = oldText.substring(0, getCursorPos())
+									+ event.getCharCode()
+									+ oldText.substring(getCursorPos());
+						}
+						if (!newText.matches(expNotationPattern) && oldText.matches(expNotationPattern)) {
+							((TextBox)event.getSource()).cancelKey();
+
+						}
 					}
 				}
 			}));
@@ -155,7 +197,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 			public void onClick(ClickEvent event) {
 				event.stopPropagation();
 			}
-		}));		
+		}));
 	}
 
 	private boolean shouldSendEvent() {
