@@ -94,7 +94,7 @@ function AddonScoreboard_create() {
         }
 
         presenter.initView(view, model);
-    }
+    };
 
     presenter.validateModel = function (model) {
         if (ModelValidationUtils.isStringEmpty(model['Broadcast'])) {
@@ -106,9 +106,9 @@ function AddonScoreboard_create() {
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
             Broadcast: model['Broadcast']
         }
-    }
+    };
 
-    presenter.initView = function(view, model) {
+    presenter.initView = function (view, model) {
         presenter.$view = $(view);
         presenter.$pagePanel = presenter.$view.parent().parent('.ic_page_panel');
         presenter.scoreboard = presenter.createScoreBoard();
@@ -175,7 +175,7 @@ function AddonScoreboard_create() {
         return scoreboard;
     };
 
-    presenter.createScoreBoard = function Scoreboard_createNote(savedScoreboard) {
+    presenter.createScoreBoard = function Scoreboard_createNote (savedScoreboard) {
         return presenter.Scoreboard.createScoreboard(savedScoreboard);
     }
 
@@ -191,11 +191,11 @@ function AddonScoreboard_create() {
     };
 
     // Scoreboard buttons
-    presenter.Scoreboard.prototype.closeButtonHandler = function(event) {
+    presenter.Scoreboard.prototype.closeButtonHandler = function (event) {
         presenter.hide();
     };
 
-    presenter.Scoreboard.prototype.resetButtonHandler = function(event) {
+    presenter.Scoreboard.prototype.resetButtonHandler = function (event) {
         presenter.resetTeamsPoints();
     };
 
@@ -213,7 +213,7 @@ function AddonScoreboard_create() {
         return Math.min(...freeIds);
     }
 
-    presenter.Scoreboard.prototype.addTeamButtonHandler = function(event) {
+    presenter.Scoreboard.prototype.addTeamButtonHandler = function (event) {
         if (presenter.state.teamsObjects.length < 8) {
             var availableLowestId = getLowestAvaibleTeamId();
             var defaultTeamData = presenter.DEFAULT_TEAMS_DATA[availableLowestId]
@@ -223,28 +223,28 @@ function AddonScoreboard_create() {
 
     presenter.Scoreboard.prototype.connectHandlers = function () {
         if (MobileUtils.isEventSupported('touchstart')) {
-            this.$closeButton.on('touchstart', {"scoreboard": this}, function(event) {
+            this.$closeButton.on('touchstart', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.closeButtonHandler(event);
             }.bind(this));
-            this.$resetButton.on('touchstart', {"scoreboard": this}, function(event) {
+            this.$resetButton.on('touchstart', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.resetButtonHandler(event);
             }.bind(this));
-            this.$addNewTeamButton.on('touchstart', {"scoreboard": this}, function(event) {
+            this.$addNewTeamButton.on('touchstart', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.addTeamButtonHandler(event);
             }.bind(this));
         } else {
-            this.$closeButton.on('click', {"scoreboard": this}, function(event) {
+            this.$closeButton.on('click', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.closeButtonHandler(event);
             }.bind(this));
-            this.$resetButton.on('click', {"scoreboard": this}, function(event) {
+            this.$resetButton.on('click', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.resetButtonHandler(event);
             }.bind(this));
-            this.$addNewTeamButton.on('click', {"scoreboard": this}, function(event) {
+            this.$addNewTeamButton.on('click', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.addTeamButtonHandler(event);
             }.bind(this));
@@ -348,23 +348,23 @@ function AddonScoreboard_create() {
     };
 
     // Scoreboard buttons
-    presenter.Team.prototype.resetPoints = function() {
+    presenter.Team.prototype.resetPoints = function () {
         this.teamPoints = 0;
         this.$teamPointsConatiner.html(`<h1>${this.teamPoints}</h1>`)
     };
 
-    presenter.Team.prototype.removeTeamHandler = function(event) {
+    presenter.Team.prototype.removeTeamHandler = function (event) {
         var team = event.data.scoreboard;
         team.destroy();
     };
 
-    presenter.Team.prototype.incrementPointsButtonHandler = function(event) {
+    presenter.Team.prototype.incrementPointsButtonHandler = function (event) {
         this.teamPoints += 1;
         this.$teamPointsConatiner.html(`<h1>${this.teamPoints}</h1>`)
         presenter.updateTeamState(this.getTeamData());
     };
 
-    presenter.Team.prototype.decrementPointsButtonHandler = function(event) {
+    presenter.Team.prototype.decrementPointsButtonHandler = function (event) {
         this.teamPoints -= 1;
         this.$teamPointsConatiner.html(`<h1>${this.teamPoints}</h1>`)
         presenter.updateTeamState(this.getTeamData());
@@ -372,28 +372,28 @@ function AddonScoreboard_create() {
 
     presenter.Team.prototype.connectHandlers = function () {
         if(MobileUtils.isEventSupported('touchstart')) {
-            this.$teamRemoveButton.on('touchstart', {"scoreboard": this}, function(event) {
+            this.$teamRemoveButton.on('touchstart', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.removeTeamHandler(event);
             }.bind(this));
-            this.$teamPointsIncrementButton.on('touchstart', {"scoreboard": this}, function(event) {
+            this.$teamPointsIncrementButton.on('touchstart', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.incrementPointsButtonHandler(event);
             }.bind(this));
-            this.$teamPointsDecrementButton.on('touchstart', {"scoreboard": this}, function(event) {
+            this.$teamPointsDecrementButton.on('touchstart', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.decrementPointsButtonHandler(event);
             }.bind(this));
         } else {
-            this.$teamRemoveButton.on('click', {"scoreboard": this}, function(event) {
+            this.$teamRemoveButton.on('click', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.removeTeamHandler(event);
             }.bind(this));
-            this.$teamPointsIncrementButton.on('click', {"scoreboard": this}, function(event) {
+            this.$teamPointsIncrementButton.on('click', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.incrementPointsButtonHandler(event);
             }.bind(this));
-            this.$teamPointsDecrementButton.on('click', {"scoreboard": this}, function(event) {
+            this.$teamPointsDecrementButton.on('click', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
                 this.decrementPointsButtonHandler(event);
             }.bind(this));
@@ -439,7 +439,7 @@ function AddonScoreboard_create() {
         this.$teamNameInput.focus();
     };
 
-    presenter.Team.prototype.saveButtonHandler = function() {
+    presenter.Team.prototype.saveButtonHandler = function () {
         var value = this.$teamNameInput.val();
         this.teamName = value;
         this.$teamNameContainer.html(value);
@@ -507,11 +507,11 @@ function AddonScoreboard_create() {
         }
     };
 
-    presenter.createTeam = function Scoreboard_createTeam(savedTeam) {
+    presenter.createTeam = function Scoreboard_createTeam (savedTeam) {
         return presenter.Team.createTeam(savedTeam)
     };
 
-    presenter.resetTeamsPoints = function Scoreboard_resetTeamPoints() {
+    presenter.resetTeamsPoints = function Scoreboard_resetTeamPoints () {
         presenter.teamsObjects.forEach(function (team) {
             team.resetPoints();
         });
@@ -520,7 +520,7 @@ function AddonScoreboard_create() {
         });
     };
 
-    presenter.removeTeam = function Scoreboard_removeTeam(teamId) {
+    presenter.removeTeam = function Scoreboard_removeTeam (teamId) {
         presenter.teamsObjects = presenter.teamsObjects.filter((team) => {
             return teamId !== team.getTeamId().teamId;
         });
@@ -529,7 +529,7 @@ function AddonScoreboard_create() {
         });
     };
 
-    presenter.addTeam = function Scoreboard_addTeam(teamData, scoreboard) {
+    presenter.addTeam = function Scoreboard_addTeam (teamData, scoreboard) {
         var team = presenter.createTeam(teamData);
         presenter.teamsObjects.push(team);
         presenter.state.teamsObjects.push(team.getTeamData());
@@ -538,13 +538,13 @@ function AddonScoreboard_create() {
         return scoreboard;
     };
     
-    presenter.removeAllTeams = function Scoreboard_removeAllTeams() {
+    presenter.removeAllTeams = function Scoreboard_removeAllTeams () {
         presenter.teamsObjects.forEach(function (team) {
             team.destroy()
         });
     };
 
-    presenter.updateTeamState = function Scoreboard_updateTeamState(updatedTeamData) {
+    presenter.updateTeamState = function Scoreboard_updateTeamState (updatedTeamData) {
         presenter.state.teamsObjects = presenter.state.teamsObjects.map(teamData =>
             teamData.teamId === updatedTeamData.teamId ? { 
                 ...teamData,
@@ -554,7 +554,7 @@ function AddonScoreboard_create() {
         );
     };
 
-    presenter.restoreAllScoreboardData = function Scoreboard_restoreAllScoreboardData(savedScoreboard) {
+    presenter.restoreAllScoreboardData = function Scoreboard_restoreAllScoreboardData (savedScoreboard) {
         presenter.scoreboard.moveScoreboard(savedScoreboard.scoreboard);
         savedScoreboard.teamsObjects.forEach(function (teamData) {
             presenter.addTeam(teamData, presenter.scoreboard);
@@ -563,16 +563,16 @@ function AddonScoreboard_create() {
         presenter.setVisibility(presenter.state.isVisible);
     };
 
-    presenter.setVisibility = function(isVisible) {
+    presenter.setVisibility = function (isVisible) {
         presenter.state.isVisible = isVisible;
         presenter.$scoreboard.css("visibility", isVisible ? "visible" : "hidden");
     };
 
-    presenter.show = function() {
+    presenter.show = function () {
         presenter.setVisibility(true);
     };
 
-    presenter.hide = function() {
+    presenter.hide = function () {
         presenter.setVisibility(false);
     };
 
@@ -585,7 +585,7 @@ function AddonScoreboard_create() {
         Commands.dispatch(commands, name, [], presenter);
     };
 
-    presenter.setPlayerController = function(controller) {
+    presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
 
