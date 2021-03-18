@@ -12,6 +12,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -92,6 +93,7 @@ public class PrintableContentParser {
 	public void setHeader(Page header) {
 		String headerRaw = parsePage(header, false, false);
 		int width = getA4WidthInPixels(10);
+		JavaScriptUtils.log("header");
 		headerHeight = getHTMLHeight(headerRaw, width);
 		headerHTML = SafeHtmlUtils.fromTrustedString(headerRaw);
 	}
@@ -99,6 +101,7 @@ public class PrintableContentParser {
 	public void setFooter(Page footer) {
 		String footerRaw = parsePage(footer, false, false);
 		int width = getA4WidthInPixels(10);
+		JavaScriptUtils.log("footer");
 		footerHeight = getHTMLHeight(footerRaw, width);
 		footerHTML = SafeHtmlUtils.fromTrustedString(footerRaw);
 	}
@@ -166,7 +169,9 @@ public class PrintableContentParser {
 		parsed += "<div class=\"printable_modules_group " + groupClass + " " + splittable_class + "\">";
 		for (IPrintableModuleModel printable: groupPrintables) {
 			printable.setPrintableController(controller);
-			parsed += printable.getPrintableHTML(showAnswers);
+			String moduleHTML = printable.getPrintableHTML(showAnswers);
+			moduleHTML = updateImageHeights(moduleHTML);
+			parsed += moduleHTML;
 		}
 		parsed += "</div>";
 
@@ -234,7 +239,9 @@ public class PrintableContentParser {
 		String result = "";
 		for (IPrintableModuleModel printable: pagePrintables) {
 			printable.setPrintableController(pagePrintableController);
-			result += printable.getPrintableHTML(showAnswers);
+			String moduleHTML = printable.getPrintableHTML(showAnswers);
+			moduleHTML = updateImageHeights(moduleHTML);
+			result += moduleHTML;
 		}
 		return result;
 	}
@@ -299,12 +306,12 @@ public class PrintableContentParser {
 			
 			var newPrintablePageHTML = printablePageHTML + moduleHTML;
 			var newPrintablePageWithHeaderAndFooter = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::applyHeaderAndFooter(Ljava/lang/String;Z)(newPrintablePageHTML, false);
-			var newHeight = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getHTMLHeight(Ljava/lang/String;I)(newPrintablePageWithHeaderAndFooter, pageWidth);
+			var newHeight = @com.lorepo.icplayer.client.printable.PrintableContentParser::getHTMLHeight(Ljava/lang/String;I)(newPrintablePageWithHeaderAndFooter, pageWidth);
 			if (newHeight > pageHeight) {
 				if (prevHeight < pageHeight - maxEmptyHeight && this.classList.contains(SPLITTABLE_CLASS_NAME)) {
 					var maxHeadHeight = pageHeight - prevHeight - 50;
 					if (enableTwoColumnPrint) maxHeadHeight = maxHeadHeight * 2;
-					var splitResult = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::splitModule(Ljava/lang/String;IIIZ)(moduleHTML, maxHeadHeight, minSplitHeight, pageWidth, enableTwoColumnPrint);
+					var splitResult = @com.lorepo.icplayer.client.printable.PrintableContentParser::splitModule(Ljava/lang/String;IIIZ)(moduleHTML, maxHeadHeight, minSplitHeight, pageWidth, enableTwoColumnPrint);
 					printablePageHTML += splitResult.head;
 					moduleHTML = splitResult.tail;
 				}
@@ -439,55 +446,24 @@ public class PrintableContentParser {
 		return (int)((A4HeightInMM / MMInInch) * d_dpi);
 	};
 	
-	public native int getHTMLHeight (String html, int pageWidth) /*-{
+	public static native int getHTMLHeight (String html, int pageWidth) /*-{
 		var $_ = $wnd.$;
-		var $outerLessonWrapper = $_("<div></div>");
-		$outerLessonWrapper.css("position", "absolute");
-		$outerLessonWrapper.css("visibility", "hidden");
-		$outerLessonWrapper.addClass("printable_lesson");
-
-		var $outerPageWrapper = $_("<div></div>");
-		$outerPageWrapper.addClass("printable_page");
-		$outerLessonWrapper.append($outerPageWrapper);
-
-		var $wrapper = $_("<div></div>");
+		var $outerLessonWrapper = @com.lorepo.icplayer.client.printable.PrintableContentParser::getModuleTestingWrappers()();
+		var $wrapper = $outerLessonWrapper.find(".printable-content-wrapper");
 		$wrapper.css("width", pageWidth + "px");
-		$wrapper.css("margin", "0px");
-		$wrapper.css("padding", "0px");
 		$wrapper.html(html);
-		$outerPageWrapper.append($wrapper);
 
 		$_("body").append($outerLessonWrapper);
 		var height = $wrapper[0].getBoundingClientRect().height;
-		$outerLessonWrapper.detach();
+		$outerLessonWrapper.remove();
 		return height;
 	}-*/;
 	
-	private native SplitResult splitModule (String html, int maxHeight, int minSplitHeight, int pageWidth, boolean enableTwoColumnPrint) /*-{
+	private static native SplitResult splitModule (String html, int maxHeight, int minSplitHeight, int pageWidth, boolean enableTwoColumnPrint) /*-{
 		var $_ = $wnd.$;
-		var $outerLessonWrapper = $_("<div></div>");
-		$outerLessonWrapper.css("position", "absolute");
-		$outerLessonWrapper.css("top", "0px");
-		$outerLessonWrapper.css("left", "0px");
-		$outerLessonWrapper.css("visibility", "hidden");
-		$outerLessonWrapper.addClass("printable_lesson");
-
-		var $outerPageWrapper = $_("<div></div>");
-		$outerPageWrapper.addClass("printable_page");
-		$outerPageWrapper.css("position", "absolute");
-		$outerPageWrapper.css("top", "0px");
-		$outerPageWrapper.css("left", "0px");
-		$outerLessonWrapper.append($outerPageWrapper);
-
-		var $wrapper = $_("<div></div>");
-		$wrapper.css("position", "absolute");
-		$wrapper.css("top", "0px");
-		$wrapper.css("left", "0px");
+		var $outerLessonWrapper = @com.lorepo.icplayer.client.printable.PrintableContentParser::getModuleTestingWrappers()();
+		var $wrapper = $outerLessonWrapper.find(".printable-content-wrapper");
 		$wrapper.css("width", pageWidth + "px");
-		$wrapper.css("margin", "0px");
-		$wrapper.css("padding", "0px");
-		$outerPageWrapper.append($wrapper);
-
 		if (enableTwoColumnPrint) {
 			$wrapper.css("columns", "2");
 			$wrapper.css("-webkit-columns", "2");
@@ -495,6 +471,7 @@ public class PrintableContentParser {
 		}
 		$wrapper.html(html);
 		$_("body").append($outerLessonWrapper);
+
 		var wrapperRect = $wrapper[0].getBoundingClientRect();
 		var lastNode = null;
 		var lastNodeRect = null;
@@ -538,7 +515,50 @@ public class PrintableContentParser {
 		tailWrapper.childNodes.forEach(function(element, index, array){element.style.minHeight = "";});
 		var tailHTML = tailWrapper.innerHTML;
 		
-		$outerLessonWrapper.detach();
+		$outerLessonWrapper.remove();
 		return {head: headHTML, tail: tailHTML};
+	}-*/;
+
+	private static native JavaScriptObject getModuleTestingWrappers()/*-{
+		var $_ = $wnd.$;
+		var $outerLessonWrapper = $_("<div></div>");
+		$outerLessonWrapper.css("position", "absolute");
+		$outerLessonWrapper.css("top", "0px");
+		$outerLessonWrapper.css("left", "0px");
+		$outerLessonWrapper.css("visibility", "hidden");
+		$outerLessonWrapper.addClass("printable_lesson");
+
+		var $outerPageWrapper = $_("<div></div>");
+		$outerPageWrapper.addClass("printable_page");
+		$outerPageWrapper.css("position", "absolute");
+		$outerPageWrapper.css("top", "0px");
+		$outerPageWrapper.css("left", "0px");
+		$outerLessonWrapper.append($outerPageWrapper);
+
+		var $wrapper = $_("<div></div>");
+		$wrapper.css("position", "absolute");
+		$wrapper.css("top", "0px");
+		$wrapper.css("left", "0px");
+		$wrapper.css("margin", "0px");
+		$wrapper.css("padding", "0px");
+		$wrapper.addClass("printable-content-wrapper");
+		$outerPageWrapper.append($wrapper);
+
+		return $outerLessonWrapper;
+	}-*/;
+
+	private static native String updateImageHeights(String html)/*-{
+		console.log("updateImageHeights");
+		var $_ = $wnd.$;
+		var $outerLessonWrapper = @com.lorepo.icplayer.client.printable.PrintableContentParser::getModuleTestingWrappers()();
+		var $wrapper = $outerLessonWrapper.find("printable-content-wrapper");
+		$wrapper.html(html);
+		$_("body").append($outerLessonWrapper);
+
+		if ($wrapper.find('img').length > 0) {
+			console.log("has images");
+		}
+		$outerLessonWrapper.remove();
+		return html;
 	}-*/;
 }
