@@ -1,29 +1,34 @@
-.scoreboard {
-    top: 10px;
-    left: 10px;
+.addon_Scoreboard {
     max-height: 350px;
-    position: absolute;
-    border-radius: 4px;
-    background-color: rgb(255, 255, 255);
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    position: relative;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+.scoreboard-container {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 1);
+    border-radius: 4px;
 }
 
 .scoreboard-header {
     height: 20px;
     line-height: 20px;
-    background-color: rgba(128, 207, 238, 0.973);
     cursor: move;
+    position: relative;
+    background-color: rgba(128, 207, 238, 0.973);
 }
 
 .scoreboard-header .scoreboard-close {
     width: 10%;
     right: 5px;
     float: right;
-    position: relative;
     cursor: pointer;
-    text-align: right;
+    text-align: center;
+}
+
+.scoreboard-close::before {
+    content: "x";
 }
 
 .scoreboard-footer {
@@ -45,9 +50,12 @@
     width: 60%;
     right: 5px;
     float: right;
-    position: relative;
     cursor: pointer;
-    text-align: right;
+    text-align: center;
+}
+
+.scoreboard-add-new-team::before {
+    content: "+";
 }
 
 .scoreboard-footer .scoreboard-reset {
@@ -55,18 +63,16 @@
     right: 5px;
     margin-left: 0.5em;
     float: left;
-    position: relative;
     cursor: pointer;
-    text-align: left;
+    text-align: center;
 }
 
-.team-button-container .button.increment {
-    display: block;
-    background-image: url('resources/plus_sign.svg');
+.scoreboard-reset::before {
+    content: "\21B6";
 }
 
 .team {
-    padding: 0.3em;
+    padding: 2px;
     margin: 3px;
     width: 100px;
     height: 100%;
@@ -87,6 +93,10 @@
     float: right;
     cursor: pointer;
     text-align: right;
+}
+
+.team-remove::before {
+    content: "x";
 }
 
 .save-button {
@@ -126,9 +136,17 @@
     display: inline-block;
 }
 
+.team-score-decrement::before {
+    content: "-";
+}
+
 .team-footer .team-score-increment {
     width: 50%;
     height: 100%;
     cursor: pointer;
     display: inline-block;
+}
+
+.team-score-increment::before {
+    content: "+";
 }

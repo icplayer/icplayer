@@ -97,21 +97,23 @@ function AddonScoreboard_create() {
     };
 
     presenter.validateModel = function (model) {
-        if (ModelValidationUtils.isStringEmpty(model['Broadcast'])) {
-            return {isError: true, errorCode: 'B01'};
-        }
+        var isOnePageScoreboard = model['Broadcast'] ? false : true;
         return {
             isValid: true,
             ID: model.ID,
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
-            Broadcast: model['Broadcast']
+            broadcast: model['Broadcast'],
+            isDraggable: ModelValidationUtils.validateBoolean(model['Draggable']),
+            variableStorageLocation: model['VariableStorageLocation'],
+            variableStorageLocationName: model['VariableStorageLocationName'],
+            isOnePageScoreboard: isOnePageScoreboard
         }
     };
 
     presenter.initView = function (view, model) {
         presenter.$view = $(view);
         presenter.$pagePanel = presenter.$view.parent().parent('.ic_page_panel');
-        presenter.scoreboard = presenter.createScoreBoard();
+        presenter.scoreboard = presenter.createScoreBoard(presenter.$view);
         var initialTeamsObjects = presenter.state.teamsObjects;
         presenter.state.teamsObjects = [];
         initialTeamsObjects.forEach(function (savedTeam) {
@@ -128,6 +130,7 @@ function AddonScoreboard_create() {
 // Creating scoreboard
     presenter.Scoreboard = function () {
         this.$scoreboard = null;
+        this.$scoreboardContainer = null;
         this.$scoreboardBody = null;
         this.$scoreboardHeader = null;
         this.$closeButton = null;
@@ -138,30 +141,35 @@ function AddonScoreboard_create() {
 
     presenter.Scoreboard._internals = {};
 
-    presenter.Scoreboard._internals.createView = function () {
-        this.$scoreboard = $('<div class="scoreboard"></div>');
+    presenter.Scoreboard._internals.createView = function (savedScoreboard) {
+        this.$scoreboard = savedScoreboard;
+        this.$scoreboardContainer = $('<div class="scoreboard-container"></div>');
         this.$scoreboardBody = $('<div class="scoreboard-body"></div>');
         this.$scoreboardHeader = $('<div class="scoreboard-header"></div>');
-        this.$closeButton = $('<div class="scoreboard-close">&times;</div>');
+        this.$closeButton = $('<div class="scoreboard-close"></div>');
         this.$scoreboardFooter = $('<div class="scoreboard-footer"></div>');
-        this.$resetButton = $('<div class="scoreboard-reset">&#8634; RESET</div>');
-        this.$addNewTeamButton = $('<div class="scoreboard-add-new-team">DODAJ TEAM &#43;</div>');
+        this.$resetButton = $('<div class="scoreboard-reset"></div>');
+        this.$addNewTeamButton = $('<div class="scoreboard-add-new-team"></div>');
 
         this.$scoreboardHeader.append(this.$closeButton);
 
         this.$scoreboardFooter.append(this.$resetButton);
         this.$scoreboardFooter.append(this.$addNewTeamButton);
         
-        this.$scoreboard.append(this.$scoreboardHeader);
-        this.$scoreboard.append(this.$scoreboardBody);
-        this.$scoreboard.append(this.$scoreboardFooter);
+        this.$scoreboardContainer.append(this.$scoreboardHeader);
+        this.$scoreboardContainer.append(this.$scoreboardBody);
+        this.$scoreboardContainer.append(this.$scoreboardFooter);
+
+        this.$scoreboard.append(this.$scoreboardContainer)
     };
 
     presenter.Scoreboard.prototype.init = function (savedScoreboard) {
-        presenter.Scoreboard._internals.createView.call(this);
+        presenter.Scoreboard._internals.createView.call(this, savedScoreboard);
 
         this.connectHandlers();
-        this.connectDraggable(savedScoreboard);
+        if (presenter.configuration.isDraggable) {
+            this.connectDraggable(savedScoreboard);
+        }
     };
 
     presenter.Scoreboard.prototype.setBody = function (body) {
@@ -169,13 +177,13 @@ function AddonScoreboard_create() {
     };
 
     presenter.Scoreboard.createScoreboard = function (savedScoreboard) {
-        var scoreboard = new presenter.Scoreboard();
+        var scoreboard = new presenter.Scoreboard(savedScoreboard);
         scoreboard.init(savedScoreboard);
         
         return scoreboard;
     };
 
-    presenter.createScoreBoard = function Scoreboard_createNote (savedScoreboard) {
+    presenter.createScoreBoard = function Scoreboard_createScoreboard (savedScoreboard) {
         return presenter.Scoreboard.createScoreboard(savedScoreboard);
     }
 
@@ -217,6 +225,8 @@ function AddonScoreboard_create() {
         if (presenter.state.teamsObjects.length < 8) {
             var availableLowestId = getLowestAvaibleTeamId();
             var defaultTeamData = presenter.DEFAULT_TEAMS_DATA[availableLowestId]
+            console.log( this.$scoreboard.css('width') );
+            this.$scoreboard.css('width', '+=110px')
             presenter.addTeam(defaultTeamData, this);
         }
     };
@@ -271,6 +281,8 @@ function AddonScoreboard_create() {
 
     presenter.Scoreboard.prototype.moveScoreboard = function (savedScoreboardPosition) {
         var ic_page_height = this.$scoreboard.parent().height();
+        console.log("ic page height: ", ic_page_height)
+        console.log("Saved position: ", savedScoreboardPosition.top)
         this.$scoreboard.css({
             'top' : parseInt(savedScoreboardPosition.top, 10) < ic_page_height ? savedScoreboardPosition.top : '10px',
             'left' : savedScoreboardPosition.left,
@@ -302,7 +314,7 @@ function AddonScoreboard_create() {
         this.$teamHeader = $('<div class="team-header"></div>');
         this.$teamBody = $('<div class="team-body"></div>');
         this.$teamFooter = $('<div class="team-footer"></div>');
-        this.$teamRemoveButton = $('<div class="team-remove">&times;</div>');
+        this.$teamRemoveButton = $('<div class="team-remove"></div>');
         this.$teamNameContainer = $(
             `<div class="team-name-container">
                 ${this.teamName}
@@ -314,10 +326,10 @@ function AddonScoreboard_create() {
             </div>`
         );
         this.$teamPointsDecrementButton = $(
-        '<div class="team-score-decrement">&#8722;</div>'
+        '<div class="team-score-decrement"></div>'
         );
         this.$teamPointsIncrementButton = $(
-        '<div class="team-score-increment">&#43;</div>'
+        '<div class="team-score-increment"></div>'
         );
         this.$teamHeader.append(this.$teamRemoveButton);
 
@@ -437,9 +449,11 @@ function AddonScoreboard_create() {
         this.$teamNameContainer.html(this.$teamNameInput);
         this.$teamNameContainer.append(this.$buttonSave);
         this.$teamNameInput.focus();
+        // this.$teamNameInput.focusout(this.saveButtonHandler());
     };
 
     presenter.Team.prototype.saveButtonHandler = function () {
+        // console.log("enter clicked");
         var value = this.$teamNameInput.val();
         this.teamName = value;
         this.$teamNameContainer.html(value);
@@ -521,6 +535,7 @@ function AddonScoreboard_create() {
     };
 
     presenter.removeTeam = function Scoreboard_removeTeam (teamId) {
+        presenter.$view.css('width', '-=110px')
         presenter.teamsObjects = presenter.teamsObjects.filter((team) => {
             return teamId !== team.getTeamId().teamId;
         });
@@ -555,8 +570,10 @@ function AddonScoreboard_create() {
     };
 
     presenter.restoreAllScoreboardData = function Scoreboard_restoreAllScoreboardData (savedScoreboard) {
+        presenter.removeAllTeams();
         presenter.scoreboard.moveScoreboard(savedScoreboard.scoreboard);
         savedScoreboard.teamsObjects.forEach(function (teamData) {
+            presenter.$view.css('width', '+=110px')
             presenter.addTeam(teamData, presenter.scoreboard);
         });
         presenter.state.isVisible = savedScoreboard.isVisible;
@@ -593,19 +610,39 @@ function AddonScoreboard_create() {
     };
 
     presenter.onEventReceived = function (eventName, eventData) {
-        if (eventName == "PageLoaded" && eventData.source == "header") {
-            var store = player.getPlayerServices().getHeaderModule(presenter.configuration.Broadcast);
+        if (presenter.configuration.isOnePageScoreboard) {
+            return;
+        }
+        if (eventName == "PageLoaded" && eventData.source == presenter.configuration.variableStorageLocationName) {
+            var store = null;
+            if (presenter.configuration.variableStorageLocation == "header") {
+                store = player.getPlayerServices().getHeaderModule(presenter.configuration.broadcast);
+            } else {
+                store = player.getPlayerServices().getFooterModule(presenter.configuration.broadcast);
+            }
             if (store.getVariable("savedScoreboard")) {
-                presenter.removeAllTeams();
                 presenter.restoreAllScoreboardData(store.getVariable("savedScoreboard"));
             }
         }
     };
 
     presenter.getState = function () {
-        var store = player.getPlayerServices().getHeaderModule(presenter.configuration.Broadcast);
         presenter.state.scoreboard = presenter.scoreboard.getState();
-        store.setVariable("savedScoreboard", presenter.state);
+        if (!presenter.configuration.isOnePageScoreboard) {
+            var store = player.getPlayerServices().getHeaderModule(presenter.configuration.broadcast);
+            store.setVariable("savedScoreboard", presenter.state);
+        } else {
+            return JSON.stringify({
+                savedScoreboard: presenter.state
+            })
+        }
+    }
+
+    presenter.setState = function (state) {
+        if (presenter.configuration.isOnePageScoreboard) {
+            var parsedState = JSON.parse(state);
+            presenter.restoreAllScoreboardData(parsedState.savedScoreboard);
+        }
     }
 
     return presenter;

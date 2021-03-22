@@ -2087,5 +2087,8 @@ var ice_dictionary_bl = {
     "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor.",
 	"Scoreboard_info": "Scoreboard allows to conduct a competition by scoring the points of multiple teams.",
 	"Scoreboard_name": "Scoreboard",
-	"Scoreboard_broadcast": "Variable Storage id"
+	"Scoreboard_broadcast": "Variable Storage id",
+	"Scoreboard_is_draggable": "Is draggable",
+	"Scoreboard_location_of_variable_storage_module": "Variable Storage location",
+	"Scoreboard_variable_storage_location_name": "Variable Storage location name"
 };

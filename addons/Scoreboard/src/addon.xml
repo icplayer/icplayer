@@ -1,6 +1,9 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <addon id='Scoreboard' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
     <model>
-		<property name='Broadcast' nameLabel="Scoreboard_broadcast" type='string' isLocalized='false'/>
+      <property displayName="Broadcast" name='Broadcast' nameLabel="Scoreboard_broadcast" type='string' isLocalized='false'/>
+      <property displayName="Draggable" name='Draggable' nameLabel="Scoreboard_is_draggable" type='boolean' isLocalized='false'/>
+      <property displayName="VariableStorageLocation" name='VariableStorageLocation' nameLabel="Scoreboard_location_of_variable_storage_module" type='{header, footer}'/>
+      <property displayName="VariableStorageLocationName" name='VariableStorageLocationName' nameLabel="Scoreboard_variable_storage_location_name" type='string' isLocalized='false'/>
     </model>
 </addon>
