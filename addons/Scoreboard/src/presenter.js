@@ -112,25 +112,18 @@ function AddonScoreboard_create() {
 
     presenter.initView = function (view, model) {
         presenter.$view = $(view);
-        presenter.$pagePanel = presenter.$view.parent().parent('.ic_page_panel');
         presenter.scoreboard = presenter.createScoreBoard(presenter.$view);
         var initialTeamsObjects = presenter.state.teamsObjects;
         presenter.state.teamsObjects = [];
         initialTeamsObjects.forEach(function (savedTeam) {
             presenter.scoreboard = presenter.addTeam(savedTeam, presenter.scoreboard);
         });
-        var $scoreboardView = presenter.scoreboard.getView();
-
-        presenter.$pagePanel.find('.ic_page').append($scoreboardView);
-        presenter.$scoreboard = presenter.$pagePanel.find('.ic_page').find('.scoreboard');
-
         presenter.setVisibility(presenter.configuration.isVisible);
     }
 
 // Creating scoreboard
     presenter.Scoreboard = function () {
         this.$scoreboard = null;
-        this.$scoreboardContainer = null;
         this.$scoreboardBody = null;
         this.$scoreboardHeader = null;
         this.$closeButton = null;
@@ -143,7 +136,6 @@ function AddonScoreboard_create() {
 
     presenter.Scoreboard._internals.createView = function (savedScoreboard) {
         this.$scoreboard = savedScoreboard;
-        this.$scoreboardContainer = $('<div class="scoreboard-container"></div>');
         this.$scoreboardBody = $('<div class="scoreboard-body"></div>');
         this.$scoreboardHeader = $('<div class="scoreboard-header"></div>');
         this.$closeButton = $('<div class="scoreboard-close"></div>');
@@ -156,11 +148,10 @@ function AddonScoreboard_create() {
         this.$scoreboardFooter.append(this.$resetButton);
         this.$scoreboardFooter.append(this.$addNewTeamButton);
         
-        this.$scoreboardContainer.append(this.$scoreboardHeader);
-        this.$scoreboardContainer.append(this.$scoreboardBody);
-        this.$scoreboardContainer.append(this.$scoreboardFooter);
+        this.$scoreboard.append(this.$scoreboardHeader);
+        this.$scoreboard.append(this.$scoreboardBody);
+        this.$scoreboard.append(this.$scoreboardFooter);
 
-        this.$scoreboard.append(this.$scoreboardContainer)
     };
 
     presenter.Scoreboard.prototype.init = function (savedScoreboard) {
@@ -225,7 +216,6 @@ function AddonScoreboard_create() {
         if (presenter.state.teamsObjects.length < 8) {
             var availableLowestId = getLowestAvaibleTeamId();
             var defaultTeamData = presenter.DEFAULT_TEAMS_DATA[availableLowestId]
-            console.log( this.$scoreboard.css('width') );
             this.$scoreboard.css('width', '+=110px')
             presenter.addTeam(defaultTeamData, this);
         }
@@ -281,8 +271,6 @@ function AddonScoreboard_create() {
 
     presenter.Scoreboard.prototype.moveScoreboard = function (savedScoreboardPosition) {
         var ic_page_height = this.$scoreboard.parent().height();
-        console.log("ic page height: ", ic_page_height)
-        console.log("Saved position: ", savedScoreboardPosition.top)
         this.$scoreboard.css({
             'top' : parseInt(savedScoreboardPosition.top, 10) < ic_page_height ? savedScoreboardPosition.top : '10px',
             'left' : savedScoreboardPosition.left,
@@ -429,31 +417,27 @@ function AddonScoreboard_create() {
     };
 
     presenter.Team.prototype.teamNameEditHandler = function () {
-        this.$teamNameInput = $('<input class="team-name-input"></input>');
-        this.$buttonSave = $('<div class="save-button">&#10003;</div>');
-
         this.currentValue = this.teamName;
 
-        if(MobileUtils.isEventSupported('touchstart')) {
-            this.$buttonSave.on('touchstart', function() {
-                this.saveButtonHandler();
-            }.bind(this));
-        } else {
-            this.$buttonSave.on('click', function() {
-                this.saveButtonHandler();
-            }.bind(this));
-        }
-
+        this.$teamNameInput = $('<input class="team-name-input"></input>');
         this.$teamNameInput.val(this.currentValue);
-
+        
         this.$teamNameContainer.html(this.$teamNameInput);
-        this.$teamNameContainer.append(this.$buttonSave);
         this.$teamNameInput.focus();
-        // this.$teamNameInput.focusout(this.saveButtonHandler());
+
+        this.$teamNameInput.keypress(function (e) {
+            if (e.which == 13) {
+                this.saveNewTeamName();
+                return false;
+            }
+        }.bind(this));
+        this.$teamNameInput.focusout(function (e) {
+            this.saveNewTeamName();
+            return false;
+        }.bind(this));
     };
 
-    presenter.Team.prototype.saveButtonHandler = function () {
-        // console.log("enter clicked");
+    presenter.Team.prototype.saveNewTeamName = function () {
         var value = this.$teamNameInput.val();
         this.teamName = value;
         this.$teamNameContainer.html(value);
@@ -582,7 +566,7 @@ function AddonScoreboard_create() {
 
     presenter.setVisibility = function (isVisible) {
         presenter.state.isVisible = isVisible;
-        presenter.$scoreboard.css("visibility", isVisible ? "visible" : "hidden");
+        presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
     presenter.show = function () {
