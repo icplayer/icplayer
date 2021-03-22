@@ -18,6 +18,7 @@ import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class PrintableContentParser {
@@ -391,9 +392,20 @@ public class PrintableContentParser {
 		result += "</div>";
 		return result;
 	};
-	
-	public String generatePrintableHTML(Content contentModel, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
-		List<Page> pages = contentModel.getPages().getAllPages();
+
+	public String generatePrintableHTML(Content contentModel, ArrayList<Integer> pageSubset, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
+		List<Page> pages;
+		if (pageSubset == null) {
+			pages = contentModel.getPages().getAllPages();
+		} else {
+			pages = new ArrayList<Page>();
+			for (int index: pageSubset) {
+				IPage ipage = contentModel.getPage(index);
+				if (ipage instanceof Page) {
+					pages.add((Page) ipage);
+				}
+			}
+		}
 		Page header = contentModel.getDefaultHeader();
 		if (header != null) {
 			setHeader(header);
@@ -404,6 +416,13 @@ public class PrintableContentParser {
 		}
 		setTwoColumnPrintEnabled(Boolean.valueOf(contentModel.getMetadataValue("enableTwoColumnPrint")));
 		String result = generatePrintableHTMLForPages(pages, randomizePages, randomizeModules, showAnswers);
+		return result;
+	}
+
+
+	
+	public String generatePrintableHTML(Content contentModel, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
+		String result = generatePrintableHTML(contentModel, null, randomizePages, randomizeModules, showAnswers);
 		return result;
 	}
 	
