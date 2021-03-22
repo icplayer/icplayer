@@ -170,7 +170,6 @@ public class PrintableContentParser {
 		for (IPrintableModuleModel printable: groupPrintables) {
 			printable.setPrintableController(controller);
 			String moduleHTML = printable.getPrintableHTML(showAnswers);
-			moduleHTML = updateImageHeights(moduleHTML);
 			parsed += moduleHTML;
 		}
 		parsed += "</div>";
@@ -211,7 +210,7 @@ public class PrintableContentParser {
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		PrintableController pagePrintableController = new PrintableController(page);
 		pagePrintableController.setSeededRandom(random);
-		
+
 		ModuleList modules = page.getModules();
 		for (int i = 0; i < modules.size(); i++) {
 			IModuleModel model = modules.get(i);
@@ -239,9 +238,7 @@ public class PrintableContentParser {
 		String result = "";
 		for (IPrintableModuleModel printable: pagePrintables) {
 			printable.setPrintableController(pagePrintableController);
-			String moduleHTML = printable.getPrintableHTML(showAnswers);
-			moduleHTML = updateImageHeights(moduleHTML);
-			result += moduleHTML;
+			result += printable.getPrintableHTML(showAnswers);
 		}
 		return result;
 	}
@@ -547,18 +544,4 @@ public class PrintableContentParser {
 		return $outerLessonWrapper;
 	}-*/;
 
-	private static native String updateImageHeights(String html)/*-{
-		console.log("updateImageHeights");
-		var $_ = $wnd.$;
-		var $outerLessonWrapper = @com.lorepo.icplayer.client.printable.PrintableContentParser::getModuleTestingWrappers()();
-		var $wrapper = $outerLessonWrapper.find("printable-content-wrapper");
-		$wrapper.html(html);
-		$_("body").append($outerLessonWrapper);
-
-		if ($wrapper.find('img').length > 0) {
-			console.log("has images");
-		}
-		$outerLessonWrapper.remove();
-		return html;
-	}-*/;
 }
