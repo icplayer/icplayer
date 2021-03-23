@@ -14,5 +14,10 @@ TestCase("Events tests", {
         assertEquals('3', eventData.value);
         assertEquals('1', eventData.score);
     }
+
+    'test on key press event when used numeric keyboard' : function() {
+        this.presenter.onKeyPressEventHandler()
+    }
+
 });
 

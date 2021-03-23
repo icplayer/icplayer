@@ -1302,24 +1302,63 @@ function AddonBasic_Math_Gaps_create(){
             showAnswersValue: correctAnswer,
 
             createView: presenter.EditableInputGap.prototype.createView,
-            connectEvents: function () {},
+            connectEvents: presenter.EditableInputGap.prototype.connectEvents,
             setViewValue: presenter.EditableInputGap.prototype.setViewValue
         };
 
         presenter.GapUtils.call(this, configuration);
-
-        this.$view.on("input", this.onEdit.bind(this));
-
-        this.$view.off('change').bind('change', this.onEdit.bind(this));
     };
 
     presenter.EditableInputGap.prototype = Object.create(presenter.GapUtils.prototype);
     presenter.EditableInputGap.constructor = presenter.EditableInputGap;
 
+    presenter.EditableInputGap.prototype.connectEvents = function () {
+        this.$view.on("input", this.onEdit.bind(this));
+        this.$view.on('keyup', this.onKeyUp.bind(this));
+        this.$view.on("keypress", this.onKeyPress.bind(this));
+        this.$view.off('change').bind('change', this.onEdit.bind(this));
+    };
+
+    presenter.EditableInputGap.prototype.onKeyUp = function(event) {
+        event.stopPropagation();
+        if (presenter.configuration.useNumericKeyboard) {
+            var newText = String(event.target.value);
+            var pattern = StringUtils.getNumericPattern();
+            if (newText.length > 0 && !newText.match(pattern)) {
+                var patternWithoutLastCharacter = pattern.slice(0, -1);
+                var regExp = RegExp(patternWithoutLastCharacter);
+                var match = regExp.exec(newText);
+
+                if (match) {
+                    this.setViewValue(match[0]);
+                } else {
+                    this.setViewValue("");
+                }
+            }
+        }
+    };
+
+    presenter.EditableInputGap.prototype.onKeyPress = function(event) {
+        event.stopPropagation();
+        if (presenter.configuration.useNumericKeyboard) {
+            var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+            var selectionStartIdx = event.target.selectionStart;
+            var selectionEndIdx = event.target.selectionEnd;
+            var oldText = String(event.target.value);
+            var newText = oldText.substring(0, selectionStartIdx)
+                            + key
+                            + oldText.substring(selectionEndIdx);
+            var pattern = StringUtils.getNumericPattern();
+            if (!newText.match(pattern)) {
+                event.preventDefault();
+            }
+        }
+    };
+
     presenter.EditableInputGap.prototype.createView = function () {
         var inputType = "text";
         if (presenter.configuration.useNumericKeyboard) {
-            inputType = "Number";
+            inputType = "tel";
         }
         var $inputGap = $('<input type="' + inputType + '" value="" id="' + this.objectID + '" />');
         $inputGap.css({
@@ -1333,6 +1372,7 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.EditableInputGap.prototype.onEdit = function (event) {
+        console.log("edit")
         this.notifyEdit();
         this.value = this.getValue();
 

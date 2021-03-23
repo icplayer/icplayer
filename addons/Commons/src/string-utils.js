@@ -37,7 +37,7 @@
         },
 
          /**
-         Checks whether string ends with the specified suffix.
+         Checks   string ends with the specified suffix.
          @method endsWith
 
          @param {String} baseString the string which would be checked
@@ -89,6 +89,20 @@
             seconds = Math.floor(seconds % 60);
             seconds = (seconds >= 10) ? seconds : "0" + seconds;
             return minutes + ":" + seconds;
+        },
+
+         /**
+         Gets numeric pattern used in regex.
+         - in front can be a + or a -
+         - there can be one exponent e (or E) in the whole expression
+         - after the exponent e (or E) may be a + or -
+         - any number of digits and commas/dots in any combination throughout the expression
+         @method getNumericPattern
+
+         @return {String} pattern
+         */
+        getNumericPattern: function getNumericPattern() {
+            return "^[+-]?[,.\\d]*([eE][+-]?[,.\\d]*)?$";
         }
 
     }

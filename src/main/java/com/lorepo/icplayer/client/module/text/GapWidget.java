@@ -35,7 +35,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	private int gapState = 0;
 	private ArrayList<HandlerRegistration> handlers = new ArrayList<HandlerRegistration>();
 
-	private final String expNotationPattern = "-?\\d*([,.]\\d*)?(e[+\\-]?\\d*)?";
+	private final String expNotationPattern = "^[+-]?[,.\\d]*([eE][+-]?[,.\\d]*)?$";
 	
 	protected final GapInfo gapInfo;
 	
@@ -107,10 +107,12 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 				@Override
 				public void onKeyUp(KeyUpEvent event) {
 					if (gapInfo.isNumericOnly()) {
+						// Prevents skip numeric onKeyPress validation when pasting string
 						String newText = getText();
 						if (newText.length() > 0 && !newText.matches(expNotationPattern)) {
-
-							RegExp regExp = RegExp.compile(expNotationPattern);
+							String patternWithoutLastCharacter
+									= expNotationPattern.substring(0, expNotationPattern.length() - 1);
+							RegExp regExp = RegExp.compile(patternWithoutLastCharacter);
 							MatchResult matcher = regExp.exec(newText);
 
 							if (matcher != null) {
@@ -131,20 +133,12 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 				@Override
 				public void onKeyPress(KeyPressEvent event) {
 					if (gapInfo.isNumericOnly()) {
-						String newText = "";
 						String oldText = getText();
-						if (getSelectionLength() > 0) {
-							newText = oldText.substring(0, getCursorPos())
-									+ event.getCharCode()
-									+ oldText.substring(getCursorPos() + getSelectionLength());
-						} else {
-							newText = oldText.substring(0, getCursorPos())
-									+ event.getCharCode()
-									+ oldText.substring(getCursorPos());
-						}
-						if (!newText.matches(expNotationPattern) && oldText.matches(expNotationPattern)) {
+						String newText = oldText.substring(0, getCursorPos())
+								+ event.getCharCode()
+								+ oldText.substring(getCursorPos() + getSelectionLength());
+						if (!newText.matches(expNotationPattern)) {
 							((TextBox)event.getSource()).cancelKey();
-
 						}
 					}
 				}
