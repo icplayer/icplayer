@@ -41,14 +41,28 @@ function AddonGradual_Show_Answer_create() {
         }
 
         // if gradual show answers mode is on, this button must be clickable
-        if (presenter.isDisabled() && !presenter.state.isGradualShowAnswers) return;
-
+        if (
+            presenter.isDisabled() &&
+            (!presenter.state.isGradualShowAnswers ||
+            presenter.configuration.isHideAnswers)
+        )
+            return;
+  
+        var eventData = {
+            'source': presenter.addonID,
+            'value': presenter.configuration.isHideAnswers ? "HideAllAnswers" : "ShowNextAnswer",
+        };
+        presenter.sendEvent(eventData);
         presenter.triggerButtonClickedEvent();
     };
 
+    presenter.sendEvent = function (eventData) {
+        var eventBus = presenter.playerController.getEventBus();
+        eventBus.sendEvent('ValueChanged', eventData);
+    }
+
     presenter.triggerButtonClickedEvent = function () {
         if (presenter.playerController == null) return;
-
         if (presenter.configuration.isHideAnswers) {
             presenter.playerController.getCommands().hideGradualAnswers();
         } else {
@@ -75,6 +89,10 @@ function AddonGradual_Show_Answer_create() {
 
         if (presenter.configuration.isHideAnswers) {
             presenter.viewElements.button.classList.add(classList.HIDE_ANSWERS);
+        }
+
+        if (presenter.configuration.isDisabled) {
+            presenter.disable();
         }
 
         if (!isPreview) {
@@ -104,13 +122,15 @@ function AddonGradual_Show_Answer_create() {
 
     presenter.getState = function () {
         return JSON.stringify({
-            isVisible: this.state.isVisible
+            isVisible: presenter.state.isVisible,
+            isDisabled: presenter.state.isDisabled
         })
     }
 
     presenter.setState = function (state) {
         var parsedState = JSON.parse(state);
         presenter.state.isVisible = parsedState.isVisible;
+        presenter.state.isDisabled = parsedState.isDisabled;
 
         if (presenter.state.isVisible) {
             presenter.show();
@@ -121,10 +141,12 @@ function AddonGradual_Show_Answer_create() {
 
     presenter.show = function () {
         presenter.viewElements.button.style.visibility = 'visible';
+        presenter.state.isVisible = true;
     }
 
     presenter.hide = function () {
         presenter.viewElements.button.style.visibility = 'hidden';
+        presenter.state.isVisible = false;
     }
 
     presenter.disable = function () {
@@ -159,6 +181,19 @@ function AddonGradual_Show_Answer_create() {
             presenter.viewElements.button.classList.remove(classList.GRADUAL_ACTIVE);
         }
     }
+
+    presenter.reset = function () {
+        if (presenter.configuration.isDisabled) {
+            presenter.disable();
+        } else {
+            presenter.enable();
+        }
+        if (presenter.configuration.isVisible) {
+            presenter.show();
+        } else {
+            presenter.hide();
+        }
+    };
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
