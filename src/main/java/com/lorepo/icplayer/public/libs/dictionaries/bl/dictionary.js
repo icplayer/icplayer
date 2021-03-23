@@ -1680,6 +1680,8 @@ var ice_dictionary_bl = {
 	"IWB_Toolbar_property_for_marker": "Покажи за маркер",
 	"IWB_Toolbar_property_keep_state_and_position": "Запази една и съща позиция на всяка страница",
 	"IWB_Toolbar_property_closed_panel_drawing": "Рисуване при затворен панел",
+	"IWB_Toolbar_property_on_custom_button_selected": "On custom button selected",
+	"IWB_Toolbar_property_on_custom_button_deselected": "On custom button deselected",
 	"SVG2_info": "Модул SVG позволява поставянето на SVG изображение в презентацията.",
 	"SVG2_name": "SVG",
 	"SVG2_property_svg_file": "SVG файл",

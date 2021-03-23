@@ -722,7 +722,7 @@ function AddonIWB_Toolbar_create() {
         if (model['widthWhenOpened']) {
             validated = ModelValidationUtils.validatePositiveInteger(model['widthWhenOpened']);
         } else {
-            validated = getCorrectObject(538);
+            validated = getCorrectObject(574);
         }
 
         if (!validated.isValid) {
@@ -752,7 +752,11 @@ function AddonIWB_Toolbar_create() {
 
             'showForPen': ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forPen),
             'showForMarker': ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forMarker),
-            'closedPanelDrawing': ModelValidationUtils.validateBoolean(model["Closed panel drawing"])
+            'closedPanelDrawing': ModelValidationUtils.validateBoolean(model["Closed panel drawing"]),
+
+            'onCustomButtonSelected': model["onCustomButtonSelected"],
+            'onCustomButtonDeselected': model["onCustomButtonDeselected"],
+            'isCustomButtonSelected': false,
         };
     }
 
@@ -1118,6 +1122,15 @@ function AddonIWB_Toolbar_create() {
         });
     };
 
+    presenter.addonClickHandler = function IWB_Toolbar_addonClickHandler(button) {
+        presenter.isZoomActive = false;
+        presenter.restoreTextAudioEventHandlers();
+
+        presenter.panelView(button);
+
+        presenter.switchAddonVisibility();
+    };
+
     presenter.floatingImageClickHandler = function IWB_Toolbar_floatingImageClickHandler(button) {
         presenter.isZoomActive = false;
         presenter.restoreTextAudioEventHandlers();
@@ -1379,6 +1392,10 @@ function AddonIWB_Toolbar_create() {
         'note' : {
             'onOpen': presenter.noteClickHandler,
             'onReclicked': presenter.noteClickHandler
+        },
+        'addon' : {
+            'onOpen': presenter.addonClickHandler,
+            'onReclicked': presenter.addonClickHandler
         },
         'floating-image' : {
             'onOpen': presenter.floatingImageClickHandler,
@@ -2478,6 +2495,17 @@ function AddonIWB_Toolbar_create() {
     };
 
 
+    presenter.executeUserEventCode = function (eventCode) {
+        presenter.playerController.getCommands().executeEventCode(eventCode);
+    };
+
+    presenter.switchAddonVisibility = function IWB_Toolbar_switchAddonVisibility() {
+        var eventCode = presenter.isCustomButtonSelected() ? presenter.config.onCustomButtonDeselected : presenter.config.onCustomButtonSelected;
+        presenter.executeUserEventCode(eventCode);
+        presenter.config.isCustomButtonSelected = !presenter.config.isCustomButtonSelected;
+    };
+
+
     presenter.zoomSelectedModule = function IWB_Toolbar_zoomSelectedModule(selectedModule) {
         if (presenter.$pagePanel.find('.zoomed').length > 0) {
             presenter.$panel.show();
@@ -3043,6 +3071,9 @@ function AddonIWB_Toolbar_create() {
         //noteClickHandler
         //pass
 
+        //addonClickHandler
+        //pass
+
         //floatingImageClickHandler
         //pass
 
@@ -3289,6 +3320,7 @@ function AddonIWB_Toolbar_create() {
         presenter.standAreaClickHandler = null;
         presenter.resetClickHandler = null;
         presenter.noteClickHandler = null;
+        presenter.addonClickHandler = null;
         presenter.floatingImageClickHandler = null;
         presenter.clockClickHandler = null;
         presenter.stopwatchClickHandler = null;
@@ -3429,8 +3461,14 @@ function AddonIWB_Toolbar_create() {
         presenter.$panel.css('visibility', isVisible ? 'visible' : 'hidden');
     };
 
+    presenter.isCustomButtonSelected = function() {
+        return presenter.config.isCustomButtonSelected;
+    }
+
     presenter.executeCommand = function(name, params) {
         var commands = {
+            'selectCustomButton': presenter.selectCustomButton,
+            'deselectCustomButton': presenter.deselectCustomButton,
             'open' : presenter.open,
             'hide' : presenter.hide,
             'show' : presenter.show,
