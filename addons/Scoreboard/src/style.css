@@ -47,7 +47,7 @@
 }
 
 .scoreboard-footer .scoreboard-add-new-team {
-    width: 60%;
+    width: 40%;
     right: 5px;
     float: right;
     cursor: pointer;
@@ -59,9 +59,8 @@
 }
 
 .scoreboard-footer .scoreboard-reset {
-    width: 35%;
+    width: 40%;
     right: 5px;
-    margin-left: 0.5em;
     float: left;
     cursor: pointer;
     text-align: center;

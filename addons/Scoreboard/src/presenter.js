@@ -224,7 +224,9 @@ function AddonScoreboard_create() {
         if (presenter.state.teamsObjects.length < 8) {
             var availableLowestId = getLowestAvaibleTeamId();
             var defaultTeamData = presenter.DEFAULT_TEAMS_DATA[availableLowestId]
-            this.$scoreboard.css('width', '+=110px')
+            if (presenter.state.teamsObjects.length != 0) {
+                this.$scoreboard.css('width', '+=110px')
+            }
             presenter.addTeam(defaultTeamData, this);
         }
     };
@@ -527,7 +529,9 @@ function AddonScoreboard_create() {
     };
 
     presenter.removeTeam = function Scoreboard_removeTeam (teamId) {
-        presenter.$view.css('width', '-=110px')
+        if (presenter.state.teamsObjects.length > 1) {
+            presenter.$view.css('width', '-=110px')
+        }
         presenter.teamsObjects = presenter.teamsObjects.filter((team) => {
             return teamId !== team.getTeamId().teamId;
         });
@@ -565,7 +569,9 @@ function AddonScoreboard_create() {
         presenter.removeAllTeams();
         presenter.scoreboard.moveScoreboard(savedScoreboard.scoreboard);
         savedScoreboard.teamsObjects.forEach(function (teamData) {
-            presenter.$view.css('width', '+=110px')
+            if (presenter.state.teamsObjects.length != 0) {
+                presenter.$view.css('width', '+=110px')
+            }
             presenter.addTeam(teamData, presenter.scoreboard);
         });
         presenter.state.isVisible = savedScoreboard.isVisible;
