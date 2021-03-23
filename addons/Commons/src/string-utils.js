@@ -37,7 +37,7 @@
         },
 
          /**
-         Checks   string ends with the specified suffix.
+         Checks whether string ends with the specified suffix.
          @method endsWith
 
          @param {String} baseString the string which would be checked

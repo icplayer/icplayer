@@ -33,8 +33,6 @@ function AddonTable_create() {
     presenter.gapIndex = 0;
     presenter.isGradualShowAnswersActive = false;
 
-    var expNotationPattern = "^[+-]?[,.\\d]*([eE][+-]?[,.\\d]*)?$";
-
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
         'CL_01': 'Number of columns must be a positive integer!',

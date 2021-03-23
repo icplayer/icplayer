@@ -1372,7 +1372,6 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.EditableInputGap.prototype.onEdit = function (event) {
-        console.log("edit")
         this.notifyEdit();
         this.value = this.getValue();
 
