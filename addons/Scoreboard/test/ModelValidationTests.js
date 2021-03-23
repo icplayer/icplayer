@@ -3,32 +3,55 @@ TestCase("[Scoreboard] Model validation", {
         this.presenter = AddonScoreboard_create();
 
         this.model = {
-            ID: "Scoreboard1",
-            Broadcast: "Variable_Storage1"
+            "ID": "Scoreboard1",
+            "Broadcast": "Variable_Storage1",
+            "isDraggable": "True",
+            "VariableStorageLocation": "header",
+            "VariableStorageLocationName": "header"
         }
     },
 
     'test proper model': function () {
-        var validatedModel = this.presenter.validateModel(this.model);
+        let validatedModel = this.presenter.validateModel(this.model);
 
         assertTrue(validatedModel.isValid);
         assertEquals("Scoreboard1", validatedModel.ID);
-        assertEquals("Variable_Storage1", validatedModel.Broadcast);
+        assertEquals("Variable_Storage1", validatedModel.broadcast);
+        assertTrue(validatedModel.isDraggable);
+        assertEquals("header", validatedModel.variableStorageLocation);
+        assertEquals("header", validatedModel.variableStorageLocationName);
+        assertFalse(validatedModel.isOnePageScoreboard);
     },
 
     'test empty configuration' : function () {
-        this.model["configuration"] = "";
-        var validatedModel = this.presenter.validateModel(this.model);
+        this.model = {
+            "ID": "Scoreboard1",
+            "Broadcast": "Variable_Storage1",
+            "isDraggable": "True",
+        }
+        let validatedModel = this.presenter.validateModel(this.model);
 
         assertFalse(validatedModel.isValid);
         assertEquals("C01", validatedModel.errorCode);
     },
 
-    'test empty variable storage id' : function () {
-        this.model.Broadcast = "";
-        var validatedModel = this.presenter.validateModel(this.model);
+    'test one page mode' : function () {
+        this.model = {
+            "ID": "Scoreboard1",
+            "Broadcast": "",
+            "isDraggable": "True",
+            "VariableStorageLocation": "header",
+            "VariableStorageLocationName": "header"
+        }
 
-        assertFalse(validatedModel.isValid);
-        assertEquals("B01", validatedModel.errorCode);
+        let validatedModel = this.presenter.validateModel(this.model);
+
+        assertTrue(validatedModel.isValid);
+        assertEquals("Scoreboard1", validatedModel.ID);
+        assertEquals("", validatedModel.broadcast);
+        assertTrue(validatedModel.isDraggable);
+        assertEquals("header", validatedModel.variableStorageLocation);
+        assertEquals("header", validatedModel.variableStorageLocationName);
+        assertTrue(validatedModel.isOnePageScoreboard);
     }
 });

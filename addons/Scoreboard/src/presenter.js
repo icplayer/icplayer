@@ -1,6 +1,8 @@
 function AddonScoreboard_create() {
     var presenter = function() {};
 
+    function getErrorObject (ec) { return {isValid: false, errorCode: ec}; }
+
     presenter.DEFAULT_TEAMS_DATA = [
         {
             'teamId': 0,
@@ -76,7 +78,6 @@ function AddonScoreboard_create() {
 
     presenter.ERROR_CODES = {
         C01: 'Configuration cannot be empty',
-        B01: 'Variable storage ID cannot be empty',
     };
 
     presenter.run = function (view, model) {
@@ -89,21 +90,28 @@ function AddonScoreboard_create() {
 
     function presenterLogic(view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
-        if (presenter.configuration.isError) {
+        if (!presenter.configuration.isValid) {
+            DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
 
         presenter.initView(view, model);
-    };
+    }
 
     presenter.validateModel = function (model) {
-        var isOnePageScoreboard = model['Broadcast'] ? false : true;
+        var isOnePageScoreboard = !model['Broadcast'];
+
+        if (model['Broadcast'] !== "" && (ModelValidationUtils.isStringEmpty(model['VariableStorageLocation']) ||
+            ModelValidationUtils.isStringEmpty(model['VariableStorageLocationName']))) {
+            return getErrorObject('C01');
+        }
+
         return {
             isValid: true,
             ID: model.ID,
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
             broadcast: model['Broadcast'],
-            isDraggable: ModelValidationUtils.validateBoolean(model['Draggable']),
+            isDraggable: ModelValidationUtils.validateBoolean(model['isDraggable']),
             variableStorageLocation: model['VariableStorageLocation'],
             variableStorageLocationName: model['VariableStorageLocationName'],
             isOnePageScoreboard: isOnePageScoreboard
