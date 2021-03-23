@@ -133,10 +133,17 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 				@Override
 				public void onKeyPress(KeyPressEvent event) {
 					if (gapInfo.isNumericOnly()) {
+						String newText = "";
 						String oldText = getText();
-						String newText = oldText.substring(0, getCursorPos())
-								+ event.getCharCode()
-								+ oldText.substring(getCursorPos() + getSelectionLength());
+						if (getSelectionLength() > 0) {
+							newText = oldText.substring(0, getCursorPos())
+									+ event.getCharCode()
+									+ oldText.substring(getCursorPos() + getSelectionLength());
+						} else {
+							newText = oldText.substring(0, getCursorPos())
+									+ event.getCharCode()
+									+ oldText.substring(getCursorPos());
+						}
 						if (!newText.matches(expNotationPattern)) {
 							((TextBox)event.getSource()).cancelKey();
 						}
