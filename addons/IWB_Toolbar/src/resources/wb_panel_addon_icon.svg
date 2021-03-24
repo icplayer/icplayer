@@ -1,17 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
-	<!ENTITY ns_flows "http://ns.adobe.com/Flows/1.0/">
-]>
-<svg version="1.1"
-	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/"
-	 x="0px" y="0px" width="18px" height="18px" viewBox="0 0 18 18" overflow="visible" enable-background="new 0 0 18 18"
-	 xml:space="preserve">
-<defs>
-</defs>
-<polygon fill="#7A7A7A" points="18,10.921 12,18 12,11.018 "/>
-<line fill="none" stroke="#7A7A7A" stroke-miterlimit="10" x1="5" y1="5.5" x2="13" y2="5.5"/>
-<line fill="none" stroke="#7A7A7A" stroke-miterlimit="10" x1="5" y1="8.5" x2="11" y2="8.5"/>
-<path fill="none" stroke="#7A7A7A" stroke-width="2" stroke-miterlimit="10" d="M12,17H2.82C1.819,17,1,16.521,1,15.52V2.82
-	C1,1.818,1.819,1,2.82,1h12.698C16.521,1,17,1.818,17,2.82V11"/>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <clipPath id="clip-addBoxIcon_1">
+      <rect width="24" height="24"/>
+    </clipPath>
+  </defs>
+  <g id="addBoxIcon_1" data-name="addBoxIcon – 1" clip-path="url(#clip-addBoxIcon_1)">
+    <g id="add_box-24px">
+      <path id="Path_633" data-name="Path 633" d="M0,0H24V24H0Z" fill="none"/>
+      <path id="Path_634" data-name="Path 634" d="M19,3H5A2,2,0,0,0,3,5V19a2,2,0,0,0,2,2H19a2.006,2.006,0,0,0,2-2V5A2.006,2.006,0,0,0,19,3ZM17,13H13v4H11V13H7V11h4V7h2v4h4Z" fill="#797979"/>
+    </g>
+  </g>
 </svg>
