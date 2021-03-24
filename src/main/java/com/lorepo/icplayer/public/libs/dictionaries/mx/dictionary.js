@@ -2066,14 +2066,14 @@ var ice_dictionary_mx = {
     "editor_batch_upload": "Upload",
 	"Adaptive_Next_name": "Adaptive next",
     "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor.",
-		"Scoreboard_info": "Scoreboard allows to conduct a competition by scoring the points of multiple teams.",
+		"Scoreboard_info": "Scoreboard allows conducting a competition and scoring the points won by multiple teams.",
 		"Scoreboard_name": "Scoreboard",
 		"Scoreboard_broadcast": "Variable Storage id",
 		"Scoreboard_is_draggable": "Is draggable",
 		"Scoreboard_location_of_variable_storage_module": "Variable Storage location",
 		"Scoreboard_variable_storage_location_name": "Variable Storage location name",
-	"Scoreboard_initial_teams_count": "Initial number of teams",
-	"Scoreboard_default_teams_list": "Initial list of teams",
-	"Scoreboard_property_name": "Team name",
-	"Scoreboard_property_color": "Team color"
+		"Scoreboard_initial_teams_count": "Initial number of teams",
+		"Scoreboard_default_teams_list": "Initial list of teams",
+		"Scoreboard_property_name": "Team name",
+		"Scoreboard_property_color": "Team colour"
 };
