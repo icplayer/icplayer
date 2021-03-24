@@ -61,6 +61,6 @@ TestCase("[Basic Math Gaps] EditableInputGap", {
 
         var inputType = this.gap.createView().attr('type');
 
-        assertEquals("number", inputType.toLowerCase());
+        assertEquals("tel", inputType.toLowerCase());
     }
 });
