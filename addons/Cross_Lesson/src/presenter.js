@@ -6,12 +6,13 @@ function AddonCross_Lesson_create(){
     var errorCodes = {
         "V_01": "Lesson ID is missing",
         "V_02": "Course ID is invalid",
-        "V_03": "Type is invalid. Lesson type should be either 'lesson' or 'ebook'."
+        "V_03": "Type is invalid. Lesson type should be either 'lesson', 'ebook' or 'course'."
     };
 
     var resourceTypes = {
         lesson: "lesson",
-        ebook: "ebook"
+        ebook: "ebook",
+        course: "course"
     };
 
     presenter.createPreview = function(view, model) {
@@ -23,7 +24,8 @@ function AddonCross_Lesson_create(){
     };
 
     function presenterLogic(view, model, preview) {
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
 
         if (presenter.configuration.isError) {
             presenter.createErrorView(view, presenter.configuration.errorCode);
@@ -36,16 +38,19 @@ function AddonCross_Lesson_create(){
     }
 
     presenter.validateModel = function (model) {
-        if (ModelValidationUtils.isStringEmpty(model['LessonID'])) {
-            return {isError: true, errorCode: 'V_01'};
-        }
-        var validatedCourseId = presenter.validateId(model['CourseID'], false);
-        if (!validatedCourseId.isValid) {
-            return {isError: true, errorCode: 'V_02'};
-        }
         var validatedType = presenter.validateType(model['Type']);
         if (!validatedType.isValid) {
             return {isError: true, errorCode: 'V_03'};
+        }
+        if (
+            validatedType.value != resourceTypes.course &&
+            ModelValidationUtils.isStringEmpty(model["LessonID"])
+          ) {
+            return {isError: true, errorCode: 'V_01'};
+        }
+        var validatedCourseId = presenter.validateId(model['CourseID'], false, validatedType.value);
+        if (!validatedCourseId.isValid) {
+            return {isError: true, errorCode: 'V_02'};
         }
         return {
             isError: false,
@@ -54,16 +59,23 @@ function AddonCross_Lesson_create(){
             courseID: validatedCourseId.value,
             type: validatedType.value,
             page: model['Page'],
-            image: model['Image']
+            image: model['Image'],
+            openLessonInCurrentTab: ModelValidationUtils.validateBoolean(model.OpenLessonInCurrentTab)
         }
     };
 
-    presenter.validateId = function(id, isRequired) {
+    presenter.validateId = function(id, isRequired, type) {
         var idReg = /^\d*$/;
         var isValid = false;
 
         if (id === "") {
-            isValid = !isRequired
+            if (type != resourceTypes.course) {
+                isValid = !isRequired;
+            } else {
+                return {
+                    isValid: isValid
+                }
+            }
         } else {
             isValid = idReg.test(id.trim());
         }
@@ -81,7 +93,7 @@ function AddonCross_Lesson_create(){
                 value: resourceTypes.lesson
             };
         }
-        if (type == resourceTypes.lesson || type == resourceTypes.ebook) {
+        if (type == resourceTypes.lesson || type == resourceTypes.ebook || type == resourceTypes.course) {
             return {
                 isValid: true,
                 value: type
@@ -136,9 +148,12 @@ function AddonCross_Lesson_create(){
     presenter.requestCrossLesson = function () {
         if (presenter.playerController) {
             var data = {
-                lessonID: presenter.configuration.lessonID,
-                type: presenter.configuration.type
+                type: presenter.configuration.type,
+                openLessonInCurrentTab: presenter.configuration.openLessonInCurrentTab
             };
+            if (presenter.configuration.lessonID) {
+                data.lessonID = presenter.configuration.lessonID;
+            }
             if (presenter.configuration.page) {
                 data.page = presenter.configuration.page;
             }
@@ -182,6 +197,22 @@ function AddonCross_Lesson_create(){
         };
 
         Commands.dispatch(commands, name, [], presenter);
+    };
+
+    presenter.upgradeOpenLessonInCurrentTab = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel["OpenLessonInCurrentTab"]) {
+            upgradedModel["OpenLessonInCurrentTab"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.upgradeModel = function AddonCross_Lesson_upgradeModel (model) {
+        var upgradedModel = presenter.upgradeOpenLessonInCurrentTab(model);
+        return upgradedModel;
     };
 
     return presenter;
