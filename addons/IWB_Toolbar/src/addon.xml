@@ -12,6 +12,7 @@
         <property name="forMarker" displayName="Show for marker" nameLabel="IWB_Toolbar_property_for_marker" type="{---, Color panel, Thickness panel}" />
         <property name="keepStateAndPosition" displayName="Keep state and position" nameLabel="IWB_Toolbar_property_keep_state_and_position" type="boolean" />
         <property name="Closed panel drawing" nameLabel="IWB_Toolbar_property_closed_panel_drawing" type="boolean" />
+        <property name="hasCustomButton" nameLabel="IWB_Toolbar_property_has_custom_button" type="boolean" />
         <property name="onCustomButtonSelected" nameLabel="IWB_Toolbar_property_on_custom_button_selected" type="event" isDefault="true" />
         <property name="onCustomButtonDeselected" nameLabel="IWB_Toolbar_property_on_custom_button_deselected" type="event" />
     </model>

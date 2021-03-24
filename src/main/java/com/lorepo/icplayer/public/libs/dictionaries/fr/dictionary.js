@@ -1677,6 +1677,7 @@ var ice_dictionary_fr = {
     "IWB_Toolbar_property_for_marker": "Afficher pour le marqueur",
     "IWB_Toolbar_property_keep_state_and_position": "Conserver le statut et la position",
     "IWB_Toolbar_property_closed_panel_drawing": "Closed panel drawing",
+	"IWB_Toolbar_property_has_custom_button": "Has custom button",
 	"IWB_Toolbar_property_on_custom_button_selected": "On custom button selected",
 	"IWB_Toolbar_property_on_custom_button_deselected": "On custom button deselected",
     "SVG2_info": "Le module SVG permet d'insérer une image SVG dans une présentation.",
