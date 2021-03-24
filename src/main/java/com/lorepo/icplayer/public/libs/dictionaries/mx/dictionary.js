@@ -2071,5 +2071,9 @@ var ice_dictionary_mx = {
 		"Scoreboard_broadcast": "Variable Storage id",
 		"Scoreboard_is_draggable": "Is draggable",
 		"Scoreboard_location_of_variable_storage_module": "Variable Storage location",
-		"Scoreboard_variable_storage_location_name": "Variable Storage location name"
+		"Scoreboard_variable_storage_location_name": "Variable Storage location name",
+	"Scoreboard_initial_teams_count": "Initial number of teams",
+	"Scoreboard_default_teams_list": "Initial list of teams",
+	"Scoreboard_property_name": "Team name",
+	"Scoreboard_property_color": "Team color"
 };

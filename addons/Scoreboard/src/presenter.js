@@ -3,81 +3,21 @@ function AddonScoreboard_create() {
 
     function getErrorObject (ec) { return {isValid: false, errorCode: ec}; }
 
-    presenter.DEFAULT_TEAMS_DATA = [
-        {
-            'teamId': 0,
-            'teamName': 'team A',
-            'teamPoints': 0,
-            'teamColor': '#bd0000',
-        },
-        {
-            'teamId': 1,
-            'teamName': 'team B',
-            'teamPoints': 0,
-            'teamColor': '#6152eb',
-        },
-        {
-            'teamId': 2,
-            'teamName': 'team C',
-            'teamPoints': 0,
-            'teamColor': '#6d1576',
-        },
-        {
-            'teamId': 3,
-            'teamName': 'team D',
-            'teamPoints': 0,
-            'teamColor': '#f7dd00',
-        },
-        {
-            'teamId': 4,
-            'teamName': 'team E',
-            'teamPoints': 0,
-            'teamColor': '#e7723e',
-        },
-        {
-            'teamId': 5,
-            'teamName': 'team F',
-            'teamPoints': 0,
-            'teamColor': '#0e6e23',
-        },
-        {
-            'teamId': 6,
-            'teamName': 'team G',
-            'teamPoints': 0,
-            'teamColor': '#583623',
-        },
-        {
-            'teamId': 7,
-            'teamName': 'team H',
-            'teamPoints': 0,
-            'teamColor': '#c95574',
-        },
-    ];
-
     presenter.teamsObjects = [];
     presenter.scoreboard = null;
 
     presenter.state = {
         isVisible: false,
-        teamsObjects: [
-            {
-                'teamId': 0,
-                'teamName': 'team A',
-                'teamPoints': 0,
-                'teamColor': '#bd0000',
-            },
-            {
-                'teamId': 1,
-                'teamName': 'team B',
-                'teamPoints': 0,
-                'teamColor': '#6152eb',
-            },
-        ],
+        teamsObjects: [],
         savedScoreboard: null,
     }
 
     presenter.ERROR_CODES = {
         C01: 'Configuration cannot be empty',
+        I01: 'Maximum number of teams cannot be greater than 8',
+        I02: 'Initial number of teams must be positiv integer!',
+        I03: 'Initial team name cannot be empty',
+        I04: 'Team color must be in RGB format (hexadecimal) and start with #',
     };
 
     presenter.run = function (view, model) {
@@ -98,12 +38,100 @@ function AddonScoreboard_create() {
         presenter.initView(view, model);
     }
 
+    presenter.validateInitialTeamsCount = function (number) {
+        if (!number) {
+            return getErrorObject('I02');
+        }
+
+        var parsedNumber = parseInt(number, 10);
+        if (isNaN(parsedNumber)) {
+            return getErrorObject('I02');
+        }
+
+        if (parsedNumber < 1) {
+            return getErrorObject('I02');
+        }
+
+        if (parsedNumber > 8) {
+            return getErrorObject('I01');
+        }
+
+        return {
+            isValid: true,
+            number: parsedNumber
+        }
+    };
+
+    presenter.validateInitialTeams = function (initialTeams) {
+        var validatedInitialTeams = [], i;
+
+        if (initialTeams.length > 8) {
+            return getErrorObject('I01');
+        }
+
+        for (i = 0; i < 8; i++) {
+            var initialTeam = initialTeams[i];
+
+            if(!initialTeam) {
+                initialTeam = {}
+                initialTeam.teamName = "X";
+                initialTeam.teamColor = "#000";
+            }
+
+            if(ModelValidationUtils.isStringEmpty(initialTeam.teamName)) {
+                return getErrorObject('I03');
+            }
+
+            var teamColor = initialTeam.teamColor;
+            var regExp = new RegExp("#[0-9a-fA-F]+");
+            var colorMatch;
+    
+            if (!teamColor) {
+                teamColor = "#000";
+            } else {
+                if (teamColor.length < 4 || teamColor.length > 7) {
+                    return getErrorObject('I04');
+                }
+                colorMatch = teamColor.match(regExp);
+                if (!colorMatch || colorMatch === null || colorMatch.length < 1) {
+                    return getErrorObject('I04');
+                }
+                if (colorMatch[0].length < teamColor.length) {
+                    return getErrorObject('I04');
+                }
+            }
+            var initialTeamObject = {
+                'teamId': i,
+                'teamName': initialTeam.teamName,
+                'teamPoints': 0,
+                'teamColor': initialTeam.teamColor,
+            }
+
+            validatedInitialTeams.push(initialTeamObject)
+        };
+
+        return {
+            isValid: true,
+            validatedInitialTeams: validatedInitialTeams
+        }
+    };
+
     presenter.validateModel = function (model) {
         var isOnePageScoreboard = !model['Broadcast'];
 
         if (model['Broadcast'] !== "" && (ModelValidationUtils.isStringEmpty(model['VariableStorageLocation']) ||
             ModelValidationUtils.isStringEmpty(model['VariableStorageLocationName']))) {
             return getErrorObject('C01');
+        }
+
+        var validatedInitialTeams = presenter.validateInitialTeams(model['defaultTeamsList']);
+        if (!validatedInitialTeams.isValid) {
+            return validatedInitialTeams;
+        }
+
+        var validatedInitialTeamsCount = presenter.validateInitialTeamsCount(model['initialTeamsCount']);
+        if (!validatedInitialTeamsCount.isValid) {
+            return validatedInitialTeamsCount;
         }
 
         return {
@@ -114,18 +142,20 @@ function AddonScoreboard_create() {
             isDraggable: ModelValidationUtils.validateBoolean(model['isDraggable']),
             variableStorageLocation: model['VariableStorageLocation'],
             variableStorageLocationName: model['VariableStorageLocationName'],
-            isOnePageScoreboard: isOnePageScoreboard
+            isOnePageScoreboard: isOnePageScoreboard,
+            defaultTeamsList: validatedInitialTeams.validatedInitialTeams,
+            initialTeamsCount: validatedInitialTeamsCount.number
         }
     };
 
     presenter.initView = function (view, model) {
         presenter.$view = $(view);
+        presenter.$view.css('width', '0px');
         presenter.scoreboard = presenter.createScoreBoard(presenter.$view);
-        var initialTeamsObjects = presenter.state.teamsObjects;
-        presenter.state.teamsObjects = [];
-        initialTeamsObjects.forEach(function (savedTeam) {
-            presenter.scoreboard = presenter.addTeam(savedTeam, presenter.scoreboard);
-        });
+        for (var i = 0; i < presenter.configuration.initialTeamsCount; i++) {
+            presenter.$view.css('width', '+=110px')
+            presenter.scoreboard = presenter.addTeam(presenter.configuration.defaultTeamsList[i], presenter.scoreboard);
+        }
         presenter.setVisibility(presenter.configuration.isVisible);
     }
 
@@ -212,7 +242,7 @@ function AddonScoreboard_create() {
         presenter.teamsObjects.forEach(function (team) {
             workingIds.push(team.getTeamId().teamId);
         });
-        for (var i = 0; i < 8; i++) {
+        for (var i = 0; i < presenter.configuration.defaultTeamsList.length; i++) {
             if (!workingIds.includes(i)) {
                 freeIds.push(i);
             }      
@@ -223,7 +253,7 @@ function AddonScoreboard_create() {
     presenter.Scoreboard.prototype.addTeamButtonHandler = function (event) {
         if (presenter.state.teamsObjects.length < 8) {
             var availableLowestId = getLowestAvaibleTeamId();
-            var defaultTeamData = presenter.DEFAULT_TEAMS_DATA[availableLowestId]
+            var defaultTeamData = presenter.configuration.defaultTeamsList[availableLowestId]
             if (presenter.state.teamsObjects.length != 0) {
                 this.$scoreboard.css('width', '+=110px')
             }

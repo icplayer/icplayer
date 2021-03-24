@@ -5,5 +5,10 @@
       <property displayName="isDraggable" name='isDraggable' nameLabel="Scoreboard_is_draggable" type='boolean' isLocalized='false'/>
       <property displayName="VariableStorageLocation" name='VariableStorageLocation' nameLabel="Scoreboard_location_of_variable_storage_module" type='{header, footer}'/>
       <property displayName="VariableStorageLocationName" name='VariableStorageLocationName' nameLabel="Scoreboard_variable_storage_location_name" type='string' isLocalized='false'/>
+      <property displayName="initialTeamsCount" name='initialTeamsCount' nameLabel="Scoreboard_initial_teams_count" type='string' isLocalized='false'/>
+      <property name="defaultTeamsList" nameLabel="Scoreboard_default_teams_list" type="list" isDefault="true">
+        <property name="teamName" nameLabel="Scoreboard_property_name" type="string"/>
+        <property name="teamColor" nameLabel="Scoreboard_property_color" type="string"/>
+      </property>
     </model>
 </addon>
