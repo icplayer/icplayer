@@ -1441,19 +1441,6 @@ function AddonTable_create() {
         }
     };
 
-    presenter.EditableInputGap.prototype.onEdit = function (event) {
-        this.notifyEdit();
-        this.value = this.getViewValue();
-    };
-
-    presenter.EditableInputGap.prototype.blurHandler = function (event) {
-        this.notify();
-    };
-
-    presenter.EditableInputGap.prototype.getViewValue = function () {
-        return this.$view.val();
-    };
-
     presenter.EditableInputGap.prototype.onKeyUp = function(event) {
         event.stopPropagation();
         if (presenter.configuration.useNumericKeyboard) {
@@ -1469,6 +1456,7 @@ function AddonTable_create() {
                 } else {
                     this.setViewValue("");
                 }
+                this.value = this.getViewValue();
             }
         }
     };
@@ -1488,6 +1476,19 @@ function AddonTable_create() {
                 event.preventDefault();
             }
         }
+    };
+
+    presenter.EditableInputGap.prototype.onEdit = function (event) {
+        this.notifyEdit();
+        this.value = this.getViewValue();
+    };
+
+    presenter.EditableInputGap.prototype.blurHandler = function (event) {
+        this.notify();
+    };
+
+    presenter.EditableInputGap.prototype.getViewValue = function () {
+        return this.$view.val();
     };
 
     presenter.EditableInputGap.prototype.lock = function () {

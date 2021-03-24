@@ -1319,7 +1319,24 @@ function AddonBasic_Math_Gaps_create(){
         this.$view.off('change').bind('change', this.onEdit.bind(this));
     };
 
+    presenter.EditableInputGap.prototype.createView = function () {
+        var inputType = "text";
+        if (presenter.configuration.useNumericKeyboard) {
+            inputType = "tel";
+        }
+        var $inputGap = $('<input type="' + inputType + '" value="" id="' + this.objectID + '" />');
+        $inputGap.css({
+            width: presenter.configuration.gapWidth + "px"
+        });
+        if ((presenter.configuration.useNumericKeyboard)) {
+            $inputGap.attr("step", "any");
+        }
+
+        return $inputGap;
+    };
+
     presenter.EditableInputGap.prototype.onKeyUp = function(event) {
+        this.notifyEdit();
         event.stopPropagation();
         if (presenter.configuration.useNumericKeyboard) {
             var newText = String(event.target.value);
@@ -1339,6 +1356,7 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.EditableInputGap.prototype.onKeyPress = function(event) {
+        this.notifyEdit();
         event.stopPropagation();
         if (presenter.configuration.useNumericKeyboard) {
             var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
@@ -1353,22 +1371,6 @@ function AddonBasic_Math_Gaps_create(){
                 event.preventDefault();
             }
         }
-    };
-
-    presenter.EditableInputGap.prototype.createView = function () {
-        var inputType = "text";
-        if (presenter.configuration.useNumericKeyboard) {
-            inputType = "tel";
-        }
-        var $inputGap = $('<input type="' + inputType + '" value="" id="' + this.objectID + '" />');
-        $inputGap.css({
-            width: presenter.configuration.gapWidth + "px"
-        });
-        if ((presenter.configuration.useNumericKeyboard)) {
-            $inputGap.attr("step", "any");
-        }
-
-        return $inputGap;
     };
 
     presenter.EditableInputGap.prototype.onEdit = function (event) {
