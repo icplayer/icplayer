@@ -1122,13 +1122,13 @@ function AddonIWB_Toolbar_create() {
         });
     };
 
-    presenter.addonClickHandler = function IWB_Toolbar_addonClickHandler(button) {
+    presenter.customScriptClickHandler = function IWB_Toolbar_customScriptClickHandler(button) {
         presenter.isZoomActive = false;
         presenter.restoreTextAudioEventHandlers();
 
         presenter.panelView(button);
 
-        presenter.switchAddonVisibility();
+        presenter.runCustomScript();
     };
 
     presenter.floatingImageClickHandler = function IWB_Toolbar_floatingImageClickHandler(button) {
@@ -1393,9 +1393,9 @@ function AddonIWB_Toolbar_create() {
             'onOpen': presenter.noteClickHandler,
             'onReclicked': presenter.noteClickHandler
         },
-        'addon' : {
-            'onOpen': presenter.addonClickHandler,
-            'onReclicked': presenter.addonClickHandler
+        'custom-script' : {
+            'onOpen': presenter.customScriptClickHandler,
+            'onReclicked': presenter.customScriptClickHandler
         },
         'floating-image' : {
             'onOpen': presenter.floatingImageClickHandler,
@@ -2499,7 +2499,7 @@ function AddonIWB_Toolbar_create() {
         presenter.playerController.getCommands().executeEventCode(eventCode);
     };
 
-    presenter.switchAddonVisibility = function IWB_Toolbar_switchAddonVisibility() {
+    presenter.runCustomScript = function IWB_Toolbar_runCustomScript() {
         var eventCode = presenter.isCustomButtonSelected() ? presenter.config.onCustomButtonDeselected : presenter.config.onCustomButtonSelected;
         presenter.executeUserEventCode(eventCode);
         presenter.config.isCustomButtonSelected = !presenter.config.isCustomButtonSelected;
@@ -3071,7 +3071,7 @@ function AddonIWB_Toolbar_create() {
         //noteClickHandler
         //pass
 
-        //addonClickHandler
+        //customScriptClickHandler
         //pass
 
         //floatingImageClickHandler
@@ -3320,7 +3320,7 @@ function AddonIWB_Toolbar_create() {
         presenter.standAreaClickHandler = null;
         presenter.resetClickHandler = null;
         presenter.noteClickHandler = null;
-        presenter.addonClickHandler = null;
+        presenter.customScriptClickHandler = null;
         presenter.floatingImageClickHandler = null;
         presenter.clockClickHandler = null;
         presenter.stopwatchClickHandler = null;

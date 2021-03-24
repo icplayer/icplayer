@@ -210,12 +210,12 @@
     background-image: url('resources/wb_panel_note_icon-active.svg');
 }
 
-.iwb-toolbar-panel .button.addon {
-    background-image: url('resources/wb_panel_addon_icon.svg');
+.iwb-toolbar-panel .button.custom-script {
+    background-image: url('resources/wb_panel_custom_script_icon.svg');
 }
 
-.iwb-toolbar-panel .button.addon.clicked {
-    background-image: url('resources/wb_panel_addon_icon-active.svg');
+.iwb-toolbar-panel .button.custom-script.clicked {
+    background-image: url('resources/wb_panel_custom_script_icon-active.svg');
 }
 
 .iwb-toolbar-panel .button.floating-image {
@@ -522,7 +522,7 @@
     color: #696969;
 }
 
-.iwb-toolbar-addon {
+.iwb-toolbar-custom-script {
     top: 0px;
     width: 185px;
     min-height: 120px;
@@ -535,7 +535,7 @@
     overflow-x: hidden;
 }
 
-.iwb-toolbar-addon .addon-close.hovered {
+.iwb-toolbar-custom-script .custom-script-close.hovered {
     color: #696969;
 }
 
@@ -597,8 +597,8 @@
     content: 'Add Note';
 }
 
-.iwb-toolbar-panel .button.addon .tooltip span:after {
-    content: 'Switch Addon Visibility';
+.iwb-toolbar-panel .button.custom-script .tooltip span:after {
+    content: 'Run custom script';
 }
 
 .iwb-toolbar-panel .button.hide-area .tooltip span:after {
