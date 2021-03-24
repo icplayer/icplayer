@@ -107,7 +107,6 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 				@Override
 				public void onKeyUp(KeyUpEvent event) {
 					if (gapInfo.isNumericOnly()) {
-						// Prevents skip numeric onKeyPress validation when pasting string
 						String newText = getText();
 						if (newText.length() > 0 && !newText.matches(expNotationPattern)) {
 							String patternWithoutLastCharacter
@@ -134,7 +133,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 				public void onKeyPress(KeyPressEvent event) {
 					if (gapInfo.isNumericOnly()) {
 						String newText = "";
-						String oldText = getText();
+						String oldText = GapWidget.super.getText();
 						if (getSelectionLength() > 0) {
 							newText = oldText.substring(0, getCursorPos())
 									+ event.getCharCode()

@@ -1336,7 +1336,6 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.EditableInputGap.prototype.onKeyUp = function(event) {
-        this.notifyEdit();
         event.stopPropagation();
         if (presenter.configuration.useNumericKeyboard) {
             var newText = String(event.target.value);
@@ -1356,7 +1355,6 @@ function AddonBasic_Math_Gaps_create(){
     };
 
     presenter.EditableInputGap.prototype.onKeyPress = function(event) {
-        this.notifyEdit();
         event.stopPropagation();
         if (presenter.configuration.useNumericKeyboard) {
             var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
