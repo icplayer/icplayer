@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -17,9 +18,14 @@ import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class PrintableContentParser {
+
+	public interface ParsedListener {
+		void onParsed(String result);
+	}
 	
 	public static String SPLITTABLE_CLASS_NAME = "splittable";
 	int dpi = 96;
@@ -30,6 +36,10 @@ public class PrintableContentParser {
 	int contentHeight = 0;
 	Boolean enableTwoColumnPrint = false;
 	SeededRandom random = new SeededRandom();
+	boolean showAnswers = false;
+	boolean randomizePages = false;
+	boolean randomizeModules = false;
+	ParsedListener listener = null;
 	
 	private static class SplitResult extends JavaScriptObject {
 		
@@ -80,7 +90,23 @@ public class PrintableContentParser {
 	public void setRandomSeed(int seed) {
 		this.random.setSeed(seed);
 	}
-	
+
+	public void setRandomizePages(boolean randomizePages) {
+		this.randomizePages = randomizePages;
+	}
+
+	public void setRandomizeModules(boolean randomizeModules) {
+		this.randomizeModules = randomizeModules;
+	}
+
+	public void setShowAnswers(boolean showAnswers) {
+		this.showAnswers = showAnswers;
+	}
+
+	public void setListener(ParsedListener listener) {
+		this.listener = listener;
+	}
+
 	public void setTwoColumnPrintEnabled(boolean enabled) {
 		enableTwoColumnPrint = enabled;
 	}
@@ -206,7 +232,7 @@ public class PrintableContentParser {
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		PrintableController pagePrintableController = new PrintableController(page);
 		pagePrintableController.setSeededRandom(random);
-		
+
 		ModuleList modules = page.getModules();
 		for (int i = 0; i < modules.size(); i++) {
 			IModuleModel model = modules.get(i);
@@ -299,12 +325,12 @@ public class PrintableContentParser {
 			
 			var newPrintablePageHTML = printablePageHTML + moduleHTML;
 			var newPrintablePageWithHeaderAndFooter = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::applyHeaderAndFooter(Ljava/lang/String;Z)(newPrintablePageHTML, false);
-			var newHeight = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getHTMLHeight(Ljava/lang/String;I)(newPrintablePageWithHeaderAndFooter, pageWidth);
+			var newHeight = @com.lorepo.icplayer.client.printable.PrintableContentParser::getHTMLHeight(Ljava/lang/String;I)(newPrintablePageWithHeaderAndFooter, pageWidth);
 			if (newHeight > pageHeight) {
 				if (prevHeight < pageHeight - maxEmptyHeight && this.classList.contains(SPLITTABLE_CLASS_NAME)) {
 					var maxHeadHeight = pageHeight - prevHeight - 50;
 					if (enableTwoColumnPrint) maxHeadHeight = maxHeadHeight * 2;
-					var splitResult = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::splitModule(Ljava/lang/String;IIIZ)(moduleHTML, maxHeadHeight, minSplitHeight, pageWidth, enableTwoColumnPrint);
+					var splitResult = @com.lorepo.icplayer.client.printable.PrintableContentParser::splitModule(Ljava/lang/String;IIIZ)(moduleHTML, maxHeadHeight, minSplitHeight, pageWidth, enableTwoColumnPrint);
 					printablePageHTML += splitResult.head;
 					moduleHTML = splitResult.tail;
 				}
@@ -322,8 +348,26 @@ public class PrintableContentParser {
 		return "<div class=\"printable_opening_player_page single_column_print\">" + content + "</div>";
 	}
 	
-	public String generatePrintableHTMLForPages(List<Page> sourcePages, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
-		String result = "<div class='printable_lesson'>";
+	public void generatePrintableHTMLForPages(List<Page> sourcePages) {
+		List<String> pageHTMLs = generatePageHTMLs(sourcePages);
+		String result = "";
+		for(String pageHTML: pageHTMLs) {
+			result += "<div class='page'>";
+			result += pageHTML;
+			result += "</div>";
+		}
+		preloadPageHTMLs(this, result);
+	};
+
+	private void continueGeneratePrintableHTML(JavaScriptObject element) {
+		updateImageSizes(element);
+		List<String> pageHTMLs = getModuleHTMLsFromWrapper(element);
+		String result = paginatePageHTMLs(pageHTMLs);
+		removeJSElement(element);
+		listener.onParsed(result);
+	}
+
+	private List<String> generatePageHTMLs(List<Page> sourcePages) {
 		List<Page> pages = new ArrayList<Page>();
 
 		if (randomizePages && sourcePages.size() > 1) {
@@ -336,9 +380,9 @@ public class PrintableContentParser {
 					nonRandomizablePages.add(page);
 				}
 			}
-			
-			for(int index = 0; index < randomizablePages.size(); index += 1) {  
-				Collections.swap(randomizablePages, index, index + random.nextInt(randomizablePages.size() - index));  
+
+			for(int index = 0; index < randomizablePages.size(); index += 1) {
+				Collections.swap(randomizablePages, index, index + random.nextInt(randomizablePages.size() - index));
 			}
 
 			for (Page page: nonRandomizablePages) pages.add(page);
@@ -346,17 +390,26 @@ public class PrintableContentParser {
 		} else {
 			pages = sourcePages;
 		}
-		
 
+		List<String> parsedPages = new ArrayList<String>();
+		for (Page page: pages) {
+			parsedPages.add(parsePage(page, randomizeModules, showAnswers));
+		}
+
+		return parsedPages;
+	}
+
+	private String paginatePageHTMLs(List<String> pageHTMLs) {
 		int pageMaxHeight = getA4HeightInPixels(10);
 		contentHeight = pageMaxHeight - footerHeight - headerHeight;
 		int pageWidth = getA4WidthInPixels(10);
 		String printablePageHTML = "";
 		boolean twoColumnPrintOriginalValue = enableTwoColumnPrint;
-		
+
+		String result = "<div class='printable_lesson'>";
 		boolean firstPage = true;
-		for (Page page: pages) {
-			String pageHTML = parsePage(page, randomizeModules, showAnswers);
+		for (String wrappedPageHTML: pageHTMLs) {
+			String pageHTML = unwrapHTML(wrappedPageHTML);
 			String newPrintablePageHTML = printablePageHTML + pageHTML;
 			if (firstPage && enableTwoColumnPrint) { // First mauthor page is always in single column
 				enableTwoColumnPrint = false;
@@ -383,13 +436,24 @@ public class PrintableContentParser {
 		if (printablePageHTML.length() > 0) {
 			result += wrapPrintablePage(printablePageHTML, pageWidth, pageMaxHeight);
 		}
-		
+
 		result += "</div>";
 		return result;
-	};
-	
-	public String generatePrintableHTML(Content contentModel, boolean randomizePages, boolean randomizeModules, boolean showAnswers) {
-		List<Page> pages = contentModel.getPages().getAllPages();
+	}
+
+	public void generatePrintableHTML(Content contentModel, ArrayList<Integer> pageSubset) {
+		List<Page> pages;
+		if (pageSubset == null) {
+			pages = contentModel.getPages().getAllPages();
+		} else {
+			pages = new ArrayList<Page>();
+			for (int index: pageSubset) {
+				IPage ipage = contentModel.getPage(index);
+				if (ipage instanceof Page) {
+					pages.add((Page) ipage);
+				}
+			}
+		}
 		Page header = contentModel.getDefaultHeader();
 		if (header != null) {
 			setHeader(header);
@@ -399,14 +463,19 @@ public class PrintableContentParser {
 			setFooter(footer);
 		}
 		setTwoColumnPrintEnabled(Boolean.valueOf(contentModel.getMetadataValue("enableTwoColumnPrint")));
-		String result = generatePrintableHTMLForPages(pages, randomizePages, randomizeModules, showAnswers);
-		return result;
+		generatePrintableHTMLForPages(pages);
+	}
+
+
+	
+	public void generatePrintableHTML(Content contentModel) {
+		generatePrintableHTML(contentModel, null);
 	}
 	
-	public String generatePrintableHTMLForPage(Page page, boolean randomizeModules, boolean showAnswers) {
+	public void generatePrintableHTMLForPage(Page page) {
 		List<Page> pages = new ArrayList<Page>();
 		pages.add(page);
-		return generatePrintableHTMLForPages(pages, false, randomizeModules, showAnswers);
+		generatePrintableHTMLForPages(pages);
 	}
 	
 	public static String addClassToPrintableModule(String printableHTML, String className) {
@@ -439,55 +508,24 @@ public class PrintableContentParser {
 		return (int)((A4HeightInMM / MMInInch) * d_dpi);
 	};
 	
-	public native int getHTMLHeight (String html, int pageWidth) /*-{
+	public static native int getHTMLHeight (String html, int pageWidth) /*-{
 		var $_ = $wnd.$;
-		var $outerLessonWrapper = $_("<div></div>");
-		$outerLessonWrapper.css("position", "absolute");
-		$outerLessonWrapper.css("visibility", "hidden");
-		$outerLessonWrapper.addClass("printable_lesson");
-
-		var $outerPageWrapper = $_("<div></div>");
-		$outerPageWrapper.addClass("printable_page");
-		$outerLessonWrapper.append($outerPageWrapper);
-
-		var $wrapper = $_("<div></div>");
+		var $outerLessonWrapper = @com.lorepo.icplayer.client.printable.PrintableContentParser::getModuleTestingWrappers()();
+		var $wrapper = $outerLessonWrapper.find(".printable-content-wrapper");
 		$wrapper.css("width", pageWidth + "px");
-		$wrapper.css("margin", "0px");
-		$wrapper.css("padding", "0px");
 		$wrapper.html(html);
-		$outerPageWrapper.append($wrapper);
 
 		$_("body").append($outerLessonWrapper);
 		var height = $wrapper[0].getBoundingClientRect().height;
-		$outerLessonWrapper.detach();
+		$outerLessonWrapper.remove();
 		return height;
 	}-*/;
 	
-	private native SplitResult splitModule (String html, int maxHeight, int minSplitHeight, int pageWidth, boolean enableTwoColumnPrint) /*-{
+	private static native SplitResult splitModule (String html, int maxHeight, int minSplitHeight, int pageWidth, boolean enableTwoColumnPrint) /*-{
 		var $_ = $wnd.$;
-		var $outerLessonWrapper = $_("<div></div>");
-		$outerLessonWrapper.css("position", "absolute");
-		$outerLessonWrapper.css("top", "0px");
-		$outerLessonWrapper.css("left", "0px");
-		$outerLessonWrapper.css("visibility", "hidden");
-		$outerLessonWrapper.addClass("printable_lesson");
-
-		var $outerPageWrapper = $_("<div></div>");
-		$outerPageWrapper.addClass("printable_page");
-		$outerPageWrapper.css("position", "absolute");
-		$outerPageWrapper.css("top", "0px");
-		$outerPageWrapper.css("left", "0px");
-		$outerLessonWrapper.append($outerPageWrapper);
-
-		var $wrapper = $_("<div></div>");
-		$wrapper.css("position", "absolute");
-		$wrapper.css("top", "0px");
-		$wrapper.css("left", "0px");
+		var $outerLessonWrapper = @com.lorepo.icplayer.client.printable.PrintableContentParser::getModuleTestingWrappers()();
+		var $wrapper = $outerLessonWrapper.find(".printable-content-wrapper");
 		$wrapper.css("width", pageWidth + "px");
-		$wrapper.css("margin", "0px");
-		$wrapper.css("padding", "0px");
-		$outerPageWrapper.append($wrapper);
-
 		if (enableTwoColumnPrint) {
 			$wrapper.css("columns", "2");
 			$wrapper.css("-webkit-columns", "2");
@@ -495,6 +533,7 @@ public class PrintableContentParser {
 		}
 		$wrapper.html(html);
 		$_("body").append($outerLessonWrapper);
+
 		var wrapperRect = $wrapper[0].getBoundingClientRect();
 		var lastNode = null;
 		var lastNodeRect = null;
@@ -538,7 +577,125 @@ public class PrintableContentParser {
 		tailWrapper.childNodes.forEach(function(element, index, array){element.style.minHeight = "";});
 		var tailHTML = tailWrapper.innerHTML;
 		
-		$outerLessonWrapper.detach();
+		$outerLessonWrapper.remove();
 		return {head: headHTML, tail: tailHTML};
 	}-*/;
+
+	private static native JavaScriptObject getModuleTestingWrappers()/*-{
+		var $_ = $wnd.$;
+		var $outerLessonWrapper = $_("<div></div>");
+		$outerLessonWrapper.css("position", "absolute");
+		$outerLessonWrapper.css("top", "0px");
+		$outerLessonWrapper.css("left", "0px");
+		$outerLessonWrapper.css("visibility", "hidden");
+		$outerLessonWrapper.addClass("printable_lesson");
+
+		var $outerPageWrapper = $_("<div></div>");
+		$outerPageWrapper.addClass("printable_page");
+		$outerPageWrapper.css("position", "absolute");
+		$outerPageWrapper.css("top", "0px");
+		$outerPageWrapper.css("left", "0px");
+		$outerLessonWrapper.append($outerPageWrapper);
+
+		var $wrapper = $_("<div></div>");
+		$wrapper.css("position", "absolute");
+		$wrapper.css("top", "0px");
+		$wrapper.css("left", "0px");
+		$wrapper.css("margin", "0px");
+		$wrapper.css("padding", "0px");
+		$wrapper.addClass("printable-content-wrapper");
+		$outerPageWrapper.append($wrapper);
+
+		return $outerLessonWrapper;
+	}-*/;
+
+	private native void preloadPageHTMLs(PrintableContentParser x, String pageHTMLs)/*-{
+		var $_ = $wnd.$;
+		var $outerLessonWrapper = @com.lorepo.icplayer.client.printable.PrintableContentParser::getModuleTestingWrappers()();
+		var $wrapper = $outerLessonWrapper.find(".printable-content-wrapper");
+		$wrapper.html(pageHTMLs);
+
+		var $imgs = $outerLessonWrapper.find('img');
+		var imgLoadCounter = $imgs.length;
+		var isReady = false;
+
+		var loadCallback = function(){
+			imgLoadCounter -= 1;
+			if (imgLoadCounter < 1 && isReady) {
+				x.@com.lorepo.icplayer.client.printable.PrintableContentParser::continueGeneratePrintableHTML(Lcom/google/gwt/core/client/JavaScriptObject;)($outerLessonWrapper[0]);
+			}
+		};
+
+		$imgs.each(function(){
+			var $this = $_(this);
+			if (this.complete && this.naturalHeight !== 0) {
+				loadCallback();
+			} else {
+				$this.load(loadCallback);
+			}
+		});
+
+		$outerLessonWrapper.ready(function(){
+			isReady = true;
+			loadCallback();
+		});
+
+		var timeout = setTimeout(function(){
+			if (imgLoadCounter > 0 || isReady == false) {
+				isReady = true;
+				imgLoadCounter = 0;
+				loadCallback();
+			}
+		}, 3000);
+
+		$_('body').append($outerLessonWrapper);
+
+	}-*/;
+
+	private List<String> getModuleHTMLsFromWrapper(JavaScriptObject wrapper) {
+		JsArray array = _getModuleHTMLsFromWrapper(wrapper);
+		List<String> moduleHTMLs = getStringListFromJsArray(array);
+		return moduleHTMLs;
+	}
+
+	private List<String> getStringListFromJsArray(JsArray array) {
+		List<String> list = new ArrayList<String>();
+		for (int i = 0; i < array.length(); i++) {
+			list.add(array.get(i).toString());
+		}
+		return list;
+	}
+
+	private native JsArray _getModuleHTMLsFromWrapper(JavaScriptObject wrapper)/*-{
+		var $_ = $wnd.$;
+		var $outerWrapper = $_(wrapper);
+		var resultArray = [];
+		$outerWrapper.find(".printable-content-wrapper").children().each(function(){
+			resultArray.push(this.outerHTML);
+		});
+		return resultArray;
+	}-*/;
+
+	private native void updateImageSizes(JavaScriptObject wrapper)/*-{
+		var $_ = $wnd.$;
+		var $outerWrapper = $_(wrapper);
+		$outerWrapper.find('img').each(function(){
+			var $this = $_(this);
+			if (!$this.parent().hasClass('printable_ic_image')) {
+				$this.css('height', this.naturalHeight + 'px');
+				$this.css('width', this.naturalWidth + 'px');
+			}
+		});
+	}-*/;
+
+	private native String unwrapHTML(String pageHTML)/*-{
+		var $_ = $wnd.$;
+		var $page = $_(pageHTML);
+		return $page.html();
+	}-*/;
+
+	private native void removeJSElement(JavaScriptObject element)/*-{
+		element.remove();
+	}-*/;
+
 }

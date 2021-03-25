@@ -35,7 +35,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	private int gapState = 0;
 	private ArrayList<HandlerRegistration> handlers = new ArrayList<HandlerRegistration>();
 
-	private final String expNotationPattern = "-?\\d*([,.]\\d*)?(e[+\\-]?\\d*)?";
+	private final String expNotationPattern = "^[+-]?[,.\\d]*([eE][+-]?[,.\\d]*)?$";
 	
 	protected final GapInfo gapInfo;
 	
@@ -51,7 +51,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 		 * When gap is rerendered by MathJax then will lost connection to DOM element (handlers doesn't work). 
 		 * In this case we need to drop old gap, find new one and set listeners to him.
 		 */
-		String value = this.getTextValue();
+		String value = super.getText();
 		boolean isDisabled = this.isDisabled();
 		this.removeHandlers();
 		this.onDetach();
@@ -109,8 +109,9 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 					if (gapInfo.isNumericOnly()) {
 						String newText = getText();
 						if (newText.length() > 0 && !newText.matches(expNotationPattern)) {
-
-							RegExp regExp = RegExp.compile(expNotationPattern);
+							String patternWithoutLastCharacter
+									= expNotationPattern.substring(0, expNotationPattern.length() - 1);
+							RegExp regExp = RegExp.compile(patternWithoutLastCharacter);
 							MatchResult matcher = regExp.exec(newText);
 
 							if (matcher != null) {
@@ -132,7 +133,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 				public void onKeyPress(KeyPressEvent event) {
 					if (gapInfo.isNumericOnly()) {
 						String newText = "";
-						String oldText = getText();
+						String oldText = GapWidget.super.getText();
 						if (getSelectionLength() > 0) {
 							newText = oldText.substring(0, getCursorPos())
 									+ event.getCharCode()
@@ -142,9 +143,8 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 									+ event.getCharCode()
 									+ oldText.substring(getCursorPos());
 						}
-						if (!newText.matches(expNotationPattern) && oldText.matches(expNotationPattern)) {
+						if (!newText.matches(expNotationPattern)) {
 							((TextBox)event.getSource()).cancelKey();
-
 						}
 					}
 				}
