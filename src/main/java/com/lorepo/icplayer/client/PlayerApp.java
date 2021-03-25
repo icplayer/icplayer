@@ -20,6 +20,7 @@ import com.lorepo.icplayer.client.module.api.player.IPage;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
+import com.lorepo.icplayer.client.printable.PrintableParams;
 import com.lorepo.icplayer.client.ui.PlayerView;
 import com.lorepo.icplayer.client.xml.IProducingLoadingListener;
 import com.lorepo.icplayer.client.xml.IXMLFactory;
@@ -757,19 +758,17 @@ public class PlayerApp {
 		return this.changeLayout(layoutID);
 	}
 	
-	public String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi) {
+	public void generatePrintableHTML(PrintableParams params) {
 		PrintableContentParser printableParser = new PrintableContentParser();
-		printableParser.setDPI(dpi);
-		String result = printableParser.generatePrintableHTML(contentModel, pagesSubset, randomizePages, randomizeModules, showAnswers);
-		return result;
-	};
-	
-	public String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi, int seed) {
-		PrintableContentParser printableParser = new PrintableContentParser();
-		printableParser.setRandomSeed(seed);
-		printableParser.setDPI(dpi);
-		String result = printableParser.generatePrintableHTML(contentModel, pagesSubset, randomizePages, randomizeModules, showAnswers);
-		return result;
+		if (params.seed != -1) {
+			printableParser.setRandomSeed(params.seed);
+		}
+		printableParser.setDPI(params.dpi);
+		printableParser.setListener(params.listener);
+		printableParser.setRandomizePages(params.randomizePages);
+		printableParser.setRandomizeModules(params.randomizeModules);
+		printableParser.setShowAnswers(params.showAnswers);
+		printableParser.generatePrintableHTML(contentModel, pagesSubset);
 	};
 
 	private String getCurrentUserStyles() {
