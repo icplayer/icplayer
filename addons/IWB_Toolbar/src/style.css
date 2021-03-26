@@ -210,6 +210,14 @@
     background-image: url('resources/wb_panel_note_icon-active.svg');
 }
 
+.iwb-toolbar-panel .button.custom-script {
+    background-image: url('resources/wb_panel_custom_script_icon.svg');
+}
+
+.iwb-toolbar-panel .button.custom-script.clicked {
+    background-image: url('resources/wb_panel_custom_script_icon-active.svg');
+}
+
 .iwb-toolbar-panel .button.floating-image {
     background-image: url('resources/wb_panel_rullers_icon.svg');
 }
@@ -514,6 +522,23 @@
     color: #696969;
 }
 
+.iwb-toolbar-custom-script {
+    top: 0px;
+    width: 185px;
+    min-height: 120px;
+    max-height: 350px;
+    position: absolute;
+    background-color: rgba(255, 255, 155, 0.9);
+    border-radius: 4px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.iwb-toolbar-custom-script .custom-script-close.hovered {
+    color: #696969;
+}
+
 .iwb-toolbar-floating-image {
     display: none;
 }
@@ -570,6 +595,10 @@
 
 .iwb-toolbar-panel .button.note .tooltip span:after {
     content: 'Add Note';
+}
+
+.iwb-toolbar-panel .button.custom-script .tooltip span:after {
+    content: 'Run custom script';
 }
 
 .iwb-toolbar-panel .button.hide-area .tooltip span:after {
