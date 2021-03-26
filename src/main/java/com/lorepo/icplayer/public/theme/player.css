@@ -503,6 +503,37 @@ hr, table, fieldset {
 }
 
 /**
+ * Printable choice options
+ */
+.ic_poption-correct-answer {
+    display: inline-block;
+}
+.ic_poption-correct-answer::after {
+    content: " \2714";
+}
+
+.ic_poption-down-answer {
+    display: inline-block;
+    border-bottom: 1px solid;
+}
+
+.ic_poption-down-correct-answer {
+    display: inline-block;
+    border-bottom: 1px solid;
+}
+.ic_poption-down-correct-answer::after {
+    content: " \2714";
+}
+
+.ic_poption-down-wrong-answer {
+    display: inline-block;
+    border-bottom: 1px solid;
+}
+.ic_poption-down-wrong-answer::after {
+    content: " \2716";
+}
+
+/**
  * Ordering
  */
 
