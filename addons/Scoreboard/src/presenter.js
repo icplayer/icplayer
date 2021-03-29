@@ -69,7 +69,8 @@ function AddonScoreboard_create() {
 
     presenter.validateInitialTeams = function (initialTeams, maxTeamsCount) {
         var validatedInitialTeams = [], i;
-
+        var regExp = new RegExp("#[0-9a-fA-F]+");
+        
         if (initialTeams.length > maxTeamsCount) {
             return ModelValidationUtils.getErrorObject('I01');
         }
@@ -88,9 +89,7 @@ function AddonScoreboard_create() {
             }
 
             var teamColor = initialTeam.teamColor;
-            var regExp = new RegExp("#[0-9a-fA-F]+");
             var colorMatch;
-    
             if (!teamColor) {
                 teamColor = "#000";
             } else {
