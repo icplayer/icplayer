@@ -30,7 +30,10 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
 
     @Override
     public void hideAll() {
-        if (pageController.getPlayerServices().getPlayerStateService().isGradualShowAnswersMode()) {
+        if (
+            pageController.getPlayerServices().getPlayerStateService().isGradualShowAnswersMode() ||
+            pageController.getPlayerServices().getPlayerStateService().isGradualShowAnswersModeBeforeCheck()
+        ) {
             this.pageController.getPlayerServices().getEventBusService().getEventBus().fireEvent(new GradualHideAnswerEvent());
             enablePresenters();
             resetCounters();
@@ -100,6 +103,8 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     private void disablePresenters() {
         for (IPresenter presenter : this.pageController.getPresenters()) {
             // remember the state of presenters, so it can be restored when the mode is switched off
+            if (presenter.getModel().getModuleTypeName() == "Gradual_Show_Answer")
+                continue;
             presenterDisabledState.put(presenter.getModel().getId(), presenter.isDisabled());
 
             presenter.setDisabled(true);

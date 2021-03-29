@@ -15,6 +15,7 @@ public class PlayerStateService implements IPlayerStateService {
     }
 
     private Mode currentMode = Mode.WORK;
+    private Mode beforeCheckMode = Mode.WORK;
     private IPlayerServices services;
 
     public PlayerStateService(IPlayerServices services) {
@@ -37,6 +38,11 @@ public class PlayerStateService implements IPlayerStateService {
     }
 
     @Override
+    public boolean isGradualShowAnswersModeBeforeCheck() {
+        return beforeCheckMode == Mode.GRADUAL_SHOW_ANSWERS;
+    }
+
+    @Override
     public boolean isLimitedCheckAnswersMode() {
         return currentMode == Mode.LIMITED_CHECK_ANSWERS;
     }
@@ -54,6 +60,7 @@ public class PlayerStateService implements IPlayerStateService {
     @Override
     public void setCheckErrorsMode(boolean value) {
         if (value) {
+            this.beforeCheckMode = this.currentMode != Mode.SHOW_ANSWERS ? this.currentMode : this.beforeCheckMode;
             this.currentMode = Mode.CHECK_ANSWERS;
         } else if (this.isCheckErrorsMode()) {
             this.currentMode = Mode.WORK;
