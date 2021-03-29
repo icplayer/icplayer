@@ -167,7 +167,7 @@ function AddonScoreboard_create() {
                 presenter.destroy();
             }
         });
-        presenter.scoreboard = presenter.createScoreBoard(presenter.$view);
+        presenter.scoreboard = presenter.createScoreboard(presenter.$view);
         for (var i = 0; i < presenter.configuration.initialTeamsCount; i++) {
             presenter.scoreboard = presenter.addTeam(presenter.configuration.defaultTeamsList[i], presenter.scoreboard);
         }
@@ -227,7 +227,7 @@ function AddonScoreboard_create() {
         return scoreboard;
     };
 
-    presenter.createScoreBoard = function scoreboardCreateScoreboard (savedScoreboard) {
+    presenter.createScoreboard = function scoreboardCreateScoreboard (savedScoreboard) {
         return presenter.Scoreboard.createScoreboard(savedScoreboard);
     }
 
@@ -340,8 +340,6 @@ function AddonScoreboard_create() {
             this.$scoreboardFooter.off();
             this.$resetButton.off();
             this.$addNewTeamButton.off();
-
-            this.$scoreboard.remove();
             this.$scoreboard = null;
             this.$scoreboardBody = null;
             this.$scoreboardHeader = null;
@@ -613,9 +611,16 @@ function AddonScoreboard_create() {
     
     presenter.removeAllTeams = function Scoreboard_removeAllTeams () {
         presenter.teamsObjects.forEach(function (team) {
-            team.destroy()
+            team.destroy();
+            team = null;
         });
     };
+
+    presenter.removeScoreboard = function Scoreboard_removeScoreboard () {
+        presenter.scoreboard.destroy();
+        presenter.scoreboard = null;
+
+    }
 
     presenter.updateTeamState = function Scoreboard_updateTeamState (updatedTeamData) {
         presenter.state.teamsObjects = presenter.state.teamsObjects.map(teamData =>
@@ -723,7 +728,10 @@ function AddonScoreboard_create() {
 
     presenter.destroy = function Scoreboard_destroy () {
         presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
-        presenter.removeAllTeams();
+        if(presenter.teamsObjects) {
+            presenter.removeAllTeams();
+        }
+        presenter.removeScoreboard();
         presenter.configuration = null;
         presenter.state = null;
         presenter.playerController = null;
@@ -732,8 +740,9 @@ function AddonScoreboard_create() {
         presenter.$view.unbind();
         presenter.$view = null;
         presenter.view = null;
-        presenter.scoreboard = null;
+        presenter.teamsObjects = [];
         presenter.teamsObjects = null;
+        presenter.createScoreboard = null;
     };
 
     return presenter;
