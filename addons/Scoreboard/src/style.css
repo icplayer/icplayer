@@ -1,0 +1,151 @@
+.addon_Scoreboard {
+    max-height: 350px;
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.scoreboard-container {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 1);
+    border-radius: 4px;
+}
+
+.scoreboard-header {
+    height: 20px;
+    line-height: 20px;
+    cursor: move;
+    position: relative;
+    background-color: rgba(128, 207, 238, 0.973);
+}
+
+.scoreboard-header .scoreboard-close {
+    width: 10%;
+    right: 5px;
+    float: right;
+    cursor: pointer;
+    text-align: center;
+}
+
+.scoreboard-close::before {
+    content: "x";
+}
+
+.scoreboard-footer {
+    height: 20px;
+    width: 100%;
+    color:rgba(0, 0, 0, 0.5);
+    cursor: move;
+    position: relative;
+    overflow: hidden;
+    bottom: 0;
+}
+
+.scoreboard-body {
+    text-align: left;
+    display: inline-block;
+}
+
+.scoreboard-footer .scoreboard-add-new-team {
+    width: 40%;
+    right: 5px;
+    float: right;
+    cursor: pointer;
+    text-align: center;
+}
+
+.scoreboard-add-new-team::before {
+    content: "+";
+}
+
+.scoreboard-footer .scoreboard-reset {
+    width: 40%;
+    right: 5px;
+    float: left;
+    cursor: pointer;
+    text-align: center;
+}
+
+.scoreboard-reset::before {
+    content: "\21B6";
+}
+
+.team {
+    padding: 2px;
+    margin: 3px;
+    width: 100px;
+    height: 100%;
+    display: inline-block;
+    text-align: center;
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 1);
+}
+
+.team-header {
+    height: 15px;
+    line-height: 15px;
+}
+
+.team-header .team-remove {
+    width: 10%;
+    right: 5px;
+    float: right;
+    cursor: pointer;
+    text-align: right;
+}
+
+.team-remove::before {
+    content: "x";
+}
+
+.save-button {
+    cursor: pointer;
+}
+
+.team-body {
+    height: 70px;
+}
+
+.team-body .team-name-container {
+    vertical-align: top;
+}
+
+.team-body .team-name-container .team-name-input {
+    width: 90px;
+    background: transparent;
+    color: white;
+    border: none;
+}
+
+.team-body .team-points-container {
+    margin-top: 15px;
+}
+
+.team-footer {
+    height: 25px;
+    width: 100%;
+    line-height: 25px;
+    bottom: 0;
+}
+
+.team-footer .team-score-decrement {
+    width: 50%;
+    height: 100%;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.team-score-decrement::before {
+    content: "-";
+}
+
+.team-footer .team-score-increment {
+    width: 50%;
+    height: 100%;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.team-score-increment::before {
+    content: "+";
+}
