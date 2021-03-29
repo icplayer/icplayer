@@ -1128,7 +1128,13 @@ hr, table, fieldset {
 .printable_page table {
     font-size: inherit;
     font-family: inherit;
+    font-height: inherit;
     color: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    font-size: inherit;
+    font-style: inherit;
+
 }
 
 .printable_opening_player_page {
