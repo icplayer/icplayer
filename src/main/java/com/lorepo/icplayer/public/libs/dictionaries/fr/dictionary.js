@@ -1677,6 +1677,9 @@ var ice_dictionary_fr = {
     "IWB_Toolbar_property_for_marker": "Afficher pour le marqueur",
     "IWB_Toolbar_property_keep_state_and_position": "Conserver le statut et la position",
     "IWB_Toolbar_property_closed_panel_drawing": "Closed panel drawing",
+	"IWB_Toolbar_property_has_custom_button": "Has custom button",
+	"IWB_Toolbar_property_on_custom_button_selected": "On custom button selected",
+	"IWB_Toolbar_property_on_custom_button_deselected": "On custom button deselected",
     "SVG2_info": "Le module SVG permet d'insérer une image SVG dans une présentation.",
     "SVG2_name": "SVG",
     "SVG2_property_svg_file": "Fichier SVG",
@@ -2066,5 +2069,15 @@ var ice_dictionary_fr = {
     "editor.batch_upload.property_update.success": "The batch upload was finished correctly and the files were added to the module.",
     "editor_batch_upload": "Upload",
 	"Adaptive_Next_name": "Adaptive next",
-    "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor."
+    "Adaptive_Next_info": "The Adaptive Next module allows you to navigate through the lesson for which the navigation was defined in the adaptive lesson editor.",
+	"Scoreboard_info": "Scoreboard allows conducting a competition and scoring the points won by multiple teams.",
+	"Scoreboard_name": "Scoreboard",
+	"Scoreboard_broadcast": "Variable Storage id",
+	"Scoreboard_is_draggable": "Is draggable",
+	"Scoreboard_location_of_variable_storage_module": "Variable Storage location",
+	"Scoreboard_variable_storage_location_name": "Variable Storage location name",
+	"Scoreboard_initial_teams_count": "Initial number of teams",
+	"Scoreboard_default_teams_list": "Initial list of teams",
+	"Scoreboard_property_name": "Team name",
+	"Scoreboard_property_color": "Team colour"
 };
