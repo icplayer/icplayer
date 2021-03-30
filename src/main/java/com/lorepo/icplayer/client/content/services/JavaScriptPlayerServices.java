@@ -55,6 +55,16 @@ public class JavaScriptPlayerServices {
 		return jsObject;
 	}
 
+	public JsArray<JavaScriptObject> getAssetsAsJS() {
+		List<JavaScriptObject> assetsList = playerServices.getAssetsService().getAssetsAsJS();
+		JsArray<JavaScriptObject> jsArray = (JsArray<JavaScriptObject>) JavaScriptObject.createArray();
+
+		for (JavaScriptObject object : assetsList){
+			jsArray.push(object);
+		}
+		return jsArray;
+	}
+
 	private native JavaScriptObject initJSObject(JavaScriptPlayerServices x) /*-{
 
 		var playerServices = function() {};
@@ -352,6 +362,10 @@ public class JavaScriptPlayerServices {
 
 			assets.getContentType = function(href) {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContentType(Ljava/lang/String;)(href);
+			};
+
+			assets.getAssetsAsJS = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAssetsAsJS()();
 			};
 
 			return assets;
