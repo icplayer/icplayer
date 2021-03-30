@@ -539,7 +539,9 @@ hr, table, fieldset {
 	display:inline-block;
 }
 
-.printable_ic_ordering .number-box {
+.printable_ic_ordering .number-box,
+.printable_ic_ordering .number-correct-box
+.printable_ic_ordering .number-wrong-box{
 	border: 1px solid #999;
 	width:2em;
 	height: 2em;
@@ -547,6 +549,14 @@ hr, table, fieldset {
 	text-align: center;
 	vertical-align: middle;
 	margin-right: 10px;
+}
+
+.printable_ic_ordering .number-correct-box::after {
+    content: "\2714";
+}
+
+.printable_ic_ordering .number-wrong-box::after {
+    content: "\2716";
 }
 
 /**
