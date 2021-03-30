@@ -31,6 +31,8 @@ function AddonConnection_create() {
     presenter.isCheckActive = false;
     presenter.initialState = null;
 
+    presenter.printableState = null;
+
     presenter.mathJaxLoaders = {
         runLoader: false,
         setStateLoader: true
@@ -2107,8 +2109,19 @@ function AddonConnection_create() {
         presenter.printableController = controller;
     };
 
+    presenter.setPrintableState = function (savedState) {
+        presenter.printableState = JSON.parse(savedState);
+        console.log("Printable state saved: ", presenter.printableState);
+    }
+
     presenter.getPrintableHTML = function (model, showAnswers) {
         model = presenter.upgradeModel(model);
+        console.log('get Printable HTML fired');
+        var savedState = presenter.printableState;
+
+        console.log('Saved model looks like: ', savedState);
+        console.log('Model is: ', model);
+        console.log('Show answers is: ', showAnswers);
 
         var $root = $("<div></div>");
         $root.attr('id', model.ID);
@@ -2144,12 +2157,22 @@ function AddonConnection_create() {
 
 
         var connected = [];
-        if (showAnswers) {
+        if (showAnswers && savedModel == undefined) {
+            console.log("Normal show answers");
+            console.log("ELEMENTS: ", presenter.elements)
             for (var i = 0; i < model["Left column"].length; i++) {
                 var element = presenter.elements[i];
                 if (element.connects) {
                     connected.push({from: element.id, to:element.connects});
                 }
+            }
+        } else if (showAnswers && savedState != undefined) {
+            console.log("Show user answers and check it");
+            // Sprawdzenie odpowiedzi i zaznaczenie tylko poprawnych
+        } else if (!showAnswers && savedState != undefined) {
+            for (var i = 0; i < savedState.id.length; i++) {
+                var pair = savedState.id[i].split(':');
+                connected.push({from: pair[0], to:pair[1]});
             }
         } else {
             for (var i = 0; i < model["initialConnections"].length; i++) {
@@ -2159,6 +2182,7 @@ function AddonConnection_create() {
                 }
             }
         }
+        console.log(connected)
 
         var height = getPrintableTableHeight($root);
         $root.css("height", height+"px");
