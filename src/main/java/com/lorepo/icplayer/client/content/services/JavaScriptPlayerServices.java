@@ -423,6 +423,14 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContextMetadata()();
 		};
 
+		playerServices.setExternalVariable = function (key, value) {
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setExternalVariable(Ljava/lang/String;Ljava/lang/String;)(key, value);
+		};
+
+		playerServices.getExternalVariable = function(key){
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getExternalVariable(Ljava/lang/String;)(key);
+		};
+
 		playerServices.sendResizeEvent = function() {
 			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::sendResizeEvent()();
 		};
@@ -937,5 +945,13 @@ public class JavaScriptPlayerServices {
 
 	public boolean isFirstStep() {
 		return this.playerServices.getAdaptiveLearningService().isFirstStep();
+	}
+
+	private void setExternalVariable(String key, String value) {
+		this.playerServices.setExternalVariable(key, value);
+	}
+
+	private String getExternalVariable(String key) {
+		return this.playerServices.getExternalVariable(key);
 	}
 }

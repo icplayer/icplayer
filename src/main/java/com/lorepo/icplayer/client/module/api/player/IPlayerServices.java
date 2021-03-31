@@ -50,6 +50,9 @@ public interface IPlayerServices {
 	public boolean isAbleChangeLayout();
 	public boolean changeSemiResponsiveLayout(String layoutID);
 
+	public void setExternalVariable(String key, String value);
+	public String getExternalVariable(String key);
+
 	@Deprecated
 	public EventBus	getEventBus();
 	public IPlayerEventBusService getEventBusService();

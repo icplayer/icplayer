@@ -19,6 +19,7 @@ public class PlayerEntryPoint implements EntryPoint {
 	private JavaScriptObject statusChangedListener;
 	private JavaScriptObject outstretchHeightListener;
 	private JavaScriptObject contextMetadata;
+	private JavaScriptObject externalVariables = JavaScriptObject.createObject();
 
 	/**
 	 * This is the entry point method.
@@ -106,6 +107,14 @@ public class PlayerEntryPoint implements EntryPoint {
 
 			player.setContextMetadata = function(contextData){
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::contextMetadata = contextData;
+			};
+
+			player.setExternalVariables = function(contextData){
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setExternalVariables(Lcom/google/gwt/core/client/JavaScriptObject;)(contextData);
+			};
+
+			player.getExternalVariables = function(){
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getExternalVariables()();
 			};
 			
 			player.getPrintableHTML = function(callback, randomizePages, randomizeModules, showAnswers, dpi) {
@@ -274,6 +283,20 @@ public class PlayerEntryPoint implements EntryPoint {
 
 	public JavaScriptObject getContextMetadata() {
 		return this.contextMetadata;
+	}
+
+	public void setExternalVariables(JavaScriptObject contextData) {
+		if (JavaScriptUtils.isObject(contextData))
+			this.externalVariables = contextData;
+		else
+			JavaScriptUtils.log(
+					"The received value is not a dictionary (it is not instance of Object). " +
+					"Received value: " + contextData
+			);
+	}
+
+	public JavaScriptObject getExternalVariables() {
+		return this.externalVariables;
 	}
 	
 	private void generatePrintableHTML(final JavaScriptObject callback, boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi) {
