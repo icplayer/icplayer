@@ -15,6 +15,9 @@ function AddonMultiAudio_create(){
     presenter.addonID = null;
     presenter.type = 'multiaudio';
     presenter.draggableItems = {};
+    presenter.isWCAGOn = false;
+    presenter.selectedItemID = '';
+    presenter.isKeyboardControlActive = false;
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
@@ -234,8 +237,14 @@ function AddonMultiAudio_create(){
     };
 
     presenter.createDraggableItems = function(filesModel) {
+        console.log("createDraggableItems");
+        console.log(filesModel);
+        presenter.draggableItems = {};
         for (var i=0; i < filesModel.length; i++) {
             createDraggableItem(filesModel[i].ID);
+        }
+        if (presenter.selectedItemID.length > 0) {
+            presenter.applySelectedClass(presenter.selectedItemID);
         }
     };
 
@@ -307,11 +316,15 @@ function AddonMultiAudio_create(){
 
         presenter.draggableItems[itemID].remove();
         delete presenter.draggableItems[itemID];
+        if (presenter.selectedItemID == itemID) {
+            presenter.selectedItemID = '';
+        }
     }
 
     function removeDraggableItems() {
         presenter.globalView.find('.multiaudio-item-wrapper').remove();
         presenter.draggableItems = {};
+        presenter.selectedItemID = '';
     }
 
     function hideDraggableItem(itemID) {
@@ -345,10 +358,21 @@ function AddonMultiAudio_create(){
         if (presenter.draggableItems[itemID].hasClass('ui-draggable-dragging')) return;
         if (presenter.draggableItems[itemID].hasClass('multiaudio-selected')) {
             presenter.fireSelectedDraggableEvent();
+            presenter.selectedItemID = '';
         } else {
             presenter.fireSelectedDraggableEvent(itemID);
+            presenter.selectedItemID = itemID;
         }
+        readSelectedID();
     };
+
+    function readSelectedID() {
+        if (presenter.selectedItemID.length > 0) {
+            console.log("select");
+        } else {
+            console.log("deselect");
+        }
+    }
 
     function draggableItemButtonClickHandler (event) {
         var $parent = $(event.currentTarget).parent();
@@ -559,6 +583,44 @@ function AddonMultiAudio_create(){
         }
     };
 
+    function increaseVolume() {
+        var volume = presenter.audio.volume;
+        volume += 0.1;
+        if (volume > 1.0) volume = 1.0;
+        presenter.audio.volume = volume;
+    };
+
+    function decreaseVolume() {
+        var volume = presenter.audio.volume;
+        volume -= 0.1;
+        if (volume < 0.0) volume = 0.0;
+        presenter.audio.volume = volume;
+    };
+
+    function forward() {
+        presenter.audio.currentTime += 5;
+    }
+
+    function backward() {
+            presenter.audio.currentTime -= 5;
+        }
+
+    function playPause() {
+        if (presenter.audio.paused) {
+            presenter.play();
+        } else {
+            presenter.pause();
+        }
+    }
+
+    function playStop() {
+            if (presenter.audio.paused) {
+                presenter.play();
+            } else {
+                presenter.stop();
+            }
+        }
+
     presenter.hide = function() {
         this.setVisibility(false);
         this.visible = false;
@@ -609,6 +671,7 @@ function AddonMultiAudio_create(){
             this.currentAudio--;
             this.initialize(this.globalView[0], this.globalModel);
         }
+        console.log(this.files[this.currentAudio]);
     };
 
     presenter.next = function() {
@@ -616,7 +679,21 @@ function AddonMultiAudio_create(){
             this.currentAudio++;
             this.initialize(this.globalView[0], this.globalModel);
         }
+        console.log(this.files[this.currentAudio]);
     };
+
+    function updateWCAGSelectedClass() {
+        if (presenter.globalModel["Interface"] != "Draggable items") return;
+
+        clearWCAGSelectedClass();
+        var itemID = presenter.files[presenter.currentAudio].ID;
+        presenter.draggableItems[itemID].addClass('keyboard_navigation_active_element');
+    }
+
+    function clearWCAGSelectedClass() {
+        var activeClassName = 'keyboard_navigation_active_element';
+        presenter.globalView.find('.'+activeClassName).removeClass(activeClassName);
+    }
 
     presenter.jumpToID = function(id) {
         for (var i = 0; i < this.files.length; i++) {
@@ -699,6 +776,120 @@ function AddonMultiAudio_create(){
     presenter.validateFiles = function(files) {
         return !(!files["Ogg"] && !files["Mp3"]);
     };
+
+    presenter.setWCAGStatus = function (isOn) {
+            console.log("set WCAG Status");
+            console.log(isOn);
+            presenter.isWCAGOn = isOn;
+            presenter.isKeyboardControlActive = isOn;
+            if (!isOn) {
+                clearWCAGSelectedClass();
+            }
+        };
+
+    presenter.keyboardController = function (keycode, isShift, event) {
+        event.preventDefault();
+        if (!presenter.isKeyboardControlActive) {
+            presenter.isKeyboardControlActive = true;
+            return;
+        }
+        if (presenter.globalModel["Interface"] == "Draggable items") {
+            presenter.draggableKeyboardController(keycode, isShift, event);
+        } else {
+            presenter.audioKeyboardController(keycode, isShift, event);
+        }
+    };
+
+    presenter.draggableKeyboardController = function (keycode, isShift, event) {
+        console.log("draggable keyboard controller");
+        console.log(keycode);
+        console.log(presenter.globalView.hasClass('ic_active_module'));
+        switch (keycode) {
+            case 9: // TAB
+                if (isShift) {
+                    presenter.previous();
+                } else {
+                    presenter.next();
+                }
+                updateWCAGSelectedClass();
+                break;
+            case 13: //ENTER
+                if (isShift) {
+                    presenter.stop();
+                    clearWCAGSelectedClass();
+                    presenter.isKeyboardControlActive = false;
+                } else {
+                    playStop();
+                    updateWCAGSelectedClass();
+                }
+                break;
+            case 32: //SPACE
+                var itemID = presenter.files[presenter.currentAudio].ID;
+                presenter.handleGrabAreaClick(itemID);
+                break;
+            case 38: // UP
+                backward();
+                updateWCAGSelectedClass();
+                break;
+            case 40: // DOWN
+                forward();
+                updateWCAGSelectedClass();
+                break;
+            case 37: // LEFT
+                backward();
+                updateWCAGSelectedClass();
+                break;
+            case 39: // RIGHT
+                forward();
+                updateWCAGSelectedClass();
+                break;
+            case 27: // ESC
+                presenter.stop();
+                clearWCAGSelectedClass();
+                presenter.isKeyboardControlActive = false;
+                break;
+        }
+    }
+
+    presenter.audioKeyboardController = function (keycode, isShift, event) {
+        switch (keycode) {
+            case 9: // TAB
+                if (isShift) {
+                    presenter.previous();
+                } else {
+                    presenter.next();
+                }
+                break;
+            case 13: //ENTER
+                if (isShift) {
+                    presenter.isKeyboardControlActive = false;
+                } else {
+                    console.log("enter");
+                    presenter.pause();
+                    console.log(this.files[this.currentAudio].Text);
+                }
+                break;
+            case 32: // SPACE
+                playPause();
+                break;
+            case 38: // UP
+                increaseVolume();
+                break;
+            case 40: // DOWN
+                decreaseVolume();
+                break;
+            case 37: // LEFT
+                backward();
+                break;
+            case 39: // RIGHT
+                forward();
+                break;
+            case 27: // ESC
+                presenter.stop();
+                presenter.isKeyboardControlActive = false;
+                break;
+        }
+    }
 
     return presenter;
 }
