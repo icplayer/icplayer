@@ -1,3 +1,4 @@
+2021-04-01 Fixed no correct loading from state for addon table when drop down
 2021-03-30 Fixed reading Chrome browser version on android
 2021-03-29 Implementation of audio files export
 2021-03-29 Fixed issue with empty spaces at the end of a print page
