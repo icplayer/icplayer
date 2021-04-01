@@ -314,8 +314,6 @@ public class PrintableContentParser {
 		
 		var SPLITTABLE_CLASS_NAME = @com.lorepo.icplayer.client.printable.PrintableContentParser::SPLITTABLE_CLASS_NAME;
 		var enableTwoColumnPrint  = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getTwoColumnPrintEnabled()();
-		var maxEmptyHeight = pageHeight * 0.2;
-		if (enableTwoColumnPrint) maxEmptyHeight = maxEmptyHeight / 2;
 		var minSplitHeight = 100;
 		
 		var printablePageHTML = "";
@@ -327,7 +325,7 @@ public class PrintableContentParser {
 			var newPrintablePageWithHeaderAndFooter = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::applyHeaderAndFooter(Ljava/lang/String;Z)(newPrintablePageHTML, false);
 			var newHeight = @com.lorepo.icplayer.client.printable.PrintableContentParser::getHTMLHeight(Ljava/lang/String;I)(newPrintablePageWithHeaderAndFooter, pageWidth);
 			if (newHeight > pageHeight) {
-				if (prevHeight < pageHeight - maxEmptyHeight && this.classList.contains(SPLITTABLE_CLASS_NAME)) {
+				if (prevHeight < pageHeight && this.classList.contains(SPLITTABLE_CLASS_NAME)) {
 					var maxHeadHeight = pageHeight - prevHeight - 50;
 					if (enableTwoColumnPrint) maxHeadHeight = maxHeadHeight * 2;
 					var splitResult = @com.lorepo.icplayer.client.printable.PrintableContentParser::splitModule(Ljava/lang/String;IIIZ)(moduleHTML, maxHeadHeight, minSplitHeight, pageWidth, enableTwoColumnPrint);
@@ -646,7 +644,7 @@ public class PrintableContentParser {
 				imgLoadCounter = 0;
 				loadCallback();
 			}
-		}, 3000);
+		}, 20000);
 
 		$_('body').append($outerLessonWrapper);
 
@@ -681,7 +679,7 @@ public class PrintableContentParser {
 		var $outerWrapper = $_(wrapper);
 		$outerWrapper.find('img').each(function(){
 			var $this = $_(this);
-			if (!$this.parent().hasClass('printable_ic_image')) {
+			if (!$this.parent().hasClass('printable_ic_image') && this.naturalHeight) {
 				$this.css('height', this.naturalHeight + 'px');
 				$this.css('width', this.naturalWidth + 'px');
 			}

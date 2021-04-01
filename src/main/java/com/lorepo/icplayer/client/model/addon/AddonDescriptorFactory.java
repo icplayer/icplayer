@@ -123,6 +123,7 @@ public class AddonDescriptorFactory {
 		addDescriptor("Standard_Shapes", "media_menu");
 		addDescriptor("SVG2", "media_menu");
 		addDescriptor("SwiffyAnimation", "media_menu");
+		addDescriptor("Scoreboard", "media_menu");
 		addDescriptor("TextAudio", "media_menu");
 		addDescriptor("video", "media_menu");
 		addDescriptor("Vimeo", "media_menu");
