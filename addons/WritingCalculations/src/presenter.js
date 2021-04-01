@@ -166,6 +166,14 @@ function AddonWritingCalculations_create() {
             event.stopPropagation();
         });
 
+        $input.on('keyup', function(event) {
+            presenter.onKeyUp(event)
+        });
+
+        $input.on('keypress', function(event) {
+            presenter.onKeyPress(event)
+        });
+
         $input.on("change", function(event) {
             event.stopPropagation();
 
@@ -191,6 +199,44 @@ function AddonWritingCalculations_create() {
                 presenter.triggerValueChangeEvent("", "all", "");
             }
         });
+    };
+
+    presenter.onKeyUp = function(event) {
+        event.stopPropagation();
+        if (presenter.useNumericKeyboard) {
+            var newText = String(event.target.value);
+            var pattern = StringUtils.getNumericPattern();
+            if (newText.length > 0 && !newText.match(pattern)) {
+                var patternWithoutLastCharacter = pattern.slice(0, -1);
+                var regExp = RegExp(patternWithoutLastCharacter);
+                var match = regExp.exec(newText);
+                var rowIndex = $(event.target).attr("row");
+                var cellIndex = $(event.target).attr("cell");
+
+                if (match) {
+                    presenter.setCellElementValue(rowIndex, cellIndex, match[0]);
+                } else {
+                    presenter.setCellElementValue(rowIndex, cellIndex, "");
+                }
+            }
+        }
+    };
+
+    presenter.onKeyPress = function(event) {
+        event.stopPropagation();
+        if (presenter.useNumericKeyboard) {
+            var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+            var selectionStartIdx = event.target.selectionStart;
+            var selectionEndIdx = event.target.selectionEnd;
+            var oldText = String(event.target.value);
+            var newText = oldText.substring(0, selectionStartIdx)
+                            + key
+                            + oldText.substring(selectionEndIdx);
+            var pattern = StringUtils.getNumericPattern();
+            if (!newText.match(pattern)) {
+                event.preventDefault();
+            }
+        }
     };
 
     presenter.createView = function(convertedArray) {
@@ -282,6 +328,16 @@ function AddonWritingCalculations_create() {
         });
     };
 
+    presenter.setCellElementValue = function (row, cell, value) {
+        var inputs = presenter.getInputs();
+
+        for (var i = 0; i < inputs.length; i++) {
+            if ($(inputs[i]).attr("row") === row && $(inputs[i]).attr("cell") === cell) {
+                $(inputs[i]).val(value)
+            }
+        }
+    }
+
     presenter.getValueOfElement = function(element) {
         if( !this.isEmptyBox(element) ) {
             return;
@@ -346,7 +402,7 @@ function AddonWritingCalculations_create() {
             case this.ELEMENT_TYPE.EMPTY_BOX:
                 var inputType = "text";
                 if (presenter.useNumericKeyboard) {
-                    inputType = "number";
+                    inputType = "tel";
                 }
                 var input = $("<input type='" + inputType + "'>");
                 input.addClass("writing-calculations-input");
