@@ -75,4 +75,15 @@ public class TextToSpeechAPI {
 		}
 	}-*/;
 
+	public static native String getAddonTitle (JavaScriptObject obj, String area, String id) /*-{
+		try {
+			if (obj && obj.playPageTitle) {
+				var configuration = obj.getAddOnConfiguration(area, id);
+				return configuration.title;
+			}
+		} catch(err) {
+			alert("[TextToSpeech1] Exception in getAddonTitle(): \n" + err);
+		}
+		return "";
+	}-*/;
 }

@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<limitedCheck checkText='Some text&lt;&gt;' unCheckText='Some uncheck text&lt;&gt;' mistakesFromProvidedModules='false' maintainState="false">
+<limitedCheck checkText='Some text&lt;&gt;' unCheckText='Some uncheck text&lt;&gt;' mistakesFromProvidedModules='false' maintainState="false" selected="" correct="" wrong="" percentage_result="" edit_block="" no_edit_block="">
 	<![CDATA[Table1;Table1]]>
 </limitedCheck>

@@ -611,6 +611,13 @@ public class PageController implements ITextToSpeechController, IPageController 
 		}
 	}
 
+	public String getTitle (String area, String id) {
+		if (this.isReadingOn) {
+			return TextToSpeechAPI.getAddonTitle(this.getTextToSpeechAPIJavaScriptObject(), area, id);
+		}
+		return "";
+	}
+
 	public void speak (List<TextToSpeechVoice> voiceTexts) {
 		if (this.isReadingOn) {
 			TextToSpeechAPI.speak(this.getTextToSpeechAPIJavaScriptObject(), voiceTexts);
