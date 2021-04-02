@@ -2089,5 +2089,6 @@ var ice_dictionary_pl = {
 		"Scoreboard_initial_teams_count": "Initial number of teams",
 		"Scoreboard_default_teams_list": "Initial list of teams",
 		"Scoreboard_property_name": "Team name",
-		"Scoreboard_property_color": "Team colour"
+		"Scoreboard_property_color": "Team colour",
+		"Scoreboard_maximum_teams_count": "Maximum number of teams"
 };
