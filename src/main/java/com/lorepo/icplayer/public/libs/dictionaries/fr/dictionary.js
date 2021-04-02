@@ -1876,6 +1876,8 @@ var ice_dictionary_fr = {
     "IFrame_property_index_file": "Index file",
     "IFrame_property_communication_id": "Communication id",
     "IFrame_property_allow_fullscreen": "Allow Fullscreen",
+    "IFrame_property_index_html_location": "Index html location",
+	"IFrame_property_zip_file": "Zip file",
     "Text_To_Speech_name": "Text To Speech",
     "Text_To_Speech_info": "This addon allows to transform text to speech",
     "Text_To_Speech_configuration": "Configuration",

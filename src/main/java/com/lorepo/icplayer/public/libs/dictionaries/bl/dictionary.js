@@ -1887,6 +1887,8 @@ var ice_dictionary_bl = {
 	"IFrame_property_index_file": "Индекс файл",
 	"IFrame_property_communication_id": "ID за комуникация",
 	"IFrame_property_allow_fullscreen": "Разреши цял екран",
+	"IFrame_property_index_html_location": "Index html location",
+	"IFrame_property_zip_file": "Zip file",
 	"Text_To_Speech_name": "Текст към говор",
 	"Text_To_Speech_info": "Този плъгин позволява превръщането на текст в говор",
 	"Text_To_Speech_configuration": "Конфигурация",

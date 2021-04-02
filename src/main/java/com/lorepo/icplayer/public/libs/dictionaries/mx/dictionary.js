@@ -1876,6 +1876,8 @@ var ice_dictionary_mx = {
 	"IFrame_property_index_file": "Archivo de índice",
 	"IFrame_property_communication_id": "ID de comunicación",
 	"IFrame_property_allow_fullscreen": "Permitir pantalla completa",
+	"IFrame_property_index_html_location": "Index html location",
+	"IFrame_property_zip_file": "Zip file",
 	"Text_To_Speech_name": "Texto a Voz",
 	"Text_To_Speech_info": "Este addon permite transformar texto escrito a voz hablada.",
 	"Text_To_Speech_configuration": "Configuración",

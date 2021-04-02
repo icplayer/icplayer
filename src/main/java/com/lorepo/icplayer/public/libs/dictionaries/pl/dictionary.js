@@ -1875,6 +1875,8 @@ var ice_dictionary_pl = {
 	"IFrame_property_index_file": "Plik indeksowy",
 	"IFrame_property_communication_id": "ID komunikacyjne",
 	"IFrame_property_allow_fullscreen": "Włącz tryb pełnoekranowy",
+	"IFrame_property_index_html_location": "Index html location",
+	"IFrame_property_zip_file": "Zip file",
 	"Text_To_Speech_name": "Syntezator mowy",
 	"Text_To_Speech_info": "Addon ten umożliwia przetwarzanie tekstu na mowę",
 	"Text_To_Speech_configuration": "Konfiguracja",
