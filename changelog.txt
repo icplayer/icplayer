@@ -1,3 +1,4 @@
+2021-04-01 Added TTS support in multiplegap
 2021-03-30 Fixed reading Chrome browser version on android
 2021-03-29 Implementation of audio files export
 2021-03-29 Fixed issue with empty spaces at the end of a print page
