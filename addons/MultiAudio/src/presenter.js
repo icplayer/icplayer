@@ -15,10 +15,15 @@ function AddonMultiAudio_create(){
     presenter.addonID = null;
     presenter.type = 'multiaudio';
     presenter.draggableItems = {};
+    presenter.isWCAGOn = false;
+    presenter.selectedItemID = '';
+    presenter.currentDraggableItemID = '';
 
     presenter.setPlayerController = function(controller) {
         presenter.playerController = controller;
     };
+
+    function getTextVoiceObject(text, lang) {return window.TTSUtils.getTextVoiceObject(text, lang);}
     
     presenter.onEventReceived = function(eventName, eventData) {
         if (eventName == "ValueChanged") {
@@ -237,6 +242,9 @@ function AddonMultiAudio_create(){
         for (var i=0; i < filesModel.length; i++) {
             createDraggableItem(filesModel[i].ID);
         }
+        if (presenter.selectedItemID.length > 0) {
+            presenter.applySelectedClass(presenter.selectedItemID);
+        }
     };
 
     function createDraggableItem (itemID) {
@@ -252,6 +260,11 @@ function AddonMultiAudio_create(){
             $el.append($grab);
 
             var itemText = presenter.getTextFromFileID(itemID);
+            if (presenter.playerController) {
+                itemText = presenter.playerController.getTextParser().parseAltTexts(itemText);
+            } else {
+                itemText = window.TTSUtils.parsePreviewAltText(itemText);
+            }
             if ($("<span>" + itemText + "</span>").text().length > 0) {
                 var $text = $('<span></span>');
                 $text.addClass('multiaudio-item-text');
@@ -307,11 +320,15 @@ function AddonMultiAudio_create(){
 
         presenter.draggableItems[itemID].remove();
         delete presenter.draggableItems[itemID];
+        if (presenter.selectedItemID == itemID) {
+            presenter.selectedItemID = '';
+        }
     }
 
     function removeDraggableItems() {
         presenter.globalView.find('.multiaudio-item-wrapper').remove();
         presenter.draggableItems = {};
+        presenter.selectedItemID = '';
     }
 
     function hideDraggableItem(itemID) {
@@ -345,8 +362,12 @@ function AddonMultiAudio_create(){
         if (presenter.draggableItems[itemID].hasClass('ui-draggable-dragging')) return;
         if (presenter.draggableItems[itemID].hasClass('multiaudio-selected')) {
             presenter.fireSelectedDraggableEvent();
+            presenter.selectedItemID = '';
+            readDeselected();
         } else {
             presenter.fireSelectedDraggableEvent(itemID);
+            presenter.selectedItemID = itemID;
+            readSelected();
         }
     };
 
@@ -434,6 +455,7 @@ function AddonMultiAudio_create(){
 
     function upgradeModel(model) {
         var upgradedModel = upgradeFileText(model);
+        upgradedModel = upgradeTextToSpeechSupport(upgradedModel);
         return upgradedModel;
     }
 
@@ -447,6 +469,55 @@ function AddonMultiAudio_create(){
         }
         return upgradedModel;
     }
+
+    function upgradeTextToSpeechSupport(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (upgradedModel['speechTexts'] === undefined) {
+            upgradedModel['speechTexts'] = {
+                Selected: {Selected: "Selected"},
+                Deselected: {Deselected: "Deselected"},
+                Empty: {Empty: "Empty"}
+            };
+        }
+
+        if (upgradedModel['langAttribute'] === undefined) {
+            upgradedModel['langAttribute'] = "";
+        }
+
+        return upgradedModel;
+    }
+
+    function getSpeechTextProperty (rawValue, defaultValue) {
+            var value = rawValue.trim();
+
+            if (value === undefined || value === null || value === '') {
+                return defaultValue;
+            }
+
+            return value;
+        }
+
+    presenter.getSpeechTexts = function(speechTextsModel) {
+        var speechTexts = {
+            selected:  'Selected',
+            deselected: 'Deselected',
+            empty: 'Empty'
+        };
+
+        if (!speechTextsModel) {
+            return speechTexts;
+        }
+
+        speechTexts = {
+            selected:        getSpeechTextProperty(speechTextsModel['Selected']['Selected'], speechTexts.selected),
+            deselected:        getSpeechTextProperty(speechTextsModel['Deselected']['Deselected'], speechTexts.deselected),
+            empty:        getSpeechTextProperty(speechTextsModel['Empty']['Empty'], speechTexts.empty)
+        };
+
+        return speechTexts;
+    };
 
     presenter.run = function(view, model){
         this.initialize(view, model, false);
@@ -467,6 +538,7 @@ function AddonMultiAudio_create(){
     presenter.initialize = function(view, model, isPreview) {
         var upgradedModel = upgradeModel(model);
         this.globalModel = upgradedModel;
+        this.speechTexts = presenter.getSpeechTexts(upgradedModel['speechTexts']);
         this.globalView = $(view);
         this.createView(view, upgradedModel);
         if (!isPreview) {
@@ -559,6 +631,44 @@ function AddonMultiAudio_create(){
         }
     };
 
+    function increaseVolume() {
+        var volume = presenter.audio.volume;
+        volume += 0.1;
+        if (volume > 1.0) volume = 1.0;
+        presenter.audio.volume = volume;
+    };
+
+    function decreaseVolume() {
+        var volume = presenter.audio.volume;
+        volume -= 0.1;
+        if (volume < 0.0) volume = 0.0;
+        presenter.audio.volume = volume;
+    };
+
+    function forward() {
+        presenter.audio.currentTime += 5;
+    }
+
+    function backward() {
+            presenter.audio.currentTime -= 5;
+        }
+
+    function playPause() {
+        if (presenter.audio.paused) {
+            presenter.play();
+        } else {
+            presenter.pause();
+        }
+    }
+
+    function playStop() {
+            if (presenter.audio.paused) {
+                presenter.play();
+            } else {
+                presenter.stop();
+            }
+        }
+
     presenter.hide = function() {
         this.setVisibility(false);
         this.visible = false;
@@ -617,6 +727,60 @@ function AddonMultiAudio_create(){
             this.initialize(this.globalView[0], this.globalModel);
         }
     };
+
+    presenter.previousDraggableItem = function() {
+        var itemIDs = Object.keys(presenter.draggableItems);
+        if (itemIDs.length == 0){
+            presenter.currentDraggableItemID = '';
+            return;
+        }
+        if (presenter.currentDraggableItemID.length == 0) {
+            presenter.currentDraggableItemID = itemIDs[itemIDs.length - 1];
+            presenter.jumpToID(presenter.currentDraggableItemID);
+            updateWCAGSelectedClass();
+        } else {
+            var index = itemIDs.indexOf(presenter.currentDraggableItemID);
+            if (index > 0) {
+                presenter.currentDraggableItemID = itemIDs[index-1];
+                presenter.jumpToID(presenter.currentDraggableItemID);
+                updateWCAGSelectedClass();
+            }
+        }
+        }
+
+    presenter.nextDraggableItem = function() {
+        var itemIDs = Object.keys(presenter.draggableItems);
+        if (itemIDs.length == 0){
+            presenter.currentDraggableItemID = '';
+            return;
+        }
+        if (presenter.currentDraggableItemID.length == 0) {
+            presenter.currentDraggableItemID = itemIDs[0];
+            presenter.jumpToID(presenter.currentDraggableItemID);
+            updateWCAGSelectedClass();
+        } else {
+            var index = itemIDs.indexOf(presenter.currentDraggableItemID);
+            if (index < itemIDs.length -1 && index != -1) {
+                presenter.currentDraggableItemID = itemIDs[index+1];
+                presenter.jumpToID(presenter.currentDraggableItemID);
+                updateWCAGSelectedClass();
+            }
+        }
+    }
+
+    function updateWCAGSelectedClass() {
+        if (presenter.globalModel["Interface"] != "Draggable items") return;
+
+        clearWCAGSelectedClass();
+        if (presenter.currentDraggableItemID.length > 0) {
+            presenter.draggableItems[presenter.currentDraggableItemID].addClass('keyboard_navigation_active_element');
+        }
+    }
+
+    function clearWCAGSelectedClass() {
+        var activeClassName = 'keyboard_navigation_active_element';
+        presenter.globalView.find('.'+activeClassName).removeClass(activeClassName);
+    }
 
     presenter.jumpToID = function(id) {
         for (var i = 0; i < this.files.length; i++) {
@@ -698,6 +862,161 @@ function AddonMultiAudio_create(){
 
     presenter.validateFiles = function(files) {
         return !(!files["Ogg"] && !files["Mp3"]);
+    };
+
+    presenter.setWCAGStatus = function (isOn) {
+            presenter.isWCAGOn = isOn;
+            if (!isOn) {
+                clearWCAGSelectedClass();
+                presenter.currentDraggableItemID = '';
+            }
+        };
+
+    presenter.keyboardController = function (keycode, isShift, event) {
+        event.preventDefault();
+        if (presenter.globalModel["Interface"] == "Draggable items") {
+            presenter.draggableKeyboardController(keycode, isShift, event);
+        } else {
+            presenter.audioKeyboardController(keycode, isShift, event);
+        }
+    };
+
+    presenter.draggableKeyboardController = function (keycode, isShift, event) {
+        switch (keycode) {
+            case 9: // TAB
+                if (isShift) {
+                    presenter.previousDraggableItem();
+                } else {
+                    presenter.nextDraggableItem();
+                }
+                readCurrentDraggableFileText();
+                break;
+            case 13: //ENTER
+                if (isShift) {
+                    presenter.stop();
+                    clearWCAGSelectedClass();
+                    presenter.currentDraggableItemID = '';
+                } else {
+                    if (presenter.currentDraggableItemID.length > 0) {
+                        playStop();
+                        updateWCAGSelectedClass();
+                    }
+                }
+                break;
+            case 32: //SPACE
+                var itemID = presenter.files[presenter.currentAudio].ID;
+                presenter.handleGrabAreaClick(itemID);
+                break;
+            case 38: // UP
+                presenter.previousDraggableItem();
+                readCurrentDraggableFileText();
+                updateWCAGSelectedClass();
+                break;
+            case 40: // DOWN
+                presenter.nextDraggableItem();
+                readCurrentDraggableFileText();
+                updateWCAGSelectedClass();
+                break;
+            case 37: // LEFT
+                presenter.previousDraggableItem();
+                readCurrentDraggableFileText();
+                updateWCAGSelectedClass();
+                break;
+            case 39: // RIGHT
+                presenter.nextDraggableItem();
+                readCurrentDraggableFileText();
+                updateWCAGSelectedClass();
+                break;
+            case 27: // ESC
+                presenter.stop();
+                clearWCAGSelectedClass();
+                presenter.currentDraggableItemID = '';
+                break;
+        }
+    }
+
+    presenter.audioKeyboardController = function (keycode, isShift, event) {
+        switch (keycode) {
+            case 9: // TAB
+                if (isShift) {
+                    presenter.previous();
+                } else {
+                    presenter.next();
+                }
+                readCurrentAudioFileText();
+                break;
+            case 13: //ENTER
+                if (!isShift) {
+                    presenter.pause();
+                    readCurrentAudioFileText();
+                }
+                break;
+            case 32: // SPACE
+                playPause();
+                break;
+            case 38: // UP
+                increaseVolume();
+                break;
+            case 40: // DOWN
+                decreaseVolume();
+                break;
+            case 37: // LEFT
+                backward();
+                break;
+            case 39: // RIGHT
+                forward();
+                break;
+            case 27: // ESC
+                presenter.stop();
+                break;
+        }
+    }
+
+    function readSelected() {
+        var textVoiceArray = [];
+        textVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ""));
+        speak(textVoiceArray);
+    }
+
+    function readDeselected() {
+        var textVoiceArray = [];
+        textVoiceArray.push(getTextVoiceObject(presenter.speechTexts.deselected, ""));
+        speak(textVoiceArray);
+    }
+
+    function readCurrentDraggableFileText() {
+        var textVoiceArray = [];
+        if (Object.keys(presenter.draggableItems).length == 0) {
+            textVoiceArray.push(getTextVoiceObject(presenter.speechTexts.empty, ""));
+        } else {
+            var item = presenter.files[presenter.currentAudio];
+            textVoiceArray.push(getTextVoiceObject(item.Text, presenter.globalModel['langAttribute']));
+            if (presenter.selectedItemID == item.ID) {
+                textVoiceArray.push(getTextVoiceObject(presenter.speechTexts.selected, ""));
+            }
+        }
+        speak(textVoiceArray);
+    }
+
+    function readCurrentAudioFileText() {
+        var item = presenter.files[presenter.currentAudio];
+        var textVoiceArray = [getTextVoiceObject(item.Text, presenter.globalModel['langAttribute'])];
+        speak(textVoiceArray);
+    }
+
+    presenter.getTextToSpeechOrNull = function () {
+        if (presenter.playerController) {
+            return presenter.playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    function speak (data) {
+        var tts = presenter.getTextToSpeechOrNull();
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
     };
 
     return presenter;
