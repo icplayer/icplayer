@@ -19,13 +19,14 @@ public class PlayerEntryPoint implements EntryPoint {
 	private JavaScriptObject statusChangedListener;
 	private JavaScriptObject outstretchHeightListener;
 	private JavaScriptObject contextMetadata;
-	private JavaScriptObject externalVariables = JavaScriptObject.createObject();
+	private JavaScriptObject externalVariables;
 
 	/**
 	 * This is the entry point method.
 	 */
 	@Override
 	public void onModuleLoad() {
+		externalVariables = JavaScriptObject.createObject();
 		initJavaScriptAPI(this);
 	}
 
