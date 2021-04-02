@@ -197,7 +197,6 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public void setState(String stateObj) {
-		JavaScriptUtils.log("setState object: " + stateObj);
 		if (view == null) {
 			return;
 		}

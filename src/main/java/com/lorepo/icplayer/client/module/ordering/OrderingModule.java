@@ -28,8 +28,6 @@ import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
 import com.lorepo.icplayer.client.printable.Printable;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
-import com.lorepo.icf.utils.JavaScriptUtils;
-
 
 public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
 	public static final String ERROR_NUMBER_OF_ITEMS = "Error - only one item";
@@ -1001,7 +999,6 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 
 	@Override
 	public void setPrintableState(String state) {
-		JavaScriptUtils.log("setPrintableState object: " + state);
 		if (state.equals("")) {
 			return;
 		}

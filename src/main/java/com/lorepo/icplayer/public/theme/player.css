@@ -532,6 +532,26 @@ hr, table, fieldset {
 	opacity: 0.4;
 }
 
+.printable_ic_ordering {
+    overflow: hidden;
+    display: table;
+}
+
+.printable_ic_ordering .items-wrapper,
+.printable_ic_ordering .is-all-ok-wrapper-correct,
+.printable_ic_ordering .is-all-ok-wrapper-wrong {
+	display: table-cell;
+    vertical-align: middle;
+}
+
+.printable_ic_ordering .is-all-ok-wrapper-correct::after {
+    content: "\2714";
+}
+
+.printable_ic_ordering .is-all-ok-wrapper-wrong::after {
+    content: "\2716";
+}
+
 .printable_ic_ordering .item-wrapper {
 	border: 1px solid #999;
 	padding: 5px 10px 5px 5px;
@@ -540,8 +560,8 @@ hr, table, fieldset {
 }
 
 .printable_ic_ordering .number-box,
-.printable_ic_ordering .number-correct-box
-.printable_ic_ordering .number-wrong-box{
+.printable_ic_ordering .number-box-correct,
+.printable_ic_ordering .number-box-wrong {
 	border: 1px solid #999;
 	width:2em;
 	height: 2em;
@@ -551,11 +571,11 @@ hr, table, fieldset {
 	margin-right: 10px;
 }
 
-.printable_ic_ordering .number-correct-box::after {
+.printable_ic_ordering .number-box-correct::after {
     content: "\2714";
 }
 
-.printable_ic_ordering .number-wrong-box::after {
+.printable_ic_ordering .number-box-wrong::after {
     content: "\2716";
 }
 

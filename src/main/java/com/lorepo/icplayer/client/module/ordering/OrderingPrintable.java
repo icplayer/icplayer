@@ -21,42 +21,37 @@ public class OrderingPrintable {
 	}
 	
 	public String getPrintableHTML(String className, boolean showAnswers) {
-		if (model.getPrintable() == PrintableMode.NO) return null;
+		if (model.getPrintable() == PrintableMode.NO)
+			return null;
 
 		HashMap<String, String> printableState = model.getPrintableState();
+		String printableRepresentation = "";
 
-		String[] itemsRepresentations;
-		if (printableState != null && printableState.containsKey("order")) {
-			itemsRepresentations = createItemsRepresentationsIfSetState(showAnswers, printableState);
-		} else {
-			itemsRepresentations = createItemsRepresentationsIfNotSetState(showAnswers);
-		}
-
-		String result = "<div class=\"printable_ic_ordering\" id=\"" + model.getId() +"\">";
-
-		for (String parsedItem: itemsRepresentations) {
-			result += parsedItem;
-		}
-
-		result += "</div>";
-		result = PrintableContentParser.addClassToPrintableModule(result, className, !model.isSplitInPrintBlocked());
-
-		return result;
+		if (printableState != null && printableState.containsKey("order"))
+			printableRepresentation = createPrintableRepresentationIfSetState(showAnswers, printableState);
+		else
+			printableRepresentation = createPrintableRepresentationIfNotSetState(showAnswers);
+		return PrintableContentParser.addClassToPrintableModule(
+				printableRepresentation, className, !model.isSplitInPrintBlocked());
 	}
 
-	private String[] createItemsRepresentationsIfSetState(boolean showAnswers, HashMap<String, String> printableState) {
+	private String createPrintableRepresentationIfSetState(
+			boolean checkAnswers, HashMap<String, String> printableState) {
 		String[] parsedItems = new String[model.getItemCount()];
 		List<String> unorderedItems = new ArrayList<String>();
 
-		String orderState = printableState.get("order");
-		String[] indexes = orderState.split(",");
+		String[] itemsIndexesFromState = getItemsIndexesInOrderFromState(printableState);
+		boolean isCorrectOrder = true;
 
-		for (int i = 0; i < indexes.length; i++) {
-			int index = Integer.parseInt(indexes[i]);
+		for (int i = 0; i < itemsIndexesFromState.length; i++) {
+			int itemIndexFromState = Integer.parseInt(itemsIndexesFromState[i]);
+			int position = i+1;
 			for (int j = 0; j < model.getItemCount(); j++) {
 				OrderingItem item = model.getItem(j);
-				if (item.getIndex() == index) {
-					String parsedItem = createPrintableItem(item, i+1, model.isVertical(), showAnswers);
+				if (item.getIndex() == itemIndexFromState) {
+					if (!item.isCorrect(position))
+						isCorrectOrder = false;
+					String parsedItem = createPrintableItem(item, position, model.isVertical(), checkAnswers);
 					Integer startingPosition = item.getStartingPosition();
 					if (startingPosition != null) {
 						parsedItems[startingPosition - 1] = parsedItem;
@@ -68,10 +63,10 @@ public class OrderingPrintable {
 			}
 		}
 		sortItemsRepresentations(parsedItems, unorderedItems);
-		return parsedItems;
+		return combineItemsRepresentations(parsedItems, checkAnswers, isCorrectOrder);
 	}
 
-	private String[] createItemsRepresentationsIfNotSetState(boolean showAnswers) {
+	private String createPrintableRepresentationIfNotSetState(boolean showAnswers) {
 		String[] parsedItems = new String[model.getItemCount()];
 		List<String> unorderedItems = new ArrayList<String>();
 
@@ -91,9 +86,64 @@ public class OrderingPrintable {
 			}
 		}
 		sortItemsRepresentations(parsedItems, unorderedItems);
-		return parsedItems;
+		return combineItemsRepresentations(parsedItems, false, false);
 	}
 
+	/**
+	 * getItemsIndexesInOrderFromState Returns items indexes in order defined in the printable state.
+	 * @param  printableState printable state object in which there must be a 'order' key. Resulting value must be of
+	 *                           String type. Numbers represent indexes of items. The numbers are arranged in order.
+	 *                           Numbers must be separated by a comma.
+	 * @return                indexes items in order from the state
+	 */
+	private String[] getItemsIndexesInOrderFromState(HashMap<String, String> printableState) {
+		String orderState = printableState.get("order");
+		return orderState.split(",");
+	}
+
+	/**
+	 * createPrintableItem  Returns a printable representation of the item.
+	 * @param  item         object whose representation is created
+	 * @param  index        position of object. index == 0 means index will not be displayed
+	 * @param  isVertical   if the object must be represented vertically
+	 * @param  checkAnswers if item will be represented in the checkAnswers state
+	 * @return              printable representation of the item
+	 */
+	private String createPrintableItem(OrderingItem item, int index, boolean isVertical, boolean checkAnswers) {
+		String displayMode = isVertical? "block" : "inline-block";
+		String result = "<div style=\"display:" + displayMode + "\">";
+		result += "<div class=\"item-wrapper\">";
+		result += "<table><tr><td>";
+		result += createPrintableIndexBox(item, index, checkAnswers);
+		result += "</td><td>";
+		result += item.getText();
+		result += "</td></tr></table></div></div>";
+		return result;
+	}
+
+	/**
+	 * createPrintableIndexBox Returns a printable representation of the item's box with index.
+	 * @param  item         object for which the box representation is created
+	 * @param  index        position of object. index == 0 means index will not be displayed
+	 * @param  checkAnswers if true, add a sign representing whether the indexes match
+	 * @return              printable representation of the item's box
+	 */
+	private String createPrintableIndexBox(OrderingItem item, int index, boolean checkAnswers) {
+		String box = "";
+		if (checkAnswers) {
+			if (item.isCorrect(index))
+				box = "<div class=\"number-box-correct\">";
+			else
+				box = "<div class=\"number-box-wrong\">";
+		} else {
+			box = "<div class=\"number-box\">";
+		}
+		if (index != 0) {
+			box += Integer.toString(index);
+		}
+		box += "</div>";
+		return box;
+	}
 
 	private void sortItemsRepresentations(String[] parsedItems, List<String> unorderedItems){
 		for(int index = 0; index < unorderedItems.size(); index += 1) {
@@ -108,35 +158,23 @@ public class OrderingPrintable {
 		}
 	}
 
-	/**
-	 * createPrintableItem  Returns a printable representation of the item.
-	 * @param  item         object whose representation is created
-	 * @param  index        position of object. index == 0 means no index will be displayed
-	 * @param  isVertical   if the object must be represented vertically
-	 * @param  checkAnswers if item will be represented in the checkAnswers state
-	 * @return              printable representation of the object
-	 */
-	private String createPrintableItem(OrderingItem item, int index, boolean isVertical, boolean checkAnswers) {
-		String displayMode = isVertical? "block" : "inline-block";
-		String result = "<div style=\"display:" + displayMode + "\">";
-		result += "<div class=\"item-wrapper\">";
-		result += "<table><tr><td>";
-		if (checkAnswers) {
-			if (item.getIndex() == index)
-				result += "<div class=\"number-correct-box\">";
-			else
-				result += "<div class=\"number-wrong-box\">";
-		} else {
-			result += "<div class=\"number-box\">";
-		}
-		if (index != 0) {
-			result += Integer.toString(index);
+	private String combineItemsRepresentations(String[] printableItems, boolean checkAnswers, boolean isAllCorrect) {
+		String result = "<div class=\"printable_ic_ordering\" id=\"" + model.getId() +"\">";
+		result += "<div class=\"items-wrapper\">";
+		for (String parsedItem: printableItems) {
+			result += parsedItem;
 		}
 		result += "</div>";
-		result += "</td><td>";
-		result += item.getText();
-		result += "</td></tr></table></div></div>";
+		if (checkAnswers)
+			result += createIsAllOkSignWrapper(isAllCorrect);
+		result += "</div>";
 		return result;
+	}
+	
+	private String createIsAllOkSignWrapper(boolean isAllCorrect){
+		if (isAllCorrect)
+			return "<div class=\"is-all-ok-wrapper-correct\"/>";
+		return "<div class=\"is-all-ok-wrapper-wrong\"/>";
 	}
 	
 	private int nextInt(int upperBound) {
