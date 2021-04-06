@@ -12,7 +12,6 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
-import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 import java.util.ArrayList;

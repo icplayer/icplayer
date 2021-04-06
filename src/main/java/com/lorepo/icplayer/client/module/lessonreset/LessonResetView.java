@@ -1,11 +1,14 @@
 package com.lorepo.icplayer.client.module.lessonreset;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.PushButton;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
@@ -141,6 +144,11 @@ public class LessonResetView extends PushButton implements IDisplay, IWCAG, IWCA
 	public void enter(KeyDownEvent event, boolean isExiting) {
 		if (!isExiting) {
 			execute();
+			if (isWCAGOn) {
+				List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+				textVoices.add(0,TextToSpeechVoice.create(this.module.getSpeechTextItem(0), this.getLang()));
+				speak(textVoices);
+			}
 		}
 	}
 
@@ -194,5 +202,11 @@ public class LessonResetView extends PushButton implements IDisplay, IWCAG, IWCA
 	@Override
 	public String getLang() {
 		return null;
+	}
+
+	private void speak (List<TextToSpeechVoice> textVoices) {
+		if (this.pageController != null) {
+			this.pageController.speak(textVoices);
+		}
 	}
 }
