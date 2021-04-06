@@ -1019,6 +1019,25 @@ function AddonConnection_create() {
         }
     };
 
+    presenter.addAnswersElements = function (view, model) {
+        // left side
+        var answers = []
+        if (presenter.printableState.id.length > 0) {
+            for (var i = 0; i < presenter.printableState.id.length; i++) {
+                var pair = presenter.printableState.id[i].split(':');
+                answers.push(pair);
+            }
+        }
+        console.log("Answers: ", answers)
+        console.log("Correct: ")
+        var column = $(view).find('.annswersLeftColumn:first').find('.content:first');
+        for (var i = 0; i < model["Left column"].length; i++) {
+            var element = presenter.elements[i];
+            console.log(element);
+        }
+        // right side
+    };
+
     presenter.isIDUnique = function (id) {
         if (id == '') return true;
         if ($.inArray(id, presenter.uniqueIDs) < 0) {
@@ -2118,17 +2137,31 @@ function AddonConnection_create() {
         model = presenter.upgradeModel(model);
         console.log('get Printable HTML fired');
         var savedState = presenter.printableState;
+        var checkAnswers = (savedState != undefined || savedState != null) && showAnswers;
 
         console.log('Saved model looks like: ', savedState);
         console.log('Model is: ', model);
         console.log('Show answers is: ', showAnswers);
+
+        var answerLeftColumn = checkAnswers ? 
+        '        <td class="annswersLeftColumn">' +
+        '            <table class="content"></table>' +
+        '        </td>' : ''
+
+        var answerRightColumn = checkAnswers ? 
+        '        <td class="annswersRightColumn">' +
+        '            <table class="content"></table>' +
+        '        </td>' : ''
+        
+        console.log(answerLeftColumn);
+
 
         var $root = $("<div></div>");
         $root.attr('id', model.ID);
         $root.addClass('printable_addon_Connection');
         $root.css("max-width", model["Width"]+"px");
         $root.html('<table class="connectionContainer">' +
-            '    <tr>' +
+            '    <tr>' + answerLeftColumn +
             '        <td class="connectionLeftColumn">' +
             '            <table class="content"></table>' +
             '        </td>' +
@@ -2137,27 +2170,32 @@ function AddonConnection_create() {
             '        </td>' +
             '        <td class="connectionRightColumn">' +
             '            <table class="content"></table>' +
-            '        </td>' +
+            '        </td>' + answerRightColumn +
             '    </tr>' +
             '</table>');
 
         var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
         var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
         if (!isRandomLeft) {
-            this.loadElements($root[0], model, 'connectionLeftColumn', 'Left column', false);
+            this.loadElements($root[0], model, 'connectionLeftColumn', 'Left column', false, checkAnswers);
         } else {
             this.loadRandomElementsLeft($root[0], model, 'connectionLeftColumn', 'Left column', false);
         }
         if (!isRandomRight) {
-            this.loadElements($root[0], model, 'connectionRightColumn', 'Right column', true);
+            this.loadElements($root[0], model, 'connectionRightColumn', 'Right column', true, checkAnswers);
         } else {
             this.loadRandomElementsRight($root[0], model, 'connectionRightColumn', 'Right column', true);
         }
         this.setColumnsWidth($root[0], model["Columns width"]);
 
+        if (checkAnswers) {
+            presenter.addAnswersElements($root[0], model);
+        }
+
 
         var connected = [];
-        if (showAnswers && savedModel == undefined) {
+        // if (showAnswers && !checkAnswers) {
+        if (showAnswers) {
             console.log("Normal show answers");
             console.log("ELEMENTS: ", presenter.elements)
             for (var i = 0; i < model["Left column"].length; i++) {
@@ -2166,10 +2204,9 @@ function AddonConnection_create() {
                     connected.push({from: element.id, to:element.connects});
                 }
             }
-        } else if (showAnswers && savedState != undefined) {
-            console.log("Show user answers and check it");
-            // Sprawdzenie odpowiedzi i zaznaczenie tylko poprawnych
-        } else if (!showAnswers && savedState != undefined) {
+        } else if (checkAnswers) {
+            console.log("Show user answers and check it or not");
+            console.log(savedState);
             for (var i = 0; i < savedState.id.length; i++) {
                 var pair = savedState.id[i].split(':');
                 connected.push({from: pair[0], to:pair[1]});
