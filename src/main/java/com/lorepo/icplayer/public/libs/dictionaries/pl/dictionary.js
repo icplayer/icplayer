@@ -994,6 +994,7 @@ var ice_dictionary_pl = {
 	"Lesson_Reset_property_title" : "Tytuł",
 	"Lesson_Reset_property_reset_mistakes" : "Usuń pomyłki",
 	"Lesson_Reset_property_reset_checks" : "Usuń sprawdzenia",
+	"Lesson_Reset_lesson_was_reset" : "Lesson has been reset",
 	"Logger_info" : "Imituje konsolę JavaScript w przeglądarce, którą w tym wypadku można porównać do forum.",
 	"Logger_name" : "Rejestrator",
 	"Magic_Boxes_info" : "Pozwala na wstawienie do prezentacji gotowej gry działającej na zasadzie „Wykreślanki”, w której można wyszukać ukryte słowa. Aby ćwiczenie działało poprawnie, wystarczy zdefiniować wszystkie litery i możliwe odpowiedzi w menu „Właściwości”.",
