@@ -979,6 +979,12 @@ var ice_dictionary_pl = {
 	"Limited_Check_property_works_with" : "Współpracuje z",
 	"Limited_Check_property_mistakes_from_provided_modules" : "Policz pomyłki z podanych modułów",
 	"Limited_Check_property_maintain_state" : "Maintain state",
+	"Limited_Check_selected": "Selected",
+	"Limited_Check_correct": "Correct",
+	"Limited_Check_wrong": "Wrong",
+	"Limited_Check_percentage_result": "Percentage result",
+	"Limited_Check_edit_block": "Following addons are blocked for edition",
+	"Limited_Check_no_edit_block": "Following addons are no longer blocked for edition",
 	"Limited_Reset_name": "Usuń wybrane wyniki",
 	"Limited_Reset_info": "Umożliwia dodanie przycisku, którego kliknięcie pozwala usunąć wyniki w wybranych modułach.",
 	"Limited_Reset_property_title" : "Tytuł",
@@ -2084,5 +2090,6 @@ var ice_dictionary_pl = {
 		"Scoreboard_initial_teams_count": "Initial number of teams",
 		"Scoreboard_default_teams_list": "Initial list of teams",
 		"Scoreboard_property_name": "Team name",
-		"Scoreboard_property_color": "Team colour"
+		"Scoreboard_property_color": "Team colour",
+		"Scoreboard_maximum_teams_count": "Maximum number of teams"
 };

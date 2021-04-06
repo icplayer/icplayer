@@ -7,16 +7,21 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.PushButton;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.content.services.PlayerEventBus;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerCommands;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter.IDisplay;
+import com.lorepo.icplayer.client.page.PageController;
 
-public class LimitedCheckView extends PushButton implements IDisplay {
+public class LimitedCheckView extends PushButton implements IDisplay, IWCAG, IWCAGModuleView {
     private static final String DISABLED_STYLE = "disabled";
 
     private LimitedCheckModule module;
@@ -26,6 +31,8 @@ public class LimitedCheckView extends PushButton implements IDisplay {
     private boolean isDisabled = false;
     private List<IPresenter> presenters;
     private String originalDisplay = "";
+    private boolean isWCAGOn = false;
+    private PageController pageController = null;
 
     public LimitedCheckView(LimitedCheckModule module, IPlayerServices services) {
         this.playerServices = services;
@@ -225,4 +232,138 @@ public class LimitedCheckView extends PushButton implements IDisplay {
 			super.setVisible(false);
 		}
 	}
+
+	@Override
+	public TotalScore getTotalScore() {
+        ArrayList<IPresenter> modulesPresenters = getModulesPresenters();
+        TotalScore score = TotalScore.getFromPresenters(modulesPresenters);
+        return score;
+    }
+
+    @Override
+    public void enter(KeyDownEvent event, boolean isExiting) {
+        boolean isCheck = !isButtonPressed();
+        if (isCheck) {
+            onCheck();
+        } else {
+            onUncheck();
+        }
+        if (isWCAGOn && pageController != null) {
+            List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+
+            if (isCheck) {
+                addSpeechTextToVoicesArray(textVoices, LimitedCheckModule.EDIT_BLOCK_INDEX);
+                textVoices.addAll(getConnectedModulesVoices());
+                textVoices.addAll(getScoreVoices());
+            } else {
+                addSpeechTextToVoicesArray(textVoices, LimitedCheckModule.NO_EDIT_BLOCK_INDEX);
+                textVoices.addAll(getConnectedModulesVoices());
+            }
+
+            speak(textVoices);
+        }
+    }
+
+    private List<TextToSpeechVoice> getScoreVoices(){
+        TotalScore score = getTotalScore();
+        List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+
+        if (score.maxScore == 0) return textVoices;
+
+        int percentScore = (int) (100*score.score/score.maxScore);
+        addSpeechTextToVoicesArray(textVoices, LimitedCheckModule.CORRECT_INDEX);
+        textVoices.add(TextToSpeechVoice.create(String.valueOf(score.score), null));
+        addSpeechTextToVoicesArray(textVoices, LimitedCheckModule.WRONG_INDEX);
+        textVoices.add(TextToSpeechVoice.create(String.valueOf(score.errors), null));
+        addSpeechTextToVoicesArray(textVoices, LimitedCheckModule.RESULT_INDEX);
+        textVoices.add(TextToSpeechVoice.create(String.valueOf(percentScore) + "%", null));
+
+        return textVoices;
+    }
+
+    private void addSpeechTextToVoicesArray (List<TextToSpeechVoice> textVoices, int id) {
+        textVoices.add(TextToSpeechVoice.create(this.module.getSpeechTextItem(id), null));
+    }
+
+    private List<TextToSpeechVoice> getConnectedModulesVoices(){
+        List<TextToSpeechVoice> textVoices = new ArrayList<TextToSpeechVoice>();
+
+        if (pageController == null) return textVoices;
+
+        List<String> moduleIDs = module.getModules();
+        for (String id : moduleIDs) {
+            String title = this.pageController.getTitle("main", id);
+            textVoices.add(TextToSpeechVoice.create(title, null));
+        }
+
+        return textVoices;
+
+    }
+
+    @Override
+    public String getTitlePostfix() {
+        if (isButtonPressed()) {
+            return this.module.getSpeechTextItem(LimitedCheckModule.SELECTED_INDEX);
+        } else {
+            return "";
+        }
+    }
+
+    @Override
+    public void space(KeyDownEvent event) {
+        event.preventDefault();
+    }
+
+    @Override
+    public void tab(KeyDownEvent event) {}
+
+    @Override
+    public void left(KeyDownEvent event) {}
+
+    @Override
+    public void right(KeyDownEvent event) {}
+
+    @Override
+    public void down(KeyDownEvent event) {
+        event.preventDefault();
+    }
+    @Override
+    public void up(KeyDownEvent event) {
+        event.preventDefault();
+    }
+
+    @Override
+    public void escape(KeyDownEvent event) {
+        event.preventDefault();
+    }
+
+    @Override
+    public void customKeyCode(KeyDownEvent event) {}
+
+    @Override
+    public void shiftTab(KeyDownEvent event) {}
+
+    @Override
+    public void setPageController(PageController pc) {
+        this.setWCAGStatus(true);
+        this.pageController = pc;
+
+    }
+
+    @Override
+    public void setWCAGStatus(boolean isWCAGOn) {
+        this.isWCAGOn = isWCAGOn;
+
+    }
+
+    @Override
+    public String getLang() {
+        return null;
+    }
+
+    private void speak (List<TextToSpeechVoice> textVoices) {
+        if (this.pageController != null) {
+            this.pageController.speak(textVoices);
+        }
+    }
 }

@@ -866,6 +866,12 @@ var ice_dictionary_en = {
 	"Limited_Check_property_works_with" : "Works with",
 	"Limited_Check_property_mistakes_from_provided_modules" : "Count mistakes from provided modules",
 	"Limited_Check_property_maintain_state" : "Maintain state",
+	"Limited_Check_selected": "Selected",
+    "Limited_Check_correct": "Correct",
+    "Limited_Check_wrong": "Wrong",
+    "Limited_Check_percentage_result": "Percentage result",
+    "Limited_Check_edit_block": "Following addons are blocked for edition",
+    "Limited_Check_no_edit_block": "Following addons are no longer blocked for edition",
 	"Limited_Reset_name": "Limited Reset",
 	"Limited_Reset_info": "Allows to add a button clicking on which will reset answers given in specified modules.",
 	"Limited_Reset_property_title" : "Title",
@@ -2106,5 +2112,6 @@ var ice_dictionary_en = {
 		"Scoreboard_initial_teams_count": "Initial number of teams",
 		"Scoreboard_default_teams_list": "Initial list of teams",
 		"Scoreboard_property_name": "Team name",
-		"Scoreboard_property_color": "Team colour"
+		"Scoreboard_property_color": "Team colour",
+		"Scoreboard_maximum_teams_count": "Maximum number of teams"
 };
