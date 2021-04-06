@@ -989,6 +989,7 @@ var ice_dictionary_mx = {
 	"Lesson_Reset_property_title": "Texto",
 	"Lesson_Reset_property_reset_mistakes": "Eliminar  errores",
 	"Lesson_Reset_property_reset_checks": "Eliminar comprobaciones",
+	"Lesson_Reset_lesson_was_reset" : "Lesson has been reset",
 	"Logger_info": "Imita la consola de JavaScript en un navegador, que en este caso se puede comparar con un tablón de mensajes.",
 	"Logger_name": "Registrador",
 	"Magic_Boxes_info": "Permite añadir el juego sopa de letras para la presentación. Para hacer que la actividad funcione, basta con definir todas las letras y posibles respuestas en la sección Propiedades del addon.",

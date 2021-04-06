@@ -875,6 +875,7 @@ var ice_dictionary_en = {
 	"Lesson_Reset_property_title" : "Title",
 	"Lesson_Reset_property_reset_mistakes" : "Reset mistakes",
 	"Lesson_Reset_property_reset_checks" : "Reset checks",
+	"Lesson_Reset_lesson_was_reset" : "Lesson has been reset",
 	"Logger_info": "Imitates the JavaScript console in a browser, which in this case can be compared to a message board.",
 	"Logger_name": "Logger",
 	"Magic_Boxes_info": "Allows to add a ready-made word search game to a presentation. To make the activity work, it is enough to define all letters and possible answers in the addon’s Properties section.",

@@ -4,16 +4,20 @@ import java.util.HashMap;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.PushButton;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.api.event.CustomEvent;
 import com.lorepo.icplayer.client.module.api.event.ResetPageEvent;
 import com.lorepo.icplayer.client.module.api.event.ValueChangedEvent;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.lessonreset.LessonResetModule;
 import com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter.IDisplay;
+import com.lorepo.icplayer.client.page.PageController;
 
-public class LessonResetView extends PushButton implements IDisplay {
+public class LessonResetView extends PushButton implements IDisplay, IWCAG, IWCAGModuleView {
 	private static final String DISABLED_STYLE = "disabled";
 
 	private LessonResetModule module;
@@ -21,6 +25,8 @@ public class LessonResetView extends PushButton implements IDisplay {
 	private boolean isDisabled = false;
 	private boolean isShowAnswersMode = false;
 	private String originalDisplay = "";
+	private boolean isWCAGOn = false;
+	private PageController pageController = null;
 	
 	public LessonResetView(LessonResetModule module, IPlayerServices services) {
 		this.playerServices = services;
@@ -129,5 +135,64 @@ public class LessonResetView extends PushButton implements IDisplay {
 		} else {
 			super.setVisible(false);
 		}
+	}
+
+	@Override
+	public void enter(KeyDownEvent event, boolean isExiting) {
+		if (!isExiting) {
+			execute();
+		}
+	}
+
+	@Override
+	public void space(KeyDownEvent event) {
+		event.preventDefault();
+	}
+
+	@Override
+	public void tab(KeyDownEvent event) {}
+
+	@Override
+	public void left(KeyDownEvent event) {}
+
+	@Override
+	public void right(KeyDownEvent event) {}
+
+	@Override
+	public void down(KeyDownEvent event) {
+		event.preventDefault();
+	}
+	@Override
+	public void up(KeyDownEvent event) {
+		event.preventDefault();
+	}
+
+	@Override
+	public void escape(KeyDownEvent event) {
+		event.preventDefault();
+	}
+
+	@Override
+	public void customKeyCode(KeyDownEvent event) {}
+
+	@Override
+	public void shiftTab(KeyDownEvent event) {}
+
+	@Override
+	public void setPageController(PageController pc) {
+		this.setWCAGStatus(true);
+		this.pageController = pc;
+
+	}
+
+	@Override
+	public void setWCAGStatus(boolean isWCAGOn) {
+		this.isWCAGOn = isWCAGOn;
+
+	}
+
+	@Override
+	public String getLang() {
+		return null;
 	}
 }
