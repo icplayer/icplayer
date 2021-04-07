@@ -1,20 +1,26 @@
 package com.lorepo.icplayer.client.module.text;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Map;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.content.services.JsonServices;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class TextPrintable {
-	
+
 	private TextModel model = null;
 	private float spaceSize = 0;
-	
+	private Map<String, String> userAnswers = null;
+
 	public TextPrintable(TextModel model) {
 		this.model = model;
 		this.spaceSize = getTextWidthInPixels("&nbsp;");
@@ -25,6 +31,7 @@ public class TextPrintable {
 			return null;
 		}
 
+		this.userAnswers = getAnswersFromPrintableState();
 		String parsedText = model.parsedText;
 		
 		// Convert all inputs with initial text to a printer friendly format
@@ -36,6 +43,19 @@ public class TextPrintable {
 		String result = "<div class=\"printable_ic_text\" id=\"" + model.getId() +"\">" + parsedText + "</div>";
 		result = PrintableContentParser.addClassToPrintableModule(result, className, !model.isSplitInPrintBlocked());
 		return result;
+	}
+
+	private Map<String, String> getAnswersFromPrintableState() {
+		HashMap<String, String> printableState = model.getPrintableState();
+		if (printableState != null) {
+			String answersString = printableState.get("values");
+
+			IJsonServices jsonServices = new JsonServices();
+			Map<String, String> answersMap = jsonServices.decodeHashMap(answersString);
+
+			return answersMap;
+		}
+		return null;
 	}
 	
 	private String makePrintableInput(String parsedText, boolean showAnswers) {
@@ -68,17 +88,31 @@ public class TextPrintable {
 			
 			GapInfo gapInfo = model.getGapInfos().get(i);
 			Iterator<String> answers = gapInfo.getAnswers();
+			String userAnswer = null;
 			String value = "";
 			String longestAnswer = "";
-			do {
-				String nextAnswer = answers.next();
-				if (showAnswers && value.length() == 0) {
-					value = nextAnswer;
+
+			if (this.userAnswers != null) {
+				userAnswer = this.userAnswers.get(gapInfo.getId());
+				if (userAnswer == null) {
+					userAnswer = "";
 				}
-				if (nextAnswer.length() > longestAnswer.length()) {
-					longestAnswer = nextAnswer;
+
+				if (showAnswers) {
+					value = userAnswer;
 				}
-			} while(answers.hasNext());
+				longestAnswer = userAnswer;
+			} else {
+				do {
+					String nextAnswer = answers.next();
+					if (showAnswers && value.length() == 0) {
+						value = nextAnswer;
+					}
+					if (nextAnswer.length() > longestAnswer.length()) {
+						longestAnswer = nextAnswer;
+					}
+				} while (answers.hasNext());
+			}
 			
 			if (longestAnswer.length() == 0) longestAnswer = "&nbsp;&nbsp;&nbsp;";
 			
@@ -129,7 +163,20 @@ public class TextPrintable {
 
 			span.setInnerHTML(value);	
 			String newValue = "&nbsp;" + span.getString();
-			
+
+			if (this.userAnswers != null && showAnswers) {
+				do {
+					if (userAnswer.equals(answers.next())) {
+						newValue += " ✔ ";
+						break;
+					}
+					if (!answers.hasNext()) {
+						newValue += " ✘ ";
+						break;
+					}
+				} while (answers.hasNext());
+			}
+
 			parsedText = parsedText.replace(oldValue, newValue);
 		}
 
@@ -145,19 +192,31 @@ public class TextPrintable {
 			NodeList<Element> options = select.getElementsByTagName("option");
 			
 			String values = "";
-			for (int j = 0; j < options.getLength(); j++) {
-				Element option = options.getItem(j);
-				String value = option.getInnerText();
-				if (!value.equals("---")) {
-					if (showAnswers) {
-						InlineChoiceInfo choiceInfo = model.getChoiceInfos().get(i);
-						if (choiceInfo.getAnswer().equals(value)) {
-							value = "<u>" + value + "</u>";
+			JavaScriptUtils.log("C");
+			if (this.userAnswers != null && showAnswers) {
+				InlineChoiceInfo choiceInfo = model.getChoiceInfos().get(i);
+
+				values = this.userAnswers.get(choiceInfo.getId());
+				if (values.equals(choiceInfo.getAnswer())) {
+					values += " ✔ ";
+				} else {
+					values += " ✘ ";
+				}
+			} else {
+				for (int j = 0; j < options.getLength(); j++) {
+					Element option = options.getItem(j);
+					String value = option.getInnerText();
+					if (!value.equals("---")) {
+						if (showAnswers) {
+							InlineChoiceInfo choiceInfo = model.getChoiceInfos().get(i);
+							if (choiceInfo.getAnswer().equals(value)) {
+								value = "<u>" + value + "</u>";
+							}
 						}
-					}
-					values += value;
-					if (j + 1 != options.getLength()) {
-						values += " / ";
+						values += value;
+						if (j + 1 != options.getLength()) {
+							values += " / ";
+						}
 					}
 				}
 			}

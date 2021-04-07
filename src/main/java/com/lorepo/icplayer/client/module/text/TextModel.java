@@ -9,8 +9,10 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.UUID;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.content.services.JsonServices;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
@@ -19,6 +21,7 @@ import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 // in old lessons some characters aren't escaped (e.g: > or <), in new lessons they are
@@ -60,6 +63,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	private String printableValue = "No";
 	private boolean isSection = false;
 	private boolean isSplitInPrintBlocked = false;
+	private HashMap<String, String> printableState = null;
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
@@ -1342,6 +1346,14 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 
 	@Override
 	public void setPrintableState(String state) {
-		//TODO implement
+		if (state.equals("")) {
+			return;
+		}
+		IJsonServices jsonServices = new JsonServices();
+		this.printableState = jsonServices.decodeHashMap(state);
+	}
+
+	public HashMap<String, String> getPrintableState() {
+		return this.printableState;
 	}
 }
