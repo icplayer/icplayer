@@ -2,6 +2,8 @@ function AddonDrawing_create() {
 
     var presenter = function() {};
 
+    // presenter.images = []
+
     // work-around for double line in android browser
     function setOverflowWorkAround(turnOn) {
 
@@ -58,6 +60,8 @@ function AddonDrawing_create() {
 		};
 		return {X:1.0, Y:1.0};
     }
+
+
 
     presenter.hexToRGBA = function(hex, opacity) {
         hex = hex.replace('#', '');
@@ -442,6 +446,9 @@ function AddonDrawing_create() {
             return getErrorObject(parsedOpacity.errorCode);
         }
 
+        // var isWhiteboardMode = ModelValidationUtils.validateBoolean(model["Whiteboard mode"]);
+
+
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 
         return {
@@ -458,7 +465,9 @@ function AddonDrawing_create() {
             isValid: true,
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
-            isExerciseStarted: false
+            isExerciseStarted: false,
+
+            isWhiteboardMode: isWhiteboardMode
         };
     };
 
@@ -532,6 +541,33 @@ function AddonDrawing_create() {
         };
     };
 
+    function rotateAndPaintImage ( context, image, angleInRad , positionX, positionY, axisX, axisY ) {
+        context.translate( positionX, positionY );
+        context.rotate( angleInRad );
+        context.drawImage( image, -axisX, -axisY );
+        context.rotate( -angleInRad );
+        context.translate( -positionX, -positionY );
+    } 
+
+    presenter.addImageToCanvas(e) = function () {
+        presenter.$view.find('.drawing').append("<input type='file' id='uploadImage' style='display:none'/>");
+        // presenter.$view.find('.drawing')
+        
+
+        console.log("Adding image to canvas");
+        // var reader = new FileReader();
+        // var file = e.target.files[0];
+        // var img = new Image();
+        // img.onload = function() {
+        //     rotateAndPaintImage(presenter.configuration.tmp_ctx, img, 0, 10, 10, 100, 100)
+        // }
+        // reader.onloadend = function () {
+        //     img.src = reader.result;
+        // }
+        // reader.readAsDataURL(file);
+    }
+
+
     presenter.executeCommand = function(name, params) {
         if (!presenter.configuration.isValid) {
             return;
@@ -541,6 +577,7 @@ function AddonDrawing_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'setColor': presenter.setColor,
+            'addImage': presenter.addImageToCanvas,
             'setThickness': presenter.setThickness,
             'setEraserOn': presenter.setEraserOn,
             'setEraserThickness': presenter.setEraserThickness,
