@@ -45,3 +45,15 @@
     column-break-after: avoid;
 	-webkit-column-break-after: avoid;
 }
+
+.printable_addon_Table .table-addon-wrapper .printable_gap {
+    border-bottom: 1px solid;
+}
+
+.printable_addon_Table .table-addon-wrapper .printable_gap_correct::after {
+    content: "\2714";
+}
+
+.printable_addon_Table .table-addon-wrapper .printable_gap_wrong::after {
+    content: "\2716";
+}

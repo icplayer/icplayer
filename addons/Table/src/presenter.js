@@ -32,6 +32,7 @@ function AddonTable_create() {
     presenter.addonKeyboardNavigationActive = false;
     presenter.gapIndex = 0;
     presenter.isGradualShowAnswersActive = false;
+    presenter.printableState = null;
 
     presenter.ERROR_CODES = {
         'RW_01': 'Number of rows must be a positive integer!',
@@ -996,7 +997,7 @@ function AddonTable_create() {
             score: "" + score
         };
     };
-    
+
     presenter.onEventReceived = function (eventName, eventData) {
         if (eventName === "ShowAnswers") {
             presenter.showAnswers();
@@ -1016,7 +1017,7 @@ function AddonTable_create() {
             presenter.gradualHideAnswers();
         }
     };
-    
+
     presenter.showAnswers = function () {
         if (presenter.configuration.isActivity) {
             presenter.gapsContainer.showAnswers();
@@ -1684,7 +1685,7 @@ function AddonTable_create() {
     presenter.GapsContainerObject.prototype.markGapByIndexAsEmpty = function (index) {
         this.markGapByIndexWithClass(index, 'ic_gap-empty');
     };
-    
+
     presenter.GapsContainerObject.prototype.getLength = function () {
         return this.gaps.length;
     };
@@ -2201,8 +2202,40 @@ function AddonTable_create() {
         return presenter.gapsContainer.isGapAttempted(gapIndex);
     };
 
+    presenter.PRINTABLE_STATUS = {
+        NORMAL: 0,
+        SHOW_ANSWERS: 1,
+        SHOW_USER_ANSWERS: 2,
+        CHECK_ANSWERS: 3
+    };
+
+    function isPrintableShowUserAnswersOrCheckAnswersStatus (status) {
+        return status === presenter.PRINTABLE_STATUS.SHOW_USER_ANSWERS
+            || status === presenter.PRINTABLE_STATUS.CHECK_ANSWERS;
+    }
+
+    /**
+    * @method setPrintableState saves current not empty state as state used in printable version
+    * @return undefined
+    */
+    presenter.setPrintableState = function (state) {
+        if (ModelValidationUtils.isStringEmpty(state)) {
+            return;
+        }
+        presenter.printableState = JSON.parse(state);
+    }
+
     presenter.getPrintableHTML = function (model, showAnswers) {
         presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
+        createPrintableHTMLWrapper(model);
+        var $table = presenter.generateTable(presenter.configuration.contents, false);
+        presenter.$wrapper.append($table);
+        var tableHTMLStructure = presenter.$view[0].outerHTML;
+        var printableStatus = getPrintableStatus(showAnswers);
+        return parsePrintableGaps(tableHTMLStructure, printableStatus);
+    };
+
+    function createPrintableHTMLWrapper (model) {
         presenter.$view = $('<div></div>');
         presenter.$view.attr("id", model.ID);
         presenter.$view.addClass('printable_addon_Table');
@@ -2210,99 +2243,164 @@ function AddonTable_create() {
         presenter.$wrapper = $('<div></div>');
         presenter.$wrapper.addClass('table-addon-wrapper');
         presenter.$view.append(presenter.$wrapper);
-        var $table = presenter.generateTable(presenter.configuration.contents, false);
-        presenter.$wrapper.append($table);
-        var result = presenter.$view[0].outerHTML;
-        result = parsePrintableGaps(result, showAnswers);
-        return result;
-    };
+    }
 
-    function parsePrintableGaps (html, showAnswers) {
-        html = parsePrintableEditableGaps(html, false, showAnswers);
-        html = parsePrintableEditableGaps(html, true, showAnswers);
-        html = parsePrintableDropdownGaps(html, showAnswers);
+    function getPrintableStatus (showAnswers) {
+        var status;
+        if (presenter.printableState && presenter.printableState.hasOwnProperty("gaps")) {
+            if (showAnswers)
+                status = presenter.PRINTABLE_STATUS.CHECK_ANSWERS;
+            else
+                status = presenter.PRINTABLE_STATUS.SHOW_USER_ANSWERS;
+        } else {
+            if (showAnswers)
+                status = presenter.PRINTABLE_STATUS.SHOW_ANSWERS;
+            else
+                status = presenter.PRINTABLE_STATUS.NORMAL;
+        }
+        return status;
+    }
+
+    function parsePrintableGaps (html, printableStatus) {
+        const gapsRegex = /(\\gap{.*?})|(\\filledGap{.*?})|({{.*?}})/g
+        var matches = html.match(gapsRegex);
+        if (matches == null)
+            return html;
+        
+        var matchesIndexes = findIndexesOfGapsInArrayBaseOnGapsTypes(matches)
+
+        html = parsePrintableEditableGaps(html, false, printableStatus, matches, matchesIndexes["gap"]);
+        html = parsePrintableEditableGaps(html, true, printableStatus, matches, matchesIndexes["filledGap"]);
+        html = parsePrintableDropdownGaps(html, printableStatus, matches, matchesIndexes["dropdownGap"]);
         return html;
     }
 
-    function parsePrintableEditableGaps (html, isFilledGap, showAnswers) {
-        var gapRegex = "";
-        var spaceWidth = getTextWidthInPixels('&nbsp;');
-        if (isFilledGap) {
-            gapRegex = /\\filledGap{.*?}/g;
-        } else {
-            gapRegex = /\\gap{.*?}/g;
+    function findIndexesOfGapsInArrayBaseOnGapsTypes(matches) {
+        const normalGapRegex = /\\gap{.*?}/g,
+            filledGapRegex = /\\filledGap{.*?}/g,
+            dropdownGapRegex = /{{.*?}}/g;
+        var normalGapMatchesIndexes = [],
+            filledGapMatchesIndexes = [],
+            dropdownGapMatchesIndexes = [];
+
+        for (var i = 0, gapMatches; i < matches.length; i++) {
+            var match = matches[i];
+            gapMatches = match.match(normalGapRegex);
+            if (gapMatches != null) {
+                normalGapMatchesIndexes.push(i)
+                continue
+            }
+            gapMatches = match.match(filledGapRegex);
+            if (gapMatches != null) {
+                filledGapMatchesIndexes.push(i)
+                continue
+            }
+            gapMatches = match.match(dropdownGapRegex);
+            if (gapMatches != null) {
+                dropdownGapMatchesIndexes.push(i)
+            }
         }
-        var found = html.match(gapRegex);
-        if (found == null) return html;
-        for (var i = 0; i < found.length; i++) {
-            var match = found[i];
+        return {
+            "gap": normalGapMatchesIndexes,
+            "filledGap": filledGapMatchesIndexes,
+            "dropdownGap": dropdownGapMatchesIndexes
+        }
+    }
+
+    function parsePrintableEditableGaps (html, isFilledGap, printableStatus, gaps, gapsIndexes) {
+        for (var i = 0; i < gapsIndexes.length; i++) {
+            var gapIndex = gapsIndexes[i];
+            var gap = gaps[gapIndex];
             var answers = [];
             var initialValue = "";
             if (isFilledGap) {
-                answers = match.replace("\\filledGap{","").replace("}","").split("|");
+                answers = gap.replace("\\filledGap{","").replace("}","").split("|");
                 initialValue = answers.splice(0, 1)[0];
             } else {
-                answers = match.replace("\\gap{","").replace("}","").split("|");
+                answers = gap.replace("\\gap{","").replace("}","").split("|");
             }
-            var $span = $("<span></span>");
-            $span.addClass("printable_gap");
-            $span.css("border-bottom","1px solid");
-            if (showAnswers) {
-                var answer = answers[0];
-                $span.html(answer);
-            } else {
-                var longestAnswer = "";
-                for (var j = 0; j < answers.length; j++) {
-                    if (answers[j].length > longestAnswer.length) {
-                        longestAnswer = answers[j];
-                    }
-                }
-                if (longestAnswer.length === 0) longestAnswer = "&nbsp;&nbsp;&nbsp;";
+            var correctAnswerValue = answers[0];
 
-                var value = initialValue;
-                var gapWidth = 0;
-                if (presenter.configuration.gapWidth.isSet) {
-                    gapWidth = presenter.configuration.gapWidth.value;
-                } else {
-                    gapWidth = getTextWidthInPixels(longestAnswer);
-                }
-                var initialValueLength = 0;
-                if (initialValue.length > 0) {
-                    initialValueLength = getTextWidthInPixels(initialValue);
-                }
-                var spaceCount = Math.ceil((gapWidth - initialValueLength) / spaceWidth);
-                var maxSplitFreeWidth = 50; //must be at least minSplitSize * 2
-				var minSplitSize = 20;
-
-				if (spaceCount > maxSplitFreeWidth) {
-                    for (var j = 0; j < minSplitSize; j++) {
-						value += "&nbsp;";
-					}
-
-					var nextNbsp = false;
-                    for (var j = 0; j < spaceCount - 2 * minSplitSize; j++) {
-                        if (nextNbsp) {
-                            value += "&nbsp;";
-                        } else {
-                            value += " ";
-                        }
-                        nextNbsp = !nextNbsp;
-                    }
-
-					for (var j = 0; j < minSplitSize; j++) {
-						value += "&nbsp;";
-					}
-                } else {
-                    for (var j = 0; j < spaceCount; j++) {
-						value += "&nbsp;";
-					}
-                }
-
-                $span.html(value);
+            var gapHTML = "&nbsp;" + getPrintableEditableGapHTML(
+                initialValue, correctAnswerValue, printableStatus, gapIndex)
+            if (printableStatus === presenter.PRINTABLE_STATUS.CHECK_ANSWERS) {
+                gapHTML += getPrintableGapSignHTML(gapValue === correctAnswerValue);
             }
-            html = html.replace(match, "&nbsp;" + $span[0].outerHTML);
+
+            html = html.replace(gap, gapHTML);
         }
         return html;
+    }
+
+    function getPrintableEditableGapHTML (initialValue, answer, printableStatus, gapIndex) {
+        var value;
+        if (printableStatus === presenter.PRINTABLE_STATUS.NORMAL)
+            value = getPrintableGapValueForNormalState(answer, initialValue);
+        else if (printableStatus === presenter.PRINTABLE_STATUS.SHOW_ANSWERS)
+            value = answer;
+        else if (isPrintableShowUserAnswersOrCheckAnswersStatus(printableStatus)) {
+            var gapState = presenter.printableState.gaps[gapIndex];
+            value = gapState.value;
+        }
+
+        var $span = $("<span></span>");
+        $span.addClass("printable_gap");
+        $span.html(value);
+        return $span[0].outerHTML;
+    }
+
+    function getPrintableGapValueForNormalState (answers, initialValue) {
+        var longestAnswer = "";
+        for (var i = 0; i < answers.length; i++) {
+            if (answers[i].length > longestAnswer.length) {
+                longestAnswer = answers[i];
+            }
+        }
+        if (longestAnswer.length === 0)
+            longestAnswer = "&nbsp;&nbsp;&nbsp;";
+
+        var gapWidth = 0;
+        if (presenter.configuration.gapWidth.isSet) {
+            gapWidth = presenter.configuration.gapWidth.value;
+        } else {
+            gapWidth = getTextWidthInPixels(longestAnswer);
+        }
+
+        var value = initialValue;
+        var initialValueLength = 0;
+        if (initialValue.length > 0) {
+            initialValueLength = getTextWidthInPixels(initialValue);
+        }
+
+        var spaceWidth = getTextWidthInPixels('&nbsp;');
+        var spaceCount = Math.ceil((gapWidth - initialValueLength) / spaceWidth);
+        var maxSplitFreeWidth = 50; //must be at least minSplitSize * 2
+        var minSplitSize = 20;
+
+        if (spaceCount > maxSplitFreeWidth) {
+            for (var i = 0; i < minSplitSize; i++) {
+                value += "&nbsp;";
+            }
+
+            var nextNbsp = false;
+            for (var i = 0; j < spaceCount - 2 * minSplitSize; i++) {
+                if (nextNbsp) {
+                    value += "&nbsp;";
+                } else {
+                    value += " ";
+                }
+                nextNbsp = !nextNbsp;
+            }
+
+            for (var i = 0; i < minSplitSize; i++) {
+                value += "&nbsp;";
+            }
+        } else {
+            for (var j = 0; j < spaceCount; j++) {
+                value += "&nbsp;";
+            }
+        }
+        return value;
     }
 
     function getTextWidthInPixels(html) {
@@ -2333,37 +2431,66 @@ function AddonTable_create() {
 		return width;
     }
 
-    function parsePrintableDropdownGaps (html, showAnswers) {
-        var gapRegex = /{{.*?}}/g;
-        var correctRegex = /[0-9]*?:/;
+    function getPrintableGapSignHTML (isCorrectAnswer) {
+        var $signSpan = $("<span></span>");
+        if (isCorrectAnswer)
+            $signSpan.addClass("printable_gap_correct");
+        else
+            $signSpan.addClass("printable_gap_wrong");
+        return $signSpan[0].outerHTML;
+    }
+
+    function parsePrintableDropdownGaps (html, printableStatus, gaps, gapsIndexes) {
+        var correctAnswerRegex = /[0-9]*?:/;
         
-        var found = html.match(gapRegex);
-        if (found == null) return html;
-        for (var i = 0; i < found.length; i++) {
-            var match = found[i];
-            var answers = match.replace("{{","").replace("}}","").split("|");
+        for (var i = 0; i < gapsIndexes.length; i++) {
+            var gapIndex = gapsIndexes[i];
+            var gap = gaps[gapIndex];
+            var answers = gap.replace("{{","").replace("}}","").split("|");
 
             if (!presenter.configuration.keepOriginalOrder) {
                 answers.sort(function(a,b){
-                    return a.replace(correctRegex, "").localeCompare(b.replace(correctRegex, ""))
+                    return a.replace(correctAnswerRegex, "").localeCompare(b.replace(correctAnswerRegex, ""))
                 });
             }
 
+            var findChosenAnswerIndex = isPrintableShowUserAnswersOrCheckAnswersStatus(printableStatus);
+            if (findChosenAnswerIndex)
+                var gapValue = presenter.printableState.gaps[gapIndex].value;
+
+            var correctAnswerIndex = -1;
+            var chosenAnswerIndex = -1;
             for (var j = 0; j < answers.length; j++) {
-                if (correctRegex.test(answers[j])) {
-                    answers[j] = answers[j].replace(correctRegex, "");
-                    if (showAnswers) {
-                        answers[j] = "<u>" + answers[j] + "</u>";
-                    }
+                if (correctAnswerRegex.test(answers[j])) {
+                    answers[j] = answers[j].replace(correctAnswerRegex, "");
+                    correctAnswerIndex = j;
+                }
+                if (findChosenAnswerIndex && answers[j] === gapValue) {
+                    chosenAnswerIndex = j;
                 }
             }
+            var gapHTML = getPrintableDropdownGapHTML (answers, printableStatus, correctAnswerIndex, chosenAnswerIndex);
+            if (printableStatus === presenter.PRINTABLE_STATUS.CHECK_ANSWERS){
+                gapHTML += getPrintableGapSignHTML(chosenAnswerIndex === correctAnswerIndex)
+            }
 
-            var $dropdown = $("<span></span>");
-            $dropdown.html(answers.join(" / "));
-            $dropdown.addClass("printable_dropdown");
-            html = html.replace(match, $dropdown[0].outerHTML);
+            html = html.replace(gap, gapHTML);
         }
         return html;
+    }
+
+    function getPrintableDropdownGapHTML (answers, printableStatus, correctAnswerIndex, chosenAnswerIndex) {
+        var $span = $("<span></span>");
+        $span.addClass("printable_gap");
+
+        if (printableStatus === presenter.PRINTABLE_STATUS.SHOW_ANSWERS) {
+            $span.html(answers[correctAnswerIndex])
+        } else if (isPrintableShowUserAnswersOrCheckAnswersStatus(printableStatus)) {
+            $span.html(answers[chosenAnswerIndex])
+        }
+
+        answers[correctAnswerIndex] = $span[0].outerHTML;
+        return answers.join(" / ");
     }
 
     presenter.gradualShowAnswers = function(item) {
