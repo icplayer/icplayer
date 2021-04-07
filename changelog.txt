@@ -1,3 +1,4 @@
+2021-04-07 Added TTS support in Audio addon
 2021-04-02 Fixed issue with IWB Toolbar button selection
 2021-04-02 Added TTS support in Limited Check module
 2021-04-01 Added TTS support in multiplegap
