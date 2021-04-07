@@ -787,12 +787,16 @@ function Addonmultiplegap_create(){
             var langTag = "";
             var voicesArray = [];
             voicesArray.push(getTextVoiceObject(presenter.speechTexts.inserted));
-            if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES) {
-                altText = child.attr('alt');
-                langTag = child.attr('lang');
+            if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO) {
+                voicesArray = voicesArray.concat(window.TTSUtils.getTextVoiceArrayFromElement(child, presenter.configuration.langTag));
             } else {
-                altText = child.text();
-                langTag = presenter.configuration.langTag;
+                if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.IMAGES) {
+                    altText = child.attr('alt');
+                    langTag = child.attr('lang');
+                } else {
+                    altText = child.text();
+                    langTag = presenter.configuration.langTag;
+                }
             }
             voicesArray.push(getTextVoiceObject(altText,langTag));
             presenter.speak(voicesArray);
@@ -819,6 +823,11 @@ function Addonmultiplegap_create(){
         var audioAddon = presenter.playerController.getModule(audioAddonID);
         if (audioAddon != null) {
             var itemText = audioAddon.getTextFromFileID(audioItemID);
+            if (presenter.playerController) {
+                itemText = presenter.playerController.getTextParser().parseAltTexts(itemText);
+            } else {
+                itemText = window.TTSUtils.parsePreviewAltText(itemText);
+            }
             if (itemText !== null && $("<span>"+itemText+"</span>").text().length > 0) {
                 var $text = $('<span></span>');
                 $text.addClass('multiaudio-item-text');
@@ -1621,6 +1630,11 @@ function Addonmultiplegap_create(){
                 $child = $placeholder.find("p.contents");
                 if ($child.length > 0){
                     voicesArray.push(getTextVoiceObject($child.text(),presenter.configuration.langTag));
+                } else {
+                    $child = $placeholder.find('.multiaudio-item-text');
+                    if ($child.length > 0){
+                        voicesArray = window.TTSUtils.getTextVoiceArrayFromElement($child, presenter.configuration.langTag);
+                    }
                 }
             }
             if ($placeholder.hasClass('placeholder_invalid')) {

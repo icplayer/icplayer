@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.limitedcheck;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,15 +8,15 @@ import com.google.gwt.xml.client.CDATASection;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
-import com.lorepo.icf.properties.IBooleanProperty;
-import com.lorepo.icf.properties.IProperty;
-import com.lorepo.icf.properties.IStringListProperty;
+import com.lorepo.icf.properties.*;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.ModuleUtils;
+import com.lorepo.icplayer.client.module.checkbutton.CheckButtonModule;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 public class LimitedCheckModule extends BasicModuleModel implements IWCAGModuleModel {
 	
@@ -25,6 +26,14 @@ public class LimitedCheckModule extends BasicModuleModel implements IWCAGModuleM
 	private List<String> modules = new LinkedList<String>();
 	private boolean mistakesFromProvidedModules = false;
 	private boolean maintainState = false;
+	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
+
+	public static final int SELECTED_INDEX = 0;
+	public static final int CORRECT_INDEX = 1;
+	public static final int WRONG_INDEX = 2;
+	public static final int RESULT_INDEX = 3;
+	public static final int EDIT_BLOCK_INDEX = 4;
+	public static final int NO_EDIT_BLOCK_INDEX = 5;
 
 	public LimitedCheckModule() {
 		super("Limited Check", DictionaryWrapper.get("Limited_Check_name"));
@@ -34,6 +43,7 @@ public class LimitedCheckModule extends BasicModuleModel implements IWCAGModuleM
 		addPropertyWorksWith();
 		addPropertyCountMistakesFromProvidedModules();
 		addPropertyMaintainState();
+		addPropertySpeechTexts();
 	}
 
 	protected void setCheckText(String checkText) {
@@ -268,7 +278,13 @@ public class LimitedCheckModule extends BasicModuleModel implements IWCAGModuleM
 					rawWorksWith = XMLUtils.getCharacterDataFromElement(childElement);
 					mistakesFromProvidedModules = XMLUtils.getAttributeAsBoolean(childElement, "mistakesFromProvidedModules");
 					maintainState = XMLUtils.getAttributeAsBoolean(childElement, "maintainState");
-					
+					this.speechTextItems.get(CheckButtonModule.SELECTED_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "selected"));
+					this.speechTextItems.get(CheckButtonModule.CORRECT_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "correct"));
+					this.speechTextItems.get(CheckButtonModule.WRONG_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "wrong"));
+					this.speechTextItems.get(CheckButtonModule.RESULT_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "percentage_result"));
+					this.speechTextItems.get(CheckButtonModule.EDIT_BLOCK_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "edit_block"));
+					this.speechTextItems.get(CheckButtonModule.NO_EDIT_BLOCK_INDEX).setText(XMLUtils.getAttributeAsString(childElement, "no_edit_block"));
+
 					modules = ModuleUtils.getListFromRawText(rawWorksWith);
 				}
 			}
@@ -294,10 +310,112 @@ public class LimitedCheckModule extends BasicModuleModel implements IWCAGModuleM
 		limitedCheckElement.setAttribute("unCheckText", encodedUnCheck);
 		XMLUtils.setBooleanAttribute(limitedCheckElement, "mistakesFromProvidedModules", mistakesFromProvidedModules);
 		XMLUtils.setBooleanAttribute(limitedCheckElement, "maintainState", maintainState);
-		
+		limitedCheckElement.setAttribute("selected", this.speechTextItems.get(CheckButtonModule.SELECTED_INDEX).getText());
+		limitedCheckElement.setAttribute("correct", this.speechTextItems.get(CheckButtonModule.CORRECT_INDEX).getText());
+		limitedCheckElement.setAttribute("wrong", this.speechTextItems.get(CheckButtonModule.WRONG_INDEX).getText());
+		limitedCheckElement.setAttribute("percentage_result", this.speechTextItems.get(CheckButtonModule.RESULT_INDEX).getText());
+		limitedCheckElement.setAttribute("edit_block", this.speechTextItems.get(CheckButtonModule.EDIT_BLOCK_INDEX).getText());
+		limitedCheckElement.setAttribute("no_edit_block", this.speechTextItems.get(CheckButtonModule.NO_EDIT_BLOCK_INDEX).getText());
+
 		CDATASection cdata = XMLUtils.createCDATASection(rawWorksWith);
 
 		limitedCheckElement.appendChild(cdata);
 		return limitedCheckElement;
+	}
+
+	private void addPropertySpeechTexts() {
+		IStaticListProperty property = new IStaticListProperty() {
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(speechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return speechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("selected","Limited_Check"));
+				speechTextItems.add(new SpeechTextsStaticListItem("correct","Limited_Check"));
+				speechTextItems.add(new SpeechTextsStaticListItem("wrong","Limited_Check"));
+				speechTextItems.add(new SpeechTextsStaticListItem("percentage_result","Limited_Check"));
+				speechTextItems.add(new SpeechTextsStaticListItem("edit_block","Limited_Check"));
+				speechTextItems.add(new SpeechTextsStaticListItem("no_edit_block","Limited_Check"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return speechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+
+		};
+
+		addProperty(property);
+		property.addChildren(1);
+	}
+
+	public String getSpeechTextItem (int index) {
+		if (index < 0 || index >= this.speechTextItems.size()) {
+			return "";
+		}
+
+		final String text = this.speechTextItems.get(index).getText();
+		if (text.isEmpty()) {
+			if (index == CheckButtonModule.SELECTED_INDEX) {
+				return "selected";
+			}
+
+			if (index == CheckButtonModule.CORRECT_INDEX) {
+				return "correct";
+			}
+
+			if (index == CheckButtonModule.WRONG_INDEX) {
+				return "wrong";
+			}
+
+			if (index == CheckButtonModule.RESULT_INDEX) {
+				return "percentage result";
+			}
+
+			if (index == CheckButtonModule.EDIT_BLOCK_INDEX) {
+				return "Following addons are blocked for edition";
+			}
+
+			if (index == CheckButtonModule.NO_EDIT_BLOCK_INDEX) {
+				return "Following addons are no longer blocked for edition";
+			}
+
+			return "";
+		}
+
+		return text;
 	}
 }

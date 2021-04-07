@@ -118,7 +118,7 @@ function AddonText_To_Speech_create() {
         presenter.presenterLogic(view, model, true);
     };
 
-    function getAddOnConfiguration (area, id) {
+    presenter.getAddOnConfiguration = function (area, id) {
         id = Array.isArray(id) ? id[0] : id;
         area = Array.isArray(area) ? area[0] : area;
 
@@ -420,7 +420,7 @@ function AddonText_To_Speech_create() {
 
     presenter.playTitle = function (area, id, langTag) {
         if (area && id) {
-            var textVoices = [getTextVoiceObject(getAddOnConfiguration(area, id).title, langTag)];
+            var textVoices = [getTextVoiceObject(presenter.getAddOnConfiguration(area, id).title, langTag)];
             var module = null;
             if(0 === area.toLowerCase().localeCompare("main")){
                 module = presenter.playerController.getModule(id);
