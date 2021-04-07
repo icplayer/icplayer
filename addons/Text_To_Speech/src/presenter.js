@@ -455,12 +455,12 @@ function AddonText_To_Speech_create() {
     };
 
     presenter.playPageTitle = function () {
+        var textVoices = [];
+        textVoices.push(getTextVoiceObject(presenter.configuration.newPage,''));
         if (!presenter.configuration.disableNewPageMessage) {
-            var textVoices = [];
-            textVoices.push(getTextVoiceObject(presenter.configuration.newPage,''));
             textVoices.push(getTextVoiceObject(presenter.playerController.getPageTitle(),presenter.configuration.pageLangTag));
-            presenter.speak(textVoices);
         }
+        presenter.speak(textVoices);
     };
 
     presenter.playEnterText = function () {
