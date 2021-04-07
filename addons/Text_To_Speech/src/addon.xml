@@ -11,5 +11,6 @@
         <property name="ExitText" nameLabel="Text_To_Speech_property_exit_text" type="string" isLocalized="true" />
         <property name="NewPage" nameLabel="Text_To_Speech_property_new_page" type="string" isLocalized="true" />
         <property name="PageLangTag" nameLabel="Text_To_Speech_property_page_lang_tag" type="string" isLocalized="true" />
+        <property name="disableNewPageMessage" nameLabel="Text_To_Speech_property_disable_new_page_message" type="boolean"/>
     </model>
 </addon>

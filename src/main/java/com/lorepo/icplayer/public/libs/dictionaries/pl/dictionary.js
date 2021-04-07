@@ -1897,6 +1897,7 @@ var ice_dictionary_pl = {
 	"Text_To_Speech_property_new_page": "Nowa strona",
 	"Text_To_Speech_property_page_lang_tag": "Język tytułu strony",
 	"Text_To_Speech_language": "Język",
+	"Text_To_Speech_property_disable_new_page_message": "Disable new page message",
 	"IFrame_property_alt_text": "Tekst alternatywny",
 	"Text_use_escape_character_in_gap_property": "Użyj znaku escape w luce",
 	"date": "Data",

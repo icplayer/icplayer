@@ -76,7 +76,8 @@ function AddonText_To_Speech_create() {
             enterText: model['EnterText'],
             exitText: model['ExitText'],
             newPage: model['NewPage'] ? model['NewPage'] : "New page",
-            pageLangTag: model['PageLangTag']
+            pageLangTag: model['PageLangTag'],
+            disableNewPageMessage: ModelValidationUtils.validateBoolean(model['disableNewPageMessage'])
         }
     };
 
@@ -84,10 +85,27 @@ function AddonText_To_Speech_create() {
         presenter.configuration.voices = window.speechSynthesis.getVoices();
     }
 
+    presenter.upgradeModel = function(model) {
+        var upgradedModel = presenter.upgradeDisableNewPageMessage(model);
+        return upgradedModel;
+    }
+
+    presenter.upgradeDisableNewPageMessage = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['disableNewPageMessage'] === undefined) {
+            upgradedModel['disableNewPageMessage'] = "";
+        }
+
+        return upgradedModel;
+    }
+
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return false;
@@ -437,10 +455,12 @@ function AddonText_To_Speech_create() {
     };
 
     presenter.playPageTitle = function () {
-        var textVoices = [];
-        textVoices.push(getTextVoiceObject(presenter.configuration.newPage,''));
-        textVoices.push(getTextVoiceObject(presenter.playerController.getPageTitle(),presenter.configuration.pageLangTag));
-        presenter.speak(textVoices);
+        if (!presenter.configuration.disableNewPageMessage) {
+            var textVoices = [];
+            textVoices.push(getTextVoiceObject(presenter.configuration.newPage,''));
+            textVoices.push(getTextVoiceObject(presenter.playerController.getPageTitle(),presenter.configuration.pageLangTag));
+            presenter.speak(textVoices);
+        }
     };
 
     presenter.playEnterText = function () {
