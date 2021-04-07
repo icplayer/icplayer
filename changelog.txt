@@ -1,4 +1,5 @@
-2021-04-02 Added support for setState in printable
+2021-04-07 Added support for setState in printable in ordering 
+2021-03-29 Added support for setState in printable
 2021-03-26 Add new addon Scoreboard
 2021-03-25 Added scriptable button to IWB Toolbar
 2021-03-25 Fixed issue with images breaking pagination in print
