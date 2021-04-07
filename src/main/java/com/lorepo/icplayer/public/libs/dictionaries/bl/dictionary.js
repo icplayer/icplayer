@@ -861,6 +861,12 @@ var ice_dictionary_bl = {
 	"Limited_Check_property_works_with" : "Работи с",
 	"Limited_Check_property_mistakes_from_provided_modules" : "Преброй грешките в посочените модули",
 	"Limited_Check_property_maintain_state" : "Maintain state",
+	"Limited_Check_selected": "Selected",
+    "Limited_Check_correct": "Correct",
+    "Limited_Check_wrong": "Wrong",
+    "Limited_Check_percentage_result": "Percentage result",
+    "Limited_Check_edit_block": "Following addons are blocked for edition",
+    "Limited_Check_no_edit_block": "Following addons are no longer blocked for edition",
 	"Limited_Reset_name": "Ограничено нулиране",
 	"Limited_Reset_info": "Позволява добавянето на бутон, който да кликнете, ако искате да изчистите отговорите, дадени в конкретни модули.",
 	"Limited_Reset_property_title" : "Заглавие",
@@ -870,6 +876,7 @@ var ice_dictionary_bl = {
 	"Lesson_Reset_property_title" : "Заглавие",
 	"Lesson_Reset_property_reset_mistakes" : "Изчисти грешките",
 	"Lesson_Reset_property_reset_checks" : "Изчисти отметките",
+	"Lesson_Reset_lesson_was_reset" : "Lesson has been reset",
 	"Logger_info": "Имитира JavaScript конзола в браузъра, чиято функционалност в случая може да се сравни с табло за съобщения.",
 	"Logger_name": "Logger",
 	"Magic_Boxes_info": "Позволява добавянето на игра за търсене на думи към презентацията. За създаване на задача е нужно само да зададете всички букви и възможни отговори в настройките на плъгина.",
@@ -2103,5 +2110,6 @@ var ice_dictionary_bl = {
 	"Scoreboard_initial_teams_count": "Initial number of teams",
 	"Scoreboard_default_teams_list": "Initial list of teams",
 	"Scoreboard_property_name": "Team name",
-	"Scoreboard_property_color": "Team colour"
+	"Scoreboard_property_color": "Team colour",
+	"Scoreboard_maximum_teams_count": "Maximum number of teams"
 };

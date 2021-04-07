@@ -980,6 +980,12 @@ var ice_dictionary_fr = {
     "Limited_Check_property_works_with": "Fonctionne avec",
     "Limited_Check_property_mistakes_from_provided_modules" : "Count mistakes from provided modules",
     "Limited_Check_property_maintain_state" : "Maintain state",
+	"Limited_Check_selected": "Selected",
+    "Limited_Check_correct": "Correct",
+    "Limited_Check_wrong": "Wrong",
+    "Limited_Check_percentage_result": "Percentage result",
+    "Limited_Check_edit_block": "Following addons are blocked for edition",
+    "Limited_Check_no_edit_block": "Following addons are no longer blocked for edition",
 	"Limited_Reset_name": "Réinitialisations limitées ",
     "Limited_Reset_info": "Permet d’ajouter un bouton sur lequel cliquer afin de réinitialiser les réponses données dans un module spécifique.",
     "Limited_Reset_property_title": "Titre",
@@ -989,6 +995,7 @@ var ice_dictionary_fr = {
     "Lesson_Reset_property_title" : "Titre",
     "Lesson_Reset_property_reset_mistakes" : "Réinitialiser le nombre d’erreurs",
     "Lesson_Reset_property_reset_checks" : "Réinitialiser le nombre de vérification",
+	"Lesson_Reset_lesson_was_reset" : "Lesson has been reset",
     "Logger_info": "Imite la console JavaScript dans un navigateur, qui dans ce cas peut être comparé à une fenêtre de message.",
     "Logger_name": "Console",
     "Magic_Boxes_info": "Permet d'ajouter un jeu de mots-mêlés dans une présentation. Pour que l'activité fonctionne, il suffit de définir toutes les lettres et les réponses possibles dans les Propriétés du module externe.",
@@ -2084,5 +2091,6 @@ var ice_dictionary_fr = {
 	"Scoreboard_initial_teams_count": "Initial number of teams",
 	"Scoreboard_default_teams_list": "Initial list of teams",
 	"Scoreboard_property_name": "Team name",
-	"Scoreboard_property_color": "Team colour"
+	"Scoreboard_property_color": "Team colour",
+	"Scoreboard_maximum_teams_count": "Maximum number of teams"
 };
