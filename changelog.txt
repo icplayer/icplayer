@@ -1,4 +1,5 @@
 2021-04-07 Added disable new page message property to the Text To Speech addon
+2021-04-07 Added TTS support in Audio addon
 2021-04-06 Added TTS support in Lesson Reset module
 2021-04-02 Fixed issue with IWB Toolbar button selection
 2021-04-02 Added TTS support in Limited Check module
