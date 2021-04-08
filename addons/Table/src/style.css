@@ -51,9 +51,9 @@
 }
 
 .printable_addon_Table .table-addon-wrapper .printable_gap_correct::after {
-    content: "\2714";
+    content: " \2714";
 }
 
 .printable_addon_Table .table-addon-wrapper .printable_gap_wrong::after {
-    content: "\2716";
+    content: " \2716";
 }

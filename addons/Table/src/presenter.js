@@ -336,6 +336,8 @@ function AddonTable_create() {
     };
 
     presenter.setState = function (rawState) {
+        console.log("rawState:")
+        console.log(rawState)
         var state = JSON.parse(rawState);
 
         presenter.setVisibility(state.isVisible);
@@ -2209,7 +2211,7 @@ function AddonTable_create() {
         CHECK_ANSWERS: 3
     };
 
-    function isPrintableShowUserAnswersOrCheckAnswersStatus (status) {
+    function isPrintableShowUserAnswersOrCheckAnswersStatus(status) {
         return status === presenter.PRINTABLE_STATUS.SHOW_USER_ANSWERS
             || status === presenter.PRINTABLE_STATUS.CHECK_ANSWERS;
     }
@@ -2218,14 +2220,16 @@ function AddonTable_create() {
     * @method setPrintableState saves current not empty state as state used in printable version
     * @return undefined
     */
-    presenter.setPrintableState = function (state) {
+    presenter.setPrintableState = function(state) {
+        console.log("printableState: ")
+        console.log(state)
         if (ModelValidationUtils.isStringEmpty(state)) {
             return;
         }
         presenter.printableState = JSON.parse(state);
     }
 
-    presenter.getPrintableHTML = function (model, showAnswers) {
+    presenter.getPrintableHTML = function(model, showAnswers) {
         presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
         createPrintableHTMLWrapper(model);
         var $table = presenter.generateTable(presenter.configuration.contents, false);
@@ -2235,7 +2239,7 @@ function AddonTable_create() {
         return parsePrintableGaps(tableHTMLStructure, printableStatus);
     };
 
-    function createPrintableHTMLWrapper (model) {
+    function createPrintableHTMLWrapper(model) {
         presenter.$view = $('<div></div>');
         presenter.$view.attr("id", model.ID);
         presenter.$view.addClass('printable_addon_Table');
@@ -2245,7 +2249,7 @@ function AddonTable_create() {
         presenter.$view.append(presenter.$wrapper);
     }
 
-    function getPrintableStatus (showAnswers) {
+    function getPrintableStatus(showAnswers) {
         var status;
         if (presenter.printableState && presenter.printableState.hasOwnProperty("gaps")) {
             if (showAnswers)
@@ -2287,17 +2291,17 @@ function AddonTable_create() {
             var match = matches[i];
             gapMatches = match.match(normalGapRegex);
             if (gapMatches != null) {
-                normalGapMatchesIndexes.push(i)
-                continue
+                normalGapMatchesIndexes.push(i);
+                continue;
             }
             gapMatches = match.match(filledGapRegex);
             if (gapMatches != null) {
-                filledGapMatchesIndexes.push(i)
-                continue
+                filledGapMatchesIndexes.push(i);
+                continue;
             }
             gapMatches = match.match(dropdownGapRegex);
             if (gapMatches != null) {
-                dropdownGapMatchesIndexes.push(i)
+                dropdownGapMatchesIndexes.push(i);
             }
         }
         return {
@@ -2307,9 +2311,9 @@ function AddonTable_create() {
         }
     }
 
-    function parsePrintableEditableGaps (html, isFilledGap, printableStatus, gaps, gapsIndexes) {
+    function parsePrintableEditableGaps(html, isFilledGap, printableStatus, gaps, gapsIndexes) {
         for (var i = 0; i < gapsIndexes.length; i++) {
-            var gapIndex = gapsIndexes[i];
+            const gapIndex = gapsIndexes[i];
             var gap = gaps[gapIndex];
             var answers = [];
             var initialValue = "";
@@ -2320,36 +2324,31 @@ function AddonTable_create() {
                 answers = gap.replace("\\gap{","").replace("}","").split("|");
             }
             var correctAnswerValue = answers[0];
+            var gapValue = getPrintableEditableGapValue(
+                printableStatus, answers, initialValue, correctAnswerValue, gapIndex);
 
-            var gapHTML = "&nbsp;" + getPrintableEditableGapHTML(
-                initialValue, correctAnswerValue, printableStatus, gapIndex)
+            var gapHTML = getPrintableEditableGapHTML(gapValue);
             if (printableStatus === presenter.PRINTABLE_STATUS.CHECK_ANSWERS) {
                 gapHTML += getPrintableGapSignHTML(gapValue === correctAnswerValue);
             }
-
             html = html.replace(gap, gapHTML);
         }
         return html;
     }
-
-    function getPrintableEditableGapHTML (initialValue, answer, printableStatus, gapIndex) {
-        var value;
+    
+    function getPrintableEditableGapValue(printableStatus, answers, initialValue, correctAnswerValue, gapIndex) {
+        var gapValue;
         if (printableStatus === presenter.PRINTABLE_STATUS.NORMAL)
-            value = getPrintableGapValueForNormalState(answer, initialValue);
+            gapValue = getPrintableGapValueForNormalState(answers, initialValue);
         else if (printableStatus === presenter.PRINTABLE_STATUS.SHOW_ANSWERS)
-            value = answer;
+            gapValue = correctAnswerValue;
         else if (isPrintableShowUserAnswersOrCheckAnswersStatus(printableStatus)) {
-            var gapState = presenter.printableState.gaps[gapIndex];
-            value = gapState.value;
+            gapValue = presenter.printableState.gaps[gapIndex].value;
         }
-
-        var $span = $("<span></span>");
-        $span.addClass("printable_gap");
-        $span.html(value);
-        return $span[0].outerHTML;
+        return gapValue;
     }
 
-    function getPrintableGapValueForNormalState (answers, initialValue) {
+    function getPrintableGapValueForNormalState(answers, initialValue) {
         var longestAnswer = "";
         for (var i = 0; i < answers.length; i++) {
             if (answers[i].length > longestAnswer.length) {
@@ -2431,7 +2430,14 @@ function AddonTable_create() {
 		return width;
     }
 
-    function getPrintableGapSignHTML (isCorrectAnswer) {
+    function getPrintableEditableGapHTML(gapValue) {
+        var $span = $("<span></span>");
+        $span.addClass("printable_gap");
+        $span.html(gapValue);
+        return "&nbsp;" + $span[0].outerHTML;
+    }
+
+    function getPrintableGapSignHTML(isCorrectAnswer) {
         var $signSpan = $("<span></span>");
         if (isCorrectAnswer)
             $signSpan.addClass("printable_gap_correct");
@@ -2440,57 +2446,72 @@ function AddonTable_create() {
         return $signSpan[0].outerHTML;
     }
 
-    function parsePrintableDropdownGaps (html, printableStatus, gaps, gapsIndexes) {
-        var correctAnswerRegex = /[0-9]*?:/;
+    function parsePrintableDropdownGaps(html, printableStatus, gaps, gapsIndexes) {
+        var correctOptionRegex = /[0-9]*?:/;
         
         for (var i = 0; i < gapsIndexes.length; i++) {
             var gapIndex = gapsIndexes[i];
             var gap = gaps[gapIndex];
-            var answers = gap.replace("{{","").replace("}}","").split("|");
 
-            if (!presenter.configuration.keepOriginalOrder) {
-                answers.sort(function(a,b){
-                    return a.replace(correctAnswerRegex, "").localeCompare(b.replace(correctAnswerRegex, ""))
-                });
+            var options = gap.replace("{{","").replace("}}","").split("|");
+            sortPrintableDropdownGapOptions(options);
+
+            var correctOptionIndex = getPrintableDropdownGapCorrectOptionIndex(options, correctOptionRegex);
+            options[correctOptionIndex] = options[correctOptionIndex].replace(correctOptionRegex, "");
+
+            var chosenOptionIndex = -1;
+            if (isPrintableShowUserAnswersOrCheckAnswersStatus(printableStatus)
+                    && presenter.configuration.gapType !== 'math') {
+                chosenOptionIndex = getPrintableDropdownGapChosenOptionIndex(options, gapIndex);
             }
 
-            var findChosenAnswerIndex = isPrintableShowUserAnswersOrCheckAnswersStatus(printableStatus);
-            if (findChosenAnswerIndex)
-                var gapValue = presenter.printableState.gaps[gapIndex].value;
-
-            var correctAnswerIndex = -1;
-            var chosenAnswerIndex = -1;
-            for (var j = 0; j < answers.length; j++) {
-                if (correctAnswerRegex.test(answers[j])) {
-                    answers[j] = answers[j].replace(correctAnswerRegex, "");
-                    correctAnswerIndex = j;
-                }
-                if (findChosenAnswerIndex && answers[j] === gapValue) {
-                    chosenAnswerIndex = j;
-                }
+            var gapHTML = getPrintableDropdownGapHTML (options, printableStatus, correctOptionIndex, chosenOptionIndex);
+            if (printableStatus === presenter.PRINTABLE_STATUS.CHECK_ANSWERS
+                    && presenter.configuration.gapType !== 'math'){
+                gapHTML += getPrintableGapSignHTML(chosenOptionIndex === correctOptionIndex);
             }
-            var gapHTML = getPrintableDropdownGapHTML (answers, printableStatus, correctAnswerIndex, chosenAnswerIndex);
-            if (printableStatus === presenter.PRINTABLE_STATUS.CHECK_ANSWERS){
-                gapHTML += getPrintableGapSignHTML(chosenAnswerIndex === correctAnswerIndex)
-            }
-
             html = html.replace(gap, gapHTML);
         }
         return html;
     }
+    
+    function sortPrintableDropdownGapOptions(options, correctOptionRegex) {
+        if (!presenter.configuration.keepOriginalOrder) {
+            options.sort(function(a,b){
+                return a.replace(correctOptionRegex, "").localeCompare(b.replace(correctOptionRegex, ""));
+            });
+        }
+    }
 
-    function getPrintableDropdownGapHTML (answers, printableStatus, correctAnswerIndex, chosenAnswerIndex) {
+    function getPrintableDropdownGapCorrectOptionIndex(options, correctOptionRegex) {
+        for (var i = 0; i < options.length; i++) {
+            if (correctOptionRegex.test(options[i])) {
+                return i;
+            }
+        }
+    }
+
+    function getPrintableDropdownGapChosenOptionIndex(options, gapIndex) {
+        var gapValue = presenter.printableState.gaps[gapIndex].value;
+        for (var i = 0; i < options.length; i++) {
+            if (options[i] === gapValue) {
+                return i;
+            }
+        }
+    }
+
+    function getPrintableDropdownGapHTML(options, printableStatus, correctOptionIndex, chosenOptionIndex) {
         var $span = $("<span></span>");
         $span.addClass("printable_gap");
 
         if (printableStatus === presenter.PRINTABLE_STATUS.SHOW_ANSWERS) {
-            $span.html(answers[correctAnswerIndex])
+            $span.html(options[correctOptionIndex]);
+            options[correctOptionIndex] = $span[0].outerHTML;
         } else if (isPrintableShowUserAnswersOrCheckAnswersStatus(printableStatus)) {
-            $span.html(answers[chosenAnswerIndex])
+            $span.html(options[chosenOptionIndex]);
+            options[chosenOptionIndex] = $span[0].outerHTML;
         }
-
-        answers[correctAnswerIndex] = $span[0].outerHTML;
-        return answers.join(" / ");
+        return options.join(" / ");
     }
 
     presenter.gradualShowAnswers = function(item) {
