@@ -1,3 +1,4 @@
+2021-04-08 Fixed not being able to use audio element in multiplegap using keyboard navigation
 2021-04-07 Added disable new page message property to the Text To Speech addon
 2021-04-07 Fixed no correct loading from state for addon table when drop down
 2021-04-07 Added TTS support in Audio addon
