@@ -318,6 +318,7 @@ function AddonDrawing_create() {
 
     presenter.presenterLogic = function(view, model, isPreview) {
         presenter.$view = $(view);
+        presenter.$pagePanel = presenter.$view.parent().parent('.ic_page_panel');
         presenter.model = model;
 
         presenter.configuration = presenter.validateModel(model);
@@ -467,7 +468,7 @@ function AddonDrawing_create() {
             isVisibleByDefault: isVisible,
             isExerciseStarted: false,
 
-            isWhiteboardMode: isWhiteboardMode
+            // isWhiteboardMode: isWhiteboardMode
         };
     };
 
@@ -549,12 +550,66 @@ function AddonDrawing_create() {
         context.translate( -positionX, -positionY );
     } 
 
-    presenter.addImageToCanvas(e) = function () {
-        presenter.$view.find('.drawing').append("<input type='file' id='uploadImage' style='display:none'/>");
+    function handleImage(e){
+        console.log("Handling input file");
+        var reader = new FileReader();
+        reader.onload = function(event){
+            var img = new Image();
+            img.onload = function(){
+                rotateAndPaintImage(presenter.configuration.tmp_ctx, img, 0, 10, 10, 100, 100)
+            }
+            img.src = event.target.result;
+        }
+        if(e.target.files[0]){
+            reader.readAsDataURL(e.target.files[0]);     
+        }
+    }
+
+    // function ClickRefresh() {
+    //     console.log("button clicked");
+    // }
+
+    // function HandleFileInput() {
+    //     console.log("handle input");
+    // }
+
+    presenter.addImageToCanvas = function () {
+        var $inputImage = $('<input class="input_image" type="file" id="myfile" name="upload" style="border: solid 1px red"/>');
+        presenter.$pagePanel.find('.ic_page').append($inputImage);
+    }
+        // var inputButton = $('<button text="input" id="btn_refresh" click="ClickRefresh"/>');
+        // presenter.$view.find('.drawing').append(inputButton);
+        // presenter.$view.find('.drawing').on('click', '#btn_refresh', function() {
+        //     $("input").trigger("click");
+        //   });
+        // }
+
+        // var $drawing = presenter.$view.find('.drawing');
+        // var $inpuFile = $drawing.find('.hiddenfile');
+        // console.log($inpuFile);
+        // $inpuFile.append($('<button/>', {
+        //     text: 'Refresh Data',
+        //     id: 'btn_refresh',
+        //     click: ClickRefresh
+        // }))
+
+        // console.log("addImageToCanvas");
+        // $inpuFile('#btn_refresh').focus().trigger('click');
+        // console.log("input clicked");
+        // document.getElementById('fileInput').click()
+        
+        // var $inputImage = $('<input type="file" id="myfile" name="upload"/>');
+        // presenter.$view.find(".drawing").append($inputImage);
+
+        // var imageLoader = document.getElementById("uploadImage");
+        // console.log(imageLoader);
+        // imageLoader.addEventListener("click", handleImage, false);
+        // imageLoader.click();
+
         // presenter.$view.find('.drawing')
         
 
-        console.log("Adding image to canvas");
+        
         // var reader = new FileReader();
         // var file = e.target.files[0];
         // var img = new Image();
@@ -565,10 +620,23 @@ function AddonDrawing_create() {
         //     img.src = reader.result;
         // }
         // reader.readAsDataURL(file);
-    }
+    // };
+
+    // presenter.addImageToCanvas = function (event) {
+    //     console.log(event);
+    //     console.log("addImageToCanvas");
+    //     var $buttonFile = $('<input type="file" id="myfile" name="upload"/>');
+        
+    //     $("#openFileInput").click(function(){
+    //         alert("button");
+    //     }); 
+        // console.log("addImageToCanvas");
+        // $('#fileinput').focus().trigger('click');
+        // console.log("input clicked");
+    // };
 
 
-    presenter.executeCommand = function(name, params) {
+    presenter.executeCommand = function (name, params) {
         if (!presenter.configuration.isValid) {
             return;
         }
