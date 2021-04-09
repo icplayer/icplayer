@@ -14,6 +14,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.content.services.externalNotifications.ObserverService;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
@@ -97,6 +98,10 @@ public class JavaScriptPlayerServices {
 		
 		playerServices.getPageTitle = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageTitle()();
+		};
+
+		playerServices.getObserverService() = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getJSObserverService()();
 		};
 
 		playerServices.getCommands = function() {
@@ -967,5 +972,9 @@ public class JavaScriptPlayerServices {
 
 	public boolean isFirstStep() {
 		return this.playerServices.getAdaptiveLearningService().isFirstStep();
+	}
+
+	public JavaScriptObject getJSObserverService() {
+		return ObserverService.getAsJS(playerServices.getObserverService());
 	}
 }
