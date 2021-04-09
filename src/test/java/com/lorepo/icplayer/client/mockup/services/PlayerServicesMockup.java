@@ -7,6 +7,7 @@ import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.content.services.externalNotifications.IObserverService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
@@ -277,6 +278,16 @@ public class PlayerServicesMockup implements IPlayerServices {
 	@Override
 	public IGradualShowAnswersService getGradualShowAnswersService() {
 		return null;
+	}
+
+	@Override
+	public IObserverService getObserverService() {
+		return null;
+	}
+
+	@Override
+	public void sendSaveSignal() {
+
 	}
 
 	@Override

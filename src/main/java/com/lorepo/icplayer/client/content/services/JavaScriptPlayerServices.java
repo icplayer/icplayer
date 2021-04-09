@@ -100,7 +100,7 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageTitle()();
 		};
 
-		playerServices.getObserverService() = function() {
+		playerServices.getObserverService = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getJSObserverService()();
 		};
 
@@ -975,6 +975,6 @@ public class JavaScriptPlayerServices {
 	}
 
 	public JavaScriptObject getJSObserverService() {
-		return ObserverService.getAsJS(playerServices.getObserverService());
+		return ObserverService.getAsJS((ObserverService) playerServices.getObserverService());
 	}
 }
