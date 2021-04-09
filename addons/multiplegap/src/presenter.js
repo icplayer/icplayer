@@ -1596,24 +1596,22 @@ function Addonmultiplegap_create(){
         if(this.keyboardNavigationElementsLen > 1) {
             if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO) {
                 var $element = presenter.$view.find('.placeholder.keyboard_navigation_active_element');
-                if ($element.length == 0) {
+                if ($element.length === 0) {
                     readAllElements();
                 } else {
                     var draggableItemValues = $element.attr('draggableitem').split('-');
                     var $wrapper = $element.find('.multiaudio-item-wrapper');
                     var callback = function() {
-                        if (draggableItemValues.length == 2) {
+                        if (draggableItemValues.length === 2) {
                             playDraggableAudio($wrapper, draggableItemValues[1], draggableItemValues[0]);
                         }
                     }
-                    var voicesArray = [];
-                    voicesArray = voicesArray.concat(presenter.getTextVoicesFromPlaceholder($element));
-                    if (voicesArray.length == 0) {
+                    var voicesArray = presenter.getTextVoicesFromPlaceholder($element);
+                    if (voicesArray.length === 0) {
                         callback();
                     } else {
                         if ($wrapper.hasClass('playing')) {
                             callback();
-                            presenter.speak(voicesArray);
                         } else {
                             presenter.speakWithCallback(voicesArray, callback);
                         }
