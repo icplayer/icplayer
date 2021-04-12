@@ -9,7 +9,7 @@ public class ObserverList extends JsArray<Observer> implements IObserverList {
     protected ObserverList() { }
 
     public final native void addObserver(Observer observer) /*-{
-        this.push(func);
+        this.push(observer);
     }-*/;
 
     public final void callObservers() {

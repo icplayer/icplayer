@@ -286,11 +286,6 @@ public class PlayerServicesMockup implements IPlayerServices {
 	}
 
 	@Override
-	public void sendSaveSignal() {
-
-	}
-
-	@Override
 	public String getContentMetadata(String key) {
 		return contentModel.getMetadataValue(key);
 	}

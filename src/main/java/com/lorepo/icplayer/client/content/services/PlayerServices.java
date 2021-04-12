@@ -373,11 +373,6 @@ public class PlayerServices implements IPlayerServices {
 	}
 
 	@Override
-	public void sendSaveSignal() {
-
-	}
-
-	@Override
 	public String getContentMetadata(String key) {
 		return this.getModel().getMetadataValue(key);
 	}

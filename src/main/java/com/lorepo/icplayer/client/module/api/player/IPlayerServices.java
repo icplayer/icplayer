@@ -65,5 +65,4 @@ public interface IPlayerServices {
 	IPlayerStateService getPlayerStateService();
 	IGradualShowAnswersService getGradualShowAnswersService();
 	IObserverService getObserverService();
-	void sendSaveSignal();
 }
