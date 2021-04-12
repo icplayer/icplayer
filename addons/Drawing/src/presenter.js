@@ -332,6 +332,7 @@ function AddonDrawing_create() {
         presenter.opacityByDefault = presenter.configuration.opacity;
 
         presenter.$view.find('.drawing').append("<canvas class='canvas'>element canvas is not supported by your browser</canvas>");
+        presenter.$view.find('.drawing').append("<input type='file'></input>");
 
         var border = presenter.configuration.border;
 
