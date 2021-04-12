@@ -538,17 +538,17 @@ hr, table, fieldset {
 }
 
 .printable_ic_ordering .items-wrapper,
-.printable_ic_ordering .is-all-ok-wrapper-correct,
-.printable_ic_ordering .is-all-ok-wrapper-wrong {
+.printable_ic_ordering .is-all-ok-sign-wrapper,
+.printable_ic_ordering .is-not-all-ok-sign-wrapper {
 	display: table-cell;
     vertical-align: middle;
 }
 
-.printable_ic_ordering .is-all-ok-wrapper-correct::after {
+.printable_ic_ordering .is-all-ok-sign-wrapper::after {
     content: "\2714";
 }
 
-.printable_ic_ordering .is-all-ok-wrapper-wrong::after {
+.printable_ic_ordering .is-not-all-ok-sign-wrapper::after {
     content: "\2716";
 }
 
