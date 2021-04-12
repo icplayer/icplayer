@@ -1,49 +1,40 @@
 package com.lorepo.icplayer.client.content.services.externalNotifications;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import java.util.HashMap;
 
 
 public class ObserverService implements IObserverService {
-    private final HashMap<String, ObserverList> observers;
+    private final HashMap<ObservableValue, ObserverList> observers;
 
     public ObserverService() {
-        this.observers = new HashMap<String, ObserverList>();
+        this.observers = new HashMap<ObservableValue, ObserverList>();
 
         for (ObservableValue value : ObservableValue.values()) {
-            this.observers.put(value.getType(), ObserverList.create());
+            this.observers.put(value, ObserverList.create());
         }
     }
 
-    public void addObserver(ObservableValue value, JavaScriptObject object) {
-        this.addObserver(value.getType(), object);
-    }
-
-    private void addObserver(String value, JavaScriptObject object) {
-        ObserverList observers = this.observers.get(value);
-        observers.addObserver(object);
-    }
-
-    private void notifyObservers(ObservableValue value) {
-        ObserverList observers = this.observers.get(value.getType());
-        observers.callObservers();
+    public void addObserver(ObservableValue value, Observer object) {
+        ObserverList list = observers.get(value);
+        list.addObserver(object);
     }
 
     public void notifySave() {
         this.notifyObservers(ObservableValue.SAVE);
     }
 
-    public static native JavaScriptObject getAsJS(IObserverService s) /*-{
-        var commands = function() {};
-        commands.addObserver = function(type, callback) {
-            return s.@com.lorepo.icplayer.client.content.services.externalNotifications.ObserverService::addObserver(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;)(type, callback);
-        };
+    public ObserverJSService getAsJS() {
+        return ObserverJSService.create(this);
+    }
 
-        commands.notifySave = function() {
-            return s.@com.lorepo.icplayer.client.content.services.externalNotifications.ObserverService::notifySave()();
-        }
+    public void addObserverJS(String value, Observer object) {
+        ObservableValue v = ObservableValue.valueOf(value);
+        addObserver(v, object);
+    }
 
-        return commands;
-    }-*/;
+    private void notifyObservers(ObservableValue value) {
+        ObserverList observers = this.observers.get(value.getType());
+        observers.callObservers();
+    }
 
 }

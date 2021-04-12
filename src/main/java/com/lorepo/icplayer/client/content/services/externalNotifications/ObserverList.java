@@ -1,23 +1,23 @@
 package com.lorepo.icplayer.client.content.services.externalNotifications;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 
 /**
  * JSNI overlay type for JS list of callbacks.
  */
-public class ObserverList extends JsArray<JavaScriptObject> implements IObserverList {
+public class ObserverList extends JsArray<Observer> implements IObserverList {
     protected ObserverList() { }
 
-    public final native void addObserver(JavaScriptObject func) /*-{
+    public final native void addObserver(Observer observer) /*-{
         this.push(func);
     }-*/;
 
-    public final native void callObservers() /*-{
-        for (var i = 0; i < this.length; i++) {
-            this[i]();
+    public final void callObservers() {
+        for (int i = 0; i < length(); i++) {
+            Observer obs = get(i);
+            obs.next();
         }
-    }-*/;
+    }
 
     static native ObserverList create() /*-{
         return [];

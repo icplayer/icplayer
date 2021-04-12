@@ -14,6 +14,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.content.services.externalNotifications.ObserverJSService;
 import com.lorepo.icplayer.client.content.services.externalNotifications.ObserverService;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
@@ -974,7 +975,7 @@ public class JavaScriptPlayerServices {
 		return this.playerServices.getAdaptiveLearningService().isFirstStep();
 	}
 
-	public JavaScriptObject getJSObserverService() {
-		return ObserverService.getAsJS((ObserverService) playerServices.getObserverService());
+	public ObserverJSService getJSObserverService() {
+		return playerServices.getObserverService().getAsJS();
 	}
 }
