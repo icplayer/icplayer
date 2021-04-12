@@ -4,18 +4,19 @@ import java.util.HashMap;
 
 
 public class ObserverService implements IObserverService {
-    private final HashMap<String, ObserverList> observers;
+    private final HashMap<String, IObserverList> observers;
 
     public ObserverService() {
-        this.observers = new HashMap<String, ObserverList>();
+        this.observers = new HashMap<String, IObserverList>();
 
         for (ObservableValue value : ObservableValue.values()) {
-            this.observers.put(value.getType(), ObserverList.create());
+            IObserverList list = ObserverList.create();
+            this.observers.put(value.getType(), list);
         }
     }
 
-    public void addObserver(ObservableValue value, Observer object) {
-        addObserver(value.name(), object);
+    public void addObserver(ObservableValue value, IObserver object) {
+        addObserver(value.getType(), object);
     }
 
     public void notifySave() {
@@ -26,13 +27,13 @@ public class ObserverService implements IObserverService {
         return ObserverJSService.create(this);
     }
 
-    public void addObserver(String value, Observer object) {
-        ObserverList list = observers.get(value);
+    public void addObserver(String value, IObserver object) {
+        IObserverList list = observers.get(value);
         list.addObserver(object);
     }
 
     private void notifyObservers(ObservableValue value) {
-        ObserverList observers = this.observers.get(value.getType());
+        IObserverList observers = this.observers.get(value.getType());
         observers.callObservers();
     }
 

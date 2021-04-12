@@ -8,18 +8,18 @@ import com.google.gwt.core.client.JsArray;
 public class ObserverList extends JsArray<Observer> implements IObserverList {
     protected ObserverList() { }
 
-    public final native void addObserver(Observer observer) /*-{
+    public final native void addObserver(IObserver observer) /*-{
         this.push(observer);
     }-*/;
 
     public final void callObservers() {
         for (int i = 0; i < length(); i++) {
-            Observer obs = get(i);
+            IObserver obs = get(i);
             obs.next();
         }
     }
 
-    static native ObserverList create() /*-{
+    static native IObserverList create() /*-{
         return [];
     }-*/;
 }

@@ -8,7 +8,7 @@ public class ObserverJSService extends JavaScriptObject {
     public static native ObserverJSService create(IObserverService s) /*-{
         var obj = function() {};
         obj.addObserver = function(type, obj) {
-            return s.@com.lorepo.icplayer.client.content.services.externalNotifications.IObserverService::addObserver(Ljava/lang/String;Lcom/lorepo/icplayer/client/content/services/externalNotifications/Observer;)(type, obj);
+            return s.@com.lorepo.icplayer.client.content.services.externalNotifications.IObserverService::addObserver(Ljava/lang/String;Lcom/lorepo/icplayer/client/content/services/externalNotifications/IObserver;)(type, obj);
         };
 
         obj.notifySave = function() {
