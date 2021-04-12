@@ -3,15 +3,11 @@ package com.lorepo.icplayer.client.module.text;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
-import java.util.Map;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
-import com.lorepo.icf.utils.JavaScriptUtils;
-import com.lorepo.icplayer.client.content.services.JsonServices;
-import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
@@ -19,7 +15,6 @@ public class TextPrintable {
 
 	private TextModel model = null;
 	private float spaceSize = 0;
-	private Map<String, String> userAnswers = null;
 
 	public TextPrintable(TextModel model) {
 		this.model = model;
@@ -31,7 +26,6 @@ public class TextPrintable {
 			return null;
 		}
 
-		this.userAnswers = getAnswersFromPrintableState();
 		String parsedText = model.parsedText;
 		
 		// Convert all inputs with initial text to a printer friendly format
@@ -43,19 +37,6 @@ public class TextPrintable {
 		String result = "<div class=\"printable_ic_text\" id=\"" + model.getId() +"\">" + parsedText + "</div>";
 		result = PrintableContentParser.addClassToPrintableModule(result, className, !model.isSplitInPrintBlocked());
 		return result;
-	}
-
-	private Map<String, String> getAnswersFromPrintableState() {
-		HashMap<String, String> printableState = model.getPrintableState();
-		if (printableState != null) {
-			String answersString = printableState.get("values");
-
-			IJsonServices jsonServices = new JsonServices();
-			Map<String, String> answersMap = jsonServices.decodeHashMap(answersString);
-
-			return answersMap;
-		}
-		return null;
 	}
 	
 	private String makePrintableInput(String parsedText, boolean showAnswers) {
@@ -83,7 +64,6 @@ public class TextPrintable {
 			String oldValue = input.getString();
 			Element span = DOM.createSpan();
 			
-			span.addClassName("printable_gap");
 			span.setAttribute("style", "border-bottom: 1px solid;");
 			
 			GapInfo gapInfo = model.getGapInfos().get(i);
@@ -91,9 +71,10 @@ public class TextPrintable {
 			String userAnswer = null;
 			String value = "";
 			String longestAnswer = "";
+			HashMap<String, String> printableState = model.getPrintableState();
 
-			if (this.userAnswers != null) {
-				userAnswer = this.userAnswers.get(gapInfo.getId());
+			if (printableState != null) {
+				userAnswer = printableState.get(gapInfo.getId());
 				if (userAnswer == null) {
 					userAnswer = "";
 				}
@@ -161,21 +142,24 @@ public class TextPrintable {
 				}
 			}
 
-			span.setInnerHTML(value);	
-			String newValue = "&nbsp;" + span.getString();
-
-			if (this.userAnswers != null && showAnswers) {
+			if (printableState != null && showAnswers) {
 				do {
 					if (userAnswer.equals(answers.next())) {
-						newValue += " ✔ ";
+						span.addClassName("ic_text-correct-answer");
 						break;
 					}
 					if (!answers.hasNext()) {
-						newValue += " ✘ ";
+						span.addClassName("ic_text-wrong-answer");
 						break;
 					}
 				} while (answers.hasNext());
 			}
+			if (span.getClassName() == "") {
+				span.addClassName("printable_gap");
+			}
+
+			span.setInnerHTML(value);
+			String newValue = "&nbsp;" + span.getString();
 
 			parsedText = parsedText.replace(oldValue, newValue);
 		}
@@ -189,18 +173,19 @@ public class TextPrintable {
 		NodeList<Element> selects = html.getElement().getElementsByTagName("select");
 		for (int i = 0; i < selects.getLength(); i++) {
 			Element select = selects.getItem(i);
+			Element span = DOM.createSpan();
 			NodeList<Element> options = select.getElementsByTagName("option");
-			
+			HashMap<String, String> printableState = model.getPrintableState();
+
 			String values = "";
-			JavaScriptUtils.log("C");
-			if (this.userAnswers != null && showAnswers) {
+			if (printableState != null && showAnswers) {
 				InlineChoiceInfo choiceInfo = model.getChoiceInfos().get(i);
 
-				values = this.userAnswers.get(choiceInfo.getId());
+				values = printableState.get(choiceInfo.getId());
 				if (values.equals(choiceInfo.getAnswer())) {
-					values += " ✔ ";
+					span.addClassName("ic_text-correct-answer");
 				} else {
-					values += " ✘ ";
+					span.addClassName("ic_text-wrong-answer");
 				}
 			} else {
 				for (int j = 0; j < options.getLength(); j++) {
@@ -220,9 +205,10 @@ public class TextPrintable {
 					}
 				}
 			}
-			
-			Element span = DOM.createSpan();
-			span.addClassName("printable_dropdown");
+
+			if (span.getClassName() == "") {
+				span.addClassName("printable_dropdown");
+			}
 			span.setInnerHTML(values);
 			parsedText = parsedText.replace(select.getString(), span.getString());
 		}

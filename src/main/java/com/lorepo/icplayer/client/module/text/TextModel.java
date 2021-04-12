@@ -1351,6 +1351,11 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		}
 		IJsonServices jsonServices = new JsonServices();
 		this.printableState = jsonServices.decodeHashMap(state);
+
+		if (printableState != null) {
+			String answersString = printableState.get("values");
+			this.printableState = jsonServices.decodeHashMap(answersString);
+		}
 	}
 
 	public HashMap<String, String> getPrintableState() {

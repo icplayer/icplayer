@@ -697,6 +697,14 @@ hr, table, fieldset {
  	color: red;
  }
 
+.ic_text-correct-answer:after {
+    content: " \2714";
+}
+
+.ic_text-wrong-answer:after {
+    content: " \2716";
+}
+
  .ic_text_audio_button{
 	width: 22px;
 	height: 22px;
