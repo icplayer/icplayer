@@ -40,6 +40,16 @@ function AddonDrawing_create() {
     presenter.mouse = {x: 0, y: 0};
     presenter.isStarted = false;
 
+    presenter.addedImage = {};
+    presenter.draggingResizer = {
+        x: 0,
+        y: 0
+    };
+    presenter.draggingImage = false;
+    var pi2 = Math.PI * 2;
+    var resizerRadius = 8;
+    var rr = resizerRadius * resizerRadius;
+
     function getZoom() {
         var val = $('#_icplayer').css('zoom');
         if (val == "normal" || val == "") { // IE 11
@@ -115,12 +125,86 @@ function AddonDrawing_create() {
         presenter.onPaint(e);
     };
 
+    function anchorHitTest(x, y, image) {
+
+        var dx, dy;
+        console.log(`mouse:[${x},${y}] image:[${image.left},${image.top}]`);
+    
+        // top-left
+        dx = x - image.left;
+        dy = y - image.top;
+        if (dx * dx + dy * dy <= rr) {
+            return (0);
+        }
+        // top-right
+        dx = x - (image.left + image.width);
+        dy = y - image.top;
+        if (dx * dx + dy * dy <= rr) {
+            return (1);
+        }
+        // bottom-right
+        dx = x - (image.left + image.width);
+        dy = y - (image.top + image.height);
+        if (dx * dx + dy * dy <= rr) {
+            return (2);
+        }
+        // bottom-left
+        dx = x - image.left;
+        dy = y - (image.top + image.height);
+        if (dx * dx + dy * dy <= rr) {
+            return (3);
+        }
+        return (-1);
+    }
+
+    function hitImage(x, y, image) {
+        return (x > image.left && x < image.left + image.width && y > image.top && y < image.top + image.height);
+    }
+
+    function drawDragAnchor(x, y) {
+
+        presenter.configuration.tmp_ctx.beginPath();
+        presenter.configuration.tmp_ctx.arc(x, y, resizerRadius, 0, pi2, false);
+        presenter.configuration.tmp_ctx.closePath();
+        presenter.configuration.tmp_ctx.fill();
+    }
+
+    presenter.drawImage = function (tmp_ctx, withAnchors, withBorders, image) {
+        //draw image
+        tmp_ctx.drawImage(image.image, 0, 0, image.width, image.height, image.left, image.top, image.width, image.height);
+        
+        // optionally draw the draggable anchors
+        if (withAnchors) {
+            drawDragAnchor(image.left, image.top);
+            drawDragAnchor(image.left + image.width, image.top);
+            drawDragAnchor(image.left + image.width, image.top + image.height);
+            drawDragAnchor(image.left, image.top + image.height);
+        }
+
+        // turn off pencil mode, set image edition, save previous state to back after image edition finish
+        presenter.configuration.previousAddonMode = presenter.configuration.addonMode;
+        presenter.configuration.addonMode = ModeEnum.imageEdition;
+    }
+
+    presenter.addImage = function (img) {
+        var image = {};
+        image.width = img.width;
+        image.height = img.height;
+        image.left = presenter.configuration.tmp_canvas.width / 2 - image.width / 2;
+        image.top = presenter.configuration.tmp_canvas.height / 2 - image.height / 2;
+        image.image = img;
+        image.showUpMoment = presenter.points.length;
+        presenter.addedImage = image;
+        presenter.drawImage(presenter.configuration.tmp_ctx, true, false, image);
+    }
+
     presenter.onPaint = function(e) {
         e.stopPropagation();
         e.preventDefault();
         var tmp_canvas, tmp_ctx;
 
-        if (presenter.configuration.addonMode == ModeEnum.pencil) {
+        var isDrawingErasingMode = presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.eraser;
+        if (presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.imageEdition) {
             tmp_canvas = presenter.configuration.tmp_canvas;
             tmp_ctx = presenter.configuration.tmp_ctx;
             tmp_ctx.globalAlpha = presenter.configuration.opacity;
@@ -137,32 +221,34 @@ function AddonDrawing_create() {
 
         presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
 
-        if (presenter.points.length < 3) {
-            var b = presenter.points[0];
-            tmp_ctx.beginPath();
-            tmp_ctx.arc(b.x, b.y, tmp_ctx.lineWidth / 2, 0, Math.PI * 2, !0);
-            tmp_ctx.fill();
-            tmp_ctx.closePath();
-        } else {
-            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+        if (isDrawingErasingMode) {
+            if (presenter.points.length < 3) {
+                var b = presenter.points[0];
+                tmp_ctx.beginPath();
+                tmp_ctx.arc(b.x, b.y, tmp_ctx.lineWidth / 2, 0, Math.PI * 2, !0);
+                tmp_ctx.fill();
+                tmp_ctx.closePath();
+            } else {
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
-            tmp_ctx.beginPath();
-            tmp_ctx.moveTo(presenter.points[0].x, presenter.points[0].y);
+                tmp_ctx.beginPath();
+                tmp_ctx.moveTo(presenter.points[0].x, presenter.points[0].y);
 
-            for (var i = 1; i < presenter.points.length - 2; i++) {
-                var c = (presenter.points[i].x + presenter.points[i + 1].x) / 2;
-                var d = (presenter.points[i].y + presenter.points[i + 1].y) / 2;
+                for (var i = 1; i < presenter.points.length - 2; i++) {
+                    var c = (presenter.points[i].x + presenter.points[i + 1].x) / 2;
+                    var d = (presenter.points[i].y + presenter.points[i + 1].y) / 2;
 
-                tmp_ctx.quadraticCurveTo(presenter.points[i].x, presenter.points[i].y, c, d);
+                    tmp_ctx.quadraticCurveTo(presenter.points[i].x, presenter.points[i].y, c, d);
+                }
+
+                tmp_ctx.quadraticCurveTo(
+                    presenter.points[i].x,
+                    presenter.points[i].y,
+                    presenter.points[i + 1].x,
+                    presenter.points[i + 1].y
+                );
+                tmp_ctx.stroke();
             }
-
-            tmp_ctx.quadraticCurveTo(
-                presenter.points[i].x,
-                presenter.points[i].y,
-                presenter.points[i + 1].x,
-                presenter.points[i + 1].y
-            );
-            tmp_ctx.stroke();
         }
     };
 
@@ -322,53 +408,7 @@ function AddonDrawing_create() {
         }
     };
 
-    presenter.images = [];
-    var pi2 = Math.PI * 2;
-    var resizerRadius = 8;
-    var rr = resizerRadius * resizerRadius;
-    var draggingResizer = {
-        x: 0,
-        y: 0
-    };
-    var draggingImage = false;
-
-    function drawDragAnchor(x, y) {
-
-        presenter.configuration.tmp_ctx.beginPath();
-        presenter.configuration.tmp_ctx.arc(x, y, resizerRadius, 0, pi2, false);
-        presenter.configuration.tmp_ctx.closePath();
-        presenter.configuration.tmp_ctx.fill();
-    }
-
-    presenter.drawImage = function (withAnchors, withBorders, image) {
-        //draw image
-        presenter.configuration.tmp_ctx.drawImage(image.image, 0, 0, image.width, image.height, image.left, image.top, image.width, image.height);
-        
-        // optionally draw the draggable anchors
-        if (withAnchors) {
-            drawDragAnchor(image.left, image.top);
-            drawDragAnchor(image.left + image.width, image.top);
-            drawDragAnchor(image.left + image.width, image.top + image.height);
-            drawDragAnchor(image.left, image.top + image.height);
-        }
-
-        // turn off pencil mode, set image edition, save previous state to back after image edition finish
-        presenter.configuration.previousAddonMode = presenter.configuration.addonMode;
-        presenter.configuration.addonMode = ModeEnum.imageEdition;
-    }
-
-    presenter.addImage = function (img) {
-        var image = {}
-        image.width = img.width;
-        image.height = img.height;
-        image.left = presenter.configuration.tmp_canvas.width / 2 - image.width / 2;
-        image.top = presenter.configuration.tmp_canvas.height / 2 - image.height / 2;
-        image.image = img;
-        presenter.drawImage(true, false, image);
-    }
-
     presenter.handleImage = function (e) {
-        console.log("event add image triggered")
         var reader = new FileReader();
         reader.onload = function(event){
             var img = new Image();
@@ -395,7 +435,6 @@ function AddonDrawing_create() {
 
         presenter.configuration.addonMode = ModeEnum.pencil;
         presenter.configuration.previousAddonMode = ModeEnum.pencil;
-        // presenter.configuration.drawingPreviousMode = ModeEnum.pencil;
         presenter.configuration.pencilThickness = presenter.configuration.thickness;
         presenter.opacityByDefault = presenter.configuration.opacity;
 
@@ -404,29 +443,6 @@ function AddonDrawing_create() {
         $inputImage.click(presenter.clickHandler);
         $inputImage.change(presenter.handleImage);
         presenter.$view.find('.drawing').append($inputImage);
-
-        function fileOnload(e) {
-            var $img = $('<img>', { src: e.target.result });
-            var canvas = $('#canvas')[0];
-            var context = canvas.getContext('2d');
-    
-            $img.load(function() {
-                context.drawImage(this, 0, 0);
-            });
-        }
-        
-        $('#file-input').change(function(e) {
-            var file = e.target.files[0],
-                imageType = /image.*/;
-            
-            if (!file.type.match(imageType))
-                return;
-            
-            var reader = new FileReader();
-            reader.onload = fileOnload;
-            reader.readAsDataURL(file);
-            
-        });
 
         var border = presenter.configuration.border;
 
@@ -560,8 +576,6 @@ function AddonDrawing_create() {
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
             isExerciseStarted: false,
-
-            // isWhiteboardMode: isWhiteboardMode
         };
     };
 
@@ -635,81 +649,9 @@ function AddonDrawing_create() {
         };
     };
 
-    // function ClickRefresh() {
-    //     console.log("button clicked");
-    // }
-
-    // function HandleFileInput() {
-    //     console.log("handle input");
-    // }
-
-    presenter.addImageToCanvas = function () {
-        console.log("Setting erraser on");
-        presenter.setEraserOn();
-        // $("input").trigger("click");
-        // var $inputImage = $('<input class="input_image" type="file" id="myfile" name="upload" style="border: solid 1px red"/>');
-        // $inputImage.click(presenter.clickHandler);
-        // presenter.$pagePanel.find('.ic_page').append($inputImage);
-        // presenter.$pagePanel.find('.ic_page').append($inputImage);
+    presenter.addTextToCanvas = function() {
+        console.log("Add text to canvas");
     }
-        // var inputButton = $('<button text="input" id="btn_refresh" click="ClickRefresh"/>');
-        // presenter.$view.find('.drawing').append(inputButton);
-        // presenter.$view.find('.drawing').on('click', '#btn_refresh', function() {
-        //     $("input").trigger("click");
-        //   });
-        // }
-
-        // var $drawing = presenter.$view.find('.drawing');
-        // var $inpuFile = $drawing.find('.hiddenfile');
-        // console.log($inpuFile);
-        // $inpuFile.append($('<button/>', {
-        //     text: 'Refresh Data',
-        //     id: 'btn_refresh',
-        //     click: ClickRefresh
-        // }))
-
-        // console.log("addImageToCanvas");
-        // $inpuFile('#btn_refresh').focus().trigger('click');
-        // console.log("input clicked");
-        // document.getElementById('fileInput').click()
-        
-        // var $inputImage = $('<input type="file" id="myfile" name="upload"/>');
-        // presenter.$view.find(".drawing").append($inputImage);
-
-        // var imageLoader = document.getElementById("uploadImage");
-        // console.log(imageLoader);
-        // imageLoader.addEventListener("click", handleImage, false);
-        // imageLoader.click();
-
-        // presenter.$view.find('.drawing')
-        
-
-        
-        // var reader = new FileReader();
-        // var file = e.target.files[0];
-        // var img = new Image();
-        // img.onload = function() {
-        //     rotateAndPaintImage(presenter.configuration.tmp_ctx, img, 0, 10, 10, 100, 100)
-        // }
-        // reader.onloadend = function () {
-        //     img.src = reader.result;
-        // }
-        // reader.readAsDataURL(file);
-    // };
-
-    // presenter.addImageToCanvas = function (event) {
-    //     console.log(event);
-    //     console.log("addImageToCanvas");
-    //     var $buttonFile = $('<input type="file" id="myfile" name="upload"/>');
-        
-    //     $("#openFileInput").click(function(){
-    //         alert("button");
-    //     }); 
-        // console.log("addImageToCanvas");
-        // $('#fileinput').focus().trigger('click');
-        // console.log("input clicked");
-    // };
-
 
     presenter.executeCommand = function (name, params) {
         if (!presenter.configuration.isValid) {
@@ -720,7 +662,7 @@ function AddonDrawing_create() {
             'show': presenter.show,
             'hide': presenter.hide,
             'setColor': presenter.setColor,
-            'addImage': presenter.addImageToCanvas,
+            'addText': presenter.addTextToCanvas,
             'setThickness': presenter.setThickness,
             'setEraserOn': presenter.setEraserOn,
             'setEraserThickness': presenter.setEraserThickness,
@@ -802,7 +744,6 @@ function AddonDrawing_create() {
         var parsedState = JSON.parse(state);
 
         parsedState = presenter.upgradeState(parsedState);
-        console.log(`parsed State: ${parsedState}`);
 
         var data = JSON.parse(state).data,
             addonMode = JSON.parse(state).addonMode,
@@ -820,7 +761,6 @@ function AddonDrawing_create() {
         presenter.configuration.addonMode = addonMode;
         presenter.isStarted = true;
         presenter.configuration.opacity = parsedState.opacity;
-        console.log(`set state ${addonMode}`);
         if (addonMode == ModeEnum.pencil) {
             presenter.setColor(color);
         } else {
