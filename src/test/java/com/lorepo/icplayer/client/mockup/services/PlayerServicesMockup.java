@@ -237,23 +237,31 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return false;
 	}
 
-
 	@Override
 	public GroupPresenter getGroup(String groupId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-
 	@Override
 	public boolean isPageVisited(IPage page) {
 		// TODO Auto-generated method stub
 		return false;
-  }
-
+  	}
 
 	@Override
 	public JavaScriptObject getContextMetadata() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setExternalVariable(String key, String value) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public String getExternalVariable(String key) {
 		// TODO Auto-generated method stub
 		return null;
 	}
