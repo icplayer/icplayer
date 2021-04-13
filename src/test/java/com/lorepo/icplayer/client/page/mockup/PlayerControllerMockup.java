@@ -295,4 +295,14 @@ public class PlayerControllerMockup implements IPlayerController {
 
 	}
 
+	@Override
+	public void setExternalVariable(String key, String value){
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public String getExternalVariable(String key){
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

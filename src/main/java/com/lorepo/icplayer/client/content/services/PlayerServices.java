@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.content.services;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
@@ -221,6 +222,25 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public JavaScriptObject getContextMetadata() {
 		return this.application != null ? this.application.getContextMetadata() : null;
+	}
+
+	@Override
+	public void setExternalVariable(String key, String value) {
+		if (this.application != null){
+			JavaScriptObject context = this.application.getExternalVariables();
+			if (context != null)
+				JavaScriptUtils.addPropertyToJSArray(context, key, value);
+		}
+	}
+
+	@Override
+	public String getExternalVariable(String key) {
+		if (this.application != null){
+			JavaScriptObject context = this.application.getExternalVariables();
+			if (context != null)
+				return JavaScriptUtils.getArrayItemByKey(context, key);
+		}
+		return null;
 	}
 
     @Override

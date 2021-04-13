@@ -53,6 +53,8 @@ public interface IPlayerController {
 	Set<IPage> getVisitedPages();
 	void sendExternalEvent(String eventType, String data);
 	String getCurrentPageId();
+	void setExternalVariable(String key, String value);
+	String getExternalVariable(String key);
 
 	String getPageStamp();
 }
