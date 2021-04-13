@@ -198,20 +198,6 @@ function AddonDrawing_create() {
         presenter.drawImage(presenter.configuration.tmp_ctx, true, false, image);
     }
 
-    presenter.handleImage = function (e) {
-        var reader = new FileReader();
-        reader.onload = function(event){
-            var img = new Image();
-            img.onload = function(){
-                presenter.addImage(img);
-            }
-            img.src = event.target.result;
-        }
-        if(e.target.files[0]){
-            reader.readAsDataURL(e.target.files[0]);
-        }
-    };
- 
     presenter.onPaint = function(e) {
         e.stopPropagation();
         e.preventDefault();
@@ -422,6 +408,20 @@ function AddonDrawing_create() {
         }
     };
 
+    presenter.handleImage = function (e) {
+        var reader = new FileReader();
+        reader.onload = function(event){
+            var img = new Image();
+            img.onload = function(){
+                presenter.addImage(img);
+            }
+            img.src = event.target.result;
+        }
+        if(e.target.files[0]){
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    };
+
     presenter.presenterLogic = function(view, model, isPreview) {
         presenter.$view = $(view);
         presenter.$pagePanel = presenter.$view.parent().parent('.ic_page_panel');
@@ -443,29 +443,6 @@ function AddonDrawing_create() {
         $inputImage.click(presenter.clickHandler);
         $inputImage.change(presenter.handleImage);
         presenter.$view.find('.drawing').append($inputImage);
-
-        function fileOnload(e) {
-            var $img = $('<img>', { src: e.target.result });
-            var canvas = $('#canvas')[0];
-            var context = canvas.getContext('2d');
-    
-            $img.load(function() {
-                context.drawImage(this, 0, 0);
-            });
-        }
-        
-        $('#file-input').change(function(e) {
-            var file = e.target.files[0],
-                imageType = /image.*/;
-            
-            if (!file.type.match(imageType))
-                return;
-            
-            var reader = new FileReader();
-            reader.onload = fileOnload;
-            reader.readAsDataURL(file);
-            
-        });
 
         var border = presenter.configuration.border;
 
