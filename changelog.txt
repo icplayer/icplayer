@@ -1,3 +1,4 @@
+2021-04-13 Added notifier for save
 2021-04-13 Added externalVariables
 2021-04-07 Added disable new page message property to the Text To Speech addon
 2021-04-07 Fixed no correct loading from state for addon table when drop down
