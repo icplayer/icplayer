@@ -2,7 +2,12 @@ function AddonDrawing_create() {
 
     var presenter = function() {};
 
-    // presenter.images = []
+    const ModeEnum = {
+        pencil: "pencil",
+        eraser: "eraser",
+        imageEdition: "imageEdition",
+        textEdition: "textEdition",
+    };
 
     // work-around for double line in android browser
     function setOverflowWorkAround(turnOn) {
@@ -30,8 +35,6 @@ function AddonDrawing_create() {
 
         return true;
     }
-
-    var element;
 
     presenter.points = [];
     presenter.mouse = {x: 0, y: 0};
@@ -61,8 +64,6 @@ function AddonDrawing_create() {
 		return {X:1.0, Y:1.0};
     }
 
-
-
     presenter.hexToRGBA = function(hex, opacity) {
         hex = hex.replace('#', '');
         var r = parseInt(hex.substring(0,2), 16);
@@ -89,7 +90,7 @@ function AddonDrawing_create() {
         e.stopPropagation();
         e.preventDefault();
         var tmp_canvas;
-        if (presenter.configuration.isPencil) {
+        if (presenter.configuration.addonMode == ModeEnum.pencil) {
             tmp_canvas = presenter.configuration.tmp_canvas;
         } else {
             tmp_canvas = presenter.configuration.canvas;
@@ -119,11 +120,11 @@ function AddonDrawing_create() {
         e.preventDefault();
         var tmp_canvas, tmp_ctx;
 
-        if (presenter.configuration.isPencil) {
+        if (presenter.configuration.addonMode == ModeEnum.pencil) {
             tmp_canvas = presenter.configuration.tmp_canvas;
             tmp_ctx = presenter.configuration.tmp_ctx;
             tmp_ctx.globalAlpha = presenter.configuration.opacity;
-        } else {
+        } else if (presenter.configuration.addonMode == ModeEnum.eraser) {
             tmp_canvas = presenter.configuration.canvas;
             tmp_ctx = presenter.configuration.context;
         }
@@ -193,7 +194,7 @@ function AddonDrawing_create() {
         tmp_canvas.addEventListener('touchstart', function (e) {
             setOverflowWorkAround(true);
 
-            if (!presenter.configuration.isPencil) {
+            if (presenter.configuration.addonMode == ModeEnum.eraser) {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
             }
 
@@ -244,7 +245,7 @@ function AddonDrawing_create() {
         tmp_canvas.addEventListener('mousedown', function (e) {
             setOverflowWorkAround(true);
 
-            if (!presenter.configuration.isPencil) {
+            if (presenter.configuration.addonMode == ModeEnum.eraser) {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
             }
 
@@ -315,6 +316,71 @@ function AddonDrawing_create() {
         canvas.width = con.width();
         canvas.height = con.height();
     }
+    presenter.clickHandler = function (e) {
+        if (e !== undefined) {
+            e.stopPropagation();
+        }
+    };
+
+    presenter.images = [];
+    var pi2 = Math.PI * 2;
+    var resizerRadius = 8;
+    var rr = resizerRadius * resizerRadius;
+    var draggingResizer = {
+        x: 0,
+        y: 0
+    };
+    var draggingImage = false;
+
+    function drawDragAnchor(x, y) {
+
+        presenter.configuration.tmp_ctx.beginPath();
+        presenter.configuration.tmp_ctx.arc(x, y, resizerRadius, 0, pi2, false);
+        presenter.configuration.tmp_ctx.closePath();
+        presenter.configuration.tmp_ctx.fill();
+    }
+
+    presenter.drawImage = function (withAnchors, withBorders, image) {
+        //draw image
+        presenter.configuration.tmp_ctx.drawImage(image.image, 0, 0, image.width, image.height, image.left, image.top, image.width, image.height);
+        
+        // optionally draw the draggable anchors
+        if (withAnchors) {
+            drawDragAnchor(image.left, image.top);
+            drawDragAnchor(image.left + image.width, image.top);
+            drawDragAnchor(image.left + image.width, image.top + image.height);
+            drawDragAnchor(image.left, image.top + image.height);
+        }
+
+        // turn off pencil mode, set image edition, save previous state to back after image edition finish
+        presenter.configuration.previousAddonMode = presenter.configuration.addonMode;
+        presenter.configuration.addonMode = ModeEnum.imageEdition;
+    }
+
+    presenter.addImage = function (img) {
+        var image = {}
+        image.width = img.width;
+        image.height = img.height;
+        image.left = presenter.configuration.tmp_canvas.width / 2 - image.width / 2;
+        image.top = presenter.configuration.tmp_canvas.height / 2 - image.height / 2;
+        image.image = img;
+        presenter.drawImage(true, false, image);
+    }
+
+    presenter.handleImage = function (e) {
+        console.log("event add image triggered")
+        var reader = new FileReader();
+        reader.onload = function(event){
+            var img = new Image();
+            img.onload = function(){
+                presenter.addImage(img);
+            }
+            img.src = event.target.result;
+        }
+        if(e.target.files[0]){
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    };
 
     presenter.presenterLogic = function(view, model, isPreview) {
         presenter.$view = $(view);
@@ -327,12 +393,40 @@ function AddonDrawing_create() {
             return;
         }
 
-        presenter.configuration.isPencil = true;
+        presenter.configuration.addonMode = ModeEnum.pencil;
+        presenter.configuration.previousAddonMode = ModeEnum.pencil;
+        // presenter.configuration.drawingPreviousMode = ModeEnum.pencil;
         presenter.configuration.pencilThickness = presenter.configuration.thickness;
         presenter.opacityByDefault = presenter.configuration.opacity;
 
         presenter.$view.find('.drawing').append("<canvas class='canvas'>element canvas is not supported by your browser</canvas>");
-        presenter.$view.find('.drawing').append("<input type='file'></input>");
+        var $inputImage = $('<input class="input_image" type="file" id="myfile" name="upload" style="border: solid 1px red"/>');
+        $inputImage.click(presenter.clickHandler);
+        $inputImage.change(presenter.handleImage);
+        presenter.$view.find('.drawing').append($inputImage);
+
+        function fileOnload(e) {
+            var $img = $('<img>', { src: e.target.result });
+            var canvas = $('#canvas')[0];
+            var context = canvas.getContext('2d');
+    
+            $img.load(function() {
+                context.drawImage(this, 0, 0);
+            });
+        }
+        
+        $('#file-input').change(function(e) {
+            var file = e.target.files[0],
+                imageType = /image.*/;
+            
+            if (!file.type.match(imageType))
+                return;
+            
+            var reader = new FileReader();
+            reader.onload = fileOnload;
+            reader.readAsDataURL(file);
+            
+        });
 
         var border = presenter.configuration.border;
 
@@ -364,7 +458,7 @@ function AddonDrawing_create() {
     presenter.setColor = function(color) {
         if (typeof color === "object") color = color[0];
 
-        presenter.configuration.isPencil = true;
+        presenter.configuration.addonMode = ModeEnum.pencil;
         presenter.configuration.thickness = presenter.configuration.pencilThickness;
         presenter.configuration.context.globalCompositeOperation = "source-over";
         presenter.configuration.color = presenter.parseColor(color).color;
@@ -375,7 +469,7 @@ function AddonDrawing_create() {
         if (typeof thickness === "object") thickness = thickness[0];
 
         presenter.configuration.pencilThickness = presenter.parseThickness(thickness).thickness;
-        if (presenter.configuration.isPencil) {
+        if (presenter.configuration.addonMode == ModeEnum.pencil) {
             presenter.configuration.thickness = presenter.configuration.pencilThickness;
         }
     };
@@ -387,6 +481,7 @@ function AddonDrawing_create() {
     };
 
     presenter.setEraserOff = function () {
+        presenter.configuration.addonMode = ModeEnum.pencil;
         if (presenter.beforeEraserColor == undefined) {
             presenter.setColor(presenter.configuration.color);
         } else {
@@ -395,7 +490,7 @@ function AddonDrawing_create() {
     };
 
     presenter.setEraserOn = function() {
-        presenter.configuration.isPencil = false;
+        presenter.configuration.addonMode = ModeEnum.eraser;
 
         presenter.configuration.thickness = presenter.configuration.eraserThickness;
 
@@ -405,7 +500,7 @@ function AddonDrawing_create() {
 
     presenter.setEraserThickness = function(thickness) {
         presenter.configuration.eraserThickness = presenter.parseThickness(thickness).thickness;
-        if (!presenter.configuration.isPencil) {
+        if (presenter.configuration.addonMode == ModeEnum.eraser) {
             presenter.configuration.thickness = presenter.configuration.eraserThickness;
         }
     };
@@ -447,9 +542,6 @@ function AddonDrawing_create() {
         if (!parsedOpacity.isValid) {
             return getErrorObject(parsedOpacity.errorCode);
         }
-
-        // var isWhiteboardMode = ModelValidationUtils.validateBoolean(model["Whiteboard mode"]);
-
 
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 
@@ -543,29 +635,6 @@ function AddonDrawing_create() {
         };
     };
 
-    function rotateAndPaintImage ( context, image, angleInRad , positionX, positionY, axisX, axisY ) {
-        context.translate( positionX, positionY );
-        context.rotate( angleInRad );
-        context.drawImage( image, -axisX, -axisY );
-        context.rotate( -angleInRad );
-        context.translate( -positionX, -positionY );
-    } 
-
-    function handleImage(e){
-        console.log("Handling input file");
-        var reader = new FileReader();
-        reader.onload = function(event){
-            var img = new Image();
-            img.onload = function(){
-                rotateAndPaintImage(presenter.configuration.tmp_ctx, img, 0, 10, 10, 100, 100)
-            }
-            img.src = event.target.result;
-        }
-        if(e.target.files[0]){
-            reader.readAsDataURL(e.target.files[0]);     
-        }
-    }
-
     // function ClickRefresh() {
     //     console.log("button clicked");
     // }
@@ -575,8 +644,13 @@ function AddonDrawing_create() {
     // }
 
     presenter.addImageToCanvas = function () {
-        var $inputImage = $('<input class="input_image" type="file" id="myfile" name="upload" style="border: solid 1px red"/>');
-        presenter.$pagePanel.find('.ic_page').append($inputImage);
+        console.log("Setting erraser on");
+        presenter.setEraserOn();
+        // $("input").trigger("click");
+        // var $inputImage = $('<input class="input_image" type="file" id="myfile" name="upload" style="border: solid 1px red"/>');
+        // $inputImage.click(presenter.clickHandler);
+        // presenter.$pagePanel.find('.ic_page').append($inputImage);
+        // presenter.$pagePanel.find('.ic_page').append($inputImage);
     }
         // var inputButton = $('<button text="input" id="btn_refresh" click="ClickRefresh"/>');
         // presenter.$view.find('.drawing').append(inputButton);
@@ -690,7 +764,7 @@ function AddonDrawing_create() {
             return;
         }
 
-        var isPencil = presenter.configuration.isPencil,
+        var addonMode = presenter.configuration.addonMode,
             color = presenter.configuration.color,
             pencilThickness = presenter.configuration.pencilThickness,
             eraserThickness = presenter.configuration.eraserThickness,
@@ -698,7 +772,7 @@ function AddonDrawing_create() {
             data = c.toDataURL("image/png");
 
         return JSON.stringify({
-            isPencil: isPencil,
+            addonMode: addonMode,
             color: color,
             pencilThickness: pencilThickness,
             eraserThickness: eraserThickness,
@@ -728,9 +802,10 @@ function AddonDrawing_create() {
         var parsedState = JSON.parse(state);
 
         parsedState = presenter.upgradeState(parsedState);
+        console.log(`parsed State: ${parsedState}`);
 
         var data = JSON.parse(state).data,
-            isPencil = JSON.parse(state).isPencil,
+            addonMode = JSON.parse(state).addonMode,
             color = JSON.parse(state).color,
             savedImg = new Image();
 
@@ -742,11 +817,11 @@ function AddonDrawing_create() {
         presenter.configuration.pencilThickness = JSON.parse(state).pencilThickness;
         presenter.configuration.eraserThickness = JSON.parse(state).eraserThickness;
         presenter.configuration.isVisible = JSON.parse(state).isVisible;
-        presenter.configuration.isPencil = isPencil;
+        presenter.configuration.addonMode = addonMode;
         presenter.isStarted = true;
         presenter.configuration.opacity = parsedState.opacity;
-
-        if (isPencil) {
+        console.log(`set state ${addonMode}`);
+        if (addonMode == ModeEnum.pencil) {
             presenter.setColor(color);
         } else {
             presenter.configuration.thickness = presenter.configuration.eraserThickness;
