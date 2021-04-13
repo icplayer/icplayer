@@ -1909,6 +1909,7 @@ var ice_dictionary_bl = {
 	"Text_To_Speech_property_new_page": "Нова страница",
 	"Text_To_Speech_property_page_lang_tag": "Език на заглавието на страницата",
 	"Text_To_Speech_language": "Език",
+	"Text_To_Speech_property_disable_new_page_message": "Disable new page message",
 	"IFrame_property_alt_text": "Алтернативен текст",
 	"Shooting_Range_info": "Този плъгин позволява на потребителите да кликват върху падащи стойности в определено време.",
 	"Shooting_Range_name": "Стрелбище",
