@@ -9,11 +9,14 @@ function AddonDrawing_create() {
         textEdition: "textEdition",
     };
 
-    function setDefaultAddonMode(){
+    function setDefaultAddonMode() {
         setAddonMode(ModeEnum.pencil)
     }
 
     function setAddonMode(addonMode) {
+        if (isOnTextEditionMode()) {
+            presenter.endTextDrawing();
+        }
         presenter.configuration.addonMode = addonMode;
     }
 
@@ -73,6 +76,9 @@ function AddonDrawing_create() {
     var pi2 = Math.PI * 2;
     var resizerRadius = 8;
     var rr = resizerRadius * resizerRadius;
+    presenter.addedText = {};
+    presenter.draggingText = false;
+    presenter.$textfield = null;
 
     function getZoom() {
         var val = $('#_icplayer').css('zoom');
@@ -147,6 +153,30 @@ function AddonDrawing_create() {
         presenter.mouse.x = x;
         presenter.mouse.y = y;
         presenter.onPaint(e);
+    };
+
+    presenter.onMobileTextEdition = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var tmp_canvas = presenter.configuration.tmp_canvas;
+
+        var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
+        var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
+
+        if (presenter.zoom !== 1) {
+            x = x * (1 / presenter.zoom);
+            y = y * (1 / presenter.zoom);
+        }
+
+        var scale = getScale();
+        if(scale.X!==1.0 || scale.Y!==1.0){
+            x = x/scale.X;
+            y = y/scale.Y;
+        }
+
+        presenter.mouse.x = x;
+        presenter.mouse.y = y;
+        presenter.onTextEdition(e);
     };
 
     function anchorHitTest(x, y, image) {
@@ -238,6 +268,66 @@ function AddonDrawing_create() {
         drawDragAnchor(image.left + image.width, image.top);
         drawDragAnchor(image.left + image.width, image.top + image.height);
         drawDragAnchor(image.left, image.top + image.height);
+    }
+
+    presenter.drawText = function(editionMode) {
+        if (presenter.addedText.text === undefined || presenter.addedText.text.length === 0) return;
+        if (presenter.configuration.font) presenter.configuration.tmp_ctx.font = presenter.configuration.font;
+        presenter.configuration.tmp_ctx.clearRect(0, 0, presenter.configuration.tmp_canvas.width, presenter.configuration.tmp_canvas.height);
+        presenter.configuration.tmp_ctx.fillStyle = presenter.configuration.color;
+        presenter.configuration.tmp_ctx.fillText(presenter.addedText.text, presenter.addedText.x, presenter.addedText.y);
+        if (editionMode) {
+            var tmp_ctx = presenter.configuration.tmp_ctx;
+            tmp_ctx.lineWidth = presenter.configuration.thickness;
+            tmp_ctx.lineJoin = 'miter';
+            tmp_ctx.lineCap = 'miter';
+            tmp_ctx.strokeStyle = '#34baeb';
+            tmp_ctx.fillStyle = '#34baeb';
+            tmp_ctx.globalAlpha = 1.0;
+
+            var oldWidth = tmp_ctx.lineWidth;
+            tmp_ctx.lineWidth = 1;
+            var textSizes = tmp_ctx.measureText(presenter.addedText.text);
+            var width = textSizes.width;
+            var height = textSizes.fontBoundingBoxAscent - textSizes.fontBoundingBoxDescent;
+            var padding = 10;
+
+            tmp_ctx.beginPath();
+            tmp_ctx.moveTo(presenter.addedText.x - padding, presenter.addedText.y + padding);
+            tmp_ctx.lineTo(presenter.addedText.x + width + padding, presenter.addedText.y + padding);
+            tmp_ctx.lineTo(presenter.addedText.x + width + padding, presenter.addedText.y-height - padding);
+            tmp_ctx.lineTo(presenter.addedText.x - padding, presenter.addedText.y-height - padding);
+            tmp_ctx.lineTo(presenter.addedText.x - padding, presenter.addedText.y + padding);
+            tmp_ctx.fillRect(presenter.addedText.x + width + padding - 3, presenter.addedText.y + padding - 3, 6, 6);
+            tmp_ctx.fillRect(presenter.addedText.x + width + padding - 3, presenter.addedText.y-height - padding - 3, 6, 6);
+            tmp_ctx.fillRect(presenter.addedText.x - padding - 3, presenter.addedText.y-height - padding - 3, 6, 6);
+            tmp_ctx.fillRect(presenter.addedText.x - padding - 3, presenter.addedText.y + padding - 3, 6, 6);
+            tmp_ctx.stroke();
+
+            tmp_ctx.lineWidth = presenter.configuration.thickness;
+            tmp_ctx.lineJoin = 'round';
+            tmp_ctx.lineCap = 'round';
+            tmp_ctx.strokeStyle = presenter.configuration.color;
+            tmp_ctx.fillStyle = presenter.configuration.color;
+            tmp_ctx.lineWidth = oldWidth;
+            tmp_ctx.globalAlpha = presenter.configuration.opacity;
+
+        }
+    }
+
+    presenter.endTextDrawing = function(saveResult) {
+        if (presenter.configuration.addonMode = ModeEnum.textEdition) {
+            presenter.configuration.tmp_canvas.removeEventListener('mousemove', presenter.onTextEdition, false);
+            presenter.drawText(false);
+            presenter.addedText = {};
+            presenter.configuration.addonMode = ModeEnum.pencil;
+
+            var tmp_canvas = presenter.configuration.tmp_canvas;
+            var tmp_ctx = presenter.configuration.tmp_ctx;
+            var ctx = presenter.configuration.context;
+            ctx.drawImage(presenter.configuration.tmp_canvas, 0, 0);
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+        }
     }
 
     presenter.onPaint = function(e) {
@@ -351,6 +441,51 @@ function AddonDrawing_create() {
         }
     };
 
+    function hitText (x, y, textSizes) {
+        var width = textSizes.width;
+        var height = textSizes.fontBoundingBoxAscent - textSizes.fontBoundingBoxDescent;
+        var left = presenter.addedText.x;
+        var bottom = presenter.addedText.y;
+        var padding = 5;
+        return x >= left - 5 && x <= left + width + padding && y <= bottom + padding && y >= bottom - height - padding;
+    }
+
+    presenter.onTextEdition = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        if (presenter.addedText.text === undefined || presenter.addedText.text.length === 0) {
+            if (presenter.$textfield != null) {
+                presenter.closeTextFieldPopup();
+            }
+            return;
+        }
+
+        var tmp_canvas, tmp_ctx;
+
+        tmp_canvas = presenter.configuration.tmp_canvas;
+        tmp_ctx = presenter.configuration.tmp_ctx;
+        if (presenter.configuration.font) presenter.configuration.tmp_ctx.font = presenter.configuration.font;
+        textSizes = tmp_ctx.measureText(presenter.addedText.text);
+        presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
+
+        if (presenter.points.length < 4) {
+            presenter.draggingText = hitText(presenter.points[0].x, presenter.points[0].y, textSizes);
+            if (!presenter.draggingText) {
+                presenter.endTextDrawing();
+            }
+        } else {
+            if (presenter.draggingText) {
+                var dx = presenter.points[presenter.points.length - 1].x - presenter.points[presenter.points.length - 2].x;
+                var dy = presenter.points[presenter.points.length - 1].y - presenter.points[presenter.points.length - 2].y;
+                presenter.addedText.x += dx;
+                presenter.addedText.y += dy;
+                presenter.drawText(true);
+            } else {
+                presenter.endTextDrawing();
+            }
+        }
+    }
+
 
     presenter.turnOnEventListeners = function() {
         var tmp_canvas = presenter.configuration.tmp_canvas,
@@ -403,17 +538,24 @@ function AddonDrawing_create() {
 
             presenter.zoom = getZoom();
             presenter.isStarted = true;
-            presenter.onMobilePaint(e);
-            tmp_canvas.addEventListener('touchmove', presenter.onMobilePaintWithoutPropagation);
+            if (isOnPencilMode() || isOnEraserMode()) {
+                presenter.onMobilePaint(e);
+                tmp_canvas.addEventListener('touchmove', presenter.onMobilePaintWithoutPropagation);
+            } else if (isOnTextEditionMode()) {
+                presenter.onMobileTextEdition(e);
+                tmp_canvas.addEventListener('touchmove', presenter.onMobileTextEdition);
+            }
         }, false);
 
         tmp_canvas.addEventListener('touchend', function (e) {
             setOverflowWorkAround(false);
 
             tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaintWithoutPropagation, false);
-            ctx.drawImage(tmp_canvas, 0, 0);
-            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
+            tmp_canvas.removeEventListener('touchmove', presenter.onMobileTextEdition, false);
+            if (isOnPencilMode() || isOnEraserMode()) {
+                ctx.drawImage(tmp_canvas, 0, 0);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+            }
             presenter.points = [];
         }, false);
     }
@@ -440,7 +582,6 @@ function AddonDrawing_create() {
             console.log("mouseleave")
             console.log(e)
             setOverflowWorkAround(false);
-
             if (isOnPencilMode() || isOnEraserMode()) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
                 ctx.drawImage(tmp_canvas, 0, 0);
@@ -449,6 +590,10 @@ function AddonDrawing_create() {
                 tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
+            } else if (isOnTextEditionMode()) {
+                tmp_canvas.removeEventListener('mousemove', presenter.onTextEdition, false);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+                presenter.drawText(true);
             }
             presenter.points = [];
         });
@@ -471,6 +616,9 @@ function AddonDrawing_create() {
             } else if (isOnImageEditionMode()) {
                 tmp_canvas.addEventListener('mousemove', presenter.onImageEdition, false);
             }
+            else if (isOnTextEditionMode()) {
+                tmp_canvas.addEventListener('mousemove', presenter.onTextEdition, false);
+            }
             presenter.isStarted = true;
 
             var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
@@ -487,6 +635,8 @@ function AddonDrawing_create() {
                 presenter.onPaint(e);
             } else if (isOnImageEditionMode()) {
                 presenter.onImageEdition(e);
+            } else if (isOnTextEditionMode()) {
+                presenter.onTextEdition(e);
             }
         }, false);
 
@@ -502,6 +652,8 @@ function AddonDrawing_create() {
                 tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
+            }else if (isOnTextEditionMode) {
+                tmp_canvas.removeEventListener('mousemove', presenter.onTextEdition, false);
             }
             presenter.points = [];
         }, false);
@@ -557,12 +709,30 @@ function AddonDrawing_create() {
         }
     };
 
+    presenter.upgradeModel = function(model) {
+        var upgradedModel = presenter.upgradeFont(model);
+        return upgradedModel;
+    }
+
+    presenter.upgradeFont = function (model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model); // Deep copy of model object
+
+            if (upgradedModel['Font'] === undefined) {
+                upgradedModel['Font'] = '';
+            }
+
+            return upgradedModel;
+        };
+
     presenter.presenterLogic = function(view, model, isPreview) {
         presenter.$view = $(view);
         presenter.$pagePanel = presenter.$view.parent().parent('.ic_page_panel');
-        presenter.model = model;
 
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.model = upgradedModel;
+
+        presenter.configuration = presenter.validateModel(upgradedModel);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
@@ -632,6 +802,15 @@ function AddonDrawing_create() {
 
         presenter.configuration.opacity = presenter.parseOpacity(opacity).opacity;
     };
+
+    presenter.setFont = function(font) {
+        if (font !== undefined) {
+            presenter.configuration.font = font;
+            if (font) {
+                presenter.configuration.tmp_ctx.font = font;
+            }
+        }
+    }
 
     presenter.setEraserOff = function () {
         setDefaultAddonMode()
@@ -712,6 +891,7 @@ function AddonDrawing_create() {
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
             isExerciseStarted: false,
+            font: model.Font
         };
     };
 
@@ -785,10 +965,6 @@ function AddonDrawing_create() {
         };
     };
 
-    presenter.addTextToCanvas = function() {
-        console.log("Add text to canvas");
-    }
-
     presenter.executeCommand = function (name, params) {
         if (!presenter.configuration.isValid) {
             return;
@@ -804,6 +980,7 @@ function AddonDrawing_create() {
             'setEraserOn': presenter.setEraserOn,
             'setEraserThickness': presenter.setEraserThickness,
             'setOpacity': presenter.setOpacity,
+            'setFont': presenter.setFont,
             'setEraserOff': presenter.setEraserOff
         };
 
@@ -859,7 +1036,8 @@ function AddonDrawing_create() {
             pencilThickness = presenter.configuration.pencilThickness,
             eraserThickness = presenter.configuration.eraserThickness,
             c = presenter.$view.find("canvas")[0],
-            data = c.toDataURL("image/png");
+            data = c.toDataURL("image/png"),
+            font = presenter.configuration.font;
 
         return JSON.stringify({
             addonMode: addonMode,
@@ -868,7 +1046,8 @@ function AddonDrawing_create() {
             eraserThickness: eraserThickness,
             data: data,
             isVisible: presenter.configuration.isVisible,
-            opacity: presenter.configuration.opacity
+            opacity: presenter.configuration.opacity,
+            font: font
         });
     };
 
@@ -880,8 +1059,26 @@ function AddonDrawing_create() {
         return parsedState;
     };
 
+    presenter.upgradeStateForImageAndText = function (parsedState) {
+        if (parsedState.font == undefined) {
+            parsedState.font = "";
+        }
+
+        if (parsedState.addonMode == undefined) {
+            if (parsedState.isPencil !== undefined && !parsedState.isPencil) {
+                parsedState.addonMode = "eraser";
+            } else {
+                parsedState.addonMode = "pencil";
+            }
+        }
+
+        return parsedState;
+    }
+
     presenter.upgradeState = function (parsedState) {
-        return presenter.upgradeStateForOpacity(parsedState);
+        var upgradedState = presenter.upgradeStateForOpacity(parsedState);
+        upgradedState = presenter.upgradeStateForImageAndText(upgradedState);
+        return upgradedState;
     };
 
     presenter.setState = function(state) {
@@ -917,7 +1114,64 @@ function AddonDrawing_create() {
         }
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.beforeEraserColor = color;
+        presenter.setFont(JSON.parse(state).font);
     };
+
+    presenter.addTextToCanvas = function() {
+        if (isOnTextEditionMode()) {
+            var tmp_canvas = presenter.configuration.tmp_canvas;
+            var tmp_ctx = presenter.configuration.tmp_ctx;
+            var ctx = presenter.configuration.context;
+            presenter.endTextDrawing();
+            ctx.drawImage(presenter.configuration.tmp_canvas, 0, 0);
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+        }
+
+        presenter.configuration.addonMode = ModeEnum.textEdition;
+        presenter.displayTextFieldPopup();
+    }
+
+    presenter.displayTextFieldPopup = function() {
+        var $textfield = $('<input type="text"></input>');
+        $textfield.css('position', 'absolute');
+        $textfield.css('min-width', '20px');
+        $textfield.css('width', '20px');
+        $textfield.css('left', Math.round(presenter.configuration.canvas.width()/2 - 10) + 'px');
+        $textfield.css('top', '45%');
+        $textfield.css('font', presenter.configuration.font);
+        $textfield.css('color', presenter.configuration.color);
+        presenter.$view.append($textfield);
+        presenter.$textfield = $textfield;
+        $textfield.focus();
+
+        $textfield.blur(function(){
+            presenter.closeTextFieldPopup();
+        });
+
+        $textfield.on('keyup', function (e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                presenter.closeTextFieldPopup();
+            } else {
+                if (presenter.configuration.font) presenter.configuration.tmp_ctx.font = presenter.configuration.font;
+                var width = presenter.configuration.tmp_ctx.measureText($textfield.val()).width + 10;
+                $textfield.css('left', Math.round((presenter.configuration.canvas.width() - width) / 2) + 'px');
+                $textfield.css('width', width+'px')
+            }
+        });
+    }
+
+    presenter.closeTextFieldPopup = function() {
+        if (presenter.$textfield == null) return;
+        var $textfield = presenter.$textfield;
+        presenter.addedText = {
+            text: $textfield.val(),
+            x: $textfield[0].offsetLeft,
+            y: $textfield[0].offsetTop + $textfield.height()
+        };
+        $textfield.remove();
+        presenter.$textfield = null;
+        presenter.drawText(true);
+    }
 
     return presenter;
 }
