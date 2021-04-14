@@ -9,6 +9,31 @@ function AddonDrawing_create() {
         textEdition: "textEdition",
     };
 
+    function setAddonMode(addonMode) {
+        presenter.configuration.previousAddonMode = presenter.configuration.addonMode;
+        presenter.configuration.addonMode = addonMode;
+    }
+
+    function loadPreviousAddonMode() {
+        presenter.configuration.addonMode = presenter.configuration.previousAddonMode;
+    }
+
+    function isOnPencilMode() {
+        return presenter.configuration.addonMode === ModeEnum.pencil;
+    }
+
+    function isOnEraserMode() {
+        return presenter.configuration.addonMode === ModeEnum.eraser;
+    }
+
+    function isOnImageEditionMode() {
+        return presenter.configuration.addonMode === ModeEnum.imageEdition;
+    }
+
+    function isOnTextEditionMode() {
+        return presenter.configuration.addonMode === ModeEnum.textEdition;
+    }
+
     // work-around for double line in android browser
     function setOverflowWorkAround(turnOn) {
 
@@ -100,7 +125,7 @@ function AddonDrawing_create() {
         e.stopPropagation();
         e.preventDefault();
         var tmp_canvas;
-        if (presenter.configuration.addonMode == ModeEnum.pencil) {
+        if (isOnPencilMode()) {
             tmp_canvas = presenter.configuration.tmp_canvas;
         } else {
             tmp_canvas = presenter.configuration.canvas;
@@ -195,8 +220,10 @@ function AddonDrawing_create() {
     }
 
     presenter.addImage = function (img) {
-        presenter.configuration.previousAddonMode = presenter.configuration.addonMode;
-        presenter.configuration.addonMode = ModeEnum.imageEdition;
+        if (isOnImageEditionMode()){
+            presenter.finishEditImageMode(presenter.configuration.tmp_ctx, presenter.configuration.tmp_canvas)
+        }
+        setAddonMode(ModeEnum.imageEdition)
 
         var image = {};
         image.width = img.width;
@@ -223,11 +250,11 @@ function AddonDrawing_create() {
         e.preventDefault();
         var tmp_canvas, tmp_ctx;
 
-        if (presenter.configuration.addonMode == ModeEnum.pencil) {
+        if (isOnPencilMode()) {
             tmp_canvas = presenter.configuration.tmp_canvas;
             tmp_ctx = presenter.configuration.tmp_ctx;
             tmp_ctx.globalAlpha = presenter.configuration.opacity;
-        } else if (presenter.configuration.addonMode == ModeEnum.eraser) {
+        } else if (isOnEraserMode()) {
             tmp_canvas = presenter.configuration.canvas;
             tmp_ctx = presenter.configuration.context;
         }
@@ -361,7 +388,7 @@ function AddonDrawing_create() {
         presenter.drawImage(tmp_ctx, tmp_canvas, false, false, presenter.addedImage);
         presenter.configuration.context.drawImage(tmp_canvas, 0, 0);
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-        presenter.configuration.addonMode = presenter.configuration.previousAddonMode;
+        loadPreviousAddonMode()
         presenter.points = [];
     }
 
@@ -369,7 +396,7 @@ function AddonDrawing_create() {
         tmp_canvas.addEventListener('touchstart', function (e) {
             setOverflowWorkAround(true);
 
-            if (presenter.configuration.addonMode == ModeEnum.eraser) {
+            if (isOnEraserMode()) {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
             }
 
@@ -409,11 +436,11 @@ function AddonDrawing_create() {
         $(tmp_canvas).on('mouseleave', function (e) {
             setOverflowWorkAround(false);
 
-            if (presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.eraser) {
+            if (isOnPencilMode() || isOnEraserMode()) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
                 ctx.drawImage(tmp_canvas, 0, 0);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-            } else if (presenter.configuration.addonMode == ModeEnum.imageEdition) {
+            } else if (isOnImageEditionMode()) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
@@ -423,7 +450,7 @@ function AddonDrawing_create() {
         tmp_canvas.addEventListener('mousedown', function (e) {
             setOverflowWorkAround(true);
 
-            if (presenter.configuration.addonMode == ModeEnum.eraser) {
+            if (isOnEraserMode()) {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
             }
 
@@ -432,10 +459,9 @@ function AddonDrawing_create() {
                 presenter.zoom = 1;
             }
 
-            if (presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.eraser)
-            {
+            if (isOnPencilMode() || isOnEraserMode()) {
                 tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
-            } else if (presenter.configuration.addonMode == ModeEnum.imageEdition) {
+            } else if (isOnImageEditionMode()) {
                 tmp_canvas.addEventListener('mousemove', presenter.onImageEdition, false);
             }
             presenter.isStarted = true;
@@ -450,21 +476,20 @@ function AddonDrawing_create() {
 
             presenter.points.push({x: x, y: y});
 
-            if (presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.eraser)
-            {
+            if (isOnPencilMode() || isOnEraserMode()) {
                 presenter.onPaint(e);
-            } else if (presenter.configuration.addonMode == ModeEnum.imageEdition) {
+            } else if (isOnImageEditionMode()) {
                 presenter.onImageEdition(e);
             }
         }, false);
 
         tmp_canvas.addEventListener('mouseup', function (e) {
             setOverflowWorkAround(false);
-            if (presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.eraser) {
+            if (isOnPencilMode() || isOnEraserMode()) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
                 ctx.drawImage(tmp_canvas, 0, 0);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-            } else if (presenter.configuration.addonMode == ModeEnum.imageEdition) {
+            } else if (isOnImageEditionMode()) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
@@ -578,9 +603,9 @@ function AddonDrawing_create() {
     }
 
     presenter.setColor = function(color) {
-        if (typeof color === "object") color = color[0];
-
-        presenter.configuration.addonMode = ModeEnum.pencil;
+        if (typeof color === "object")
+            color = color[0];
+        setAddonMode(ModeEnum.pencil);
         presenter.configuration.thickness = presenter.configuration.pencilThickness;
         presenter.configuration.context.globalCompositeOperation = "source-over";
         presenter.configuration.color = presenter.parseColor(color).color;
@@ -591,7 +616,7 @@ function AddonDrawing_create() {
         if (typeof thickness === "object") thickness = thickness[0];
 
         presenter.configuration.pencilThickness = presenter.parseThickness(thickness).thickness;
-        if (presenter.configuration.addonMode == ModeEnum.pencil) {
+        if (isOnPencilMode()) {
             presenter.configuration.thickness = presenter.configuration.pencilThickness;
         }
     };
@@ -603,7 +628,7 @@ function AddonDrawing_create() {
     };
 
     presenter.setEraserOff = function () {
-        presenter.configuration.addonMode = ModeEnum.pencil;
+        setAddonMode(ModeEnum.pencil);
         if (presenter.beforeEraserColor == undefined) {
             presenter.setColor(presenter.configuration.color);
         } else {
@@ -612,8 +637,10 @@ function AddonDrawing_create() {
     };
 
     presenter.setEraserOn = function() {
-        presenter.configuration.addonMode = ModeEnum.eraser;
-        presenter.configuration.previousAddonMode = ModeEnum.eraser;
+        if (isOnImageEditionMode()){
+            presenter.finishEditImageMode(presenter.configuration.tmp_ctx, presenter.configuration.tmp_canvas)
+        }
+        setAddonMode(ModeEnum.eraser);
 
         presenter.configuration.thickness = presenter.configuration.eraserThickness;
 
@@ -623,7 +650,7 @@ function AddonDrawing_create() {
 
     presenter.setEraserThickness = function(thickness) {
         presenter.configuration.eraserThickness = presenter.parseThickness(thickness).thickness;
-        if (presenter.configuration.addonMode == ModeEnum.eraser) {
+        if (isOnEraserMode()) {
             presenter.configuration.thickness = presenter.configuration.eraserThickness;
         }
     };
@@ -878,7 +905,7 @@ function AddonDrawing_create() {
         presenter.configuration.addonMode = addonMode;
         presenter.isStarted = true;
         presenter.configuration.opacity = parsedState.opacity;
-        if (addonMode == ModeEnum.pencil) {
+        if (isOnPencilMode()) {
             presenter.setColor(color);
         } else {
             presenter.configuration.thickness = presenter.configuration.eraserThickness;
