@@ -539,11 +539,9 @@ function AddonDrawing_create() {
         presenter.configuration.pencilThickness = presenter.configuration.thickness;
         presenter.opacityByDefault = presenter.configuration.opacity;
 
-        presenter.$view.find('.drawing').append("<canvas class='canvas'>element canvas is not supported by your browser</canvas>");
-        var $inputImage = $('<input class="input_image" type="file" id="myfile" name="upload" style="border: solid 1px red"/>');
-        $inputImage.click(presenter.clickHandler);
-        $inputImage.change(presenter.handleImage);
-        presenter.$view.find('.drawing').append($inputImage);
+        var $drawing = presenter.$view.find('.drawing')
+        var $canvas = createCanvas()
+        $drawing.append($canvas)
 
         var border = presenter.configuration.border;
 
@@ -571,6 +569,13 @@ function AddonDrawing_create() {
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
     };
+
+    function createCanvas() {
+        var $canvas = $(document.createElement('canvas'));
+        $canvas.addClass('canvas');
+        $canvas.html('element canvas is not supported by your browser');
+        return $canvas
+    }
 
     presenter.setColor = function(color) {
         if (typeof color === "object") color = color[0];
@@ -763,6 +768,7 @@ function AddonDrawing_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
+            'uploadImage': presenter.uploadImage,
             'setColor': presenter.setColor,
             'addText': presenter.addTextToCanvas,
             'setThickness': presenter.setThickness,
@@ -788,6 +794,15 @@ function AddonDrawing_create() {
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
     };
+
+    presenter.uploadImage = function() {
+        var element = document.createElement("input");
+        element.setAttribute("id", "importFile");
+        element.setAttribute("type", "file");
+        element.setAttribute("accept", "image/png,image/jpeg");
+        element.onchange = presenter.handleImage;
+        element.click();
+    }
 
     presenter.reset = function() {
         presenter.configuration.context.clearRect(0, 0, presenter.configuration.canvas[0].width, presenter.configuration.canvas[0].height);
