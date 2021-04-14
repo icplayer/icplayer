@@ -49,7 +49,9 @@ function AddonDrawing_create() {
     var pi2 = Math.PI * 2;
     var resizerRadius = 8;
     var rr = resizerRadius * resizerRadius;
-    presenter.newText = "";
+    presenter.addedText = {};
+    presenter.draggingText = false;
+    presenter.$textfield = null;
 
     function getZoom() {
         var val = $('#_icplayer').css('zoom');
@@ -218,6 +220,59 @@ function AddonDrawing_create() {
         drawDragAnchor(image.left, image.top + image.height);
     }
 
+    presenter.drawText = function(editionMode) {
+        if (presenter.addedText.text === undefined || presenter.addedText.text.length === 0) return;
+        console.log(presenter.configuration.tmp_ctx.font);
+        if (presenter.configuration.font) presenter.configuration.tmp_ctx.font = presenter.configuration.font;
+        presenter.configuration.tmp_ctx.clearRect(0, 0, presenter.configuration.tmp_canvas.width, presenter.configuration.tmp_canvas.height);
+        presenter.configuration.tmp_ctx.fillText(presenter.addedText.text, presenter.addedText.x, presenter.addedText.y);
+        if (editionMode) {
+            var tmp_ctx = presenter.configuration.tmp_ctx;
+            tmp_ctx.lineWidth = presenter.configuration.thickness;
+            tmp_ctx.lineJoin = 'miter';
+            tmp_ctx.lineCap = 'miter';
+            tmp_ctx.strokeStyle = '#34baeb';
+            tmp_ctx.fillStyle = '#34baeb';
+            tmp_ctx.globalAlpha = 1.0;
+
+            var oldWidth = tmp_ctx.lineWidth;
+            tmp_ctx.lineWidth = 1;
+            var textSizes = tmp_ctx.measureText(presenter.addedText.text);
+            var width = textSizes.width;
+            var height = textSizes.fontBoundingBoxAscent - textSizes.fontBoundingBoxDescent;
+            var padding = 10;
+
+            tmp_ctx.beginPath();
+            tmp_ctx.moveTo(presenter.addedText.x - padding, presenter.addedText.y + padding);
+            tmp_ctx.lineTo(presenter.addedText.x + width + padding, presenter.addedText.y + padding);
+            tmp_ctx.lineTo(presenter.addedText.x + width + padding, presenter.addedText.y-height - padding);
+            tmp_ctx.lineTo(presenter.addedText.x - padding, presenter.addedText.y-height - padding);
+            tmp_ctx.lineTo(presenter.addedText.x - padding, presenter.addedText.y + padding);
+            tmp_ctx.fillRect(presenter.addedText.x + width + padding - 3, presenter.addedText.y + padding - 3, 6, 6);
+            tmp_ctx.fillRect(presenter.addedText.x + width + padding - 3, presenter.addedText.y-height - padding - 3, 6, 6);
+            tmp_ctx.fillRect(presenter.addedText.x - padding - 3, presenter.addedText.y-height - padding - 3, 6, 6);
+            tmp_ctx.fillRect(presenter.addedText.x - padding - 3, presenter.addedText.y + padding - 3, 6, 6);
+            tmp_ctx.stroke();
+
+            tmp_ctx.lineWidth = presenter.configuration.thickness;
+            tmp_ctx.lineJoin = 'round';
+            tmp_ctx.lineCap = 'round';
+            tmp_ctx.strokeStyle = presenter.configuration.color;
+            tmp_ctx.fillStyle = presenter.configuration.color;
+            tmp_ctx.lineWidth = oldWidth;
+            tmp_ctx.globalAlpha = presenter.configuration.opacity;
+
+        }
+    }
+
+    presenter.endTextDrawing = function() {
+        if (presenter.configuration.addonMode = ModeEnum.textEdition) {
+            presenter.drawText(false);
+            presenter.addedText = {};
+            presenter.configuration.addonMode = ModeEnum.pencil;
+        }
+    }
+
     presenter.onPaint = function(e) {
         e.stopPropagation();
         e.preventDefault();
@@ -301,6 +356,50 @@ function AddonDrawing_create() {
 
     };
 
+    function hitText (x, y, textSizes) {
+        var width = textSizes.width;
+        var height = textSizes.fontBoundingBoxAscent - textSizes.fontBoundingBoxDescent;
+        var left = presenter.addedText.x;
+        var bottom = presenter.addedText.y;
+        var padding = 5;
+        return x >= left - 5 && x <= left + width + padding && y <= bottom + padding && y >= bottom - height - padding;
+    }
+
+    presenter.onTextEdition = function(e) {
+        console.log("on text edition");
+        e.stopPropagation();
+        e.preventDefault();
+        if (presenter.addedText.text === undefined || presenter.addedText.text.length === 0) {
+            if (presenter.$textfield != null) {
+                presenter.closeTextFieldPopup();
+            }
+            return;
+        }
+
+        var tmp_canvas, tmp_ctx;
+
+        tmp_canvas = presenter.configuration.tmp_canvas;
+        tmp_ctx = presenter.configuration.tmp_ctx;
+        if (presenter.configuration.font) presenter.configuration.tmp_ctx.font = presenter.configuration.font;
+        textSizes = tmp_ctx.measureText(presenter.addedText.text);
+        presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
+
+        if (presenter.points.length < 4) {
+            presenter.draggingText = hitText(presenter.points[0].x, presenter.points[0].y, textSizes);
+            if (!presenter.draggingText) presenter.endTextDrawing();
+        } else {
+            if (presenter.draggingText) {
+                var dx = presenter.points[presenter.points.length - 1].x - presenter.points[presenter.points.length - 2].x;
+                var dy = presenter.points[presenter.points.length - 1].y - presenter.points[presenter.points.length - 2].y;
+                presenter.addedText.x += dx;
+                presenter.addedText.y += dy;
+                presenter.drawText(true);
+            } else {
+                presenter.endTextDrawing();
+            }
+        }
+    }
+
 
     presenter.turnOnEventListeners = function() {
         var tmp_canvas = presenter.configuration.tmp_canvas,
@@ -344,6 +443,8 @@ function AddonDrawing_create() {
             setOverflowWorkAround(false);
 
             tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaintWithoutPropagation, false);
+            console.log("touchmove");
+            presenter.endTextDrawing();
             ctx.drawImage(tmp_canvas, 0, 0);
             tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
@@ -374,6 +475,8 @@ function AddonDrawing_create() {
             setOverflowWorkAround(false);
 
             tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+            console.log("mousemove");
+            presenter.endTextDrawing();
             ctx.drawImage(tmp_canvas, 0, 0);
             tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
@@ -399,6 +502,9 @@ function AddonDrawing_create() {
             } else if (presenter.configuration.addonMode == ModeEnum.imageEdition) {
                 tmp_canvas.addEventListener('mousemove', presenter.onImageEdition, false);
             }
+            else if (presenter.configuration.addonMode == ModeEnum.textEdition) {
+                tmp_canvas.addEventListener('mousemove', presenter.onTextEdition, false);
+            }
             presenter.isStarted = true;
 
             var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
@@ -416,6 +522,8 @@ function AddonDrawing_create() {
                 presenter.onPaint(e);
             } else if (presenter.configuration.addonMode == ModeEnum.imageEdition) {
                 presenter.onImageEdition(e);
+            } else if (presenter.configuration.addonMode == ModeEnum.textEdition) {
+                presenter.onTextEdition(e);
             }
         }, false);
 
@@ -428,6 +536,8 @@ function AddonDrawing_create() {
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
             } else if (presenter.configuration.addonMode == ModeEnum.imageEdition) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
+            }else if (presenter.configuration.addonMode == ModeEnum.textEdition) {
+                tmp_canvas.removeEventListener('mousemove', presenter.onTextEdition, false);
             }
             presenter.points = [];
         }, false);
@@ -490,12 +600,30 @@ function AddonDrawing_create() {
         }
     };
 
+    presenter.upgradeModel = function(model) {
+        var upgradedModel = presenter.upgradeFont(model);
+        return upgradedModel;
+    }
+
+    presenter.upgradeFont = function (model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model); // Deep copy of model object
+
+            if (upgradedModel['Font'] === undefined) {
+                upgradedModel['Font'] = '';
+            }
+
+            return upgradedModel;
+        };
+
     presenter.presenterLogic = function(view, model, isPreview) {
         presenter.$view = $(view);
         presenter.$pagePanel = presenter.$view.parent().parent('.ic_page_panel');
-        presenter.model = model;
 
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.model = upgradedModel;
+
+        presenter.configuration = presenter.validateModel(upgradedModel);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
@@ -563,6 +691,15 @@ function AddonDrawing_create() {
 
         presenter.configuration.opacity = presenter.parseOpacity(opacity).opacity;
     };
+
+    presenter.setFont = function(font) {
+        if (font !== undefined) {
+            presenter.configuration.font = font;
+            if (font) {
+                presenter.configuration.tmp_ctx.font = font;
+            }
+        }
+    }
 
     presenter.setEraserOff = function () {
         presenter.configuration.addonMode = ModeEnum.pencil;
@@ -644,6 +781,7 @@ function AddonDrawing_create() {
             isVisible: isVisible,
             isVisibleByDefault: isVisible,
             isExerciseStarted: false,
+            font: model.Font
         };
     };
 
@@ -735,6 +873,7 @@ function AddonDrawing_create() {
             'setEraserOn': presenter.setEraserOn,
             'setEraserThickness': presenter.setEraserThickness,
             'setOpacity': presenter.setOpacity,
+            'setFont': presenter.setFont,
             'setEraserOff': presenter.setEraserOff,
             'startTextEdition': presenter.startTextEdition
         };
@@ -845,29 +984,51 @@ function AddonDrawing_create() {
         var oldMode = presenter.configuration.addonMode;
         presenter.configuration.addonMode = ModeEnum.textEdition;
 
-        presenter.displayTextFieldPopup(function(result) {
-            console.log("got text: " + result);
-            presenter.newText = result;
-            //presenter.configuration.addonMode = oldMode;
-        })
+        presenter.displayTextFieldPopup();
     }
 
-    presenter.displayTextFieldPopup = function(callback) {
-        var $textWrapper = $('<div></div>');
+    presenter.displayTextFieldPopup = function() {
         var $textfield = $('<input type="text"></input>');
         $textfield.css('position', 'absolute');
-        $textfield.css('width', '40%');
-        $textfield.css('left', '30%');
+        $textfield.css('min-width', '20px');
+        $textfield.css('width', '20px');
+        console.log("width");
+        console.log(presenter.configuration.canvas.width());
+        $textfield.css('left', Math.round(presenter.configuration.canvas.width()/2 - 10) + 'px');
         $textfield.css('top', '45%');
-        $textWrapper.append($textfield);
-        presenter.$view.append($textWrapper);
+        $textfield.css('font', presenter.configuration.font);
+        $textfield.css('color', presenter.configuration.color);
+        presenter.$view.append($textfield);
+        presenter.$textfield = $textfield;
         $textfield.focus();
 
         $textfield.blur(function(){
-            var value = $textfield.val();
-            $textWrapper.remove();
-            callback(value);
+            presenter.closeTextFieldPopup();
         });
+
+        $textfield.on('keyup', function (e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                presenter.closeTextFieldPopup();
+            } else {
+                if (presenter.configuration.font) presenter.configuration.tmp_ctx.font = presenter.configuration.font;
+                var width = presenter.configuration.tmp_ctx.measureText($textfield.val()).width + 10;
+                $textfield.css('left', Math.round((presenter.configuration.canvas.width() - width) / 2) + 'px');
+                $textfield.css('width', width+'px')
+            }
+        });
+    }
+
+    presenter.closeTextFieldPopup = function() {
+        if (presenter.$textfield == null) return;
+        var $textfield = presenter.$textfield;
+        presenter.addedText = {
+            text: $textfield.val(),
+            x: $textfield[0].offsetLeft,
+            y: $textfield[0].offsetTop + $textfield.height()
+        };
+        $textfield.remove();
+        presenter.$textfield = null;
+        presenter.drawText(true);
     }
 
     return presenter;
