@@ -519,7 +519,7 @@ function AddonDrawing_create() {
         }
     };
 
-    presenter.addImage = function (e) {
+    presenter.handleImage = function (e) {
         var reader = new FileReader();
         reader.onload = function(event){
             var img = new Image();
@@ -573,16 +573,11 @@ function AddonDrawing_create() {
             presenter.$view.find('canvas').css('border', border + 'px solid black');
         }
 
-        var $inputImageWrapper = createInputImageWrapper()
-        var $inputImage = createInputImage()
-        $inputImageWrapper.append($inputImage)
-        appendElementToPagePanel($inputImageWrapper)
-
         if (!isPreview) {
             presenter.turnOnEventListeners();
         }
 
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault || !isPreview);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
     };
 
     function createCanvas() {
@@ -590,26 +585,6 @@ function AddonDrawing_create() {
         $canvas.addClass('canvas');
         $canvas.html('element canvas is not supported by your browser');
         return $canvas
-    }
-
-    function appendElementToPagePanel(element) {
-        var $pagePanel = presenter.$view.parent().parent('.ic_page_panel');
-        $pagePanel.find('.ic_page').append(element);
-    }
-
-    function createInputImageWrapper() {
-        var $inputImageWrapper = $(document.createElement('div'));
-        $inputImageWrapper.addClass('input_image_wrapper');
-        return $inputImageWrapper
-    }
-
-    function createInputImage() {
-        var $inputImage = $(document.createElement('input'));
-        $inputImage.addClass('input_image');
-        $inputImage.attr('type', 'file');
-        $inputImage.click(presenter.clickHandler);
-        $inputImage.change(presenter.handleImage);
-        return $inputImage
     }
 
     presenter.setColor = function(color) {
@@ -802,7 +777,7 @@ function AddonDrawing_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
-            'addImage': presenter.addImage,
+            'uploadImage': presenter.uploadImage,
             'setColor': presenter.setColor,
             'addText': presenter.addTextToCanvas,
             'setThickness': presenter.setThickness,
@@ -833,7 +808,7 @@ function AddonDrawing_create() {
         var element = document.createElement("input");
         element.setAttribute("id", "importFile");
         element.setAttribute("type", "file");
-        element.onchange = presenter.addImage;
+        element.onchange = presenter.handleImage;
         element.click();
     }
 
