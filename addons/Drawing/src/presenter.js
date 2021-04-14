@@ -249,6 +249,7 @@ function AddonDrawing_create() {
     }
 
     presenter.addImage = function (img) {
+        presenter.setEraserOff();
         setAddonMode(ModeEnum.imageEdition);
         var image = {};
         image.width = img.width;
@@ -562,8 +563,6 @@ function AddonDrawing_create() {
 
     function connectMouseEvents(tmp_canvas, tmp_ctx, ctx) {
         tmp_canvas.addEventListener('mousemove', function (e) {
-            console.log("addEventListener")
-            console.log(e)
             e.stopPropagation();
 
             var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
@@ -579,8 +578,6 @@ function AddonDrawing_create() {
 
         }, false);
         $(tmp_canvas).on('mouseleave', function (e) {
-            console.log("mouseleave")
-            console.log(e)
             setOverflowWorkAround(false);
             if (isOnPencilMode() || isOnEraserMode()) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
@@ -598,8 +595,6 @@ function AddonDrawing_create() {
             presenter.points = [];
         });
         tmp_canvas.addEventListener('mousedown', function (e) {
-            console.log("mousedown")
-            console.log(e)
             setOverflowWorkAround(true);
 
             if (isOnEraserMode()) {
@@ -641,8 +636,6 @@ function AddonDrawing_create() {
         }, false);
 
         tmp_canvas.addEventListener('mouseup', function (e) {
-            console.log("mouseup")
-            console.log(e)
             setOverflowWorkAround(false);
             if (isOnPencilMode() || isOnEraserMode()) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
@@ -1126,7 +1119,7 @@ function AddonDrawing_create() {
             ctx.drawImage(presenter.configuration.tmp_canvas, 0, 0);
             tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         }
-
+        presenter.setEraserOff();
         presenter.configuration.addonMode = ModeEnum.textEdition;
         presenter.displayTextFieldPopup();
     }
@@ -1165,8 +1158,8 @@ function AddonDrawing_create() {
         var $textfield = presenter.$textfield;
         presenter.addedText = {
             text: $textfield.val(),
-            x: $textfield[0].offsetLeft,
-            y: $textfield[0].offsetTop + $textfield.height()
+            x: $textfield[0].offsetLeft - presenter.configuration.canvas[0].offsetLeft,
+            y: $textfield[0].offsetTop + $textfield.height() - presenter.configuration.canvas[0].offsetTop
         };
         $textfield.remove();
         presenter.$textfield = null;
