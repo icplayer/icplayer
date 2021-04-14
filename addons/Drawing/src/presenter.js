@@ -49,6 +49,7 @@ function AddonDrawing_create() {
     var pi2 = Math.PI * 2;
     var resizerRadius = 8;
     var rr = resizerRadius * resizerRadius;
+    presenter.newText = "";
 
     function getZoom() {
         var val = $('#_icplayer').css('zoom');
@@ -204,7 +205,9 @@ function AddonDrawing_create() {
         var tmp_canvas, tmp_ctx;
 
         var isDrawingErasingMode = presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.eraser;
-        if (presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.imageEdition) {
+        if (presenter.configuration.addonMode == ModeEnum.pencil ||
+                presenter.configuration.addonMode == ModeEnum.imageEdition ||
+                presenter.configuration.addonMode == ModeEnum.textEdition) {
             tmp_canvas = presenter.configuration.tmp_canvas;
             tmp_ctx = presenter.configuration.tmp_ctx;
             tmp_ctx.globalAlpha = presenter.configuration.opacity;
@@ -250,6 +253,7 @@ function AddonDrawing_create() {
                 tmp_ctx.stroke();
             }
         }
+
     };
 
     presenter.turnOnEventListeners = function() {
@@ -667,7 +671,8 @@ function AddonDrawing_create() {
             'setEraserOn': presenter.setEraserOn,
             'setEraserThickness': presenter.setEraserThickness,
             'setOpacity': presenter.setOpacity,
-            'setEraserOff': presenter.setEraserOff
+            'setEraserOff': presenter.setEraserOff,
+            'startTextEdition': presenter.startTextEdition
         };
 
         Commands.dispatch(commands, name, params, presenter);
@@ -770,6 +775,36 @@ function AddonDrawing_create() {
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.beforeEraserColor = color;
     };
+
+    presenter.startTextEdition = function() {
+        console.log("start text edition");
+        var oldMode = presenter.configuration.addonMode;
+        presenter.configuration.addonMode = ModeEnum.textEdition;
+
+        presenter.displayTextFieldPopup(function(result) {
+            console.log("got text: " + result);
+            presenter.newText = result;
+            //presenter.configuration.addonMode = oldMode;
+        })
+    }
+
+    presenter.displayTextFieldPopup = function(callback) {
+        var $textWrapper = $('<div></div>');
+        var $textfield = $('<input type="text"></input>');
+        $textfield.css('position', 'absolute');
+        $textfield.css('width', '40%');
+        $textfield.css('left', '30%');
+        $textfield.css('top', '45%');
+        $textWrapper.append($textfield);
+        presenter.$view.append($textWrapper);
+        $textfield.focus();
+
+        $textfield.blur(function(){
+            var value = $textfield.val();
+            $textWrapper.remove();
+            callback(value);
+        });
+    }
 
     return presenter;
 }
