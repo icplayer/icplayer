@@ -10,6 +10,9 @@ function AddonDrawing_create() {
     };
 
     function setAddonMode(addonMode) {
+        if (isOnTextEditionMode()) {
+            presenter.endTextDrawing();
+        }
         presenter.configuration.previousAddonMode = presenter.configuration.addonMode;
         presenter.configuration.addonMode = addonMode;
     }
@@ -271,6 +274,7 @@ function AddonDrawing_create() {
         if (presenter.addedText.text === undefined || presenter.addedText.text.length === 0) return;
         if (presenter.configuration.font) presenter.configuration.tmp_ctx.font = presenter.configuration.font;
         presenter.configuration.tmp_ctx.clearRect(0, 0, presenter.configuration.tmp_canvas.width, presenter.configuration.tmp_canvas.height);
+        presenter.configuration.tmp_ctx.fillStyle = presenter.configuration.color;
         presenter.configuration.tmp_ctx.fillText(presenter.addedText.text, presenter.addedText.x, presenter.addedText.y);
         if (editionMode) {
             var tmp_ctx = presenter.configuration.tmp_ctx;
@@ -311,11 +315,18 @@ function AddonDrawing_create() {
         }
     }
 
-    presenter.endTextDrawing = function() {
+    presenter.endTextDrawing = function(saveResult) {
         if (presenter.configuration.addonMode = ModeEnum.textEdition) {
+            presenter.configuration.tmp_canvas.removeEventListener('mousemove', presenter.onTextEdition, false);
             presenter.drawText(false);
             presenter.addedText = {};
             presenter.configuration.addonMode = ModeEnum.pencil;
+
+            var tmp_canvas = presenter.configuration.tmp_canvas;
+            var tmp_ctx = presenter.configuration.tmp_ctx;
+            var ctx = presenter.configuration.context;
+            ctx.drawImage(presenter.configuration.tmp_canvas, 0, 0);
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         }
     }
 
@@ -459,7 +470,9 @@ function AddonDrawing_create() {
 
         if (presenter.points.length < 4) {
             presenter.draggingText = hitText(presenter.points[0].x, presenter.points[0].y, textSizes);
-            if (!presenter.draggingText) presenter.endTextDrawing();
+            if (!presenter.draggingText) {
+                presenter.endTextDrawing();
+            }
         } else {
             if (presenter.draggingText) {
                 var dx = presenter.points[presenter.points.length - 1].x - presenter.points[presenter.points.length - 2].x;
@@ -574,7 +587,7 @@ function AddonDrawing_create() {
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
             } else if (isOnTextEditionMode()) {
-                tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
+                tmp_canvas.removeEventListener('mousemove', presenter.onTextEdition, false);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
                 presenter.drawText(true);
             }
@@ -946,10 +959,6 @@ function AddonDrawing_create() {
         };
     };
 
-    presenter.addTextToCanvas = function() {
-        console.log("Add text to canvas");
-    }
-
     presenter.executeCommand = function (name, params) {
         if (!presenter.configuration.isValid) {
             return;
@@ -966,8 +975,7 @@ function AddonDrawing_create() {
             'setEraserThickness': presenter.setEraserThickness,
             'setOpacity': presenter.setOpacity,
             'setFont': presenter.setFont,
-            'setEraserOff': presenter.setEraserOff,
-            'startTextEdition': presenter.startTextEdition
+            'setEraserOff': presenter.setEraserOff
         };
 
         addImageToCanvasIfOnImageEditionMode();
@@ -1104,7 +1112,7 @@ function AddonDrawing_create() {
         presenter.setFont(JSON.parse(state).font);
     };
 
-    presenter.startTextEdition = function() {
+    presenter.addTextToCanvas = function() {
         if (isOnTextEditionMode()) {
             var tmp_canvas = presenter.configuration.tmp_canvas;
             var tmp_ctx = presenter.configuration.tmp_ctx;
