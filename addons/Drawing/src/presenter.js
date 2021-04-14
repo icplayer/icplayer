@@ -808,6 +808,7 @@ function AddonDrawing_create() {
         var element = document.createElement("input");
         element.setAttribute("id", "importFile");
         element.setAttribute("type", "file");
+        element.setAttribute("accept", "image/png,image/jpeg");
         element.onchange = presenter.handleImage;
         element.click();
     }
