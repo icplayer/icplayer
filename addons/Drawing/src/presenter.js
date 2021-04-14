@@ -173,7 +173,7 @@ function AddonDrawing_create() {
         // clear the canvas
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         // draw image
-        tmp_ctx.drawImage(image.image, 0, 0, image.width, image.height, image.left, image.top, image.width, image.height);
+        tmp_ctx.drawImage(image.image, 0, 0, image.originalWidth, image.originalHeight, image.left, image.top, image.width, image.height);
         
         // optionally draw the draggable anchors
         if (withAnchors) {
@@ -201,7 +201,9 @@ function AddonDrawing_create() {
 
         var image = {};
         image.width = img.width;
+        image.originalWidth = img.width;
         image.height = img.height;
+        image.originalHeight = img.height;
         image.left = presenter.configuration.tmp_canvas.width / 2 - image.width / 2;
         image.top = presenter.configuration.tmp_canvas.height / 2 - image.height / 2;
         image.image = img;
@@ -209,7 +211,7 @@ function AddonDrawing_create() {
         presenter.addedImage = image;
         
         // draw for first time
-        presenter.configuration.tmp_ctx.drawImage(image.image, 0, 0, image.width, image.height, image.left, image.top, image.width, image.height);
+        presenter.configuration.tmp_ctx.drawImage(image.image, 0, 0, image.originalWidth, image.originalHeight, image.left, image.top, image.width, image.height);
 
         drawDragAnchor(image.left, image.top);
         drawDragAnchor(image.left + image.width, image.top);
@@ -276,6 +278,7 @@ function AddonDrawing_create() {
         tmp_canvas = presenter.configuration.tmp_canvas;
         tmp_ctx = presenter.configuration.tmp_ctx;
         tmp_ctx.globalAlpha = presenter.configuration.opacity;
+        tmp_ctx.fillStyle = 'black';
         // console.log("before drawing: ", presenter.points);
         presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
         if (presenter.points.length < 4) {
@@ -285,7 +288,42 @@ function AddonDrawing_create() {
             presenter.draggingImage = presenter.draggingResizer < 0 && hitImage(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
             // console.log(`dragResizer: ${presenter.draggingResizer} dragImage: ${presenter.draggingImage}`)
         } else {
-            if (presenter.draggingImage) {
+            if (presenter.draggingResizer > -1) {
+                mouseX = presenter.points[presenter.points.length - 1].x;
+                mouseY = presenter.points[presenter.points.length - 1].y;
+                switch (presenter.draggingResizer) {                    
+                    case 0:
+                        //top-left
+                        presenter.addedImage.width = (presenter.addedImage.left + presenter.addedImage.width) - mouseX;
+                        presenter.addedImage.height = (presenter.addedImage.top + presenter.addedImage.height) - mouseY;
+                        presenter.addedImage.left = mouseX;
+                        presenter.addedImage.top = mouseY;
+                        break;
+                    case 1:
+                        //top-right
+                        presenter.addedImage.width = mouseX - presenter.addedImage.left;
+                        presenter.addedImage.height = (presenter.addedImage.top + presenter.addedImage.height) - mouseY;
+                        presenter.addedImage.top = mouseY;
+                        break;
+                    case 2:
+                        //bottom-right
+                        presenter.addedImage.width = mouseX - presenter.addedImage.left;
+                        presenter.addedImage.height = mouseY - presenter.addedImage.top;
+                        break;
+                    case 3:
+                        //bottom-left
+                        presenter.addedImage.width = (presenter.addedImage.left + presenter.addedImage.width) - mouseX;
+                        presenter.addedImage.height = mouseY - presenter.addedImage.top;;
+                        presenter.addedImage.left = mouseX;
+                        break;
+                }
+
+                if(presenter.addedImage.width<25){presenter.addedImage.width=25;}
+                if(presenter.addedImage.height<25){presenter.addedImage.height=25;}
+                
+                presenter.drawImage(tmp_ctx, tmp_canvas, true, true, presenter.addedImage);
+
+            } else if (presenter.draggingImage) {
                 // console.log("inside drawing method");
                 // console.log(presenter.points);
                 var dx = presenter.points[presenter.points.length - 1].x - presenter.points[presenter.points.length - 2].x;
@@ -294,7 +332,7 @@ function AddonDrawing_create() {
                 presenter.addedImage.left += dx;
                 presenter.addedImage.top += dy;
                 // draw the image
-                presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
+                presenter.drawImage(tmp_ctx, tmp_canvas, true, true, presenter.addedImage);
             }
         }
     };
@@ -323,6 +361,10 @@ function AddonDrawing_create() {
         e.preventDefault();
         presenter.onMobilePaint(e);
     };
+
+    function finishEditImageMode () {
+        console.log("Finish the edit mode");
+    }
 
     function connectTouchEvents(tmp_canvas, tmp_ctx, ctx) {
         tmp_canvas.addEventListener('touchstart', function (e) {
@@ -371,10 +413,13 @@ function AddonDrawing_create() {
             // console.log("mouseleave");
             setOverflowWorkAround(false);
 
-            tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
-            ctx.drawImage(tmp_canvas, 0, 0);
-            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
+            if (presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.eraser) {
+                tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+                ctx.drawImage(tmp_canvas, 0, 0);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+            } else if (presenter.configuration.addonMode == ModeEnum.imageEdition) {
+                tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
+            }
             presenter.points = [];
         });
         // kliknięcie
