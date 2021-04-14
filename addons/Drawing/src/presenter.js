@@ -9,13 +9,12 @@ function AddonDrawing_create() {
         textEdition: "textEdition",
     };
 
-    function setAddonMode(addonMode) {
-        presenter.configuration.previousAddonMode = presenter.configuration.addonMode;
-        presenter.configuration.addonMode = addonMode;
+    function setDefaultAddonMode(){
+        setAddonMode(ModeEnum.pencil)
     }
 
-    function loadPreviousAddonMode() {
-        presenter.configuration.addonMode = presenter.configuration.previousAddonMode;
+    function setAddonMode(addonMode) {
+        presenter.configuration.addonMode = addonMode;
     }
 
     function isOnPencilMode() {
@@ -220,6 +219,7 @@ function AddonDrawing_create() {
     }
 
     presenter.addImage = function (img) {
+        setAddonMode(ModeEnum.imageEdition);
         var image = {};
         image.width = img.width;
         image.originalWidth = img.width;
@@ -383,13 +383,13 @@ function AddonDrawing_create() {
     }
 
     presenter.finishEditImageMode = function (tmp_ctx, tmp_canvas) {
+        setDefaultAddonMode();
         setOverflowWorkAround(false);
         tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         presenter.drawImage(tmp_ctx, tmp_canvas, false, false, presenter.addedImage);
         presenter.configuration.context.drawImage(tmp_canvas, 0, 0);
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-        loadPreviousAddonMode()
         presenter.points = [];
     }
 
@@ -420,6 +420,8 @@ function AddonDrawing_create() {
 
     function connectMouseEvents(tmp_canvas, tmp_ctx, ctx) {
         tmp_canvas.addEventListener('mousemove', function (e) {
+            console.log("addEventListener")
+            console.log(e)
             e.stopPropagation();
 
             var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
@@ -435,6 +437,8 @@ function AddonDrawing_create() {
 
         }, false);
         $(tmp_canvas).on('mouseleave', function (e) {
+            console.log("mouseleave")
+            console.log(e)
             setOverflowWorkAround(false);
 
             if (isOnPencilMode() || isOnEraserMode()) {
@@ -449,6 +453,8 @@ function AddonDrawing_create() {
             presenter.points = [];
         });
         tmp_canvas.addEventListener('mousedown', function (e) {
+            console.log("mousedown")
+            console.log(e)
             setOverflowWorkAround(true);
 
             if (isOnEraserMode()) {
@@ -485,6 +491,8 @@ function AddonDrawing_create() {
         }, false);
 
         tmp_canvas.addEventListener('mouseup', function (e) {
+            console.log("mouseup")
+            console.log(e)
             setOverflowWorkAround(false);
             if (isOnPencilMode() || isOnEraserMode()) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
@@ -559,9 +567,7 @@ function AddonDrawing_create() {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return;
         }
-
-        presenter.configuration.addonMode = ModeEnum.pencil;
-        presenter.configuration.previousAddonMode = ModeEnum.pencil;
+        setDefaultAddonMode()
         presenter.configuration.pencilThickness = presenter.configuration.thickness;
         presenter.opacityByDefault = presenter.configuration.opacity;
 
@@ -604,7 +610,7 @@ function AddonDrawing_create() {
     }
 
     presenter.setColor = function(color) {
-        setAddonMode(ModeEnum.pencil);
+        setDefaultAddonMode();
         if (typeof color === "object") color = color[0];
         presenter.configuration.thickness = presenter.configuration.pencilThickness;
         presenter.configuration.context.globalCompositeOperation = "source-over";
@@ -628,7 +634,7 @@ function AddonDrawing_create() {
     };
 
     presenter.setEraserOff = function () {
-        setAddonMode(ModeEnum.pencil);
+        setDefaultAddonMode()
         if (presenter.beforeEraserColor == undefined) {
             presenter.setColor(presenter.configuration.color);
         } else {
@@ -820,7 +826,6 @@ function AddonDrawing_create() {
     };
 
     presenter.uploadImage = function() {
-        setAddonMode(ModeEnum.imageEdition);
         var element = document.createElement("input");
         element.setAttribute("id", "importFile");
         element.setAttribute("type", "file");
