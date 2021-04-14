@@ -408,7 +408,7 @@ function AddonDrawing_create() {
         }
     };
 
-    presenter.handleImage = function (e) {
+    presenter.addImage = function (e) {
         var reader = new FileReader();
         reader.onload = function(event){
             var img = new Image();
@@ -438,11 +438,9 @@ function AddonDrawing_create() {
         presenter.configuration.pencilThickness = presenter.configuration.thickness;
         presenter.opacityByDefault = presenter.configuration.opacity;
 
-        presenter.$view.find('.drawing').append("<canvas class='canvas'>element canvas is not supported by your browser</canvas>");
-        var $inputImage = $('<input class="input_image" type="file" id="myfile" name="upload" style="border: solid 1px red"/>');
-        $inputImage.click(presenter.clickHandler);
-        $inputImage.change(presenter.handleImage);
-        presenter.$view.find('.drawing').append($inputImage);
+        var $drawing = presenter.$view.find('.drawing')
+        var $canvas = createCanvas()
+        $drawing.append($canvas)
 
         var border = presenter.configuration.border;
 
@@ -464,12 +462,44 @@ function AddonDrawing_create() {
             presenter.$view.find('canvas').css('border', border + 'px solid black');
         }
 
+        var $inputImageWrapper = createInputImageWrapper()
+        var $inputImage = createInputImage()
+        $inputImageWrapper.append($inputImage)
+        appendElementToPagePanel($inputImageWrapper)
+
         if (!isPreview) {
             presenter.turnOnEventListeners();
         }
 
-        presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
+        presenter.setVisibility(presenter.configuration.isVisibleByDefault || !isPreview);
     };
+
+    function createCanvas() {
+        var $canvas = $(document.createElement('canvas'));
+        $canvas.addClass('canvas');
+        $canvas.html('element canvas is not supported by your browser');
+        return $canvas
+    }
+
+    function appendElementToPagePanel(element) {
+        var $pagePanel = presenter.$view.parent().parent('.ic_page_panel');
+        $pagePanel.find('.ic_page').append(element);
+    }
+
+    function createInputImageWrapper() {
+        var $inputImageWrapper = $(document.createElement('div'));
+        $inputImageWrapper.addClass('input_image_wrapper');
+        return $inputImageWrapper
+    }
+
+    function createInputImage() {
+        var $inputImage = $(document.createElement('input'));
+        $inputImage.addClass('input_image');
+        $inputImage.attr('type', 'file');
+        $inputImage.click(presenter.clickHandler);
+        $inputImage.change(presenter.handleImage);
+        return $inputImage
+    }
 
     presenter.setColor = function(color) {
         if (typeof color === "object") color = color[0];
@@ -661,6 +691,7 @@ function AddonDrawing_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
+            'addImage': presenter.addImage,
             'setColor': presenter.setColor,
             'addText': presenter.addTextToCanvas,
             'setThickness': presenter.setThickness,
@@ -686,6 +717,14 @@ function AddonDrawing_create() {
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
     };
+
+    presenter.uploadImage = function() {
+        var element = document.createElement("input");
+        element.setAttribute("id", "importFile");
+        element.setAttribute("type", "file");
+        element.onchange = presenter.addImage;
+        element.click();
+    }
 
     presenter.reset = function() {
         presenter.configuration.context.clearRect(0, 0, presenter.configuration.canvas[0].width, presenter.configuration.canvas[0].height);
