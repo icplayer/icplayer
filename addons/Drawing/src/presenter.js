@@ -153,6 +153,30 @@ function AddonDrawing_create() {
         presenter.onPaint(e);
     };
 
+    presenter.onMobileTextEdition = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var tmp_canvas = presenter.configuration.tmp_canvas;
+
+        var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
+        var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
+
+        if (presenter.zoom !== 1) {
+            x = x * (1 / presenter.zoom);
+            y = y * (1 / presenter.zoom);
+        }
+
+        var scale = getScale();
+        if(scale.X!==1.0 || scale.Y!==1.0){
+            x = x/scale.X;
+            y = y/scale.Y;
+        }
+
+        presenter.mouse.x = x;
+        presenter.mouse.y = y;
+        presenter.onTextEdition(e);
+    };
+
     function anchorHitTest(x, y, image) {
 
         var dx, dy;
@@ -250,7 +274,6 @@ function AddonDrawing_create() {
 
     presenter.drawText = function(editionMode) {
         if (presenter.addedText.text === undefined || presenter.addedText.text.length === 0) return;
-        console.log(presenter.configuration.tmp_ctx.font);
         if (presenter.configuration.font) presenter.configuration.tmp_ctx.font = presenter.configuration.font;
         presenter.configuration.tmp_ctx.clearRect(0, 0, presenter.configuration.tmp_canvas.width, presenter.configuration.tmp_canvas.height);
         presenter.configuration.tmp_ctx.fillText(presenter.addedText.text, presenter.addedText.x, presenter.addedText.y);
@@ -410,7 +433,6 @@ function AddonDrawing_create() {
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, true, presenter.addedImage);
             }
         }
-
     };
 
     function hitText (x, y, textSizes) {
@@ -423,7 +445,6 @@ function AddonDrawing_create() {
     }
 
     presenter.onTextEdition = function(e) {
-        console.log("on text edition");
         e.stopPropagation();
         e.preventDefault();
         if (presenter.addedText.text === undefined || presenter.addedText.text.length === 0) {
@@ -503,19 +524,24 @@ function AddonDrawing_create() {
 
             presenter.zoom = getZoom();
             presenter.isStarted = true;
-            presenter.onMobilePaint(e);
-            tmp_canvas.addEventListener('touchmove', presenter.onMobilePaintWithoutPropagation);
+            if (isOnPencilMode() || isOnEraserMode()) {
+                presenter.onMobilePaint(e);
+                tmp_canvas.addEventListener('touchmove', presenter.onMobilePaintWithoutPropagation);
+            } else if (isOnTextEditionMode()) {
+                presenter.onMobileTextEdition(e);
+                tmp_canvas.addEventListener('touchmove', presenter.onMobileTextEdition);
+            }
         }, false);
 
         tmp_canvas.addEventListener('touchend', function (e) {
             setOverflowWorkAround(false);
 
             tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaintWithoutPropagation, false);
-            console.log("touchmove");
-            presenter.endTextDrawing();
-            ctx.drawImage(tmp_canvas, 0, 0);
-            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
+            tmp_canvas.removeEventListener('touchmove', presenter.onMobileTextEdition, false);
+            if (isOnPencilMode() || isOnEraserMode()) {
+                ctx.drawImage(tmp_canvas, 0, 0);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+            }
             presenter.points = [];
         }, false);
     }
@@ -570,7 +596,7 @@ function AddonDrawing_create() {
             } else if (isOnImageEditionMode()) {
                 tmp_canvas.addEventListener('mousemove', presenter.onImageEdition, false);
             }
-            else if (presenter.configuration.addonMode == ModeEnum.textEdition) {
+            else if (isOnTextEditionMode()) {
                 tmp_canvas.addEventListener('mousemove', presenter.onTextEdition, false);
             }
             presenter.isStarted = true;
@@ -589,7 +615,7 @@ function AddonDrawing_create() {
                 presenter.onPaint(e);
             } else if (isOnImageEditionMode()) {
                 presenter.onImageEdition(e);
-            } else if (presenter.configuration.addonMode == ModeEnum.textEdition) {
+            } else if (isOnTextEditionMode()) {
                 presenter.onTextEdition(e);
             }
         }, false);
@@ -604,7 +630,7 @@ function AddonDrawing_create() {
                 tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
-            }else if (presenter.configuration.addonMode == ModeEnum.textEdition) {
+            }else if (isOnTextEditionMode) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onTextEdition, false);
             }
             presenter.points = [];
@@ -998,7 +1024,8 @@ function AddonDrawing_create() {
             pencilThickness = presenter.configuration.pencilThickness,
             eraserThickness = presenter.configuration.eraserThickness,
             c = presenter.$view.find("canvas")[0],
-            data = c.toDataURL("image/png");
+            data = c.toDataURL("image/png"),
+            font = presenter.configuration.font;
 
         return JSON.stringify({
             addonMode: addonMode,
@@ -1007,7 +1034,8 @@ function AddonDrawing_create() {
             eraserThickness: eraserThickness,
             data: data,
             isVisible: presenter.configuration.isVisible,
-            opacity: presenter.configuration.opacity
+            opacity: presenter.configuration.opacity,
+            font: font
         });
     };
 
@@ -1019,8 +1047,26 @@ function AddonDrawing_create() {
         return parsedState;
     };
 
+    presenter.upgradeStateForImageAndText = function (parsedState) {
+        if (parsedState.font == undefined) {
+            parsedState.font = "";
+        }
+
+        if (parsedState.addonMode == undefined) {
+            if (parsedState.isPencil !== undefined && !parsedState.isPencil) {
+                parsedState.addonMode = "eraser";
+            } else {
+                parsedState.addonMode = "pencil";
+            }
+        }
+
+        return parsedState;
+    }
+
     presenter.upgradeState = function (parsedState) {
-        return presenter.upgradeStateForOpacity(parsedState);
+        var upgradedState = presenter.upgradeStateForOpacity(parsedState);
+        upgradedState = presenter.upgradeStateForImageAndText(upgradedState);
+        return upgradedState;
     };
 
     presenter.setState = function(state) {
@@ -1056,13 +1102,20 @@ function AddonDrawing_create() {
         }
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.beforeEraserColor = color;
+        presenter.setFont(JSON.parse(state).font);
     };
 
     presenter.startTextEdition = function() {
-        console.log("start text edition");
-        var oldMode = presenter.configuration.addonMode;
-        presenter.configuration.addonMode = ModeEnum.textEdition;
+        if (isOnTextEditionMode()) {
+            var tmp_canvas = presenter.configuration.tmp_canvas;
+            var tmp_ctx = presenter.configuration.tmp_ctx;
+            var ctx = presenter.configuration.context;
+            presenter.endTextDrawing();
+            ctx.drawImage(presenter.configuration.tmp_canvas, 0, 0);
+            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+        }
 
+        presenter.configuration.addonMode = ModeEnum.textEdition;
         presenter.displayTextFieldPopup();
     }
 
@@ -1071,8 +1124,6 @@ function AddonDrawing_create() {
         $textfield.css('position', 'absolute');
         $textfield.css('min-width', '20px');
         $textfield.css('width', '20px');
-        console.log("width");
-        console.log(presenter.configuration.canvas.width());
         $textfield.css('left', Math.round(presenter.configuration.canvas.width()/2 - 10) + 'px');
         $textfield.css('top', '45%');
         $textfield.css('font', presenter.configuration.font);
