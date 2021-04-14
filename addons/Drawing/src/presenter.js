@@ -179,6 +179,30 @@ function AddonDrawing_create() {
         presenter.onTextEdition(e);
     };
 
+    presenter.onMobileImageEdition = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var tmp_canvas = presenter.configuration.tmp_canvas;
+
+        var x = e.targetTouches[0].pageX - $(tmp_canvas).offset().left;
+        var y = e.targetTouches[0].pageY - $(tmp_canvas).offset().top;
+
+        if (presenter.zoom !== 1) {
+            x = x * (1 / presenter.zoom);
+            y = y * (1 / presenter.zoom);
+        }
+
+        var scale = getScale();
+        if(scale.X!==1.0 || scale.Y!==1.0){
+            x = x/scale.X;
+            y = y/scale.Y;
+        }
+
+        presenter.mouse.x = x;
+        presenter.mouse.y = y;
+        presenter.onImageEdition(e);
+    };
+
     function anchorHitTest(x, y, image) {
 
         var dx, dy;
@@ -545,6 +569,9 @@ function AddonDrawing_create() {
             } else if (isOnTextEditionMode()) {
                 presenter.onMobileTextEdition(e);
                 tmp_canvas.addEventListener('touchmove', presenter.onMobileTextEdition);
+            } else if (isOnImageEditionMode()) {
+                presenter.onMobileImageEdition(e);
+                tmp_canvas.addEventListener('touchmove', presenter.onMobileImageEdition);
             }
         }, false);
 
@@ -553,9 +580,14 @@ function AddonDrawing_create() {
 
             tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaintWithoutPropagation, false);
             tmp_canvas.removeEventListener('touchmove', presenter.onMobileTextEdition, false);
+            
             if (isOnPencilMode() || isOnEraserMode()) {
                 ctx.drawImage(tmp_canvas, 0, 0);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+            } else if (isOnImageEditionMode()) {
+                tmp_canvas.removeEventListener('touchmove', presenter.onMobileImageEdition, false);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+                presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
             }
             presenter.points = [];
         }, false);
