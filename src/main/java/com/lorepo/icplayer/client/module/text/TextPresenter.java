@@ -128,7 +128,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void connectHandlers() {
-		EventBus eventBus = playerServices.getEventBus();
+		EventBus eventBus = playerServices.getEventBusService().getEventBus();
 
 		eventBus.addHandler(ShowErrorsEvent.TYPE, new ShowErrorsEvent.Handler() {
 			@Override
