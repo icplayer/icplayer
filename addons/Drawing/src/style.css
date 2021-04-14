@@ -12,10 +12,3 @@
 .drawing .tmp_canvas:active {
     cursor: crosshair;
 }
-
-.input_image {
-    position: absolute;
-    left: 10px;
-    top: 10px;
-    z-index: 100;
-}

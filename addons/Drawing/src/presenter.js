@@ -9,6 +9,31 @@ function AddonDrawing_create() {
         textEdition: "textEdition",
     };
 
+    function setAddonMode(addonMode) {
+        presenter.configuration.previousAddonMode = presenter.configuration.addonMode;
+        presenter.configuration.addonMode = addonMode;
+    }
+
+    function loadPreviousAddonMode() {
+        presenter.configuration.addonMode = presenter.configuration.previousAddonMode;
+    }
+
+    function isOnPencilMode() {
+        return presenter.configuration.addonMode === ModeEnum.pencil;
+    }
+
+    function isOnEraserMode() {
+        return presenter.configuration.addonMode === ModeEnum.eraser;
+    }
+
+    function isOnImageEditionMode() {
+        return presenter.configuration.addonMode === ModeEnum.imageEdition;
+    }
+
+    function isOnTextEditionMode() {
+        return presenter.configuration.addonMode === ModeEnum.textEdition;
+    }
+
     // work-around for double line in android browser
     function setOverflowWorkAround(turnOn) {
 
@@ -103,7 +128,7 @@ function AddonDrawing_create() {
         e.stopPropagation();
         e.preventDefault();
         var tmp_canvas;
-        if (presenter.configuration.addonMode == ModeEnum.pencil) {
+        if (isOnPencilMode()) {
             tmp_canvas = presenter.configuration.tmp_canvas;
         } else {
             tmp_canvas = presenter.configuration.canvas;
@@ -131,7 +156,6 @@ function AddonDrawing_create() {
     function anchorHitTest(x, y, image) {
 
         var dx, dy;
-        // console.log(`mouse:[${x},${y}] image:[${image.left},${image.top}]`);
     
         // top-left
         dx = x - image.left;
@@ -176,7 +200,7 @@ function AddonDrawing_create() {
         // clear the canvas
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         // draw image
-        tmp_ctx.drawImage(image.image, 0, 0, image.width, image.height, image.left, image.top, image.width, image.height);
+        tmp_ctx.drawImage(image.image, 0, 0, image.originalWidth, image.originalHeight, image.left, image.top, image.width, image.height);
         
         // optionally draw the draggable anchors
         if (withAnchors) {
@@ -187,24 +211,28 @@ function AddonDrawing_create() {
         }
 
         // optionally draw the connecting anchor lines
-        // if (withBorders) {
-        //     ctx.beginPath();
-        //     ctx.moveTo(imageX, imageY);
-        //     ctx.lineTo(imageRight, imageY);
-        //     ctx.lineTo(imageRight, imageBottom);
-        //     ctx.lineTo(imageX, imageBottom);
-        //     ctx.closePath();
-        //     ctx.stroke();
-        // }
+        if (withBorders) {
+            tmp_ctx.beginPath();
+            tmp_ctx.moveTo(image.left, image.top);
+            tmp_ctx.lineTo(image.left + image.width, image.top);
+            tmp_ctx.lineTo(image.left + image.width, image.top + image.height);
+            tmp_ctx.lineTo(image.left, image.top + image.height);
+            tmp_ctx.closePath();
+            tmp_ctx.stroke();
+        }
     }
 
     presenter.addImage = function (img) {
-        presenter.configuration.previousAddonMode = presenter.configuration.addonMode;
-        presenter.configuration.addonMode = ModeEnum.imageEdition;
+        if (isOnImageEditionMode()){
+            presenter.finishEditImageMode(presenter.configuration.tmp_ctx, presenter.configuration.tmp_canvas)
+        }
+        setAddonMode(ModeEnum.imageEdition)
 
         var image = {};
         image.width = img.width;
+        image.originalWidth = img.width;
         image.height = img.height;
+        image.originalHeight = img.height;
         image.left = presenter.configuration.tmp_canvas.width / 2 - image.width / 2;
         image.top = presenter.configuration.tmp_canvas.height / 2 - image.height / 2;
         image.image = img;
@@ -212,7 +240,7 @@ function AddonDrawing_create() {
         presenter.addedImage = image;
         
         // draw for first time
-        presenter.configuration.tmp_ctx.drawImage(image.image, 0, 0, image.width, image.height, image.left, image.top, image.width, image.height);
+        presenter.configuration.tmp_ctx.drawImage(image.image, 0, 0, image.originalWidth, image.originalHeight, image.left, image.top, image.width, image.height);
 
         drawDragAnchor(image.left, image.top);
         drawDragAnchor(image.left + image.width, image.top);
@@ -278,11 +306,11 @@ function AddonDrawing_create() {
         e.preventDefault();
         var tmp_canvas, tmp_ctx;
 
-        if (presenter.configuration.addonMode == ModeEnum.pencil) {
+        if (isOnPencilMode()) {
             tmp_canvas = presenter.configuration.tmp_canvas;
             tmp_ctx = presenter.configuration.tmp_ctx;
             tmp_ctx.globalAlpha = presenter.configuration.opacity;
-        } else if (presenter.configuration.addonMode == ModeEnum.eraser) {
+        } else if (isOnEraserMode()) {
             tmp_canvas = presenter.configuration.canvas;
             tmp_ctx = presenter.configuration.context;
         }
@@ -294,7 +322,6 @@ function AddonDrawing_create() {
         tmp_ctx.fillStyle = presenter.configuration.color;
 
         presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
-        // console.log("before drawing line: ", presenter.points);
         if (presenter.points.length < 3) {
             var b = presenter.points[0];
             tmp_ctx.beginPath();
@@ -306,7 +333,6 @@ function AddonDrawing_create() {
 
             tmp_ctx.beginPath();
             tmp_ctx.moveTo(presenter.points[0].x, presenter.points[0].y);
-            // console.log(presenter.points);
             for (var i = 1; i < presenter.points.length - 2; i++) {
                 var c = (presenter.points[i].x + presenter.points[i + 1].x) / 2;
                 var d = (presenter.points[i].y + presenter.points[i + 1].y) / 2;
@@ -332,25 +358,56 @@ function AddonDrawing_create() {
         tmp_canvas = presenter.configuration.tmp_canvas;
         tmp_ctx = presenter.configuration.tmp_ctx;
         tmp_ctx.globalAlpha = presenter.configuration.opacity;
-        // console.log("before drawing: ", presenter.points);
         presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
         if (presenter.points.length < 4) {
-            // mouse down
-            // console.log("Mouse down");
             presenter.draggingResizer = anchorHitTest(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
             presenter.draggingImage = presenter.draggingResizer < 0 && hitImage(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
-            // console.log(`dragResizer: ${presenter.draggingResizer} dragImage: ${presenter.draggingImage}`)
+            if( presenter.draggingResizer == -1 && !presenter.draggingImage){
+                presenter.finishEditImageMode(tmp_ctx, tmp_canvas);
+            }
         } else {
-            if (presenter.draggingImage) {
-                // console.log("inside drawing method");
-                // console.log(presenter.points);
+            if (presenter.draggingResizer > -1) {
+                mouseX = presenter.points[presenter.points.length - 1].x;
+                mouseY = presenter.points[presenter.points.length - 1].y;
+                switch (presenter.draggingResizer) {                    
+                    case 0:
+                        //top-left
+                        presenter.addedImage.width = (presenter.addedImage.left + presenter.addedImage.width) - mouseX;
+                        presenter.addedImage.height = (presenter.addedImage.top + presenter.addedImage.height) - mouseY;
+                        presenter.addedImage.left = mouseX;
+                        presenter.addedImage.top = mouseY;
+                        break;
+                    case 1:
+                        //top-right
+                        presenter.addedImage.width = mouseX - presenter.addedImage.left;
+                        presenter.addedImage.height = (presenter.addedImage.top + presenter.addedImage.height) - mouseY;
+                        presenter.addedImage.top = mouseY;
+                        break;
+                    case 2:
+                        //bottom-right
+                        presenter.addedImage.width = mouseX - presenter.addedImage.left;
+                        presenter.addedImage.height = mouseY - presenter.addedImage.top;
+                        break;
+                    case 3:
+                        //bottom-left
+                        presenter.addedImage.width = (presenter.addedImage.left + presenter.addedImage.width) - mouseX;
+                        presenter.addedImage.height = mouseY - presenter.addedImage.top;;
+                        presenter.addedImage.left = mouseX;
+                        break;
+                }
+
+                if(presenter.addedImage.width<25){presenter.addedImage.width=25;}
+                if(presenter.addedImage.height<25){presenter.addedImage.height=25;}
+                
+                presenter.drawImage(tmp_ctx, tmp_canvas, true, true, presenter.addedImage);
+
+            } else if (presenter.draggingImage) {
                 var dx = presenter.points[presenter.points.length - 1].x - presenter.points[presenter.points.length - 2].x;
                 var dy = presenter.points[presenter.points.length - 1].y - presenter.points[presenter.points.length - 2].y;
-                // console.log(`delta move: [${dx},${dy}]`);
                 presenter.addedImage.left += dx;
                 presenter.addedImage.top += dy;
                 // draw the image
-                presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
+                presenter.drawImage(tmp_ctx, tmp_canvas, true, true, presenter.addedImage);
             }
         }
 
@@ -425,11 +482,22 @@ function AddonDrawing_create() {
         presenter.onMobilePaint(e);
     };
 
+    presenter.finishEditImageMode = function (tmp_ctx, tmp_canvas) {
+        setOverflowWorkAround(false);
+        tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
+        tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+        presenter.drawImage(tmp_ctx, tmp_canvas, false, false, presenter.addedImage);
+        presenter.configuration.context.drawImage(tmp_canvas, 0, 0);
+        tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+        loadPreviousAddonMode()
+        presenter.points = [];
+    }
+
     function connectTouchEvents(tmp_canvas, tmp_ctx, ctx) {
         tmp_canvas.addEventListener('touchstart', function (e) {
             setOverflowWorkAround(true);
 
-            if (presenter.configuration.addonMode == ModeEnum.eraser) {
+            if (isOnEraserMode()) {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
             }
 
@@ -454,7 +522,6 @@ function AddonDrawing_create() {
 
     function connectMouseEvents(tmp_canvas, tmp_ctx, ctx) {
         tmp_canvas.addEventListener('mousemove', function (e) {
-            // console.log("mousemove");
             e.stopPropagation();
 
             var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
@@ -469,25 +536,27 @@ function AddonDrawing_create() {
             presenter.mouse.y = y;
 
         }, false);
-        // wyjście poza tmp canvas
         $(tmp_canvas).on('mouseleave', function (e) {
-            // console.log("mouseleave");
             setOverflowWorkAround(false);
-
-            tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
-            console.log("mousemove");
-            presenter.endTextDrawing();
-            ctx.drawImage(tmp_canvas, 0, 0);
-            tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
+            if (isOnPencilMode() || isOnEraserMode()) {
+                tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
+                ctx.drawImage(tmp_canvas, 0, 0);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+            } else if (isOnImageEditionMode()) {
+                tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+                presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
+            } else if (isOnTextEditionMode()) {
+                tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+                presenter.drawText(true);
+            }
             presenter.points = [];
         });
-        // kliknięcie
         tmp_canvas.addEventListener('mousedown', function (e) {
-            // console.log("mousedown");
             setOverflowWorkAround(true);
 
-            if (presenter.configuration.addonMode == ModeEnum.eraser) {
+            if (isOnEraserMode()) {
                 presenter.configuration.context.globalCompositeOperation = "destination-out";
             }
 
@@ -496,10 +565,9 @@ function AddonDrawing_create() {
                 presenter.zoom = 1;
             }
 
-            if (presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.eraser)
-            {
+            if (isOnPencilMode() || isOnEraserMode()) {
                 tmp_canvas.addEventListener('mousemove', presenter.onPaint, false);
-            } else if (presenter.configuration.addonMode == ModeEnum.imageEdition) {
+            } else if (isOnImageEditionMode()) {
                 tmp_canvas.addEventListener('mousemove', presenter.onImageEdition, false);
             }
             else if (presenter.configuration.addonMode == ModeEnum.textEdition) {
@@ -517,10 +585,9 @@ function AddonDrawing_create() {
 
             presenter.points.push({x: x, y: y});
 
-            if (presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.eraser)
-            {
+            if (isOnPencilMode() || isOnEraserMode()) {
                 presenter.onPaint(e);
-            } else if (presenter.configuration.addonMode == ModeEnum.imageEdition) {
+            } else if (isOnImageEditionMode()) {
                 presenter.onImageEdition(e);
             } else if (presenter.configuration.addonMode == ModeEnum.textEdition) {
                 presenter.onTextEdition(e);
@@ -528,14 +595,15 @@ function AddonDrawing_create() {
         }, false);
 
         tmp_canvas.addEventListener('mouseup', function (e) {
-            // console.log("mouseup");
             setOverflowWorkAround(false);
-            if (presenter.configuration.addonMode == ModeEnum.pencil || presenter.configuration.addonMode == ModeEnum.eraser) {
+            if (isOnPencilMode() || isOnEraserMode()) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onPaint, false);
                 ctx.drawImage(tmp_canvas, 0, 0);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-            } else if (presenter.configuration.addonMode == ModeEnum.imageEdition) {
+            } else if (isOnImageEditionMode()) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
+                tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+                presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
             }else if (presenter.configuration.addonMode == ModeEnum.textEdition) {
                 tmp_canvas.removeEventListener('mousemove', presenter.onTextEdition, false);
             }
@@ -578,13 +646,6 @@ function AddonDrawing_create() {
         canvas.width = con.width();
         canvas.height = con.height();
     }
-
-    presenter.clickHandler = function (e) {
-        // console.log("input addon clicked");
-        if (e !== undefined) {
-            e.stopPropagation();
-        }
-    };
 
     presenter.handleImage = function (e) {
         var reader = new FileReader();
@@ -634,11 +695,9 @@ function AddonDrawing_create() {
         presenter.configuration.pencilThickness = presenter.configuration.thickness;
         presenter.opacityByDefault = presenter.configuration.opacity;
 
-        presenter.$view.find('.drawing').append("<canvas class='canvas'>element canvas is not supported by your browser</canvas>");
-        var $inputImage = $('<input class="input_image" type="file" id="myfile" name="upload" style="border: solid 1px red"/>');
-        $inputImage.click(presenter.clickHandler);
-        $inputImage.change(presenter.handleImage);
-        presenter.$view.find('.drawing').append($inputImage);
+        var $drawing = presenter.$view.find('.drawing')
+        var $canvas = createCanvas()
+        $drawing.append($canvas)
 
         var border = presenter.configuration.border;
 
@@ -667,10 +726,17 @@ function AddonDrawing_create() {
         presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
     };
 
-    presenter.setColor = function(color) {
-        if (typeof color === "object") color = color[0];
+    function createCanvas() {
+        var $canvas = $(document.createElement('canvas'));
+        $canvas.addClass('canvas');
+        $canvas.html('element canvas is not supported by your browser');
+        return $canvas
+    }
 
-        presenter.configuration.addonMode = ModeEnum.pencil;
+    presenter.setColor = function(color) {
+        if (typeof color === "object")
+            color = color[0];
+        setAddonMode(ModeEnum.pencil);
         presenter.configuration.thickness = presenter.configuration.pencilThickness;
         presenter.configuration.context.globalCompositeOperation = "source-over";
         presenter.configuration.color = presenter.parseColor(color).color;
@@ -681,7 +747,7 @@ function AddonDrawing_create() {
         if (typeof thickness === "object") thickness = thickness[0];
 
         presenter.configuration.pencilThickness = presenter.parseThickness(thickness).thickness;
-        if (presenter.configuration.addonMode == ModeEnum.pencil) {
+        if (isOnPencilMode()) {
             presenter.configuration.thickness = presenter.configuration.pencilThickness;
         }
     };
@@ -702,7 +768,7 @@ function AddonDrawing_create() {
     }
 
     presenter.setEraserOff = function () {
-        presenter.configuration.addonMode = ModeEnum.pencil;
+        setAddonMode(ModeEnum.pencil);
         if (presenter.beforeEraserColor == undefined) {
             presenter.setColor(presenter.configuration.color);
         } else {
@@ -711,7 +777,10 @@ function AddonDrawing_create() {
     };
 
     presenter.setEraserOn = function() {
-        presenter.configuration.addonMode = ModeEnum.eraser;
+        if (isOnImageEditionMode()){
+            presenter.finishEditImageMode(presenter.configuration.tmp_ctx, presenter.configuration.tmp_canvas)
+        }
+        setAddonMode(ModeEnum.eraser);
 
         presenter.configuration.thickness = presenter.configuration.eraserThickness;
 
@@ -721,7 +790,7 @@ function AddonDrawing_create() {
 
     presenter.setEraserThickness = function(thickness) {
         presenter.configuration.eraserThickness = presenter.parseThickness(thickness).thickness;
-        if (presenter.configuration.addonMode == ModeEnum.eraser) {
+        if (isOnEraserMode()) {
             presenter.configuration.thickness = presenter.configuration.eraserThickness;
         }
     };
@@ -867,6 +936,7 @@ function AddonDrawing_create() {
         var commands = {
             'show': presenter.show,
             'hide': presenter.hide,
+            'uploadImage': presenter.uploadImage,
             'setColor': presenter.setColor,
             'addText': presenter.addTextToCanvas,
             'setThickness': presenter.setThickness,
@@ -894,6 +964,15 @@ function AddonDrawing_create() {
         presenter.setVisibility(false);
         presenter.configuration.isVisible = false;
     };
+
+    presenter.uploadImage = function() {
+        var element = document.createElement("input");
+        element.setAttribute("id", "importFile");
+        element.setAttribute("type", "file");
+        element.setAttribute("accept", "image/png,image/jpeg");
+        element.onchange = presenter.handleImage;
+        element.click();
+    }
 
     presenter.reset = function() {
         presenter.configuration.context.clearRect(0, 0, presenter.configuration.canvas[0].width, presenter.configuration.canvas[0].height);
@@ -969,7 +1048,7 @@ function AddonDrawing_create() {
         presenter.configuration.addonMode = addonMode;
         presenter.isStarted = true;
         presenter.configuration.opacity = parsedState.opacity;
-        if (addonMode == ModeEnum.pencil) {
+        if (isOnPencilMode()) {
             presenter.setColor(color);
         } else {
             presenter.configuration.thickness = presenter.configuration.eraserThickness;
