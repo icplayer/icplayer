@@ -220,11 +220,6 @@ function AddonDrawing_create() {
     }
 
     presenter.addImage = function (img) {
-        if (isOnImageEditionMode()){
-            presenter.finishEditImageMode(presenter.configuration.tmp_ctx, presenter.configuration.tmp_canvas)
-        }
-        setAddonMode(ModeEnum.imageEdition)
-
         var image = {};
         image.width = img.width;
         image.originalWidth = img.width;
@@ -380,6 +375,12 @@ function AddonDrawing_create() {
         e.preventDefault();
         presenter.onMobilePaint(e);
     };
+
+    function addImageToCanvasIfOnImageEditionMode(){
+        if (isOnImageEditionMode()){
+            presenter.finishEditImageMode(presenter.configuration.tmp_ctx, presenter.configuration.tmp_canvas);
+        }
+    }
 
     presenter.finishEditImageMode = function (tmp_ctx, tmp_canvas) {
         setOverflowWorkAround(false);
@@ -603,9 +604,8 @@ function AddonDrawing_create() {
     }
 
     presenter.setColor = function(color) {
-        if (typeof color === "object")
-            color = color[0];
         setAddonMode(ModeEnum.pencil);
+        if (typeof color === "object") color = color[0];
         presenter.configuration.thickness = presenter.configuration.pencilThickness;
         presenter.configuration.context.globalCompositeOperation = "source-over";
         presenter.configuration.color = presenter.parseColor(color).color;
@@ -637,13 +637,9 @@ function AddonDrawing_create() {
     };
 
     presenter.setEraserOn = function() {
-        if (isOnImageEditionMode()){
-            presenter.finishEditImageMode(presenter.configuration.tmp_ctx, presenter.configuration.tmp_canvas)
-        }
         setAddonMode(ModeEnum.eraser);
 
         presenter.configuration.thickness = presenter.configuration.eraserThickness;
-
         presenter.configuration.context.globalCompositeOperation = "destination-out";
         presenter.beforeEraserColor = presenter.configuration.color;
     };
@@ -805,6 +801,7 @@ function AddonDrawing_create() {
             'setEraserOff': presenter.setEraserOff
         };
 
+        addImageToCanvasIfOnImageEditionMode();
         Commands.dispatch(commands, name, params, presenter);
     };
 
@@ -823,6 +820,7 @@ function AddonDrawing_create() {
     };
 
     presenter.uploadImage = function() {
+        setAddonMode(ModeEnum.imageEdition);
         var element = document.createElement("input");
         element.setAttribute("id", "importFile");
         element.setAttribute("type", "file");
@@ -849,6 +847,7 @@ function AddonDrawing_create() {
         if (!presenter.isStarted) {
             return;
         }
+        addImageToCanvasIfOnImageEditionMode();
 
         var addonMode = presenter.configuration.addonMode,
             color = presenter.configuration.color,
