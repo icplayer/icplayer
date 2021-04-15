@@ -528,6 +528,17 @@ function AddonDrawing_create() {
         }
     }
 
+    presenter.removeImage = function (e) {
+        var tmp_canvas, tmp_ctx;
+        tmp_canvas = presenter.configuration.tmp_canvas;
+        tmp_ctx = presenter.configuration.tmp_ctx;
+        
+        const key = e.key;
+        if (key === "Delete" && presenter.configuration.addonMode === ModeEnum.imageEdition) {
+            presenter.finishEditImageMode(tmp_ctx, tmp_canvas, true);
+        }
+        e.stopPropagation();
+    }
 
     presenter.turnOnEventListeners = function() {
         var tmp_canvas = presenter.configuration.tmp_canvas,
@@ -547,14 +558,7 @@ function AddonDrawing_create() {
         }, false);
         
         // KEYBOARD DELETE EDIT IMAGE 
-        document.addEventListener('keydown', function(e) {
-            const key = e.key;
-            if (key === "Delete" && presenter.configuration.addonMode === ModeEnum.imageEdition) {
-                // presenter.configuration.tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-                presenter.finishEditImageMode(tmp_ctx, tmp_canvas, true);
-            }
-            e.stopPropagation();
-        }, false);
+        document.addEventListener('keydown', presenter.removeImage, false);
     };
 
     presenter.onMobilePaintWithoutPropagation = function (e) {
@@ -1253,6 +1257,13 @@ function AddonDrawing_create() {
         $textfield.remove();
         presenter.$textfield = null;
         presenter.drawText(true);
+    }
+
+    presenter.destroy = function () {
+        document.removeEventListener('keydown', presenter.removeImage, false);
+        presenter.configuration.tmp_ctx.removeEventListener('click', function(e) {
+            e.stopPropagation();
+        }, false);
     }
 
     return presenter;
