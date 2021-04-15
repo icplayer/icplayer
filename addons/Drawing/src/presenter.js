@@ -580,12 +580,12 @@ function AddonDrawing_create() {
 
             tmp_canvas.removeEventListener('touchmove', presenter.onMobilePaintWithoutPropagation, false);
             tmp_canvas.removeEventListener('touchmove', presenter.onMobileTextEdition, false);
+            tmp_canvas.removeEventListener('touchmove', presenter.onMobileImageEdition, false);
             
             if (isOnPencilMode() || isOnEraserMode()) {
                 ctx.drawImage(tmp_canvas, 0, 0);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
             } else if (isOnImageEditionMode()) {
-                tmp_canvas.removeEventListener('touchmove', presenter.onMobileImageEdition, false);
                 tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, false, presenter.addedImage);
             }
