@@ -275,19 +275,36 @@ function AddonDrawing_create() {
     presenter.addImage = function (img) {
         presenter.setEraserOff();
         setAddonMode(ModeEnum.imageEdition);
+        var tmp_canvas = presenter.configuration.tmp_canvas;
+        var tmp_ctx = presenter.configuration.tmp_ctx;
         var image = {};
-        image.width = img.width;
+        var widthRatio = 1;
+        var heightRatio = 1;
+        if (img.width > tmp_canvas.width) {
+            widthRatio = tmp_canvas.width / img.width;
+            heightRatio = widthRatio;
+        }
+        if (img.height > tmp_canvas.height){
+            var tempHeightRatio = tmp_canvas.height / img.height;
+            if (Math.fround(tempHeightRatio) < Math.fround(heightRatio))
+            {
+                widthRatio = tempHeightRatio;
+                heightRatio = tempHeightRatio;
+            }
+        }
+        
+        image.width = img.width * widthRatio;
         image.originalWidth = img.width;
-        image.height = img.height;
+        image.height = img.height * heightRatio;
         image.originalHeight = img.height;
-        image.left = presenter.configuration.tmp_canvas.width / 2 - image.width / 2;
-        image.top = presenter.configuration.tmp_canvas.height / 2 - image.height / 2;
+        image.left = tmp_canvas.width / 2 - image.width / 2;
+        image.top = tmp_canvas.height / 2 - image.height / 2;
         image.image = img;
         image.showUpMoment = presenter.points.length;
         presenter.addedImage = image;
         
         // draw for first time
-        presenter.configuration.tmp_ctx.drawImage(image.image, 0, 0, image.originalWidth, image.originalHeight, image.left, image.top, image.width, image.height);
+        tmp_ctx.drawImage(image.image, 0, 0, image.originalWidth, image.originalHeight, image.left, image.top, image.width, image.height);
 
         drawDragAnchor(image.left, image.top);
         drawDragAnchor(image.left + image.width, image.top);
