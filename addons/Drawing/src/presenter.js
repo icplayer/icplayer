@@ -292,7 +292,7 @@ function AddonDrawing_create() {
                 heightRatio = tempHeightRatio;
             }
         }
-        
+
         image.width = img.width * widthRatio;
         image.originalWidth = img.width;
         image.height = img.height * heightRatio;
@@ -434,7 +434,7 @@ function AddonDrawing_create() {
             presenter.draggingResizer = anchorHitTest(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
             presenter.draggingImage = presenter.draggingResizer < 0 && hitImage(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
             if( presenter.draggingResizer == -1 && !presenter.draggingImage){
-                presenter.finishEditImageMode(tmp_ctx, tmp_canvas);
+                presenter.finishEditImageMode(tmp_ctx, tmp_canvas, false);
             }
         } else {
             if (presenter.draggingResizer > -1) {
@@ -545,6 +545,16 @@ function AddonDrawing_create() {
         tmp_canvas.addEventListener('click', function(e) {
             e.stopPropagation();
         }, false);
+        
+        // KEYBOARD DELETE EDIT IMAGE 
+        document.addEventListener('keydown', function(e) {
+            const key = e.key;
+            if (key === "Delete" && presenter.configuration.addonMode === ModeEnum.imageEdition) {
+                // presenter.configuration.tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+                presenter.finishEditImageMode(tmp_ctx, tmp_canvas, true);
+            }
+            e.stopPropagation();
+        }, false);
     };
 
     presenter.onMobilePaintWithoutPropagation = function (e) {
@@ -555,17 +565,19 @@ function AddonDrawing_create() {
 
     function addImageToCanvasIfOnImageEditionMode(){
         if (isOnImageEditionMode()){
-            presenter.finishEditImageMode(presenter.configuration.tmp_ctx, presenter.configuration.tmp_canvas);
+            presenter.finishEditImageMode(presenter.configuration.tmp_ctx, presenter.configuration.tmp_canvas, false);
         }
     }
 
-    presenter.finishEditImageMode = function (tmp_ctx, tmp_canvas) {
+    presenter.finishEditImageMode = function (tmp_ctx, tmp_canvas, rejectAdding) {
         setDefaultAddonMode();
         setOverflowWorkAround(false);
         tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-        presenter.drawImage(tmp_ctx, tmp_canvas, false, false, presenter.addedImage);
-        presenter.configuration.context.drawImage(tmp_canvas, 0, 0);
+        if(!rejectAdding){
+            presenter.drawImage(tmp_ctx, tmp_canvas, false, false, presenter.addedImage);
+            presenter.configuration.context.drawImage(tmp_canvas, 0, 0);
+        }
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         presenter.points = [];
     }
