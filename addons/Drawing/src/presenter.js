@@ -835,6 +835,9 @@ function AddonDrawing_create() {
                 presenter.configuration.tmp_ctx.font = font;
             }
         }
+        if (isOnTextEditionMode()) {
+            presenter.drawText(true);
+        }
     }
 
     presenter.setEraserOff = function () {
