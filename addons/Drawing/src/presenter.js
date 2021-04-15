@@ -608,6 +608,26 @@ function AddonDrawing_create() {
             presenter.mouse.x = x;
             presenter.mouse.y = y;
 
+            presenter.configuration.tmp_canvas.style.cursor = 'crosshair';
+            if (isOnTextEditionMode() && presenter.addedText.text !== undefined && presenter.addedText.text.length > 0) {
+                textSizes = presenter.configuration.tmp_ctx.measureText(presenter.addedText.text);
+                if (hitText(x, y, textSizes)) {
+                    presenter.configuration.tmp_canvas.style.cursor = 'pointer';
+                }
+            } else if (isOnImageEditionMode() && presenter.addedImage.image !== undefined) {
+                if (hitImage(x, y, presenter.addedImage)) {
+                    presenter.configuration.tmp_canvas.style.cursor = 'pointer';
+                } else {
+                    var anchorIndex = anchorHitTest(x, y, presenter.addedImage);
+                    if (anchorIndex == 0 || anchorIndex == 2) {
+                        presenter.configuration.tmp_canvas.style.cursor = 'nwse-resize';
+                    } else if (anchorIndex == 1 || anchorIndex == 3) {
+                        presenter.configuration.tmp_canvas.style.cursor = 'nesw-resize';
+                    }
+
+                }
+            }
+
         }, false);
         $(tmp_canvas).on('mouseleave', function (e) {
             setOverflowWorkAround(false);
@@ -795,6 +815,11 @@ function AddonDrawing_create() {
         }
 
         presenter.setVisibility(presenter.configuration.isVisibleByDefault || isPreview);
+
+        presenter.zoom = getZoom();
+        if (presenter.zoom == "" || presenter.zoom == undefined) {
+            presenter.zoom = 1;
+        }
     };
 
     function createCanvas() {
