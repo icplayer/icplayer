@@ -1428,6 +1428,7 @@ var ice_dictionary_en = {
 	"Drawing_property_thickness": "Thickness",
 	"Drawing_property_border": "Border",
 	"Drawing_property_opacity": "Opacity",
+    "Drawing_property_font": "Font",
     "DrawingSmartPen_info": "Allows users to draw lines and create free-form images with SmartPen.",
 	"abandon_all_changes": "Abandon All Changes",
 	"confirm_abandon_all_changes": "All changes done in this editor session will be removed. Are you sure you want to continue?",
