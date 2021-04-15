@@ -275,19 +275,36 @@ function AddonDrawing_create() {
     presenter.addImage = function (img) {
         presenter.setEraserOff();
         setAddonMode(ModeEnum.imageEdition);
+        var tmp_canvas = presenter.configuration.tmp_canvas;
+        var tmp_ctx = presenter.configuration.tmp_ctx;
         var image = {};
-        image.width = img.width;
+        var widthRatio = 1;
+        var heightRatio = 1;
+        if (img.width > tmp_canvas.width) {
+            widthRatio = tmp_canvas.width / img.width;
+            heightRatio = widthRatio;
+        }
+        if (img.height > tmp_canvas.height){
+            var tempHeightRatio = tmp_canvas.height / img.height;
+            if (Math.fround(tempHeightRatio) < Math.fround(heightRatio))
+            {
+                widthRatio = tempHeightRatio;
+                heightRatio = tempHeightRatio;
+            }
+        }
+
+        image.width = img.width * widthRatio;
         image.originalWidth = img.width;
-        image.height = img.height;
+        image.height = img.height * heightRatio;
         image.originalHeight = img.height;
-        image.left = presenter.configuration.tmp_canvas.width / 2 - image.width / 2;
-        image.top = presenter.configuration.tmp_canvas.height / 2 - image.height / 2;
+        image.left = tmp_canvas.width / 2 - image.width / 2;
+        image.top = tmp_canvas.height / 2 - image.height / 2;
         image.image = img;
         image.showUpMoment = presenter.points.length;
         presenter.addedImage = image;
         
         // draw for first time
-        presenter.configuration.tmp_ctx.drawImage(image.image, 0, 0, image.originalWidth, image.originalHeight, image.left, image.top, image.width, image.height);
+        tmp_ctx.drawImage(image.image, 0, 0, image.originalWidth, image.originalHeight, image.left, image.top, image.width, image.height);
 
         drawDragAnchor(image.left, image.top);
         drawDragAnchor(image.left + image.width, image.top);
@@ -417,7 +434,7 @@ function AddonDrawing_create() {
             presenter.draggingResizer = anchorHitTest(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
             presenter.draggingImage = presenter.draggingResizer < 0 && hitImage(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
             if( presenter.draggingResizer == -1 && !presenter.draggingImage){
-                presenter.finishEditImageMode(tmp_ctx, tmp_canvas);
+                presenter.finishEditImageMode(tmp_ctx, tmp_canvas, false);
             }
         } else {
             if (presenter.draggingResizer > -1) {
@@ -528,6 +545,16 @@ function AddonDrawing_create() {
         tmp_canvas.addEventListener('click', function(e) {
             e.stopPropagation();
         }, false);
+        
+        // KEYBOARD DELETE EDIT IMAGE 
+        document.addEventListener('keydown', function(e) {
+            const key = e.key;
+            if (key === "Delete" && presenter.configuration.addonMode === ModeEnum.imageEdition) {
+                // presenter.configuration.tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+                presenter.finishEditImageMode(tmp_ctx, tmp_canvas, true);
+            }
+            e.stopPropagation();
+        }, false);
     };
 
     presenter.onMobilePaintWithoutPropagation = function (e) {
@@ -538,17 +565,19 @@ function AddonDrawing_create() {
 
     function addImageToCanvasIfOnImageEditionMode(){
         if (isOnImageEditionMode()){
-            presenter.finishEditImageMode(presenter.configuration.tmp_ctx, presenter.configuration.tmp_canvas);
+            presenter.finishEditImageMode(presenter.configuration.tmp_ctx, presenter.configuration.tmp_canvas, false);
         }
     }
 
-    presenter.finishEditImageMode = function (tmp_ctx, tmp_canvas) {
+    presenter.finishEditImageMode = function (tmp_ctx, tmp_canvas, rejectAdding) {
         setDefaultAddonMode();
         setOverflowWorkAround(false);
         tmp_canvas.removeEventListener('mousemove', presenter.onImageEdition, false);
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-        presenter.drawImage(tmp_ctx, tmp_canvas, false, false, presenter.addedImage);
-        presenter.configuration.context.drawImage(tmp_canvas, 0, 0);
+        if(!rejectAdding){
+            presenter.drawImage(tmp_ctx, tmp_canvas, false, false, presenter.addedImage);
+            presenter.configuration.context.drawImage(tmp_canvas, 0, 0);
+        }
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         presenter.points = [];
     }
