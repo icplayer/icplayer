@@ -9,6 +9,14 @@ function AddonDrawing_create() {
         textEdition: "textEdition",
     };
 
+    const AnchorEnum = {
+        topLeft: 0,
+        topRight: 1,
+        bottomLeft: 2,
+        bottomRight: 3,
+        RotateAnchor: 4,
+    };
+
     function setDefaultAddonMode() {
         setAddonMode(ModeEnum.pencil)
     }
@@ -68,7 +76,7 @@ function AddonDrawing_create() {
     presenter.isStarted = false;
 
     presenter.addedImage = {};
-    presenter.draggingResizer = {
+    presenter.draggingAnchor = {
         x: 0,
         y: 0
     };
@@ -211,25 +219,25 @@ function AddonDrawing_create() {
         dx = x - image.left;
         dy = y - image.top;
         if (dx * dx + dy * dy <= rr) {
-            return (0);
+            return AnchorEnum.topLeft;
         }
         // top-right
         dx = x - (image.left + image.width);
         dy = y - image.top;
         if (dx * dx + dy * dy <= rr) {
-            return (1);
+            return AnchorEnum.topRight;
         }
         // bottom-right
         dx = x - (image.left + image.width);
         dy = y - (image.top + image.height);
         if (dx * dx + dy * dy <= rr) {
-            return (2);
+            return AnchorEnum.bottomRight;
         }
         // bottom-left
         dx = x - image.left;
         dy = y - (image.top + image.height);
         if (dx * dx + dy * dy <= rr) {
-            return (3);
+            return AnchorEnum.bottomLeft;
         }
         return (-1);
     }
@@ -357,7 +365,7 @@ function AddonDrawing_create() {
         }
     }
 
-    presenter.endTextDrawing = function(saveResult) {
+    presenter.endTextDrawing = function() {
         if (presenter.configuration.addonMode = ModeEnum.textEdition) {
             presenter.configuration.tmp_canvas.removeEventListener('mousemove', presenter.onTextEdition, false);
             presenter.drawText(false);
@@ -431,35 +439,35 @@ function AddonDrawing_create() {
         tmp_ctx.globalAlpha = presenter.configuration.opacity;
         presenter.points.push({x: presenter.mouse.x, y: presenter.mouse.y});
         if (presenter.points.length < 4) {
-            presenter.draggingResizer = anchorHitTest(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
-            presenter.draggingImage = presenter.draggingResizer < 0 && hitImage(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
-            if( presenter.draggingResizer == -1 && !presenter.draggingImage){
+            presenter.draggingAnchor = anchorHitTest(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
+            presenter.draggingImage = presenter.draggingAnchor < 0 && hitImage(presenter.points[0].x, presenter.points[0].y, presenter.addedImage);
+            if( presenter.draggingAnchor == -1 && !presenter.draggingImage){
                 presenter.finishEditImageMode(tmp_ctx, tmp_canvas, false);
             }
         } else {
-            if (presenter.draggingResizer > -1) {
+            if (presenter.draggingAnchor > -1) {
                 mouseX = presenter.points[presenter.points.length - 1].x;
                 mouseY = presenter.points[presenter.points.length - 1].y;
-                switch (presenter.draggingResizer) {                    
-                    case 0:
+                switch (presenter.draggingAnchor) {                    
+                    case AnchorEnum.topLeft:
                         //top-left
                         presenter.addedImage.width = (presenter.addedImage.left + presenter.addedImage.width) - mouseX;
                         presenter.addedImage.height = (presenter.addedImage.top + presenter.addedImage.height) - mouseY;
                         presenter.addedImage.left = mouseX;
                         presenter.addedImage.top = mouseY;
                         break;
-                    case 1:
+                    case AnchorEnum.topRight:
                         //top-right
                         presenter.addedImage.width = mouseX - presenter.addedImage.left;
                         presenter.addedImage.height = (presenter.addedImage.top + presenter.addedImage.height) - mouseY;
                         presenter.addedImage.top = mouseY;
                         break;
-                    case 2:
+                    case AnchorEnum.bottomRight:
                         //bottom-right
                         presenter.addedImage.width = mouseX - presenter.addedImage.left;
                         presenter.addedImage.height = mouseY - presenter.addedImage.top;
                         break;
-                    case 3:
+                    case AnchorEnum.bottomLeft:
                         //bottom-left
                         presenter.addedImage.width = (presenter.addedImage.left + presenter.addedImage.width) - mouseX;
                         presenter.addedImage.height = mouseY - presenter.addedImage.top;;
@@ -1051,6 +1059,23 @@ function AddonDrawing_create() {
         };
     };
 
+    presenter.handleDownloadImage = function () {
+        var canvas = presenter.$view.find("canvas")[0], data = canvas.toDataURL("image/png");
+        data = data.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
+        data = data.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
+        this.href = data;
+    }
+
+    presenter.downloadBoard = function () {
+        
+        var element = document.createElement("a");
+        element.setAttribute("id", "dl");
+        element.setAttribute("download", "Canvas.png");
+        element.setAttribute("href", "#");
+        element.onclick = presenter.handleDownloadImage;
+        element.click();
+    }
+
     presenter.executeCommand = function (name, params) {
         if (!presenter.configuration.isValid) {
             return;
@@ -1061,13 +1086,14 @@ function AddonDrawing_create() {
             'hide': presenter.hide,
             'uploadImage': presenter.uploadImage,
             'setColor': presenter.setColor,
-            'addText': presenter.addTextToCanvas,
+            'addText': presenter.addText,
             'setThickness': presenter.setThickness,
             'setEraserOn': presenter.setEraserOn,
             'setEraserThickness': presenter.setEraserThickness,
             'setOpacity': presenter.setOpacity,
             'setFont': presenter.setFont,
-            'setEraserOff': presenter.setEraserOff
+            'setEraserOff': presenter.setEraserOff,
+            'downloadBoard': presenter.downloadBoard
         };
 
         addImageToCanvasIfOnImageEditionMode();
@@ -1176,9 +1202,9 @@ function AddonDrawing_create() {
 
         parsedState = presenter.upgradeState(parsedState);
 
-        var data = JSON.parse(state).data,
-            addonMode = JSON.parse(state).addonMode,
-            color = JSON.parse(state).color,
+        var data = parsedState.data,
+            addonMode = parsedState.addonMode,
+            color = parsedState.color,
             savedImg = new Image();
 
         savedImg.onload = function() {
@@ -1186,9 +1212,9 @@ function AddonDrawing_create() {
         };
         savedImg.src = data;
 
-        presenter.configuration.pencilThickness = JSON.parse(state).pencilThickness;
-        presenter.configuration.eraserThickness = JSON.parse(state).eraserThickness;
-        presenter.configuration.isVisible = JSON.parse(state).isVisible;
+        presenter.configuration.pencilThickness = parsedState.pencilThickness;
+        presenter.configuration.eraserThickness = parsedState.eraserThickness;
+        presenter.configuration.isVisible = parsedState.isVisible;
         presenter.configuration.addonMode = addonMode;
         presenter.isStarted = true;
         presenter.configuration.opacity = parsedState.opacity;
@@ -1200,10 +1226,10 @@ function AddonDrawing_create() {
         }
         presenter.setVisibility(presenter.configuration.isVisible);
         presenter.beforeEraserColor = color;
-        presenter.setFont(JSON.parse(state).font);
+        presenter.setFont(parsedState.font);
     };
 
-    presenter.addTextToCanvas = function() {
+    presenter.addText = function() {
         if (isOnTextEditionMode()) {
             var tmp_canvas = presenter.configuration.tmp_canvas;
             var tmp_ctx = presenter.configuration.tmp_ctx;
