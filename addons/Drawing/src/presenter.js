@@ -241,11 +241,17 @@ function AddonDrawing_create() {
             return AnchorEnum.bottomLeft;
         }
         // rotation-anchor
-        dx = x - image.rotationPoint.x;
-        dy = y - image.rotationPoint.y;
+        dx = x - image.centerPoint.x;
+        dy = y - image.centerPoint.y;
         if (dx * dx + dy * dy <= rr) {
             return AnchorEnum.rotateAnchor;
         }
+        var dx = x - image.centerPoint.x;
+        var dy = y - image.centerPoint.y;
+        var angle = Math.atan2(dy, dx);
+        console.log("angle: ", angle);
+
+        console.log()
 
         return (AnchorEnum.noAnchorHitted);
     }
@@ -266,7 +272,6 @@ function AddonDrawing_create() {
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         // draw image
         tmp_ctx.save();
-        tmp_ctx.translate(image.rotationPoint.x, image.rotationPoint.y);
         tmp_ctx.rotate(image.rotation);
         tmp_ctx.drawImage(image.image, 0, 0, image.originalWidth, image.originalHeight, image.left, image.top, image.width, image.height);
         tmp_ctx.restore();
@@ -291,9 +296,9 @@ function AddonDrawing_create() {
         }
 
         if (withRotateAnchor) {
-            console.log(`x_rotation_point: ${image.rotationPoint.x}, y_rotation_point: ${image.rotationPoint.y}`)
+            console.log(`x_rotation_point: ${image.centerPoint.x}, y_rotation_point: ${image.centerPoint.y}`)
             tmp_ctx.save();
-            tmp_ctx.translate(image.rotationPoint.x, image.rotationPoint.y);
+            tmp_ctx.translate(image.centerPoint.x, image.centerPoint.y);
             tmp_ctx.rotate(image.rotation);
             tmp_ctx.beginPath();
             tmp_ctx.arc(0, -(image.height / 2 + 10), resizerRadius, 0, pi2, false);
@@ -333,8 +338,8 @@ function AddonDrawing_create() {
         image.top = tmp_canvas.height / 2 - image.height / 2;
         image.image = img;
         image.showUpMoment = presenter.points.length;
-        image.rotationPoint = {x: image.left + image.width / 2, y: image.top + image.height / 2 };
-        image.rotationAnchorPoint = {x: image.rotationPoint.x, y: image.rotationPoint.y - (image.height / 2 + 10)}
+        image.centerPoint = {x: image.left + image.width / 2, y: image.top + image.height / 2 };
+        image.rotationAnchorPoint = {x: image.centerPoint.x, y: image.centerPoint.y - (image.height / 2 + 10)}
         image.rotation = 0;
         presenter.addedImage = image;
         
@@ -347,7 +352,7 @@ function AddonDrawing_create() {
         drawDragAnchor(image.left, image.top + image.height);
 
         tmp_ctx.save();
-        tmp_ctx.translate(image.rotationPoint.x, image.rotationPoint.y);
+        tmp_ctx.translate(image.centerPoint.x, image.centerPoint.y);
         tmp_ctx.rotate(image.rotation);
         tmp_ctx.beginPath();
         tmp_ctx.arc(0, -(image.height / 2 + 10), resizerRadius, 0, pi2, false);
@@ -510,8 +515,8 @@ function AddonDrawing_create() {
                         presenter.addedImage.left = mouseX;
                         break;
                     case AnchorEnum.rotateAnchor:
-                        var dx = mouseX - image.rotationPoint.x;
-                        var dy = mouseY - image.rotationPoint.y;
+                        var dx = mouseX - image.centerPoint.x;
+                        var dy = mouseY - image.centerPoint.y;
                         var angle = Math.atan2(dy, dx);
                         console.log("angle: ", angle);
                         break;
@@ -523,10 +528,10 @@ function AddonDrawing_create() {
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, true, true, presenter.addedImage);
 
             } else if (presenter.draggingImage) {
-                var dx = presenter.points[presenter.points.length - 1].x - presenter.points[presenter.points.length - 2].x;
-                var dy = presenter.points[presenter.points.length - 1].y - presenter.points[presenter.points.length - 2].y;
-                presenter.addedImage.left += dx;
-                presenter.addedImage.top += dy;
+                // var dx = presenter.points[presenter.points.length - 1].x - presenter.points[presenter.points.length - 2].x;
+                // var dy = presenter.points[presenter.points.length - 1].y - presenter.points[presenter.points.length - 2].y;
+                // presenter.addedImage.left += dx;
+                // presenter.addedImage.top += dy;
                 // draw the image
                 presenter.drawImage(tmp_ctx, tmp_canvas, true, true, true, presenter.addedImage);
             }
