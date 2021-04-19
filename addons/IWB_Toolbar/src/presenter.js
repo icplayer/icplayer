@@ -3506,7 +3506,6 @@ function AddonIWB_Toolbar_create() {
 
     presenter.executeCommand = function(name, params) {
         var commands = {
-            'selectCustomButton': presenter.selectCustomButton,
             'deselectCustomButton': presenter.deselectCustomButton,
             'open' : presenter.open,
             'hide' : presenter.hide,
