@@ -14,7 +14,6 @@ function AddonDrawing_create() {
         topRight: 1,
         bottomLeft: 2,
         bottomRight: 3,
-        RotateAnchor: 4,
     };
 
     function setDefaultAddonMode() {
