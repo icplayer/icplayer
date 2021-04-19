@@ -47,6 +47,7 @@ function AddonIWB_Toolbar_create() {
     presenter.activeButton = '';
     presenter.activeFunction;
     presenter.isRecklicked = false;
+    presenter.isCommandSourceToReclickCustomButton = false;
 
     presenter.points = [];
     presenter.mouse = {x: 0, y: 0};
@@ -1155,10 +1156,12 @@ function AddonIWB_Toolbar_create() {
             presenter.restoreTextAudioEventHandlers();
 
             presenter.panelView(button);
-
-            presenter.runCustomScript();
-
-            presenter.customScriptSendEventData();
+            if (!presenter.isCommandSourceToReclickCustomButton) {
+                presenter.runCustomScript();
+                presenter.customScriptSendEventData();
+            }
+            presenter.config.isCustomButtonSelected = !presenter.config.isCustomButtonSelected;
+            presenter.isCommandSourceToReclickCustomButton = false;
         }
     };
 
@@ -1484,7 +1487,13 @@ function AddonIWB_Toolbar_create() {
         }
     }
 
-
+    presenter.deselectCustomButton = function (){
+        if (presenter.config.hasCustomButton) {
+            presenter.isCommandSourceToReclickCustomButton = true;
+            var button = presenter.$pagePanel.find('.button.custom-script.clicked')[0];
+            clickHandlers(button);
+        }
+    }
 
     presenter.addEventHandlers = function IWB_Toolbar_addEventHandlers() {
         presenter.$pagePanel.find('.iwb-toolbar-mask').click(function(e) {
@@ -2533,7 +2542,6 @@ function AddonIWB_Toolbar_create() {
     presenter.runCustomScript = function IWB_Toolbar_runCustomScript() {
         var eventCode = presenter.isCustomButtonSelected() ? presenter.config.onCustomButtonDeselected : presenter.config.onCustomButtonSelected;
         presenter.executeUserEventCode(eventCode);
-        presenter.config.isCustomButtonSelected = !presenter.config.isCustomButtonSelected;
     };
 
 
