@@ -7,6 +7,7 @@ public interface IPlayerStateService {
     boolean isLimitedCheckAnswersMode();
     boolean isGradualShowAnswersMode();
     boolean isWorkMode();
+    boolean isGradualShowAnswersModeBeforeCheck();
     void setCheckErrorsMode(boolean value);
     void setShowAnswersMode(boolean value);
     void setLimitedShowAnswersMode(boolean value);

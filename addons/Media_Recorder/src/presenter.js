@@ -1096,7 +1096,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 var DefaultValues = exports.DefaultValues = {
-    MAX_TIME: 60,
+    MAX_TIME: 30 * 60,
     DEFAULT_MAX_TIME: 10
 };
 
@@ -1296,7 +1296,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 var Errors = exports.Errors = {
     "maxTime_INT02": "Time value contains non numerical characters",
-    "maxTime_INT03": "Recording can not take more than 60 seconds",
+    "maxTime_INT03": "Recording can not take more than 30 minutes",
     "maxTime_INT04": "Time in seconds cannot be negative value",
     "type_EV01": "Selected type is not supported",
     "not_supported_browser": "Your browser is not supported: ",
@@ -1490,9 +1490,9 @@ var Timer = exports.Timer = function () {
         value: function _decrementTimer() {
             this.currentSeconds--;
 
-            if (this.currentSeconds >= 60) {
-                this.currentSeconds = 0;
-                this.currentMinutes++;
+            if (this.currentSeconds < 0) {
+                this.currentSeconds = 59;
+                this.currentMinutes--;
             }
         }
     }, {
