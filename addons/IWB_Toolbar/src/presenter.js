@@ -1463,7 +1463,6 @@ function AddonIWB_Toolbar_create() {
         if(presenter.activeButton == 'open' && presenter.buttonClicked && !presenter.recklick && sameButton){
             presenter.activeButton = buttonName;
         }
-
         if(buttonName == presenter.activeButton){
             if(!presenter.isRecklicked){
                 if(presenter.buttonsLogic[presenter.activeButton].onReclicked){
@@ -1484,6 +1483,10 @@ function AddonIWB_Toolbar_create() {
 
         if(!$(button).hasClass('color') && !$(button).hasClass('thickness')){
             presenter.activeButton = $(button).attr("data-name");
+        }
+        if (presenter.isRecklicked && buttonName == 'custom-script') {
+            presenter.activeButton = 'open';
+            presenter.activeFunction = undefined;
         }
     }
 
@@ -1535,7 +1538,7 @@ function AddonIWB_Toolbar_create() {
 
             var btnName = $(this).data("name");
 
-            if(btnName != 'open' && btnName != 'close' && btnName != 'color' && btnName != 'thickness'){
+            if(btnName != 'open' && btnName != 'close' && btnName != 'color' && btnName != 'thickness' && btnName != 'custom-script'){
                 presenter.shouldSaveColor = btnName;
             }
         });
@@ -2905,6 +2908,9 @@ function AddonIWB_Toolbar_create() {
                presenter.shouldSaveColor = window.savedPanel.tools.shouldSaveColor;
                    if(presenter.activeFunction){
                        if(presenter.activeFunction != 'clock' && presenter.activeFunction != 'stopwatch' && presenter.activeFunction != 'note' && presenter.activeFunction != 'reset' && presenter.activeFunction != 'open'){
+                           if(presenter.activeFunction == 'custom-script') {
+                               presenter.activeButton = presenter.activeFunction;
+                           }
                            if(!presenter.recklick){
                                presenter.functionButton = presenter.$pagePanel.find('.'+presenter.activeFunction);
                                if(window.savedPanel.isOpen){
@@ -3595,7 +3601,6 @@ function AddonIWB_Toolbar_create() {
            else{
                presenter.isCloseColor = false;
            }
-
            if(presenter.activeButton != 'open'){
                presenter.activeFunction = presenter.activeButton;
            }
@@ -3613,7 +3618,7 @@ function AddonIWB_Toolbar_create() {
         }
 
         if(presenter.isKeepStateAndPosition){
-           if(window.savedPanel.tools){
+           if(window.savedPanel.tools && window.savedPanel.tools.activeFunction != 'custom-script'){
                if(!presenter.activeFunction || presenter.activeFunction == 'open' || presenter.activeFunction == 'close'){
                    presenter.activeFunction = window.savedPanel.tools.activeFunction;
                }
