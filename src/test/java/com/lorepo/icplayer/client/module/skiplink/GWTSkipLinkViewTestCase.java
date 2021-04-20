@@ -257,6 +257,26 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         thenOnlySelectedItemVisible(0);
     }
 
+    @Test
+    public void userHasActivatedModuleTabbedAndClassesWereRestored() {
+        givenModelWithThreeItems();
+        givenViewCreated();
+
+        whenShowNavigation();
+        whenActivateNavigation();
+
+        whenEnterPressed();
+        whenShowNavigation();
+        whenActivateNavigation();
+
+        whenTabPressed();
+        whenShowNavigation();
+        whenActivateNavigation();
+
+
+        thenViewVisible();
+        thenOnlySelectedItemVisible(1);
+    }
 
     @Test
     public void userHasActivatedModuleAndDeactivated() {
