@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.module.skiplink;
+package com.lorepo.icplayer.client.module.skiplink.interfaces;
 
 public interface ISkipLinkItem {
     String getModuleId();

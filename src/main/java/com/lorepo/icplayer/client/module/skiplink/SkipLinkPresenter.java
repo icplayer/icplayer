@@ -9,13 +9,16 @@ import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkModule;
+import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkPresenter;
+import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkViewListener;
 
 import java.util.HashMap;
 import java.util.List;
 
 public class SkipLinkPresenter implements ISkipLinkPresenter, IPresenter, ICommandReceiver, IWCAGPresenter {
-    private ISkipLinkModule module;
-    private IPlayerServices services;
+    private final ISkipLinkModule module;
+    private final IPlayerServices services;
     private SkipLinkView view;
 
     public SkipLinkPresenter(ISkipLinkModule module, IPlayerServices services) {
@@ -38,33 +41,9 @@ public class SkipLinkPresenter implements ISkipLinkPresenter, IPresenter, IComma
     }
 
     @Override
-    public void setShowErrorsMode() {
-
-    }
-
-    @Override
-    public void setWorkMode() {
-
-    }
-
-    @Override
-    public void reset(boolean onlyWrongAnswers) {
-
-    }
-
-    @Override
-    public void onEventReceived(String eventName, HashMap<String, String> data) {
-
-    }
-
-    @Override
     public JavaScriptObject getAsJavaScript() {
-        return JSSkipLinkPresenter.create(this);
-    }
-
-    @Override
-    public void setDisabled(boolean value) {
-
+        // if ever implementing this, create new class which extends JavaScriptObject (GWT overlay type)
+        return JavaScriptObject.createObject();
     }
 
     @Override
@@ -74,7 +53,7 @@ public class SkipLinkPresenter implements ISkipLinkPresenter, IPresenter, IComma
 
     @Override
     public String getName() {
-        return null;
+        return module.getId();
     }
 
     @Override
@@ -100,6 +79,31 @@ public class SkipLinkPresenter implements ISkipLinkPresenter, IPresenter, IComma
     @Override
     public boolean isSelectable(boolean isTextToSpeechOn) {
         return true;
+    }
+
+    @Override
+    public void setShowErrorsMode() {
+
+    }
+
+    @Override
+    public void setWorkMode() {
+
+    }
+
+    @Override
+    public void reset(boolean onlyWrongAnswers) {
+
+    }
+
+    @Override
+    public void onEventReceived(String eventName, HashMap<String, String> data) {
+
+    }
+
+    @Override
+    public void setDisabled(boolean value) {
+
     }
 
     private void addViewEventsListener() {

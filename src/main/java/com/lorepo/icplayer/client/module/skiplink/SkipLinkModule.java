@@ -3,14 +3,13 @@ package com.lorepo.icplayer.client.module.skiplink;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
-import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
-import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
-import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
+import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkItem;
+import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkModule;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,15 +17,12 @@ import java.util.List;
 
 public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule {
     private final List<SkipLinkItem> items;
-    private final List<SpeechTextsStaticListItem> speechTextItems;
 
     public SkipLinkModule() {
         super("SkipLink", DictionaryWrapper.get("skiplink_module"));
         this.items = new ArrayList<SkipLinkItem>();
-        this.speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 
         addPropertyItems();
-        addSpeechTextItems();
     }
 
     @Override
@@ -37,17 +33,6 @@ public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule 
     @Override
     public List<? extends ISkipLinkItem> getItems() {
         return items;
-    }
-
-    @Override
-    public String getSpeechTextItem(SpeechText type) {
-        for (SpeechTextsStaticListItem item : speechTextItems) {
-            if (item.getProviderName().equals(type.getValue())) {
-                return item.getText();
-            }
-        }
-
-        return "";
     }
 
     @Override
@@ -170,60 +155,6 @@ public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule 
             @Override
             public boolean isDefault() {
                 return true;
-            }
-
-        };
-
-        addProperty(property);
-    }
-
-    private void addSpeechTextItems() {
-        IStaticListProperty property = new IStaticListProperty() {
-            @Override
-            public String getName() {
-                return DictionaryWrapper.get("skiplink_property_speech_texts");
-            }
-
-            @Override
-            public String getValue() {
-                return Integer.toString(speechTextItems.size());
-            }
-
-            @Override
-            public String getDisplayName() {
-                return DictionaryWrapper.get("skiplink_property_speech_texts");
-            }
-
-            @Override
-            public void setValue(String newValue) {}
-
-            @Override
-            public boolean isDefault() {
-                return false;
-            }
-
-            @Override
-            public int getChildrenCount() {
-                return speechTextItems.size();
-            }
-
-            @Override
-            public void addChildren(int count) {
-                speechTextItems.add(new SpeechTextsStaticListItem(SpeechText.SELECTED.getValue(), "skiplink_property_"));
-                speechTextItems.add(new SpeechTextsStaticListItem(SpeechText.DESELECTED.getValue(), "skiplink_property_"));
-            }
-
-            @Override
-            public IPropertyProvider getChild(int index) {
-                return speechTextItems.get(index);
-            }
-
-            @Override
-            public void moveChildUp(int index) {
-            }
-
-            @Override
-            public void moveChildDown(int index) {
             }
 
         };

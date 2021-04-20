@@ -1,16 +1,13 @@
 package com.lorepo.icplayer.client.module.skiplink;
 
 import com.google.gwt.xml.client.Element;
-import com.google.gwt.xml.client.XMLParser;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icf.properties.IListProperty;
-import com.lorepo.icf.utils.XMLUtils;
-import com.lorepo.icf.utils.XMLUtilsMock;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
+import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkItem;
 import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 

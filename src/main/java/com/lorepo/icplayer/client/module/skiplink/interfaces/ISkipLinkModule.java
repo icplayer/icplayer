@@ -1,4 +1,4 @@
-package com.lorepo.icplayer.client.module.skiplink;
+package com.lorepo.icplayer.client.module.skiplink.interfaces;
 
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 
@@ -8,5 +8,4 @@ public interface ISkipLinkModule extends IModuleModel {
     String getName();
     List<? extends ISkipLinkItem> getItems();
     String getId();
-    String getSpeechTextItem(SpeechText type);
 }

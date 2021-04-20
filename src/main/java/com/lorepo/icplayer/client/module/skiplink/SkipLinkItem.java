@@ -7,6 +7,11 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.google.gwt.xml.client.Node;
+import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkItem;
+import com.lorepo.icplayer.client.module.skiplink.properties.SkipLinkItemStringProperty;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class SkipLinkItem extends BasicPropertyProvider implements ISkipLinkItem {
@@ -18,7 +23,7 @@ public class SkipLinkItem extends BasicPropertyProvider implements ISkipLinkItem
         this("", "", "");
     }
 
-    SkipLinkItem(String moduleId, String moduleText, String moduleTextLang) {
+    public SkipLinkItem(String moduleId, String moduleText, String moduleTextLang) {
         super(DictionaryWrapper.get("skiplink_item"));
 
         this.moduleId = moduleId;
@@ -66,20 +71,33 @@ public class SkipLinkItem extends BasicPropertyProvider implements ISkipLinkItem
     public Node toXML() {
         Element item = XMLUtils.createElement("item");
 
-        Node moduleIdTag = XMLUtils.createElement("moduleId");
-        moduleIdTag.appendChild(XMLUtils.createTextNode(StringUtils.escapeXML(moduleId)));
-
-        Node moduleTextTag = XMLUtils.createElement("moduleText");
-        moduleTextTag.appendChild(XMLUtils.createTextNode(StringUtils.escapeXML(moduleText)));
-
-        Node moduleTextLangTag = XMLUtils.createElement("moduleTextLang");
-        moduleTextLangTag.appendChild(XMLUtils.createTextNode(StringUtils.escapeXML(moduleTextLang)));
-
-        item.appendChild(moduleIdTag);
-        item.appendChild(moduleTextTag);
-        item.appendChild(moduleTextLangTag);
+        addTextProperties(item);
 
         return item;
+    }
+
+    private void addTextProperties(Element item) {
+        Map<String, String> propertiesWithValues = new HashMap<String, String>() {{
+            put("moduleId", moduleId);
+            put("moduleText", moduleText);
+            put("moduleTextLang", moduleTextLang);
+        }};
+
+        for (Map.Entry<String, String> property : propertiesWithValues.entrySet()) {
+            item.appendChild(
+                createTextNode(property.getKey(), property.getValue())
+            );
+        }
+
+    }
+
+    private Node createTextNode(String tagName, String value) {
+        Node tag = XMLUtils.createElement(tagName);
+        String escapedValue = StringUtils.escapeXML(value);
+        tag.appendChild(
+            XMLUtils.createTextNode(escapedValue)
+        );
+        return tag;
     }
 
     private void addPropertyValue() {
