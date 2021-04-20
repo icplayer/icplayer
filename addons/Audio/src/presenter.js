@@ -824,5 +824,76 @@ function AddonAudio_create(){
         return presenter.configuration.narration;
     };
 
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        //This method has been added to enable the addon's detection by the autofill option of TTS
+    };
+
+    function forward() {
+        presenter.audio.currentTime += 5;
+    }
+
+    function backward() {
+        presenter.audio.currentTime -= 5;
+    }
+
+    function playPause() {
+        if (presenter.audio.paused) {
+            presenter.play();
+        } else {
+            presenter.pause();
+        }
+    }
+
+    function increaseVolume() {
+         var volume = presenter.audio.volume;
+        volume += 0.1;
+        if (volume > 1.0) volume = 1.0;
+        presenter.audio.volume = volume;
+    }
+
+    function decreaseVolume() {
+        var volume = presenter.audio.volume;
+        volume -= 0.1;
+        if (volume < 0.0) volume = 0.0;
+        presenter.audio.volume = volume;
+    }
+
+    presenter.keyboardController = function (keycode, isShift, event) {
+        event.preventDefault();
+        switch (keycode) {
+            case 9: // TAB
+                if (isShift) {
+                    backward();
+                } else {
+                    forward();
+                }
+                break;
+            case 13: //ENTER
+                if (isShift) {
+                    presenter.stop();
+                }
+                break;
+            case 32: // SPACE
+                playPause();
+                break;
+            case 38: // UP
+                increaseVolume();
+                break;
+            case 40: // DOWN
+                decreaseVolume();
+                break;
+            case 37: // LEFT
+                backward();
+                break;
+            case 39: // RIGHT
+                forward();
+                break;
+            case 27: // ESC
+                presenter.stop();
+                break;
+        }
+
+    }
+
     return presenter;
 }

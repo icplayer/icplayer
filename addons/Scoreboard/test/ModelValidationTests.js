@@ -9,6 +9,7 @@ TestCase("[Scoreboard] Model validation", {
             "VariableStorageLocation": "header",
             "VariableStorageLocationName": "header",
             "initialTeamsCount": "1",
+            "maximumTeamsCount": "10",
             "defaultTeamsList": [
                 {
                     "teamName": "X",
@@ -50,6 +51,7 @@ TestCase("[Scoreboard] Model validation", {
             "VariableStorageLocation": "header",
             "VariableStorageLocationName": "header",
             "initialTeamsCount": "1",
+            "maximumTeamsCount": "10",
             "defaultTeamsList": [
                 {
                     "teamName": "X",
@@ -98,8 +100,24 @@ TestCase("[Scoreboard] Model validation", {
         assertEquals("I02", validatedModel.errorCode);
     },
 
+    'test initial teams count more than maximum teamsCount' : function () {
+        this.model = {
+            "ID": "Scoreboard1",
+            "Broadcast": "",
+            "isDraggable": "True",
+            "VariableStorageLocation": "header",
+            "VariableStorageLocationName": "header",
+            "initialTeamsCount": "11",
+            "maximumTeamsCount": "10"
+        }
 
-    'test more than 8 teams' : function () {
+        let validatedModel = this.presenter.validateModel(this.model);
+
+        assertFalse(validatedModel.isValid);
+        assertEquals("I01", validatedModel.errorCode);
+    },
+
+    'test initial teams data more than maximum teamsCount' : function () {
         this.model = {
             "ID": "Scoreboard1",
             "Broadcast": "",
@@ -107,6 +125,7 @@ TestCase("[Scoreboard] Model validation", {
             "VariableStorageLocation": "header",
             "VariableStorageLocationName": "header",
             "initialTeamsCount": "1",
+            "maximumTeamsCount": "2",
             "defaultTeamsList": [
                 {
                     "teamName": "X",
@@ -120,30 +139,6 @@ TestCase("[Scoreboard] Model validation", {
                     "teamName": "X",
                     "teamColor": "#000"
                 },
-                {
-                    "teamName": "X",
-                    "teamColor": "#000"
-                },
-                {
-                    "teamName": "X",
-                    "teamColor": "#000"
-                },
-                {
-                    "teamName": "X",
-                    "teamColor": "#000"
-                },
-                {
-                    "teamName": "X",
-                    "teamColor": "#000"
-                },
-                {
-                    "teamName": "X",
-                    "teamColor": "#000"
-                },
-                {
-                    "teamName": "X",
-                    "teamColor": "#000"
-                }
             ]
         }
 
@@ -152,4 +147,5 @@ TestCase("[Scoreboard] Model validation", {
         assertFalse(validatedModel.isValid);
         assertEquals("I01", validatedModel.errorCode);
     },
+
 });

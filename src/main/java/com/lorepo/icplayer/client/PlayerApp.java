@@ -493,6 +493,14 @@ public class PlayerApp {
 		return this.entryPoint.getContextMetadata();
 	}
 
+	public void setExternalVariables(JavaScriptObject contextData) {
+		this.entryPoint.setExternalVariables(contextData);
+	}
+
+	public JavaScriptObject getExternalVariables() {
+		return this.entryPoint.getExternalVariables();
+	}
+
 	/**
 	 * Init player after content is loaded
 	 */
