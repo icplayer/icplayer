@@ -83,9 +83,9 @@ export class Timer {
     _decrementTimer() {
         this.currentSeconds--;
 
-        if (this.currentSeconds >= 60) {
-            this.currentSeconds = 0;
-            this.currentMinutes++;
+        if (this.currentSeconds < 0) {
+            this.currentSeconds = 59;
+            this.currentMinutes--;
         }
     }
 

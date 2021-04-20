@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<addon id='Scoreboard' xmlns="http://icplayer.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icplayer.com ../../tools/addon.xsd">
+    <model>
+      <property displayName="Broadcast" name='Broadcast' nameLabel="Scoreboard_broadcast" type='string' isLocalized='false'/>
+      <property displayName="isDraggable" name='isDraggable' nameLabel="Scoreboard_is_draggable" type='boolean' isLocalized='false'/>
+      <property displayName="VariableStorageLocation" name='VariableStorageLocation' nameLabel="Scoreboard_location_of_variable_storage_module" type='{header, footer}'/>
+      <property displayName="VariableStorageLocationName" name='VariableStorageLocationName' nameLabel="Scoreboard_variable_storage_location_name" type='string' isLocalized='false'/>
+      <property displayName="maximumTeamsCount" name='maximumTeamsCount' nameLabel="Scoreboard_maximum_teams_count" type='string' isLocalized='false'/>
+      <property displayName="initialTeamsCount" name='initialTeamsCount' nameLabel="Scoreboard_initial_teams_count" type='string' isLocalized='false'/>
+      <property name="defaultTeamsList" nameLabel="Scoreboard_default_teams_list" type="list" isDefault="true">
+        <property name="teamName" nameLabel="Scoreboard_property_name" type="string"/>
+        <property name="teamColor" nameLabel="Scoreboard_property_color" type="string"/>
+      </property>
+    </model>
+</addon>

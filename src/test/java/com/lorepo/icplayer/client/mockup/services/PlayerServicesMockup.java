@@ -7,6 +7,7 @@ import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.content.services.externalNotifications.IObserverService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.Content.ScoreType;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
@@ -237,23 +238,31 @@ public class PlayerServicesMockup implements IPlayerServices {
 		return false;
 	}
 
-
 	@Override
 	public GroupPresenter getGroup(String groupId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-
 	@Override
 	public boolean isPageVisited(IPage page) {
 		// TODO Auto-generated method stub
 		return false;
-  }
-
+  	}
 
 	@Override
 	public JavaScriptObject getContextMetadata() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setExternalVariable(String key, String value) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public String getExternalVariable(String key) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -276,6 +285,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 
 	@Override
 	public IGradualShowAnswersService getGradualShowAnswersService() {
+		return null;
+	}
+
+	@Override
+	public IObserverService getObserverService() {
 		return null;
 	}
 

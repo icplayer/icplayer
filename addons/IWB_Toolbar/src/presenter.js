@@ -718,11 +718,17 @@ function AddonIWB_Toolbar_create() {
         var validated,
             widthWhenOpened,
             widthWhenClosed;
+        var hasCustomButton = model["hasCustomButton"] == 'True';
+
+        if (!hasCustomButton) {
+            presenter.$panel.children('.button.custom-script').hide();
+        }
 
         if (model['widthWhenOpened']) {
             validated = ModelValidationUtils.validatePositiveInteger(model['widthWhenOpened']);
         } else {
-            validated = getCorrectObject(538);
+            var width = 538 + hasCustomButton * 36;
+            validated = getCorrectObject(width);
         }
 
         if (!validated.isValid) {
@@ -744,6 +750,7 @@ function AddonIWB_Toolbar_create() {
         widthWhenClosed = validated.value;
 
         return {
+            'addonID': model.ID,
             'isValid': true,
 
             'widthWhenClosed': widthWhenClosed,
@@ -752,7 +759,12 @@ function AddonIWB_Toolbar_create() {
 
             'showForPen': ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forPen),
             'showForMarker': ModelValidationUtils.validateOption(presenter.SHOW_PANEL, model.forMarker),
-            'closedPanelDrawing': ModelValidationUtils.validateBoolean(model["Closed panel drawing"])
+            'closedPanelDrawing': ModelValidationUtils.validateBoolean(model["Closed panel drawing"]),
+
+            'hasCustomButton': hasCustomButton,
+            'onCustomButtonSelected': model['hasCustomButton'] ? model['onCustomButtonSelected'] : null,
+            'onCustomButtonDeselected': model['hasCustomButton'] ? model['onCustomButtonDeselected'] : null,
+            'isCustomButtonSelected': false,
         };
     }
 
@@ -1091,6 +1103,11 @@ function AddonIWB_Toolbar_create() {
 
         presenter._reset(true, false, false, false, false);
 
+        if (presenter.isCustomButtonSelected()) {
+            var customScriptButton = presenter.$panel.find('.custom-script')[0];
+            presenter.customScriptClickHandler(customScriptButton);
+        }
+
         presenter.penDataURL = null;
         presenter.markerDataUrl = null;
     };
@@ -1116,6 +1133,33 @@ function AddonIWB_Toolbar_create() {
         presenter.$pagePanel.find('.note').on('mouseup', function() {
             presenter.$pagePanel.find('.note').removeClass('clicked');
         });
+    };
+
+    presenter.customScriptCreateEventData = function() {
+        return {
+            source : presenter.config.addonID,
+            value : presenter.isCustomButtonSelected() ? '1' : '0',
+        };
+    };
+
+    presenter.customScriptSendEventData = function () {
+        var eventData = presenter.customScriptCreateEventData();
+        if (presenter.playerController !== null) {
+            presenter.playerController.getEventBus().sendEvent('ValueChanged', eventData);
+        }
+    };
+
+    presenter.customScriptClickHandler = function IWB_Toolbar_customScriptClickHandler(button) {
+        if (presenter.config.hasCustomButton) {
+            presenter.isZoomActive = false;
+            presenter.restoreTextAudioEventHandlers();
+
+            presenter.panelView(button);
+
+            presenter.runCustomScript();
+
+            presenter.customScriptSendEventData();
+        }
     };
 
     presenter.floatingImageClickHandler = function IWB_Toolbar_floatingImageClickHandler(button) {
@@ -1240,7 +1284,7 @@ function AddonIWB_Toolbar_create() {
             if ($(button).hasClass('clicked')) {
                 $(button).removeClass('clicked');
             } else {
-                presenter.$panel.find('.clicked').removeClass('clicked');
+                presenter.$panel.find('.clicked').not('.custom-script').removeClass('clicked');
                 $(button).addClass('clicked');
             }
         }
@@ -1379,6 +1423,10 @@ function AddonIWB_Toolbar_create() {
         'note' : {
             'onOpen': presenter.noteClickHandler,
             'onReclicked': presenter.noteClickHandler
+        },
+        'custom-script' : {
+            'onOpen': presenter.customScriptClickHandler,
+            'onReclicked': presenter.customScriptClickHandler
         },
         'floating-image' : {
             'onOpen': presenter.floatingImageClickHandler,
@@ -2478,6 +2526,17 @@ function AddonIWB_Toolbar_create() {
     };
 
 
+    presenter.executeUserEventCode = function (eventCode) {
+        presenter.playerController.getCommands().executeEventCode(eventCode);
+    };
+
+    presenter.runCustomScript = function IWB_Toolbar_runCustomScript() {
+        var eventCode = presenter.isCustomButtonSelected() ? presenter.config.onCustomButtonDeselected : presenter.config.onCustomButtonSelected;
+        presenter.executeUserEventCode(eventCode);
+        presenter.config.isCustomButtonSelected = !presenter.config.isCustomButtonSelected;
+    };
+
+
     presenter.zoomSelectedModule = function IWB_Toolbar_zoomSelectedModule(selectedModule) {
         if (presenter.$pagePanel.find('.zoomed').length > 0) {
             presenter.$panel.show();
@@ -3043,6 +3102,9 @@ function AddonIWB_Toolbar_create() {
         //noteClickHandler
         //pass
 
+        //customScriptClickHandler
+        //pass
+
         //floatingImageClickHandler
         //pass
 
@@ -3289,6 +3351,7 @@ function AddonIWB_Toolbar_create() {
         presenter.standAreaClickHandler = null;
         presenter.resetClickHandler = null;
         presenter.noteClickHandler = null;
+        presenter.customScriptClickHandler = null;
         presenter.floatingImageClickHandler = null;
         presenter.clockClickHandler = null;
         presenter.stopwatchClickHandler = null;
@@ -3429,8 +3492,14 @@ function AddonIWB_Toolbar_create() {
         presenter.$panel.css('visibility', isVisible ? 'visible' : 'hidden');
     };
 
+    presenter.isCustomButtonSelected = function() {
+        return presenter.config.isCustomButtonSelected;
+    }
+
     presenter.executeCommand = function(name, params) {
         var commands = {
+            'selectCustomButton': presenter.selectCustomButton,
+            'deselectCustomButton': presenter.deselectCustomButton,
             'open' : presenter.open,
             'hide' : presenter.hide,
             'show' : presenter.show,

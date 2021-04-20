@@ -1,4 +1,29 @@
+2021-04-13 Added notifier for save
+2021-04-13 Added externalVariables
+2021-04-07 Added disable new page message property to the Text To Speech addon
+2021-04-07 Fixed no correct loading from state for addon table when drop down
+2021-04-07 Added TTS support in Audio addon
+2021-04-06 Added TTS support in Lesson Reset module
+2021-04-02 Fixed issue with IWB Toolbar button selection
+2021-04-02 Added TTS support in Limited Check module
+2021-04-01 Added TTS support in multiplegap
+2021-03-30 Fixed reading Chrome browser version on android
+2021-03-29 Implementation of audio files export
+2021-03-29 Fixed issue with empty spaces at the end of a print page
+2021-03-26 Add new addon Scoreboard
+2021-03-25 Added scriptable button to IWB Toolbar
+2021-03-25 Fixed issue with images breaking pagination in print
+2021-03-24 Added support for regex when used useNumericKeyboard in addons
+2021-03-22 Added support for setPages in printable
+2021-03-18 Increased maximum time in addon Media Recorder
+2021-03-18 Removed display of placeholder text after show and hide
 2021-03-17 Fixed draggable gaps displaying after returning to the page on which the gap is located
+2021-03-15 Fixed table stretching in print
+2021-03-15 Added show and hide for Crossword
+2021-03-15 Fixed numeric TextBox for iPad
+2021-03-15 Fixed Test Puzzle error on firefox when entering a page in show errors mode
+2021-03-15 Fixed numeric TextBox for iPad
+2021-03-09 Fix Gradual Show Answers addon to work properly with Check Ansers button
 2021-02-24 Add Text property to Multiaudio addon
 2021-02-22 Added Enable in error checking mode property to Media Recorder
 2021-02-11 Fixed show answers and check sending unneeded events

@@ -11,5 +11,21 @@
 		</property>
 		<property name="Interface" nameLabel="MultiAudio_property_interface" type="{None, Default controls, Display time, Draggable items}"/>
 		<property name="Narration" nameLabel="MultiAudio_property_narration" type="narration" isLocalized="true"/>
+		<property name="langAttribute" displayName="Lang attribute" nameLabel="MultiAudio_property_lang_attribute" type="string"/>
+		<property name="speechTexts" displayName="Speech texts" nameLabel="MultiAudio_property_property_speech_texts" type="staticlist">
+
+			<property name="Selected" nameLabel="MultiAudio_property_selected" type="staticrow">
+				<property name="Selected" nameLabel="MultiAudio_property_selected" type="string"/>
+			</property>
+
+			<property name="Deselected" nameLabel="MultiAudio_property_deselected" type="staticrow">
+				<property name="Deselected" nameLabel="MultiAudio_property_deselected" type="string"/>
+			</property>
+
+			<property name="Empty" nameLabel="MultiAudio_property_empty" type="staticrow">
+				<property name="Empty" nameLabel="MultiAudio_property_empty" type="string"/>
+			</property>
+
+		</property>
 	</model>
 </addon>

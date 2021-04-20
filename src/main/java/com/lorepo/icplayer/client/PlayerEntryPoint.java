@@ -4,6 +4,8 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.lorepo.icf.utils.ILoadListener;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
+import com.lorepo.icplayer.client.printable.PrintableParams;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -17,12 +19,14 @@ public class PlayerEntryPoint implements EntryPoint {
 	private JavaScriptObject statusChangedListener;
 	private JavaScriptObject outstretchHeightListener;
 	private JavaScriptObject contextMetadata;
+	private JavaScriptObject externalVariables;
 
 	/**
 	 * This is the entry point method.
 	 */
 	@Override
 	public void onModuleLoad() {
+		externalVariables = JavaScriptObject.createObject();
 		initJavaScriptAPI(this);
 	}
 
@@ -105,13 +109,21 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.setContextMetadata = function(contextData){
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::contextMetadata = contextData;
 			};
-			
-			player.getPrintableHTML = function(randomizePages, randomizeModules, showAnswers, dpi) {
-				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::generatePrintableHTML(ZZZI)(randomizePages, randomizeModules, showAnswers, dpi);
+
+			player.setExternalVariables = function(contextData){
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setExternalVariables(Lcom/google/gwt/core/client/JavaScriptObject;)(contextData);
+			};
+
+			player.getExternalVariables = function(){
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getExternalVariables()();
 			};
 			
-			player.getPrintableHTMLWithSeed = function(randomizePages, randomizeModules, showAnswers, dpi, seed) {
-				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::generatePrintableHTML(ZZZII)(randomizePages, randomizeModules, showAnswers, dpi, seed);
+			player.getPrintableHTML = function(callback, randomizePages, randomizeModules, showAnswers, dpi) {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::generatePrintableHTML(Lcom/google/gwt/core/client/JavaScriptObject;ZZZI)(callback, randomizePages, randomizeModules, showAnswers, dpi);
+			};
+			
+			player.getPrintableHTMLWithSeed = function(callback, randomizePages, randomizeModules, showAnswers, dpi, seed) {
+				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::generatePrintableHTML(Lcom/google/gwt/core/client/JavaScriptObject;ZZZII)(callback, randomizePages, randomizeModules, showAnswers, dpi, seed);
 			};
 			
 			player.preloadAllPages = function(callback) {
@@ -273,14 +285,47 @@ public class PlayerEntryPoint implements EntryPoint {
 	public JavaScriptObject getContextMetadata() {
 		return this.contextMetadata;
 	}
-	
-	private String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi) {
-		return theApplication.generatePrintableHTML(randomizePages, randomizeModules, showAnswers, dpi);
+
+	public void setExternalVariables(JavaScriptObject contextData) {
+		if (JavaScriptUtils.isObject(contextData))
+			this.externalVariables = contextData;
+		else
+			JavaScriptUtils.log(
+					"The received value is not a dictionary (it is not instance of Object). " +
+					"Received value: " + contextData
+			);
+	}
+
+	public JavaScriptObject getExternalVariables() {
+		return this.externalVariables;
 	}
 	
-	private String generatePrintableHTML(boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi, int seed) {
-		return theApplication.generatePrintableHTML(randomizePages, randomizeModules, showAnswers, dpi, seed);
+	private void generatePrintableHTML(final JavaScriptObject callback, boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi) {
+		generatePrintableHTML(callback, randomizePages, randomizeModules, showAnswers, dpi, -1);
 	}
+	
+	private void generatePrintableHTML(final JavaScriptObject callback, boolean randomizePages, boolean randomizeModules, boolean showAnswers, int dpi, int seed) {
+		PrintableContentParser.ParsedListener listener = new PrintableContentParser.ParsedListener() {
+			@Override
+			public void onParsed(String result) {
+				fireParsedCallback(callback, result);
+			}
+		};
+		PrintableParams params = new PrintableParams();
+		params.listener = listener;
+		params.randomizePages = randomizePages;
+		params.randomizeModules = randomizeModules;
+		params.showAnswers = showAnswers;
+		params.dpi = dpi;
+		params.seed = seed;
+		theApplication.generatePrintableHTML(params);
+	}
+
+	private static native void fireParsedCallback(JavaScriptObject callback, String result)/*-{
+		if (callback != null) {
+			callback(result);
+		}
+	}-*/;
 
 	private String getCurrentStyles () {
 		return theApplication.getCurrentStyles();
