@@ -2,6 +2,8 @@ package com.lorepo.icplayer.client.module.ordering;
 
 import java.util.ArrayList;
 
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.user.client.DOM;
 import com.lorepo.icf.properties.BasicPropertyProvider;
 import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IProperty;
@@ -141,6 +143,34 @@ public class OrderingItem extends BasicPropertyProvider {
 	public void setStartingPosition(Integer value) {
 		this.startingPosition = value;
 	}
-	
+
+	public Element toPrintableDOMElement(Element indexBox) {
+		Element table = DOM.createTable();
+		Element TR = DOM.createTR();
+		table.appendChild(TR);
+
+		Element indexBoxTD = createTDWithIndexBox(indexBox);
+		TR.appendChild(indexBoxTD);
+
+		Element textTD = createTDWithItemText();
+		TR.appendChild(textTD);
+
+		Element item = DOM.createDiv();
+		item.setClassName("item-wrapper");
+		item.appendChild(table);
+		return item;
+	}
+
+	private Element createTDWithIndexBox(Element indexBox){
+		Element indexBoxTD = DOM.createTD();
+		indexBoxTD.appendChild(indexBox);
+		return indexBoxTD;
+	}
+
+	private Element createTDWithItemText(){
+		Element textTD = DOM.createTD();
+		textTD.setInnerHTML(this.getText());
+		return textTD;
+	}
 
 }

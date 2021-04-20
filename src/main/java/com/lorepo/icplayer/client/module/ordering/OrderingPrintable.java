@@ -1,11 +1,10 @@
 package com.lorepo.icplayer.client.module.ordering;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 
-import com.google.gwt.user.client.Random;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.DOM;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableController;
@@ -14,73 +13,85 @@ public class OrderingPrintable {
 
 	OrderingModule model = null;
 	PrintableController controller = null;
+	PrintableCollection collection = null;
+	HashMap<String, String> printableState = null;
 	
-	public OrderingPrintable(OrderingModule model, PrintableController controller) {
+	public OrderingPrintable(
+			OrderingModule model, PrintableController controller) {
 		this.model = model;
 		this.controller = controller;
+		this.collection = new PrintableCollection(controller, model.getItemCount());
 	}
 	
 	public String getPrintableHTML(String className, boolean showAnswers) {
-		if (model.getPrintable() == PrintableMode.NO)
+		if (this.model.getPrintable() == PrintableMode.NO)
 			return null;
 
-		HashMap<String, String> printableState = model.getPrintableState();
 		String representation;
-
-		if (printableState != null && printableState.containsKey("order"))
-			representation = createPrintableRepresentationIfPrintableState(showAnswers, printableState);
+		this.printableState = this.model.getPrintableState();
+		boolean isPrintableState =
+				(this.printableState != null
+						&& this.printableState.containsKey("order"));
+		if (isPrintableState)
+			representation = createPrintableRepresentationIfPrintableState(
+					showAnswers);
 		else
-			representation = createPrintableRepresentationIfNotPrintableState(showAnswers);
+			representation = createPrintableRepresentationIfNotPrintableState(
+					showAnswers);
 		return PrintableContentParser.addClassToPrintableModule(
-				representation, className, !model.isSplitInPrintBlocked());
+				representation, className, !this.model.isSplitInPrintBlocked());
 	}
 
 	private String createPrintableRepresentationIfPrintableState(
-			boolean checkAnswers, HashMap<String, String> printableState) {
-		String[] parsedItems = new String[model.getItemCount()];
-		List<String> unorderedItems = new ArrayList<String>();
-
-		Integer[] itemsIndexesFromState = getItemsIndexesInOrderFromState(printableState);
+			boolean checkAnswers) {
+		Integer[] itemsIndexesFromState
+				= getItemsIndexesInOrderFromState(this.printableState);
 		boolean isAllInCorrectOrder = true;
 
 		for (int i = 0; i < itemsIndexesFromState.length; i++) {
 			int itemPosition = i+1;
-			for (int j = 0; j < model.getItemCount(); j++) {
-				OrderingItem item = model.getItem(j);
+			for (int j = 0; j < this.model.getItemCount(); j++) {
+				OrderingItem item = this.model.getItem(j);
 				if (item.getIndex() == itemsIndexesFromState[i]) {
 					boolean isCorrectOrder = item.isCorrect(itemPosition);
 					isAllInCorrectOrder &= isCorrectOrder;
 
-					String indexBox = createPrintableIndexBoxIfPrintableState(itemPosition, checkAnswers, isCorrectOrder);
-					String printableItem = createPrintableItem(item, indexBox);
-					addPrintableItemToAppropriateArray(item, printableItem, parsedItems, unorderedItems);
+					Element indexBox = createPrintableIndexBoxIfPrintableState(
+							itemPosition, checkAnswers, isCorrectOrder);
+					Element printableItem = createPrintableItem(item, indexBox);
+					this.collection.addItemToAppropriateArray(item, printableItem);
 					break;
 				}
 			}
 		}
-		sortUnorderedPrintableItems(unorderedItems);
-		mergeUnorderedPrintableItemsToOrderedArray(parsedItems, unorderedItems);
-		String itemsHTML = combinePrintableItems(parsedItems);
-		if (checkAnswers)
-			itemsHTML += generateSignWrapper(isAllInCorrectOrder);
-		return wrapHTMLInPrintableClass(itemsHTML);
+		this.collection.sortAndMergeItems();
+
+		Element classWrapper = createPrintableClassWrapper();
+		Element items = combinePrintableItems(this.collection.getOrderedItems());
+		classWrapper.appendChild(items);
+		if (checkAnswers) {
+			Element sign = createSign(isAllInCorrectOrder);
+			classWrapper.appendChild(sign);
+		}
+		return classWrapper.getString();
 	}
 
-	private String createPrintableRepresentationIfNotPrintableState(boolean showAnswers) {
-		String[] orderedItems = new String[model.getItemCount()];
-		List<String> unorderedItems = new ArrayList<String>();
-
+	private String createPrintableRepresentationIfNotPrintableState(
+			boolean showAnswers) {
 		OrderingItem item;
-		for (int i = 0; i < model.getItemCount(); i++) {
-			item = model.getItem(i);
-			String indexBox = createPrintableIndexBoxIfNotPrintableState(item.getIndex(), showAnswers);
-			String printableItem = createPrintableItem(item, indexBox);
-			addPrintableItemToAppropriateArray(item, printableItem, orderedItems, unorderedItems);
+		for (int i = 0; i < this.model.getItemCount(); i++) {
+			item = this.model.getItem(i);
+			Element indexBox = createPrintableIndexBoxIfNotPrintableState(
+					item.getIndex(), showAnswers);
+			Element printableItem = createPrintableItem(item, indexBox);
+			this.collection.addItemToAppropriateArray(item, printableItem);
 		}
-		sortUnorderedPrintableItems(unorderedItems);
-		mergeUnorderedPrintableItemsToOrderedArray(orderedItems, unorderedItems);
-		String itemsHTML = combinePrintableItems(orderedItems);
-		return wrapHTMLInPrintableClass(itemsHTML);
+		this.collection.sortAndMergeItems();
+
+		Element classWrapper = createPrintableClassWrapper();
+		Element items = combinePrintableItems(this.collection.getOrderedItems());
+		classWrapper.appendChild(items);
+		return classWrapper.getString();
 	}
 
 	/**
@@ -90,7 +101,8 @@ public class OrderingPrintable {
 	 *                           Numbers must be separated by a comma. Example: "3,1,2"
 	 * @return                indexes items in order from the state
 	 */
-	private Integer[] getItemsIndexesInOrderFromState(HashMap<String, String> printableState) {
+	private Integer[] getItemsIndexesInOrderFromState(
+			HashMap<String, String> printableState) {
 		String orderState = printableState.get("order");
 		String[] indexes = orderState.split(",");
 		Integer[] parsedIndexes = new Integer[indexes.length];
@@ -100,133 +112,125 @@ public class OrderingPrintable {
 		return parsedIndexes;
 	}
 
-	private String createPrintableIndexBoxIfPrintableState(
-			Integer itemPosition, boolean checkAnswers, boolean isCorrectOrder){
-		if (checkAnswers) {
-			if (isCorrectOrder)
-				return createPrintableIndexBoxWithCorrectSignHTML(itemPosition);
-			else {
-				return createPrintableIndexBoxWithWrongSignHTML(itemPosition);
-			}
-		}
-		return createPrintableIndexBoxHTML(itemPosition);
+	private Element createPrintableIndexBoxIfPrintableState(
+			Integer itemPosition, boolean checkAnswers,
+			boolean isCorrectOrder) {
+		if (checkAnswers)
+			return createPrintableIndexBoxForCheckAnswers(
+					itemPosition, isCorrectOrder);
+		return createPrintableIndexBoxForShowUserAnswers(itemPosition);
 	}
 
-	private String createPrintableIndexBoxIfNotPrintableState(
+	private Element createPrintableIndexBoxForCheckAnswers(
+			Integer itemPosition, boolean isCorrectOrder) {
+		if (isCorrectOrder)
+			return createPrintableIndexBoxWithCorrectSign(itemPosition);
+		return createPrintableIndexBoxWithWrongSign(itemPosition);
+	}
+
+	private Element createPrintableIndexBoxForShowUserAnswers(
+			Integer itemPosition) {
+		return createPrintableIndexBox(itemPosition);
+	}
+
+	private Element createPrintableIndexBoxIfNotPrintableState(
 			Integer itemPosition, boolean showAnswers){
 		if (showAnswers)
-			return createPrintableIndexBoxHTML(itemPosition);
-		return createPrintableEmptyIndexBoxHTML();
+			return createPrintableIndexBoxForShowAnswers(itemPosition);
+		return createPrintableIndexBoxForEmptyState();
 	}
 
-	private String createPrintableEmptyIndexBoxHTML() {
-		return "<div class=\"number-box\"/>";
+	private Element createPrintableIndexBoxForShowAnswers(
+			Integer itemPosition) {
+		return createPrintableIndexBox(itemPosition);
 	}
 
-	private String createPrintableIndexBoxHTML(Integer index) {
-		return "<div class=\"number-box\">" + index + "</div>";
+	private Element createPrintableIndexBoxForEmptyState() {
+		return createPrintableEmptyIndexBox();
 	}
 
-	private String createPrintableIndexBoxWithCorrectSignHTML(Integer index) {
-		return "<div class=\"number-box-correct\">" + index + "</div>";
+	private Element createPrintableEmptyIndexBox() {
+		Element box = DOM.createDiv();
+		box.setClassName("number-box");
+		return box;
 	}
 
-	private String createPrintableIndexBoxWithWrongSignHTML(Integer index) {
-		return "<div class=\"number-box-wrong\">" + index + "</div>";
+	private Element createPrintableIndexBox(Integer index) {
+		Element box = DOM.createDiv();
+		box.setClassName("number-box");
+		box.setInnerHTML(index.toString());
+		return box;
 	}
 
-	private String createPrintableItem(OrderingItem item, String indexBox) {
-		if (model.isVertical())
-			return createVerticalPrintableItemHTML(item, indexBox);
-		return createHorizontalPrintableItemHTML(item, indexBox);
+	private Element createPrintableIndexBoxWithCorrectSign(Integer index) {
+		Element box = DOM.createDiv();
+		box.setClassName("number-box-correct");
+		box.setInnerHTML(index.toString());
+		return box;
 	}
 
-	private String createVerticalPrintableItemHTML(OrderingItem item, String indexBox) {
-		String html = "<div style=\"display: block\">";
-		html += createPrintableItemHTML(item, indexBox);
-		html += "</div>";
-		return html;
+	private Element createPrintableIndexBoxWithWrongSign(Integer index) {
+		Element box = DOM.createDiv();
+		box.setClassName("number-box-wrong");
+		box.setInnerHTML(index.toString());
+		return box;
 	}
 
-	private String createHorizontalPrintableItemHTML(OrderingItem item, String indexBox) {
-		String html = "<div style=\"display: inline-block\">";
-		html += createPrintableItemHTML(item, indexBox);
-		html += "</div>";
-		return html;
+	private Element createPrintableItem(OrderingItem item, Element indexBox) {
+		if (this.model.isVertical())
+			return createVerticalPrintableItem(item, indexBox);
+		return createHorizontalPrintableItem(item, indexBox);
 	}
 
-	private String createPrintableItemHTML(OrderingItem item, String indexBoxHTML){
-		String html = "<div class=\"item-wrapper\">";
-		html += "<table><tr><td>";
-		html += indexBoxHTML;
-		html += "</td><td>";
-		html += item.getText();
-		html += "</td></tr></table></div>";
-		return html;
+	private Element createVerticalPrintableItem(
+			OrderingItem orderingItem, Element indexBox) {
+		Element item = DOM.createDiv();
+		Style style = item.getStyle();
+		style.setDisplay(Style.Display.BLOCK);
+		item.appendChild(orderingItem.toPrintableDOMElement(indexBox));
+		return item;
 	}
 
-	private void addPrintableItemToAppropriateArray(
-			OrderingItem item, String itemRepresentation, String[] orderedArray,
-			List<String> unorderedArray) {
-		Integer startingPosition = item.getStartingPosition();
-		if (startingPosition != null) {
-			orderedArray[startingPosition - 1] = itemRepresentation;
-		} else {
-			unorderedArray.add(itemRepresentation);
+	private Element createHorizontalPrintableItem(
+			OrderingItem orderingItem, Element indexBox) {
+		Element item = DOM.createDiv();
+		Style style = item.getStyle();
+		style.setDisplay(Style.Display.INLINE_BLOCK);
+		item.appendChild(orderingItem.toPrintableDOMElement(indexBox));
+		return item;
+	}
+
+	private Element combinePrintableItems(Element[] items) {
+		Element div = DOM.createDiv();
+		div.setClassName("items-wrapper");
+		for (Element printableItem: items) {
+			div.appendChild(printableItem);
 		}
+		return div;
 	}
 
-	private void sortUnorderedPrintableItems(List<String> items){
-		for(int index = 0; index < items.size(); index += 1) {
-			Collections.swap(items, index, index + nextInt(items.size() - index));
-		}
-	}
-
-	private void mergeUnorderedPrintableItemsToOrderedArray(
-			String[] orderedItems, List<String> unorderedItems){
-		for (int i = 0; i < orderedItems.length; i++) {
-			if (orderedItems[i] == null) {
-				orderedItems[i] = unorderedItems.get(0);
-				unorderedItems.remove(0);
-			}
-		}
-	}
-
-	private String combinePrintableItems(String[] items) {
-		String html = "<div class=\"items-wrapper\">";
-		for (String printableItem: items) {
-			html += printableItem;
-		}
-		html += "</div>";
-		return html;
-	}
-
-	private String generateSignWrapper(boolean isAllCorrect) {
+	private Element createSign(boolean isAllCorrect) {
 		if (isAllCorrect)
-			return generateIsAllOkSign();
-		return generateIsNotAllOkSign();
+			return createIsAllOkSign();
+		return createIsNotAllOkSign();
 	}
 
-	private String wrapHTMLInPrintableClass(String html) {
-		return "<div class=\"printable_ic_ordering\" id=\"" + model.getId() +"\">" + html + "</div>";
+	private Element createIsAllOkSign() {
+		Element sign = DOM.createDiv();
+		sign.setClassName("is-all-ok-sign-wrapper");
+		return sign;
 	}
 
-	private String generateIsAllOkSign() {
-		return "<div class=\"is-all-ok-sign-wrapper\"/>";
+	private Element createIsNotAllOkSign() {
+		Element sign = DOM.createDiv();
+		sign.setClassName("is-not-all-ok-sign-wrapper");
+		return sign;
 	}
 
-	private String generateIsNotAllOkSign() {
-		return "<div class=\"is-not-all-ok-sign-wrapper\"/>";
+	private Element createPrintableClassWrapper() {
+		Element wrapper = DOM.createDiv();
+		wrapper.setClassName("printable_ic_ordering");
+		wrapper.setId(this.model.getId());
+		return wrapper;
 	}
-
-	private int nextInt(int upperBound) {
-		int result = 0;
-		if (controller != null) {
-			result = controller.nextInt(upperBound);
-		} else {
-			result = Random.nextInt(upperBound);
-		}
-		return result;
-	}
-	
 }
