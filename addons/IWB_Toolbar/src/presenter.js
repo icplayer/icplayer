@@ -33,6 +33,10 @@ function AddonIWB_Toolbar_create() {
     presenter._setState = {};
     presenter._setState.images = [];
 
+    presenter.currentState = "";
+    presenter.stateStack = [];
+    presenter.stateStackOverflow = false;
+
     presenter._stopwatchTimer = null;
     presenter._stopwatch = null;
 
@@ -530,6 +534,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.markerMouseUpHandler = function IWB_Toolbar_mouseUpHandler(e) {
+        console.log("marker mouse up");
         e.stopPropagation();
         e.preventDefault();
 
@@ -546,6 +551,8 @@ function AddonIWB_Toolbar_create() {
 
         presenter.points = [];
         presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
+
+        presenter.pushStateToStack();
     };
 
     presenter.markerDrawingLogic = function IWB_Toolbar_markerDrawingLogic() {
@@ -605,6 +612,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.penMouseUpHandler = function IWB_Toolbar_penMouseUpHandler(e) {
+        console.log("pen mouse up");
         e.stopPropagation();
         e.preventDefault();
         if (presenter.isMouseDown) {
@@ -613,6 +621,8 @@ function AddonIWB_Toolbar_create() {
         presenter.isMouseDown = false;
         setOverflowWorkAround(false);
         presenter.penDataURL = presenter.canvas[0].toDataURL('image/png');
+
+        presenter.pushStateToStack();
     };
 
     presenter.drawingLogic = function IWB_Toolbar_drawingLogic() {
@@ -727,7 +737,7 @@ function AddonIWB_Toolbar_create() {
         if (model['widthWhenOpened']) {
             validated = ModelValidationUtils.validatePositiveInteger(model['widthWhenOpened']);
         } else {
-            var width = 538 + hasCustomButton * 36;
+            var width = 574 + hasCustomButton * 36;
             validated = getCorrectObject(width);
         }
 
@@ -1030,6 +1040,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.eraserClickHandler = function IWB_Toolbar_eraserClickHandler(button) {
+        console.log("eraser click handler");
         presenter.isZoomActive = false;
         presenter.restoreTextAudioEventHandlers();
         presenter.panelView(button);
@@ -1112,6 +1123,10 @@ function AddonIWB_Toolbar_create() {
         presenter.markerDataUrl = null;
     };
 
+    presenter.resetOneClickHandler = function IWB_Toolbar_resetOneClickHandler(button) {
+        presenter.restoreLastState();
+    }
+
     presenter.noteClickHandler = function IWB_Toolbar_noteClickHandler(button) {
         presenter.isZoomActive = false;
         presenter.restoreTextAudioEventHandlers();
@@ -1131,8 +1146,11 @@ function AddonIWB_Toolbar_create() {
             presenter.$pagePanel.find('.note').addClass('clicked');
         });
         presenter.$pagePanel.find('.note').on('mouseup', function() {
+            console.log("note mouseup");
             presenter.$pagePanel.find('.note').removeClass('clicked');
         });
+
+        presenter.pushStateToStack();
     };
 
     presenter.customScriptCreateEventData = function() {
@@ -1209,6 +1227,7 @@ function AddonIWB_Toolbar_create() {
             presenter.$pagePanel.find('.stopwatch').removeClass('clicked');
         });
         presenter.createStopwatch();
+        presenter.pushStateToStack();
     };
 
     presenter.closeClickHandler = function IWB_Toolbar_closeClickHandler(button) {
@@ -1419,6 +1438,10 @@ function AddonIWB_Toolbar_create() {
         'reset' : {
             'onOpen': presenter.resetClickHandler,
             'onReclicked': presenter.resetClickHandler
+        },
+        'reset-one' : {
+            'onOpen': presenter.resetOneClickHandler,
+            'onReclicked': presenter.resetOneClickHandler
         },
         'note' : {
             'onOpen': presenter.noteClickHandler,
@@ -2112,6 +2135,7 @@ function AddonIWB_Toolbar_create() {
 
                     stop: function NoteStopFunction() {
                         $.ui.ddmanager.current = null;
+                        presenter.pushStateToStack();
                     }
                 });
 
@@ -2181,6 +2205,7 @@ function AddonIWB_Toolbar_create() {
                 clearTimeout(presenter._stopwatchTimer);
                 presenter.stopButtonClicked = true;
                 presenter.startButtonClicked = false;
+                presenter.pushStateToStack();
             });
 
             $(clear).on('click', function() {
@@ -2189,6 +2214,7 @@ function AddonIWB_Toolbar_create() {
                 h1.textContent = "00:00:00";
                 presenter.seconds = 0; presenter.minutes = 0; presenter.hours = 0;
                 presenter.stopButtonClicked = false;
+                presenter.pushStateToStack();
             });
 
             presenter._stopwatch = {
@@ -2256,6 +2282,8 @@ function AddonIWB_Toolbar_create() {
                 },
                 stop: function NoteStopFunction() {
                     $.ui.ddmanager.current = null;
+                    console.log("stop");
+                    //presenter.pushStateToStack();
                 }
             });
 
@@ -2361,6 +2389,7 @@ function AddonIWB_Toolbar_create() {
         this.$noteBody.html(value);
         this.$textarea.remove();
         this.connectNoteEditHandler();
+        presenter.pushStateToStack();
     };
 
     presenter.Note.prototype.noteEditHandler = function () {
@@ -2410,6 +2439,7 @@ function AddonIWB_Toolbar_create() {
             }, note);
             note.destroy();
             confirmation.hide();
+            presenter.pushStateToStack();
         });
     };
 
@@ -2466,6 +2496,7 @@ function AddonIWB_Toolbar_create() {
 
             stop: function NoteStopFunction() {
                 $.ui.ddmanager.current = null;
+                presenter.pushStateToStack();
             }
         });
     };
@@ -2847,6 +2878,7 @@ function AddonIWB_Toolbar_create() {
                 $.ui.ddmanager.current = null;
 
                 presenter.zoomConfiguration.viewLeftOffset = presenter.$panel.offset().left;
+                presenter.pushStateToStack();
             }
         });
 
@@ -2918,6 +2950,7 @@ function AddonIWB_Toolbar_create() {
 
         presenter.updateZoomConfiguration();
     };
+
 
     presenter.onDestroy = function () {
         clearCanvases();
@@ -3350,6 +3383,7 @@ function AddonIWB_Toolbar_create() {
         presenter.hideAreaClickHandler = null;
         presenter.standAreaClickHandler = null;
         presenter.resetClickHandler = null;
+        presenter.resetOneClickHandler = null;
         presenter.noteClickHandler = null;
         presenter.customScriptClickHandler = null;
         presenter.floatingImageClickHandler = null;
@@ -3623,7 +3657,7 @@ function AddonIWB_Toolbar_create() {
            'shouldSaveColor': presenter.shouldSaveColor
         };
 
-        return JSON.stringify({
+        var state = {
            'areas' : presenter.areas,
            'notes' : notes,
            'clocks' : clocks,
@@ -3644,7 +3678,9 @@ function AddonIWB_Toolbar_create() {
            'buttonColor': $(presenter.buttonColor).attr("color"),
            'buttonThickness': $(presenter.buttonThickness).attr("thickness"),
            'shouldSaveColor': presenter.shouldSaveColor
-        });
+        };
+        console.log(state);
+        return JSON.stringify(state);
     };
 
     /**
@@ -3731,6 +3767,7 @@ function AddonIWB_Toolbar_create() {
         var parsedState = JSON.parse(state);
         
         var upgradedState = presenter.upgradeState(parsedState);
+        console.log(upgradedState);
 
         presenter.areas = parsedState.areas;
         presenter.stopwatches = parsedState.stopwatches;
@@ -3892,6 +3929,48 @@ function AddonIWB_Toolbar_create() {
         presenter.data.eraserThickness = parseInt(thickness, 10);
         presenter.changeThickness(presenter.data.eraserThickness);
     };
+
+    presenter.pushStateToStack = function() {
+        console.log("pushStateToStack");
+        var newState = presenter.getState();
+        if (newState != presenter.currentState) {
+            console.log("it's different!");
+            if (presenter.currentState.length > 0) {
+                    presenter.stateStack.push(presenter.currentState);
+                    console.log("saved!!");
+                    if (presenter.stateStack.length > 5) {
+                        presenter.stateStackOverflow = true;
+                        presenter.stateStack.shift();
+                    }
+
+            }
+            presenter.currentState = newState;
+        }
+    }
+
+    function destroyNotes() {
+        for (var i = 0; i < presenter.noteObjects.length; i++) {
+            presenter.noteObjects[i].destroy();
+        }
+        presenter.noteObjects = [];
+
+        if (presenter.stopwatchAdded) {
+            presenter._stopwatch.closeButton.click();
+        }
+    }
+
+    presenter.restoreLastState = function() {
+        presenter.currentState = "";
+        if (presenter.stateStack.length > 0) {
+            var lastState = presenter.stateStack.pop();
+            presenter.reset();
+            destroyNotes();
+            presenter.setState(lastState);
+        } else if (!presenter.stateStackOverflow) {
+            presenter.reset();
+            destroyNotes();
+        }
+    }
 
     return presenter;
 }

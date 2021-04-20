@@ -178,6 +178,14 @@
     background-image: url('resources/wb_panel_reset_icon-active.svg');
 }
 
+.iwb-toolbar-panel .button.reset-one {
+    background-image: url('resources/wb_panel_reset_icon.svg');
+}
+
+.iwb-toolbar-panel .button.reset-one.clicked {
+    background-image: url('resources/wb_panel_reset_icon-active.svg');
+}
+
 .iwb-toolbar-panel .button.default {
     background-image: url('resources/wb_panel_cursor_icon.svg');
 }
@@ -611,6 +619,10 @@
 
 .iwb-toolbar-panel .button.reset .tooltip span:after {
     content: 'Undo All';
+}
+
+.iwb-toolbar-panel .button.reset-one .tooltip span:after {
+    content: 'Undo';
 }
 
 .iwb-toolbar-panel .button.floating-image .tooltip span:after {
