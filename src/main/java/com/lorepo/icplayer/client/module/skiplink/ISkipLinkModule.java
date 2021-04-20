@@ -8,4 +8,5 @@ public interface ISkipLinkModule extends IModuleModel {
     String getName();
     List<? extends ISkipLinkItem> getItems();
     String getId();
+    String getSpeechTextItem(SpeechText type);
 }

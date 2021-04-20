@@ -27,6 +27,8 @@ public class SkipLinkPresenter implements ISkipLinkPresenter, IPresenter, IComma
     public void addView(IModuleView view) {
         if (view instanceof SkipLinkView) {
             this.view = (SkipLinkView) view;
+
+            this.addViewEventsListener();
         }
     }
 
@@ -87,18 +89,29 @@ public class SkipLinkPresenter implements ISkipLinkPresenter, IPresenter, IComma
 
     @Override
     public void selectAsActive(String className) {
-        this.view.getElement().addClassName(className);
-        this.view.setVisible(true);
+        view.enterNavigation(className);
     }
 
     @Override
     public void deselectAsActive(String className) {
-        this.view.setVisible(false);
-        this.view.getElement().removeClassName(className);
+        view.exitNavigation(className);
     }
 
     @Override
     public boolean isSelectable(boolean isTextToSpeechOn) {
         return true;
+    }
+
+    private void addViewEventsListener() {
+        this.view.addListener(new ISkipLinkViewListener() {
+            @Override
+            public void moduleIdSelected(String selectedModuleId) {
+                selectModuleInKeyboardNavigation(selectedModuleId);
+            }
+        });
+    }
+
+    private void selectModuleInKeyboardNavigation(String moduleId) {
+        services.getCommands().switchKeyboardNavigationToModule(moduleId);
     }
 }

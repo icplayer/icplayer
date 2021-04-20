@@ -4,23 +4,29 @@ import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
-import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.api.IModuleView;
+import com.lorepo.icplayer.client.page.ITextToSpeechController;
 import com.lorepo.icplayer.client.page.PageController;
 
+import java.util.Collections;
+
 public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, IModuleView {
-    private ISkipLinkModule module;
-    private String skipLinkItemClass = "skiplink-item";
-    private SkipLinkKeyboardManager keyboardManager;
+    private final ISkipLinkModule module;
+    private final String skipLinkItemClass = "skiplink-item";
+    private final SkipLinkKeyboardManager keyboardManager;
+    private ISkipLinkViewListener listener;
+    private ITextToSpeechController speechController;
+    private boolean isWCAGOn = false;
 
     public SkipLinkView(ISkipLinkModule module, boolean isPreview) {
         this.getElement().setId(module.getId());
         this.module = module;
 
         for (ISkipLinkItem item : module.getItems()) {
-            Widget elementDisplay = new HTML(item.getModuleId());
+            Widget elementDisplay = new HTML(item.getModuleText());
 
             elementDisplay.addStyleName(skipLinkItemClass);
             elementDisplay.setVisible(isPreview);
@@ -28,7 +34,7 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
             this.add(elementDisplay);
         }
 
-         keyboardManager = new SkipLinkKeyboardManager(module.getItems().size());
+        keyboardManager = new SkipLinkKeyboardManager(module.getItems().size());
         // module only visible in preview
         this.setVisible(isPreview);
     }
@@ -36,18 +42,41 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
     @Override
     public void enter(KeyDownEvent event, boolean isExiting) {
         if (isExiting) {
-            keyboardManager.reset();
-            this.setVisible(false);
+            exitNavigation();
         } else {
             if (keyboardManager.isActive()) {
-                JavaScriptUtils.log(module.getItems().get(keyboardManager.getCurrentSelected()).getModuleId());
+                String selectedModuleId = module.getItems().get(keyboardManager.getCurrentSelected()).getModuleId();
+                listener.moduleIdSelected(selectedModuleId);
             } else {
                 this.setVisible(true);
                 keyboardManager.setActive(true);
-                this.getChildren().get(keyboardManager.getCurrentSelected()).setVisible(true);
+                setCurrentItemVisible();
+                speakCurrentVisibleItem();
             }
 
         }
+    }
+
+    public void addListener(ISkipLinkViewListener addedListener) {
+        this.listener = addedListener;
+    }
+
+    public void enterNavigation(String className) {
+        getElement().addClassName(className);
+        setVisible(true);
+        setCurrentItemVisible();
+        speakCurrentVisibleItem();
+    }
+
+    public void exitNavigation(String className) {
+        exitNavigation();
+        getElement().removeClassName(className);
+    }
+
+    public void exitNavigation() {
+        setCurrentItemInvisible();
+        setVisible(false);
+        keyboardManager.reset();
     }
 
     @Override
@@ -57,9 +86,10 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
 
     @Override
     public void tab(KeyDownEvent event) {
-        setCurrentVisible(false);
+        setCurrentItemInvisible();
         keyboardManager.increase();
-        setCurrentVisible(true);
+        setCurrentItemVisible();
+        speakCurrentVisibleItem();
     }
 
     @Override
@@ -95,19 +125,21 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
 
     @Override
     public void shiftTab(KeyDownEvent event) {
-        setCurrentVisible(false);
+        setCurrentItemInvisible();
         keyboardManager.decrease();
-        setCurrentVisible(true);
+        setCurrentItemVisible();
+        speakCurrentVisibleItem();
     }
 
     @Override
     public void setPageController(PageController pc) {
-
+        this.setWCAGStatus(true);
+        this.speechController = pc;
     }
 
     @Override
     public void setWCAGStatus(boolean isWCAGOn) {
-
+        this.isWCAGOn = isWCAGOn;
     }
 
     @Override
@@ -120,9 +152,29 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
         return module.getName();
     }
 
-    private void setCurrentVisible(boolean visible) {
+    private void setCurrentItemInvisible() {
         int currentIndex = keyboardManager.getCurrentSelected();
-        getChildren().get(currentIndex).setVisible(visible);
+        getChildren().get(currentIndex).setVisible(false);
+    }
+
+    private void setCurrentItemVisible() {
+        int currentIndex = keyboardManager.getCurrentSelected();
+        getChildren().get(currentIndex).setVisible(true);
+    }
+
+    private void speakCurrentVisibleItem() {
+        if (this.isWCAGOn && this.speechController != null) {
+            ISkipLinkItem currentlySelectedItem = module.getItems().get(keyboardManager.getCurrentSelected());
+
+            String text = currentlySelectedItem.getModuleText();
+            String langTag = currentlySelectedItem.getModuleTextLang();
+            TextToSpeechVoice currentItem = TextToSpeechVoice.create(text, langTag);
+
+            speechController.speak(
+                Collections.singletonList(currentItem)
+            );
+        }
+
     }
 
 }

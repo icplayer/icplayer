@@ -3,11 +3,14 @@ package com.lorepo.icplayer.client.module.skiplink;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 import com.lorepo.icf.properties.IListProperty;
 import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,12 +18,15 @@ import java.util.List;
 
 public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule {
     private final List<SkipLinkItem> items;
+    private final List<SpeechTextsStaticListItem> speechTextItems;
 
     public SkipLinkModule() {
         super("SkipLink", DictionaryWrapper.get("skiplink_module"));
         this.items = new ArrayList<SkipLinkItem>();
+        this.speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 
         addPropertyItems();
+        addSpeechTextItems();
     }
 
     @Override
@@ -31,6 +37,17 @@ public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule 
     @Override
     public List<? extends ISkipLinkItem> getItems() {
         return items;
+    }
+
+    @Override
+    public String getSpeechTextItem(SpeechText type) {
+        for (SpeechTextsStaticListItem item : speechTextItems) {
+            if (item.getProviderName().equals(type.getValue())) {
+                return item.getText();
+            }
+        }
+
+        return "";
     }
 
     @Override
@@ -54,8 +71,10 @@ public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule 
 
             NodeList itemsList = itemTag.getChildNodes();
             for (int i = 0; i < itemsList.getLength(); i++) {
-                Element item = (Element) itemsList.item(i);
-                items.add(SkipLinkItem.fromXML(item));
+                if (itemsList.item(i) instanceof Element) {
+                    Element item = (Element) itemsList.item(i);
+                    items.add(SkipLinkItem.fromXML(item));
+                }
             }
         }
     }
@@ -68,6 +87,28 @@ public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule 
         }
 
         return xmlItems;
+    }
+
+    private void addItems(int count) {
+        for (int i = 0; i < count; i++) {
+            items.add(new SkipLinkItem());
+        }
+    }
+
+    private void removeItem(int index) {
+        items.remove(index);
+    }
+
+    private void moveItemUp(int index) {
+        if (index > 0) {
+            Collections.swap(items, index, index - 1);
+        }
+    }
+
+    private void moveItemDown(int index) {
+        if (index < items.size()) {
+            Collections.swap(items, index, index + 1);
+        }
     }
 
     private void addPropertyItems() {
@@ -84,7 +125,7 @@ public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule 
 
             @Override
             public String getName() {
-                return DictionaryWrapper.get("skiplink_item");
+                return DictionaryWrapper.get("skiplink_items");
             }
 
             @Override
@@ -136,27 +177,58 @@ public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule 
         addProperty(property);
     }
 
-    private void addItems(int count) {
-        for (int i = 0; i < count; i++) {
-            items.add(new SkipLinkItem());
-        }
-    }
+    private void addSpeechTextItems() {
+        IStaticListProperty property = new IStaticListProperty() {
+            @Override
+            public String getName() {
+                return DictionaryWrapper.get("skiplink_property_speech_texts");
+            }
 
-    private void removeItem(int index) {
-        items.remove(index);
-    }
+            @Override
+            public String getValue() {
+                return Integer.toString(speechTextItems.size());
+            }
 
-    private void moveItemUp(int index) {
-        if (index > 0) {
-            Collections.swap(items, index, index - 1);
-        }
-    }
+            @Override
+            public String getDisplayName() {
+                return DictionaryWrapper.get("skiplink_property_speech_texts");
+            }
 
-    private void moveItemDown(int index) {
-        if (index < items.size()) {
-            Collections.swap(items, index, index + 1);
-        }
-    }
+            @Override
+            public void setValue(String newValue) {}
 
+            @Override
+            public boolean isDefault() {
+                return false;
+            }
+
+            @Override
+            public int getChildrenCount() {
+                return speechTextItems.size();
+            }
+
+            @Override
+            public void addChildren(int count) {
+                speechTextItems.add(new SpeechTextsStaticListItem(SpeechText.SELECTED.getValue(), "skiplink_property_"));
+                speechTextItems.add(new SpeechTextsStaticListItem(SpeechText.DESELECTED.getValue(), "skiplink_property_"));
+            }
+
+            @Override
+            public IPropertyProvider getChild(int index) {
+                return speechTextItems.get(index);
+            }
+
+            @Override
+            public void moveChildUp(int index) {
+            }
+
+            @Override
+            public void moveChildDown(int index) {
+            }
+
+        };
+
+        addProperty(property);
+    }
 
 }

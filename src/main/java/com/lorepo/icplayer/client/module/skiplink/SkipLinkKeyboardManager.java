@@ -26,8 +26,8 @@ public class SkipLinkKeyboardManager {
     }
 
     public void decrease() {
-        if (currentSelected == 0) {
-            currentSelected = max;
+        if (currentSelected <= 0) {
+            currentSelected = max - 1;
         } else {
             this.currentSelected--;
         }

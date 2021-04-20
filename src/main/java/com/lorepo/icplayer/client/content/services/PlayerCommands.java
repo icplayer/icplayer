@@ -161,7 +161,12 @@ public class PlayerCommands implements IPlayerCommands {
 	public void updateCurrentPageScoreWithMistakes(int mistakes) {
 		pageController.updateScoreWithMistakes(mistakes);
 	}
-	
+
+	@Override
+	public void switchKeyboardNavigationToModule(String moduleId) {
+		controller.switchKeyboardNavigationToModule(moduleId);
+	}
+
 	@Override
 	public void updateCurrentPageScore(boolean incrementCheckCounter) {
 		pageController.updateScore(incrementCheckCounter);
