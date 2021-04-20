@@ -8,6 +8,8 @@ import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.content.services.externalNotifications.IObserverService;
+import com.lorepo.icplayer.client.content.services.externalNotifications.ObserverService;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -28,6 +30,7 @@ public class PlayerServices implements IPlayerServices {
 	private boolean isAbleChangeLayout = true;
 	private PlayerApp application = null;
 	private final PlayerStateService playerStateService;
+	private final IObserverService observerService;
 
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 		this.playerController = controller;
@@ -36,6 +39,7 @@ public class PlayerServices implements IPlayerServices {
 		playerCommands = new PlayerCommands(pageController, playerController);
 		eventBusService = new PlayerEventBusService(this);
 		playerStateService = new PlayerStateService(this);
+		observerService = new ObserverService();
 	}
 	
 	@Override
@@ -381,6 +385,11 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public IGradualShowAnswersService getGradualShowAnswersService() {
 		return pageController.getGradualShowAnswersService();
+	}
+
+	@Override
+	public IObserverService getObserverService() {
+		return this.observerService;
 	}
 
 	@Override
