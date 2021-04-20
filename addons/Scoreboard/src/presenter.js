@@ -1,8 +1,6 @@
 function AddonScoreboard_create() {
     var presenter = function() {};
 
-    function getErrorObject (ec) { return {isValid: false, errorCode: ec}; }
-
     presenter.teamsObjects = [];
     presenter.scoreboard = null;
 
@@ -14,10 +12,11 @@ function AddonScoreboard_create() {
 
     presenter.ERROR_CODES = {
         C01: 'Configuration cannot be empty',
-        I01: 'Maximum number of teams cannot be greater than 8',
+        I01: 'Initial number of teams is greater than maximum number of teams!',
         I02: 'Initial number of teams must be positiv integer!',
         I03: 'Initial team name cannot be empty',
         I04: 'Team color must be in RGB format (hexadecimal) and start with #',
+        I05: 'Maximum number of teams must be positiv integer!',
     };
 
     presenter.run = function (view, model) {
@@ -28,48 +27,55 @@ function AddonScoreboard_create() {
         presenterLogic(view, model, true);
     };
 
+    function deleteCommands() {
+        delete presenter.getState;
+        delete presenter.setState;
+    }
+
     function presenterLogic(view, model, isPreview) {
         presenter.configuration = presenter.validateModel(model);
+
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
+
+            deleteCommands();
             return;
         }
 
         presenter.initView(view, model);
-    }
-
-    presenter.validateInitialTeamsCount = function (number) {
-        if (!number) {
-            return getErrorObject('I02');
-        }
-
-        var parsedNumber = parseInt(number, 10);
-        if (isNaN(parsedNumber)) {
-            return getErrorObject('I02');
-        }
-
-        if (parsedNumber < 1) {
-            return getErrorObject('I02');
-        }
-
-        if (parsedNumber > 8) {
-            return getErrorObject('I01');
-        }
-
-        return {
-            isValid: true,
-            number: parsedNumber
-        }
+        
     };
 
-    presenter.validateInitialTeams = function (initialTeams) {
-        var validatedInitialTeams = [], i;
-
-        if (initialTeams.length > 8) {
-            return getErrorObject('I01');
+    presenter.validateMaximumTeamsCount = function (number) {
+        var validatedNumber = ModelValidationUtils.validateInteger(number)
+        if (!validatedNumber.isValid || validatedNumber.value < 1) {
+            return ModelValidationUtils.getErrorObject('I05');
         }
 
-        for (i = 0; i < 8; i++) {
+        return validatedNumber;
+    };
+
+    presenter.validateInitialTeamsCount = function (number, maxTeamsCount) {
+        var validatedNumber = ModelValidationUtils.validateInteger(number)
+        if (!validatedNumber.isValid || validatedNumber.value < 1) {
+            return ModelValidationUtils.getErrorObject('I02');
+        }
+
+        if (validatedNumber.value > maxTeamsCount) {
+            return ModelValidationUtils.getErrorObject('I01');
+        }
+        return validatedNumber;
+    };
+
+    presenter.validateInitialTeams = function (initialTeams, maxTeamsCount) {
+        var validatedInitialTeams = [], i;
+        var regExp = new RegExp("#[0-9a-fA-F]+");
+        
+        if (initialTeams.length > maxTeamsCount) {
+            return ModelValidationUtils.getErrorObject('I01');
+        }
+
+        for (i = 0; i < maxTeamsCount; i++) {
             var initialTeam = initialTeams[i];
 
             if(!initialTeam) {
@@ -79,25 +85,23 @@ function AddonScoreboard_create() {
             }
 
             if(ModelValidationUtils.isStringEmpty(initialTeam.teamName)) {
-                return getErrorObject('I03');
+                return ModelValidationUtils.getErrorObject('I03');
             }
 
             var teamColor = initialTeam.teamColor;
-            var regExp = new RegExp("#[0-9a-fA-F]+");
             var colorMatch;
-    
             if (!teamColor) {
                 teamColor = "#000";
             } else {
                 if (teamColor.length < 4 || teamColor.length > 7) {
-                    return getErrorObject('I04');
+                    return ModelValidationUtils.getErrorObject('I04');
                 }
                 colorMatch = teamColor.match(regExp);
                 if (!colorMatch || colorMatch === null || colorMatch.length < 1) {
-                    return getErrorObject('I04');
+                    return ModelValidationUtils.getErrorObject('I04');
                 }
                 if (colorMatch[0].length < teamColor.length) {
-                    return getErrorObject('I04');
+                    return ModelValidationUtils.getErrorObject('I04');
                 }
             }
             var initialTeamObject = {
@@ -121,17 +125,22 @@ function AddonScoreboard_create() {
 
         if (model['Broadcast'] !== "" && (ModelValidationUtils.isStringEmpty(model['VariableStorageLocation']) ||
             ModelValidationUtils.isStringEmpty(model['VariableStorageLocationName']))) {
-            return getErrorObject('C01');
+            return ModelValidationUtils.getErrorObject('C01');
         }
 
-        var validatedInitialTeams = presenter.validateInitialTeams(model['defaultTeamsList']);
-        if (!validatedInitialTeams.isValid) {
-            return validatedInitialTeams;
+        var validatedMaximumTeamsCount = presenter.validateMaximumTeamsCount(model['maximumTeamsCount']);
+        if (!validatedMaximumTeamsCount.isValid) {
+            return validatedMaximumTeamsCount;
         }
 
-        var validatedInitialTeamsCount = presenter.validateInitialTeamsCount(model['initialTeamsCount']);
+        var validatedInitialTeamsCount = presenter.validateInitialTeamsCount(model['initialTeamsCount'], validatedMaximumTeamsCount.value);
         if (!validatedInitialTeamsCount.isValid) {
             return validatedInitialTeamsCount;
+        }
+
+        var validatedInitialTeams = presenter.validateInitialTeams(model['defaultTeamsList'], validatedMaximumTeamsCount.value);
+        if (!validatedInitialTeams.isValid) {
+            return validatedInitialTeams;
         }
 
         return {
@@ -144,23 +153,28 @@ function AddonScoreboard_create() {
             variableStorageLocationName: model['VariableStorageLocationName'],
             isOnePageScoreboard: isOnePageScoreboard,
             defaultTeamsList: validatedInitialTeams.validatedInitialTeams,
-            initialTeamsCount: validatedInitialTeamsCount.number
+            maximumTeamsCount: validatedMaximumTeamsCount.value,
+            initialTeamsCount: validatedInitialTeamsCount.value
         }
     };
 
     presenter.initView = function (view, model) {
+        presenter.view = view;
         presenter.$view = $(view);
-        presenter.$view.css('width', '0px');
-        presenter.scoreboard = presenter.createScoreBoard(presenter.$view);
+        presenter.view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
+            if (ev.target === this) {
+                presenter.destroy();
+            }
+        });
+        presenter.scoreboard = presenter.createScoreboard(presenter.$view);
         for (var i = 0; i < presenter.configuration.initialTeamsCount; i++) {
-            presenter.$view.css('width', '+=110px')
             presenter.scoreboard = presenter.addTeam(presenter.configuration.defaultTeamsList[i], presenter.scoreboard);
         }
         presenter.setVisibility(presenter.configuration.isVisible);
     }
 
 // Creating scoreboard
-    presenter.Scoreboard = function () {
+    presenter.Scoreboard = function scoreboardCreate () {
         this.$scoreboard = null;
         this.$scoreboardBody = null;
         this.$scoreboardHeader = null;
@@ -172,7 +186,7 @@ function AddonScoreboard_create() {
 
     presenter.Scoreboard._internals = {};
 
-    presenter.Scoreboard._internals.createView = function (savedScoreboard) {
+    presenter.Scoreboard._internals.createView = function scoreboardCreateView (savedScoreboard) {
         this.$scoreboard = savedScoreboard;
         this.$scoreboardBody = $('<div class="scoreboard-body"></div>');
         this.$scoreboardHeader = $('<div class="scoreboard-header"></div>');
@@ -192,7 +206,7 @@ function AddonScoreboard_create() {
 
     };
 
-    presenter.Scoreboard.prototype.init = function (savedScoreboard) {
+    presenter.Scoreboard.prototype.init = function scoreboardInit (savedScoreboard) {
         presenter.Scoreboard._internals.createView.call(this, savedScoreboard);
 
         this.connectHandlers();
@@ -201,38 +215,38 @@ function AddonScoreboard_create() {
         }
     };
 
-    presenter.Scoreboard.prototype.setBody = function (body) {
+    presenter.Scoreboard.prototype.setBody = function scoreboardSetBody (body) {
         this.$scoreboardBody.append(body);
     };
 
-    presenter.Scoreboard.createScoreboard = function (savedScoreboard) {
+    presenter.Scoreboard.createScoreboard = function creatingScoreboard (savedScoreboard) {
         var scoreboard = new presenter.Scoreboard(savedScoreboard);
         scoreboard.init(savedScoreboard);
         
         return scoreboard;
     };
 
-    presenter.createScoreBoard = function Scoreboard_createScoreboard (savedScoreboard) {
+    presenter.createScoreboard = function scoreboardCreateScoreboard (savedScoreboard) {
         return presenter.Scoreboard.createScoreboard(savedScoreboard);
     }
 
-    presenter.Scoreboard.prototype.getState = function () {
+    presenter.Scoreboard.prototype.getState = function scoreboardGetState () {
         return {
             'top': this.$scoreboard.css('top'),
             'left': this.$scoreboard.css('left'),
         };
     };
 
-    presenter.Scoreboard.prototype.getView = function () {
+    presenter.Scoreboard.prototype.getView = function scoreboardGetView () {
         return this.$scoreboard;
     };
 
     // Scoreboard buttons
-    presenter.Scoreboard.prototype.closeButtonHandler = function (event) {
+    presenter.Scoreboard.prototype.closeButtonHandler = function scoreboardCloseButtonHandler (event) {
         presenter.hide();
     };
 
-    presenter.Scoreboard.prototype.resetButtonHandler = function (event) {
+    presenter.Scoreboard.prototype.resetButtonHandler = function scoreboardResetButtonHandler (event) {
         presenter.resetTeamsPoints();
     };
 
@@ -250,18 +264,15 @@ function AddonScoreboard_create() {
         return Math.min(...freeIds);
     }
 
-    presenter.Scoreboard.prototype.addTeamButtonHandler = function (event) {
-        if (presenter.state.teamsObjects.length < 8) {
+    presenter.Scoreboard.prototype.addTeamButtonHandler = function scoreboardResetButtonHandler (event) {
+        if (presenter.state.teamsObjects.length < presenter.configuration.maximumTeamsCount) {
             var availableLowestId = getLowestAvaibleTeamId();
             var defaultTeamData = presenter.configuration.defaultTeamsList[availableLowestId]
-            if (presenter.state.teamsObjects.length != 0) {
-                this.$scoreboard.css('width', '+=110px')
-            }
             presenter.addTeam(defaultTeamData, this);
         }
     };
 
-    presenter.Scoreboard.prototype.connectHandlers = function () {
+    presenter.Scoreboard.prototype.connectHandlers = function scoreboardConnectHandlers () {
         if (MobileUtils.isEventSupported('touchstart')) {
             this.$closeButton.on('touchstart', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
@@ -291,7 +302,7 @@ function AddonScoreboard_create() {
         }
     };
 
-    presenter.Scoreboard.prototype.connectDraggable = function (savedScoreboard) {
+    presenter.Scoreboard.prototype.connectDraggable = function scoreboardConnectDraggable (savedScoreboard) {
         this.$scoreboard.draggable({
             containment: 'parent',
             opacity: 0.35,
@@ -309,7 +320,7 @@ function AddonScoreboard_create() {
         });
     };
 
-    presenter.Scoreboard.prototype.moveScoreboard = function (savedScoreboardPosition) {
+    presenter.Scoreboard.prototype.moveScoreboard = function scoreboardMoveScoreboard (savedScoreboardPosition) {
         var ic_page_height = this.$scoreboard.parent().height();
         this.$scoreboard.css({
             'top' : parseInt(savedScoreboardPosition.top, 10) < ic_page_height ? savedScoreboardPosition.top : '10px',
@@ -317,8 +328,29 @@ function AddonScoreboard_create() {
         });
     };
 
+    presenter.Scoreboard.prototype.destroy = function scoreboardDestroy () {
+        if(this.$scoreboard) {
+            var $scoreboard = this.$scoreboard.draggable("destroy");
+            $scoreboard.off();
+            this.$scoreboard.off();
+            this.$scoreboardBody.off();
+            this.$scoreboardHeader.off();
+            this.$closeButton.off();
+            this.$scoreboardFooter.off();
+            this.$resetButton.off();
+            this.$addNewTeamButton.off();
+            this.$scoreboard = null;
+            this.$scoreboardBody = null;
+            this.$scoreboardHeader = null;
+            this.$closeButton = null;
+            this.$scoreboardFooter = null;
+            this.$resetButton = null;
+            this.$addNewTeamButton = null;
+        }
+    };
+
 // Creating Team
-    presenter.Team = function (savedTeams) {
+    presenter.Team = function TeamCreate (savedTeams) {
         this.teamId = savedTeams.teamId;
         this.teamPoints = savedTeams.teamPoints;
         this.teamName = savedTeams.teamName;
@@ -337,27 +369,27 @@ function AddonScoreboard_create() {
 
     presenter.Team._internals = {};
 
-    presenter.Team._internals.createView = function (savedTeam) {
-        this.$team = $('<div class="team"></div>');
-        this.$teamHeader = $('<div class="team-header"></div>');
-        this.$teamBody = $('<div class="team-body"></div>');
-        this.$teamFooter = $('<div class="team-footer"></div>');
-        this.$teamRemoveButton = $('<div class="team-remove"></div>');
+    presenter.Team._internals.createView = function TeamCreateView (savedTeam) {
+        this.$team = $('<div class="scoreboard-team"></div>');
+        this.$teamHeader = $('<div class="scoreboard-team-header"></div>');
+        this.$teamBody = $('<div class="scoreboard-team-body"></div>');
+        this.$teamFooter = $('<div class="scoreboard-team-footer"></div>');
+        this.$teamRemoveButton = $('<div class="scoreboard-team-remove"></div>');
         this.$teamNameContainer = $(
-            `<div class="team-name-container">
+            `<div class="scoreboard-team-name-container">
                 ${this.teamName}
             </div>`
         );
         this.$teamPointsConatiner = $(
-            `<div class="team-points-container">
+            `<div class="scoreboard-team-points-container">
                 <h1>${this.teamPoints}</h1>
             </div>`
         );
         this.$teamPointsDecrementButton = $(
-        '<div class="team-score-decrement"></div>'
+        '<div class="scoreboard-team-score-decrement"></div>'
         );
         this.$teamPointsIncrementButton = $(
-        '<div class="team-score-increment"></div>'
+        '<div class="scoreboard-team-score-increment"></div>'
         );
         this.$teamHeader.append(this.$teamRemoveButton);
 
@@ -374,13 +406,13 @@ function AddonScoreboard_create() {
         this.$team.append(this.$teamFooter);
     };
 
-    presenter.Team.prototype.init = function (savedTeam) {
+    presenter.Team.prototype.init = function teamInit (savedTeam) {
         presenter.Team._internals.createView.call(this, savedTeam);
 
         this.connectHandlers();
     };
 
-    presenter.Team.createTeam = function (savedTeam) {
+    presenter.Team.createTeam = function teamCreateTeam (savedTeam) {
         var team = new presenter.Team(savedTeam);
         team.init(savedTeam);
         
@@ -388,29 +420,29 @@ function AddonScoreboard_create() {
     };
 
     // Scoreboard buttons
-    presenter.Team.prototype.resetPoints = function () {
+    presenter.Team.prototype.resetPoints = function teamResetPoints () {
         this.teamPoints = 0;
         this.$teamPointsConatiner.html(`<h1>${this.teamPoints}</h1>`)
     };
 
-    presenter.Team.prototype.removeTeamHandler = function (event) {
+    presenter.Team.prototype.removeTeamHandler = function teamRemoveTeamHandler (event) {
         var team = event.data.scoreboard;
         team.destroy();
     };
 
-    presenter.Team.prototype.incrementPointsButtonHandler = function (event) {
+    presenter.Team.prototype.incrementPointsButtonHandler = function teamIncrementPointsButtonHandler (event) {
         this.teamPoints += 1;
         this.$teamPointsConatiner.html(`<h1>${this.teamPoints}</h1>`)
         presenter.updateTeamState(this.getTeamData());
     };
 
-    presenter.Team.prototype.decrementPointsButtonHandler = function (event) {
+    presenter.Team.prototype.decrementPointsButtonHandler = function teamDecrementPointsButtonHandler (event) {
         this.teamPoints -= 1;
         this.$teamPointsConatiner.html(`<h1>${this.teamPoints}</h1>`)
         presenter.updateTeamState(this.getTeamData());
     };
 
-    presenter.Team.prototype.connectHandlers = function () {
+    presenter.Team.prototype.connectHandlers = function teamConnectHandlers () {
         if(MobileUtils.isEventSupported('touchstart')) {
             this.$teamRemoveButton.on('touchstart', {"scoreboard": this}, function (event) {
                 event.stopPropagation();
@@ -442,7 +474,7 @@ function AddonScoreboard_create() {
         this.connectTeamNameEditHandler();
     };
 
-    presenter.Team.prototype.connectTeamNameEditHandler = function () {
+    presenter.Team.prototype.connectTeamNameEditHandler = function teamConnectTeamNameEditHandler () {
         this.$teamNameContainer.on('dblclick', function () {
             this.teamNameEditHandler();
             this.$teamNameContainer.off('dblclick');
@@ -456,7 +488,7 @@ function AddonScoreboard_create() {
         }
     };
 
-    presenter.Team.prototype.teamNameEditHandler = function () {
+    presenter.Team.prototype.teamNameEditHandler = function teamNameEditHandler () {
         this.currentValue = this.teamName;
 
         this.$teamNameInput = $('<input class="team-name-input"></input>');
@@ -477,7 +509,7 @@ function AddonScoreboard_create() {
         }.bind(this));
     };
 
-    presenter.Team.prototype.saveNewTeamName = function () {
+    presenter.Team.prototype.saveNewTeamName = function teamSaveNewTeamName () {
         var value = this.$teamNameInput.val();
         this.teamName = value;
         this.$teamNameContainer.html(value);
@@ -486,11 +518,11 @@ function AddonScoreboard_create() {
         presenter.updateTeamState(this.getTeamData());
     };
 
-    presenter.Team.prototype.getView = function () {
+    presenter.Team.prototype.getView = function teamGetView () {
         return this.$team;
     };
 
-    presenter.Team.prototype.getTeamData = function () {
+    presenter.Team.prototype.getTeamData = function teamGetView () {
         return {
             'teamId': this.teamId,
             'teamName': this.teamName,
@@ -499,13 +531,13 @@ function AddonScoreboard_create() {
         };
     };
 
-    presenter.Team.prototype.getTeamId = function () {
+    presenter.Team.prototype.getTeamId = function teamGetTeamId () {
         return {
             'teamId': this.teamId,
         };
     };
 
-    presenter.Team.prototype.destroy = function () {
+    presenter.Team.prototype.destroy = function teamDestroy () {
         if(this.$team) {
             presenter.removeTeam(this.teamId);
             var $team = this.$team.draggable("destroy");
@@ -559,9 +591,6 @@ function AddonScoreboard_create() {
     };
 
     presenter.removeTeam = function Scoreboard_removeTeam (teamId) {
-        if (presenter.state.teamsObjects.length > 1) {
-            presenter.$view.css('width', '-=110px')
-        }
         presenter.teamsObjects = presenter.teamsObjects.filter((team) => {
             return teamId !== team.getTeamId().teamId;
         });
@@ -581,9 +610,16 @@ function AddonScoreboard_create() {
     
     presenter.removeAllTeams = function Scoreboard_removeAllTeams () {
         presenter.teamsObjects.forEach(function (team) {
-            team.destroy()
+            team.destroy();
+            team = null;
         });
     };
+
+    presenter.removeScoreboard = function Scoreboard_removeScoreboard () {
+        presenter.scoreboard.destroy();
+        presenter.scoreboard = null;
+
+    }
 
     presenter.updateTeamState = function Scoreboard_updateTeamState (updatedTeamData) {
         presenter.state.teamsObjects = presenter.state.teamsObjects.map(teamData =>
@@ -599,9 +635,6 @@ function AddonScoreboard_create() {
         presenter.removeAllTeams();
         presenter.scoreboard.moveScoreboard(savedScoreboard.scoreboard);
         savedScoreboard.teamsObjects.forEach(function (teamData) {
-            if (presenter.state.teamsObjects.length != 0) {
-                presenter.$view.css('width', '+=110px')
-            }
             presenter.addTeam(teamData, presenter.scoreboard);
         });
         presenter.state.isVisible = savedScoreboard.isVisible;
@@ -630,14 +663,14 @@ function AddonScoreboard_create() {
         Commands.dispatch(commands, name, [], presenter);
     };
 
-    presenter.setPlayerController = function (controller) {
+    presenter.setPlayerController = function Scoreboard_setPlayerController (controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
 
         presenter.eventBus.addEventListener('PageLoaded', this);
     };
 
-    presenter.onEventReceived = function (eventName, eventData) {
+    presenter.onEventReceived = function Scoreboard_onEventReceived (eventName, eventData) {
         if (presenter.configuration.isOnePageScoreboard) {
             return;
         }
@@ -648,16 +681,31 @@ function AddonScoreboard_create() {
             } else {
                 store = player.getPlayerServices().getFooterModule(presenter.configuration.broadcast);
             }
+
+            if (store == null) {
+                return;
+            }
+
             if (store.getVariable("savedScoreboard")) {
                 presenter.restoreAllScoreboardData(store.getVariable("savedScoreboard"));
             }
         }
     };
 
-    presenter.getState = function () {
+    presenter.getState = function Scoreboard_getState () {
         presenter.state.scoreboard = presenter.scoreboard.getState();
         if (!presenter.configuration.isOnePageScoreboard) {
-            var store = player.getPlayerServices().getHeaderModule(presenter.configuration.broadcast);
+            var store = null;
+            if (presenter.configuration.variableStorageLocation == "header") {
+                store = player.getPlayerServices().getHeaderModule(presenter.configuration.broadcast);
+            } else {
+                store = player.getPlayerServices().getFooterModule(presenter.configuration.broadcast);
+            }
+
+            if (store == null) {
+                return;
+            }
+
             store.setVariable("savedScoreboard", presenter.state);
         } else {
             return JSON.stringify({
@@ -666,12 +714,35 @@ function AddonScoreboard_create() {
         }
     }
 
-    presenter.setState = function (state) {
+    presenter.setState = function Scoreboard_setState (state) {
         if (presenter.configuration.isOnePageScoreboard) {
             var parsedState = JSON.parse(state);
             presenter.restoreAllScoreboardData(parsedState.savedScoreboard);
         }
     }
+
+    presenter.reset = function Scoreboard_reset () {
+        presenter.setVisibility(presenter.configuration.isVisible);
+    };
+
+    presenter.destroy = function Scoreboard_destroy () {
+        presenter.view.removeEventListener('DOMNodeRemoved', presenter.destroy);
+        if(presenter.teamsObjects) {
+            presenter.removeAllTeams();
+        }
+        presenter.removeScoreboard();
+        presenter.configuration = null;
+        presenter.state = null;
+        presenter.playerController = null;
+        presenter.eventBus = null;
+        presenter.ERROR_CODES = null;
+        presenter.$view.unbind();
+        presenter.$view = null;
+        presenter.view = null;
+        presenter.teamsObjects = [];
+        presenter.teamsObjects = null;
+        presenter.createScoreboard = null;
+    };
 
     return presenter;
 }
