@@ -13,7 +13,13 @@ import com.lorepo.icplayer.client.module.skiplink.properties.SkipLinkItemStringP
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * Model representing single item in the list property of SkipLinkModule
+ * It allows to set:
+ *      module id - to which moudle keyboard navigation will be moved
+ *      module text - what should be displayed/read
+ *      module text language - in which language it should be read (ISO standard, ex: "en-US")
+ */
 public class SkipLinkItem extends BasicPropertyProvider implements ISkipLinkItem {
     private String moduleId;
     private String moduleText;

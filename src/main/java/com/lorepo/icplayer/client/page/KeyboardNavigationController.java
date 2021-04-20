@@ -29,6 +29,9 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 			- Addon must have keyboardController(keyCode, isShiftDown) function in presenter
 */
 public final class KeyboardNavigationController implements IKeyboardNavigationController {
+	public static String SELECTED_CLASS = "ic_selected_module";
+	public static String ACTIVE_CLASS = "ic_active_module";
+	
 	private boolean moduleIsActivated = false;
 	private boolean isInitiated = false;
 	private List<PresenterEntry> presentersOriginalOrder = new ArrayList<PresenterEntry>();
@@ -511,7 +514,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 			return;
 		}
 		
-		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_active_module");
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive(ACTIVE_CLASS);
 		
 		if (this.isWCAGSupportOn) {
 			IWCAGPresenter p = this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
@@ -522,7 +525,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	}
 	
 	private void deactivateModule () {
-		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_active_module");
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive(ACTIVE_CLASS);
 		this.moduleIsActivated = false;
 	}
 	
@@ -530,7 +533,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		if (this.getPresenters().size() == 0) {
 			return;
 		}
-		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_selected_module");
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive(SELECTED_CLASS);
 		scrollToCurrentModule(this);
 	}
 
@@ -539,7 +542,7 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 			return;
 		}
 
-		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_selected_module");
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive(SELECTED_CLASS);
 	}
 	
 	private native void scrollToCurrentModule(KeyboardNavigationController x) /*-{
@@ -607,8 +610,8 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 		
 		for (PresenterEntry ip: this.getPresenters()) {
 			IWCAGPresenter presenter = ip.presenter;
-			presenter.deselectAsActive("ic_selected_module");
-			presenter.deselectAsActive("ic_active_module");
+			presenter.deselectAsActive(SELECTED_CLASS);
+			presenter.deselectAsActive(ACTIVE_CLASS);
 		}
 	}
 	

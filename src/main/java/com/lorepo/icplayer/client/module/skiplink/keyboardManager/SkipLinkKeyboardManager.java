@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.List;
 
 
+/**
+ * Class encapsulating functionality of moving through skip link items
+ */
 public class SkipLinkKeyboardManager {
     private int currentSelected = 0;
     private boolean isActive = false;
@@ -17,21 +20,41 @@ public class SkipLinkKeyboardManager {
         this.items = items;
     }
 
+    /**
+     * @return isActive - whether the user has entered the module navigation
+     */
     public boolean isActive() {
         return isActive;
     }
 
+    /**
+     * After calling this function, user can work with the module (ex. changing selection)
+     */
     public void setActive() {
         setCurrentItemVisible();
         this.isActive = true;
     }
 
+    /**
+     * Hides current item, and resets the state
+     */
     public void setInactive() {
         setCurrentItemInvisible();
         currentSelected = 0;
         isActive = false;
     }
 
+    public void showFirstItem() {
+        items.get(0).setVisible();
+    }
+
+    public void hideFirstItem() {
+        items.get(0).setInvisible();
+    }
+
+    /**
+     * Hides current item and shows next item
+     */
     public void increase() {
         if (isActive() && this.currentSelected + 1 < items.size()) {
             setCurrentItemInvisible();
@@ -40,6 +63,9 @@ public class SkipLinkKeyboardManager {
         }
     }
 
+    /**
+     * Hides current item and shows previous item
+     */
     public void decrease() {
         if (isActive() && currentSelected > 0) {
             setCurrentItemInvisible();
@@ -48,10 +74,17 @@ public class SkipLinkKeyboardManager {
         }
     }
 
+    /**
+     * @return module id - to which module navigation should be moved
+     */
     public String getSelectedModuleId() {
         return items.get(currentSelected).getModuleId();
     }
 
+    /**
+     * Speaks the text of current selected item
+     * @param controller controller through which speech should commence
+     */
     public void speakCurrentItem(ITextToSpeechController controller) {
         ISkipLinkKeyboardItem currentlySelectedItem = items.get(currentSelected);
 

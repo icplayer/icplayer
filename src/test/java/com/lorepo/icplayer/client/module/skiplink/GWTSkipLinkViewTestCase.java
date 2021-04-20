@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.skiplink;
 
 
 import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 import com.lorepo.icplayer.client.mockup.services.SpeechControllerMockup;
@@ -55,7 +56,8 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
 
         whenEnterPressed();
 
-        thenViewVisibleAndItemVisible(0);
+        thenViewVisible();
+        thenOnlySelectedItemVisible(0);
     }
 
     @Test
@@ -67,7 +69,8 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         whenEnterPressed();
         whenEnterPressed();
 
-        thenViewVisibleAndItemVisible(0);
+        thenViewVisible();
+        thenOnlySelectedItemVisible(0);
         thenListenerCalledWithModuleId(moduleMockup.getItemId(0));
     }
 
@@ -82,7 +85,8 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         whenTabPressed();
         whenEnterPressed();
 
-        thenViewVisibleAndItemVisible(2);
+        thenViewVisible();
+        thenOnlySelectedItemVisible(2);
         thenListenerCalledWithModuleId(moduleMockup.getItemId(2));
     }
 
@@ -99,7 +103,8 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         whenShiftTabPressed();
         whenEnterPressed();
 
-        thenViewVisibleAndItemVisible(0);
+        thenViewVisible();
+        thenOnlySelectedItemVisible(0);
         thenListenerCalledWithModuleId(moduleMockup.getItemId(0));
     }
 
@@ -142,7 +147,8 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         whenEnterPressed();
         whenShiftTabPressed();
 
-        thenViewVisibleAndItemVisible(0);
+        thenViewVisible();
+        thenOnlySelectedItemVisible(0);
     }
 
     @Test
@@ -184,6 +190,117 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         whenEnterPressed();
 
         thenSpeechTextCreatedWithExpectedText(null);
+    }
+
+    @Test
+    public void userHasShiftedIntoModule() {
+        givenModelWithThreeItems();
+        givenViewCreated();
+
+        whenShowNavigation();
+
+        thenViewVisible();
+        thenOnlySelectedItemVisible(0);
+    }
+
+    @Test
+    public void userHasShiftedAndLeft() {
+        givenModelWithThreeItems();
+        givenViewCreated();
+
+        whenShowNavigation();
+        whenHideNavigation();
+
+        thenViewInvisible();
+        thenAllItemsInvisible();
+    }
+
+    @Test
+    public void userHasActivatedModuleButControlWasNotPassed() {
+        givenModelWithThreeItems();
+        givenViewCreated();
+
+        whenShowNavigation();
+        whenActivateNavigation();
+
+        thenViewVisible();
+        thenAllItemsInvisible();
+    }
+
+    @Test
+    public void userHasActivatedModule() {
+        givenModelWithThreeItems();
+        givenViewCreated();
+
+        whenShowNavigation();
+        whenActivateNavigation();
+        whenEnterPressed();
+
+        thenViewVisible();
+        thenOnlySelectedItemVisible(0);
+    }
+
+    // this handles KeyboardNavigationController::restoreClasses
+    @Test
+    public void userHasActivatedModuleAndClassesWereRestored() {
+        givenModelWithThreeItems();
+        givenViewCreated();
+
+        whenShowNavigation();
+        whenActivateNavigation();
+        whenEnterPressed();
+        whenShowNavigation();
+        whenActivateNavigation();
+
+
+        thenViewVisible();
+        thenOnlySelectedItemVisible(0);
+    }
+
+
+    @Test
+    public void userHasActivatedModuleAndDeactivated() {
+        givenModelWithThreeItems();
+        givenViewCreated();
+
+        whenShowNavigation();
+        whenActivateNavigation();
+        whenEnterPressed();
+        whenDeactivateNavigation();
+
+        thenViewVisible();
+        thenOnlySelectedItemVisible(0);
+    }
+
+    @Test
+    public void userHasActivatedModuleAndLeft() {
+        givenModelWithThreeItems();
+        givenViewCreated();
+
+        whenShowNavigation();
+        whenActivateNavigation();
+        whenEnterPressed();
+        whenDeactivateNavigation();
+        whenHideNavigation();
+
+        thenViewInvisible();
+        thenAllItemsInvisible();
+    }
+
+    @Test
+    public void userHasActivatedModuleAndTabbed() {
+        givenModelWithThreeItems();
+        givenViewCreated();
+
+        whenShowNavigation();
+        whenActivateNavigation();
+        whenEnterPressed();
+        whenTabPressed();
+        whenDeactivateNavigation();
+        whenHideNavigation();
+
+        thenViewInvisible();
+        thenAllItemsInvisible();
     }
 
 
@@ -244,6 +361,22 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         view.escape(eventMock);
     }
 
+    private void whenActivateNavigation() {
+        view.activateNavigation("active_navigation");
+    }
+
+    private void whenDeactivateNavigation() {
+        view.deactivateNavigation("active_navigation");
+    }
+
+    private void whenShowNavigation() {
+        view.showNavigation("show_navigation");
+    }
+
+    private void whenHideNavigation() {
+        view.hideNavigation("show_navigation");
+    }
+
     private void thenViewInvisible() {
         assertFalse(view.isVisible());
     }
@@ -252,9 +385,21 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         assertEquals(expectedItemCount, view.getWidgetCount());
     }
 
-    private void thenViewVisibleAndItemVisible(int expectedVisibleItemIndex) {
+    private void thenViewVisible() {
         assertTrue(view.isVisible());
-        assertTrue(view.getWidget(expectedVisibleItemIndex).isVisible());
+    }
+
+    private void thenOnlySelectedItemVisible(int expectedVisibleItemIndex) {
+
+        for (int i = 0; i < view.getWidgetCount(); i++) {
+            Widget w = view.getWidget(i);
+
+            if (i == expectedVisibleItemIndex) {
+                assertTrue(w.isVisible());
+            } else {
+                assertFalse(w.isVisible());
+            }
+        }
     }
 
     private void thenListenerCalledWithModuleId(String expectedModuleId) {

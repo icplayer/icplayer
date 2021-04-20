@@ -35,12 +35,10 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
         List<SkipLinkKeyboardItem> keyboardItemList = new ArrayList<SkipLinkKeyboardItem>();
 
         for (ISkipLinkItem item : module.getItems()) {
-            Widget elementDisplay = new HTML(item.getModuleText());
+            // creates simple div with class
+            Widget elementDisplay = createSkipLinkItemView(item.getModuleText(), isPreview);
 
-            elementDisplay.addStyleName(skipLinkItemClass);
-            elementDisplay.setVisible(isPreview);
-
-            this.add(elementDisplay);
+            add(elementDisplay);
 
             keyboardItemList.add(new SkipLinkKeyboardItem(elementDisplay, item.getModuleText(), item.getModuleId(), item.getModuleTextLang()));
         }
@@ -66,14 +64,51 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
         this.listener = addedListener;
     }
 
-    public void enterNavigation(String className) {
-        getElement().addClassName(className);
-        setVisible(true);
-        speakCurrentVisibleItem();
+    /**
+     * When user has activated the module.
+     * This is convoluted, as KeybaordNavigationController isn't written nicely:
+     *  First it calls selectAsActive("ic_active_module")
+     *  Then it calls "enter" function
+     * And after every key press it will call "restoreClasses" method.
+     * This makes it a little hard to dynamically show module content when navigation is passing over the module
+     * @param className class name to add
+     */
+    public void activateNavigation(String className) {
+        if (!getElement().getClassName().contains(className)) {
+            getElement().addClassName(className);
+            keyboardManager.hideFirstItem();
+            speakCurrentVisibleItem();
+        }
     }
 
-    public void exitNavigation(String className) {
+    /**
+     * When user has deactivated the module
+     * @param className class name to remove
+     */
+    public void deactivateNavigation(String className) {
         getElement().removeClassName(className);
+    }
+
+    /**
+     * When user has tabbed into the module
+     * @param className class name to add
+     */
+    public void showNavigation(String className) {
+        if (!getElement().getClassName().contains(className)) {
+            getElement().addClassName(className);
+            keyboardManager.showFirstItem();
+            setVisible(true);
+        }
+    }
+
+    /**
+     * When user has exited from the module
+     * @param className class name to remove
+     */
+    public void hideNavigation(String className) {
+        getElement().removeClassName(className);
+        keyboardManager.setInactive();
+        setVisible(false);
     }
 
     public void exitNavigation() {
@@ -159,7 +194,13 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
 
     }
 
+    private Widget createSkipLinkItemView(String itemText, boolean isPreview) {
+        Widget elementDisplay = new HTML(itemText);
+        elementDisplay.addStyleName(skipLinkItemClass);
+        elementDisplay.setVisible(isPreview);
 
+        return elementDisplay;
+    }
 
     private void activateKeyboard() {
         this.setVisible(true);

@@ -12,6 +12,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkModule;
 import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkPresenter;
 import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkViewListener;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 import java.util.HashMap;
 import java.util.List;
@@ -68,12 +69,20 @@ public class SkipLinkPresenter implements ISkipLinkPresenter, IPresenter, IComma
 
     @Override
     public void selectAsActive(String className) {
-        view.enterNavigation(className);
+        if (className.equals(KeyboardNavigationController.ACTIVE_CLASS)) {
+            view.activateNavigation(className);
+        } else if (className.equals(KeyboardNavigationController.SELECTED_CLASS)) {
+            view.showNavigation(className);
+        }
     }
 
     @Override
     public void deselectAsActive(String className) {
-        view.exitNavigation(className);
+        if (className.equals(KeyboardNavigationController.ACTIVE_CLASS)) {
+            view.deactivateNavigation(className);
+        } else if (className.equals(KeyboardNavigationController.SELECTED_CLASS)) {
+            view.hideNavigation(className);
+        }
     }
 
     @Override
