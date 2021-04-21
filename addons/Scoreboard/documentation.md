@@ -17,6 +17,23 @@ If Variable Storage addon was added to footer, redactor has to change default Va
 
 Next step is to copy the created Scoreboard addon to each page where we want to use it in multiple-page mode. If configuration is correct Scoreboard should store values between pages of the lesson in the Variable Storage addon.
 
+### Multiple-page with IWB_Toolbar integration
+
+To integrate Scoreboard with IWB_Toolbar you have to check "Has custom button" property and induce show() and hide() commands on Scoreboard addon inside IWB_Toolbar "On custom button selected" and "On custom button deselected".
+
+Example "On custom button selected" property:
+
+```Scoreboard1.show();```
+
+Example "On custom button deselected" property:
+
+```Scoreboard1.hide();```
+
+Scoreboard1 in the examples above refers to Scoreboard addon id. To handle deselect of custom button when user close Scoreboard manually you have to add Advanced Connector. 
+
+Details can be found in the penultimate subsection "Advance Connector integration".
+It is also advisable to initially hide the Scoreboard addon as the custom button is not pressed by default.
+
 ## Properties
 
 <table border='1'>
