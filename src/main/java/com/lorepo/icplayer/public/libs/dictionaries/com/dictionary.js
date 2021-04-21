@@ -2072,6 +2072,7 @@ var ice_dictionary_en = {
 	"EditableWindow_property_editing_enabled" : "Editing enabled",
 	"EditableWindow_property_offline_message": "Offline message",
 	"skiplink": "Skip link",
+	"skiplink_menu": "SkipLink",
 	"skiplink_info": "Skip link module allows user to move the keyboard navigation immediately to selected module.",
 	"skiplink_item": "Items",
 	"skiplink_property_item_module_text": "Displayed value",
