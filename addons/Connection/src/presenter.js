@@ -1034,6 +1034,8 @@ function AddonConnection_create() {
         for (var i = 0; i < model["Left column"].length; i++) {
             var element = presenter.elements[i];
             console.log(element);
+            var leftId = presenter.elements[i].id;
+            
         }
         // right side
     };
