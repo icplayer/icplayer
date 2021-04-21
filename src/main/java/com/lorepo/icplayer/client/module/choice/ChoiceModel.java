@@ -38,7 +38,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String printableValue = "";
 	private PrintableController printableController = null;
-    private HashMap<String, String> printableState = null;
+	private HashMap<String, String> printableState = null;
 	
 	public ChoiceModel() {
 		super("Choice", DictionaryWrapper.get("choice_module"));
@@ -699,15 +699,13 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	@Override
 	public void setPrintableController(PrintableController controller) {
 		this.printableController = controller;
-		
 	}
 
 	@Override
 	public void setPrintableState(String state) {
-		if (state.equals("")) {
+		if (state.equals(""))
 			return;
-		}
-        IJsonServices jsonServices = new JsonServices();
+		IJsonServices jsonServices = new JsonServices();
 		this.printableState = jsonServices.decodeHashMap(state);
 	}
 

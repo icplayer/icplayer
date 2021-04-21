@@ -1,5 +1,4 @@
-2021-04-20 Added support for printable state in Choice addon
-2021-03-29 Added support for setState in printable
+2021-04-22 Added support for printable state in Choice addon
 2021-04-13 Added notifier for save
 2021-04-13 Added externalVariables
 2021-04-07 Added disable new page message property to the Text To Speech addon
@@ -12,7 +11,7 @@
 2021-03-30 Fixed reading Chrome browser version on android
 2021-03-29 Implementation of audio files export
 2021-03-29 Fixed issue with empty spaces at the end of a print page
->>>>>>> master
+2021-03-29 Added support for setState in printable
 2021-03-26 Add new addon Scoreboard
 2021-03-25 Added scriptable button to IWB Toolbar
 2021-03-25 Fixed issue with images breaking pagination in print

@@ -505,31 +505,28 @@ hr, table, fieldset {
 /**
  * Printable choice options
  */
+
+.ic_poption-up,
 .ic_poption-correct-answer {
     display: inline-block;
 }
-.ic_poption-correct-answer::after {
+
+.ic_poption-correct::after {
     content: " \2714";
 }
 
-.ic_poption-down-answer {
+.ic_poption-down,
+.ic_poption-down-correct,
+.ic_poption-down-wrong {
     display: inline-block;
     border-bottom: 1px solid;
 }
 
-.ic_poption-down-correct-answer {
-    display: inline-block;
-    border-bottom: 1px solid;
-}
-.ic_poption-down-correct-answer::after {
+.ic_poption-down-correct::after {
     content: " \2714";
 }
 
-.ic_poption-down-wrong-answer {
-    display: inline-block;
-    border-bottom: 1px solid;
-}
-.ic_poption-down-wrong-answer::after {
+.ic_poption-down-wrong::after {
     content: " \2716";
 }
 
