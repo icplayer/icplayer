@@ -1035,7 +1035,11 @@ function AddonConnection_create() {
             var element = presenter.elements[i];
             console.log(element);
             var leftId = presenter.elements[i].id;
-            
+            var connections = presenter.elements[i].id;
+            var leftAnswerConnection = answers.filter((answer) => {
+                return(answer[0] == leftId);
+            })
+            console.log(leftAnswerConnection)
         }
         // right side
     };
@@ -2140,6 +2144,7 @@ function AddonConnection_create() {
         console.log('get Printable HTML fired');
         var savedState = presenter.printableState;
         var checkAnswers = (savedState != undefined || savedState != null) && showAnswers;
+        var showUserAnswers = (savedState != undefined || savedState != null) && !showAnswers;
 
         console.log('Saved model looks like: ', savedState);
         console.log('Model is: ', model);
@@ -2206,7 +2211,7 @@ function AddonConnection_create() {
                     connected.push({from: element.id, to:element.connects});
                 }
             }
-        } else if (checkAnswers) {
+        } else if (showUserAnswers) {
             console.log("Show user answers and check it or not");
             console.log(savedState);
             for (var i = 0; i < savedState.id.length; i++) {
