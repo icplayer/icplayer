@@ -129,4 +129,4 @@ Scoreboard 'ValueChanged' event can be used in the Advanced Connector addon's sc
         EVENTEND
 
 ## Demo presentation
-[Demo presentation](/embed/4794504243838976 "Demo presentation") Contain example on how to use the Scoreboard addon with IWB_Toolbar addon.                                                   
+[Demo presentation](/embed/4956892771778560 "Demo presentation") Contain example on how to use the Scoreboard addon with IWB_Toolbar addon.                                                   
