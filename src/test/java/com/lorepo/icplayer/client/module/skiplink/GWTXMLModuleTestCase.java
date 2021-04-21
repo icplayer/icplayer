@@ -8,6 +8,7 @@ import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.mockup.xml.XMLParserMockup;
 import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkItem;
 import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
@@ -32,6 +33,11 @@ public class GWTXMLModuleTestCase extends GwtTest {
         }
     }
 
+    List<SkipLinkData> givenItems;
+    Element givenXMLElement;
+    SkipLinkModule moduleToLoadXMLInto;
+    SkipLinkModule moduleToAddProperties;
+
     List<SkipLinkItem> expectedItems = Arrays.asList(
             new SkipLinkItem("Text1", "This skiplink will move keyboard navigation to text1", "en-US"),
             new SkipLinkItem("Text2", "This skiplink will move keyboard navigation to text2", ""),
@@ -39,69 +45,96 @@ public class GWTXMLModuleTestCase extends GwtTest {
     );
 
     @Test
-    public void givenProperXMLWhenCreatingModuleThenContainsProperItems() throws SAXException, IOException {
-        SkipLinkModule module = new SkipLinkModule();
-        InputStream inputStream = getClass().getResourceAsStream("testdata/module.xml");
-        XMLParserMockup xmlParser = new XMLParserMockup();
+    public void loadingModuleFromXML() throws SAXException, IOException {
+        givenParsedXML();
 
-        Element element = xmlParser.parser(inputStream);
+        whenXMLLoadedIntoModule();
 
-        module.load(element, "", "1");
-
-
-        List<? extends ISkipLinkItem> items = module.getItems();
-        assertEquals(expectedItems.size(), items.size());
-        for (int i = 0; i < items.size(); i++) {
-            itemEquals(items.get(i), expectedItems.get(i));
-        }
+        thenItemsFromXMLAreAsExpected();
     }
 
+    @Test
+    public void comparingLoadedXMLAndGeneratedXML() throws SAXException, IOException {
+        givenParsedXML();
 
+        given3Items();
+
+        whenItemsAddedToModule();
+        whenXMLLoadedIntoModule();
+        whenModulesIDsSet("skiplink1");
+
+        thenXMLProducedByBothModulesIsSame();
+    }
 
     @Test
-    public void givenModuleWhenMappingThenContainsProperItems() throws SAXException, IOException {
-        List<SkipLinkData> givenItems = Arrays.asList(
+    public void escapingXMLEntities() {
+        givenItemsWithUnescapedXMLEntities();
+
+        whenItemsAddedToModule();
+
+        thenXMLContainsEscapedProperties();
+    }
+
+    private void given3Items() {
+        givenItems = Arrays.asList(
                 new SkipLinkData("Text1", "This skiplink will move keyboard navigation to text1", "en-US"),
                 new SkipLinkData("Text2", "This skiplink will move keyboard navigation to text2", ""),
                 new SkipLinkData("Text3", "", "")
         );
-
-        InputStream expectedInputStream = getClass().getResourceAsStream("testdata/module.xml");
-        XMLParserMockup xmlParser = new XMLParserMockup();
-        String expected = xmlParser.parser(expectedInputStream).toString();
-
-        SkipLinkModule module = new SkipLinkModule();
-        module.setID("skipLinkModule1");
-        addItems(module, givenItems);
-
-        String result = module.toXML();
-        System.out.println(result);
-        Diff diff = new Diff(expected, result);
-        // TODO: [Fatal Error] :1:1: Content is not allowed in prolog.
-//        XMLAssert.assertXMLEqual(diff, true);
     }
 
-    @Test
-    public void givenNotValidXMLEntitiesInModuleWhenMappingToXMLThenContainsEscapedEntities() throws SAXException, IOException {
-        List<SkipLinkData> givenItems = Arrays.asList(
+    private void givenItemsWithUnescapedXMLEntities() {
+        givenItems = Arrays.asList(
                 new SkipLinkData("Text1", ">", ""),
                 new SkipLinkData("Text2", "<", ""),
                 new SkipLinkData("Text3", "&", ""),
                 new SkipLinkData("Text3", "\"", ""),
                 new SkipLinkData("Text3", "'", "")
         );
-        SkipLinkModule module = new SkipLinkModule();
-        module.setID("skipLinkModule1");
-        addItems(module, givenItems);
+    }
 
+    private void givenParsedXML() throws IOException, SAXException {
+        InputStream expectedInputStream = getClass().getResourceAsStream("testdata/module.xml");
+        XMLParserMockup xmlParser = new XMLParserMockup();
+        givenXMLElement = xmlParser.parser(expectedInputStream);
+    }
 
-        String result = module.toXML();
+    private void whenXMLLoadedIntoModule() {
+        moduleToLoadXMLInto = new SkipLinkModule();
+        moduleToLoadXMLInto.load(givenXMLElement, "", "1");
+    }
+
+    private void whenItemsAddedToModule() {
+        moduleToAddProperties = new SkipLinkModule();
+        addItems(moduleToAddProperties, givenItems);
+    }
+
+    private void whenModulesIDsSet(String moduleId) {
+        moduleToLoadXMLInto.setID(moduleId);
+        moduleToAddProperties.setID(moduleId);
+    }
+
+    private void thenItemsFromXMLAreAsExpected() {
+        List<? extends ISkipLinkItem> items = moduleToLoadXMLInto.getItems();
+        assertEquals(expectedItems.size(), items.size());
+        for (int i = 0; i < items.size(); i++) {
+            itemEquals(items.get(i), expectedItems.get(i));
+        }
+    }
+
+    private void thenXMLContainsEscapedProperties() {
+        String result = moduleToAddProperties.toXML();
 
         assertTrue(result.contains("&lt;"));
         assertTrue(result.contains("&gt;"));
         assertTrue(result.contains("&amp;"));
         assertTrue(result.contains("&quot;"));
         assertTrue(result.contains("&apos;"));
+    }
+
+    private void thenXMLProducedByBothModulesIsSame() throws IOException, SAXException {
+        Diff diff = new Diff(moduleToLoadXMLInto.toXML(), moduleToAddProperties.toXML());
+        XMLAssert.assertXMLEqual(diff, true);
     }
 
     private void itemEquals(ISkipLinkItem givenItem, ISkipLinkItem expectedItem) {

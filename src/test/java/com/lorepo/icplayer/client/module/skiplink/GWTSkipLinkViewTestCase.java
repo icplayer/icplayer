@@ -398,15 +398,18 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
     }
 
     private void thenViewInvisible() {
-        assertFalse(view.isVisible());
+        assertFalse("View should be invisible", view.isVisible());
     }
 
     private void thenChildrenCountEqualTo(int expectedItemCount) {
-        assertEquals(expectedItemCount, view.getWidgetCount());
+        assertEquals(
+                "Children count should be " + expectedItemCount + " but was "+ view.getWidgetCount(),
+                expectedItemCount,
+                view.getWidgetCount());
     }
 
     private void thenViewVisible() {
-        assertTrue(view.isVisible());
+        assertTrue("View should be visible", view.isVisible());
     }
 
     private void thenOnlySelectedItemVisible(int expectedVisibleItemIndex) {
@@ -415,24 +418,32 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
             Widget w = view.getWidget(i);
 
             if (i == expectedVisibleItemIndex) {
-                assertTrue(w.isVisible());
+                assertTrue("Item " + expectedVisibleItemIndex + " should be visible", w.isVisible());
             } else {
-                assertFalse(w.isVisible());
+                assertFalse("Item " + i + " should be invisible", w.isVisible());
             }
         }
     }
 
     private void thenListenerCalledWithModuleId(String expectedModuleId) {
-        assertEquals(expectedModuleId, listenerMock.selectedModuleId);
+        assertEquals(
+            "Listener should be called with " + expectedModuleId + " but was called with " + listenerMock.selectedModuleId,
+            expectedModuleId,
+            listenerMock.selectedModuleId
+        );
     }
 
     private void thenAllItemsInvisible() {
         for (int i = 0; i <view.getWidgetCount(); i++) {
-            assertFalse(view.getWidget(i).isVisible());
+            assertFalse("Item " + 0 + " should be invisible", view.getWidget(i).isVisible());
         }
     }
 
     private void thenSpeechTextCreatedWithExpectedText(String expectedText) {
-        assertEquals(expectedText, TextToSpeechVoicePatcher.lastCreatedItemText());
+        assertEquals(
+    "Speech text should be " + expectedText + " but was " + TextToSpeechVoicePatcher.lastCreatedItemText(),
+            expectedText,
+            TextToSpeechVoicePatcher.lastCreatedItemText()
+        );
     }
 }
