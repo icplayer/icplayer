@@ -44,6 +44,7 @@ function AddonIWB_Toolbar_create() {
     presenter.areZoomEventHandlersAttached = false;
 
     var DEFAULT_COLOR = '#0fa9f0';
+    const CUSTOM_BUTTON_NAME = 'custom-script';
     presenter.activeButton = '';
     presenter.activeFunction;
     presenter.isRecklicked = false;
@@ -1484,7 +1485,7 @@ function AddonIWB_Toolbar_create() {
         if(!$(button).hasClass('color') && !$(button).hasClass('thickness')){
             presenter.activeButton = $(button).attr("data-name");
         }
-        if (presenter.isRecklicked && buttonName == 'custom-script') {
+        if (presenter.isRecklicked && buttonName == CUSTOM_BUTTON_NAME) {
             presenter.activeButton = 'open';
             presenter.activeFunction = undefined;
         }
@@ -1538,7 +1539,7 @@ function AddonIWB_Toolbar_create() {
 
             var btnName = $(this).data("name");
 
-            if(btnName != 'open' && btnName != 'close' && btnName != 'color' && btnName != 'thickness' && btnName != 'custom-script'){
+            if(btnName != 'open' && btnName != 'close' && btnName != 'color' && btnName != 'thickness' && btnName != CUSTOM_BUTTON_NAME){
                 presenter.shouldSaveColor = btnName;
             }
         });
@@ -2908,7 +2909,7 @@ function AddonIWB_Toolbar_create() {
                presenter.shouldSaveColor = window.savedPanel.tools.shouldSaveColor;
                    if(presenter.activeFunction){
                        if(presenter.activeFunction != 'clock' && presenter.activeFunction != 'stopwatch' && presenter.activeFunction != 'note' && presenter.activeFunction != 'reset' && presenter.activeFunction != 'open'){
-                           if(presenter.activeFunction == 'custom-script') {
+                           if(presenter.activeFunction == CUSTOM_BUTTON_NAME) {
                                presenter.activeButton = presenter.activeFunction;
                            }
                            if(!presenter.recklick){
@@ -3618,7 +3619,7 @@ function AddonIWB_Toolbar_create() {
         }
 
         if(presenter.isKeepStateAndPosition){
-           if(window.savedPanel.tools && window.savedPanel.tools.activeFunction != 'custom-script'){
+           if(window.savedPanel.tools && window.savedPanel.tools.activeFunction != CUSTOM_BUTTON_NAME){
                if(!presenter.activeFunction || presenter.activeFunction == 'open' || presenter.activeFunction == 'close'){
                    presenter.activeFunction = window.savedPanel.tools.activeFunction;
                }
