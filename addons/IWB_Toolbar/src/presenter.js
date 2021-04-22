@@ -1103,6 +1103,11 @@ function AddonIWB_Toolbar_create() {
 
         presenter._reset(true, false, false, false, false);
 
+        if (presenter.isCustomButtonSelected()) {
+            var customScriptButton = presenter.$panel.find('.custom-script')[0];
+            presenter.customScriptClickHandler(customScriptButton);
+        }
+
         presenter.penDataURL = null;
         presenter.markerDataUrl = null;
     };
@@ -1279,7 +1284,7 @@ function AddonIWB_Toolbar_create() {
             if ($(button).hasClass('clicked')) {
                 $(button).removeClass('clicked');
             } else {
-                presenter.$panel.find('.clicked').removeClass('clicked');
+                presenter.$panel.find('.clicked').not('.custom-script').removeClass('clicked');
                 $(button).addClass('clicked');
             }
         }

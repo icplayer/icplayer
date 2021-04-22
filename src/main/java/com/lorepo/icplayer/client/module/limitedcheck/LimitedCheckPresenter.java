@@ -10,6 +10,8 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.ModuleUtils;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
@@ -18,8 +20,9 @@ import com.lorepo.icplayer.client.module.api.IStateful;
 import com.lorepo.icplayer.client.module.api.event.*;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
-public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandReceiver, IButton {
+public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
 
     public interface IDisplay extends IModuleView {
         public void show();
@@ -40,6 +43,10 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
         public ArrayList<IPresenter> getModulesPresenters();
         
         public void setChecked();
+
+        public TotalScore getTotalScore();
+
+        public String getTitlePostfix();
     }
 
     private LimitedCheckModule model;
@@ -266,8 +273,16 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
             x.@com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter::jsOnEventReceived(Ljava/lang/String;Ljava/lang/String;)(eventName, JSON.stringify(data));
         };
 
+        presenter.getTitlePostfix = function() {
+			return x.@com.lorepo.icplayer.client.module.limitedcheck.LimitedCheckPresenter::getTitlePostfix()();
+		}
+
         return presenter;
     }-*/;
+
+    private String getTitlePostfix() {
+        return view.getTitlePostfix();
+    }
 
     private Element getView() {
         if (view != null) {
@@ -279,8 +294,7 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
 
     public JavaScriptObject getModulesScore() {
         if (view != null) {
-            ArrayList<IPresenter> modulesPresenters = view.getModulesPresenters();
-            TotalScore score = TotalScore.getFromPresenters(modulesPresenters);
+            TotalScore score = view.getTotalScore();
 
             return score.toJavaScriptObject();
         }
@@ -339,5 +353,28 @@ public class LimitedCheckPresenter implements IPresenter, IStateful, ICommandRec
             }
             return false;
         }
+    }
+
+    @Override
+    public IWCAG getWCAGController() {
+        return (IWCAG) this.view;
+    }
+
+    @Override
+    public void selectAsActive(String className) {
+        this.view.getElement().addClassName(className);
+    }
+
+    @Override
+    public void deselectAsActive(String className) {
+        this.view.getElement().removeClassName(className);
+    }
+
+    @Override
+    public boolean isSelectable(boolean isTextToSpeechOn) {
+        boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden")
+                && !this.getView().getStyle().getDisplay().equals("none")
+                && !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+        return isVisible;
     }
 }

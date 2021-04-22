@@ -10,6 +10,8 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.IButton;
+import com.lorepo.icplayer.client.module.IWCAG;
+import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IModuleView;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -22,8 +24,9 @@ import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.lessonreset.LessonResetModule;
 import com.lorepo.icplayer.client.module.lessonreset.LessonResetPresenter;
+import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
-public class LessonResetPresenter implements IPresenter, IStateful, ICommandReceiver, IButton {
+public class LessonResetPresenter implements IPresenter, IStateful, ICommandReceiver, IButton, IWCAGPresenter {
 	
 	public interface IDisplay extends IModuleView {
 		public void show();
@@ -244,6 +247,29 @@ public class LessonResetPresenter implements IPresenter, IStateful, ICommandRece
 		} else if (eventName.equals("HideAnswers")) {
 			view.setShowAnswersMode(false);
 		}
+	}
+
+	@Override
+	public IWCAG getWCAGController() {
+		return (IWCAG) this.view;
+	}
+
+	@Override
+	public void selectAsActive(String className) {
+		this.view.getElement().addClassName(className);
+	}
+
+	@Override
+	public void deselectAsActive(String className) {
+		this.view.getElement().removeClassName(className);
+	}
+
+	@Override
+	public boolean isSelectable(boolean isTextToSpeechOn) {
+		boolean isVisible = !this.getView().getStyle().getVisibility().equals("hidden")
+				&& !this.getView().getStyle().getDisplay().equals("none")
+				&& !KeyboardNavigationController.isParentGroupDivHidden(view.getElement());
+		return isVisible;
 	}
 
 }

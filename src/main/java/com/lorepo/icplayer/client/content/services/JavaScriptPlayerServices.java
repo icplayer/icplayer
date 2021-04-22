@@ -14,6 +14,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.content.services.externalNotifications.ObserverJSService;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
@@ -55,6 +56,16 @@ public class JavaScriptPlayerServices {
 		return jsObject;
 	}
 
+	public JsArray<JavaScriptObject> getAssetsAsJS() {
+		List<JavaScriptObject> assetsList = playerServices.getAssetsService().getAssetsAsJS();
+		JsArray<JavaScriptObject> jsArray = (JsArray<JavaScriptObject>) JavaScriptObject.createArray();
+
+		for (JavaScriptObject object : assetsList){
+			jsArray.push(object);
+		}
+		return jsArray;
+	}
+
 	private native JavaScriptObject initJSObject(JavaScriptPlayerServices x) /*-{
 
 		var playerServices = function() {};
@@ -89,6 +100,10 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageTitle()();
 		};
 
+		playerServices.getObserverService = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getJSObserverService()();
+		};
+
 		playerServices.getCommands = function() {
 			var commands = function() {
 			};
@@ -120,7 +135,11 @@ public class JavaScriptPlayerServices {
 			commands.gotoPageId = function(pageId) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoPageId(Ljava/lang/String;)(pageId);
 			};
-			
+
+			commands.gotoCommonPage = function(pageName) {
+			    x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoCommonPage(Ljava/lang/String;)(pageName);
+			}
+
 			commands.gotoCommonPageId = function(pageId) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::gotoCommonPageId(Ljava/lang/String;)(pageId);
 			};
@@ -202,7 +221,11 @@ public class JavaScriptPlayerServices {
 			commands.getPageStamp = function() {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageStamp()();
 			}
-			
+
+			commands.reset = function(resetOnlyWrong) {
+			    x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::reset(Z)(resetOnlyWrong);
+			}
+
 			commands.resetPage = function(index) {
 				x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::resetPage(I)(index - 1);
 			}
@@ -354,6 +377,10 @@ public class JavaScriptPlayerServices {
 				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContentType(Ljava/lang/String;)(href);
 			};
 
+			assets.getAssetsAsJS = function() {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getAssetsAsJS()();
+			};
+
 			return assets;
 		};
 
@@ -421,6 +448,14 @@ public class JavaScriptPlayerServices {
 
 		playerServices.getContextMetadata = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContextMetadata()();
+		};
+
+		playerServices.setExternalVariable = function (key, value) {
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setExternalVariable(Ljava/lang/String;Ljava/lang/String;)(key, value);
+		};
+
+		playerServices.getExternalVariable = function(key){
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getExternalVariable(Ljava/lang/String;)(key);
 		};
 
 		playerServices.sendResizeEvent = function() {
@@ -556,6 +591,10 @@ public class JavaScriptPlayerServices {
 	private void gotoPageId(String pageId){
 		playerServices.getCommands().gotoPageId(pageId);
 	}
+
+    private void gotoCommonPage(String pageName) {
+        playerServices.getCommands().gotoCommonPage(pageName);
+    }
 
 	private void gotoCommonPageId(String id) {
 		playerServices.getCommands().gotoCommonPageId(id);
@@ -891,6 +930,10 @@ public class JavaScriptPlayerServices {
 		return StringUtils.escapeXML(text);
 	}
 
+    private void reset(boolean resetOnlyWrong) {
+        this.playerServices.getCommands().reset(resetOnlyWrong);
+    }
+
 	private void resetPage(int index) {
 		this.playerServices.getCommands().resetPage(index);
 	}
@@ -937,5 +980,17 @@ public class JavaScriptPlayerServices {
 
 	public boolean isFirstStep() {
 		return this.playerServices.getAdaptiveLearningService().isFirstStep();
+	}
+
+	private void setExternalVariable(String key, String value) {
+		this.playerServices.setExternalVariable(key, value);
+	}
+
+	private String getExternalVariable(String key) {
+		return this.playerServices.getExternalVariable(key);
+	}
+
+	public ObserverJSService getJSObserverService() {
+		return playerServices.getObserverService().getAsJS();
 	}
 }
