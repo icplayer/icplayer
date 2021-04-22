@@ -1,3 +1,4 @@
+2021-04-22 Add zip file property for Iframe addon
 2021-03-29 Fixed issue with empty spaces at the end of a print page
 2021-03-26 Add new addon Scoreboard
 2021-03-25 Added scriptable button to IWB Toolbar

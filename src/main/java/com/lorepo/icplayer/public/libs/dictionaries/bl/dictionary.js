@@ -2082,6 +2082,7 @@ var ice_dictionary_bl = {
 	"Gradual_Show_Answer_property_disabled": "Is disabled",
     "editor.batch_upload.getting_unpack_id.error": "An error occurred while trying to upload the package.",
     "editor.batch_upload.getting_unpack_id.success": "The package was uploaded correctly and the editor will start checking if the files were unpacked in the background.",
+		"editor.batch_upload.getting_unpack_id.background": "The package was uploaded correctly and the editor will start checking if the files were unpacked in the background. You will be notified by email when the process is finished.",
     "editor.batch_upload.unpack.200_success": "The package was unpacked correctly. The files will be inserted into the module's property.",
     "editor.batch_upload.unpack.500_error": "A server error occurred and the package was not unpacked correctly.",
     "editor.batch_upload.unpack_error": "The package was not unpacked correctly",
