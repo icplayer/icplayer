@@ -534,7 +534,6 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.markerMouseUpHandler = function IWB_Toolbar_mouseUpHandler(e) {
-        console.log("marker mouse up");
         e.stopPropagation();
         e.preventDefault();
 
@@ -612,7 +611,6 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.penMouseUpHandler = function IWB_Toolbar_penMouseUpHandler(e) {
-        console.log("pen mouse up");
         e.stopPropagation();
         e.preventDefault();
         if (presenter.isMouseDown) {
@@ -621,6 +619,9 @@ function AddonIWB_Toolbar_create() {
         presenter.isMouseDown = false;
         setOverflowWorkAround(false);
         presenter.penDataURL = presenter.canvas[0].toDataURL('image/png');
+        if (presenter.drawMode == presenter.DRAW_MODE.ERASER && presenter.markerUsed) {
+            presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
+        }
 
         presenter.pushStateToStack();
     };
@@ -1040,7 +1041,6 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.eraserClickHandler = function IWB_Toolbar_eraserClickHandler(button) {
-        console.log("eraser click handler");
         presenter.isZoomActive = false;
         presenter.restoreTextAudioEventHandlers();
         presenter.panelView(button);
@@ -1125,7 +1125,7 @@ function AddonIWB_Toolbar_create() {
 
     presenter.resetOneClickHandler = function IWB_Toolbar_resetOneClickHandler(button) {
         presenter.restoreLastState();
-    }
+    };
 
     presenter.noteClickHandler = function IWB_Toolbar_noteClickHandler(button) {
         presenter.isZoomActive = false;
@@ -1146,7 +1146,6 @@ function AddonIWB_Toolbar_create() {
             presenter.$pagePanel.find('.note').addClass('clicked');
         });
         presenter.$pagePanel.find('.note').on('mouseup', function() {
-            console.log("note mouseup");
             presenter.$pagePanel.find('.note').removeClass('clicked');
         });
 
@@ -1213,6 +1212,7 @@ function AddonIWB_Toolbar_create() {
             presenter.$pagePanel.find('.clock').removeClass('clicked');
         });
         presenter.createClock();
+        presenter.pushStateToStack();
     };
 
     presenter.stopwatchClickHandler = function IWB_Toolbar_stopwatchClickHandler(button) {
@@ -2070,6 +2070,14 @@ function AddonIWB_Toolbar_create() {
         });
     }
 
+    function closeStopwatch() {
+        presenter._stopwatch.stopwatch.remove();
+        presenter.$panel.find('.stopwatch.clicked').removeClass('clicked');
+        presenter.stopwatchAdded = false;
+        clearTimeout(presenter._stopwatchTimer);
+        presenter._stopwatchTimer = null;
+    }
+
     presenter.createStopwatch = function IWB_Toolbar_createStopwatch(savedStopwatch, hours, minutes, seconds, stopClicked, startClicked) {
         if(!presenter.stopwatchAdded){
             var stopwatch = $('<div class="iwb-toolbar-stopwatch"></div>'),
@@ -2083,11 +2091,8 @@ function AddonIWB_Toolbar_create() {
 
             closeButton.on('click', function(e) {
                 e.stopPropagation();
-                stopwatch.remove();
-                presenter.$panel.find('.stopwatch.clicked').removeClass('clicked');
-                presenter.stopwatchAdded = false;
-                clearTimeout(presenter._stopwatchTimer);
-                presenter._stopwatchTimer = null;
+                closeStopwatch();
+                presenter.pushStateToStack();
             });
 
             header.append(time);
@@ -2229,6 +2234,12 @@ function AddonIWB_Toolbar_create() {
         presenter.stopwatchAdded = true;
     };
 
+    function closeClock() {
+        presenter._clockwatch.clock.remove();
+        presenter.$panel.find('.clock.clicked').removeClass('clicked');
+        presenter.clockAdded = false;
+    }
+
     presenter.createClock = function IWB_Toolbar_createClock(savedClock) {
         if (!presenter.clockAdded) {
             var clock = $('<div class="iwb-toolbar-clock"></div>'),
@@ -2238,9 +2249,8 @@ function AddonIWB_Toolbar_create() {
 
             closeButton.on('click', function(e) {
                 e.stopPropagation();
-                clock.remove();
-                presenter.$panel.find('.clock.clicked').removeClass('clicked');
-                presenter.clockAdded = false;
+                closeClock();
+                presenter.pushStateToStack();
             });
 
             header.append(closeButton);
@@ -2282,8 +2292,7 @@ function AddonIWB_Toolbar_create() {
                 },
                 stop: function NoteStopFunction() {
                     $.ui.ddmanager.current = null;
-                    console.log("stop");
-                    //presenter.pushStateToStack();
+                    presenter.pushStateToStack();
                 }
             });
 
@@ -2951,7 +2960,6 @@ function AddonIWB_Toolbar_create() {
         presenter.updateZoomConfiguration();
     };
 
-
     presenter.onDestroy = function () {
         clearCanvases();
 
@@ -3569,7 +3577,6 @@ function AddonIWB_Toolbar_create() {
                 'top': $(this).css('top'),
                 'left': $(this).css('left')
             });
-            $(this).remove();
         });
         return clocks;
     }
@@ -3590,6 +3597,10 @@ function AddonIWB_Toolbar_create() {
     }
 
     presenter.getState = function() {
+        return JSON.stringify(presenter.getStateJSON);
+    }
+
+    presenter.getStateJSON = function() {
         zoom.out();
         var notes = presenter.noteObjects.map(function (note) {
             return note.getState();
@@ -3679,8 +3690,8 @@ function AddonIWB_Toolbar_create() {
            'buttonThickness': $(presenter.buttonThickness).attr("thickness"),
            'shouldSaveColor': presenter.shouldSaveColor
         };
-        console.log(state);
-        return JSON.stringify(state);
+
+        return state;
     };
 
     /**
@@ -3767,7 +3778,6 @@ function AddonIWB_Toolbar_create() {
         var parsedState = JSON.parse(state);
         
         var upgradedState = presenter.upgradeState(parsedState);
-        console.log(upgradedState);
 
         presenter.areas = parsedState.areas;
         presenter.stopwatches = parsedState.stopwatches;
@@ -3860,7 +3870,7 @@ function AddonIWB_Toolbar_create() {
            presenter.isCloseColor = window.savedPanel.tools.isCloseColor;
            presenter.shouldSaveColor = window.savedPanel.tools.shouldSaveColor;
         }else{
-           presenter.activeFunction = upgradedState.activeFunction;
+           presenter.activeFunction = upgradedState.activeFunction.length ? upgradedState.activeFunction : presenter.activeFunction;
            presenter.closePenColor = upgradedState.stateColor;
            presenter.closePenThickness = upgradedState.stateThickness;
            presenter.buttonColor = presenter.$bottomPanels.find('[color*='+upgradedState.buttonColor+']')[0];
@@ -3931,13 +3941,13 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.pushStateToStack = function() {
-        console.log("pushStateToStack");
-        var newState = presenter.getState();
+        var newStateJSON = presenter.getStateJSON();
+        newStateJSON.activeFunction = "";
+        newStateJSON.aid = Math.floor(Math.random()*1000);
+        var newState = JSON.stringify(newStateJSON);
         if (newState != presenter.currentState) {
-            console.log("it's different!");
             if (presenter.currentState.length > 0) {
                     presenter.stateStack.push(presenter.currentState);
-                    console.log("saved!!");
                     if (presenter.stateStack.length > 5) {
                         presenter.stateStackOverflow = true;
                         presenter.stateStack.shift();
@@ -3948,27 +3958,35 @@ function AddonIWB_Toolbar_create() {
         }
     }
 
-    function destroyNotes() {
+    function destroyDraggableItems() {
         for (var i = 0; i < presenter.noteObjects.length; i++) {
             presenter.noteObjects[i].destroy();
         }
         presenter.noteObjects = [];
 
         if (presenter.stopwatchAdded) {
-            presenter._stopwatch.closeButton.click();
+            closeStopwatch();
+        }
+
+        if (presenter.clockAdded) {
+            closeClock();
         }
     }
 
     presenter.restoreLastState = function() {
-        presenter.currentState = "";
+        presenter.drawMode = presenter.DRAW_MODE.NONE;
+        presenter.ctx.globalCompositeOperation = 'source-over';
+        presenter.markerCtx.globalCompositeOperation = 'source-over';
         if (presenter.stateStack.length > 0) {
             var lastState = presenter.stateStack.pop();
             presenter.reset();
-            destroyNotes();
+            destroyDraggableItems();
             presenter.setState(lastState);
+            presenter.currentState = lastState;
         } else if (!presenter.stateStackOverflow) {
             presenter.reset();
-            destroyNotes();
+            destroyDraggableItems();
+            presenter.currentState = "";
         }
     }
 
