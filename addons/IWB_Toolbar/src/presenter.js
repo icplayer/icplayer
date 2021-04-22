@@ -3943,7 +3943,6 @@ function AddonIWB_Toolbar_create() {
     presenter.pushStateToStack = function() {
         var newStateJSON = presenter.getStateJSON();
         newStateJSON.activeFunction = "";
-        newStateJSON.aid = Math.floor(Math.random()*1000);
         var newState = JSON.stringify(newStateJSON);
         if (newState != presenter.currentState) {
             if (presenter.currentState.length > 0) {
