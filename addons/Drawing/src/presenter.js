@@ -1058,14 +1058,18 @@ function AddonDrawing_create() {
         };
     };
 
-    presenter.handleDownloadImage = function () {
+    function setColorToBackgroundTmpCanvas (color) {
         var tmp_ctx = presenter.configuration.tmp_ctx;
         var tmp_canvas = presenter.configuration.tmp_canvas;
         tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-        var fillStyle = tmp_ctx.fillStyle;
-        tmp_ctx.fillStyle = "white";
+        tmp_ctx.fillStyle = color;
         tmp_ctx.fillRect(0, 0, tmp_canvas.width, tmp_canvas.height);
         tmp_ctx.drawImage(presenter.$view.find("canvas")[0], 0, 0);
+    }
+
+    presenter.handleDownloadImage = function () {
+        var fillStyle = presenter.configuration.tmp_ctx.fillStyle;
+        setColorToBackgroundTmpCanvas('white');
 
         var canvas = presenter.$view.find("canvas.tmp_canvas")[0], data = canvas.toDataURL("image/png");
         data = data.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
