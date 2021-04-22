@@ -375,6 +375,22 @@
         return results;
     };
 
+    /**
+     Returns error object with specific errorCode.
+     @method getErrorObject
+
+     @param errorCode string representing errorCode
+
+     @return {Boolean} isValid field with false
+     @return {String} errorCode field with received error code
+     */
+    ModelValidationUtils.getErrorObject = function (errorCode) {
+        return {
+            isValid: false,
+            errorCode: errorCode
+        };
+    };
+
     //------------------------------------------ MODEL VALIDATOR -------------------
 
     function generateErrorCode(code) {

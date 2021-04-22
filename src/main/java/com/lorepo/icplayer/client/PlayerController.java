@@ -796,4 +796,15 @@ public class PlayerController implements IPlayerController {
 		return this.pageController1.getPage().getId();
 	}
 
+	@Override
+	public void setExternalVariable(String key, String value) {
+		IPlayerServices services = this.pageController1.getPlayerServices();
+		services.setExternalVariable(key, value);
+	}
+
+	@Override
+	public String getExternalVariable(String key) {
+		IPlayerServices services = this.pageController1.getPlayerServices();
+		return services.getExternalVariable(key);
+	}
 }

@@ -1,5 +1,4 @@
 .addon_Scoreboard {
-    max-height: 350px;
     position: relative;
     overflow-y: auto;
     overflow-x: hidden;
@@ -14,9 +13,12 @@
 .scoreboard-header {
     height: 20px;
     line-height: 20px;
-    cursor: move;
     position: relative;
     background-color: rgba(128, 207, 238, 0.973);
+}
+
+.ui-draggable .scoreboard-header {
+    cursor: move;
 }
 
 .scoreboard-header .scoreboard-close {
@@ -70,7 +72,7 @@
     content: "\21B6";
 }
 
-.team {
+.scoreboard-team {
     padding: 2px;
     margin: 3px;
     width: 100px;
@@ -81,12 +83,12 @@
     color: rgba(255, 255, 255, 1);
 }
 
-.team-header {
+.scoreboard-team-header {
     height: 15px;
     line-height: 15px;
 }
 
-.team-header .team-remove {
+.scoreboard-team-header .scoreboard-team-remove {
     width: 10%;
     right: 5px;
     float: right;
@@ -94,58 +96,58 @@
     text-align: right;
 }
 
-.team-remove::before {
+.scoreboard-team-remove::before {
     content: "x";
 }
 
-.save-button {
+.scoreboard-save-button {
     cursor: pointer;
 }
 
-.team-body {
+.scoreboard-team-body {
     height: 70px;
 }
 
-.team-body .team-name-container {
+.scoreboard-team-body .scoreboard-team-name-container {
     vertical-align: top;
 }
 
-.team-body .team-name-container .team-name-input {
+.scoreboard-team-body .scoreboard-team-name-container .scoreboard-team-name-input {
     width: 90px;
     background: transparent;
     color: white;
     border: none;
 }
 
-.team-body .team-points-container {
+.scoreboard-team-body .scoreboard-team-points-container {
     margin-top: 15px;
 }
 
-.team-footer {
+.scoreboard-team-footer {
     height: 25px;
     width: 100%;
     line-height: 25px;
     bottom: 0;
 }
 
-.team-footer .team-score-decrement {
+.scoreboard-team-footer .scoreboard-team-score-decrement {
     width: 50%;
     height: 100%;
     cursor: pointer;
     display: inline-block;
 }
 
-.team-score-decrement::before {
+.scoreboard-team-score-decrement::before {
     content: "-";
 }
 
-.team-footer .team-score-increment {
+.scoreboard-team-footer .scoreboard-team-score-increment {
     width: 50%;
     height: 100%;
     cursor: pointer;
     display: inline-block;
 }
 
-.team-score-increment::before {
+.scoreboard-team-score-increment::before {
     content: "+";
 }

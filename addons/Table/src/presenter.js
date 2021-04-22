@@ -1299,7 +1299,7 @@ function AddonTable_create() {
         } else {
             this.value = value;
             this.source = source;
-            this.$view.val(value);
+            this.setViewValue(value);
         }
 
         if (isEnabled !== undefined) {
