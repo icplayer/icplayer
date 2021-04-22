@@ -1019,27 +1019,51 @@ function AddonConnection_create() {
         }
     };
 
-    presenter.addAnswersElements = function (view, model) {
+    function arraysEqual(a, b) {
+        if (a === b) return true;
+        if (a == null || b == null) return false;
+        if (a.length !== b.length) return false;
+      
+        // If you don't care about the order of the elements inside
+        // the array, you should sort both arrays here.
+        // Please note that calling sort on an array will modify that array.
+        // you might want to clone your array first.
+      
+        for (var i = 0; i < a.length; ++i) {
+          if (a[i] !== b[i]) return false;
+        }
+        return true;
+      }
+
+    presenter.addAnswersElements = function (view, model, results) {
         // left side
-        var answers = []
+        console.log("ADD ANSWER ELEMENTS");
+        answers = []
         if (presenter.printableState.id.length > 0) {
             for (var i = 0; i < presenter.printableState.id.length; i++) {
                 var pair = presenter.printableState.id[i].split(':');
                 answers.push(pair);
             }
         }
-        console.log("Answers: ", answers)
-        console.log("Correct: ")
+        console.log("ANSWERS")
+        console.log(answers)
+        console.log("CORRECT")
+        console.log(results)
+
         var column = $(view).find('.annswersLeftColumn:first').find('.content:first');
+        
         for (var i = 0; i < model["Left column"].length; i++) {
             var element = presenter.elements[i];
-            console.log(element);
-            var leftId = presenter.elements[i].id;
-            var connections = presenter.elements[i].id;
-            var leftAnswerConnection = answers.filter((answer) => {
+            var leftId = element.id;
+            var userConnectionsWithLeftId = answers.filter((answer) => {
                 return(answer[0] == leftId);
             })
-            console.log(leftAnswerConnection)
+            var correctConnectionsWithLeftId = results.filter((result) => {
+                return(result[0] == leftId);
+            })
+            console.log("COMPIRISE: ")
+            console.log(userConnectionsWithLeftId)
+            console.log(correctConnectionsWithLeftId)
         }
         // right side
     };
@@ -2136,19 +2160,38 @@ function AddonConnection_create() {
 
     presenter.setPrintableState = function (savedState) {
         presenter.printableState = JSON.parse(savedState);
-        console.log("Printable state saved: ", presenter.printableState);
+    }
+
+    function getCorrectAnswersObject(model) {
+        var correctAnswers = [];
+        var idx = 0;
+        for (var i = 0; i < model["Left column"].length; i++) {
+            var element = presenter.elements[i];
+            var id = element.id;
+            var correctAnswersValues = element.connects.split(',');
+            if (correctAnswersValues.length == 0) {
+                correctAnswers[idx] = [];
+                correctAnswers[idx][0] = id;
+                correctAnswers[idx][1] = null;
+                idx++;
+            } else {
+                correctAnswersValues.forEach(function (answer) {
+                    correctAnswers[idx] = [];
+                    correctAnswers[idx][0] = id;
+                    correctAnswers[idx][1] = answer;
+                    idx++;
+                });
+            }
+        }
+        return correctAnswers;
     }
 
     presenter.getPrintableHTML = function (model, showAnswers) {
+        console.log('GET PRINTABLE HTML');
         model = presenter.upgradeModel(model);
-        console.log('get Printable HTML fired');
         var savedState = presenter.printableState;
         var checkAnswers = (savedState != undefined || savedState != null) && showAnswers;
         var showUserAnswers = (savedState != undefined || savedState != null) && !showAnswers;
-
-        console.log('Saved model looks like: ', savedState);
-        console.log('Model is: ', model);
-        console.log('Show answers is: ', showAnswers);
 
         var answerLeftColumn = checkAnswers ? 
         '        <td class="annswersLeftColumn">' +
@@ -2160,9 +2203,6 @@ function AddonConnection_create() {
         '            <table class="content"></table>' +
         '        </td>' : ''
         
-        console.log(answerLeftColumn);
-
-
         var $root = $("<div></div>");
         $root.attr('id', model.ID);
         $root.addClass('printable_addon_Connection');
@@ -2195,20 +2235,25 @@ function AddonConnection_create() {
         }
         this.setColumnsWidth($root[0], model["Columns width"]);
 
-        if (checkAnswers) {
-            presenter.addAnswersElements($root[0], model);
-        }
+        var results = getCorrectAnswersObject(model);
+        console.log("RESULT:");
+        console.log(results);
 
+        if (checkAnswers) {
+            presenter.addAnswersElements($root[0], model, results);
+        }
 
         var connected = [];
         // if (showAnswers && !checkAnswers) {
         if (showAnswers) {
-            console.log("Normal show answers");
-            console.log("ELEMENTS: ", presenter.elements)
-            for (var i = 0; i < model["Left column"].length; i++) {
-                var element = presenter.elements[i];
-                if (element.connects) {
-                    connected.push({from: element.id, to:element.connects});
+            "NORMAL SHOW ANSWER"
+            for (var i = 0; i < results.length; i++) {
+                // If left node has some right answer
+                if (results[i][1]) {
+                    connected.push({
+                        from: results[i][0],
+                        to: results[i][1]
+                    });
                 }
             }
         } else if (showUserAnswers) {
