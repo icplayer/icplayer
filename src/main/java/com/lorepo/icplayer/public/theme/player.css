@@ -511,7 +511,7 @@ hr, table, fieldset {
     display: inline-block;
 }
 
-.ic_poption-correct::after {
+.ic_poption-correct-answer::after {
     content: " \2714";
 }
 
