@@ -38,6 +38,15 @@ function AddonConnection_create() {
         setStateLoader: true
     };
 
+    presenter.PRINTABLE_STATE_MODE = {
+        EMPTY: 0,
+        SHOW_ANSWERS: 1,
+        SHOW_USER_ANSWERS: 2,
+        CHECK_ANSWERS: 3
+    };
+
+    presenter.printableStateMode = 0;
+
     var deferredCommandQueue = window.DecoratorUtils.DeferredSyncQueue(checkIsMathJaxLoaded);
 
     function checkIsMathJaxLoaded() {
@@ -1019,25 +1028,43 @@ function AddonConnection_create() {
         }
     };
 
-    function arraysEqual(a, b) {
-        if (a === b) return true;
-        if (a == null || b == null) return false;
-        if (a.length !== b.length) return false;
+    function isAnswersEqualToCorrectResults (userAnswers, correctAnswers) {
+        userAnswers.forEach(function(element, index) {
+            this[index] = element.join('');
+        }, userAnswers);
+        correctAnswers.forEach(function(element, index) {
+            this[index] = element.join('');
+        }, correctAnswers);
+
+        if (userAnswers === correctAnswers) return true;
+        if (userAnswers == null || correctAnswers == null) return false;
+        if (userAnswers.length !== correctAnswers.length) return false;
       
-        // If you don't care about the order of the elements inside
-        // the array, you should sort both arrays here.
-        // Please note that calling sort on an array will modify that array.
-        // you might want to clone your array first.
+        userAnswers.sort();
+        correctAnswers.sort();
       
-        for (var i = 0; i < a.length; ++i) {
-          if (a[i] !== b[i]) return false;
+        for (var i = 0; i < userAnswers.length; ++i) {
+          if (userAnswers[i] !== correctAnswers[i]) return false;
         }
         return true;
       }
 
+    function appendAnswerDiv (column, elementId, answerDiv) {
+        var element = $('<table class="answerItem" id="connection-' + elementId + '"></div>');
+        var row = $('<tr></tr>');
+        var innerElement = $('<td class="inner"></td>');
+        var newRow = $('<tr></tr>');
+        var newCell = $('<td class="connectionItemWrapper"></td>');
+        innerElement.append(answerDiv);
+        row.append(innerElement);
+        element.append(row);
+        newCell.append(element);
+        newRow.append(newCell);
+        column.append(newRow);
+    }
+
     presenter.addAnswersElements = function (view, model, results) {
         // left side
-        console.log("ADD ANSWER ELEMENTS");
         answers = []
         if (presenter.printableState.id.length > 0) {
             for (var i = 0; i < presenter.printableState.id.length; i++) {
@@ -1045,27 +1072,49 @@ function AddonConnection_create() {
                 answers.push(pair);
             }
         }
-        console.log("ANSWERS")
-        console.log(answers)
-        console.log("CORRECT")
-        console.log(results)
 
-        var column = $(view).find('.annswersLeftColumn:first').find('.content:first');
+        var leftAnswerColumn = $(view).find('.answersLeftColumn:first').find('.content:first');
+        var rightAnswerColumn = $(view).find('.answersRightColumn:first').find('.content:first');
         
+        // Left answer column
         for (var i = 0; i < model["Left column"].length; i++) {
             var element = presenter.elements[i];
             var leftId = element.id;
             var userConnectionsWithLeftId = answers.filter((answer) => {
                 return(answer[0] == leftId);
             })
+            if (userConnectionsWithLeftId.length == 0) {
+                var emptyAnswer = [`${leftId}`, ''];
+                userConnectionsWithLeftId.push(emptyAnswer);
+            }
             var correctConnectionsWithLeftId = results.filter((result) => {
                 return(result[0] == leftId);
             })
-            console.log("COMPIRISE: ")
-            console.log(userConnectionsWithLeftId)
-            console.log(correctConnectionsWithLeftId)
+            if ( isAnswersEqualToCorrectResults(userConnectionsWithLeftId, correctConnectionsWithLeftId) ) {
+                var correctAnswerDiv = $('<div class="correctAnswerDiv"></div>');
+                appendAnswerDiv(leftAnswerColumn, leftId, correctAnswerDiv);
+            } else {
+                var incorrectAnswerDiv = $('<div class="incorrectAnswerDiv"></div>');
+                appendAnswerDiv(leftAnswerColumn, leftId, incorrectAnswerDiv);
+            }
         }
-        // right side
+        // Right answer column
+        for (var i = 0; i < model["Right column"].length; i++) {
+            var rightId = model["Right column"][i].id;
+            var userConnectionsWithRightId = answers.filter((answer) => {
+                return(answer[1] == rightId);
+            })
+            var correctConnectionsWithRightId = results.filter((result) => {
+                return(result[1] == rightId);
+            })
+            if ( isAnswersEqualToCorrectResults(userConnectionsWithRightId, correctConnectionsWithRightId) ) {
+                var correctAnswerDiv = $('<div class="correctAnswerDiv"></div>');
+                appendAnswerDiv(rightAnswerColumn, rightId, correctAnswerDiv);
+            } else {
+                var incorrectAnswerDiv = $('<div class="incorrectAnswerDiv"></div>');
+                appendAnswerDiv(rightAnswerColumn, rightId, incorrectAnswerDiv);
+            }
+        }
     };
 
     presenter.isIDUnique = function (id) {
@@ -2158,8 +2207,10 @@ function AddonConnection_create() {
         presenter.printableController = controller;
     };
 
-    presenter.setPrintableState = function (savedState) {
-        presenter.printableState = JSON.parse(savedState);
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state);
     }
 
     function getCorrectAnswersObject(model) {
@@ -2186,20 +2237,43 @@ function AddonConnection_create() {
         return correctAnswers;
     }
 
+    function isPrintableShowAnswersStateMode() {
+        return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS;
+    }
+    function isPrintableShowUserAnswersStateMode() {
+        return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
+    }
+    function isPrintableCheckAnswersStateMode() {
+        return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS;
+    }
+
+    function chosePrintableStateMode(showAnswers) {
+        if (presenter.printableState) {
+            if (showAnswers)
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS;
+            else
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
+        } else {
+            if (showAnswers)
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS;
+            else
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.EMPTY;
+        }
+    }
+
     presenter.getPrintableHTML = function (model, showAnswers) {
         console.log('GET PRINTABLE HTML');
+        chosePrintableStateMode(showAnswers);
         model = presenter.upgradeModel(model);
         var savedState = presenter.printableState;
-        var checkAnswers = (savedState != undefined || savedState != null) && showAnswers;
-        var showUserAnswers = (savedState != undefined || savedState != null) && !showAnswers;
-
-        var answerLeftColumn = checkAnswers ? 
-        '        <td class="annswersLeftColumn">' +
+        var isCheckAnswers = isPrintableCheckAnswersStateMode();
+        var answerLeftColumn = isCheckAnswers ? 
+        '        <td class="answersLeftColumn">' +
         '            <table class="content"></table>' +
         '        </td>' : ''
 
-        var answerRightColumn = checkAnswers ? 
-        '        <td class="annswersRightColumn">' +
+        var answerRightColumn = isCheckAnswers ? 
+        '        <td class="answersRightColumn">' +
         '            <table class="content"></table>' +
         '        </td>' : ''
         
@@ -2224,54 +2298,58 @@ function AddonConnection_create() {
         var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
         var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
         if (!isRandomLeft) {
-            this.loadElements($root[0], model, 'connectionLeftColumn', 'Left column', false, checkAnswers);
+            this.loadElements($root[0], model, 'connectionLeftColumn', 'Left column', false, isCheckAnswers);
         } else {
             this.loadRandomElementsLeft($root[0], model, 'connectionLeftColumn', 'Left column', false);
         }
         if (!isRandomRight) {
-            this.loadElements($root[0], model, 'connectionRightColumn', 'Right column', true, checkAnswers);
+            this.loadElements($root[0], model, 'connectionRightColumn', 'Right column', true, isCheckAnswers);
         } else {
             this.loadRandomElementsRight($root[0], model, 'connectionRightColumn', 'Right column', true);
         }
         this.setColumnsWidth($root[0], model["Columns width"]);
 
-        var results = getCorrectAnswersObject(model);
-        console.log("RESULT:");
-        console.log(results);
+        var correctAnswers = getCorrectAnswersObject(model);
+        console.log("CORRECT ANSWERS:");
+        console.log(correctAnswers);
 
-        if (checkAnswers) {
-            presenter.addAnswersElements($root[0], model, results);
+        if (isCheckAnswers) {
+            presenter.addAnswersElements($root[0], model, correctAnswers);
         }
 
         var connected = [];
-        // if (showAnswers && !checkAnswers) {
-        if (showAnswers) {
-            "NORMAL SHOW ANSWER"
-            for (var i = 0; i < results.length; i++) {
-                // If left node has some right answer
-                if (results[i][1]) {
+        if (isPrintableShowAnswersStateMode()) {
+            console.log("NORMAL SHOW ANSWER");
+            for (var i = 0; i < correctAnswers.length; i++) {
+                if (correctAnswers[i][1]) {
                     connected.push({
-                        from: results[i][0],
-                        to: results[i][1]
+                        from: correctAnswers[i][0],
+                        to: correctAnswers[i][1],
+                        correct: true
                     });
                 }
             }
-        } else if (showUserAnswers) {
-            console.log("Show user answers and check it or not");
-            console.log(savedState);
+        } else if (isPrintableShowUserAnswersStateMode()) {
+            console.log("SHOW USER ANSWER");
             for (var i = 0; i < savedState.id.length; i++) {
                 var pair = savedState.id[i].split(':');
-                connected.push({from: pair[0], to:pair[1]});
+                connected.push({
+                    from: pair[0],
+                    to: pair[1],
+                    correct: true
+                });
             }
-        } else {
-            for (var i = 0; i < model["initialConnections"].length; i++) {
-                var connection = model["initialConnections"][i];
-                if (connection.from.length > 0 && connection.to.length > 0) {
-                    connected.push({from: connection.from, to: connection.to});
-                }
+        } else if (isCheckAnswers) {
+            console.log("CHECK ANSWERS");
+            for (var i = 0; i < savedState.id.length; i++) {
+                var pair = savedState.id[i].split(':');
+                connected.push({
+                    from: pair[0],
+                    to: pair[1],
+                    correct: true
+                });
             }
         }
-        console.log(connected)
 
         var height = getPrintableTableHeight($root);
         $root.css("height", height+"px");
