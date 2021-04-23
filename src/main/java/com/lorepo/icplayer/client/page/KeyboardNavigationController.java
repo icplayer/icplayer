@@ -808,21 +808,18 @@ public final class KeyboardNavigationController implements IKeyboardNavigationCo
 	/**
 	 * Function to find module by id
 	 * @param soughtModuleId (String) - module id which should be searched in presenters
-	 * @return -1 if module wasn't found, otherwise its index (0 to N)
+	 * @return -1 if module wasn't found, otherwise it's index (0 to N)
 	 */
 	private int findModuleIndex(String soughtModuleId) {
-		int soughtModuleIndex = -1;
-
 		List<PresenterEntry> presenters = getPresenters();
 		for (int i = 0; i < presenters.size(); i++) {
 			PresenterEntry entry = presenters.get(i);
 			if (entry.id.equals(soughtModuleId)) {
-				soughtModuleIndex = i;
-				break;
+				return i;
 			}
 		}
 
-		return soughtModuleIndex;
+		return -1;
 	}
 
 	/**

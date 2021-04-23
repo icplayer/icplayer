@@ -42,10 +42,9 @@ public class SkipLinkItem extends BasicPropertyProvider implements ISkipLinkItem
     }
 
     static SkipLinkItem fromXML(Element element) {
-        XMLUtils.getText(element);
-        String moduleId = StringUtils.unescapeXML(XMLUtils.getFirstElementContentWithTagName(element, "moduleId", ""));
-        String moduleText = StringUtils.unescapeXML(XMLUtils.getFirstElementContentWithTagName(element, "moduleText", ""));
-        String moduleTextLang = StringUtils.unescapeXML(XMLUtils.getFirstElementContentWithTagName(element, "moduleTextLang", ""));
+        String moduleId = getUnescapedTagValue(element, "moduleId", "");
+        String moduleText = getUnescapedTagValue(element, "moduleText", "");
+        String moduleTextLang = getUnescapedTagValue(element, "moduleTextLang", "");
 
         return new SkipLinkItem(moduleId, moduleText, moduleTextLang);
     }
@@ -152,6 +151,13 @@ public class SkipLinkItem extends BasicPropertyProvider implements ISkipLinkItem
         };
 
         addProperty(property);
+    }
+
+    private static String getUnescapedTagValue(Element element, String tag, String defaultValue) {
+        String tagValue = XMLUtils.getFirstElementContentWithTagName(element, tag, defaultValue);
+        return StringUtils.unescapeXML(
+            tagValue
+        );
     }
 
 
