@@ -17,6 +17,7 @@
 2021-03-22 Added support for setPages in printable
 2021-03-18 Increased maximum time in addon Media Recorder
 2021-03-18 Removed display of placeholder text after show and hide
+2021-03-17 Fixed draggable gaps displaying after returning to the page on which the gap is located
 2021-03-15 Fixed table stretching in print
 2021-03-15 Added show and hide for Crossword
 2021-03-15 Fixed numeric TextBox for iPad
