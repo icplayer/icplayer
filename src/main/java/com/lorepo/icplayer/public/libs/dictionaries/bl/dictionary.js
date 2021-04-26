@@ -1423,6 +1423,7 @@ var ice_dictionary_bl = {
 	"Drawing_property_thickness": "Дебелина",
 	"Drawing_property_border": "Рамка",
 	"Drawing_property_opacity": "Прозрачност",
+    "Drawing_property_font": "Font",
     "DrawingSmartPen_info": "Позволява рисуването на произволни фигури със SmartPen.",
 	"abandon_all_changes": "Отмени всички промени",
 	"confirm_abandon_all_changes": "Всички промени, направени по време на настоящата сесия в редактора, ще бъдат отменени. Сигурни ли сте, че искате да продължите?",

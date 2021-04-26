@@ -35,6 +35,7 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	private String addonId;
 	private ArrayList<IAddonParam>	addonParams = new ArrayList<IAddonParam>();
 	private PrintableController printableController = null;
+	private String printableState = "";
 	
 	public interface OnAddonReleaseAction {
 		public void onRelease();
@@ -170,13 +171,13 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		String className = this.getStyleClass();
 		JavaScriptObject printController = getPrintableControllerAsJsObject();
 		
-		String result = getPrintableHTML(addonName, jsModel, printController, showAnswers);
+		String result = getPrintableHTML(addonName, jsModel, printController, printableState, showAnswers);
 		if (result == null || result.length() == 0) return null;
 		result = PrintableContentParser.addClassToPrintableModule(result, className, !isSplitInPrintBlocked());
 		return result;
 	}
 	
-	private native String getPrintableHTML(String addonName, JavaScriptObject model, JavaScriptObject controller, boolean showAnswers) /*-{
+	private native String getPrintableHTML(String addonName, JavaScriptObject model, JavaScriptObject controller, String state, boolean showAnswers) /*-{
 		if($wnd.window[addonName] == null){
 			return null;
 		}
@@ -188,6 +189,10 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		
 		if (presenter.hasOwnProperty("setPrintableController") && controller != null) {
 			presenter.setPrintableController(controller);
+		}
+
+		if (presenter.hasOwnProperty("setPrintableState") && state != null && state.length > 0) {
+			presenter.setPrintableState(state);
 		}
 		
 		return presenter.getPrintableHTML(model, showAnswers);
@@ -233,6 +238,11 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	@Override
 	public void setPrintableController(PrintableController controller) {
 		printableController = controller;
+	}
+
+	@Override
+	public void setPrintableState(String state) {
+		this.printableState = state;
 	}
 	
 	private JavaScriptObject getPrintableControllerAsJsObject() {

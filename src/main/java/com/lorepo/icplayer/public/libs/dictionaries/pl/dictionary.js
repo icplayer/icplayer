@@ -1427,6 +1427,7 @@ var ice_dictionary_pl = {
 	"Drawing_property_thickness": "Grubość",
 	"Drawing_property_border": "Obramowanie",
 	"Drawing_property_opacity": "Nieprzejrzystość",
+    "Drawing_property_font": "Font",
 	"DrawingSmartPen_info" : "Umożliwia rysowanie linii i tworzenie dowolnych kształtów na ekranie prezentacji z wykorzystaniem narzędzia SmartPen.",
 	"abandon_all_changes" : "Porzuć wszystkie zmiany",
 	"confirm_abandon_all_changes" : "Wszystkie zmiany wprowadzone w edytorze podczas tej sesji zostaną usunięte. Czy na pewno chcesz kontynuować?",

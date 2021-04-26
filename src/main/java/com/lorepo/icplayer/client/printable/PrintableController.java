@@ -9,6 +9,7 @@ public class PrintableController {
 	private JavaScriptObject jsObject = null;
 	private Page page = null;
 	private SeededRandom random = new SeededRandom();
+	private JavaScriptObject scoreJS = null;
 	
 	PrintableController(Page page) {
 		this.page = page;
@@ -50,7 +51,34 @@ public class PrintableController {
 		controller.nextInt = function(upperBound) {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::nextInt(I)(upperBound);
 		};
+
+		controller.getScore = function() {
+			return x.@com.lorepo.icplayer.client.printable.PrintableController::scoreJS;
+		};
 		
 		return controller;
 	}-*/;
+
+	public String getPageId () {
+		return page.getId();
+	}
+
+	public void setScore(String score) {
+		this.scoreJS = parseJson(score);
+	}
+
+	private native JavaScriptObject parseJson(String raw)/*-{
+		try {
+		var score = JSON.parse(raw);
+		var pageIds = Object.keys(score);
+		for (var i = 0; i < pageIds.length; i++) {
+			var pageId = pageIds[i];
+			score[pageId] = JSON.parse(score[pageId]);
+		}
+		return score;
+		} catch (e) {
+			return null;
+		}
+	}-*/;
+
 }

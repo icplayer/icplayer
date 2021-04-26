@@ -1428,6 +1428,7 @@ var ice_dictionary_mx = {
 	"Drawing_property_thickness": "Grosor de lápiz",
 	"Drawing_property_border": "Borde",
 	"Drawing_property_opacity": "Opacidad",
+    "Drawing_property_font": "Font",
 	"DrawingSmartPen_info": "Permite a los usuarios a dibujar líneas y crear las imágenes de forma libre con el SmartPen.",
 	"abandon_all_changes": "Abandona todos los cambios",
 	"confirm_abandon_all_changes": "Se eliminarán todos los cambios realizados en esta sesión del editor. ¿Estás seguro que deseas continuar?",
