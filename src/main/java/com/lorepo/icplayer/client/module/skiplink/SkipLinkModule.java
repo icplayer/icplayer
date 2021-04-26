@@ -8,6 +8,7 @@ import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkItem;
 import com.lorepo.icplayer.client.module.skiplink.interfaces.ISkipLinkModule;
 
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule {
+public class SkipLinkModule extends BasicModuleModel implements ISkipLinkModule, IWCAGModuleModel {
     private final List<SkipLinkItem> items;
 
     public SkipLinkModule() {

@@ -9,6 +9,7 @@ import com.lorepo.icplayer.client.mockup.services.SpeechControllerMockup;
 import com.lorepo.icplayer.client.module.skiplink.mocks.SkipLinkModuleMockup;
 import com.lorepo.icplayer.client.module.skiplink.mocks.SkipLinkViewListenerMock;
 import com.lorepo_patchers.icfoundation.TextToSpeechVoicePatcher;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -21,6 +22,11 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
     SkipLinkView view;
     SkipLinkViewListenerMock listenerMock;
     SpeechControllerMockup speechControllerMockup;
+
+    @Before
+    public void setUp() {
+        TextToSpeechVoicePatcher.resetCallCount();
+    }
 
     @Test
     public void viewCreation() {
@@ -71,6 +77,20 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
 
         thenViewVisible();
         thenOnlySelectedItemVisible(0);
+    }
+
+
+    @Test
+    public void spacePressing() {
+        givenModelWithOneItem();
+        givenViewCreated();
+        givenViewWithListener();
+
+        whenEnterPressed();
+        whenSpacePressed();
+
+        thenViewVisible();
+        thenOnlySelectedItemVisible(0);
         thenListenerCalledWithModuleId(moduleMockup.getItemId(0));
     }
 
@@ -83,7 +103,7 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         whenEnterPressed();
         whenTabPressed();
         whenTabPressed();
-        whenEnterPressed();
+        whenSpacePressed();
 
         thenViewVisible();
         thenOnlySelectedItemVisible(2);
@@ -101,7 +121,7 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         whenTabPressed();
         whenShiftTabPressed();
         whenShiftTabPressed();
-        whenEnterPressed();
+        whenSpacePressed();
 
         thenViewVisible();
         thenOnlySelectedItemVisible(0);
@@ -162,6 +182,7 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         whenEnterPressed();
 
         thenSpeechTextCreatedWithExpectedText(moduleMockup.getItemText(0));
+        thenSpeechTextCreatedCountEqualTo(1);
     }
 
 
@@ -176,6 +197,7 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         whenEnterPressed();
         whenTabPressed();
 
+        thenSpeechTextCreatedCountEqualTo(2);
         thenSpeechTextCreatedWithExpectedText(moduleMockup.getItemText(1));
     }
 
@@ -190,6 +212,7 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         whenEnterPressed();
 
         thenSpeechTextCreatedWithExpectedText(null);
+        thenSpeechTextCreatedCountEqualTo(0);
     }
 
     @Test
@@ -238,6 +261,18 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
 
         thenViewVisible();
         thenOnlySelectedItemVisible(0);
+    }
+
+    @Test
+    public void userHasActivatedModuleWhenWithoutItems() {
+        givenModelWithoutItems();
+        givenViewCreated();
+
+        whenShowNavigation();
+        whenActivateNavigation();
+        whenEnterPressed();
+
+        thenViewVisible();
     }
 
     // this handles KeyboardNavigationController::restoreClasses
@@ -363,6 +398,12 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
         view.enter(eventMock, false);
     }
 
+    private void whenSpacePressed() {
+        KeyDownEvent eventMock = mock(KeyDownEvent.class);
+
+        view.space(eventMock);
+    }
+
     private void whenTabPressed() {
         KeyDownEvent eventMock = mock(KeyDownEvent.class);
 
@@ -444,6 +485,14 @@ public class GWTSkipLinkViewTestCase extends GwtTest {
     "Speech text should be " + expectedText + " but was " + TextToSpeechVoicePatcher.lastCreatedItemText(),
             expectedText,
             TextToSpeechVoicePatcher.lastCreatedItemText()
+        );
+    }
+
+    private void thenSpeechTextCreatedCountEqualTo(int expectedCount) {
+        assertEquals(
+                "Speech text should be created " + expectedCount + " times but was " + TextToSpeechVoicePatcher.callCount(),
+                expectedCount,
+                TextToSpeechVoicePatcher.callCount()
         );
     }
 }

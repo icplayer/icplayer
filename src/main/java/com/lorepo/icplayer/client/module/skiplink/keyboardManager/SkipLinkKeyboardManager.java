@@ -45,11 +45,15 @@ public class SkipLinkKeyboardManager {
     }
 
     public void showFirstItem() {
-        items.get(0).setVisible();
+        if (hasItems()) {
+            items.get(0).setVisible();
+        }
     }
 
     public void hideFirstItem() {
-        items.get(0).setInvisible();
+        if (hasItems()) {
+            items.get(0).setInvisible();
+        }
     }
 
     /**
@@ -78,7 +82,10 @@ public class SkipLinkKeyboardManager {
      * @return module id - to which module navigation should be moved
      */
     public String getSelectedModuleId() {
-        return items.get(currentSelected).getModuleId();
+        if (hasItems()) {
+            return items.get(currentSelected).getModuleId();
+        }
+        return "";
     }
 
     /**
@@ -86,23 +93,33 @@ public class SkipLinkKeyboardManager {
      * @param controller controller through which speech should commence
      */
     public void speakCurrentItem(ITextToSpeechController controller) {
-        ISkipLinkKeyboardItem currentlySelectedItem = items.get(currentSelected);
+        if (hasItems()) {
+            ISkipLinkKeyboardItem currentlySelectedItem = items.get(currentSelected);
 
-        String textToRead = currentlySelectedItem.getTextToRead();
-        String langTag = currentlySelectedItem.getTextLang();
-        TextToSpeechVoice currentItem = TextToSpeechVoice.create(textToRead, langTag);
+            String textToRead = currentlySelectedItem.getTextToRead();
+            String langTag = currentlySelectedItem.getTextLang();
+            TextToSpeechVoice currentItem = TextToSpeechVoice.create(textToRead, langTag);
 
-        controller.speak(
-            Collections.singletonList(currentItem)
-        );
+            controller.speak(
+                    Collections.singletonList(currentItem)
+            );
+        }
     }
 
     private void setCurrentItemInvisible() {
-        items.get(currentSelected).setInvisible();
+        if (hasItems()) {
+            items.get(currentSelected).setInvisible();
+        }
     }
 
     private void setCurrentItemVisible() {
-        items.get(currentSelected).setVisible();
+        if (hasItems()) {
+            items.get(currentSelected).setVisible();
+        }
 
+    }
+
+    private boolean hasItems() {
+        return this.items.size() > 0;
     }
 }

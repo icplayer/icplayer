@@ -51,12 +51,7 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
         if (isExiting) {
             exitNavigation();
         } else {
-            if (keyboardManager.isActive()) {
-                moveNavigationToSelectedModule();
-            } else {
-                activateKeyboard();
-            }
-
+            activateKeyboard();
         }
     }
 
@@ -186,7 +181,9 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
 
     @Override
     public void space(KeyDownEvent event) {
-
+        if (keyboardManager.isActive()) {
+            moveNavigationToSelectedModule();
+        }
     }
 
     @Override
@@ -203,8 +200,11 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
     }
 
     private void activateKeyboard() {
-        this.setVisible(true);
-        keyboardManager.setActive();
+        if (!keyboardManager.isActive()) {
+            this.setVisible(true);
+            keyboardManager.setActive();
+        }
+
         speakCurrentVisibleItem();
     }
 
