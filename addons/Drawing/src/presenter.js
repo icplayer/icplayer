@@ -14,7 +14,6 @@ function AddonDrawing_create() {
         topRight: 1,
         bottomLeft: 2,
         bottomRight: 3,
-        RotateAnchor: 4,
     };
 
     function setDefaultAddonMode() {
@@ -1059,18 +1058,33 @@ function AddonDrawing_create() {
         };
     };
 
+    function setColorToBackgroundTmpCanvas (color) {
+        var tmp_ctx = presenter.configuration.tmp_ctx;
+        var tmp_canvas = presenter.configuration.tmp_canvas;
+        tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+        tmp_ctx.fillStyle = color;
+        tmp_ctx.fillRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+        tmp_ctx.drawImage(presenter.$view.find("canvas")[0], 0, 0);
+    }
+
     presenter.handleDownloadImage = function () {
-        var canvas = presenter.$view.find("canvas")[0], data = canvas.toDataURL("image/png");
+        var fillStyle = presenter.configuration.tmp_ctx.fillStyle;
+        setColorToBackgroundTmpCanvas('white');
+
+        var canvas = presenter.$view.find("canvas.tmp_canvas")[0], data = canvas.toDataURL("image/png");
         data = data.replace(/^data:image\/[^;]*/, 'data:application/octet-stream');
-        data = data.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
+        data = data.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Board.png');
         this.href = data;
+
+        tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+        tmp_ctx.fillStyle = fillStyle;
     }
 
     presenter.downloadBoard = function () {
         
         var element = document.createElement("a");
         element.setAttribute("id", "dl");
-        element.setAttribute("download", "Canvas.png");
+        element.setAttribute("download", "Board.png");
         element.setAttribute("href", "#");
         element.onclick = presenter.handleDownloadImage;
         element.click();
