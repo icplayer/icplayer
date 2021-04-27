@@ -186,6 +186,14 @@
     background-image: url('resources/undo-one.svg');
 }
 
+.iwb-toolbar-panel .button.redo-one {
+    background-image: url('resources/redo-one.svg');
+}
+
+.iwb-toolbar-panel .button.redo-one.clicked {
+    background-image: url('resources/redo-one.svg');
+}
+
 .iwb-toolbar-panel .button.default {
     background-image: url('resources/wb_panel_cursor_icon.svg');
 }
@@ -623,6 +631,10 @@
 
 .iwb-toolbar-panel .button.reset-one .tooltip span:after {
     content: 'Undo';
+}
+
+.iwb-toolbar-panel .button.redo-one .tooltip span:after {
+    content: 'Redo';
 }
 
 .iwb-toolbar-panel .button.floating-image .tooltip span:after {

@@ -34,7 +34,8 @@ function AddonIWB_Toolbar_create() {
     presenter._setState.images = [];
 
     presenter.currentState = "";
-    presenter.stateStack = [];
+    presenter.prevStateStack = [];
+    presenter.nextStateStack = [];
     presenter.stateStackOverflow = false;
 
     presenter._stopwatchTimer = null;
@@ -490,6 +491,10 @@ function AddonIWB_Toolbar_create() {
 
     };
 
+    function saveMarkerData() {
+        presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
+    };
+
     presenter.onTouchEndEventCallback = function (e) {
         e.stopPropagation();
 
@@ -502,7 +507,7 @@ function AddonIWB_Toolbar_create() {
         presenter.tmp_ctx.clearRect(0, 0, presenter.iwb_tmp_canvas.width, presenter.iwb_tmp_canvas.height);
 
         presenter.points = [];
-        presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
+        saveMarkerData();
     };
 
     presenter.markerMouseDownHandler = function IWB_Toolbar_markerMouseDownHandler(e) {
@@ -549,7 +554,7 @@ function AddonIWB_Toolbar_create() {
         presenter.tmp_ctx.clearRect(0, 0, presenter.iwb_tmp_canvas.width, presenter.iwb_tmp_canvas.height);
 
         presenter.points = [];
-        presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
+        saveMarkerData();
 
         presenter.pushStateToStack();
     };
@@ -620,7 +625,7 @@ function AddonIWB_Toolbar_create() {
         setOverflowWorkAround(false);
         presenter.penDataURL = presenter.canvas[0].toDataURL('image/png');
         if (presenter.drawMode == presenter.DRAW_MODE.ERASER && presenter.markerUsed) {
-            presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
+            saveMarkerData();
         }
 
         presenter.pushStateToStack();
@@ -738,7 +743,7 @@ function AddonIWB_Toolbar_create() {
         if (model['widthWhenOpened']) {
             validated = ModelValidationUtils.validatePositiveInteger(model['widthWhenOpened']);
         } else {
-            var width = 574 + hasCustomButton * 36;
+            var width = 610 + hasCustomButton * 36;
             validated = getCorrectObject(width);
         }
 
@@ -1121,10 +1126,16 @@ function AddonIWB_Toolbar_create() {
 
         presenter.penDataURL = null;
         presenter.markerDataUrl = null;
+
+        presenter.pushStateToStack();
     };
 
     presenter.resetOneClickHandler = function IWB_Toolbar_resetOneClickHandler(button) {
         presenter.restoreLastState();
+    };
+
+    presenter.redoOneClickHandler = function IWB_Toolbar_redoOneClickHandler(button) {
+        presenter.redoStateFromArray();
     };
 
     presenter.noteClickHandler = function IWB_Toolbar_noteClickHandler(button) {
@@ -1442,6 +1453,10 @@ function AddonIWB_Toolbar_create() {
         'reset-one' : {
             'onOpen': presenter.resetOneClickHandler,
             'onReclicked': presenter.resetOneClickHandler
+        },
+        'redo-one' : {
+            'onOpen': presenter.redoOneClickHandler,
+            'onReclicked': presenter.redoOneClickHandler
         },
         'note' : {
             'onOpen': presenter.noteClickHandler,
@@ -1976,6 +1991,7 @@ function AddonIWB_Toolbar_create() {
         };
 
         presenter.drawAreaLogic_mouseUpCallback = function (event) {
+            console.log('drawAreaLogic_mouseUpCallback');
             event.stopPropagation();
             event.preventDefault();
 
@@ -1993,6 +2009,8 @@ function AddonIWB_Toolbar_create() {
                 color: presenter.currentLineColor
             });
             presenter.standHideAreaClicked = false;
+
+            presenter.pushStateToStack();
         };
 
         if( /Android|X11|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
@@ -2061,7 +2079,10 @@ function AddonIWB_Toolbar_create() {
     }
 
     function drawSavedAreas() {
+        presenter.$selectingMask.show();
         $.each(presenter.areas, function() {
+            console.log("draw saved area");
+            console.log(this);
             if (this.isHide) {
                 drawHideArea(presenter.selectingCtx, this.x, this.y, this.width, this.height, this.color);
             } else {
@@ -2662,6 +2683,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.toogleMasks = function IWB_Toolbar_toggleMasks() {
+        console.log("tooglemasks");
         if (!presenter.isSupportCSSPointerEvents()) {
             presenter.$penMask.hide();
             presenter.$markerMask.hide();
@@ -2674,6 +2696,7 @@ function AddonIWB_Toolbar_create() {
         }
 
         if (presenter.isAreaDrawingActive()) {
+            console.log("show selecting mask");
             presenter.$selectingMask.show();
         }
     };
@@ -2887,7 +2910,6 @@ function AddonIWB_Toolbar_create() {
                 $.ui.ddmanager.current = null;
 
                 presenter.zoomConfiguration.viewLeftOffset = presenter.$panel.offset().left;
-                presenter.pushStateToStack();
             }
         });
 
@@ -3392,6 +3414,7 @@ function AddonIWB_Toolbar_create() {
         presenter.standAreaClickHandler = null;
         presenter.resetClickHandler = null;
         presenter.resetOneClickHandler = null;
+        presenter.redoOneClickHandler = null;
         presenter.noteClickHandler = null;
         presenter.customScriptClickHandler = null;
         presenter.floatingImageClickHandler = null;
@@ -3597,10 +3620,6 @@ function AddonIWB_Toolbar_create() {
     }
 
     presenter.getState = function() {
-        return JSON.stringify(presenter.getStateJSON);
-    }
-
-    presenter.getStateJSON = function() {
         zoom.out();
         var notes = presenter.noteObjects.map(function (note) {
             return note.getState();
@@ -3691,7 +3710,7 @@ function AddonIWB_Toolbar_create() {
            'shouldSaveColor': presenter.shouldSaveColor
         };
 
-        return state;
+        return JSON.stringify(state);
     };
 
     /**
@@ -3774,12 +3793,14 @@ function AddonIWB_Toolbar_create() {
         if (!state) {
            return;
         }
+        console.log("set state");
         
         var parsedState = JSON.parse(state);
         
         var upgradedState = presenter.upgradeState(parsedState);
 
         presenter.areas = parsedState.areas;
+        console.log(presenter.areas);
         presenter.stopwatches = parsedState.stopwatches;
         presenter.clocks = parsedState.clocks;
         
@@ -3940,20 +3961,34 @@ function AddonIWB_Toolbar_create() {
         presenter.changeThickness(presenter.data.eraserThickness);
     };
 
-    presenter.pushStateToStack = function() {
-        var newStateJSON = presenter.getStateJSON();
-        newStateJSON.activeFunction = "";
-        var newState = JSON.stringify(newStateJSON);
-        if (newState != presenter.currentState) {
-            if (presenter.currentState.length > 0) {
-                    presenter.stateStack.push(presenter.currentState);
-                    if (presenter.stateStack.length > 5) {
-                        presenter.stateStackOverflow = true;
-                        presenter.stateStack.shift();
-                    }
+    function compareStates(state1, state2) {
+        if (state1.length == 0 || state2.length == 0) {
+            return state1.length == state2.length;
+        }
+        var json1 = JSON.parse(state1);
+        var json2 = JSON.parse(state2);
+        json1.activeFunction = "";
+        json2.activeFunction = "";
+        return JSON.stringify(json1) == JSON.stringify(json2)
 
+    }
+
+    presenter.pushStateToStack = function() {
+        var newState = presenter.getState();
+        if (!compareStates(newState,presenter.currentState)) {
+            if (presenter.nextStateStack.length > 0) {
+                presenter.nextStateStack = [];
             }
-            presenter.currentState = newState;
+            if (presenter.currentState.length > 0) {
+                presenter.prevStateStack.push(presenter.currentState);
+                presenter.currentState = newState;
+                if (presenter.prevStateStack.length > 5) {
+                    presenter.stateStackOverflow = true;
+                    presenter.prevStateStack.shift();
+                }
+            } else {
+                presenter.currentState = newState;
+            }
         }
     }
 
@@ -3972,23 +4007,40 @@ function AddonIWB_Toolbar_create() {
         }
     }
 
-    presenter.restoreLastState = function() {
+    function resetDrawingMode() {
         presenter.drawMode = presenter.DRAW_MODE.NONE;
         presenter.ctx.globalCompositeOperation = 'source-over';
         presenter.markerCtx.globalCompositeOperation = 'source-over';
-        if (presenter.stateStack.length > 0) {
-            var lastState = presenter.stateStack.pop();
+        presenter.$penMask.css('pointer-events', 'none');
+        presenter.$markerMask.css('pointer-events', 'none');
+    }
+
+    presenter.restoreLastState = function() {
+        resetDrawingMode();
+        if (presenter.prevStateStack.length > 0) {
             presenter.reset();
             destroyDraggableItems();
-            presenter.setState(lastState);
-            presenter.currentState = lastState;
-        } else if (!presenter.stateStackOverflow) {
+            presenter.nextStateStack.push(presenter.currentState);
+            presenter.currentState = presenter.prevStateStack.pop();
+            presenter.setState(presenter.currentState);
+        } else if (!presenter.stateStackOverflow && presenter.currentState.length > 0) {
             presenter.reset();
             destroyDraggableItems();
+            presenter.nextStateStack.push(presenter.currentState);
             presenter.currentState = "";
         }
     }
 
+    presenter.redoStateFromArray = function() {
+        resetDrawingMode();
+        if (presenter.nextStateStack.length > 0) {
+            presenter.reset();
+            destroyDraggableItems();
+            presenter.prevStateStack.push(presenter.currentState);
+            presenter.currentState = presenter.nextStateStack.pop();
+            presenter.setState(presenter.currentState);
+        }
+    }
     return presenter;
 }
 
