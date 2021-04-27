@@ -5,6 +5,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.content.services.externalNotifications.IObserverService;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -66,4 +67,5 @@ public interface IPlayerServices {
 	public void sendExternalEvent(String eventType, String data);
 	IPlayerStateService getPlayerStateService();
 	IGradualShowAnswersService getGradualShowAnswersService();
+	IObserverService getObserverService();
 }
