@@ -1063,13 +1063,13 @@ function AddonConnection_create() {
         column.append(newRow);
     }
 
-    presenter.addAnswersElements = function (view, model, results) {
+    presenter.addAnswersElements = function (view, model, correctAnswers) {
         // left side
-        answers = []
+        userAnswers = []
         if (presenter.printableState.id.length > 0) {
             for (var i = 0; i < presenter.printableState.id.length; i++) {
                 var pair = presenter.printableState.id[i].split(':');
-                answers.push(pair);
+                userAnswers.push(pair);
             }
         }
 
@@ -1080,39 +1080,39 @@ function AddonConnection_create() {
         for (var i = 0; i < model["Left column"].length; i++) {
             var element = presenter.elements[i];
             var leftId = element.id;
-            var userConnectionsWithLeftId = answers.filter((answer) => {
-                return(answer[0] == leftId);
+            var userConnectionsWithLeftId = userAnswers.filter((userAnswer) => {
+                return(userAnswer[0] == leftId);
             })
             if (userConnectionsWithLeftId.length == 0) {
                 var emptyAnswer = [`${leftId}`, ''];
                 userConnectionsWithLeftId.push(emptyAnswer);
             }
-            var correctConnectionsWithLeftId = results.filter((result) => {
-                return(result[0] == leftId);
+            var correctConnectionsWithLeftId = correctAnswers.filter((correctAnswer) => {
+                return(correctAnswer[0] == leftId);
             })
             if ( isAnswersEqualToCorrectResults(userConnectionsWithLeftId, correctConnectionsWithLeftId) ) {
                 var correctAnswerDiv = $('<div class="correctAnswerDiv"></div>');
                 appendAnswerDiv(leftAnswerColumn, leftId, correctAnswerDiv);
             } else {
-                var incorrectAnswerDiv = $('<div class="incorrectAnswerDiv"></div>');
-                appendAnswerDiv(leftAnswerColumn, leftId, incorrectAnswerDiv);
+                var inCorrectAnswerDiv = $('<div class="inCorrectAnswerDiv"></div>');
+                appendAnswerDiv(leftAnswerColumn, leftId, inCorrectAnswerDiv);
             }
         }
         // Right answer column
         for (var i = 0; i < model["Right column"].length; i++) {
             var rightId = model["Right column"][i].id;
-            var userConnectionsWithRightId = answers.filter((answer) => {
-                return(answer[1] == rightId);
+            var userConnectionsWithRightId = userAnswers.filter((userAnswer) => {
+                return(userAnswer[1] == rightId);
             })
-            var correctConnectionsWithRightId = results.filter((result) => {
-                return(result[1] == rightId);
+            var correctConnectionsWithRightId = correctAnswers.filter((correctAnswer) => {
+                return(correctAnswer[1] == rightId);
             })
             if ( isAnswersEqualToCorrectResults(userConnectionsWithRightId, correctConnectionsWithRightId) ) {
                 var correctAnswerDiv = $('<div class="correctAnswerDiv"></div>');
                 appendAnswerDiv(rightAnswerColumn, rightId, correctAnswerDiv);
             } else {
-                var incorrectAnswerDiv = $('<div class="incorrectAnswerDiv"></div>');
-                appendAnswerDiv(rightAnswerColumn, rightId, incorrectAnswerDiv);
+                var inCorrectAnswerDiv = $('<div class="inCorrectAnswerDiv"></div>');
+                appendAnswerDiv(rightAnswerColumn, rightId, inCorrectAnswerDiv);
             }
         }
     };
@@ -2131,7 +2131,7 @@ function AddonConnection_create() {
         Line: Line
     };
 
-    function drawSVGLine(svg, firstID, secondID, model) {
+    function drawSVGLine(svg, firstID, secondID, correctLine, model) {
         var leftSize = model["Left column"].length;
 
         var isFirstIDInLeftColumn = false;
@@ -2169,11 +2169,11 @@ function AddonConnection_create() {
             firstID = tmp;
         }
 
-        drawSVGLineLeftToRight(svg, firstID, secondID, model);
+        drawSVGLineLeftToRight(svg, firstID, secondID, correctLine, model);
 
     }
 
-    function drawSVGLineLeftToRight(svg, leftID, rightID, model) {
+    function drawSVGLineLeftToRight(svg, leftID, rightID, correctLine, model) {
         var leftSize = model["Left column"].length;
         var leftTotalSize = 0;
         var rightTotalSize = 0;
@@ -2196,8 +2196,9 @@ function AddonConnection_create() {
         }
         var leftY = 100.0 * leftPos / leftTotalSize + "%";
         var rightY = 100.0 * rightPos / rightTotalSize + "%";
-
-        var $line = $("<line x1=\"0\" x2=\"100%\" style=\"stroke:rgb(0,0,0);stroke-width:1\" />");
+        var $line = correctLine
+            ? $('<line class="correctConnectionLine" x1="0" x2="100%" style="stroke: rgb(0, 0, 0); stroke-width: 1;" />')
+            : $('<line class="inCorrectConnectionLine" x1="0" x2="100%" style="stroke: rgb(0, 0, 0); stroke-width: 1;" stroke-dasharray="4" />');
         $line.attr('y1', leftY);
         $line.attr('y2', rightY);
         svg.append($line);
@@ -2237,13 +2238,13 @@ function AddonConnection_create() {
         return correctAnswers;
     }
 
-    function isPrintableShowAnswersStateMode() {
+    function isPrintableShowAnswersStateMode () {
         return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS;
     }
-    function isPrintableShowUserAnswersStateMode() {
+    function isPrintableShowUserAnswersStateMode () {
         return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
     }
-    function isPrintableCheckAnswersStateMode() {
+    function isPrintableCheckAnswersStateMode () {
         return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS;
     }
 
@@ -2261,38 +2262,43 @@ function AddonConnection_create() {
         }
     }
 
+    function isCorrectConnection (correctAnswers, connection) {
+        var connectionString = connection.join('');
+        return (correctAnswers.indexOf(connectionString) > -1);
+    }
+
     presenter.getPrintableHTML = function (model, showAnswers) {
-        console.log('GET PRINTABLE HTML');
         chosePrintableStateMode(showAnswers);
         model = presenter.upgradeModel(model);
         var savedState = presenter.printableState;
         var isCheckAnswers = isPrintableCheckAnswersStateMode();
         var answerLeftColumn = isCheckAnswers ? 
-        '        <td class="answersLeftColumn">' +
-        '            <table class="content"></table>' +
-        '        </td>' : ''
+        '<td class="answersLeftColumn">' +
+            '<table class="content"></table>' +
+        '</td>' : ''
 
         var answerRightColumn = isCheckAnswers ? 
-        '        <td class="answersRightColumn">' +
-        '            <table class="content"></table>' +
-        '        </td>' : ''
+        '<td class="answersRightColumn">' +
+            '<table class="content"></table>' +
+        '</td>' : ''
         
         var $root = $("<div></div>");
         $root.attr('id', model.ID);
         $root.addClass('printable_addon_Connection');
         $root.css("max-width", model["Width"]+"px");
-        $root.html('<table class="connectionContainer">' +
-            '    <tr>' + answerLeftColumn +
-            '        <td class="connectionLeftColumn">' +
-            '            <table class="content"></table>' +
-            '        </td>' +
-            '        <td class="connectionMiddleColumn">' +
-            '            <svg class="connections"></svg>' +
-            '        </td>' +
-            '        <td class="connectionRightColumn">' +
-            '            <table class="content"></table>' +
-            '        </td>' + answerRightColumn +
-            '    </tr>' +
+        $root.html(
+            '<table class="connectionContainer">' +
+                '<tr>' + answerLeftColumn +
+                    '<td class="connectionLeftColumn">' +
+                        '<table class="content"></table>' +
+                    '</td>' +
+                    '<td class="connectionMiddleColumn">' +
+                        '<svg class="connections"></svg>' +
+                    '</td>' +
+                    '<td class="connectionRightColumn">' +
+                        '<table class="content"></table>' +
+                    '</td>' + answerRightColumn +
+                '</tr>' +
             '</table>');
 
         var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
@@ -2310,8 +2316,6 @@ function AddonConnection_create() {
         this.setColumnsWidth($root[0], model["Columns width"]);
 
         var correctAnswers = getCorrectAnswersObject(model);
-        console.log("CORRECT ANSWERS:");
-        console.log(correctAnswers);
 
         if (isCheckAnswers) {
             presenter.addAnswersElements($root[0], model, correctAnswers);
@@ -2319,7 +2323,6 @@ function AddonConnection_create() {
 
         var connected = [];
         if (isPrintableShowAnswersStateMode()) {
-            console.log("NORMAL SHOW ANSWER");
             for (var i = 0; i < correctAnswers.length; i++) {
                 if (correctAnswers[i][1]) {
                     connected.push({
@@ -2330,7 +2333,6 @@ function AddonConnection_create() {
                 }
             }
         } else if (isPrintableShowUserAnswersStateMode()) {
-            console.log("SHOW USER ANSWER");
             for (var i = 0; i < savedState.id.length; i++) {
                 var pair = savedState.id[i].split(':');
                 connected.push({
@@ -2340,13 +2342,15 @@ function AddonConnection_create() {
                 });
             }
         } else if (isCheckAnswers) {
-            console.log("CHECK ANSWERS");
+            correctAnswers.forEach(function(element, index) {
+                this[index] = element.join('');
+            }, correctAnswers);
             for (var i = 0; i < savedState.id.length; i++) {
                 var pair = savedState.id[i].split(':');
                 connected.push({
                     from: pair[0],
                     to: pair[1],
-                    correct: true
+                    correct: isCorrectConnection(correctAnswers, pair)
                 });
             }
         }
@@ -2360,7 +2364,7 @@ function AddonConnection_create() {
             var connectionsSVG = $root.find('svg');
             for (var i = 0; i < connected.length; i++) {
                 var connection = connected[i];
-                drawSVGLine(connectionsSVG, connection.from, connection.to, model);
+                drawSVGLine(connectionsSVG, connection.from, connection.to, connection.correct, model);
             }
             $root.detach();
             $root.css('visibility', 'visible');

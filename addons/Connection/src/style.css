@@ -62,9 +62,9 @@
 }
 
 .correctAnswerDiv::before {
-    content: "CORRECT";
+    content: "\2714";
 }
 
-.incorrectAnswerDiv::before {
-    content: "BAD";
+.inCorrectAnswerDiv::before {
+    content: "\2716";
 }
