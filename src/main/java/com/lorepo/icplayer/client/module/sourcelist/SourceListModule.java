@@ -553,5 +553,10 @@ public class SourceListModule extends BasicModuleModel implements IWCAGModuleMod
 	public boolean isSplitInPrintBlocked() {
 		return isSplitInPrintBlocked;
 	}
+
+	@Override
+	public void setPrintableState(String state) {
+		//TODO implement
+	}
 	
 }

@@ -337,6 +337,11 @@ public class ImageModule extends BasicModuleModel implements IWCAGModuleModel, I
 		return false;
 	}
 
+	@Override
+	public void setPrintableState(String state) {
+		//TODO implement
+	}
+
 
 	@Override
 	public JavaScriptObject getPrintableContext() {

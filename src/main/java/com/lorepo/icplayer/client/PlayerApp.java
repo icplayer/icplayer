@@ -776,6 +776,7 @@ public class PlayerApp {
 		printableParser.setRandomizePages(params.randomizePages);
 		printableParser.setRandomizeModules(params.randomizeModules);
 		printableParser.setShowAnswers(params.showAnswers);
+		printableParser.setState(loadedState);
 		printableParser.generatePrintableHTML(contentModel, pagesSubset);
 	};
 

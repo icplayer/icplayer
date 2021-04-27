@@ -993,7 +993,10 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	public boolean isSplitInPrintBlocked() {
 		return isSplitInPrintBlocked;
 	}
-	
-	
+
+	@Override
+	public void setPrintableState(String state) {
+		//TODO implement
+	}
 
 }
