@@ -5,16 +5,23 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
 import com.lorepo.icf.properties.IProperty;
+import com.lorepo.icf.properties.IPropertyProvider;
+import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
+import com.lorepo.icplayer.client.module.IWCAGModuleModel;
+import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 
-public class LessonResetModule extends BasicModuleModel {
+import java.util.ArrayList;
+
+public class LessonResetModule extends BasicModuleModel implements IWCAGModuleModel {
 
 private String title = "";
 private boolean resetMistakes = false;
 private boolean resetChecks = false;
+private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	
 	public LessonResetModule() {		
 		super("Lesson Reset", DictionaryWrapper.get("Lesson_Reset_name"));
@@ -22,6 +29,7 @@ private boolean resetChecks = false;
 		addPropertyTitle();
 		addPropertyResetMistakes();
 		addPropertyResetChecks();
+		addPropertySpeechTexts();
 	}
 
 	public String getTitle () {
@@ -161,7 +169,7 @@ private boolean resetChecks = false;
 					title = StringUtils.unescapeXML(XMLUtils.getAttributeAsString(childElement, "title"));
 					resetMistakes = XMLUtils.getAttributeAsBoolean((Element)childElement, "resetMistakes", false);
 					resetChecks = XMLUtils.getAttributeAsBoolean((Element)childElement, "resetChecks", false);
-					
+					this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(childElement, "lesson_was_reset"));
 				}
 			}
 		}
@@ -183,7 +191,79 @@ private boolean resetChecks = false;
 		lessonResetElement.setAttribute("title", encodedTitle);
 		XMLUtils.setBooleanAttribute(lessonResetElement, "resetMistakes", resetMistakes);
 		XMLUtils.setBooleanAttribute(lessonResetElement, "resetChecks", resetChecks);
-		
+		lessonResetElement.setAttribute("lesson_was_reset", this.speechTextItems.get(0).getText());
+
 		return lessonResetElement;
+	}
+
+	private void addPropertySpeechTexts() {
+		IStaticListProperty property = new IStaticListProperty() {
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public String getValue() {
+				return Integer.toString(speechTextItems.size());
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("choice_speech_texts");
+			}
+
+			@Override
+			public void setValue(String newValue) {}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+			@Override
+			public int getChildrenCount() {
+				return speechTextItems.size();
+			}
+
+			@Override
+			public void addChildren(int count) {
+				speechTextItems.add(new SpeechTextsStaticListItem("lesson_was_reset","Lesson_Reset"));
+			}
+
+			@Override
+			public IPropertyProvider getChild(int index) {
+				return speechTextItems.get(index);
+			}
+
+			@Override
+			public void moveChildUp(int index) {
+			}
+
+			@Override
+			public void moveChildDown(int index) {
+			}
+
+		};
+
+		addProperty(property);
+		property.addChildren(1);
+	}
+
+	public String getSpeechTextItem (int index) {
+		if (index < 0 || index >= this.speechTextItems.size()) {
+			return "";
+		}
+
+		final String text = this.speechTextItems.get(index).getText();
+		if (text.isEmpty()) {
+			if (index == 0) {
+				return "Lesson has been reset";
+			}
+
+			return "";
+		}
+
+		return text;
 	}
 }

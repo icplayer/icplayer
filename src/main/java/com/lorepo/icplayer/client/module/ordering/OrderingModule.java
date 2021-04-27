@@ -999,9 +999,8 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 
 	@Override
 	public void setPrintableState(String state) {
-		if (state.equals("")) {
+		if (state.equals(""))
 			return;
-		}
 		IJsonServices jsonServices = new JsonServices();
 		this.printableState = jsonServices.decodeHashMap(state);
 	}
@@ -1009,5 +1008,4 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	public HashMap<String, String> getPrintableState() {
 		return this.printableState;
 	}
-
 }

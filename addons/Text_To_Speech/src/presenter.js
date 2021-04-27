@@ -76,7 +76,8 @@ function AddonText_To_Speech_create() {
             enterText: model['EnterText'],
             exitText: model['ExitText'],
             newPage: model['NewPage'] ? model['NewPage'] : "New page",
-            pageLangTag: model['PageLangTag']
+            pageLangTag: model['PageLangTag'],
+            disableNewPageMessage: ModelValidationUtils.validateBoolean(model['disableNewPageMessage'])
         }
     };
 
@@ -84,10 +85,27 @@ function AddonText_To_Speech_create() {
         presenter.configuration.voices = window.speechSynthesis.getVoices();
     }
 
+    presenter.upgradeModel = function(model) {
+        var upgradedModel = presenter.upgradeDisableNewPageMessage(model);
+        return upgradedModel;
+    }
+
+    presenter.upgradeDisableNewPageMessage = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (upgradedModel['disableNewPageMessage'] === undefined) {
+            upgradedModel['disableNewPageMessage'] = "";
+        }
+
+        return upgradedModel;
+    }
+
     presenter.presenterLogic = function (view, model, isPreview) {
         presenter.$view = $(view);
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
-        presenter.configuration = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(upgradedModel);
         if (!presenter.configuration.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
             return false;
@@ -118,7 +136,7 @@ function AddonText_To_Speech_create() {
         presenter.presenterLogic(view, model, true);
     };
 
-    function getAddOnConfiguration (area, id) {
+    presenter.getAddOnConfiguration = function (area, id) {
         id = Array.isArray(id) ? id[0] : id;
         area = Array.isArray(area) ? area[0] : area;
 
@@ -420,7 +438,7 @@ function AddonText_To_Speech_create() {
 
     presenter.playTitle = function (area, id, langTag) {
         if (area && id) {
-            var textVoices = [getTextVoiceObject(getAddOnConfiguration(area, id).title, langTag)];
+            var textVoices = [getTextVoiceObject(presenter.getAddOnConfiguration(area, id).title, langTag)];
             var module = null;
             if(0 === area.toLowerCase().localeCompare("main")){
                 module = presenter.playerController.getModule(id);
@@ -439,7 +457,9 @@ function AddonText_To_Speech_create() {
     presenter.playPageTitle = function () {
         var textVoices = [];
         textVoices.push(getTextVoiceObject(presenter.configuration.newPage,''));
-        textVoices.push(getTextVoiceObject(presenter.playerController.getPageTitle(),presenter.configuration.pageLangTag));
+        if (!presenter.configuration.disableNewPageMessage) {
+            textVoices.push(getTextVoiceObject(presenter.playerController.getPageTitle(),presenter.configuration.pageLangTag));
+        }
         presenter.speak(textVoices);
     };
 
