@@ -220,6 +220,8 @@ function AddonIframe_create() {
             haveURL: validateIFrameSourceResult.haveURL,
             iframeURL: model.iframeURL,
             index: model.index,
+            indexHtmlLocation: model.indexHtmlLocation,
+            zipFile: model.zipFile,
             communicationID: validateCommunicationIDResult.value,
             addonID : model.ID,
             fileDictionary: validateFileListResult.fileDictionary,

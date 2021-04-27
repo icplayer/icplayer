@@ -1,3 +1,4 @@
+2021-04-22 Add zip file property for Iframe addon
 2021-04-21 Scoreboard documentation
 2021-04-19 Added Support for text and image in Drawing addon
 2021-04-13 Added notifier for save
