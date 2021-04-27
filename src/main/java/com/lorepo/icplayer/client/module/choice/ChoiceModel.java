@@ -713,4 +713,9 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 		return this.printableState;
 	}
 
+	@Override
+	public void setPrintableState(String state) {
+		//TODO implement
+	}
+
 }

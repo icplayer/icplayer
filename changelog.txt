@@ -1,4 +1,7 @@
-2021-04-22 Added support for printable state in Choice addon
+2021-04-28 Added support for printable state in Choice addon
+2021-04-22 Add zip file property for Iframe addon
+2021-04-21 Scoreboard documentation
+2021-04-19 Added Support for text and image in Drawing addon
 2021-04-13 Added notifier for save
 2021-04-13 Added externalVariables
 2021-04-07 Added disable new page message property to the Text To Speech addon
@@ -19,6 +22,7 @@
 2021-03-22 Added support for setPages in printable
 2021-03-18 Increased maximum time in addon Media Recorder
 2021-03-18 Removed display of placeholder text after show and hide
+2021-03-17 Fixed draggable gaps displaying after returning to the page on which the gap is located
 2021-03-15 Fixed table stretching in print
 2021-03-15 Added show and hide for Crossword
 2021-03-15 Fixed numeric TextBox for iPad
