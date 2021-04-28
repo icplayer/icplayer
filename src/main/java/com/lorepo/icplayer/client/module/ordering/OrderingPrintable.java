@@ -13,14 +13,15 @@ public class OrderingPrintable {
 
 	OrderingModule model = null;
 	PrintableController controller = null;
-	PrintableCollection collection = null;
+	OrderingPrintableCollection collection = null;
 	HashMap<String, String> printableState = null;
 	
 	public OrderingPrintable(
 			OrderingModule model, PrintableController controller) {
 		this.model = model;
 		this.controller = controller;
-		this.collection = new PrintableCollection(controller, model.getItemCount());
+		this.collection = new OrderingPrintableCollection(
+				controller, model.getItemCount());
 	}
 	
 	public String getPrintableHTML(String className, boolean showAnswers) {

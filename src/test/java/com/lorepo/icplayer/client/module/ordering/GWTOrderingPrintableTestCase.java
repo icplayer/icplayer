@@ -21,7 +21,7 @@ import org.powermock.reflect.Whitebox;
 import com.lorepo.icplayer.client.GWTPowerMockitoTest;
 import com.google.gwt.user.client.DOM;
 
-public class GWTPrintableOrderingTestCase extends GWTPowerMockitoTest {
+public class GWTOrderingPrintableTestCase extends GWTPowerMockitoTest {
 	PrintableController printableController = null;
 	OrderingModule model = null;
 	OrderingPrintable orderingPrintable = null;

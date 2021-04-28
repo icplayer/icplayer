@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 
-public class GWTPrintableCollectionTestCase extends GWTPowerMockitoTest {
+public class GWTOrderingPrintableCollectionTestCase extends GWTPowerMockitoTest {
 	PrintableController printableController = null;
 	OrderingModule model = null;
 
@@ -57,7 +57,8 @@ public class GWTPrintableCollectionTestCase extends GWTPowerMockitoTest {
 
 		int tries = 8;
 		for (int tryID = 0; tryID < tries; tryID++) {
-			PrintableCollection collection = new PrintableCollection(this.printableController, this.model.getItemCount());
+			OrderingPrintableCollection collection = new OrderingPrintableCollection(
+					this.printableController, this.model.getItemCount());
 			executeAddItemToAppropriateArrayForAllItems(collection);
 			Element[] items = collection.getOrderedItems();
 			for (int i = 0; i < items.length; i++) {
@@ -76,7 +77,8 @@ public class GWTPrintableCollectionTestCase extends GWTPowerMockitoTest {
 
 		int tries = 8;
 		for (int tryID = 0; tryID < tries; tryID++) {
-			PrintableCollection collection = new PrintableCollection(this.printableController, this.model.getItemCount());
+			OrderingPrintableCollection collection = new OrderingPrintableCollection(
+					this.printableController, this.model.getItemCount());
 			executeAddItemToAppropriateArrayForAllItems(collection);
 			Element[] items = collection.getOrderedItems();
 			assertNull(items[0]);
@@ -94,7 +96,8 @@ public class GWTPrintableCollectionTestCase extends GWTPowerMockitoTest {
 
 		int tries = 8;
 		for (int tryID = 0; tryID < tries; tryID++) {
-			PrintableCollection collection = new PrintableCollection(this.printableController, this.model.getItemCount());
+			OrderingPrintableCollection collection = new OrderingPrintableCollection(
+					this.printableController, this.model.getItemCount());
 			executeAddItemToAppropriateArrayForAllItems(collection);
 
 			Mockito.when(this.printableController.nextInt(Mockito.isA(int.class))).thenReturn(3, 1);
@@ -113,7 +116,8 @@ public class GWTPrintableCollectionTestCase extends GWTPowerMockitoTest {
 		items[2] = item3;
 	}
 
-	private void executeAddItemToAppropriateArrayForAllItems(PrintableCollection collection) {
+	private void executeAddItemToAppropriateArrayForAllItems(
+			OrderingPrintableCollection collection) {
 		for (int i = 0; i < itemsAmount; i++) {
 			collection.addItemToAppropriateArray(items[i], itemsReps[i]);
 		}

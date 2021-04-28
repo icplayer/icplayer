@@ -8,13 +8,13 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.Random;
 import com.lorepo.icplayer.client.printable.PrintableController;
 
-public class PrintableCollection {
+public class OrderingPrintableCollection {
 
     private PrintableController controller = null;
     private Element[] orderedItems = null;
     private List<Element> unorderedItems = null;
 
-    public PrintableCollection(PrintableController controller, int size){
+    public OrderingPrintableCollection(PrintableController controller, int size){
         this.controller = controller;
         this.orderedItems = new Element[size];
         this.unorderedItems = new ArrayList<Element>();
