@@ -21,6 +21,7 @@ import java.util.List;
 public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, IModuleView {
     private final ISkipLinkModule module;
     private final String skipLinkItemClass = "skiplink-item";
+    private final String skipLinkWrapperClass = "skiplink-wrapper";
     private final SkipLinkKeyboardManager keyboardManager;
     private ISkipLinkViewListener listener;
     private ITextToSpeechController speechController;
@@ -28,6 +29,7 @@ public class SkipLinkView extends FlowPanel implements IWCAG, IWCAGModuleView, I
 
     public SkipLinkView(ISkipLinkModule module, boolean isPreview) {
         this.getElement().setId(module.getId());
+        this.getElement().addClassName(skipLinkWrapperClass);
         this.module = module;
         // module only visible in preview
         this.setVisible(isPreview);
