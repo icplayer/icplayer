@@ -1036,7 +1036,6 @@ function AddonConnection_create() {
             this[index] = element.join('');
         }, correctAnswers);
 
-        if (userAnswers === correctAnswers) return true;
         if (userAnswers == null || correctAnswers == null) return false;
         if (userAnswers.length !== correctAnswers.length) return false;
       
