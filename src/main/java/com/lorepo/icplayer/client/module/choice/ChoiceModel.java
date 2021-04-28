@@ -712,10 +712,4 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	public HashMap<String, String> getPrintableState() {
 		return this.printableState;
 	}
-
-	@Override
-	public void setPrintableState(String state) {
-		//TODO implement
-	}
-
 }

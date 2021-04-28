@@ -277,38 +277,6 @@ public class GWTChoicePrintableOptionTestCase extends GWTPowerMockitoTest {
 		assertTrue(isElementHaveChildAmount(element, expectedChildrenAmount));
 	}
 
-	@Test
-	public void toPrintableDOMElementWhenIllegalModeAndCorrectOptionAndUp()
-			throws IllegalArgumentException {
-		ChoicePrintableOption printableOption = getCorrectPrintableOptionWhenIsUp();
-		PrintableStateMode mode = PrintableStateMode.CHECK_ANSWERS;
-		printableOption.toPrintableDOMElement(mode);
-	}
-
-	@Test
-	public void toPrintableDOMElementWhenIllegalModeAndCorrectOptionAndDown()
-			throws IllegalArgumentException {
-		ChoicePrintableOption printableOption = getCorrectPrintableOptionWhenIsDown();
-		PrintableStateMode mode = PrintableStateMode.CHECK_ANSWERS;
-		printableOption.toPrintableDOMElement(mode);
-	}
-
-	@Test
-	public void toPrintableDOMElementWhenIllegalModeAndWrongOptionAndUp()
-			throws IllegalArgumentException {
-		ChoicePrintableOption printableOption = getWrongPrintableOptionWhenIsUp();
-		PrintableStateMode mode = PrintableStateMode.CHECK_ANSWERS;
-		printableOption.toPrintableDOMElement(mode);
-	}
-
-	@Test
-	public void toPrintableDOMElementWhenIllegalModeAndWrongOptionAndDown()
-			throws IllegalArgumentException {
-		ChoicePrintableOption printableOption = getWrongPrintableOptionWhenIsDown();
-		PrintableStateMode mode = PrintableStateMode.CHECK_ANSWERS;
-		printableOption.toPrintableDOMElement(mode);
-	}
-
 	private ChoicePrintableOption getCorrectPrintableOptionWhenIsUp() {
 		setUpChoiceOptionWithCorrectAnswer();
 		ChoicePrintableOption printableOption

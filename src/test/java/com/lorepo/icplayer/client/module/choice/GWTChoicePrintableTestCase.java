@@ -39,15 +39,15 @@ public class GWTChoicePrintableTestCase extends GWTPowerMockitoTest {
 		ChoiceOption item3 = new ChoiceOption("3", "option 3", 0);
 		this.options.add(item3);
 
-        ChoiceOption item4 = new ChoiceOption("4", "option 4", 0);
-        this.options.add(item4);
+		ChoiceOption item4 = new ChoiceOption("4", "option 4", 0);
+		this.options.add(item4);
 
 		this.model = Mockito.mock(ChoiceModel.class);
 		Whitebox.setInternalState(this.model, "options", this.options);
 		Mockito.when(this.model.getPrintable()).thenReturn(Printable.PrintableMode.YES);
 		Mockito.when(this.model.getPrintableState()).thenCallRealMethod();
 		Mockito.when(this.model.getOptions()).thenCallRealMethod();
-        Mockito.when(this.model.getOptionCount()).thenCallRealMethod();
+		Mockito.when(this.model.getOptionCount()).thenCallRealMethod();
 		Mockito.when(this.model.isRandomOrder()).thenReturn(false);
 		Mockito.when(this.model.getId()).thenReturn("Choice1");
 
@@ -182,8 +182,8 @@ public class GWTChoicePrintableTestCase extends GWTPowerMockitoTest {
         String expectedOrderedListTypeAttribute = "A";
         assertTrue(isNodeHaveType(orderedList, expectedOrderedListTypeAttribute));
 
-		int expectedChildrenAmount = this.model.getOptionCount();
-		assertTrue(isNodeHaveChildrenAmount(orderedList, expectedChildrenAmount));
+        int expectedChildrenAmount = this.model.getOptionCount();
+        assertTrue(isNodeHaveChildrenAmount(orderedList, expectedChildrenAmount));
     }
 
     @Test
@@ -219,8 +219,8 @@ public class GWTChoicePrintableTestCase extends GWTPowerMockitoTest {
             String expectedInnerText = this.options.get(i).getText();
             assertTrue(isNodeHaveInnerText(element, expectedInnerText));
 
-			int expectedChildrenAmount = 1;
-			assertTrue(isNodeHaveChildrenAmount(element, expectedChildrenAmount));
+            int expectedChildrenAmount = 1;
+            assertTrue(isNodeHaveChildrenAmount(element, expectedChildrenAmount));
         }
     }
 
@@ -439,27 +439,27 @@ public class GWTChoicePrintableTestCase extends GWTPowerMockitoTest {
 	}
 
     private boolean isNodeHaveInnerText(Node node, String expectedInnerText) {
-        Element element = Element.as(node);
-        String elementInnerText = element.getInnerText();
-        return elementInnerText.equals(expectedInnerText);
+		Element element = Element.as(node);
+		String elementInnerText = element.getInnerText();
+		return elementInnerText.equals(expectedInnerText);
     }
 
     private boolean isNodeHaveID(Node node, String expectedID) {
-        Element element = Element.as(node);
-        String elementID = element.getId();
-        return elementID.equals(expectedID);
+		Element element = Element.as(node);
+		String elementID = element.getId();
+		return elementID.equals(expectedID);
     }
 
     private boolean isNodeHaveType(Node node, String expectedTypeName) {
-        Element element = Element.as(node);
-        String elementType = element.getAttribute("type");
-        return elementType.equals(expectedTypeName);
+		Element element = Element.as(node);
+		String elementType = element.getAttribute("type");
+		return elementType.equals(expectedTypeName);
     }
 
     private boolean isNodeHaveTag(Node node, String expectedTagName) {
-        Element element = Element.as(node);
-        String elementTagName = element.getTagName();
-        return elementTagName.equals(expectedTagName);
+		Element element = Element.as(node);
+		String elementTagName = element.getTagName();
+		return elementTagName.equals(expectedTagName);
     }
 
 	private boolean isNodeHaveClass(Node node, String expectedClassName) {
@@ -481,29 +481,29 @@ public class GWTChoicePrintableTestCase extends GWTPowerMockitoTest {
 	}
 
 	private Node getOrderedList(Node html) {
-	    return html.getFirstChild();
+		return html.getFirstChild();
     }
 
     private ArrayList<Node> getOrderedListElements(Node html) {
-        Node orderedList = getOrderedList(html);
-        ArrayList<Node> orderedListElements = new ArrayList<Node>();
-        for (int i = 0; i < orderedList.getChildCount(); i++ ) {
-            Node orderedListElement = orderedList.getChild(i);
-            orderedListElements.add(orderedListElement);
-        }
-        return orderedListElements;
+		Node orderedList = getOrderedList(html);
+		ArrayList<Node> orderedListElements = new ArrayList<Node>();
+		for (int i = 0; i < orderedList.getChildCount(); i++ ) {
+			Node orderedListElement = orderedList.getChild(i);
+			orderedListElements.add(orderedListElement);
+		}
+		return orderedListElements;
     }
 
     private ArrayList<Node> getPrintableOptions(Node html) {
-        ArrayList<Node> orderedListElements = getOrderedListElements(html);
-        ArrayList<Node> options = new ArrayList<Node>();
-        for (Node orderedListElement: orderedListElements) {
-            for (int i = 0; i < orderedListElement.getChildCount(); i++) {
-                Node option = orderedListElement.getChild(i);
-                options.add(option);
-            }
-        }
-        return options;
+		ArrayList<Node> orderedListElements = getOrderedListElements(html);
+		ArrayList<Node> options = new ArrayList<Node>();
+		for (Node orderedListElement: orderedListElements) {
+			for (int i = 0; i < orderedListElement.getChildCount(); i++) {
+				Node option = orderedListElement.getChild(i);
+				options.add(option);
+			}
+		}
+		return options;
     }
 
 	private void setPrintableState(String state) {
