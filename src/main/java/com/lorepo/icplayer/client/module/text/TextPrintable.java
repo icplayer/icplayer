@@ -169,7 +169,7 @@ public class TextPrintable {
 	
 	private String makePrintableDropdowns(String parsedText, boolean showAnswers) {
 		HTML html = new HTML(parsedText);
-		
+
 		NodeList<Element> selects = html.getElement().getElementsByTagName("select");
 		for (int i = 0; i < selects.getLength(); i++) {
 			Element select = selects.getItem(i);
@@ -182,7 +182,7 @@ public class TextPrintable {
 				InlineChoiceInfo choiceInfo = model.getChoiceInfos().get(i);
 
 				values = printableState.get(choiceInfo.getId());
-				if (values.equals(choiceInfo.getAnswer())) {
+				if (printableState.containsKey(choiceInfo.getId()) && values.equals(choiceInfo.getAnswer())) {
 					span.addClassName("ic_text-correct-answer");
 				} else {
 					span.addClassName("ic_text-wrong-answer");
