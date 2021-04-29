@@ -19,7 +19,6 @@ TestCase("[ImageIdentification] Image indentification printable html validation"
 
     'test empty printable state': function() {
         // given
-        // this.stubs.validateModelStub.returns(getValidModel(true));
         var divClassCore = 'printable-image-identification-empty';
         var expectedHtmlValue = this.getExpectedHTML(divClassCore);
 
