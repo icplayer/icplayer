@@ -21,19 +21,65 @@
     width: 100%;
 }
 
+.printable-image-identification-empty-div,
+.printable-image-identification-empty-user-answer-div,
+.printable-image-identification-empty-answer-div,
 .printable-image-identification-selected-answer-div,
 .printable-image-identification-selected-user-answer-div {
+    width: 20px;
+    height: 20px;
+    position: relative;
     border: 3px solid #999;
+    text-align: center;
+}
+
+.printable-image-identification-selected-answer-div::after,
+.printable-image-identification-selected-user-answer-div::after {
+    color: #999;
+    content: "\2714";
 }
 
 .printable-image-identification-empty-correct-answer-div,
 .printable-image-identification-selected-correct-answer-div
 {
+    width: 20px;
+    height: 20px;
+    position: relative;
     border: 3px solid #090;
+    text-align: center;
+}
+
+.printable-image-identification-selected-correct-answer-div::after {
+    color: #090;
+    content: "\2714";
 }
 
 .printable-image-identification-empty-incorrect-answer-div,
 .printable-image-identification-selected-incorrect-answer-div
 {
+    width: 20px;
+    height: 20px;
+    position: relative;
     border: 3px solid #900;
+    text-align: center;
+}
+
+
+.printable-image-identification-selected-incorrect-answer-div::after {
+    color: #900;
+    content: "\2714";
+}
+
+.printable-image-identification-empty-img,
+.printable-image-identification-selected-answer-img,
+.printable-image-identification-empty-answer-img,
+.printable-image-identification-selected-user-answer-img,
+.printable-image-identification-empty-user-answer-img,
+.printable-image-identification-empty-correct-answer-img,
+.printable-image-identification-empty-incorrect-answer-img,
+.printable-image-identification-selected-correct-answer-img,
+.printable-image-identification-selected-incorrect-answer-img {
+    position: absolute;
+    left: 30px;
+    top: 30px;
 }
