@@ -21,6 +21,19 @@
     width: 100%;
 }
 
-.printable-image-identification-correct {
+.printable-image-identification-selected-answer-div,
+.printable-image-identification-selected-user-answer-div {
     border: 3px solid #999;
+}
+
+.printable-image-identification-empty-correct-answer-div,
+.printable-image-identification-selected-correct-answer-div
+{
+    border: 3px solid #090;
+}
+
+.printable-image-identification-empty-incorrect-answer-div,
+.printable-image-identification-selected-incorrect-answer-div
+{
+    border: 3px solid #900;
 }
