@@ -23,6 +23,7 @@ function Addontext_identification_create() {
         EMPTY : 'text-identification-element-empty',
         MOUSE_HOVER_SELECTED : "text-identification-element-mouse-hover-selected",
         MOUSE_HOVER : "text-identification-element-mouse-hover",
+        SHOW_ANSWERS : "text-identification-element-show-answers",
         PRINTABLE: "printable_addon_Text_Identification",
         PRINTABLE_WRAPPER: "printable_addon_Text_Identification-wrapper",
         PRINTABLE_SELECTED: "printable_addon_Text_Identification-selected",
