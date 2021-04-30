@@ -26,10 +26,26 @@
 }
 
 .printable_addon_Text_Identification-wrapper {
-    display: inline-block;
+    display: table-cell;
+    vertical-align: middle;
     padding: 5px;
 }
 
-.printable_addon_Text_Identification-correct {
+.printable_addon_Text_Identification-correct,
+.printable_addon_Text_Identification-selected {
     border: 3px solid #999;
+}
+
+.printable_addon_Text_Identification-correct-answer,
+.printable_addon_Text_Identification-incorrect-answer {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.printable_addon_Text_Identification-correct-answer::after {
+    content: " \2714";
+}
+
+.printable_addon_Text_Identification-incorrect-answer::after {
+    content: " \2716";
 }
