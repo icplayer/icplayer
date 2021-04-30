@@ -2,11 +2,14 @@ package com.lorepo.icplayer.client.content.services;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.shared.EventBus;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.PlayerConfig;
 import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.content.services.externalNotifications.IObserverService;
+import com.lorepo.icplayer.client.content.services.externalNotifications.ObserverService;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
@@ -27,6 +30,7 @@ public class PlayerServices implements IPlayerServices {
 	private boolean isAbleChangeLayout = true;
 	private PlayerApp application = null;
 	private final PlayerStateService playerStateService;
+	private final IObserverService observerService;
 
 	public PlayerServices(IPlayerController controller, PageController pageController) {
 		this.playerController = controller;
@@ -35,6 +39,7 @@ public class PlayerServices implements IPlayerServices {
 		playerCommands = new PlayerCommands(pageController, playerController);
 		eventBusService = new PlayerEventBusService(this);
 		playerStateService = new PlayerStateService(this);
+		observerService = new ObserverService();
 	}
 	
 	@Override
@@ -219,6 +224,25 @@ public class PlayerServices implements IPlayerServices {
 		return this.application != null ? this.application.getContextMetadata() : null;
 	}
 
+	@Override
+	public void setExternalVariable(String key, String value) {
+		if (this.application != null){
+			JavaScriptObject context = this.application.getExternalVariables();
+			if (context != null)
+				JavaScriptUtils.addPropertyToJSArray(context, key, value);
+		}
+	}
+
+	@Override
+	public String getExternalVariable(String key) {
+		if (this.application != null){
+			JavaScriptObject context = this.application.getExternalVariables();
+			if (context != null)
+				return JavaScriptUtils.getArrayItemByKey(context, key);
+		}
+		return null;
+	}
+
     @Override
     public void sendResizeEvent() {
         this.pageController.sendResizeEvent();
@@ -361,6 +385,11 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public IGradualShowAnswersService getGradualShowAnswersService() {
 		return pageController.getGradualShowAnswersService();
+	}
+
+	@Override
+	public IObserverService getObserverService() {
+		return this.observerService;
 	}
 
 	@Override
