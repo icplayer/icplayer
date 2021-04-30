@@ -491,7 +491,7 @@ function AddonIWB_Toolbar_create() {
 
     };
 
-    function saveMarkerData() {
+    function saveMarkerDataUrl() {
         presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
     };
 
@@ -507,7 +507,7 @@ function AddonIWB_Toolbar_create() {
         presenter.tmp_ctx.clearRect(0, 0, presenter.iwb_tmp_canvas.width, presenter.iwb_tmp_canvas.height);
 
         presenter.points = [];
-        saveMarkerData();
+        saveMarkerDataUrl();
     };
 
     presenter.markerMouseDownHandler = function IWB_Toolbar_markerMouseDownHandler(e) {
@@ -554,7 +554,7 @@ function AddonIWB_Toolbar_create() {
         presenter.tmp_ctx.clearRect(0, 0, presenter.iwb_tmp_canvas.width, presenter.iwb_tmp_canvas.height);
 
         presenter.points = [];
-        saveMarkerData();
+        saveMarkerDataUrl();
 
         presenter.pushStateToStack();
     };
@@ -625,7 +625,7 @@ function AddonIWB_Toolbar_create() {
         setOverflowWorkAround(false);
         presenter.penDataURL = presenter.canvas[0].toDataURL('image/png');
         if (presenter.drawMode == presenter.DRAW_MODE.ERASER && presenter.markerUsed) {
-            saveMarkerData();
+            saveMarkerDataUrl();
         }
 
         presenter.pushStateToStack();
@@ -1991,7 +1991,6 @@ function AddonIWB_Toolbar_create() {
         };
 
         presenter.drawAreaLogic_mouseUpCallback = function (event) {
-            console.log('drawAreaLogic_mouseUpCallback');
             event.stopPropagation();
             event.preventDefault();
 
@@ -2079,10 +2078,8 @@ function AddonIWB_Toolbar_create() {
     }
 
     function drawSavedAreas() {
-        presenter.$selectingMask.show();
         $.each(presenter.areas, function() {
-            console.log("draw saved area");
-            console.log(this);
+            presenter.selectingCtx.globalCompositeOperation = 'source-over';
             if (this.isHide) {
                 drawHideArea(presenter.selectingCtx, this.x, this.y, this.width, this.height, this.color);
             } else {
@@ -2644,7 +2641,8 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.isAreaDrawingActive = function IWB_Toolbar_isAreaDrawingActive() {
-        return presenter.$pagePanel.find('.button.hide-area.clicked, .button.stand-area.clicked').length > 0;
+        return presenter.$pagePanel.find('.button.hide-area.clicked, .button.stand-area.clicked').length > 0
+            || presenter.drawMode == presenter.DRAW_MODE.HIDE_AREA;
     };
 
     presenter.areDrawingButtonsActive = function () {
@@ -2683,7 +2681,6 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.toogleMasks = function IWB_Toolbar_toggleMasks() {
-        console.log("tooglemasks");
         if (!presenter.isSupportCSSPointerEvents()) {
             presenter.$penMask.hide();
             presenter.$markerMask.hide();
@@ -2696,7 +2693,6 @@ function AddonIWB_Toolbar_create() {
         }
 
         if (presenter.isAreaDrawingActive()) {
-            console.log("show selecting mask");
             presenter.$selectingMask.show();
         }
     };
@@ -3476,7 +3472,7 @@ function AddonIWB_Toolbar_create() {
             presenter.$pagePanel.find('.bottom-panel-thickness').hide();
         }
 
-        if (shouldClearCanvas) {
+        if (shouldClearCanvas || shouldHideSelectingMasks) {
             presenter.changeColor('#0fa9f0');
             clearCanvases();
         }
@@ -3540,6 +3536,11 @@ function AddonIWB_Toolbar_create() {
             presenter.markerUsed = false;
             presenter.markerCanvas.off('mousemove mousedown mouseup');
             presenter.markerCtx.clearRect(0, 0, presenter.markerCanvas[0].width, presenter.markerCanvas[0].height);
+        }
+
+        if (presenter.selectingCanvas) {
+            presenter.selectingCanvas.off('mousemove mousedown mouseup');
+            presenter.selectingCtx.clearRect(0, 0, presenter.selectingCanvas[0].width, presenter.selectingCanvas[0].height);
         }
     }
 
@@ -3677,6 +3678,8 @@ function AddonIWB_Toolbar_create() {
            }
         }
 
+        var isSelectingVisible = presenter.$selectingMask.is(':visible');
+
         window.savedPanel.tools = {
            'activeFunction': presenter.activeFunction,
            'stateColor': stateColor,
@@ -3707,7 +3710,8 @@ function AddonIWB_Toolbar_create() {
            'isCloseColor': presenter.isCloseColor,
            'buttonColor': $(presenter.buttonColor).attr("color"),
            'buttonThickness': $(presenter.buttonThickness).attr("thickness"),
-           'shouldSaveColor': presenter.shouldSaveColor
+           'shouldSaveColor': presenter.shouldSaveColor,
+           'isSelectingVisible': isSelectingVisible
         };
 
         return JSON.stringify(state);
@@ -3769,12 +3773,19 @@ function AddonIWB_Toolbar_create() {
         return parsedState;
     };
 
+    presenter.upgradeStateForSelectingMaskVisibility = function (parsedState) {
+            if (parsedState.isSelectingVisible == undefined) {
+                parsedState.isSelectingVisible = false;
+            }
+
+            return parsedState;
+        };
+
     presenter.upgradeState = function (parsedState) {
         var upgradedState = presenter.upgradeStateForStopwatchesAndClocks(parsedState);
-
         upgradedState = presenter.upgradeStateForVisibility(upgradedState);
-
         upgradedState = presenter.upgradeStateForSavingTools(upgradedState);
+        upgradedState = presenter.upgradeStateForSelectingMaskVisibility(upgradedState);
 
         return  upgradedState;
     };
@@ -3793,14 +3804,12 @@ function AddonIWB_Toolbar_create() {
         if (!state) {
            return;
         }
-        console.log("set state");
-        
+
         var parsedState = JSON.parse(state);
-        
+
         var upgradedState = presenter.upgradeState(parsedState);
 
         presenter.areas = parsedState.areas;
-        console.log(presenter.areas);
         presenter.stopwatches = parsedState.stopwatches;
         presenter.clocks = parsedState.clocks;
         
@@ -3891,7 +3900,7 @@ function AddonIWB_Toolbar_create() {
            presenter.isCloseColor = window.savedPanel.tools.isCloseColor;
            presenter.shouldSaveColor = window.savedPanel.tools.shouldSaveColor;
         }else{
-           presenter.activeFunction = upgradedState.activeFunction.length ? upgradedState.activeFunction : presenter.activeFunction;
+           presenter.activeFunction = upgradedState.activeFunction;
            presenter.closePenColor = upgradedState.stateColor;
            presenter.closePenThickness = upgradedState.stateThickness;
            presenter.buttonColor = presenter.$bottomPanels.find('[color*='+upgradedState.buttonColor+']')[0];
@@ -3910,6 +3919,12 @@ function AddonIWB_Toolbar_create() {
                presenter.changeColor(presenter.closePenColor, presenter.buttonColor);
                presenter.changeThickness(presenter.closePenThickness, presenter.buttonThickness);
            }
+        }
+
+        if(upgradedState.isSelectingVisible) {
+            presenter.$selectingMask.show();
+        } else {
+            presenter.$selectingMask.hide();
         }
         
         setOverflowWorkAround(true);
@@ -3984,7 +3999,7 @@ function AddonIWB_Toolbar_create() {
                 presenter.currentState = newState;
                 if (presenter.prevStateStack.length > 5) {
                     presenter.stateStackOverflow = true;
-                    presenter.prevStateStack.shift();
+                    presenter.prevStateStack.splice(0, presenter.prevStateStack.length - 5);
                 }
             } else {
                 presenter.currentState = newState;
