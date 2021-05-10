@@ -581,7 +581,7 @@ function AddonNavigation_Bar_create() {
         var elementId = '';
         if (isCurrentElement) {
             var addonID = presenter.configuration.ID;
-            elementId = 'id="current-page-number' + (addonID ? '-' + addonID : '') + ' " ';
+            elementId = 'id="current-page-number' + (addonID ? '-' + addonID : '') + '" ';
         }
 
         return '<a href="#">' +
