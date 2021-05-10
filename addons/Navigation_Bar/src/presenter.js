@@ -578,9 +578,11 @@ function AddonNavigation_Bar_create() {
         }
 
         var currentElementStyle = isCurrentElement ? "navigationbar-element-current" : "navigationbar-element";
-        var currentElementId = isCurrentElement ? 'current-page-number' : '';
-        var addonID = presenter.configuration.ID;
-        var elementId = currentElementId ? ' id="' + currentElementId + (addonID ? '-' + addonID : '') + '"' : '';
+        var elementId = '';
+        if (isCurrentElement) {
+            var addonID = presenter.configuration.ID;
+            elementId = 'id="current-page-number' + (addonID ? '-' + addonID : '') + ' " ';
+        }
 
         return '<a href="#">' +
             '<span ' + elementId + 'class="' + currentElementStyle + ' navigationbar-indexed-element' +'" data-page-number="' + pageIndex + '">' + Internationalization.translate(index, presenter.configuration.language) + '</span>' +
