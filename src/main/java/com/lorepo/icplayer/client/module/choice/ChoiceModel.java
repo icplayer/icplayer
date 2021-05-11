@@ -701,4 +701,9 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 		
 	}
 
+	@Override
+	public void setPrintableState(String state) {
+		//TODO implement
+	}
+
 }

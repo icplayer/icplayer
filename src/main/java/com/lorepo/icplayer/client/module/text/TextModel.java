@@ -1339,4 +1339,9 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		this.printableController = controller;
 		
 	}
+
+	@Override
+	public void setPrintableState(String state) {
+		//TODO implement
+	}
 }
