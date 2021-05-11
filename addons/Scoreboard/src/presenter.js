@@ -9,6 +9,7 @@ function AddonScoreboard_create() {
         teamsObjects: [],
         savedScoreboard: null,
     }
+    presenter.playerController = null;
 
     presenter.ERROR_CODES = {
         C01: 'Configuration cannot be empty',
@@ -243,7 +244,7 @@ function AddonScoreboard_create() {
 
     // Scoreboard buttons
     presenter.Scoreboard.prototype.closeButtonHandler = function scoreboardCloseButtonHandler (event) {
-        presenter.hide();
+        presenter.closeScoreBoard();
     };
 
     presenter.Scoreboard.prototype.resetButtonHandler = function scoreboardResetButtonHandler (event) {
@@ -650,8 +651,22 @@ function AddonScoreboard_create() {
         presenter.setVisibility(true);
     };
 
+    presenter.closeScoreBoard = function () {
+        var eventData = {
+            'source': presenter.configuration.ID,
+            'value': "HideScoreboard",
+        };
+        var eventBus = presenter.playerController.getEventBus();
+        eventBus.sendEvent('ValueChanged', eventData);
+        presenter.setVisibility(false);
+    };
+
     presenter.hide = function () {
         presenter.setVisibility(false);
+    };
+
+    presenter.setPlayerController = function (controller) {
+        presenter.playerController = controller;
     };
 
     presenter.executeCommand = function (name) {
@@ -730,6 +745,7 @@ function AddonScoreboard_create() {
         if(presenter.teamsObjects) {
             presenter.removeAllTeams();
         }
+        presenter.playerController = null;
         presenter.removeScoreboard();
         presenter.configuration = null;
         presenter.state = null;

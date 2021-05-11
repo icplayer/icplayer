@@ -47,6 +47,9 @@ function AddonIWB_Toolbar_create() {
     presenter.activeButton = '';
     presenter.activeFunction;
     presenter.isRecklicked = false;
+    const CUSTOM_BUTTON_NAME = 'custom-script';
+    presenter.customButtonActive = false;
+    presenter.isCommandSourceToDeselectCustomButton = false;
 
     presenter.points = [];
     presenter.mouse = {x: 0, y: 0};
@@ -764,7 +767,6 @@ function AddonIWB_Toolbar_create() {
             'hasCustomButton': hasCustomButton,
             'onCustomButtonSelected': model['hasCustomButton'] ? model['onCustomButtonSelected'] : null,
             'onCustomButtonDeselected': model['hasCustomButton'] ? model['onCustomButtonDeselected'] : null,
-            'isCustomButtonSelected': false,
         };
     }
 
@@ -1103,8 +1105,8 @@ function AddonIWB_Toolbar_create() {
 
         presenter._reset(true, false, false, false, false);
 
-        if (presenter.isCustomButtonSelected()) {
-            var customScriptButton = presenter.$panel.find('.custom-script')[0];
+        if (presenter.isCustomButtonActive()) {
+            var customScriptButton = presenter.$panel.find('.' + CUSTOM_BUTTON_NAME)[0];
             presenter.customScriptClickHandler(customScriptButton);
         }
 
@@ -1138,7 +1140,7 @@ function AddonIWB_Toolbar_create() {
     presenter.customScriptCreateEventData = function() {
         return {
             source : presenter.config.addonID,
-            value : presenter.isCustomButtonSelected() ? '1' : '0',
+            value : presenter.isCustomButtonActive() ? '1' : '0',
         };
     };
 
@@ -1155,10 +1157,11 @@ function AddonIWB_Toolbar_create() {
             presenter.restoreTextAudioEventHandlers();
 
             presenter.panelView(button);
-
-            presenter.runCustomScript();
-
-            presenter.customScriptSendEventData();
+            if (!presenter.isCommandSourceToDeselectCustomButton) {
+                presenter.runCustomScript();
+                presenter.customScriptSendEventData();
+            }
+            presenter.isCommandSourceToDeselectCustomButton = false;
         }
     };
 
@@ -1245,6 +1248,11 @@ function AddonIWB_Toolbar_create() {
         presenter.panelView(button);
         if (!presenter.isPanelOpened) {
             presenter.openPanel(true);
+        }
+
+        if (presenter.customButtonActive) {
+            var button = presenter.$pagePanel.find('.' + CUSTOM_BUTTON_NAME);
+            button.addClass('clicked');
         }
 
         if(presenter.activeFunction){
@@ -1453,6 +1461,17 @@ function AddonIWB_Toolbar_create() {
         var buttonName = $(button).data("name"),
             sameButton = presenter.$pagePanel.find('.clicked').data("name") == $(button).data("name");
 
+        if (buttonName == CUSTOM_BUTTON_NAME) {
+            if (!presenter.customButtonActive) {
+                presenter.customButtonActive = true;
+                presenter.buttonsLogic[$(button).attr("data-name")].onOpen(button);
+            } else {
+                presenter.customButtonActive = false;
+                presenter.buttonsLogic[$(button).attr("data-name")].onReclicked(button);
+            }
+            return;
+        }
+
         if(presenter.activeButton != '' && presenter.buttonsLogic[presenter.activeButton].onClose){
             presenter.buttonsLogic[presenter.activeButton].onClose(button);
         }
@@ -1460,7 +1479,6 @@ function AddonIWB_Toolbar_create() {
         if(presenter.activeButton == 'open' && presenter.buttonClicked && !presenter.recklick && sameButton){
             presenter.activeButton = buttonName;
         }
-
         if(buttonName == presenter.activeButton){
             if(!presenter.isRecklicked){
                 if(presenter.buttonsLogic[presenter.activeButton].onReclicked){
@@ -1484,7 +1502,17 @@ function AddonIWB_Toolbar_create() {
         }
     }
 
-
+    presenter.deselectCustomButton = function () {
+        if (presenter.config.hasCustomButton && presenter.customButtonActive) {
+            if (isPanelOpened()) {
+                presenter.isCommandSourceToDeselectCustomButton = true;
+                var button = presenter.$pagePanel.find('.button.custom-script.clicked')[0];
+                clickHandlers(button);
+            } else {
+                presenter.customButtonActive = false;
+            }
+        }
+    }
 
     presenter.addEventHandlers = function IWB_Toolbar_addEventHandlers() {
         presenter.$pagePanel.find('.iwb-toolbar-mask').click(function(e) {
@@ -2531,9 +2559,8 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.runCustomScript = function IWB_Toolbar_runCustomScript() {
-        var eventCode = presenter.isCustomButtonSelected() ? presenter.config.onCustomButtonDeselected : presenter.config.onCustomButtonSelected;
+        var eventCode = presenter.isCustomButtonActive() ? presenter.config.onCustomButtonSelected : presenter.config.onCustomButtonDeselected;
         presenter.executeUserEventCode(eventCode);
-        presenter.config.isCustomButtonSelected = !presenter.config.isCustomButtonSelected;
     };
 
 
@@ -2889,6 +2916,7 @@ function AddonIWB_Toolbar_create() {
         if(presenter.isKeepStateAndPosition){
            if(window.savedPanel.tools){
                presenter.activeFunction = window.savedPanel.tools.activeFunction;
+               presenter.customButtonActive = window.savedPanel.tools.customButtonActive;
                presenter.closePenColor = window.savedPanel.tools.stateColor;
                presenter.closePenThickness = window.savedPanel.tools.stateThickness;
                presenter.buttonColor = presenter.$bottomPanels.find('[color*='+window.savedPanel.tools.buttonColor+']')[0];
@@ -2898,7 +2926,7 @@ function AddonIWB_Toolbar_create() {
                    if(presenter.activeFunction){
                        if(presenter.activeFunction != 'clock' && presenter.activeFunction != 'stopwatch' && presenter.activeFunction != 'note' && presenter.activeFunction != 'reset' && presenter.activeFunction != 'open'){
                            if(!presenter.recklick){
-                               presenter.functionButton = presenter.$pagePanel.find('.'+presenter.activeFunction);
+                               presenter.functionButton = presenter.$pagePanel.find('.'+ presenter.activeFunction);
                                if(window.savedPanel.isOpen){
                                    presenter.buttonsLogic[presenter.activeFunction].onOpen(presenter.functionButton);
                                    presenter.functionButton.addClass('clicked');
@@ -2906,6 +2934,12 @@ function AddonIWB_Toolbar_create() {
                            }
                            presenter.isRecklicked = false;
                        }
+                   }
+                   if (presenter.customButtonActive) {
+                        var button = presenter.$pagePanel.find('.' + CUSTOM_BUTTON_NAME);
+                        if(window.savedPanel.isOpen) {
+                            button.addClass('clicked');
+                        }
                    }
                if(presenter.isCloseColor){
                    presenter.changeColor(presenter.closePenColor, presenter.buttonColor);
@@ -3130,6 +3164,7 @@ function AddonIWB_Toolbar_create() {
         presenter.isPanelOpened = null;
         presenter.activeFunction = null;
         presenter.activeButton = null;
+        presenter.customButtonActive = null;
 
         //openClickHandler
         presenter.isRecklicked = null;
@@ -3492,13 +3527,12 @@ function AddonIWB_Toolbar_create() {
         presenter.$panel.css('visibility', isVisible ? 'visible' : 'hidden');
     };
 
-    presenter.isCustomButtonSelected = function() {
-        return presenter.config.isCustomButtonSelected;
+    presenter.isCustomButtonActive = function() {
+        return presenter.customButtonActive;
     }
 
     presenter.executeCommand = function(name, params) {
         var commands = {
-            'selectCustomButton': presenter.selectCustomButton,
             'deselectCustomButton': presenter.deselectCustomButton,
             'open' : presenter.open,
             'hide' : presenter.hide,
@@ -3513,9 +3547,11 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.reset = function IWB_Toolbar_reset() {
+        if (presenter.customButtonActive) {
+            presenter.deselectCustomButton();
+        }
         presenter.$pagePanel.find('.clicked').removeClass('clicked');
         presenter._reset(true, true, true, true, true);
-
         presenter.penLineWidth = 1;
         presenter.data.defaultPenWidth = 1;
         presenter.markerLineWidth = 10;
@@ -3588,7 +3624,6 @@ function AddonIWB_Toolbar_create() {
            else{
                presenter.isCloseColor = false;
            }
-
            if(presenter.activeButton != 'open'){
                presenter.activeFunction = presenter.activeButton;
            }
@@ -3615,6 +3650,7 @@ function AddonIWB_Toolbar_create() {
 
         window.savedPanel.tools = {
            'activeFunction': presenter.activeFunction,
+           'customButtonActive': presenter.customButtonActive,
            'stateColor': stateColor,
            'stateThickness': stateThickness,
            'isCloseColor': presenter.isCloseColor,
@@ -3638,6 +3674,7 @@ function AddonIWB_Toolbar_create() {
            'position' : position,
            'openedPanel' : openedPanel,
            'activeFunction': presenter.activeFunction,
+           'customButtonActive': presenter.customButtonActive,
            'stateColor': stateColor,
            'stateThickness': stateThickness,
            'isCloseColor': presenter.isCloseColor,
@@ -3680,6 +3717,9 @@ function AddonIWB_Toolbar_create() {
     presenter.upgradeStateForSavingTools = function (parsedState){
         if(parsedState.activeFunction == undefined){
             parsedState.activeFunction = '';
+        }
+        if(presenter.customButtonActive == undefined){
+            parsedState.customButtonActive = '';
         }
         if(parsedState.buttonColor == undefined){
             parsedState.buttonColor = '';
@@ -3815,6 +3855,7 @@ function AddonIWB_Toolbar_create() {
         }
         
         if(presenter.isKeepStateAndPosition && (window.savedPanel.tools != undefined)){
+           presenter.customButtonActive = window.savedPanel.tools.customButtonActive;
            presenter.activeFunction = window.savedPanel.tools.activeFunction;
            presenter.closePenColor = window.savedPanel.tools.stateColor;
            presenter.closePenThickness = window.savedPanel.tools.stateThickness;
@@ -3823,6 +3864,7 @@ function AddonIWB_Toolbar_create() {
            presenter.isCloseColor = window.savedPanel.tools.isCloseColor;
            presenter.shouldSaveColor = window.savedPanel.tools.shouldSaveColor;
         }else{
+           presenter.customButtonActive = upgradedState.customButtonActive;
            presenter.activeFunction = upgradedState.activeFunction;
            presenter.closePenColor = upgradedState.stateColor;
            presenter.closePenThickness = upgradedState.stateThickness;
