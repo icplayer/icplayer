@@ -3459,7 +3459,6 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter._reset = function IWB_Toolbar_private_reset(closePanel, shouldClearCanvas, shouldHideDrawingMasks, shouldHideSelectingMasks, shouldHideFloatingImage, shouldClearSelectingMask) {
-        console.log("_reset");
         presenter.$panel.find('.clicked-lighter').removeClass('clicked-lighter');
         presenter.$panel.find('.hovered').removeClass('hovered');
         presenter.$pagePanel.find('.zoomed').removeClass('zoomed');
