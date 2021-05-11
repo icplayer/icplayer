@@ -1,4 +1,8 @@
-2021-04-20 Fix communication between IWBToolbar and Scoreboard
+2021-05-11 Fix communication between IWBToolbar and Scoreboard
+2021-04-29 Added SkipLink module
+2021-04-22 Add zip file property for Iframe addon
+2021-04-21 Scoreboard documentation
+2021-04-19 Added Support for text and image in Drawing addon
 2021-04-13 Added notifier for save
 2021-04-13 Added externalVariables
 2021-04-07 Added disable new page message property to the Text To Speech addon

@@ -28,7 +28,10 @@ import com.lorepo.icplayer.client.module.api.IPresenter;
 		Addon:
 			- Addon must have keyboardController(keyCode, isShiftDown) function in presenter
 */
-public final class KeyboardNavigationController {
+public final class KeyboardNavigationController implements IKeyboardNavigationController {
+	public static String SELECTED_CLASS = "ic_selected_module";
+	public static String ACTIVE_CLASS = "ic_active_module";
+	
 	private boolean moduleIsActivated = false;
 	private boolean isInitiated = false;
 	private List<PresenterEntry> presentersOriginalOrder = new ArrayList<PresenterEntry>();
@@ -55,12 +58,14 @@ public final class KeyboardNavigationController {
 	
 	class PresenterEntry {
 		public IWCAGPresenter presenter = null;
+		public String id;
 		public boolean common = false;
 		private String area = "main";  // header, main, footer TODO create ENUM
 
-		PresenterEntry (IWCAGPresenter presenter, boolean isCommon) {
+		PresenterEntry (IWCAGPresenter presenter, String id, boolean isCommon) {
 			this.presenter = presenter;
 			this.common = isCommon;
+			this.id = id;
 		}
 
 		public boolean isCommon() {
@@ -302,6 +307,8 @@ public final class KeyboardNavigationController {
 
 	private int getNextElementIndex (int step) {
 		int index = this.actualSelectedModuleIndex;
+		boolean isSpeechTextOn = this.isWCAGSupportOn && this.modeOn;
+
 		do {
 			final int presentersSize = this.getPresenters().size();
 			index += step;
@@ -312,7 +319,7 @@ public final class KeyboardNavigationController {
 			}
 
 			if (index == this.actualSelectedModuleIndex) break; // if all modules are hidden then break loop
-		} while (!this.getPresenters().get(index).presenter.isSelectable(this.isWCAGSupportOn && this.modeOn)); // this.mainPageController.isTextToSpeechModuleEnable() && 
+		} while (!this.getPresenters().get(index).presenter.isSelectable(isSpeechTextOn));
 
 		return index;
 	}
@@ -507,7 +514,7 @@ public final class KeyboardNavigationController {
 			return;
 		}
 		
-		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_active_module");
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive(ACTIVE_CLASS);
 		
 		if (this.isWCAGSupportOn) {
 			IWCAGPresenter p = this.getPresenters().get(this.actualSelectedModuleIndex).presenter;
@@ -518,7 +525,7 @@ public final class KeyboardNavigationController {
 	}
 	
 	private void deactivateModule () {
-		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_active_module");
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive(ACTIVE_CLASS);
 		this.moduleIsActivated = false;
 	}
 	
@@ -526,7 +533,7 @@ public final class KeyboardNavigationController {
 		if (this.getPresenters().size() == 0) {
 			return;
 		}
-		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive("ic_selected_module");
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.selectAsActive(SELECTED_CLASS);
 		scrollToCurrentModule(this);
 	}
 
@@ -535,7 +542,7 @@ public final class KeyboardNavigationController {
 			return;
 		}
 
-		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive("ic_selected_module");
+		this.getPresenters().get(this.actualSelectedModuleIndex).presenter.deselectAsActive(SELECTED_CLASS);
 	}
 	
 	private native void scrollToCurrentModule(KeyboardNavigationController x) /*-{
@@ -603,8 +610,8 @@ public final class KeyboardNavigationController {
 		
 		for (PresenterEntry ip: this.getPresenters()) {
 			IWCAGPresenter presenter = ip.presenter;
-			presenter.deselectAsActive("ic_selected_module");
-			presenter.deselectAsActive("ic_active_module");
+			presenter.deselectAsActive(SELECTED_CLASS);
+			presenter.deselectAsActive(ACTIVE_CLASS);
 		}
 	}
 	
@@ -684,7 +691,7 @@ public final class KeyboardNavigationController {
 		if (controller != null) {
 			for (IPresenter presenter : controller.getPresenters()) {
 				if (presenter instanceof IWCAGPresenter) {
-					result.add(new PresenterEntry((IWCAGPresenter) presenter, isCommonPage));
+					result.add(new PresenterEntry((IWCAGPresenter) presenter, presenter.getModel().getId(), isCommonPage));
 				}
 			}
 		}
@@ -775,7 +782,16 @@ public final class KeyboardNavigationController {
 	public boolean isWCAGOn() {
 		return modeOn && isWCAGSupportOn;
 	}
-	
+
+	@Override
+	public void moveToModule(String soughtModuleId) {
+		int soughtModuleIndex = findModuleIndex(soughtModuleId);
+
+		if (soughtModuleIndex != -1) {
+			moveNavigationToModule(soughtModuleIndex);
+		}
+	}
+
 	// Returns true if element e is contained within modules group div that's not visible, false otherwise
 	static public native boolean isParentGroupDivHidden (Element e) /*-{
 		var $_ = $wnd.$;
@@ -788,5 +804,36 @@ public final class KeyboardNavigationController {
 		});
 		return isHidden;
 	}-*/;
+
+	/**
+	 * Function to find module by id
+	 * @param soughtModuleId (String) - module id which should be searched in presenters
+	 * @return -1 if module wasn't found, otherwise it's index (0 to N)
+	 */
+	private int findModuleIndex(String soughtModuleId) {
+		List<PresenterEntry> presenters = getPresenters();
+		for (int i = 0; i < presenters.size(); i++) {
+			PresenterEntry entry = presenters.get(i);
+			if (entry.id.equals(soughtModuleId)) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	/**
+	 * Function to move current selection to new index. It deselects previous selected module.
+	 * @param soughtModuleIndex (int) - module index in presenter list
+	 */
+	private void moveNavigationToModule(int soughtModuleIndex) {
+		deselectCurrentModule();
+		deactivateModule();
+
+		actualSelectedModuleIndex = soughtModuleIndex;
+
+		selectCurrentModule();
+		readTitle();
+	}
 	
 }
