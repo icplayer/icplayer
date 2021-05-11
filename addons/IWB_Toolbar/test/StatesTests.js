@@ -9,16 +9,19 @@ TestCase("[IWB Toolbar] State", {
         var stopwatchesAndClocksUpgradeStub = sinon.stub(this.presenter, 'upgradeStateForStopwatchesAndClocks');
         var visibilityUpgradeStub = sinon.stub(this.presenter, 'upgradeStateForVisibility');
         var savingToolsUpgradeStub = sinon.stub(this.presenter, 'upgradeStateForSavingTools');
+        var upgradeStateForSelectingMaskVisibilityStub = sinon.stub(this.presenter, 'upgradeStateForSelectingMaskVisibility');
 
         this.presenter.upgradeState({});
 
         assertTrue(stopwatchesAndClocksUpgradeStub.called);
         assertTrue(visibilityUpgradeStub.called);
         assertTrue(savingToolsUpgradeStub.called);
+        assertTrue(upgradeStateForSelectingMaskVisibilityStub.called);
 
         this.presenter.upgradeStateForStopwatchesAndClocks.restore();
         this.presenter.upgradeStateForVisibility.restore();
         this.presenter.upgradeStateForSavingTools.restore();
+        this.presenter.upgradeStateForSelectingMaskVisibility.restore();
     },
 
     'test upgrade state when there are no stopwatches and clocks related fields': function () {

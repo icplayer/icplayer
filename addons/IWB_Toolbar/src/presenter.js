@@ -33,10 +33,7 @@ function AddonIWB_Toolbar_create() {
     presenter._setState = {};
     presenter._setState.images = [];
 
-    presenter.currentState = "";
-    presenter.prevStateStack = [];
-    presenter.nextStateStack = [];
-    presenter.stateStackOverflow = false;
+    presenter.stateStack = null;
 
     presenter._stopwatchTimer = null;
     presenter._stopwatch = null;
@@ -721,6 +718,7 @@ function AddonIWB_Toolbar_create() {
         presenter.$bottomPanels = $('.bottom-panel-color, .bottom-panel-thickness, .bottom-panel-floating-image');
 
         presenter.config = validateModel(model);
+        presenter.stateStack = new StateStack(presenter);
     };
 
     presenter.SHOW_PANEL = {
@@ -1117,7 +1115,7 @@ function AddonIWB_Toolbar_create() {
 
         $(".iwb-zoom-cover").remove();
 
-        presenter._reset(true, false, false, false, false);
+        presenter._reset(true, false, false, false, false, false);
 
         if (presenter.isCustomButtonSelected()) {
             var customScriptButton = presenter.$panel.find('.custom-script')[0];
@@ -1309,7 +1307,7 @@ function AddonIWB_Toolbar_create() {
     presenter.panelView = function IWB_Toolbar_panelView (button) {
         var shouldClosePanels = shouldClosePanelsOnReset(button);
 
-        presenter._reset(shouldClosePanels, false, shouldHideDrawingMasks(button), shouldHideSelectingMasks(button), shouldHideFloatingImage(button));
+        presenter._reset(shouldClosePanels, false, shouldHideDrawingMasks(button), shouldHideSelectingMasks(button), shouldHideFloatingImage(button), false);
         if (!$(button).hasClass('open') && !$(button).hasClass('close')) {
             if ($(button).hasClass('clicked')) {
                 $(button).removeClass('clicked');
@@ -1360,7 +1358,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.penUnclickHandler = function IWB_Toolbar_penUnclickHandler (button) {
-        presenter._reset(true, false, 1, true, true);
+        presenter._reset(true, false, 1, true, true, false);
         if ($(button).hasClass('clicked')) {
             $(button).removeClass('clicked');
         } else {
@@ -1380,7 +1378,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.markerUnclickHandler = function IWB_Toolbar_markerUnclickHandler(button) {
-        presenter._reset(true, false, 1, true, true);
+        presenter._reset(true, false, 1, true, true, false);
         if ($(button).hasClass('clicked')) {
             $(button).removeClass('clicked');
         } else {
@@ -3460,7 +3458,8 @@ function AddonIWB_Toolbar_create() {
         presenter._reset = null;
     };
 
-    presenter._reset = function IWB_Toolbar_private_reset(closePanel, shouldClearCanvas, shouldHideDrawingMasks, shouldHideSelectingMasks, shouldHideFloatingImage) {
+    presenter._reset = function IWB_Toolbar_private_reset(closePanel, shouldClearCanvas, shouldHideDrawingMasks, shouldHideSelectingMasks, shouldHideFloatingImage, shouldClearSelectingMask) {
+        console.log("_reset");
         presenter.$panel.find('.clicked-lighter').removeClass('clicked-lighter');
         presenter.$panel.find('.hovered').removeClass('hovered');
         presenter.$pagePanel.find('.zoomed').removeClass('zoomed');
@@ -3472,7 +3471,7 @@ function AddonIWB_Toolbar_create() {
             presenter.$pagePanel.find('.bottom-panel-thickness').hide();
         }
 
-        if (shouldClearCanvas || shouldHideSelectingMasks) {
+        if (shouldClearCanvas) {
             presenter.changeColor('#0fa9f0');
             clearCanvases();
         }
@@ -3498,6 +3497,10 @@ function AddonIWB_Toolbar_create() {
                 presenter.$pagePanel.find('.bottom-panel-floating-image').hide();
                 presenter.$pagePanel.find('.bottom-panel-floating-image').attr('isHidden', '1');
             }
+        }
+
+        if (shouldClearSelectingMask) {
+            clearSelectingCanvas();
         }
 
         setOverflowWorkAround(true);
@@ -3537,7 +3540,9 @@ function AddonIWB_Toolbar_create() {
             presenter.markerCanvas.off('mousemove mousedown mouseup');
             presenter.markerCtx.clearRect(0, 0, presenter.markerCanvas[0].width, presenter.markerCanvas[0].height);
         }
+    }
 
+    function clearSelectingCanvas() {
         if (presenter.selectingCanvas) {
             presenter.selectingCanvas.off('mousemove mousedown mouseup');
             presenter.selectingCtx.clearRect(0, 0, presenter.selectingCanvas[0].width, presenter.selectingCanvas[0].height);
@@ -3580,7 +3585,7 @@ function AddonIWB_Toolbar_create() {
 
     presenter.reset = function IWB_Toolbar_reset() {
         presenter.$pagePanel.find('.clicked').removeClass('clicked');
-        presenter._reset(true, true, true, true, true);
+        presenter._reset(true, true, true, true, true, true);
 
         presenter.penLineWidth = 1;
         presenter.data.defaultPenWidth = 1;
@@ -3976,38 +3981,7 @@ function AddonIWB_Toolbar_create() {
         presenter.changeThickness(presenter.data.eraserThickness);
     };
 
-    function compareStates(state1, state2) {
-        if (state1.length == 0 || state2.length == 0) {
-            return state1.length == state2.length;
-        }
-        var json1 = JSON.parse(state1);
-        var json2 = JSON.parse(state2);
-        json1.activeFunction = "";
-        json2.activeFunction = "";
-        return JSON.stringify(json1) == JSON.stringify(json2)
-
-    }
-
-    presenter.pushStateToStack = function() {
-        var newState = presenter.getState();
-        if (!compareStates(newState,presenter.currentState)) {
-            if (presenter.nextStateStack.length > 0) {
-                presenter.nextStateStack = [];
-            }
-            if (presenter.currentState.length > 0) {
-                presenter.prevStateStack.push(presenter.currentState);
-                presenter.currentState = newState;
-                if (presenter.prevStateStack.length > 5) {
-                    presenter.stateStackOverflow = true;
-                    presenter.prevStateStack.splice(0, presenter.prevStateStack.length - 5);
-                }
-            } else {
-                presenter.currentState = newState;
-            }
-        }
-    }
-
-    function destroyDraggableItems() {
+    presenter.destroyDraggableItems = function() {
         for (var i = 0; i < presenter.noteObjects.length; i++) {
             presenter.noteObjects[i].destroy();
         }
@@ -4022,7 +3996,7 @@ function AddonIWB_Toolbar_create() {
         }
     }
 
-    function resetDrawingMode() {
+    presenter.resetDrawingMode = function() {
         presenter.drawMode = presenter.DRAW_MODE.NONE;
         presenter.ctx.globalCompositeOperation = 'source-over';
         presenter.markerCtx.globalCompositeOperation = 'source-over';
@@ -4031,29 +4005,88 @@ function AddonIWB_Toolbar_create() {
     }
 
     presenter.restoreLastState = function() {
-        resetDrawingMode();
-        if (presenter.prevStateStack.length > 0) {
-            presenter.reset();
-            destroyDraggableItems();
-            presenter.nextStateStack.push(presenter.currentState);
-            presenter.currentState = presenter.prevStateStack.pop();
-            presenter.setState(presenter.currentState);
-        } else if (!presenter.stateStackOverflow && presenter.currentState.length > 0) {
-            presenter.reset();
-            destroyDraggableItems();
-            presenter.nextStateStack.push(presenter.currentState);
-            presenter.currentState = "";
-        }
+        presenter.stateStack.restoreLastState();
+    }
+
+    presenter.pushStateToStack = function() {
+        this.stateStack.pushStateToStack();
     }
 
     presenter.redoStateFromArray = function() {
-        resetDrawingMode();
-        if (presenter.nextStateStack.length > 0) {
-            presenter.reset();
-            destroyDraggableItems();
-            presenter.prevStateStack.push(presenter.currentState);
-            presenter.currentState = presenter.nextStateStack.pop();
-            presenter.setState(presenter.currentState);
+        presenter.stateStack.redoStateFromArray();
+    }
+
+    // Method added to aid in testing
+    presenter.getStateStack = function() {
+        if (presenter.stateStack == null) {
+            presenter.stateStack = new StateStack(presenter);
+        }
+        return presenter.stateStack;
+    }
+
+    function StateStack(iwbPresenter) {
+        this.iwbPresenter = iwbPresenter;
+        this.currentState = "";
+        this.prevStateStack = [];
+        this.nextStateStack = [];
+        this.stateStackOverflow = false;
+    }
+
+    StateStack.prototype.compareStates = function(state1, state2) {
+        if (state1.length == 0 || state2.length == 0) {
+            return state1.length == state2.length;
+        }
+        var json1 = JSON.parse(state1);
+        var json2 = JSON.parse(state2);
+        json1.activeFunction = "";
+        json2.activeFunction = "";
+        return JSON.stringify(json1) == JSON.stringify(json2)
+
+    }
+
+    StateStack.prototype.pushStateToStack = function() {
+        var newState = this.iwbPresenter.getState();
+        if (!this.compareStates(newState, this.currentState)) {
+            if (this.nextStateStack.length > 0) {
+                this.nextStateStack = [];
+            }
+            if (this.currentState.length > 0) {
+                this.prevStateStack.push(this.currentState);
+                this.currentState = newState;
+                if (this.prevStateStack.length > 5) {
+                    this.stateStackOverflow = true;
+                    this.prevStateStack.splice(0, this.prevStateStack.length - 5);
+                }
+            } else {
+                this.currentState = newState;
+            }
+        }
+    }
+
+    StateStack.prototype.restoreLastState = function() {
+        this.iwbPresenter.resetDrawingMode();
+        if (this.prevStateStack.length > 0) {
+            this.iwbPresenter.reset();
+            this.iwbPresenter.destroyDraggableItems();
+            this.nextStateStack.push(this.currentState);
+            this.currentState = this.prevStateStack.pop();
+            this.iwbPresenter.setState(this.currentState);
+        } else if (!this.stateStackOverflow && this.currentState.length > 0) {
+            this.iwbPresenter.reset();
+            this.iwbPresenter.destroyDraggableItems();
+            this.nextStateStack.push(this.currentState);
+            this.currentState = "";
+        }
+    }
+
+    StateStack.prototype.redoStateFromArray = function() {
+        this.iwbPresenter.resetDrawingMode();
+        if (this.nextStateStack.length > 0) {
+            this.iwbPresenter.reset();
+            this.iwbPresenter.destroyDraggableItems();
+            this.prevStateStack.push(this.currentState);
+            this.currentState = this.nextStateStack.pop();
+            this.iwbPresenter.setState(this.currentState);
         }
     }
     return presenter;
