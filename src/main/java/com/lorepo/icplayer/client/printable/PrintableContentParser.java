@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.printable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
@@ -13,6 +14,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.HTML;
+import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.ModuleList;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -36,6 +38,8 @@ public class PrintableContentParser {
 	int contentHeight = 0;
 	Boolean enableTwoColumnPrint = false;
 	SeededRandom random = new SeededRandom();
+	private HashMap<String, String> loadedState = null;
+	private String rawScore = "";
 	boolean showAnswers = false;
 	boolean randomizePages = false;
 	boolean randomizeModules = false;
@@ -89,6 +93,13 @@ public class PrintableContentParser {
 	
 	public void setRandomSeed(int seed) {
 		this.random.setSeed(seed);
+	}
+
+	public void setState(HashMap<String, String> data) {
+		if (data != null && data.containsKey("state") && data.containsKey("score")) {
+			this.loadedState = JSONUtils.decodeHashMap(data.get("state"));
+			this.rawScore = data.get("score");
+		}
 	}
 
 	public void setRandomizePages(boolean randomizePages) {
@@ -192,6 +203,7 @@ public class PrintableContentParser {
 		parsed += "<div class=\"printable_modules_group " + groupClass + " " + splittable_class + "\">";
 		for (IPrintableModuleModel printable: groupPrintables) {
 			printable.setPrintableController(controller);
+			printable.setPrintableState(getModuleState(printable.getId(), controller.getPageId()));
 			parsed += printable.getPrintableHTML(showAnswers);
 		}
 		parsed += "</div>";
@@ -220,9 +232,17 @@ public class PrintableContentParser {
 			}
 
 			@Override
+			public String getId() {
+				return null;
+			}
+
+			@Override
 			public boolean isSection() {
 				return false;
 			}
+
+			@Override
+			public void setPrintableState(String state) { }
 			
 		};
 	}
@@ -232,6 +252,9 @@ public class PrintableContentParser {
 		List<IPrintableModuleModel> pagePrintables = new ArrayList<IPrintableModuleModel>();
 		PrintableController pagePrintableController = new PrintableController(page);
 		pagePrintableController.setSeededRandom(random);
+		if (this.rawScore != null && this.rawScore.length() > 0) {
+			pagePrintableController.setScore(this.rawScore);
+		}
 
 		ModuleList modules = page.getModules();
 		for (int i = 0; i < modules.size(); i++) {
@@ -260,6 +283,7 @@ public class PrintableContentParser {
 		String result = "";
 		for (IPrintableModuleModel printable: pagePrintables) {
 			printable.setPrintableController(pagePrintableController);
+			printable.setPrintableState(getModuleState(printable.getId(), page.getId()));
 			result += printable.getPrintableHTML(showAnswers);
 		}
 		return result;
@@ -367,7 +391,6 @@ public class PrintableContentParser {
 
 	private List<String> generatePageHTMLs(List<Page> sourcePages) {
 		List<Page> pages = new ArrayList<Page>();
-
 		if (randomizePages && sourcePages.size() > 1) {
 			List<Page> randomizablePages = new ArrayList<Page>();
 			List<Page> nonRandomizablePages = new ArrayList<Page>();
@@ -382,13 +405,11 @@ public class PrintableContentParser {
 			for(int index = 0; index < randomizablePages.size(); index += 1) {
 				Collections.swap(randomizablePages, index, index + random.nextInt(randomizablePages.size() - index));
 			}
-
 			for (Page page: nonRandomizablePages) pages.add(page);
 			for (Page page: randomizablePages) pages.add(page);
 		} else {
 			pages = sourcePages;
 		}
-
 		List<String> parsedPages = new ArrayList<String>();
 		for (Page page: pages) {
 			parsedPages.add(parsePage(page, randomizeModules, showAnswers));
@@ -578,6 +599,15 @@ public class PrintableContentParser {
 		$outerLessonWrapper.remove();
 		return {head: headHTML, tail: tailHTML};
 	}-*/;
+
+	private String getModuleState(String moduleId, String pageId) {
+		if (moduleId == null) return ""; // moduleId == null when printable represents a group
+		String stateKey = pageId + moduleId;
+		if (this.loadedState != null && this.loadedState.containsKey(stateKey)) {
+			return this.loadedState.get(stateKey);
+		}
+		return "";
+	}
 
 	private static native JavaScriptObject getModuleTestingWrappers()/*-{
 		var $_ = $wnd.$;

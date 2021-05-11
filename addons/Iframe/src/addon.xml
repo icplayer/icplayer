@@ -7,6 +7,8 @@
             <property name="file" displayName="File" nameLabel="IFrame_property_file" type="file"/>
             <property name="id" displayName="ID" nameLabel="IFrame_property_id" type="string" />
         </property>
+        <property name="indexHtmlLocation" displayName="Index Html Location" nameLabel="IFrame_property_index_html_location" type="string"/>
+        <property name="zipFile" displayName="Zip File" nameLabel="IFrame_property_zip_file" type="file"/>
         <property name="index" displayName="Index File" nameLabel="IFrame_property_index_file" type="file"/>
         <property name="communicationID" displayName="Communication ID" nameLabel="IFrame_property_communication_id" type="string"/>
         <property name="allowFullscreen"  nameLabel="IFrame_property_allow_fullscreen" type="boolean"/>

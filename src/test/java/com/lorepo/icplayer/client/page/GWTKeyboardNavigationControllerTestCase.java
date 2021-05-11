@@ -212,9 +212,9 @@ public class GWTKeyboardNavigationControllerTestCase extends GWTPowerMockitoTest
 	public void keyboardControllerWillManageProperlyKeyDown () {
 		// Prepare
 		List<PresenterEntry> presenters = new ArrayList<PresenterEntry>();
-		PresenterEntry mock1 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), false);
-		PresenterEntry mock2 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), false);
-		PresenterEntry mock3 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), false);
+		PresenterEntry mock1 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), "1", false);
+		PresenterEntry mock2 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), "2",false);
+		PresenterEntry mock3 = this.controller.new PresenterEntry(Mockito.mock(IWCAGPresenter.class), "3", false);
 		presenters.add(mock1);
 		presenters.add(mock2);
 		presenters.add(mock3);

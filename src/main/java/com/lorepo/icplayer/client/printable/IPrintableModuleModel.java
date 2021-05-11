@@ -10,4 +10,6 @@ public interface IPrintableModuleModel {
 	JavaScriptObject getPrintableContext();
 	void setPrintableController(PrintableController controller);
 	boolean isSection();
+	String getId();
+	void setPrintableState(String state);
 }

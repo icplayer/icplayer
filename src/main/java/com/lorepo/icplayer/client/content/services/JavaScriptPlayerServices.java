@@ -14,6 +14,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icplayer.client.PlayerApp;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
+import com.lorepo.icplayer.client.content.services.externalNotifications.ObserverJSService;
 import com.lorepo.icplayer.client.model.adaptive.AdaptiveConnection;
 import com.lorepo.icplayer.client.module.addon.AddonPresenter;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
@@ -97,6 +98,10 @@ public class JavaScriptPlayerServices {
 		
 		playerServices.getPageTitle = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPageTitle()();
+		};
+
+		playerServices.getObserverService = function() {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getJSObserverService()();
 		};
 
 		playerServices.getCommands = function() {
@@ -443,6 +448,14 @@ public class JavaScriptPlayerServices {
 
 		playerServices.getContextMetadata = function() {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getContextMetadata()();
+		};
+
+		playerServices.setExternalVariable = function (key, value) {
+			x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::setExternalVariable(Ljava/lang/String;Ljava/lang/String;)(key, value);
+		};
+
+		playerServices.getExternalVariable = function(key){
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getExternalVariable(Ljava/lang/String;)(key);
 		};
 
 		playerServices.sendResizeEvent = function() {
@@ -967,5 +980,17 @@ public class JavaScriptPlayerServices {
 
 	public boolean isFirstStep() {
 		return this.playerServices.getAdaptiveLearningService().isFirstStep();
+	}
+
+	private void setExternalVariable(String key, String value) {
+		this.playerServices.setExternalVariable(key, value);
+	}
+
+	private String getExternalVariable(String key) {
+		return this.playerServices.getExternalVariable(key);
+	}
+
+	public ObserverJSService getJSObserverService() {
+		return playerServices.getObserverService().getAsJS();
 	}
 }

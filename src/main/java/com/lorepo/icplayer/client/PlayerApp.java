@@ -493,6 +493,14 @@ public class PlayerApp {
 		return this.entryPoint.getContextMetadata();
 	}
 
+	public void setExternalVariables(JavaScriptObject contextData) {
+		this.entryPoint.setExternalVariables(contextData);
+	}
+
+	public JavaScriptObject getExternalVariables() {
+		return this.entryPoint.getExternalVariables();
+	}
+
 	/**
 	 * Init player after content is loaded
 	 */
@@ -768,6 +776,7 @@ public class PlayerApp {
 		printableParser.setRandomizePages(params.randomizePages);
 		printableParser.setRandomizeModules(params.randomizeModules);
 		printableParser.setShowAnswers(params.showAnswers);
+		printableParser.setState(loadedState);
 		printableParser.generatePrintableHTML(contentModel, pagesSubset);
 	};
 
