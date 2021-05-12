@@ -1276,7 +1276,7 @@ function AddonIWB_Toolbar_create() {
         }
 
         if(presenter.activeFunction){
-            if(presenter.activeFunction != 'clock' && presenter.activeFunction != 'stopwatch' && presenter.activeFunction != 'note' && presenter.activeFunction != 'reset'){
+            if(['clock', 'stopwatch', 'note', 'reset', 'reset-one', 'redo-one'].indexOf(presenter.activeFunction) == -1){
                 if(!presenter.recklick){
                     presenter.functionButton = presenter.$pagePanel.find('.'+presenter.activeFunction);
                     presenter.buttonsLogic[presenter.activeFunction].onOpen(presenter.functionButton);
@@ -1450,6 +1450,7 @@ function AddonIWB_Toolbar_create() {
         },
         'reset-one' : {
             'onOpen': presenter.resetOneClickHandler,
+            'onClose': '',
             'onReclicked': presenter.resetOneClickHandler
         },
         'redo-one' : {
