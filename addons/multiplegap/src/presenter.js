@@ -1607,7 +1607,7 @@ function Addonmultiplegap_create(){
                         }
                     }
                     var voicesArray = presenter.getTextVoicesFromPlaceholder($element);
-                    if (voicesArray.length === 0) {
+                    if (voicesArray.length === 0 || !isWCAGOn) {
                         callback();
                     } else {
                         if ($wrapper.hasClass('playing')) {
