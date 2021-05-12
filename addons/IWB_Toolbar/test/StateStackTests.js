@@ -11,6 +11,7 @@ TestCase("[IWB Toolbar] State Stack", {
         this.setStateStub = sinon.stub(this.presenter, 'setState');
         this.resetDrawingModeStub = sinon.stub(this.presenter, 'resetDrawingMode');
         this.resetStub = sinon.stub(this.presenter, 'reset');
+        this.updateGlobalHistoryStub = sinon.stub(this.stateStack, 'updateGlobalHistory');
     },
 
     'test given different states when pushStateToStack is called states are saved correctly to stack': function () {

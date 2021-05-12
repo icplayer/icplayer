@@ -1493,6 +1493,15 @@ function AddonIWB_Toolbar_create() {
         }
     };
 
+    function isReclickable(button) {
+        var $button = $(button);
+        return !$button.hasClass('open')
+        && !$button.hasClass('close')
+        && !$button.hasClass('reset')
+        && !$button.hasClass('reset-one')
+        && !$button.hasClass('redo-one');
+    }
+
     function clickHandlers (button) {
         presenter._iwb_buttons.push($(button));
         var buttonName = $(button).data("name"),
@@ -1516,22 +1525,23 @@ function AddonIWB_Toolbar_create() {
         if(presenter.activeButton == 'open' && presenter.buttonClicked && !presenter.recklick && sameButton){
             presenter.activeButton = buttonName;
         }
+
         if(buttonName == presenter.activeButton){
             if(!presenter.isRecklicked){
                 if(presenter.buttonsLogic[presenter.activeButton].onReclicked){
                     presenter.buttonsLogic[presenter.activeButton].onReclicked(button);
                 }
                 presenter.isRecklicked = true;
-                if(!$(button).hasClass('open') && !$(button).hasClass('close') && !$(button).hasClass('reset')) presenter.recklick = true;
+                if(isReclickable(button)) presenter.recklick = true;
             }else{
                 presenter.buttonsLogic[$(button).attr("data-name")].onOpen(button);
                 presenter.isRecklicked = false;
-                if(!$(button).hasClass('open') && !$(button).hasClass('close')&& !$(button).hasClass('reset')) presenter.recklick = false;
+                if(isReclickable(button)) presenter.recklick = false;
             }
         }else{
             presenter.buttonsLogic[$(button).attr("data-name")].onOpen(button);
             presenter.isRecklicked = false;
-            if(!$(button).hasClass('open') && !$(button).hasClass('close')&& !$(button).hasClass('reset')) presenter.recklick = false;
+            if(isReclickable(button)) presenter.recklick = false;
         }
 
         if(!$(button).hasClass('color') && !$(button).hasClass('thickness')){
@@ -1578,7 +1588,7 @@ function AddonIWB_Toolbar_create() {
             if (isDependingOnDrawing(this) && presenter.areDrawingButtonsActive() || isFloatingImageButton(this)) {
                 openBottomPanel(this);
             }
-            if ($(this).hasClass('reset')) {
+            if ($(this).hasClass('reset') || $(this).hasClass('reset-one') || $(this).hasClass('redo-one')) {
                 $(this).removeClass('clicked');
             }
 
@@ -4072,6 +4082,30 @@ function AddonIWB_Toolbar_create() {
         this.prevStateStack = [];
         this.nextStateStack = [];
         this.stateStackOverflow = false;
+        if (iwbPresenter.playerController) {
+            var pageIndex = iwbPresenter.playerController.getCurrentPageIndex();
+            if (window.savedPanel && window.savedPanel.histories && window.savedPanel.histories[pageIndex]) {
+                this.setState(window.savedPanel.histories[pageIndex]);
+            }
+        }
+    }
+
+    StateStack.prototype.getState = function() {
+        var state = {
+            currentState: this.currentState,
+            prevStateStack: this.prevStateStack,
+            nextStateStack: this.nextStateStack,
+            stateStackOverflow: this.stateStackOverflow
+        };
+        return JSON.stringify(state);
+    }
+
+    StateStack.prototype.setState = function(state) {
+        var parsedState = JSON.parse(state);
+        this.currentState = parsedState.currentState;
+        this.prevStateStack = parsedState.prevStateStack;
+        this.nextStateStack = parsedState.nextStateStack;
+        this.stateStackOverflow = parsedState.stateStackOverflow;
     }
 
     StateStack.prototype.compareStates = function(state1, state2) {
@@ -4102,6 +4136,7 @@ function AddonIWB_Toolbar_create() {
             } else {
                 this.currentState = newState;
             }
+            this.updateGlobalHistory();
         }
     }
 
@@ -4113,11 +4148,13 @@ function AddonIWB_Toolbar_create() {
             this.nextStateStack.push(this.currentState);
             this.currentState = this.prevStateStack.pop();
             this.iwbPresenter.setState(this.currentState);
+            this.updateGlobalHistory();
         } else if (!this.stateStackOverflow && this.currentState.length > 0) {
             this.iwbPresenter.reset();
             this.iwbPresenter.destroyDraggableItems();
             this.nextStateStack.push(this.currentState);
             this.currentState = "";
+            this.updateGlobalHistory();
         }
     }
 
@@ -4129,8 +4166,20 @@ function AddonIWB_Toolbar_create() {
             this.prevStateStack.push(this.currentState);
             this.currentState = this.nextStateStack.pop();
             this.iwbPresenter.setState(this.currentState);
+            this.updateGlobalHistory();
         }
     }
+
+    StateStack.prototype.updateGlobalHistory = function() {
+        if (!window.savedPanel.histories) {
+            window.savedPanel.histories = {};
+        };
+        if (presenter.playerController) {
+            var pageIndex = this.iwbPresenter.playerController.getCurrentPageIndex();
+            window.savedPanel.histories[pageIndex] = this.getState();
+        }
+    }
+
     return presenter;
 }
 
