@@ -365,6 +365,7 @@ function AddonDrawing_create() {
     }
 
     presenter.endTextDrawing = function() {
+        return;
         if (presenter.configuration.addonMode = ModeEnum.textEdition) {
             presenter.configuration.tmp_canvas.removeEventListener('mousemove', presenter.onTextEdition, false);
             presenter.drawText(false);
@@ -1244,6 +1245,7 @@ function AddonDrawing_create() {
     };
 
     presenter.addText = function() {
+        console.log("add text");
         if (isOnTextEditionMode()) {
             var tmp_canvas = presenter.configuration.tmp_canvas;
             var tmp_ctx = presenter.configuration.tmp_ctx;
@@ -1258,6 +1260,20 @@ function AddonDrawing_create() {
     }
 
     presenter.displayTextFieldPopup = function() {
+        console.log("display textfield")
+        var $wrapper = $('<div></div>');
+        $wrapper.css('position', 'absolute');
+        $wrapper.css('left', Math.round(presenter.configuration.canvas.width()/2 - 10) + 'px');
+        $wrapper.css('top', '45%');
+        var $form = $('<form></form>');
+        $form.attr('id','textInputForm');
+        $wrapper.append($form);
+        var $textarea = ('<textarea></textarea>');
+        $textarea.attr('form','textInputForm');
+        $wrapper.append($textarea);
+    };
+
+    presenter.displayTextFieldPopupOff = function() {
         var $textfield = $('<input type="text"></input>');
         $textfield.css('position', 'absolute');
         $textfield.css('min-width', '20px');
