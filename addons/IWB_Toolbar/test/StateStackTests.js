@@ -1,7 +1,7 @@
 TestCase("[IWB Toolbar] State Stack", {
     setUp: function () {
         this.getTestStateString = function(funcString, contentString) {
-            return JSON.stringify({activeFunction: funcString, content: contentString});
+            return JSON.stringify({activeFunction: funcString, drawings: contentString});
         }
         this.presenter = AddonIWB_Toolbar_create();
         this.stateStack = this.presenter.getStateStack();

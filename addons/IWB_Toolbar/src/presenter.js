@@ -1595,7 +1595,8 @@ function AddonIWB_Toolbar_create() {
             if(!$(this).hasClass('open') && !$(this).hasClass('note') && !$(this).hasClass('stopwatch') && !$(this).hasClass('clock') && !$(this).hasClass('close')){
                 presenter.buttonClicked = true;
             }
-            if($(this).hasClass('reset') || $(this).hasClass('default') || $(this).hasClass('note') || $(this).hasClass('stopwatch') || $(this).hasClass('clock')){
+
+            if($(this).hasClass('reset') || $(this).hasClass('reset-one') || $(this).hasClass('redo-one') || $(this).hasClass('default') || $(this).hasClass('note') || $(this).hasClass('stopwatch') || $(this).hasClass('clock')){
                 presenter.buttonClicked = false;
             }
 
@@ -2992,7 +2993,13 @@ function AddonIWB_Toolbar_create() {
                presenter.isCloseColor = window.savedPanel.tools.isCloseColor;
                presenter.shouldSaveColor = window.savedPanel.tools.shouldSaveColor;
                    if(presenter.activeFunction){
-                       if(presenter.activeFunction != 'clock' && presenter.activeFunction != 'stopwatch' && presenter.activeFunction != 'note' && presenter.activeFunction != 'reset' && presenter.activeFunction != 'open'){
+                       if(presenter.activeFunction != 'clock'
+                       && presenter.activeFunction != 'stopwatch'
+                       && presenter.activeFunction != 'note'
+                       && presenter.activeFunction != 'reset'
+                       && presenter.activeFunction != 'open'
+                       && presenter.activeFunction != 'reset-one'
+                       && presenter.activeFunction != 'redo-one'){
                            if(!presenter.recklick){
                                presenter.functionButton = presenter.$pagePanel.find('.'+ presenter.activeFunction);
                                if(window.savedPanel.isOpen){
@@ -4114,10 +4121,16 @@ function AddonIWB_Toolbar_create() {
         }
         var json1 = JSON.parse(state1);
         var json2 = JSON.parse(state2);
-        json1.activeFunction = "";
-        json2.activeFunction = "";
-        return JSON.stringify(json1) == JSON.stringify(json2)
-
+        var newJson1 = {};
+        var newJson2 = {};
+        var compareFields = ["areas", "clocks", "drawings", "notes", "stopwatches"];
+        for(var i = 0; i < compareFields.length; i++) {
+            var fieldName = compareFields[i];
+            newJson1[fieldName] = json1[fieldName];
+            newJson2[fieldName] = json2[fieldName] ;
+        }
+        var result = JSON.stringify(newJson1) == JSON.stringify(newJson2);
+        return result;
     }
 
     StateStack.prototype.pushStateToStack = function() {
