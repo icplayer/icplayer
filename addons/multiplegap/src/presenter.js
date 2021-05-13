@@ -866,7 +866,7 @@ function Addonmultiplegap_create(){
         }
     }
 
-    function stopDraggableAudioOnDrag(helper, draggableItem) {
+    function stopDraggableAudioOnRemove(helper, draggableItem) {
         if (presenter.configuration.sourceType !== presenter.SOURCE_TYPES.AUDIO) return;
 
         var addonAndItemIds = draggableItem.split('-');
@@ -932,7 +932,6 @@ function Addonmultiplegap_create(){
                     return;
                 }
                 ui.helper.zIndex(100);
-                stopDraggableAudioOnDrag(ui.helper, ui.helper.attr('draggableitem'));
 
             },
             stop : function(event, ui) {
@@ -1049,6 +1048,10 @@ function Addonmultiplegap_create(){
             }
             voicesArray.push(getTextVoiceObject(altText,langTag));
             presenter.speak(voicesArray);
+        }
+
+        if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO) {
+            stopDraggableAudioOnRemove(placeholder, placeholder.attr('draggableitem'));
         }
 
         if (arguments[1]) {
