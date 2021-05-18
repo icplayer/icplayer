@@ -641,6 +641,11 @@ public class PlayerController implements IPlayerController {
 		keyboardController.switchKeyboard(false);
 	}
 
+	@Override
+	public void switchKeyboardNavigationToModule(String moduleId) {
+		keyboardController.moveToModule(moduleId);
+	}
+
 	public void setPlayerConfig(PlayerConfig config) {
 		this.config = config;
 	}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<skipLinkModule id="skipLinkModule1" isTabindexEnabled="false">
+    <layouts isVisible="true">
+        <layout isLocked="false" isModuleVisibleInEditor="true" id="default">
+            <relative type="LTWH">
+                <left relative="" property="left"/>
+                <top relative="" property="top"/>
+                <right relative="" property="right"/>
+                <bottom relative="" property="bottom"/>
+            </relative>
+            <absolute left="0" right="0" top="0" bottom="0" width="0" height="0"/>
+        </layout>
+    </layouts>
+    <items>
+        <item>
+            <moduleId>Text1</moduleId>
+            <moduleText>This skiplink will move keyboard navigation to text1</moduleText>
+            <moduleTextLang>en-US</moduleTextLang>
+        </item>
+        <item>
+            <moduleId>Text2</moduleId>
+            <moduleText>This skiplink will move keyboard navigation to text2</moduleText>
+            <moduleTextLang></moduleTextLang>
+        </item>
+        <item>
+            <moduleId>Text3</moduleId>
+            <moduleText></moduleText>
+            <moduleTextLang></moduleTextLang>
+        </item>
+    </items>
+</skipLinkModule>
