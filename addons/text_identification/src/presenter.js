@@ -27,6 +27,8 @@ function Addontext_identification_create() {
         PRINTABLE: "printable_addon_Text_Identification",
         PRINTABLE_WRAPPER: "printable_addon_Text_Identification-wrapper",
         PRINTABLE_SELECTED: "printable_addon_Text_Identification-selected",
+        PRINTABLE_SHOW_ANSWERS: "printable_addon_Text_Identification-show-answers",
+        PRINTABLE_SHOW_USER_ANSWERS: "printable_addon_Text_Identification-show-user-answers",
         PRINTABLE_CORRECT : "printable_addon_Text_Identification-correct",
         PRINTABLE_CORRECT_ANSWER: "printable_addon_Text_Identification-correct-answer",
         PRINTABLE_INCORRECT_ANSWER: "printable_addon_Text_Identification-incorrect-answer"
@@ -301,6 +303,13 @@ function Addontext_identification_create() {
         presenter.eventBus = controller.getEventBus();
         presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
+
+    /**
+     * @param controller (PrintableController)
+     */
+    presenter.setPrintableController = function (controller) {
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
+    }
 
     presenter.applySelectionStyle = function (selected, selectedClass, unselectedClass) {
         var element = viewContainer.find('div:first')[0];
@@ -689,7 +698,7 @@ function Addontext_identification_create() {
     presenter.getPrintableHTML = function (model, showAnswers) {
         const text = setUpLogicForPrintable(model);
         setUpPresenterViewForPrintable();
-        chosePrintableStateMode(showAnswers)
+        chosePrintableStateMode(showAnswers);
         addHTMLRepresentationAccordingToPrintableStateMode(text);
         presenter.printableStateMode = null;
         return presenter.$view[0].outerHTML;
@@ -699,7 +708,7 @@ function Addontext_identification_create() {
         presenter.moduleID = model.ID;
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
-        return model.Text;
+        return presenter.textParser.parse(model.Text);
     }
 
     function setUpPresenterViewForPrintable() {
@@ -747,23 +756,21 @@ function Addontext_identification_create() {
     }
 
     function addHTMLRepresentingCorrectnessOfAnswer() {
-        var $element = $('<div></div>');
         if (presenter.printableState.isSelected) {
+            var $element = $('<div></div>');
+
             if (presenter.configuration.shouldBeSelected)
                 $element.addClass(CSS_CLASSES.PRINTABLE_CORRECT_ANSWER)
             else
                 $element.addClass(CSS_CLASSES.PRINTABLE_INCORRECT_ANSWER)
-        } else {
-            if (presenter.configuration.shouldBeSelected)
-                $element.addClass(CSS_CLASSES.PRINTABLE_INCORRECT_ANSWER)
-            else
-                $element.addClass(CSS_CLASSES.PRINTABLE_CORRECT_ANSWER)
+
+            presenter.$view.append($element);
         }
-        presenter.$view.append($element);
     }
 
     function addHTMLRepresentationForShowUserAnswersPrintableStateMode(text) {
         var $wrapper = createPrintableAddonWrapper(text);
+        $wrapper.addClass(CSS_CLASSES.PRINTABLE_SHOW_USER_ANSWERS);
         if (presenter.printableState.isSelected)
             $wrapper.addClass(CSS_CLASSES.PRINTABLE_SELECTED);
         presenter.$view.append($wrapper);
@@ -771,6 +778,7 @@ function Addontext_identification_create() {
 
     function addHTMLRepresentationForShowAnswersPrintableStateMode(text) {
         var $wrapper = createPrintableAddonWrapper(text);
+        $wrapper.addClass(CSS_CLASSES.PRINTABLE_SHOW_ANSWERS);
         if (presenter.configuration.shouldBeSelected)
             $wrapper.addClass(CSS_CLASSES.PRINTABLE_CORRECT);
         presenter.$view.append($wrapper);

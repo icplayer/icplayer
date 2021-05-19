@@ -58,13 +58,13 @@ function getExpectedHTMLForCheckAnswers (isSelected, shouldBeSelected) {
             return getExpectedHTML(selectedClass, true, false)
     } else {
         if (shouldBeSelected)
-            return getExpectedHTML(null, true, false)
+            return getExpectedHTML(null, false, false)
         else
-            return getExpectedHTML(null, true, true)
+            return getExpectedHTML(null, false, true)
     }
 }
 
-function getExpectedHTML (additionalClass, addCorrectnessElement, isCorrect) {
+function getExpectedHTML(additionalClass, addCorrectnessElement, isCorrect) {
     const model = getCommonModel();
 
     var $mainStructureDiv = $('<div></div>');
@@ -93,9 +93,17 @@ function isResetPrintableStateMode (presenter) {
     return presenter.printableStateMode === null;
 }
 
+function stubTextParser(presenter) {
+    presenter.textParser = {
+        parse: sinon.stub()
+    };
+    presenter.textParser.parse.returnsArg(0);
+}
+
 TestCase("[Text Identification] GetPrintableHTML tests when empty printable state mode", {
     setUp: function () {
         this.presenter = Addontext_identification_create();
+        stubTextParser(this.presenter);
         this.showAnswers = false;
         this.model = null;
     },
@@ -144,6 +152,7 @@ TestCase("[Text Identification] GetPrintableHTML tests when empty printable stat
 TestCase("[Text Identification] GetPrintableHTML tests when show answers printable state mode", {
     setUp: function () {
         this.presenter = Addontext_identification_create();
+        stubTextParser(this.presenter);
         this.showAnswers = true;
         this.model = null;
     },
@@ -192,6 +201,7 @@ TestCase("[Text Identification] GetPrintableHTML tests when show answers printab
 TestCase("[Text Identification] GetPrintableHTML tests when show user answers printable state mode", {
     setUp: function () {
         this.presenter = Addontext_identification_create();
+        stubTextParser(this.presenter);
         this.showAnswers = false;
         this.model = null;
     },
@@ -296,6 +306,7 @@ TestCase("[Text Identification] GetPrintableHTML tests when show user answers pr
 TestCase("[Text Identification] GetPrintableHTML tests when check answers printable state mode", {
     setUp: function () {
         this.presenter = Addontext_identification_create();
+        stubTextParser(this.presenter);
         this.showAnswers = true;
         this.model = null;
     },
@@ -326,7 +337,7 @@ TestCase("[Text Identification] GetPrintableHTML tests when check answers printa
         assertTrue(isResetPrintableStateMode(this.presenter));
     },
 
-    'test of printable HTML when selected, selection is correct and no wrong answers are blocked': function() {
+    'test given presenter selected and blockWrongAnswers set to True when selection is correct then answers show': function() {
         const isSelected = true;
         const shouldBeSelected = true;
         this.model = getModelWhenSelectionIsCorrectAndNotBlockedWrongAnswers();

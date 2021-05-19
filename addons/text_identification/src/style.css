@@ -31,13 +31,15 @@
     padding: 5px;
 }
 
-.printable_addon_Text_Identification-correct,
-.printable_addon_Text_Identification-selected {
+.printable_addon_Text_Identification-correct, .printable_addon_Text_Identification-selected {
     border: 3px solid #999;
 }
 
-.printable_addon_Text_Identification-correct-answer,
-.printable_addon_Text_Identification-incorrect-answer {
+.printable_addon_Text_Identification-show-answers.printable_addon_Text_Identification-correct {
+    border: 3px dotted #999;
+}
+
+.printable_addon_Text_Identification-correct-answer, .printable_addon_Text_Identification-incorrect-answer {
     display: table-cell;
     vertical-align: middle;
 }
