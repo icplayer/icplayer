@@ -33,6 +33,8 @@ function AddonIWB_Toolbar_create() {
     presenter._setState = {};
     presenter._setState.images = [];
 
+    presenter.stateStack = null;
+
     presenter._stopwatchTimer = null;
     presenter._stopwatch = null;
 
@@ -489,6 +491,10 @@ function AddonIWB_Toolbar_create() {
 
     };
 
+    function saveMarkerDataUrl() {
+        presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
+    };
+
     presenter.onTouchEndEventCallback = function (e) {
         e.stopPropagation();
 
@@ -501,7 +507,7 @@ function AddonIWB_Toolbar_create() {
         presenter.tmp_ctx.clearRect(0, 0, presenter.iwb_tmp_canvas.width, presenter.iwb_tmp_canvas.height);
 
         presenter.points = [];
-        presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
+        saveMarkerDataUrl();
     };
 
     presenter.markerMouseDownHandler = function IWB_Toolbar_markerMouseDownHandler(e) {
@@ -548,7 +554,9 @@ function AddonIWB_Toolbar_create() {
         presenter.tmp_ctx.clearRect(0, 0, presenter.iwb_tmp_canvas.width, presenter.iwb_tmp_canvas.height);
 
         presenter.points = [];
-        presenter.markerDataUrl = presenter.markerCanvas[0].toDataURL('image/png');
+        saveMarkerDataUrl();
+
+        presenter.pushStateToStack();
     };
 
     presenter.markerDrawingLogic = function IWB_Toolbar_markerDrawingLogic() {
@@ -616,6 +624,11 @@ function AddonIWB_Toolbar_create() {
         presenter.isMouseDown = false;
         setOverflowWorkAround(false);
         presenter.penDataURL = presenter.canvas[0].toDataURL('image/png');
+        if (presenter.drawMode == presenter.DRAW_MODE.ERASER && presenter.markerUsed) {
+            saveMarkerDataUrl();
+        }
+
+        presenter.pushStateToStack();
     };
 
     presenter.drawingLogic = function IWB_Toolbar_drawingLogic() {
@@ -708,6 +721,7 @@ function AddonIWB_Toolbar_create() {
         presenter.$bottomPanels = $('.bottom-panel-color, .bottom-panel-thickness, .bottom-panel-floating-image');
 
         presenter.config = validateModel(model);
+        presenter.stateStack = new StateStack(presenter);
     };
 
     presenter.SHOW_PANEL = {
@@ -730,7 +744,7 @@ function AddonIWB_Toolbar_create() {
         if (model['widthWhenOpened']) {
             validated = ModelValidationUtils.validatePositiveInteger(model['widthWhenOpened']);
         } else {
-            var width = 538 + hasCustomButton * 36;
+            var width = 610 + hasCustomButton * 36;
             validated = getCorrectObject(width);
         }
 
@@ -1103,7 +1117,7 @@ function AddonIWB_Toolbar_create() {
 
         $(".iwb-zoom-cover").remove();
 
-        presenter._reset(true, false, false, false, false);
+        presenter._reset(true, false, false, false, false, false);
 
         if (presenter.isCustomButtonActive()) {
             var customScriptButton = presenter.$panel.find('.' + CUSTOM_BUTTON_NAME)[0];
@@ -1112,6 +1126,16 @@ function AddonIWB_Toolbar_create() {
 
         presenter.penDataURL = null;
         presenter.markerDataUrl = null;
+
+        presenter.pushStateToStack();
+    };
+
+    presenter.resetOneClickHandler = function IWB_Toolbar_resetOneClickHandler(button) {
+        presenter.restoreLastState();
+    };
+
+    presenter.redoOneClickHandler = function IWB_Toolbar_redoOneClickHandler(button) {
+        presenter.redoStateFromArray();
     };
 
     presenter.noteClickHandler = function IWB_Toolbar_noteClickHandler(button) {
@@ -1135,6 +1159,8 @@ function AddonIWB_Toolbar_create() {
         presenter.$pagePanel.find('.note').on('mouseup', function() {
             presenter.$pagePanel.find('.note').removeClass('clicked');
         });
+
+        presenter.pushStateToStack();
     };
 
     presenter.customScriptCreateEventData = function() {
@@ -1198,6 +1224,7 @@ function AddonIWB_Toolbar_create() {
             presenter.$pagePanel.find('.clock').removeClass('clicked');
         });
         presenter.createClock();
+        presenter.pushStateToStack();
     };
 
     presenter.stopwatchClickHandler = function IWB_Toolbar_stopwatchClickHandler(button) {
@@ -1212,6 +1239,7 @@ function AddonIWB_Toolbar_create() {
             presenter.$pagePanel.find('.stopwatch').removeClass('clicked');
         });
         presenter.createStopwatch();
+        presenter.pushStateToStack();
     };
 
     presenter.closeClickHandler = function IWB_Toolbar_closeClickHandler(button) {
@@ -1256,7 +1284,7 @@ function AddonIWB_Toolbar_create() {
         }
 
         if(presenter.activeFunction){
-            if(presenter.activeFunction != 'clock' && presenter.activeFunction != 'stopwatch' && presenter.activeFunction != 'note' && presenter.activeFunction != 'reset'){
+            if(['clock', 'stopwatch', 'note', 'reset', 'reset-one', 'redo-one'].indexOf(presenter.activeFunction) == -1){
                 if(!presenter.recklick){
                     presenter.functionButton = presenter.$pagePanel.find('.'+presenter.activeFunction);
                     presenter.buttonsLogic[presenter.activeFunction].onOpen(presenter.functionButton);
@@ -1287,7 +1315,7 @@ function AddonIWB_Toolbar_create() {
     presenter.panelView = function IWB_Toolbar_panelView (button) {
         var shouldClosePanels = shouldClosePanelsOnReset(button);
 
-        presenter._reset(shouldClosePanels, false, shouldHideDrawingMasks(button), shouldHideSelectingMasks(button), shouldHideFloatingImage(button));
+        presenter._reset(shouldClosePanels, false, shouldHideDrawingMasks(button), shouldHideSelectingMasks(button), shouldHideFloatingImage(button), false);
         if (!$(button).hasClass('open') && !$(button).hasClass('close')) {
             if ($(button).hasClass('clicked')) {
                 $(button).removeClass('clicked');
@@ -1338,7 +1366,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.penUnclickHandler = function IWB_Toolbar_penUnclickHandler (button) {
-        presenter._reset(true, false, 1, true, true);
+        presenter._reset(true, false, 1, true, true, false);
         if ($(button).hasClass('clicked')) {
             $(button).removeClass('clicked');
         } else {
@@ -1358,7 +1386,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.markerUnclickHandler = function IWB_Toolbar_markerUnclickHandler(button) {
-        presenter._reset(true, false, 1, true, true);
+        presenter._reset(true, false, 1, true, true, false);
         if ($(button).hasClass('clicked')) {
             $(button).removeClass('clicked');
         } else {
@@ -1428,6 +1456,15 @@ function AddonIWB_Toolbar_create() {
             'onOpen': presenter.resetClickHandler,
             'onReclicked': presenter.resetClickHandler
         },
+        'reset-one' : {
+            'onOpen': presenter.resetOneClickHandler,
+            'onClose': '',
+            'onReclicked': presenter.resetOneClickHandler
+        },
+        'redo-one' : {
+            'onOpen': presenter.redoOneClickHandler,
+            'onReclicked': presenter.redoOneClickHandler
+        },
         'note' : {
             'onOpen': presenter.noteClickHandler,
             'onReclicked': presenter.noteClickHandler
@@ -1456,6 +1493,15 @@ function AddonIWB_Toolbar_create() {
         }
     };
 
+    function isReclickable(button) {
+        var $button = $(button);
+        return !$button.hasClass('open')
+        && !$button.hasClass('close')
+        && !$button.hasClass('reset')
+        && !$button.hasClass('reset-one')
+        && !$button.hasClass('redo-one');
+    }
+
     function clickHandlers (button) {
         presenter._iwb_buttons.push($(button));
         var buttonName = $(button).data("name"),
@@ -1479,22 +1525,23 @@ function AddonIWB_Toolbar_create() {
         if(presenter.activeButton == 'open' && presenter.buttonClicked && !presenter.recklick && sameButton){
             presenter.activeButton = buttonName;
         }
+
         if(buttonName == presenter.activeButton){
             if(!presenter.isRecklicked){
                 if(presenter.buttonsLogic[presenter.activeButton].onReclicked){
                     presenter.buttonsLogic[presenter.activeButton].onReclicked(button);
                 }
                 presenter.isRecklicked = true;
-                if(!$(button).hasClass('open') && !$(button).hasClass('close') && !$(button).hasClass('reset')) presenter.recklick = true;
+                if(isReclickable(button)) presenter.recklick = true;
             }else{
                 presenter.buttonsLogic[$(button).attr("data-name")].onOpen(button);
                 presenter.isRecklicked = false;
-                if(!$(button).hasClass('open') && !$(button).hasClass('close')&& !$(button).hasClass('reset')) presenter.recklick = false;
+                if(isReclickable(button)) presenter.recklick = false;
             }
         }else{
             presenter.buttonsLogic[$(button).attr("data-name")].onOpen(button);
             presenter.isRecklicked = false;
-            if(!$(button).hasClass('open') && !$(button).hasClass('close')&& !$(button).hasClass('reset')) presenter.recklick = false;
+            if(isReclickable(button)) presenter.recklick = false;
         }
 
         if(!$(button).hasClass('color') && !$(button).hasClass('thickness')){
@@ -1541,14 +1588,15 @@ function AddonIWB_Toolbar_create() {
             if (isDependingOnDrawing(this) && presenter.areDrawingButtonsActive() || isFloatingImageButton(this)) {
                 openBottomPanel(this);
             }
-            if ($(this).hasClass('reset')) {
+            if ($(this).hasClass('reset') || $(this).hasClass('reset-one') || $(this).hasClass('redo-one')) {
                 $(this).removeClass('clicked');
             }
 
             if(!$(this).hasClass('open') && !$(this).hasClass('note') && !$(this).hasClass('stopwatch') && !$(this).hasClass('clock') && !$(this).hasClass('close')){
                 presenter.buttonClicked = true;
             }
-            if($(this).hasClass('reset') || $(this).hasClass('default') || $(this).hasClass('note') || $(this).hasClass('stopwatch') || $(this).hasClass('clock')){
+
+            if($(this).hasClass('reset') || $(this).hasClass('reset-one') || $(this).hasClass('redo-one') || $(this).hasClass('default') || $(this).hasClass('note') || $(this).hasClass('stopwatch') || $(this).hasClass('clock')){
                 presenter.buttonClicked = false;
             }
 
@@ -1998,6 +2046,8 @@ function AddonIWB_Toolbar_create() {
                 color: presenter.currentLineColor
             });
             presenter.standHideAreaClicked = false;
+
+            presenter.pushStateToStack();
         };
 
         if( /Android|X11|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
@@ -2067,12 +2117,21 @@ function AddonIWB_Toolbar_create() {
 
     function drawSavedAreas() {
         $.each(presenter.areas, function() {
+            presenter.selectingCtx.globalCompositeOperation = 'source-over';
             if (this.isHide) {
                 drawHideArea(presenter.selectingCtx, this.x, this.y, this.width, this.height, this.color);
             } else {
                 drawStandArea(presenter.selectingCtx, this.x, this.y, this.width, this.height, this.color);
             }
         });
+    }
+
+    function closeStopwatch() {
+        presenter._stopwatch.stopwatch.remove();
+        presenter.$panel.find('.stopwatch.clicked').removeClass('clicked');
+        presenter.stopwatchAdded = false;
+        clearTimeout(presenter._stopwatchTimer);
+        presenter._stopwatchTimer = null;
     }
 
     presenter.createStopwatch = function IWB_Toolbar_createStopwatch(savedStopwatch, hours, minutes, seconds, stopClicked, startClicked) {
@@ -2088,11 +2147,8 @@ function AddonIWB_Toolbar_create() {
 
             closeButton.on('click', function(e) {
                 e.stopPropagation();
-                stopwatch.remove();
-                presenter.$panel.find('.stopwatch.clicked').removeClass('clicked');
-                presenter.stopwatchAdded = false;
-                clearTimeout(presenter._stopwatchTimer);
-                presenter._stopwatchTimer = null;
+                closeStopwatch();
+                presenter.pushStateToStack();
             });
 
             header.append(time);
@@ -2140,6 +2196,7 @@ function AddonIWB_Toolbar_create() {
 
                     stop: function NoteStopFunction() {
                         $.ui.ddmanager.current = null;
+                        presenter.pushStateToStack();
                     }
                 });
 
@@ -2209,6 +2266,7 @@ function AddonIWB_Toolbar_create() {
                 clearTimeout(presenter._stopwatchTimer);
                 presenter.stopButtonClicked = true;
                 presenter.startButtonClicked = false;
+                presenter.pushStateToStack();
             });
 
             $(clear).on('click', function() {
@@ -2217,6 +2275,7 @@ function AddonIWB_Toolbar_create() {
                 h1.textContent = "00:00:00";
                 presenter.seconds = 0; presenter.minutes = 0; presenter.hours = 0;
                 presenter.stopButtonClicked = false;
+                presenter.pushStateToStack();
             });
 
             presenter._stopwatch = {
@@ -2231,6 +2290,12 @@ function AddonIWB_Toolbar_create() {
         presenter.stopwatchAdded = true;
     };
 
+    function closeClock() {
+        presenter._clockwatch.clock.remove();
+        presenter.$panel.find('.clock.clicked').removeClass('clicked');
+        presenter.clockAdded = false;
+    }
+
     presenter.createClock = function IWB_Toolbar_createClock(savedClock) {
         if (!presenter.clockAdded) {
             var clock = $('<div class="iwb-toolbar-clock"></div>'),
@@ -2240,9 +2305,8 @@ function AddonIWB_Toolbar_create() {
 
             closeButton.on('click', function(e) {
                 e.stopPropagation();
-                clock.remove();
-                presenter.$panel.find('.clock.clicked').removeClass('clicked');
-                presenter.clockAdded = false;
+                closeClock();
+                presenter.pushStateToStack();
             });
 
             header.append(closeButton);
@@ -2284,6 +2348,7 @@ function AddonIWB_Toolbar_create() {
                 },
                 stop: function NoteStopFunction() {
                     $.ui.ddmanager.current = null;
+                    presenter.pushStateToStack();
                 }
             });
 
@@ -2389,6 +2454,7 @@ function AddonIWB_Toolbar_create() {
         this.$noteBody.html(value);
         this.$textarea.remove();
         this.connectNoteEditHandler();
+        presenter.pushStateToStack();
     };
 
     presenter.Note.prototype.noteEditHandler = function () {
@@ -2438,6 +2504,7 @@ function AddonIWB_Toolbar_create() {
             }, note);
             note.destroy();
             confirmation.hide();
+            presenter.pushStateToStack();
         });
     };
 
@@ -2494,6 +2561,7 @@ function AddonIWB_Toolbar_create() {
 
             stop: function NoteStopFunction() {
                 $.ui.ddmanager.current = null;
+                presenter.pushStateToStack();
             }
         });
     };
@@ -2610,7 +2678,8 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.isAreaDrawingActive = function IWB_Toolbar_isAreaDrawingActive() {
-        return presenter.$pagePanel.find('.button.hide-area.clicked, .button.stand-area.clicked').length > 0;
+        return presenter.$pagePanel.find('.button.hide-area.clicked, .button.stand-area.clicked').length > 0
+            || presenter.drawMode == presenter.DRAW_MODE.HIDE_AREA;
     };
 
     presenter.areDrawingButtonsActive = function () {
@@ -2924,7 +2993,13 @@ function AddonIWB_Toolbar_create() {
                presenter.isCloseColor = window.savedPanel.tools.isCloseColor;
                presenter.shouldSaveColor = window.savedPanel.tools.shouldSaveColor;
                    if(presenter.activeFunction){
-                       if(presenter.activeFunction != 'clock' && presenter.activeFunction != 'stopwatch' && presenter.activeFunction != 'note' && presenter.activeFunction != 'reset' && presenter.activeFunction != 'open'){
+                       if(presenter.activeFunction != 'clock'
+                       && presenter.activeFunction != 'stopwatch'
+                       && presenter.activeFunction != 'note'
+                       && presenter.activeFunction != 'reset'
+                       && presenter.activeFunction != 'open'
+                       && presenter.activeFunction != 'reset-one'
+                       && presenter.activeFunction != 'redo-one'){
                            if(!presenter.recklick){
                                presenter.functionButton = presenter.$pagePanel.find('.'+ presenter.activeFunction);
                                if(window.savedPanel.isOpen){
@@ -3385,6 +3460,8 @@ function AddonIWB_Toolbar_create() {
         presenter.hideAreaClickHandler = null;
         presenter.standAreaClickHandler = null;
         presenter.resetClickHandler = null;
+        presenter.resetOneClickHandler = null;
+        presenter.redoOneClickHandler = null;
         presenter.noteClickHandler = null;
         presenter.customScriptClickHandler = null;
         presenter.floatingImageClickHandler = null;
@@ -3434,7 +3511,7 @@ function AddonIWB_Toolbar_create() {
         presenter._reset = null;
     };
 
-    presenter._reset = function IWB_Toolbar_private_reset(closePanel, shouldClearCanvas, shouldHideDrawingMasks, shouldHideSelectingMasks, shouldHideFloatingImage) {
+    presenter._reset = function IWB_Toolbar_private_reset(closePanel, shouldClearCanvas, shouldHideDrawingMasks, shouldHideSelectingMasks, shouldHideFloatingImage, shouldClearSelectingMask) {
         presenter.$panel.find('.clicked-lighter').removeClass('clicked-lighter');
         presenter.$panel.find('.hovered').removeClass('hovered');
         presenter.$pagePanel.find('.zoomed').removeClass('zoomed');
@@ -3472,6 +3549,10 @@ function AddonIWB_Toolbar_create() {
                 presenter.$pagePanel.find('.bottom-panel-floating-image').hide();
                 presenter.$pagePanel.find('.bottom-panel-floating-image').attr('isHidden', '1');
             }
+        }
+
+        if (shouldClearSelectingMask) {
+            clearSelectingCanvas();
         }
 
         setOverflowWorkAround(true);
@@ -3513,6 +3594,13 @@ function AddonIWB_Toolbar_create() {
         }
     }
 
+    function clearSelectingCanvas() {
+        if (presenter.selectingCanvas) {
+            presenter.selectingCanvas.off('mousemove mousedown mouseup');
+            presenter.selectingCtx.clearRect(0, 0, presenter.selectingCanvas[0].width, presenter.selectingCanvas[0].height);
+        }
+    }
+
     presenter.show = function() {
         presenter.setVisibility(true);
         presenter.isVisible = true;
@@ -3551,7 +3639,7 @@ function AddonIWB_Toolbar_create() {
             presenter.deselectCustomButton();
         }
         presenter.$pagePanel.find('.clicked').removeClass('clicked');
-        presenter._reset(true, true, true, true, true);
+        presenter._reset(true, true, true, true, true, true);
         presenter.penLineWidth = 1;
         presenter.data.defaultPenWidth = 1;
         presenter.markerLineWidth = 10;
@@ -3571,7 +3659,6 @@ function AddonIWB_Toolbar_create() {
                 'top': $(this).css('top'),
                 'left': $(this).css('left')
             });
-            $(this).remove();
         });
         return clocks;
     }
@@ -3648,6 +3735,8 @@ function AddonIWB_Toolbar_create() {
            }
         }
 
+        var isSelectingVisible = presenter.$selectingMask.is(':visible');
+
         window.savedPanel.tools = {
            'activeFunction': presenter.activeFunction,
            'customButtonActive': presenter.customButtonActive,
@@ -3659,7 +3748,7 @@ function AddonIWB_Toolbar_create() {
            'shouldSaveColor': presenter.shouldSaveColor
         };
 
-        return JSON.stringify({
+        var state = {
            'areas' : presenter.areas,
            'notes' : notes,
            'clocks' : clocks,
@@ -3680,8 +3769,11 @@ function AddonIWB_Toolbar_create() {
            'isCloseColor': presenter.isCloseColor,
            'buttonColor': $(presenter.buttonColor).attr("color"),
            'buttonThickness': $(presenter.buttonThickness).attr("thickness"),
-           'shouldSaveColor': presenter.shouldSaveColor
-        });
+           'shouldSaveColor': presenter.shouldSaveColor,
+           'isSelectingVisible': isSelectingVisible
+        };
+
+        return JSON.stringify(state);
     };
 
     /**
@@ -3743,12 +3835,19 @@ function AddonIWB_Toolbar_create() {
         return parsedState;
     };
 
+    presenter.upgradeStateForSelectingMaskVisibility = function (parsedState) {
+            if (parsedState.isSelectingVisible == undefined) {
+                parsedState.isSelectingVisible = false;
+            }
+
+            return parsedState;
+        };
+
     presenter.upgradeState = function (parsedState) {
         var upgradedState = presenter.upgradeStateForStopwatchesAndClocks(parsedState);
-
         upgradedState = presenter.upgradeStateForVisibility(upgradedState);
-
         upgradedState = presenter.upgradeStateForSavingTools(upgradedState);
+        upgradedState = presenter.upgradeStateForSelectingMaskVisibility(upgradedState);
 
         return  upgradedState;
     };
@@ -3767,9 +3866,9 @@ function AddonIWB_Toolbar_create() {
         if (!state) {
            return;
         }
-        
+
         var parsedState = JSON.parse(state);
-        
+
         var upgradedState = presenter.upgradeState(parsedState);
 
         presenter.areas = parsedState.areas;
@@ -3885,6 +3984,12 @@ function AddonIWB_Toolbar_create() {
                presenter.changeThickness(presenter.closePenThickness, presenter.buttonThickness);
            }
         }
+
+        if(upgradedState.isSelectingVisible) {
+            presenter.$selectingMask.show();
+        } else {
+            presenter.$selectingMask.hide();
+        }
         
         setOverflowWorkAround(true);
         setOverflowWorkAround(false);
@@ -3934,6 +4039,159 @@ function AddonIWB_Toolbar_create() {
         presenter.data.eraserThickness = parseInt(thickness, 10);
         presenter.changeThickness(presenter.data.eraserThickness);
     };
+
+    presenter.destroyDraggableItems = function() {
+        for (var i = 0; i < presenter.noteObjects.length; i++) {
+            presenter.noteObjects[i].destroy();
+        }
+        presenter.noteObjects = [];
+
+        if (presenter.stopwatchAdded) {
+            closeStopwatch();
+        }
+
+        if (presenter.clockAdded) {
+            closeClock();
+        }
+    }
+
+    presenter.resetDrawingMode = function() {
+        presenter.drawMode = presenter.DRAW_MODE.NONE;
+        presenter.ctx.globalCompositeOperation = 'source-over';
+        presenter.markerCtx.globalCompositeOperation = 'source-over';
+        presenter.$penMask.css('pointer-events', 'none');
+        presenter.$markerMask.css('pointer-events', 'none');
+    }
+
+    presenter.restoreLastState = function() {
+        presenter.stateStack.restoreLastState();
+    }
+
+    presenter.pushStateToStack = function() {
+        this.stateStack.pushStateToStack();
+    }
+
+    presenter.redoStateFromArray = function() {
+        presenter.stateStack.redoStateFromArray();
+    }
+
+    // Method added to aid in testing
+    presenter.getStateStack = function() {
+        if (presenter.stateStack == null) {
+            presenter.stateStack = new StateStack(presenter);
+        }
+        return presenter.stateStack;
+    }
+
+    function StateStack(iwbPresenter) {
+        this.iwbPresenter = iwbPresenter;
+        this.currentState = "";
+        this.prevStateStack = [];
+        this.nextStateStack = [];
+        this.stateStackOverflow = false;
+        if (iwbPresenter.playerController) {
+            var pageIndex = iwbPresenter.playerController.getCurrentPageIndex();
+            if (window.savedPanel && window.savedPanel.histories && window.savedPanel.histories[pageIndex]) {
+                this.setState(window.savedPanel.histories[pageIndex]);
+            }
+        }
+    }
+
+    StateStack.prototype.getState = function() {
+        var state = {
+            currentState: this.currentState,
+            prevStateStack: this.prevStateStack,
+            nextStateStack: this.nextStateStack,
+            stateStackOverflow: this.stateStackOverflow
+        };
+        return JSON.stringify(state);
+    }
+
+    StateStack.prototype.setState = function(state) {
+        var parsedState = JSON.parse(state);
+        this.currentState = parsedState.currentState;
+        this.prevStateStack = parsedState.prevStateStack;
+        this.nextStateStack = parsedState.nextStateStack;
+        this.stateStackOverflow = parsedState.stateStackOverflow;
+    }
+
+    StateStack.prototype.compareStates = function(state1, state2) {
+        if (state1.length == 0 || state2.length == 0) {
+            return state1.length == state2.length;
+        }
+        var json1 = JSON.parse(state1);
+        var json2 = JSON.parse(state2);
+        var newJson1 = {};
+        var newJson2 = {};
+        var compareFields = ["areas", "clocks", "drawings", "notes", "stopwatches"];
+        for(var i = 0; i < compareFields.length; i++) {
+            var fieldName = compareFields[i];
+            newJson1[fieldName] = json1[fieldName];
+            newJson2[fieldName] = json2[fieldName] ;
+        }
+        var result = JSON.stringify(newJson1) == JSON.stringify(newJson2);
+        return result;
+    }
+
+    StateStack.prototype.pushStateToStack = function() {
+        var newState = this.iwbPresenter.getState();
+        if (!this.compareStates(newState, this.currentState)) {
+            if (this.nextStateStack.length > 0) {
+                this.nextStateStack = [];
+            }
+            if (this.currentState.length > 0) {
+                this.prevStateStack.push(this.currentState);
+                this.currentState = newState;
+                if (this.prevStateStack.length > 5) {
+                    this.stateStackOverflow = true;
+                    this.prevStateStack.splice(0, this.prevStateStack.length - 5);
+                }
+            } else {
+                this.currentState = newState;
+            }
+            this.updateGlobalHistory();
+        }
+    }
+
+    StateStack.prototype.restoreLastState = function() {
+        this.iwbPresenter.resetDrawingMode();
+        if (this.prevStateStack.length > 0) {
+            this.iwbPresenter.reset();
+            this.iwbPresenter.destroyDraggableItems();
+            this.nextStateStack.push(this.currentState);
+            this.currentState = this.prevStateStack.pop();
+            this.iwbPresenter.setState(this.currentState);
+            this.updateGlobalHistory();
+        } else if (!this.stateStackOverflow && this.currentState.length > 0) {
+            this.iwbPresenter.reset();
+            this.iwbPresenter.destroyDraggableItems();
+            this.nextStateStack.push(this.currentState);
+            this.currentState = "";
+            this.updateGlobalHistory();
+        }
+    }
+
+    StateStack.prototype.redoStateFromArray = function() {
+        this.iwbPresenter.resetDrawingMode();
+        if (this.nextStateStack.length > 0) {
+            this.iwbPresenter.reset();
+            this.iwbPresenter.destroyDraggableItems();
+            this.prevStateStack.push(this.currentState);
+            this.currentState = this.nextStateStack.pop();
+            this.iwbPresenter.setState(this.currentState);
+            this.updateGlobalHistory();
+        }
+    }
+
+    StateStack.prototype.updateGlobalHistory = function() {
+        if (!window.savedPanel.histories) {
+            window.savedPanel.histories = {};
+        };
+        if (presenter.playerController) {
+            var pageIndex = this.iwbPresenter.playerController.getCurrentPageIndex();
+            window.savedPanel.histories[pageIndex] = this.getState();
+        }
+    }
 
     return presenter;
 }
