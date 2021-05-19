@@ -56,6 +56,9 @@ import com.lorepo.icplayer.client.module.report.ReportView;
 import com.lorepo.icplayer.client.module.shape.ShapeModule;
 import com.lorepo.icplayer.client.module.shape.ShapePresenter;
 import com.lorepo.icplayer.client.module.shape.ShapeView;
+import com.lorepo.icplayer.client.module.skiplink.SkipLinkModule;
+import com.lorepo.icplayer.client.module.skiplink.SkipLinkPresenter;
+import com.lorepo.icplayer.client.module.skiplink.SkipLinkView;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListModule;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListPresenter;
 import com.lorepo.icplayer.client.module.sourcelist.SourceListView;
@@ -145,6 +148,8 @@ public class ModuleFactory implements IModuleFactory{
 		}
 		else if(xmlNodeName.compareTo("addonModule") == 0){
 			module = new AddonModel();
+		} else if (xmlNodeName.equals("skipLinkModule")) {
+			module = new SkipLinkModule();
 		}
 		
 		if (ModuleFactoryUtils.isCheckAnswersButton(module)) {
@@ -213,6 +218,9 @@ public class ModuleFactory implements IModuleFactory{
 		else if(module instanceof TextModel){
 			return new TextView((TextModel) module, isPreview);
 		}
+		else if(module instanceof SkipLinkModule){
+			return new SkipLinkView((SkipLinkModule) module, isPreview);
+		}
 		
 		return new DummyView("Can't find view for module: " + module.toString());
 	}
@@ -279,6 +287,8 @@ public class ModuleFactory implements IModuleFactory{
 		}
 		else if(module instanceof TextModel){
 			return new TextPresenter((TextModel) module, services);
+		} else if (module instanceof SkipLinkModule) {
+			return new SkipLinkPresenter((SkipLinkModule) module, services);
 		}
 		
 		return null;

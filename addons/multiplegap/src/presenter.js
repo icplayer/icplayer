@@ -846,15 +846,15 @@ function Addonmultiplegap_create(){
         $button.append($icon);
 
         $button.click(function (event) {
-            playDraggableAudio(event, audioItemID, audioAddonID)
+            var $parent = $(event.currentTarget).parent();
+            playDraggableAudio($parent, audioItemID, audioAddonID);
         });
 
         return $el;
     };
 
-    function playDraggableAudio(event, itemID, audioAddonID) {
+    function playDraggableAudio($parent, itemID, audioAddonID) {
         var audioAddon = presenter.playerController.getModule(audioAddonID);
-        var $parent = $(event.currentTarget).parent();
         if ($parent.hasClass('playing')) {
             $parent.removeClass('playing');
             audioAddon.stop();
@@ -866,7 +866,7 @@ function Addonmultiplegap_create(){
         }
     }
 
-    function stopDraggableAudioOnDrag(helper, draggableItem) {
+    function stopDraggableAudioOnRemove(helper, draggableItem) {
         if (presenter.configuration.sourceType !== presenter.SOURCE_TYPES.AUDIO) return;
 
         var addonAndItemIds = draggableItem.split('-');
@@ -932,7 +932,6 @@ function Addonmultiplegap_create(){
                     return;
                 }
                 ui.helper.zIndex(100);
-                stopDraggableAudioOnDrag(ui.helper, ui.helper.attr('draggableitem'));
 
             },
             stop : function(event, ui) {
@@ -1049,6 +1048,10 @@ function Addonmultiplegap_create(){
             }
             voicesArray.push(getTextVoiceObject(altText,langTag));
             presenter.speak(voicesArray);
+        }
+
+        if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO) {
+            stopDraggableAudioOnRemove(placeholder, placeholder.attr('draggableitem'));
         }
 
         if (arguments[1]) {
@@ -1594,16 +1597,46 @@ function Addonmultiplegap_create(){
     MultipleGapKeyboardController.prototype.enter = function (event) {
         window.KeyboardController.prototype.enter.call(this, event);
         if(this.keyboardNavigationElementsLen > 1) {
-            var voicesArray = [];
-            for(var i  = 1; i <this.keyboardNavigationElementsLen; i++) {
-                var $element = this.getTarget(this.keyboardNavigationElements[i]);
-                voicesArray = voicesArray.concat(presenter.getTextVoicesFromPlaceholder($element));
+            if (presenter.configuration.sourceType === presenter.SOURCE_TYPES.AUDIO) {
+                var $element = presenter.$view.find('.placeholder.keyboard_navigation_active_element');
+                if ($element.length === 0) {
+                    readAllElements();
+                } else {
+                    var draggableItemValues = $element.attr('draggableitem').split('-');
+                    var $wrapper = $element.find('.multiaudio-item-wrapper');
+                    var callback = function() {
+                        if (draggableItemValues.length === 2) {
+                            playDraggableAudio($wrapper, draggableItemValues[1], draggableItemValues[0]);
+                        }
+                    }
+                    var voicesArray = presenter.getTextVoicesFromPlaceholder($element);
+                    if (voicesArray.length === 0 || !isWCAGOn) {
+                        callback();
+                    } else {
+                        if ($wrapper.hasClass('playing')) {
+                            callback();
+                        } else {
+                            presenter.speakWithCallback(voicesArray, callback);
+                        }
+                    }
+                }
+            } else {
+                readAllElements();
             }
-            presenter.speak(voicesArray);
         } else {
             presenter.speak([getTextVoiceObject(presenter.speechTexts.empty)]);
         }
     };
+
+    function readAllElements() {
+        var voicesArray = [];
+        var kc = presenter.keyboardControllerObject;
+        for(var i  = 1; i <kc.keyboardNavigationElementsLen; i++) {
+            var $element = kc.getTarget(kc.keyboardNavigationElements[i]);
+            voicesArray = voicesArray.concat(presenter.getTextVoicesFromPlaceholder($element));
+        }
+        presenter.speak(voicesArray);
+    }
 
     presenter.setWCAGStatus = function (isOn) {
         isWCAGOn = isOn;
@@ -1652,6 +1685,13 @@ function Addonmultiplegap_create(){
             tts.speak(data);
         }
     };
+
+    presenter.speakWithCallback = function (data, callback) {
+            var tts = presenter.getTextToSpeechOrNull(presenter.playerController);
+            if (tts && isWCAGOn) {
+                tts.speakWithCallback(data, callback);
+            }
+        };
 
     presenter.setPrintableController = function (controller) {
         printableController = controller;

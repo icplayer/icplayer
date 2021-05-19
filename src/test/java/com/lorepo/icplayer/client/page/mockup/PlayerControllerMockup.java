@@ -249,6 +249,11 @@ public class PlayerControllerMockup implements IPlayerController {
 		
 	}
 
+	@Override
+	public void switchKeyboardNavigationToModule(String moduleId) {
+
+	}
+
 
 	@Override
 	public String getPageStamp() {

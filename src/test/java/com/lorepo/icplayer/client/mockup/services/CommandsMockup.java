@@ -171,6 +171,11 @@ public class CommandsMockup implements IPlayerCommands {
 	}
 
 	@Override
+	public void switchKeyboardNavigationToModule(String moduleId) {
+
+	}
+
+	@Override
 	public int getIframeScroll() {
 		// TODO Auto-generated method stub
 		return 0;
