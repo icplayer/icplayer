@@ -90,13 +90,13 @@ public class ChoicePrintableOption {
 
     private void setOptionTextAsInnerHTMLToElement(Element el) {
         String text = option.getText();
-        el.setInnerText(text);
+        el.setInnerHTML(text);
     }
 
     private void setOptionTextAndValueAsInnerHTMLToElement(Element el) {
         String text = option.getText();
         String value = Integer.toString(option.getValue());
         String result = text + " (" + value + ")";
-        el.setInnerText(result);
+        el.setInnerHTML(result);
     }
 }

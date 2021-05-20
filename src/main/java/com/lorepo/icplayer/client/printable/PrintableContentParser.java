@@ -175,6 +175,20 @@ public class PrintableContentParser {
 			}
 		}
 	}
+
+	private String getPrintableModuleHTML(IPrintableModuleModel printable, boolean showAnswers, PrintableController controller) {
+		String result = "";
+		printable.setPrintableController(controller);
+		String moduleState = getModuleState(printable.getId(), controller.getPageId());
+		printable.setPrintableState(moduleState);
+		if (moduleState.length() == 0 && this.loadedState != null) {
+			// If the lesson has state but the module does not, display empty module
+			result = printable.getPrintableHTML(false);
+		} else {
+			result = printable.getPrintableHTML(showAnswers);
+		}
+		return result;
+	}
 	
 	private IPrintableModuleModel generatePrintableGroup(final Group group, PrintableController controller, boolean randomizeModules, boolean showAnswers) {
 		List<IPrintableModuleModel> groupPrintables = new ArrayList<IPrintableModuleModel>();
@@ -202,9 +216,7 @@ public class PrintableContentParser {
 		}
 		parsed += "<div class=\"printable_modules_group " + groupClass + " " + splittable_class + "\">";
 		for (IPrintableModuleModel printable: groupPrintables) {
-			printable.setPrintableController(controller);
-			printable.setPrintableState(getModuleState(printable.getId(), controller.getPageId()));
-			parsed += printable.getPrintableHTML(showAnswers);
+			parsed += getPrintableModuleHTML(printable, showAnswers, controller);
 		}
 		parsed += "</div>";
 
@@ -282,9 +294,7 @@ public class PrintableContentParser {
 		}
 		String result = "";
 		for (IPrintableModuleModel printable: pagePrintables) {
-			printable.setPrintableController(pagePrintableController);
-			printable.setPrintableState(getModuleState(printable.getId(), page.getId()));
-			result += printable.getPrintableHTML(showAnswers);
+			result += getPrintableModuleHTML(printable, showAnswers, pagePrintableController);
 		}
 		return result;
 	}
@@ -644,12 +654,12 @@ public class PrintableContentParser {
 		$wrapper.html(pageHTMLs);
 
 		var $imgs = $outerLessonWrapper.find('img');
-		var imgLoadCounter = $imgs.length;
+		var loadCounter = $imgs.length + 2; // number of images + outerLessonWrapper.ready + mathjax
 		var isReady = false;
 
 		var loadCallback = function(){
-			imgLoadCounter -= 1;
-			if (imgLoadCounter < 1 && isReady) {
+			loadCounter -= 1;
+			if (loadCounter < 1 && isReady) {
 				x.@com.lorepo.icplayer.client.printable.PrintableContentParser::continueGeneratePrintableHTML(Lcom/google/gwt/core/client/JavaScriptObject;)($outerLessonWrapper[0]);
 			}
 		};
@@ -669,15 +679,17 @@ public class PrintableContentParser {
 		});
 
 		var timeout = setTimeout(function(){
-			if (imgLoadCounter > 0 || isReady == false) {
+			if (loadCounter > 0 || isReady == false) {
 				isReady = true;
-				imgLoadCounter = 0;
+				loadCounter = 0;
 				loadCallback();
 			}
 		}, 20000);
 
 		$_('body').append($outerLessonWrapper);
 
+		$wnd.MathJax.Hub.Typeset();
+		loadCallback();
 	}-*/;
 
 	private List<String> getModuleHTMLsFromWrapper(JavaScriptObject wrapper) {
