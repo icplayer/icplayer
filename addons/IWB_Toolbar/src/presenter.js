@@ -260,7 +260,7 @@ function AddonIWB_Toolbar_create() {
             }, 1000, presenter._openPanelShow);
         } else {
             presenter._openPanelShow();
-            presenter.$panel.css('width', window.savedPanel.widthWhenOpened + 'px');
+            presenter.$panel.css('width', presenter.config.widthWhenOpened + 'px');
         }
     };
 
