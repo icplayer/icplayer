@@ -685,6 +685,21 @@ function AddonIWB_Toolbar_create() {
         }
     };
 
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = presenter.upgradeEnableUndoRedo(model);
+        return upgradedModel;
+    };
+
+    presenter.upgradeEnableUndoRedo = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model); // Deep copy of model object
+
+        if (!upgradedModel['enableUndoRedo']) {
+            upgradedModel['enableUndoRedo'] = 'false';
+        }
+        return upgradedModel;
+    }
+
     presenter.setBasicConfiguration = function (view, model) {
         presenter.$view = $(view);
         presenter.$panel = $(view).find('.iwb-toolbar-panel');
@@ -736,6 +751,7 @@ function AddonIWB_Toolbar_create() {
             widthWhenOpened,
             widthWhenClosed;
         var hasCustomButton = model["hasCustomButton"] == 'True';
+        var enableUndoRedo = ModelValidationUtils.validateBoolean(model["enableUndoRedo"]);
 
         if (!hasCustomButton) {
             presenter.$panel.children('.button.custom-script').hide();
@@ -744,7 +760,9 @@ function AddonIWB_Toolbar_create() {
         if (model['widthWhenOpened']) {
             validated = ModelValidationUtils.validatePositiveInteger(model['widthWhenOpened']);
         } else {
-            var width = 610 + hasCustomButton * 36;
+            var baseWidth = 538;
+            if (enableUndoRedo) baseWidth = 610;
+            var width = baseWidth + hasCustomButton * 36;
             validated = getCorrectObject(width);
         }
 
@@ -781,6 +799,7 @@ function AddonIWB_Toolbar_create() {
             'hasCustomButton': hasCustomButton,
             'onCustomButtonSelected': model['hasCustomButton'] ? model['onCustomButtonSelected'] : null,
             'onCustomButtonDeselected': model['hasCustomButton'] ? model['onCustomButtonDeselected'] : null,
+            'enableUndoRedo': enableUndoRedo,
         };
     }
 
@@ -2836,6 +2855,7 @@ function AddonIWB_Toolbar_create() {
     };
 
     presenter.createPreview = function(view, model) {
+        model = presenter.upgradeModel(model);
         presenter.model = model;
         presenter.isKeepStateAndPosition = ModelValidationUtils.validateBoolean(model['keepStateAndPosition']);
 
@@ -2855,6 +2875,7 @@ function AddonIWB_Toolbar_create() {
 
     presenter.run = function(view, model) {
         Kinetic.pixelRatio = 1;
+        model = presenter.upgradeModel(model);
         presenter.model = model;
         presenter.isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         presenter.isKeepStateAndPosition = ModelValidationUtils.validateBoolean(model['keepStateAndPosition']);
@@ -2868,6 +2889,11 @@ function AddonIWB_Toolbar_create() {
         if (!presenter.config.isValid) {
             DOMOperationsUtils.showErrorMessage(presenter.$view, presenter.ERROR_CODES, presenter.config.errorCode);
             return;
+        }
+
+        if (!presenter.config.enableUndoRedo) {
+            presenter.$pagePanel.find('.reset-one').css('display', 'none');
+            presenter.$pagePanel.find('.redo-one').css('display', 'none');
         }
 
         presenter.addFloatingImages(model);
@@ -4134,6 +4160,7 @@ function AddonIWB_Toolbar_create() {
     }
 
     StateStack.prototype.pushStateToStack = function() {
+        if (!this.iwbPresenter.config.enableUndoRedo) return;
         var newState = this.iwbPresenter.getState();
         if (!this.compareStates(newState, this.currentState)) {
             if (this.nextStateStack.length > 0) {
@@ -4154,6 +4181,7 @@ function AddonIWB_Toolbar_create() {
     }
 
     StateStack.prototype.restoreLastState = function() {
+        if (!this.iwbPresenter.config.enableUndoRedo) return;
         this.iwbPresenter.resetDrawingMode();
         if (this.prevStateStack.length > 0) {
             this.iwbPresenter.reset();
@@ -4172,6 +4200,7 @@ function AddonIWB_Toolbar_create() {
     }
 
     StateStack.prototype.redoStateFromArray = function() {
+        if (!this.iwbPresenter.config.enableUndoRedo) return;
         this.iwbPresenter.resetDrawingMode();
         if (this.nextStateStack.length > 0) {
             this.iwbPresenter.reset();
