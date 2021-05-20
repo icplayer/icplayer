@@ -1253,9 +1253,13 @@ function AddonDrawing_create() {
                 resultArray.push(srcText);
                 continue;
             }
-            var wordArray = srcText.split(/(?<=\s)/); // split the current line we're working on into individual words and whitespaces
+            var wordArray = srcText.match(/[^\s][^\s]*|\s/g); // split the current line we're working on into individual words and whitespaces
             var workString = "";
             for (var j = 0; j < wordArray.length; j++) {
+                if (j > 0 && /^\s$/.test(wordArray[j]) && workString.length == 0) {
+                    // if a line has been broken due to being too long, the new row should not start with whitespaces
+                    continue;
+                }
                 if (isBrokenText(workString + wordArray[j])) {
                     if (workString.length == 0) {
                         // In this case a single word is too long to fit and needs to be broken into lines
@@ -1273,7 +1277,11 @@ function AddonDrawing_create() {
                     } else {
                         // the new word would cause the work string to exceed line length
                         resultArray.push(workString);
-                        workString = wordArray[j];
+                        if (/^\s$/.test(wordArray[j])) {
+                            workString = "";
+                        } else {
+                            workString = wordArray[j];
+                        }
                     }
                 } else {
                     workString += wordArray[j];
