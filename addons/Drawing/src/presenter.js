@@ -514,6 +514,7 @@ function AddonDrawing_create() {
 
     function connectMouseEvents(tmp_canvas, tmp_ctx, ctx) {
         tmp_canvas.addEventListener('mousemove', function (e) {
+            if (isOnTextEditionMode()) return;
             e.stopPropagation();
 
             var x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
