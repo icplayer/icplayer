@@ -1,3 +1,4 @@
+2021-05-20 Change the way text works in the Drawing addon to support multiple lines
 2021-05-19 Added docs and missing label for SkipLink
 2021-05-18 Fixed not being able to use audio element in multiplegap using keyboard navigation
 2021-05-11 Added undo-one button to IWB Toolbar
