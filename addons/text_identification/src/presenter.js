@@ -12,6 +12,8 @@ function Addontext_identification_create() {
     presenter.lastEvent = null;
     presenter.isDisabled = false;
     presenter.keyboardControllerObject = null;
+    presenter.printableState = null;
+    presenter.printableStateMode = null;
     
     var CSS_CLASSES = {
         ELEMENT : "text-identification-element",
@@ -21,8 +23,15 @@ function Addontext_identification_create() {
         EMPTY : 'text-identification-element-empty',
         MOUSE_HOVER_SELECTED : "text-identification-element-mouse-hover-selected",
         MOUSE_HOVER : "text-identification-element-mouse-hover",
-        SHOW_ANSWERS : "text-identification-element-show-answers"
-
+        SHOW_ANSWERS : "text-identification-element-show-answers",
+        PRINTABLE: "printable_addon_Text_Identification",
+        PRINTABLE_WRAPPER: "printable_addon_Text_Identification-wrapper",
+        PRINTABLE_SELECTED: "printable_addon_Text_Identification-selected",
+        PRINTABLE_SHOW_ANSWERS: "printable_addon_Text_Identification-show-answers",
+        PRINTABLE_SHOW_USER_ANSWERS: "printable_addon_Text_Identification-show-user-answers",
+        PRINTABLE_CORRECT : "printable_addon_Text_Identification-correct",
+        PRINTABLE_CORRECT_ANSWER: "printable_addon_Text_Identification-correct-answer",
+        PRINTABLE_INCORRECT_ANSWER: "printable_addon_Text_Identification-incorrect-answer"
     };
 
     function CSS_CLASSESToString() {
@@ -294,6 +303,13 @@ function Addontext_identification_create() {
         presenter.eventBus = controller.getEventBus();
         presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
+
+    /**
+     * @param controller (PrintableController)
+     */
+    presenter.setPrintableController = function (controller) {
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
+    }
 
     presenter.applySelectionStyle = function (selected, selectedClass, unselectedClass) {
         var element = viewContainer.find('div:first')[0];
@@ -648,25 +664,138 @@ function Addontext_identification_create() {
         }
     }
 
+    presenter.PRINTABLE_STATE_MODE = {
+        EMPTY: 0,
+        SHOW_ANSWERS: 1,
+        SHOW_USER_ANSWERS: 2,
+        CHECK_ANSWERS: 3
+    };
+
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+
+        var serializedIsSelected, parsedState;
+        if (state.indexOf("}") > -1 && state.indexOf("{") > -1) {
+            parsedState = JSON.parse(state);
+            serializedIsSelected = parsedState.isSelected;
+        } else {
+            parsedState = undefined;
+            serializedIsSelected = state;
+        }
+
+        presenter.printableState = {};
+        presenter.printableState.isSelected = serializedIsSelected.toString() === "True";
+        if (parsedState) {
+            if(parsedState.isVisible !== undefined)
+                presenter.printableState.isVisible = parsedState.isVisible;
+
+            if(parsedState.isDisabled !== undefined)
+                presenter.printableState.isDisabled = parsedState.isDisabled;
+        }
+    }
+
     presenter.getPrintableHTML = function (model, showAnswers) {
+        const text = setUpLogicForPrintable(model);
+        setUpPresenterViewForPrintable();
+        chosePrintableStateMode(showAnswers);
+        addHTMLRepresentationAccordingToPrintableStateMode(text);
+        presenter.printableStateMode = null;
+        return presenter.$view[0].outerHTML;
+    };
+
+    function setUpLogicForPrintable(model) {
         presenter.moduleID = model.ID;
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
+        return presenter.textParser.parse(model.Text);
+    }
 
+    function setUpPresenterViewForPrintable() {
         presenter.$view = $('<div></div>');
-        presenter.$view.addClass('printable_addon_Text_Identification');
+        presenter.$view.addClass(CSS_CLASSES.PRINTABLE);
+    }
 
-        var $wrapper = $('<div></div>');
-        $wrapper.addClass('printable_addon_Text_Identification-wrapper');
-        var textSrc = model.Text ? model.Text : "";
-        $wrapper.html(textSrc);
-        if (showAnswers && presenter.configuration.shouldBeSelected) {
-            $wrapper.addClass('printable_addon_Text_Identification-correct');
+    function chosePrintableStateMode(showAnswers) {
+        if (presenter.printableState) {
+            if (showAnswers)
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS;
+            else
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
+        } else {
+            if (showAnswers)
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS;
+            else
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.EMPTY;
         }
-        presenter.$view.append($wrapper);
+    }
 
-        return presenter.$view[0].outerHTML;
-    };
+    function addHTMLRepresentationAccordingToPrintableStateMode(text) {
+        switch (presenter.printableStateMode) {
+            case presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS:
+                addHTMLRepresentationForCheckAnswersPrintableStateMode(text);
+                break;
+            case presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS:
+                addHTMLRepresentationForShowUserAnswersPrintableStateMode(text);
+                break;
+            case presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS:
+                addHTMLRepresentationForShowAnswersPrintableStateMode(text);
+                break;
+            case presenter.PRINTABLE_STATE_MODE.EMPTY:
+                addHTMLRepresentationForEmptyPrintableStateMode(text);
+                break;
+        }
+    }
+
+    function addHTMLRepresentationForCheckAnswersPrintableStateMode(text) {
+        var $wrapper = createPrintableAddonWrapper(text);
+        if (presenter.printableState.isSelected)
+            $wrapper.addClass(CSS_CLASSES.PRINTABLE_SELECTED);
+        presenter.$view.append($wrapper);
+        addHTMLRepresentingCorrectnessOfAnswer();
+    }
+
+    function addHTMLRepresentingCorrectnessOfAnswer() {
+        if (presenter.printableState.isSelected) {
+            var $element = $('<div></div>');
+
+            if (presenter.configuration.shouldBeSelected)
+                $element.addClass(CSS_CLASSES.PRINTABLE_CORRECT_ANSWER)
+            else
+                $element.addClass(CSS_CLASSES.PRINTABLE_INCORRECT_ANSWER)
+
+            presenter.$view.append($element);
+        }
+    }
+
+    function addHTMLRepresentationForShowUserAnswersPrintableStateMode(text) {
+        var $wrapper = createPrintableAddonWrapper(text);
+        $wrapper.addClass(CSS_CLASSES.PRINTABLE_SHOW_USER_ANSWERS);
+        if (presenter.printableState.isSelected)
+            $wrapper.addClass(CSS_CLASSES.PRINTABLE_SELECTED);
+        presenter.$view.append($wrapper);
+    }
+
+    function addHTMLRepresentationForShowAnswersPrintableStateMode(text) {
+        var $wrapper = createPrintableAddonWrapper(text);
+        $wrapper.addClass(CSS_CLASSES.PRINTABLE_SHOW_ANSWERS);
+        if (presenter.configuration.shouldBeSelected)
+            $wrapper.addClass(CSS_CLASSES.PRINTABLE_CORRECT);
+        presenter.$view.append($wrapper);
+    }
+
+    function addHTMLRepresentationForEmptyPrintableStateMode(text) {
+        var $wrapper = createPrintableAddonWrapper(text);
+        presenter.$view.append($wrapper);
+    }
+
+    function createPrintableAddonWrapper(text) {
+        var $wrapper = $('<div></div>');
+        $wrapper.addClass(CSS_CLASSES.PRINTABLE_WRAPPER);
+        var textSrc = text ? text : "";
+        $wrapper.html(textSrc);
+        return $wrapper;
+    }
 
     return presenter;
 }
