@@ -37,6 +37,7 @@ public interface IPlayerCommands {
 	public void gotoCommonPageId(String id);
 	void showPopup(String pageName, String top, String left, String additionalClasses);
 	void updateCurrentPageScoreWithMistakes(int mistakes);
+	void switchKeyboardNavigationToModule(String moduleId);
 	int getIframeScroll();
 	
 	void goToLastVisitedPage();

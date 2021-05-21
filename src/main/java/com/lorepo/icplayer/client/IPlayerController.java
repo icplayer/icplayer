@@ -49,6 +49,7 @@ public interface IPlayerController {
 	String getLang();
 	void enableKeyboardNavigation();
 	void disableKeyboardNavigation();
+	void switchKeyboardNavigationToModule(String moduleId);
 	boolean isPlayerInCrossDomain();
 	Set<IPage> getVisitedPages();
 	void sendExternalEvent(String eventType, String data);
