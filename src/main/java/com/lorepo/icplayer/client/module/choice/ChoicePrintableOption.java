@@ -2,6 +2,7 @@ package com.lorepo.icplayer.client.module.choice;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 import com.lorepo.icplayer.client.printable.Printable.PrintableStateMode;
 
 public class ChoicePrintableOption {
@@ -90,6 +91,7 @@ public class ChoicePrintableOption {
 
     private void setOptionTextAsInnerHTMLToElement(Element el) {
         String text = option.getText();
+        text = AlternativeTextService.getVisibleText(text);
         el.setInnerHTML(text);
     }
 
@@ -97,6 +99,7 @@ public class ChoicePrintableOption {
         String text = option.getText();
         String value = Integer.toString(option.getValue());
         String result = text + " (" + value + ")";
+        result = AlternativeTextService.getVisibleText(result);
         el.setInnerHTML(result);
     }
 }

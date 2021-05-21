@@ -688,8 +688,10 @@ public class PrintableContentParser {
 
 		$_('body').append($outerLessonWrapper);
 
-		$wnd.MathJax.Hub.Typeset();
-		loadCallback();
+		var args = new $wnd.Array();
+		args.push("Typeset", $wnd.MathJax.Hub, $outerLessonWrapper[0]);
+		args.push(loadCallback);
+		$wnd.MathJax.Hub.Queue(args);
 	}-*/;
 
 	private List<String> getModuleHTMLsFromWrapper(JavaScriptObject wrapper) {
