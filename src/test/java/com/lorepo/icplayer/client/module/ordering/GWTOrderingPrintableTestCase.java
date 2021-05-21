@@ -26,9 +26,9 @@ public class GWTOrderingPrintableTestCase extends GWTPowerMockitoTest {
 	OrderingModule model = null;
 	OrderingPrintable orderingPrintable = null;
 	ArrayList<OrderingItem> items = null;
-	String userStateWithCorrectAlternativeOrder = "{\"order\":\"3,2,1\"}";
-	String userStateWithCorrectOrder = "{\"order\":\"1,2,3\"}";
-	String userStateWithWrongOrder = "{\"order\":\"1,3,2\"}";
+	String userStateWithCorrectAlternativeOrder = "{\"order\":\"3,2,1\", \"isSolved\": \"true\"}}";
+	String userStateWithCorrectOrder = "{\"order\":\"1,2,3\", \"isSolved\": \"true\"}";
+	String userStateWithWrongOrder = "{\"order\":\"1,3,2\", \"isSolved\": \"true\"}}";
 
 	@Before
 	public void setUp() {

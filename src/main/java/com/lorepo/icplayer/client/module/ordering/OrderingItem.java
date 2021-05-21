@@ -9,6 +9,7 @@ import com.lorepo.icf.properties.IHtmlProperty;
 import com.lorepo.icf.properties.IProperty;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.model.alternativeText.AlternativeTextService;
 
 public class OrderingItem extends BasicPropertyProvider {
 
@@ -169,7 +170,7 @@ public class OrderingItem extends BasicPropertyProvider {
 
 	private Element createTDWithItemText(){
 		Element textTD = DOM.createTD();
-		textTD.setInnerHTML(this.getText());
+		textTD.setInnerHTML(AlternativeTextService.getVisibleText(this.getText()));
 		return textTD;
 	}
 
