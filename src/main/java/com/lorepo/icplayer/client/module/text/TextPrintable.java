@@ -195,7 +195,10 @@ public class TextPrintable {
 						if (showAnswers) {
 							InlineChoiceInfo choiceInfo = model.getChoiceInfos().get(i);
 							if (choiceInfo.getAnswer().equals(value)) {
-								value = "<u>" + value + "</u>";
+								Element underlined = DOM.createElement("u");
+								underlined.setInnerHTML(value);
+								underlined.getString();
+								value = underlined.getString();
 							}
 						}
 						values += value;

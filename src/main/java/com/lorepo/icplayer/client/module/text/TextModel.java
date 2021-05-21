@@ -1346,7 +1346,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 
 	@Override
 	public void setPrintableState(String state) {
-		if (state.equals("")) {
+		if (state.length() == 0) {
 			return;
 		}
 		IJsonServices jsonServices = new JsonServices();
