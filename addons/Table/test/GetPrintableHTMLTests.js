@@ -250,9 +250,19 @@ const isResetPrintableStateMode = function(presenter) {
     return presenter.printableStateMode === null;
 }
 
+function stubTextParser(presenter) {
+    presenter.textParser = {
+        parse: sinon.stub()
+    };
+    presenter.textParser.parse.returnsArg(0);
+}
+
 TestCase("[Table] GetPrintableHTML - without gaps", {
     setUp: function () {
         this.presenter = AddonTable_create();
+
+        stubTextParser(this.presenter);
+
         this.model = createModelWith4NormalText();
     },
 
@@ -286,6 +296,8 @@ TestCase("[Table] GetPrintableHTML - without gaps", {
 TestCase("[Table] GetPrintableHTML - only gaps", {
     setUp: function () {
         this.presenter = AddonTable_create();
+        stubTextParser(this.presenter);
+
         this.model = createModelWith4Gaps();
         this.printableState = {
             gaps: [
@@ -391,6 +403,8 @@ TestCase("[Table] GetPrintableHTML - only gaps", {
 TestCase("[Table] GetPrintableHTML - only filled gaps", {
     setUp: function () {
         this.presenter = AddonTable_create();
+        stubTextParser(this.presenter);
+
         this.model = createModelWith4FilledGaps();
         this.printableState = {
             gaps: [
@@ -496,6 +510,7 @@ TestCase("[Table] GetPrintableHTML - only filled gaps", {
 TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
     setUp: function () {
         this.presenter = AddonTable_create();
+        stubTextParser(this.presenter);
         this.model = createModelWith4DropdownGaps();
         this.printableState = {
             gaps: [
@@ -659,6 +674,8 @@ TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
 TestCase("[Table] GetPrintableHTML - mixed gaps", {
     setUp: function () {
         this.presenter = AddonTable_create();
+        stubTextParser(this.presenter);
+
         this.model = createModelWithMixed8Gaps();
         this.printableState = {
             gaps: [
