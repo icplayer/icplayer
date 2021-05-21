@@ -1692,6 +1692,7 @@ var ice_dictionary_pl = {
 	"IWB_Toolbar_property_has_custom_button": "Has custom button",
 	"IWB_Toolbar_property_on_custom_button_selected": "On custom button selected",
 	"IWB_Toolbar_property_on_custom_button_deselected": "On custom button deselected",
+	"IWB_Toolbar_property_enable_undo_redo": "Enable Undo/Redo buttons",
 	"SVG2_info" : "Pozwala wstawić do prezentacji obraz w formacie SVG.",
 	"SVG2_name" : "Obraz SVG",
 	"SVG2_property_svg_file": "Plik SVG",

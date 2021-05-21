@@ -1693,6 +1693,7 @@ var ice_dictionary_fr = {
 	"IWB_Toolbar_property_has_custom_button": "Has custom button",
 	"IWB_Toolbar_property_on_custom_button_selected": "On custom button selected",
 	"IWB_Toolbar_property_on_custom_button_deselected": "On custom button deselected",
+	"IWB_Toolbar_property_enable_undo_redo": "Enable Undo/Redo buttons",
     "SVG2_info": "Le module SVG permet d'insérer une image SVG dans une présentation.",
     "SVG2_name": "SVG",
     "SVG2_property_svg_file": "Fichier SVG",

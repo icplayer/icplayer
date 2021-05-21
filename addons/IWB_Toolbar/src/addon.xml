@@ -15,5 +15,6 @@
         <property name="hasCustomButton" nameLabel="IWB_Toolbar_property_has_custom_button" type="boolean" />
         <property name="onCustomButtonSelected" nameLabel="IWB_Toolbar_property_on_custom_button_selected" type="event" isDefault="true" />
         <property name="onCustomButtonDeselected" nameLabel="IWB_Toolbar_property_on_custom_button_deselected" type="event" />
+        <property name="enableUndoRedo" nameLabel="IWB_Toolbar_property_enable_undo_redo" type="boolean" />
     </model>
 </addon>
