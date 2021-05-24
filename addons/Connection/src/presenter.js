@@ -318,12 +318,15 @@ function AddonConnection_create() {
     };
 
     presenter.removeNonVisibleInnerHTML = function () {
-        $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
+        presenter.removeNonVisibleInnerHTMLForRoot($(presenter.view));
+
+    };
+    presenter.removeNonVisibleInnerHTMLForRoot = function ($root) {
+        $.each($root.find('.innerWrapper'), function (index, element) {
             var newInnerHtml = $(element).html().replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with a
             $(element).html(newInnerHtml.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1')); // replace \alt{a|b} with a
         });
-
-    };
+    }
 
     presenter.setPlayerController = function (controller) {
         presenter.registerMathJax();
@@ -2287,7 +2290,8 @@ function AddonConnection_create() {
         $root.css("max-width", model["Width"]+"px");
         $root.html(
             '<table class="connectionContainer">' +
-                '<tr>' + answerLeftColumn +
+                '<tr>' +
+                    answerLeftColumn +
                     '<td class="connectionLeftColumn">' +
                         '<table class="content"></table>' +
                     '</td>' +
@@ -2296,7 +2300,8 @@ function AddonConnection_create() {
                     '</td>' +
                     '<td class="connectionRightColumn">' +
                         '<table class="content"></table>' +
-                    '</td>' + answerRightColumn +
+                    '</td>' +
+                    answerRightColumn +
                 '</tr>' +
             '</table>');
 
@@ -2313,6 +2318,7 @@ function AddonConnection_create() {
             this.loadRandomElementsRight($root[0], model, 'connectionRightColumn', 'Right column', true);
         }
         this.setColumnsWidth($root[0], model["Columns width"]);
+        presenter.removeNonVisibleInnerHTMLForRoot($root);
 
         var correctAnswers = getCorrectAnswersObject(model);
 
