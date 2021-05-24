@@ -159,10 +159,10 @@ TestCase("[ImageIdentification] Image indentification printable html validation"
         var model = getValidModel(true);
 
         var $root = $("<div></div>");
-        $root.addClass(styleClass + "-div");
         $root.css("max-width", model.Width+"px");
         $root.css("max-height", model.Height+"px");
         $root.css("visibility", "visible");
+        $root.addClass(styleClass + "-div");
 
         $root.append("<img class=" + styleClass + "-img>")
         return $root;

@@ -694,16 +694,19 @@ function AddonImage_Identification_create(){
 
     function chosePrintableStateMode(showAnswers) {
         if (presenter.printableState) {
-            if (showAnswers)
-                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS;
-            else
-                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
-        } else {
-            if (showAnswers)
-                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS;
-            else
-                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.EMPTY;
+            presenter.printableStateMode = showAnswers ? presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS : presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
         }
+        else {
+            presenter.printableStateMode = showAnswers ? presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS : presenter.PRINTABLE_STATE_MODE.EMPTY;
+        }        
+    }
+
+    function setViewAndImgClassess(viewClass, imageClass, $img) {
+        const prefix = 'printable-image-identification';
+        const viewClassName = `${prefix}-${viewClass}`;
+        const imageClassName = `${prefix}-${imageClass}`;
+        presenter.$view.addClass(viewClassName);
+        $img.addClass(imageClassName);
     }
 
     presenter.setPrintableState = function(state) {
@@ -725,38 +728,29 @@ function AddonImage_Identification_create(){
         var $img = presenter.$view.find('.image-identification-element');
         $img.removeClass('image-identification-element');
 
-        if (isPrintableEmptyAnswersStateMode()) {                                                   // EMPTY STATE
-            presenter.$view.addClass("printable-image-identification-empty-div");
-            $img.addClass('printable-image-identification-empty-img');
+        if (isPrintableEmptyAnswersStateMode()) {          
+            setViewAndImgClassess('empty-div', 'empty-img', $img);                               // EMPTY STATE
         } else if (isPrintableShowAnswersStateMode()) {                                             // SHOW ANSWERS
             if (presenter.configuration.shouldBeSelected) {
-                presenter.$view.addClass("printable-image-identification-selected-answer-div");
-                $img.addClass('printable-image-identification-selected-answer-img');
+                setViewAndImgClassess('selected-answer-div', 'selected-answer-img', $img);
             } else {
-                presenter.$view.addClass("printable-image-identification-empty-answer-div");
-                $img.addClass('printable-image-identification-empty-answer-img');
+                setViewAndImgClassess('empty-answer-div', 'empty-answer-img', $img);
             }
         } else if (isPrintableShowUserAnswersStateMode()) {                                           // SHOW USER ANSWERS
             if (presenter.printableState.isSelected) {
-                presenter.$view.addClass("printable-image-identification-selected-user-answer-div");
-                $img.addClass('printable-image-identification-selected-user-answer-img');
+                setViewAndImgClassess('selected-user-answer-div', 'selected-user-answer-img', $img);
             } else {
-                presenter.$view.addClass("printable-image-identification-empty-user-answer-div");
-                $img.addClass('printable-image-identification-empty-user-answer-img');
+                setViewAndImgClassess('empty-user-answer-div', 'empty-user-answer-img', $img);
             }
         } else {                                                                                        // CHECK USER ANSWERS
             if (!presenter.printableState.isSelected && !presenter.configuration.shouldBeSelected) {
-                presenter.$view.addClass("printable-image-identification-empty-correct-answer-div");
-                $img.addClass('printable-image-identification-empty-correct-answer-img');
+                setViewAndImgClassess('empty-correct-answer-div', 'empty-correct-answer-img', $img);
             } else if (!presenter.printableState.isSelected && presenter.configuration.shouldBeSelected) {
-                presenter.$view.addClass("printable-image-identification-empty-incorrect-answer-div");
-                $img.addClass('printable-image-identification-empty-incorrect-answer-img');
+                setViewAndImgClassess('empty-incorrect-answer-div', 'empty-incorrect-answer-img', $img);
             } else if (presenter.printableState.isSelected && presenter.configuration.shouldBeSelected) {
-                presenter.$view.addClass("printable-image-identification-selected-correct-answer-div");
-                $img.addClass('printable-image-identification-selected-correct-answer-img');
+                setViewAndImgClassess('selected-correct-answer-div', 'selected-correct-answer-img', $img);
             } else {
-                presenter.$view.addClass("printable-image-identification-selected-incorrect-answer-div");
-                $img.addClass('printable-image-identification-selected-incorrect-answer-img');
+                setViewAndImgClassess('selected-incorrect-answer-div', 'selected-incorrect-answer-img', $img);
             }
         }
 
