@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.printable;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
+import com.lorepo.icplayer.client.module.text.TextParser;
 
 public class PrintableController {
 
@@ -10,9 +11,11 @@ public class PrintableController {
 	private Page page = null;
 	private SeededRandom random = new SeededRandom();
 	private JavaScriptObject scoreJS = null;
+	private IPrintableTextParser textParser;
 	
 	PrintableController(Page page) {
 		this.page = page;
+		this.textParser = new PrintableTextParser();
 	};
 	
 	public void setSeededRandom(SeededRandom random) {
@@ -55,6 +58,10 @@ public class PrintableController {
 		controller.getScore = function() {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::scoreJS;
 		};
+
+		controller.getTextParser = function() {
+			return x.@com.lorepo.icplayer.client.printable.PrintableController::getTextParser()();
+		}
 		
 		return controller;
 	}-*/;
@@ -65,6 +72,10 @@ public class PrintableController {
 
 	public void setScore(String score) {
 		this.scoreJS = parseJson(score);
+	}
+
+	private JSPrintableTextParser getTextParser() {
+		return this.textParser.getAsJS();
 	}
 
 	private native JavaScriptObject parseJson(String raw)/*-{
