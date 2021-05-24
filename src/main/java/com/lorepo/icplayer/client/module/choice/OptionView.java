@@ -17,7 +17,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.ToggleButton;
-import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.event.DefinitionEvent;
 import com.lorepo.icplayer.client.module.choice.ChoicePresenter.IOptionDisplay;
 import com.lorepo.icplayer.client.module.text.LinkInfo;
@@ -28,7 +27,7 @@ import com.lorepo.icplayer.client.utils.DevicesUtils;
 
 public class OptionView extends ToggleButton implements IOptionDisplay{
 
-	private ChoiceOption 	choiceOption;
+	private ChoiceOption choiceOption;
 	private ParserResult parserResult;
 	private EventBus eventBus;
 	
