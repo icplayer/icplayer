@@ -24,8 +24,7 @@ public class OrderingPrintableCollection {
         return this.orderedItems;
     }
 
-    public void addItemToAppropriateArray(
-            OrderingItem item, Element itemRepresentation) {
+    public void addItemToItems(OrderingItem item, Element itemRepresentation) {
         Integer startingPosition = item.getStartingPosition();
         if (startingPosition != null) {
             this.orderedItems[startingPosition - 1] = itemRepresentation;

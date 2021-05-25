@@ -29,7 +29,7 @@ import com.lorepo.icplayer.client.printable.Printable;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
-public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
+public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel, IPrintableOrderingModule {
 	public static final String ERROR_NUMBER_OF_ITEMS = "Error - only one item";
 	public static final String ERROR_NO_COMBINATION = "Error - all correct combinations have been used";
 	public static final String ERROR_POSITION_NOT_INTEGER = "Error - starting position not a integer";
@@ -813,6 +813,10 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	
 	public PrintableMode getPrintable() {
 		return Printable.getPrintableModeFromString(printableValue);
+	}
+
+	public boolean isPrintable() {
+		return getPrintable() != PrintableMode.NO;
 	}
 	
 	@Override

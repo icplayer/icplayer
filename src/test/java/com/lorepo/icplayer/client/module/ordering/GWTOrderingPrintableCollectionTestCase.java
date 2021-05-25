@@ -119,7 +119,7 @@ public class GWTOrderingPrintableCollectionTestCase extends GWTPowerMockitoTest 
 	private void executeAddItemToAppropriateArrayForAllItems(
 			OrderingPrintableCollection collection) {
 		for (int i = 0; i < itemsAmount; i++) {
-			collection.addItemToAppropriateArray(items[i], itemsReps[i]);
+			collection.addItemToItems(items[i], itemsReps[i]);
 		}
 	}
 }
