@@ -2255,8 +2255,9 @@ function AddonTable_create() {
         presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
         chosePrintableStateMode(showAnswers);
         createPrintableHTMLStructure(model);
-        const result = parsePrintableGaps(presenter.$view[0].outerHTML)
+        let result = parsePrintableGaps(presenter.$view[0].outerHTML)
         presenter.printableStateMode = null;
+        result = presenter.textParser.parseAltTexts(result);
         return result;
     };
 
@@ -2274,6 +2275,26 @@ function AddonTable_create() {
         presenter.$wrapper = $('<div></div>');
         presenter.$wrapper.addClass('table-addon-wrapper');
         presenter.$view.append(presenter.$wrapper);
+
+        presenter.$view.addClass(getViewClassesBasedOnMode());
+    }
+
+    function getViewClassesBasedOnMode() {
+        switch(presenter.printableStateMode) {
+            case presenter.PRINTABLE_STATE_MODE.EMPTY: {
+                return "printable_addon_Table-empty-mode";
+            }
+            case presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS: {
+                return "printable_addon_Table-show-answers";
+            }
+            case presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS: {
+                return "printable_addon_Table-show-user-answers";
+            }
+            case presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS: {
+                return "printable_addon_Table-check-answers";
+            }
+        }
+
     }
 
     function parsePrintableGaps (html) {
@@ -2403,6 +2424,27 @@ function AddonTable_create() {
     }
 
     /**
+    * TablePrintableOption
+    * */
+    function TablePrintableOption (text, stateID) {
+        this.text = text;
+        this.stateID = stateID;
+        this.options = [];
+    }
+
+    TablePrintableOption.prototype = Object.create(Object.prototype);
+    TablePrintableOption.prototype.constructor = TablePrintableOption;
+
+    TablePrintableOption.prototype.getPrintableGapSignHTML = function(isCorrectAnswer) {
+        var $signSpan = $("<span></span>");
+        if (isCorrectAnswer)
+            $signSpan.addClass("printable_gap_correct");
+        else
+            $signSpan.addClass("printable_gap_wrong");
+        return $signSpan[0].outerHTML;
+    }
+
+    /**
      * TablePrintableEditableGapOption
      */
 
@@ -2424,11 +2466,23 @@ function AddonTable_create() {
         this.getGapTextData();
         var gapInnerText = this.generateInnerText()
         var gapHTML = this.generateGapHTML(gapInnerText);
-        if (isPrintableCheckAnswersStateMode()) {
-            var isCorrectAnswer = gapInnerText === this.correctAnswer;
+        if (isPrintableCheckAnswersStateMode() && this.hasAnswer()) {
+            var isCorrectAnswer = this.isCorrectAnswer(gapInnerText);
             gapHTML += this.getPrintableGapSignHTML(isCorrectAnswer);
         }
         return gapHTML;
+    }
+
+    TablePrintableEditableGapOption.prototype.getAnswer = function () {
+        return presenter.printableState.gaps[this.stateID].value;
+    }
+
+    TablePrintableEditableGapOption.prototype.isCorrectAnswer = function (answer) {
+        return this.correctAnswer === answer;
+    }
+
+    TablePrintableEditableGapOption.prototype.hasAnswer = function () {
+        return this.getAnswer() !== "";
     }
 
     TablePrintableEditableGapOption.prototype.generateInnerText = function() {
@@ -2441,7 +2495,7 @@ function AddonTable_create() {
             }
             case presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS:
             case presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS: {
-                return presenter.printableState.gaps[this.stateID].value;
+                return this.hasAnswer() ? this.getAnswer() : this.generateInnerTextForEmptyStateMode();
             }
         }
     }
@@ -2566,11 +2620,23 @@ function AddonTable_create() {
             this.findChosenOptionIndex();
 
         var gapHTML = this.generateGapHTML();
-        if (isPrintableCheckAnswersStateMode()){
-            var isCorrectAnswer = this.chosenOptionIndex === this.correctOptionIndex;
+        if (isPrintableCheckAnswersStateMode() && this.hasAnswer()){
+            var isCorrectAnswer = this.isCorrectAnswer();
             gapHTML += this.getPrintableGapSignHTML(isCorrectAnswer);
         }
         return gapHTML;
+    }
+
+    TablePrintableDropdownGapOption.prototype.getAnswer = function () {
+        return this.chosenOptionIndex;
+    }
+
+    TablePrintableDropdownGapOption.prototype.hasAnswer = function () {
+        return this.chosenOptionIndex !== null;
+    }
+
+    TablePrintableDropdownGapOption.prototype.isCorrectAnswer = function () {
+        return this.chosenOptionIndex === this.correctOptionIndex;
     }
 
     TablePrintableDropdownGapOption.prototype.getGapTextData = function() {
@@ -2620,37 +2686,6 @@ function AddonTable_create() {
         }
         return this.options.join(" / ");
     }
-
-    /**
-    * TablePrintableOption
-    * */
-    function TablePrintableOption (text, stateID) {
-        this._text = presenter.textParser.parseAltTexts(text);
-        this.stateID = stateID;
-        this.options = [];
-    }
-
-    TablePrintableOption.prototype = Object.create(Object.prototype);
-    TablePrintableOption.prototype.constructor = TablePrintableOption;
-
-    TablePrintableOption.prototype.getPrintableGapSignHTML = function(isCorrectAnswer) {
-        var $signSpan = $("<span></span>");
-        if (isCorrectAnswer)
-            $signSpan.addClass("printable_gap_correct");
-        else
-            $signSpan.addClass("printable_gap_wrong");
-        return $signSpan[0].outerHTML;
-    }
-
-    Object.defineProperty(TablePrintableOption.prototype, 'text', {
-        get: function () {
-            return this.text;
-        },
-        set: function (text) {
-            this._text = presenter.textParser.parseAltTexts(text);
-        }
-    });
-
 
     return presenter;
 }

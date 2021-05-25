@@ -57,3 +57,7 @@
 .printable_addon_Table .table-addon-wrapper .printable_gap_wrong::after {
     content: " \2716";
 }
+
+.printable_addon_Table.printable_addon_Table-show-answers .table-addon-wrapper .table .td {
+    border: 1px black dashed;
+}

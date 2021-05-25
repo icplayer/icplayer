@@ -9,7 +9,7 @@ public class JSPrintableTextParser extends JavaScriptObject {
     public native static JSPrintableTextParser create(IPrintableTextParser parser) /*-{
         var obj = function() {};
 
-        obj.parseAltText = $entry(function(textToParse) {
+        obj.parseAltTexts = $entry(function(textToParse) {
             return parser.@com.lorepo.icplayer.client.printable.IPrintableTextParser::parseAltText(Ljava/lang/String;)(textToParse);
         });
 
