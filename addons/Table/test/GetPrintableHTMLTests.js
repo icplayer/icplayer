@@ -1,4 +1,4 @@
-const createCommonModel = function () {
+function createCommonModel() {
     return {
         "ID": 'Table1',
         "Is Visible": "True",
@@ -18,7 +18,7 @@ const createCommonModel = function () {
     };
 }
 
-const createModelTableCellsWith4NormalText = function () {
+function createModelTableCellsWith4NormalText() {
     return [
         {
             Row: "1",
@@ -43,7 +43,7 @@ const createModelTableCellsWith4NormalText = function () {
     ]
 }
 
-const createModelTableCellsWith4Gaps = function () {
+function createModelTableCellsWith4Gaps () {
     return [
         {
             Row: "1",
@@ -68,7 +68,7 @@ const createModelTableCellsWith4Gaps = function () {
     ]
 }
 
-const createModelTableCellsWith4FilledGaps = function () {
+function createModelTableCellsWith4FilledGaps () {
     return [
         {
             Row: "1",
@@ -93,7 +93,7 @@ const createModelTableCellsWith4FilledGaps = function () {
     ]
 }
 
-const createModelTableCellsWith4DropdownGaps = function () {
+function createModelTableCellsWith4DropdownGaps () {
     return [
         {
             Row: "1",
@@ -119,7 +119,7 @@ const createModelTableCellsWith4DropdownGaps = function () {
 }
 
 
-const createModelTableCellsWithMixed8Gaps = function () {
+function createModelTableCellsWithMixed8Gaps () {
     return [
         {
             Row: "1",
@@ -164,31 +164,31 @@ const createModelTableCellsWithMixed8Gaps = function () {
     ]
 }
 
-const createModelWith4NormalText = function () {
+function createModelWith4NormalText () {
     var model = createCommonModel();
     model["Table cells"] = createModelTableCellsWith4NormalText();
     return model;
 }
 
-const createModelWith4Gaps = function () {
+function createModelWith4Gaps () {
     var model = createCommonModel();
     model["Table cells"] = createModelTableCellsWith4Gaps();
     return model;
 }
 
-const createModelWith4FilledGaps = function () {
+function createModelWith4FilledGaps () {
     var model = createCommonModel();
     model["Table cells"] = createModelTableCellsWith4FilledGaps();
     return model;
 }
 
-const createModelWith4DropdownGaps = function () {
+function createModelWith4DropdownGaps () {
     var model = createCommonModel();
     model["Table cells"] = createModelTableCellsWith4DropdownGaps();
     return model;
 }
 
-const createModelWithMixed8Gaps = function () {
+function createModelWithMixed8Gaps () {
     var model = createCommonModel();
     model["Rows"] = "4";
     model["Columns"] = "2";
@@ -196,29 +196,56 @@ const createModelWithMixed8Gaps = function () {
     return model;
 }
 
-const createExpectedPrintableHTMLWith4Cells = function (
-    cell1HTML, cell2HTML, cell3HTML, cell4HTML) {
+function createExpectedPrintableHTMLWith4Cells (
+    cell1HTML, cell2HTML, cell3HTML, cell4HTML, mode) {
     return createExpectedPrintableHTMLWithNCells(
-        2, 2,
-        cell1HTML, cell2HTML, cell3HTML, cell4HTML)
+        mode, 2, 2,
+        cell1HTML, cell2HTML, cell3HTML, cell4HTML
+    )
 }
 
-const createExpectedPrintableHTMLWith8Cells = function (
-    cell1HTML, cell2HTML, cell3HTML, cell4HTML,
+function createExpectedPrintableHTMLWith8Cells (
+    mode, cell1HTML, cell2HTML, cell3HTML, cell4HTML,
     cell5HTML, cell6HTML, cell7HTML, cell8HTML) {
     return createExpectedPrintableHTMLWithNCells(
-        4, 2,
+        mode, 4, 2,
         cell1HTML, cell2HTML, cell3HTML, cell4HTML,
         cell5HTML, cell6HTML, cell7HTML, cell8HTML)
 }
 
-const createExpectedPrintableHTMLWithNCells = function (rows_amount, cols_amount, ...args) {
-    if (rows_amount * cols_amount !== args.length)
-        throw RangeError();
+function getClassBasedOnMode(mode) {
+    var PRINTABLE_STATE_MODE = {
+        EMPTY: 0,
+        SHOW_ANSWERS: 1,
+        SHOW_USER_ANSWERS: 2,
+        CHECK_ANSWERS: 3
+    };
+    switch (mode) {
+        case PRINTABLE_STATE_MODE.EMPTY: {
+            return "printable_addon_Table-empty-mode";
+        }
+        case PRINTABLE_STATE_MODE.SHOW_ANSWERS: {
+            return "printable_addon_Table-show-answers";
+        }
+        case PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS: {
+            return "printable_addon_Table-show-user-answers";
+        }
+        case PRINTABLE_STATE_MODE.CHECK_ANSWERS: {
+            return "printable_addon_Table-check-answers";
+        }
+    }
+
+}
+
+function createExpectedPrintableHTMLWithNCells (mode, rows_amount, cols_amount, ...args) {
+    if (rows_amount * cols_amount !== args.length) {
+        throw RangeError(`Expected ${rows_amount * cols_amount} args, got ${args.length}`);
+    }
 
     var $mainStructureDiv = $('<div></div>');
     $mainStructureDiv.attr("id", "Table1");
     $mainStructureDiv.addClass("printable_addon_Table");
+    $mainStructureDiv.addClass(getClassBasedOnMode(mode));
 
     var $tableAddonWrapper = $('<div></div>');
     $tableAddonWrapper.addClass("table-addon-wrapper");
@@ -246,15 +273,15 @@ const createExpectedPrintableHTMLWithNCells = function (rows_amount, cols_amount
     return $mainStructureDiv[0].outerHTML;
 }
 
-const isResetPrintableStateMode = function(presenter) {
+function isResetPrintableStateMode(presenter) {
     return presenter.printableStateMode === null;
 }
 
 function stubTextParser(presenter) {
     presenter.textParser = {
-        parse: sinon.stub()
+        parseAltTexts: sinon.stub()
     };
-    presenter.textParser.parse.returnsArg(0);
+    presenter.textParser.parseAltTexts.returnsArg(0);
 }
 
 TestCase("[Table] GetPrintableHTML - without gaps", {
@@ -275,7 +302,7 @@ TestCase("[Table] GetPrintableHTML - without gaps", {
         const cell2 = "2"
         const cell3 = "3"
         const cell4 = "4"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.EMPTY);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -288,7 +315,7 @@ TestCase("[Table] GetPrintableHTML - without gaps", {
         const cell2 = "2"
         const cell3 = "3"
         const cell4 = "4"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 });
@@ -326,7 +353,7 @@ TestCase("[Table] GetPrintableHTML - only gaps", {
         const cell2 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
         const cell3 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
         const cell4 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.EMPTY);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -339,7 +366,7 @@ TestCase("[Table] GetPrintableHTML - only gaps", {
         const cell2 = "<span class=\"printable_gap\">2</span>"
         const cell3 = "<span class=\"printable_gap\">3</span>"
         const cell4 = "<span class=\"printable_gap\">4</span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -353,7 +380,7 @@ TestCase("[Table] GetPrintableHTML - only gaps", {
         const cell2 = "<span class=\"printable_gap\">2</span>"
         const cell3 = "<span class=\"printable_gap\">5</span>"
         const cell4 = "<span class=\"printable_gap\">6</span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -367,7 +394,7 @@ TestCase("[Table] GetPrintableHTML - only gaps", {
         const cell2 = "<span class=\"printable_gap\">2</span><span class=\"printable_gap_correct\"></span>"
         const cell3 = "<span class=\"printable_gap\">5</span><span class=\"printable_gap_wrong\"></span>"
         const cell4 = "<span class=\"printable_gap\">6</span><span class=\"printable_gap_wrong\"></span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -377,11 +404,11 @@ TestCase("[Table] GetPrintableHTML - only gaps", {
 
         assertTrue(isResetPrintableStateMode(this.presenter));
 
-        const cell1 = "<span class=\"printable_gap\"></span>"
-        const cell2 = "<span class=\"printable_gap\"></span>"
-        const cell3 = "<span class=\"printable_gap\"></span>"
-        const cell4 = "<span class=\"printable_gap\"></span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const cell1 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
+        const cell2 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
+        const cell3 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
+        const cell4 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -391,11 +418,11 @@ TestCase("[Table] GetPrintableHTML - only gaps", {
 
         assertTrue(isResetPrintableStateMode(this.presenter));
 
-        const cell1 = "<span class=\"printable_gap\"></span><span class=\"printable_gap_wrong\"></span>"
-        const cell2 = "<span class=\"printable_gap\"></span><span class=\"printable_gap_wrong\"></span>"
-        const cell3 = "<span class=\"printable_gap\"></span><span class=\"printable_gap_wrong\"></span>"
-        const cell4 = "<span class=\"printable_gap\"></span><span class=\"printable_gap_wrong\"></span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const cell1 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
+        const cell2 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
+        const cell3 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
+        const cell4 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 });
@@ -433,7 +460,7 @@ TestCase("[Table] GetPrintableHTML - only filled gaps", {
         const cell2 = "<span class=\"printable_gap\">null 2</span>"
         const cell3 = "<span class=\"printable_gap\">null 3</span>"
         const cell4 = "<span class=\"printable_gap\">null 4</span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.EMPTY);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -446,7 +473,7 @@ TestCase("[Table] GetPrintableHTML - only filled gaps", {
         const cell2 = "<span class=\"printable_gap\">2</span>"
         const cell3 = "<span class=\"printable_gap\">3</span>"
         const cell4 = "<span class=\"printable_gap\">4</span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -460,7 +487,7 @@ TestCase("[Table] GetPrintableHTML - only filled gaps", {
         const cell2 = "<span class=\"printable_gap\">2</span>"
         const cell3 = "<span class=\"printable_gap\">5</span>"
         const cell4 = "<span class=\"printable_gap\">6</span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -474,7 +501,7 @@ TestCase("[Table] GetPrintableHTML - only filled gaps", {
         const cell2 = "<span class=\"printable_gap\">2</span><span class=\"printable_gap_correct\"></span>"
         const cell3 = "<span class=\"printable_gap\">5</span><span class=\"printable_gap_wrong\"></span>"
         const cell4 = "<span class=\"printable_gap\">6</span><span class=\"printable_gap_wrong\"></span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -484,11 +511,11 @@ TestCase("[Table] GetPrintableHTML - only filled gaps", {
 
         assertTrue(isResetPrintableStateMode(this.presenter));
 
-        const cell1 = "<span class=\"printable_gap\"></span>"
-        const cell2 = "<span class=\"printable_gap\"></span>"
-        const cell3 = "<span class=\"printable_gap\"></span>"
-        const cell4 = "<span class=\"printable_gap\"></span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const cell1 = "<span class=\"printable_gap\">null 1</span>"
+        const cell2 = "<span class=\"printable_gap\">null 2</span>"
+        const cell3 = "<span class=\"printable_gap\">null 3</span>"
+        const cell4 = "<span class=\"printable_gap\">null 4</span>"
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -498,11 +525,11 @@ TestCase("[Table] GetPrintableHTML - only filled gaps", {
 
         assertTrue(isResetPrintableStateMode(this.presenter));
 
-        const cell1 = "<span class=\"printable_gap\"></span><span class=\"printable_gap_wrong\"></span>"
-        const cell2 = "<span class=\"printable_gap\"></span><span class=\"printable_gap_wrong\"></span>"
-        const cell3 = "<span class=\"printable_gap\"></span><span class=\"printable_gap_wrong\"></span>"
-        const cell4 = "<span class=\"printable_gap\"></span><span class=\"printable_gap_wrong\"></span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const cell1 = "<span class=\"printable_gap\">null 1</span>"
+        const cell2 = "<span class=\"printable_gap\">null 2</span>"
+        const cell3 = "<span class=\"printable_gap\">null 3</span>"
+        const cell4 = "<span class=\"printable_gap\">null 4</span>"
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 });
@@ -539,7 +566,7 @@ TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
         const cell2 = "B2 / C2 / A2"
         const cell3 = "B3 / C3 / A3"
         const cell4 = "B4 / C4 / A4"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.EMPTY);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -552,7 +579,7 @@ TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
         const cell2 = "<span class=\"printable_gap\">B2</span> / C2 / A2"
         const cell3 = "<span class=\"printable_gap\">B3</span> / C3 / A3"
         const cell4 = "<span class=\"printable_gap\">B4</span> / C4 / A4"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -566,7 +593,7 @@ TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
         const cell2 = "<span class=\"printable_gap\">B2</span> / C2 / A2"
         const cell3 = "B3 / <span class=\"printable_gap\">C3</span> / A3"
         const cell4 = "B4 / C4 / <span class=\"printable_gap\">A4</span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -580,7 +607,7 @@ TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
         const cell2 = "<span class=\"printable_gap\">B2</span> / C2 / A2<span class=\"printable_gap_correct\"></span>"
         const cell3 = "B3 / <span class=\"printable_gap\">C3</span> / A3<span class=\"printable_gap_wrong\"></span>"
         const cell4 = "B4 / C4 / <span class=\"printable_gap\">A4</span><span class=\"printable_gap_wrong\"></span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -594,7 +621,7 @@ TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
         const cell2 = "B2 / C2 / A2"
         const cell3 = "B3 / C3 / A3"
         const cell4 = "B4 / C4 / A4"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -604,11 +631,11 @@ TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
 
         assertTrue(isResetPrintableStateMode(this.presenter));
 
-        const cell1 = "B1 / C1 / A1</span><span class=\"printable_gap_wrong\"></span>"
-        const cell2 = "B2 / C2 / A2</span><span class=\"printable_gap_wrong\"></span>"
-        const cell3 = "B3 / C3 / A3</span><span class=\"printable_gap_wrong\"></span>"
-        const cell4 = "B4 / C4 / A4</span><span class=\"printable_gap_wrong\"></span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const cell1 = "B1 / C1 / A1</span>"
+        const cell2 = "B2 / C2 / A2</span>"
+        const cell3 = "B3 / C3 / A3</span>"
+        const cell4 = "B4 / C4 / A4</span>"
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -622,7 +649,7 @@ TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
         const cell2 = "A2 / B2 / C2"
         const cell3 = "A3 / B3 / C3"
         const cell4 = "A4 / B4 / C4"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.EMPTY);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -636,7 +663,7 @@ TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
         const cell2 = "A2 / <span class=\"printable_gap\">B2</span> / C2"
         const cell3 = "A3 / <span class=\"printable_gap\">B3</span> / C3"
         const cell4 = "A4 / <span class=\"printable_gap\">B4</span> / C4"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -651,7 +678,7 @@ TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
         const cell2 = "A2 / <span class=\"printable_gap\">B2</span> / C2"
         const cell3 = "A3 / B3 / <span class=\"printable_gap\">C3</span>"
         const cell4 = "<span class=\"printable_gap\">A4</span> / B4 / C4"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -666,7 +693,7 @@ TestCase("[Table] GetPrintableHTML - only dropdown gaps", {
         const cell2 = "A2 / <span class=\"printable_gap\">B2</span> / C2<span class=\"printable_gap_correct\"></span>"
         const cell3 = "A3 / B3 / <span class=\"printable_gap\">C3</span><span class=\"printable_gap_wrong\"></span>"
         const cell4 = "<span class=\"printable_gap\">A4</span> / B4 / C4<span class=\"printable_gap_wrong\"></span>"
-        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4);
+        const expectedHTML = createExpectedPrintableHTMLWith4Cells(cell1, cell2, cell3, cell4, this.presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS);
         assertEquals(expectedHTML, printableHTML);
     },
 });
@@ -713,7 +740,7 @@ TestCase("[Table] GetPrintableHTML - mixed gaps", {
         const cell7 = "7 / A7 / B7"
         const cell8 = "<span class=\"printable_gap\">&nbsp;&nbsp;</span>"
         const expectedHTML = createExpectedPrintableHTMLWith8Cells(
-            cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8);
+            this.presenter.PRINTABLE_STATE_MODE.EMPTY, cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -731,7 +758,8 @@ TestCase("[Table] GetPrintableHTML - mixed gaps", {
         const cell7 = "<span class=\"printable_gap\">7</span> / A7 / B7"
         const cell8 = "<span class=\"printable_gap\">8</span>"
         const expectedHTML = createExpectedPrintableHTMLWith8Cells(
-            cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8);
+           this.presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS, cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8
+        );
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -750,7 +778,7 @@ TestCase("[Table] GetPrintableHTML - mixed gaps", {
         const cell7 = "7 / <span class=\"printable_gap\">A7</span> / B7"
         const cell8 = "<span class=\"printable_gap\">some value 8</span>"
         const expectedHTML = createExpectedPrintableHTMLWith8Cells(
-            cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8);
+            this.presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS, cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8);
         assertEquals(expectedHTML, printableHTML);
     },
 
@@ -769,7 +797,8 @@ TestCase("[Table] GetPrintableHTML - mixed gaps", {
         const cell7 = "7 / <span class=\"printable_gap\">A7</span> / B7<span class=\"printable_gap_wrong\"></span>"
         const cell8 = "<span class=\"printable_gap\">some value 8</span><span class=\"printable_gap_wrong\"></span>"
         const expectedHTML = createExpectedPrintableHTMLWith8Cells(
-            cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8);
+            this.presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS, cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8
+        );
         assertEquals(expectedHTML, printableHTML);
     },
 
