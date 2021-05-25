@@ -58,6 +58,7 @@
     content: " \2716";
 }
 
-.printable_addon_Table.printable_addon_Table-show-answers .table-addon-wrapper .table .td {
+.printable_addon_Table.printable_addon_Table-show-answers .table-addon-wrapper table tbody tr td {
     border: 1px black dashed;
 }
+
