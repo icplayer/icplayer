@@ -599,7 +599,7 @@ hr, table, fieldset {
 	margin-right: 10px;
 }
 
-.printable_ic_ordering .printable-ordering-show-answers .item-wrapper {
+.printable_ic_ordering.printable-ordering-show-answers  .item-wrapper {
     border: 1px dashed #999;
 }
 

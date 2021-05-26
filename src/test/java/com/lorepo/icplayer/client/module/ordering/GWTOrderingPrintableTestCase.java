@@ -462,6 +462,15 @@ public class GWTOrderingPrintableTestCase extends GwtTest {
     }
 
     @Test
+    public void shownAnswersWillAddProperClass() {
+        givenOrderingPrintable();
+
+        whenGettingPrintableHTMLAsDOMElement("", true);
+
+        thenWrapperHasShowAnswersClass();
+    }
+
+    @Test
     public void whenCheckingAnswersAndUserDidNotSolvedThenDoesNotHaveSigns() {
         givenPrintableState(this.userNotTouchedState);
         givenOrderingPrintable();
@@ -604,12 +613,12 @@ public class GWTOrderingPrintableTestCase extends GwtTest {
         );
     }
 
-    private void thenSignNotNull() {
-        assertNotNull(resultHTML.getChild(1));
+    private void thenSignNull() {
+        assertNull("All OK sign should not be shown", resultHTML.getChild(1));
     }
 
-    private void thenSignNull() {
-        assertNull(resultHTML.getChild(1));
+    private void thenWrapperHasShowAnswersClass() {
+        assertTrue(resultHTML.getClassName().contains("printable-ordering-show-answers"));
     }
 
     private void nodesHaveClass(ArrayList<Node> nodes, String correctClassName) {
@@ -650,6 +659,7 @@ public class GWTOrderingPrintableTestCase extends GwtTest {
 
     private ArrayList<Node> getNumberBoxes(Node html) {
         ArrayList<Node> itemWrappers = getItemWrappers(html);
+
         ArrayList<Node> numberBoxes = new ArrayList<Node>();
         for (Node itemWrapper : itemWrappers) {
             for (int i = 0; i < itemWrapper.getChildCount(); i++) {
@@ -678,6 +688,7 @@ public class GWTOrderingPrintableTestCase extends GwtTest {
     private ArrayList<Node> getItemWrappers(Node html) {
         ArrayList<Node> displaysViews = getDisplaysViews(html);
         ArrayList<Node> itemWrappers = new ArrayList<Node>();
+
         for (Node displayView : displaysViews) {
             for (int i = 0; i < displayView.getChildCount(); i++) {
                 itemWrappers.add(displayView.getChild(i));

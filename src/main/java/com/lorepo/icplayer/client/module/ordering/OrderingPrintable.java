@@ -43,22 +43,32 @@ public class OrderingPrintable {
         }
 
         printableState = model.getPrintableState();
-        boolean isPrintableState =
-                printableState != null &&
-                        printableState.containsKey("order") &&
-                        printableState.containsKey("isSolved") &&
-                        printableState.get("isSolved").toLowerCase().equals("true");
+        boolean stateSet = printableState != null;
 
-        String representation = isPrintableState ?
-                // states CHECK_ANSWERS (4) (showAnswers = true) or SHOW_USER_ANSWERS (3) (showAnswers = false)
-                createPrintableRepresentationIfPrintableState(showAnswers) :
-                // states SHOW_ANSWERS (2) (showAnswers = true) or EMPTY (1) (showAnswers = false)
-                createPrintableRepresentationIfNotPrintableState(showAnswers);
+        boolean isPrintableState = stateSet && printableState.containsKey("order");
+        boolean userHasInteracted = stateSet && printableState.containsKey("isSolved") && printableState.get("isSolved").toLowerCase().equals("true");
 
-        return PrintableContentParser.addClassToPrintableModule(representation, className, !this.model.isSplitInPrintBlocked());
+        Element representation;
+
+        if (isPrintableState && userHasInteracted) {
+            // states CHECK_ANSWERS (4) (showAnswers = true) or SHOW_USER_ANSWERS (3) (showAnswers = false)
+            representation = createItemsWithUserAnswers(showAnswers);
+        } else if (isPrintableState) {
+            // states CHECK_ANSWERS (4) or SHOW_USER_ANSWERS (3) when user hasn't answered - show empty boxes
+            representation = createItems(false);
+        } else {
+            // states SHOW_ANSWERS (2) (showAnswers = true) or EMPTY (1) (showAnswers = false)
+            representation = createItems(showAnswers);
+
+            if (showAnswers) {
+                representation.addClassName("printable-ordering-show-answers");
+            }
+        }
+
+        return PrintableContentParser.addClassToPrintableModule(representation.getString(), className, !this.model.isSplitInPrintBlocked());
     }
 
-    private String createPrintableRepresentationIfPrintableState(boolean checkAnswers) {
+    private Element createItemsWithUserAnswers(boolean showCorrectness) {
         Integer[] itemsIndexesFromState = getItemsIndexesInOrderFromState(this.printableState);
         boolean isAllInCorrectOrder = true;
 
@@ -71,7 +81,7 @@ public class OrderingPrintable {
                     isAllInCorrectOrder &= isCorrectOrder;
 
                     String indexBoxClassName = IndexBoxClass.DEFAULT.className();
-                    if (checkAnswers) {
+                    if (showCorrectness) {
                         indexBoxClassName = isCorrectOrder ? IndexBoxClass.CORRECT.className() : IndexBoxClass.WRONG.className();
                     }
 
@@ -88,16 +98,17 @@ public class OrderingPrintable {
         Element items = combinePrintableItems(collection.getOrderedItems());
         classWrapper.appendChild(items);
 
-        if (checkAnswers) {
+        if (showCorrectness) {
             Element sign = createSign(isAllInCorrectOrder);
             classWrapper.appendChild(sign);
         }
 
-        return classWrapper.getString();
+        return classWrapper;
     }
 
-    private String createPrintableRepresentationIfNotPrintableState(boolean showAnswers) {
+    private Element createItems(boolean showAnswers) {
         OrderingItem item;
+
         for (int i = 0; i < model.getItemCount(); i++) {
             item = model.getItem(i);
 
@@ -106,9 +117,6 @@ public class OrderingPrintable {
                     createPrintableEmptyIndexBox();
 
             Element printableItem = createPrintableItem(item, indexBox);
-            if (showAnswers) {
-                printableItem.addClassName("printable-ordering-show-answers");
-            }
 
             collection.addItemToItems(item, printableItem);
         }
@@ -117,7 +125,7 @@ public class OrderingPrintable {
         Element classWrapper = createPrintableClassWrapper();
         Element items = combinePrintableItems(collection.getOrderedItems());
         classWrapper.appendChild(items);
-        return classWrapper.getString();
+        return classWrapper;
     }
 
     /**
