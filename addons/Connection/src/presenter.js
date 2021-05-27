@@ -1032,21 +1032,25 @@ function AddonConnection_create() {
     };
 
     function isAnswersEqualToCorrectResults (userAnswers, correctAnswers) {
-        userAnswers.forEach(function(element, index) {
-            this[index] = element.join('');
-        }, userAnswers);
-        correctAnswers.forEach(function(element, index) {
-            this[index] = element.join('');
-        }, correctAnswers);
-
         if (userAnswers == null || correctAnswers == null) return false;
         if (userAnswers.length !== correctAnswers.length) return false;
+
+        var userAnswersParsed = [];
+        var correctAnswersParsed = []
+        userAnswers.forEach(function(element, index) {
+            userAnswersParsed.push(element.join(':'));
+        }, userAnswers);
+        correctAnswers.forEach(function(element, index) {
+            correctAnswersParsed.push(element.id + ':' + element.answer);
+        }, correctAnswers);
       
-        userAnswers.sort();
-        correctAnswers.sort();
+        userAnswersParsed.sort();
+        correctAnswersParsed.sort();
       
-        for (var i = 0; i < userAnswers.length; ++i) {
-          if (userAnswers[i] !== correctAnswers[i]) return false;
+        for (var i = 0; i < userAnswersParsed.length; ++i) {
+          if (userAnswersParsed[i] !== correctAnswersParsed[i]) {
+            return false;
+          }
         }
         return true;
       }
@@ -1090,15 +1094,12 @@ function AddonConnection_create() {
                 userConnectionsWithLeftId.push(emptyAnswer);
             }
             var correctConnectionsWithLeftId = correctAnswers.filter((correctAnswer) => {
-                return(correctAnswer[0] == leftId);
-            })
-            if ( isAnswersEqualToCorrectResults(userConnectionsWithLeftId, correctConnectionsWithLeftId) ) {
-                var correctAnswerDiv = $('<div class="correctAnswerDiv"></div>');
-                appendAnswerDiv(leftAnswerColumn, leftId, correctAnswerDiv);
-            } else {
-                var inCorrectAnswerDiv = $('<div class="inCorrectAnswerDiv"></div>');
-                appendAnswerDiv(leftAnswerColumn, leftId, inCorrectAnswerDiv);
-            }
+                return(correctAnswer.id == leftId);
+            });
+            var answerDiv = isAnswersEqualToCorrectResults(userConnectionsWithLeftId, correctConnectionsWithLeftId) ?
+                    $('<div class="correctAnswerDiv"></div>') :
+                    $('<div class="inCorrectAnswerDiv"></div>');
+            appendAnswerDiv(leftAnswerColumn, leftId, answerDiv);
         }
         // Right answer column
         for (var i = 0; i < model["Right column"].length; i++) {
@@ -1107,15 +1108,12 @@ function AddonConnection_create() {
                 return(userAnswer[1] == rightId);
             })
             var correctConnectionsWithRightId = correctAnswers.filter((correctAnswer) => {
-                return(correctAnswer[1] == rightId);
+                return(correctAnswer.answer == rightId);
             })
-            if ( isAnswersEqualToCorrectResults(userConnectionsWithRightId, correctConnectionsWithRightId) ) {
-                var correctAnswerDiv = $('<div class="correctAnswerDiv"></div>');
-                appendAnswerDiv(rightAnswerColumn, rightId, correctAnswerDiv);
-            } else {
-                var inCorrectAnswerDiv = $('<div class="inCorrectAnswerDiv"></div>');
-                appendAnswerDiv(rightAnswerColumn, rightId, inCorrectAnswerDiv);
-            }
+            var answerDiv = isAnswersEqualToCorrectResults(userConnectionsWithRightId, correctConnectionsWithRightId) ?
+                $('<div class="correctAnswerDiv"></div>') :
+                $('<div class="inCorrectAnswerDiv"></div>');
+            appendAnswerDiv(rightAnswerColumn, rightId, answerDiv);
         }
     };
 
@@ -2224,15 +2222,17 @@ function AddonConnection_create() {
             var id = element.id;
             var correctAnswersValues = element.connects.split(',');
             if (correctAnswersValues.length == 0) {
-                correctAnswers[idx] = [];
-                correctAnswers[idx][0] = id;
-                correctAnswers[idx][1] = null;
+                correctAnswers[idx] = {
+                    'id': id,
+                    'answer': null
+                };
                 idx++;
             } else {
                 correctAnswersValues.forEach(function (answer) {
-                    correctAnswers[idx] = [];
-                    correctAnswers[idx][0] = id;
-                    correctAnswers[idx][1] = answer;
+                    correctAnswers[idx] = {
+                        'id': id,
+                        'answer': answer
+                    };
                     idx++;
                 });
             }
@@ -2265,8 +2265,11 @@ function AddonConnection_create() {
     }
 
     function isCorrectConnection (correctAnswers, connection) {
-        var connectionString = connection.join('');
-        return (correctAnswers.indexOf(connectionString) > -1);
+        for (var i = 0; i < correctAnswers.length; i++) {
+            var answer = correctAnswers[i];
+            if (answer.id == connection[0] && answer.answer == connection[1]) return true;
+        }
+        return false;
     }
 
     presenter.getPrintableHTML = function (model, showAnswers) {
@@ -2329,10 +2332,10 @@ function AddonConnection_create() {
         var connected = [];
         if (isPrintableShowAnswersStateMode()) {
             for (var i = 0; i < correctAnswers.length; i++) {
-                if (correctAnswers[i][1]) {
+                if (correctAnswers[i].answer) {
                     connected.push({
-                        from: correctAnswers[i][0],
-                        to: correctAnswers[i][1],
+                        from: correctAnswers[i].id,
+                        to: correctAnswers[i].answer,
                         correct: true
                     });
                 }
@@ -2347,9 +2350,6 @@ function AddonConnection_create() {
                 });
             }
         } else if (isCheckAnswers) {
-            correctAnswers.forEach(function(element, index) {
-                this[index] = element.join('');
-            }, correctAnswers);
             for (var i = 0; i < savedState.id.length; i++) {
                 var pair = savedState.id[i].split(':');
                 connected.push({
