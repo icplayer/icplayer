@@ -23,8 +23,7 @@ import static org.junit.Assert.*;
 public class GWTPrintableTextModelTestCase extends GWTPowerMockitoTest {
 
 	private final String PAGE_VERSION = "2";
-	private final String GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML = "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"printable_gap\">&nbsp;</span>.</p> <p>She <span class=\"printable_dropdown\">ABC / DEF / GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"printable_gap\">&nbsp;</span>.</p> </div>";
-	private String MAKE_PRINTABLE_INPUT_NOT_SHOWING_ANSWERS_HTML;
+	private final String GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML = "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive &nbsp;<span id=\"Q06VkA-3\" class=\"printable_gap\">&nbsp;</span>.</p> <p>She <span class=\"printable_dropdown\">ABC / DEF / GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span id=\"Q06VkA-5\" class=\"printable_gap\">&nbsp;</span>.</p> </div>";
 	private String MAKE_PRINTABLE_DROPDOWNS_NOT_SHOWING_ANSWERS_HTML;
 
 	private TextModel model = null;
@@ -77,8 +76,7 @@ public class GWTPrintableTextModelTestCase extends GWTPowerMockitoTest {
 		gapUniqueId = model.getGapUniqueId();
 		printable = new TextPrintable(model);
 
-		MAKE_PRINTABLE_INPUT_NOT_SHOWING_ANSWERS_HTML = " <p>I <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-1\"><option value=\"-\">---</option><option value=\"aaaaa aa\" aria-label=\"aaaaa aa\">aaaaa aa</option><option value=\"bbb bb\" aria-label=\"bbb bb\">bbb bb</option><option value=\"like\" aria-label=\"like\">like</option></select> you very much (like).</p> <p>You <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-2\"><option value=\"-\">---</option><option value=\"aaaaa aa\" aria-label=\"aaaaa aa\">aaaaa aa</option><option value=\"bbb bb\" aria-label=\"bbb bb\">bbb bb</option><option value=\"dont like\" aria-label=\"dont like\">dont like</option></select> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"printable_gap\">&nbsp;</span>.</p> <p>She <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-4\"><option value=\"-\">---</option><option value=\"ABC\" aria-label=\"ABC\">ABC</option><option value=\"DEF\" aria-label=\"DEF\">DEF</option><option value=\"GHI\" aria-label=\"GHI\">GHI</option></select> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"printable_gap\">&nbsp;</span>.</p> ";
-		MAKE_PRINTABLE_DROPDOWNS_NOT_SHOWING_ANSWERS_HTML = " <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive <input id=\"" + gapUniqueId + "-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"printable_dropdown\">ABC / DEF / GHI</span> him very much (like).</p> <p>It likes to drive <input id=\"" + gapUniqueId + "-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ";
+		MAKE_PRINTABLE_DROPDOWNS_NOT_SHOWING_ANSWERS_HTML = " <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive <input id=\"44V2rX-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"printable_dropdown\">ABC / DEF / GHI</span> him very much (like).</p> <p>It likes to drive <input id=\"44V2rX-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ";
 
 		PowerMockito.when(model.getPrintable()).thenReturn(PrintableMode.YES);
 	}
@@ -101,15 +99,23 @@ public class GWTPrintableTextModelTestCase extends GWTPowerMockitoTest {
 	@Test
 	public void getPrintableHTMLWhenPrintableStateIsEmpty() {
 		model.setPrintableState("");
-		assertEquals(getPrintableHTML(true), "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <u>like</u></span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <u>dont like</u></span> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"printable_gap\">Volvo</span>.</p> <p>She <span class=\"printable_dropdown\">ABC / <u>DEF</u> / GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"printable_gap\">Audi</span>.</p> </div>");
-		assertEquals(getPrintableHTML(false), GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML);
+		String resultTrue = removeIDs(getPrintableHTML(true));
+		String resultFalse = removeIDs(getPrintableHTML(false));
+		String expected = "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <u>like</u></span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <u>dont like</u></span> him very much (like).</p> <p>He likes to drive &nbsp;<span id=\"AYxqB3-3\" class=\"printable_gap\">Volvo</span>.</p> <p>She <span class=\"printable_dropdown\">ABC / <u>DEF</u> / GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span id=\"AYxqB3-5\" class=\"printable_gap\">Audi</span>.</p> </div>";
+		expected = removeIDs(expected);
+		assertEquals(expected, resultTrue);
+		assertEquals(removeIDs(GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML), resultFalse);
 	}
 
 	@Test
 	public void getPrintableHTMLWithoutUserAnswers() throws JSONException {
 		setPrintableState(new HashMap<String, String>());
-		assertEquals(getPrintableHTML(true), "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"ic_text-wrong-answer\"></span> you very much (like).</p> <p>You <span class=\"ic_text-wrong-answer\"></span> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">&nbsp;</span>.</p> <p>She <span class=\"ic_text-wrong-answer\"></span> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">&nbsp;</span>.</p> </div>");
-		assertEquals(getPrintableHTML(false), GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML);
+		String resultTrue = removeIDs(getPrintableHTML(true));
+		String resultFalse = removeIDs(getPrintableHTML(false));
+		String expected = "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive &nbsp;<span id=\"xCZFG8-3\" class=\"printable_gap\">&nbsp;</span>.</p> <p>She <span class=\"printable_dropdown\">ABC / DEF / GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span id=\"xCZFG8-5\" class=\"printable_gap\">&nbsp;</span>.</p> </div>";
+		expected = removeIDs(expected);
+		assertEquals(expected, resultTrue);
+		assertEquals(removeIDs(GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML), resultFalse);
 	}
 
 	@Test
@@ -119,8 +125,15 @@ public class GWTPrintableTextModelTestCase extends GWTPowerMockitoTest {
 		values.put(idToGapUniqueId(3), "Volvo");
 		setPrintableState(values);
 
-		assertEquals(getPrintableHTML(true), "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"ic_text-correct-answer\">like</span> you very much (like).</p> <p>You <span class=\"ic_text-wrong-answer\"></span> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"ic_text-correct-answer\">Volvo</span>.</p> <p>She <span class=\"ic_text-wrong-answer\"></span> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">&nbsp;</span>.</p> </div>");
-		assertEquals(getPrintableHTML(false), GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML);
+		String resultTrue = removeIDs(getPrintableHTML(true));
+		String resultFalse = removeIDs(getPrintableHTML(false));
+		String expectedTrue = "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <span class=\"ic_text-correct-answer\"><u>like</u></span></span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive &nbsp;<span id=\"muZqbf-3\" class=\"printable_gap ic_text-correct-answer\">Volvo</span>.</p> <p>She <span class=\"printable_dropdown\">ABC / DEF / GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span id=\"muZqbf-5\" class=\"printable_gap\">&nbsp;</span>.</p> </div>";
+		expectedTrue = removeIDs(expectedTrue);
+		String expectedFalse = "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <u>like</u></span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive &nbsp;<span id=\"muZqbf-3\" class=\"printable_gap\">Volvo</span>.</p> <p>She <span class=\"printable_dropdown\">ABC / DEF / GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span id=\"muZqbf-5\" class=\"printable_gap\">&nbsp;</span>.</p> </div>";
+		expectedFalse = removeIDs(expectedFalse);
+
+		assertEquals(expectedTrue, resultTrue);
+		assertEquals(expectedFalse, resultFalse);
 	}
 
 	@Test
@@ -129,9 +142,14 @@ public class GWTPrintableTextModelTestCase extends GWTPowerMockitoTest {
 		values.put(idToGapUniqueId(1), "aaaaa aa");
 		values.put(idToGapUniqueId(3), "123");
 		setPrintableState(values);
-
-		assertEquals(getPrintableHTML(true), "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"ic_text-wrong-answer\">aaaaa aa</span> you very much (like).</p> <p>You <span class=\"ic_text-wrong-answer\"></span> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">123</span>.</p> <p>She <span class=\"ic_text-wrong-answer\"></span> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">&nbsp;</span>.</p> </div>");
-		assertEquals(getPrintableHTML(false), GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML);
+		String expectedTrue = "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"printable_dropdown\"><span class=\"ic_text-wrong-answer\"><u>aaaaa aa</u></span> / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive &nbsp;<span id=\"AWx4X9-3\" class=\"printable_gap ic_text-wrong-answer\">123</span>.</p> <p>She <span class=\"printable_dropdown\">ABC / DEF / GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span id=\"AWx4X9-5\" class=\"printable_gap\">&nbsp;</span>.</p> </div>";
+		expectedTrue = removeIDs(expectedTrue);
+		String expectedFalse = "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"printable_dropdown\"><u>aaaaa aa</u> / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive &nbsp;<span id=\"VX8rzg-3\" class=\"printable_gap\">123</span>.</p> <p>She <span class=\"printable_dropdown\">ABC / DEF / GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span id=\"VX8rzg-5\" class=\"printable_gap\">&nbsp;</span>.</p> </div>";
+		expectedFalse = removeIDs(expectedFalse);
+		String result1 = removeIDs(getPrintableHTML(true));
+		String result2 = removeIDs(getPrintableHTML(false));
+		assertEquals(expectedTrue, result1);
+		assertEquals(expectedFalse, result2);
 	}
 
 	@Test
@@ -142,114 +160,31 @@ public class GWTPrintableTextModelTestCase extends GWTPowerMockitoTest {
 		values.put(idToGapUniqueId(4), "ABC");
 		setPrintableState(values);
 
-		assertEquals(getPrintableHTML(true), "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"ic_text-wrong-answer\">aaaaa aa</span> you very much (like).</p> <p>You <span class=\"ic_text-wrong-answer\"></span> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"ic_text-correct-answer\">Volvo</span>.</p> <p>She <span class=\"ic_text-wrong-answer\">ABC</span> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">&nbsp;</span>.</p> </div>");
-		assertEquals(getPrintableHTML(false), GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML);
+		String expectedTrue = "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"printable_dropdown\"><span class=\"ic_text-wrong-answer\"><u>aaaaa aa</u></span> / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive &nbsp;<span id=\"qgQInL-3\" class=\"printable_gap ic_text-correct-answer\">Volvo</span>.</p> <p>She <span class=\"printable_dropdown\"><span class=\"ic_text-wrong-answer\"><u>ABC</u></span> / DEF / GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span id=\"qgQInL-5\" class=\"printable_gap\">&nbsp;</span>.</p> </div>";
+		expectedTrue = removeIDs(expectedTrue);
+		String expectedFalse = "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"printable_dropdown\"><u>aaaaa aa</u> / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive &nbsp;<span id=\"qgQInL-3\" class=\"printable_gap\">Volvo</span>.</p> <p>She <span class=\"printable_dropdown\"><u>ABC</u> / DEF / GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span id=\"qgQInL-5\" class=\"printable_gap\">&nbsp;</span>.</p> </div>";
+		expectedFalse = removeIDs(expectedFalse);
+		String result1 = removeIDs(getPrintableHTML(true));
+		String result2 = removeIDs(getPrintableHTML(false));
+
+		assertEquals(expectedTrue, result1);
+		assertEquals(expectedFalse, result2);
 	}
 
-	@Test
-	public void getPrintableHTMLWithOnlyRightAnswers() throws JSONException {
-		HashMap<String, String> values = new HashMap<String, String>();
-		values.put(idToGapUniqueId(1), "like");
-		values.put(idToGapUniqueId(2), "dont like");
-		values.put(idToGapUniqueId(3), "Volvo");
-		values.put(idToGapUniqueId(4), "DEF");
-		values.put(idToGapUniqueId(5), "Audi");
-		setPrintableState(values);
-
-		assertEquals(getPrintableHTML(true), "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"ic_text-correct-answer\">like</span> you very much (like).</p> <p>You <span class=\"ic_text-correct-answer\">dont like</span> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"ic_text-correct-answer\">Volvo</span>.</p> <p>She <span class=\"ic_text-correct-answer\">DEF</span> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"ic_text-correct-answer\">Audi</span>.</p> </div>");
-		assertEquals(getPrintableHTML(false), GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML);
-	}
-
-	@Test
-	public void getPrintableHTMLWithOnlyWrongAnswers() throws JSONException {
-		HashMap<String, String> values = new HashMap<String, String>();
-		values.put(idToGapUniqueId(1), "aaaaa aa");
-		values.put(idToGapUniqueId(2), "bbb bb");
-		values.put(idToGapUniqueId(3), "123");
-		values.put(idToGapUniqueId(4), "GHI");
-		values.put(idToGapUniqueId(5), "ABC");
-		setPrintableState(values);
-
-		assertEquals(getPrintableHTML(true), "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"ic_text-wrong-answer\">aaaaa aa</span> you very much (like).</p> <p>You <span class=\"ic_text-wrong-answer\">bbb bb</span> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">123</span>.</p> <p>She <span class=\"ic_text-wrong-answer\">GHI</span> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">ABC</span>.</p> </div>");
-		assertEquals(getPrintableHTML(false), GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML);
-	}
-
-	@Test
-	public void getPrintableHTMLWithOnlyFilledAnswers() throws JSONException {
-		HashMap<String, String> values = new HashMap<String, String>();
-		values.put(idToGapUniqueId(1), "like");
-		values.put(idToGapUniqueId(2), "bbb bb");
-		values.put(idToGapUniqueId(3), "123");
-		values.put(idToGapUniqueId(4), "DEF");
-		values.put(idToGapUniqueId(5), "Audi");
-		setPrintableState(values);
-
-		assertEquals(getPrintableHTML(true), "<div class=\"printable_ic_text printable_module printable_module-myText splittable\" id=\"text\"> <p>I <span class=\"ic_text-correct-answer\">like</span> you very much (like).</p> <p>You <span class=\"ic_text-wrong-answer\">bbb bb</span> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">123</span>.</p> <p>She <span class=\"ic_text-correct-answer\">DEF</span> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"ic_text-correct-answer\">Audi</span>.</p> </div>");
-		assertEquals(getPrintableHTML(false), GET_PRINTABLE_HTML_NOT_SHOWING_ANSWERS_HTML);
-	}
-
-	@Test
-	public void makePrintableInputWithoutUserAnswers() throws Exception {
-		setPrintableState(new HashMap<String, String>());
-
-		String result = Whitebox.invokeMethod(printable, "makePrintableInput", model.getParsedText(), true);
-		assertEquals(result, " <p>I <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-1\"><option value=\"-\">---</option><option value=\"aaaaa aa\" aria-label=\"aaaaa aa\">aaaaa aa</option><option value=\"bbb bb\" aria-label=\"bbb bb\">bbb bb</option><option value=\"like\" aria-label=\"like\">like</option></select> you very much (like).</p> <p>You <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-2\"><option value=\"-\">---</option><option value=\"aaaaa aa\" aria-label=\"aaaaa aa\">aaaaa aa</option><option value=\"bbb bb\" aria-label=\"bbb bb\">bbb bb</option><option value=\"dont like\" aria-label=\"dont like\">dont like</option></select> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">&nbsp;</span>.</p> <p>She <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-4\"><option value=\"-\">---</option><option value=\"ABC\" aria-label=\"ABC\">ABC</option><option value=\"DEF\" aria-label=\"DEF\">DEF</option><option value=\"GHI\" aria-label=\"GHI\">GHI</option></select> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">&nbsp;</span>.</p> ");
-
-		result = Whitebox.invokeMethod(printable, "makePrintableInput", model.getParsedText(), false);
-		assertEquals(result, MAKE_PRINTABLE_INPUT_NOT_SHOWING_ANSWERS_HTML);
-	}
-
-	@Test
-	public void makePrintableInputWithOnlyRightAnswers() throws Exception {
-		HashMap<String, String> values = new HashMap<String, String>();
-		values.put(idToGapUniqueId(3), "Volvo");
-		values.put(idToGapUniqueId(5), "Audi");
-		setPrintableState(values);
-
-		String result = Whitebox.invokeMethod(printable, "makePrintableInput", model.getParsedText(), true);
-		assertEquals(result, " <p>I <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-1\"><option value=\"-\">---</option><option value=\"aaaaa aa\" aria-label=\"aaaaa aa\">aaaaa aa</option><option value=\"bbb bb\" aria-label=\"bbb bb\">bbb bb</option><option value=\"like\" aria-label=\"like\">like</option></select> you very much (like).</p> <p>You <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-2\"><option value=\"-\">---</option><option value=\"aaaaa aa\" aria-label=\"aaaaa aa\">aaaaa aa</option><option value=\"bbb bb\" aria-label=\"bbb bb\">bbb bb</option><option value=\"dont like\" aria-label=\"dont like\">dont like</option></select> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"ic_text-correct-answer\">Volvo</span>.</p> <p>She <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-4\"><option value=\"-\">---</option><option value=\"ABC\" aria-label=\"ABC\">ABC</option><option value=\"DEF\" aria-label=\"DEF\">DEF</option><option value=\"GHI\" aria-label=\"GHI\">GHI</option></select> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"ic_text-correct-answer\">Audi</span>.</p> ");
-
-		result = Whitebox.invokeMethod(printable, "makePrintableInput", model.getParsedText(), false);
-		assertEquals(result, MAKE_PRINTABLE_INPUT_NOT_SHOWING_ANSWERS_HTML);
-	}
-
-	@Test
-	public void makePrintableInputWithOnlyWrongAnswers() throws Exception {
-		HashMap<String, String> values = new HashMap<String, String>();
-		values.put(idToGapUniqueId(3), "123");
-		values.put(idToGapUniqueId(5), "ABC");
-		setPrintableState(values);
-
-		String result = Whitebox.invokeMethod(printable, "makePrintableInput", model.getParsedText(), true);
-		assertEquals(result, " <p>I <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-1\"><option value=\"-\">---</option><option value=\"aaaaa aa\" aria-label=\"aaaaa aa\">aaaaa aa</option><option value=\"bbb bb\" aria-label=\"bbb bb\">bbb bb</option><option value=\"like\" aria-label=\"like\">like</option></select> you very much (like).</p> <p>You <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-2\"><option value=\"-\">---</option><option value=\"aaaaa aa\" aria-label=\"aaaaa aa\">aaaaa aa</option><option value=\"bbb bb\" aria-label=\"bbb bb\">bbb bb</option><option value=\"dont like\" aria-label=\"dont like\">dont like</option></select> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">123</span>.</p> <p>She <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-4\"><option value=\"-\">---</option><option value=\"ABC\" aria-label=\"ABC\">ABC</option><option value=\"DEF\" aria-label=\"DEF\">DEF</option><option value=\"GHI\" aria-label=\"GHI\">GHI</option></select> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">ABC</span>.</p> ");
-
-		result = Whitebox.invokeMethod(printable, "makePrintableInput", model.getParsedText(), false);
-		assertEquals(result, MAKE_PRINTABLE_INPUT_NOT_SHOWING_ANSWERS_HTML);
-	}
-
-	@Test
-	public void makePrintableInputWithRightAndWrongAnswers() throws Exception {
-		HashMap<String, String> values = new HashMap<String, String>();
-		values.put(idToGapUniqueId(3), "123");
-		values.put(idToGapUniqueId(5), "Audi");
-		setPrintableState(values);
-
-		String result = Whitebox.invokeMethod(printable, "makePrintableInput", model.getParsedText(), true);
-		assertEquals(result, " <p>I <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-1\"><option value=\"-\">---</option><option value=\"aaaaa aa\" aria-label=\"aaaaa aa\">aaaaa aa</option><option value=\"bbb bb\" aria-label=\"bbb bb\">bbb bb</option><option value=\"like\" aria-label=\"like\">like</option></select> you very much (like).</p> <p>You <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-2\"><option value=\"-\">---</option><option value=\"aaaaa aa\" aria-label=\"aaaaa aa\">aaaaa aa</option><option value=\"bbb bb\" aria-label=\"bbb bb\">bbb bb</option><option value=\"dont like\" aria-label=\"dont like\">dont like</option></select> him very much (like).</p> <p>He likes to drive &nbsp;<span class=\"ic_text-wrong-answer\">123</span>.</p> <p>She <select class=\"ic_inlineChoice\" id=\"" + gapUniqueId + "-4\"><option value=\"-\">---</option><option value=\"ABC\" aria-label=\"ABC\">ABC</option><option value=\"DEF\" aria-label=\"DEF\">DEF</option><option value=\"GHI\" aria-label=\"GHI\">GHI</option></select> him very much (like).</p> <p>It likes to drive &nbsp;<span class=\"ic_text-correct-answer\">Audi</span>.</p> ");
-
-		result = Whitebox.invokeMethod(printable, "makePrintableInput", model.getParsedText(), false);
-		assertEquals(result, MAKE_PRINTABLE_INPUT_NOT_SHOWING_ANSWERS_HTML);
-	}
 
 	@Test
 	public void makePrintableDropdownsWithoutUserAnswers() throws Exception {
 		setPrintableState(new HashMap<String, String>());
 
-		String result = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), true);
-		assertEquals(result, " <p>I <span class=\"ic_text-wrong-answer\"></span> you very much (like).</p> <p>You <span class=\"ic_text-wrong-answer\"></span> him very much (like).</p> <p>He likes to drive <input id=\"" + gapUniqueId + "-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"ic_text-wrong-answer\"></span> him very much (like).</p> <p>It likes to drive <input id=\"" + gapUniqueId + "-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ");
+		String resultTrue = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), true);
+		String resultFalse = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), false);
+		resultTrue = removeIDs(resultTrue);
+		resultFalse = removeIDs(resultFalse);
+		String expectedTrue = " <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive <input id=\"44V2rX-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"printable_dropdown\">ABC / DEF / GHI</span> him very much (like).</p> <p>It likes to drive <input id=\"44V2rX-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ";
+		expectedTrue = removeIDs(expectedTrue);
 
-		result = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), false);
-		assertEquals(result, MAKE_PRINTABLE_DROPDOWNS_NOT_SHOWING_ANSWERS_HTML);
+		assertEquals(expectedTrue,resultTrue);
+		assertEquals(removeIDs(MAKE_PRINTABLE_DROPDOWNS_NOT_SHOWING_ANSWERS_HTML), resultFalse);
 	}
 
 	@Test
@@ -260,11 +195,18 @@ public class GWTPrintableTextModelTestCase extends GWTPowerMockitoTest {
 		values.put(idToGapUniqueId(4), "DEF");
 		setPrintableState(values);
 
-		String result = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), true);
-		assertEquals(result, " <p>I <span class=\"ic_text-correct-answer\">like</span> you very much (like).</p> <p>You <span class=\"ic_text-correct-answer\">dont like</span> him very much (like).</p> <p>He likes to drive <input id=\"" + gapUniqueId + "-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"ic_text-correct-answer\">DEF</span> him very much (like).</p> <p>It likes to drive <input id=\"" + gapUniqueId + "-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ");
+		String expectedTrue = " <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <span class=\"ic_text-correct-answer\"><u>like</u></span></span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <span class=\"ic_text-correct-answer\"><u>dont like</u></span></span> him very much (like).</p> <p>He likes to drive <input id=\"hwOM23-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"printable_dropdown\">ABC / <span class=\"ic_text-correct-answer\"><u>DEF</u></span> / GHI</span> him very much (like).</p> <p>It likes to drive <input id=\"hwOM23-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ";
+		expectedTrue = removeIDs(expectedTrue);
+		String expectedFalse = " <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <u>like</u></span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <u>dont like</u></span> him very much (like).</p> <p>He likes to drive <input id=\"hwOM23-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"printable_dropdown\">ABC / <u>DEF</u> / GHI</span> him very much (like).</p> <p>It likes to drive <input id=\"hwOM23-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ";
+		expectedFalse = removeIDs(expectedFalse);
 
-		result = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), false);
-		assertEquals(result, MAKE_PRINTABLE_DROPDOWNS_NOT_SHOWING_ANSWERS_HTML);
+		String resultTrue = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), true);
+		String resultFalse = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), false);
+		resultTrue = removeIDs(resultTrue);
+		resultFalse = removeIDs(resultFalse);
+
+		assertEquals(expectedTrue, resultTrue);
+		assertEquals(expectedFalse, resultFalse);
 	}
 
 	@Test
@@ -275,11 +217,18 @@ public class GWTPrintableTextModelTestCase extends GWTPowerMockitoTest {
 		values.put(idToGapUniqueId(4), "ABC");
 		setPrintableState(values);
 
-		String result = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), true);
-		assertEquals(result, " <p>I <span class=\"ic_text-wrong-answer\">123</span> you very much (like).</p> <p>You <span class=\"ic_text-wrong-answer\">456</span> him very much (like).</p> <p>He likes to drive <input id=\"" + gapUniqueId + "-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"ic_text-wrong-answer\">ABC</span> him very much (like).</p> <p>It likes to drive <input id=\"" + gapUniqueId + "-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ");
+		String expectedTrue = " <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive <input id=\"DKa3YI-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"printable_dropdown\"><span class=\"ic_text-wrong-answer\"><u>ABC</u></span> / DEF / GHI</span> him very much (like).</p> <p>It likes to drive <input id=\"DKa3YI-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ";
+		expectedTrue = removeIDs(expectedTrue);
+		String expectedFalse = " <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / like</span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / dont like</span> him very much (like).</p> <p>He likes to drive <input id=\"DKa3YI-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"printable_dropdown\"><u>ABC</u> / DEF / GHI</span> him very much (like).</p> <p>It likes to drive <input id=\"DKa3YI-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ";
+		expectedFalse = removeIDs(expectedFalse);
 
-		result = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), false);
-		assertEquals(result, MAKE_PRINTABLE_DROPDOWNS_NOT_SHOWING_ANSWERS_HTML);
+		String resultTrue = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), true);
+		String resultFalse = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), false);
+		resultTrue = removeIDs(resultTrue);
+		resultFalse = removeIDs(resultFalse);
+
+		assertEquals(expectedTrue, resultTrue);
+		assertEquals(expectedFalse, resultFalse);
 	}
 
 	@Test
@@ -290,10 +239,21 @@ public class GWTPrintableTextModelTestCase extends GWTPowerMockitoTest {
 		values.put(idToGapUniqueId(4), "ABC");
 		setPrintableState(values);
 
-		String result = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), true);
-		assertEquals(result, " <p>I <span class=\"ic_text-correct-answer\">like</span> you very much (like).</p> <p>You <span class=\"ic_text-correct-answer\">dont like</span> him very much (like).</p> <p>He likes to drive <input id=\"" + gapUniqueId + "-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"ic_text-wrong-answer\">ABC</span> him very much (like).</p> <p>It likes to drive <input id=\"" + gapUniqueId + "-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ");
+		String expectedTrue = " <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <span class=\"ic_text-correct-answer\"><u>like</u></span></span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <span class=\"ic_text-correct-answer\"><u>dont like</u></span></span> him very much (like).</p> <p>He likes to drive <input id=\"eXyGEY-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"printable_dropdown\"><span class=\"ic_text-wrong-answer\"><u>ABC</u></span> / DEF / GHI</span> him very much (like).</p> <p>It likes to drive <input id=\"eXyGEY-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ";
+		expectedTrue = removeIDs(expectedTrue);
+		String expectedFalse = " <p>I <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <u>like</u></span> you very much (like).</p> <p>You <span class=\"printable_dropdown\">aaaaa aa / bbb bb / <u>dont like</u></span> him very much (like).</p> <p>He likes to drive <input id=\"eXyGEY-3\" type=\"edit\" data-gap=\"editable\" size=\"5\" class=\"ic_gap\"></input>.</p> <p>She <span class=\"printable_dropdown\"><u>ABC</u> / DEF / GHI</span> him very much (like).</p> <p>It likes to drive <input id=\"eXyGEY-5\" type=\"edit\" data-gap=\"editable\" size=\"4\" class=\"ic_gap\"></input>.</p> ";
+		expectedFalse = removeIDs(expectedFalse);
 
-		result = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), false);
-		assertEquals(result, MAKE_PRINTABLE_DROPDOWNS_NOT_SHOWING_ANSWERS_HTML);
+		String resultTrue = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), true);
+		String resultFalse = Whitebox.invokeMethod(printable, "makePrintableDropdowns", model.getParsedText(), false);
+		resultTrue = removeIDs(resultTrue);
+		resultFalse = removeIDs(resultFalse);
+
+		assertEquals(expectedTrue, resultTrue);
+		assertEquals(expectedFalse, resultFalse);
+	}
+
+	private String removeIDs(String raw) {
+		return raw.replaceAll("id=\".*?\"","id");
 	}
 }

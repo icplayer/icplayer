@@ -21,6 +21,7 @@ import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
+import com.lorepo.icplayer.client.module.text.TextPrintable;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class PrintableContentParser {
@@ -664,6 +665,11 @@ public class PrintableContentParser {
 			}
 		};
 
+		var mathJaxFinished = function() {
+			x.@com.lorepo.icplayer.client.printable.PrintableContentParser::mathJaxPostProcessing(Lcom/google/gwt/core/client/JavaScriptObject;)($outerLessonWrapper);
+			loadCallback();
+		}
+
 		$imgs.each(function(){
 			var $this = $_(this);
 			if (this.complete && this.naturalHeight !== 0) {
@@ -690,7 +696,7 @@ public class PrintableContentParser {
 
 		var args = new $wnd.Array();
 		args.push("Typeset", $wnd.MathJax.Hub, $outerLessonWrapper[0]);
-		args.push(loadCallback);
+		args.push(mathJaxFinished);
 		$wnd.MathJax.Hub.Queue(args);
 	}-*/;
 
@@ -699,6 +705,10 @@ public class PrintableContentParser {
 		List<String> moduleHTMLs = getStringListFromJsArray(array);
 		return moduleHTMLs;
 	}
+
+	private void mathJaxPostProcessing(JavaScriptObject wrapper) {
+		TextPrintable.mathJaxPostProcessing(wrapper);
+	};
 
 	private List<String> getStringListFromJsArray(JsArray array) {
 		List<String> list = new ArrayList<String>();
