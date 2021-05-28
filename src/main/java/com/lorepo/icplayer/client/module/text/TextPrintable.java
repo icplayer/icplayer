@@ -112,7 +112,7 @@ public class TextPrintable {
 
 		if (longestAnswer.length() == 0) longestAnswer = "&nbsp;&nbsp;&nbsp;";
 
-		if(placeholder.length() > 0 && !showAnswers) {
+		if(placeholder.length() > 0 && value.length() == 0 && (!showAnswers || (showAnswers && printableState != null))) {
 			value = placeholder;
 		}
 
