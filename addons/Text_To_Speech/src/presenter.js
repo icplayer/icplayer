@@ -375,9 +375,56 @@ function AddonText_To_Speech_create() {
         presenter.speakWithCallback(texts, null);
     };
 
+    // Too long utterences may take much too long to load or exceed Speech Synthesis API character limit
+    presenter.splitLongTexts = function (texts) {
+        var newTexts = [];
+        var maxTextLen = 200;
+        for (var i = 0; i < texts.length; i++) {
+            if (texts[i].text !== null && texts[i].text !== undefined && texts[i].text.trim().length > 0) {
+                if (texts[i].text.trim().length > maxTextLen) {
+                    var sentences = texts[i].text.split(/[.,:;!?\/\\()]/);
+                    for (var j = 0; j < sentences.length; j++) {
+                        var sentenceLen = sentences[j].trim().length;
+                        if (sentenceLen > 0) {
+                            if (sentenceLen < maxTextLen) {
+                                newTexts.push({
+                                    text: sentences[j],
+                                    lang: texts[i].lang
+                                });
+                            } else {
+                                var maxSplitLen = sentenceLen / (Math.floor(sentenceLen/maxTextLen) + 1);
+                                var workString = '';
+                                var words = sentences[j].split(/\s/);
+                                for (var k = 0; k < words.length; k++) {
+                                    workString += words[k] + ' ';
+                                    if (workString.length > maxSplitLen) {
+                                        newTexts.push({
+                                            text: workString,
+                                            lang: texts[i].lang
+                                        });
+                                        workString = '';
+                                    }
+                                }
+                                newTexts.push({
+                                    text: workString,
+                                    lang: texts[i].lang
+                                });
+                            }
+                        }
+                    }
+                } else {
+                    newTexts.push(texts[i]);
+                }
+            }
+        }
+        return newTexts;
+    }
+
+
     presenter.speakWithCallback = function (texts, callback) {
 
         texts = presenter.parseAltTexts(texts);
+        texts = presenter.splitLongTexts(texts);
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts, callback);
             return;
@@ -388,7 +435,6 @@ function AddonText_To_Speech_create() {
             return;
         }
 
-        console.log(texts);
         if (callback) {
             callback();
         }
