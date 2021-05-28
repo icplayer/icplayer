@@ -213,7 +213,6 @@ public class TextPrintable {
 							if (choiceInfo.getAnswer().equals(value)) {
 								Element underlined = DOM.createElement("u");
 								underlined.setInnerHTML(value);
-								underlined.getString();
 								value = underlined.getString();
 							}
 						}
@@ -221,7 +220,6 @@ public class TextPrintable {
 						if (value.equals(userAnswer)) {
 							Element underlined = DOM.createElement("u");
 							underlined.setInnerHTML(value);
-							underlined.getString();
 							value = underlined.getString();
 							if (showAnswers) {
 								Element answerSpan = DOM.createSpan();
