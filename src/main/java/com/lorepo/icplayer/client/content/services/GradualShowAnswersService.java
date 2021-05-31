@@ -20,6 +20,7 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     private int currentModuleItem = 0;
     private List<IGradualShowAnswersPresenter> presenters;
     private Map<String, Boolean> presenterDisabledState;
+    private List<String> worksWith; // TODO get contents of the addon's worksWith field
 
 
     public GradualShowAnswersService(IPageController pageController) {
@@ -119,7 +120,9 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         if (pagePresenters != null) {
             for (IPresenter presenter : pagePresenters) {
                 if (presenter instanceof IGradualShowAnswersPresenter) {
-                    presenters.add((IGradualShowAnswersPresenter) presenter);
+                    if (this.worksWith.size() == 0 ||  this.worksWith.contains(presenter.getModel().getId())) {
+                        presenters.add((IGradualShowAnswersPresenter) presenter);
+                    }
                 }
             }
         }
