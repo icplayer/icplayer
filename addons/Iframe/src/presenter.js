@@ -16,6 +16,8 @@ function AddonIframe_create() {
     presenter.isEditor = false;
     presenter.isVisible = true;
     presenter.originalDisplay = "block";
+    presenter.unAuthenticatedToken = undefined;
+    presenter.unAuthenticatedTokenQueryParamName = "mAu4T";
 
     presenter.actionID = {
         SET_WORK_MODE : "SET_WORK_MODE",
@@ -60,6 +62,10 @@ function AddonIframe_create() {
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
         presenter.eventBus = presenter.playerController.getEventBus();
+        const context = controller.getContextMetadata();
+        if (context != null && "unAuthenticatedToken" in context){
+            this.unAuthenticatedToken = context["unAuthenticatedToken"];
+        }
     };
 
     presenter.run = function AddonIFrame_Communication_run (view, model) {
@@ -79,15 +85,37 @@ function AddonIframe_create() {
         }
     };
 
+    presenter.addParamToSrcQuery = function(source, param_name, param_value){
+        const separator = source.indexOf("?") === -1 ? "?" : "&";
+        const source_and_anchor = source.split("#");
+        let new_source = `${source_and_anchor[0]}${separator}${param_name}=${param_value}`;
+        if (source_and_anchor.length > 1){
+            new_source = `${new_source}#${source_and_anchor[1]}`
+        }
+        return new_source
+    }
+
     presenter.getIframeIndexSource = function () {
         var source = presenter.configuration.index;
         if (source.indexOf("/file/serve") > -1) {
-            var separator = (presenter.configuration.index.indexOf("?")===-1)?"?":"&";
-            source = presenter.configuration.index + separator + "no_gcs=true";
+            source = this.addParamToSrcQuery(source, "no_gcs", "true");
         }
 
         return source;
     };
+
+    presenter.setIframeSrc = function (iframe) {
+        let src;
+        if(presenter.configuration.haveURL) {
+            src = presenter.configuration.iframeURL;
+        } else {
+            src = presenter.getIframeIndexSource();
+        }
+        if (this.unAuthenticatedToken){
+            src = this.addParamToSrcQuery(src, this.unAuthenticatedTokenQueryParamName, this.unAuthenticatedToken)
+        }
+        iframe.attr("src", src);
+    }
 
     presenter.initialize = function AddonIFrame_Communication_initialize (view, model)  {
         presenter.configuration = presenter.validateModel(model);
@@ -105,13 +133,7 @@ function AddonIframe_create() {
             iframe.attr("webkitallowfullscreen", "webkitallowfullscreen");
             iframe.attr("mozallowfullscreen", "mozallowfullscreen");
         }
-
-        if(presenter.configuration.haveURL) {
-            iframe.attr("src", presenter.configuration.iframeURL);
-        }
-        else {
-            iframe.attr("src", presenter.getIframeIndexSource());
-        }
+        presenter.setIframeSrc(iframe);
 
         presenter.$view = $(view);
         presenter.view = view;
