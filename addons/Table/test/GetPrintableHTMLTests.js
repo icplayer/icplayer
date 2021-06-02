@@ -279,7 +279,8 @@ function isResetPrintableStateMode(presenter) {
 
 function stubTextParser(presenter) {
     presenter.textParser = {
-        parseAltTexts: sinon.stub()
+        parseAltTexts: sinon.stub(),
+        findClosingBracket: (str) => str.indexOf("}") // this is a simplification for tests
     };
     presenter.textParser.parseAltTexts.returnsArg(0);
 }
@@ -800,89 +801,7 @@ TestCase("[Table] GetPrintableHTML - mixed gaps", {
             this.presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS, cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8
         );
         assertEquals(expectedHTML, printableHTML);
-    },
+    }
 
-    'test printable HTML for printable show user answers state mode and not equal amount of states': function () {
-        const model = createModelWithMixed8Gaps();
-        var wrongPrintableStates = [{
-            values: []
-        }, {
-            gaps: [
-                { value: "2" },
-                { value: "3" },
-                { value: "some value 5" },
-                { value: "some value 8" },
-                { value: "4" },
-            ]
-        }, {
-            gaps: [
-                { value: "2" },
-                { value: "3" },
-                { value: "some value 5" },
-                { value: "some value 8" },
-                { value: "4" },
-                { value: "A7" },
-                { value: "x" },
-            ]
-        }, {
-            gaps: [
-                { value: "2" },
-                { value: "3" },
-                { value: "some value 5" },
-                { value: "some value 8" },
-                { value: "4" },
-                { value: "A7" },
-                { value: "" },
-            ]
-        }]
-        for (var i = 0; i < wrongPrintableStates.length; i++) {
-            this.presenter.printableState = wrongPrintableStates[i];
-            const printableHTML = this.presenter.getPrintableHTML(model, false);
-            assertTrue(isResetPrintableStateMode(this.presenter));
-            assertEquals(null, printableHTML);
-        }
-    },
 
-    'test printable HTML for printable check answers state mode and not equal amount of states': function () {
-        const model = createModelWithMixed8Gaps();
-        var wrongPrintableStates = [{
-            values: []
-        }, {
-            gaps: []
-        }, {
-            gaps: [
-                { value: "2" },
-                { value: "3" },
-                { value: "some value 5" },
-                { value: "some value 8" },
-                { value: "4" },
-            ]
-        }, {
-            gaps: [
-                { value: "2" },
-                { value: "3" },
-                { value: "some value 5" },
-                { value: "some value 8" },
-                { value: "4" },
-                { value: "A7" },
-                { value: "x" },
-            ]
-        }, {
-            gaps: [
-                { value: "2" },
-                { value: "3" },
-                { value: "some value 5" },
-                { value: "some value 8" },
-                { value: "4" },
-                { value: "A7" },
-                { value: "" },
-            ]
-        }]
-        for (var i = 0; i < wrongPrintableStates.length; i++) {
-            this.presenter.printableState = wrongPrintableStates[i];
-            const printableHTML = this.presenter.getPrintableHTML(model, true);
-            assertTrue(isResetPrintableStateMode(this.presenter));
-            assertEquals(null, printableHTML);
-        }
-    },
 });
