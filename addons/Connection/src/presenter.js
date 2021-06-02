@@ -32,6 +32,8 @@ function AddonConnection_create() {
     presenter.initialState = null;
 
     presenter.printableState = null;
+    presenter.printableParserID = "";
+    presenter.printableParserCallback = null;
 
     presenter.mathJaxLoaders = {
         runLoader: false,
@@ -2214,6 +2216,15 @@ function AddonConnection_create() {
         presenter.printableState = JSON.parse(state);
     }
 
+    presenter.isPrintableAsync = function() {
+        return true;
+    }
+
+    presenter.setPrintableAsyncCallback = function(id, callback) {
+        presenter.printableParserID = id;
+        presenter.printableParserCallback = callback;
+    }
+
     function getCorrectAnswersObject(model) {
         var correctAnswers = [];
         var idx = 0;
@@ -2360,23 +2371,77 @@ function AddonConnection_create() {
             }
         }
 
-        var height = getPrintableTableHeight($root);
-        $root.css("height", height+"px");
-
-        if (connected.length > 0) {
-            $root.css('visibility', 'hidden');
-            $('body').append($root);
-            var connectionsSVG = $root.find('svg');
-            for (var i = 0; i < connected.length; i++) {
-                var connection = connected[i];
-                drawSVGLine(connectionsSVG, connection.from, connection.to, connection.correct, model);
+        $root.css('visibility', 'hidden');
+        $('body').append($root);
+        waitForLoad($root, function(){
+            if (connected.length > 0) {
+                var connectionsSVG = $root.find('svg');
+                for (var i = 0; i < connected.length; i++) {
+                    var connection = connected[i];
+                    drawSVGLine(connectionsSVG, connection.from, connection.to, connection.correct, model);
+                }
             }
             $root.detach();
-            $root.css('visibility', 'visible');
-        }
+            $root.css('visibility', '');
+            var height = getPrintableTableHeight($root);
+            $root.css("height", height+"px");
+            var parsedView = $root[0].outerHTML;
+            $root.remove();
+            presenter.printableParserCallback(parsedView);
+        });
 
-        return $root[0].outerHTML;
+        var $clone = $root.clone();
+        $clone.attr('id', presenter.printableParserID);
+        $clone.css('visibility', '');
+        var result = $clone[0].outerHTML;
+        $clone.remove();
+
+
+        return result;
     };
+
+    function waitForLoad($element, callback) {
+        var $imgs = $element.find('img');
+        var loadCounter = $imgs.length + 2;
+        var timeout = null;
+        var continuedParsing = false;
+
+        var loadCallback = function(){
+            loadCounter -= 1;
+            if (loadCounter < 1 && isReady && !continuedParsing) {
+                continuedParsing = true;
+                if (timeout) clearTimeout(timeout);
+                callback();
+            }
+        };
+
+        $imgs.each(function(){
+            var $this = $(this);
+            if (this.complete && this.naturalHeight !== 0) {
+                loadCallback();
+            } else {
+                $this.load(loadCallback);
+            }
+        });
+
+        $element.ready(function(){
+            isReady = true;
+            loadCallback();
+        });
+
+        var timeout = setTimeout(function(){
+            if (loadCounter > 0 || isReady == false) {
+                isReady = true;
+                loadCounter = 0;
+                loadCallback();
+            }
+        }, 15000);
+
+        var args = [];
+        args.push("Typeset", MathJax.Hub, $element[0]);
+        args.push(loadCallback);
+        MathJax.Hub.Queue(args);
+    }
 
     return presenter;
 }
@@ -2400,8 +2465,8 @@ function getPrintableTableHeight($table) {
 
 		$("body").append($outerLessonWrapper);
 		var height = $table[0].getBoundingClientRect().height;
-		$outerLessonWrapper.detach();
-		$table.detach();
+		$outerLessonWrapper.remove();
+		$table.remove();
 		return height;
     }
 

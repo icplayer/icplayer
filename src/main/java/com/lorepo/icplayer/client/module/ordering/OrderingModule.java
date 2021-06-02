@@ -24,6 +24,7 @@ import com.lorepo.icplayer.client.module.choice.ChoicePrintable;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
 import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
@@ -997,6 +998,16 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	@Override
 	public void setPrintableState(String state) {
 		//TODO implement
+	}
+
+	@Override
+	public boolean isPrintableAsync() {
+		return false;
+	}
+
+	@Override
+	public void setPrintableAsyncCallback(String id, PrintableContentParser.ParsedListener listener) {
+
 	}
 
 }

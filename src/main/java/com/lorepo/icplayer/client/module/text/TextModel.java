@@ -15,6 +15,7 @@ import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
 import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
@@ -1343,5 +1344,15 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	@Override
 	public void setPrintableState(String state) {
 		//TODO implement
+	}
+
+	@Override
+	public boolean isPrintableAsync() {
+		return false;
+	}
+
+	@Override
+	public void setPrintableAsyncCallback(String id, PrintableContentParser.ParsedListener listener) {
+
 	}
 }
