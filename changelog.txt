@@ -1,3 +1,4 @@
+2021-05-28 Fix width and height space for floating images in IWBToolbar
 2021-05-25 Added support for printable state in ordering
 2021-05-24 Added support for printable state in Choice addon
 2021-05-21 Added support for printable state in text identification
