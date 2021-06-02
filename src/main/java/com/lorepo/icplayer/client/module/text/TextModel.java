@@ -5,14 +5,10 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.*;
-import com.lorepo.icf.utils.StringUtils;
-import com.lorepo.icf.utils.UUID;
-import com.lorepo.icf.utils.XMLUtils;
+import com.lorepo.icf.utils.*;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
-import com.lorepo.icplayer.client.content.services.JsonServices;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
-import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.module.text.TextParser.ParserResult;
 import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
@@ -1345,17 +1341,20 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	}
 
 	@Override
-	public void setPrintableState(String state) {
-		if (state.length() == 0) {
+	public void setPrintableState(String stateObj) {
+		if (stateObj.length() == 0) {
 			return;
 		}
-		IJsonServices jsonServices = new JsonServices();
-		this.printableState = jsonServices.decodeHashMap(state);
-
-		if (printableState != null) {
-			String answersString = printableState.get("values");
-			this.printableState = jsonServices.decodeHashMap(answersString);
+		HashMap<String, String> state = JSONUtils.decodeHashMap(stateObj);
+		HashMap<String, String> values = new HashMap<String, String>();
+		String oldGapId = state.get("gapUniqueId") + "-";
+		HashMap<String, String> oldValues = JSONUtils.decodeHashMap(state.get("values"));
+		for (String key : oldValues.keySet()) {
+			String newKey = key.replace(oldGapId, getGapUniqueId()+"-");
+			values.put(newKey, oldValues.get(key));
 		}
+
+		this.printableState = values;
 	}
 
 	public HashMap<String, String> getPrintableState() {
