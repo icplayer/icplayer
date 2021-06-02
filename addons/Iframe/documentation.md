@@ -41,7 +41,7 @@ The best way to detect page changes and free the memory is to add event listener
     </tr>
     <tr>
         <td>IFrame URL</td>
-        <td>An address of a site to be loaded. This site is loaded to iframe and has a greater priority than the Index File.</td>
+        <td>An address of a site to be loaded. This site is loaded to iframe and has a greater priority than the Index File. URL can contains query string except reverved param "mAu4T", that is used internal in mAuthor.</td>
     </tr>
     <tr>
         <td>Index File</td>
