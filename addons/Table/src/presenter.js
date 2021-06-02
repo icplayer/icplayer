@@ -2255,7 +2255,7 @@ function AddonTable_create() {
         presenter.configuration = presenter.validateModel(presenter.upgradeModel(model));
         chosePrintableStateMode(showAnswers);
         createPrintableHTMLStructure(model);
-        let result = parsePrintableGaps(presenter.$view[0].outerHTML)
+        let result = parsePrintableGaps(presenter.$view[0])
         presenter.printableStateMode = null;
         result = presenter.textParser.parseAltTexts(result);
         return result;
@@ -2297,34 +2297,69 @@ function AddonTable_create() {
 
     }
 
-    function parsePrintableGaps (html) {
-        const gapsRegex = /(\\gap{.*?})|(\\filledGap{.*?})|({{.*?}})/g
-        var gapsMatches = html.match(gapsRegex);
-        if (gapsMatches == null)
-            return html;
+    function matchGap(gapRegex, textToSearch, closingSignGapSize) {
+        let closingBracketIndex = 0;
 
-        if (!isSufficientPrintableStatesAmount(gapsMatches))
-            return null
+        let gapMatch = textToSearch.match(gapRegex);
+        if (gapMatch == null)
+            return [];
 
-        var tablePrintableOptions = indexRegexMatchesBaseOnGapsTypes(gapsMatches)
-        for (var i = 0; i < tablePrintableOptions.length; i++) {
-            var tablePrintableOption = tablePrintableOptions[i];
-            var optionHTML = tablePrintableOption.getPrintableHTML();
-            html = html.replace(tablePrintableOption.text, optionHTML);
+        const gapsMatches = [];
+        while (gapMatch != null) {
+            const textWithoutFoundGapBeginning = textToSearch.substring(gapMatch.index + gapMatch[0].length);
+
+            closingBracketIndex = presenter.textParser.findClosingBracket(textWithoutFoundGapBeginning);
+            if (closingBracketIndex > 0) {
+                const gapEndIndex = gapMatch.index + gapMatch[0].length + closingBracketIndex + closingSignGapSize;
+                const wholeGapTextToTheEndingBracket = textToSearch.substring(gapMatch.index, gapEndIndex);
+                // ex: \gap{lorem|ispum|\(\frac{1}{4}\)}
+                gapsMatches.push(wholeGapTextToTheEndingBracket);
+                textToSearch = textToSearch.substring(gapEndIndex);
+            } else {
+                // gap has no ending bracket, so syntax is broken and in fact it doesn't contain gap, ex:
+                // \gap{lorem|ispum|\(\frac{1}{4}\)
+                break;
+            }
+
+            gapMatch = textToSearch.match(gapRegex);
         }
-        return html;
+
+        return gapsMatches;
     }
 
-    function isSufficientPrintableStatesAmount(matchesIndexes) {
-        if (isPrintableStateMode()) {
-            if (!presenter.printableState.hasOwnProperty("gaps"))
-                 return false;
-            var statesAmount = presenter.printableState.gaps.length;
-            var gapsAmount = matchesIndexes.length;
-            if (statesAmount !== gapsAmount)
-                return false;
+    function matchGapAndFilledGap(html) {
+        const gapsRegex = /\\gap{|\\filledGap{/;
+        return matchGap(gapsRegex, html, "}".length);
+    }
+
+    function matchDropdownGap(html) {
+        // match last {{ ex. \frac{1}{{{gap_definition}}} will match last two "{{" from "{{{"
+        const gapRegex = /{{(?!{)/;
+        return matchGap(gapRegex, html, "}}".length);
+    }
+
+    function parsePrintableGaps (html) {
+        const htmlString = html.outerHTML;
+        let gapsMatches = matchGapAndFilledGap(htmlString);
+        gapsMatches = gapsMatches.concat(matchDropdownGap(htmlString));
+
+        var tablePrintableOptions = indexRegexMatchesBaseOnGapsTypes(gapsMatches);
+
+        const nodes = html.getElementsByTagName('td');
+        for (var i = 0; i < tablePrintableOptions.length; i++) {
+            const tablePrintableOption = tablePrintableOptions[i];
+            const optionHTML = tablePrintableOption.getPrintableHTML();
+            const node = Array.prototype.filter.call(nodes, node => node.textContent.indexOf(tablePrintableOption.text) >= 0)[0];
+
+            node.innerHTML = node.innerHTML.replace(tablePrintableOption.text, optionHTML);
+
+            if (isPrintableCheckAnswersStateMode() && tablePrintableOption.hasAnswer()) {
+                const signHTML = tablePrintableOption.getPrintableGapSignHTML();
+                node.innerHTML += signHTML;
+            }
         }
-        return true;
+
+        return html.outerHTML;
     }
 
     function indexRegexMatchesBaseOnGapsTypes(gapsMatches) {
@@ -2435,12 +2470,13 @@ function AddonTable_create() {
     TablePrintableOption.prototype = Object.create(Object.prototype);
     TablePrintableOption.prototype.constructor = TablePrintableOption;
 
-    TablePrintableOption.prototype.getPrintableGapSignHTML = function(isCorrectAnswer) {
+    TablePrintableOption.prototype.getPrintableGapSignHTML = function() {
         var $signSpan = $("<span></span>");
-        if (isCorrectAnswer)
+        if (this.hasCorrectAnswer()) {
             $signSpan.addClass("printable_gap_correct");
-        else
+        } else {
             $signSpan.addClass("printable_gap_wrong");
+        }
         return $signSpan[0].outerHTML;
     }
 
@@ -2464,25 +2500,25 @@ function AddonTable_create() {
 
     TablePrintableEditableGapOption.prototype.getPrintableHTML = function () {
         this.getGapTextData();
-        var gapInnerText = this.generateInnerText()
+        var gapInnerText = this.generateInnerText();
         var gapHTML = this.generateGapHTML(gapInnerText);
-        if (isPrintableCheckAnswersStateMode() && this.hasAnswer()) {
-            var isCorrectAnswer = this.isCorrectAnswer(gapInnerText);
-            gapHTML += this.getPrintableGapSignHTML(isCorrectAnswer);
+        if (presenter.configuration.gapType === 'math') {
+            gapHTML = gapInnerText;
         }
         return gapHTML;
     }
 
     TablePrintableEditableGapOption.prototype.getAnswer = function () {
-        return presenter.printableState.gaps[this.stateID].value;
+        const gapState = presenter.printableState.gaps[this.stateID];
+        return gapState === undefined ? null : gapState.value;
     }
 
-    TablePrintableEditableGapOption.prototype.isCorrectAnswer = function (answer) {
-        return this.correctAnswer === answer;
+    TablePrintableEditableGapOption.prototype.hasCorrectAnswer = function () {
+        return this.correctAnswer === this.getAnswer();
     }
 
     TablePrintableEditableGapOption.prototype.hasAnswer = function () {
-        return this.getAnswer() !== "";
+        return this.getAnswer() !== "" && this.getAnswer() !== null;
     }
 
     TablePrintableEditableGapOption.prototype.generateInnerText = function() {
@@ -2555,6 +2591,9 @@ function AddonTable_create() {
     }
 
     TablePrintableEditableGapOption.prototype.generateGapHTML = function(gapInnerText) {
+       if (presenter.configuration.gapType === 'math') {
+            return gapInnerText;
+        }
         var $span = $("<span></span>");
         $span.addClass("printable_gap");
         $span.html(gapInnerText);
@@ -2573,7 +2612,8 @@ function AddonTable_create() {
     TablePrintableNormalGapOption.prototype.constructor = TablePrintableNormalGapOption;
 
     TablePrintableNormalGapOption.prototype.getGapTextData = function() {
-        this.options = this.text.replace("\\gap{","").replace("}","").split("|");
+        // remove "\\gap{" and last "}"
+        this.options = this.text.replace("\\gap{", "").replace(/}$/, "").split("|");
         this.correctAnswer = this.options[0];
     }
 
@@ -2590,7 +2630,7 @@ function AddonTable_create() {
     TablePrintableFilledGapOption.prototype.constructor = TablePrintableFilledGapOption;
 
     TablePrintableFilledGapOption.prototype.getGapTextData = function() {
-        this.options = this.text.replace("\\filledGap{","").replace("}","").split("|");
+        this.options = this.text.replace("\\filledGap{", "").replace(/}$/, "").split("|");
         this.correctAnswer = this.options[1];
         this.initialValue = this.options.splice(0, 1)[0];
     }
@@ -2619,12 +2659,7 @@ function AddonTable_create() {
         if (isPrintableStateMode())
             this.findChosenOptionIndex();
 
-        var gapHTML = this.generateGapHTML();
-        if (isPrintableCheckAnswersStateMode() && this.hasAnswer()){
-            var isCorrectAnswer = this.isCorrectAnswer();
-            gapHTML += this.getPrintableGapSignHTML(isCorrectAnswer);
-        }
-        return gapHTML;
+        return this.generateGapHTML();
     }
 
     TablePrintableDropdownGapOption.prototype.getAnswer = function () {
@@ -2635,7 +2670,7 @@ function AddonTable_create() {
         return this.chosenOptionIndex !== null;
     }
 
-    TablePrintableDropdownGapOption.prototype.isCorrectAnswer = function () {
+    TablePrintableDropdownGapOption.prototype.hasCorrectAnswer = function () {
         return this.chosenOptionIndex === this.correctOptionIndex;
     }
 
@@ -2664,7 +2699,8 @@ function AddonTable_create() {
     }
 
     TablePrintableDropdownGapOption.prototype.findChosenOptionIndex = function() {
-        var gapValue = presenter.printableState.gaps[this.stateID].value;
+        const gapState = presenter.printableState.gaps[this.stateID];
+        const gapValue = gapState === undefined ? null : gapState.value;
         for (var i = 0; i < this.options.length; i++) {
             if (this.options[i] === gapValue) {
                 this.chosenOptionIndex = i;
@@ -2674,6 +2710,18 @@ function AddonTable_create() {
     }
 
     TablePrintableDropdownGapOption.prototype.generateGapHTML = function() {
+       if (presenter.configuration.gapType === 'math') {
+           if (isPrintableShowAnswersStateMode()) {
+                var correctAnswer = `\\underline{${this.options[this.correctOptionIndex]}}`;
+                this.options[this.correctOptionIndex] = correctAnswer;
+            } else if (isPrintableStateMode() && this.hasAnswer()) {
+                var chosenAnswer = `\\underline{${this.options[this.chosenOptionIndex]}}`;
+                this.options[this.chosenOptionIndex] = chosenAnswer;
+            }
+
+           return this.options.join(" / ");
+        }
+
         var $span = $("<span></span>");
         $span.addClass("printable_gap");
 

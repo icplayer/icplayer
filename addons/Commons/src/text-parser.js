@@ -82,6 +82,17 @@
     };
 
     /**
+    Find closing bracket of gap
+     @method parseGaps
+     @param {String} text the string which would be processed
+     @return {Number} index of ending bracket or -1
+     */
+    window.TextParserProxy.prototype.findClosingBracket = function (text) {
+
+        return this.parser.findClosingBracket(text);
+    };
+
+    /**
 
 
      @method parseGaps

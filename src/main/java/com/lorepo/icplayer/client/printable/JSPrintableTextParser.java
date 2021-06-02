@@ -17,6 +17,11 @@ public class JSPrintableTextParser extends JavaScriptObject {
             return parser.@com.lorepo.icplayer.client.printable.IPrintableTextParser::parse(Ljava/lang/String;)(textToParse);
         });
 
+
+        obj.findClosingBracket = $entry(function(textToParse) {
+            return parser.@com.lorepo.icplayer.client.printable.IPrintableTextParser::findClosingBracket(Ljava/lang/String;)(textToParse);
+        });
+
         return obj;
     }-*/;
 }
