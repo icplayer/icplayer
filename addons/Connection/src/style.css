@@ -40,6 +40,11 @@
     border: solid 1px black;
 }
 
+.connectionContainer .answerItem {
+    width: 100%;
+    padding: 0px;
+}
+
 .connectionContainer .content {
     height: 100%;
     width: 100%;
@@ -54,4 +59,12 @@
 .connection_line {
     position: absolute;
     height:2px;
+}
+
+.correctAnswerDiv::before {
+    content: "\2714";
+}
+
+.inCorrectAnswerDiv::before {
+    content: "\2716";
 }

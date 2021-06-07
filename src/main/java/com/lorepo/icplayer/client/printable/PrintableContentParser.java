@@ -44,6 +44,11 @@ public class PrintableContentParser {
 	boolean randomizePages = false;
 	boolean randomizeModules = false;
 	ParsedListener listener = null;
+
+	JavaScriptObject parsedModuleCallback = null;
+	int asyncModuleCounter = 0;
+	int asyncModuleIDCounter = 0;
+	HashMap<String, String> asyncModuleResults = new HashMap<String, String>();
 	
 	private static class SplitResult extends JavaScriptObject {
 		
@@ -181,6 +186,21 @@ public class PrintableContentParser {
 		printable.setPrintableController(controller);
 		String moduleState = getModuleState(printable.getId(), controller.getPageId());
 		printable.setPrintableState(moduleState);
+		if (printable.isPrintableAsync()) {
+			asyncModuleCounter += 1;
+			final PrintableContentParser self = this;
+			final String parsedID = "async-parsed-module-" + Integer.toString(this.asyncModuleIDCounter);
+			this.asyncModuleIDCounter += 1;
+			printable.setPrintableAsyncCallback(parsedID, new ParsedListener() {
+				@Override
+				public void onParsed(String result) {
+					asyncModuleResults.put(parsedID, result);
+					int counter = getAsyncModuleCounter();
+					setAsyncModuleCounter(counter-1);
+					callParsedModuleCallback(self);
+				}
+			});
+		}
 		if (moduleState.length() == 0 && this.loadedState != null) {
 			// If the lesson has state but the module does not, display empty module
 			result = printable.getPrintableHTML(false);
@@ -188,6 +208,27 @@ public class PrintableContentParser {
 			result = printable.getPrintableHTML(showAnswers);
 		}
 		return result;
+	}
+
+	private native void callParsedModuleCallback(PrintableContentParser x)/*-{
+		var callback = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getParsedModuleCallback()();
+		if (callback) callback();
+	}-*/;
+
+	private JavaScriptObject getParsedModuleCallback() {
+		return this.parsedModuleCallback;
+	}
+
+	private void setParsedModuleCallback(JavaScriptObject callback) {
+		this.parsedModuleCallback = callback;
+	}
+
+	public int getAsyncModuleCounter() {
+		return asyncModuleCounter;
+	}
+
+	public void setAsyncModuleCounter(int value) {
+		asyncModuleCounter = value;
 	}
 	
 	private IPrintableModuleModel generatePrintableGroup(final Group group, PrintableController controller, boolean randomizeModules, boolean showAnswers) {
@@ -255,7 +296,17 @@ public class PrintableContentParser {
 
 			@Override
 			public void setPrintableState(String state) { }
-			
+
+			@Override
+			public boolean isPrintableAsync() {
+				return false;
+			}
+
+			@Override
+			public void setPrintableAsyncCallback(String id, ParsedListener listener) {
+
+			}
+
 		};
 	}
 	
@@ -392,12 +443,27 @@ public class PrintableContentParser {
 	};
 
 	private void continueGeneratePrintableHTML(JavaScriptObject element) {
+		updateAsyncModules(element);
 		updateImageSizes(element);
 		List<String> pageHTMLs = getModuleHTMLsFromWrapper(element);
 		String result = paginatePageHTMLs(pageHTMLs);
 		removeJSElement(element);
 		listener.onParsed(result);
 	}
+
+	private void updateAsyncModules(JavaScriptObject element) {
+		for (String key: this.asyncModuleResults.keySet()){
+			updateAsyncModule(key, asyncModuleResults.get(key), element);
+		}
+		asyncModuleIDCounter = 0;
+		asyncModuleCounter = 0;
+		asyncModuleResults.clear();
+	}
+
+	private native void updateAsyncModule(String id, String html, JavaScriptObject element)/*-{
+		var $replacement = $wnd.$(html);
+		$wnd.$('#'+id).replaceWith($replacement);
+	}-*/;
 
 	private List<String> generatePageHTMLs(List<Page> sourcePages) {
 		List<Page> pages = new ArrayList<Page>();
@@ -654,15 +720,21 @@ public class PrintableContentParser {
 		$wrapper.html(pageHTMLs);
 
 		var $imgs = $outerLessonWrapper.find('img');
-		var loadCounter = $imgs.length + 2; // number of images + outerLessonWrapper.ready + mathjax
+		var asyncModuleCount = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getAsyncModuleCounter()();
+		var loadCounter = $imgs.length + asyncModuleCount + 2; // number of images + async modules + outerLessonWrapper.ready + mathjax;
+
 		var isReady = false;
+		var continuedParsing = false; // Flag blocks continueGeneratePrintableHTML from getting called mutiple times
 
 		var loadCallback = function(){
 			loadCounter -= 1;
-			if (loadCounter < 1 && isReady) {
+			if (loadCounter < 1 && isReady && !continuedParsing) {
+				continuedParsing = true;
 				x.@com.lorepo.icplayer.client.printable.PrintableContentParser::continueGeneratePrintableHTML(Lcom/google/gwt/core/client/JavaScriptObject;)($outerLessonWrapper[0]);
 			}
 		};
+
+		x.@com.lorepo.icplayer.client.printable.PrintableContentParser::setParsedModuleCallback(Lcom/google/gwt/core/client/JavaScriptObject;)(loadCallback);
 
 		$imgs.each(function(){
 			var $this = $_(this);
@@ -737,7 +809,8 @@ public class PrintableContentParser {
 	}-*/;
 
 	private native void removeJSElement(JavaScriptObject element)/*-{
-		element.remove();
+		$wnd.$(element).html('');
+		if (element && element.parentNode) element.parentNode.removeChild(element);
 	}-*/;
 
 }

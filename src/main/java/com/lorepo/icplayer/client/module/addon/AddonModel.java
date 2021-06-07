@@ -35,6 +35,8 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	private String addonId;
 	private ArrayList<IAddonParam>	addonParams = new ArrayList<IAddonParam>();
 	private PrintableController printableController = null;
+	private PrintableContentParser.ParsedListener printableAsyncCallback = null;
+	private String printableAsyncID = "";
 	private String printableState = "";
 	
 	public interface OnAddonReleaseAction {
@@ -171,13 +173,15 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		String className = this.getStyleClass();
 		JavaScriptObject printController = getPrintableControllerAsJsObject();
 		
-		String result = getPrintableHTML(addonName, jsModel, printController, printableState, showAnswers);
+		String result = getPrintableHTML(addonName, jsModel, printController, printableState, printableAsyncID, printableAsyncCallback, showAnswers);
 		if (result == null || result.length() == 0) return null;
 		result = PrintableContentParser.addClassToPrintableModule(result, className, !isSplitInPrintBlocked());
 		return result;
 	}
 	
-	private native String getPrintableHTML(String addonName, JavaScriptObject model, JavaScriptObject controller, String state, boolean showAnswers) /*-{
+	private native String getPrintableHTML(String addonName, JavaScriptObject model, JavaScriptObject controller,
+										   String state, String asyncID, PrintableContentParser.ParsedListener
+												   parsedCallbackObject, boolean showAnswers) /*-{
 		if($wnd.window[addonName] == null){
 			return null;
 		}
@@ -189,6 +193,13 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 		
 		if (presenter.hasOwnProperty("setPrintableController") && controller != null) {
 			presenter.setPrintableController(controller);
+		}
+
+		if (presenter.hasOwnProperty("setPrintableAsyncCallback") && parsedCallbackObject != null) {
+			var asyncCallback = function (result) {
+				parsedCallbackObject.@com.lorepo.icplayer.client.printable.PrintableContentParser.ParsedListener::onParsed(Ljava/lang/String;)(result);
+			}
+			presenter.setPrintableAsyncCallback(asyncID, asyncCallback);
 		}
 
 		if (presenter.hasOwnProperty("setPrintableState") && state != null && state.length > 0) {
@@ -244,7 +255,32 @@ public class AddonModel extends BasicModuleModel implements IPrintableModuleMode
 	public void setPrintableState(String state) {
 		this.printableState = state;
 	}
-	
+
+	@Override
+	public boolean isPrintableAsync(){
+		String addonName = "Addon" + getAddonId() + "_create";
+		return isPrintableAsync(addonName);
+	}
+
+	public native boolean isPrintableAsync(String addonName)/*-{
+		if($wnd.window[addonName] == null){
+			return false;
+		}
+		var presenter = $wnd.window[addonName]();
+
+		if (!presenter.hasOwnProperty("isPrintableAsync")) {
+			return false;
+		}
+
+		return presenter.isPrintableAsync();
+	}-*/;
+
+	@Override
+	public void setPrintableAsyncCallback(String id, PrintableContentParser.ParsedListener listener) {
+		this.printableAsyncCallback = listener;
+		this.printableAsyncID = id;
+	}
+
 	private JavaScriptObject getPrintableControllerAsJsObject() {
 		if (printableController != null) {
 			return printableController.getAsJavaScript();
