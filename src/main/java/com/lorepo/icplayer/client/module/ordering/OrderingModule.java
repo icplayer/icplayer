@@ -26,6 +26,7 @@ import com.lorepo.icplayer.client.content.services.JsonServices;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
 import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
@@ -1007,6 +1008,16 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			return;
 		IJsonServices jsonServices = new JsonServices();
 		this.printableState = jsonServices.decodeHashMap(state);
+	}
+
+	@Override
+	public boolean isPrintableAsync() {
+		return false;
+	}
+
+	@Override
+	public void setPrintableAsyncCallback(String id, PrintableContentParser.ParsedListener listener) {
+
 	}
 
 	public HashMap<String, String> getPrintableState() {

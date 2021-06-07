@@ -21,6 +21,7 @@ import com.lorepo.icplayer.client.module.IWCAGModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
 import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
@@ -707,6 +708,16 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 			return;
 		IJsonServices jsonServices = new JsonServices();
 		this.printableState = jsonServices.decodeHashMap(state);
+	}
+
+	@Override
+	public boolean isPrintableAsync() {
+		return false;
+	}
+
+	@Override
+	public void setPrintableAsyncCallback(String id, PrintableContentParser.ParsedListener listener) {
+
 	}
 
 	public HashMap<String, String> getPrintableState() {
