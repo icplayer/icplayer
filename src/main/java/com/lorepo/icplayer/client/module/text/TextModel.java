@@ -5,9 +5,7 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.*;
-import com.lorepo.icf.utils.StringUtils;
-import com.lorepo.icf.utils.UUID;
-import com.lorepo.icf.utils.XMLUtils;
+import com.lorepo.icf.utils.*;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
@@ -20,6 +18,7 @@ import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 // in old lessons some characters aren't escaped (e.g: > or <), in new lessons they are
@@ -61,6 +60,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	private String printableValue = "No";
 	private boolean isSection = false;
 	private boolean isSplitInPrintBlocked = false;
+	private HashMap<String, String> printableState = null;
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
 	private boolean useEscapeCharacterInGap = false;
@@ -1342,8 +1342,24 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	}
 
 	@Override
-	public void setPrintableState(String state) {
-		//TODO implement
+	public void setPrintableState(String stateObj) {
+		if (stateObj.length() == 0) {
+			return;
+		}
+		HashMap<String, String> state = JSONUtils.decodeHashMap(stateObj);
+		HashMap<String, String> values = new HashMap<String, String>();
+		String oldGapId = state.get("gapUniqueId") + "-";
+		HashMap<String, String> oldValues = JSONUtils.decodeHashMap(state.get("values"));
+		for (String key : oldValues.keySet()) {
+			String newKey = key.replace(oldGapId, getGapUniqueId()+"-");
+			values.put(newKey, oldValues.get(key));
+		}
+
+		this.printableState = values;
+	}
+
+	public HashMap<String, String> getPrintableState() {
+		return this.printableState;
 	}
 
 	@Override
