@@ -340,7 +340,7 @@ function AddoneKeyboard_create(){
 
         $.when(presenter.pageLoaded, mathJaxProcessEnded).then(function() {
             presenter.configuration = presenter.validateModel(model, isPreview);
-            presenter.configuration.$inputs = $(presenter.configuration.workWithViews).find('input');
+            presenter.configuration.$inputs = $(presenter.configuration.workWithViews).find('input').not('.ic_text_audio_button');
 
             if (presenter.configuration.isError) {
                 DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, presenter.configuration.errorCode);
