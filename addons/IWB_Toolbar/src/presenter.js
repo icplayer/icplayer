@@ -1762,8 +1762,8 @@ function AddonIWB_Toolbar_create() {
         var stage = new Kinetic.Stage({
             container: $mask[0],
             visible: true,
-            width: presenter.$pagePanel.width(),
-            height: presenter.$pagePanel.height()
+            width: $mask.width(),
+            height: $mask.height()
         });
 
         var layer = new Kinetic.Layer();

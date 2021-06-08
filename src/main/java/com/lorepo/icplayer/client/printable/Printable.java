@@ -9,6 +9,13 @@ public final class Printable {
 		YES,
 		YES_RANDOM
 	}
+
+	public enum PrintableStateMode {
+		EMPTY,
+		SHOW_ANSWERS,
+		SHOW_USER_ANSWERS,
+		CHECK_ANSWERS
+	}
 	
 	private Printable() {
 		// The Printable class is static

@@ -1,11 +1,9 @@
 package com.lorepo.icplayer.client.module.choice;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.user.client.Random;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.NodeList;
 import com.lorepo.icf.properties.IBooleanProperty;
@@ -17,10 +15,13 @@ import com.lorepo.icf.properties.IPropertyProvider;
 import com.lorepo.icf.properties.IStaticListProperty;
 import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
+import com.lorepo.icplayer.client.content.services.JsonServices;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
 import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
@@ -38,6 +39,7 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
 	private String printableValue = "";
 	private PrintableController printableController = null;
+	private HashMap<String, String> printableState = null;
 	
 	public ChoiceModel() {
 		super("Choice", DictionaryWrapper.get("choice_module"));
@@ -698,12 +700,27 @@ public class ChoiceModel extends BasicModuleModel implements IWCAGModuleModel, I
 	@Override
 	public void setPrintableController(PrintableController controller) {
 		this.printableController = controller;
-		
 	}
 
 	@Override
 	public void setPrintableState(String state) {
-		//TODO implement
+		if (state.equals(""))
+			return;
+		IJsonServices jsonServices = new JsonServices();
+		this.printableState = jsonServices.decodeHashMap(state);
 	}
 
+	@Override
+	public boolean isPrintableAsync() {
+		return false;
+	}
+
+	@Override
+	public void setPrintableAsyncCallback(String id, PrintableContentParser.ParsedListener listener) {
+
+	}
+
+	public HashMap<String, String> getPrintableState() {
+		return this.printableState;
+	}
 }

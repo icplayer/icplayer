@@ -21,6 +21,7 @@ import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.group.Group;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.player.IPage;
+import com.lorepo.icplayer.client.module.text.TextPrintable;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
 public class PrintableContentParser {
@@ -44,6 +45,11 @@ public class PrintableContentParser {
 	boolean randomizePages = false;
 	boolean randomizeModules = false;
 	ParsedListener listener = null;
+
+	JavaScriptObject parsedModuleCallback = null;
+	int asyncModuleCounter = 0;
+	int asyncModuleIDCounter = 0;
+	HashMap<String, String> asyncModuleResults = new HashMap<String, String>();
 	
 	private static class SplitResult extends JavaScriptObject {
 		
@@ -175,6 +181,56 @@ public class PrintableContentParser {
 			}
 		}
 	}
+
+	private String getPrintableModuleHTML(IPrintableModuleModel printable, boolean showAnswers, PrintableController controller) {
+		String result = "";
+		printable.setPrintableController(controller);
+		String moduleState = getModuleState(printable.getId(), controller.getPageId());
+		printable.setPrintableState(moduleState);
+		if (printable.isPrintableAsync()) {
+			asyncModuleCounter += 1;
+			final PrintableContentParser self = this;
+			final String parsedID = "async-parsed-module-" + Integer.toString(this.asyncModuleIDCounter);
+			this.asyncModuleIDCounter += 1;
+			printable.setPrintableAsyncCallback(parsedID, new ParsedListener() {
+				@Override
+				public void onParsed(String result) {
+					asyncModuleResults.put(parsedID, result);
+					int counter = getAsyncModuleCounter();
+					setAsyncModuleCounter(counter-1);
+					callParsedModuleCallback(self);
+				}
+			});
+		}
+		if (moduleState.length() == 0 && this.loadedState != null) {
+			// If the lesson has state but the module does not, display empty module
+			result = printable.getPrintableHTML(false);
+		} else {
+			result = printable.getPrintableHTML(showAnswers);
+		}
+		return result;
+	}
+
+	private native void callParsedModuleCallback(PrintableContentParser x)/*-{
+		var callback = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getParsedModuleCallback()();
+		if (callback) callback();
+	}-*/;
+
+	private JavaScriptObject getParsedModuleCallback() {
+		return this.parsedModuleCallback;
+	}
+
+	private void setParsedModuleCallback(JavaScriptObject callback) {
+		this.parsedModuleCallback = callback;
+	}
+
+	public int getAsyncModuleCounter() {
+		return asyncModuleCounter;
+	}
+
+	public void setAsyncModuleCounter(int value) {
+		asyncModuleCounter = value;
+	}
 	
 	private IPrintableModuleModel generatePrintableGroup(final Group group, PrintableController controller, boolean randomizeModules, boolean showAnswers) {
 		List<IPrintableModuleModel> groupPrintables = new ArrayList<IPrintableModuleModel>();
@@ -202,9 +258,7 @@ public class PrintableContentParser {
 		}
 		parsed += "<div class=\"printable_modules_group " + groupClass + " " + splittable_class + "\">";
 		for (IPrintableModuleModel printable: groupPrintables) {
-			printable.setPrintableController(controller);
-			printable.setPrintableState(getModuleState(printable.getId(), controller.getPageId()));
-			parsed += printable.getPrintableHTML(showAnswers);
+			parsed += getPrintableModuleHTML(printable, showAnswers, controller);
 		}
 		parsed += "</div>";
 
@@ -243,7 +297,17 @@ public class PrintableContentParser {
 
 			@Override
 			public void setPrintableState(String state) { }
-			
+
+			@Override
+			public boolean isPrintableAsync() {
+				return false;
+			}
+
+			@Override
+			public void setPrintableAsyncCallback(String id, ParsedListener listener) {
+
+			}
+
 		};
 	}
 	
@@ -282,9 +346,7 @@ public class PrintableContentParser {
 		}
 		String result = "";
 		for (IPrintableModuleModel printable: pagePrintables) {
-			printable.setPrintableController(pagePrintableController);
-			printable.setPrintableState(getModuleState(printable.getId(), page.getId()));
-			result += printable.getPrintableHTML(showAnswers);
+			result += getPrintableModuleHTML(printable, showAnswers, pagePrintableController);
 		}
 		return result;
 	}
@@ -382,12 +444,27 @@ public class PrintableContentParser {
 	};
 
 	private void continueGeneratePrintableHTML(JavaScriptObject element) {
+		updateAsyncModules(element);
 		updateImageSizes(element);
 		List<String> pageHTMLs = getModuleHTMLsFromWrapper(element);
 		String result = paginatePageHTMLs(pageHTMLs);
 		removeJSElement(element);
 		listener.onParsed(result);
 	}
+
+	private void updateAsyncModules(JavaScriptObject element) {
+		for (String key: this.asyncModuleResults.keySet()){
+			updateAsyncModule(key, asyncModuleResults.get(key), element);
+		}
+		asyncModuleIDCounter = 0;
+		asyncModuleCounter = 0;
+		asyncModuleResults.clear();
+	}
+
+	private native void updateAsyncModule(String id, String html, JavaScriptObject element)/*-{
+		var $replacement = $wnd.$(html);
+		$wnd.$('#'+id).replaceWith($replacement);
+	}-*/;
 
 	private List<String> generatePageHTMLs(List<Page> sourcePages) {
 		List<Page> pages = new ArrayList<Page>();
@@ -644,15 +721,26 @@ public class PrintableContentParser {
 		$wrapper.html(pageHTMLs);
 
 		var $imgs = $outerLessonWrapper.find('img');
-		var imgLoadCounter = $imgs.length;
+		var asyncModuleCount = x.@com.lorepo.icplayer.client.printable.PrintableContentParser::getAsyncModuleCounter()();
+		var loadCounter = $imgs.length + asyncModuleCount + 2; // number of images + async modules + outerLessonWrapper.ready + mathjax;
+
 		var isReady = false;
+		var continuedParsing = false; // Flag blocks continueGeneratePrintableHTML from getting called mutiple times
 
 		var loadCallback = function(){
-			imgLoadCounter -= 1;
-			if (imgLoadCounter < 1 && isReady) {
+			loadCounter -= 1;
+			if (loadCounter < 1 && isReady && !continuedParsing) {
+				continuedParsing = true;
 				x.@com.lorepo.icplayer.client.printable.PrintableContentParser::continueGeneratePrintableHTML(Lcom/google/gwt/core/client/JavaScriptObject;)($outerLessonWrapper[0]);
 			}
 		};
+
+		var mathJaxFinished = function() {
+			x.@com.lorepo.icplayer.client.printable.PrintableContentParser::mathJaxPostProcessing(Lcom/google/gwt/core/client/JavaScriptObject;)($outerLessonWrapper);
+			loadCallback();
+		}
+
+		x.@com.lorepo.icplayer.client.printable.PrintableContentParser::setParsedModuleCallback(Lcom/google/gwt/core/client/JavaScriptObject;)(loadCallback);
 
 		$imgs.each(function(){
 			var $this = $_(this);
@@ -669,15 +757,19 @@ public class PrintableContentParser {
 		});
 
 		var timeout = setTimeout(function(){
-			if (imgLoadCounter > 0 || isReady == false) {
+			if (loadCounter > 0 || isReady == false) {
 				isReady = true;
-				imgLoadCounter = 0;
+				loadCounter = 0;
 				loadCallback();
 			}
 		}, 20000);
 
 		$_('body').append($outerLessonWrapper);
 
+		var args = new $wnd.Array();
+		args.push("Typeset", $wnd.MathJax.Hub, $outerLessonWrapper[0]);
+		args.push(mathJaxFinished);
+		$wnd.MathJax.Hub.Queue(args);
 	}-*/;
 
 	private List<String> getModuleHTMLsFromWrapper(JavaScriptObject wrapper) {
@@ -685,6 +777,10 @@ public class PrintableContentParser {
 		List<String> moduleHTMLs = getStringListFromJsArray(array);
 		return moduleHTMLs;
 	}
+
+	private void mathJaxPostProcessing(JavaScriptObject wrapper) {
+		TextPrintable.mathJaxPostProcessing(wrapper);
+	};
 
 	private List<String> getStringListFromJsArray(JsArray array) {
 		List<String> list = new ArrayList<String>();
@@ -723,7 +819,8 @@ public class PrintableContentParser {
 	}-*/;
 
 	private native void removeJSElement(JavaScriptObject element)/*-{
-		element.remove();
+		$wnd.$(element).html('');
+		if (element && element.parentNode) element.parentNode.removeChild(element);
 	}-*/;
 
 }

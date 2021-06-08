@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.module.ordering;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.HashMap;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.xml.client.Element;
@@ -20,14 +21,16 @@ import com.lorepo.icf.utils.XMLUtils;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.module.BasicModuleModel;
 import com.lorepo.icplayer.client.module.IWCAGModuleModel;
-import com.lorepo.icplayer.client.module.choice.ChoicePrintable;
+import com.lorepo.icplayer.client.module.api.player.IJsonServices;
+import com.lorepo.icplayer.client.content.services.JsonServices;
 import com.lorepo.icplayer.client.module.choice.SpeechTextsStaticListItem;
 import com.lorepo.icplayer.client.printable.IPrintableModuleModel;
 import com.lorepo.icplayer.client.printable.Printable;
+import com.lorepo.icplayer.client.printable.PrintableContentParser;
 import com.lorepo.icplayer.client.printable.PrintableController;
 import com.lorepo.icplayer.client.printable.Printable.PrintableMode;
 
-public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel {
+public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel, IPrintableModuleModel, IPrintableOrderingModule {
 	public static final String ERROR_NUMBER_OF_ITEMS = "Error - only one item";
 	public static final String ERROR_NO_COMBINATION = "Error - all correct combinations have been used";
 	public static final String ERROR_POSITION_NOT_INTEGER = "Error - starting position not a integer";
@@ -52,6 +55,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	private String printableValue = "";
 	private PrintableController printableController = null;
 	private boolean isSplitInPrintBlocked = false;
+	private HashMap<String, String> printableState = null;
 
 	public OrderingModule() {
 		super("Ordering", DictionaryWrapper.get("ordering_module"));
@@ -811,6 +815,10 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	public PrintableMode getPrintable() {
 		return Printable.getPrintableModeFromString(printableValue);
 	}
+
+	public boolean isPrintable() {
+		return getPrintable() != PrintableMode.NO;
+	}
 	
 	@Override
 	public String getPrintableHTML(boolean showAnswers) {
@@ -996,7 +1004,23 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 
 	@Override
 	public void setPrintableState(String state) {
-		//TODO implement
+		if (state.equals(""))
+			return;
+		IJsonServices jsonServices = new JsonServices();
+		this.printableState = jsonServices.decodeHashMap(state);
 	}
 
+	@Override
+	public boolean isPrintableAsync() {
+		return false;
+	}
+
+	@Override
+	public void setPrintableAsyncCallback(String id, PrintableContentParser.ParsedListener listener) {
+
+	}
+
+	public HashMap<String, String> getPrintableState() {
+		return this.printableState;
+	}
 }
