@@ -701,11 +701,11 @@ function AddonImage_Identification_create(){
         }        
     }
 
-    function setViewAndImgClassess(viewClass, imageClass, $img) {
+    function setViewAndImgClasses(viewClass, imageClass, $img, $checkbox) {
         const prefix = 'printable-image-identification';
         const viewClassName = `${prefix}-${viewClass}`;
         const imageClassName = `${prefix}-${imageClass}`;
-        presenter.$view.addClass(viewClassName);
+        $checkbox.addClass(viewClassName);
         $img.addClass(imageClassName);
     }
 
@@ -719,38 +719,40 @@ function AddonImage_Identification_create(){
         chosePrintableStateMode(showAnswers);
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
-
         presenter.$view = $("<div></div>");
         presenter.$view.attr("id", presenter.configuration.addonID);
-        presenter.$view.css("max-width", model.Width+"px");
-        presenter.$view.css("max-height", model.Height+"px");
+
         loadImage(presenter.configuration.imageSrc, true);
-        var $img = presenter.$view.find('.image-identification-element');
+        const $img = presenter.$view.find('.image-identification-element');
         $img.removeClass('image-identification-element');
 
+        presenter.$view.prepend("<div class='checkbox-identifier'></div>")
+        const $checkbox = presenter.$view.find('.checkbox-identifier')
+        $checkbox.removeClass('checkbox-identifier');
+
         if (isPrintableEmptyAnswersStateMode()) {          
-            setViewAndImgClassess('empty-div', 'empty-img', $img);                               // EMPTY STATE
+            setViewAndImgClasses('empty-div', 'empty-img', $img, $checkbox);                               // EMPTY STATE
         } else if (isPrintableShowAnswersStateMode()) {                                             // SHOW ANSWERS
             if (presenter.configuration.shouldBeSelected) {
-                setViewAndImgClassess('selected-answer-div', 'selected-answer-img', $img);
+                setViewAndImgClasses('selected-answer-div', 'selected-answer-img', $img, $checkbox);
             } else {
-                setViewAndImgClassess('empty-answer-div', 'empty-answer-img', $img);
+                setViewAndImgClasses('empty-answer-div', 'empty-answer-img', $img, $checkbox);
             }
         } else if (isPrintableShowUserAnswersStateMode()) {                                           // SHOW USER ANSWERS
             if (presenter.printableState.isSelected) {
-                setViewAndImgClassess('selected-user-answer-div', 'selected-user-answer-img', $img);
+                setViewAndImgClasses('selected-user-answer-div', 'selected-user-answer-img', $img, $checkbox);
             } else {
-                setViewAndImgClassess('empty-user-answer-div', 'empty-user-answer-img', $img);
+                setViewAndImgClasses('empty-user-answer-div', 'empty-user-answer-img', $img, $checkbox);
             }
         } else {                                                                                        // CHECK USER ANSWERS
             if (!presenter.printableState.isSelected && !presenter.configuration.shouldBeSelected) {
-                setViewAndImgClassess('empty-correct-answer-div', 'empty-correct-answer-img', $img);
+                setViewAndImgClasses('empty-correct-answer-div', 'empty-correct-answer-img', $img, $checkbox);
             } else if (!presenter.printableState.isSelected && presenter.configuration.shouldBeSelected) {
-                setViewAndImgClassess('empty-incorrect-answer-div', 'empty-incorrect-answer-img', $img);
+                setViewAndImgClasses('empty-incorrect-answer-div', 'empty-incorrect-answer-img', $img, $checkbox);
             } else if (presenter.printableState.isSelected && presenter.configuration.shouldBeSelected) {
-                setViewAndImgClassess('selected-correct-answer-div', 'selected-correct-answer-img', $img);
+                setViewAndImgClasses('selected-correct-answer-div', 'selected-correct-answer-img', $img, $checkbox);
             } else {
-                setViewAndImgClassess('selected-incorrect-answer-div', 'selected-incorrect-answer-img', $img);
+                setViewAndImgClasses('selected-incorrect-answer-div', 'selected-incorrect-answer-img', $img, $checkbox);
             }
         }
 
