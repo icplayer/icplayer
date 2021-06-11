@@ -4,6 +4,6 @@
 	<model>
         <property displayName="Is disabled" name="Is Disabled" nameLabel="Gradual_Show_Answer_property_disabled" type="boolean" />
         <property displayName="Is hide answers" name="Is hide answers" nameLabel="Gradual_Show_Answer_property_is_hide_answers" type="boolean" />
-        <property displayName="Works with" name="Works with" nameLabel="Gradual_Show_Answer_property_works_with" type="string" isLocalized="true" />
+        <property name="worksWith" nameLabel="Gradual_Show_Answer_property_works_with" type="text"/>
 	</model>
 </addon>

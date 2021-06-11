@@ -12,7 +12,7 @@ function AddonGradual_Show_Answer_create() {
         isVisible: true,
         isDisabled: false,
         isErrorMode: false,
-        isGradualShowAnswers: false
+        isGradualShowAnswers: false,
     };
     presenter.playerController = null;
 
@@ -23,6 +23,7 @@ function AddonGradual_Show_Answer_create() {
             ModelValidators.utils.FieldRename("Is Visible", "isVisible", ModelValidators.Boolean('isVisible')),
             ModelValidators.utils.FieldRename("Is Disabled", "isDisabled", ModelValidators.Boolean('isDisabled')),
             ModelValidators.utils.FieldRename("Is hide answers", "isHideAnswers", ModelValidators.Boolean('isHideAnswers')),
+            ModelValidators.String("worksWith", {default: ""}),
             ModelValidators.DumbString('ID'),
         ]);
     };
@@ -66,7 +67,7 @@ function AddonGradual_Show_Answer_create() {
         if (presenter.configuration.isHideAnswers) {
             presenter.playerController.getCommands().hideGradualAnswers();
         } else {
-            presenter.playerController.getCommands().showNextAnswer();
+            presenter.playerController.getCommands().showNextAnswer(presenter.configuration.worksWith);
         }
     }
 
@@ -77,7 +78,6 @@ function AddonGradual_Show_Answer_create() {
         var validatedModel = presenter.validateModel(model);
 
         if (!validatedModel.isValid) {
-            console.log(validatedModel);
             return;
         }
 

@@ -9,18 +9,13 @@ import com.lorepo.icplayer.client.module.api.event.builders.GradualShowAnswersBu
 import com.lorepo.icplayer.client.module.api.player.IGradualShowAnswersService;
 import com.lorepo.icplayer.client.module.api.player.IPageController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GradualShowAnswersService implements IGradualShowAnswersService {
     private final IPageController pageController;
-    private int currentModule = 0;
-    private int currentModuleItem = 0;
     private List<IGradualShowAnswersPresenter> presenters;
     private Map<String, Boolean> presenterDisabledState;
-    private List<String> worksWith; // TODO get contents of the addon's worksWith field
+    private Map<String, Integer> presenterActivitiesCountUsed;
 
 
     public GradualShowAnswersService(IPageController pageController) {
@@ -45,26 +40,26 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
      * @return boolean - if no more answers to show, then returns false.
      */
     @Override
-    public boolean showNext() {
-        boolean firstCall = !this.pageController.getPlayerServices().getPlayerStateService().isGradualShowAnswersMode();
+    public boolean showNext(String worksWith) {
+        List<String> worksWithList = new ArrayList<String>();
+        for(String workWith: worksWith.split("\n")){
+            if(!workWith.isEmpty()) {
+                worksWithList.add(workWith.trim());
+            }
+        }
 
-        IGradualShowAnswersPresenter currentPresenter = getNextPresenter();
+        boolean firstCall = !this.pageController.getPlayerServices().getPlayerStateService().isGradualShowAnswersMode();
+        IGradualShowAnswersPresenter currentPresenter = getPresenter(worksWithList);
 
         if (currentPresenter != null) {
-            int activitiesCount = currentPresenter.getActivitiesCount();
-            if (this.currentModuleItem >= activitiesCount) {
-                this.currentModule++;
-                this.currentModuleItem = 0;
-                // try to show item answer for next module
-                return showNext();
-            } else {
-                this.sendEvent(currentPresenter.getModel().getId(), this.currentModuleItem);
-                if (firstCall) {
-                    disablePresenters();
-                }
-                this.currentModuleItem++;
-                return true;
+            String id = currentPresenter.getModel().getId();
+            int activities = presenterActivitiesCountUsed.get(id);
+            presenterActivitiesCountUsed.put(id, activities + 1);
+            this.sendEvent(currentPresenter.getModel().getId(), activities);
+            if (firstCall) {
+                disablePresenters();
             }
+            return true;
         }
 
         return false;
@@ -81,8 +76,9 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     }
 
     private void resetCounters() {
-        this.currentModuleItem = 0;
-        this.currentModule = 0;
+        for(String key: presenterActivitiesCountUsed.keySet()){
+            presenterActivitiesCountUsed.put(key, 0);
+        }
     }
 
     private void enablePresenters() {
@@ -115,26 +111,37 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     private void setCurrentPagePresenters() {
         presenters = new ArrayList<IGradualShowAnswersPresenter>();
         presenterDisabledState = new HashMap<String, Boolean>();
+        presenterActivitiesCountUsed = new HashMap<String, Integer>();
 
         List<IPresenter> pagePresenters = this.pageController.getPresenters();
         if (pagePresenters != null) {
             for (IPresenter presenter : pagePresenters) {
                 if (presenter instanceof IGradualShowAnswersPresenter) {
-                    if (this.worksWith.size() == 0 ||  this.worksWith.contains(presenter.getModel().getId())) {
-                        presenters.add((IGradualShowAnswersPresenter) presenter);
-                    }
+                    presenters.add((IGradualShowAnswersPresenter) presenter);
+                    presenterActivitiesCountUsed.put(presenter.getModel().getId(), 0);
                 }
             }
         }
-
-        resetCounters();
     }
 
-    private IGradualShowAnswersPresenter getNextPresenter() {
-        if (this.currentModule < this.presenters.size()) {
-            return this.presenters.get(this.currentModule);
+    private IGradualShowAnswersPresenter getPresenter(List<String> worksWith) {
+        for(IGradualShowAnswersPresenter presenter: presenters){
+            if(this.workWithThisPresenter(worksWith, presenter) && this.presenterHasFreeActivities(presenter)){
+                return presenter;
+            }
         }
         return null;
+    }
+
+    private boolean workWithThisPresenter(List<String> worksWith, IGradualShowAnswersPresenter presenter){
+        String id = presenter.getModel().getId();
+        return worksWith.size() == 0 || worksWith.contains(id);
+    }
+
+    private boolean presenterHasFreeActivities(IGradualShowAnswersPresenter presenter){
+        String id = presenter.getModel().getId();
+        Integer activitiesCount = presenter.getActivitiesCount();
+        return presenterActivitiesCountUsed.get(id) < activitiesCount;
     }
 
     private void sendEvent(String moduleID, int itemIndex) {
