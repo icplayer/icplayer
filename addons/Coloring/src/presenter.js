@@ -257,7 +257,10 @@ function AddonColoring_create(){
             }
 
             if(!presenter.configuration.colorCorrect){
-                presenter.userInteractionSendingEvent(getClickedArea(presenter.click));
+                setTimeout(function(){
+                    // Without timeout there are issues on Firefox if event handling takes too long
+                    presenter.userInteractionSendingEvent(getClickedArea(presenter.click));
+                }, 0);
             }
 
             if (!presenter.isAlreadyInColorsThatCanBeFilled(presenter.configuration.currentFillingColor)) {
@@ -266,7 +269,10 @@ function AddonColoring_create(){
         }
         if(presenter.configuration.colorCorrect){
             presenter.checkIfColoredCorrectly();
-            presenter.sendEvent([presenter.click.x, presenter.click.y], presenter.configuration.isErase ? 0 : 1, 1);
+            setTimeout(function(){
+                // Without timeout there are issues on Firefox if event handling takes too long
+                presenter.sendEvent([presenter.click.x, presenter.click.y], presenter.configuration.isErase ? 0 : 1, 1);
+            }, 0);
         }
     };
 
