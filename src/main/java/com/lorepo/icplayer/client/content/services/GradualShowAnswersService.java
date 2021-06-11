@@ -54,7 +54,7 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         if (currentPresenter != null) {
             String id = currentPresenter.getModel().getId();
             int activities = presenterActivitiesCountUsed.get(id);
-            presenterActivitiesCountUsed.put(id, activities + 1);
+            this.setPresenterActivitiesCountUsed(id, activities + 1);
             this.sendEvent(currentPresenter.getModel().getId(), activities);
             if (firstCall) {
                 disablePresenters();
@@ -63,6 +63,10 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         }
 
         return false;
+    }
+
+    public void setPresenterActivitiesCountUsed(String id, int activities){
+        presenterActivitiesCountUsed.put(id, activities);
     }
 
     @Override
