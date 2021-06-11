@@ -12,7 +12,7 @@ function AddonGradual_Show_Answer_create() {
         isVisible: true,
         isDisabled: false,
         isErrorMode: false,
-        isGradualShowAnswers: false,
+        isGradualShowAnswers: false
     };
     presenter.playerController = null;
 
