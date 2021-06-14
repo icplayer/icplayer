@@ -12,4 +12,6 @@ public interface IPrintableModuleModel {
 	boolean isSection();
 	String getId();
 	void setPrintableState(String state);
+	boolean isPrintableAsync();
+	void setPrintableAsyncCallback(String id, PrintableContentParser.ParsedListener listener);
 }
