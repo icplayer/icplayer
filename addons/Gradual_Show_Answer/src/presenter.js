@@ -28,6 +28,19 @@ function AddonGradual_Show_Answer_create() {
         ]);
     };
 
+    presenter.upgradeModel = function (model) {
+        return presenter.addDefaultWorksWith(model);
+    }
+
+    presenter.addDefaultWorksWith = function(model){
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+        if (!upgradedModel['worksWith']) {
+            upgradedModel['worksWith'] = '';
+        }
+        return upgradedModel;
+    }
+
     presenter.run = function(view, model) {
         presenter.presenterLogic(view, model, presenter.isPreview)
     };
@@ -75,7 +88,8 @@ function AddonGradual_Show_Answer_create() {
         presenter.addonID = model.ID;
         presenter.view = view;
 
-        var validatedModel = presenter.validateModel(model);
+        const upgradedModel = presenter.upgradeModel(model);
+        const validatedModel = presenter.validateModel(upgradedModel);
 
         if (!validatedModel.isValid) {
             return;
