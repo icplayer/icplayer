@@ -721,6 +721,7 @@ function AddonImage_Identification_create(){
         presenter.configuration = presenter.validateModel(model);
         presenter.$view = $("<div></div>");
         presenter.$view.attr("id", presenter.configuration.addonID);
+        presenter.$view.addClass("printable_addon_Image_Identification");
 
         loadImage(presenter.configuration.imageSrc, true);
         const $img = presenter.$view.find('.image-identification-element');
