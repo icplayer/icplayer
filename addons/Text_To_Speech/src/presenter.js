@@ -39,6 +39,9 @@ function AddonText_To_Speech_create() {
         DEFAULT: 'Main'
     };
 
+    // Maximum length of a single utterance. If exceeded, the utterence will be split into multiple shorter ones
+    presenter.maxUtteranceLength = 200;
+
     function parseConfiguration(configuration) {
         if (!configuration) {
             return getErrorObject('C01');
@@ -375,9 +378,68 @@ function AddonText_To_Speech_create() {
         presenter.speakWithCallback(texts, null);
     };
 
+    function splitByPunctuationSigns(text) {
+        return text.split(/[.,:;!?\/\\()]/);
+    }
+
+    // creates an array of utterances from a single text that exceeds max utterance length and has no natural break points
+    function splitLongSentence (sentence, lang) {
+        var newTexts = [];
+        var sentenceLen = sentence.trim().length;
+        var maxSplitLen = sentenceLen / (Math.floor(sentenceLen / presenter.maxUtteranceLength) + 1);
+        var workString = '';
+        var words = sentence.split(/\s/);
+        for (var k = 0; k < words.length; k++) {
+            workString += words[k] + ' ';
+            if (workString.length > maxSplitLen) {
+                newTexts.push({
+                    text: workString,
+                    lang: lang
+                });
+                workString = '';
+            }
+        }
+        newTexts.push({
+            text: workString,
+            lang: lang
+        });
+        return newTexts;
+    }
+
+    // Too long utterences may take much too long to load or exceed Speech Synthesis API character limit
+    presenter.splitLongTexts = function (texts) {
+        var newTexts = [];
+        for (var i = 0; i < texts.length; i++) {
+            if (texts[i].text !== null && texts[i].text !== undefined && texts[i].text.trim().length > 0) {
+                if (texts[i].text.trim().length > presenter.maxUtteranceLength) {
+                    var sentences = splitByPunctuationSigns(texts[i].text);
+                    for (var j = 0; j < sentences.length; j++) {
+                        var sentenceLen = sentences[j].trim().length;
+                        if (sentenceLen > 0) {
+                            if (sentenceLen < presenter.maxUtteranceLength) {
+                                newTexts.push({
+                                    text: sentences[j],
+                                    lang: texts[i].lang
+                                });
+                            } else {
+                                var splitSentences = splitLongSentence(sentences[j], texts[i].lang);
+                                newTexts = newTexts.concat(splitSentences);
+                            }
+                        }
+                    }
+                } else {
+                    newTexts.push(texts[i]);
+                }
+            }
+        }
+        return newTexts;
+    }
+
+
     presenter.speakWithCallback = function (texts, callback) {
 
         texts = presenter.parseAltTexts(texts);
+        texts = presenter.splitLongTexts(texts);
         if (window.responsiveVoice) {
             responsiveVoiceSpeak(texts, callback);
             return;
@@ -388,7 +450,6 @@ function AddonText_To_Speech_create() {
             return;
         }
 
-        console.log(texts);
         if (callback) {
             callback();
         }
