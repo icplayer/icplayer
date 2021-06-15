@@ -560,6 +560,26 @@ hr, table, fieldset {
 	opacity: 0.4;
 }
 
+.printable_ic_ordering {
+    overflow: hidden;
+    display: table;
+}
+
+.printable_ic_ordering .items-wrapper,
+.printable_ic_ordering .is-all-ok-sign-wrapper,
+.printable_ic_ordering .is-not-all-ok-sign-wrapper {
+	display: table-cell;
+    vertical-align: middle;
+}
+
+.printable_ic_ordering .is-all-ok-sign-wrapper::after {
+    content: "\2714";
+}
+
+.printable_ic_ordering .is-not-all-ok-sign-wrapper::after {
+    content: "\2716";
+}
+
 .printable_ic_ordering .item-wrapper {
 	border: 1px solid #999;
 	padding: 5px 10px 5px 5px;
@@ -567,7 +587,9 @@ hr, table, fieldset {
 	display:inline-block;
 }
 
-.printable_ic_ordering .number-box {
+.printable_ic_ordering .number-box,
+.printable_ic_ordering .number-box-correct,
+.printable_ic_ordering .number-box-wrong {
 	border: 1px solid #999;
 	width:2em;
 	height: 2em;
@@ -575,6 +597,18 @@ hr, table, fieldset {
 	text-align: center;
 	vertical-align: middle;
 	margin-right: 10px;
+}
+
+.printable_ic_ordering.printable-ordering-show-answers  .item-wrapper {
+    border: 1px dashed #999;
+}
+
+.printable_ic_ordering .number-box-correct::after {
+    content: "\2714";
+}
+
+.printable_ic_ordering .number-box-wrong::after {
+    content: "\2716";
 }
 
 /**
@@ -724,6 +758,14 @@ hr, table, fieldset {
  	font-size: 12px;
  	color: red;
  }
+
+.ic_text-correct-answer:after {
+    content: " \2714";
+}
+
+.ic_text-wrong-answer:after {
+    content: " \2716";
+}
 
  .ic_text_audio_button{
 	width: 22px;

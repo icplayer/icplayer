@@ -31,10 +31,23 @@ function AddonConnection_create() {
     presenter.isCheckActive = false;
     presenter.initialState = null;
 
+    presenter.printableState = null;
+    presenter.printableParserID = "";
+    presenter.printableParserCallback = null;
+
     presenter.mathJaxLoaders = {
         runLoader: false,
         setStateLoader: true
     };
+
+    presenter.PRINTABLE_STATE_MODE = {
+        EMPTY: 0,
+        SHOW_ANSWERS: 1,
+        SHOW_USER_ANSWERS: 2,
+        CHECK_ANSWERS: 3
+    };
+
+    presenter.printableStateMode = 0;
 
     var deferredCommandQueue = window.DecoratorUtils.DeferredSyncQueue(checkIsMathJaxLoaded);
 
@@ -307,12 +320,15 @@ function AddonConnection_create() {
     };
 
     presenter.removeNonVisibleInnerHTML = function () {
-        $.each($(presenter.view).find('.innerWrapper'), function (index, element) {
+        presenter.removeNonVisibleInnerHTMLForRoot($(presenter.view));
+
+    };
+    presenter.removeNonVisibleInnerHTMLForRoot = function ($root) {
+        $.each($root.find('.innerWrapper'), function (index, element) {
             var newInnerHtml = $(element).html().replace(/\\alt{([^{}|]*?)\|[^{}|]*?}(\[[a-zA-Z0-9_\- ]*?\])*/g, '$1'); // replace \alt{a|b}[c] with a
             $(element).html(newInnerHtml.replace(/\\alt{([^|{}]*?)\|[^|{}]*?}/g, '$1')); // replace \alt{a|b} with a
         });
-
-    };
+    }
 
     presenter.setPlayerController = function (controller) {
         presenter.registerMathJax();
@@ -1014,6 +1030,92 @@ function AddonConnection_create() {
         var column = $(view).find('.' + columnClass + ':first').find('.content:first');
         for (var i = 0, columnLength = model[columnModel].length; i < columnLength; i++) {
             presenter.appendElements(i, model, columnModel, column, isRightColumn);
+        }
+    };
+
+    function isAnswersEqualToCorrectResults (userAnswers, correctAnswers) {
+        if (userAnswers == null || correctAnswers == null) return false;
+        if (userAnswers.length !== correctAnswers.length) return false;
+
+        var userAnswersParsed = [];
+        var correctAnswersParsed = []
+        userAnswers.forEach(function(element, index) {
+            userAnswersParsed.push(element.join(':'));
+        }, userAnswers);
+        correctAnswers.forEach(function(element, index) {
+            correctAnswersParsed.push(element.id + ':' + element.answer);
+        }, correctAnswers);
+      
+        userAnswersParsed.sort();
+        correctAnswersParsed.sort();
+      
+        for (var i = 0; i < userAnswersParsed.length; ++i) {
+          if (userAnswersParsed[i] !== correctAnswersParsed[i]) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+    function appendAnswerDiv (column, elementId, answerDiv) {
+        var element = $('<table class="answerItem" id="connection-' + elementId + '"></div>');
+        var row = $('<tr></tr>');
+        var innerElement = $('<td class="inner"></td>');
+        var newRow = $('<tr></tr>');
+        var newCell = $('<td class="connectionItemWrapper"></td>');
+        innerElement.append(answerDiv);
+        row.append(innerElement);
+        element.append(row);
+        newCell.append(element);
+        newRow.append(newCell);
+        column.append(newRow);
+    }
+
+    presenter.addAnswersElements = function (view, model, correctAnswers) {
+        // left side
+        userAnswers = []
+        if (presenter.printableState.id.length > 0) {
+            for (var i = 0; i < presenter.printableState.id.length; i++) {
+                var pair = presenter.printableState.id[i].split(':');
+                userAnswers.push(pair);
+            }
+        }
+
+        var leftAnswerColumn = $(view).find('.answersLeftColumn:first').find('.content:first');
+        var rightAnswerColumn = $(view).find('.answersRightColumn:first').find('.content:first');
+        
+        // Left answer column
+        for (var i = 0; i < model["Left column"].length; i++) {
+            var element = presenter.elements[i];
+            var leftId = element.id;
+            var userConnectionsWithLeftId = userAnswers.filter((userAnswer) => {
+                return(userAnswer[0] == leftId);
+            })
+            if (userConnectionsWithLeftId.length == 0) {
+                var emptyAnswer = [`${leftId}`, ''];
+                userConnectionsWithLeftId.push(emptyAnswer);
+            }
+            var correctConnectionsWithLeftId = correctAnswers.filter((correctAnswer) => {
+                return(correctAnswer.id == leftId);
+            });
+            var answerDiv = isAnswersEqualToCorrectResults(userConnectionsWithLeftId, correctConnectionsWithLeftId) ?
+                    $('<div class="correctAnswerDiv"></div>') :
+                    $('<div class="inCorrectAnswerDiv"></div>');
+            appendAnswerDiv(leftAnswerColumn, leftId, answerDiv);
+        }
+        // Right answer column
+        for (var i = 0; i < model["Right column"].length; i++) {
+            var rightId = model["Right column"][i].id;
+            var userConnectionsWithRightId = userAnswers.filter((userAnswer) => {
+                return(userAnswer[1] == rightId);
+            })
+            var correctConnectionsWithRightId = correctAnswers.filter((correctAnswer) => {
+                return(correctAnswer.answer == rightId);
+            })
+            var answerDiv = isAnswersEqualToCorrectResults(userConnectionsWithRightId, correctConnectionsWithRightId) ?
+                $('<div class="correctAnswerDiv"></div>') :
+                $('<div class="inCorrectAnswerDiv"></div>');
+            appendAnswerDiv(rightAnswerColumn, rightId, answerDiv);
         }
     };
 
@@ -2031,7 +2133,7 @@ function AddonConnection_create() {
         Line: Line
     };
 
-    function drawSVGLine(svg, firstID, secondID, model) {
+    function drawSVGLine(svg, firstID, secondID, correctLine, model) {
         var leftSize = model["Left column"].length;
 
         var isFirstIDInLeftColumn = false;
@@ -2069,11 +2171,11 @@ function AddonConnection_create() {
             firstID = tmp;
         }
 
-        drawSVGLineLeftToRight(svg, firstID, secondID, model);
+        drawSVGLineLeftToRight(svg, firstID, secondID, correctLine, model);
 
     }
 
-    function drawSVGLineLeftToRight(svg, leftID, rightID, model) {
+    function drawSVGLineLeftToRight(svg, leftID, rightID, correctLine, model) {
         var leftSize = model["Left column"].length;
         var leftTotalSize = 0;
         var rightTotalSize = 0;
@@ -2096,8 +2198,9 @@ function AddonConnection_create() {
         }
         var leftY = 100.0 * leftPos / leftTotalSize + "%";
         var rightY = 100.0 * rightPos / rightTotalSize + "%";
-
-        var $line = $("<line x1=\"0\" x2=\"100%\" style=\"stroke:rgb(0,0,0);stroke-width:1\" />");
+        var $line = correctLine
+            ? $('<line class="correctConnectionLine" x1="0" x2="100%" style="stroke: rgb(0, 0, 0); stroke-width: 1;" />')
+            : $('<line class="inCorrectConnectionLine" x1="0" x2="100%" style="stroke: rgb(0, 0, 0); stroke-width: 1;" stroke-dasharray="4" />');
         $line.attr('y1', leftY);
         $line.attr('y2', rightY);
         svg.append($line);
@@ -2107,76 +2210,238 @@ function AddonConnection_create() {
         presenter.printableController = controller;
     };
 
-    presenter.getPrintableHTML = function (model, showAnswers) {
-        model = presenter.upgradeModel(model);
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state);
+    }
 
+    presenter.isPrintableAsync = function() {
+        return true;
+    }
+
+    presenter.setPrintableAsyncCallback = function(id, callback) {
+        presenter.printableParserID = id;
+        presenter.printableParserCallback = callback;
+    }
+
+    function getCorrectAnswersObject(model) {
+        var correctAnswers = [];
+        var idx = 0;
+        for (var i = 0; i < model["Left column"].length; i++) {
+            var element = presenter.elements[i];
+            var id = element.id;
+            var correctAnswersValues = element.connects.split(',');
+            if (correctAnswersValues.length == 0) {
+                correctAnswers[idx] = {
+                    'id': id,
+                    'answer': null
+                };
+                idx++;
+            } else {
+                correctAnswersValues.forEach(function (answer) {
+                    correctAnswers[idx] = {
+                        'id': id,
+                        'answer': answer
+                    };
+                    idx++;
+                });
+            }
+        }
+        return correctAnswers;
+    }
+
+    function isPrintableShowAnswersStateMode () {
+        return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS;
+    }
+    function isPrintableShowUserAnswersStateMode () {
+        return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
+    }
+    function isPrintableCheckAnswersStateMode () {
+        return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS;
+    }
+
+    function chosePrintableStateMode(showAnswers) {
+        if (presenter.printableState) {
+            if (showAnswers)
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS;
+            else
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
+        } else {
+            if (showAnswers)
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS;
+            else
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.EMPTY;
+        }
+    }
+
+    function isCorrectConnection (correctAnswers, connection) {
+        for (var i = 0; i < correctAnswers.length; i++) {
+            var answer = correctAnswers[i];
+            if (answer.id == connection[0] && answer.answer == connection[1]) return true;
+        }
+        return false;
+    }
+
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        chosePrintableStateMode(showAnswers);
+        model = presenter.upgradeModel(model);
+        var savedState = presenter.printableState;
+        var isCheckAnswers = isPrintableCheckAnswersStateMode();
+        var answerLeftColumn = isCheckAnswers ? 
+        '<td class="answersLeftColumn">' +
+            '<table class="content"></table>' +
+        '</td>' : ''
+
+        var answerRightColumn = isCheckAnswers ? 
+        '<td class="answersRightColumn">' +
+            '<table class="content"></table>' +
+        '</td>' : ''
+        
         var $root = $("<div></div>");
         $root.attr('id', model.ID);
         $root.addClass('printable_addon_Connection');
         $root.css("max-width", model["Width"]+"px");
-        $root.html('<table class="connectionContainer">' +
-            '    <tr>' +
-            '        <td class="connectionLeftColumn">' +
-            '            <table class="content"></table>' +
-            '        </td>' +
-            '        <td class="connectionMiddleColumn">' +
-            '            <svg class="connections"></svg>' +
-            '        </td>' +
-            '        <td class="connectionRightColumn">' +
-            '            <table class="content"></table>' +
-            '        </td>' +
-            '    </tr>' +
+        $root.html(
+            '<table class="connectionContainer">' +
+                '<tr>' +
+                    answerLeftColumn +
+                    '<td class="connectionLeftColumn">' +
+                        '<table class="content"></table>' +
+                    '</td>' +
+                    '<td class="connectionMiddleColumn">' +
+                        '<svg class="connections"></svg>' +
+                    '</td>' +
+                    '<td class="connectionRightColumn">' +
+                        '<table class="content"></table>' +
+                    '</td>' +
+                    answerRightColumn +
+                '</tr>' +
             '</table>');
 
         var isRandomLeft = ModelValidationUtils.validateBoolean(model['Random order left column']);
         var isRandomRight = ModelValidationUtils.validateBoolean(model['Random order right column']);
         if (!isRandomLeft) {
-            this.loadElements($root[0], model, 'connectionLeftColumn', 'Left column', false);
+            this.loadElements($root[0], model, 'connectionLeftColumn', 'Left column', false, isCheckAnswers);
         } else {
             this.loadRandomElementsLeft($root[0], model, 'connectionLeftColumn', 'Left column', false);
         }
         if (!isRandomRight) {
-            this.loadElements($root[0], model, 'connectionRightColumn', 'Right column', true);
+            this.loadElements($root[0], model, 'connectionRightColumn', 'Right column', true, isCheckAnswers);
         } else {
             this.loadRandomElementsRight($root[0], model, 'connectionRightColumn', 'Right column', true);
         }
         this.setColumnsWidth($root[0], model["Columns width"]);
+        presenter.removeNonVisibleInnerHTMLForRoot($root);
 
+        var correctAnswers = getCorrectAnswersObject(model);
+
+        if (isCheckAnswers) {
+            presenter.addAnswersElements($root[0], model, correctAnswers);
+        }
 
         var connected = [];
-        if (showAnswers) {
-            for (var i = 0; i < model["Left column"].length; i++) {
-                var element = presenter.elements[i];
-                if (element.connects) {
-                    connected.push({from: element.id, to:element.connects});
+        if (isPrintableShowAnswersStateMode()) {
+            for (var i = 0; i < correctAnswers.length; i++) {
+                if (correctAnswers[i].answer) {
+                    connected.push({
+                        from: correctAnswers[i].id,
+                        to: correctAnswers[i].answer,
+                        correct: true
+                    });
                 }
             }
-        } else {
-            for (var i = 0; i < model["initialConnections"].length; i++) {
-                var connection = model["initialConnections"][i];
-                if (connection.from.length > 0 && connection.to.length > 0) {
-                    connected.push({from: connection.from, to: connection.to});
-                }
+        } else if (isPrintableShowUserAnswersStateMode()) {
+            for (var i = 0; i < savedState.id.length; i++) {
+                var pair = savedState.id[i].split(':');
+                connected.push({
+                    from: pair[0],
+                    to: pair[1],
+                    correct: true
+                });
+            }
+        } else if (isCheckAnswers) {
+            for (var i = 0; i < savedState.id.length; i++) {
+                var pair = savedState.id[i].split(':');
+                connected.push({
+                    from: pair[0],
+                    to: pair[1],
+                    correct: isCorrectConnection(correctAnswers, pair)
+                });
             }
         }
 
-        var height = getPrintableTableHeight($root);
-        $root.css("height", height+"px");
-
-        if (connected.length > 0) {
-            $root.css('visibility', 'hidden');
-            $('body').append($root);
-            var connectionsSVG = $root.find('svg');
-            for (var i = 0; i < connected.length; i++) {
-                var connection = connected[i];
-                drawSVGLine(connectionsSVG, connection.from, connection.to, model);
+        $root.css('visibility', 'hidden');
+        $('body').append($root);
+        waitForLoad($root, function(){
+            if (connected.length > 0) {
+                var connectionsSVG = $root.find('svg');
+                for (var i = 0; i < connected.length; i++) {
+                    var connection = connected[i];
+                    drawSVGLine(connectionsSVG, connection.from, connection.to, connection.correct, model);
+                }
             }
             $root.detach();
-            $root.css('visibility', 'visible');
-        }
+            $root.css('visibility', '');
+            var height = getPrintableTableHeight($root);
+            $root.css("height", height+"px");
+            var parsedView = $root[0].outerHTML;
+            $root.remove();
+            presenter.printableParserCallback(parsedView);
+        });
 
-        return $root[0].outerHTML;
+        var $clone = $root.clone();
+        $clone.attr('id', presenter.printableParserID);
+        $clone.css('visibility', '');
+        var result = $clone[0].outerHTML;
+        $clone.remove();
+
+
+        return result;
     };
+
+    function waitForLoad($element, callback) {
+        var $imgs = $element.find('img');
+        var loadCounter = $imgs.length + 2;
+        var timeout = null;
+        var continuedParsing = false;
+
+        var loadCallback = function(){
+            loadCounter -= 1;
+            if (loadCounter < 1 && isReady && !continuedParsing) {
+                continuedParsing = true;
+                if (timeout) clearTimeout(timeout);
+                callback();
+            }
+        };
+
+        $imgs.each(function(){
+            var $this = $(this);
+            if (this.complete && this.naturalHeight !== 0) {
+                loadCallback();
+            } else {
+                $this.load(loadCallback);
+            }
+        });
+
+        $element.ready(function(){
+            isReady = true;
+            loadCallback();
+        });
+
+        var timeout = setTimeout(function(){
+            if (loadCounter > 0 || isReady == false) {
+                isReady = true;
+                loadCounter = 0;
+                loadCallback();
+            }
+        }, 15000);
+
+        var args = [];
+        args.push("Typeset", MathJax.Hub, $element[0]);
+        args.push(loadCallback);
+        MathJax.Hub.Queue(args);
+    }
 
     return presenter;
 }
@@ -2200,8 +2465,8 @@ function getPrintableTableHeight($table) {
 
 		$("body").append($outerLessonWrapper);
 		var height = $table[0].getBoundingClientRect().height;
-		$outerLessonWrapper.detach();
-		$table.detach();
+		$outerLessonWrapper.remove();
+		$table.remove();
 		return height;
     }
 
