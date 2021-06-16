@@ -627,6 +627,7 @@ var ice_dictionary_fr = {
 	"Gradual_Show_Answer_info": "The Gradual Show Answer module allows you show next correct answer in modules or hide all showed answers.",
 	"Gradual_Show_Answer_property_is_hide_answers": "Hide Answers Mode",
     "Gradual_Show_Answer_property_disabled": "Is disabled",
+    "Gradual_Show_Answer_property_works_with": "Works with",
     "Connection_info": "Permet de créer une activité avec deux colonnes d'éléments (textes ou images) que l'on devra associer. Il est possible de paramétrer des connexions uniques ou multiples (un élément peut etre relié à plusieurs).",
     "Connection_name": "Connexion",
     "Connection_property_is_not_activity": "N'est pas un exercice",

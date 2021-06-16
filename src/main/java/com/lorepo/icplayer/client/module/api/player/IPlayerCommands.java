@@ -6,7 +6,7 @@ public interface IPlayerCommands {
 	public void uncheckAnswers();
 	void showAnswers(String source);
 	void hideAnswers(String source);
-	boolean showNextAnswer();
+	boolean showNextAnswer(String worksWith);
 	void hideGradualAnswers();
 	public void reset(boolean onlyWrongAnswers);
 	public void resetPage(int index);

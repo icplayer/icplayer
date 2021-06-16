@@ -2107,6 +2107,7 @@ var ice_dictionary_bl = {
 	"Gradual_Show_Answer_info": "The Gradual Show Answer module allows you show next correct answer in modules or hide all showed answers.",
 	"Gradual_Show_Answer_property_is_hide_answers": "Hide Answers Mode",
 	"Gradual_Show_Answer_property_disabled": "Is disabled",
+	"Gradual_Show_Answer_property_works_with": "Works with",
     "editor.batch_upload.getting_unpack_id.error": "An error occurred while trying to upload the package.",
     "editor.batch_upload.getting_unpack_id.success": "The package was uploaded correctly and the editor will start checking if the files were unpacked in the background.",
 		"editor.batch_upload.getting_unpack_id.background": "The package was uploaded correctly and the editor will start checking if the files were unpacked in the background. You will be notified by email when the process is finished.",

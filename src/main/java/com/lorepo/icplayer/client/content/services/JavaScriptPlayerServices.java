@@ -108,8 +108,8 @@ public class JavaScriptPlayerServices {
 			var commands = function() {
 			};
 
-			commands.showNextAnswer = function() {
-				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showNextAnswer()();
+			commands.showNextAnswer = function(worksWith) {
+				return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::showNextAnswer(Ljava/lang/String;)(worksWith);
 			}
 
 			commands.hideGradualAnswers = function() {
@@ -870,8 +870,8 @@ public class JavaScriptPlayerServices {
 		playerServices.getCommands().enableKeyboardNavigation();
 	}
 
-	private boolean showNextAnswer() {
-		return playerServices.getGradualShowAnswersService().showNext();
+	private boolean showNextAnswer(String worksWith) {
+		return playerServices.getGradualShowAnswersService().showNext(worksWith);
 	}
 
 	private void hideGradualAnswers() {
