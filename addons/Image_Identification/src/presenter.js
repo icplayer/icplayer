@@ -5,6 +5,15 @@ function AddonImage_Identification_create(){
     var eventBus;
     var isWCAGOn = false;
 
+    presenter.printableState = null;
+    presenter.printableStateMode = 0;
+    presenter.PRINTABLE_STATE_MODE = {
+        EMPTY: 0,
+        SHOW_ANSWERS: 1,
+        SHOW_USER_ANSWERS: 2,
+        CHECK_ANSWERS: 3
+    };
+
     presenter.lastEvent = null;
     presenter.isDisabled = false;
 
@@ -673,21 +682,79 @@ function AddonImage_Identification_create(){
 
     presenter.isEnterable = function() {return false};
 
+    function isPrintableEmptyAnswersStateMode () {
+        return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.EMPTY;
+    }
+    function isPrintableShowAnswersStateMode () {
+        return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS;
+    }
+    function isPrintableShowUserAnswersStateMode () {
+        return presenter.printableStateMode === presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
+    }
+
+    function chosePrintableStateMode(showAnswers) {
+        if (presenter.printableState) {
+            presenter.printableStateMode = showAnswers ? presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS : presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
+        }
+        else {
+            presenter.printableStateMode = showAnswers ? presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS : presenter.PRINTABLE_STATE_MODE.EMPTY;
+        }        
+    }
+
+    function setViewAndImgClasses(viewClass, imageClass, $img, $checkbox) {
+        const prefix = 'printable-image-identification';
+        const viewClassName = `${prefix}-${viewClass}`;
+        const imageClassName = `${prefix}-${imageClass}`;
+        $checkbox.addClass(viewClassName);
+        $img.addClass(imageClassName);
+    }
+
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state);
+    }
+
     presenter.getPrintableHTML = function (model, showAnswers) {
+        chosePrintableStateMode(showAnswers);
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
-
         presenter.$view = $("<div></div>");
         presenter.$view.attr("id", presenter.configuration.addonID);
         presenter.$view.addClass("printable_addon_Image_Identification");
-        presenter.$view.css("max-width", model.Width+"px");
-        presenter.$view.css("max-height", model.Height+"px");
+
         loadImage(presenter.configuration.imageSrc, true);
-        var $img = presenter.$view.find('.image-identification-element');
+        const $img = presenter.$view.find('.image-identification-element');
         $img.removeClass('image-identification-element');
-        $img.addClass('printable-image-identification-element');
-        if (showAnswers && presenter.configuration.shouldBeSelected) {
-            $img.addClass("printable-image-identification-correct");
+
+        presenter.$view.prepend("<div class='checkbox-identifier'></div>")
+        const $checkbox = presenter.$view.find('.checkbox-identifier')
+        $checkbox.removeClass('checkbox-identifier');
+
+        if (isPrintableEmptyAnswersStateMode()) {          
+            setViewAndImgClasses('empty-div', 'empty-img', $img, $checkbox);                               // EMPTY STATE
+        } else if (isPrintableShowAnswersStateMode()) {                                             // SHOW ANSWERS
+            if (presenter.configuration.shouldBeSelected) {
+                setViewAndImgClasses('selected-answer-div', 'selected-answer-img', $img, $checkbox);
+            } else {
+                setViewAndImgClasses('empty-answer-div', 'empty-answer-img', $img, $checkbox);
+            }
+        } else if (isPrintableShowUserAnswersStateMode()) {                                           // SHOW USER ANSWERS
+            if (presenter.printableState.isSelected) {
+                setViewAndImgClasses('selected-user-answer-div', 'selected-user-answer-img', $img, $checkbox);
+            } else {
+                setViewAndImgClasses('empty-user-answer-div', 'empty-user-answer-img', $img, $checkbox);
+            }
+        } else {                                                                                        // CHECK USER ANSWERS
+            if (!presenter.printableState.isSelected && !presenter.configuration.shouldBeSelected) {
+                setViewAndImgClasses('empty-correct-answer-div', 'empty-correct-answer-img', $img, $checkbox);
+            } else if (!presenter.printableState.isSelected && presenter.configuration.shouldBeSelected) {
+                setViewAndImgClasses('empty-incorrect-answer-div', 'empty-incorrect-answer-img', $img, $checkbox);
+            } else if (presenter.printableState.isSelected && presenter.configuration.shouldBeSelected) {
+                setViewAndImgClasses('selected-correct-answer-div', 'selected-correct-answer-img', $img, $checkbox);
+            } else {
+                setViewAndImgClasses('selected-incorrect-answer-div', 'selected-incorrect-answer-img', $img, $checkbox);
+            }
         }
 
         return presenter.$view[0].outerHTML;

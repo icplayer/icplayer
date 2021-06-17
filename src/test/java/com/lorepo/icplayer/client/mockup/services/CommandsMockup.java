@@ -32,7 +32,7 @@ public class CommandsMockup implements IPlayerCommands {
 	}
 
 	@Override
-	public boolean showNextAnswer() {
+	public boolean showNextAnswer(String worksWiths) {
 		return false;
 	}
 
