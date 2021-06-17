@@ -42,9 +42,11 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
     @Override
     public boolean showNext(String worksWith) {
         List<String> worksWithList = new ArrayList<String>();
-        for(String workWith: worksWith.split("\n")){
-            if(!workWith.isEmpty()) {
-                worksWithList.add(workWith.trim());
+        if(worksWith != null) {
+            for (String workWith : worksWith.split("\n")) {
+                if (!workWith.isEmpty()) {
+                    worksWithList.add(workWith.trim());
+                }
             }
         }
 
