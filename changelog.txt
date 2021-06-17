@@ -1,3 +1,4 @@
+2021-06-17 Fixed issue with Text gaps connected to Math addon when leavinh Show Answers mode
 2021-06-17 Hotfix GradualShowAnswer respect null argument (for usage in private addons)
 2021-06-14 Fixed TTS failing when text is too long
 2021-06-09 Fixed too long event handling blocking redrawing of the Coloring addon on Firefox

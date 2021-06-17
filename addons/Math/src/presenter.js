@@ -681,10 +681,15 @@ function AddonMath_create() {
                     module.setGapAnswer(moduleReference.gapIndex, answer.value, presenter.moduleAnswersCounter(moduleReference.moduleID));
                 } else {
                     module.setUserValue(moduleReference.gapIndex, answer.users);
+                    if (module.hasOwnProperty('enableGap')) module.enableGap(moduleReference.gapIndex);
                 }
             }
         }
 
+        presenter.reloadMathJax();
+    }
+
+    presenter.reloadMathJax = function() {
         MathJax.CallBack.Queue().Push(function () {
             MathJax.Hub.Typeset();
         });
