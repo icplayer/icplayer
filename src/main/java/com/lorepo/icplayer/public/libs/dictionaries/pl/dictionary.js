@@ -627,6 +627,7 @@ var ice_dictionary_pl = {
 	"Gradual_Show_Answer_info": "The Gradual Show Answer module allows you show next correct answer in modules or hide all showed answers.",
 	"Gradual_Show_Answer_property_is_hide_answers": "Hide Answers Mode",
 	"Gradual_Show_Answer_property_disabled": "Is disabled",
+	"Gradual_Show_Answer_property_works_with": "Works with",
 	"Connection_info" : "Pozwala na utworzenie ćwiczenia składającego się z dwóch kolumn z elementami (tekstem lub obrazkami) do połączenia. Ćwiczenie może działać w trybie łączenia pojedynczego lub wielokrotnego (każdy element można wykorzystać w kilku połączeniach).",
 	"Connection_name" : "Ćwiczenie łączenia",
 	"Connection_property_is_not_activity" : "Nie jest ćwiczeniem",

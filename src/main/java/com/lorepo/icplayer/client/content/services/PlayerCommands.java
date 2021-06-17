@@ -63,8 +63,8 @@ public class PlayerCommands implements IPlayerCommands {
 	}
 
 	@Override
-	public boolean showNextAnswer() {
-		return this.pageController.getGradualShowAnswersService().showNext();
+	public boolean showNextAnswer(String worksWith) {
+		return this.pageController.getGradualShowAnswersService().showNext(worksWith);
 	}
 
 	@Override

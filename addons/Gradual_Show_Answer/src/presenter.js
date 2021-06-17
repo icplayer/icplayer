@@ -23,9 +23,23 @@ function AddonGradual_Show_Answer_create() {
             ModelValidators.utils.FieldRename("Is Visible", "isVisible", ModelValidators.Boolean('isVisible')),
             ModelValidators.utils.FieldRename("Is Disabled", "isDisabled", ModelValidators.Boolean('isDisabled')),
             ModelValidators.utils.FieldRename("Is hide answers", "isHideAnswers", ModelValidators.Boolean('isHideAnswers')),
+            ModelValidators.String("worksWith", {default: ""}),
             ModelValidators.DumbString('ID'),
         ]);
     };
+
+    presenter.upgradeModel = function (model) {
+        return presenter.addDefaultWorksWith(model);
+    }
+
+    presenter.addDefaultWorksWith = function(model){
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+        if (!upgradedModel['worksWith']) {
+            upgradedModel['worksWith'] = '';
+        }
+        return upgradedModel;
+    }
 
     presenter.run = function(view, model) {
         presenter.presenterLogic(view, model, presenter.isPreview)
@@ -66,7 +80,7 @@ function AddonGradual_Show_Answer_create() {
         if (presenter.configuration.isHideAnswers) {
             presenter.playerController.getCommands().hideGradualAnswers();
         } else {
-            presenter.playerController.getCommands().showNextAnswer();
+            presenter.playerController.getCommands().showNextAnswer(presenter.configuration.worksWith);
         }
     }
 
@@ -74,10 +88,10 @@ function AddonGradual_Show_Answer_create() {
         presenter.addonID = model.ID;
         presenter.view = view;
 
-        var validatedModel = presenter.validateModel(model);
+        const upgradedModel = presenter.upgradeModel(model);
+        const validatedModel = presenter.validateModel(upgradedModel);
 
         if (!validatedModel.isValid) {
-            console.log(validatedModel);
             return;
         }
 

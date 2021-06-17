@@ -627,6 +627,7 @@ var ice_dictionary_mx = {
 	"Gradual_Show_Answer_info": "The Gradual Show Answer module allows you show next correct answer in modules or hide all showed answers.",
 	"Gradual_Show_Answer_property_is_hide_answers": "Hide Answers Mode",
 	"Gradual_Show_Answer_property_disabled": "Is disabled",
+	"Gradual_Show_Answer_property_works_with": "Works with",
 	"Connection_info": "Permite crear actividades con dos columnas de ítems (textos o imágenes) emparejados. Hay opción de configurar la actividad para el modo simple o múltiple (un ítem unido a varios de otra columna).",
 	"Connection_name": "Conexión",
 	"Connection_property_is_not_activity": "No es actividad",

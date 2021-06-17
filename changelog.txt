@@ -13,6 +13,7 @@
 2021-05-18 Fixed not being able to use audio element in multiplegap using keyboard navigation
 2021-05-11 Added undo-one button to IWB Toolbar
 2021-05-11 Fix communication between IWBToolbar and Scoreboard
+2021-04-29 Added Support for printable state in Image Identification
 2021-04-29 Added SkipLink module
 2021-04-22 Add zip file property for Iframe addon
 2021-04-21 Scoreboard documentation
