@@ -15,6 +15,8 @@ TestCase("[Math] Commands logic - evaluate", {
         sinon.stub(this.presenter, 'evaluateAllExpressions');
         sinon.stub(this.presenter, 'executeEventCode');
         sinon.stub(this.presenter, 'markGapsEmptiness');
+        sinon.stub(this.presenter, 'reloadMathJax');
+        this.getModuleStub = sinon.stub(this.presenter, 'getModule');
     },
 
     tearDown: function () {
@@ -73,5 +75,25 @@ TestCase("[Math] Commands logic - evaluate", {
         assertEquals(0, this.presenter.executeEventCode.callCount);
 
         window.alert.restore();
+    },
+
+    'test when hide answers called then gaps are enabled': function () {
+        this.presenter.isShowAnswers = true;
+        this.presenter.configuration.answers = [{name: "g1", value: "cat1", users: ""}];
+        this.presenter.configuration.variables = [{name: "g1", value: "Text1.1"}];
+        var setUserValueStub = sinon.stub();
+        var enableGapSpy = sinon.spy();
+        var isActivityStub = sinon.stub();
+        isActivityStub.returns(false);
+        var module = {
+            setUserValue: setUserValueStub,
+            enableGap: enableGapSpy,
+            isActivity: isActivityStub
+        }
+        this.getModuleStub.returns(module);
+
+        this.presenter.hideAnswers();
+
+        sinon.assert.calledOnce(enableGapSpy);
     }
 });

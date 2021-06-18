@@ -117,6 +117,13 @@ public class GradualShowAnswersServiceTestCase {
         this.thenEventNotFired();
     }
 
+    @Test
+    public void testCallFirstPresenterIfNullIsGivenAsWorkWith(){
+        this.givenWorkWith(null);
+        this.whenCalledShowNext();
+        this.thenFireEventForPresenter("ID0", 0);
+    }
+
     private void givenWorkWith(String workWith){
         this.workWith = workWith;
     }
