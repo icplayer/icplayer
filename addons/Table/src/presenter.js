@@ -2020,27 +2020,26 @@ function AddonTable_create() {
         var content = presenter.speechTexts.cell + " " + alphabet[column % alphabet.length] + " " + (row+1);
         var data = [window.TTSUtils.getTextVoiceObject(content)];
         if (presenter.configuration.isFirstRowHeader) {
-            var html = presenter.$view.find('.row_1.col_'+(column+1));
-            if (html.length > 0) {
-                var headerContent = window.TTSUtils.getTextVoiceArrayFromElementWithGaps(html, presenter.configuration.langTag, presenter.speechTexts);
-                if (headerContent.length > 0) {
-                    data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.column));
-                    data = data.concat(headerContent);
-                }
-            }
+            data = data.concat(getCellHeaderUtterances('.row_1.col_'+(column+1), presenter.speechTexts.column));
         }
         if (presenter.configuration.isFirstColumnHeader) {
-            var html = presenter.$view.find('.col_1.row_'+(row+1));
-            if (html.length > 0) {
-                var headerContent = window.TTSUtils.getTextVoiceArrayFromElementWithGaps(html, presenter.configuration.langTag, presenter.speechTexts);
-                if (headerContent.length > 0) {
-                    data.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.row));
-                    data = data.concat(headerContent);
-                }
-            }
+            data = data.concat(getCellHeaderUtterances('.col_1.row_'+(row+1), presenter.speechTexts.row));
         }
         presenter.speak(data);
     };
+
+    function getCellHeaderUtterances(headerSelector, headerTypeSpeechText) {
+        var data = [];
+        var html = presenter.$view.find(headerSelector);
+        if (html.length > 0) {
+            var headerContent = window.TTSUtils.getTextVoiceArrayFromElementWithGaps(html, presenter.configuration.langTag, presenter.speechTexts);
+            if (headerContent.length > 0) {
+                data.push(window.TTSUtils.getTextVoiceObject(headerTypeSpeechText));
+                data = data.concat(headerContent);
+            }
+        }
+        return data;
+    }
 
     // TAB or Right Arrow
     TableKeyboardController.prototype.nextElement = function (event) {
