@@ -98,5 +98,36 @@ TestCase("[Table] Model upgrades - add langAttribute", {
 
         assertNotUndefined(upgradedModel["langAttribute"]);
         assertEquals("it-IT", upgradedModel["langAttribute"]);
+    },
+
+    'test given model without header properties when upgradeModel is called then missing properties are added with default values': function () {
+        this.model['speechTexts'] = {};
+
+        var upgradedModel = this.presenter.addHeaders(this.model);
+
+        assertEquals("False", upgradedModel["isFirstColumnHeader"]);
+        assertEquals("False", upgradedModel["isFirstRowHeader"]);
+        assertNotUndefined(upgradedModel['speechTexts']["Row"]);
+        assertEquals("Row", upgradedModel['speechTexts']["Row"]["Row"]);
+        assertNotUndefined(upgradedModel['speechTexts']["Column"]);
+        assertEquals("Column", upgradedModel['speechTexts']["Column"]["Column"]);
+    },
+
+    'test given model with header properties when upgradeModel is called the header properties are unaffected': function () {
+        this.model['speechTexts'] = {
+            Row: {Row: "Wiersz"},
+            Column: {Column: "Kolumna"}
+        };
+        this.model["isFirstRowHeader"] = "True";
+        this.model["isFirstColumnHeader"] = "True";
+
+        var upgradedModel = this.presenter.addHeaders(this.model);
+
+        assertEquals("True", upgradedModel["isFirstColumnHeader"]);
+        assertEquals("True", upgradedModel["isFirstRowHeader"]);
+        assertNotUndefined(upgradedModel['speechTexts']["Row"]);
+        assertEquals("Wiersz", upgradedModel['speechTexts']["Row"]["Row"]);
+        assertNotUndefined(upgradedModel['speechTexts']["Column"]);
+        assertEquals("Kolumna", upgradedModel['speechTexts']["Column"]["Column"]);
     }
 });
