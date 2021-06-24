@@ -2324,7 +2324,7 @@ function AddonTable_create() {
     }
 
     presenter.isPrintableAsync = function() {
-        return presenter.hasMathGaps();
+        return true;
     }
 
     presenter.hasMathGaps = function() {
@@ -2336,20 +2336,23 @@ function AddonTable_create() {
         chosePrintableStateMode(showAnswers);
         createPrintableHTMLStructure(model);
 
+        presenter.$view.addClass("printable_module");
+        const clone = presenter.$view.clone();
+        clone.attr('id', presenter.printableParserID);
 
         if (presenter.hasMathGaps()) {
-            presenter.$view.attr('id', presenter.printableParserID);
-
             presenter.transformMathGaps();
-
-            return presenter.$view[0].outerHTML;
         } else {
-            let result = parsePrintableGaps(presenter.$view[0].outerHTML);
-            presenter.printableStateMode = null;
-            result = presenter.textParser.parseAltTexts(result);
+            // normal gaps don't need additional parsing like math gaps, this just notifies callback asynchronusly
+            setTimeout(function() {
+                const result = parsePrintableGaps(presenter.$view[0].outerHTML);
 
-            return result;
+                presenter.notifyParserCallback(result);
+            }, 0);
         }
+
+        return clone[0].outerHTML;
+
     };
 
     function createPrintableHTMLStructure(model) {
@@ -2458,15 +2461,21 @@ function AddonTable_create() {
                 $(this).replaceWith(html);
             });
 
-            presenter.printableParserCallback(
-                presenter.$view[0].outerHTML
-            );
+            presenter.notifyParserCallback(presenter.$view[0].outerHTML);
         }
 
         const args = [];
         args.push("Typeset", MathJax.Hub, presenter.$view[0]);
         args.push(mathJaxTypesetEnd);
         MathJax.Hub.Queue(args);
+    }
+
+    presenter.notifyParserCallback = function (outerHTML) {
+        presenter.printableStateMode = null;
+
+        presenter.printableParserCallback(
+            presenter.textParser.parseAltTexts(outerHTML)
+        );
     }
 
     function parsePrintableMathGaps(html) {
@@ -2715,8 +2724,9 @@ function AddonTable_create() {
     }
 
     TablePrintableEditableGapOption.prototype.generateGapHTML = function(gapInnerText) {
-        var $span = $("<span></span>");
-        $span.addClass("printable_gap");
+        const $span = $("<span></span>");
+        const classes = presenter.hasMathGaps() ? "printable_gap printable_math_gap" : "printable_gap";
+        $span.addClass(classes);
         $span.html(gapInnerText);
         return $span[0].outerHTML;
     }
