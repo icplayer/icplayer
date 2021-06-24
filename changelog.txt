@@ -1,4 +1,7 @@
-2021-06-15 Added support for printable state in table
+2021-06-24 Added support for printable state in Table
+2021-06-18 Added headers to Table TTS
+2021-06-17 Fixed issue with Text gaps connected to Math addon when leavinh Show Answers mode
+2021-06-17 Hotfix GradualShowAnswer respect null argument (for usage in private addons)
 2021-06-14 Fixed TTS failing when text is too long
 2021-06-09 Fixed too long event handling blocking redrawing of the Coloring addon on Firefox
 2021-06-07 Fix eKeyboard getting triggered by clicking on the audio gap
@@ -14,6 +17,7 @@
 2021-05-18 Fixed not being able to use audio element in multiplegap using keyboard navigation
 2021-05-11 Added undo-one button to IWB Toolbar
 2021-05-11 Fix communication between IWBToolbar and Scoreboard
+2021-04-29 Added Support for printable state in Image Identification
 2021-04-29 Added SkipLink module
 2021-04-22 Add zip file property for Iframe addon
 2021-04-21 Scoreboard documentation

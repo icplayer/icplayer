@@ -385,8 +385,15 @@ function AddonTable_create() {
         for (i = 0, length = content.length; i < length; i++) {
             if (!content[i]) continue;
 
-            var $element = $(document.createElement('td'));
+            var $element;
+            if ((row === 0 && presenter.configuration.isFirstRowHeader) ||
+                (i === 0 && presenter.configuration.isFirstColumnHeader)) {
+                $element = $(document.createElement('th'));
+            } else {
+                $element = $(document.createElement('td'));
+            }
 
+            $element.addClass('table_cell');
             $element.addClass('row_' + (row + 1));
             $element.addClass('col_' + (i + 1));
             $element.html(content[i].content);
@@ -413,7 +420,7 @@ function AddonTable_create() {
     };
 
     presenter.parseDefinitionLinks = function () {
-        $.each(presenter.$view.find('td'), function (index, element) {
+        $.each(presenter.$view.find('.table_cell'), function (index, element) {
             $(element).html(presenter.textParser.parse($(element).html()));
         });
 
@@ -613,7 +620,9 @@ function AddonTable_create() {
             dropdown: 'dropdown',
             inserted: 'inserted',
             removed: 'removed',
-            cell: 'cell'
+            cell: 'cell',
+            row: 'row',
+            column: 'column'
         };
 
         if (!speechTexts) {
@@ -628,7 +637,9 @@ function AddonTable_create() {
             dropdown:   getSpeechTextProperty(speechTexts['Dropdown']['Dropdown'], presenter.speechTexts.dropdown),
             inserted:      getSpeechTextProperty(speechTexts['Inserted']['Inserted'], presenter.speechTexts.inserted),
             removed:        getSpeechTextProperty(speechTexts['Removed']['Removed'], presenter.speechTexts.removed),
-            cell:        getSpeechTextProperty(speechTexts['Cell']['Cell'], presenter.speechTexts.cell)
+            cell:        getSpeechTextProperty(speechTexts['Cell']['Cell'], presenter.speechTexts.cell),
+            row:        getSpeechTextProperty(speechTexts['Row']['Row'], presenter.speechTexts.row),
+            column:        getSpeechTextProperty(speechTexts['Column']['Column'], presenter.speechTexts.column)
         };
     };
 
@@ -685,6 +696,9 @@ function AddonTable_create() {
             }
         }
 
+        var isFirstRowHeader = ModelValidationUtils.validateBoolean(model["isFirstRowHeader"]);
+        var isFirstColumnHeader = ModelValidationUtils.validateBoolean(model["isFirstColumnHeader"]);
+
         var isVisible = ModelValidationUtils.validateBoolean(model["Is Visible"]);
 
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
@@ -710,7 +724,9 @@ function AddonTable_create() {
             rowsCount: validatedRows.value,
             langTag: model["langAttribute"],
             useNumericKeyboard: ModelValidationUtils.validateBoolean(model["useNumericKeyboard"]),
-            keepOriginalOrder: ModelValidationUtils.validateBoolean(model["keepOriginalOrder"])
+            keepOriginalOrder: ModelValidationUtils.validateBoolean(model["keepOriginalOrder"]),
+            isFirstRowHeader: isFirstRowHeader,
+            isFirstColumnHeader: isFirstColumnHeader
         };
     };
 
@@ -792,6 +808,29 @@ function AddonTable_create() {
         return upgradedModel;
     };
 
+    presenter.addHeaders = function(model) {
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
+
+        if (model.isFirstRowHeader === undefined) {
+            upgradedModel["isFirstRowHeader"] = "False";
+        }
+
+        if (model.isFirstColumnHeader === undefined) {
+            upgradedModel["isFirstColumnHeader"] = "False";
+        }
+
+        if (model['speechTexts']["Row"] === undefined) {
+            upgradedModel['speechTexts']["Row"] = {Row: "Row"};
+        }
+
+        if (model['speechTexts']["Column"] === undefined) {
+            upgradedModel['speechTexts']["Column"] = {Column: "Column"};
+        }
+
+        return upgradedModel;
+    };
+
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.addColumnsWidth(model);
         upgradedModel = presenter.addRowHeights(upgradedModel);
@@ -799,7 +838,7 @@ function AddonTable_create() {
         upgradedModel = presenter.addSpeechTexts(upgradedModel);
         upgradedModel = presenter.addUseNumericKeyboard(upgradedModel);
         upgradedModel = presenter.addKeepOriginalOrder(upgradedModel);
-
+        upgradedModel = presenter.addHeaders(upgradedModel);
         return upgradedModel;
     };
 
@@ -1937,7 +1976,7 @@ function AddonTable_create() {
     };
 
     presenter.getElementsForKeyboardNavigation = function () {
-        return presenter.$view.find('td');
+        return presenter.$view.find('.table_cell');
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
@@ -1991,8 +2030,27 @@ function AddonTable_create() {
         var alphabet = "ABCDEFGHIJKLMNOPRSTUWXYZ";
         var content = presenter.speechTexts.cell + " " + alphabet[column % alphabet.length] + " " + (row+1);
         var data = [window.TTSUtils.getTextVoiceObject(content)];
+        if (presenter.configuration.isFirstRowHeader) {
+            data = data.concat(getCellHeaderUtterances('.row_1.col_'+(column+1), presenter.speechTexts.column));
+        }
+        if (presenter.configuration.isFirstColumnHeader) {
+            data = data.concat(getCellHeaderUtterances('.col_1.row_'+(row+1), presenter.speechTexts.row));
+        }
         presenter.speak(data);
     };
+
+    function getCellHeaderUtterances(headerSelector, headerTypeSpeechText) {
+        var data = [];
+        var html = presenter.$view.find(headerSelector);
+        if (html.length > 0) {
+            var headerContent = window.TTSUtils.getTextVoiceArrayFromElementWithGaps(html, presenter.configuration.langTag, presenter.speechTexts);
+            if (headerContent.length > 0) {
+                data.push(window.TTSUtils.getTextVoiceObject(headerTypeSpeechText));
+                data = data.concat(headerContent);
+            }
+        }
+        return data;
+    }
 
     // TAB or Right Arrow
     TableKeyboardController.prototype.nextElement = function (event) {
