@@ -314,7 +314,7 @@ function AddonMathText_create() {
             return;
         }
 
-        presenter.createWirisPopup();
+        presenter.createWirisPopup(isPreview);
         presenter.editor.insertInto(presenter.editorPopupEditor);
         presenter.wrapper.addEventListener('click', presenter.showPopup);
 
@@ -327,7 +327,7 @@ function AddonMathText_create() {
         presenter.makeRequestForImage(presenter.configuration.initialText);
     };
 
-    presenter.createWirisPopup = function AddonMathText_createWirisPopup () {
+    presenter.createWirisPopup = function AddonMathText_createWirisPopup (isPreview) {
         presenter.editor = window.com.wiris.jsEditor.JsEditor.newInstance(
         {
                 'language': presenter.configuration.language,
