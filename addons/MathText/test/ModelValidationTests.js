@@ -12,7 +12,8 @@ TestCase("[MathText] Model validation", {
             'Height': '200',
             'language': 'English',
             'formulaColor': '#000000',
-            'backgroundColor': '#000000'
+            'backgroundColor': '#000000',
+            'mathEditorInPopup': 'False'
         };
     },
 

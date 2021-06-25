@@ -90,16 +90,17 @@ function AddonMathText_create() {
     presenter.validateModel = function MathText_validateModel(model) {
         var modelValidator = new ModelValidator();
 
+        var mathEditorInPopup = model["mathEditorInPopup"].toLowerCase() == "true";
         // when not showing wiris editor, width/height can be any value
         var widthConfig = new ModelValidators.utils.FieldConfigGenerator(function (validatedModel) {
             return {
-                minValue: validatedModel["type"] !== presenter.TYPES_DEFINITIONS.TEXT ? 500 : 0
+                minValue: (validatedModel["type"] !== presenter.TYPES_DEFINITIONS.TEXT) && !mathEditorInPopup ? 500 : 0
             };
         });
 
         var heightConfig = new ModelValidators.utils.FieldConfigGenerator(function (validatedModel) {
             return {
-                minValue: validatedModel["type"] !== presenter.TYPES_DEFINITIONS.TEXT ? 200 : 0
+                minValue: (validatedModel["type"] !== presenter.TYPES_DEFINITIONS.TEXT) && !mathEditorInPopup ? 200 : 0
             };
         });
 
@@ -122,7 +123,8 @@ function AddonMathText_create() {
             ModelValidators.utils.FieldRename("Height", "height", ModelValidators.Integer("height", heightConfig)),
             ModelValidators.utils.EnumChangeValues("language", availableLanugagesCodes, ModelValidators.Enum("language", {"default": "English", values: ["Polish", "English", "Spanish", "Arabic", "French"]})),
             ModelValidators.HEXColor("formulaColor", {"default": "#000000", canBeShort: true}),
-            ModelValidators.HEXColor("backgroundColor", {"default": "#FFFFFF", canBeShort: false})
+            ModelValidators.HEXColor("backgroundColor", {"default": "#FFFFFF", canBeShort: false}),
+            ModelValidators.Boolean("mathEditorInPopup")
         ]);
 
         if (!validatedModel.isValid) {
@@ -148,13 +150,28 @@ function AddonMathText_create() {
         }
     };
 
+    presenter.upgradeModel = function(model) {
+        return presenter.addMathEditorInPopup(model);
+    }
+
+    presenter.addMathEditorInPopup = function(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (upgradedModel['mathEditorInPopup'] === undefined) {
+            upgradedModel['mathEditorInPopup'] = "False";
+        }
+
+        return upgradedModel;
+    }
+
     presenter.presenterLogic = function AddonMathText_presenterLogic (view, model, isPreview) {
         presenter.view = view;
         presenter.$view = $(view);
         presenter.wrapper = presenter.view.getElementsByClassName('mathtext-editor-wrapper')[0];
         presenter.loadingImageView = presenter.view.getElementsByClassName('loading-image')[0];
-
-        var validatedModel = presenter.validateModel(model);
+        var upgradedModel = presenter.upgradeModel(model);
+        var validatedModel = presenter.validateModel(upgradedModel);
 
         if (!validatedModel.isValid) {
             DOMOperationsUtils.showErrorMessage(view, presenter.ERROR_CODES, validatedModel.fieldName.join("|") + "_" + validatedModel.errorCode);
@@ -184,7 +201,11 @@ function AddonMathText_create() {
 
 
         if (presenter.configuration.showEditor) {
-            presenter.initializeEditor(isPreview);
+            if (presenter.configuration.mathEditorInPopup) {
+                presenter.initializePopupEditor(isPreview);
+            } else {
+                presenter.initializeEditor(isPreview);
+            }
         } else {
             presenter.initializeText();
         }
@@ -287,6 +308,99 @@ function AddonMathText_create() {
         }
     };
 
+    presenter.initializePopupEditor = function AddonMathText_initializePopupEditor (isPreview) {
+        if (!presenter.isWirisEnabled()) {
+            $(presenter.wrapper).html(presenter.WIRIS_DISABLED_MESSAGE);
+            return;
+        }
+
+        presenter.createWirisPopup();
+        presenter.editor.insertInto(presenter.editorPopupEditor);
+        presenter.wrapper.addEventListener('click', presenter.showPopup);
+
+        if (!isPreview) {
+            presenter.resetPopupPosition();
+            var builder = window.com.wiris.quizzes.api.QuizzesBuilder.getInstance();
+            presenter.answerObject = builder.readQuestion(presenter.configuration.correctAnswer);
+            presenter.state.lastScore = presenter.checkIfAnswerIsCorrect(presenter.configuration.initialText) ? 1 : 0;
+        }
+        presenter.makeRequestForImage(presenter.configuration.initialText);
+    };
+
+    presenter.createWirisPopup = function AddonMathText_createWirisPopup () {
+        presenter.editor = window.com.wiris.jsEditor.JsEditor.newInstance(
+        {
+                'language': presenter.configuration.language,
+                'mml': presenter.configuration.initialText,
+                'readOnly': isPreview,
+                'color': presenter.configuration.formulaColor,
+                'backgroundColor': presenter.configuration.backgroundColor
+            }
+        );
+
+
+        presenter.editorPopupWrapper = document.createElement('div');
+        presenter.editorPopupWrapper.classList.add('mathtext-editor-popup-wrapper');
+        presenter.editorPopupEditor = document.createElement('div');
+        presenter.editorPopupEditor.classList.add('mathtext-editor-popup-editor');
+
+        var editorPopupButtons = document.createElement('div');
+        editorPopupButtons.classList.add('mathtext-editor-popup-buttons');
+        presenter.editorPopupCancel = document.createElement('div');
+        presenter.editorPopupCancel.classList.add('cancel-button');
+        presenter.editorPopupCancel.innerText = 'CANCEL';
+        presenter.editorPopupSave = document.createElement('div');
+        presenter.editorPopupSave.classList.add('save-button');
+        presenter.editorPopupSave.innerText = 'SAVE';
+        editorPopupButtons.appendChild(presenter.editorPopupCancel);
+        editorPopupButtons.appendChild(presenter.editorPopupSave);
+
+        presenter.editorPopupSave.addEventListener('click', presenter.onSavePopup);
+        presenter.editorPopupCancel.addEventListener('click', presenter.onCancelPopup);
+
+        presenter.editorPopupWrapper.appendChild(presenter.editorPopupEditor);
+        presenter.editorPopupWrapper.appendChild(editorPopupButtons);
+        presenter.view.appendChild(presenter.editorPopupWrapper);
+        $(presenter.editorPopupWrapper).draggable({});
+    }
+
+    presenter.onSavePopup = function AddonMathText_onSavePopup () {
+        presenter.state.currentAnswer = presenter.editor.getMathML();
+        presenter.makeRequestForImage(presenter.state.currentAnswer);
+        presenter.hidePopup();
+        presenter.resetPopupPosition();
+    }
+
+     presenter.onCancelPopup = function AddonMathText_onCancelPopup () {
+        if (presenter.state.currentAnswer && presenter.state.currentAnswer !== presenter.EMPTY_MATHTEXT) {
+            presenter.editor.setMathML(presenter.state.currentAnswer);
+        }
+        presenter.hidePopup();
+        presenter.resetPopupPosition();
+    }
+
+    presenter.resetPopupPosition = function AddonMathText_resetPopupPosition () {
+        presenter.editorPopupWrapper.style.visibility = 'hidden';
+        var oldDisplayValue = presenter.editorPopupWrapper.style.display;
+        presenter.editorPopupWrapper.style.display = 'block';
+        var pageElement = $(presenter.view).closest('.ic_page_panel')[0];
+        var offsetLeft = Math.floor((pageElement.offsetWidth - presenter.editorPopupWrapper.offsetWidth)/2) - presenter.view.offsetLeft;
+        presenter.editorPopupWrapper.style.left = offsetLeft + "px";
+        presenter.editorPopupWrapper.style.top = '';
+        presenter.editorPopupWrapper.style.display = oldDisplayValue;
+        presenter.editorPopupWrapper.style.visibility = '';
+    }
+
+    presenter.showPopup = function AddonMathText_showPopup () {
+        if (!presenter.state.isShowAnswers && !presenter.state.isCheckAnswers) {
+            presenter.editorPopupWrapper.style.display = "block";
+        }
+    }
+
+    presenter.hidePopup = function AddonMathText_hidePopup () {
+        presenter.editorPopupWrapper.style.display = "none";
+    }
+
     presenter.showAnswers = function AddonMathText_showAnswers () {
         if (presenter.state.isCheckAnswers) {
             presenter.setWorkMode();
@@ -298,8 +412,13 @@ function AddonMathText_create() {
             presenter.editor.setToolbarHidden(true);
 
             if (presenter.configuration.isActivity) {
-                presenter.state.currentAnswer = presenter.editor.getMathML();
-                presenter.editor.setMathML(presenter.answerObject.getCorrectAnswer(0));
+                if (presenter.configuration.mathEditorInPopup) {
+                    presenter.hidePopup();
+                    presenter.makeRequestForImage(presenter.answerObject.getCorrectAnswer(0));
+                } else {
+                    presenter.state.currentAnswer = presenter.editor.getMathML();
+                    presenter.editor.setMathML(presenter.answerObject.getCorrectAnswer(0));
+                }
             }
         }
     };
@@ -310,7 +429,15 @@ function AddonMathText_create() {
             presenter.$view.find('input').removeAttr('disabled');
 
             if (presenter.configuration.isActivity) {
-                presenter.editor.setMathML(presenter.state.currentAnswer);
+                if (presenter.configuration.mathEditorInPopup) {
+                    if (!presenter.state.currentAnswer || presenter.state.currentAnswer === presenter.EMPTY_MATHTEXT) {
+                        presenter.makeRequestForImage(presenter.configuration.initialText);
+                    } else {
+                        presenter.makeRequestForImage(presenter.state.currentAnswer);
+                    }
+                } else {
+                    presenter.editor.setMathML(presenter.state.currentAnswer);
+                }
             }
 
             presenter.state.isShowAnswers = false;
@@ -330,7 +457,9 @@ function AddonMathText_create() {
 
             if (presenter.configuration.isActivity) {
 
-                presenter.state.currentAnswer = presenter.editor.getMathML();
+                if (!presenter.configuration.mathEditorInPopup) {
+                    presenter.state.currentAnswer = presenter.editor.getMathML();
+                }
 
                 if (presenter.state.hasUserInteracted) {
                     var score = presenter.getScore();
@@ -376,6 +505,9 @@ function AddonMathText_create() {
         if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
             presenter.state.currentAnswer = presenter.configuration.initialText;
             presenter.editor.setMathML(presenter.configuration.initialText);
+            if (presenter.configuration.mathEditorInPopup) {
+                presenter.makeRequestForImage(presenter.configuration.initialText);
+            }
         }
     };
 
@@ -443,10 +575,19 @@ function AddonMathText_create() {
 
      presenter.setState = function (state) {
          var parsedState = JSON.parse(state);
-
          if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
+            if (!presenter.configuration.mathEditorInPopup) {
              presenter.editor.setMathML(parsedState.text);
              presenter.state.currentAnswer = parsedState.text;
+             } else {
+                var text = presenter.configuration.initialText;
+                if (presenter.state.currentAnswer && presenter.state.currentAnswer !== presenter.EMPTY_MATHTEXT) {
+                    text = parsedState.text;
+                }
+                presenter.editor.setMathML(text);
+                presenter.state.currentAnswer = text;
+                presenter.makeRequestForImage(text);
+             }
          }
 
          presenter.state.hasUserInteracted = parsedState.hasUserInteracted;
@@ -459,7 +600,11 @@ function AddonMathText_create() {
         var currentText = presenter.configuration.initialText;
 
         if (presenter.configuration.showEditor && presenter.isWirisEnabled()) {
-            currentText = presenter.editor.getMathML();
+            if (!presenter.configuration.mathEditorInPopup) {
+                currentText = presenter.editor.getMathML();
+            } else {
+                currentText = presenter.state.currentAnswer;
+            }
         }
 
         return JSON.stringify({
@@ -478,7 +623,13 @@ function AddonMathText_create() {
         var score = 0;
         if (presenter.configuration.isActivity && presenter.configuration.showEditor && presenter.isWirisEnabled()) {
             if (presenter.state.wasChanged) {
-                score = presenter.checkIfAnswerIsCorrect(presenter.editor.getMathML()) ? 1 : 0;
+                var mml = '';
+                if (presenter.configuration.mathEditorInPopup) {
+                    mml = presenter.state.currentAnswer;
+                } else {
+                    mml = presenter.editor.getMathML();
+                }
+                score = presenter.checkIfAnswerIsCorrect(mml) ? 1 : 0;
                 presenter.state.wasChanged = false;
                 presenter.state.lastScore = score;
                 presenter.sendScoreChangedEvent(score);
@@ -486,7 +637,6 @@ function AddonMathText_create() {
                 score = presenter.state.lastScore;
             }
         }
-
         return score;
     };
 

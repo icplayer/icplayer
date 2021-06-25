@@ -11,5 +11,6 @@
 
         <property name="formulaColor" type="string" nameLabel="Mathtext_property_formula_color" />
         <property name="backgroundColor" type="string" nameLabel="Mathtext_property_background_color" />
+        <property name="mathEditorInPopup" nameLabel="Mathtext_property_math_editor_in_popup" type="boolean" />
     </model>
 </addon>

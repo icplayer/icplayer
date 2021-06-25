@@ -2031,6 +2031,7 @@ var ice_dictionary_bl = {
     "Mathtext_property_language": "Language",
     "Mathtext_property_formula_color": "Formula color",
     "Mathtext_property_background_color": "Background color",
+    "Mathtext_property_math_editor_in_popup": "Math editor in popup",
     "Media_Recorder_name": "Звукозапис",
     "Media_Recorder_info": "Звукозапис",
 	"Media_Recorder_property_is_disabled": "Изключи",
