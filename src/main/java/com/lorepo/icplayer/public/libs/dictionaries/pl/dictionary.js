@@ -2018,6 +2018,8 @@ var ice_dictionary_pl = {
     "Mathtext_property_formula_color": "Formula color",
     "Mathtext_property_background_color": "Background color",
     "Mathtext_property_math_editor_in_popup": "Math editor in popup",
+    "Mathtext_property_popup_button_cancel": "Cancel button",
+    "Mathtext_property_popup_button_save": "Save button",
 	"Media_Recorder_name": "Media Recorder",
     "Media_Recorder_info": "Media Recorder",
     "Media_Recorder_property_is_disabled": "Is disabled",

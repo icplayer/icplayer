@@ -29,4 +29,29 @@ TestCase("[MathText] Model upgrade", {
 
         assertEquals('True', validatedModel['mathEditorInPopup']);
     },
+
+    'test given model without popupTexts when upgrading model, popupTexts will be added with default values': function () {
+        var validatedModel = this.presenter.upgradeModel(this.model);
+
+        assertTrue(validatedModel['popupTexts'] !== undefined)
+        assertTrue(validatedModel['popupTexts']['cancel'] !== undefined)
+        assertEquals('', validatedModel['popupTexts']['cancel']['cancel']);
+        assertTrue(validatedModel['popupTexts']['save'] !== undefined)
+        assertEquals('', validatedModel['popupTexts']['save']['save']);
+    },
+
+    'test given model with popupTexts when upgrading model, popupTexts will be not be changed': function () {
+        this.model['popupTexts'] = {
+            cancel: {cancel: 'anuluj'},
+            save: {save: 'zapisz'}
+        };
+
+        var validatedModel = this.presenter.upgradeModel(this.model);
+
+        assertTrue(validatedModel['popupTexts'] !== undefined)
+        assertTrue(validatedModel['popupTexts']['cancel'] !== undefined)
+        assertEquals('anuluj', validatedModel['popupTexts']['cancel']['cancel']);
+        assertTrue(validatedModel['popupTexts']['save'] !== undefined)
+        assertEquals('zapisz', validatedModel['popupTexts']['save']['save']);
+    },
 });
