@@ -4,10 +4,13 @@ import {MediaState} from "./state/MediaState.jsm";
 import {Errors} from "./validation/Errors.jsm";
 import {PlayButton} from "./view/button/PlayButton.jsm";
 import {RecordButton} from "./view/button/RecordButton.jsm";
+import {ResetButton} from "./view/button/ResetButton.jsm";
+import {DownloadButton} from "./view/button/DownloadButton.jsm";
 import {Timer} from "./view/Timer.jsm";
 import {AddonState} from "./state/AddonState.jsm";
 import {RecordingTimeLimiter} from "./RecordingTimeLimiter.jsm";
 import {SoundIntensity} from "./view/SoundIntensity.jsm";
+import {DottedSoundIntensity} from "./view/DottedSoundIntensity.jsm";
 import {MediaAnalyserService} from "./analyser/MediaAnalyserService.jsm";
 import {AudioLoader} from "./view/loader/AudioLoader.jsm";
 import {SoundEffect} from "./view/button/sound/SoundEffect.jsm";
@@ -123,6 +126,8 @@ export class MediaRecorder {
         this.timer = null;
         this.recordButton = null;
         this.playButton = null;
+        this.downloadButton = null;
+        this.resetButton = null;
         this.stopRecordingSoundEffect = null;
         this.startRecordingSoundEffect = null;
         this.loader = null;
@@ -216,6 +221,10 @@ export class MediaRecorder {
         this.view = view;
         this.model = model;
         this.viewHandlers = this._loadViewHandlers(this.view);
+        if (this.model.extendedMode) {
+            this._prepareExtendedModeView();
+            this.setEMDefaultStateView();
+        }
 
         this.mediaState = new MediaState();
         this.activationState = new ActivationState();
@@ -232,8 +241,17 @@ export class MediaRecorder {
             $recordButtonView: $(view).find(".media-recorder-recording-button"),
             $playButtonView: $(view).find(".media-recorder-play-button"),
             $timerView: $(view).find(".media-recorder-timer"),
-            $soundIntensityView: $(view).find(".media-recorder-sound-intensity")
+            $soundIntensityView: $(view).find(".media-recorder-sound-intensity"),
+            $dottedSoundIntensityView: $(view).find(".media-recorder-dotted-sound-intensity"),
+            $progressBarWrapperView: $(view).find(".media-recorder-progress-bar-wrapper"),
+            $resetButtonView: $(view).find(".media-recorder-reset-button"),
+            $downloadButtonView: $(view).find(".media-recorder-download-button")
         };
+    }
+
+    _prepareExtendedModeView() {
+        this.viewHandlers.$wrapperView.addClass('extended-mode');
+        this.viewHandlers.$timerView.insertBefore(this.viewHandlers.$playButtonView);
     }
 
     _loadMediaElements() {
@@ -267,10 +285,21 @@ export class MediaRecorder {
             state: this.mediaState
         });
 
+        if (this.model.extendedMode) {
+            this.downloadButton = new DownloadButton(this.viewHandlers.$downloadButtonView);
+            this.resetButton = new ResetButton(this.viewHandlers.$resetButtonView);
+        }
+
         this.loader = new AudioLoader(this.viewHandlers.$loaderView);
 
         this.timer = new Timer(this.viewHandlers.$timerView);
-        this.soundIntensity = new SoundIntensity(this.viewHandlers.$soundIntensityView);
+        if (this.model.extendedMode) {
+            this.soundIntensity = new DottedSoundIntensity(this.viewHandlers.$dottedSoundIntensityView);
+            this.viewHandlers.$soundIntensityView.css('display', 'none');
+        } else {
+             this.soundIntensity = new SoundIntensity(this.viewHandlers.$soundIntensityView);
+             this.viewHandlers.$soundIntensityView.css('display', 'none');
+        }
 
         this._hideSelectedElements();
     }
@@ -285,6 +314,45 @@ export class MediaRecorder {
         this.stopRecordingSoundEffect = new SoundEffect(this.model.stopRecordingSound, this.viewHandlers.$playerView);
 
         return new RecordButtonSoundEffect(recordButton, this.startRecordingSoundEffect, this.stopRecordingSoundEffect);
+    }
+
+    setEMDefaultStateView() {
+        this.viewHandlers.$recordButtonView.css('display', '');
+        this.viewHandlers.$timerView.css('display','');
+        if (this.soundIntensity) {
+            this.soundIntensity.show();
+        }
+        this.viewHandlers.$playButtonView.css('display', 'none');
+        this.viewHandlers.$progressBarWrapperView.css('display', 'none');
+        this.viewHandlers.$progressBarWrapperView.css('visibility', 'hidden');
+        this.viewHandlers.$resetButtonView.css('display', 'none');
+        this.viewHandlers.$downloadButtonView.css('display', 'none');
+    }
+
+    setEMRecordedStateView() {
+        this.viewHandlers.$recordButtonView.css('display', 'none');
+        this.viewHandlers.$timerView.css('display','');
+        if (this.soundIntensity) {
+                this.soundIntensity.hide();
+            }
+        this.viewHandlers.$playButtonView.css('display', '');
+        this.viewHandlers.$progressBarWrapperView.css('display', 'block');
+        this.viewHandlers.$progressBarWrapperView.css('visibility', 'hidden');
+        this.viewHandlers.$resetButtonView.css('display', 'block');
+        this.viewHandlers.$downloadButtonView.css('display', 'block');
+    }
+
+    setEMPlayingStateView() {
+        this.viewHandlers.$recordButtonView.css('display', 'none');
+        this.viewHandlers.$timerView.css('display','');
+        if (this.soundIntensity) {
+            this.soundIntensity.hide();
+        }
+        this.viewHandlers.$playButtonView.css('display', '');
+        this.viewHandlers.$progressBarWrapperView.css('display', 'block');
+        this.viewHandlers.$progressBarWrapperView.css('visibility', 'visible');
+        this.viewHandlers.$resetButtonView.css('display', 'block');
+        this.viewHandlers.$downloadButtonView.css('display', 'block');
     }
 
     _loadLogic() {
@@ -327,7 +395,11 @@ export class MediaRecorder {
                 this.resourcesProvider.destroy();
                 this.safariRecorderState.setUnavailableResources();
             }
+            if (this.model.extendedMode) {
+                this.setEMRecordedStateView();
+            }
         };
+
 
         this.recordButton.onReset = () => {
             this.mediaState.setLoading();
@@ -339,6 +411,14 @@ export class MediaRecorder {
             this.recorder.stopRecording();
             this.resourcesProvider.destroy();
         };
+
+        this.resetButton.onReset = () => {
+            this.timer.startCountdown();
+            this.resetRecording();
+            if (this.model.extendedMode) {
+                this.setEMDefaultStateView();
+            }
+        }
 
         this.playButton.onStartPlaying = () => {
             this.mediaState.setPlaying();
@@ -436,12 +516,20 @@ export class MediaRecorder {
         this.recordButton.activate();
         this.playButton.activate();
         this.defaultRecordingPlayButton.activate();
+        if (this.model.extendedMode) {
+            this.resetButton.activate();
+            this.downloadButton.activate();
+        }
     }
 
     _deactivateButtons() {
         this.recordButton.deactivate();
         this.playButton.deactivate();
         this.defaultRecordingPlayButton.deactivate();
+        if (this.model.extendedMode) {
+            this.resetButton.deactivate();
+            this.downloadButton.deactivate();
+        }
     }
 
     _stopActions() {
@@ -601,6 +689,7 @@ export class MediaRecorder {
     _upgradeModel(model) {
         let upgradedModel = this._upgradeIsDisabled(model);
         upgradedModel = this._upgradeEnableInErrorCheckigMode(upgradedModel);
+        upgradedModel = this._upgradeExtendedMode(upgradedModel);
         return upgradedModel;
     };
 
@@ -621,6 +710,17 @@ export class MediaRecorder {
 
         if (!upgradedModel["enableInErrorCheckingMode"]) {
             upgradedModel["enableInErrorCheckingMode"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    _upgradeExtendedMode(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["extendedMode"]) {
+            upgradedModel["extendedMode"] = "False";
         }
 
         return upgradedModel;

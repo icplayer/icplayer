@@ -76,12 +76,51 @@
     font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
 }
 
+.media-recorder-wrapper.extended-mode .media-recorder-timer {
+    width: auto;
+}
+
 .media-recorder-wrapper .media-recorder-sound-intensity {
     width: 20px;
     margin: 0px 10px;
     display: flex;
     flex-direction: column;
 }
+
+.media-recorder-wrapper .media-recorder-dotted-sound-intensity {
+    width: 25px;
+    height: 25px;
+    margin: 0px 10px;
+    display: flex;
+    flex-direction: row;
+}
+
+.media-recorder-wrapper .media-recorder-dot-container {
+    height: 100%;
+    position: relative;
+    width: 8px;
+}
+
+.media-recorder-wrapper .sound-intensity-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 6px;
+    display: block;
+    background-color: #1870b7;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.media-recorder-wrapper .center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+  }
 
 .media-recorder-wrapper .sound-intensity-large:first-child {
     border-top: 1px solid;
@@ -141,6 +180,31 @@
 
 .media-recorder-wrapper.disabled {
     opacity: 0.5;
+}
+
+.media-recorder-wrapper .media-recorder-reset-button {
+    width: 25px;
+    height: 25px;
+    margin: 0px 3px;
+    background-size: 100%;
+    background: url('resources/005-reset-button.svg') no-repeat center;
+    display: none;
+}
+
+.media-recorder-wrapper .media-recorder-download-button {
+    width: 25px;
+    height: 25px;
+    margin: 0px 3px;
+    background-size: 100%;
+    background: url('resources/006-download-button.svg') no-repeat center;
+    display: none;
+}
+
+.media-recorder-wrapper .media-recorder-progress-bar-wrapper {
+    width: 80px;
+    height: 25px;
+    margin: 0px 3px;
+    display: none
 }
 
 @keyframes spin {

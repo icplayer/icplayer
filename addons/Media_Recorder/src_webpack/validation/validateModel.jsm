@@ -27,6 +27,7 @@ export function validateModel(model) {
         ModelValidators.Boolean("isShowedTimer"),
         ModelValidators.Boolean("isShowedDefaultRecordingButton"),
         ModelValidators.Boolean("enableInErrorCheckingMode"),
-        ModelValidators.Boolean("isDisabled")
+        ModelValidators.Boolean("isDisabled"),
+        ModelValidators.Boolean("extendedMode")
     ]);
 }

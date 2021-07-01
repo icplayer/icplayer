@@ -2028,6 +2028,7 @@ var ice_dictionary_mx = {
     "Media_Recorder_property_stop_recording_sound": "Recording stop sound",
     "Media_Recorder_property_is_reset_removes_recording": "Reset removes recording",
     "Media_Recorder_property_enable_in_error_checking_mode": "Enable in error checking mode",
+    "Media_Recorder_property_extended_mode": "Extended mode",
 	"Editor_load_theme_error": "Error loading template (click <a target=\"_blank\" class=\"textLink\" href=\"https://www.mauthor.com/doc/en/page/Error-loading-template\">here</a> to find out more)",
 	"Editor_begin_adding_tts":"Begin adding TTS to the presentation",
 	"Editor_finish_adding_tts":"Finished adding TTS to the presentation",
