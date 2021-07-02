@@ -91,16 +91,17 @@ function AddonMathText_create() {
         var modelValidator = new ModelValidator();
 
         var mathEditorInPopup = model["mathEditorInPopup"].toLowerCase() == "true";
+        var hasMinSize = (model["type"] !== presenter.TYPES_DEFINITIONS.TEXT) && !mathEditorInPopup;
         // when not showing wiris editor, width/height can be any value
         var widthConfig = new ModelValidators.utils.FieldConfigGenerator(function (validatedModel) {
             return {
-                minValue: (validatedModel["type"] !== presenter.TYPES_DEFINITIONS.TEXT) && !mathEditorInPopup ? 500 : 0
+                minValue: hasMinSize ? 500 : 0
             };
         });
 
         var heightConfig = new ModelValidators.utils.FieldConfigGenerator(function (validatedModel) {
             return {
-                minValue: (validatedModel["type"] !== presenter.TYPES_DEFINITIONS.TEXT) && !mathEditorInPopup ? 200 : 0
+                minValue: hasMinSize ? 200 : 0
             };
         });
 
@@ -310,16 +311,7 @@ function AddonMathText_create() {
             return;
         }
 
-        presenter.editor = window.com.wiris.jsEditor.JsEditor.newInstance(
-            {
-                'language': presenter.configuration.language,
-                'mml': presenter.configuration.initialText,
-                'readOnly': isPreview,
-                'color': presenter.configuration.formulaColor,
-                'backgroundColor': presenter.configuration.backgroundColor
-            }
-        );
-
+        presenter.editor = createWirisEditor();
         presenter.editor.insertInto(presenter.wrapper);
 
         if (isPreview) {
@@ -354,16 +346,7 @@ function AddonMathText_create() {
     };
 
     presenter.createWirisPopup = function AddonMathText_createWirisPopup (isPreview) {
-        presenter.editor = window.com.wiris.jsEditor.JsEditor.newInstance(
-        {
-                'language': presenter.configuration.language,
-                'mml': presenter.configuration.initialText,
-                'readOnly': isPreview,
-                'color': presenter.configuration.formulaColor,
-                'backgroundColor': presenter.configuration.backgroundColor
-            }
-        );
-
+        presenter.editor = createWirisEditor();
 
         presenter.editorPopupWrapper = document.createElement('div');
         presenter.editorPopupWrapper.classList.add('mathtext-editor-popup-wrapper');
@@ -390,6 +373,18 @@ function AddonMathText_create() {
         $(presenter.editorPopupWrapper).draggable({
             cancel: '.mathtext-editor-popup-editor,.cancel-button,.save-button'
         });
+    }
+
+    function createWirisEditor(isPreview) {
+        return window.com.wiris.jsEditor.JsEditor.newInstance(
+            {
+                'language': presenter.configuration.language,
+                'mml': presenter.configuration.initialText,
+                'readOnly': isPreview,
+                'color': presenter.configuration.formulaColor,
+                'backgroundColor': presenter.configuration.backgroundColor
+            }
+        );
     }
 
     presenter.onSavePopup = function AddonMathText_onSavePopup () {
