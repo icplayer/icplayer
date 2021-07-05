@@ -480,6 +480,10 @@ function AddonMedia_Recorder_create() {
         return this.mediaRecorder._internalElements();
     };
 
+    presenter._internalUpgradeModel = function (model) {
+        return this.mediaRecorder._upgradeModel(model);
+    };
+
     function handleDestroyEvent(view) {
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
     }
