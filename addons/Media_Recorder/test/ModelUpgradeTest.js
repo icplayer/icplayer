@@ -1,8 +1,6 @@
 TestCase("[Media Recorder] Model upgrade", {
     setUp: function () {
         this.presenter = AddonMedia_Recorder_create();
-        //let internalElements = this.presenter._internalElements();
-        //this.upgradeModel = this.presenter._internalUpgradeModel();//internalElements.upgradeModel;
 
         this.model = {
             ID: "mediaRecorder_1",
