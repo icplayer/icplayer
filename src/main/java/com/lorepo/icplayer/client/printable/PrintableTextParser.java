@@ -21,4 +21,9 @@ public class PrintableTextParser implements IPrintableTextParser {
         parser.skipGaps();
         return parser.parse(textToParse).parsedText;
     }
+
+    @Override
+    public int findClosingBracket(String text) {
+        return TextParser.findClosingBracket(text);
+    }
 }

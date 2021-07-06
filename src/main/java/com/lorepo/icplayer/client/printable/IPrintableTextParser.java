@@ -4,4 +4,5 @@ public interface IPrintableTextParser {
     JSPrintableTextParser getAsJS();
     String parseAltText(String textToParse);
     String parse(String textToParse);
+    int findClosingBracket(String text);
 }

@@ -45,3 +45,24 @@
     column-break-after: avoid;
 	-webkit-column-break-after: avoid;
 }
+
+.printable_addon_Table .table-addon-wrapper .printable_gap {
+    border-bottom: 1px solid;
+}
+.printable_addon_Table .table-addon-wrapper .printable_math_gap {
+    margin: 1px 5px;
+    padding: 0 5px;
+}
+
+.printable_addon_Table .table-addon-wrapper .printable_gap_correct::after {
+    content: " \2714";
+}
+
+.printable_addon_Table .table-addon-wrapper .printable_gap_wrong::after {
+    content: " \2716";
+}
+
+.printable_addon_Table.printable_addon_Table-show-answers .table-addon-wrapper table tbody tr td {
+    border: 1px black dashed;
+}
+

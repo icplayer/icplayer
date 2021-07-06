@@ -473,7 +473,7 @@ TestCase("[Table] [Gap Utils] SetState of not draggable gaps", {
         this.gap = new this.presenter.GapUtils({});
         this.stubs.setIsEnabled = sinon.stub(this.gap, 'setIsEnabled');
         this.gap.$view = {
-            val: this.stubs.valStub
+            html: this.stubs.valStub
         };
 
     },

@@ -1,3 +1,4 @@
+2021-06-24 Added support for printable state in Table
 2021-06-18 Added headers to Table TTS
 2021-06-17 Fixed issue with Text gaps connected to Math addon when leavinh Show Answers mode
 2021-06-17 Hotfix GradualShowAnswer respect null argument (for usage in private addons)
