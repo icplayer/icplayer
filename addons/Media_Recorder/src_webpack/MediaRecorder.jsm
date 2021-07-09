@@ -7,6 +7,7 @@ import {RecordButton} from "./view/button/RecordButton.jsm";
 import {ResetButton} from "./view/button/ResetButton.jsm";
 import {DownloadButton} from "./view/button/DownloadButton.jsm";
 import {Timer} from "./view/Timer.jsm";
+import {ProgressBar} from "./view/ProgressBar.jsm";
 import {AddonState} from "./state/AddonState.jsm";
 import {RecordingTimeLimiter} from "./RecordingTimeLimiter.jsm";
 import {SoundIntensity} from "./view/SoundIntensity.jsm";
@@ -128,6 +129,7 @@ export class MediaRecorder {
         this.playButton = null;
         this.downloadButton = null;
         this.resetButton = null;
+        this.progressBar = null;
         this.stopRecordingSoundEffect = null;
         this.startRecordingSoundEffect = null;
         this.loader = null;
@@ -243,7 +245,8 @@ export class MediaRecorder {
             $timerView: $(view).find(".media-recorder-timer"),
             $soundIntensityView: $(view).find(".media-recorder-sound-intensity"),
             $dottedSoundIntensityView: $(view).find(".media-recorder-dotted-sound-intensity"),
-            $progressBarWrapperView: $(view).find(".media-recorder-progress-bar-wrapper"),
+            $progressBarWrapperView: $(view).find(".media-recorder-progress-bar"),
+            $progressBarSliderView: $(view).find(".media-recorder-progress-bar-slider"),
             $resetButtonView: $(view).find(".media-recorder-reset-button"),
             $downloadButtonView: $(view).find(".media-recorder-download-button")
         };
@@ -288,6 +291,7 @@ export class MediaRecorder {
         if (this.model.extendedMode) {
             this.downloadButton = new DownloadButton(this.viewHandlers.$downloadButtonView);
             this.resetButton = new ResetButton(this.viewHandlers.$resetButtonView);
+            this.progressBar = new ProgressBar(this.viewHandlers.$progressBarWrapperView);
         }
 
         this.loader = new AudioLoader(this.viewHandlers.$loaderView);
@@ -337,7 +341,7 @@ export class MediaRecorder {
             }
         this.viewHandlers.$playButtonView.css('display', '');
         this.viewHandlers.$progressBarWrapperView.css('display', 'block');
-        this.viewHandlers.$progressBarWrapperView.css('visibility', 'hidden');
+        this.viewHandlers.$progressBarWrapperView.css('visibility', 'visible');
         this.viewHandlers.$resetButtonView.css('display', 'block');
         this.viewHandlers.$downloadButtonView.css('display', 'block');
     }
@@ -412,26 +416,43 @@ export class MediaRecorder {
             this.resourcesProvider.destroy();
         };
 
-        this.resetButton.onReset = () => {
-            this.timer.startCountdown();
-            this.resetRecording();
-            if (this.model.extendedMode) {
-                this.setEMDefaultStateView();
+        if (this.model.extendedMode) {
+            this.resetButton.onReset = () => {
+                //this.timer.startCountdown();
+                this.resetRecording();
+                if (this.model.extendedMode) {
+                    this.setEMDefaultStateView();
+                }
+            }
+
+            this.progressBar.onStartDragging = () => {
+                console.log("start dragging");
+                this.player.pausePlaying();
+            }
+
+            this.progressBar.onStopDragging = progress => {
+                console.log("stop dragging: "+progress);
             }
         }
 
         this.playButton.onStartPlaying = () => {
             this.mediaState.setPlaying();
-            this.timer.startCountdown();
+            //this.timer.startCountdown();
+            console.log("on start playing");
             this.player.startPlaying()
                 .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
                     .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
         };
 
         this.playButton.onStopPlaying = () => {
+            console.log("stop playing");
             this.mediaState.setLoaded();
-            this.player.stopPlaying();
-            this.timer.stopCountdown();
+            if (this.model.extendedMode) {
+                this.player.pausePlaying();
+            } else {
+                this.player.stopPlaying();
+            }
+            //this.timer.stopCountdown();
             this.soundIntensity.stopAnalyzing();
             this.mediaAnalyserService.closeAnalyzing();
         };
@@ -448,6 +469,7 @@ export class MediaRecorder {
         this.defaultRecordingPlayButton.onStopPlaying = () => {
             if (this.player.hasRecording) {
                 this.timer.setDuration(this.player.duration);
+                console.log("defrecplaybut onstopplaying");
                 this.mediaState.setLoaded();
             } else
                 this.mediaState.setLoadedDefaultRecording();
@@ -464,11 +486,28 @@ export class MediaRecorder {
         };
 
         this.player.onEndLoading = () => {
-            this.mediaState.setLoaded();
-            this.loader.hide();
+            console.log("on end loading");
+            if (this.mediaState.isLoading()){
+                this.mediaState.setLoaded();
+                this.loader.hide();
+            }
         };
 
+        var player = this.player;
+        var timer = this.timer;
+        var progressBar = this.progressBar;
+        function timeUpdateCallback(event){
+            var currentTime = player.getCurrentTime();
+            timer.setTime(currentTime);
+            if (progressBar) {
+                player._getDuration().then(duration => {
+                    progressBar.setProgress(currentTime/duration);
+                });
+            }
+        }
+
         this.player.onDurationChange = duration => this.timer.setDuration(duration);
+        this.player.onTimeUpdate = event => timeUpdateCallback(event);
         this.player.onEndPlaying = () => this.playButton.forceClick();
 
         this.defaultRecordingPlayer.onStartLoading = () => {
@@ -477,6 +516,7 @@ export class MediaRecorder {
         };
 
         this.defaultRecordingPlayer.onEndLoading = () => {
+            console.log("defaultRecordingPlayer.onEndLoading");
             if (this.player.hasRecording)
                 this.mediaState.setLoaded();
             else

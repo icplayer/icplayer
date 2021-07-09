@@ -200,11 +200,23 @@
     display: none;
 }
 
-.media-recorder-wrapper .media-recorder-progress-bar-wrapper {
+.media-recorder-wrapper .media-recorder-progress-bar {
     width: 80px;
-    height: 25px;
-    margin: 0px 3px;
-    display: none
+    height: 10px;
+    margin: 1px 1px;
+    display: none;
+    background-color: white;
+    border-radius: 5px;
+    position: relative;
+}
+
+.media-recorder-wrapper .media-recorder-progress-bar-slider {
+    width: 10px;
+    height: 10px;
+    display: block;
+    background-color: black;
+    border-radius: 5px;
+    position: absolute;
 }
 
 @keyframes spin {

@@ -7,6 +7,7 @@ export class Timer {
         this.currentSeconds = 0;
         this.loadedMinutes = 0;
         this.loadedSeconds = 0;
+        this.duration = 0;
         this.isLoaded = false;
 
         this.$view.css("z-index", "100");
@@ -14,6 +15,7 @@ export class Timer {
     }
 
     startCountdown() {
+        console.log("start countdown");
         this._clearCurrentTime();
         this.interval = setInterval(() => {
             this._incrementTimer();
@@ -22,6 +24,7 @@ export class Timer {
     }
 
     startDecrementalCountdown(duration) {
+        console.log("start decremental countdown");
         this._clearCurrentTime();
         this.setDuration(duration);
         this.currentMinutes = this.loadedMinutes;
@@ -34,17 +37,23 @@ export class Timer {
     }
 
     stopCountdown() {
-        clearInterval(this.interval);
+        if (this.interval != null) {
+            clearInterval(this.interval);
+            this.interval = null;
+        }
         this._clearCurrentTime();
         this._updateText();
     }
 
     setDuration(duration) {
+        console.log("set duration: "+duration);
+        this.duration = duration;
         this.loadedMinutes = parseInt(duration / 60);
         this.loadedSeconds = parseInt(duration % 60);
         this.isLoaded = true;
         this._updateText();
     }
+
 
     reset() {
         clearInterval(this.interval);
@@ -102,5 +111,11 @@ export class Timer {
         text += seconds < 10 ? "0" + seconds : seconds;
 
         return text;
+    }
+
+    setTime(seconds) {
+        this.currentMinutes = parseInt(seconds / 60);
+        this.currentSeconds = parseInt(seconds % 60);
+        this._updateText();
     }
 }

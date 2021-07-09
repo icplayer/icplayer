@@ -30,9 +30,17 @@ export class BasePlayer extends Player {
             });
     }
 
+
     startPlaying() {
         return new Promise(resolve => {
             this.mediaNode.muted = false;
+            console.log("start playing");
+            if (this.onTimeUpdateCallback) {
+                console.log("set event listener");
+                //this.onTimeUpdateCallback("hello world");
+                this.mediaNode.addEventListener('timeupdate', this.onTimeUpdateCallback);
+                this.mediaNode.addEventListener('ended', this.onTimeUpdateCallback);
+            }
             if (this._isNotOnlineResources(this.mediaNode.src))
                 resolve(this.mediaNode);
             this.mediaNode.play();
@@ -40,9 +48,26 @@ export class BasePlayer extends Player {
     }
 
     stopPlaying() {
+        console.log("stopPlaying");
         return new Promise(resolve => {
             this.mediaNode.pause();
             this.mediaNode.currentTime = 0;
+            if (this.onTimeUpdateCallback) {
+                this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
+                this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
+            }
+            resolve();
+        });
+    }
+
+    pausePlaying() {
+        console.log("stopPlaying");
+        return new Promise(resolve => {
+            this.mediaNode.pause();
+            if (this.onTimeUpdateCallback) {
+                this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
+                this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
+            }
             resolve();
         });
     }
@@ -93,6 +118,10 @@ export class BasePlayer extends Player {
         this.eventBus = eventBus;
         this.sourceID = sourceID;
         this.item = item;
+    }
+
+    getCurrentTime() {
+        return this.mediaNode.currentTime;
     }
 
     _enableEventsHandling() {
@@ -175,5 +204,13 @@ export class BasePlayer extends Player {
 
     _createMediaNode() {
         throw new Error("GetMediaNode accessor is not implemented");
+    }
+
+    _onTimeUpdateEvent(event) {
+        console.log("_onTimeUpdateEvent");
+        console.log(this);
+        if (this.onTimeUpdateCallback) {
+            this.onTimeUpdateCallback(event);
+        }
     }
 }

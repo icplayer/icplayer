@@ -17,12 +17,20 @@ export class Player {
         throw new Error("StopPlaying method is not implemented");
     }
 
+    pausePlaying() {
+        throw new Error("pausePlaying method is not implemented");
+    }
+
     startStreaming(stream) {
         throw new Error("StartStreaming method is not implemented");
     }
 
     stopStreaming() {
         throw new Error("StopStreaming method is not implemented");
+    }
+
+    getCurrentTime() {
+        throw new Error("getCurrentTime method is not implemented");
     }
 
     setEventBus(eventBus, sourceID) {
@@ -51,5 +59,9 @@ export class Player {
 
     set onDurationChange(callback) {
         this.onDurationChangeCallback = duration => callback(duration);
+    }
+
+    set onTimeUpdate(callback) {
+        this.onTimeUpdateCallback = event => callback(event);
     }
 }
