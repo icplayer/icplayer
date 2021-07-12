@@ -419,6 +419,14 @@ function AddonEditableWindow_create() {
                         e.preventDefault();
                     });
                 }
+            },
+            init_instance_callback : function(editor) {
+                if (!presenter.configuration.model.editingEnabled) {
+                    var editorBody = editor.getBody();
+                    if (editorBody) {
+                        editorBody.setAttribute('contenteditable', "false");
+                    }
+                }
             }
         }).then(function (editors) {
             presenter.configuration.editor = editors[0];
