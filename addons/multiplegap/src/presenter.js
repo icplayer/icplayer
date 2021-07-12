@@ -1348,7 +1348,7 @@ function Addonmultiplegap_create(){
         }
 
         for(var i = 0; i< c.length; i++){
-            console.log(c[i] + "\n");
+            console.log(c[i] + "xd\n");
         }
 
         if (upgradedState.isVisible) {
