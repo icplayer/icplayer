@@ -1336,14 +1336,21 @@ function Addonmultiplegap_create(){
         if (!state) {
             return;
         }
-        
+
         var parsedState = JSON.parse(state),
           upgradedState = presenter.upgradeState(parsedState);
-        
+
+          var c = new Array(upgradedState.placeholders.length);
+
         for(var i = 0; i < upgradedState.placeholders.length; i++) {
             presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), upgradedState.placeholders[i], false, true, true);
+            c[i] = upgradedState.placeholders[i].value;
         }
-        
+
+        for(var i = 0; i< c.length; i++){
+            console.log(c[i] + "\n");
+        }
+
         if (upgradedState.isVisible) {
             presenter.show();
         } else {
