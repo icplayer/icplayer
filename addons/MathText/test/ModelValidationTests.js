@@ -12,7 +12,8 @@ TestCase("[MathText] Model validation", {
             'Height': '200',
             'language': 'English',
             'formulaColor': '#000000',
-            'backgroundColor': '#000000'
+            'backgroundColor': '#000000',
+            'mathEditorInPopup': 'False'
         };
     },
 
@@ -110,5 +111,29 @@ TestCase("[MathText] Model validation", {
 
         assertTrue(validatedModel.isValid);
         assertEquals('fr', validatedModel.value.language);
-    }
+    },
+
+    'test given model with mathEditorInPopup set to true when validating model, its value is set correctly': function () {
+        this.model.mathEditorInPopup = 'True';
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertTrue(validatedModel.isValid);
+        assertTrue(validatedModel.value.mathEditorInPopup);
+    },
+
+    'test given too small width and mathEditorInPopup set to true when validating model then model will be valid': function () {
+        this.model.Width = '499';
+        this.model.mathEditorInPopup = 'True';
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertTrue(validatedModel.isValid);
+    },
+
+    'test given too small height and mathEditorInPopup set to true when validating model then model will be valid': function () {
+        this.model.Height = '111';
+        this.model.mathEditorInPopup = 'True';
+        var validatedModel = this.presenter.validateModel(this.model);
+
+        assertTrue(validatedModel.isValid);
+    },
 });
