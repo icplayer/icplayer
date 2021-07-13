@@ -39,3 +39,11 @@
 .multiplegap_container .placeholder_invalid .handler {
     cursor: default;
 }
+
+.correctAnswerDiv::before {
+    content: "\2714";
+}
+
+.inCorrectAnswerDiv::before {
+    content: "\2716";
+}

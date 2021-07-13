@@ -11,6 +11,7 @@ function Addonmultiplegap_create(){
     function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
     var isWCAGOn = false;
     var printableController = null;
+    var printableState = null;
 
     var presenter = function(){};
 
@@ -1340,15 +1341,8 @@ function Addonmultiplegap_create(){
         var parsedState = JSON.parse(state),
           upgradedState = presenter.upgradeState(parsedState);
 
-          var c = new Array(upgradedState.placeholders.length);
-
         for(var i = 0; i < upgradedState.placeholders.length; i++) {
             presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), upgradedState.placeholders[i], false, true, true);
-            c[i] = upgradedState.placeholders[i].value;
-        }
-
-        for(var i = 0; i< c.length; i++){
-            console.log(c[i] + "xd\n");
         }
 
         if (upgradedState.isVisible) {
@@ -1704,6 +1698,12 @@ function Addonmultiplegap_create(){
         printableController = controller;
     };
 
+    presenter.setPrintableState = function (state){
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state);
+    }
+
     presenter.getPrintableHTML = function (model, showAnswers) {
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
@@ -1718,9 +1718,10 @@ function Addonmultiplegap_create(){
         $wrapper.css("border", "1px solid");
         $wrapper.css("padding", "5px");
 
-        if (showAnswers && printableController != null) {
-            var answerArray = [];
+        if (printableController != null) {
+            var correctAnswers = [];
             var contextDict = {};
+            var answerHTML = "";
 
             for (var i = 0; i < presenter.configuration.itemsAnswersID.length; i++) {
                 var splitItemAnswerID = presenter.configuration.itemsAnswersID[i].split("-");
@@ -1734,16 +1735,49 @@ function Addonmultiplegap_create(){
                         && contextDict[answerAddonID].items != null
                         && answerItemIndex >= 0
                         && answerItemIndex < contextDict[answerAddonID].items.length) {
-                        answerArray.push(contextDict[answerAddonID].items[answerItemIndex]);
+                        correctAnswers.push(contextDict[answerAddonID].items[answerItemIndex]);
                     }
                 }
             }
 
-            var answerHTML = "";
-            if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
-                answerHTML = answerArray.join(", ");
+            if(presenter.printableState != null){
+                var studentAnswers = [];
+                var savedState = presenter.printableState;
+                for (var i = 0; i < savedState.placeholders.length; i++){
+                    studentAnswers.push(savedState.placeholders[i].value);
+                }
+
+                if(showAnswers){
+                    for (var i = 0; i < studentAnswers.length; i++){
+                        var isCorrect = false;
+                        for (var j = 0; j < correctAnswers.length; j++){
+                            if(correctAnswers[j] == studentAnswers[i]){
+                                isCorrect = true;
+                                break;
+                            }
+                        }
+                        if(isCorrect){
+                            studentAnswers[i] = studentAnswers[i] + '<div class="correctAnswerDiv"></div>';
+                        } else {
+                            studentAnswers[i] = studentAnswers[i] + '<div class="inCorrectAnswerDiv"></div>';
+                        }
+                    }
+                    answerHTML = studentAnswers.join("</br>");
+                } else {
+                    if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
+                        answerHTML = studentAnswers.join(", ");
+                    } else {
+                        answerHTML = studentAnswers.join("</br>");
+                    }
+                }
             } else {
-                answerHTML = answerArray.join("</br>");
+                if(showAnswers){
+                    if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
+                        answerHTML = correctAnswers.join(", ");
+                    } else {
+                        answerHTML = correctAnswers.join("</br>");
+                    }
+                }
             }
             $wrapper.html(answerHTML);
         }
