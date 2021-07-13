@@ -420,14 +420,7 @@ function AddonEditableWindow_create() {
                     });
                 }
             },
-            init_instance_callback : function(editor) {
-                if (!presenter.configuration.model.editingEnabled) {
-                    var editorBody = editor.getBody();
-                    if (editorBody) {
-                        editorBody.setAttribute('contenteditable', "false");
-                    }
-                }
-            }
+            readonly: !presenter.configuration.model.editingEnabled
         }).then(function (editors) {
             presenter.configuration.editor = editors[0];
             presenter.configuration.isTinyMceLoaded = true;
