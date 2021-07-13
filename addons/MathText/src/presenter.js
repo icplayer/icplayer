@@ -417,7 +417,7 @@ function AddonMathText_create() {
     }
 
     presenter.showPopup = function AddonMathText_showPopup () {
-        if (!presenter.state.isShowAnswers && !presenter.state.isCheckAnswers) {
+        if (!presenter.state.isShowAnswers && !presenter.state.isCheckAnswers && !presenter.state.isDisabled) {
             presenter.editorPopupWrapper.style.display = "block";
         }
     }
