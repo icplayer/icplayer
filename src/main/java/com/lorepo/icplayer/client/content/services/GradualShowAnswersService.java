@@ -58,8 +58,7 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         if (currentPresenter != null) {
             String id = currentPresenter.getModel().getId();
             int activities = presenterActivitiesCountUsed.get(id);
-            int step = this.getPresenterActivitiesStepSize(currentPresenter);
-            this.setPresenterActivitiesCountUsed(id, activities + step);
+            this.setPresenterActivitiesCountUsed(id, activities + 1);
             this.sendEvent(currentPresenter.getModel().getId(), activities);
             if (firstCall) {
                 disablePresenters();
@@ -68,20 +67,6 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         }
 
         return false;
-    }
-
-    public int getPresenterActivitiesStepSize(IGradualShowAnswersPresenter currentPresenter) {
-        IModuleModel model = currentPresenter.getModel();
-        String moduleName = model.getModuleName();
-
-        if (moduleName != null) {
-            String orderingModuleName = new OrderingModule().getModuleName();
-            boolean isModelOrderingClass = moduleName.equals(orderingModuleName);
-            if (isModelOrderingClass && ((OrderingModule)model).isAllInGradualShowAnswersMode()) {
-                return ((OrderingModule)model).getItemCount();
-            }
-        }
-        return 1;
     }
 
     public void setPresenterActivitiesCountUsed(String id, int activities){
