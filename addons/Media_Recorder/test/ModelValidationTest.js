@@ -15,7 +15,9 @@ TestCase("[Media Recorder] Model validation", {
             isResetRemovesRecording: "False",
             isShowedTimer: "False",
             isShowedDefaultRecordingButton: "False",
-            isDisabled: "False"
+            isDisabled: "False",
+            enableInErrorCheckingMode: "False",
+            extendedMode: "False"
         };
 
         this.DefaultValues = {
