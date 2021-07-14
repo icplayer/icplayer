@@ -1952,6 +1952,7 @@ var ice_dictionary_pl = {
 	"Quiz_property_Summary": "Podsumowanie",
 	"Quiz_property_isActivity": "Jest ćwiczeniem",
 	"dont_generate_correct_order": "Nie generuj poprawnej kombinacji",
+	"all_in_gradual_show_answers_mode": "All in gradual show answers mode",
 	"alternative_text": "Tekst alternatywny",
 	"edit_alternative_text": "Edytuj tekst alternatywny",
 	"edit_math": "Edit math",

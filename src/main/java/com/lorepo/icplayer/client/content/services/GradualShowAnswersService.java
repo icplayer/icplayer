@@ -2,12 +2,14 @@ package com.lorepo.icplayer.client.content.services;
 
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IGradualShowAnswersPresenter;
+import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.GradualHideAnswerEvent;
 import com.lorepo.icplayer.client.module.api.event.builders.GradualShowAnswersBuilder;
 import com.lorepo.icplayer.client.module.api.player.IGradualShowAnswersService;
 import com.lorepo.icplayer.client.module.api.player.IPageController;
+import com.lorepo.icplayer.client.module.ordering.OrderingModule;
 
 import java.util.*;
 
@@ -56,7 +58,8 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         if (currentPresenter != null) {
             String id = currentPresenter.getModel().getId();
             int activities = presenterActivitiesCountUsed.get(id);
-            this.setPresenterActivitiesCountUsed(id, activities + 1);
+            int step = this.getPresenterActivitiesStepSize(currentPresenter);
+            this.setPresenterActivitiesCountUsed(id, activities + step);
             this.sendEvent(currentPresenter.getModel().getId(), activities);
             if (firstCall) {
                 disablePresenters();
@@ -65,6 +68,20 @@ public class GradualShowAnswersService implements IGradualShowAnswersService {
         }
 
         return false;
+    }
+
+    public int getPresenterActivitiesStepSize(IGradualShowAnswersPresenter currentPresenter) {
+        IModuleModel model = currentPresenter.getModel();
+        String moduleName = model.getModuleName();
+
+        if (moduleName != null) {
+            String orderingModuleName = new OrderingModule().getModuleName();
+            boolean isModelOrderingClass = moduleName.equals(orderingModuleName);
+            if (isModelOrderingClass && ((OrderingModule)model).isAllInGradualShowAnswersMode()) {
+                return ((OrderingModule)model).getItemCount();
+            }
+        }
+        return 1;
     }
 
     public void setPresenterActivitiesCountUsed(String id, int activities){

@@ -106,8 +106,12 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 					}
 
 					if (event.getModuleID().equals(module.getId())) {
-						int itemIndex = event.getItem();
-						handleGradualShowAnswers(itemIndex);
+						if (module.isAllInGradualShowAnswersMode()) {
+							view.setCorrectAnswer();
+						} else {
+							int itemIndex = event.getItem();
+							handleGradualShowAnswers(itemIndex);
+						}
 					}
 				}
 			});
