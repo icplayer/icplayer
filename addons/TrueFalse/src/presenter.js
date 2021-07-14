@@ -557,6 +557,12 @@ function AddonTrueFalse_create() {
         }
     };
 
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state);
+    }
+
     presenter.setShowErrorsMode = function () {
         if (isNotActivity) {
             return;
@@ -1123,6 +1129,8 @@ function AddonTrueFalse_create() {
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
+        var userAnswers = presenter.printableState['selectedElements'];
+        var didUserRespond = userAnswers.some(answer => answer === true);
 
         var $view = $("<div></div>");
         $view.attr('id', model.ID);
@@ -1162,9 +1170,13 @@ function AddonTrueFalse_create() {
                 $inputDiv.addClass("placeholder");
                 $td.append($inputDiv);
                 var $checkbox = $("<input type=\"checkbox\"> </input>")
-                if (showAnswers && answers.indexOf((j+1).toString()) != -1) {
+                var userAnswerIndex = i * 2 + j;
+                if (didUserRespond && userAnswers[userAnswerIndex]) {
+                    $checkbox.attr("checked", "checked");
+                } else if (showAnswers && answers.indexOf((j+1).toString()) != -1 && !didUserRespond) {
                     $checkbox.attr("checked", "checked");
                 }
+
                 $td.append($checkbox);
                 var $checkboxSpan = $("<span></span>");
                 $td.append($checkboxSpan);
