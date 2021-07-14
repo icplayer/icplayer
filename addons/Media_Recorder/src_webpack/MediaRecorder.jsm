@@ -136,6 +136,7 @@ export class MediaRecorder {
         this.addonState = null;
         this.mediaState = null;
         this.activationState = null;
+        this.extendedModeButtonList = null;
 
         this.playerController = null;
         this.view = null;
@@ -285,9 +286,12 @@ export class MediaRecorder {
             state: this.mediaState
         });
 
+        this.extendedModeButtonList = [];
         if (this.model.extendedMode) {
             this.downloadButton = new DownloadButton(this.viewHandlers.$downloadButtonView);
             this.resetButton = new ResetButton(this.viewHandlers.$resetButtonView);
+            this.extendedModeButtonList.push(this.downloadButton);
+            this.extendedModeButtonList.push(this.resetButton);
         }
 
         this.loader = new AudioLoader(this.viewHandlers.$loaderView);
@@ -298,7 +302,7 @@ export class MediaRecorder {
             this.viewHandlers.$soundIntensityView.css('display', 'none');
         } else {
              this.soundIntensity = new SoundIntensity(this.viewHandlers.$soundIntensityView);
-             this.viewHandlers.$soundIntensityView.css('display', 'none');
+             this.viewHandlers.$dottedSoundIntensityView.css('display', 'none');
         }
 
         this._hideSelectedElements();
@@ -317,6 +321,7 @@ export class MediaRecorder {
     }
 
     setEMDefaultStateView() {
+        this.viewHandlers.$defaultRecordingPlayButtonView.css('display', 'none');
         this.viewHandlers.$recordButtonView.css('display', '');
         this.viewHandlers.$timerView.css('display','');
         if (this.soundIntensity) {
@@ -330,6 +335,7 @@ export class MediaRecorder {
     }
 
     setEMRecordedStateView() {
+        this.viewHandlers.$defaultRecordingPlayButtonView.css('display', 'none');
         this.viewHandlers.$recordButtonView.css('display', 'none');
         this.viewHandlers.$timerView.css('display','');
         if (this.soundIntensity) {
@@ -343,6 +349,7 @@ export class MediaRecorder {
     }
 
     setEMPlayingStateView() {
+        this.viewHandlers.$defaultRecordingPlayButtonView.css('display', 'none');
         this.viewHandlers.$recordButtonView.css('display', 'none');
         this.viewHandlers.$timerView.css('display','');
         if (this.soundIntensity) {
@@ -412,11 +419,13 @@ export class MediaRecorder {
             this.resourcesProvider.destroy();
         };
 
-        this.resetButton.onReset = () => {
-            this.timer.startCountdown();
-            this.resetRecording();
-            if (this.model.extendedMode) {
-                this.setEMDefaultStateView();
+        if (this.resetButton) {
+            this.resetButton.onReset = () => {
+                this.timer.startCountdown();
+                this.resetRecording();
+                if (this.model.extendedMode) {
+                    this.setEMDefaultStateView();
+                }
             }
         }
 
@@ -517,8 +526,9 @@ export class MediaRecorder {
         this.playButton.activate();
         this.defaultRecordingPlayButton.activate();
         if (this.model.extendedMode) {
-            this.resetButton.activate();
-            this.downloadButton.activate();
+            for (var i=0; i < this.extendedModeButtonList.length; i++) {
+                this.extendedModeButtonList[i].activate();
+            }
         }
     }
 
@@ -527,8 +537,9 @@ export class MediaRecorder {
         this.playButton.deactivate();
         this.defaultRecordingPlayButton.deactivate();
         if (this.model.extendedMode) {
-            this.resetButton.deactivate();
-            this.downloadButton.deactivate();
+            for (var i=0; i < this.extendedModeButtonList.length; i++) {
+                this.extendedModeButtonList[i].deactivate();
+            }
         }
     }
 
@@ -575,20 +586,35 @@ export class MediaRecorder {
         let timerViewHandler = $(view).find(".media-recorder-timer");
         let defaultButtonViewHandler = $(view).find(".media-recorder-default-recording-play-button");
         let $wrapperViewHandler = $(view).find(".media-recorder-wrapper");
+        let intensityView = $(view).find(".media-recorder-sound-intensity");
+        let dottedSoundIntensityView = $(view).find(".media-recorder-dotted-sound-intensity");
+        let playButton = $(view).find('.media-recorder-play-button');
 
-        if (valid_model.isShowedTimer == false)
-            timerViewHandler.hide();
-        else
-            timerViewHandler.show();
-
-        if (valid_model.isShowedDefaultRecordingButton == false)
+        if (valid_model.extendedMode) {
+            intensityView.css('display', 'none');
+            playButton.css('display', 'none');
+            dottedSoundIntensityView.css('display','');
             defaultButtonViewHandler.hide();
-        else
-            defaultButtonViewHandler.show();
+            timerViewHandler.text('00:00');
+            $wrapperViewHandler.addClass('extended-mode');
+        } else {
+            intensityView.css('display', '');
+            dottedSoundIntensityView.css('display','none');
 
-        if (valid_model.isDisabled) {
-            this.addonViewService = new AddonViewService($wrapperViewHandler);
-            this.addonViewService.deactivate();
+            if (valid_model.isShowedTimer == false)
+                timerViewHandler.hide();
+            else
+                timerViewHandler.show();
+
+            if (valid_model.isShowedDefaultRecordingButton == false)
+                defaultButtonViewHandler.hide();
+            else
+                defaultButtonViewHandler.show();
+
+            if (valid_model.isDisabled) {
+                this.addonViewService = new AddonViewService($wrapperViewHandler);
+                this.addonViewService.deactivate();
+            }
         }
     }
 
