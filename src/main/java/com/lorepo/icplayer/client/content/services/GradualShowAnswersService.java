@@ -2,14 +2,12 @@ package com.lorepo.icplayer.client.content.services;
 
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.module.api.IGradualShowAnswersPresenter;
-import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.event.GradualHideAnswerEvent;
 import com.lorepo.icplayer.client.module.api.event.builders.GradualShowAnswersBuilder;
 import com.lorepo.icplayer.client.module.api.player.IGradualShowAnswersService;
 import com.lorepo.icplayer.client.module.api.player.IPageController;
-import com.lorepo.icplayer.client.module.ordering.OrderingModule;
 
 import java.util.*;
 
