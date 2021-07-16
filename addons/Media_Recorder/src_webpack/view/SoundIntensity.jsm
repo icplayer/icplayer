@@ -23,6 +23,14 @@ export class SoundIntensity {
         this.$view = null;
     }
 
+    show() {
+        this.$view.css('display', '');
+    }
+
+    hide() {
+        this.$view.css('display','none');
+    }
+
     _updateIntensity(analyser) {
         let frequencyArray = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(frequencyArray);
