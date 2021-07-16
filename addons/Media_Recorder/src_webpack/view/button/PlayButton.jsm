@@ -13,7 +13,6 @@ export class PlayButton extends Button {
     }
 
     _eventHandler() {
-        console.log("\nEVENT HANDLER");
         if (this.state.isLoaded())
             this._startPlaying();
         else if (this.state.isPlaying())
@@ -21,13 +20,11 @@ export class PlayButton extends Button {
     }
 
     _startPlaying() {
-        console.log("_startPlaying");
         this.$view.addClass("selected");
         this.onStartPlayingCallback();
     }
 
     _stopPlaying() {
-        console.log("_stopPlaying");
         this.$view.removeClass("selected");
         this.onStopPlayingCallback();
     }

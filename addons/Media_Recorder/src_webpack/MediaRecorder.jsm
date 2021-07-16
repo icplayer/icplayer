@@ -430,33 +430,28 @@ export class MediaRecorder {
             }
 
             this.progressBar.onStartDragging = () => {
-                console.log("start dragging");
                 this.player.pausePlaying();
             }
 
             this.progressBar.onStopDragging = progress => {
-                console.log("stop dragging: "+progress);
+                this.player.setProgress(progress);
             }
         }
 
         this.playButton.onStartPlaying = () => {
             this.mediaState.setPlaying();
-            //this.timer.startCountdown();
-            console.log("on start playing");
             this.player.startPlaying()
                 .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
                     .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
         };
 
         this.playButton.onStopPlaying = () => {
-            console.log("stop playing");
             this.mediaState.setLoaded();
             if (this.model.extendedMode) {
                 this.player.pausePlaying();
             } else {
                 this.player.stopPlaying();
             }
-            //this.timer.stopCountdown();
             this.soundIntensity.stopAnalyzing();
             this.mediaAnalyserService.closeAnalyzing();
         };
@@ -473,7 +468,6 @@ export class MediaRecorder {
         this.defaultRecordingPlayButton.onStopPlaying = () => {
             if (this.player.hasRecording) {
                 this.timer.setDuration(this.player.duration);
-                console.log("defrecplaybut onstopplaying");
                 this.mediaState.setLoaded();
             } else
                 this.mediaState.setLoadedDefaultRecording();
@@ -490,7 +484,6 @@ export class MediaRecorder {
         };
 
         this.player.onEndLoading = () => {
-            console.log("on end loading");
             if (this.mediaState.isLoading()){
                 this.mediaState.setLoaded();
                 this.loader.hide();
@@ -520,7 +513,6 @@ export class MediaRecorder {
         };
 
         this.defaultRecordingPlayer.onEndLoading = () => {
-            console.log("defaultRecordingPlayer.onEndLoading");
             if (this.player.hasRecording)
                 this.mediaState.setLoaded();
             else

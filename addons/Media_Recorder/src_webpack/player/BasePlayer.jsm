@@ -30,14 +30,10 @@ export class BasePlayer extends Player {
             });
     }
 
-
     startPlaying() {
         return new Promise(resolve => {
             this.mediaNode.muted = false;
-            console.log("start playing");
             if (this.onTimeUpdateCallback) {
-                console.log("set event listener");
-                //this.onTimeUpdateCallback("hello world");
                 this.mediaNode.addEventListener('timeupdate', this.onTimeUpdateCallback);
                 this.mediaNode.addEventListener('ended', this.onTimeUpdateCallback);
             }
@@ -48,7 +44,6 @@ export class BasePlayer extends Player {
     }
 
     stopPlaying() {
-        console.log("stopPlaying");
         return new Promise(resolve => {
             this.mediaNode.pause();
             this.mediaNode.currentTime = 0;
@@ -61,13 +56,19 @@ export class BasePlayer extends Player {
     }
 
     pausePlaying() {
-        console.log("stopPlaying");
         return new Promise(resolve => {
             this.mediaNode.pause();
             if (this.onTimeUpdateCallback) {
                 this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
                 this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
             }
+            resolve();
+        });
+    }
+
+    setProgress(progress) {
+        return new Promise(resolve => {
+            this.mediaNode.currentTime = Math.round(this.duration * progress);
             resolve();
         });
     }
@@ -207,8 +208,6 @@ export class BasePlayer extends Player {
     }
 
     _onTimeUpdateEvent(event) {
-        console.log("_onTimeUpdateEvent");
-        console.log(this);
         if (this.onTimeUpdateCallback) {
             this.onTimeUpdateCallback(event);
         }

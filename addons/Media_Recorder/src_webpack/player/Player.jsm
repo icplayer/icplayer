@@ -21,6 +21,10 @@ export class Player {
         throw new Error("pausePlaying method is not implemented");
     }
 
+    setProgress(progress) {
+        throw new Error("setProgress method is not implemented");
+    }
+
     startStreaming(stream) {
         throw new Error("StartStreaming method is not implemented");
     }

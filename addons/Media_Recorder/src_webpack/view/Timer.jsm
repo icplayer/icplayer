@@ -15,7 +15,6 @@ export class Timer {
     }
 
     startCountdown() {
-        console.log("start countdown");
         this._clearCurrentTime();
         this.interval = setInterval(() => {
             this._incrementTimer();
@@ -24,7 +23,6 @@ export class Timer {
     }
 
     startDecrementalCountdown(duration) {
-        console.log("start decremental countdown");
         this._clearCurrentTime();
         this.setDuration(duration);
         this.currentMinutes = this.loadedMinutes;
@@ -46,14 +44,12 @@ export class Timer {
     }
 
     setDuration(duration) {
-        console.log("set duration: "+duration);
         this.duration = duration;
         this.loadedMinutes = parseInt(duration / 60);
         this.loadedSeconds = parseInt(duration % 60);
         this.isLoaded = true;
         this._updateText();
     }
-
 
     reset() {
         clearInterval(this.interval);

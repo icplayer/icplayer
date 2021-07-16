@@ -981,19 +981,16 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 };
 
                 this.progressBar.onStartDragging = function () {
-                    console.log("start dragging");
                     _this2.player.pausePlaying();
                 };
 
                 this.progressBar.onStopDragging = function (progress) {
-                    console.log("stop dragging: " + progress);
+                    _this2.player.setProgress(progress);
                 };
             }
 
             this.playButton.onStartPlaying = function () {
                 _this2.mediaState.setPlaying();
-                //this.timer.startCountdown();
-                console.log("on start playing");
                 _this2.player.startPlaying().then(function (htmlMediaElement) {
                     return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
                         return _this2.soundIntensity.startAnalyzing(analyser);
@@ -1002,14 +999,12 @@ var MediaRecorder = exports.MediaRecorder = function () {
             };
 
             this.playButton.onStopPlaying = function () {
-                console.log("stop playing");
                 _this2.mediaState.setLoaded();
                 if (_this2.model.extendedMode) {
                     _this2.player.pausePlaying();
                 } else {
                     _this2.player.stopPlaying();
                 }
-                //this.timer.stopCountdown();
                 _this2.soundIntensity.stopAnalyzing();
                 _this2.mediaAnalyserService.closeAnalyzing();
             };
@@ -1028,7 +1023,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.defaultRecordingPlayButton.onStopPlaying = function () {
                 if (_this2.player.hasRecording) {
                     _this2.timer.setDuration(_this2.player.duration);
-                    console.log("defrecplaybut onstopplaying");
                     _this2.mediaState.setLoaded();
                 } else _this2.mediaState.setLoadedDefaultRecording();
 
@@ -1044,7 +1038,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             };
 
             this.player.onEndLoading = function () {
-                console.log("on end loading");
                 if (_this2.mediaState.isLoading()) {
                     _this2.mediaState.setLoaded();
                     _this2.loader.hide();
@@ -1080,7 +1073,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             };
 
             this.defaultRecordingPlayer.onEndLoading = function () {
-                console.log("defaultRecordingPlayer.onEndLoading");
                 if (_this2.player.hasRecording) _this2.mediaState.setLoaded();else _this2.mediaState.setLoadedDefaultRecording();
                 _this2.loader.hide();
             };
@@ -1552,19 +1544,16 @@ var MediaState = exports.MediaState = function () {
     }, {
         key: "setLoading",
         value: function setLoading() {
-            console.log("set loading!");
             this._value = this.values.LOADING;
         }
     }, {
         key: "setLoaded",
         value: function setLoaded() {
-            console.log("set loaded!");
             this._value = this.values.LOADED;
         }
     }, {
         key: "setPlaying",
         value: function setPlaying() {
-            console.log("set playing!");
             this._value = this.values.PLAYING;
         }
     }, {
@@ -1659,20 +1648,17 @@ var PlayButton = exports.PlayButton = function (_Button) {
     }, {
         key: "_eventHandler",
         value: function _eventHandler() {
-            console.log("\nEVENT HANDLER");
             if (this.state.isLoaded()) this._startPlaying();else if (this.state.isPlaying()) this._stopPlaying();
         }
     }, {
         key: "_startPlaying",
         value: function _startPlaying() {
-            console.log("_startPlaying");
             this.$view.addClass("selected");
             this.onStartPlayingCallback();
         }
     }, {
         key: "_stopPlaying",
         value: function _stopPlaying() {
-            console.log("_stopPlaying");
             this.$view.removeClass("selected");
             this.onStopPlayingCallback();
         }
@@ -1808,7 +1794,6 @@ var Timer = exports.Timer = function () {
         value: function startCountdown() {
             var _this = this;
 
-            console.log("start countdown");
             this._clearCurrentTime();
             this.interval = setInterval(function () {
                 _this._incrementTimer();
@@ -1820,7 +1805,6 @@ var Timer = exports.Timer = function () {
         value: function startDecrementalCountdown(duration) {
             var _this2 = this;
 
-            console.log("start decremental countdown");
             this._clearCurrentTime();
             this.setDuration(duration);
             this.currentMinutes = this.loadedMinutes;
@@ -1844,7 +1828,6 @@ var Timer = exports.Timer = function () {
     }, {
         key: "setDuration",
         value: function setDuration(duration) {
-            console.log("set duration: " + duration);
             this.duration = duration;
             this.loadedMinutes = parseInt(duration / 60);
             this.loadedSeconds = parseInt(duration % 60);
@@ -3123,10 +3106,7 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
 
             return new Promise(function (resolve) {
                 _this3.mediaNode.muted = false;
-                console.log("start playing");
                 if (_this3.onTimeUpdateCallback) {
-                    console.log("set event listener");
-                    //this.onTimeUpdateCallback("hello world");
                     _this3.mediaNode.addEventListener('timeupdate', _this3.onTimeUpdateCallback);
                     _this3.mediaNode.addEventListener('ended', _this3.onTimeUpdateCallback);
                 }
@@ -3139,7 +3119,6 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
         value: function stopPlaying() {
             var _this4 = this;
 
-            console.log("stopPlaying");
             return new Promise(function (resolve) {
                 _this4.mediaNode.pause();
                 _this4.mediaNode.currentTime = 0;
@@ -3155,13 +3134,22 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
         value: function pausePlaying() {
             var _this5 = this;
 
-            console.log("stopPlaying");
             return new Promise(function (resolve) {
                 _this5.mediaNode.pause();
                 if (_this5.onTimeUpdateCallback) {
                     _this5.mediaNode.removeEventListener('timeupdate', _this5.onTimeUpdateCallback);
                     _this5.mediaNode.removeEventListener('ended', _this5.onTimeUpdateCallback);
                 }
+                resolve();
+            });
+        }
+    }, {
+        key: "setProgress",
+        value: function setProgress(progress) {
+            var _this6 = this;
+
+            return new Promise(function (resolve) {
+                _this6.mediaNode.currentTime = Math.round(_this6.duration * progress);
                 resolve();
             });
         }
@@ -3226,26 +3214,26 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
     }, {
         key: "_enableEventsHandling",
         value: function _enableEventsHandling() {
-            var _this6 = this;
+            var _this7 = this;
 
             var self = this;
             this.mediaNode.onloadstart = function () {
-                return _this6.onStartLoadingCallback();
+                return _this7.onStartLoadingCallback();
             };
             this.mediaNode.onended = function () {
-                return _this6.onEndPlayingCallback();
+                return _this7.onEndPlayingCallback();
             };
             this.mediaNode.onplay = function () {
-                return _this6._onPlayCallback();
+                return _this7._onPlayCallback();
             };
             this.mediaNode.onpause = function () {
-                return _this6._onPausedCallback();
+                return _this7._onPausedCallback();
             };
 
             if (this._isMobileSafari()) this.mediaNode.onloadedmetadata = function () {
                 self.onEndLoadingCallback();
             };else this.mediaNode.oncanplay = function () {
-                return _this6.onEndLoadingCallback();
+                return _this7.onEndLoadingCallback();
             };
         }
     }, {
@@ -3265,12 +3253,12 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
     }, {
         key: "_getDuration",
         value: function _getDuration() {
-            var _this7 = this;
+            var _this8 = this;
 
             // faster resolution then
             // this.mediaNode.ondurationchange = () => this.onDurationChangeCallback(this.mediaNode.duration)
             return new Promise(function (resolve) {
-                var playerMock = new Audio(_this7.mediaNode.src);
+                var playerMock = new Audio(_this8.mediaNode.src);
                 playerMock.addEventListener("durationchange", function () {
                     if (this.duration != Infinity) {
                         resolve(this.duration);
@@ -3328,8 +3316,6 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
     }, {
         key: "_onTimeUpdateEvent",
         value: function _onTimeUpdateEvent(event) {
-            console.log("_onTimeUpdateEvent");
-            console.log(this);
             if (this.onTimeUpdateCallback) {
                 this.onTimeUpdateCallback(event);
             }
@@ -3377,6 +3363,11 @@ var Player = exports.Player = function () {
         key: "pausePlaying",
         value: function pausePlaying() {
             throw new Error("pausePlaying method is not implemented");
+        }
+    }, {
+        key: "setProgress",
+        value: function setProgress(progress) {
+            throw new Error("setProgress method is not implemented");
         }
     }, {
         key: "startStreaming",

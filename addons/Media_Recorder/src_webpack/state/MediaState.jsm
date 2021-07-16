@@ -61,17 +61,14 @@ export class MediaState {
     }
 
     setLoading() {
-        console.log("set loading!");
         this._value = this.values.LOADING;
     }
 
     setLoaded() {
-        console.log("set loaded!");
         this._value = this.values.LOADED;
     }
 
     setPlaying() {
-        console.log("set playing!");
         this._value = this.values.PLAYING;
     }
 
