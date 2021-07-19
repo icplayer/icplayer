@@ -157,3 +157,10 @@
     transform: rotate(45deg);
 }
 
+.correctAnswerDiv {
+    content: "\2714";
+}
+
+.inCorrectAnswerDiv {
+    content: "\2716";
+}

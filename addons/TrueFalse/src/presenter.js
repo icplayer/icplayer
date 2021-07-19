@@ -557,6 +557,12 @@ function AddonTrueFalse_create() {
         }
     };
 
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state);
+    }
+
     presenter.setShowErrorsMode = function () {
         if (isNotActivity) {
             return;
@@ -1123,6 +1129,9 @@ function AddonTrueFalse_create() {
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
+        var isMulti = model['Multi'] === 'True';
+        var userAnswers = getUserRespond();
+        var didUserRespond = userAnswers.some(answer => answer === true);
 
         var $view = $("<div></div>");
         $view.attr('id', model.ID);
@@ -1162,13 +1171,30 @@ function AddonTrueFalse_create() {
                 $inputDiv.addClass("placeholder");
                 $td.append($inputDiv);
                 var $checkbox = $("<input type=\"checkbox\"> </input>")
-                if (showAnswers && answers.indexOf((j+1).toString()) != -1) {
+                var userAnswerIndex = i * 2 + j;
+                if (didUserRespond && userAnswers[userAnswerIndex]) {
+                    $checkbox.attr("checked", "checked");
+                } else if (showAnswers && answers.indexOf((j+1).toString()) != -1 && !didUserRespond) {
                     $checkbox.attr("checked", "checked");
                 }
+
                 $td.append($checkbox);
                 var $checkboxSpan = $("<span></span>");
                 $td.append($checkboxSpan);
                 $tr.append($td);
+
+                if (showAnswers && isMulti && userAnswers[userAnswerIndex]) {
+                    var $markCell = $("<td></td>");
+                    var $markDiv = $("<div></div>");
+                    isAnswerCorrect(answers, userAnswers, i, j) ? $markDiv.addClass("correctAnswerDiv") : $markDiv.addClass("inCorrectAnswerDiv");
+                    $markCell.append($markDiv);
+                    $tr.append($markCell);
+                } else if (showAnswers && didUserRespond && isMulti) {
+                    addCell(answers, userAnswers, $tr, i);
+                }
+            }
+            if (showAnswers && !isMulti && didUserRespondOnQuestion(userAnswers, i)) {
+                addCell(answers, userAnswers, $tr, i,true);
             }
             $tbody.append($tr);
         }
@@ -1176,6 +1202,48 @@ function AddonTrueFalse_create() {
         $table.append($tbody);
         $view.append($table);
         return $view[0].outerHTML;
+
+        function getUserRespond() {
+            if (presenter.printableState && presenter.printableState.hasOwnProperty('selectedElements')) {
+                return presenter.printableState['selectedElements']
+            }
+            return [];
+        }
+
+        function addCell(answer, userAnswers, $tableRow, questionNumber, shouldAddMark = false) {
+            var $td = $("<td></td>");
+            var $markDiv = $("<div></div>");
+            if (shouldAddMark) {
+                areAnswersCorrect(answers, userAnswers, questionNumber) ? $markDiv.addClass("correctAnswerDiv")
+                    : $markDiv.addClass("inCorrectAnswerDiv");
+            }
+            $td.append($markDiv);
+            $tableRow.append($td);
+        }
+
+        function didUserRespondOnQuestion(userAnswers, questionNumber) {
+            return userAnswers[questionNumber * 2] || userAnswers[questionNumber * 2 + 1];
+        }
+
+        function areAnswersCorrect(correctAnswer, userAnswer, questionNumber) {
+            if (correctAnswer.includes("1") && userAnswer[questionNumber * 2]
+                && !userAnswer[questionNumber * 2 + 1]) {
+                return true;
+            } else if (correctAnswer.includes("2") && !userAnswer[questionNumber * 2]
+                && userAnswer[questionNumber * 2 + 1]) {
+                return true;
+            }
+            return false;
+        }
+
+        function isAnswerCorrect(correctAnswer, userAnswer, questionNumber, checkboxNumber) {
+            if (correctAnswer.includes("1") && checkboxNumber % 2 === 0 && userAnswer[questionNumber * 2]) {
+                return true;
+            } else if (correctAnswer.includes("2") && checkboxNumber % 2 === 1 && userAnswer[questionNumber * 2 + 1]) {
+                return true;
+            }
+            return false;
+        }
     };
 
     return presenter;
