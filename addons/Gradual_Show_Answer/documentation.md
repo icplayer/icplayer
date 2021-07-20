@@ -41,38 +41,6 @@ Supported elements should be listed there, each on a new line.
   </tbody>
 </table>
 
-
-## CSS classes
-
-<table border='1'>
-    <tbody>
-        <tr>
-            <th>Class name</th>
-            <th>Description</th> 
-        </tr>
-        <tr>
-            <td>.gradual-show-answers-wrapper</td>
-            <td>Main wrapper for whole addon</td> 
-        </tr>
-        <tr>
-            <td>.gradual-show-answers-container</td>
-            <td>The container for the button</td> 
-        </tr>
-        <tr>
-            <td>.gradual-show-answers-button</td>
-            <td>Class of the button</td> 
-        </tr>
-        <tr>
-            <td>.gradual-show-answers-active</td>
-            <td>Additional class of the button, it will be added when Gradual Show Answers mode is switched on</td> 
-        </tr>        
-        <tr>
-            <td>.gradual-hide-answers-button</td>
-            <td>Additional class of the button, it will be added when the button is used for switching off the Gradual Show Answers mode</td> 
-        </tr>
-    </tbody>
-</table>
-
 ## Supported commands
 
 <table border='1'>
@@ -143,6 +111,37 @@ Depending on Gradual Show Answers mode:
 </table>
 
 
-### Examples
+## Examples
 
 [Demo presentation](/embed/5253547551227904 "Demo presentation") contains examples of how to use the Gradual Show Answers addon.
+
+## CSS classes
+
+<table border='1'>
+    <tbody>
+        <tr>
+            <th>Class name</th>
+            <th>Description</th> 
+        </tr>
+        <tr>
+            <td>.gradual-show-answers-wrapper</td>
+            <td>Main wrapper for whole addon</td> 
+        </tr>
+        <tr>
+            <td>.gradual-show-answers-container</td>
+            <td>The container for the button</td> 
+        </tr>
+        <tr>
+            <td>.gradual-show-answers-button</td>
+            <td>Class of the button</td> 
+        </tr>
+        <tr>
+            <td>.gradual-show-answers-active</td>
+            <td>Additional class of the button, it will be added when Gradual Show Answers mode is switched on</td> 
+        </tr>        
+        <tr>
+            <td>.gradual-hide-answers-button</td>
+            <td>Additional class of the button, it will be added when the button is used for switching off the Gradual Show Answers mode</td> 
+        </tr>
+    </tbody>
+</table>
