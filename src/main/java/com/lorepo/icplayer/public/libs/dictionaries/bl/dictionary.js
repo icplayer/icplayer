@@ -1963,7 +1963,7 @@ var ice_dictionary_bl = {
     "Cant_add_page_from_template": "Една от страниците на шаблона не успя да се зареди. Импортирането на шаблона е прекъснато.",
 	"header_footer_notification": "Нова функция! Сега можете да избирате различни горен или долен колонтитул <br/> за всяка страница на урока. След като поставите допълнителните горен или долен колонтитул <br/> в Commons, просто изберете подходяща настройка от Настройки на страницата.",
 	"dont_generate_correct_order": "Не генерирай правилната последователност",
-	"all_in_gradual_show_answers_mode": "All in gradual show answers mode",
+	"show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
 	"alternative_text": "Алтернативен текст",
 	"edit_alternative_text": "Редактирай алтернативния текст",
 	"edit_math": "Edit math",

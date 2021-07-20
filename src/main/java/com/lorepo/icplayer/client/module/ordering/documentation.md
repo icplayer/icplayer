@@ -48,7 +48,7 @@ The module allows to indicate multiple items, their content and of course the co
         <td>If this property is selected the generated order will not be correct.</td> 
     </tr>
     <tr>
-        <td>All in gradual show answers mode</td>
+        <td>Show all answers in gradual show answers mode</td>
         <td>If this property is selected the gradual show answer button will correct entire ordering addon.</td> 
     </tr>
     <tr>

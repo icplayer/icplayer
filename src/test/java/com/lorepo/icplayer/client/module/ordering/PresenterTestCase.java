@@ -96,7 +96,7 @@ public class PresenterTestCase {
 	}
 
 	@Test
-	public void getActivitiesCountReturnsRequiredNumberOfSingleSwapsWhenAllInGradualShowAnswersModePropertyIsInactive() throws IOException, SAXException {
+	public void getActivitiesCountReturnsRequiredNumberOfSingleSwapsWhenShowAllAnswersInGradualShowAnswersModePropertyIsInactive() throws IOException, SAXException {
 		InputStream inputStream = getClass().getResourceAsStream("testdata/orderingPresenter.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -111,7 +111,7 @@ public class PresenterTestCase {
 	}
 
 	@Test
-	public void getActivitiesCountReturns1WhenAllInGradualShowAnswersModePropertyIsActive() throws IOException, SAXException {
+	public void getActivitiesCountReturns1WhenShowAllAnswersInGradualShowAnswersModePropertyIsActive() throws IOException, SAXException {
 		InputStream inputStream = getClass().getResourceAsStream("testdata/orderingPresenter2.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -126,7 +126,7 @@ public class PresenterTestCase {
 	}
 
 	@Test
-	public void onGradualShowAnswersSets1CorrectAnswerWhenAllInGradualShowAnswersModePropertyIsInactive() throws IOException, SAXException {
+	public void onGradualShowAnswersSets1CorrectAnswerWhenShowAllAnswersInGradualShowAnswersModePropertyIsInactive() throws IOException, SAXException {
 		InputStream inputStream = getClass().getResourceAsStream("testdata/orderingPresenter.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);
@@ -148,7 +148,7 @@ public class PresenterTestCase {
 	}
 
 	@Test
-	public void onGradualShowAnswersSetsAllCorrectAnswerWhenAllInGradualShowAnswersModePropertyIsActive() throws IOException, SAXException {
+	public void onGradualShowAnswersSetsAllCorrectAnswerWhenShowAllAnswersInGradualShowAnswersModePropertyIsActive() throws IOException, SAXException {
 		InputStream inputStream = getClass().getResourceAsStream("testdata/orderingPresenter2.xml");
 		XMLParserMockup xmlParser = new XMLParserMockup();
 		Element element = xmlParser.parser(inputStream);

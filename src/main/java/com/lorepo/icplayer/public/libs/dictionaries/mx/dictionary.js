@@ -1953,7 +1953,7 @@ var ice_dictionary_mx = {
 	"Cant_add_page_from_template": "Una de las páginas de la plantilla no se pudo cargar. Importación de la plantilla fue interrumpida.",
 	"header_footer_notification": "¡Otra novedad! mAuthor tiene ahora una opción de definir y elegir el encabezado o pie <br/> para cada página por separado. Tras configurar las páginas adicionales para encabezado o pie <br/> en Páginas Comunes, simplemente marque la opción relevante en las Propiedades de cada página.",
     "dont_generate_correct_order": "Don't generate correct order",
-    "all_in_gradual_show_answers_mode": "All in gradual show answers mode",
+    "show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
     "alternative_text": "Alternative text",
     "edit_alternative_text": "Edit alternative text",
 	"edit_math": "Edit math",

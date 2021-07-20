@@ -106,7 +106,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 					}
 
 					if (event.getModuleID().equals(module.getId())) {
-						if (module.isAllInGradualShowAnswersMode()) {
+						if (module.isShowAllAnswersInGradualShowAnswersMode()) {
 							view.setCorrectAnswer();
 						} else {
 							int itemIndex = event.getItem();
@@ -557,7 +557,7 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public int getActivitiesCount() {
-		if (module.isAllInGradualShowAnswersMode()) {
+		if (module.isShowAllAnswersInGradualShowAnswersMode()) {
 			return 1;
 		}
 		// returning - 1 because when handling gradual show answers it will require N - 1 swaps
