@@ -518,37 +518,39 @@ var _RecordButton = __webpack_require__(2);
 
 var _ResetButton = __webpack_require__(21);
 
-var _DownloadButton = __webpack_require__(22);
+var _ResetDialog = __webpack_require__(22);
 
-var _Timer = __webpack_require__(23);
+var _DownloadButton = __webpack_require__(23);
 
-var _AddonState = __webpack_require__(24);
+var _Timer = __webpack_require__(24);
 
-var _RecordingTimeLimiter = __webpack_require__(26);
+var _AddonState = __webpack_require__(25);
+
+var _RecordingTimeLimiter = __webpack_require__(27);
 
 var _SoundIntensity = __webpack_require__(3);
 
-var _DottedSoundIntensity = __webpack_require__(27);
+var _DottedSoundIntensity = __webpack_require__(28);
 
-var _MediaAnalyserService = __webpack_require__(28);
+var _MediaAnalyserService = __webpack_require__(29);
 
-var _AudioLoader = __webpack_require__(30);
+var _AudioLoader = __webpack_require__(31);
 
-var _SoundEffect = __webpack_require__(32);
+var _SoundEffect = __webpack_require__(33);
 
-var _RecordButtonSoundEffect = __webpack_require__(33);
+var _RecordButtonSoundEffect = __webpack_require__(34);
 
-var _AddonViewService = __webpack_require__(34);
+var _AddonViewService = __webpack_require__(35);
 
-var _AudioResourcesProvider = __webpack_require__(35);
+var _AudioResourcesProvider = __webpack_require__(36);
 
-var _AudioRecorder = __webpack_require__(37);
+var _AudioRecorder = __webpack_require__(38);
 
-var _AudioPlayer = __webpack_require__(40);
+var _AudioPlayer = __webpack_require__(41);
 
-var _DefaultRecordingPlayButton = __webpack_require__(43);
+var _DefaultRecordingPlayButton = __webpack_require__(44);
 
-var _SafariRecorderState = __webpack_require__(44);
+var _SafariRecorderState = __webpack_require__(45);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -790,7 +792,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 $dottedSoundIntensityView: $(view).find(".media-recorder-dotted-sound-intensity"),
                 $progressBarWrapperView: $(view).find(".media-recorder-progress-bar-wrapper"),
                 $resetButtonView: $(view).find(".media-recorder-reset-button"),
-                $downloadButtonView: $(view).find(".media-recorder-download-button")
+                $downloadButtonView: $(view).find(".media-recorder-download-button"),
+                $resetDialogView: $(view).find(".media-recorder-reset-dialog")
             };
         }
     }, {
@@ -837,6 +840,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (this.model.extendedMode) {
                 this.downloadButton = new _DownloadButton.DownloadButton(this.viewHandlers.$downloadButtonView);
                 this.resetButton = new _ResetButton.ResetButton(this.viewHandlers.$resetButtonView);
+                this.resetDialog = new _ResetDialog.ResetDialog(this.viewHandlers.$resetDialogView);
                 this.extendedModeButtonList.push(this.downloadButton);
                 this.extendedModeButtonList.push(this.resetButton);
             }
@@ -969,8 +973,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 _this2.resourcesProvider.destroy();
             };
 
-            if (this.resetButton) {
+            if (this.model.extendedMode) {
                 this.resetButton.onReset = function () {
+                    _this2.resetDialog.open();
+                };
+                this.resetDialog.onConfirm = function () {
                     _this2.timer.startCountdown();
                     _this2.resetRecording();
                     if (_this2.model.extendedMode) {
@@ -1694,6 +1701,67 @@ var ResetButton = exports.ResetButton = function (_Button) {
 
 /***/ }),
 /* 22 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ResetDialog = exports.ResetDialog = function () {
+    function ResetDialog($view) {
+        _classCallCheck(this, ResetDialog);
+
+        this.$view = $view;
+        this._createView();
+    }
+
+    _createClass(ResetDialog, [{
+        key: 'open',
+        value: function open() {
+            this.$view.css('display', 'block');
+            this.$view.css('left', '');
+            this.$view.css('top', '');
+        }
+    }, {
+        key: 'close',
+        value: function close() {
+            this.$view.css('display', 'none');
+        }
+    }, {
+        key: '_createView',
+        value: function _createView() {
+            this.$view.draggable({});
+            var self = this;
+            this.$view.find('.confirm-button').click(function () {
+                self.close();
+                if (self.onConfirmCallback) self.onConfirmCallback();
+            });
+            this.$view.find('.deny-button').click(function () {
+                self.close();
+                if (self.onDenyCallback) self.onDenyCallback();
+            });
+        }
+    }, {
+        key: 'onConfirm',
+        set: function set(callback) {
+            this.onConfirmCallback = callback;
+        }
+    }, {
+        key: 'onDeny',
+        set: function set(callback) {
+            this.onDenyCallback = callback;
+        }
+    }]);
+
+    return ResetDialog;
+}();
+
+/***/ }),
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1731,7 +1799,7 @@ var DownloadButton = exports.DownloadButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1869,7 +1937,7 @@ var Timer = exports.Timer = function () {
 }();
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1879,7 +1947,7 @@ exports.AddonState = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BlobService = __webpack_require__(25);
+var _BlobService = __webpack_require__(26);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1961,7 +2029,7 @@ var AddonState = exports.AddonState = function () {
 }();
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2026,7 +2094,7 @@ var BlobService = exports.BlobService = function () {
 }();
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2091,7 +2159,7 @@ var RecordingTimeLimiter = exports.RecordingTimeLimiter = function () {
 }();
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2142,7 +2210,7 @@ var DottedSoundIntensity = exports.DottedSoundIntensity = function (_SoundIntens
 }(_SoundIntensity2.SoundIntensity);
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2152,7 +2220,7 @@ exports.MediaAnalyserService = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _AnalyserProvider = __webpack_require__(29);
+var _AnalyserProvider = __webpack_require__(30);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2220,7 +2288,7 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
 }();
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2255,7 +2323,7 @@ var AnalyserProvider = exports.AnalyserProvider = function () {
 }();
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2265,7 +2333,7 @@ exports.AudioLoader = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Loader2 = __webpack_require__(31);
+var _Loader2 = __webpack_require__(32);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2298,7 +2366,7 @@ var AudioLoader = exports.AudioLoader = function (_Loader) {
 }(_Loader2.Loader);
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2340,7 +2408,7 @@ var Loader = exports.Loader = function () {
 }();
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2429,7 +2497,7 @@ var SoundEffect = exports.SoundEffect = function () {
 }();
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2509,7 +2577,7 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
 }(_RecordButton2.RecordButton);
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2553,7 +2621,7 @@ var AddonViewService = exports.AddonViewService = function () {
 }();
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2563,7 +2631,7 @@ exports.AudioResourcesProvider = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ResourcesProvider2 = __webpack_require__(36);
+var _ResourcesProvider2 = __webpack_require__(37);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2595,7 +2663,7 @@ var AudioResourcesProvider = exports.AudioResourcesProvider = function (_Resourc
 }(_ResourcesProvider2.ResourcesProvider);
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2657,7 +2725,7 @@ var ResourcesProvider = exports.ResourcesProvider = function () {
 }();
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2667,7 +2735,7 @@ exports.AudioRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BaseRecorder2 = __webpack_require__(38);
+var _BaseRecorder2 = __webpack_require__(39);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2712,7 +2780,7 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
 }(_BaseRecorder2.BaseRecorder);
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2722,7 +2790,7 @@ exports.BaseRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Recorder2 = __webpack_require__(39);
+var _Recorder2 = __webpack_require__(40);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2827,7 +2895,7 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
 }(_Recorder2.Recorder);
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2871,7 +2939,7 @@ var Recorder = exports.Recorder = function () {
 }();
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2881,7 +2949,7 @@ exports.AudioPlayer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BasePlayer2 = __webpack_require__(41);
+var _BasePlayer2 = __webpack_require__(42);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2912,7 +2980,7 @@ var AudioPlayer = exports.AudioPlayer = function (_BasePlayer) {
 }(_BasePlayer2.BasePlayer);
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2922,7 +2990,7 @@ exports.BasePlayer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Player2 = __webpack_require__(42);
+var _Player2 = __webpack_require__(43);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -3149,7 +3217,7 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
 }(_Player2.Player);
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3241,7 +3309,7 @@ var Player = exports.Player = function () {
 }();
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3317,7 +3385,7 @@ var DefaultRecordingPlayButton = exports.DefaultRecordingPlayButton = function (
 }(_Button2.Button);
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
