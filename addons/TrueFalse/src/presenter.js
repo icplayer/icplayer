@@ -467,6 +467,9 @@ function AddonTrueFalse_create() {
         makeView(view, model, false);
 
         var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+
+        if (!eventBus) { return; }
+
         for (var i = 0; i < events.length; i++) {
             eventBus.addEventListener(events[i], this);
         }
