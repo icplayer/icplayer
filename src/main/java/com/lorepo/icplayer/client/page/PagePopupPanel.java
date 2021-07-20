@@ -233,14 +233,6 @@ public class PagePopupPanel extends DialogBox {
 			}catch(Exception e) {
 				top += 0;
 			}
-			
-			scrollHandler = Window.addWindowScrollHandler(new ScrollHandler() {
-				public void onWindowScroll(ScrollEvent event) {
-
-					restrictScroll();
-				}
-
-			});
 
 			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
 				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.scaleX);
