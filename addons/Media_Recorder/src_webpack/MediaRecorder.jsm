@@ -430,8 +430,10 @@ export class MediaRecorder {
             }
 
             this.progressBar.onStartDragging = () => {
-                this.player.pausePlaying();
-                this.playButton.forceClick();
+                if (this.mediaState.isPlaying()) {
+                    this.player.pausePlaying();
+                    this.playButton.forceClick();
+                }
             }
 
             this.progressBar.onStopDragging = progress => {
