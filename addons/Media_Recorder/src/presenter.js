@@ -982,6 +982,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
                 this.progressBar.onStartDragging = function () {
                     _this2.player.pausePlaying();
+                    _this2.playButton.forceClick();
                 };
 
                 this.progressBar.onStopDragging = function (progress) {
