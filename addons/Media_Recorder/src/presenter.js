@@ -1200,7 +1200,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
                 if (valid_model.isShowedTimer == false) timerViewHandler.hide();else timerViewHandler.show();
 
-                if (valid_model.isShowedDefaultRecordingButton == false) defaultButtonViewHandler.hide();else defaultButtonViewHandler.show();
+                if (!valid_model.isShowedDefaultRecordingButton) defaultButtonViewHandler.hide();else defaultButtonViewHandler.show();
 
                 if (valid_model.isDisabled) {
                     this.addonViewService = new _AddonViewService.AddonViewService($wrapperViewHandler);
