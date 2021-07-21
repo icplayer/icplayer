@@ -840,7 +840,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             if (this.model.extendedMode) {
                 this.downloadButton = new _DownloadButton.DownloadButton(this.viewHandlers.$downloadButtonView);
                 this.resetButton = new _ResetButton.ResetButton(this.viewHandlers.$resetButtonView);
-                this.resetDialog = new _ResetDialog.ResetDialog(this.viewHandlers.$resetDialogView);
+                this.resetDialog = new _ResetDialog.ResetDialog(this.viewHandlers.$resetDialogView, this.model.resetDialogLabels);
                 this.extendedModeButtonList.push(this.downloadButton);
                 this.extendedModeButtonList.push(this.resetButton);
             }
@@ -1292,6 +1292,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var upgradedModel = this._upgradeIsDisabled(model);
             upgradedModel = this._upgradeEnableInErrorCheckigMode(upgradedModel);
             upgradedModel = this._upgradeExtendedMode(upgradedModel);
+            upgradedModel = this._upgradeResetDialog(upgradedModel);
+            upgradedModel = this._upgradeResetDialog(upgradedModel);
             return upgradedModel;
         }
     }, {
@@ -1330,6 +1332,22 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             return upgradedModel;
         }
+    }, {
+        key: "_upgradeResetDialog",
+        value: function _upgradeResetDialog(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["resetDialogLabels"]) {
+                upgradedModel["resetDialogLabels"] = {
+                    "resetDialogText": { "resetDialogLabel": "" },
+                    "resetDialogConfirm": { "resetDialogLabel": "" },
+                    "resetDialogDeny": { "resetDialogLabel": "" }
+                };
+            }
+
+            return upgradedModel;
+        }
     }]);
 
     return MediaRecorder;
@@ -1362,7 +1380,11 @@ function validateModel(model) {
     }), ModelValidators.String("stopRecordingSound", {
         trim: true,
         default: ""
-    }), ModelValidators.Boolean("isResetRemovesRecording"), ModelValidators.Boolean("isShowedTimer"), ModelValidators.Boolean("isShowedDefaultRecordingButton"), ModelValidators.Boolean("enableInErrorCheckingMode"), ModelValidators.Boolean("isDisabled"), ModelValidators.Boolean("extendedMode")]);
+    }), ModelValidators.Boolean("isResetRemovesRecording"), ModelValidators.Boolean("isShowedTimer"), ModelValidators.Boolean("isShowedDefaultRecordingButton"), ModelValidators.Boolean("enableInErrorCheckingMode"), ModelValidators.Boolean("isDisabled"), ModelValidators.Boolean("extendedMode"), ModelValidators.StaticList('resetDialogLabels', {
+        'resetDialogText': [ModelValidators.String('resetDialogLabel', { default: 'Are you sure you want to reset the recording?' })],
+        'resetDialogConfirm': [ModelValidators.String('resetDialogLabel', { default: 'Yes' })],
+        'resetDialogDeny': [ModelValidators.String('resetDialogLabel', { default: 'No' })]
+    })]);
 }
 
 /***/ }),
@@ -1712,10 +1734,15 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var ResetDialog = exports.ResetDialog = function () {
-    function ResetDialog($view) {
+    function ResetDialog($view, resetDialogLabels) {
         _classCallCheck(this, ResetDialog);
 
         this.$view = $view;
+        this.labels = {
+            text: resetDialogLabels['resetDialogText']['resetDialogLabel'],
+            confirm: resetDialogLabels['resetDialogConfirm']['resetDialogLabel'],
+            deny: resetDialogLabels['resetDialogDeny']['resetDialogLabel']
+        };
         this._createView();
     }
 
@@ -1734,6 +1761,9 @@ var ResetDialog = exports.ResetDialog = function () {
     }, {
         key: '_createView',
         value: function _createView() {
+            this.$view.find('.dialog-text').text(this.labels.text);
+            this.$view.find('.confirm-button').text(this.labels.confirm);
+            this.$view.find('.deny-button').text(this.labels.deny);
             this.$view.draggable({});
             var self = this;
             this.$view.find('.confirm-button').click(function () {

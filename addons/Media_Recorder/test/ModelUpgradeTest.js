@@ -36,5 +36,41 @@ TestCase("[Media Recorder] Model upgrade", {
 
         assertTrue(upgradeModel["extendedMode"] !== undefined);
         assertEquals("True", upgradeModel["extendedMode"]);
+    },
+
+    "test given model without resetDialogLabels when _upgradeModel is called then resetDialogLabels is added with default value": function () {
+        var upgradeModel = this.presenter._internalUpgradeModel(this.model);
+
+        assertTrue(upgradeModel["resetDialogLabels"] !== undefined);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogText'] !== undefined);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogText']['resetDialogLabel'] !== undefined);
+        assertEquals("", upgradeModel["resetDialogLabels"]['resetDialogText']['resetDialogLabel']);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogConfirm'] !== undefined);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogConfirm']['resetDialogLabel'] !== undefined);
+        assertEquals("", upgradeModel["resetDialogLabels"]['resetDialogConfirm']['resetDialogLabel']);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogDeny'] !== undefined);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogDeny']['resetDialogLabel'] !== undefined);
+        assertEquals("", upgradeModel["resetDialogLabels"]['resetDialogDeny']['resetDialogLabel']);
+    }
+
+    "test given model with resetDialogLabels when _upgradeModel is called then resetDialogLabels values remain unchanged": function () {
+        this.model["resetDialogLabels"] = {
+            resetDialogText: {resetDialogLabel: "1"},
+            resetDialogConfirm: {resetDialogLabel: "2"},
+            resetDialogDeny: {resetDialogLabel: "3"}
+        };
+
+        var upgradeModel = this.presenter._internalUpgradeModel(this.model);
+
+        assertTrue(upgradeModel["resetDialogLabels"] !== undefined);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogText'] !== undefined);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogText']['resetDialogLabel'] !== undefined);
+        assertEquals("1", upgradeModel["resetDialogLabels"]['resetDialogText']['resetDialogLabel']);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogConfirm'] !== undefined);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogConfirm']['resetDialogLabel'] !== undefined);
+        assertEquals("2", upgradeModel["resetDialogLabels"]['resetDialogConfirm']['resetDialogLabel']);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogDeny'] !== undefined);
+        assertTrue(upgradeModel["resetDialogLabels"]['resetDialogDeny']['resetDialogLabel'] !== undefined);
+        assertEquals("3", upgradeModel["resetDialogLabels"]['resetDialogDeny']['resetDialogLabel']);
     }
 });

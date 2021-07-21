@@ -210,7 +210,7 @@
 .media-recorder-wrapper .media-recorder-reset-dialog {
     display: none;
     width:300px;
-    height:80px;
+    padding: 10px 10px 15px;
     position:absolute;
     top:-90px;
     background-color: white;
@@ -220,7 +220,7 @@
 
 .media-recorder-wrapper .media-recorder-reset-dialog .dialog-text {
     text-align: center;
-    padding: 5px;
+    padding: 5px 5px 10px;
 }
 
 .media-recorder-wrapper .media-recorder-reset-dialog .dialog-buttons {

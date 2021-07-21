@@ -292,7 +292,7 @@ export class MediaRecorder {
         if (this.model.extendedMode) {
             this.downloadButton = new DownloadButton(this.viewHandlers.$downloadButtonView);
             this.resetButton = new ResetButton(this.viewHandlers.$resetButtonView);
-            this.resetDialog = new ResetDialog(this.viewHandlers.$resetDialogView);
+            this.resetDialog = new ResetDialog(this.viewHandlers.$resetDialogView, this.model.resetDialogLabels);
             this.extendedModeButtonList.push(this.downloadButton);
             this.extendedModeButtonList.push(this.resetButton);
         }
@@ -722,6 +722,8 @@ export class MediaRecorder {
         let upgradedModel = this._upgradeIsDisabled(model);
         upgradedModel = this._upgradeEnableInErrorCheckigMode(upgradedModel);
         upgradedModel = this._upgradeExtendedMode(upgradedModel);
+        upgradedModel = this._upgradeResetDialog(upgradedModel);
+        upgradedModel = this._upgradeResetDialog(upgradedModel);
         return upgradedModel;
     };
 
@@ -757,4 +759,19 @@ export class MediaRecorder {
 
         return upgradedModel;
     };
+
+    _upgradeResetDialog(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["resetDialogLabels"]) {
+            upgradedModel["resetDialogLabels"] = {
+                "resetDialogText": {"resetDialogLabel": ""},
+                "resetDialogConfirm": {"resetDialogLabel": ""},
+                "resetDialogDeny": {"resetDialogLabel": ""},
+            }
+        }
+
+        return upgradedModel;
+    }
 }

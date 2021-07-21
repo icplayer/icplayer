@@ -1,7 +1,12 @@
 export class ResetDialog {
 
-    constructor($view) {
+    constructor($view, resetDialogLabels) {
         this.$view = $view;
+        this.labels = {
+            text: resetDialogLabels['resetDialogText']['resetDialogLabel'],
+            confirm: resetDialogLabels['resetDialogConfirm']['resetDialogLabel'],
+            deny: resetDialogLabels['resetDialogDeny']['resetDialogLabel']
+        }
         this._createView();
     }
 
@@ -16,6 +21,9 @@ export class ResetDialog {
     }
 
     _createView() {
+        this.$view.find('.dialog-text').text(this.labels.text);
+        this.$view.find('.confirm-button').text(this.labels.confirm);
+        this.$view.find('.deny-button').text(this.labels.deny);
         this.$view.draggable({});
         var self = this;
         this.$view.find('.confirm-button').click(function(){
