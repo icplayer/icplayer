@@ -1704,6 +1704,15 @@ function Addonmultiplegap_create(){
         presenter.printableState = JSON.parse(state);
     }
 
+    function checkPrintedAnswer (answer1, answer2) {
+        if(answer1.value === answer2.value
+           && answer1.addonID === answer2.addonID
+           && answer1.index === answer2.index ){
+           return true;
+        }
+        return false;
+    };
+
     presenter.getPrintableHTML = function (model, showAnswers) {
         var upgradedModel = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(upgradedModel);
@@ -1735,48 +1744,35 @@ function Addonmultiplegap_create(){
                         && contextDict[answerAddonID].items != null
                         && answerItemIndex >= 0
                         && answerItemIndex < contextDict[answerAddonID].items.length) {
-                        correctAnswers.push(contextDict[answerAddonID].items[answerItemIndex]);
+                        var answer = {
+                            value : contextDict[answerAddonID].items[answerItemIndex],
+                            addonID : answerAddonID,
+                            index : answerItemIndex
+                        };
+                        correctAnswers.push(answer);
                     }
                 }
             }
 
             if(presenter.printableState != null){
                 var studentAnswers = [];
-                var savedState = presenter.printableState;
-                for (var i = 0; i < savedState.placeholders.length; i++){
-                    studentAnswers.push(savedState.placeholders[i].value);
-                }
-
-                if(showAnswers){
+                studentAnswers = parseStudentAnswers (presenter.printableState);
+                if (showAnswers) {
                     for (var i = 0; i < studentAnswers.length; i++){
-                        var isCorrect = false;
                         for (var j = 0; j < correctAnswers.length; j++){
-                            if(correctAnswers[j] == studentAnswers[i]){
-                                isCorrect = true;
+                            if(checkPrintedAnswer(studentAnswers[i], correctAnswers[j])){
+                                studentAnswers[i].isCorrect = true;
                                 break;
                             }
                         }
-                        if(isCorrect){
-                            studentAnswers[i] = studentAnswers[i] + '<div class="correctAnswerDiv"></div>';
-                        } else {
-                            studentAnswers[i] = studentAnswers[i] + '<div class="inCorrectAnswerDiv"></div>';
-                        }
+                        answerHTML = prepareCheckedAnswerToPrint (answerHTML, i, ...studentAnswers);
                     }
-                    answerHTML = studentAnswers.join("</br>");
                 } else {
-                    if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
-                        answerHTML = studentAnswers.join(", ");
-                    } else {
-                        answerHTML = studentAnswers.join("</br>");
-                    }
+                    answerHTML = prepareBasicPrint (answerHTML, ...studentAnswers);
                 }
             } else {
-                if(showAnswers){
-                    if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
-                        answerHTML = correctAnswers.join(", ");
-                    } else {
-                        answerHTML = correctAnswers.join("</br>");
-                    }
+                if (showAnswers) {
+                    answerHTML = prepareBasicPrint (answerHTML, ...correctAnswers);
                 }
             }
             $wrapper.html(answerHTML);
@@ -1784,9 +1780,64 @@ function Addonmultiplegap_create(){
 
         $view.append($wrapper);
 
-
         return $view[0].outerHTML;
     };
+
+    function prepareBasicPrint (answerHTML, ...answers) {
+        if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
+            for (var i = 0; i < answers.length; i++) {
+                answerHTML = answerHTML + answers[i].value;
+                if (i < answers.length - 1) {
+                    answerHTML = answerHTML + ", ";
+                }
+            }
+        } else {
+            for (var i = 0; i < answers.length; i++) {
+                answerHTML = answerHTML + answers[i].value;
+                if (i < answers.length - 1) {
+                    answerHTML = answerHTML + "</br>";
+                }
+            }
+        }
+        return answerHTML;
+    }
+
+    function parseStudentAnswers (state) {
+        var studentAnswers = [];
+        for (var i = 0; i < state.placeholders.length; i++){
+            var splitItemAnswerID = state.placeholders[i].item.split("-");
+            if (splitItemAnswerID.length === 2 && !isNaN(splitItemAnswerID[1])){
+                var answerAddonID = splitItemAnswerID[0];
+                var answerItemIndex = splitItemAnswerID[1] - 1;
+                var answer = {
+                    value : state.placeholders[i].value,
+                    addonID : answerAddonID,
+                    index : answerItemIndex,
+                    isCorrect : false
+                };
+                studentAnswers.push(answer);
+            }
+        }
+        return studentAnswers;
+    }
+
+    function prepareCheckedAnswerToPrint (answerHTML, i, ...answers){
+        if (answers[i].isCorrect) {
+            if (i < answers.length - 1) {
+                answers[i].value = '<div><span class=answerSpan>' + answers[i].value + '</span><span class="correctAnswerSpan"></span>, </div>';
+            } else {
+                answers[i].value = '<div><span class=answerSpan>' + answers[i].value + '</span><span class="correctAnswerSpan"></span></div>';
+            }
+        } else {
+            if (i < answers.length - 1) {
+                answers[i].value = '<div><span class=answerSpan>' + answers[i].value + '</span><span class="inCorrectAnswerSpan"></span>, </div>';
+            } else {
+                answers[i].value = '<div><span class=answerSpan>' + answers[i].value + '</span><span class="inCorrectAnswerSpan"></span></div>';
+            }
+        }
+        answerHTML = answerHTML + answers[i].value + "</br>";
+        return answerHTML;
+    }
 
     presenter.getActivitiesCount = function () {
         if (presenter.itemCounterMode) {

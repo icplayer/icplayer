@@ -40,10 +40,18 @@
     cursor: default;
 }
 
-.correctAnswerDiv::before {
+.printable_addon_multiplegap .correctAnswerSpan::before {
     content: "\2714";
+    display: inline-block;
+    margin: 3px;
 }
 
-.inCorrectAnswerDiv::before {
+.printable_addon_multiplegap .inCorrectAnswerSpan::before {
     content: "\2716";
+    display: inline-block;
+    margin: 3px;
+}
+
+.printable_addon_multiplegap .answerSpan {
+    display: inline-block;
 }
