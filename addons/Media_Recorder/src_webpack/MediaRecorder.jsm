@@ -612,7 +612,7 @@ export class MediaRecorder {
             else
                 timerViewHandler.show();
 
-            if (valid_model.isShowedDefaultRecordingButton == false)
+            if (!valid_model.isShowedDefaultRecordingButton)
                 defaultButtonViewHandler.hide();
             else
                 defaultButtonViewHandler.show();
@@ -722,7 +722,6 @@ export class MediaRecorder {
         let upgradedModel = this._upgradeIsDisabled(model);
         upgradedModel = this._upgradeEnableInErrorCheckigMode(upgradedModel);
         upgradedModel = this._upgradeExtendedMode(upgradedModel);
-        upgradedModel = this._upgradeResetDialog(upgradedModel);
         upgradedModel = this._upgradeResetDialog(upgradedModel);
         return upgradedModel;
     };

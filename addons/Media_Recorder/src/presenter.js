@@ -1177,7 +1177,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
                 if (valid_model.isShowedTimer == false) timerViewHandler.hide();else timerViewHandler.show();
 
-                if (valid_model.isShowedDefaultRecordingButton == false) defaultButtonViewHandler.hide();else defaultButtonViewHandler.show();
+                if (!valid_model.isShowedDefaultRecordingButton) defaultButtonViewHandler.hide();else defaultButtonViewHandler.show();
 
                 if (valid_model.isDisabled) {
                     this.addonViewService = new _AddonViewService.AddonViewService($wrapperViewHandler);
@@ -1292,7 +1292,6 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var upgradedModel = this._upgradeIsDisabled(model);
             upgradedModel = this._upgradeEnableInErrorCheckigMode(upgradedModel);
             upgradedModel = this._upgradeExtendedMode(upgradedModel);
-            upgradedModel = this._upgradeResetDialog(upgradedModel);
             upgradedModel = this._upgradeResetDialog(upgradedModel);
             return upgradedModel;
         }
