@@ -2,10 +2,10 @@ import {Button} from "./Button.jsm";
 
 export class DownloadButton extends Button {
 
-        constructor({$view, addonState}) {
-            super($view);
-            this.addonState = addonState;
-        }
+    constructor({$view, addonState}) {
+        super($view);
+        this.addonState = addonState;
+    }
 
     _eventHandler() {
         if (this.addonState.recording) {

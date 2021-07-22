@@ -610,7 +610,7 @@ export class MediaRecorder {
             else
                 timerViewHandler.show();
 
-            if (valid_model.isShowedDefaultRecordingButton == false)
+            if (!valid_model.isShowedDefaultRecordingButton)
                 defaultButtonViewHandler.hide();
             else
                 defaultButtonViewHandler.show();
