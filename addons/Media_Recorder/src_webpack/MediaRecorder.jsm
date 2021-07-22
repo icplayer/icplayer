@@ -5,6 +5,7 @@ import {Errors} from "./validation/Errors.jsm";
 import {PlayButton} from "./view/button/PlayButton.jsm";
 import {RecordButton} from "./view/button/RecordButton.jsm";
 import {ResetButton} from "./view/button/ResetButton.jsm";
+import {ResetDialog} from "./view/ResetDialog.jsm";
 import {DownloadButton} from "./view/button/DownloadButton.jsm";
 import {Timer} from "./view/Timer.jsm";
 import {ProgressBar} from "./view/ProgressBar.jsm";
@@ -249,7 +250,8 @@ export class MediaRecorder {
             $progressBarWrapperView: $(view).find(".media-recorder-progress-bar"),
             $progressBarSliderView: $(view).find(".media-recorder-progress-bar-slider"),
             $resetButtonView: $(view).find(".media-recorder-reset-button"),
-            $downloadButtonView: $(view).find(".media-recorder-download-button")
+            $downloadButtonView: $(view).find(".media-recorder-download-button"),
+            $resetDialogView: $(view).find(".media-recorder-reset-dialog")
         };
     }
 
@@ -291,8 +293,12 @@ export class MediaRecorder {
 
         this.extendedModeButtonList = [];
         if (this.model.extendedMode) {
-            this.downloadButton = new DownloadButton(this.viewHandlers.$downloadButtonView);
+            this.downloadButton = new DownloadButton({
+                $view: this.viewHandlers.$downloadButtonView,
+                addonState: this.addonState
+            });
             this.resetButton = new ResetButton(this.viewHandlers.$resetButtonView);
+            this.resetDialog = new ResetDialog(this.viewHandlers.$resetDialogView, this.model.resetDialogLabels);
             this.progressBar = new ProgressBar(this.viewHandlers.$progressBarWrapperView);
             this.extendedModeButtonList.push(this.downloadButton);
             this.extendedModeButtonList.push(this.resetButton);
@@ -425,8 +431,14 @@ export class MediaRecorder {
 
         if (this.model.extendedMode) {
             this.resetButton.onReset = () => {
+                this.resetDialog.open();
+            }
+            this.resetDialog.onConfirm = () => {
+                this.timer.startCountdown();
                 this.resetRecording();
-                this.setEMDefaultStateView();
+                if (this.model.extendedMode) {
+                    this.setEMDefaultStateView();
+                }
             }
 
             this.progressBar.onStartDragging = () => {
@@ -597,7 +609,8 @@ export class MediaRecorder {
             RecordingTimeLimiter: RecordingTimeLimiter,
             MediaState: MediaState,
             Timer: Timer,
-            AudioPlayer: AudioPlayer
+            AudioPlayer: AudioPlayer,
+            DownloadButton: DownloadButton
         }
     }
 
@@ -746,6 +759,7 @@ export class MediaRecorder {
         let upgradedModel = this._upgradeIsDisabled(model);
         upgradedModel = this._upgradeEnableInErrorCheckigMode(upgradedModel);
         upgradedModel = this._upgradeExtendedMode(upgradedModel);
+        upgradedModel = this._upgradeResetDialog(upgradedModel);
         return upgradedModel;
     };
 
@@ -781,4 +795,19 @@ export class MediaRecorder {
 
         return upgradedModel;
     };
+
+    _upgradeResetDialog(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["resetDialogLabels"]) {
+            upgradedModel["resetDialogLabels"] = {
+                "resetDialogText": {"resetDialogLabel": ""},
+                "resetDialogConfirm": {"resetDialogLabel": ""},
+                "resetDialogDeny": {"resetDialogLabel": ""},
+            }
+        }
+
+        return upgradedModel;
+    }
 }
