@@ -838,7 +838,10 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.extendedModeButtonList = [];
             if (this.model.extendedMode) {
-                this.downloadButton = new _DownloadButton.DownloadButton(this.viewHandlers.$downloadButtonView);
+                this.downloadButton = new _DownloadButton.DownloadButton({
+                    $view: this.viewHandlers.$downloadButtonView,
+                    addonState: this.addonState
+                });
                 this.resetButton = new _ResetButton.ResetButton(this.viewHandlers.$resetButtonView);
                 this.resetDialog = new _ResetDialog.ResetDialog(this.viewHandlers.$resetDialogView, this.model.resetDialogLabels);
                 this.extendedModeButtonList.push(this.downloadButton);
@@ -1138,7 +1141,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 RecordingTimeLimiter: _RecordingTimeLimiter.RecordingTimeLimiter,
                 MediaState: _MediaState.MediaState,
                 Timer: _Timer.Timer,
-                AudioPlayer: _AudioPlayer.AudioPlayer
+                AudioPlayer: _AudioPlayer.AudioPlayer,
+                DownloadButton: _DownloadButton.DownloadButton
             };
         }
     }, {
@@ -1811,16 +1815,41 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var DownloadButton = exports.DownloadButton = function (_Button) {
     _inherits(DownloadButton, _Button);
 
-    function DownloadButton($view) {
+    function DownloadButton(_ref) {
+        var $view = _ref.$view,
+            addonState = _ref.addonState;
+
         _classCallCheck(this, DownloadButton);
 
-        return _possibleConstructorReturn(this, (DownloadButton.__proto__ || Object.getPrototypeOf(DownloadButton)).call(this, $view));
+        var _this = _possibleConstructorReturn(this, (DownloadButton.__proto__ || Object.getPrototypeOf(DownloadButton)).call(this, $view));
+
+        _this.addonState = addonState;
+        return _this;
     }
 
     _createClass(DownloadButton, [{
         key: "_eventHandler",
         value: function _eventHandler() {
-            // This is a placeholder, method will be provided in a separate ticket
+            if (this.addonState.recording) {
+                this.downloadRecording();
+            }
+        }
+    }, {
+        key: "downloadRecording",
+        value: function downloadRecording() {
+            var element = document.createElement("a");
+            element.setAttribute("id", "dl");
+            element.setAttribute("download", "recording.webm");
+            element.setAttribute("href", "#");
+            var base64Recording = this.addonState.recording;
+            function handleDownloadRecording() {
+                var data = base64Recording;
+                data = data.replace(/^data:audio\/[^;]*/, 'data:application/octet-stream');
+                data = data.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=recording.webm');
+                this.href = data;
+            }
+            element.onclick = handleDownloadRecording;
+            element.click();
         }
     }]);
 
