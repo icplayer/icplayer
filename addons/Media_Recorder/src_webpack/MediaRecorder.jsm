@@ -5,6 +5,7 @@ import {Errors} from "./validation/Errors.jsm";
 import {PlayButton} from "./view/button/PlayButton.jsm";
 import {RecordButton} from "./view/button/RecordButton.jsm";
 import {ResetButton} from "./view/button/ResetButton.jsm";
+import {ResetDialog} from "./view/ResetDialog.jsm";
 import {DownloadButton} from "./view/button/DownloadButton.jsm";
 import {Timer} from "./view/Timer.jsm";
 import {AddonState} from "./state/AddonState.jsm";
@@ -246,7 +247,8 @@ export class MediaRecorder {
             $dottedSoundIntensityView: $(view).find(".media-recorder-dotted-sound-intensity"),
             $progressBarWrapperView: $(view).find(".media-recorder-progress-bar-wrapper"),
             $resetButtonView: $(view).find(".media-recorder-reset-button"),
-            $downloadButtonView: $(view).find(".media-recorder-download-button")
+            $downloadButtonView: $(view).find(".media-recorder-download-button"),
+            $resetDialogView: $(view).find(".media-recorder-reset-dialog")
         };
     }
 
@@ -293,6 +295,7 @@ export class MediaRecorder {
                 addonState: this.addonState
             });
             this.resetButton = new ResetButton(this.viewHandlers.$resetButtonView);
+            this.resetDialog = new ResetDialog(this.viewHandlers.$resetDialogView, this.model.resetDialogLabels);
             this.extendedModeButtonList.push(this.downloadButton);
             this.extendedModeButtonList.push(this.resetButton);
         }
@@ -422,8 +425,11 @@ export class MediaRecorder {
             this.resourcesProvider.destroy();
         };
 
-        if (this.resetButton) {
+        if (this.model.extendedMode) {
             this.resetButton.onReset = () => {
+                this.resetDialog.open();
+            }
+            this.resetDialog.onConfirm = () => {
                 this.timer.startCountdown();
                 this.resetRecording();
                 if (this.model.extendedMode) {
@@ -720,6 +726,7 @@ export class MediaRecorder {
         let upgradedModel = this._upgradeIsDisabled(model);
         upgradedModel = this._upgradeEnableInErrorCheckigMode(upgradedModel);
         upgradedModel = this._upgradeExtendedMode(upgradedModel);
+        upgradedModel = this._upgradeResetDialog(upgradedModel);
         return upgradedModel;
     };
 
@@ -755,4 +762,19 @@ export class MediaRecorder {
 
         return upgradedModel;
     };
+
+    _upgradeResetDialog(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["resetDialogLabels"]) {
+            upgradedModel["resetDialogLabels"] = {
+                "resetDialogText": {"resetDialogLabel": ""},
+                "resetDialogConfirm": {"resetDialogLabel": ""},
+                "resetDialogDeny": {"resetDialogLabel": ""},
+            }
+        }
+
+        return upgradedModel;
+    }
 }
