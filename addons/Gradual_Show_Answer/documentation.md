@@ -108,11 +108,6 @@ Depending on Gradual Show Answers mode:
     </tr>
 </table>
 
-
-## Examples
-
-[Demo presentation](/embed/5253547551227904 "Demo presentation") contains examples of how to use the Gradual Show Answers addon.
-
 ## CSS classes
 
 <table border='1'>
@@ -143,4 +138,8 @@ Depending on Gradual Show Answers mode:
         </tr>
     </tbody>
 </table>
-   
+
+## Examples
+
+[Demo presentation](/embed/5253547551227904 "Demo presentation") contains examples of how to use the Gradual Show Answers addon.
+
