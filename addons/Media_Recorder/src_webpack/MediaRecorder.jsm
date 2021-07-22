@@ -8,6 +8,7 @@ import {ResetButton} from "./view/button/ResetButton.jsm";
 import {ResetDialog} from "./view/ResetDialog.jsm";
 import {DownloadButton} from "./view/button/DownloadButton.jsm";
 import {Timer} from "./view/Timer.jsm";
+import {ProgressBar} from "./view/ProgressBar.jsm";
 import {AddonState} from "./state/AddonState.jsm";
 import {RecordingTimeLimiter} from "./RecordingTimeLimiter.jsm";
 import {SoundIntensity} from "./view/SoundIntensity.jsm";
@@ -129,6 +130,7 @@ export class MediaRecorder {
         this.playButton = null;
         this.downloadButton = null;
         this.resetButton = null;
+        this.progressBar = null;
         this.stopRecordingSoundEffect = null;
         this.startRecordingSoundEffect = null;
         this.loader = null;
@@ -245,7 +247,8 @@ export class MediaRecorder {
             $timerView: $(view).find(".media-recorder-timer"),
             $soundIntensityView: $(view).find(".media-recorder-sound-intensity"),
             $dottedSoundIntensityView: $(view).find(".media-recorder-dotted-sound-intensity"),
-            $progressBarWrapperView: $(view).find(".media-recorder-progress-bar-wrapper"),
+            $progressBarWrapperView: $(view).find(".media-recorder-progress-bar"),
+            $progressBarSliderView: $(view).find(".media-recorder-progress-bar-slider"),
             $resetButtonView: $(view).find(".media-recorder-reset-button"),
             $downloadButtonView: $(view).find(".media-recorder-download-button"),
             $resetDialogView: $(view).find(".media-recorder-reset-dialog")
@@ -296,6 +299,7 @@ export class MediaRecorder {
             });
             this.resetButton = new ResetButton(this.viewHandlers.$resetButtonView);
             this.resetDialog = new ResetDialog(this.viewHandlers.$resetDialogView, this.model.resetDialogLabels);
+            this.progressBar = new ProgressBar(this.viewHandlers.$progressBarWrapperView);
             this.extendedModeButtonList.push(this.downloadButton);
             this.extendedModeButtonList.push(this.resetButton);
         }
@@ -349,7 +353,7 @@ export class MediaRecorder {
             }
         this.viewHandlers.$playButtonView.css('display', '');
         this.viewHandlers.$progressBarWrapperView.css('display', 'block');
-        this.viewHandlers.$progressBarWrapperView.css('visibility', 'hidden');
+        this.viewHandlers.$progressBarWrapperView.css('visibility', 'visible');
         this.viewHandlers.$resetButtonView.css('display', 'block');
         this.viewHandlers.$downloadButtonView.css('display', 'block');
     }
@@ -435,12 +439,23 @@ export class MediaRecorder {
                 if (this.model.extendedMode) {
                     this.setEMDefaultStateView();
                 }
+                this.progressBar.setProgress(0.0);
+            }
+
+            this.progressBar.onStartDragging = () => {
+                if (this.mediaState.isPlaying()) {
+                    this.player.pausePlaying();
+                    this.playButton.forceClick();
+                }
+            }
+
+            this.progressBar.onStopDragging = progress => {
+                this.player.setProgress(progress);
             }
         }
 
         this.playButton.onStartPlaying = () => {
             this.mediaState.setPlaying();
-            this.timer.startCountdown();
             this.player.startPlaying()
                 .then(htmlMediaElement => this.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement)
                     .then(analyser => this.soundIntensity.startAnalyzing(analyser)));
@@ -448,8 +463,11 @@ export class MediaRecorder {
 
         this.playButton.onStopPlaying = () => {
             this.mediaState.setLoaded();
-            this.player.stopPlaying();
-            this.timer.stopCountdown();
+            if (this.model.extendedMode) {
+                this.player.pausePlaying();
+            } else {
+                this.player.stopPlaying();
+            }
             this.soundIntensity.stopAnalyzing();
             this.mediaAnalyserService.closeAnalyzing();
         };
@@ -482,11 +500,27 @@ export class MediaRecorder {
         };
 
         this.player.onEndLoading = () => {
-            this.mediaState.setLoaded();
-            this.loader.hide();
+            if (this.mediaState.isLoading()){
+                this.mediaState.setLoaded();
+                this.loader.hide();
+            }
         };
 
+        var player = this.player;
+        var timer = this.timer;
+        var progressBar = this.progressBar;
+        function timeUpdateCallback(event){
+            var currentTime = player.getCurrentTime();
+            timer.setTime(currentTime);
+            if (progressBar) {
+                player._getDuration().then(duration => {
+                    progressBar.setProgress(currentTime/duration);
+                });
+            }
+        }
+
         this.player.onDurationChange = duration => this.timer.setDuration(duration);
+        this.player.onTimeUpdate = event => timeUpdateCallback(event);
         this.player.onEndPlaying = () => this.playButton.forceClick();
 
         this.defaultRecordingPlayer.onStartLoading = () => {

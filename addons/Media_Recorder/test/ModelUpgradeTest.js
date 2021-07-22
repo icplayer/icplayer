@@ -51,7 +51,7 @@ TestCase("[Media Recorder] Model upgrade", {
         assertTrue(upgradeModel["resetDialogLabels"]['resetDialogDeny'] !== undefined);
         assertTrue(upgradeModel["resetDialogLabels"]['resetDialogDeny']['resetDialogLabel'] !== undefined);
         assertEquals("", upgradeModel["resetDialogLabels"]['resetDialogDeny']['resetDialogLabel']);
-    }
+    },
 
     "test given model with resetDialogLabels when _upgradeModel is called then resetDialogLabels values remain unchanged": function () {
         this.model["resetDialogLabels"] = {
