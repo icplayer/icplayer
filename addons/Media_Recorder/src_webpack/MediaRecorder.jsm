@@ -288,7 +288,10 @@ export class MediaRecorder {
 
         this.extendedModeButtonList = [];
         if (this.model.extendedMode) {
-            this.downloadButton = new DownloadButton(this.viewHandlers.$downloadButtonView);
+            this.downloadButton = new DownloadButton({
+                $view: this.viewHandlers.$downloadButtonView,
+                addonState: this.addonState
+            });
             this.resetButton = new ResetButton(this.viewHandlers.$resetButtonView);
             this.extendedModeButtonList.push(this.downloadButton);
             this.extendedModeButtonList.push(this.resetButton);
@@ -567,7 +570,8 @@ export class MediaRecorder {
             RecordingTimeLimiter: RecordingTimeLimiter,
             MediaState: MediaState,
             Timer: Timer,
-            AudioPlayer: AudioPlayer
+            AudioPlayer: AudioPlayer,
+            DownloadButton: DownloadButton
         }
     }
 
