@@ -157,10 +157,10 @@
     transform: rotate(45deg);
 }
 
-.correctAnswerDiv {
+.correctAnswerMark::after {
     content: "\2714";
 }
 
-.inCorrectAnswerDiv {
+.incorrectAnswerMark::after {
     content: "\2716";
 }
