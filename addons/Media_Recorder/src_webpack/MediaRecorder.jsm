@@ -439,6 +439,7 @@ export class MediaRecorder {
                 if (this.model.extendedMode) {
                     this.setEMDefaultStateView();
                 }
+                this.progressBar.setProgress(0.0);
             }
 
             this.progressBar.onStartDragging = () => {

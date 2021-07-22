@@ -991,6 +991,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
                     if (_this2.model.extendedMode) {
                         _this2.setEMDefaultStateView();
                     }
+                    _this2.progressBar.setProgress(0.0);
                 };
 
                 this.progressBar.onStartDragging = function () {
