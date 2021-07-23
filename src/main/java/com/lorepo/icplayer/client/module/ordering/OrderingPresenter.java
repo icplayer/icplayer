@@ -106,8 +106,12 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 					}
 
 					if (event.getModuleID().equals(module.getId())) {
-						int itemIndex = event.getItem();
-						handleGradualShowAnswers(itemIndex);
+						if (module.isShowAllAnswersInGradualShowAnswersMode()) {
+							view.setCorrectAnswer();
+						} else {
+							int itemIndex = event.getItem();
+							handleGradualShowAnswers(itemIndex);
+						}
 					}
 				}
 			});
@@ -553,6 +557,9 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 
 	@Override
 	public int getActivitiesCount() {
+		if (module.isShowAllAnswersInGradualShowAnswersMode()) {
+			return 1;
+		}
 		// returning - 1 because when handling gradual show answers it will require N - 1 swaps
 		return module.getItemCount() - 1;
 	}
