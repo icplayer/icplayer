@@ -12,6 +12,7 @@ function AddonTrueFalse_create() {
     presenter.keyboardNavigationCurrentElement = null;
     presenter.keyboardNavigationElements = [];
     presenter.keyboardNavigationElementsLen = 0;
+    presenter.printableState = null;
 
     var possibleChoices = [];
     var multi = false;
@@ -1211,44 +1212,44 @@ function AddonTrueFalse_create() {
         $table.append($tbody);
         $view.append($table);
         return $view[0].outerHTML;
-
-        function getUserResponses() {
-            if (presenter.printableState && presenter.printableState.hasOwnProperty('selectedElements')) {
-                return presenter.printableState['selectedElements']
-            }
-            return [];
-        }
-
-        function addCell(answer, userAnswers, $tableRow, i, choiceLength, shouldAddMark = false) {
-            var $td = $("<td></td>");
-            var $markDiv = $("<div></div>");
-            if (shouldAddMark) {
-                areAnswersCorrect(answers, userAnswers, i, choiceLength) ? $markDiv.addClass("correctAnswerMark")
-                    : $markDiv.addClass("incorrectAnswerMark");
-            }
-            $td.append($markDiv);
-            $tableRow.append($td);
-        }
-
-        function didUserRespondOnQuestion(userAnswers, i, choiceLength) {
-            return userAnswers.slice(i * choiceLength, (i + 1) * choiceLength).some(answer => answer);
-        }
-
-        function areAnswersCorrect(correctAnswer, userAnswer, i, choiceLength) {
-            var areCorrect = false;
-            correctAnswer.forEach(answer => {
-                var index = +answer - 1;
-                if (userAnswer[i * choiceLength + index]) {
-                    areCorrect = true;
-                }
-            });
-            return areCorrect;
-        }
-
-        function isAnswerCorrect(correctAnswers, userAnswer, i, j, choiceLength) {
-            return correctAnswers.indexOf((j+1).toString()) !== -1 && userAnswer[i * choiceLength + j];
-        }
     };
+
+    function getUserResponses() {
+        if (presenter.printableState && presenter.printableState.hasOwnProperty('selectedElements')) {
+            return presenter.printableState['selectedElements']
+        }
+        return [];
+    }
+
+    function addCell(answers, userAnswers, $tableRow, i, choiceLength, shouldAddMark = false) {
+        var $td = $("<td></td>");
+        var $markDiv = $("<div></div>");
+        if (shouldAddMark) {
+            areAnswersCorrect(answers, userAnswers, i, choiceLength) ? $markDiv.addClass("correctAnswerMark")
+                : $markDiv.addClass("incorrectAnswerMark");
+        }
+        $td.append($markDiv);
+        $tableRow.append($td);
+    }
+
+    function didUserRespondOnQuestion(userAnswers, i, choiceLength) {
+        return userAnswers.slice(i * choiceLength, (i + 1) * choiceLength).some(answer => answer);
+    }
+
+    function areAnswersCorrect(correctAnswer, userAnswer, i, choiceLength) {
+        var areCorrect = false;
+        correctAnswer.forEach(answer => {
+            var index = +answer - 1;
+            if (userAnswer[i * choiceLength + index]) {
+                areCorrect = true;
+            }
+        });
+        return areCorrect;
+    }
+
+    function isAnswerCorrect(correctAnswers, userAnswer, i, j, choiceLength) {
+        return correctAnswers.indexOf((j + 1).toString()) !== -1 && userAnswer[i * choiceLength + j];
+    }
 
     return presenter;
 }
