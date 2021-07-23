@@ -721,13 +721,21 @@ function AddonParagraph_create() {
             tinymceState = '';
         }
 
+        var usersAnswer = tinymceState.replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
 
         return JSON.stringify({
             'tinymceState' : tinymceState,
             'isVisible' : presenter.isVisibleValue,
-            'isLocked' : presenter.isLocked
+            'isLocked' : presenter.isLocked,
+            'usersAnswer' : usersAnswer
         });
     };
+
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state);
+    }
 
     presenter.setState = function AddonParagraph_setState(state) {
         var parsedState = JSON.parse(state),
@@ -809,6 +817,8 @@ function AddonParagraph_create() {
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
         var configuration = presenter.validateModel(model);
+        var modelAnswer = presenter.getModelAnswer(model);
+        var usersAnswer = presenter.getUsersAnswer();
 
         var $wrapper = $('<div></div>');
         $wrapper.addClass('printable_addon_Paragraph');
@@ -822,10 +832,31 @@ function AddonParagraph_create() {
         $paragraph.css("height", "100%");
         $paragraph.css("border", "1px solid");
         $paragraph.css("padding", "10px");
-        $paragraph.html(configuration.placeholderText);
+
+        if (showAnswers && modelAnswer && !usersAnswer) {
+            $paragraph.html(modelAnswer);
+        } else {
+            $paragraph.html(usersAnswer);
+        }
+
         $wrapper.append($paragraph);
+
         return $wrapper[0].outerHTML;
     };
+
+    presenter.getModelAnswer = function (model) {
+        if (model && model.hasOwnProperty('Show Answers')) {
+            return model['Show Answers'];
+        }
+        return null;
+    }
+
+    presenter.getUsersAnswer = function () {
+        if (presenter.printableState && presenter.printableState.hasOwnProperty('usersAnswer')) {
+            return presenter.printableState['usersAnswer'];
+        }
+        return null;
+    }
 
     return presenter;
 }
