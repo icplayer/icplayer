@@ -92,7 +92,6 @@ TestCase("[Quiz] TTS tests", {
             readCurrentElementStub: sinon.stub(),
             switchElementStub: sinon.stub(),
             getElementsStub: sinon.stub(),
-            selectGapStub: sinon.stub(),
             markCurrentElementStub: sinon.stub()
         };
 
@@ -103,12 +102,8 @@ TestCase("[Quiz] TTS tests", {
         this.presenter.setSpeechTexts();
 
         this.presenter.buildKeyboardController();
-        this.presenter.keyboardControllerObject.getTarget = this.stubs.getTargetStub;
         this.presenter.keyboardControllerObject.switchElement = this.stubs.switchElementStub;
-        this.presenter.keyboardControllerObject.markCurrentElement = this.stubs.markCurrentElementStub;
         this.presenter.keyboardControllerObject.readCurrentElement = this.stubs.readCurrentElementStub;
-
-        this.presenter.selectGap = this.stubs.selectGapStub;
 
         this.event = {
             preventDefault: this.stubs.eventPreventDefaultStub
