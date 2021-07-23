@@ -1947,6 +1947,7 @@ var ice_dictionary_bl = {
 	"Quiz_property_NextAfterSelect": "Автоматично преминаване към следващия въпрос",
 	"Quiz_property_TestMode": "Режим на тест",
 	"Quiz_property_Summary": "Обобщение",
+	"Quiz_property_isActivity": "Задача",
 	"Quiz_property_lang_attribute": "Lang attribute",
 	"Quiz_property_speech_texts": "Speech texts",
 	"Quiz_speech_text_question": "Question",
