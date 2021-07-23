@@ -1,4 +1,4 @@
-TestCase("[TrueFalse] Get printable HTML", {
+TestCase("[TrueFalse] Printable HTML", {
     setUp: function () {
         this.presenter = AddonTrueFalse_create();
 
@@ -17,12 +17,12 @@ TestCase("[TrueFalse] Get printable HTML", {
         };
 
         this.spies = {
-            isAnswerCorrect: sinon.spy(),
-        };
-
-        this.stubs = {
-            isAnswerCorrectStub: sinon.stub().returns(this.spies.isAnswerCorrect)
+            upgradeModel : sinon.spy(this.presenter, 'upgradeModel')
         }
+    },
+
+    tearDown: function () {
+        this.presenter.upgradeModel.restore();
     },
 
     'test get printable True & False addon model': function () {
@@ -57,12 +57,18 @@ TestCase("[TrueFalse] Get printable HTML", {
         assertEquals(result, expectedHTML[0].outerHTML.toString());
     },
 
+    'test should update model': function () {
+        this.presenter.getPrintableHTML(this.model, true);
+
+        assertTrue(this.spies.upgradeModel.calledOnce);
+    },
+
     'test get evaluation for single choice options': function () {
         this.presenter.printableState = {'selectedElements': [true, false]};
 
         var result = this.presenter.getPrintableHTML(this.model, true);
-        var hasCorrectAnswer = result.includes('correctAnswerDiv');
-        var hasIncorrectAnswer = result.includes('inCorrectAnswerDiv');
+        var hasCorrectAnswer = result.includes('correctAnswerMark');
+        var hasIncorrectAnswer = result.includes('incorrectAnswerMark');
 
         assertTrue(hasCorrectAnswer);
         assertFalse(hasIncorrectAnswer);
@@ -73,8 +79,8 @@ TestCase("[TrueFalse] Get printable HTML", {
         this.model['Multi'] = 'True';
 
         var result = this.presenter.getPrintableHTML(this.model, true);
-        var hasCorrectAnswer = result.includes('correctAnswerDiv');
-        var hasIncorrectAnswer = result.includes('inCorrectAnswerDiv');
+        var hasCorrectAnswer = result.includes('correctAnswerMark');
+        var hasIncorrectAnswer = result.includes('incorrectAnswerMark');
 
         assertTrue(hasIncorrectAnswer);
         assertTrue(hasCorrectAnswer);
