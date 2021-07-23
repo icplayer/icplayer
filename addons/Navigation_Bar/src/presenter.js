@@ -1141,13 +1141,14 @@ function AddonNavigation_Bar_create() {
     presenter.executeCommand = function (name, params) {
         var commands = {
             'bookmarkCurrentPage': presenter.bookmarkCurrentPage,
-            'removeBookmark' : presenter.removeBookmark
+            'removeBookmark' : presenter.removeBookmark,
+            'removeAllBookmarks' : presenter.removeallBookmarks
         };
 
         return Commands.dispatch(commands, name, params, presenter);
     };
 
-    presenter.bookmarkCurrentPage = function(){
+    presenter.bookmarkCurrentPage = function() {
         var page = presenter.originalIndex + 1;
         if ( presenter.state.bookmarks.indexOf(page) == -1) {
             presenter.state.bookmarks.push(page);
@@ -1155,12 +1156,17 @@ function AddonNavigation_Bar_create() {
         presenter.refreshBookmarks();
     };
 
-    presenter.removeBookmark = function(){
+    presenter.removeBookmark = function() {
         var page = presenter.originalIndex + 1;
         var index = presenter.state.bookmarks.indexOf(page);
         if ( index != -1) {
             presenter.state.bookmarks.splice(index, 1);
         }
+        presenter.refreshBookmarks();
+    };
+
+    presenter.removeAllBookmarks = function() {
+        presenter.state.bookmarks = [];
         presenter.refreshBookmarks();
     };
 

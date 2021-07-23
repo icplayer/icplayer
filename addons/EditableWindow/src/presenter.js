@@ -419,7 +419,8 @@ function AddonEditableWindow_create() {
                         e.preventDefault();
                     });
                 }
-            }
+            },
+            readonly: !presenter.configuration.model.editingEnabled
         }).then(function (editors) {
             presenter.configuration.editor = editors[0];
             presenter.configuration.isTinyMceLoaded = true;
