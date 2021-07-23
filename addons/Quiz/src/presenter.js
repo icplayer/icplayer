@@ -24,19 +24,20 @@ function AddonQuiz_create() {
     };
 
     var CSS_CLASSES = {
-        QUESTION_TITLE : 'question-title',
-        QUESTION_TIP : 'question-tip',
-        FIFTY_FIFTY : 'fifty-fifty',
-        HINT_BUTTON : 'hint-button',
-        NEXT_QUESTION_BUTTON : 'next-question-button',
-        QUESTION_HINT_WRAPPER : 'question-hint-wrapper',
-        QUESTION_HINT : 'question-hint',
-        GAME_WON_MESSAGE : 'game-won-message',
-        GAME_LOST_MESSAGE : 'game-lost-message',
-        ACTIVE : 'active',
-        CORRECT : 'correct',
-        WRONG : 'wrong',
-        REMOVED : 'removed',
+        QUESTION_TITLE: 'question-title',
+        QUESTION_TIP: 'question-tip',
+        FIFTY_FIFTY: 'fifty-fifty',
+        HINT_BUTTON: 'hint-button',
+        NEXT_QUESTION_BUTTON: 'next-question-button',
+        QUESTION_HINT_WRAPPER: 'question-hint-wrapper',
+        QUESTION_HINT: 'question-hint',
+        GAME_WON_MESSAGE: 'game-won-message',
+        GAME_LOST_MESSAGE: 'game-lost-message',
+        ACTIVE: 'active',
+        CORRECT: 'correct',
+        WRONG: 'wrong',
+        REMOVED: 'removed',
+        OPTION: 'option',
     };
 
     var DEFAULT_TTS_PHRASES = {
@@ -322,7 +323,7 @@ function AddonQuiz_create() {
                     unbindEvents();
                 }
             } else {
-                $this.addClass('option');
+                $this.addClass(CSS_CLASSES.OPTION);
 
                 if (isCorrect) {
                     state.score[state.currentQuestion - 1] = 1;
@@ -1047,8 +1048,8 @@ function AddonQuiz_create() {
         const prefix = presenter.speechTexts.Answer;
         pushMessageToTextVoiceObject(voicesArray, prefix);
 
-        voicesArray = createAndConcatElementWithTextVoiceObject(voicesArray, $element);
 
+        voicesArray = createAndConcatElementsWithTextVoiceObject(voicesArray, $element.children());
         if ($element.hasClass(CSS_CLASSES.REMOVED))
             return updateQuestionTipTextVoiceObjectWithRemoved(voicesArray);
         else if (isQuestionTipSelected($element))
@@ -1057,7 +1058,9 @@ function AddonQuiz_create() {
     }
 
     function isQuestionTipSelected($questionTip) {
-        return $questionTip.hasClass(CSS_CLASSES.CORRECT) || $questionTip.hasClass(CSS_CLASSES.WRONG);
+        return ($questionTip.hasClass(CSS_CLASSES.CORRECT)
+                || $questionTip.hasClass(CSS_CLASSES.WRONG)
+                || $questionTip.hasClass(CSS_CLASSES.OPTION));
     }
 
     function updateQuestionTipTextVoiceObjectWithRemoved(textVoiceObject) {
@@ -1072,7 +1075,7 @@ function AddonQuiz_create() {
         var texts = [presenter.speechTexts.Selected, ]
         if ($element.hasClass(CSS_CLASSES.CORRECT)) 
             texts.push(presenter.speechTexts.Correct);
-        else 
+        else if ($element.hasClass(CSS_CLASSES.WRONG))
             texts.push(presenter.speechTexts.Wrong);
         pushMessagesToTextVoiceObject(voicesArray, texts);
         return textVoiceObject.concat(voicesArray);
@@ -1148,12 +1151,19 @@ function AddonQuiz_create() {
         pushMessageToTextVoiceObject(voicesArray, summaryMessage);
 
         const $gameMessageChildren = $gameMessageElement.children();
-
-        const $gameMessageText = $($gameMessageChildren.get(0));
+        
+        var $gameMessageText = null;
+        var gameSummaryChildID = 1;
+        if ($gameMessageChildren.length === 2) {
+            $gameMessageText = $($gameMessageChildren.get(0));
+        } else {
+            $gameMessageText = getTextNodeFromElement($gameMessageElement);
+            gameSummaryChildID = 0;
+        }
         voicesArray = createAndConcatElementWithTextVoiceObject(
             voicesArray, $gameMessageText);
-
-        const $gameSummary = $($gameMessageChildren.get(1));
+        const $gameSummary = $($gameMessageChildren.get(gameSummaryChildID));
+        
         const $gameSummaryText = getTextNodeFromElement($gameSummary);
         voicesArray = createAndConcatElementWithTextVoiceObject(
             voicesArray, $gameSummaryText);
