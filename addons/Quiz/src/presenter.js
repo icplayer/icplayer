@@ -140,7 +140,7 @@ function AddonQuiz_create() {
             Correct: DEFAULT_TTS_PHRASES.Correct,
             Wrong: DEFAULT_TTS_PHRASES.Wrong,
             Inactive: DEFAULT_TTS_PHRASES.Inactive,
-            OutOf: DEFAULT_TTS_PHRASES.Answer,
+            OutOf: DEFAULT_TTS_PHRASES.OutOf,
         };
 
         if (!speechTexts) {
