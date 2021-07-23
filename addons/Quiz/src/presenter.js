@@ -23,6 +23,38 @@ function AddonQuiz_create() {
         'MISSING_HINT': "At least one question doesn't have specified hint",
     };
 
+    var CSS_CLASSES = {
+        QUESTION_TITLE : 'question-title',
+        QUESTION_TIP : 'question-tip',
+        FIFTY_FIFTY : 'fifty-fifty',
+        HINT_BUTTON : 'hint-button',
+        NEXT_QUESTION_BUTTON : 'next-question-button',
+        QUESTION_HINT_WRAPPER : 'question-hint-wrapper',
+        QUESTION_HINT : 'question-hint',
+        GAME_WON_MESSAGE : 'game-won-message',
+        GAME_LOST_MESSAGE : 'game-lost-message',
+        ACTIVE : 'active',
+        CORRECT : 'correct',
+        WRONG : 'wrong',
+        REMOVED : 'removed',
+    };
+
+    var DEFAULT_TTS_PHRASES = {
+        Question: 'Question',
+        Answer: 'Answer',
+        FiftyFiftyButton: 'Fifty-Fifty button',
+        FiftyFiftyButtonWhenNotEnoughAnswers: 'Fifty-Fifty button is inactive because there are less than 4 answers',
+        HintButton: 'Hint button',
+        CommentField: 'Comment field',
+        Hint: 'Hint',
+        Summary: 'Summary',
+        Selected: 'Selected',
+        Correct: 'Correct',
+        Wrong: 'Wrong',
+        Inactive: 'Inactive',
+        OutOf: 'Out of',
+    };
+
     function ConfigurationError(label) {
         return {
             name: 'ConfigurationError',
@@ -32,6 +64,8 @@ function AddonQuiz_create() {
 
     presenter.activeElements = [];
     presenter.isLoaded = false;
+    presenter.isWCAGOn = false;
+    presenter.keyboardControllerObject = null;
 
     function setupDefaults() {
         state = {
@@ -82,8 +116,92 @@ function AddonQuiz_create() {
         return questions;
     }
 
+    function getSpeechTextProperty (rawValue, defaultValue) {
+        var value = rawValue.trim();
+
+        if (value === undefined || value === null || value === '') {
+            return defaultValue;
+        }
+
+        return value;
+    }
+
+    presenter.setSpeechTexts = function(speechTexts) {
+        presenter.speechTexts = {
+            Question: DEFAULT_TTS_PHRASES.Question,
+            Answer: DEFAULT_TTS_PHRASES.Answer,
+            FiftyFiftyButton: DEFAULT_TTS_PHRASES.FiftyFiftyButton,
+            FiftyFiftyButtonWhenNotEnoughAnswers: DEFAULT_TTS_PHRASES.FiftyFiftyButtonWhenNotEnoughAnswers,
+            HintButton: DEFAULT_TTS_PHRASES.HintButton,
+            CommentField: DEFAULT_TTS_PHRASES.CommentField,
+            Hint: DEFAULT_TTS_PHRASES.Hint,
+            Summary: DEFAULT_TTS_PHRASES.Summary,
+            Selected: DEFAULT_TTS_PHRASES.Selected,
+            Correct: DEFAULT_TTS_PHRASES.Correct,
+            Wrong: DEFAULT_TTS_PHRASES.Wrong,
+            Inactive: DEFAULT_TTS_PHRASES.Inactive,
+            OutOf: DEFAULT_TTS_PHRASES.Answer,
+        };
+
+        if (!speechTexts) {
+            return;
+        }
+
+        presenter.speechTexts = {
+            Question: getSpeechTextProperty(
+                speechTexts.Question.Question,
+                presenter.speechTexts.Question),
+            Answer: getSpeechTextProperty(
+                speechTexts.Answer.Answer,
+                presenter.speechTexts.Answer),
+            FiftyFiftyButton: getSpeechTextProperty(
+                speechTexts.FiftyFiftyButton.FiftyFiftyButton,
+                presenter.speechTexts.FiftyFiftyButton),
+            FiftyFiftyButtonWhenNotEnoughAnswers: getSpeechTextProperty(
+                speechTexts.FiftyFiftyButtonWhenNotEnoughAnswers.FiftyFiftyButtonWhenNotEnoughAnswers,
+                presenter.speechTexts.FiftyFiftyButtonWhenNotEnoughAnswers),
+            HintButton: getSpeechTextProperty(
+                speechTexts.HintButton.HintButton,
+                presenter.speechTexts.HintButton),
+            CommentField: getSpeechTextProperty(
+                speechTexts.CommentField.CommentField,
+                presenter.speechTexts.CommentField),
+            Hint: getSpeechTextProperty(
+                speechTexts.Hint.Hint,
+                presenter.speechTexts.Hint),
+            Summary: getSpeechTextProperty(
+                speechTexts.Summary.Summary,
+                presenter.speechTexts.Summary),
+            Selected: getSpeechTextProperty(
+                speechTexts.Selected.Selected,
+                presenter.speechTexts.Selected),
+            Correct: getSpeechTextProperty(
+                speechTexts.Correct.Correct,
+                presenter.speechTexts.Correct),
+            Wrong: getSpeechTextProperty(
+                speechTexts.Wrong.Wrong,
+                presenter.speechTexts.Wrong),
+            Inactive: getSpeechTextProperty(
+                speechTexts.Inactive.Inactive,
+                presenter.speechTexts.Inactive),
+            OutOf: getSpeechTextProperty(
+                speechTexts.OutOf.OutOf,
+                presenter.speechTexts.OutOf)
+        };
+    };
+
+    validateString = function (text) {
+        var isEmpty = ModelValidationUtils.isStringEmpty(text);
+
+        return {
+            isEmpty: isEmpty,
+            value: isEmpty ? "" : text
+        };
+    };
+
     presenter.setupConfig = function AddonQuiz_setupConfig(model) {
         var helpButtons = ModelValidationUtils.validateBoolean(model['ShowHelpButtons']);
+        presenter.setSpeechTexts(model['speechTexts']);
         presenter.config = {
             visibility: ModelValidationUtils.validateBoolean(model['Is Visible']),
             questions: validateQuestions(model['Questions'], helpButtons),
@@ -99,7 +217,8 @@ function AddonQuiz_create() {
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
             nextAfterSelect: ModelValidationUtils.validateBoolean(model['NextAfterSelect']),
             testMode: ModelValidationUtils.validateBoolean(model['TestMode']),
-            showSummary: ModelValidationUtils.validateBoolean(model['ShowSummary'])
+            showSummary: ModelValidationUtils.validateBoolean(model['ShowSummary']),
+            langTag: validateString(model["langAttribute"])
         }
     };
 
@@ -127,7 +246,7 @@ function AddonQuiz_create() {
 
     function gameWonMessage() {
         var wrapper = $('<div class="game-won-message-wrapper"></div>');
-        var message = $('<div class="game-won-message"></div>');
+        var message = $(`<div class="${CSS_CLASSES.GAME_WON_MESSAGE}"></div>`);
         if(presenter.config.showSummary) {
             message.html(presenter.config.gameWonMessage +
                 '<div>' + presenter.config.gameSummaryMessage + '<div>' + presenter.config.correctGameMessage + ': ' + getScore() + '</div><div>' + presenter.config.wrongGameMessage + ': ' + (presenter.config.questions.length - getScore()) + '</div>' + '</div>');
@@ -140,7 +259,7 @@ function AddonQuiz_create() {
 
     function gameLostMessage() {
         var wrapper = $('<div class="game-lost-message-wrapper"></div>');
-        var message = $('<div class="game-lost-message"></div>');
+        var message = $(`<div class="${CSS_CLASSES.GAME_LOST_MESSAGE}"></div>`);
         if(presenter.config.showSummary) {
             message.html(presenter.config.gameLostMessage +
                 '<div>' + presenter.config.gameSummaryMessage + '<div>' + presenter.config.correctGameMessage + ': ' + getScore() + '</div><div>' + presenter.config.wrongGameMessage + ': ' + (presenter.config.questions.length - getScore()) + '</div>' + '</div>');
@@ -176,14 +295,14 @@ function AddonQuiz_create() {
             if (!presenter.config.testMode) {
                 if (isCorrect) {
                     state.score[state.currentQuestion - 1] = 1;
-                    $this.addClass('correct');
+                    $this.addClass(CSS_CLASSES.CORRECT);
                     eventBus.sendEvent('ValueChanged', eventData);
                     if (state.currentQuestion == presenter.config.questions.length) {
                         gameWonMessage();
                         eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData());
                         unbindEvents();
                     } else {
-                        presenter.nextButton.addClass('active');
+                        presenter.nextButton.addClass(CSS_CLASSES.ACTIVE);
                         unbindEvents(presenter.nextButton);
                         if (presenter.config.nextAfterSelect) {
                             unbindEvents();
@@ -195,7 +314,7 @@ function AddonQuiz_create() {
                     }
                 } else {
                     state.score[state.currentQuestion - 1] = 0;
-                    $this.addClass('wrong');
+                    $this.addClass(CSS_CLASSES.WRONG);
                     eventData['score'] = '0';
                     eventBus.sendEvent('ValueChanged', eventData);
                     gameLostMessage();
@@ -224,7 +343,7 @@ function AddonQuiz_create() {
                     }
                     unbindEvents();
                 } else {
-                    presenter.nextButton.addClass('active');
+                    presenter.nextButton.addClass(CSS_CLASSES.ACTIVE);
                     unbindEvents(presenter.nextButton);
                     if (presenter.config.nextAfterSelect) {
                         unbindEvents();
@@ -300,7 +419,7 @@ function AddonQuiz_create() {
     };
 
     function showHint() {
-        var $hint = $('<div class="question-hint"></div>').html(getCurrentQuestion().Hint);
+        var $hint = $(`<div class="${CSS_CLASSES.QUESTION_HINT}"></div>`).html(getCurrentQuestion().Hint);
         showInHintArea($hint);
         presenter.$view.find('.hint-button').addClass('used');
     }
@@ -315,6 +434,8 @@ function AddonQuiz_create() {
             state.answersOrder = false;
             state.currentQuestion++;
             presenter.showCurrentQuestion();
+            presenter.keyboardControllerObject.markCurrentElement(0)
+            presenter.keyboardControllerObject.readCurrentElement()
             bindEvents();
         }
     }
@@ -343,9 +464,9 @@ function AddonQuiz_create() {
 
     function showQuestion(q, showAnswer) {
         var $q = presenter.$view.find('.question-wrapper');
-        var $title = $('<div class="question-title"></div>');
+        var $title = $(`<div class="${CSS_CLASSES.QUESTION_TITLE}"></div>`);
         var $tips = $('<div class="question-tips"></div>');
-        var $nextButton = $('<div class="next-question-button"></div>');
+        var $nextButton = $(`<div class="${CSS_CLASSES.NEXT_QUESTION_BUTTON}"></div>`);
         $nextButton.text(presenter.config.nextLabel);
         $nextButton.clickAction = nextButtonAction;
 
@@ -383,7 +504,7 @@ function AddonQuiz_create() {
         var labels = ['A: ', 'B: ', 'C: ', 'D: '];
 
         for (var i = 0; i < answers.length; i++) {
-            var $tip = $('<div class="question-tip"></div>');
+            var $tip = $(`<div class="${CSS_CLASSES.QUESTION_TIP}"></div>`);
             var answer = answers[i];
 
             var headersOfAnswer = document.createElement('div');
@@ -398,7 +519,7 @@ function AddonQuiz_create() {
             $headersOfAnswer.text(label);
             $divAnswers.text(answer || '');
             if (answer === null) {
-                $tip.addClass('removed');
+                $tip.addClass(CSS_CLASSES.REMOVED);
                 $tip.clickAction = function () {
                 };
             } else {
@@ -411,11 +532,11 @@ function AddonQuiz_create() {
                 } else if (state.selectedAnswer == answer) {
                     $tip.addClass('correct-answer');
                     if (state.currentQuestion < presenter.config.questions.length) {
-                        $nextButton.addClass('active');
+                        $nextButton.addClass(CSS_CLASSES.ACTIVE);
                     }
                 }
             } else if (state.wasWrong && state.selectedAnswer == answer) {
-                $tip.addClass('wrong');
+                $tip.addClass(CSS_CLASSES.WRONG);
             }
             $tips.append($tip);
             $tip.append($headersOfAnswer);
@@ -433,11 +554,11 @@ function AddonQuiz_create() {
         var $buttons = $('<div class="question-hint-buttons"></div>');
         addProgressBar($buttons);
         $q.append($buttons);
-        presenter.hintWrapper = $('<div class="question-hint-wrapper"></div>');
+        presenter.hintWrapper = $(`<div class="${CSS_CLASSES.QUESTION_HINT_WRAPPER}"></div>`);
         $q.append(presenter.hintWrapper);
         if (presenter.config.helpButtons) {
-            var $fiftyFifty = $('<div class="fifty-fifty"></div>');
-            var $hintButton = $('<div class="hint-button"></div>');
+            var $fiftyFifty = $(`<div class="${CSS_CLASSES.FIFTY_FIFTY}"></div>`);
+            var $hintButton = $(`<div class="${CSS_CLASSES.HINT_BUTTON}"></div>`);
             $fiftyFifty.clickAction = fiftyFiftyAction;
             $hintButton.clickAction = hintAction;
             $buttons.append($fiftyFifty);
@@ -471,6 +592,9 @@ function AddonQuiz_create() {
         } else if (!showAnswer) {
             bindEvents();
         }
+        if (presenter.keyboardControllerObject) {
+            presenter.reloadKeyboardController();
+        }
     };
 
     function haveWon() {
@@ -498,6 +622,7 @@ function AddonQuiz_create() {
         if (!preview) {
             bindEvents();
         }
+        presenter.buildKeyboardController();
     };
 
     presenter.showCurrentQuestion = function AddonQuiz_showCurrentQuestion() {
@@ -537,7 +662,8 @@ function AddonQuiz_create() {
     presenter.run = function AddonQuiz_run(view, model) {
         eventBus = playerController.getEventBus();
         presenter.addonID = model.ID;
-        initializeLogic(view, model, false);
+        var upgradedModel = presenter.upgradeModel(model);
+        initializeLogic(view, upgradedModel, false);
         presenter.setVisibility(presenter.config.isVisible);
 
         eventBus.addEventListener('ShowAnswers', this);
@@ -706,7 +832,11 @@ function AddonQuiz_create() {
     };
 
     presenter.upgradeModel = function (model) {
-        return presenter.upgradeAcceptWrongAnswers(model);
+        var upgradedModel = presenter.upgradeAcceptWrongAnswers(model);
+        upgradedModel = presenter.addLangTag(upgradedModel);
+        upgradedModel = presenter.addSpeechTexts(upgradedModel);
+
+        return upgradedModel;
     };
 
     presenter.upgradeAcceptWrongAnswers = function (model) {
@@ -721,6 +851,40 @@ function AddonQuiz_create() {
         }
         return model;
     };
+
+    presenter.addLangTag = function AddonTable_upgradeLangTag(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!model['langAttribute']) {
+            upgradedModel['langAttribute'] =  '';
+        }
+
+        return upgradedModel;
+    };
+
+    presenter.addSpeechTexts = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+        if (!model['speechTexts']) {
+            upgradedModel['speechTexts'] = {
+                Question: {Question: ''},
+                Answer: {Answer: ''},
+                FiftyFiftyButton: {FiftyFiftyButton: ''},
+                FiftyFiftyButtonWhenNotEnoughAnswers: {FiftyFiftyButtonWhenNotEnoughAnswers: ''},
+                HintButton: {HintButton: ''},
+                CommentField: {CommentField: ''},
+                Hint: {Hint: ''},
+                Summary: {Summary: ''},
+                Selected: {Selected: ''},
+                Correct: {Correct: ''},
+                Wrong: {Wrong: ''},
+                Inactive: {Inactive: ''},
+                OutOf: {OutOf: ''},
+            }
+        }
+        return upgradedModel;
+   };
 
     presenter.onEventReceived = function AddonQuiz_onEventReceived(eventName) {
         if (eventName == "ShowAnswers") {
@@ -755,6 +919,365 @@ function AddonQuiz_create() {
 
     function hideAnswers() {
         presenter.showCurrentQuestion();
+    }
+
+    presenter.setWCAGStatus = function(isWCAGOn) {
+        presenter.isWCAGOn = isWCAGOn;
+    };
+
+    presenter.getTextToSpeechOrNull = function AddonQuiz_getTextToSpeechOrNull(playerController) {
+        if (playerController) {
+            return playerController.getModule('Text_To_Speech1');
+        }
+
+        return null;
+    };
+
+    presenter.speak = function (data) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speak(data);
+        }
+    };
+
+    presenter.buildKeyboardController = function () {
+        presenter.keyboardControllerObject
+            = new QuizKeyboardController(
+                presenter.getElementsForKeyboardNavigation(), 1);
+    };
+
+    presenter.reloadKeyboardController = function () {
+        presenter.keyboardControllerObject.reload(
+            presenter.getElementsForKeyboardNavigation(), 1);
+    };
+
+    presenter.getElementsForKeyboardNavigation = function () {
+        return presenter.$view.find(`
+            .${CSS_CLASSES.QUESTION_TITLE},
+            .${CSS_CLASSES.QUESTION_TIP},
+            .${CSS_CLASSES.FIFTY_FIFTY},
+            .${CSS_CLASSES.HINT_BUTTON},
+            .${CSS_CLASSES.NEXT_QUESTION_BUTTON},
+            .${CSS_CLASSES.QUESTION_HINT_WRAPPER}
+        `);
+    };
+
+    presenter.getQuestionTipsElementsForKeyboardNavigation = function () {
+        return presenter.$view.find(`.${CSS_CLASSES.QUESTION_TIP}`);
+    };
+
+    presenter.getCommendFieldElementForKeyboardNavigation = function () {
+        return presenter.$view.find(`.${CSS_CLASSES.QUESTION_HINT_WRAPPER}`);
+    };
+
+    presenter.getGameMessageElementForKeyboardNavigationFromElement = function ($element) {
+        return $element.find(`.${CSS_CLASSES.GAME_LOST_MESSAGE}, .${CSS_CLASSES.GAME_WON_MESSAGE}`);
+    };
+
+    presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
+        presenter.keyboardControllerObject.handle(keycode, isShiftKeyDown, event);
+    };
+
+    function QuizKeyboardController (elements, columnsCount) {
+        KeyboardController.call(this, elements, columnsCount);
+    }
+
+    QuizKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
+    QuizKeyboardController.prototype.constructor = QuizKeyboardController;
+
+    QuizKeyboardController.prototype.reload = function (elements, columnsCount) {
+        this.isSelectEnabled = true;
+        this.keyboardNavigationElements = elements;
+        this.columnsCount = columnsCount;
+        this.keyboardNavigationElementsLen = elements.length;
+        if (this.keyboardNavigationActive) {
+            this.refreshMarkOnCurrentElement();
+            this.enter();
+        }
+    };
+
+    QuizKeyboardController.prototype.switchElement = function (move) {
+        KeyboardController.prototype.switchElement.call(this, move);
+        this.readCurrentElement();
+    };
+
+    QuizKeyboardController.prototype.getTarget = function (element, willBeClicked) {
+        return $(element);
+    };
+
+    QuizKeyboardController.prototype.readCurrentElement = function () {
+        this.readElement(this.keyboardNavigationCurrentElement);
+    };
+
+    QuizKeyboardController.prototype.refreshMarkOnCurrentElement = function () {
+        this.markCurrentElement(this.keyboardNavigationCurrentElementIndex);
+    };
+
+    QuizKeyboardController.prototype.readElement = function (element) {
+        var $element = this.getTarget(element, false);
+
+        if ($element.hasClass(CSS_CLASSES.QUESTION_TITLE))
+            presenter.speak(getQuestionTitleTextVoiceObject($element))
+        else if ($element.hasClass(CSS_CLASSES.QUESTION_TIP))
+            presenter.speak(getQuestionTipTextVoiceObject($element))
+        else if ($element.hasClass(CSS_CLASSES.FIFTY_FIFTY))
+            presenter.speak(getFiftyFiftyButtonTextVoiceObject())
+        else if ($element.hasClass(CSS_CLASSES.HINT_BUTTON))
+            presenter.speak(getHintButtonTextVoiceObject())
+        else if ($element.hasClass(CSS_CLASSES.NEXT_QUESTION_BUTTON))
+            presenter.speak(getNextQuestionTextVoiceObject($element))
+        else if ($element.hasClass(CSS_CLASSES.QUESTION_HINT_WRAPPER))
+            presenter.speak(getCommentFieldTextVoiceObject($element))
+    };
+
+    function getQuestionTitleTextVoiceObject($element) {
+        var voicesArray = [];
+
+        const prefix = presenter.speechTexts.Question;
+        const questionInfo = `${state.currentQuestion} ${presenter.speechTexts.OutOf} ${presenter.config.questions.length}`;
+        const texts = [prefix, questionInfo, ];
+        pushMessagesToTextVoiceObject(voicesArray, texts);
+        
+        return createAndConcatElementWithTextVoiceObject(voicesArray, $element);
+    }
+
+    function getQuestionTipTextVoiceObject($element) {
+        var voicesArray = [];
+
+        const prefix = presenter.speechTexts.Answer;
+        pushMessageToTextVoiceObject(voicesArray, prefix);
+
+        voicesArray = createAndConcatElementWithTextVoiceObject(voicesArray, $element);
+
+        if ($element.hasClass(CSS_CLASSES.REMOVED))
+            return updateQuestionTipTextVoiceObjectWithRemoved(voicesArray);
+        else if (isQuestionTipSelected($element))
+            return updateQuestionTipTextVoiceObjectWithSelected(voicesArray, $element);
+        return voicesArray;
+    }
+
+    function isQuestionTipSelected($questionTip) {
+        return $questionTip.hasClass(CSS_CLASSES.CORRECT) || $questionTip.hasClass(CSS_CLASSES.WRONG);
+    }
+
+    function updateQuestionTipTextVoiceObjectWithRemoved(textVoiceObject) {
+        var voicesArray = [];
+        const status = presenter.speechTexts.Inactive;
+        pushMessageToTextVoiceObject(voicesArray, status);
+        return textVoiceObject.concat(voicesArray);
+    }
+
+    function updateQuestionTipTextVoiceObjectWithSelected(textVoiceObject, $element) {
+        var voicesArray = [];
+        var texts = [presenter.speechTexts.Selected, ]
+        if ($element.hasClass(CSS_CLASSES.CORRECT)) 
+            texts.push(presenter.speechTexts.Correct);
+        else 
+            texts.push(presenter.speechTexts.Wrong);
+        pushMessagesToTextVoiceObject(voicesArray, texts);
+        return textVoiceObject.concat(voicesArray);
+    }
+
+    function getFiftyFiftyButtonTextVoiceObject() {
+        var voicesArray = [];
+        var texts = [presenter.speechTexts.FiftyFiftyButton, ];
+
+        var isNotEnoughAnswers = isLessThenFourAnswers();
+
+        if (state.fiftyFiftyUsed || isNotEnoughAnswers) {
+            texts.push(presenter.speechTexts.Inactive);
+            
+            if (isNotEnoughAnswers) {
+                texts.push(presenter.speechTexts.FiftyFiftyButtonWhenNotEnoughAnswers);
+            }
+        }
+        pushMessagesToTextVoiceObject(voicesArray, texts);
+        return voicesArray;
+    }
+
+    function isLessThenFourAnswers() {
+        return state.answersOrder && state.answersOrder.length < 4;
+    }
+
+    function getHintButtonTextVoiceObject() {
+        var voicesArray = [];
+        var texts = [presenter.speechTexts.HintButton, ];
+        if (state.hintUsed) {
+            texts.push(presenter.speechTexts.Inactive);
+        }
+        pushMessagesToTextVoiceObject(voicesArray, texts);
+        return voicesArray;
+    }
+
+    function getNextQuestionTextVoiceObject($element) {
+        var voicesArray = [];
+        var texts = [presenter.config.nextLabel, ];
+        if (!$element.hasClass(CSS_CLASSES.ACTIVE)) {
+            texts.push(presenter.speechTexts.Inactive);
+        }
+        pushMessagesToTextVoiceObject(voicesArray, texts);
+        return voicesArray;
+    }
+    
+    function getCommentFieldTextVoiceObject($element) {
+        var voicesArray = [];
+
+        const commentField = presenter.speechTexts.CommentField;
+        pushMessageToTextVoiceObject(voicesArray, commentField);
+
+        if ($element.children().length === 0)
+            return updateCommentFieldTextVoiceObjectWithInactive(voicesArray);
+
+        const $gameMessage = $(presenter.getGameMessageElementForKeyboardNavigationFromElement($element));
+        if ($gameMessage.length === 0)
+            return updateCommentFieldTextVoiceObjectWithHint(voicesArray, $element);
+        return updateCommentFieldTextVoiceObjectWithSummary(voicesArray, $gameMessage);
+    }
+
+    function updateCommentFieldTextVoiceObjectWithInactive(textVoiceObject) {
+        var voicesArray = [];
+        const inactiveMessage = presenter.speechTexts.Inactive;
+        pushMessageToTextVoiceObject(voicesArray, inactiveMessage);
+        return textVoiceObject.concat(voicesArray);
+    }
+
+    function updateCommentFieldTextVoiceObjectWithSummary(
+            textVoiceObject, $gameMessageElement) {
+        var voicesArray = [];
+        const summaryMessage = presenter.speechTexts.Summary;
+        pushMessageToTextVoiceObject(voicesArray, summaryMessage);
+
+        const $gameMessageChildren = $gameMessageElement.children();
+
+        const $gameMessageText = $($gameMessageChildren.get(0));
+        voicesArray = createAndConcatElementWithTextVoiceObject(
+            voicesArray, $gameMessageText);
+
+        const $gameSummary = $($gameMessageChildren.get(1));
+        const $gameSummaryText = getTextNodeFromElement($gameSummary);
+        voicesArray = createAndConcatElementWithTextVoiceObject(
+            voicesArray, $gameSummaryText);
+        
+        const $gameSummaryChildren = $gameSummary.children();
+        voicesArray = createAndConcatElementsWithTextVoiceObject(
+            voicesArray, $gameSummaryChildren);
+        return textVoiceObject.concat(voicesArray);
+    }
+
+    function updateCommentFieldTextVoiceObjectWithHint(
+            textVoiceObject, $commendFieldElement) {
+        var voicesArray = [];
+        const hintMessage = presenter.speechTexts.Hint;
+        pushMessageToTextVoiceObject(voicesArray, hintMessage);
+
+        voicesArray = createAndConcatElementWithTextVoiceObject(
+            voicesArray, $commendFieldElement);
+        return textVoiceObject.concat(voicesArray);
+    }
+
+    QuizKeyboardController.prototype.enter = function (event) {
+        KeyboardController.prototype.enter.call(this, event);
+        this.readCurrentElement();
+    };
+
+    QuizKeyboardController.prototype.select = function (event) {
+        var currentElement = this.keyboardNavigationCurrentElement;
+        var $element = this.getTarget(currentElement, false);
+        
+        if ($element.hasClass(CSS_CLASSES.QUESTION_TIP))
+            selectQuestionTip(event, $element);
+        else if ($element.hasClass(CSS_CLASSES.FIFTY_FIFTY))
+            selectFiftyFiftyButton(event);
+        else if ($element.hasClass(CSS_CLASSES.HINT_BUTTON))
+            selectHintButton(event);
+        else KeyboardController.prototype.select.call(this, event);
+    };
+
+    function selectQuestionTip(event, $element) {
+        const isQuestionAnsweredBefore = isQuestionAnswered(); 
+        KeyboardController.prototype.select.call(presenter.keyboardControllerObject, event);
+        const isQuestionAnsweredAfter = isQuestionAnswered();
+
+        if (isQuestionAnsweredBefore !== isQuestionAnsweredAfter) {
+            var voicesArray = updateQuestionTipTextVoiceObjectWithSelected([], $element);
+            const $gameMessage = presenter.getGameMessageElementForKeyboardNavigationFromElement(presenter.$view);
+            if ($gameMessage.length !== 0) {
+                voicesArray = updateCommentFieldTextVoiceObjectWithSummary(voicesArray, $gameMessage);
+            }
+            presenter.speak(voicesArray);
+        }
+    }
+
+    function isQuestionAnswered() {
+        return state.selectedAnswer !== null;
+    }
+
+    function selectFiftyFiftyButton(event) {
+        const fiftyFiftyUsedBefore = state.fiftyFiftyUsed;
+        KeyboardController.prototype.select.call(presenter.keyboardControllerObject, event);
+        const fiftyFiftyUsedAfter = state.fiftyFiftyUsed;
+
+        if (fiftyFiftyUsedBefore !== fiftyFiftyUsedAfter) {
+            var voicesArray = [];
+            const selectedMessage = presenter.speechTexts.Selected;
+            pushMessageToTextVoiceObject(voicesArray, selectedMessage);
+            const $questionTips = $(presenter.getQuestionTipsElementsForKeyboardNavigation());
+            for (var i = 0; i < state.answersOrder.length; i++) {
+                if (state.answersOrder[i] === null) {
+                    const $questionTip = $($questionTips.get(i));
+                    voicesArray = voicesArray.concat(getQuestionTipTextVoiceObject($questionTip));
+                }
+            }
+            presenter.speak(voicesArray);
+            presenter.keyboardControllerObject.refreshMarkOnCurrentElement();
+        }
+    }
+
+    function selectHintButton(event) {
+        const hintUsedBefore = state.hintUsed;
+        KeyboardController.prototype.select.call(presenter.keyboardControllerObject, event);
+        const hintUsedAfter = state.hintUsed;
+
+        if (hintUsedBefore !== hintUsedAfter) {
+            var voicesArray = [];
+            const selectedMessage = presenter.speechTexts.Selected;
+            pushMessageToTextVoiceObject(voicesArray, selectedMessage);
+
+            const $commendFieldElement = $(presenter.getCommendFieldElementForKeyboardNavigation());
+            voicesArray = updateCommentFieldTextVoiceObjectWithHint(voicesArray, $commendFieldElement);
+            presenter.speak(voicesArray);
+        }
+    }
+
+    function getTextNodeFromElement($element) {
+        return $element.contents().filter(
+            function () {
+                return this.nodeType === 3;
+            }
+        )
+    }
+
+    function createAndConcatElementsWithTextVoiceObject(textVoiceObject, $elements) {
+        $elements.each( function() { 
+            textVoiceObject = createAndConcatElementWithTextVoiceObject(textVoiceObject, $(this));
+        });
+        return textVoiceObject;
+    }
+
+    function createAndConcatElementWithTextVoiceObject(textVoiceObject, $element) {
+        return textVoiceObject.concat(
+            window.TTSUtils.getTextVoiceArrayFromElement($element, presenter.langTag)
+        );
+    }
+
+    function pushMessagesToTextVoiceObject(textVoiceObject, messages) {
+        for (var i = 0; i < messages.length; i++) {
+            pushMessageToTextVoiceObject(textVoiceObject, messages[i]);
+        }
+    }
+    
+    function pushMessageToTextVoiceObject(textVoiceObject, message) {
+        textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, presenter.langTag));
     }
 
     return presenter;
