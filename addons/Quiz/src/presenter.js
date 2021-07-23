@@ -1087,7 +1087,7 @@ function AddonQuiz_create() {
 
         var isNotEnoughAnswers = isLessThenFourAnswers();
 
-        if (state.fiftyFiftyUsed || isNotEnoughAnswers) {
+        if (state.fiftyFiftyUsed || isNotEnoughAnswers || isQuestionAnswered()) {
             texts.push(presenter.speechTexts.Inactive);
             
             if (isNotEnoughAnswers) {
@@ -1105,7 +1105,7 @@ function AddonQuiz_create() {
     function getHintButtonTextVoiceObject() {
         var voicesArray = [];
         var texts = [presenter.speechTexts.HintButton, ];
-        if (state.hintUsed) {
+        if (state.hintUsed || isQuestionAnswered()) {
             texts.push(presenter.speechTexts.Inactive);
         }
         pushMessagesToTextVoiceObject(voicesArray, texts);
