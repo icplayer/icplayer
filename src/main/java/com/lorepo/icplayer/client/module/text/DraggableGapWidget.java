@@ -147,6 +147,11 @@ public class DraggableGapWidget extends HTML implements TextElementDisplay, AltT
 		isWorkMode = false;
 	}
 
+    @Override
+    public void setShowErrorsMode(boolean isActivity, boolean ignoreDefaultPlaceholderWhenCheck) {
+        // TODO not implement
+    }
+
 	@Override
 	public void setWorkMode() {
 		removeStyleDependentName("correct");

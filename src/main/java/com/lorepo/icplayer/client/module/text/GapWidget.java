@@ -245,6 +245,31 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	}
 
 	@Override
+    public void setShowErrorsMode(boolean isActivity, boolean ignoreDefaultPlaceholderWhenCheck) {
+    	if (isActivity) {
+			String text = getText();
+			String placeholder = this.gapInfo.getPlaceHolder().trim();
+			boolean isTextOnlyPlaceholder = ignoreDefaultPlaceholderWhenCheck && text == placeholder;
+			this.isWorkingMode = false;
+
+			if (text.length() > 0 && !isTextOnlyPlaceholder) {
+				if (gapInfo.isCorrect(text)) {
+					addStyleDependentName("correct");
+					this.gapState = 1;
+				} else {
+					addStyleDependentName("wrong");
+					this.gapState = 2;
+				}
+			} else {
+				addStyleDependentName("empty");
+				this.gapState = 3;
+			}
+		}
+
+		setEnabled(false);
+	}
+
+	@Override
 	public void setWorkMode() {
 		this.gapState = 0;
 		this.isWorkingMode = true;

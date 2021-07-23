@@ -38,6 +38,11 @@ public class AudioButtonWidget extends Button implements TextElementDisplay {
     }
 
     @Override
+    public void setShowErrorsMode(boolean isActivity, boolean ignoreDefaultPlaceholderWhenCheck) {
+        // TODO not implement
+    }
+
+    @Override
     public void setWorkMode() {
         // TODO not implement
     }
