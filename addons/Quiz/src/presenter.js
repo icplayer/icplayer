@@ -191,15 +191,6 @@ function AddonQuiz_create() {
         };
     };
 
-    validateString = function (text) {
-        var isEmpty = ModelValidationUtils.isStringEmpty(text);
-
-        return {
-            isEmpty: isEmpty,
-            value: isEmpty ? "" : text
-        };
-    };
-
     presenter.setupConfig = function AddonQuiz_setupConfig(model) {
         var helpButtons = ModelValidationUtils.validateBoolean(model['ShowHelpButtons']);
         presenter.setSpeechTexts(model['speechTexts']);
@@ -219,7 +210,7 @@ function AddonQuiz_create() {
             nextAfterSelect: ModelValidationUtils.validateBoolean(model['NextAfterSelect']),
             testMode: ModelValidationUtils.validateBoolean(model['TestMode']),
             showSummary: ModelValidationUtils.validateBoolean(model['ShowSummary']),
-            langTag: validateString(model["langAttribute"])
+            langTag: model["langAttribute"],
         }
     };
 
