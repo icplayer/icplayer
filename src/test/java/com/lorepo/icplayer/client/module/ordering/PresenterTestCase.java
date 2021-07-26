@@ -6,7 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
+import com.google.gwt.event.shared.EventBus;
+import com.lorepo.icplayer.client.module.api.event.GradualShowAnswerEvent;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.reflect.Whitebox;
 import org.xml.sax.SAXException;
 
 import com.google.gwt.xml.client.Element;
@@ -88,5 +93,79 @@ public class PresenterTestCase {
 		assertEquals("2,3,1", display.getState());
 		assertFalse(presenter.isVisible());
 		assertTrue(presenter.isSolved());
+	}
+
+	@Test
+	public void getActivitiesCountReturnsRequiredNumberOfSingleSwapsWhenShowAllAnswersInGradualShowAnswersModePropertyIsInactive() throws IOException, SAXException {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/orderingPresenter.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+
+		OrderingModule module = new OrderingModule();
+		module.load(element, "", PAGE_VERSION);
+
+		PlayerServicesMockup services = new PlayerServicesMockup();
+		OrderingPresenter presenter = new OrderingPresenter(module, services);
+
+		assertEquals(module.getItemCount() - 1, presenter.getActivitiesCount());
+	}
+
+	@Test
+	public void getActivitiesCountReturns1WhenShowAllAnswersInGradualShowAnswersModePropertyIsActive() throws IOException, SAXException {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/orderingPresenter2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+
+		OrderingModule module = new OrderingModule();
+		module.load(element, "", PAGE_VERSION);
+
+		PlayerServicesMockup services = new PlayerServicesMockup();
+		OrderingPresenter presenter = new OrderingPresenter(module, services);
+
+		assertEquals(1, presenter.getActivitiesCount());
+	}
+
+	@Test
+	public void onGradualShowAnswersSets1CorrectAnswerWhenShowAllAnswersInGradualShowAnswersModePropertyIsInactive() throws IOException, SAXException {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/orderingPresenter.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+
+		OrderingModule module = new OrderingModule();
+		module.load(element, "", PAGE_VERSION);
+
+		PlayerServicesMockup services = new PlayerServicesMockup();
+		OrderingViewMockup display = PowerMockito.spy(Whitebox.newInstance(OrderingViewMockup.class));
+		OrderingPresenter presenter = new OrderingPresenter(module, services);
+		presenter.addView(display);
+
+		EventBus eventBus = services.getEventBus();
+		GradualShowAnswerEvent event = new GradualShowAnswerEvent();
+		event.setModuleID(module.getId());
+		eventBus.fireEvent(event);
+
+		Mockito.verify(display, Mockito.times(1)).setCorrectAnswer(Mockito.any(Integer.class));
+	}
+
+	@Test
+	public void onGradualShowAnswersSetsAllCorrectAnswerWhenShowAllAnswersInGradualShowAnswersModePropertyIsActive() throws IOException, SAXException {
+		InputStream inputStream = getClass().getResourceAsStream("testdata/orderingPresenter2.xml");
+		XMLParserMockup xmlParser = new XMLParserMockup();
+		Element element = xmlParser.parser(inputStream);
+
+		OrderingModule module = new OrderingModule();
+		module.load(element, "", PAGE_VERSION);
+
+		PlayerServicesMockup services = new PlayerServicesMockup();
+		OrderingViewMockup display = PowerMockito.spy(Whitebox.newInstance(OrderingViewMockup.class));
+		OrderingPresenter presenter = new OrderingPresenter(module, services);
+		presenter.addView(display);
+
+		EventBus eventBus = services.getEventBus();
+		GradualShowAnswerEvent event = new GradualShowAnswerEvent();
+		event.setModuleID(module.getId());
+		eventBus.fireEvent(event);
+
+		Mockito.verify(display, Mockito.times(1)).setCorrectAnswer();
 	}
 }

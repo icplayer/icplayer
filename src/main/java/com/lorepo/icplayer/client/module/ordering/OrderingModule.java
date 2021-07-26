@@ -47,6 +47,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 	private boolean allElementsHasSameWidth = false;
 	private boolean graduallyScore = false;
 	private boolean dontGenerateCorrectOrder = false;
+	private boolean showAllAnswersInGradualShowAnswersMode = false;
 	private boolean disableDragging = false;
 	private String langAttribute = "";
 	private ArrayList<SpeechTextsStaticListItem> speechTextItems = new ArrayList<SpeechTextsStaticListItem>();
@@ -72,6 +73,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		addPropertyGraduallyScore();
 		addPropertyDisableDragging();
 		addPropertyDontGenerateCorrectOrder();
+		addPropertyShowAllAnswersInGradualShowAnswersMode();
 		addPropertySpeechTexts();
 		addPropertyLangAttribute();
 		addPropertyPrintable();
@@ -162,6 +164,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 			graduallyScore = XMLUtils.getAttributeAsBoolean(ordering, "graduallyScore");
 			disableDragging = XMLUtils.getAttributeAsBoolean(ordering, "disableDragging");
 			dontGenerateCorrectOrder = XMLUtils.getAttributeAsBoolean(ordering, "dontGenerateCorrectOrder");
+			showAllAnswersInGradualShowAnswersMode = XMLUtils.getAttributeAsBoolean(ordering, "showAllAnswersInGradualShowAnswersMode");
 			this.speechTextItems.get(0).setText(XMLUtils.getAttributeAsString(ordering, "selected"));
 			this.speechTextItems.get(1).setText(XMLUtils.getAttributeAsString(ordering, "deselected"));
 			this.speechTextItems.get(2).setText(XMLUtils.getAttributeAsString(ordering, "replaced_with"));
@@ -267,6 +270,7 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		XMLUtils.setBooleanAttribute(ordering, "graduallyScore", graduallyScore);
 		XMLUtils.setBooleanAttribute(ordering, "disableDragging", disableDragging);
 		XMLUtils.setBooleanAttribute(ordering, "dontGenerateCorrectOrder", dontGenerateCorrectOrder);
+		XMLUtils.setBooleanAttribute(ordering, "showAllAnswersInGradualShowAnswersMode", showAllAnswersInGradualShowAnswersMode);
 		ordering.setAttribute("optionalOrder", optionalOrder);
 		ordering.setAttribute("lang", this.langAttribute);
 		ordering.setAttribute("selected", this.speechTextItems.get(0).getText());
@@ -678,6 +682,49 @@ public class OrderingModule extends BasicModuleModel implements IWCAGModuleModel
 		};
 
 		addProperty(property);
+	}
+
+	private void addPropertyShowAllAnswersInGradualShowAnswersMode() {
+
+		IProperty property = new IBooleanProperty() {
+
+			@Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != showAllAnswersInGradualShowAnswersMode) {
+					showAllAnswersInGradualShowAnswersMode = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return showAllAnswersInGradualShowAnswersMode ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("show_all_answers_in_gradual_show_answers_mode");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("show_all_answers_in_gradual_show_answers_mode");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+
+		};
+
+		addProperty(property);
+	}
+
+	public boolean isShowAllAnswersInGradualShowAnswersMode() {
+		return showAllAnswersInGradualShowAnswersMode;
 	}
 	
 	private void addPropertySpeechTexts() {
