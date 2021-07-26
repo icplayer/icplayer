@@ -1114,11 +1114,13 @@ function AddonQuiz_create() {
 
     function getNextQuestionTextVoiceObject($element) {
         var voicesArray = [];
-        var texts = [presenter.config.nextLabel, ];
-        if (!$element.hasClass(CSS_CLASSES.ACTIVE)) {
-            texts.push(presenter.speechTexts.Inactive);
-        }
-        pushMessagesToTextVoiceObject(voicesArray, texts);
+
+        const text = presenter.config.nextLabel;
+        pushMessageToTextVoiceObject(voicesArray, text, true);
+
+        if (!$element.hasClass(CSS_CLASSES.ACTIVE))
+            pushMessageToTextVoiceObject(voicesArray, presenter.speechTexts.Inactive);
+
         return voicesArray;
     }
     
@@ -1167,16 +1169,17 @@ function AddonQuiz_create() {
         const $gameSummaryText = getTextNodeFromElement($gameSummary);
         voicesArray = createAndConcatElementWithTextVoiceObject(
             voicesArray, $gameSummaryText);
-        
-        const $gameSummaryChildren = $gameSummary.children();
+
         voicesArray = createAndConcatElementsWithTextVoiceObject(
-            voicesArray, $gameSummaryChildren);
+            voicesArray, $gameSummary.children());
+
         return textVoiceObject.concat(voicesArray);
     }
 
     function updateCommentFieldTextVoiceObjectWithHint(
             textVoiceObject, $commendFieldElement) {
         var voicesArray = [];
+
         const hintMessage = presenter.speechTexts.Hint;
         pushMessageToTextVoiceObject(voicesArray, hintMessage);
 
@@ -1267,27 +1270,33 @@ function AddonQuiz_create() {
         )
     }
 
-    function createAndConcatElementsWithTextVoiceObject(textVoiceObject, $elements) {
+    function createAndConcatElementsWithTextVoiceObject(textVoiceObject, $elements, usePresenterLangTag = true) {
         $elements.each( function() { 
-            textVoiceObject = createAndConcatElementWithTextVoiceObject(textVoiceObject, $(this));
+            textVoiceObject = createAndConcatElementWithTextVoiceObject(textVoiceObject, $(this), usePresenterLangTag);
         });
         return textVoiceObject;
     }
 
-    function createAndConcatElementWithTextVoiceObject(textVoiceObject, $element) {
-        return textVoiceObject.concat(
-            window.TTSUtils.getTextVoiceArrayFromElement($element, presenter.langTag)
-        );
+    function createAndConcatElementWithTextVoiceObject(textVoiceObject, $element, usePresenterLangTag = true) {
+        var elementTextVoiceArray = null;
+        if (usePresenterLangTag)
+            elementTextVoiceArray = window.TTSUtils.getTextVoiceArrayFromElement($element, presenter.config.langTag)
+        else
+            elementTextVoiceArray = window.TTSUtils.getTextVoiceArrayFromElement($element)
+        return textVoiceObject.concat(elementTextVoiceArray);
     }
 
-    function pushMessagesToTextVoiceObject(textVoiceObject, messages) {
+    function pushMessagesToTextVoiceObject(textVoiceObject, messages, usePresenterLangTag = false) {
         for (var i = 0; i < messages.length; i++) {
-            pushMessageToTextVoiceObject(textVoiceObject, messages[i]);
+            pushMessageToTextVoiceObject(textVoiceObject, messages[i], usePresenterLangTag);
         }
     }
     
-    function pushMessageToTextVoiceObject(textVoiceObject, message) {
-        textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, presenter.langTag));
+    function pushMessageToTextVoiceObject(textVoiceObject, message, usePresenterLangTag = false) {
+        if (usePresenterLangTag)
+            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message, presenter.config.langTag));
+        else
+            textVoiceObject.push(window.TTSUtils.getTextVoiceObject(message));
     }
 
     return presenter;
