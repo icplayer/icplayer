@@ -119,16 +119,4 @@ TestCase("[Multiple Gap] Multiple gap printable HTML validation", {
         //expected
         assertEquals(expectedHtmlValue, actualHtmlValue);
     },
-
-    getExpectedHTML: function(styleClass) {
-        var model = getValidModel(true);
-
-        var $root = $("<div></div>");
-        $root.css("max-width", model.Width+"px");
-        $root.css("max-height", model.Height+"px");
-        $root.css("visibility", "visible");
-        $root.addClass(styleClass + "-div");
-
-        return $root;
-    },
 });
