@@ -234,6 +234,7 @@ function AddonText_To_Speech_create() {
         clearInterval(presenter.intervalId);
             presenter.intervalId = undefined;
         }
+        var onStartExecuted = false;
         // Fix for running speak method after cancelling SpeechSynthesis queue
         presenter.intervalId = setInterval(function() {
 
@@ -259,6 +260,7 @@ function AddonText_To_Speech_create() {
                 var currentIntervalId = presenter.intervalId;
                 if (i === 0) {
                     msg.onstart = function (event) {
+                        onStartExecuted = true;
                         clearInterval(currentIntervalId);
                         if (currentIntervalId !== presenter.intervalId) {
                             window.speechSynthesis.cancel();
@@ -270,7 +272,8 @@ function AddonText_To_Speech_create() {
                         if(currentIntervalId === presenter.intervalId){
                             window.speechSynthesis.cancel();
                         }
-                        if (finalCallback){
+                        if (finalCallback && onStartExecuted){
+                            onStartExecuted = false;
                             finalCallback();
                             utterances = [];
                         };

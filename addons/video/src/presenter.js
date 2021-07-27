@@ -1186,7 +1186,7 @@ function Addonvideo_create() {
         var isSpeaking = false;
         for ( var i = 0; i < presenter.descriptions.length; i++) {
             var description = presenter.descriptions[i];
-           if (presenter.prevTime < description.start && description.start <= time) {
+            if (presenter.prevTime < description.start && description.start <= time) {
                 isSpeaking = true;
                 presenter.pause();
                 $(description.element).attr('visibility', 'visible');
@@ -1196,7 +1196,6 @@ function Addonvideo_create() {
                 $(description.element).css('visibility', 'hidden');
                 $(description.element).attr('visibility', 'hidden');
             }
-
         }
 
         presenter.prevTime = time;
