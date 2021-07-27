@@ -1,5 +1,6 @@
 function AddonParagraph_create() {
     var presenter = function () {};
+    var eventBus;
 
     presenter.placeholder = null;
     presenter.editor = null;
@@ -9,6 +10,9 @@ function AddonParagraph_create() {
     presenter.editor = null;
     presenter.playerController = null;
     presenter.isVisibleValue = null;
+    presenter.isShowAnswersActive = false;
+    presenter.modelAnswer = null;
+    presenter.cachedAnswer = [];
 
     presenter.isEditorLoaded = false;
 
@@ -107,6 +111,78 @@ function AddonParagraph_create() {
         presenter.$view.append(clickhandler);
     };
 
+    presenter.setEventBus = function (wrappedEventBus) {
+        eventBus = wrappedEventBus;
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            eventBus.addEventListener(events[i], this);
+        }
+    };
+
+    presenter.onEventReceived = function (eventName, data) {
+        switch (eventName) {
+            case "ShowAnswers":
+            case "GradualShowAnswers":
+                presenter.showAnswers();
+                break;
+
+            case "HideAnswers":
+            case "GradualHideAnswers":
+                presenter.hideAnswers();
+                break;
+        }
+    };
+
+    presenter.getActivitiesCount = function () {
+        return 1;
+    }
+
+    presenter.showAnswers = function () {
+        if (presenter.isShowAnswersActive) { return; }
+
+        var paragraph = presenter.$view.find(".paragraph-wrapper");
+        var elements = presenter.getParagraphs();
+
+        paragraph.addClass('disabled');
+        presenter.isShowAnswersActive = true;
+
+        for (var [key, value] of Object.entries(elements)) {
+            if (+key > -1) {
+                presenter.cachedAnswer.push(value.innerHTML);
+                if (+key === 0) {
+                    value.innerHTML = presenter.modelAnswer;
+                } else {
+                    value.innerHTML = '';
+                }
+            }
+        }
+    }
+
+    presenter.hideAnswers = function () {
+        if (!presenter.isShowAnswersActive) { return; }
+
+        var paragraph = presenter.$view.find(".paragraph-wrapper");
+        var elements = presenter.getParagraphs();
+
+        paragraph.removeClass('disabled');
+        presenter.isShowAnswersActive = false;
+
+        for (var [key, value] of Object.entries(elements)) {
+            if (+key > -1) {
+                value.innerHTML = presenter.cachedAnswer[+key];
+            }
+        }
+        presenter.cachedAnswer = [];
+    }
+
+    presenter.getParagraphs = function () {
+        var paragraph = presenter.$view.find(".paragraph-wrapper"),
+            iframe = paragraph.find("iframe"),
+            body = $(iframe).contents().find("#tinymce");
+
+        return body.find("p");
+    }
+
     presenter.run = function AddonParagraph_run(view, model) {
         presenter.initializeEditor(view, model, false);
         presenter.setVisibility(presenter.configuration.isVisible);
@@ -157,6 +233,8 @@ function AddonParagraph_create() {
             $(input).css('display', 'none');
             presenter.$view.append(input);
         }
+
+        presenter.setModelAnswer(model);
     };
 
     presenter.getTinyMceSelector = function AddonParagraph_getTinyMceSelector() {
@@ -849,6 +927,12 @@ function AddonParagraph_create() {
             return model['Show Answers'];
         }
         return null;
+    }
+
+    presenter.setModelAnswer = function (model) {
+        if (model && model.hasOwnProperty('Show Answers')) {
+            presenter.modelAnswer = model['Show Answers'];
+        }
     }
 
     presenter.getUsersAnswer = function () {
