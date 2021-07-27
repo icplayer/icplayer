@@ -12,6 +12,8 @@
         <property name="isResetRemovesRecording" nameLabel="Media_Recorder_property_is_reset_removes_recording" type="boolean" />
         <property name="enableInErrorCheckingMode" nameLabel="Media_Recorder_property_enable_in_error_checking_mode" type="boolean" />
         <property name="extendedMode" nameLabel="Media_Recorder_property_extended_mode" type="boolean" />
+        <property name="disableRecording" nameLabel="Media_Recorder_property_is_disable_recording" type="boolean" />
+        <property name="enableIntensityChangeEvents" nameLabel="Media_Recorder_property_is_enable_intensity_events" type="boolean" />
         <property name="resetDialogLabels" nameLabel="Media_Recorder_property_reset_dialog_labels" type="staticlist">
 
             <property name="resetDialogText" nameLabel="Media_Recorder_property_reset_dialog_text" type="staticrow">

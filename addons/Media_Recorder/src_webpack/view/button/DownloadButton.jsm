@@ -16,13 +16,13 @@ export class DownloadButton extends Button {
     downloadRecording() {
         var element = document.createElement("a");
         element.setAttribute("id", "dl");
-        element.setAttribute("download", "recording.webm");
+        element.setAttribute("download", "recording.wav");
         element.setAttribute("href", "#");
         var base64Recording = this.addonState.recording;
         function handleDownloadRecording() {
             var data = base64Recording;
             data = data.replace(/^data:audio\/[^;]*/, 'data:application/octet-stream');
-            data = data.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=recording.webm');
+            data = data.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=recording.wav');
             this.href = data;
         }
         element.onclick = handleDownloadRecording;

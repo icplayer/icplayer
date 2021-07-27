@@ -18,6 +18,8 @@ TestCase("[Media Recorder] Model validation", {
             isDisabled: "False",
             enableInErrorCheckingMode: "False",
             extendedMode: "False",
+            disableRecording: "False",
+            enableIntensityChangeEvents: "False",
             resetDialogLabels: {
                 resetDialogText: {resetDialogLabel: ""},
                 resetDialogConfirm: {resetDialogLabel: ""},
