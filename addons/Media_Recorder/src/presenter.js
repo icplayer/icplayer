@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 12);
+/******/ 	return __webpack_require__(__webpack_require__.s = 13);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -213,7 +213,166 @@ var RecordButton = exports.RecordButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 3 */,
+/* 3 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var SoundIntensity = exports.SoundIntensity = function () {
+    function SoundIntensity($view) {
+        _classCallCheck(this, SoundIntensity);
+
+        this.$view = $view;
+        this.volumeLevels = 6;
+        this.interval = null;
+    }
+
+    _createClass(SoundIntensity, [{
+        key: 'startAnalyzing',
+        value: function startAnalyzing(analyser) {
+            var _this = this;
+
+            this.interval = setInterval(function () {
+                return _this._updateIntensity(analyser);
+            }, 100);
+        }
+    }, {
+        key: 'stopAnalyzing',
+        value: function stopAnalyzing() {
+            if (this.interval) clearInterval(this.interval);
+            this._clearIntensity();
+        }
+    }, {
+        key: 'destroy',
+        value: function destroy() {
+            this.stopAnalyzing();
+            this.interval = null;
+            this.$view.remove();
+            this.$view = null;
+        }
+    }, {
+        key: 'show',
+        value: function show() {
+            this.$view.css('display', '');
+        }
+    }, {
+        key: 'hide',
+        value: function hide() {
+            this.$view.css('display', 'none');
+        }
+    }, {
+        key: 'setEventBus',
+        value: function setEventBus(eventBus, sourceID) {
+            this.eventBus = eventBus;
+            this.sourceID = sourceID;
+        }
+    }, {
+        key: '_updateIntensity',
+        value: function _updateIntensity(analyser) {
+            var frequencyArray = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(frequencyArray);
+            var avgVolume = this._calculateAvgVolume(frequencyArray);
+            var raisedVolume = this._raiseVolume(avgVolume);
+            var alignedVolume = this._alignVolume(raisedVolume);
+            var intensity = alignedVolume * this.volumeLevels;
+            this._setIntensity(intensity);
+            if (this.eventBus) {
+                this._handleEvents(intensity);
+            }
+        }
+    }, {
+        key: '_handleEvents',
+        value: function _handleEvents(intensity) {
+            if (this.lastIntensityLevel === undefined) {
+                this.lastIntensityLevel = 0;
+                return;
+            }
+            var newIntensityLevel = Math.floor(intensity);
+            if (newIntensityLevel !== this.lastIntensityLevel) {
+                this.lastIntensityLevel = newIntensityLevel;
+                var eventData = {
+                    'source': this.sourceID,
+                    'item': 'intensity',
+                    'value': newIntensityLevel,
+                    'score': ''
+                };
+                this.eventBus.sendEvent('ValueChanged', eventData);
+            }
+        }
+    }, {
+        key: '_calculateAvgVolume',
+        value: function _calculateAvgVolume(volumeArray) {
+            var sum = 0;
+            var _iteratorNormalCompletion = true;
+            var _didIteratorError = false;
+            var _iteratorError = undefined;
+
+            try {
+                for (var _iterator = volumeArray[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                    var i = _step.value;
+
+                    sum += i;
+                }
+            } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion && _iterator.return) {
+                        _iterator.return();
+                    }
+                } finally {
+                    if (_didIteratorError) {
+                        throw _iteratorError;
+                    }
+                }
+            }
+
+            return sum / volumeArray.length;
+        }
+    }, {
+        key: '_raiseVolume',
+        value: function _raiseVolume(volume) {
+            return volume > 0 ? volume * 1.2 : volume;
+        }
+    }, {
+        key: '_alignVolume',
+        value: function _alignVolume(volume) {
+            volume = volume > 0 ? volume : 0;
+            volume = volume < 64 ? volume : 64;
+            return volume / 64;
+        }
+    }, {
+        key: '_setIntensity',
+        value: function _setIntensity(intensity) {
+            this._clearIntensity();
+            for (var currentLevel = 1; currentLevel <= intensity; currentLevel++) {
+                var levelId = "#sound-intensity-" + currentLevel;
+                var $level = this.$view.find(levelId);
+                $level.addClass("selected");
+            }
+        }
+    }, {
+        key: '_clearIntensity',
+        value: function _clearIntensity() {
+            for (var currentLevel = 1; currentLevel <= this.volumeLevels; currentLevel++) {
+                var levelId = "#sound-intensity-" + currentLevel;
+                var $level = this.$view.find(levelId);
+                $level.removeClass("selected");
+            }
+        }
+    }]);
+
+    return SoundIntensity;
+}();
+
+/***/ }),
 /* 4 */,
 /* 5 */,
 /* 6 */,
@@ -222,10 +381,11 @@ var RecordButton = exports.RecordButton = function (_Button) {
 /* 9 */,
 /* 10 */,
 /* 11 */,
-/* 12 */
+/* 12 */,
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _MediaRecorder = __webpack_require__(13);
+var _MediaRecorder = __webpack_require__(14);
 
 function AddonMedia_Recorder_create() {
 
@@ -347,6 +507,10 @@ function AddonMedia_Recorder_create() {
         return this.mediaRecorder._internalElements();
     };
 
+    presenter._internalUpgradeModel = function (model) {
+        return this.mediaRecorder._upgradeModel(model);
+    };
+
     function handleDestroyEvent(view) {
         view.addEventListener('DOMNodeRemoved', presenter.destroy);
     }
@@ -357,7 +521,7 @@ function AddonMedia_Recorder_create() {
 window.AddonMedia_Recorder_create = AddonMedia_Recorder_create;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -367,45 +531,55 @@ exports.MediaRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _validateModel = __webpack_require__(14);
+var _validateModel = __webpack_require__(15);
 
-var _ActivationState = __webpack_require__(16);
+var _ActivationState = __webpack_require__(17);
 
-var _MediaState = __webpack_require__(17);
+var _MediaState = __webpack_require__(18);
 
-var _Errors = __webpack_require__(18);
+var _Errors = __webpack_require__(19);
 
-var _PlayButton = __webpack_require__(19);
+var _PlayButton = __webpack_require__(20);
 
 var _RecordButton = __webpack_require__(2);
 
-var _Timer = __webpack_require__(20);
+var _ResetButton = __webpack_require__(21);
 
-var _AddonState = __webpack_require__(21);
+var _ResetDialog = __webpack_require__(22);
 
-var _RecordingTimeLimiter = __webpack_require__(23);
+var _DownloadButton = __webpack_require__(23);
 
-var _SoundIntensity = __webpack_require__(24);
+var _Timer = __webpack_require__(24);
 
-var _MediaAnalyserService = __webpack_require__(25);
+var _ProgressBar = __webpack_require__(25);
 
-var _AudioLoader = __webpack_require__(27);
+var _AddonState = __webpack_require__(26);
 
-var _SoundEffect = __webpack_require__(29);
+var _RecordingTimeLimiter = __webpack_require__(28);
 
-var _RecordButtonSoundEffect = __webpack_require__(30);
+var _SoundIntensity = __webpack_require__(3);
 
-var _AddonViewService = __webpack_require__(31);
+var _DottedSoundIntensity = __webpack_require__(29);
 
-var _AudioResourcesProvider = __webpack_require__(32);
+var _MediaAnalyserService = __webpack_require__(30);
 
-var _AudioRecorder = __webpack_require__(34);
+var _AudioLoader = __webpack_require__(32);
 
-var _AudioPlayer = __webpack_require__(37);
+var _SoundEffect = __webpack_require__(34);
 
-var _DefaultRecordingPlayButton = __webpack_require__(40);
+var _RecordButtonSoundEffect = __webpack_require__(35);
 
-var _SafariRecorderState = __webpack_require__(41);
+var _AddonViewService = __webpack_require__(36);
+
+var _AudioResourcesProvider = __webpack_require__(37);
+
+var _AudioRecorder = __webpack_require__(39);
+
+var _AudioPlayer = __webpack_require__(42);
+
+var _DefaultRecordingPlayButton = __webpack_require__(45);
+
+var _SafariRecorderState = __webpack_require__(46);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -455,6 +629,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 _this.mediaState.setLoading();
                 var recording = URL.createObjectURL(blob);
                 _this.player.setRecording(recording);
+                if (_this.model.extendedMode) {
+                    _this.setEMRecordedStateView();
+                }
             });
             this.addonState.getVisibility().then(function (isVisible) {
                 _this.setVisibility(isVisible);
@@ -515,6 +692,9 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.timer = null;
             this.recordButton = null;
             this.playButton = null;
+            this.downloadButton = null;
+            this.resetButton = null;
+            this.progressBar = null;
             this.stopRecordingSoundEffect = null;
             this.startRecordingSoundEffect = null;
             this.loader = null;
@@ -523,6 +703,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.addonState = null;
             this.mediaState = null;
             this.activationState = null;
+            this.extendedModeButtonList = null;
 
             this.playerController = null;
             this.view = null;
@@ -619,7 +800,13 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.view = view;
             this.model = model;
             this.viewHandlers = this._loadViewHandlers(this.view);
-
+            if (this.model.extendedMode) {
+                this._prepareExtendedModeView();
+                this.setEMDefaultStateView();
+            }
+            if (this.model.disableRecording) {
+                this._hidePlayAndTimerWidgets();
+            }
             this.mediaState = new _MediaState.MediaState();
             this.activationState = new _ActivationState.ActivationState();
             this.addonState = new _AddonState.AddonState();
@@ -636,8 +823,27 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 $recordButtonView: $(view).find(".media-recorder-recording-button"),
                 $playButtonView: $(view).find(".media-recorder-play-button"),
                 $timerView: $(view).find(".media-recorder-timer"),
-                $soundIntensityView: $(view).find(".media-recorder-sound-intensity")
+                $soundIntensityView: $(view).find(".media-recorder-sound-intensity"),
+                $dottedSoundIntensityView: $(view).find(".media-recorder-dotted-sound-intensity"),
+                $progressBarWrapperView: $(view).find(".media-recorder-progress-bar"),
+                $progressBarSliderView: $(view).find(".media-recorder-progress-bar-slider"),
+                $resetButtonView: $(view).find(".media-recorder-reset-button"),
+                $downloadButtonView: $(view).find(".media-recorder-download-button"),
+                $resetDialogView: $(view).find(".media-recorder-reset-dialog")
             };
+        }
+    }, {
+        key: "_prepareExtendedModeView",
+        value: function _prepareExtendedModeView() {
+            this.viewHandlers.$wrapperView.addClass('extended-mode');
+            this.viewHandlers.$timerView.insertBefore(this.viewHandlers.$playButtonView);
+        }
+    }, {
+        key: "_hidePlayAndTimerWidgets",
+        value: function _hidePlayAndTimerWidgets() {
+            this.viewHandlers.$playButtonView.hide();
+            this.viewHandlers.$defaultRecordingPlayButtonView.hide();
+            this.viewHandlers.$timerView.hide();
         }
     }, {
         key: "_loadMediaElements",
@@ -655,6 +861,7 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.player.setEventBus(eventBus, this.model.ID, "player");
             this.defaultRecordingPlayer.setEventBus(eventBus, this.model.ID, "default");
             this.recorder.setEventBus(eventBus, this.model.ID);
+            this.eventBus = eventBus;
         }
     }, {
         key: "_loadViewElements",
@@ -673,10 +880,32 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 state: this.mediaState
             });
 
+            this.extendedModeButtonList = [];
+            if (this.model.extendedMode) {
+                this.downloadButton = new _DownloadButton.DownloadButton({
+                    $view: this.viewHandlers.$downloadButtonView,
+                    addonState: this.addonState
+                });
+                this.resetButton = new _ResetButton.ResetButton(this.viewHandlers.$resetButtonView);
+                this.resetDialog = new _ResetDialog.ResetDialog(this.viewHandlers.$resetDialogView, this.model.resetDialogLabels);
+                this.progressBar = new _ProgressBar.ProgressBar(this.viewHandlers.$progressBarWrapperView);
+                this.extendedModeButtonList.push(this.downloadButton);
+                this.extendedModeButtonList.push(this.resetButton);
+            }
+
             this.loader = new _AudioLoader.AudioLoader(this.viewHandlers.$loaderView);
 
             this.timer = new _Timer.Timer(this.viewHandlers.$timerView);
-            this.soundIntensity = new _SoundIntensity.SoundIntensity(this.viewHandlers.$soundIntensityView);
+            if (this.model.extendedMode) {
+                this.soundIntensity = new _DottedSoundIntensity.DottedSoundIntensity(this.viewHandlers.$dottedSoundIntensityView);
+                this.viewHandlers.$soundIntensityView.css('display', 'none');
+            } else {
+                this.soundIntensity = new _SoundIntensity.SoundIntensity(this.viewHandlers.$soundIntensityView);
+                this.viewHandlers.$dottedSoundIntensityView.css('display', 'none');
+            }
+            if (this.eventBus && this.model.enableIntensityChangeEvents) {
+                this.soundIntensity.setEventBus(this.eventBus, this.model.ID);
+            }
 
             this._hideSelectedElements();
         }
@@ -692,6 +921,55 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.stopRecordingSoundEffect = new _SoundEffect.SoundEffect(this.model.stopRecordingSound, this.viewHandlers.$playerView);
 
             return new _RecordButtonSoundEffect.RecordButtonSoundEffect(recordButton, this.startRecordingSoundEffect, this.stopRecordingSoundEffect);
+        }
+    }, {
+        key: "setEMDefaultStateView",
+        value: function setEMDefaultStateView() {
+            this.viewHandlers.$defaultRecordingPlayButtonView.css('display', 'none');
+            this.viewHandlers.$recordButtonView.css('display', '');
+            if (this.model.disableRecording) {
+                this.viewHandlers.$timerView.css('display', 'none');
+            } else {
+                this.viewHandlers.$timerView.css('display', '');
+            }
+            if (this.soundIntensity) {
+                this.soundIntensity.show();
+            }
+            this.viewHandlers.$playButtonView.css('display', 'none');
+            this.viewHandlers.$progressBarWrapperView.css('display', 'none');
+            this.viewHandlers.$progressBarWrapperView.css('visibility', 'hidden');
+            this.viewHandlers.$resetButtonView.css('display', 'none');
+            this.viewHandlers.$downloadButtonView.css('display', 'none');
+        }
+    }, {
+        key: "setEMRecordedStateView",
+        value: function setEMRecordedStateView() {
+            this.viewHandlers.$defaultRecordingPlayButtonView.css('display', 'none');
+            this.viewHandlers.$recordButtonView.css('display', 'none');
+            this.viewHandlers.$timerView.css('display', '');
+            if (this.soundIntensity) {
+                this.soundIntensity.hide();
+            }
+            this.viewHandlers.$playButtonView.css('display', '');
+            this.viewHandlers.$progressBarWrapperView.css('display', 'block');
+            this.viewHandlers.$progressBarWrapperView.css('visibility', 'visible');
+            this.viewHandlers.$resetButtonView.css('display', 'block');
+            this.viewHandlers.$downloadButtonView.css('display', 'block');
+        }
+    }, {
+        key: "setEMPlayingStateView",
+        value: function setEMPlayingStateView() {
+            this.viewHandlers.$defaultRecordingPlayButtonView.css('display', 'none');
+            this.viewHandlers.$recordButtonView.css('display', 'none');
+            this.viewHandlers.$timerView.css('display', '');
+            if (this.soundIntensity) {
+                this.soundIntensity.hide();
+            }
+            this.viewHandlers.$playButtonView.css('display', '');
+            this.viewHandlers.$progressBarWrapperView.css('display', 'block');
+            this.viewHandlers.$progressBarWrapperView.css('visibility', 'visible');
+            this.viewHandlers.$resetButtonView.css('display', 'block');
+            this.viewHandlers.$downloadButtonView.css('display', 'block');
         }
     }, {
         key: "_loadLogic",
@@ -725,14 +1003,26 @@ var MediaRecorder = exports.MediaRecorder = function () {
                     _this2.soundIntensity.stopAnalyzing();
                     _this2.mediaAnalyserService.closeAnalyzing();
                     _this2.player.stopStreaming();
-                    _this2.recorder.stopRecording().then(function (blob) {
-                        _this2.addonState.setRecordingBlob(blob);
-                        var recording = URL.createObjectURL(blob);
-                        _this2.player.reset();
-                        _this2.player.setRecording(recording);
-                    });
+                    if (!_this2.model.disableRecording) {
+                        _this2.recorder.stopRecording().then(function (blob) {
+                            _this2.addonState.setRecordingBlob(blob);
+                            var recording = URL.createObjectURL(blob);
+                            _this2.player.reset();
+                            _this2.player.setRecording(recording);
+                        });
+                    }
                     _this2.resourcesProvider.destroy();
                     _this2.safariRecorderState.setUnavailableResources();
+                }
+                if (_this2.model.extendedMode) {
+                    if (_this2.model.disableRecording) {
+                        _this2.setEMDefaultStateView();
+                    } else {
+                        _this2.setEMRecordedStateView();
+                    }
+                }
+                if (_this2.model.disableRecording) {
+                    _this2.mediaState.setLoaded();
                 }
             };
 
@@ -747,9 +1037,33 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 _this2.resourcesProvider.destroy();
             };
 
+            if (this.model.extendedMode) {
+                this.resetButton.onReset = function () {
+                    _this2.resetDialog.open();
+                };
+                this.resetDialog.onConfirm = function () {
+                    _this2.timer.startCountdown();
+                    _this2.resetRecording();
+                    if (_this2.model.extendedMode) {
+                        _this2.setEMDefaultStateView();
+                    }
+                    _this2.progressBar.setProgress(0.0);
+                };
+
+                this.progressBar.onStartDragging = function () {
+                    if (_this2.mediaState.isPlaying()) {
+                        _this2.player.pausePlaying();
+                        _this2.playButton.forceClick();
+                    }
+                };
+
+                this.progressBar.onStopDragging = function (progress) {
+                    _this2.player.setProgress(progress);
+                };
+            }
+
             this.playButton.onStartPlaying = function () {
                 _this2.mediaState.setPlaying();
-                _this2.timer.startCountdown();
                 _this2.player.startPlaying().then(function (htmlMediaElement) {
                     return _this2.mediaAnalyserService.createAnalyserFromElement(htmlMediaElement).then(function (analyser) {
                         return _this2.soundIntensity.startAnalyzing(analyser);
@@ -759,8 +1073,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.playButton.onStopPlaying = function () {
                 _this2.mediaState.setLoaded();
-                _this2.player.stopPlaying();
-                _this2.timer.stopCountdown();
+                if (_this2.model.extendedMode) {
+                    _this2.player.pausePlaying();
+                } else {
+                    _this2.player.stopPlaying();
+                }
                 _this2.soundIntensity.stopAnalyzing();
                 _this2.mediaAnalyserService.closeAnalyzing();
             };
@@ -794,12 +1111,30 @@ var MediaRecorder = exports.MediaRecorder = function () {
             };
 
             this.player.onEndLoading = function () {
-                _this2.mediaState.setLoaded();
-                _this2.loader.hide();
+                if (_this2.mediaState.isLoading()) {
+                    _this2.mediaState.setLoaded();
+                    _this2.loader.hide();
+                }
             };
+
+            var player = this.player;
+            var timer = this.timer;
+            var progressBar = this.progressBar;
+            function timeUpdateCallback(event) {
+                var currentTime = player.getCurrentTime();
+                timer.setTime(currentTime);
+                if (progressBar) {
+                    player._getDuration().then(function (duration) {
+                        progressBar.setProgress(currentTime / duration);
+                    });
+                }
+            }
 
             this.player.onDurationChange = function (duration) {
                 return _this2.timer.setDuration(duration);
+            };
+            this.player.onTimeUpdate = function (event) {
+                return timeUpdateCallback(event);
             };
             this.player.onEndPlaying = function () {
                 return _this2.playButton.forceClick();
@@ -833,10 +1168,12 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             this.mediaState.setRecording();
             this.player.startStreaming(stream);
-            this.recorder.startRecording(stream);
-            this.timer.reset();
-            this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
-            this.recordingTimeLimiter.startCountdown();
+            if (!this.model.disableRecording) {
+                this.recorder.startRecording(stream);
+                this.timer.reset();
+                this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
+                this.recordingTimeLimiter.startCountdown();
+            }
             this.mediaAnalyserService.createAnalyserFromStream(stream).then(function (analyser) {
                 return _this3.soundIntensity.startAnalyzing(analyser);
             });
@@ -859,6 +1196,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.recordButton.activate();
             this.playButton.activate();
             this.defaultRecordingPlayButton.activate();
+            if (this.model.extendedMode) {
+                for (var i = 0; i < this.extendedModeButtonList.length; i++) {
+                    this.extendedModeButtonList[i].activate();
+                }
+            }
         }
     }, {
         key: "_deactivateButtons",
@@ -866,6 +1208,11 @@ var MediaRecorder = exports.MediaRecorder = function () {
             this.recordButton.deactivate();
             this.playButton.deactivate();
             this.defaultRecordingPlayButton.deactivate();
+            if (this.model.extendedMode) {
+                for (var i = 0; i < this.extendedModeButtonList.length; i++) {
+                    this.extendedModeButtonList[i].deactivate();
+                }
+            }
         }
     }, {
         key: "_stopActions",
@@ -889,7 +1236,8 @@ var MediaRecorder = exports.MediaRecorder = function () {
                 RecordingTimeLimiter: _RecordingTimeLimiter.RecordingTimeLimiter,
                 MediaState: _MediaState.MediaState,
                 Timer: _Timer.Timer,
-                AudioPlayer: _AudioPlayer.AudioPlayer
+                AudioPlayer: _AudioPlayer.AudioPlayer,
+                DownloadButton: _DownloadButton.DownloadButton
             };
         }
     }, {
@@ -911,14 +1259,29 @@ var MediaRecorder = exports.MediaRecorder = function () {
             var timerViewHandler = $(view).find(".media-recorder-timer");
             var defaultButtonViewHandler = $(view).find(".media-recorder-default-recording-play-button");
             var $wrapperViewHandler = $(view).find(".media-recorder-wrapper");
+            var intensityView = $(view).find(".media-recorder-sound-intensity");
+            var dottedSoundIntensityView = $(view).find(".media-recorder-dotted-sound-intensity");
+            var playButton = $(view).find('.media-recorder-play-button');
 
-            if (valid_model.isShowedTimer == false) timerViewHandler.hide();else timerViewHandler.show();
+            if (valid_model.extendedMode) {
+                intensityView.css('display', 'none');
+                playButton.css('display', 'none');
+                dottedSoundIntensityView.css('display', '');
+                defaultButtonViewHandler.hide();
+                timerViewHandler.text('00:00');
+                $wrapperViewHandler.addClass('extended-mode');
+            } else {
+                intensityView.css('display', '');
+                dottedSoundIntensityView.css('display', 'none');
 
-            if (valid_model.isShowedDefaultRecordingButton == false) defaultButtonViewHandler.hide();else defaultButtonViewHandler.show();
+                if (valid_model.isShowedTimer == false) timerViewHandler.hide();else timerViewHandler.show();
 
-            if (valid_model.isDisabled) {
-                this.addonViewService = new _AddonViewService.AddonViewService($wrapperViewHandler);
-                this.addonViewService.deactivate();
+                if (!valid_model.isShowedDefaultRecordingButton) defaultButtonViewHandler.hide();else defaultButtonViewHandler.show();
+
+                if (valid_model.isDisabled) {
+                    this.addonViewService = new _AddonViewService.AddonViewService($wrapperViewHandler);
+                    this.addonViewService.deactivate();
+                }
             }
         }
     }, {
@@ -1027,6 +1390,10 @@ var MediaRecorder = exports.MediaRecorder = function () {
         value: function _upgradeModel(model) {
             var upgradedModel = this._upgradeIsDisabled(model);
             upgradedModel = this._upgradeEnableInErrorCheckigMode(upgradedModel);
+            upgradedModel = this._upgradeExtendedMode(upgradedModel);
+            upgradedModel = this._upgradeResetDialog(upgradedModel);
+            upgradedModel = this._upgradeDisableRecording(upgradedModel);
+            upgradedModel = this._upgradeEnableIntensityChangeEvents(upgradedModel);
             return upgradedModel;
         }
     }, {
@@ -1053,13 +1420,65 @@ var MediaRecorder = exports.MediaRecorder = function () {
 
             return upgradedModel;
         }
+    }, {
+        key: "_upgradeExtendedMode",
+        value: function _upgradeExtendedMode(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["extendedMode"]) {
+                upgradedModel["extendedMode"] = "False";
+            }
+
+            return upgradedModel;
+        }
+    }, {
+        key: "_upgradeResetDialog",
+        value: function _upgradeResetDialog(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["resetDialogLabels"]) {
+                upgradedModel["resetDialogLabels"] = {
+                    "resetDialogText": { "resetDialogLabel": "" },
+                    "resetDialogConfirm": { "resetDialogLabel": "" },
+                    "resetDialogDeny": { "resetDialogLabel": "" }
+                };
+            }
+
+            return upgradedModel;
+        }
+    }, {
+        key: "_upgradeDisableRecording",
+        value: function _upgradeDisableRecording(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["disableRecording"]) {
+                upgradedModel["disableRecording"] = "False";
+            }
+
+            return upgradedModel;
+        }
+    }, {
+        key: "_upgradeEnableIntensityChangeEvents",
+        value: function _upgradeEnableIntensityChangeEvents(model) {
+            var upgradedModel = {};
+            $.extend(true, upgradedModel, model);
+
+            if (!upgradedModel["enableIntensityChangeEvents"]) {
+                upgradedModel["enableIntensityChangeEvents"] = "False";
+            }
+
+            return upgradedModel;
+        }
     }]);
 
     return MediaRecorder;
 }();
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1067,7 +1486,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.validateModel = validateModel;
 
-var _DefaultValues = __webpack_require__(15);
+var _DefaultValues = __webpack_require__(16);
 
 function validateModel(model) {
     var modelValidator = new ModelValidator();
@@ -1085,11 +1504,15 @@ function validateModel(model) {
     }), ModelValidators.String("stopRecordingSound", {
         trim: true,
         default: ""
-    }), ModelValidators.Boolean("isResetRemovesRecording"), ModelValidators.Boolean("isShowedTimer"), ModelValidators.Boolean("isShowedDefaultRecordingButton"), ModelValidators.Boolean("enableInErrorCheckingMode"), ModelValidators.Boolean("isDisabled")]);
+    }), ModelValidators.Boolean("isResetRemovesRecording"), ModelValidators.Boolean("isShowedTimer"), ModelValidators.Boolean("isShowedDefaultRecordingButton"), ModelValidators.Boolean("enableInErrorCheckingMode"), ModelValidators.Boolean("isDisabled"), ModelValidators.Boolean("extendedMode"), ModelValidators.Boolean("disableRecording"), ModelValidators.Boolean("enableIntensityChangeEvents"), ModelValidators.StaticList('resetDialogLabels', {
+        'resetDialogText': [ModelValidators.String('resetDialogLabel', { default: 'Are you sure you want to reset the recording?' })],
+        'resetDialogConfirm': [ModelValidators.String('resetDialogLabel', { default: 'Yes' })],
+        'resetDialogDeny': [ModelValidators.String('resetDialogLabel', { default: 'No' })]
+    })]);
 }
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1101,7 +1524,7 @@ var DefaultValues = exports.DefaultValues = {
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1156,7 +1579,7 @@ var ActivationState = exports.ActivationState = function () {
 }();
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1288,7 +1711,7 @@ var MediaState = exports.MediaState = function () {
 }();
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1304,7 +1727,7 @@ var Errors = exports.Errors = {
 };
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1378,7 +1801,184 @@ var PlayButton = exports.PlayButton = function (_Button) {
 }(_Button2.Button);
 
 /***/ }),
-/* 20 */
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.ResetButton = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Button2 = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var ResetButton = exports.ResetButton = function (_Button) {
+    _inherits(ResetButton, _Button);
+
+    function ResetButton($view) {
+        _classCallCheck(this, ResetButton);
+
+        return _possibleConstructorReturn(this, (ResetButton.__proto__ || Object.getPrototypeOf(ResetButton)).call(this, $view));
+    }
+
+    _createClass(ResetButton, [{
+        key: "_eventHandler",
+        value: function _eventHandler() {
+            if (this.onResetCallback != null) {
+                this.onResetCallback();
+            }
+        }
+    }, {
+        key: "onReset",
+        set: function set(callback) {
+            this.onResetCallback = callback;
+        }
+    }]);
+
+    return ResetButton;
+}(_Button2.Button);
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ResetDialog = exports.ResetDialog = function () {
+    function ResetDialog($view, resetDialogLabels) {
+        _classCallCheck(this, ResetDialog);
+
+        this.$view = $view;
+        this.labels = {
+            text: resetDialogLabels['resetDialogText']['resetDialogLabel'],
+            confirm: resetDialogLabels['resetDialogConfirm']['resetDialogLabel'],
+            deny: resetDialogLabels['resetDialogDeny']['resetDialogLabel']
+        };
+        this._createView();
+    }
+
+    _createClass(ResetDialog, [{
+        key: 'open',
+        value: function open() {
+            this.$view.css('display', 'block');
+            this.$view.css('left', '');
+            this.$view.css('top', '');
+        }
+    }, {
+        key: 'close',
+        value: function close() {
+            this.$view.css('display', 'none');
+        }
+    }, {
+        key: '_createView',
+        value: function _createView() {
+            this.$view.find('.dialog-text').text(this.labels.text);
+            this.$view.find('.confirm-button').text(this.labels.confirm);
+            this.$view.find('.deny-button').text(this.labels.deny);
+            this.$view.draggable({});
+            var self = this;
+            this.$view.find('.confirm-button').click(function () {
+                self.close();
+                if (self.onConfirmCallback) self.onConfirmCallback();
+            });
+            this.$view.find('.deny-button').click(function () {
+                self.close();
+                if (self.onDenyCallback) self.onDenyCallback();
+            });
+        }
+    }, {
+        key: 'onConfirm',
+        set: function set(callback) {
+            this.onConfirmCallback = callback;
+        }
+    }, {
+        key: 'onDeny',
+        set: function set(callback) {
+            this.onDenyCallback = callback;
+        }
+    }]);
+
+    return ResetDialog;
+}();
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.DownloadButton = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Button2 = __webpack_require__(0);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var DownloadButton = exports.DownloadButton = function (_Button) {
+    _inherits(DownloadButton, _Button);
+
+    function DownloadButton(_ref) {
+        var $view = _ref.$view,
+            addonState = _ref.addonState;
+
+        _classCallCheck(this, DownloadButton);
+
+        var _this = _possibleConstructorReturn(this, (DownloadButton.__proto__ || Object.getPrototypeOf(DownloadButton)).call(this, $view));
+
+        _this.addonState = addonState;
+        return _this;
+    }
+
+    _createClass(DownloadButton, [{
+        key: "_eventHandler",
+        value: function _eventHandler() {
+            if (this.addonState.recording) {
+                this.downloadRecording();
+            }
+        }
+    }, {
+        key: "downloadRecording",
+        value: function downloadRecording() {
+            var element = document.createElement("a");
+            element.setAttribute("id", "dl");
+            element.setAttribute("download", "recording.wav");
+            element.setAttribute("href", "#");
+            var base64Recording = this.addonState.recording;
+            function handleDownloadRecording() {
+                var data = base64Recording;
+                data = data.replace(/^data:audio\/[^;]*/, 'data:application/octet-stream');
+                data = data.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=recording.wav');
+                this.href = data;
+            }
+            element.onclick = handleDownloadRecording;
+            element.click();
+        }
+    }]);
+
+    return DownloadButton;
+}(_Button2.Button);
+
+/***/ }),
+/* 24 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1399,6 +1999,7 @@ var Timer = exports.Timer = function () {
         this.currentSeconds = 0;
         this.loadedMinutes = 0;
         this.loadedSeconds = 0;
+        this.duration = 0;
         this.isLoaded = false;
 
         this.$view.css("z-index", "100");
@@ -1434,13 +2035,17 @@ var Timer = exports.Timer = function () {
     }, {
         key: "stopCountdown",
         value: function stopCountdown() {
-            clearInterval(this.interval);
+            if (this.interval != null) {
+                clearInterval(this.interval);
+                this.interval = null;
+            }
             this._clearCurrentTime();
             this._updateText();
         }
     }, {
         key: "setDuration",
         value: function setDuration(duration) {
+            this.duration = duration;
             this.loadedMinutes = parseInt(duration / 60);
             this.loadedSeconds = parseInt(duration % 60);
             this.isLoaded = true;
@@ -1510,13 +2115,111 @@ var Timer = exports.Timer = function () {
 
             return text;
         }
+    }, {
+        key: "setTime",
+        value: function setTime(seconds) {
+            this.currentMinutes = parseInt(seconds / 60);
+            this.currentSeconds = parseInt(seconds % 60);
+            this._updateText();
+        }
     }]);
 
     return Timer;
 }();
 
 /***/ }),
-/* 21 */
+/* 25 */
+/***/ (function(module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ProgressBar = exports.ProgressBar = function () {
+    function ProgressBar($view) {
+        _classCallCheck(this, ProgressBar);
+
+        this.$view = $view;
+        this.progress = 0.0;
+        this.$slider = $view.find('.media-recorder-progress-bar-slider');
+        this.maxWidth = $view[0].offsetWidth - this.$slider[0].offsetWidth;
+        var self = this;
+        this.$slider.draggable({
+            axis: "x",
+            containment: "parent",
+            start: function start(event, ui) {
+                self._startDragging();
+            },
+            stop: function stop(event, ui) {
+                self._stopDragging();
+            }
+        });
+    }
+
+    _createClass(ProgressBar, [{
+        key: "setProgress",
+        value: function setProgress(progress) {
+            this.progress = progress;
+            if (this.progress > 1.0) this.progress = 1.0;
+            if (this.progress < 0.0) this.progress = 0.0;
+            this._updateView();
+        }
+    }, {
+        key: "reset",
+        value: function reset() {
+            this.setProgress(0.0);
+        }
+    }, {
+        key: "_updateView",
+        value: function _updateView() {
+            this._updateMaxWidth();
+            var left = Math.round(this.maxWidth * this.progress);
+            this.$slider.css('left', left + 'px');
+        }
+    }, {
+        key: "_updateMaxWidth",
+        value: function _updateMaxWidth() {
+            if (this.maxWidth === 0) {
+                this.maxWidth = this.$view[0].offsetWidth - this.$slider[0].offsetWidth;
+            }
+        }
+    }, {
+        key: "_startDragging",
+        value: function _startDragging() {
+            if (this.onStartDraggingCallback) {
+                this.onStartDraggingCallback();
+            }
+        }
+    }, {
+        key: "_stopDragging",
+        value: function _stopDragging() {
+            if (this.onStopDraggingCallback) {
+                this._updateMaxWidth();
+                this.progress = this.$slider[0].offsetLeft / this.maxWidth;
+                this.onStopDraggingCallback(this.progress);
+            }
+        }
+    }, {
+        key: "onStartDragging",
+        set: function set(callback) {
+            this.onStartDraggingCallback = callback;
+        }
+    }, {
+        key: "onStopDragging",
+        set: function set(callback) {
+            this.onStopDraggingCallback = callback;
+        }
+    }]);
+
+    return ProgressBar;
+}();
+
+/***/ }),
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1526,7 +2229,7 @@ exports.AddonState = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BlobService = __webpack_require__(22);
+var _BlobService = __webpack_require__(27);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1608,7 +2311,7 @@ var AddonState = exports.AddonState = function () {
 }();
 
 /***/ }),
-/* 22 */
+/* 27 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1673,7 +2376,7 @@ var BlobService = exports.BlobService = function () {
 }();
 
 /***/ }),
-/* 23 */
+/* 28 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1738,130 +2441,58 @@ var RecordingTimeLimiter = exports.RecordingTimeLimiter = function () {
 }();
 
 /***/ }),
-/* 24 */
-/***/ (function(module, exports) {
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.DottedSoundIntensity = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _SoundIntensity2 = __webpack_require__(3);
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var SoundIntensity = exports.SoundIntensity = function () {
-    function SoundIntensity($view) {
-        _classCallCheck(this, SoundIntensity);
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-        this.$view = $view;
-        this.volumeLevels = 6;
-        this.interval = null;
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var DottedSoundIntensity = exports.DottedSoundIntensity = function (_SoundIntensity) {
+    _inherits(DottedSoundIntensity, _SoundIntensity);
+
+    function DottedSoundIntensity() {
+        _classCallCheck(this, DottedSoundIntensity);
+
+        return _possibleConstructorReturn(this, (DottedSoundIntensity.__proto__ || Object.getPrototypeOf(DottedSoundIntensity)).apply(this, arguments));
     }
 
-    _createClass(SoundIntensity, [{
-        key: "startAnalyzing",
-        value: function startAnalyzing(analyser) {
-            var _this = this;
-
-            this.interval = setInterval(function () {
-                return _this._updateIntensity(analyser);
-            }, 100);
-        }
-    }, {
-        key: "stopAnalyzing",
-        value: function stopAnalyzing() {
-            if (this.interval) clearInterval(this.interval);
-            this._clearIntensity();
-        }
-    }, {
-        key: "destroy",
-        value: function destroy() {
-            this.stopAnalyzing();
-            this.interval = null;
-            this.$view.remove();
-            this.$view = null;
-        }
-    }, {
-        key: "_updateIntensity",
-        value: function _updateIntensity(analyser) {
-            var frequencyArray = new Uint8Array(analyser.frequencyBinCount);
-            analyser.getByteFrequencyData(frequencyArray);
-            var avgVolume = this._calculateAvgVolume(frequencyArray);
-            var raisedVolume = this._raiseVolume(avgVolume);
-            var alignedVolume = this._alignVolume(raisedVolume);
-            var intensity = alignedVolume * this.volumeLevels;
-
-            this._setIntensity(intensity);
-        }
-    }, {
-        key: "_calculateAvgVolume",
-        value: function _calculateAvgVolume(volumeArray) {
-            var sum = 0;
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-                for (var _iterator = volumeArray[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var i = _step.value;
-
-                    sum += i;
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
-                    }
-                } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
-            }
-
-            return sum / volumeArray.length;
-        }
-    }, {
-        key: "_raiseVolume",
-        value: function _raiseVolume(volume) {
-            return volume > 0 ? volume * 1.2 : volume;
-        }
-    }, {
-        key: "_alignVolume",
-        value: function _alignVolume(volume) {
-            volume = volume > 0 ? volume : 0;
-            volume = volume < 64 ? volume : 64;
-            return volume / 64;
-        }
-    }, {
-        key: "_setIntensity",
+    _createClass(DottedSoundIntensity, [{
+        key: '_setIntensity',
         value: function _setIntensity(intensity) {
             this._clearIntensity();
-            for (var currentLevel = 1; currentLevel <= intensity; currentLevel++) {
-                var levelId = "#sound-intensity-" + currentLevel;
-                var $level = this.$view.find(levelId);
-                $level.addClass("selected");
-            }
+            var cappedIntensity = intensity;
+            if (cappedIntensity > this.volumeLevels) cappedIntensity = this.volumeLevels;
+            var heightPercent = cappedIntensity / this.volumeLevels;
+            var heightDiff = heightPercent * (this.$view[0].offsetHeight - 6);
+            var tallDotNewHeight = Math.round(6 + heightDiff);
+            var shortDotNewHeight = Math.round(6 + heightDiff / 2);
+            this.$view.find('.tall-dot').css('height', tallDotNewHeight + 'px');
+            this.$view.find('.short-dot').css('height', shortDotNewHeight + 'px');
         }
     }, {
-        key: "_clearIntensity",
+        key: '_clearIntensity',
         value: function _clearIntensity() {
-            for (var currentLevel = 1; currentLevel <= this.volumeLevels; currentLevel++) {
-                var levelId = "#sound-intensity-" + currentLevel;
-                var $level = this.$view.find(levelId);
-                $level.removeClass("selected");
-            }
+            this.$view.find('.sound-intensity-dot').css('height', '');
         }
     }]);
 
-    return SoundIntensity;
-}();
+    return DottedSoundIntensity;
+}(_SoundIntensity2.SoundIntensity);
 
 /***/ }),
-/* 25 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1871,7 +2502,7 @@ exports.MediaAnalyserService = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _AnalyserProvider = __webpack_require__(26);
+var _AnalyserProvider = __webpack_require__(31);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1939,7 +2570,7 @@ var MediaAnalyserService = exports.MediaAnalyserService = function () {
 }();
 
 /***/ }),
-/* 26 */
+/* 31 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1974,7 +2605,7 @@ var AnalyserProvider = exports.AnalyserProvider = function () {
 }();
 
 /***/ }),
-/* 27 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -1984,7 +2615,7 @@ exports.AudioLoader = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Loader2 = __webpack_require__(28);
+var _Loader2 = __webpack_require__(33);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2017,7 +2648,7 @@ var AudioLoader = exports.AudioLoader = function (_Loader) {
 }(_Loader2.Loader);
 
 /***/ }),
-/* 28 */
+/* 33 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2059,7 +2690,7 @@ var Loader = exports.Loader = function () {
 }();
 
 /***/ }),
-/* 29 */
+/* 34 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2148,7 +2779,7 @@ var SoundEffect = exports.SoundEffect = function () {
 }();
 
 /***/ }),
-/* 30 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2228,7 +2859,7 @@ var RecordButtonSoundEffect = exports.RecordButtonSoundEffect = function (_Recor
 }(_RecordButton2.RecordButton);
 
 /***/ }),
-/* 31 */
+/* 36 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2272,7 +2903,7 @@ var AddonViewService = exports.AddonViewService = function () {
 }();
 
 /***/ }),
-/* 32 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2282,7 +2913,7 @@ exports.AudioResourcesProvider = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ResourcesProvider2 = __webpack_require__(33);
+var _ResourcesProvider2 = __webpack_require__(38);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2314,7 +2945,7 @@ var AudioResourcesProvider = exports.AudioResourcesProvider = function (_Resourc
 }(_ResourcesProvider2.ResourcesProvider);
 
 /***/ }),
-/* 33 */
+/* 38 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2376,7 +3007,7 @@ var ResourcesProvider = exports.ResourcesProvider = function () {
 }();
 
 /***/ }),
-/* 34 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2386,7 +3017,7 @@ exports.AudioRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BaseRecorder2 = __webpack_require__(35);
+var _BaseRecorder2 = __webpack_require__(40);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2411,14 +3042,15 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
 
             var options = {
                 type: 'audio',
+                mimeType: 'audio/wav',
                 numberOfAudioChannels: isEdge ? 1 : 2,
                 checkForInactiveTracks: true,
                 bufferSize: 16384,
-                disableLogs: true
+                disableLogs: true,
+                recorderType: RecordRTC.StereoAudioRecorder
             };
 
             if (isSafari) {
-                options.recorderType = StereoAudioRecorder;
                 options.bufferSize = 4096;
                 options.sampleRate = 44100;
             }
@@ -2431,7 +3063,7 @@ var AudioRecorder = exports.AudioRecorder = function (_BaseRecorder) {
 }(_BaseRecorder2.BaseRecorder);
 
 /***/ }),
-/* 35 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2441,7 +3073,7 @@ exports.BaseRecorder = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Recorder2 = __webpack_require__(36);
+var _Recorder2 = __webpack_require__(41);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2546,7 +3178,7 @@ var BaseRecorder = exports.BaseRecorder = function (_Recorder) {
 }(_Recorder2.Recorder);
 
 /***/ }),
-/* 36 */
+/* 41 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2590,7 +3222,7 @@ var Recorder = exports.Recorder = function () {
 }();
 
 /***/ }),
-/* 37 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2600,7 +3232,7 @@ exports.AudioPlayer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _BasePlayer2 = __webpack_require__(38);
+var _BasePlayer2 = __webpack_require__(43);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2631,7 +3263,7 @@ var AudioPlayer = exports.AudioPlayer = function (_BasePlayer) {
 }(_BasePlayer2.BasePlayer);
 
 /***/ }),
-/* 38 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2641,7 +3273,7 @@ exports.BasePlayer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Player2 = __webpack_require__(39);
+var _Player2 = __webpack_require__(44);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2692,6 +3324,10 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
 
             return new Promise(function (resolve) {
                 _this3.mediaNode.muted = false;
+                if (_this3.onTimeUpdateCallback) {
+                    _this3.mediaNode.addEventListener('timeupdate', _this3.onTimeUpdateCallback);
+                    _this3.mediaNode.addEventListener('ended', _this3.onTimeUpdateCallback);
+                }
                 if (_this3._isNotOnlineResources(_this3.mediaNode.src)) resolve(_this3.mediaNode);
                 _this3.mediaNode.play();
             });
@@ -2704,6 +3340,34 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             return new Promise(function (resolve) {
                 _this4.mediaNode.pause();
                 _this4.mediaNode.currentTime = 0;
+                if (_this4.onTimeUpdateCallback) {
+                    _this4.mediaNode.removeEventListener('timeupdate', _this4.onTimeUpdateCallback);
+                    _this4.mediaNode.removeEventListener('ended', _this4.onTimeUpdateCallback);
+                }
+                resolve();
+            });
+        }
+    }, {
+        key: "pausePlaying",
+        value: function pausePlaying() {
+            var _this5 = this;
+
+            return new Promise(function (resolve) {
+                _this5.mediaNode.pause();
+                if (_this5.onTimeUpdateCallback) {
+                    _this5.mediaNode.removeEventListener('timeupdate', _this5.onTimeUpdateCallback);
+                    _this5.mediaNode.removeEventListener('ended', _this5.onTimeUpdateCallback);
+                }
+                resolve();
+            });
+        }
+    }, {
+        key: "setProgress",
+        value: function setProgress(progress) {
+            var _this6 = this;
+
+            return new Promise(function (resolve) {
+                _this6.mediaNode.currentTime = Math.round(_this6.duration * progress);
                 resolve();
             });
         }
@@ -2761,28 +3425,33 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
             this.item = item;
         }
     }, {
+        key: "getCurrentTime",
+        value: function getCurrentTime() {
+            return this.mediaNode.currentTime;
+        }
+    }, {
         key: "_enableEventsHandling",
         value: function _enableEventsHandling() {
-            var _this5 = this;
+            var _this7 = this;
 
             var self = this;
             this.mediaNode.onloadstart = function () {
-                return _this5.onStartLoadingCallback();
+                return _this7.onStartLoadingCallback();
             };
             this.mediaNode.onended = function () {
-                return _this5.onEndPlayingCallback();
+                return _this7.onEndPlayingCallback();
             };
             this.mediaNode.onplay = function () {
-                return _this5._onPlayCallback();
+                return _this7._onPlayCallback();
             };
             this.mediaNode.onpause = function () {
-                return _this5._onPausedCallback();
+                return _this7._onPausedCallback();
             };
 
             if (this._isMobileSafari()) this.mediaNode.onloadedmetadata = function () {
                 self.onEndLoadingCallback();
             };else this.mediaNode.oncanplay = function () {
-                return _this5.onEndLoadingCallback();
+                return _this7.onEndLoadingCallback();
             };
         }
     }, {
@@ -2802,12 +3471,12 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
     }, {
         key: "_getDuration",
         value: function _getDuration() {
-            var _this6 = this;
+            var _this8 = this;
 
             // faster resolution then
             // this.mediaNode.ondurationchange = () => this.onDurationChangeCallback(this.mediaNode.duration)
             return new Promise(function (resolve) {
-                var playerMock = new Audio(_this6.mediaNode.src);
+                var playerMock = new Audio(_this8.mediaNode.src);
                 playerMock.addEventListener("durationchange", function () {
                     if (this.duration != Infinity) {
                         resolve(this.duration);
@@ -2862,13 +3531,20 @@ var BasePlayer = exports.BasePlayer = function (_Player) {
         value: function _createMediaNode() {
             throw new Error("GetMediaNode accessor is not implemented");
         }
+    }, {
+        key: "_onTimeUpdateEvent",
+        value: function _onTimeUpdateEvent(event) {
+            if (this.onTimeUpdateCallback) {
+                this.onTimeUpdateCallback(event);
+            }
+        }
     }]);
 
     return BasePlayer;
 }(_Player2.Player);
 
 /***/ }),
-/* 39 */
+/* 44 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -2902,6 +3578,16 @@ var Player = exports.Player = function () {
             throw new Error("StopPlaying method is not implemented");
         }
     }, {
+        key: "pausePlaying",
+        value: function pausePlaying() {
+            throw new Error("pausePlaying method is not implemented");
+        }
+    }, {
+        key: "setProgress",
+        value: function setProgress(progress) {
+            throw new Error("setProgress method is not implemented");
+        }
+    }, {
         key: "startStreaming",
         value: function startStreaming(stream) {
             throw new Error("StartStreaming method is not implemented");
@@ -2910,6 +3596,11 @@ var Player = exports.Player = function () {
         key: "stopStreaming",
         value: function stopStreaming() {
             throw new Error("StopStreaming method is not implemented");
+        }
+    }, {
+        key: "getCurrentTime",
+        value: function getCurrentTime() {
+            throw new Error("getCurrentTime method is not implemented");
         }
     }, {
         key: "setEventBus",
@@ -2954,13 +3645,20 @@ var Player = exports.Player = function () {
                 return callback(duration);
             };
         }
+    }, {
+        key: "onTimeUpdate",
+        set: function set(callback) {
+            this.onTimeUpdateCallback = function (event) {
+                return callback(event);
+            };
+        }
     }]);
 
     return Player;
 }();
 
 /***/ }),
-/* 40 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -3036,7 +3734,7 @@ var DefaultRecordingPlayButton = exports.DefaultRecordingPlayButton = function (
 }(_Button2.Button);
 
 /***/ }),
-/* 41 */
+/* 46 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
