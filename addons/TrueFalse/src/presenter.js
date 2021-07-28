@@ -12,6 +12,7 @@ function AddonTrueFalse_create() {
     presenter.keyboardNavigationCurrentElement = null;
     presenter.keyboardNavigationElements = [];
     presenter.keyboardNavigationElementsLen = 0;
+    presenter.printableState = null;
 
     var possibleChoices = [];
     var multi = false;
@@ -556,6 +557,12 @@ function AddonTrueFalse_create() {
             }
         }
     };
+
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state);
+    }
 
     presenter.setShowErrorsMode = function () {
         if (isNotActivity) {
@@ -1123,6 +1130,10 @@ function AddonTrueFalse_create() {
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
+        var isMulti = model['Multi'] === 'True';
+        var userAnswers = getUserResponses();
+        var didUserRespond = userAnswers.some(answer => answer === true);
+        var choiceLength = model.Choices.length
 
         var $view = $("<div></div>");
         $view.attr('id', model.ID);
@@ -1134,10 +1145,15 @@ function AddonTrueFalse_create() {
         //Header row
         var $trHead = $("<tr></tr>");
         $trHead.append("<td></td>");
-        for (var i = 0; i < model.Choices.length; i++) {
+        for (var i = 0; i < choiceLength; i++) {
             var choice = model.Choices[i];
             var $td = $("<td></td>");
             $td.html(choice.Choice);
+            if (isMulti && showAnswers && didUserRespond) {
+                $td.attr('colspan', '2');
+            } else if (!isMulti && showAnswers && didUserRespond && i === (choiceLength - 1)) {
+                $td.attr('colspan', '2');
+            }
             $trHead.append($td);
         }
         $tbody.append($trHead);
@@ -1154,7 +1170,7 @@ function AddonTrueFalse_create() {
             var answers = [];
             if (showAnswers) answers = question.Answer.split(',');
 
-            for (var j = 0; j < model.Choices.length; j++) {
+            for (var j = 0; j < choiceLength; j++) {
                 var $td = $("<td></td>");
                 $td.addClass("checkbox-container");
                 $td.addClass("checkbox-" + (i+1) + "-" + (j+1));
@@ -1162,13 +1178,30 @@ function AddonTrueFalse_create() {
                 $inputDiv.addClass("placeholder");
                 $td.append($inputDiv);
                 var $checkbox = $("<input type=\"checkbox\"> </input>")
-                if (showAnswers && answers.indexOf((j+1).toString()) != -1) {
+                var userAnswerIndex = i * choiceLength + j;
+                if (didUserRespond && userAnswers[userAnswerIndex]) {
+                    $checkbox.attr("checked", "checked");
+                } else if (showAnswers && answers.indexOf((j+1).toString()) != -1 && !didUserRespond) {
                     $checkbox.attr("checked", "checked");
                 }
+
                 $td.append($checkbox);
                 var $checkboxSpan = $("<span></span>");
                 $td.append($checkboxSpan);
                 $tr.append($td);
+
+                if (showAnswers && isMulti && userAnswers[userAnswerIndex]) {
+                    var $markCell = $("<td></td>");
+                    var $markDiv = $("<div></div>");
+                    isAnswerCorrect(answers, userAnswers, i, j, choiceLength) ? $markDiv.addClass("correctAnswerMark") : $markDiv.addClass("incorrectAnswerMark");
+                    $markCell.append($markDiv);
+                    $tr.append($markCell);
+                } else if (showAnswers && didUserRespond && isMulti) {
+                    addCell(answers, userAnswers, $tr, i, choiceLength);
+                }
+            }
+            if (showAnswers && !isMulti && didUserRespondOnQuestion(userAnswers, i, choiceLength)) {
+                addCell(answers, userAnswers, $tr, i, choiceLength, true);
             }
             $tbody.append($tr);
         }
@@ -1177,6 +1210,43 @@ function AddonTrueFalse_create() {
         $view.append($table);
         return $view[0].outerHTML;
     };
+
+    function getUserResponses() {
+        if (presenter.printableState && presenter.printableState.hasOwnProperty('selectedElements')) {
+            return presenter.printableState['selectedElements']
+        }
+        return [];
+    }
+
+    function addCell(answers, userAnswers, $tableRow, i, choiceLength, shouldAddMark = false) {
+        var $td = $("<td></td>");
+        var $markDiv = $("<div></div>");
+        if (shouldAddMark) {
+            areAnswersCorrect(answers, userAnswers, i, choiceLength) ? $markDiv.addClass("correctAnswerMark")
+                : $markDiv.addClass("incorrectAnswerMark");
+        }
+        $td.append($markDiv);
+        $tableRow.append($td);
+    }
+
+    function didUserRespondOnQuestion(userAnswers, i, choiceLength) {
+        return userAnswers.slice(i * choiceLength, (i + 1) * choiceLength).some(answer => answer);
+    }
+
+    function areAnswersCorrect(correctAnswer, userAnswer, i, choiceLength) {
+        var areCorrect = false;
+        correctAnswer.forEach(answer => {
+            var index = +answer - 1;
+            if (userAnswer[i * choiceLength + index]) {
+                areCorrect = true;
+            }
+        });
+        return areCorrect;
+    }
+
+    function isAnswerCorrect(correctAnswers, userAnswer, i, j, choiceLength) {
+        return correctAnswers.indexOf((j + 1).toString()) !== -1 && userAnswer[i * choiceLength + j];
+    }
 
     return presenter;
 }
