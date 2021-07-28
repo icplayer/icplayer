@@ -289,18 +289,18 @@ function AddonQuiz_create() {
                     state.score[state.currentQuestion - 1] = 1;
                     $this.addClass(CSS_CLASSES.CORRECT);
                     eventBus.sendEvent('ValueChanged', eventData);
-                    if (state.currentQuestion == presenter.config.questions.length) {
+                    if (isLastQuestion()) {
                         gameWonMessage();
                         eventBus.sendEvent('ValueChanged', presenter.createAllOKEventData());
                         unbindEvents();
                     } else {
                         presenter.nextButton.addClass(CSS_CLASSES.ACTIVE);
                         unbindEvents(presenter.nextButton);
-                        if (presenter.config.nextAfterSelect) {
+                        if (presenter.config.nextAfterSelect 
+                            && !presenter.isWCAGOn) {
                             unbindEvents();
                             setTimeout(function () {
-                                nextButtonAction();
-                                bindEvents();
+                                nextAfterSelectCallback();
                             }, 500);
                         }
                     }
@@ -324,7 +324,7 @@ function AddonQuiz_create() {
                 }
                 eventBus.sendEvent('ValueChanged', eventData);
 
-                if (state.currentQuestion === presenter.config.questions.length) {
+                if (isLastQuestion()) {
                     if (getScore() >= presenter.config.questions.length) {
                         gameWonMessage();
                         state.wasWrong = false;
@@ -337,11 +337,11 @@ function AddonQuiz_create() {
                 } else {
                     presenter.nextButton.addClass(CSS_CLASSES.ACTIVE);
                     unbindEvents(presenter.nextButton);
-                    if (presenter.config.nextAfterSelect) {
+                    if (presenter.config.nextAfterSelect 
+                        && !presenter.isWCAGOn) {
                         unbindEvents();
                         setTimeout(function () {
-                            nextButtonAction();
-                            bindEvents();
+                            nextAfterSelectCallback();
                         }, 500);
                     }
                 }
@@ -377,6 +377,15 @@ function AddonQuiz_create() {
 
     function getCurrentQuestion() {
         return presenter.config.questions[state.currentQuestion - 1];
+    }
+
+    function isLastQuestion() {
+        return state.currentQuestion === presenter.config.questions.length;
+    }
+
+    function nextAfterSelectCallback() {
+        nextButtonAction();
+        bindEvents();
     }
 
     function fiftyFiftyAction(e) {
@@ -426,8 +435,10 @@ function AddonQuiz_create() {
             state.answersOrder = false;
             state.currentQuestion++;
             presenter.showCurrentQuestion();
-            presenter.keyboardControllerObject.markCurrentElement(0)
-            presenter.keyboardControllerObject.readCurrentElement()
+            if (presenter.keyboardControllerObject.keyboardNavigationActive) {
+                presenter.keyboardControllerObject.markCurrentElement(0);
+                presenter.keyboardControllerObject.readCurrentElement();
+            }
             bindEvents();
         }
     }
@@ -848,7 +859,7 @@ function AddonQuiz_create() {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
-        if (!model['langAttribute']) {
+        if (upgradedModel['langAttribute'] === undefined) {
             upgradedModel['langAttribute'] =  '';
         }
 
@@ -932,6 +943,13 @@ function AddonQuiz_create() {
         }
     };
 
+    presenter.speakWithCallback = function (data, callbackFunction) {
+        var tts = presenter.getTextToSpeechOrNull(playerController);
+        if (tts && presenter.isWCAGOn) {
+            tts.speakWithCallback(data, callbackFunction);
+        }
+    }
+
     presenter.buildKeyboardController = function () {
         presenter.keyboardControllerObject
             = new QuizKeyboardController(
@@ -976,6 +994,11 @@ function AddonQuiz_create() {
 
     QuizKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
     QuizKeyboardController.prototype.constructor = QuizKeyboardController;
+
+    QuizKeyboardController.prototype.exitWCAGMode = function () {
+        KeyboardController.prototype.exitWCAGMode.call(this);
+        presenter.setWCAGStatus(false);
+    };
 
     QuizKeyboardController.prototype.reload = function (elements, columnsCount) {
         this.isSelectEnabled = true;
@@ -1208,7 +1231,15 @@ function AddonQuiz_create() {
             if ($gameMessage.length !== 0) {
                 voicesArray = updateCommentFieldTextVoiceObjectWithSummary(voicesArray, $gameMessage);
             }
-            presenter.speak(voicesArray);
+            
+            if (!isLastQuestion() 
+                && presenter.config.nextAfterSelect 
+                && presenter.isWCAGOn) {
+                presenter.speakWithCallback(
+                    voicesArray, nextAfterSelectCallback);
+            } else {
+                presenter.speak(voicesArray);
+            }
         }
     }
 
