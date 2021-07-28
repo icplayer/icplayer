@@ -2050,6 +2050,8 @@ var ice_dictionary_en = {
     "Media_Recorder_property_is_showed_timer": "Show timer",
     "Media_Recorder_property_enable_in_error_checking_mode": "Enable in error checking mode",
     "Media_Recorder_property_extended_mode": "Extended mode",
+    "Media_Recorder_property_is_disable_recording": "Disable recording",
+    "Media_Recorder_property_is_enable_intensity_events": "Enable intensity change events",
     "Media_Recorder_property_reset_dialog_labels": "Reset dialog box",
     "Media_Recorder_property_reset_dialog_text": "Text",
     "Media_Recorder_property_reset_dialog_confirm": "Yes",

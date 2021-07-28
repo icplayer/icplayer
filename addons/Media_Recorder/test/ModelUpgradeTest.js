@@ -72,5 +72,35 @@ TestCase("[Media Recorder] Model upgrade", {
         assertTrue(upgradeModel["resetDialogLabels"]['resetDialogDeny'] !== undefined);
         assertTrue(upgradeModel["resetDialogLabels"]['resetDialogDeny']['resetDialogLabel'] !== undefined);
         assertEquals("3", upgradeModel["resetDialogLabels"]['resetDialogDeny']['resetDialogLabel']);
-    }
+    },
+
+    "test given model without disableRecording when _upgradeModel is called then disableRecording is added with default value": function () {
+        var upgradeModel = this.presenter._internalUpgradeModel(this.model);
+
+        assertTrue(upgradeModel["disableRecording"] !== undefined);
+        assertEquals("False", upgradeModel["disableRecording"]);
+    },
+
+    "test given model with disableRecording when _upgradeModel is called then disableRecording value remains unchanged": function () {
+        this.model["disableRecording"] = "True";
+        var upgradeModel = this.presenter._internalUpgradeModel(this.model);
+
+        assertTrue(upgradeModel["disableRecording"] !== undefined);
+        assertEquals("True", upgradeModel["disableRecording"]);
+    },
+
+    "test given model without enableIntensityChangeEvents when _upgradeModel is called then enableIntensityChangeEvents is added with default value": function () {
+        var upgradeModel = this.presenter._internalUpgradeModel(this.model);
+
+        assertTrue(upgradeModel["enableIntensityChangeEvents"] !== undefined);
+        assertEquals("False", upgradeModel["enableIntensityChangeEvents"]);
+    },
+
+    "test given model with enableIntensityChangeEvents when _upgradeModel is called then enableIntensityChangeEvents value remains unchanged": function () {
+        this.model["enableIntensityChangeEvents"] = "True";
+        var upgradeModel = this.presenter._internalUpgradeModel(this.model);
+
+        assertTrue(upgradeModel["enableIntensityChangeEvents"] !== undefined);
+        assertEquals("True", upgradeModel["enableIntensityChangeEvents"]);
+    },
 });

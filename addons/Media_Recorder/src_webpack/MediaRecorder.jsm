@@ -67,6 +67,9 @@ export class MediaRecorder {
                 this.mediaState.setLoading();
                 let recording = URL.createObjectURL(blob);
                 this.player.setRecording(recording);
+                if (this.model.extendedMode) {
+                    this.setEMRecordedStateView();
+                }
             });
         this.addonState.getVisibility()
             .then(isVisible => {
@@ -229,7 +232,9 @@ export class MediaRecorder {
             this._prepareExtendedModeView();
             this.setEMDefaultStateView();
         }
-
+        if (this.model.disableRecording) {
+            this._hidePlayAndTimerWidgets();
+        }
         this.mediaState = new MediaState();
         this.activationState = new ActivationState();
         this.addonState = new AddonState();
@@ -260,6 +265,12 @@ export class MediaRecorder {
         this.viewHandlers.$timerView.insertBefore(this.viewHandlers.$playButtonView);
     }
 
+    _hidePlayAndTimerWidgets() {
+        this.viewHandlers.$playButtonView.hide();
+        this.viewHandlers.$defaultRecordingPlayButtonView.hide();
+        this.viewHandlers.$timerView.hide();
+    }
+
     _loadMediaElements() {
         this.recorder = new AudioRecorder();
         this.player = new AudioPlayer(this.viewHandlers.$playerView);
@@ -274,6 +285,7 @@ export class MediaRecorder {
         this.player.setEventBus(eventBus, this.model.ID, "player");
         this.defaultRecordingPlayer.setEventBus(eventBus, this.model.ID, "default");
         this.recorder.setEventBus(eventBus, this.model.ID);
+        this.eventBus = eventBus;
     }
 
     _loadViewElements() {
@@ -314,6 +326,9 @@ export class MediaRecorder {
              this.soundIntensity = new SoundIntensity(this.viewHandlers.$soundIntensityView);
              this.viewHandlers.$dottedSoundIntensityView.css('display', 'none');
         }
+        if (this.eventBus && this.model.enableIntensityChangeEvents) {
+            this.soundIntensity.setEventBus(this.eventBus, this.model.ID);
+        }
 
         this._hideSelectedElements();
     }
@@ -333,7 +348,11 @@ export class MediaRecorder {
     setEMDefaultStateView() {
         this.viewHandlers.$defaultRecordingPlayButtonView.css('display', 'none');
         this.viewHandlers.$recordButtonView.css('display', '');
-        this.viewHandlers.$timerView.css('display','');
+        if (this.model.disableRecording) {
+            this.viewHandlers.$timerView.css('display', 'none');
+        } else {
+            this.viewHandlers.$timerView.css('display','');
+        }
         if (this.soundIntensity) {
             this.soundIntensity.show();
         }
@@ -402,18 +421,27 @@ export class MediaRecorder {
                 this.soundIntensity.stopAnalyzing();
                 this.mediaAnalyserService.closeAnalyzing();
                 this.player.stopStreaming();
-                this.recorder.stopRecording()
-                    .then(blob => {
-                        this.addonState.setRecordingBlob(blob);
-                        let recording = URL.createObjectURL(blob);
-                        this.player.reset();
-                        this.player.setRecording(recording);
-                    });
+                if (!this.model.disableRecording) {
+                    this.recorder.stopRecording()
+                        .then(blob => {
+                            this.addonState.setRecordingBlob(blob);
+                            let recording = URL.createObjectURL(blob);
+                            this.player.reset();
+                            this.player.setRecording(recording);
+                        });
+                }
                 this.resourcesProvider.destroy();
                 this.safariRecorderState.setUnavailableResources();
             }
             if (this.model.extendedMode) {
-                this.setEMRecordedStateView();
+                if (this.model.disableRecording) {
+                    this.setEMDefaultStateView();
+                } else {
+                    this.setEMRecordedStateView();
+                }
+            }
+            if (this.model.disableRecording) {
+                this.mediaState.setLoaded();
             }
         };
 
@@ -545,10 +573,12 @@ export class MediaRecorder {
     _handleRecording(stream) {
         this.mediaState.setRecording();
         this.player.startStreaming(stream);
-        this.recorder.startRecording(stream);
-        this.timer.reset();
-        this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
-        this.recordingTimeLimiter.startCountdown();
+        if (!this.model.disableRecording) {
+            this.recorder.startRecording(stream);
+            this.timer.reset();
+            this.timer.startDecrementalCountdown(this.recordingTimeLimiter.maxTime);
+            this.recordingTimeLimiter.startCountdown();
+        }
         this.mediaAnalyserService.createAnalyserFromStream(stream)
             .then(analyser => this.soundIntensity.startAnalyzing(analyser));
     };
@@ -761,6 +791,8 @@ export class MediaRecorder {
         upgradedModel = this._upgradeEnableInErrorCheckigMode(upgradedModel);
         upgradedModel = this._upgradeExtendedMode(upgradedModel);
         upgradedModel = this._upgradeResetDialog(upgradedModel);
+        upgradedModel = this._upgradeDisableRecording(upgradedModel);
+        upgradedModel = this._upgradeEnableIntensityChangeEvents(upgradedModel);
         return upgradedModel;
     };
 
@@ -811,4 +843,26 @@ export class MediaRecorder {
 
         return upgradedModel;
     }
+
+    _upgradeDisableRecording(model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["disableRecording"]) {
+            upgradedModel["disableRecording"] = "False";
+        }
+
+        return upgradedModel;
+    };
+
+    _upgradeEnableIntensityChangeEvents(model) {
+        let upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel["enableIntensityChangeEvents"]) {
+            upgradedModel["enableIntensityChangeEvents"] = "False";
+        }
+
+        return upgradedModel;
+    };
 }
