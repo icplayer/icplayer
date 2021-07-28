@@ -12,6 +12,7 @@ function AddonText_Selection_create() {
     presenter._keyboardController = null;
     presenter._firstElementSwitch = true;
     presenter.isGradualShowAnswersActive = false;
+    presenter.printableState = null;
     var isWCAGOn = false;
 
     var SELECTED_SECTION_START = "&\n&SELECTED_SECTION_START&\n&";
@@ -34,6 +35,13 @@ function AddonText_Selection_create() {
         presenter.eventBus = controller.getEventBus();
         presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
+
+    /**
+     * @param controller (PrintableController)
+     */
+    presenter.setPrintableController = function (controller) {
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
+    }
 
     function getEventData(it, val, sc) {
         return {
@@ -1702,6 +1710,13 @@ function AddonText_Selection_create() {
             }
         } while (match);
         return false;
+    };
+
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+
+        presenter.printableState = JSON.parse(state);
     };
 
     presenter.getPrintableHTML = function (model, showAnswers) {
