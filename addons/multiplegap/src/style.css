@@ -8,7 +8,7 @@
 }
 
 .multiplegap_texts .placeholder img,
-.multiplegap_texts .placeholder p,
+.multiplegap_texts .placeholder p
 {
     margin: 0;
     padding: 0;
@@ -40,13 +40,13 @@
     cursor: default;
 }
 
-.printable_addon_multiplegap .correctAnswerSpan::before {
+.printable_addon_multiplegap .correctAnswerSpan::after {
     content: "\2714";
     display: inline-block;
     margin: 3px;
 }
 
-.printable_addon_multiplegap .inCorrectAnswerSpan::before {
+.printable_addon_multiplegap .incorrectAnswerSpan::after {
     content: "\2716";
     display: inline-block;
     margin: 3px;

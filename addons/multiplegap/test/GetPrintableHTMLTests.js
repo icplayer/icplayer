@@ -103,9 +103,9 @@ TestCase("[Multiple Gap] Multiple gap printable HTML validation", {
         //given
         var expectedHtmlValue = `<div id="multiplegap1" class="printable_addon_multiplegap">
                                     <div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;">
-                                        <div><span class="answerSpan">pigeon</span><span class="inCorrectAnswerSpan"></span>, </div><br>
-                                        <div><span class="answerSpan">zebra</span><span class="correctAnswerSpan"></span>, </div><br>
-                                        <div><span class="answerSpan">donkey</span><span class="inCorrectAnswerSpan"></span></div><br>
+                                        <span class="answerSpan incorrectAnswerSpan">pigeon</span>, 
+                                        <span class="answerSpan correctAnswerSpan">zebra</span>, 
+                                        <span class="answerSpan incorrectAnswerSpan">donkey</span>
                                     </div>
                                 </div>`;
         expectedHtmlValue = expectedHtmlValue.replaceAll("\n","");

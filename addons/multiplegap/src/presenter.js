@@ -1824,18 +1824,18 @@ function Addonmultiplegap_create(){
     function prepareCheckedAnswerToPrint (answerHTML, i, ...answers){
         if (answers[i].isCorrect) {
             if (i < answers.length - 1) {
-                answers[i].value = '<div><span class=answerSpan>' + answers[i].value + '</span><span class="correctAnswerSpan"></span>, </div>';
+                answers[i].value = '<span class="answerSpan correctAnswerSpan">' + answers[i].value + '</span>, ';
             } else {
-                answers[i].value = '<div><span class=answerSpan>' + answers[i].value + '</span><span class="correctAnswerSpan"></span></div>';
+                answers[i].value = '<span class="answerSpan correctAnswerSpan">' + answers[i].value + '</span>';
             }
         } else {
             if (i < answers.length - 1) {
-                answers[i].value = '<div><span class=answerSpan>' + answers[i].value + '</span><span class="inCorrectAnswerSpan"></span>, </div>';
+                answers[i].value = '<span class="answerSpan incorrectAnswerSpan">' + answers[i].value + '</span>, ';
             } else {
-                answers[i].value = '<div><span class=answerSpan>' + answers[i].value + '</span><span class="inCorrectAnswerSpan"></span></div>';
+                answers[i].value = '<span class="answerSpan incorrectAnswerSpan">' + answers[i].value + '</span>';
             }
         }
-        answerHTML = answerHTML + answers[i].value + "</br>";
+        answerHTML = answerHTML + answers[i].value;
         return answerHTML;
     }
 
