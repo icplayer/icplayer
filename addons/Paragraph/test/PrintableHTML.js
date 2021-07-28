@@ -23,7 +23,7 @@ TestCase("[Paragraph] get printable HTML", {
         };
     },
 
-    'test display model answer': function () {
+    'test display model answer after getPrintableHTML call when users answer is empty': function () {
         this.model['Show Answers'] = 'This is a testing answer for Paragraph addon.';
         var result = this.presenter.getPrintableHTML(this.model, true);
         result = result.replace(/<(.*?)>/g, '');
@@ -32,7 +32,7 @@ TestCase("[Paragraph] get printable HTML", {
         assertTrue(this.spies.getUsersAnswer.called);
     },
 
-    'test display user answer': function () {
+    'test display user answer after getPrintableHTML call': function () {
         this.presenter['printableState'] = {'usersAnswer' : 'This is an example users answer.'}
         this.model['Show Answers'] = 'This is a testing answer for Paragraph addon.';
         var result = this.presenter.getPrintableHTML(this.model, true);
@@ -42,7 +42,7 @@ TestCase("[Paragraph] get printable HTML", {
         assertTrue(this.spies.getUsersAnswer.called);
     },
 
-    'test update and validate model in printable method': function () {
+    'test update and validate model in printable method on printing HTML': function () {
         this.presenter.getPrintableHTML(this.model, true);
 
         assertTrue(this.spies.upgradeModel.called);

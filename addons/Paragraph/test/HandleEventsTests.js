@@ -34,7 +34,7 @@ TestCase("[Paragraph] handle events related to showing model answer", {
         };
     },
 
-    'test add events listener': function () {
+    'test add events listener on setEventBus invoke': function () {
         this.presenter.setEventBus(this.presenter.eventBus);
 
         var result = this.stubs.addEventListenerStub
@@ -69,11 +69,21 @@ TestCase("[Paragraph] handle events related to showing model answer", {
         assertTrue(this.spies.hideAnswers.called);
     },
 
-    'test disable view': function () {
+    'test disable the addon view on show answers': function () {
         var paragraph = this.presenter.$view.find(".paragraph-wrapper");
 
         this.presenter.showAnswers();
 
         assertTrue(paragraph['0'].classList.contains('disabled'));
     },
+
+    'test enable the addon view on hide answers': function () {
+        var paragraph = this.presenter.$view.find(".paragraph-wrapper");
+        paragraph['0'].classList.add('disabled');
+        this.presenter.isShowAnswersActive = true;
+
+        this.presenter.hideAnswers();
+
+        assertFalse(paragraph['0'].classList.contains('disabled'));
+    }
 });
