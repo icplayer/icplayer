@@ -1780,6 +1780,9 @@ function Addonmultiplegap_create(){
 
         $view.append($wrapper);
 
+        //console.log($view);
+        //console.log($view[0].outerHTML);
+
         return $view[0].outerHTML;
     };
 
@@ -1822,20 +1825,20 @@ function Addonmultiplegap_create(){
     }
 
     function prepareCheckedAnswerToPrint (answerHTML, i, ...answers){
+        element = document.createElement("span");
+        element.classList.add("answerSpan");
         if (answers[i].isCorrect) {
-            if (i < answers.length - 1) {
-                answers[i].value = '<span class="answerSpan correctAnswerSpan">' + answers[i].value + '</span>, ';
-            } else {
-                answers[i].value = '<span class="answerSpan correctAnswerSpan">' + answers[i].value + '</span>';
-            }
+            element.classList.add("correctAnswerSpan");
         } else {
-            if (i < answers.length - 1) {
-                answers[i].value = '<span class="answerSpan incorrectAnswerSpan">' + answers[i].value + '</span>, ';
-            } else {
-                answers[i].value = '<span class="answerSpan incorrectAnswerSpan">' + answers[i].value + '</span>';
-            }
+            element.classList.add("incorrectAnswerSpan");
         }
+        element.innerHTML = answers[i].value;
+        answers[i].value = element.outerHTML;
+
         answerHTML = answerHTML + answers[i].value;
+        if(i < answers.length - 1){
+            answerHTML = answerHTML + ", ";
+        }
         return answerHTML;
     }
 
