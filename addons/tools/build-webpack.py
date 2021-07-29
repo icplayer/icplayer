@@ -18,7 +18,7 @@ def build_windows():
     p.wait()
 
 
-if platform == "linux" or platform == "linux2":
+if platform == "linux" or platform == "linux2" or platform == "darwin":
     build_linux()
 else:
     build_windows()
