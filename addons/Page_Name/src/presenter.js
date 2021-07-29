@@ -35,7 +35,7 @@ function AddonPage_Name_create() {
         printableController = controller;
     };
 
-    presenter.getPrintableHTML = function(model, showAnswers) {
+    presenter.getPrintableHTML = function (model, showAnswers) {
         var $view = $("<div></div>");
         $view.attr("id", model.ID);
         $view.addClass("printable_addon_pagename");
