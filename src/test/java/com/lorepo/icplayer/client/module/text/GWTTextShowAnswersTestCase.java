@@ -177,7 +177,8 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 	public void testTreatPlaceholderAsError() {
 	    String className = "wrong";
 
-		this.gapWidget5.setShowErrorsMode(true, false);
+        this.gapWidget5.setIgnorePlaceholder(false);
+		this.gapWidget5.setShowErrorsMode(true);
 		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
 
 		assertTrue(isDefaultClass5);
@@ -187,7 +188,8 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 	public void testTreatPlaceholderAsEmpty() {
 	    String className = "empty";
 
-		this.gapWidget5.setShowErrorsMode(true, true);
+        this.gapWidget5.setIgnorePlaceholder(true);
+		this.gapWidget5.setShowErrorsMode(true);
 		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
 
 		assertTrue(isDefaultClass5);
@@ -198,7 +200,8 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 	    String className = "wrong";
 
         this.gap5Element.setAttribute("value", "Terrain");
-		this.gapWidget5.setShowErrorsMode(true, false);
+        this.gapWidget5.setIgnorePlaceholder(false);
+		this.gapWidget5.setShowErrorsMode(true);
 		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
 
 		assertTrue(isDefaultClass5);
@@ -209,7 +212,8 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 	    String className = "wrong";
 
         this.gap5Element.setAttribute("value", "Terrain");
-		this.gapWidget5.setShowErrorsMode(true, true);
+        this.gapWidget5.setIgnorePlaceholder(true);
+		this.gapWidget5.setShowErrorsMode(true);
 		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
 
 		assertTrue(isDefaultClass5);
@@ -220,7 +224,8 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 	    String className = "correct";
 
         this.gap5Element.setAttribute("value", "Trex");
-		this.gapWidget5.setShowErrorsMode(true, false);
+        this.gapWidget5.setIgnorePlaceholder(false);
+		this.gapWidget5.setShowErrorsMode(true);
 		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
 
 		assertTrue(isDefaultClass5);
@@ -231,7 +236,8 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 	    String className = "correct";
 
         this.gap5Element.setAttribute("value", "Trex");
-		this.gapWidget5.setShowErrorsMode(true, true);
+        this.gapWidget5.setIgnorePlaceholder(true);
+		this.gapWidget5.setShowErrorsMode(true);
 		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
 
 		assertTrue(isDefaultClass5);

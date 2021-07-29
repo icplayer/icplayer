@@ -32,7 +32,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	public interface TextElementDisplay {
 		boolean hasId(String id);
 		void setShowErrorsMode(boolean isActivity);
-		void setShowErrorsMode(boolean isActivity, boolean ignoreDefaultPlaceholderWhenCheck);
 		void setWorkMode();
 		void reset();
 		void setText(String text);
@@ -335,12 +334,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
-		    TextElementDisplay child = view.getChild(i);
-		    if (child instanceof GapWidget) {
-    			child.setShowErrorsMode(module.isActivity(), module.ignoreDefaultPlaceholderWhenCheck()); // isConnectedToMath ||
-		    } else {
-       			child.setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
-		    }
+		    view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
 		}
 		resetAudio();
 		this.view.setShowErrorsMode();

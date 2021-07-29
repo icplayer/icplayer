@@ -112,11 +112,6 @@ public class InlineChoiceWidget extends ListBox implements TextElementDisplay {
 		setEnabled(false);
 	}
 
-    @Override
-    public void setShowErrorsMode(boolean isActivity, boolean ignoreDefaultPlaceholderWhenCheck) {
-        // TODO not implement
-    }
-
 	@Override
 	public void setStyleShowAnswers() {
 		this.gapState = 1;
