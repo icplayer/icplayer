@@ -334,7 +334,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
-		    view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
+		        view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
 		}
 		resetAudio();
 		this.view.setShowErrorsMode();
