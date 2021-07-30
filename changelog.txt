@@ -1,3 +1,4 @@
+2021-07-30 Add getOpenEndedContentsForCurrentPage to PlayerServices
 2021-07-22 Add removeAllBookmarks command and tests to Navigation bar addon
 2021-07-12 Added math editor in popup property to WIRIS addon
 2021-07-12 Fixed Editable Window allowing for resizing of images when editing is disabled
