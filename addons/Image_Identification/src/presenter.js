@@ -3,6 +3,7 @@ function AddonImage_Identification_create(){
 
     var playerController;
     var eventBus;
+    var addonID;
     var isWCAGOn = false;
 
     presenter.printableState = null;
@@ -346,11 +347,14 @@ function AddonImage_Identification_create(){
 
     presenter.run = function(view, model){
         eventBus = playerController.getEventBus();
+        addonID = model.ID;
 
         presenterLogic(view, model, false);
 
         eventBus.addEventListener('ShowAnswers', this);
         eventBus.addEventListener('HideAnswers', this);
+        eventBus.addEventListener('GradualShowAnswers', this);
+        eventBus.addEventListener('GradualHideAnswers', this);
     };
 
     presenter.reset = function() {
@@ -574,12 +578,23 @@ function AddonImage_Identification_create(){
         applySelectionStyle(presenter.configuration.isSelected, CSS_CLASSES.SELECTED, CSS_CLASSES.ELEMENT);
     };
 
-    presenter.onEventReceived = function (eventName) {
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
+    presenter.getActivitiesCount = function () {
+        return 1;
+    }
 
-        if (eventName == "HideAnswers") {
+    presenter.onEventReceived = function (eventName, data) {
+        if (eventName === "ShowAnswers") {
+            presenter.showAnswers();
+        } else if (eventName === "HideAnswers") {
+            presenter.hideAnswers();
+        } else if(eventName === "GradualShowAnswers") {
+            if (!presenter.isGradualShowAnswersActive) {
+                presenter.isGradualShowAnswersActive = true;
+            } 
+            if (data.moduleID === addonID) {
+                presenter.showAnswers();
+            }
+        } else if (eventName === "GradualHideAnswers") {
             presenter.hideAnswers();
         }
     };
@@ -606,7 +621,7 @@ function AddonImage_Identification_create(){
 
         presenter.$view.find('.image-identification-element-incorrect').removeClass(CSS_CLASSES.INCORRECT).addClass("image-identification-element was-selected");
         presenter.$view.find('.image-identification-element-correct').removeClass(CSS_CLASSES.CORRECT).addClass("image-identification-element was-selected");
-
+        
         if(presenter.configuration.shouldBeSelected){
             applySelectionStyleShowAnswers(CSS_CLASSES.SHOW_ANSWERS);
         }else{
