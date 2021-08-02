@@ -1406,6 +1406,7 @@ var ice_dictionary_mx = {
 	"Text_Coloring_property_text": "Texto",
 	"Text_Coloring_property_buttons_position": "Posición de los botones",
 	"Text_Coloring_property_hide_color_buttons": "Ocultar los botones",
+	"Text_Coloring_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
 	"Text_Coloring_property_show_set_eraser_mode_button": "Mostrar el botón de borrador",
 	"Text_Coloring_property_eraser_button_text": "Etiqueta para botón de borrador",
 	"Text_Coloring_property_count_errors": "Count Errors",

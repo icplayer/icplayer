@@ -1405,6 +1405,7 @@ var ice_dictionary_pl = {
 	"Text_Coloring_property_text": "Tekst",
 	"Text_Coloring_property_buttons_position": "Pozycja przycisków",
 	"Text_Coloring_property_hide_color_buttons": "Ukryj przyciski z kolorami",
+	"Text_Coloring_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
 	"Text_Coloring_property_show_set_eraser_mode_button": "Pokaż przycisk ustawienia trybu gumki",
 	"Text_Coloring_property_eraser_button_text": "Tekst przycisku gumki",
 	"Text_Coloring_property_count_errors": "Count Errors",

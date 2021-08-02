@@ -113,6 +113,11 @@
             StatefullAddonObject._internal.changeStateToShowAnswers.call(this);
         },
 
+        gradualShowAnswersWorkState: function gradualShowAnswersWorkState () {
+            this.onShowSingleAnswer();
+            this.setCssOnShowAnswers();
+        },
+
         resetShowAnswersState: function resetShowAnswersState () {
             StatefullAddonObject._internal.hideAnswersShowAnswersState.call(this);
             StatefullAddonObject._internal.resetWorkState.call(this);
@@ -248,6 +253,16 @@
         }
     };
 
+    StatefullAddonObject.prototype.gradualShowAnswers = function () {
+        switch (this._actualState) {
+            case StatefullAddonObject._internal.STATE.WORK:
+                StatefullAddonObject._internal.gradualShowAnswersWorkState.call(this);
+                break;
+            default:
+                break;
+        }
+    };
+
     /**
      * Moves object from current state to state which is defined by hideAnswers action.
      * Should be called when user clicks hide answers button.
@@ -255,6 +270,7 @@
      */
     StatefullAddonObject.prototype.hideAnswers = function () {
         switch (this._actualState) {
+            case StatefullAddonObject._internal.STATE.WORK:
             case StatefullAddonObject._internal.STATE.SHOW_ANSWERS:
                 StatefullAddonObject._internal.hideAnswersShowAnswersState.call(this);
                 break;

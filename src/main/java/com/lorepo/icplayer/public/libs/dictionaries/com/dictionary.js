@@ -1406,6 +1406,7 @@ var ice_dictionary_en = {
 	"Text_Coloring_property_text": "Text",
 	"Text_Coloring_property_buttons_position": "Buttons position",
 	"Text_Coloring_property_hide_color_buttons": "Hide Color Buttons",
+	"Text_Coloring_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
 	"Text_Coloring_property_show_set_eraser_mode_button": "Show set eraser mode button",
 	"Text_Coloring_property_eraser_button_text": "Eraser button text",
 	"Text_Coloring_property_count_errors": "Count Errors",

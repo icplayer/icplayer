@@ -155,6 +155,40 @@ function AddonText_Coloring_create() {
         });
     };
 
+    TextColoringStateMachine.prototype.onShowSingleAnswer = function () {
+        if (!presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
+            if (typeof this.currentShowingAnswerId === 'undefined') {
+               this.currentShowingAnswerId = 0;
+            }
+            var currentShowingAnswerId = this.currentShowingAnswerId;
+            var id = 0;
+
+            this.savePreviousState();
+            this.onBlock();
+            presenter.unmarkToken(presenter.$wordTokens);
+            presenter.hideTokenClasses(presenter.$wordTokens);
+
+            try {
+                presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
+                    var colorDefinition = presenter.getColorDefinitionById(token.color);
+                    if (colorDefinition !== undefined) {
+                        var $tokenElement = presenter.getWordTokenByIndex(token.index);
+                        presenter.addShowAnswerClass($tokenElement, colorDefinition.id);
+                        presenter.markToken($tokenElement, colorDefinition.color);
+                        id++;
+                        if (id > currentShowingAnswerId) {
+                            throw BreakException;
+                        }
+                    }
+                });
+            } catch (e) {}
+
+            this.currentShowingAnswerId++;
+        } else {
+            this.onShowAnswers();
+        }
+    };
+
     presenter.addShowAnswerClass = function ($element, colorName) {
         var className = StringUtils.format(presenter.defaults.css.showAnswer, colorName);
         $element.addClass(className);
@@ -166,6 +200,7 @@ function AddonText_Coloring_create() {
     };
 
     TextColoringStateMachine.prototype.onHideAnswers = function () {
+        this.currentShowingAnswerId = 0;
         this.restorePreviousState();
         this.onUnblock();
         presenter.unmarkToken(presenter.$wordTokens);
@@ -369,6 +404,7 @@ function AddonText_Coloring_create() {
         filteredTokens: [],
         colors: [],
         buttonsPosition: "left",
+        showAllAnswersInGradualShowAnswersMode: false,
         showSetEraserButtonMode: false,
         hideColorsButtons: false,
         activeColor: null,
@@ -380,8 +416,10 @@ function AddonText_Coloring_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.eventBus = controller.getEventBus();
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            presenter.eventBus.addEventListener(events[i], this);
+        }
     };
 
 
@@ -682,6 +720,7 @@ function AddonText_Coloring_create() {
             textTokens: parsedText,
             colors: validatedColors.value,
             buttonsPosition: presenter.parseButtonsPosition(model.buttonsPosition),
+            showAllAnswersInGradualShowAnswersMode: ModelValidationUtils.validateBoolean(model.showAllAnswersInGradualShowAnswersMode),
             showSetEraserButtonMode: ModelValidationUtils.validateBoolean(model.showSetEraserModeButton),
             hideColorsButtons: ModelValidationUtils.validateBoolean(model.hideColorsButtons),
             eraserButtonText: presenter.parseEraserButtonText(model.eraserButtonText),
@@ -1108,7 +1147,7 @@ function AddonText_Coloring_create() {
         })[0];
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, data) {
         if (eventName == "ShowAnswers") {
             presenter.stateMachine.showAnswers();
         }
@@ -1116,6 +1155,31 @@ function AddonText_Coloring_create() {
         if (eventName == "HideAnswers") {
             presenter.stateMachine.hideAnswers();
         }
+
+        if (eventName == "GradualShowAnswers") {
+            if (presenter.configuration.ID == data.moduleID) {
+                presenter.stateMachine.gradualShowAnswers();
+            }
+        }
+
+        if (eventName == "GradualHideAnswers") {
+            presenter.stateMachine.hideAnswers();
+        }
+    };
+
+    presenter.getActivitiesCount = function () {
+        if (!presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
+            var answersNumber = 0;
+            presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
+                var colorDefinition = presenter.getColorDefinitionById(token.color);
+                if (colorDefinition !== undefined) {
+                    answersNumber++;
+                }
+            });
+            console.log(answersNumber);
+            return answersNumber;
+        }
+        return 1;
     };
 
     presenter.getWordTokenByIndex = function (tokenIndex) {
