@@ -923,7 +923,6 @@ function AddonParagraph_create() {
         }
 
         $wrapper.append($paragraph);
-
         return $wrapper[0].outerHTML;
     };
 
