@@ -10,7 +10,10 @@ import com.lorepo.icplayer.client.PlayerController;
 import com.lorepo.icplayer.client.content.services.dto.ScaleInformation;
 import com.lorepo.icplayer.client.content.services.externalNotifications.IObserverService;
 import com.lorepo.icplayer.client.content.services.externalNotifications.ObserverService;
+import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.group.GroupPresenter;
+import com.lorepo.icplayer.client.module.IOpenEndedContentPresenter;
+import com.lorepo.icplayer.client.module.api.IModuleModel;
 import com.lorepo.icplayer.client.module.api.IPlayerStateService;
 import com.lorepo.icplayer.client.module.api.IPresenter;
 import com.lorepo.icplayer.client.module.api.player.*;
@@ -415,5 +418,27 @@ public class PlayerServices implements IPlayerServices {
 	@Override
 	public IAdaptiveLearningService getAdaptiveLearningService() {
 		return this.playerController.getAdaptiveLearningService();
+	}
+
+	@Override
+	public JavaScriptObject getOpenEndedContentForCurrentPage() {
+		JavaScriptObject contents = JavaScriptUtils.createJSObject();
+		int pageIndex = playerController.getCurrentPageIndex();
+		IPage ipage = playerController.getModel().getPage(pageIndex);
+		if (ipage instanceof Page) {
+			Page page = (Page) ipage;
+			for (int i = 0; i < page.getModules().size(); i++) {
+				IModuleModel model = page.getModules().get(i);
+				IPresenter ipresenter = getModule(model.getId());
+				if (ipresenter instanceof IOpenEndedContentPresenter) {
+					IOpenEndedContentPresenter presenter = (IOpenEndedContentPresenter) ipresenter;
+					String content = presenter.getOpenEndedContent();
+					if (content != null) {
+						JavaScriptUtils.addPropertyToJSArray(contents, model.getId(), content);
+					}
+				}
+			}
+		}
+		return contents;
 	}
 }
