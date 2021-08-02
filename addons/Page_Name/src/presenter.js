@@ -40,7 +40,7 @@ function AddonPage_Name_create() {
         $view.attr("id", model.ID);
         $view.addClass("printable_addon_pagename");
 
-        var $wrapper = $("<p></p>");
+        var $wrapper = $("<div></div>");
         $wrapper.addClass("printable_pagename_wrapper");
         $wrapper.html(printableController.getPageName());
 

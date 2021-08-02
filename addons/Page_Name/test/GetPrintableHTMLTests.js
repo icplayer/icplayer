@@ -29,7 +29,7 @@ TestCase("[PageName] Page Name printable HTML validation", {
     'test print PageName': function() {
         //given
         var expectedHtmlValue = `<div id="Page_Name1" class="printable_addon_pagename">
-                                    <p class="printable_pagename_wrapper">Page 1</p>
+                                    <div class="printable_pagename_wrapper">Page 1</div>
                                 </div>`;
         expectedHtmlValue = expectedHtmlValue.replaceAll("\n","");
         expectedHtmlValue = expectedHtmlValue.replaceAll("    ","");
