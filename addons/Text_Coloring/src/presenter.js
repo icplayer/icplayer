@@ -165,20 +165,18 @@ function AddonText_Coloring_create() {
 
             this.savePreviousState();
             this.onBlock();
-            presenter.unmarkToken(presenter.$wordTokens);
-            presenter.hideTokenClasses(presenter.$wordTokens);
 
             try {
                 presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
                     var colorDefinition = presenter.getColorDefinitionById(token.color);
                     if (colorDefinition !== undefined) {
-                        var $tokenElement = presenter.getWordTokenByIndex(token.index);
-                        presenter.addShowAnswerClass($tokenElement, colorDefinition.id);
-                        presenter.markToken($tokenElement, colorDefinition.color);
-                        id++;
-                        if (id > currentShowingAnswerId) {
+                        if (id === currentShowingAnswerId) {
+                            var $tokenElement = presenter.getWordTokenByIndex(token.index);
+                            presenter.addShowAnswerClass($tokenElement, colorDefinition.id);
+                            presenter.markToken($tokenElement, colorDefinition.color);
                             throw BreakException;
                         }
+                        id++;
                     }
                 });
             } catch (e) {}
