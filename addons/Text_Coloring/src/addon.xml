@@ -14,5 +14,6 @@
 		<property name="eraserButtonText" displayName="Eraser button text" nameLabel="Text_Coloring_property_eraser_button_text" type="string" isLocalized="true" />
 		<property name='Mode' nameLabel="Text_Selection_property_mode" type='{All selectable, Mark phrases to select}'/>
 		<property name="countErrors" displayName="Count Errors" nameLabel="Text_Coloring_property_count_errors" type="boolean" />
+		<property name="printable" nameLabel="printable_name_label" type="{No, Don't randomize, Randomize}"/>
 	</model>
 </addon>

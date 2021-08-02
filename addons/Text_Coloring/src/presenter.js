@@ -6,8 +6,8 @@
 */
 
 function AddonText_Coloring_create() {
-    var presenter = function () {
-    };
+    var presenter = function () {};
+    presenter.printableState = null;
 
     function markAsValidValues(value) {
         value.isValid = true;
@@ -633,28 +633,19 @@ function AddonText_Coloring_create() {
     };
 
     presenter.upgradeModel = function(model) {
-        var upgradedModel = upgradeModelAddModeProperty(model);
-        upgradedModel = upgradeModelAddCountErrorsProperty(upgradedModel);
+        var upgradedModel = presenter.addModelProperty(model, 'Mode', presenter.MODE.DEFAULT);
+        upgradedModel = presenter.addModelProperty(upgradedModel, 'countErrors', false);
+        upgradedModel = presenter.addModelProperty(upgradedModel, 'printable', 'No');
+
         return upgradedModel;
     };
 
-    function upgradeModelAddModeProperty(model) {
+    presenter.addModelProperty = function (model, propertyName, defaultValue) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
-        if(!upgradedModel['Mode']){
-            upgradedModel['Mode'] = presenter.MODE.DEFAULT;
-        }
-
-        return upgradedModel;
-    }
-
-    function upgradeModelAddCountErrorsProperty(model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model);
-
-        if(!upgradedModel['countErrors']) {
-            upgradedModel['countErrors'] = false;
+        if(!upgradedModel.hasOwnProperty(propertyName)) {
+            upgradedModel[propertyName] = defaultValue;
         }
 
         return upgradedModel;
@@ -1389,5 +1380,156 @@ function AddonText_Coloring_create() {
         presenter.$wordTokens.removeClass(presenter.defaults.css.markings.wrong);
     };
 
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+
+        presenter.printableState = JSON.parse(state);
+    }
+    
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        var printableHTML = '';
+        model = presenter.upgradeModel(model);
+        var userAnswer = presenter.getUserAnswer();
+        var modelAnswer = presenter.getModelAnswer(model);
+        var wordsModelAnswer = presenter.getWordsModelAnswer(modelAnswer);
+        var didUserAnswer = userAnswer.some(answer => answer.isSelected);
+        var height = model.Height / 2;
+
+        userAnswer.forEach(token => {
+            switch (true) {
+                case token.isSelected && !showAnswers:
+                    var color = parseToGrayscale(presenter.getColorInHEX(model, token.selectionColorID));
+                    printableHTML += `<span style="border: 2px solid ${color}">${token.value}</span> `;
+                    break;
+
+                case token.isSelected && showAnswers:
+                    var color = parseToGrayscale(presenter.getColorInHEX(model, token.selectionColorID));
+                    var answerMark = presenter.isAnswerCorrect(token, modelAnswer) ? '&#10004;' : '&#10006;';
+                    printableHTML += `<span style="border: 2px solid ${color}">${token.value} ${answerMark}</span> `;
+                    break;
+
+                case wordsModelAnswer.includes(token.value)  && showAnswers && !didUserAnswer:
+                    var color = presenter.getModelColor(model,token.value);
+                    printableHTML += `<span style="border: 2px dashed ${color}">${token.value}</span> `;
+                    break;
+
+                case wordsModelAnswer.includes(token.value):
+                    printableHTML += `<span style="border-bottom: 1px solid">${token.value}</span> `;
+                    break;
+
+                default:
+                    printableHTML += `${token.value} `;
+            }
+        });
+
+        return presenter.createHTML(showAnswers || didUserAnswer, printableHTML, height);
+    }
+
+    presenter.createHTML = function (shouldChangeLineHeight, htmlContent, height) {
+        var $wrapper = $('<div></div>');
+        $wrapper.addClass('printable_addon_Paragraph');
+        $wrapper.css("left", "0px");
+        $wrapper.css("right", "0px");
+        $wrapper.css("height", `${height}px`);
+        $wrapper.css("padding", "10px 10px 10px 0px");
+        var $paragraph = $('<div></div>');
+        $paragraph.css("left", "0px");
+        $paragraph.css("right", "0px");
+        $paragraph.css("height", "100%");
+        $paragraph.css("border", "1px solid");
+        $paragraph.css("padding", "10px");
+        if (shouldChangeLineHeight) {
+            $paragraph.css("line-height", "1.5");
+        }
+        $paragraph.html(htmlContent);
+        $wrapper.append($paragraph);
+        return $wrapper[0].outerHTML;
+    }
+
+    presenter.getColors = function (model) {
+        var colors = [];
+        model['colors'].forEach(colorObject => {
+           colors.push({name: colorObject.description, value: parseToGrayscale(colorObject.color)});
+        });
+
+        return colors;
+    }
+
+    presenter.getColorInHEX = function (model, colorName) {
+        var colors =  presenter.getColors(model);
+
+        return colors.find(color => color.name === colorName).value;
+    }
+
+
+    presenter.getModelColor = function (model, word) {
+        var modelAnswers = presenter.getModelAnswer(model);
+        var colors =  presenter.getColors(model);
+
+        var modelAnswer = modelAnswers.find(answer => answer.includes(word));
+        var modelColor = modelAnswer.replace(/{/, '').replace(/}{.*/, '');
+
+        return colors.find(color => color.name === modelColor).value;
+    }
+
+    presenter.getModelAnswer = function (model) {
+        var regExp = /(\\color{\w*}{\w*})/g;
+        var regExpReplace = /\\color/g;
+        if (!model.hasOwnProperty('text')) { return null; }
+
+        return  model['text'].match(regExp).map(item => item.replace(regExpReplace, ''));
+    }
+
+    presenter.getWordsModelAnswer = function (modelAnswer) {
+        return modelAnswer.map(answer => {
+            return answer.replace(/{\w*}{/, '').replace(/}/, '');
+        });
+    }
+
+    presenter.getUserAnswer = function () {
+        if (presenter.printableState && presenter.printableState.hasOwnProperty('tokens')) {
+            return presenter.printableState['tokens'];
+        }
+
+        return null;
+    }
+
+    presenter.isAnswerCorrect = function (userAnswer, modelAnswer) {
+        return modelAnswer.includes(`{${userAnswer.selectionColorID}}{${userAnswer.value}}`);
+    }
+
     return presenter;
+}
+
+function parseToGrayscale(hexColor) {
+    var rgbColor = hexToRGB(hexColor);
+    return rgbToGrayscaleHex(rgbColor);
+}
+
+function hexToRGB(hexColor) {
+    var r = 0, g = 0, b = 0;
+
+    if (hexColor.length === 4) {
+        r = '0x' + hexColor[1] + hexColor[1];
+        g = '0x' + hexColor[2] + hexColor[2];
+        b = '0x' + hexColor[3] + hexColor[3];
+    } else if (hexColor.length === 7) {
+        r = '0x' + hexColor[1] + hexColor[2];
+        g = '0x' + hexColor[3] + hexColor[4];
+        b = '0x' + hexColor[5] + hexColor[6];
+    }
+
+    return [+r, +g, +b];
+}
+
+function rgbToGrayscaleHex(rgbColor) {
+    var grayIntensity = Math.round(0.3 * rgbColor[0] + 0.59 * rgbColor[1] + 0.11 * rgbColor[2]);
+
+    return '#' + decimalToHex(grayIntensity) + decimalToHex(grayIntensity) + decimalToHex(grayIntensity);
+}
+
+function decimalToHex(value) {
+    var hex = value.toString(16);
+    return hex.length === 1 ? `0${hex}` : hex;
 }
