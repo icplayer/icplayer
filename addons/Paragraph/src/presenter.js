@@ -150,7 +150,7 @@ function AddonParagraph_create() {
             if (+key > -1) {
                 presenter.cachedAnswer.push(value.innerHTML);
                 if (+key === 0) {
-                    value.innerHTML = presenter.modelAnswer;
+                    value.innerHTML = presenter.configuration.modelAnswer;
                 } else {
                     value.innerHTML = '';
                 }
@@ -233,8 +233,6 @@ function AddonParagraph_create() {
             $(input).css('display', 'none');
             presenter.$view.append(input);
         }
-
-        presenter.setModelAnswer(model);
     };
 
     presenter.getTinyMceSelector = function AddonParagraph_getTinyMceSelector() {
@@ -362,7 +360,8 @@ function AddonParagraph_create() {
             layoutType = model["Layout Type"] || "Default",
             title = model["Title"],
             manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]),
-            weight = model['Weight'];
+            weight = model['Weight'],
+            modelAnswer = model['Show Answers'];
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -401,7 +400,8 @@ function AddonParagraph_create() {
             isPlaceholderEditable: isPlaceholderEditable,
             title: title,
             manualGrading: manualGrading,
-            weight: weight
+            weight: weight,
+            modelAnswer: modelAnswer
         };
     };
 
@@ -431,6 +431,7 @@ function AddonParagraph_create() {
             upgradedModel = presenter.upgradeManualGrading(upgradedModel);
             upgradedModel = presenter.upgradeTitle(upgradedModel);
             upgradedModel = presenter.upgradeWeight(upgradedModel);
+            upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
         return presenter.upgradeEditablePlaceholder(upgradedModel);
     };
 
@@ -452,6 +453,10 @@ function AddonParagraph_create() {
 
     presenter.upgradeWeight = function (model) {
         return presenter.upgradeAttribute(model, "Weight", "");
+    };
+
+    presenter.upgradeModelAnswer = function (model) {
+        return presenter.upgradeAttribute(model, "Show Answers", "");
     };
 
     presenter.upgradeAttribute = function (model, attrName, defaultValue) {
@@ -895,7 +900,7 @@ function AddonParagraph_create() {
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
         var configuration = presenter.validateModel(model);
-        var modelAnswer = presenter.getModelAnswer(model);
+        var modelAnswer = configuration.modelAnswer;
         var usersAnswer = presenter.getUsersAnswer();
 
         var $wrapper = $('<div></div>');
@@ -912,28 +917,15 @@ function AddonParagraph_create() {
         $paragraph.css("padding", "10px");
 
         if (showAnswers && modelAnswer && !usersAnswer) {
-            $paragraph.html(modelAnswer);
+            $paragraph.html(getPlainText(modelAnswer));
         } else {
-            $paragraph.html(usersAnswer);
+            $paragraph.html(getPlainText(usersAnswer));
         }
 
         $wrapper.append($paragraph);
 
         return $wrapper[0].outerHTML;
     };
-
-    presenter.getModelAnswer = function (model) {
-        if (model && model.hasOwnProperty('Show Answers')) {
-            return model['Show Answers'];
-        }
-        return null;
-    }
-
-    presenter.setModelAnswer = function (model) {
-        if (model && model.hasOwnProperty('Show Answers')) {
-            presenter.modelAnswer = model['Show Answers'];
-        }
-    }
 
     presenter.getUsersAnswer = function () {
         if (presenter.printableState && presenter.printableState.hasOwnProperty('usersAnswer')) {
@@ -948,3 +940,8 @@ function AddonParagraph_create() {
 AddonParagraph_create.__supported_player_options__ = {
     interfaceVersion: 2
 };
+
+// Returns the text without HTML tags.
+function getPlainText(text) {
+    return text.replace(/<(.*?)>/g, '');
+}
