@@ -15,7 +15,16 @@ TestCase("[Media Recorder] Model validation", {
             isResetRemovesRecording: "False",
             isShowedTimer: "False",
             isShowedDefaultRecordingButton: "False",
-            isDisabled: "False"
+            isDisabled: "False",
+            enableInErrorCheckingMode: "False",
+            extendedMode: "False",
+            disableRecording: "False",
+            enableIntensityChangeEvents: "False",
+            resetDialogLabels: {
+                resetDialogText: {resetDialogLabel: ""},
+                resetDialogConfirm: {resetDialogLabel: ""},
+                resetDialogDeny: {resetDialogLabel: ""}
+            }
         };
 
         this.DefaultValues = {

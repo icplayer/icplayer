@@ -827,6 +827,10 @@ function AddonParagraph_create() {
         return $wrapper[0].outerHTML;
     };
 
+    presenter.getOpenEndedContent = function () {
+        return presenter.getText();
+    }
+
     return presenter;
 }
 
