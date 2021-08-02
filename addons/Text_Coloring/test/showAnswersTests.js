@@ -118,6 +118,84 @@ TestCase("[TextColoring] hideAnswers flow", {
         assertTrue(this.stubs.removeShowAnswerClassStub.calledWithExactly(expectedFirstCallArgs.arg1, expectedFirstCallArgs.arg2));
     }
 
+});
 
+TestCase("[TextColoring] gradualShowAnswers button", {
+    setUp: function () {
+        this.presenter = AddonText_Coloring_create();
 
+        this.stubs = {
+            restorePreviousStateStub: sinon.stub(),
+            onBlockStub: sinon.stub(),
+            unmarkTokenStub: sinon.stub(),
+            markTokenStub: sinon.stub(),
+            getWordTokenByIndexStub: sinon.stub(),
+            addShowAnswerClassStub: sinon.stub()
+        };
+
+        this.presenter.configuration.filteredTokens = [
+            {index: 1, isSelected: false, type: this.presenter.TOKENS_TYPES.SELECTABLE, color: 'red'},
+            {index: 2, isSelected: false, type: this.presenter.TOKENS_TYPES.WORD},
+            {index: 3, isSelected: false, type: this.presenter.TOKENS_TYPES.SELECTABLE, color: 'green'},
+            {index: 4, isSelected: false, type: this.presenter.TOKENS_TYPES.SPACE}
+        ];
+        this.presenter.configuration.colors = [
+            {id: 'red', color: '#f34444'},
+            {id: 'green', color: '#63e33c'}
+        ];
+
+        this.stubs.getWordTokenByIndexStub.withArgs(1).returns('1');
+        this.stubs.getWordTokenByIndexStub.withArgs(2).returns('2');
+        this.stubs.getWordTokenByIndexStub.withArgs(3).returns('3');
+        this.stubs.getWordTokenByIndexStub.withArgs(4).returns('4');
+
+        this.presenter.createStateMachine();
+        this.presenter.stateMachine.restorePreviousState = this.stubs.restorePreviousStateStub;
+        this.presenter.stateMachine.onBlock = this.stubs.onBlockStub;
+        this.presenter.stateMachine.previousActiveColor = null;
+        this.presenter.stateMachine.previousEraserMode = false;
+
+        this.presenter.unmarkToken = this.stubs.unmarkTokenStub;
+        this.presenter.markToken = this.stubs.markTokenStub;
+        this.presenter.getWordTokenByIndex = this.stubs.getWordTokenByIndexStub;
+        this.presenter.addShowAnswerClass = this.stubs.addShowAnswerClassStub;
+    },
+
+    'test should call addShowAnswerClassStub once with proper arguments when showAllAnswersInGradualShowAnswersMode is inactive and called function once': function () {
+        this.presenter.configuration.showAllAnswersInGradualShowAnswersMode = false;
+
+        this.presenter.stateMachine.onShowSingleAnswer();
+
+        var expectedFirstCallArgs = {arg1: '1', arg2: 'red'};
+
+        assertTrue(this.stubs.addShowAnswerClassStub.calledOnce);
+        assertTrue(this.stubs.addShowAnswerClassStub.calledWithExactly(expectedFirstCallArgs.arg1, expectedFirstCallArgs.arg2));
+    },
+
+    'test should call addShowAnswerClassStub once with proper arguments when showAllAnswersInGradualShowAnswersMode is inactive and called function twice': function () {
+        this.presenter.configuration.showAllAnswersInGradualShowAnswersMode = false;
+
+        this.presenter.stateMachine.onShowSingleAnswer();
+        this.presenter.stateMachine.onShowSingleAnswer();
+
+        var expectedFirstCallArgs = {arg1: '1', arg2: 'red'};
+        var expectedSecondCallArgs = {arg1: '3', arg2: 'green'};
+
+        assertTrue(this.stubs.addShowAnswerClassStub.calledTwice);
+        assertTrue(this.stubs.addShowAnswerClassStub.calledWithExactly(expectedFirstCallArgs.arg1, expectedFirstCallArgs.arg2));
+        assertTrue(this.stubs.addShowAnswerClassStub.calledWithExactly(expectedSecondCallArgs.arg1, expectedSecondCallArgs.arg2));
+    },
+
+    'test should call addShowAnswerClassStub once with proper arguments when showAllAnswersInGradualShowAnswersMode is active': function () {
+        this.presenter.configuration.showAllAnswersInGradualShowAnswersMode = true;
+
+        this.presenter.stateMachine.onShowSingleAnswer();
+
+        var expectedFirstCallArgs = {arg1: '1', arg2: 'red'};
+        var expectedSecondCallArgs = {arg1: '3', arg2: 'green'};
+
+        assertTrue(this.stubs.addShowAnswerClassStub.calledTwice);
+        assertTrue(this.stubs.addShowAnswerClassStub.calledWithExactly(expectedFirstCallArgs.arg1, expectedFirstCallArgs.arg2));
+        assertTrue(this.stubs.addShowAnswerClassStub.calledWithExactly(expectedSecondCallArgs.arg1, expectedSecondCallArgs.arg2));
+    }
 });
