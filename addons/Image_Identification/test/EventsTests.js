@@ -5,6 +5,10 @@ TestCase("Events", {
             addonID: 'ImageIdentification1',
             isActivity: true
         };
+        this.stubs = {
+            showAnswers: sinon.stub()
+        };
+        this.presenter.showAnswers = this.stubs.showAnswers;
     },
 
     'test element selection - should be selected': function() {
@@ -48,5 +52,15 @@ TestCase("Events", {
         assertEquals('', eventData.item);
         assertEquals('1', eventData.value);
         assertEquals('0', eventData.score); // if module was an activity score would be 1
+    },
+
+    'test GSA event calls showAnswers method': function() {
+        var eventName = "GradualShowAnswers";
+        var eventData = {
+            moduleID: 'ImageIdentification1'
+        };
+        this.presenter.onEventReceived(eventName, eventData);
+
+        assertEquals(1, this.stubs.showAnswers.callCount);
     }
 });

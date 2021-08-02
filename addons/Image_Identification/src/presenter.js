@@ -3,9 +3,9 @@ function AddonImage_Identification_create(){
 
     var playerController;
     var eventBus;
-    var addonID;
     var isWCAGOn = false;
 
+    presenter.isGradualShowAnswersActive = false;
     presenter.printableState = null;
     presenter.printableStateMode = 0;
     presenter.PRINTABLE_STATE_MODE = {
@@ -591,9 +591,10 @@ function AddonImage_Identification_create(){
             if (!presenter.isGradualShowAnswersActive) {
                 presenter.isGradualShowAnswersActive = true;
             } 
-            if (data.moduleID === addonID) {
+            if (data.moduleID === presenter.configuration.addonID) {
                 presenter.showAnswers();
             }
+            presenter.isGradualShowAnswersActive = false;
         } else if (eventName === "GradualHideAnswers") {
             presenter.hideAnswers();
         }
@@ -621,7 +622,7 @@ function AddonImage_Identification_create(){
 
         presenter.$view.find('.image-identification-element-incorrect').removeClass(CSS_CLASSES.INCORRECT).addClass("image-identification-element was-selected");
         presenter.$view.find('.image-identification-element-correct').removeClass(CSS_CLASSES.CORRECT).addClass("image-identification-element was-selected");
-        
+
         if(presenter.configuration.shouldBeSelected){
             applySelectionStyleShowAnswers(CSS_CLASSES.SHOW_ANSWERS);
         }else{
