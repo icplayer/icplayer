@@ -1,4 +1,5 @@
 2021-07-30 Add getOpenEndedContentsForCurrentPage to PlayerServices
+2021-07-28 Added keyboard navigation and TTS to Quiz
 2021-07-27 Fixed bug that audiodescription in Chrome doesn't stop video
 2021-07-22 Add removeAllBookmarks command and tests to Navigation bar addon
 2021-07-12 Added math editor in popup property to WIRIS addon
