@@ -1167,20 +1167,21 @@ function AddonTrueFalse_create() {
             var $tr = $("<tr></tr>");
 
             var $questionCell = $("<td></td>");
-            $questionCell.html(question.Question);
+            $questionCell.html(window.TTSUtils.parsePreviewAltText(question.Question));
             $tr.append($questionCell);
 
             var answers = [];
             if (showAnswers) answers = question.Answer.split(',');
+            var boxType = isMulti ? "checkbox" : "radio";
 
             for (var j = 0; j < choiceLength; j++) {
                 var $td = $("<td></td>");
-                $td.addClass("checkbox-container");
-                $td.addClass("checkbox-" + (i+1) + "-" + (j+1));
+                $td.addClass(`${boxType}-container`);
+                $td.addClass(`${boxType}-${i+1}-${j+1}`);
                 var $inputDiv = $("<div></div>");
                 $inputDiv.addClass("placeholder");
                 $td.append($inputDiv);
-                var $checkbox = $("<input type=\"checkbox\"> </input>")
+                var $checkbox = $("<input type=\"checkbox\">");
                 var userAnswerIndex = i * choiceLength + j;
                 if (didUserRespond && userAnswers[userAnswerIndex]) {
                     $checkbox.attr("checked", "checked");

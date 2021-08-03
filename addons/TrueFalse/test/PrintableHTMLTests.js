@@ -27,6 +27,7 @@ TestCase("[TrueFalse] Printable HTML", {
 
     'test get printable True & False addon model': function () {
         $('<div class="text-identification-container"> </div>');
+        this.model['Multi'] = 'True';
         var expectedHTML = $('<div class="printable_addon_TrueFalse">' +
             '<table>' +
                 '<tbody>' +
@@ -40,12 +41,12 @@ TestCase("[TrueFalse] Printable HTML", {
                         '<td class="checkbox-container checkbox-1-1">' +
                             '<div class="placeholder"></div>' +
                             '<input type="checkbox" checked="checked">' +
-                            ' <span></span>' +
+                            '<span></span>' +
                         '</td>' +
                         '<td class="checkbox-container checkbox-1-2">' +
                             '<div class="placeholder"></div>' +
                             '<input type="checkbox">' +
-                            ' <span></span>' +
+                            '<span></span>' +
                         '</td>' +
                     '</tr>' +
                 '</tbody>' +
