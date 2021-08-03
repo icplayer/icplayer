@@ -1835,12 +1835,12 @@ function AddonText_Selection_create() {
             var $span = $( this );
             var $wrapper = $(`<u></u>`);
 
+            $wrapper.addClass(CSS_CLASSES.PRINTABLE_SELECTED);
             if (isCorrect($span)) {
                 $wrapper.addClass(CSS_CLASSES.PRINTABLE_CORRECT);
             } else {
                 $wrapper.addClass(CSS_CLASSES.PRINTABLE_WRONG);
             }
-            $wrapper.addClass(CSS_CLASSES.PRINTABLE_SELECTED);
             $span.wrap($wrapper);
         })
     }
