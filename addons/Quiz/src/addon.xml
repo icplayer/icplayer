@@ -23,5 +23,47 @@
         <property name="WrongGameMessage" nameLabel="Quiz_property_WrongGameMessage" type="html" isLocalized="true"/>
         <property name="Center vertically" nameLabel="Quiz_property_center_vertically" type="boolean"/>
         <property name="isActivity" nameLabel="Quiz_property_isActivity" type="boolean"/>
+        <property name="langAttribute" displayName="Lang attribute" nameLabel="Quiz_property_lang_attribute" type="string" />
+        <property name="speechTexts" displayName="Speech texts" nameLabel="Quiz_property_speech_texts" type="staticlist">
+            <property name="Question" nameLabel="Quiz_speech_text_question" type="staticrow">
+                <property name="Question" nameLabel="Quiz_speech_text_question" type="string"/>
+            </property>
+            <property name="Answer" nameLabel="Quiz_speech_text_answer" type="staticrow">
+                <property name="Answer" nameLabel="Quiz_speech_text_answer" type="string"/>
+            </property>
+            <property name="FiftyFiftyButton" nameLabel="Quiz_speech_text_fifty_fifty_button" type="staticrow">
+                <property name="FiftyFiftyButton" nameLabel="Quiz_speech_text_fifty_fifty_button" type="string"/>
+            </property>
+            <property name="FiftyFiftyButtonWhenNotEnoughAnswers" nameLabel="Quiz_speech_text_fifty_fifty_button_when_not_enough_answers" type="staticrow">
+                <property name="FiftyFiftyButtonWhenNotEnoughAnswers" nameLabel="Quiz_speech_text_fifty_fifty_button_when_not_enough_answers" type="string"/>
+            </property>
+            <property name="HintButton" nameLabel="Quiz_speech_text_hint_button" type="staticrow">
+                <property name="HintButton" nameLabel="Quiz_speech_text_hint_button" type="string"/>
+            </property>
+            <property name="CommentField" nameLabel="Quiz_speech_text_comment_field" type="staticrow">
+                <property name="CommentField" nameLabel="Quiz_speech_text_comment_field" type="string"/>
+            </property>
+            <property name="Hint" nameLabel="Quiz_speech_text_hint" type="staticrow">
+                <property name="Hint" nameLabel="Quiz_speech_text_hint" type="string"/>
+            </property>
+            <property name="Summary" nameLabel="Quiz_speech_text_summary" type="staticrow">
+                <property name="Summary" nameLabel="Quiz_speech_text_summary" type="string"/>
+            </property>
+            <property name="Selected" nameLabel="Quiz_speech_text_selected" type="staticrow">
+                <property name="Selected" nameLabel="Quiz_speech_text_selected" type="string"/>
+            </property>
+            <property name="Correct" nameLabel="Quiz_speech_text_correct" type="staticrow">
+                <property name="Correct" nameLabel="Quiz_speech_text_correct" type="string"/>
+            </property>
+            <property name="Wrong" nameLabel="Quiz_speech_text_wrong" type="staticrow">
+                <property name="Wrong" nameLabel="Quiz_speech_text_wrong" type="string"/>
+            </property>
+            <property name="Inactive" nameLabel="Quiz_speech_text_inactive" type="staticrow">
+                <property name="Inactive" nameLabel="Quiz_speech_text_inactive" type="string"/>
+            </property>
+            <property name="OutOf" nameLabel="Quiz_speech_text_out_of" type="staticrow">
+                <property name="OutOf" nameLabel="Quiz_speech_text_out_of" type="string"/>
+            </property>
+        </property>
     </model>
 </addon>
