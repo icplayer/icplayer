@@ -1033,6 +1033,7 @@ var ice_dictionary_pl = {
 	"gamememo_property_time_to_solve": "Czas na rozwiązanie zadania",
 	"gamememo_property_session_ended_message": "Komunikat o zakończeniu sesji",
 	"gamememo_property_click_to_turn_over_incorrect_pair": "Kliknij, aby zakryć błędnie odkryte karty",
+	"gamememo_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
 	"gamememo_revealed": "Odkryte",
 	"gamememo_paired": "Połączone",
 	"gamememo_value_of": "o wartości",

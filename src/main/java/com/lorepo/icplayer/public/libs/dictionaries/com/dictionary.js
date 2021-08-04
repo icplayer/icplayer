@@ -920,6 +920,7 @@ var ice_dictionary_en = {
     "gamememo_property_time_to_solve": "Time to solve the task",
     "gamememo_property_session_ended_message": "Session ended message",
 	"gamememo_property_click_to_turn_over_incorrect_pair": "Click to turn over incorrect pair",
+	"gamememo_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
 	"gamememo_revealed": "Revealed",
 	"gamememo_paired": "Paired",
 	"gamememo_value_of": "with the value of",

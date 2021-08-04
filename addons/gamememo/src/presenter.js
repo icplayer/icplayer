@@ -474,6 +474,8 @@ function Addongamememo_create(){
     presenter.cardClickedSecond = null;
     presenter.cardClickedFirstId = null;
     presenter.cardClickedSecondId = null;
+    presenter.hasCheckFirstClickedCardInGSAMode = true;
+    presenter.hasCheckSecondClickedCardInGSAMode = true;
     presenter.cardClickedStyle = null;
 
     presenter.errorCount = 0;
@@ -708,6 +710,7 @@ function Addongamememo_create(){
             isVisibleByDefault: ModelValidationUtils.validateBoolean(model['Is Visible']),
             isTabindexEnabled: ModelValidationUtils.validateBoolean(model["Is Tabindex Enabled"]),
             clickToTurnOverIncorrectPair: ModelValidationUtils.validateBoolean(model["Click to turn over incorrect pair"]),
+            showAllAnswersInGradualShowAnswersMode: ModelValidationUtils.validateBoolean(model["Show all answers in gradual show answers mode"]),
             altTextStyleA: model['Style A cover alt text'],
             altTextStyleB: model['Style B cover alt text'],
             langTag: model['langAttribute']
@@ -755,6 +758,7 @@ function Addongamememo_create(){
         };
 
         presenter.slideUpAnimation(cell.children(".back"), successFunction);
+        cell.removeClass('exposed-in-GSA-mode');
 
         if(!presenter.isShowAnswersActive){
             cell.removeClass('was-clicked');
@@ -972,6 +976,10 @@ function Addongamememo_create(){
     presenter.onCardClicked = function(e) {
         e.stopPropagation();
 
+        if (presenter.isShowAnswersActive) {
+            return;
+        }
+
         if (presenter.sessionStarted === null) {
             presenter.startSession();
         }
@@ -1040,6 +1048,9 @@ function Addongamememo_create(){
                     presenter.addScoreAndSentEvent();
                     presenter.isCorrectMark = true;
                     TextVoices.push(window.TTSUtils.getTextVoiceObject(presenter.speechTexts.match));
+
+                    presenter.cardClickedFirst = null;
+                    presenter.cardClickedSecond = null;
                 }
                 TextVoices = TextVoices.concat(presenter.getCellTextVoices(firstIndex, {prefix: false, color: true, value: true}));
                 presenter.speak(TextVoices);
@@ -1296,8 +1307,10 @@ function Addongamememo_create(){
     presenter.run = function(view, model) {
         presenter.preview = false;
         presenter.initializeLogic(view, model);
-        eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            eventBus.addEventListener(events[i], this);
+        }
         presenter.setVisibility(presenter.configuration.isVisible);
         view.addEventListener('DOMNodeRemoved', function onDOMNodeRemoved(ev) {
             if (ev.target === this) {
@@ -1464,6 +1477,8 @@ function Addongamememo_create(){
         presenter.cardClickedSecond = null;
         presenter.cardClickedFirstId = null;
         presenter.cardClickedSecondId = null;
+        presenter.hasCheckFirstClickedCardInGSAMode = true;
+        presenter.hasCheckSecondClickedCardInGSAMode = true;
 
         presenter.isShowErrorsMode = false;
 
@@ -1647,12 +1662,22 @@ function Addongamememo_create(){
         presenter.isShowErrorsMode = false;
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, data) {
         if (eventName == "ShowAnswers") {
             presenter.showAnswers();
         }
 
         if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+
+        if (eventName == "GradualShowAnswers") {
+            if (presenter.configuration.ID == data.moduleID) {
+                presenter.gradualShowAnswers();
+            }
+        }
+
+        if (eventName == "GradualHideAnswers") {
             presenter.hideAnswers();
         }
     };
@@ -1670,12 +1695,74 @@ function Addongamememo_create(){
         keyboardController.selectEnabled(false);
     };
 
+    presenter.getIfUnexposedCardInGSAMode = function(currentCard) {
+        if (!currentCard.hasClass('was-clicked') && !currentCard.hasClass('exposed-in-GSA-mode')) {
+            return currentCard;
+        } else if (presenter.cardClickedFirst && presenter.hasCheckFirstClickedCardInGSAMode && currentCard[0] == presenter.cardClickedFirst[0]) {
+            presenter.hasCheckFirstClickedCardInGSAMode = false;
+            return currentCard;
+        } else if (presenter.cardClickedSecond && presenter.hasCheckSecondClickedCardInGSAMode && currentCard[0] == presenter.cardClickedSecond[0]) {
+            presenter.hasCheckSecondClickedCardInGSAMode = false;
+            return currentCard;
+        }
+        return undefined;
+    }
+
+    presenter.showInGSAModeIfCardsMatch = function(firstCard, secondCard) {
+        firstCardId = firstCard.find('.card').attr('card_id');
+        secondCardId = secondCard.find('.card').attr('card_id');
+        if (firstCardId == secondCardId) {
+            presenter.showCard(firstCard);
+            presenter.showCard(secondCard);
+            firstCard.addClass('exposed-in-GSA-mode');
+            secondCard.addClass('exposed-in-GSA-mode');
+            if (presenter.cardClickedFirst && presenter.hasCheckFirstClickedCardInGSAMode && secondCard[0] == presenter.cardClickedFirst[0]) {
+                presenter.hasCheckFirstClickedCardInGSAMode = false;
+            }
+            else if (presenter.cardClickedSecond && presenter.hasCheckSecondClickedCardInGSAMode && secondCard[0] == presenter.cardClickedSecond[0]) {
+                presenter.hasCheckSecondClickedCardInGSAMode = false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    presenter.gradualShowAnswers = function () {
+        if (!presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
+            if (!presenter.isActivity) {
+                return;
+            }
+
+            presenter.isShowAnswersActive = true;
+            presenter.isShowErrorsMode = false;
+
+            var currentCard = presenter.viewContainer.find('.cell').first();
+            const numberOfCards = presenter.viewContainer.find('.cell').length;
+            var firstCard;
+            for (var i = 0; i < numberOfCards; i++) {
+                if (firstCard === undefined) {
+                    firstCard = presenter.getIfUnexposedCardInGSAMode(currentCard);
+                } else {
+                    var matched = presenter.showInGSAModeIfCardsMatch(firstCard, currentCard);
+                    if (matched) {
+                        break;
+                    }
+                }
+                currentCard = currentCard.next();
+            }
+            keyboardController.selectEnabled(false);
+        } else {
+            presenter.showAnswers();
+        }
+    };
+
     presenter.hideAnswers = function () {
         if (!presenter.isActivity) {
             return;
         }
 
         presenter.viewContainer.find('.cell').removeClass('cell-show-answers');
+        presenter.viewContainer.find('.cell').removeClass('exposed-in-GSA-mode');
         presenter.viewContainer.find('.cell').find('.back').css('visibility', 'hidden');
         presenter.viewContainer.find('.cell').find('.front').css('visibility', 'visible');
 
@@ -1684,6 +1771,30 @@ function Addongamememo_create(){
 
         presenter.isShowAnswersActive = false;
         keyboardController.selectEnabled(true);
+
+        presenter.hasCheckFirstClickedCardInGSAMode = true;
+        presenter.hasCheckSecondClickedCardInGSAMode = true;
+    };
+
+    presenter.getActivitiesCount = function () {
+        if (presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
+            return 1;
+        }
+        if (!presenter.isShowAnswersActive) {
+            const numberOfCards = presenter.viewContainer.find('.cell').length;
+            var cardsLeftCounter = 0;
+            var currentCard = presenter.viewContainer.find('.cell').first();
+            for (i = 0; i < numberOfCards; i++) {
+                currentCardIsClicked = ((presenter.cardClickedFirst && currentCard[0] == presenter.cardClickedFirst[0])
+                                     || (presenter.cardClickedSecond && currentCard[0] == presenter.cardClickedSecond[0]))
+                if (!currentCard.hasClass('was-clicked') || currentCardIsClicked) {
+                    cardsLeftCounter++;
+                }
+                currentCard = currentCard.next();
+            }
+            presenter.activitiesCount = cardsLeftCounter / 2;
+        }
+        return presenter.activitiesCount;
     };
 
     presenter.show = function() {
