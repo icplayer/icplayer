@@ -18,7 +18,6 @@ TestCase("[Paragraph] get printable HTML", {
         this.spies = {
             upgradeModel : sinon.spy(this.presenter, 'upgradeModel'),
             validateModel : sinon.spy(this.presenter, 'validateModel'),
-            getModelAnswer : sinon.spy(this.presenter, 'getModelAnswer'),
             getUsersAnswer : sinon.spy(this.presenter, 'getUsersAnswer')
         };
     },
@@ -43,6 +42,7 @@ TestCase("[Paragraph] get printable HTML", {
     },
 
     'test update and validate model in printable method on printing HTML': function () {
+        this.presenter['printableState'] = {'usersAnswer' : 'This is an example users answer.'}
         this.presenter.getPrintableHTML(this.model, true);
 
         assertTrue(this.spies.upgradeModel.called);
