@@ -465,7 +465,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (GapInfo gap : module.getGapInfos()) {
 			enteredValue = getElementText(gap).trim();
-			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue)) {
+			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue) && !gap.isTextOnlyPlaceholder(enteredValue, module.ignoreDefaultPlaceholderWhenCheck())) {
 				errorCount++;
 			}
 		}
