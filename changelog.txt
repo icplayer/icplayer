@@ -1,3 +1,4 @@
+2021-08-04 Add clear visited pages property to lesson reset
 2021-07-30 Add getOpenEndedContentsForCurrentPage to PlayerServices
 2021-07-28 Added keyboard navigation and TTS to Quiz
 2021-07-27 Fixed bug that audiodescription in Chrome doesn't stop video
