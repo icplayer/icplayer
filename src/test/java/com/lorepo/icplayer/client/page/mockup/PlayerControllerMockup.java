@@ -281,6 +281,11 @@ public class PlayerControllerMockup implements IPlayerController {
 		return null;
 	}
 
+	@Override
+	public void clearVisitedPages() {
+
+	}
+
 
 	@Override
 	public IAdaptiveLearningService getAdaptiveLearningService() {
