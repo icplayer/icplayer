@@ -44,7 +44,7 @@ UpgradeModelTests.prototype.testUpgradeModelShouldCallAllUpgradeModelFunctions =
 
     var result = this.presenter.upgradeModel(this.model);
 
-    assertEquals("B", result["0"]);
+    assertEquals("B", result[0]);
 
     assertTrue(upgradeEnableLoopFunction.calledOnce);
     assertTrue(upgradeForceLoadAudioFunction.calledOnce);
