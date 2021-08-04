@@ -53,6 +53,7 @@ public interface IPlayerServices {
 
 	public void setExternalVariable(String key, String value);
 	public String getExternalVariable(String key);
+	public JavaScriptObject getOpenEndedContentForCurrentPage();
 
 	@Deprecated
 	public EventBus	getEventBus();
