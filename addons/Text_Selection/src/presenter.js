@@ -528,11 +528,6 @@ function AddonText_Selection_create() {
         DEFAULT: 'Mark phrases to select'
     };
 
-    function isMarkPhrasesToSelectMode(model) {
-        const mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode)
-        return mode === 'MARK_PHRASES';
-    }
-
     presenter.SELECTION_TYPE = {
         'Single select': 'SINGLESELECT',
         'Multiselect': 'MULTISELECT',
@@ -1744,28 +1739,18 @@ function AddonText_Selection_create() {
 
    presenter.getPrintableHTML = function (model, showAnswers) {
        var upgradedModel = presenter.upgradeModel(model);
-       var isActiveMarkPhrasesToSelectMode = isMarkPhrasesToSelectMode(upgradedModel);
-       var $html = createHTMLStructureForPrintable(upgradedModel);
+       var configuration = presenter.validateModel(upgradedModel);
+       var $html = createHTMLStructureForPrintable(configuration);
 
        chosePrintableStateMode(showAnswers);
-       upgradeHTMLStructureForPrintable($html, isActiveMarkPhrasesToSelectMode);
+       upgradeHTMLStructureForPrintable($html, configuration.mode);
        presenter.printableStateMode = null;
 
        var $view = createViewForPrintable(upgradedModel, $html);
        return $view[0].outerHTML;
    };
 
-    function createViewForPrintable(model, $html) {
-        var $view = $("<div></div>");
-        $view.attr("id", model.ID);
-        $view.addClass(CSS_CLASSES.PRINTABLE);
-        $view.css("max-width", model["Width"]+"px");
-        $view.html($html.html());
-        return $view;
-    }
-
-   function createHTMLStructureForPrintable(model) {
-       var configuration = presenter.validateModel(model);
+   function createHTMLStructureForPrintable(configuration) {
        var $renderedRun = $(configuration.renderedRun).clone();
        if (presenter.printableState) {
            var numbers = presenter.printableState.numbers;
@@ -1790,7 +1775,7 @@ function AddonText_Selection_create() {
         }
     }
 
-    function upgradeHTMLStructureForPrintable($html, isActiveMarkPhrasesToSelectMode) {
+    function upgradeHTMLStructureForPrintable($html, mode) {
         switch (presenter.printableStateMode) {
             case presenter.PRINTABLE_STATE_MODE.EMPTY:
                 upgradeHTMLForPrintableWhenEmptyPrintableStateMode($html);
@@ -1805,7 +1790,7 @@ function AddonText_Selection_create() {
                 upgradeHTMLForPrintableWhenCheckAnswersPrintableStateMode($html);
                 break;
         }
-        upgradeHTMLForPrintableElementsAccordingToMode($html, isActiveMarkPhrasesToSelectMode);
+        upgradeHTMLForPrintableElementsAccordingToMode($html, mode);
         cleanHTMLStructureFromNotPrintableAttributesAndClasses($html);
     }
 
@@ -1846,8 +1831,8 @@ function AddonText_Selection_create() {
         })
     }
 
-    function upgradeHTMLForPrintableElementsAccordingToMode($html, isActiveMarkPhrasesToSelectMode) {
-        if (isActiveMarkPhrasesToSelectMode)
+    function upgradeHTMLForPrintableElementsAccordingToMode($html, mode) {
+        if (mode === 'MARK_PHRASES')
             upgradeHTMLForPrintableWhenMarkPhrasesToSelectMode($html);
     }
 
@@ -1876,6 +1861,15 @@ function AddonText_Selection_create() {
 
     function findNumberElements($html) {
         return $html.find('span[number]');
+    }
+
+    function createViewForPrintable(model, $html) {
+        var $view = $("<div></div>");
+        $view.attr("id", model.ID);
+        $view.addClass(CSS_CLASSES.PRINTABLE);
+        $view.css("max-width", model["Width"] + "px");
+        $view.html($html.html());
+        return $view;
     }
 
     presenter.getActivitiesCount = function () {
