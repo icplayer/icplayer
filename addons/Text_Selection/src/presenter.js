@@ -529,7 +529,8 @@ function AddonText_Selection_create() {
     };
 
     function isMarkPhrasesToSelectMode(model) {
-        return model.Mode === "Mark phrases to select";
+        const mode = ModelValidationUtils.validateOption(presenter.MODE, model.Mode)
+        return mode === 'MARK_PHRASES';
     }
 
     presenter.SELECTION_TYPE = {
@@ -1823,7 +1824,7 @@ function AddonText_Selection_create() {
     function upgradeHTMLForPrintableWhenShowUserAnswersPrintableStateMode($html) {
         var $spans = $(findSelectedElements($html));
         $spans.each(function() {
-            var $wrapper = $(`<u></u>`);
+            var $wrapper = $('<u></u>');
             $wrapper.addClass(CSS_CLASSES.PRINTABLE_SELECTED);
             $(this).wrap($wrapper);
         })
@@ -1833,14 +1834,14 @@ function AddonText_Selection_create() {
         var $spans = $(findSelectedElements($html));
         $spans.each(function() {
             var $span = $( this );
-            var $wrapper = $(`<u></u>`);
+            var $wrapper = $('<u></u>');
 
+            $wrapper.addClass(CSS_CLASSES.PRINTABLE_SELECTED);
             if (isCorrect($span)) {
                 $wrapper.addClass(CSS_CLASSES.PRINTABLE_CORRECT);
             } else {
                 $wrapper.addClass(CSS_CLASSES.PRINTABLE_WRONG);
             }
-            $wrapper.addClass(CSS_CLASSES.PRINTABLE_SELECTED);
             $span.wrap($wrapper);
         })
     }
@@ -1851,14 +1852,14 @@ function AddonText_Selection_create() {
     }
 
     function upgradeHTMLForPrintableWhenMarkPhrasesToSelectMode($html) {
-        findSelectableElements($html).wrap( "<strong></strong>" );
+        findSelectableElements($html).wrap('<strong></strong>');
     }
 
     function cleanHTMLStructureFromNotPrintableAttributesAndClasses($html) {
         findSelectableElements($html).removeClass(CSS_CLASSES.SELECTABLE);
         findSelectedElements($html).removeClass(CSS_CLASSES.SELECTED);
-        findSpaceElements($html).contents().unwrap("<span></span>");
-        findNumberElements($html).contents().unwrap("<span></span>");
+        findSpaceElements($html).contents().unwrap('<span></span>');
+        findNumberElements($html).contents().unwrap('<span></span>');
     }
 
     function findSelectedElements($html) {
@@ -1870,11 +1871,11 @@ function AddonText_Selection_create() {
     }
 
     function findSpaceElements($html) {
-        return $html.find(`span[left]`);
+        return $html.find('span[left]');
     }
 
     function findNumberElements($html) {
-        return $html.find(`span[number]`);
+        return $html.find('span[number]');
     }
 
     presenter.getActivitiesCount = function () {
