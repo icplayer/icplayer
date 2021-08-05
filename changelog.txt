@@ -1,3 +1,4 @@
+2021-08-04 Added tests for printable state in text selection
 2021-08-04 Added support for printable check answers state in text selection
 2021-08-04 Added support for printable show user answers state in text selection
 2021-07-30 Added printable state for text selection
