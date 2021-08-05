@@ -1399,12 +1399,12 @@ function AddonText_Coloring_create() {
         userAnswer.forEach(token => {
             switch (true) {
                 case token.isSelected && !showAnswers:
-                    var color = parseToGrayscale(presenter.getColorInHEX(model, token.selectionColorID));
+                    var color = parseToGrayscale(presenter.getColorInHex(model, token.selectionColorID));
                     printableHTML += `<span style="border: 2px solid ${color}">${token.value}</span> `;
                     break;
 
                 case token.isSelected && showAnswers:
-                    var color = parseToGrayscale(presenter.getColorInHEX(model, token.selectionColorID));
+                    var color = parseToGrayscale(presenter.getColorInHex(model, token.selectionColorID));
                     var answerMark = presenter.isAnswerCorrect(token, modelAnswer) ? '&#10004;' : '&#10006;';
                     printableHTML += `<span style="border: 2px solid ${color}">${token.value} ${answerMark}</span> `;
                     break;
@@ -1456,7 +1456,7 @@ function AddonText_Coloring_create() {
         return colors;
     }
 
-    presenter.getColorInHEX = function (model, colorName) {
+    presenter.getColorInHex = function (model, colorName) {
         var colors =  presenter.getColors(model);
 
         return colors.find(color => color.name === colorName).value;
