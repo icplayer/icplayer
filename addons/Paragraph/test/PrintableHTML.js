@@ -23,6 +23,7 @@ TestCase("[Paragraph] get printable HTML", {
     },
 
     'test display model answer after getPrintableHTML call when users answer is empty': function () {
+        this.presenter['printableState'] = {'tinymceState' : ''}
         this.model['Show Answers'] = 'This is a testing answer for Paragraph addon.';
         var result = this.presenter.getPrintableHTML(this.model, true);
         result = result.replace(/<(.*?)>/g, '');
@@ -32,7 +33,7 @@ TestCase("[Paragraph] get printable HTML", {
     },
 
     'test display user answer after getPrintableHTML call': function () {
-        this.presenter['printableState'] = {'usersAnswer' : 'This is an example users answer.'}
+        this.presenter['printableState'] = {'tinymceState' : 'This is an example users answer.'}
         this.model['Show Answers'] = 'This is a testing answer for Paragraph addon.';
         var result = this.presenter.getPrintableHTML(this.model, true);
         result = result.replace(/<(.*?)>/g, '');
@@ -42,7 +43,7 @@ TestCase("[Paragraph] get printable HTML", {
     },
 
     'test update and validate model in printable method on printing HTML': function () {
-        this.presenter['printableState'] = {'usersAnswer' : 'This is an example users answer.'}
+        this.presenter['printableState'] = {'tinymceState' : 'This is an example users answer.'}
         this.presenter.getPrintableHTML(this.model, true);
 
         assertTrue(this.spies.upgradeModel.called);
