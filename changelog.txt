@@ -1,3 +1,5 @@
+2021-08-04 Added support for printable check answers state in text selection
+2021-08-04 Added support for printable show user answers state in text selection
 2021-07-30 Added printable state for text selection
 2021-07-22 Add removeAllBookmarks command and tests to Navigation bar addon
 2021-07-12 Added math editor in popup property to WIRIS addon
