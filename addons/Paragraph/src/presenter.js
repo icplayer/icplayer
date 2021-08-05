@@ -804,13 +804,10 @@ function AddonParagraph_create() {
             tinymceState = '';
         }
 
-        var usersAnswer = tinymceState.replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
-
         return JSON.stringify({
             'tinymceState' : tinymceState,
             'isVisible' : presenter.isVisibleValue,
-            'isLocked' : presenter.isLocked,
-            'usersAnswer' : usersAnswer
+            'isLocked' : presenter.isLocked
         });
     };
 
@@ -916,7 +913,7 @@ function AddonParagraph_create() {
         $paragraph.css("border", "1px solid");
         $paragraph.css("padding", "10px");
 
-        if (showAnswers && modelAnswer && !usersAnswer) {
+        if (showAnswers && modelAnswer && !presenter.didUserAnswer(usersAnswer)) {
             $paragraph.html(modelAnswer);
         } else {
             $paragraph.html(usersAnswer);
@@ -927,10 +924,15 @@ function AddonParagraph_create() {
     };
 
     presenter.getUsersAnswer = function () {
-        if (presenter.printableState && presenter.printableState.hasOwnProperty('usersAnswer')) {
-            return presenter.printableState['usersAnswer'];
+        if (presenter.printableState && presenter.printableState.hasOwnProperty('tinymceState')) {
+            return presenter.printableState['tinymceState'];
         }
         return null;
+    }
+
+    presenter.didUserAnswer = function (usersAnswer) {
+        var parsedAnswer = usersAnswer.replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
+        return !!parsedAnswer;
     }
 
     return presenter;
