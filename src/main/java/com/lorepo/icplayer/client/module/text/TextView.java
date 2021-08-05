@@ -135,6 +135,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 			GapInfo gi = giIterator.next();
 			try {
 				GapWidget gap = new GapWidget(gi, listener);
+				gap.setIgnorePlaceholder(module.ignoreDefaultPlaceholderWhenCheck());
 				
 				if (gapWidth > 0) {
 					gap.setWidth(gapWidth + "px");
@@ -193,6 +194,7 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 						}
 					} else {
 						GapWidget gap = new GapWidget(gi, listener);
+						gap.setIgnorePlaceholder(module.ignoreDefaultPlaceholderWhenCheck());
 						if (savedDisabledState.size() > 0) {
 							gap.setDisabled(savedDisabledState.get(counter));
 						} else {
