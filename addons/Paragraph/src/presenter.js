@@ -917,9 +917,9 @@ function AddonParagraph_create() {
         $paragraph.css("padding", "10px");
 
         if (showAnswers && modelAnswer && !usersAnswer) {
-            $paragraph.html(getPlainText(modelAnswer));
+            $paragraph.html(modelAnswer);
         } else {
-            $paragraph.html(getPlainText(usersAnswer));
+            $paragraph.html(usersAnswer);
         }
 
         $wrapper.append($paragraph);
@@ -939,8 +939,3 @@ function AddonParagraph_create() {
 AddonParagraph_create.__supported_player_options__ = {
     interfaceVersion: 2
 };
-
-// Returns the text without HTML tags.
-function getPlainText(text) {
-    return text.replace(/<(.*?)>/g, '');
-}
