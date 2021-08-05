@@ -1,9 +1,11 @@
 package com.lorepo.icplayer.client.printable;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.module.text.TextParser;
+
+import java.util.HashMap;
 
 public class PrintableController {
 
@@ -11,6 +13,7 @@ public class PrintableController {
 	private Page page = null;
 	private SeededRandom random = new SeededRandom();
 	private JavaScriptObject scoreJS = null;
+	private JavaScriptObject titlesJS = null;
 	private IPrintableTextParser textParser;
 	
 	PrintableController(Page page) {
@@ -61,7 +64,7 @@ public class PrintableController {
 
 		controller.getTextParser = function() {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::getTextParser()();
-		}
+		};
 		
 		return controller;
 	}-*/;
@@ -73,6 +76,18 @@ public class PrintableController {
 	public void setScore(String score) {
 		this.scoreJS = parseJson(score);
 	}
+
+	public void setTitles(HashMap<String, String> titles) {
+		this.titlesJS = JavaScriptUtils.createJSObject();
+
+		for(String key : titles.keySet()){
+			JavaScriptUtils.addPropertyToJSArray(this.titlesJS, key, titles.get(key));
+		}
+	};
+
+	public String getTitle(String id) {
+		return JavaScriptUtils.getArrayItemByKey(this.titlesJS, id);
+	};
 
 	private JSPrintableTextParser getTextParser() {
 		return this.textParser.getAsJS();

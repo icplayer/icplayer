@@ -10,6 +10,12 @@ function AddonHierarchical_Lesson_Report_create() {
     var selectedCellClassName = "keyboard_navigation_active_element";
     var isWCAGOn = false;
 
+    presenter.printableState = null;
+
+    var CSS_CLASSES = {
+        PRINTABLE: "printable_addon_Hierarchical_Lesson_Report",
+    };
+
     function getTextVoiceObject (text, lang) {return {text: text, lang: lang};}
 
     presenter.ERROR_MESSAGES = {
@@ -52,6 +58,10 @@ function AddonHierarchical_Lesson_Report_create() {
 
     presenter.setPlayerController = function (controller) {
         presentationController = controller;
+    };
+
+    presenter.setPrintableController = function (controller) {
+        presenter.printableController = controller;
     };
 
     presenter.run = function (view, model) {
@@ -1136,6 +1146,27 @@ function AddonHierarchical_Lesson_Report_create() {
         if (tts && isWCAGOn) {
             tts.speak(data);
         }
+    };
+
+    presenter.getPrintableHTML = function (model, showAnswers) {
+        var upgradedModel = presenter.upgradeModel(model);
+        var configuration = presenter.validateModel(upgradedModel);
+
+        var score = JSON.stringify(presenter.printableController.getScore());
+        console.log("Score: ", score);
+        var titles = presenter.printableController.getTitles();
+        presenter.printableController.get
+        console.log("Titles: ", titles);
+        console.log(titles[Object.keys(titles)[0]]);
+
+        var $view = $("<div></div>");
+        $view.attr("id", model.ID);
+        $view.addClass(CSS_CLASSES.PRINTABLE);
+        $view.addClass("printable_module");
+        $view.css("max-width", model["Width"]+"px");
+        $view.css("min-height", model["Height"]+"px");
+
+        return $view[0].outerHTML;
     };
 
     return presenter;

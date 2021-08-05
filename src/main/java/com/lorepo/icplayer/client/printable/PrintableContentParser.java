@@ -41,6 +41,7 @@ public class PrintableContentParser {
 	SeededRandom random = new SeededRandom();
 	private HashMap<String, String> loadedState = null;
 	private String rawScore = "";
+	private HashMap<String, String> titles = new HashMap<String, String>();
 	boolean showAnswers = false;
 	boolean randomizePages = false;
 	boolean randomizeModules = false;
@@ -319,6 +320,9 @@ public class PrintableContentParser {
 		if (this.rawScore != null && this.rawScore.length() > 0) {
 			pagePrintableController.setScore(this.rawScore);
 		}
+		if (!this.titles.isEmpty()) {
+			pagePrintableController.setTitles(this.titles);
+		}
 
 		ModuleList modules = page.getModules();
 		for (int i = 0; i < modules.size(); i++) {
@@ -550,6 +554,11 @@ public class PrintableContentParser {
 				}
 			}
 		}
+		this.titles.clear();
+		for (Page page: pages) {
+			this.titles.put(page.getId(), page.getName());
+		}
+
 		Page header = contentModel.getDefaultHeader();
 		if (header != null) {
 			setHeader(header);
@@ -561,8 +570,6 @@ public class PrintableContentParser {
 		setTwoColumnPrintEnabled(Boolean.valueOf(contentModel.getMetadataValue("enableTwoColumnPrint")));
 		generatePrintableHTMLForPages(pages);
 	}
-
-
 	
 	public void generatePrintableHTML(Content contentModel) {
 		generatePrintableHTML(contentModel, null);
