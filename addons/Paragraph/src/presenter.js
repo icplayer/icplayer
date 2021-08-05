@@ -11,7 +11,6 @@ function AddonParagraph_create() {
     presenter.playerController = null;
     presenter.isVisibleValue = null;
     presenter.isShowAnswersActive = false;
-    presenter.modelAnswer = null;
     presenter.cachedAnswer = [];
 
     presenter.isEditorLoaded = false;
