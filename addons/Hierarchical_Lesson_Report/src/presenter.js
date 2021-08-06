@@ -1154,8 +1154,7 @@ function AddonHierarchical_Lesson_Report_create() {
 
         var score = JSON.stringify(presenter.printableController.getScore());
         console.log("Score: ", score);
-        var titles = presenter.printableController.getTitles();
-        presenter.printableController.get
+        var titles = presenter.printableController.getLessonTitles();
         console.log("Titles: ", titles);
         console.log(titles[Object.keys(titles)[0]]);
 

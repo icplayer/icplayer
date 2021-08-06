@@ -41,7 +41,7 @@ public class PrintableContentParser {
 	SeededRandom random = new SeededRandom();
 	private HashMap<String, String> loadedState = null;
 	private String rawScore = "";
-	private HashMap<String, String> titles = new HashMap<String, String>();
+	private HashMap<String, String> lessonTitles = new HashMap<String, String>();
 	boolean showAnswers = false;
 	boolean randomizePages = false;
 	boolean randomizeModules = false;
@@ -320,8 +320,8 @@ public class PrintableContentParser {
 		if (this.rawScore != null && this.rawScore.length() > 0) {
 			pagePrintableController.setScore(this.rawScore);
 		}
-		if (!this.titles.isEmpty()) {
-			pagePrintableController.setTitles(this.titles);
+		if (!this.lessonTitles.isEmpty()) {
+			pagePrintableController.setLessonTitles(this.lessonTitles);
 		}
 
 		ModuleList modules = page.getModules();
@@ -554,9 +554,9 @@ public class PrintableContentParser {
 				}
 			}
 		}
-		this.titles.clear();
+		this.lessonTitles.clear();
 		for (Page page: pages) {
-			this.titles.put(page.getId(), page.getName());
+			this.lessonTitles.put(page.getId(), page.getName());
 		}
 
 		Page header = contentModel.getDefaultHeader();

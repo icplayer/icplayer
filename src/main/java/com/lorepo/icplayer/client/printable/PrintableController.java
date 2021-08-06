@@ -13,7 +13,7 @@ public class PrintableController {
 	private Page page = null;
 	private SeededRandom random = new SeededRandom();
 	private JavaScriptObject scoreJS = null;
-	private JavaScriptObject titlesJS = null;
+	private JavaScriptObject lessonTitlesJS = null;
 	private IPrintableTextParser textParser;
 	
 	PrintableController(Page page) {
@@ -62,6 +62,10 @@ public class PrintableController {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::scoreJS;
 		};
 
+		controller.getLessonTitles = function() {
+			return x.@com.lorepo.icplayer.client.printable.PrintableController::lessonTitlesJS;
+		};
+
 		controller.getTextParser = function() {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::getTextParser()();
 		};
@@ -77,16 +81,16 @@ public class PrintableController {
 		this.scoreJS = parseJson(score);
 	}
 
-	public void setTitles(HashMap<String, String> titles) {
-		this.titlesJS = JavaScriptUtils.createJSObject();
+	public void setLessonTitles(HashMap<String, String> titles) {
+		this.lessonTitlesJS = JavaScriptUtils.createJSObject();
 
 		for(String key : titles.keySet()){
-			JavaScriptUtils.addPropertyToJSArray(this.titlesJS, key, titles.get(key));
+			JavaScriptUtils.addPropertyToJSArray(this.lessonTitlesJS, key, titles.get(key));
 		}
 	};
 
-	public String getTitle(String id) {
-		return JavaScriptUtils.getArrayItemByKey(this.titlesJS, id);
+	public String getLessonTitle(String id) {
+		return JavaScriptUtils.getArrayItemByKey(this.lessonTitlesJS, id);
 	};
 
 	private JSPrintableTextParser getTextParser() {
