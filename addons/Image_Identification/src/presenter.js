@@ -594,9 +594,9 @@ function AddonImage_Identification_create(){
             if (data.moduleID === presenter.configuration.addonID) {
                 presenter.showAnswers();
             }
-            presenter.isGradualShowAnswersActive = false;
         } else if (eventName === "GradualHideAnswers") {
             presenter.hideAnswers();
+            presenter.isGradualShowAnswersActive = false;
         }
     };
 
