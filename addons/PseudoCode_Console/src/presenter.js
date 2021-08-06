@@ -104,8 +104,6 @@ function generateJumpInstruction(code, toLabel) {
 /***/ }),
 /* 2 */,
 /* 3 */
-/* 3 */,
-/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _languageDefinition = __webpack_require__(4);
