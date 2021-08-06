@@ -2,6 +2,7 @@ function AddonPointsLines_create() {
     var presenter = function() {};
     presenter.error = false;
     presenter.isShowAnswersActive = false;
+    presenter.isGradualShowAnswersActive = false;
 
     presenter.ERROR_CODES = {
         'PE' : 'Points coordinates incorrect!',
@@ -726,14 +727,23 @@ function AddonPointsLines_create() {
         }
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, data) {
         if (eventName == "ShowAnswers") {
             presenter.showAnswers();
         }
         if (eventName == "HideAnswers") {
             presenter.hideAnswers();
+        } else if (eventName === "GradualShowAnswers") {
+            if (!presenter.isGradualShowAnswersActive) {
+                presenter.isGradualShowAnswersActive = true;
+            }
+            if (data.moduleID === presenter.addonID) {
+                presenter.gradualShowAnswers(parseInt(data.item, 10));
+            }
+        } else if (eventName === "GradualHideAnswers") {
+            presenter.gradualHideAnswers();
         }
-    };
+    }
 
     function getMousePositionOnCanvas(e) {
         var rect = presenter.canvas.getBoundingClientRect(), client = {
@@ -1017,6 +1027,31 @@ function AddonPointsLines_create() {
         presenter.$view.find('.pointslines').removeClass('correct');
         presenter.$view.find('.pointslines').removeClass('wrong');
     };
+
+    presenter.gradualShowAnswers = function (itemIndex) {
+        if (presenter.activity) {
+            presenter.setWorkMode();
+            presenter.$view.find('.line').not('.noremovable').css("visibility", "hidden");
+            console.log(presenter.points)
+            console.log(presenter.answer)
+            // var numberOfPoints = presenter.points.length;
+            // var i, j;
+            // for (i = 0; i < numberOfPoints; i++) {
+            //     for (j = i; j < numberOfPoints; j++) {
+            //         if (presenter.answer[i][j] == 1) {
+            //             presenter.drawLine(i,j,true);
+            //         }
+            //     }
+            // }
+        }
+    }
+
+    presenter.gradualHideAnswers = function () {
+        presenter.isGradualShowAnswersActive = false;
+        presenter.$view.find('.line-show-answer').remove();
+        presenter.redraw();
+        isSelectionPossible = true;
+    }
 
     presenter.showAnswers = function () {
         if (presenter.activity) {
