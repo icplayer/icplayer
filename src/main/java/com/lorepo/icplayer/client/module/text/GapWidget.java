@@ -34,6 +34,7 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	private boolean isWorkingMode = true;
 	private int gapState = 0;
 	private ArrayList<HandlerRegistration> handlers = new ArrayList<HandlerRegistration>();
+	private boolean ignorePlaceholder = false;
 
 	private final String expNotationPattern = "^[+-]?[,.\\d]*([eE][+-]?[,.\\d]*)?$";
 	
@@ -64,6 +65,10 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	
 	public void setSizeAttribute(int size) {
 		this.getElement().setAttribute("size", Integer.toString(size));
+	}
+
+	public void setIgnorePlaceholder(boolean ignore) {
+	    this.ignorePlaceholder = ignore;
 	}
 	
 	private final void initialize (ITextViewListener listener) {
@@ -223,11 +228,14 @@ public class GapWidget extends TextBox implements TextElementDisplay {
 	}
 
 	@Override
-	public void setShowErrorsMode(boolean isActivity) {
-		if (isActivity) {
-			String text = getText().trim();
+    public void setShowErrorsMode(boolean isActivity) {
+    	if (isActivity) {
+			String text = getText();
+			String placeholder = this.gapInfo.getPlaceHolder().trim();
+			boolean isTextOnlyPlaceholder = this.ignorePlaceholder && text == placeholder;
 			this.isWorkingMode = false;
-			if (text.length() > 0) {
+
+			if (text.length() > 0 && !isTextOnlyPlaceholder) {
 				if (gapInfo.isCorrect(text)) {
 					addStyleDependentName("correct");
 					this.gapState = 1;

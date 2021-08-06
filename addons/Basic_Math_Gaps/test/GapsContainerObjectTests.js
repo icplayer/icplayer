@@ -4,7 +4,7 @@ var setUpUtils = function () {
         isEquation: false
     };
 
-    this.presenter.isDraggable = true;
+    this.presenter.configuration.isDraggable = true;
 
     var gap1 = {
         setState: function () {}
