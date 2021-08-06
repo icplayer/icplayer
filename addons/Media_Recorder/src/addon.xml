@@ -11,5 +11,23 @@
         <property name="isShowedDefaultRecordingButton" nameLabel="Media_Recorder_property_is_showed_default_recording_button" type="boolean"/>
         <property name="isResetRemovesRecording" nameLabel="Media_Recorder_property_is_reset_removes_recording" type="boolean" />
         <property name="enableInErrorCheckingMode" nameLabel="Media_Recorder_property_enable_in_error_checking_mode" type="boolean" />
+        <property name="extendedMode" nameLabel="Media_Recorder_property_extended_mode" type="boolean" />
+        <property name="disableRecording" nameLabel="Media_Recorder_property_is_disable_recording" type="boolean" />
+        <property name="enableIntensityChangeEvents" nameLabel="Media_Recorder_property_is_enable_intensity_events" type="boolean" />
+        <property name="resetDialogLabels" nameLabel="Media_Recorder_property_reset_dialog_labels" type="staticlist">
+
+            <property name="resetDialogText" nameLabel="Media_Recorder_property_reset_dialog_text" type="staticrow">
+                <property name="resetDialogLabel" nameLabel="Media_Recorder_property_reset_dialog_label" type="string"/>
+            </property>
+
+            <property name="resetDialogConfirm" nameLabel="Media_Recorder_property_reset_dialog_confirm" type="staticrow">
+                <property name="resetDialogLabel" nameLabel="Media_Recorder_property_reset_dialog_label" type="string"/>
+            </property>
+
+            <property name="resetDialogDeny" nameLabel="Media_Recorder_property_reset_dialog_deny" type="staticrow">
+                <property name="resetDialogLabel" nameLabel="Media_Recorder_property_reset_dialog_label" type="string"/>
+            </property>
+
+        </property>
     </model>
 </addon>

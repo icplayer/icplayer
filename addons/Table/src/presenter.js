@@ -34,7 +34,7 @@ function AddonTable_create() {
     presenter.isGradualShowAnswersActive = false;
     presenter.printableState = null;
     presenter.printableStateMode = null;
-     presenter.printableParserID = null;
+    presenter.printableParserID = null;
     presenter.printableParserCallback = null;
 
     presenter.ERROR_CODES = {

@@ -12,6 +12,7 @@ import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.OptionElement;
 import com.google.gwt.dom.client.SelectElement;
+import com.google.gwt.dom.client.Element;
 import com.googlecode.gwt.test.GwtModule;
 import com.googlecode.gwt.test.GwtTest;
 
@@ -28,6 +29,9 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 	
 	InlineChoiceWidget gapWidget4 = null;
 	SelectElement gap4Select = null;
+
+	GapWidget gapWidget5 = null;
+	Element gap5Element = null;
 	
 	@Before
 	public void setUp() {
@@ -36,6 +40,7 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 		TextView textView2 = new TextView(model, false);
 		TextView textView3 = new TextView(model, false);
 		TextView textView4 = new TextView(model, false);
+		TextView textView5 = new TextView(model, false);
 		
 		List<String> optionsForGap1 = Arrays.asList("---", "correct", "wrong");
 		List<String> optionsForGap2 = Arrays.asList("---", "special chars ' < > & \" ", "wrong");
@@ -52,26 +57,37 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 		this.gap2Select = createSelectHTML("gap2", optionsForGap2);
 		this.gap3Select = createSelectHTML("gap3", optionsForGap3);
 		this.gap4Select = createSelectHTML("gap4", optionsForGap4);
+		this.gap5Element = doc.createElement("p");
+		this.gap5Element.setId("gap5");
+		this.gap5Element.setAttribute("placeholder", "T");
+
 		a1.appendChild(gap1Select);
 		a1.appendChild(gap2Select);
 		a1.appendChild(gap3Select);
 		a1.appendChild(gap4Select);
+		a1.appendChild(gap5Element);
 		
 		// id must be same as in select element
 		InlineChoiceInfo gapInfo1 = new InlineChoiceInfo("gap1", "correct", 0);
 		InlineChoiceInfo gapInfo2 = new InlineChoiceInfo("gap2", "special chars ' < > & \" ", 0);
 		InlineChoiceInfo gapInfo3 = new InlineChoiceInfo("gap3", "special chars ' < > & \" ", 0);
 		InlineChoiceInfo gapInfo4 = new InlineChoiceInfo("gap4", "\\alt{correct|test 1}", 0);
-		
+		GapInfo gapInfo5 = new GapInfo("gap5", 1, false, false, 1, false);
+		gapInfo5.setPlaceHolder("T");
+		gapInfo5.addAnswer("Trex");
+
+
 		this.gapWidget1 = new InlineChoiceWidget(gapInfo1, null, textView1);
 		this.gapWidget2 = new InlineChoiceWidget(gapInfo2, null, textView2);
 		this.gapWidget3 = new InlineChoiceWidget(gapInfo3, null, textView3);
 		this.gapWidget4 = new InlineChoiceWidget(gapInfo4, null, textView4);
+		this.gapWidget5 = new GapWidget(gapInfo5, null);
 		
 		textView1.addElement(this.gapWidget1);
 		textView2.addElement(this.gapWidget2);
 		textView3.addElement(this.gapWidget3);
 		textView4.addElement(this.gapWidget4);
+		textView5.addElement(this.gapWidget5);
 	}
 	
 	public SelectElement createSelectHTML(String selectElementId, List<String> optionsTexts) {
@@ -156,4 +172,74 @@ public class GWTTextShowAnswersTestCase extends GwtTest {
 		assertTrue(isWrongClass4);
 	}
 
+
+	@Test
+	public void testTreatPlaceholderAsError() {
+	    String className = "wrong";
+
+        this.gapWidget5.setIgnorePlaceholder(false);
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isDefaultClass5);
+	}
+
+	@Test
+	public void testTreatPlaceholderAsEmpty() {
+	    String className = "empty";
+
+        this.gapWidget5.setIgnorePlaceholder(true);
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isDefaultClass5);
+	}
+
+	@Test
+	public void testWrongFilledGapCauseWrongWhenIgnoringPlaceholderIsFalse() {
+	    String className = "wrong";
+
+        this.gap5Element.setAttribute("value", "Terrain");
+        this.gapWidget5.setIgnorePlaceholder(false);
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isDefaultClass5);
+	}
+
+    @Test
+	public void testWrongFilledGapCauseWrongWhenIgnoringPlaceholderIsTrue() {
+	    String className = "wrong";
+
+        this.gap5Element.setAttribute("value", "Terrain");
+        this.gapWidget5.setIgnorePlaceholder(true);
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isDefaultClass5);
+	}
+
+	@Test
+	public void testCorrectFilledGapCauseCorrectWhenIgnoringPlaceholderIsFalse() {
+	    String className = "correct";
+
+        this.gap5Element.setAttribute("value", "Trex");
+        this.gapWidget5.setIgnorePlaceholder(false);
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isDefaultClass5);
+	}
+
+	@Test
+	public void testCorrectFilledGapCauseCorrectWhenIgnoringPlaceholderIsTrue() {
+	    String className = "correct";
+
+        this.gap5Element.setAttribute("value", "Trex");
+        this.gapWidget5.setIgnorePlaceholder(true);
+		this.gapWidget5.setShowErrorsMode(true);
+		boolean isDefaultClass5 = this.gapWidget5.getElement().getClassName().contains(className);
+
+		assertTrue(isDefaultClass5);
+	}
 }
