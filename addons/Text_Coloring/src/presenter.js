@@ -1389,41 +1389,40 @@ function AddonText_Coloring_create() {
     
     presenter.getPrintableHTML = function (model, showAnswers) {
         var printableHTML = '';
-        model = presenter.upgradeModel(model);
         var userAnswer = presenter.getUserAnswer();
-        var modelAnswer = presenter.getModelAnswer(model);
-        var wordsModelAnswer = presenter.getWordsModelAnswer(modelAnswer);
-        var didUserAnswer = userAnswer.some(answer => answer.isSelected);
+        var didUserAnswer = userAnswer ? userAnswer.some(answer => answer.isSelected) : false;
+        var textModel = model.text.split(' ');
         var height = model.Height / 2;
+        model = presenter.upgradeModel(model);
 
-        userAnswer.forEach(token => {
+        textModel.forEach((phrase, index) => {
             switch (true) {
-                case token.isSelected && !showAnswers:
-                    var color = parseToGrayscale(presenter.getColorInHex(model, token.selectionColorID));
-                    printableHTML += `<span style="border: 2px solid ${color}">${token.value}</span> `;
+                case (userAnswer && userAnswer[index].isSelected) && !showAnswers:
+                    var color = parseToGrayscale(presenter.getColorInHex(model, userAnswer[index].selectionColorID));
+                    printableHTML += `<span style="border: 2px solid ${color}">${userAnswer[index].value}</span> `;
                     break;
 
-                case token.isSelected && showAnswers:
-                    var color = parseToGrayscale(presenter.getColorInHex(model, token.selectionColorID));
-                    var answerMark = presenter.isAnswerCorrect(token, modelAnswer) ? '&#10004;' : '&#10006;';
-                    printableHTML += `<span style="border: 2px solid ${color}">${token.value} ${answerMark}</span> `;
+                case (userAnswer && userAnswer[index].isSelected) && showAnswers:
+                    var color = parseToGrayscale(presenter.getColorInHex(model, userAnswer[index].selectionColorID));
+                    var answerMark = presenter.isAnswerCorrect(userAnswer[index], phrase) ? '&#10004;' : '&#10006;';
+                    printableHTML += `<span style="border: 2px solid ${color}">${userAnswer[index].value} ${answerMark}</span> `;
                     break;
 
-                case wordsModelAnswer.includes(token.value)  && showAnswers && !didUserAnswer:
-                    var color = presenter.getModelColor(model,token.value);
-                    printableHTML += `<span style="border: 2px dashed ${color}">${token.value}</span> `;
+                case phrase.includes('\\color') && showAnswers && !didUserAnswer:
+                    var color = presenter.getColor(model, phrase);
+                    printableHTML += `<span style="border: 2px dashed ${color}">${presenter.getWord(phrase)}</span> `;
                     break;
 
-                case wordsModelAnswer.includes(token.value):
-                    printableHTML += `<span style="border-bottom: 1px solid">${token.value}</span> `;
+                case phrase.includes('\\color'):
+                    printableHTML += `<span style="border-bottom: 1px solid">${presenter.getWord(phrase)}</span> `;
                     break;
 
                 default:
-                    printableHTML += `${token.value} `;
+                    printableHTML += `${phrase} `;
             }
         });
 
-        return presenter.createHTML(showAnswers || didUserAnswer, printableHTML, height);
+        return presenter.createHTML(showAnswers || userAnswer, printableHTML, height);
     }
 
     presenter.createHTML = function (shouldChangeLineHeight, htmlContent, height) {
@@ -1447,6 +1446,7 @@ function AddonText_Coloring_create() {
         return $wrapper[0].outerHTML;
     }
 
+    /* Return colors in grayscale from the model */
     presenter.getColors = function (model) {
         var colors = [];
         model['colors'].forEach(colorObject => {
@@ -1456,37 +1456,28 @@ function AddonText_Coloring_create() {
         return colors;
     }
 
+    /* Returns color in hex code from color name */
     presenter.getColorInHex = function (model, colorName) {
         var colors =  presenter.getColors(model);
 
         return colors.find(color => color.name === colorName).value;
     }
 
-
-    presenter.getModelColor = function (model, word) {
-        var modelAnswers = presenter.getModelAnswer(model);
-        var colors =  presenter.getColors(model);
-
-        var modelAnswer = modelAnswers.find(answer => answer.includes(word));
-        var modelColor = modelAnswer.replace(/{/, '').replace(/}{.*/, '');
-
-        return colors.find(color => color.name === modelColor).value;
+    /* Extracts the word from phrase \\color{color}{word} */
+    presenter.getWord = function (phrase) {
+        var regExp = /(\\color{\w*}{)/;
+        return phrase.replace(regExp, '').replace(/}/, '');
     }
 
-    presenter.getModelAnswer = function (model) {
-        var regExp = /(\\color{\w*}{\w*})/g;
-        var regExpReplace = /\\color/g;
-        if (!model.hasOwnProperty('text')) { return null; }
-
-        return  model['text'].match(regExp).map(item => item.replace(regExpReplace, ''));
+    /* Extracts the color from phrase and convert into grayscale \\color{color}{word} */
+    presenter.getColor = function (model, phrase) {
+        var regExp = /(\\color{)/;
+        var regExpWord = /(}{\w*})/
+        var color = phrase.replace(regExp, '').replace(regExpWord, '');
+        return parseToGrayscale(presenter.getColorInHex(model, color));
     }
 
-    presenter.getWordsModelAnswer = function (modelAnswer) {
-        return modelAnswer.map(answer => {
-            return answer.replace(/{\w*}{/, '').replace(/}/, '');
-        });
-    }
-
+    /* Return user answers */
     presenter.getUserAnswer = function () {
         if (presenter.printableState && presenter.printableState.hasOwnProperty('tokens')) {
             return presenter.printableState['tokens'];
@@ -1495,6 +1486,7 @@ function AddonText_Coloring_create() {
         return null;
     }
 
+    /* Checks if the user answer is correct */
     presenter.isAnswerCorrect = function (userAnswer, modelAnswer) {
         return modelAnswer.includes(`{${userAnswer.selectionColorID}}{${userAnswer.value}}`);
     }

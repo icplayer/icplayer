@@ -15,7 +15,6 @@ TestCase("[Text_Coloring] get printable HTML", {
         this.spies = {
             upgradeModelSpy : sinon.spy(this.presenter, 'upgradeModel'),
             getUserAnswerSpy : sinon.spy(this.presenter, 'getUserAnswer'),
-            getModelAnswerSpy : sinon.spy(this.presenter, 'getModelAnswer'),
             createHTMLSpy : sinon.spy(this.presenter, 'createHTML')
         };
 
@@ -33,7 +32,6 @@ TestCase("[Text_Coloring] get printable HTML", {
 
         assertTrue(this.spies.upgradeModelSpy.called);
         assertTrue(this.spies.getUserAnswerSpy.called);
-        assertTrue(this.spies.getModelAnswerSpy.called);
         assertTrue(this.spies.createHTMLSpy.called);
     },
 
@@ -53,13 +51,7 @@ TestCase("[Text_Coloring] get printable HTML", {
     },
 
     'test given showAnswer on true without user answers when getPrintableHTML was called should wrap correct word': function () {
-        var userAnswer = [
-            {isSelected: false, selectionColorID: null, value: 'Shade'},
-            {isSelected: false, selectionColorID: null, value: 'difference'},
-            {isSelected: false, selectionColorID: null, value: 'red2'},
-            {isSelected: false, selectionColorID: null, value: 'blue2'}
-        ]
-        this.presenter['printableState'] = {tokens: userAnswer};
+        this.presenter['printableState'] = {};
 
         var printableHTML = this.presenter.getPrintableHTML(this.model, true);
 
@@ -90,22 +82,6 @@ TestCase("[Text_Coloring] get printable HTML", {
         assertEquals(colorInHex, '#787878');
     },
 
-    'test given model and word name when getModelColor was called should return model color': function () {
-        var colorInHex = this.presenter.getModelColor(this.model, 'red2');
-
-        assertEquals(colorInHex, '#787878');
-    },
-
-    'test given model when getModelAnswer was called should return model answers': function () {
-        var mockedModelAnswers = [
-            '{red}{red2}',
-            '{blue}{blue2}'
-        ];
-        var modelAnswers = this.presenter.getModelAnswer(this.model);
-
-        assertEquals(modelAnswers, mockedModelAnswers);
-    },
-
     'test given user answer and model answer when isAnswerCorrect was called should check correctness of the user answer': function () {
         var modelAnswers = [
             '{red}{red2}',
@@ -118,4 +94,6 @@ TestCase("[Text_Coloring] get printable HTML", {
 
         assertTrue(this.presenter.isAnswerCorrect(userAnswer, modelAnswers));
     }
+
+
 });
