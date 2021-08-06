@@ -62,6 +62,7 @@ TestCase("[Assessments_Navigation_Bar] Get State", {
     },
 
     'test set state should set provided pages to sections': function () {
+        this.presenter.sections.allPages = [{page: 1}, {page: 4}, {page: 5}];
         this.presenter.setState(JSON.stringify(this.pages));
 
         assertEquals(this.expectedPages, this.presenter.sections.allPages);
