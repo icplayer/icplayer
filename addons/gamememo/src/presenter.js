@@ -1698,10 +1698,10 @@ function Addongamememo_create(){
     presenter.getIfUnexposedCardInGSAMode = function(currentCard) {
         if (!currentCard.hasClass('was-clicked') && !currentCard.hasClass('exposed-in-GSA-mode')) {
             return currentCard;
-        } else if (presenter.cardClickedFirst && presenter.hasCheckFirstClickedCardInGSAMode && currentCard[0] == presenter.cardClickedFirst[0]) {
+        } else if (presenter.cardClickedFirst && presenter.hasCheckFirstClickedCardInGSAMode && currentCard[0] === presenter.cardClickedFirst[0]) {
             presenter.hasCheckFirstClickedCardInGSAMode = false;
             return currentCard;
-        } else if (presenter.cardClickedSecond && presenter.hasCheckSecondClickedCardInGSAMode && currentCard[0] == presenter.cardClickedSecond[0]) {
+        } else if (presenter.cardClickedSecond && presenter.hasCheckSecondClickedCardInGSAMode && currentCard[0] === presenter.cardClickedSecond[0]) {
             presenter.hasCheckSecondClickedCardInGSAMode = false;
             return currentCard;
         }
@@ -1711,15 +1711,15 @@ function Addongamememo_create(){
     presenter.showInGSAModeIfCardsMatch = function(firstCard, secondCard) {
         firstCardId = firstCard.find('.card').attr('card_id');
         secondCardId = secondCard.find('.card').attr('card_id');
-        if (firstCardId == secondCardId) {
+        if (firstCardId === secondCardId) {
             presenter.showCard(firstCard);
             presenter.showCard(secondCard);
             firstCard.addClass('exposed-in-GSA-mode');
             secondCard.addClass('exposed-in-GSA-mode');
-            if (presenter.cardClickedFirst && presenter.hasCheckFirstClickedCardInGSAMode && secondCard[0] == presenter.cardClickedFirst[0]) {
+            if (presenter.cardClickedFirst && presenter.hasCheckFirstClickedCardInGSAMode && secondCard[0] === presenter.cardClickedFirst[0]) {
                 presenter.hasCheckFirstClickedCardInGSAMode = false;
             }
-            else if (presenter.cardClickedSecond && presenter.hasCheckSecondClickedCardInGSAMode && secondCard[0] == presenter.cardClickedSecond[0]) {
+            else if (presenter.cardClickedSecond && presenter.hasCheckSecondClickedCardInGSAMode && secondCard[0] === presenter.cardClickedSecond[0]) {
                 presenter.hasCheckSecondClickedCardInGSAMode = false;
             }
             return true;
@@ -1785,8 +1785,8 @@ function Addongamememo_create(){
             var cardsLeftCounter = 0;
             var currentCard = presenter.viewContainer.find('.cell').first();
             for (i = 0; i < numberOfCards; i++) {
-                currentCardIsClicked = ((presenter.cardClickedFirst && currentCard[0] == presenter.cardClickedFirst[0])
-                                     || (presenter.cardClickedSecond && currentCard[0] == presenter.cardClickedSecond[0]))
+                currentCardIsClicked = ((presenter.cardClickedFirst && currentCard[0] === presenter.cardClickedFirst[0])
+                                     || (presenter.cardClickedSecond && currentCard[0] === presenter.cardClickedSecond[0]))
                 if (!currentCard.hasClass('was-clicked') || currentCardIsClicked) {
                     cardsLeftCounter++;
                 }
