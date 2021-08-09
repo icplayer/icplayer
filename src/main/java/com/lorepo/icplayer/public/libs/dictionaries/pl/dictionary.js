@@ -445,6 +445,7 @@ var ice_dictionary_pl = {
 	"text_module_gap_calculation_all_characters_method": "All characters",
 	"text_module_gap_calculation_longest_answer_method": "Longest answer",
 	"text_module_use_numeric_keyboard": "Use numeric keyboard",
+	"text_module_ignore_default_placeholder_when_check": "Ignore placeholder in check answers mode",
 	"is_activity" : "Jest&nbsp;ćwiczeniem",
 	"is_disabled" : "Jest&nbsp;wyłączony",
     "reset_property_confirm_reset" : "Potwierdź reset",
