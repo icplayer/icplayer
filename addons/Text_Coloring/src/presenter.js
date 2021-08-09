@@ -636,6 +636,7 @@ function AddonText_Coloring_create() {
         var upgradedModel = presenter.addModelProperty(model, 'Mode', presenter.MODE.DEFAULT);
         upgradedModel = presenter.addModelProperty(upgradedModel, 'countErrors', false);
         upgradedModel = presenter.addModelProperty(upgradedModel, 'printable', 'No');
+        upgradedModel = presenter.addModelProperty(upgradedModel, 'Legend title', 'Legend');
 
         return upgradedModel;
     };
@@ -1422,10 +1423,11 @@ function AddonText_Coloring_create() {
             }
         });
 
-        return presenter.createHTML(showAnswers || userAnswer, printableHTML, height);
+        return presenter.createHTML(showAnswers || userAnswer, printableHTML, height, model);
     }
 
-    presenter.createHTML = function (shouldChangeLineHeight, htmlContent, height) {
+    presenter.createHTML = function (shouldChangeLineHeight, htmlContent, height, model) {
+        var $legend = $('<div></div>');
         var $wrapper = $('<div></div>');
         $wrapper.addClass('printable_addon_Paragraph');
         $wrapper.css("left", "0px");
@@ -1442,7 +1444,9 @@ function AddonText_Coloring_create() {
             $paragraph.css("line-height", "1.5");
         }
         $paragraph.html(htmlContent);
+        $legend.append(presenter.createLegend(model))
         $wrapper.append($paragraph);
+        $wrapper.append($legend);
         return $wrapper[0].outerHTML;
     }
 
@@ -1489,6 +1493,29 @@ function AddonText_Coloring_create() {
     /* Checks if the user answer is correct */
     presenter.isAnswerCorrect = function (userAnswer, modelAnswer) {
         return modelAnswer.includes(`{${userAnswer.selectionColorID}}{${userAnswer.value}}`);
+    }
+
+    presenter.createLegend = function (model) {
+        var $table = $("<table></table>");
+        var $tbody = $("<tbody></tbody>");
+        var title = model['Legend title'];
+
+        $tbody.append($(`<caption>${title}</caption>`));
+        model['colors'].forEach(colorObject => {
+            var $tr = $("<tr></tr>");
+
+            var $td = $("<td><div style='width: 20px; height: 10px'></div></td>");
+            $td.css('background', parseToGrayscale(colorObject.color));
+
+            var $description = $(`<td><div style="padding-left: 10px">${colorObject.description}</div></td>`);
+
+            $tr.append($td);
+            $tr.append($description);
+            $tbody.append($tr);
+        });
+        $table.append($tbody);
+
+        return $table
     }
 
     return presenter;
