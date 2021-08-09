@@ -3,7 +3,6 @@ function Addoncrossword_create(){
 
     var playerController;
     var eventBus;
-    var addonID;
     var originalFieldValue = "";
     var enableMoveToNextField = false;
 
@@ -774,7 +773,7 @@ function Addoncrossword_create(){
     presenter.run = function(view, model) {
         presenter.preview = false;
         eventBus = playerController.getEventBus();
-        addonID = model.ID
+        presenter.addonID = model.ID
         presenter.initializeLogic(view, model);
         if (!presenter.configuration.isError) {
             presenter.setVisibility(presenter.configuration.isVisibleByDefault);
@@ -1037,7 +1036,7 @@ function Addoncrossword_create(){
             if (!presenter.isGradualShowAnswersActive) {
                 presenter.isGradualShowAnswersActive = true;
             }
-            if (data.moduleID === addonID) {
+            if (data.moduleID === presenter.addonID) {
                 presenter.gradualShowAnswers(parseInt(data.item, 10));
             }
         } else if (eventName === "GradualHideAnswers") {
