@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class GapInfoTestCase {
     private GapInfo gapInfo;
@@ -35,4 +36,69 @@ public class GapInfoTestCase {
         assertEquals(expected, answer);
     }
 
+    @Test
+    public void givenEmptyPlaceholderAndIgnorePlaceholderFalseWhenIsTextOnlyPlaceholderThenFalse() {
+        boolean ignorePlaceholder = false;
+        String text = "SomeWrongAnswer";
+        this.gapInfo.setPlaceHolder("");
+
+        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
+
+        assertFalse(response);
+    }
+
+    @Test
+    public void givenEmptyPlaceholderAndIgnorePlaceholderTrueWhenCheckingIsOnlyPlaceholderThenFalse() {
+        boolean ignorePlaceholder = true;
+        String text = "SomeWrongAnswer";
+        this.gapInfo.setPlaceHolder("");
+
+        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
+
+        assertFalse(response);
+    }
+
+    @Test
+    public void givenPlaceholderAndIgnorePlaceholderFalseWhenCheckingIsOnlyPlaceholderThenFalse() {
+        boolean ignorePlaceholder = false;
+        String text = "SomeWrongAnswer";
+        this.gapInfo.setPlaceHolder("Ans");
+
+        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
+
+        assertFalse(response);
+    }
+
+    @Test
+    public void givenPlaceholderAndIgnorePlaceholderTrueWhenCheckingIsOnlyPlaceholderThenFalse() {
+        boolean ignorePlaceholder = true;
+        String text = "SomeWrongAnswer";
+        this.gapInfo.setPlaceHolder("Ans");
+
+        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
+
+        assertFalse(response);
+    }
+
+    @Test
+    public void givenTextThatEqualsPlaceholderAndIgnorePlaceholderFalseWhenCheckingIsOnlyPlaceholderThenFalse() {
+        boolean ignorePlaceholder = false;
+        String text = "Ans";
+        this.gapInfo.setPlaceHolder("Ans");
+
+        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
+
+        assertFalse(response);
+    }
+
+    @Test
+    public void givenTextThatEqualsPlaceholderAndIgnorePlaceholderTrueWhenCheckingIsOnlyPlaceholderThenTrue() {
+        boolean ignorePlaceholder = true;
+        String text = "Ans";
+        this.gapInfo.setPlaceHolder("Ans");
+
+        boolean response = this.gapInfo.isTextOnlyPlaceholder(text, ignorePlaceholder);
+
+        assertTrue(response);
+    }
 }
