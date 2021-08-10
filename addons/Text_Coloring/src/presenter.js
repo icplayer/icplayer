@@ -120,6 +120,8 @@ function AddonText_Coloring_create() {
 
     function TextColoringStateMachine(cssConfiguration) {
         StatefullAddonObject.call(this, cssConfiguration);
+        this.blocked = false;
+        this.currentShowingAnswerId = 0;
         this.notifyEdit();
         this.previousActiveColorID = null;
         this.previousActiveColor = null;
@@ -131,6 +133,7 @@ function AddonText_Coloring_create() {
 
     TextColoringStateMachine.prototype.onBlock = function () {
         presenter.disconnectHandlers();
+        this.blocked = true;
     };
 
     TextColoringStateMachine.prototype.onUnblock = function () {
@@ -138,13 +141,11 @@ function AddonText_Coloring_create() {
         if (presenter.configuration.activeColorID != null || presenter.configuration.eraserMode != null) {
             presenter.connectWordTokensHandlers();
         }
+        this.blocked = false;
     };
 
     TextColoringStateMachine.prototype.onShowAnswers = function () {
-        this.savePreviousState();
-        this.onBlock();
-        presenter.unmarkToken(presenter.$wordTokens);
-        presenter.hideTokenClasses(presenter.$wordTokens);
+        this.onBlockAnswers();
         presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
             var colorDefinition = presenter.getColorDefinitionById(token.color);
             if (colorDefinition !== undefined) {
@@ -157,14 +158,13 @@ function AddonText_Coloring_create() {
 
     TextColoringStateMachine.prototype.onShowSingleAnswer = function () {
         if (!presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
-            if (typeof this.currentShowingAnswerId === 'undefined') {
-               this.currentShowingAnswerId = 0;
-            }
             var currentShowingAnswerId = this.currentShowingAnswerId;
             var id = 0;
 
-            this.savePreviousState();
-            this.onBlock();
+            if (!this.blocked) {
+                this.savePreviousState();
+                this.onBlock();
+            }
 
             try {
                 presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
@@ -187,6 +187,15 @@ function AddonText_Coloring_create() {
         }
     };
 
+    TextColoringStateMachine.prototype.onBlockAnswers = function () {
+        if (!this.blocked) {
+            this.savePreviousState();
+            this.onBlock();
+            presenter.unmarkToken(presenter.$wordTokens);
+            presenter.hideTokenClasses(presenter.$wordTokens);
+        }
+    };
+
     presenter.addShowAnswerClass = function ($element, colorName) {
         var className = StringUtils.format(presenter.defaults.css.showAnswer, colorName);
         $element.addClass(className);
@@ -199,6 +208,7 @@ function AddonText_Coloring_create() {
 
     TextColoringStateMachine.prototype.onHideAnswers = function () {
         this.currentShowingAnswerId = 0;
+        this.blocked = false;
         this.restorePreviousState();
         this.onUnblock();
         presenter.unmarkToken(presenter.$wordTokens);
@@ -1157,6 +1167,8 @@ function AddonText_Coloring_create() {
         if (eventName == "GradualShowAnswers") {
             if (presenter.configuration.ID == data.moduleID) {
                 presenter.stateMachine.gradualShowAnswers();
+            } else {
+                presenter.stateMachine.gradualBlockAnswers();
             }
         }
 
@@ -1174,7 +1186,6 @@ function AddonText_Coloring_create() {
                     answersNumber++;
                 }
             });
-            console.log(answersNumber);
             return answersNumber;
         }
         return 1;

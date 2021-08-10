@@ -118,6 +118,11 @@
             this.setCssOnShowAnswers();
         },
 
+        gradualBlockAnswersWorkState: function gradualBlockAnswersWorkState () {
+            this.onBlockAnswers();
+            this.setCssOnShowAnswers();
+        },
+
         resetShowAnswersState: function resetShowAnswersState () {
             StatefullAddonObject._internal.hideAnswersShowAnswersState.call(this);
             StatefullAddonObject._internal.resetWorkState.call(this);
@@ -257,6 +262,16 @@
         switch (this._actualState) {
             case StatefullAddonObject._internal.STATE.WORK:
                 StatefullAddonObject._internal.gradualShowAnswersWorkState.call(this);
+                break;
+            default:
+                break;
+        }
+    };
+
+    StatefullAddonObject.prototype.gradualBlockAnswers = function () {
+        switch (this._actualState) {
+            case StatefullAddonObject._internal.STATE.WORK:
+                StatefullAddonObject._internal.gradualBlockAnswersWorkState.call(this);
                 break;
             default:
                 break;
