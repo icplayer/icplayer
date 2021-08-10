@@ -1674,6 +1674,9 @@ function Addongamememo_create(){
         if (eventName == "GradualShowAnswers") {
             if (presenter.configuration.ID == data.moduleID) {
                 presenter.gradualShowAnswers();
+            } else {
+                presenter.activitiesCount = presenter.getActivitiesCount();
+                presenter.isShowAnswersActive = true;
             }
         }
 
