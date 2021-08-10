@@ -18,6 +18,7 @@ function AddonClock_create() {
     presenter.TimeStandard = 24;
     presenter.showAnswersMode = false;
     presenter.shouldSendEventTime = null;
+    presenter.isGradualShowAnswersActive = false;
 
     function displayText() {
         var textToDisplay = presenter.model['Text to be displayed'], isTextColored = presenter.model['Color text'] === 'True', $textContainer = presenter.$view
@@ -622,8 +623,9 @@ function AddonClock_create() {
 
             presenter.setClockTime(model.InitialTime);
 
-            presenter.eventBus.addEventListener('ShowAnswers', this);
-            presenter.eventBus.addEventListener('HideAnswers', this);
+            ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'].forEach(event => {
+                presenter.eventBus.addEventListener(event, this);
+            });
 
             jQuery(function($) {
                 $(view).find('#analog-clock').mousemove(function(e) {
@@ -999,10 +1001,10 @@ function AddonClock_create() {
     };
 
     presenter.disable = function() {
-        if(presenter.showAnswersMode === true){
+        if (presenter.showAnswersMode && !presenter.isGradualShowAnswersActive) {
             presenter.hideAnswers();
-
         }
+
         presenter.isDisable = true;
         var $myDiv = presenter.$view.find('.analog-clock')[0];
         $($myDiv).addClass('disable');
@@ -1385,7 +1387,6 @@ function AddonClock_create() {
             $($myDiv).addClass('showAnswers');
             presenter.showAnswersCurrentTime = presenter.getCurrentTime();
             presenter.setShowAnswerTime(presenter.CorrectAnswer);
-
         }
     };
 
@@ -1398,6 +1399,10 @@ function AddonClock_create() {
             presenter.setShowAnswerTime(presenter.showAnswersCurrentTime);
         }
     };
+
+    presenter.getActivitiesCount = function () {
+        return 1;
+    }
 
     presenter.setShowAnswerTime = function(time) {
 
@@ -1417,18 +1422,21 @@ function AddonClock_create() {
 
         presenter.setAttr('h-hand', h);
         presenter.setAttr('m-hand', m);
-
-
     };
 
     presenter.onEventReceived = function (eventName) {
+        switch (eventName) {
+            case 'GradualShowAnswers':
+                presenter.isGradualShowAnswersActive = true;
+            case 'ShowAnswers':
+                presenter.showAnswers();
+                break;
 
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
-
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
+            case 'GradualHideAnswers':
+                presenter.isGradualShowAnswersActive = false;
+            case 'HideAnswers':
+                presenter.hideAnswers();
+                break;
         }
     };
     return presenter;
