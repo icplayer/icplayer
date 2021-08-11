@@ -493,4 +493,48 @@ public class GWTTextPresenterTestCase extends GwtTest{
 		Mockito.verify(audioToBePlayed, Mockito.times(1)).play();
 		
 	}
+
+	@Test
+	public void givenPlaceholderThatEqualsTextAndIgnoreDefaultIsFalseWhenGetErrorCountThenGetsError() {
+	    GapInfo gi = module.gapInfos.get(0);
+	    gi.setPlaceHolder("An");
+	    //below prop is False by default, but better to implicitly set this to False
+        Whitebox.setInternalState(this.module, "ignoreDefaultPlaceholderWhenCheck", false);
+		display.getListener().onValueChanged(id3, "An");
+
+		assertEquals(1, presenter.getErrorCount());
+	}
+
+	@Test
+	public void givenPlaceholderThatEqualsTextAndIgnoreDefaultIsTrueWhenGetErrorCountThenDontGetError() {
+	    GapInfo gi = module.gapInfos.get(0);
+	    gi.setPlaceHolder("An");
+
+        Whitebox.setInternalState(this.module, "ignoreDefaultPlaceholderWhenCheck", true);
+		display.getListener().onValueChanged(id3, "An");
+
+		assertEquals(0, presenter.getErrorCount());
+	}
+
+	@Test
+	public void givenPlaceholderThatDiffersFromTextAndIgnoreDefaultIsFalseWhenGetErrorCountThenGetsError() {
+	    GapInfo gi = module.gapInfos.get(0);
+	    gi.setPlaceHolder("An");
+	    //below prop is False by default, but better to implicitly set this to False
+        Whitebox.setInternalState(this.module, "ignoreDefaultPlaceholderWhenCheck", false);
+		display.getListener().onValueChanged(id3, "Ans");
+
+		assertEquals(1, presenter.getErrorCount());
+	}
+
+	@Test
+	public void givenPlaceholderThatDiffersFromTextAndIgnoreDefaultIsTrueWhenGetErrorCountThenGetsError() {
+	    GapInfo gi = module.gapInfos.get(0);
+	    gi.setPlaceHolder("An");
+
+        Whitebox.setInternalState(this.module, "ignoreDefaultPlaceholderWhenCheck", true);
+		display.getListener().onValueChanged(id3, "Ans");
+
+		assertEquals(1, presenter.getErrorCount());
+	}
 }

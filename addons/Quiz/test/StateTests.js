@@ -1,4 +1,4 @@
-TestCase("Quiz States tests", {
+TestCase("[Quiz] States tests", {
     setUp: function () {
         this.presenter = AddonQuiz_create();
         this.presenter.addonID = 'Quiz1';
