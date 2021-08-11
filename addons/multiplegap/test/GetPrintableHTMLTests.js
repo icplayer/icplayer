@@ -54,11 +54,9 @@ TestCase("[Multiple Gap] Multiple gap printable HTML validation", {
 
     'test given printableState is undefined when !showAnswers then return empty': function() {
         //given
-        var expectedHtmlValue = `<div id="multiplegap1" class="printable_addon_multiplegap">
-                                    <div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;"></div>
-                                </div>`;
-        expectedHtmlValue = expectedHtmlValue.replaceAll("\n","");
-        expectedHtmlValue = expectedHtmlValue.replaceAll("    ","");
+        var expectedHtmlValue = '<div id="multiplegap1" class="printable_addon_multiplegap">' +
+                                    '<div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;"></div>' +
+                                '</div>';
 
         //actual
         var actualHtmlValue = this.presenter.getPrintableHTML(this.model, this.showAnswers);
@@ -69,11 +67,9 @@ TestCase("[Multiple Gap] Multiple gap printable HTML validation", {
 
     'test given printableState is undefined when showAnswers then return with correctAnswers': function() {
         //given
-        var expectedHtmlValue = `<div id="multiplegap1" class="printable_addon_multiplegap">
-                                    <div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;">zebra, dolphin</div>
-                                </div>`;
-        expectedHtmlValue = expectedHtmlValue.replaceAll("\n","");
-        expectedHtmlValue = expectedHtmlValue.replaceAll("    ","");
+        var expectedHtmlValue = '<div id="multiplegap1" class="printable_addon_multiplegap">' +
+                                    '<div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;">zebra, dolphin</div>' +
+                                '</div>';
 
         //actual
         this.showAnswers = true;
@@ -85,13 +81,26 @@ TestCase("[Multiple Gap] Multiple gap printable HTML validation", {
 
     'test given printableState when !showAnswers then return with studentAnswers': function() {
         //given
-        var expectedHtmlValue = `<div id="multiplegap1" class="printable_addon_multiplegap">
-                                    <div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;">pigeon, zebra, donkey</div>
-                                </div>`;
-        expectedHtmlValue = expectedHtmlValue.replaceAll("\n","");
-        expectedHtmlValue = expectedHtmlValue.replaceAll("    ","");
+        var expectedHtmlValue = '<div id="multiplegap1" class="printable_addon_multiplegap">' +
+                                    '<div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;">pigeon, zebra, donkey</div>' +
+                                '</div>';
 
         //actual
+        this.presenter.setPrintableState(this.state);
+        var actualHtmlValue = this.presenter.getPrintableHTML(this.model, this.showAnswers);
+
+        //expected
+        assertEquals(expectedHtmlValue, actualHtmlValue);
+    },
+
+    'test print student answers vertically': function() {
+        //given
+        var expectedHtmlValue = '<div id="multiplegap1" class="printable_addon_multiplegap">' +
+                                    '<div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;">pigeon<br>zebra<br>donkey</div>' +
+                                '</div>';
+
+        //actual
+        this.model.Orientation = "vertical";
         this.presenter.setPrintableState(this.state);
         var actualHtmlValue = this.presenter.getPrintableHTML(this.model, this.showAnswers);
 
@@ -101,15 +110,13 @@ TestCase("[Multiple Gap] Multiple gap printable HTML validation", {
 
     'test given printableState when showAnswers then return with marked studentAnswers': function() {
         //given
-        var expectedHtmlValue = `<div id="multiplegap1" class="printable_addon_multiplegap">
-                                    <div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;">
-                                        <span class="answerSpan incorrectAnswerSpan">pigeon</span>, 
-                                        <span class="answerSpan correctAnswerSpan">zebra</span>, 
-                                        <span class="answerSpan incorrectAnswerSpan">donkey</span>
-                                    </div>
-                                </div>`;
-        expectedHtmlValue = expectedHtmlValue.replaceAll("\n","");
-        expectedHtmlValue = expectedHtmlValue.replaceAll("    ","");
+        var expectedHtmlValue = '<div id="multiplegap1" class="printable_addon_multiplegap">' +
+                                    '<div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;">' +
+                                        '<span class="answerSpan incorrectAnswerSpan">pigeon</span>, ' + 
+                                        '<span class="answerSpan correctAnswerSpan">zebra</span>, ' +
+                                        '<span class="answerSpan incorrectAnswerSpan">donkey</span>' +
+                                    '</div>' +
+                                '</div>';
 
         //actual
         this.showAnswers = true;
@@ -119,4 +126,24 @@ TestCase("[Multiple Gap] Multiple gap printable HTML validation", {
         //expected
         assertEquals(expectedHtmlValue, actualHtmlValue);
     },
+
+    'test print checked student answers vertically': function() {
+        //given
+        var expectedHtmlValue = '<div id="multiplegap1" class="printable_addon_multiplegap">' +
+                                    '<div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;">' +
+                                        '<span class="answerSpan incorrectAnswerSpan">pigeon</span><br>' +
+                                        '<span class="answerSpan correctAnswerSpan">zebra</span><br>' +
+                                        '<span class="answerSpan incorrectAnswerSpan">donkey</span>' +
+                                    '</div>' +
+                                '</div>';
+        
+        //actual
+        this.showAnswers = true;
+        this.model.Orientation = "vertical";
+        this.presenter.setPrintableState(this.state);
+        var actualHtmlValue = this.presenter.getPrintableHTML(this.model, this.showAnswers);
+
+        //expected
+        assertEquals(expectedHtmlValue, actualHtmlValue);
+    }
 });

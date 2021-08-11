@@ -1705,12 +1705,9 @@ function Addonmultiplegap_create(){
     }
 
     function checkPrintedAnswer (answer1, answer2) {
-        if(answer1.value === answer2.value
-           && answer1.addonID === answer2.addonID
-           && answer1.index === answer2.index ){
-           return true;
-        }
-        return false;
+        return (answer1.value === answer2.value 
+            && answer1.addonID === answer2.addonID
+            && answer1.index === answer2.index );
     };
 
     presenter.getPrintableHTML = function (model, showAnswers) {
@@ -1780,26 +1777,18 @@ function Addonmultiplegap_create(){
 
         $view.append($wrapper);
 
-        //console.log($view);
-        //console.log($view[0].outerHTML);
-
         return $view[0].outerHTML;
     };
 
     function prepareBasicPrint (answerHTML, ...answers) {
+        var separator = "</br>";
         if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
-            for (var i = 0; i < answers.length; i++) {
-                answerHTML = answerHTML + answers[i].value;
-                if (i < answers.length - 1) {
-                    answerHTML = answerHTML + ", ";
-                }
-            }
-        } else {
-            for (var i = 0; i < answers.length; i++) {
-                answerHTML = answerHTML + answers[i].value;
-                if (i < answers.length - 1) {
-                    answerHTML = answerHTML + "</br>";
-                }
+            separator = ", ";
+        }
+        for (var i = 0; i < answers.length; i++) {
+            answerHTML = answerHTML + answers[i].value;
+            if (i < answers.length - 1) {
+                answerHTML = answerHTML + separator;
             }
         }
         return answerHTML;
@@ -1832,12 +1821,16 @@ function Addonmultiplegap_create(){
         } else {
             element.classList.add("incorrectAnswerSpan");
         }
+        var separator = "</br>";
+        if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
+            separator = ", ";
+        }
         element.innerHTML = answers[i].value;
         answers[i].value = element.outerHTML;
 
         answerHTML = answerHTML + answers[i].value;
         if(i < answers.length - 1){
-            answerHTML = answerHTML + ", ";
+            answerHTML = answerHTML + separator;
         }
         return answerHTML;
     }
