@@ -96,3 +96,78 @@
 .hier_report .text-wrapper {
 	overflow: hidden;
 }
+
+.printable_hier_report {
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid gray;
+    background-color: white;
+    color: gray;
+    overflow: auto;
+}
+
+.printable_hier_report td{
+    padding: 10px;
+}
+
+.printable_hier_report-header{
+    font-weight: bold;
+    color: black !important;
+}
+.printable_hier_report-footer{
+    font-weight: bold;
+    color: black !important;
+}
+
+.printable_hier_report-chapter{
+}
+
+.printable_hier_report-odd{
+}
+
+.printable_hier_report-even{
+}
+
+.printable_hier_report-progress {
+    text-align:center;
+    display: inline-block;
+    width: 190px;
+}
+
+.printable_hier_report-checks {
+    width: 10%;
+    text-align: center;
+}
+
+.printable_hier_report-mistakes {
+    width: 10%;
+    text-align: center;
+}
+
+.printable_hier_report-errors {
+    width: 10%;
+    text-align: center;
+}
+
+.printable_hier_report-page-score {
+    width: 10%;
+    text-align: center;
+}
+
+.printable_hier_report-page-non-max-score,
+.printable_hier_report-page-max-score {
+    width: 10%;
+    text-align: center;
+}
+
+.printable_hier_report .treegrid-expander {
+	float: left;
+}
+
+.printable_hier_report .treegrid-indent {
+	float: left;
+}
+
+.printable_hier_report .text-wrapper {
+	overflow: hidden;
+}
