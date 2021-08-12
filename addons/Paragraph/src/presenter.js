@@ -831,6 +831,13 @@ function AddonParagraph_create() {
         return presenter.getText();
     }
 
+    presenter.getScoreWithMetadata = function() {
+        return [{
+            userAnswer: presenter.getText(),
+            isCorrect: true
+        }];
+    }
+
     return presenter;
 }
 
