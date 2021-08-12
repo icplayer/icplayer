@@ -1,10 +1,12 @@
 package com.lorepo.icplayer.client.printable;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PrintableController {
@@ -13,7 +15,7 @@ public class PrintableController {
 	private Page page = null;
 	private SeededRandom random = new SeededRandom();
 	private JavaScriptObject scoreJS = null;
-	private JavaScriptObject lessonTitlesJS = null;
+	private JsArray<JavaScriptObject> contentInformation = null;
 	private IPrintableTextParser textParser;
 	
 	PrintableController(Page page) {
@@ -62,8 +64,8 @@ public class PrintableController {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::scoreJS;
 		};
 
-		controller.getLessonTitles = function() {
-			return x.@com.lorepo.icplayer.client.printable.PrintableController::lessonTitlesJS;
+		controller.getContentInformation = function() {
+			return x.@com.lorepo.icplayer.client.printable.PrintableController::contentInformation;
 		};
 
 		controller.getTextParser = function() {
@@ -81,16 +83,17 @@ public class PrintableController {
 		this.scoreJS = parseJson(score);
 	}
 
-	public void setLessonTitles(HashMap<String, String> titles) {
-		this.lessonTitlesJS = JavaScriptUtils.createJSObject();
+	public void setContentInformation(ArrayList<HashMap<String, String>> contentInformation) {
+		this.contentInformation = JavaScriptUtils.createEmptyJsArray();
 
-		for(String key : titles.keySet()){
-			JavaScriptUtils.addPropertyToJSArray(this.lessonTitlesJS, key, titles.get(key));
+		for (HashMap<String, String> elementInformation : contentInformation) {
+			JavaScriptObject elementInformationJS = JavaScriptObject.createObject();
+			for (String key : elementInformation.keySet()) {
+				JavaScriptUtils.addPropertyToJSArray(
+						elementInformationJS, key, elementInformation.get(key));
+			}
+			JavaScriptUtils.addElementToJSArray(this.contentInformation, elementInformationJS);
 		}
-	};
-
-	public String getLessonTitle(String id) {
-		return JavaScriptUtils.getArrayItemByKey(this.lessonTitlesJS, id);
 	};
 
 	private JSPrintableTextParser getTextParser() {
