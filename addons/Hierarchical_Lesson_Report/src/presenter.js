@@ -41,6 +41,8 @@ function AddonHierarchical_Lesson_Report_create() {
         HIER_REPORT_SCORE_DISABLED_ROW: "hier_report-score-disabled-row",
         PRINTABLE: "printable_addon_Hierarchical_Lesson_Report",
         PRINTABLE_HIER_REPORT: "printable_hier_report",
+        PRINTABLE_HIER_REPORT_NODE: "printable_hier_report-node",
+        PRINTABLE_HIER_REPORT_PARENT: "printable_hier_report-parent",
         PRINTABLE_HIER_REPORT_HEADER: "printable_hier_report-header",
         PRINTABLE_HIER_REPORT_FOOTER: "printable_hier_report-footer",
         PRINTABLE_HIER_REPORT_CHAPTER: "printable_hier_report-chapter",
@@ -117,70 +119,177 @@ function AddonHierarchical_Lesson_Report_create() {
         presenter.initialize(view, model, true);
     };
 
-    function addHeader(configuration, $prependToElement) {
-        var headerHTML = "<td> " + configuration.labels.title + "</td>";
-        if (configuration.showResults) headerHTML += "<td class='hier_report-progress'> " + configuration.labels.results + "</td>";
-        if (configuration.showChecks) headerHTML += "<td class='hier_report-checks'> " + configuration.labels.checks + "</td>";
-        if (configuration.showMistakes) headerHTML += "<td class='hier_report-mistakes'> " + configuration.labels.mistakes + "</td>";
-        if (configuration.showErrors) headerHTML += "<td class='hier_report-errors'> " + configuration.labels.errors + "</td>";
-        if (configuration.showPageScore) headerHTML += "<td class='hier_report-page-score'>" + configuration.labels.pageScores + "</td>";
-        if (configuration.showMaxScoreField) headerHTML += "<td class='hier_report-page-max-score'>" + configuration.labels.maxScoreAward + "</td>";
-        $("<tr></tr>").prependTo($prependToElement.find('table')).addClass("hier_report-header").html(headerHTML);
+    function addHeader(configuration, $view) {
+        var isInPrintableMode = isInPrintableStateMode();
+
+        var $row = generateHeaderRow(isInPrintableMode);
+
+        addHeaderTitle($row, configuration);
+        if (configuration.showResults) addResultsHeaderCell($row, configuration, isInPrintableMode);
+        if (configuration.showChecks) addChecksHeaderCell($row, configuration, isInPrintableMode);
+        if (configuration.showMistakes) addMistakesHeaderCell($row, configuration, isInPrintableMode);
+        if (configuration.showErrors) addErrorsHeaderCell($row, configuration, isInPrintableMode);
+        if (configuration.showPageScore) addPageScoreHeaderCell($row, configuration, isInPrintableMode);
+        if (configuration.showMaxScoreField) addMaxScoreAwardHeaderCell($row, configuration, isInPrintableMode);
+
+        $row.prependTo($view);
+    }
+
+    function generateHeaderRow(isInPrintableMode) {
+        var $row = $(document.createElement('tr'));
+        var cssClass = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_HEADER
+            : CSS_CLASSES.HIER_REPORT_HEADER;
+        $row.addClass(cssClass);
+        return $row;
+    }
+
+    function addHeaderTitle($view, configuration) {
+        var $title =  $(document.createElement('td'));
+        $title.html(configuration.labels.title);
+        $title.appendTo($view);
+    }
+
+    function addResultsHeaderCell($view, configuration, isInPrintableMode) {
+        var $cell = $(document.createElement('td'));
+        var cssClass = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PROGRESS
+            : CSS_CLASSES.HIER_REPORT_PROGRESS;
+        $cell.addClass(cssClass);
+        $cell.html(configuration.labels.results);
+        $cell.appendTo($view);
+    }
+
+    function addChecksHeaderCell($view, configuration, isInPrintableMode) {
+        var $cell = $(document.createElement('td'));
+        var cssClass = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_CHECKS
+            : CSS_CLASSES.HIER_REPORT_CHECKS;
+        $cell.addClass(cssClass);
+        $cell.html(configuration.labels.checks);
+        $cell.appendTo($view);
+    }
+
+    function addMistakesHeaderCell($view, configuration, isInPrintableMode) {
+        var $cell = $(document.createElement('td'));
+        var cssClass = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_MISTAKES
+            : CSS_CLASSES.HIER_REPORT_MISTAKES;
+        $cell.addClass(cssClass);
+        $cell.html(configuration.labels.mistakes);
+        $cell.appendTo($view);
+    }
+
+    function addErrorsHeaderCell($view, configuration, isInPrintableMode) {
+        var $cell = $(document.createElement('td'));
+        var cssClass = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_ERRORS
+            : CSS_CLASSES.HIER_REPORT_ERRORS;
+        $cell.addClass(cssClass);
+        $cell.html(configuration.labels.errors);
+        $cell.appendTo($view);
+    }
+
+    function addPageScoreHeaderCell($view, configuration, isInPrintableMode) {
+        var $cell = $(document.createElement('td'));
+        var cssClass = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_SCORE
+            : CSS_CLASSES.HIER_REPORT_PAGE_SCORE;
+        $cell.addClass(cssClass);
+        $cell.html(configuration.labels.pageScores);
+        $cell.appendTo($view);
+    }
+
+    function addMaxScoreAwardHeaderCell($view, configuration, isInPrintableMode) {
+        var $cell = $(document.createElement('td'));
+        var cssClass = isInPrintableMode
+            ? CSS_CLASSES.PRINTABLE_HIER_REPORT_PAGE_MAX_SCORE
+            : CSS_CLASSES.HIER_REPORT_PAGE_MAX_SCORE;
+        $cell.addClass(cssClass);
+        $cell.html(configuration.labels.maxScoreAward);
+        $cell.appendTo($view);
+    }
+
+    function addFooter(configuration, $view) {
+        var isInPrintableMode = isInPrintableStateMode();
+        var lessonScore = getLessonScore();
+
+        var $row = generateFooterRow(isInPrintableMode);
+
+        addFooterTitle($row, configuration);
+        // TODO rest
+        if (configuration.showResults) addResultsFooterCell($row, configuration, isInPrintableMode);
+
+        if (configuration.showChecks) {
+            $("<td></td>").appendTo($row).addClass("hier_report-checks").html(lessonScore.checks);
+        }
+
+        if (configuration.showMistakes) {
+            $("<td></td>").appendTo($row).addClass("hier_report-mistakes").html(lessonScore.mistakes);
+        }
+
+        if (configuration.showErrors) {
+            $("<td></td>").appendTo($row).addClass("hier_report-errors").html(lessonScore.errors);
+        }
+
+        if (configuration.showPageScore) {
+            var content = lessonScore.score + "<span class='hier_report-separator'>/</span>" + lessonScore.maxScore;
+            $("<td></td>").appendTo($row).addClass("hier_report-page-score").html(content);
+        }
+
+        if (configuration.showMaxScoreField) {
+            $("<td></td>").appendTo($row);
+        }
+
+        $row.appendTo($view);
+    }
+
+    function generateFooterRow(isInPrintableMode) {
+        var $row = $(document.createElement('tr'));
+        var cssClass = isInPrintableMode ? CSS_CLASSES.PRINTABLE_HIER_REPORT_FOOTER : CSS_CLASSES.HIER_REPORT_FOOTER;
+        $row.addClass(cssClass);
+        return $row;
+    }
+
+    function addFooterTitle($view, configuration) {
+        var $title =  $(document.createElement('td'));
+        $title.html(configuration.labels.total);
+        $title.appendTo($view);
+    }
+
+    function addResultsFooterCell($view, configuration, isInPrintableMode) {
+        if (configuration.showResults) {
+            createProgressCell($view, {
+                score: presenter.isPreview ? 0 : presenter.calculateLessonScaledScore(),
+                count: 1
+            }, undefined, undefined, isInPrintableMode);
+        }
     }
 
     presenter.calculateLessonScaledScore = function () {
-        if (presenter.lessonScore.pageCount == 0) {
+        var lessonScore = getLessonScore();
+        if (lessonScore.pageCount === 0) {
             return 0;
         }
 
-        return Math.floor((presenter.lessonScore.scaledScore / presenter.lessonScore.pageCount) * 100) / 100;
+        return Math.floor((lessonScore.scaledScore / lessonScore.pageCount) * 100) / 100;
     };
-
-    function addFooter() {
-        var row = document.createElement('tr');
-        $(row).appendTo($("#" + presenter.treeID).find('table'));
-        $(row).addClass("hier_report-footer");
-
-        $("<td></td>").appendTo($(row)).html(presenter.configuration.labels.total);
-
-        if (presenter.configuration.showResults) {
-            createProgressCell(row, {
-                score: presenter.isPreview ? 0 : presenter.calculateLessonScaledScore(),
-                count: 1
-            }, undefined, undefined, false);
-        }
-
-        if (presenter.configuration.showChecks) {
-            $("<td></td>").appendTo($(row)).addClass("hier_report-checks").html(presenter.lessonScore.checks);
-        }
-
-        if (presenter.configuration.showMistakes) {
-            $("<td></td>").appendTo($(row)).addClass("hier_report-mistakes").html(presenter.lessonScore.mistakes);
-        }
-
-        if (presenter.configuration.showErrors) {
-            $("<td></td>").appendTo($(row)).addClass("hier_report-errors").html(presenter.lessonScore.errors);
-        }
-
-        if (presenter.configuration.showPageScore) {
-            var content = presenter.lessonScore.score + "<span class='hier_report-separator'>/</span>" + presenter.lessonScore.maxScore;
-            $("<td></td>").appendTo($(row)).addClass("hier_report-page-score").html(content);
-        }
-
-        if (presenter.configuration.showMaxScoreField) {
-            $("<td></td>").appendTo($(row));
-        }
-    }
 
     function createRow($view, index, parentIndex, isChapter, configuration, isInPrintableMode) {
         var row = document.createElement('tr');
 
         $(row).appendTo($view.find('table'));
-        $(row).addClass("treegrid-" + index);
         $(row).addClass(configuration.classes[index % configuration.classes.length]);
-
-        if (parentIndex != null) {
-            $(row).addClass("treegrid-parent-" + parentIndex);
+        if (!isInPrintableMode) {
+            $(row).addClass("treegrid-" + index);
+            if (parentIndex != null) {
+                $(row).addClass("treegrid-parent-" + parentIndex);
+            }
+        } else {
+            $(row).addClass(CSS_CLASSES.PRINTABLE_HIER_REPORT_NODE);
+            if (parentIndex != null) {
+                $(row).addClass(CSS_CLASSES.PRINTABLE_HIER_REPORT_PARENT);
+            }
         }
 
         var cssClass = ""
@@ -259,14 +368,10 @@ function AddonHierarchical_Lesson_Report_create() {
         var isScoreEnable = configuration.disabledScorePages.indexOf(absolutePageIndex) === -1;
         var score = resetScore();
         if (isInPrintableMode) {
-            // TODO kiedy jest stan
-//            score = printableController.getScore();
-//            console.log(pageId);
-//            console.log(score);
+            // TODO Calculate score when state
+            // score = printableController.getScore();
         } else if (!presenter.isPreview) {
             score = presentationController.getScore().getPageScoreById(pageId);
-            console.log(pageId);
-            console.log(score);
         }
 
         var pageScore = 0;
@@ -958,7 +1063,7 @@ function AddonHierarchical_Lesson_Report_create() {
 
         presenter.setVisibility(presenter.configuration.isVisible || isPreview);
 
-        addHeader(presenter.configuration, $("#" + presenter.treeID));
+        addHeader(presenter.configuration, $("#" + presenter.treeID).find('table'));
         if (isPreview) {
             presenter.createPreviewTree();
         } else {
@@ -967,7 +1072,7 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         if (presenter.configuration.showTotal) {
-            addFooter();
+            addFooter(presenter.configuration, $("#" + presenter.treeID).find('table'));
         }
 
         $("#" + presenter.treeID).find('table').not('.hier_report-header').not('.hier_report-footer').treegrid({
@@ -1369,22 +1474,18 @@ function AddonHierarchical_Lesson_Report_create() {
         initLessonScore();
 
         var $hierReport = $(findPrintableHierReport($view));
-        addHeader(configuration, $hierReport);
+        addHeader(configuration, $hierReport.find('table'));
 
         // TODO main
-        var information = printableController.getContentInformation();
         var root = createPrintableStructure();
-        console.log(root)
         var score = JSON.stringify(printableController.getScore());
         console.log("Score: ", score);
         presenter.createPrintableTree($hierReport, root, configuration, null, root.size());
 
         // TODO footer
-       if (configuration.showTotal) {
-           addFooter();
-       }
-
-
+        if (configuration.showTotal) {
+            addFooter(configuration, $hierReport.find('table'));
+        }
         // checkIfChapterHasChildren();
 
 
@@ -1395,7 +1496,6 @@ function AddonHierarchical_Lesson_Report_create() {
     function createPrintableStructure() {
         var mainNode = new PrintableNode(null, null, null, null, null);
         var contentInformation = printableController.getContentInformation();
-        console.log("Information: ", contentInformation);
         findAndSetChildrenForPrintableNode(contentInformation, mainNode);
         return mainNode;
     }
@@ -1448,15 +1548,6 @@ function AddonHierarchical_Lesson_Report_create() {
         }
     }
 
-    function isInPrintableStateMode() {
-        return printableStateMode !== null;
-    }
-
-    function cleanAfterPrintableState() {
-        printableStateMode = null;
-        presenter.printableLessonScore = null;
-    }
-
     function findPrintableHierReport($view) {
         return $view.find(`.${CSS_CLASSES.PRINTABLE_HIER_REPORT}`);
     }
@@ -1507,6 +1598,15 @@ function AddonHierarchical_Lesson_Report_create() {
         }
 
         return { pagesScore: chapterScore, isEmpty: isEmpty };
+    }
+
+    function isInPrintableStateMode() {
+        return printableStateMode !== null;
+    }
+
+    function cleanAfterPrintableState() {
+        printableStateMode = null;
+        presenter.printableLessonScore = null;
     }
 
     function addPrintableRow($view, node, index, parentIndex, isChapter, pageId, configuration) {
