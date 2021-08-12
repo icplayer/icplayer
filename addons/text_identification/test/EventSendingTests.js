@@ -5,7 +5,13 @@ TestCase("[Text Identification] Event sending", {
             addonID: 'TextIdent1',
             isSelected: true,
             shouldBeSelected: true
+
         };
+
+        this.stubs = {
+            showAnswers: sinon.stub()
+        };
+        this.presenter.showAnswers = this.stubs.showAnswers;
 
         var eventBus = this.eventBus = {
             sendEvent: function () {}
@@ -36,5 +42,15 @@ TestCase("[Text Identification] Event sending", {
         this.presenter.triggerSelectionChangeEvent();
 
         assertFalse(this.eventBus.sendEvent.called);
+    },
+
+    'test GSA event calls showAnswers method' : function() {
+        var eventName = "GradualShowAnswers";
+        var eventData = {
+            moduleID: 'TextIdent1'
+        };
+        this.presenter.onEventReceived(eventName, eventData);
+
+        assertEquals(1, this.stubs.showAnswers.callCount);
     }
 });

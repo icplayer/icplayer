@@ -430,6 +430,8 @@ function Addontext_identification_create() {
 
         presenter.eventBus.addEventListener('ShowAnswers', this);
         presenter.eventBus.addEventListener('HideAnswers', this);
+        presenter.eventBus.addEventListener('GradualShowAnswers', this);
+        presenter.eventBus.addEventListener('GradualHideAnswers', this);
     };
 
     presenter.reset = function() {
@@ -522,13 +524,25 @@ function Addontext_identification_create() {
         }
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.getActivitiesCount = function () {
+        return 1;
+    }
+
+    presenter.onEventReceived = function (eventName, data) {
         if (eventName == "ShowAnswers") {
             presenter.showAnswers();
-        }
-
-        if (eventName == "HideAnswers") {
+        } else if (eventName == "HideAnswers") {
             presenter.hideAnswers();
+        } else if (eventName === "GradualShowAnswers") {
+            if (!presenter.isGradualShowAnswersActive) {
+                presenter.isGradualShowAnswersActive = true;
+            } 
+            if (data.moduleID === presenter.configuration.addonID) {
+                presenter.showAnswers();
+            }
+        } else if (eventName === "GradualHideAnswers") {
+            presenter.hideAnswers();
+            presenter.isGradualShowAnswersActive = false;
         }
     };
 
