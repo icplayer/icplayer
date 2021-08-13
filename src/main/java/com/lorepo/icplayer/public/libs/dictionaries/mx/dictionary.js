@@ -1542,6 +1542,7 @@ var ice_dictionary_mx = {
 	"PointsLines_property_blocked_lines": "Líneas bloqueadas",
 	"PointsLines_property_block_wrong_answers": "Bloquear respuestas incorrectas",
 	"PointsLines_property_single_connection": "Conexión simple",
+	"Points_Lines_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in GSA mode",
 	"EdgeAnimation_info": "Permite a incrustar animaciones y otros proyectos creados en el programa Adobe Edge Animate. En el addon se puede utilizar más de una animación y para hacer que funcione, es necesario configurar ciertas propiedades en el menú lateral del addon, incluyendo Animaciones, Imágenes y Animación inicial.",
 	"EdgeAnimation_name": "Animación Edge",
 	"EdgeAnimation_property_animations": "Animaciones",

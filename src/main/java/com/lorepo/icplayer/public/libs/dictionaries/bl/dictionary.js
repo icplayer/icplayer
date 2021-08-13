@@ -1544,6 +1544,7 @@ var ice_dictionary_bl = {
     "PointsLines_property_blocked_lines": "Блокирани линии",
 	"PointsLines_property_block_wrong_answers": "Блокирай грешните отговори",
 	"PointsLines_property_single_connection": "Единично свързване",
+	"Points_Lines_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in GSA mode",
 	"EdgeAnimation_info" : "Позволява включването в презентацията на анимации и други проекти, създадени в програмата Adobe Edge Animate. В плъгина може да се ползват повече от една анимации и за да стане това, трябва само да отидете в менюто с настройки и да настроите свойствата Анимации, Изображения и Първоначална анимация.",
 	"EdgeAnimation_name" : "Анимация в Edge",
 	"EdgeAnimation_property_animations" : "Анимации",
