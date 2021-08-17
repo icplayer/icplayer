@@ -679,32 +679,26 @@ function AddonText_Coloring_create() {
     };
 
     presenter.upgradeModel = function(model) {
-        var upgradedModel = upgradeModelAddModeProperty(model);
-        upgradedModel = upgradeModelAddCountErrorsProperty(upgradedModel);
+        var upgradedModel = upgradeModelAddProperties(model);
         return upgradedModel;
     };
 
-    function upgradeModelAddModeProperty(model) {
+    function upgradeModelAddProperties(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
         if(!upgradedModel['Mode']){
             upgradedModel['Mode'] = presenter.MODE.DEFAULT;
         }
-
-        return upgradedModel;
-    }
-
-    function upgradeModelAddCountErrorsProperty(model) {
-        var upgradedModel = {};
-        $.extend(true, upgradedModel, model);
-
         if(!upgradedModel['countErrors']) {
             upgradedModel['countErrors'] = false;
         }
+        if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']) {
+            upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
+        }
 
         return upgradedModel;
-    }
+    };
 
     presenter.validateModel = function (model) {
         var validatedColors = presenter.validateColors(model.colors);
