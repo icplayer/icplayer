@@ -1397,6 +1397,9 @@ function AddonColoring_create(){
     };
 
     presenter.getActivitiesCount = function () {
+        if (presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
+            return 1;
+        }
         return presenter.configuration.areas.length;
     };
 
