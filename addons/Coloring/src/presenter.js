@@ -48,6 +48,22 @@ function AddonColoring_create(){
         };
     }
 
+    presenter.upgradeModel = function(model) {
+        var upgradedModel = presenter.upgradeModelAddProperties(model);
+        return upgradedModel;
+    };
+
+    function upgradeModelAddProperties(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']){
+            upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
+        }
+
+        return upgradedModel;
+    }
+
     presenter.createPreview = function(view, model){
         runLogic(view, model, true);
     };
@@ -304,6 +320,8 @@ function AddonColoring_create(){
     };
 
     function runLogic(view, model, isPreview) {
+        model = presenter.upgradeModel(model);
+
         presenter.configuration = presenter.validateModel(model, isPreview);
         presenter.allColoredPixels = [];
         presenter.currentAreaIdInGSAMode = 0;
