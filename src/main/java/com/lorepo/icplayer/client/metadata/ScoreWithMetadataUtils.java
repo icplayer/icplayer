@@ -1,6 +1,5 @@
 package com.lorepo.icplayer.client.metadata;
 
-import org.apache.commons.lang.math.NumberUtils;
 
 public class ScoreWithMetadataUtils {
     final static String ENUMERATE_START = "enumerate_start";
