@@ -662,6 +662,8 @@ function AddonText_Coloring_create() {
 
         var parsedText = presenter.parseText(model.text, mode);
         var validatedText = presenter.validateUsingOnlyDefinedColors(parsedText, validatedColors.value);
+        var modelText = model.text ? model.text.split(' ') : '';
+        var height = model.Height ? model.Height / 2 : 0;
 
         if (validatedText.isError) {
             return validatedText;
@@ -679,7 +681,9 @@ function AddonText_Coloring_create() {
             eraserButtonText: presenter.parseEraserButtonText(model.eraserButtonText),
             isVisible: ModelValidationUtils.validateBoolean(model['Is Visible']),
             mode: mode,
-            countErrors: ModelValidationUtils.validateBoolean(model.countErrors)
+            countErrors: ModelValidationUtils.validateBoolean(model.countErrors),
+            modelText: modelText,
+            height: height
         };
     };
 
@@ -1392,11 +1396,12 @@ function AddonText_Coloring_create() {
         var printableHTML = '';
         var userAnswer = presenter.getUserAnswer();
         var didUserAnswer = userAnswer ? userAnswer.some(answer => answer.isSelected) : false;
-        var textModel = model.text.split(' ');
-        var height = model.Height / 2;
         model = presenter.upgradeModel(model);
+        presenter.configuration = presenter.validateModel(model);
+        var modelText = presenter.configuration.modelText;
+        var areAllSelectable = presenter.configuration.mode === 'ALL_SELECTABLE';
 
-        textModel.forEach((phrase, index) => {
+        modelText.forEach((phrase, index) => {
             switch (true) {
                 case (userAnswer && userAnswer[index].isSelected) && !showAnswers:
                     var color = parseToGrayscale(presenter.getColorInHex(model, userAnswer[index].selectionColorID));
@@ -1414,8 +1419,12 @@ function AddonText_Coloring_create() {
                     printableHTML += `<span style="border: 2px dashed ${color}">${presenter.getWord(phrase)}</span> `;
                     break;
 
-                case phrase.includes('\\color'):
+                case phrase.includes('\\color') && (!areAllSelectable || showAnswers):
                     printableHTML += `<span style="border-bottom: 1px solid">${presenter.getWord(phrase)}</span> `;
+                    break;
+
+                case phrase.includes('\\color'):
+                    printableHTML += `${presenter.getWord(phrase)} `;
                     break;
 
                 default:
@@ -1423,7 +1432,7 @@ function AddonText_Coloring_create() {
             }
         });
 
-        return presenter.createHTML(showAnswers || userAnswer, printableHTML, height, model);
+        return presenter.createHTML(showAnswers || userAnswer, printableHTML, presenter.configuration.height, model);
     }
 
     presenter.createHTML = function (shouldChangeLineHeight, htmlContent, height, model) {

@@ -263,8 +263,9 @@ TestCase("[Text_Coloring] Model Validation flow", {
             hideColorsButtons: false,
             eraserButtonText: eraserButtonText,
             mode: "MARK_PHRASES",
-            countErrors: false
-
+            countErrors: false,
+            modelText: ['Example', 'text'],
+            height: 50
         };
 
         this.stubs.validateColors.returns({
@@ -282,7 +283,9 @@ TestCase("[Text_Coloring] Model Validation flow", {
             hideColorsButtons: hideColorsButtons,
             showSetEraserModeButton: showSetEraserButtonMode,
             eraserButtonText: eraserButtonText,
-            Mode: "Mark phrases to select"
+            Mode: "Mark phrases to select",
+            text: "Example text",
+            Height: 100
         });
 
 

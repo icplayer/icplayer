@@ -13,10 +13,11 @@ TestCase("[Text_Coloring] Upgrade Text Coloring model", {
     'test should add properties to model when the upgradeModel was called': function () {
         var upgradedModel = this.presenter.upgradeModel(this.model);
 
-        assertTrue(this.addModelPropertySpy.calledThrice);
+        assertTrue(this.addModelPropertySpy.called);
         assertTrue(upgradedModel.hasOwnProperty('Mode'));
         assertTrue(upgradedModel.hasOwnProperty('countErrors'));
         assertTrue(upgradedModel.hasOwnProperty('printable'));
+        assertTrue(upgradedModel.hasOwnProperty('Legend title'));
     },
 
     'test given new property when addModelProperty was called should add the property to the model': function () {

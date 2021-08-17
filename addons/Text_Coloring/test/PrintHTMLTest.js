@@ -37,7 +37,7 @@ TestCase("[Text_Coloring] get printable HTML", {
 
     'test should create printable HTML when createHTML was called': function () {
         var htmlContent = 'Example HTML content for Text Coloring addon.';
-        var printableHTML = this.presenter.createHTML(false, htmlContent, 100);
+        var printableHTML = this.presenter.createHTML(false, htmlContent, 100, this.model);
 
         assertTrue(printableHTML.includes(htmlContent));
     },
@@ -93,7 +93,15 @@ TestCase("[Text_Coloring] get printable HTML", {
         }
 
         assertTrue(this.presenter.isAnswerCorrect(userAnswer, modelAnswers));
+    },
+
+    'test given model when createLegend was called should return legend in HTML markup language': function () {
+        this.model['Legend title'] = 'Testing legend';
+
+        var mockLegend = this.presenter.createLegend(this.model)[0].outerHTML;
+
+        assertTrue(mockLegend.includes('<caption>Testing legend</caption>'));
+        assertTrue(mockLegend.includes('red'));
+        assertTrue(mockLegend.includes('blue'));
     }
-
-
 });
