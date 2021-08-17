@@ -49,7 +49,7 @@ function AddonColoring_create(){
     }
 
     presenter.upgradeModel = function(model) {
-        var upgradedModel = presenter.upgradeModelAddProperties(model);
+        var upgradedModel = upgradeModelAddProperties(model);
         return upgradedModel;
     };
 
