@@ -538,6 +538,7 @@ function Addongamememo_create(){
 
     presenter.upgradeModel = function(model) {
         var upgradedModel = presenter.upgradeModelAddTTS(model);
+        upgradedModel = upgradeModelAddShowAllAnswersInGSAModeProperty(upgradedModel);
         return upgradedModel;
     };
 
@@ -567,6 +568,17 @@ function Addongamememo_create(){
 
         return upgradedModel;
     };
+
+    function upgradeModelAddShowAllAnswersInGSAModeProperty(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!upgradedModel['Show all answers in gradual show answers mode']){
+            upgradedModel['Show all answers in gradual show answers mode'] = false;
+        }
+
+        return upgradedModel;
+    }
 
     function getSpeechTextProperty (rawValue, defaultValue) {
         var value = rawValue.trim();
