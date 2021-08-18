@@ -351,10 +351,10 @@ function AddonImage_Identification_create(){
 
         presenterLogic(view, model, false);
 
-        eventBus.addEventListener('ShowAnswers', this);
-        eventBus.addEventListener('HideAnswers', this);
-        eventBus.addEventListener('GradualShowAnswers', this);
-        eventBus.addEventListener('GradualHideAnswers', this);
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            presenter.eventBus.addEventListener(events[i], this);
+        }
     };
 
     presenter.reset = function() {
@@ -579,7 +579,10 @@ function AddonImage_Identification_create(){
     };
 
     presenter.getActivitiesCount = function () {
-        return 1;
+        if(presenter.configuration.shouldBeSelected) {
+            return 1;
+        }
+        return 0;
     }
 
     presenter.onEventReceived = function (eventName, data) {
