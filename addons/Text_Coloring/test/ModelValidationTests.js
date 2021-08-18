@@ -265,7 +265,8 @@ TestCase("[Text_Coloring] Model Validation flow", {
             mode: "MARK_PHRASES",
             countErrors: false,
             modelText: ['Example', 'text'],
-            height: 50
+            height: 50,
+            legendTitle: "Legend"
         };
 
         this.stubs.validateColors.returns({

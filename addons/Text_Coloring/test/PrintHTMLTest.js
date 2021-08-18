@@ -96,9 +96,11 @@ TestCase("[Text_Coloring] get printable HTML", {
     },
 
     'test given model when createLegend was called should return legend in HTML markup language': function () {
-        this.model['Legend title'] = 'Testing legend';
-
-        var mockLegend = this.presenter.createLegend(this.model)[0].outerHTML;
+        var colors = [
+            {'description':'red', 'color':'#787878'},
+            {'description':'blue', 'color':'#8f8f8f'}
+        ]
+        var mockLegend = this.presenter.createLegend(colors, 'Testing legend')[0].outerHTML;
 
         assertTrue(mockLegend.includes('<caption>Testing legend</caption>'));
         assertTrue(mockLegend.includes('red'));

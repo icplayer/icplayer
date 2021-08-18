@@ -664,6 +664,7 @@ function AddonText_Coloring_create() {
         var validatedText = presenter.validateUsingOnlyDefinedColors(parsedText, validatedColors.value);
         var modelText = model.text ? model.text.split(' ') : '';
         var height = model.Height ? model.Height / 2 : 0;
+        var legendTitle = model['Legend title'] ?  model['Legend title'] : 'Legend';
 
         if (validatedText.isError) {
             return validatedText;
@@ -683,7 +684,8 @@ function AddonText_Coloring_create() {
             mode: mode,
             countErrors: ModelValidationUtils.validateBoolean(model.countErrors),
             modelText: modelText,
-            height: height
+            height: height,
+            legendTitle: legendTitle
         };
     };
 
@@ -1432,12 +1434,15 @@ function AddonText_Coloring_create() {
             }
         });
 
-        return presenter.createHTML(showAnswers || userAnswer, printableHTML, presenter.configuration.height, model);
+        return presenter.createHTML(showAnswers || userAnswer, printableHTML, presenter.configuration);
     }
 
-    presenter.createHTML = function (shouldChangeLineHeight, htmlContent, height, model) {
+    presenter.createHTML = function (shouldChangeLineHeight, htmlContent) {
         var $legend = $('<div></div>');
         var $wrapper = $('<div></div>');
+        var height = presenter.configuration.height;
+        var colors = presenter.configuration.colors;
+        var legendTitle = presenter.configuration.legendTitle
         $wrapper.addClass('printable_addon_Paragraph');
         $wrapper.css("left", "0px");
         $wrapper.css("right", "0px");
@@ -1453,7 +1458,7 @@ function AddonText_Coloring_create() {
             $paragraph.css("line-height", "1.5");
         }
         $paragraph.html(htmlContent);
-        $legend.append(presenter.createLegend(model))
+        $legend.append(presenter.createLegend(colors,  legendTitle))
         $wrapper.append($paragraph);
         $wrapper.append($legend);
         return $wrapper[0].outerHTML;
@@ -1504,13 +1509,12 @@ function AddonText_Coloring_create() {
         return modelAnswer.includes(`{${userAnswer.selectionColorID}}{${userAnswer.value}}`);
     }
 
-    presenter.createLegend = function (model) {
+    presenter.createLegend = function (colors, legendTitle) {
         var $table = $("<table></table>");
         var $tbody = $("<tbody></tbody>");
-        var title = model['Legend title'];
 
-        $tbody.append($(`<caption>${title}</caption>`));
-        model['colors'].forEach(colorObject => {
+        $tbody.append($(`<caption>${legendTitle}</caption>`));
+        colors.forEach(colorObject => {
             var $tr = $("<tr></tr>");
 
             var $td = $("<td><div style='width: 20px; height: 10px'></div></td>");
