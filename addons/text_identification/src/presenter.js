@@ -428,10 +428,10 @@ function Addontext_identification_create() {
     presenter.run = function(view, model){
         presenterLogic(view, model, false);
 
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
-        presenter.eventBus.addEventListener('GradualShowAnswers', this);
-        presenter.eventBus.addEventListener('GradualHideAnswers', this);
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            presenter.eventBus.addEventListener(events[i], this);
+        }
     };
 
     presenter.reset = function() {
@@ -525,7 +525,9 @@ function Addontext_identification_create() {
     };
 
     presenter.getActivitiesCount = function () {
-        return 1;
+        if(presenter.configuration.shouldBeSelected) 
+            return 1;
+        return 0;
     }
 
     presenter.onEventReceived = function (eventName, data) {
@@ -562,7 +564,7 @@ function Addontext_identification_create() {
         presenter.isShowAnswersActive = true;
 
         presenter.configuration.isErrorCheckMode = true;
-
+        
         presenter.$view.find('.text-identification-element-incorrect').removeClass(CSS_CLASSES.INCORRECT).addClass("text-identification-element was-selected");
         presenter.$view.find('.text-identification-element-correct').removeClass(CSS_CLASSES.CORRECT).addClass("text-identification-element was-selected");
 
