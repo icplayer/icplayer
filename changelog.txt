@@ -1,3 +1,4 @@
+2021-08-18 Fixed bug that always gave 100% score or sent end of game event when Hangman addon was in Show Answers mode
 2021-07-30 Add getOpenEndedContentsForCurrentPage to PlayerServices
 2021-07-28 Added keyboard navigation and TTS to Quiz
 2021-07-27 Fixed bug that audiodescription in Chrome doesn't stop video
