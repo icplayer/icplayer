@@ -551,7 +551,21 @@ function AddonPointsLines_create() {
         }
     };
 
+    function upgradeModelAddProperties(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+        if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']){
+            upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
+        }
+        return upgradedModel;
+    }
+
+    presenter.upgradeModel = function(model) {
+        return upgradeModelAddProperties(model);
+    };
+
     presenter.run = function(view, model) {
+        model = presenter.upgradeModel(model);
         presenter.initiate(view, model);
         if (!presenter.error) {
             var $div = presenter.$view.find('.pointslines');
