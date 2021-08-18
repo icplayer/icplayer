@@ -346,7 +346,7 @@ function AddonImage_Identification_create(){
     };
 
     presenter.run = function(view, model){
-        eventBus = playerController.getEventBus();
+        presenter.eventBus = playerController.getEventBus();
         addonID = model.ID;
 
         presenterLogic(view, model, false);
