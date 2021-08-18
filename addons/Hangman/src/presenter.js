@@ -427,6 +427,10 @@ function AddonHangman_create() {
     };
 
     presenter.sendEndOfGameEvent = function () {
+        if (presenter.isShowAnswersActive) {
+            return;
+        }
+
         var eventData = presenter.createBaseEventData();
 
         eventData.value = 'EOG';
@@ -820,7 +824,7 @@ function AddonHangman_create() {
     };
 
     presenter.getPhraseForScoring = function () {
-        if (presenter.isErrorCheckingMode) {
+        if (presenter.isErrorCheckingMode || presenter.isShowAnswersActive) {
             return JSON.parse(presenter.workModeState).phrases;
         } else {
             return presenter.configuration.phrases;
