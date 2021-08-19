@@ -1255,60 +1255,67 @@ function AddonClock_create() {
     };
 
     presenter.getMaxScore = function() {
-        if(presenter.showAnswersMode === true){
-            presenter.hideAnswers();
-
-        }
-
-        if (presenter.CorrectAnswer == presenter.InitialTime) {
+        if (presenter.CorrectAnswer === presenter.InitialTime) {
             return 0;
         }
         if (presenter.isActivity === true) {
             return 1;
-        } else {
-            return 0;
-        }
+        } return 0;
     };
 
     presenter.getScore = function() {
+        var isShowAnswerActive = presenter.showAnswersMode;
 
-        if(presenter.showAnswersMode === true){
+        if (presenter.showAnswersMode){
             presenter.hideAnswers();
+        }
 
+        var scoreValue = presenter.getScoreValue();
+
+        if (isShowAnswerActive) {
+            presenter.showAnswers();
         }
-        if (presenter.CorrectAnswer == presenter.InitialTime) {
-            return 0;
-        }
-        if (presenter.isActivity === true) {
-            return presenter.getCurrentTime() == presenter.CorrectAnswer ? 1
-                : 0;
-        } else {
-            return 0;
-        }
+
+        return scoreValue;
+    };
+
+    presenter.getScoreValue = function () {
+        if (presenter.isActivity && presenter.getCurrentTime() === presenter.CorrectAnswer) {
+            return 1;
+        } return 0;
     };
 
     presenter.getErrorCount = function() {
+        var isShowAnswerActive = presenter.showAnswersMode;
 
-        if(presenter.showAnswersMode === true){
+        if(presenter.showAnswersMode){
             presenter.hideAnswers();
-
         }
 
+        var errorCount = presenter.getErrorCountValue();
 
-        if (presenter.isActivity === true) {
+        if (isShowAnswerActive) {
+            presenter.showAnswers();
+        }
 
-            if (presenter.CorrectAnswer == presenter.InitialTime
-                && presenter.getCurrentTime() != presenter.CorrectAnswer) {
+        return errorCount;
+    };
+
+    presenter.getErrorCountValue = function () {
+        var isAnswerDefault = presenter.CorrectAnswer === presenter.InitialTime;
+        var isAnswerCorrect = presenter.getCurrentTime() === presenter.CorrectAnswer;
+        switch (true) {
+            case (presenter.isActivity && isAnswerDefault && !isAnswerCorrect):
                 return 1;
-            }
 
-            if (presenter.neutralOption() == 1) {
+            case (presenter.isActivity && presenter.neutralOption() === 1):
                 return 0;
-            } else {
+
+            case (presenter.isActivity):
                 return presenter.getMaxScore() - presenter.getScore();
-            }
-        } else {
-            return 0;
+
+            default:
+                return 0;
         }
     };
 
@@ -1377,7 +1384,7 @@ function AddonClock_create() {
     };
 
     presenter.showAnswers = function () {
-        if(presenter.isErrorCheckingMode == true){
+        if(presenter.isErrorCheckingMode){
             presenter.setWorkMode();
         }
         if (presenter.isActivity === true) {
@@ -1398,6 +1405,14 @@ function AddonClock_create() {
             presenter.showAnswersMode = false;
             presenter.setShowAnswerTime(presenter.showAnswersCurrentTime);
         }
+    };
+
+    presenter.gradualShowAnswers = function (data) {
+        if (data.moduleID !== presenter.modelID) {
+            return;
+        }
+        presenter.isGradualShowAnswersActive = true;
+        presenter.showAnswers();
     };
 
     presenter.getActivitiesCount = function () {
@@ -1424,10 +1439,12 @@ function AddonClock_create() {
         presenter.setAttr('m-hand', m);
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, eventData) {
         switch (eventName) {
             case 'GradualShowAnswers':
-                presenter.isGradualShowAnswersActive = true;
+                presenter.gradualShowAnswers(eventData);
+                break;
+
             case 'ShowAnswers':
                 presenter.showAnswers();
                 break;

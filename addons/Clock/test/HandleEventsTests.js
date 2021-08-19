@@ -20,6 +20,7 @@ TestCase('[Clock] handle events related to showing or hiding model answer', {
         }
 
         this.model = {
+            'ID': 'Clock',
             'Is Visible': 'True'
         }
 
@@ -28,6 +29,7 @@ TestCase('[Clock] handle events related to showing or hiding model answer', {
         this.stubs.validateStub.returns(true);
         this.presenter.validate = this.stubs.validateStub;
         this.presenter.validateTime = this.stubs.validateTimeStub;
+        this.presenter.modelID = this.model.ID;
         this.view = document.createElement('div');
     },
 
@@ -51,10 +53,19 @@ TestCase('[Clock] handle events related to showing or hiding model answer', {
     'test should invoke showAnswer and change isGradualShowAnswersActive when GradualShowAnswers event was showed': function () {
         this.presenter.isGradualShowAnswersActive = false;
 
-        this.presenter.onEventReceived('GradualShowAnswers');
+        this.presenter.onEventReceived('GradualShowAnswers', {'moduleID': 'Clock'});
 
         assertTrue(this.spies.showAnswers.called);
         assertTrue(this.presenter.isGradualShowAnswersActive);
+    },
+
+    'test given different model ID then the instance ID when GradualShowAnswers events was occurred should not show answers': function () {
+        this.presenter.isGradualShowAnswersActive = false;
+
+        this.presenter.onEventReceived('GradualShowAnswers', {'moduleID': 'Clock2'});
+
+        assertFalse(this.spies.showAnswers.called);
+        assertFalse(this.presenter.isGradualShowAnswersActive);
     },
 
     'test should invoke hideAnswers when HideAnswers event was showed': function () {
