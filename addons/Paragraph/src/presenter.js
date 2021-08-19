@@ -118,10 +118,13 @@ function AddonParagraph_create() {
         }
     };
 
-    presenter.onEventReceived = function (eventName, data) {
+    presenter.onEventReceived = function (eventName, eventData) {
         switch (eventName) {
-            case "ShowAnswers":
             case "GradualShowAnswers":
+                presenter.gradualShowAnswers(eventData);
+                break;
+
+            case "ShowAnswers":
                 presenter.showAnswers();
                 break;
 
@@ -172,6 +175,11 @@ function AddonParagraph_create() {
             }
         }
         presenter.cachedAnswer = [];
+    }
+
+    presenter.gradualShowAnswers = function (data) {
+        if (data.moduleID !== presenter.configuration.ID) { return; }
+        presenter.showAnswers();
     }
 
     presenter.getParagraphs = function () {
