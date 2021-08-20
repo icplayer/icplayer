@@ -102,7 +102,7 @@ function Addoncrossword_create(){
 
     presenter.prepareCorrectAnswers = function() {
         presenter.correctAnswers = [];
-        var answer, orientation;
+        var answer, isHorizontal;
         for(var i = 0; i < presenter.rowCount; i++) {
             for(var j = 0; j < presenter.columnCount; j++){
                 if(presenter.isHorizontalWordBegin(i, j)){
@@ -110,7 +110,7 @@ function Addoncrossword_create(){
                         x: j,
                         y: i
                     };
-                    orientation = "HORIZONTAL";
+                    isHorizontal = true;
                     answer = "";
                     for(var k = j; k < presenter.columnCount; k++){
                         if(presenter.crossword[i][k] == ' '){
@@ -120,7 +120,7 @@ function Addoncrossword_create(){
                     }
                     let answerData = {
                         answer: answer,
-                        orientation: orientation,
+                        isHorizontal: isHorizontal,
                         position: position
                     };
                     presenter.correctAnswers.push(answerData);
@@ -130,7 +130,7 @@ function Addoncrossword_create(){
                         x: j,
                         y: i
                     };
-                    orientation = "VERTICAL";
+                    isHorizontal = false;
                     answer = "";
                     for(var k = i; k < presenter.rowCount; k++){
                         if(presenter.crossword[k][j] == ' '){
@@ -140,7 +140,7 @@ function Addoncrossword_create(){
                     }
                     let answerData = {
                         answer: answer,
-                        orientation: orientation,
+                        isHorizontal: isHorizontal,
                         position: position
                     };
                     presenter.correctAnswers.push(answerData);
@@ -778,10 +778,10 @@ function Addoncrossword_create(){
         presenter.initializeLogic(view, model);
         if (!presenter.configuration.isError) {
             presenter.setVisibility(presenter.configuration.isVisibleByDefault);
-            eventBus.addEventListener('ShowAnswers', this);
-            eventBus.addEventListener('HideAnswers', this);
-            eventBus.addEventListener('GradualShowAnswers', this);
-            eventBus.addEventListener('GradualHideAnswers', this);
+            var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+            for (var i = 0; i < events.length; i++) {
+                eventBus.addEventListener(events[i], this);
+            }
        }
     };
 
@@ -1094,12 +1094,12 @@ function Addoncrossword_create(){
             var answer = answerData.answer;
             var x = answerData.position.x;
             var y = answerData.position.y;
-            if (answerData.orientation == "HORIZONTAL") {
+            if (answerData.isHorizontal) {
                 for (var i = 0; i < answer.length; i++) {
                     presenter.$view.find('.cell_' + y + 'x' + (x + i) + ' input').val(answer.charAt(i));
                 }
             }
-            if (answerData.orientation == "VERTICAL") {
+            if (!answerData.isHorizontal) {
                 for (var i = 0; i < answer.length; i++) {
                     presenter.$view.find('.cell_' + (y + i) + 'x' + x + ' input').val(answer.charAt(i));
                 }
