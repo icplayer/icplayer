@@ -15,6 +15,7 @@ function Addoncrossword_create(){
     presenter.id               = null;
     presenter.isVisible        = true;
     presenter.isGradualShowAnswersActive = false;
+    presenter.score = 0;
     presenter.blankCellsBorderStyle  = "solid";
     presenter.blankCellsBorderWidth  = 0;
     presenter.blankCellsBorderColor  = "transparent";
@@ -844,12 +845,17 @@ function Addoncrossword_create(){
     };
 
     presenter.getScore = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
+        if(!presenter.isGradualShowAnswersActive) {
+            if (presenter.isShowAnswersActive) {
+                presenter.hideAnswers();
+            }
+            var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE);
+            presenter.score = score;
+    
+            return presenter.isAttempted() ? score : 0;
+        } else {
+            return presenter.score;
         }
-        var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE);
-
-        return presenter.isAttempted() ? score : 0;
     };
 
     presenter.getMaxScore = function() {
@@ -1103,6 +1109,7 @@ function Addoncrossword_create(){
 
     presenter.prepareCrosswordForGSA = function () {
         presenter.setWorkMode();
+        presenter.$view.find(".cell_letter input:enabled").attr('disabled', true);
         presenter.userAnswers = new Array(presenter.rowCount);
         for(var i = 0; i < presenter.rowCount; i++) {
             presenter.userAnswers[i] = new Array(presenter.columnCount);
