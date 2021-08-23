@@ -17,7 +17,6 @@ TestCase("[Slideshow] States - get", {
         var state = this.presenter.getState(),
             parsedState = JSON.parse(state);
 
-        assertTrue(this.presenter.pauseAudioResource.calledOnce);
         assertFalse(parsedState.isVisible);
     },
 
@@ -28,7 +27,6 @@ TestCase("[Slideshow] States - get", {
         var state = this.presenter.getState(),
             parsedState = JSON.parse(state);
 
-        assertFalse(this.presenter.pauseAudioResource.called);
         assertTrue(parsedState.isVisible);
     }
 });
