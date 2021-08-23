@@ -238,6 +238,20 @@ function AddonHierarchical_Table_Of_Contents_create() {
         presenter.$view.css("visibility", isVisible ? "visible" : "hidden");
     };
 
+    presenter.show = function () {
+        if (!presenter.configuration.isVisible) {
+            presenter.setVisibility(true);
+            presenter.configuration.isVisible = true;
+        }
+    };
+
+    presenter.hide = function () {
+        if (presenter.configuration.isVisible) {
+            presenter.setVisibility(false);
+            presenter.configuration.isVisible = false;
+        }
+    };
+
     presenter.initialize = function (view, model, isPreview) {
         presenter.$view = $(view);
         presenter.isPreview = isPreview;

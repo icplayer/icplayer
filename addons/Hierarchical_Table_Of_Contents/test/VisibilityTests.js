@@ -36,6 +36,8 @@ TestCase('[Hierarchical_Table_Of_Content] Visibility tests', {
         this.presenter.createTree = this.stubs.createTreeStub;
         this.presenter.checkIfChapterHasChildren = this.stubs.checkIfChapterHasChildrenStub;
 
+        this.presenter.configuration = {};
+
         this.view = document.createElement('div');
     },
 
@@ -89,5 +91,41 @@ TestCase('[Hierarchical_Table_Of_Content] Visibility tests', {
         this.presenter.initialize(this.view, {}, false);
 
         assertTrue(this.stubs.setVisibilityStub.calledWith(false));
+    },
+
+    'test given isVisible to false when show() then setVisibility called with true': function () {
+        //given
+        this.presenter.configuration.isVisible = false;
+        //when
+        this.presenter.show();
+        //then
+        assertTrue(this.stubs.setVisibilityStub.calledWith(true));
+    },
+
+    'test given isVisible to true when show() then setVisibility not called': function () {
+        //given
+        this.presenter.configuration.isVisible = true;
+        //when
+        this.presenter.show();
+        //then
+        assertEquals(this.stubs.setVisibilityStub.callCount, 0);
+    },
+
+    'test given isVisible to true when hide() then setVisibility called with false': function () {
+        //given
+        this.presenter.configuration.isVisible = true;
+        //when
+        this.presenter.hide();
+        //then
+        assertTrue(this.stubs.setVisibilityStub.calledWith(false));
+    },
+
+    'test given isVisible to false when hide() then setVisibility not called': function () {
+        //given
+        this.presenter.configuration.isVisible = false;
+        //when
+        this.presenter.hide();
+        //then
+        assertEquals(this.stubs.setVisibilityStub.callCount, 0);
     }
 });
