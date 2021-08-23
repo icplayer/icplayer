@@ -474,9 +474,8 @@ function Addongamememo_create(){
     presenter.cardClickedSecond = null;
     presenter.cardClickedFirstId = null;
     presenter.cardClickedSecondId = null;
-    presenter.hasCheckFirstClickedCardInGSAMode = true;
-    presenter.hasCheckSecondClickedCardInGSAMode = true;
     presenter.cardClickedStyle = null;
+    presenter.areClickedCardsHiddenInGSAMode = false;
 
     presenter.errorCount = 0;
     presenter.score = 0;
@@ -776,6 +775,34 @@ function Addongamememo_create(){
             cell.removeClass('was-clicked');
         }
     };
+
+    presenter.showClickedCardsInGSAMode = function () {
+        if (presenter.areClickedCardsHiddenInGSAMode) {
+            if (presenter.cardClickedFirst) {
+                presenter.showCard(presenter.cardClickedFirst);
+                presenter.cardClickedFirst.addClass('was-clicked');
+            }
+            if (presenter.cardClickedSecond) {
+                presenter.showCard(presenter.cardClickedSecond);
+                presenter.cardClickedSecond.addClass('was-clicked');
+            }
+            presenter.areClickedCardsHiddenInGSAMode = false;
+        }
+    }
+
+    presenter.hideClickedCardsInGSAMode = function () {
+        if (!presenter.areClickedCardsHiddenInGSAMode) {
+            if (presenter.cardClickedFirst) {
+                presenter.hideCard(presenter.cardClickedFirst);
+                presenter.cardClickedFirst.removeClass('was-clicked');
+            }
+            if (presenter.cardClickedSecond) {
+                presenter.hideCard(presenter.cardClickedSecond);
+                presenter.cardClickedSecond.removeClass('was-clicked');
+            }
+            presenter.areClickedCardsHiddenInGSAMode = true;
+        }
+    }
 
     function getMarkDiv(markType, height) {
         var factory = {
@@ -1489,8 +1516,7 @@ function Addongamememo_create(){
         presenter.cardClickedSecond = null;
         presenter.cardClickedFirstId = null;
         presenter.cardClickedSecondId = null;
-        presenter.hasCheckFirstClickedCardInGSAMode = true;
-        presenter.hasCheckSecondClickedCardInGSAMode = true;
+        presenter.areClickedCardsHiddenInGSAMode = false;
 
         presenter.isShowErrorsMode = false;
 
@@ -1713,12 +1739,6 @@ function Addongamememo_create(){
     presenter.getIfUnexposedCardInGSAMode = function(currentCard) {
         if (!currentCard.hasClass('was-clicked') && !currentCard.hasClass('exposed-in-GSA-mode')) {
             return currentCard;
-        } else if (presenter.cardClickedFirst && presenter.hasCheckFirstClickedCardInGSAMode && currentCard[0] === presenter.cardClickedFirst[0]) {
-            presenter.hasCheckFirstClickedCardInGSAMode = false;
-            return currentCard;
-        } else if (presenter.cardClickedSecond && presenter.hasCheckSecondClickedCardInGSAMode && currentCard[0] === presenter.cardClickedSecond[0]) {
-            presenter.hasCheckSecondClickedCardInGSAMode = false;
-            return currentCard;
         }
         return undefined;
     }
@@ -1731,12 +1751,6 @@ function Addongamememo_create(){
             presenter.showCard(secondCard);
             firstCard.addClass('exposed-in-GSA-mode');
             secondCard.addClass('exposed-in-GSA-mode');
-            if (presenter.cardClickedFirst && presenter.hasCheckFirstClickedCardInGSAMode && secondCard[0] === presenter.cardClickedFirst[0]) {
-                presenter.hasCheckFirstClickedCardInGSAMode = false;
-            }
-            else if (presenter.cardClickedSecond && presenter.hasCheckSecondClickedCardInGSAMode && secondCard[0] === presenter.cardClickedSecond[0]) {
-                presenter.hasCheckSecondClickedCardInGSAMode = false;
-            }
             return true;
         }
         return false;
@@ -1747,6 +1761,8 @@ function Addongamememo_create(){
             if (!presenter.isActivity) {
                 return;
             }
+
+            presenter.hideClickedCardsInGSAMode();
 
             presenter.isShowAnswersActive = true;
             presenter.isShowErrorsMode = false;
@@ -1776,6 +1792,8 @@ function Addongamememo_create(){
             return;
         }
 
+        presenter.showClickedCardsInGSAMode();
+
         presenter.viewContainer.find('.cell').removeClass('cell-show-answers');
         presenter.viewContainer.find('.cell').removeClass('exposed-in-GSA-mode');
         presenter.viewContainer.find('.cell').find('.back').css('visibility', 'hidden');
@@ -1786,9 +1804,6 @@ function Addongamememo_create(){
 
         presenter.isShowAnswersActive = false;
         keyboardController.selectEnabled(true);
-
-        presenter.hasCheckFirstClickedCardInGSAMode = true;
-        presenter.hasCheckSecondClickedCardInGSAMode = true;
     };
 
     presenter.getActivitiesCount = function () {
