@@ -113,10 +113,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 				@Override
 				public void onGradualShowAnswers(GradualShowAnswerEvent event) {
 					if (!isGradualShowAnswers) {
-						currentScore = getScore();
-						currentMaxScore = getMaxScore();
-						currentErrorCount = getErrorCount();
-						currentState = getState();
+						setCurrentViewState();
 						isGradualShowAnswers = true;
 					}
 
