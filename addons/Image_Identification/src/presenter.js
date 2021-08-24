@@ -8,6 +8,7 @@ function AddonImage_Identification_create(){
     presenter.isGradualShowAnswersActive = false;
     presenter.printableState = null;
     presenter.printableStateMode = 0;
+    presenter.GSAcounter = 0;
     presenter.PRINTABLE_STATE_MODE = {
         EMPTY: 0,
         SHOW_ANSWERS: 1,
@@ -591,9 +592,11 @@ function AddonImage_Identification_create(){
         } else if (eventName === "HideAnswers") {
             presenter.hideAnswers();
         } else if(eventName === "GradualShowAnswers") {
+            presenter.GSAcounter++;
             if (!presenter.isGradualShowAnswersActive) {
                 presenter.isGradualShowAnswersActive = true;
             } 
+            if(presenter.GSAcounter === 1) presenter.hideStudentAnswersForGSA();
             if (data.moduleID === presenter.configuration.addonID) {
                 presenter.showAnswers();
             }
@@ -612,6 +615,13 @@ function AddonImage_Identification_create(){
         var element = presenter.$view.find('div:first')[0];
 
         $(element).removeClass(style);
+    }
+
+    presenter.hideStudentAnswersForGSA = function () {
+        presenter.isShowAnswersActive = true;
+        presenter.configuration.isErrorCheckMode = true;
+
+        presenter.$view.find('.image-identification-element-selected').removeClass(CSS_CLASSES.SELECTED).addClass("image-identification-element was-selected");
     }
 
     presenter.showAnswers = function () {
@@ -646,6 +656,7 @@ function AddonImage_Identification_create(){
          $(elementWasSelected).addClass(CSS_CLASSES.SELECTED).removeClass("was-selected");
 
         presenter.isShowAnswersActive = false;
+        presenter.GSAcounter = 0;
     };
 
     presenter.keyboardController = function(keycode, isShiftKeyDown, event) {
