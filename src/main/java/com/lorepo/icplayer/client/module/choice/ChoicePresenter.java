@@ -153,11 +153,9 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if (!module.isActivity()) {
 			return;
 		}
-				
-		this.currentScore = getScore();
-		this.currentMaxScore = getMaxScore();
-		this.currentErrorCount = getErrorCount();
-		this.currentState = getState();
+
+		setCurrentViewState();
+
 		this.isShowAnswersActive = true;
 
 		clearStylesAndSelection(false);
@@ -180,6 +178,12 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		if (!module.isActivity()) {
 			return;
 		}
+
+		// Protection if this function has been used without previously using showAnswers() - error fix for hideAnswers command
+		if (!this.isShowAnswersActive) {
+			setCurrentViewState();
+		}
+
 		clearStylesAndSelection(false);
 		setState(this.currentState);
 		this.isShowAnswersActive = false;
@@ -801,5 +805,12 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		String moduleID = this.module.getId();
 		
 		this.playerServices.getEventBusService().sendValueChangedEvent(moduleType, moduleID, itemID, value, score);
+	}
+
+	private void setCurrentViewState() {
+		this.currentScore = getScore();
+		this.currentErrorCount = getErrorCount();
+		this.currentMaxScore = getMaxScore();
+		this.currentState = getState();
 	}
 }
