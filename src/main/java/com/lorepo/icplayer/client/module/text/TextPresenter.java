@@ -300,6 +300,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			return;
 		}
 
+		// Protection if this function has been used without previously using showAnswers() - error fix for hideAnswers command
+		if (!this.isShowAnswersActive) {
+			setCurrentViewState();
+		}
+
 		for (int i = 0; i < view.getChildrenCount(); i++) {
 			TextElementDisplay child = view.getChild(i);
 			child.reset();
