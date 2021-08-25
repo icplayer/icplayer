@@ -1690,6 +1690,7 @@ var ice_dictionary_bl = {
 	"Coloring_property_is_not_activity": "Не е задача",
 	"Coloring_property_is_disabled": "Изключи",
     "Coloring_property_color_correct" : "Поправи цветовете",
+    "Coloring_property_show_all_answers_in_gradual_show_answers_mode" : "Show all answers in gradual show answers mode",
 	"IWB_Toolbar_info": "Лентата с инструменти за интерактивна бяла дъска помага на учителите да провеждат уроци и да правят презентации. Лентата е специално предназначена за работа с интерактивна бяла дъска.",
 	"IWB_Toolbar_name": "Лента с инструменти за интерактивна бяла дъска",
 	"IWB_Toolbar_property_floating_images": "Плаващи изображения",

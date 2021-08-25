@@ -1688,6 +1688,7 @@ var ice_dictionary_mx = {
 	"Coloring_property_is_not_activity": "No es actividad",
 	"Coloring_property_is_disabled": "Inhabilitar",
 	"Coloring_property_color_correct": "Colorear sólo correctos",
+    "Coloring_property_show_all_answers_in_gradual_show_answers_mode" : "Show all answers in gradual show answers mode",
 	"IWB_Toolbar_info": "La Barra de herramientas para la pizarra interactiva es un conjunto de herramientas para ayudar a los maestros que desarrollan las lecciones y la presentación de ponencias. Ha sido especialmente diseñado para trabajar con IWB (Pizarrón blanco interactivo).",
 	"IWB_Toolbar_name": "Herramientas para la pizarra interactiva",
 	"IWB_Toolbar_property_floating_images": "Imágenes flotantes",
