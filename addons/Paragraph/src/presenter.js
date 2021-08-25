@@ -818,12 +818,6 @@ function AddonParagraph_create() {
         });
     };
 
-    presenter.setPrintableState = function(state) {
-        if (state === null || ModelValidationUtils.isStringEmpty(state))
-            return;
-        presenter.printableState = JSON.parse(state);
-    }
-
     presenter.setState = function AddonParagraph_setState(state) {
         var parsedState = JSON.parse(state),
             tinymceState = parsedState.tinymceState;
@@ -905,7 +899,6 @@ function AddonParagraph_create() {
         var model = presenter.upgradeModel(model);
         var configuration = presenter.validateModel(model);
         var modelAnswer = configuration.modelAnswer;
-        var usersAnswer = presenter.getUsersAnswer();
 
         var $wrapper = $('<div></div>');
         $wrapper.addClass('printable_addon_Paragraph');
@@ -920,22 +913,13 @@ function AddonParagraph_create() {
         $paragraph.css("border", "1px solid");
         $paragraph.css("padding", "10px");
 
-        if (showAnswers && modelAnswer && !presenter.didUserAnswer(usersAnswer)) {
+        if (showAnswers && modelAnswer) {
             $paragraph.html(modelAnswer);
-        } else {
-            $paragraph.html(usersAnswer);
         }
 
         $wrapper.append($paragraph);
         return $wrapper[0].outerHTML;
     };
-
-    presenter.getUsersAnswer = function () {
-        if (presenter.printableState && presenter.printableState.hasOwnProperty('tinymceState')) {
-            return presenter.printableState['tinymceState'];
-        }
-        return null;
-    }
 
     presenter.didUserAnswer = function (usersAnswer) {
         var parsedAnswer = usersAnswer.replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');

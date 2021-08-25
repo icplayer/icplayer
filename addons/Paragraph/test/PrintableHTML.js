@@ -18,28 +18,23 @@ TestCase("[Paragraph] get printable HTML", {
         this.spies = {
             upgradeModel : sinon.spy(this.presenter, 'upgradeModel'),
             validateModel : sinon.spy(this.presenter, 'validateModel'),
-            getUsersAnswer : sinon.spy(this.presenter, 'getUsersAnswer')
         };
     },
 
     'test display model answer after getPrintableHTML call when users answer is empty': function () {
-        this.presenter['printableState'] = {'tinymceState' : ''}
         this.model['Show Answers'] = 'This is a testing answer for Paragraph addon.';
         var result = this.presenter.getPrintableHTML(this.model, true);
         result = result.replace(/<(.*?)>/g, '');
 
         assertEquals(result, 'This is a testing answer for Paragraph addon.');
-        assertTrue(this.spies.getUsersAnswer.called);
     },
 
-    'test display user answer after getPrintableHTML call': function () {
-        this.presenter['printableState'] = {'tinymceState' : 'This is an example users answer.'}
+    'test given show answers on false when getPrintableHTML was called should return empty paragraph': function () {
         this.model['Show Answers'] = 'This is a testing answer for Paragraph addon.';
-        var result = this.presenter.getPrintableHTML(this.model, true);
+        var result = this.presenter.getPrintableHTML(this.model, false);
         result = result.replace(/<(.*?)>/g, '');
 
-        assertEquals(result, 'This is an example users answer.');
-        assertTrue(this.spies.getUsersAnswer.called);
+        assertEquals(result, '');
     },
 
     'test update and validate model in printable method on printing HTML': function () {
