@@ -915,6 +915,7 @@ var ice_dictionary_bl = {
     "gamememo_property_time_to_solve": "Време за изпълняване на задачата",
     "gamememo_property_session_ended_message": "Съобщение за край на сесията",
 	"gamememo_property_click_to_turn_over_incorrect_pair": "Кликни, за да скриеш сгрешената двойка",
+	"gamememo_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
 	"gamememo_revealed": "Отворени",
 	"gamememo_paired": "Намерени двойки",
 	"gamememo_value_of": "със стойност",
