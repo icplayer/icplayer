@@ -291,6 +291,10 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 	}
 
 	private void hideAnswers () {
+		if (!this.isShowAnswersActive) {
+			return;
+		}
+
 		if (!module.isActivity()) {
 			for (int i = 0; i < view.getChildrenCount(); i++) {
 				TextElementDisplay child = view.getChild(i);
@@ -298,11 +302,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 			}
 
 			return;
-		}
-
-		// Protection if this function has been used without previously using showAnswers() - error fix for hideAnswers command
-		if (!this.isShowAnswersActive) {
-			setCurrentViewState();
 		}
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {

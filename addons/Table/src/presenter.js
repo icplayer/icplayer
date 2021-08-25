@@ -1077,6 +1077,10 @@ function AddonTable_create() {
     };
 
     presenter.hideAnswers = function () {
+        if (!presenter.isShowAnswersActive) {
+            return;
+        }
+
         if (presenter.configuration.isActivity || isConnectedWithMath) {
             presenter.gapsContainer.hideAnswers();
             if(isConnectedWithMath){

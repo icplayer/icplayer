@@ -1002,7 +1002,7 @@ function Addoncrossword_create(){
     };
     
     presenter.hideAnswers = function () {
-        if (presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) {
+        if ((presenter.wordNumbersHorizontal || presenter.wordNumbersVertical) && presenter.isShowAnswersActive) {
             presenter.isShowAnswersActive = false;
             presenter.$view.find(".cell_letter input").attr('disabled', false);
             presenter.$view.find(".cell_letter input").removeClass('crossword_cell_show-answers');

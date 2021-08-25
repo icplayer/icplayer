@@ -1789,7 +1789,9 @@ function AddonCount_and_Graph_create() {
     };
 
     presenter.hideAnswers = function () {
-        if (presenter.configuration.isNotActivity) return;
+        if (presenter.configuration.isNotActivity || !presenter.isShowAnswersActive) {
+            return;
+        }
 
         presenter.graph.unblock();
         presenter.graph.hideAnswers();

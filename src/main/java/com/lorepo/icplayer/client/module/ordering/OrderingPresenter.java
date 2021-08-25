@@ -149,11 +149,8 @@ public class OrderingPresenter implements IPresenter, IStateful, IActivity, ICom
 	}
 
 	private void hideAnswers() {
-		if (!module.isActivity()) { return; }
-
-		// Protection if this function has been used without previously using showAnswers() - error fix for hideAnswers command
-		if (!this.isShowAnswersActive) {
-			setCurrentViewState();
+		if (!module.isActivity() || !this.isShowAnswersActive) {
+			return;
 		}
 
 		view.removeCorrectAnswersStyles();

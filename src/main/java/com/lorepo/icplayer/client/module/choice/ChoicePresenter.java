@@ -172,13 +172,8 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 	
 	private void hideAnswers() {
-		if (!module.isActivity()) {
+		if (!module.isActivity() || !this.isShowAnswersActive) {
 			return;
-		}
-
-		// Protection if this function has been used without previously using showAnswers() - error fix for hideAnswers command
-		if (!this.isShowAnswersActive) {
-			setCurrentViewState();
 		}
 
 		clearStylesAndSelection(false);

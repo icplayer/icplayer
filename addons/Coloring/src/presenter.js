@@ -1313,7 +1313,7 @@ function AddonColoring_create(){
     };
 
     presenter.hideAnswers = function () {
-        if (!presenter.configuration.isActivity) {
+        if (!presenter.configuration.isActivity || !presenter.isShowAnswersActive) {
             return;
         }
 
