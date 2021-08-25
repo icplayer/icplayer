@@ -1542,6 +1542,7 @@ var ice_dictionary_pl = {
     "PointsLines_property_blocked_lines": "Zablokowane linie",
 	"PointsLines_property_block_wrong_answers": "Zablokuj błędne odpowiedzi",
 	"PointsLines_property_single_connection": "Łączenie pojedyncze",
+	"Points_Lines_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in GSA mode",
 	"EdgeAnimation_info" : "Pozwala na osadzenie w prezentacji animacji utworzonej w programie Adobe Edge Animate. W Addonie można wykorzystać więcej niż jedną animację; aby wszystko działało poprawnie, wystarczy skonfigurować wybrane właściwości w menu bocznym.",
 	"EdgeAnimation_name" : "Animacja Adobe Edge",
 	"EdgeAnimation_property_animations" : "Animacje",

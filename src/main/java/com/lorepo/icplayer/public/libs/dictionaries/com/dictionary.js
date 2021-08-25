@@ -1551,6 +1551,7 @@ var ice_dictionary_en = {
     "PointsLines_property_blocked_lines": "Blocked lines",
 	"PointsLines_property_block_wrong_answers": "Block wrong answers",
 	"PointsLines_property_single_connection": "Single Connection",
+	"Points_Lines_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in GSA mode",
 	"EdgeAnimation_info" : "Enables to embed animations and other projects created in Adobe Edge Animate program. More than one animation can be used in the addon and to make it work, it is necessary to configure certain properties in the addon’s side menu, including Animations, Images and Initial animation.",
 	"EdgeAnimation_name" : "Edge Animation",
 	"EdgeAnimation_property_animations" : "Animations",
