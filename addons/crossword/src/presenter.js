@@ -643,7 +643,6 @@ function Addoncrossword_create(){
     };
 
     presenter.initializeLogic = function(view, model) {
-        console.log(model);
         presenter.$view = $(view);
         presenter.ID = model.ID;
         presenter.showAllAnswersInGradualShowAnswersMode = model.showAllAnswersInGradualShowAnswersMode;
@@ -1126,7 +1125,6 @@ function Addoncrossword_create(){
             presenter.userAnswers[i] = new Array(presenter.columnCount);
             for(var j = 0; j < presenter.columnCount; j++) {
                 presenter.userAnswers[i][j] = presenter.$view.find('.cell_' + i + 'x' + j + ' input').val();
-                //presenter.$view.find('.cell_' + i + 'x' + j + ' input').val(' ');
             }
         }
     }
