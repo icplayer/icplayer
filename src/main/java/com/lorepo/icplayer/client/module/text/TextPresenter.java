@@ -1109,7 +1109,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public int getActivitiesCount() {
-		return view.getGapCount();
+	    return 0;
 	}
 
 	private void jsOnEventReceived (String eventName, String jsonData) {
