@@ -25,28 +25,19 @@ TestCase('[FlashCards] handling Flash Cards function', {
             "<div class=\"flashcards-card-audio-wrapper flashcards-card-audio-wrapper-front\" style=\"display: none;\">" +
             "<audio class=\"flashcards-card-audio flashcards-card-audio-front\" src=\"\"></audio>" +
             "<div class=\"flashcards-card-audio-button flashcards-card-audio-button-front disabled\"></div>" +
-            "</div>" +
-            "</div>" +
+            "</div></div>" +
             "<div class=\"flashcards-card-back\">" +
             "<div class=\"flashcards-card-contents flashcards-card-contents-back\" style=\"display: none;\">Apple</div>" +
             "<div class=\"flashcards-buttons\">" +
-            "<div class=\"flashcards-button flashcards-button-wrong\">" +
-            "</div>" +
-            "<div class=\"flashcards-button flashcards-button-reset\">" +
-            "</div>" +
-            "<div class=\"flashcards-button flashcards-button-correct\">" +
-            "</div>" +
+            "<div class=\"flashcards-button flashcards-button-wrong\"></div>" +
+            "<div class=\"flashcards-button flashcards-button-reset\"></div>" +
+            "<div class=\"flashcards-button flashcards-button-correct\"></div>" +
             "</div>" +
             "<div class=\"flashcards-card-audio-wrapper flashcards-card-audio-wrapper-back\" style=\"display: block;\">" +
             "<audio class=\"flashcards-card-audio flashcards-card-audio-back\" src=\"//www.mauthor.com/file/serve/5249777514184704\"></audio>" +
             "<div class=\"flashcards-card-audio-button flashcards-card-audio-button-back\"></div>" +
-            "</div>" +
-            "</div>" +
-            "<div class=\"flashcards-button-favourite\"></div>" +
-            "</div>" +
-            "<div class=\"flashcards-prev-wrapper\">" +
-            "<button type=\"button\" class=\"flashcards-next\"></button>" +
-            "</div>" +
+            "</div></div></div>" +
+            "<div class=\"flashcards-prev-wrapper\"></div>" +
             "</div>" +
             "<div class=\"flashcards-panel\">1/1</div>" +
             "</div>";
@@ -101,8 +92,6 @@ TestCase('[FlashCards] handling Flash Cards function', {
         this.presenter.flashcardsCardAudioButtonFront.addClass('playing');
         this.presenter.flashcardsCardAudioButtonBack = $(document.createElement('div'));
         this.presenter.flashcardsCardAudioButtonBack.addClass('playing');
-        assertTrue(this.presenter.flashcardsCardAudioButtonFront[0].classList.contains('playing'));
-        assertTrue(this.presenter.flashcardsCardAudioButtonBack[0].classList.contains('playing'));
         this.presenter.audioElementFront = {
             pause: sinon.mock()
         }
