@@ -17,10 +17,9 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         this.presenter.videoObject.src = '';
     },
 
-    'test play when video is paused': function () {
+    'test given paused video when play was called then should start to play': function () {
         this.presenter.usedStop = true;
         this.presenter.playTriggered = false;
-        assertFalse('The video has not "playing" class.', this.presenter.$view[0].classList.contains('playing'));
         var playSpy = sinon.spy(this.presenter.videoObject, 'play');
 
         this.presenter.play();
@@ -31,7 +30,7 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         assertTrue(this.presenter.playTriggered);
     },
 
-    'test do not play when video is playing': function() {
+    'test given playing video when play was called then should not start to play': function() {
         var playSpy = sinon.spy(this.presenter.videoObject, 'play');
         this.presenter.videoObject = {
             play: sinon.mock(),
@@ -43,12 +42,11 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         assertFalse('Make sure that play method was NOT executed', playSpy.called);
     },
 
-    'test stop when video is playing': function() {
-        this.presenter.play();
-        assertTrue('The  video is playing.', this.presenter.$view[0].classList.contains('playing'));
+    'test given playing video when stop was called then should stop playing': function() {
         var showPlayButtonSpy = sinon.spy(this.presenter, 'showPlayButton');
         var pauseSpy = sinon.spy(this.presenter.videoObject, 'pause');
 
+        this.presenter.play();
         this.presenter.stop();
 
         assertTrue('The video has been stopped.', pauseSpy.called);
@@ -56,8 +54,7 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         assertFalse('The video has not "playing" class.', this.presenter.$view[0].classList.contains('playing'));
     },
 
-    'test stop when video is paused': function() {
-        assertTrue('Make sure that video is paused', this.presenter.videoObject.paused);
+    'test given paused video when stop was called then should change status to stopped': function() {
         sinon.stub(this.presenter.videoObject, 'pause');
 
         this.presenter.stop();
@@ -66,9 +63,8 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         assertTrue('Seek command should be executed', this.presenter.seek.called);
     },
 
-    'test pause when video is playing': function() {
+    'test given playing video when pause was called should pause playing': function() {
         this.presenter.play();
-        assertTrue('The video is playing.', this.presenter.$view[0].classList.contains('playing'));
         sinon.stub(this.presenter.videoObject, 'pause');
         this.presenter.videoObject = {
             pause: sinon.mock(),
@@ -80,7 +76,7 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         assertTrue('Pause method should be executed', this.presenter.videoObject.pause.calledOnce);
     },
 
-    'test pause when video is paused': function() {
+    'test given paused video when pause was called then should not call pause function': function() {
         assertTrue('Make sure that video is paused', this.presenter.videoObject.paused);
         sinon.stub(this.presenter.videoObject, 'pause');
 
@@ -89,7 +85,7 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         assertFalse('Pause method should NOT be executed', this.presenter.videoObject.pause.called);
     },
 
-    'test play called before video is loaded': function () {
+    'test given paused video when play was called then should call play before video is loaded': function () {
         this.presenter.isVideoLoaded = false;
 
         this.presenter.play();
@@ -98,7 +94,7 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         assertTrue(this.presenter.removeWaterMark.calledOnce);
     },
 
-    'test pause called before video is loaded': function () {
+    'test given paused video when pause was called then should call pause before video is loaded': function () {
         this.presenter.isVideoLoaded = false;
         sinon.stub(this.presenter, 'removeClassFromView');
 
@@ -108,15 +104,12 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         };
 
         this.presenter.pause();
-
-        assertTrue(this.presenter.removeClassFromView.notCalled);
-
         this.presenter.callTasksFromDeferredQueue();
 
         assertTrue(this.presenter.removeClassFromView.calledOnce);
     },
 
-    'test stop called before video is loaded': function () {
+    'test given paused video when stop was called then should call stop before video is loaded': function () {
         this.presenter.isVideoLoaded = false;
         sinon.stub(this.presenter, 'removeClassFromView');
         this.presenter.videoObject = {
@@ -125,15 +118,12 @@ TestCase("[Video] Play Stop and Pause Commands Tests", {
         };
 
         this.presenter.stop();
-
-        assertTrue(this.presenter.removeClassFromView.notCalled);
-
         this.presenter.callTasksFromDeferredQueue();
 
         assertTrue(this.presenter.removeClassFromView.calledOnce);
     },
 
-    'test seek called before video is loaded': function () {
+    'test given paused video when seek was called then should call seek before video is loaded': function () {
         this.presenter.isVideoLoaded = false;
         this.presenter.seek.restore();
 
