@@ -1400,10 +1400,10 @@ function AddonText_Coloring_create() {
         var didUserAnswer = userAnswer ? userAnswer.some(answer => answer.isSelected) : false;
         model = presenter.upgradeModel(model);
         presenter.configuration = presenter.validateModel(model);
-        var modelText = presenter.configuration.modelText;
-        var areAllSelectable = presenter.configuration.mode === 'ALL_SELECTABLE';
+        var modelText = presenter.configuration.textTokens.filter(token => ![presenter.TOKENS_TYPES.SPACE, presenter.TOKENS_TYPES.NEW_LINE].includes(token.type));
+        var areAllSelectable = presenter.configuration.mode === 'ALL_SELECTABLE'
 
-        modelText.forEach((phrase, index) => {
+        modelText.forEach((token, index) => {
             switch (true) {
                 case (userAnswer && userAnswer[index].isSelected) && !showAnswers:
                     var color = parseToGrayscale(presenter.getColorInHex(model, userAnswer[index].selectionColorID));
@@ -1412,25 +1412,21 @@ function AddonText_Coloring_create() {
 
                 case (userAnswer && userAnswer[index].isSelected) && showAnswers:
                     var color = parseToGrayscale(presenter.getColorInHex(model, userAnswer[index].selectionColorID));
-                    var answerMark = presenter.isAnswerCorrect(userAnswer[index], phrase) ? '&#10004;' : '&#10006;';
+                    var answerMark = presenter.isAnswerCorrect(userAnswer[index], token.value) ? '&#10004;' : '&#10006;';
                     printableHTML += `<span style="border: 2px solid ${color}">${userAnswer[index].value} ${answerMark}</span> `;
                     break;
 
-                case phrase.includes('\\color') && showAnswers && !didUserAnswer:
-                    var color = presenter.getColor(model, phrase);
-                    printableHTML += `<span style="border: 2px dashed ${color}">${presenter.getWord(phrase)}</span> `;
+                case token.hasOwnProperty('color') && showAnswers && !didUserAnswer:
+                    var color = presenter.getColor(model, token.color);
+                    printableHTML += `<span style="border: 2px dashed ${color}">${token.value}</span> `;
                     break;
 
-                case phrase.includes('\\color') && (!areAllSelectable || showAnswers):
-                    printableHTML += `<span style="border-bottom: 1px solid">${presenter.getWord(phrase)}</span> `;
-                    break;
-
-                case phrase.includes('\\color'):
-                    printableHTML += `${presenter.getWord(phrase)} `;
+                case token.hasOwnProperty('color') && (!areAllSelectable || showAnswers):
+                    printableHTML += `<span style="border-bottom: 1px solid">${token.value}</span> `;
                     break;
 
                 default:
-                    printableHTML += `${phrase} `;
+                    printableHTML += `${token.value} `;
             }
         });
 
@@ -1440,8 +1436,8 @@ function AddonText_Coloring_create() {
     presenter.createHTML = function (shouldChangeLineHeight, htmlContent) {
         var $legend = $('<div></div>');
         var $wrapper = $('<div></div>');
-        var height = presenter.configuration.height;
         var colors = presenter.configuration.colors;
+        var height = presenter.configuration.height + (2 + colors.length) * 15;
         var legendTitle = presenter.configuration.legendTitle
         $wrapper.addClass('printable_addon_Paragraph');
         $wrapper.css("left", "0px");
@@ -1451,7 +1447,7 @@ function AddonText_Coloring_create() {
         var $paragraph = $('<div></div>');
         $paragraph.css("left", "0px");
         $paragraph.css("right", "0px");
-        $paragraph.css("height", "100%");
+        $paragraph.css("height", `${presenter.configuration.height}`);
         $paragraph.css("border", "1px solid");
         $paragraph.css("padding", "10px");
         if (shouldChangeLineHeight) {
@@ -1488,10 +1484,7 @@ function AddonText_Coloring_create() {
     }
 
     /* Extracts the color from phrase and convert into grayscale \\color{color}{word} */
-    presenter.getColor = function (model, phrase) {
-        var regExp = /(\\color{)/;
-        var regExpWord = /(}{\w*})/
-        var color = phrase.replace(regExp, '').replace(regExpWord, '');
+    presenter.getColor = function (model, color) {
         return parseToGrayscale(presenter.getColorInHex(model, color));
     }
 
