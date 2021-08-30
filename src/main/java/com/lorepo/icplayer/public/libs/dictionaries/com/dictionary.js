@@ -1186,6 +1186,8 @@ var ice_dictionary_en = {
 	"Table_property_first_column_is_header": "First column is a header",
 	"Table_row_speech_text": "Row",
 	"Table_column_speech_text": "Column",
+	"Table_row_span_speech_text": "Row span",
+	"Table_column_span_speech_text": "Column span",
 	"Table_Of_Contents_info": "Displays a presentation's table of contents together with links to the corresponding pages.",
 	"Table_Of_Contents_name": "Table Of Contents",
 	"Table_Of_Contents_property_header": "Header",

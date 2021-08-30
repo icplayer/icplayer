@@ -1300,6 +1300,8 @@ var ice_dictionary_fr = {
 	"Table_property_first_column_is_header": "First column is a header",
 	"Table_row_speech_text": "Row",
 	"Table_column_speech_text": "Column",
+	"Table_row_span_speech_text": "Row span",
+	"Table_column_span_speech_text": "Column span",
     "Table_property_new_width_calculate": "Déterminer la largeur des colonnes",
 	"Table_property_use_numeric_keyboard": "Use numeric keyboard",
     "Table_Of_Contents_info": "Affiche la table des matières ainsi que les liens vers les pages correspondantes de la présentation.",
