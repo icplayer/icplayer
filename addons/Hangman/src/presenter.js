@@ -419,8 +419,9 @@ function AddonHangman_create() {
         if (currentPhrase.errorCount === presenter.configuration.trialsCount && presenter.isActivity && !currentPhrase.EndOfTrialsWasSent) {
             presenter.sendEventData(presenter.createEndOfTrialsEventData());
             currentPhrase.EndOfTrialsWasSent = true;
-        } else if (currentPhrase.errorCount > presenter.configuration.trialsCount && presenter.isActivity) {
+        } else if (currentPhrase.errorCount > presenter.configuration.trialsCount && presenter.isActivity && !currentPhrase.endOfGame) {
             presenter.sendEndOfGameEvent();
+            currentPhrase.endOfGame = true;
         }
 
         presenter.unbindAttachedHandlers($(this));
@@ -681,6 +682,7 @@ function AddonHangman_create() {
         for (var i = 0; i < phrases.length; i++) {
             phrases[i].selectedLetters = [];
             phrases[i].errorCount = 0;
+            phrases[i].endOfGame = false;
         }
 
         presenter.switchPhrase(1);
@@ -751,6 +753,7 @@ function AddonHangman_create() {
         for (var i = 0; i < phrases.length; i++) {
             phrases[i].selectedLetters = state.phrases[i].selectedLetters;
             phrases[i].errorCount = state.phrases[i].errorCount;
+            phrases[i].endOfGame = state.phrases[i].endOfGame;
         }
 
         presenter.switchPhrase(state.currentPhrase + 1);
