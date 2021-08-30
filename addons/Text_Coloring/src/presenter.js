@@ -238,6 +238,38 @@ function AddonText_Coloring_create() {
         presenter.showTokenClasses(presenter.$wordTokens);
     };
 
+    TextColoringStateMachine.prototype.gradualShowAnswers = function () {
+        switch (this._actualState) {
+            case StatefullAddonObject._internal.STATE.WORK:
+                this.onShowSingleAnswer();
+                this.setCssOnShowAnswers();
+                break;
+            default:
+                break;
+        }
+    };
+
+    TextColoringStateMachine.prototype.gradualBlockAnswers = function () {
+        switch (this._actualState) {
+            case StatefullAddonObject._internal.STATE.WORK:
+                this.onBlockAnswers();
+                this.setCssOnShowAnswers();
+                break;
+            default:
+                break;
+        }
+    };
+
+    TextColoringStateMachine.prototype.gradualHideAnswers = function () {
+        switch (this._actualState) {
+            case StatefullAddonObject._internal.STATE.WORK:
+                StatefullAddonObject._internal.hideAnswersShowAnswersState.call(this);
+                break;
+            default:
+                break;
+        }
+    };
+
     TextColoringStateMachine.prototype.isCorrect = function () {
         return true;
     };
@@ -1160,6 +1192,7 @@ function AddonText_Coloring_create() {
 
         if (eventName == "GradualShowAnswers") {
             if (presenter.configuration.ID == data.moduleID) {
+                presenter.stateMachine.gradualBlockAnswers();
                 presenter.stateMachine.gradualShowAnswers();
             } else {
                 presenter.stateMachine.gradualBlockAnswers();
@@ -1167,7 +1200,7 @@ function AddonText_Coloring_create() {
         }
 
         if (eventName == "GradualHideAnswers") {
-            presenter.stateMachine.hideAnswers();
+            presenter.stateMachine.gradualHideAnswers();
         }
     };
 
