@@ -1406,7 +1406,7 @@ var ice_dictionary_fr = {
     "Text_Coloring_property_text": "Texte",
     "Text_Coloring_property_buttons_position": "Position des boutons",
     "Text_Coloring_property_hide_color_buttons": "Cacher Colorier les boutons",
-	"Text_Coloring_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
+    "Text_Coloring_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
     "Text_Coloring_property_show_set_eraser_mode_button": "Afficher le bouton du mode effacer",
     "Text_Coloring_property_eraser_button_text": "Texte du bouton effacer",
 	"Text_Coloring_property_count_errors": "Count Errors",
