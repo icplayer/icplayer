@@ -1437,7 +1437,7 @@ function AddonText_Coloring_create() {
         var $legend = $('<div></div>');
         var $wrapper = $('<div></div>');
         var colors = presenter.configuration.colors;
-        var height = presenter.configuration.height + (2 + colors.length) * 15;
+        var height = presenter.configuration.height + (2 + colors.length) * 20;
         var legendTitle = presenter.configuration.legendTitle
         $wrapper.addClass('printable_addon_Paragraph');
         $wrapper.css("left", "0px");
