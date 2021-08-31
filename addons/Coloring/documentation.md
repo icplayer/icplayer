@@ -43,6 +43,10 @@ The Coloring addon gives users the ability to upload an image which can be later
         <td>Color correct</td>
         <td>With this option checked, all areas will be colored correctly when clicked.</td>
     </tr>
+    <tr>
+        <td>Show all answers in gradual show answers mode</td>
+        <td>If this property is selected the gradual show answer button will show correct answers for entire addon.</td>
+    </tr>
 </table>
 
 ## Supported commands
