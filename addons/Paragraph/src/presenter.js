@@ -921,6 +921,10 @@ function AddonParagraph_create() {
         return $wrapper[0].outerHTML;
     };
 
+    presenter.getOpenEndedContent = function () {
+        return presenter.getText();
+    }
+
     presenter.didUserAnswer = function (usersAnswer) {
         var parsedAnswer = usersAnswer.replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
         return !!parsedAnswer;

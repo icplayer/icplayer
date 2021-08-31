@@ -233,14 +233,6 @@ public class PagePopupPanel extends DialogBox {
 			}catch(Exception e) {
 				top += 0;
 			}
-			
-			scrollHandler = Window.addWindowScrollHandler(new ScrollHandler() {
-				public void onWindowScroll(ScrollEvent event) {
-
-					restrictScroll();
-				}
-
-			});
 
 			if(this.top != null && this.top != "" && this.left != null && this.left != "" && isInteger(this.left) && isInteger(this.top)){
 				int propertyLeft = scaleInt(Integer.parseInt(this.left), scale.scaleX);
@@ -276,33 +268,6 @@ public class PagePopupPanel extends DialogBox {
 	private native void setTopWindowScroll(int scroll)/*-{
 		$wnd.$(top.window).scrollTop(scroll);
 	}-*/;
-	
-	private void restrictScroll() {
-		int windowHeight = Window.getClientHeight() > getWindowHeight() ? Window.getClientHeight() : getWindowHeight();
-		int absoluteTop = Integer.parseInt(this.getElement().getStyle().getProperty("top").replace("px", ""));
-		int offsetHeight = scaleInt(getOffsetHeight(), scale.scaleY);
-		int scrollTop = getTopWindowScroll();
-		int popupBottom = absoluteTop + offsetHeight;
-		int windowBottom = scrollTop + windowHeight;
-		if (windowHeight > offsetHeight) {
-			if (scrollTop > absoluteTop) {
-				setTopWindowScroll(absoluteTop);
-			}
-			else if (popupBottom > windowBottom) {
-				int diff = popupBottom-windowBottom;
-				setTopWindowScroll(scrollTop + diff);
-			}
-		}
-		else{
-			int top = absoluteTop + (offsetHeight - windowHeight);
-			if(scrollTop > top){
-				setTopWindowScroll(top);
-			}
-			else if(absoluteTop > scrollTop) {
-				setTopWindowScroll(absoluteTop);
-			}
-		}
-	}
 	
 	private void compensateHeightBorder(){
 		int popupHeight = this.pageWidget.getOffsetHeight();

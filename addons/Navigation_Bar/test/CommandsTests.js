@@ -22,5 +22,12 @@ TestCase("[Navigation_Bar] Commands", {
 
         assertEquals([3,4], this.presenter.state.bookmarks);
         assertTrue(this.mocks.refreshBookmarks.calledOnce);
+    },
+
+    'test given original index of first page when removing all pages then all page numbers are removed from bookmarks': function () {
+        this.presenter.removeAllBookmarks();
+
+        assertEquals([], this.presenter.state.bookmarks);
+        assertTrue(this.mocks.refreshBookmarks.calledOnce);
     }
 });

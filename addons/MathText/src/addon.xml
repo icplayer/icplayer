@@ -11,5 +11,17 @@
 
         <property name="formulaColor" type="string" nameLabel="Mathtext_property_formula_color" />
         <property name="backgroundColor" type="string" nameLabel="Mathtext_property_background_color" />
+
+        <property name="mathEditorInPopup" nameLabel="Mathtext_property_math_editor_in_popup" type="boolean" />
+        <property name="popupTexts" displayName="popup texts" nameLabel="Mathtext_property_popup" type="staticlist">
+
+        <property name="cancel" nameLabel="Mathtext_property_popup_button_save" type="staticrow">
+                <property name="cancel" nameLabel="Mathtext_property_popup_button_cancel" type="string"/>
+        </property>
+        <property name="save" nameLabel="Mathtext_property_popup_button_save" type="staticrow">
+                <property name="save" nameLabel="Mathtext_property_popup_button_save" type="string"/>
+        </property>
+
+        </property>
     </model>
 </addon>
