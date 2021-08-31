@@ -25,6 +25,7 @@
         <property name="Time to solve" nameLabel="gamememo_property_time_to_solve" type="string" />
         <property name="Session ended message" nameLabel="gamememo_property_session_ended_message" type="html" />
 		<property name="Click to turn over incorrect pair" nameLabel="gamememo_property_click_to_turn_over_incorrect_pair" type="boolean" />
+		<property name="Show all answers in gradual show answers mode" nameLabel="gamememo_property_show_all_answers_in_gradual_show_answers_mode" type="boolean" />
 		<property name="langAttribute" displayName="Lang attribute" nameLabel="Connection_property_lang_attribute" type="string" />
         <property name="speechTexts" displayName="Speech texts" nameLabel="Connection_property_speech_texts" type="staticlist">
 

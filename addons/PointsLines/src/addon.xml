@@ -6,6 +6,7 @@
 		<property name="Starting lines" type="text" displayName="Starting lines" nameLabel="PointsLines_property_starting_lines"/>
 		<property name="Lines" type="text" displayName="Answer" nameLabel="PointsLines_property_lines"/>
 		<property name="Is activity" type="boolean" nameLabel="PointsLines_property_is_activity"/>
+		<property name="showAllAnswersInGradualShowAnswersMode" displayName="Show all answers in gradual show answers mode" nameLabel="Points_Lines_property_show_all_answers_in_gradual_show_answers_mode" type="boolean" />
 		<property name="Is disabled" type="boolean" nameLabel="PointsLines_property_is_disabled"/>
         <property name="Blocked lines" type="text" nameLabel="PointsLines_property_blocked_lines"/>
         <property name="Block wrong answers" type="boolean" nameLabel="PointsLines_property_block_wrong_answers"/>
