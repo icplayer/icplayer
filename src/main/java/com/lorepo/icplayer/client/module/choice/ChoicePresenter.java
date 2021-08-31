@@ -777,6 +777,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 
 	public void handleGradualShowAnswers(int itemIndex) {
+		clearStylesAndSelection(false);
 		int currentCorrectOption = 0;
 		for (IOptionDisplay option : view.getOptions()) {
 			if (option.getModel().isCorrect()) {
