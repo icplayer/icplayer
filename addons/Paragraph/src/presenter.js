@@ -139,13 +139,19 @@ function AddonParagraph_create() {
         return 1;
     }
 
+    presenter.disableParagraph = function () {
+        var paragraph = presenter.$view.find(".paragraph-wrapper");
+
+        if(!paragraph.classList.contains('disabled')) {
+            paragraph.addClass('disabled');
+        }
+    }
+
     presenter.showAnswers = function () {
         if (presenter.isShowAnswersActive) { return; }
 
-        var paragraph = presenter.$view.find(".paragraph-wrapper");
+        presenter.disableParagraph();
         var elements = presenter.getParagraphs();
-
-        paragraph.addClass('disabled');
         presenter.isShowAnswersActive = true;
 
         for (var [key, value] of Object.entries(elements)) {
@@ -178,6 +184,7 @@ function AddonParagraph_create() {
     }
 
     presenter.gradualShowAnswers = function (data) {
+        presenter.disableParagraph();
         if (data.moduleID !== presenter.configuration.ID) { return; }
         presenter.showAnswers();
     }
