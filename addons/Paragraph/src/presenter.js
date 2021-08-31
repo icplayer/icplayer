@@ -118,10 +118,13 @@ function AddonParagraph_create() {
         }
     };
 
-    presenter.onEventReceived = function (eventName, data) {
+    presenter.onEventReceived = function (eventName, eventData) {
         switch (eventName) {
-            case "ShowAnswers":
             case "GradualShowAnswers":
+                presenter.gradualShowAnswers(eventData);
+                break;
+
+            case "ShowAnswers":
                 presenter.showAnswers();
                 break;
 
@@ -172,6 +175,11 @@ function AddonParagraph_create() {
             }
         }
         presenter.cachedAnswer = [];
+    }
+
+    presenter.gradualShowAnswers = function (data) {
+        if (data.moduleID !== presenter.configuration.ID) { return; }
+        presenter.showAnswers();
     }
 
     presenter.getParagraphs = function () {
@@ -803,21 +811,12 @@ function AddonParagraph_create() {
             tinymceState = '';
         }
 
-        var usersAnswer = tinymceState.replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
-
         return JSON.stringify({
             'tinymceState' : tinymceState,
             'isVisible' : presenter.isVisibleValue,
-            'isLocked' : presenter.isLocked,
-            'usersAnswer' : usersAnswer
+            'isLocked' : presenter.isLocked
         });
     };
-
-    presenter.setPrintableState = function(state) {
-        if (state === null || ModelValidationUtils.isStringEmpty(state))
-            return;
-        presenter.printableState = JSON.parse(state);
-    }
 
     presenter.setState = function AddonParagraph_setState(state) {
         var parsedState = JSON.parse(state),
@@ -900,7 +899,6 @@ function AddonParagraph_create() {
         var model = presenter.upgradeModel(model);
         var configuration = presenter.validateModel(model);
         var modelAnswer = configuration.modelAnswer;
-        var usersAnswer = presenter.getUsersAnswer();
 
         var $wrapper = $('<div></div>');
         $wrapper.addClass('printable_addon_Paragraph');
@@ -915,21 +913,17 @@ function AddonParagraph_create() {
         $paragraph.css("border", "1px solid");
         $paragraph.css("padding", "10px");
 
-        if (showAnswers && modelAnswer && !usersAnswer) {
-            $paragraph.html(getPlainText(modelAnswer));
-        } else {
-            $paragraph.html(getPlainText(usersAnswer));
+        if (showAnswers && modelAnswer) {
+            $paragraph.html(modelAnswer);
         }
 
         $wrapper.append($paragraph);
         return $wrapper[0].outerHTML;
     };
 
-    presenter.getUsersAnswer = function () {
-        if (presenter.printableState && presenter.printableState.hasOwnProperty('usersAnswer')) {
-            return presenter.printableState['usersAnswer'];
-        }
-        return null;
+    presenter.didUserAnswer = function (usersAnswer) {
+        var parsedAnswer = usersAnswer.replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
+        return !!parsedAnswer;
     }
 
     return presenter;
@@ -938,8 +932,3 @@ function AddonParagraph_create() {
 AddonParagraph_create.__supported_player_options__ = {
     interfaceVersion: 2
 };
-
-// Returns the text without HTML tags.
-function getPlainText(text) {
-    return text.replace(/<(.*?)>/g, '');
-}

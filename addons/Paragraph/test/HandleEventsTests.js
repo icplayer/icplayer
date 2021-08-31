@@ -52,9 +52,17 @@ TestCase("[Paragraph] handle events related to showing model answer", {
     },
 
     'test invoke showAnswers method on GradualShowAnswers event': function () {
-        this.presenter.onEventReceived('GradualShowAnswers', '');
+        this.presenter.configuration.ID = 'Paragraph1'
+        this.presenter.onEventReceived('GradualShowAnswers', {'moduleID': 'Paragraph1'});
 
         assertTrue(this.spies.showAnswers.called);
+    },
+
+    'test given different module ID the instance ID when GradualShowAnswers was occurred should not show answers': function () {
+        this.presenter.configuration.ID = 'Paragraph1'
+        this.presenter.onEventReceived('GradualShowAnswers', {'moduleID': 'Paragraph2'});
+
+        assertFalse(this.spies.showAnswers.called);
     },
 
     'test invoke hideAnswers method on HideAnswers event': function () {
