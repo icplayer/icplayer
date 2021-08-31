@@ -1,5 +1,4 @@
 package com.lorepo.icplayer.client.metadata;
-
 import org.apache.commons.lang.math.NumberUtils;
 
 public class ScoreWithMetadataUtils {
