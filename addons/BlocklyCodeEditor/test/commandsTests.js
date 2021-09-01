@@ -14,6 +14,10 @@ TestCase('[Blockly_Code_Editor] workspace code tests', {
         Blockly.JavaScript.workspaceToCode.returns('<xml sounds="false" maxBlocks="10"></xml>');
     },
 
+    tearDown: function () {
+        Blockly.JavaScript.workspaceToCode.reset();
+    },
+
     'test given workspace when getWorkspaceCode was called then should return code of workspace': function () {
         var workspace = this.presenter.getWorkspaceCode();
         var mockArg = {
