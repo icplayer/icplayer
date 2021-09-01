@@ -234,7 +234,7 @@ TestCase("[Coloring] Set state validation", {
 
     'test checking proper amount of calling fill area': function () {
         this.stubs.getAreasToFillFromSetState.returns({});
-        this.stubs.upgradeState.returns({isErase: false, isVisible: true, isDisabled: true, isColored: true, savedScore: true, savedErrorCount: true});
+        this.stubs.upgradeState.returns({isErase: false, isVisible: true, isDisabled: true, isColored: true, savedScore: true, savedErrorCount: true, colorsThatCanBeFilled: [[255,255,255,255]]});
 
         this.presenter.runEndedDeferred = new $.Deferred();
         this.presenter.runEnded = this.presenter.runEndedDeferred.promise();

@@ -8,14 +8,15 @@ export class AudioRecorder extends BaseRecorder {
 
         let options = {
             type: 'audio',
+            mimeType: 'audio/wav',
             numberOfAudioChannels: isEdge ? 1 : 2,
             checkForInactiveTracks: true,
             bufferSize: 16384,
             disableLogs: true,
+            recorderType: RecordRTC.StereoAudioRecorder,
         };
 
         if (isSafari) {
-            options.recorderType = StereoAudioRecorder;
             options.bufferSize = 4096;
             options.sampleRate = 44100;
         }

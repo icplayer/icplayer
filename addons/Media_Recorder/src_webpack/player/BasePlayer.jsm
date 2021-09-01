@@ -33,6 +33,10 @@ export class BasePlayer extends Player {
     startPlaying() {
         return new Promise(resolve => {
             this.mediaNode.muted = false;
+            if (this.onTimeUpdateCallback) {
+                this.mediaNode.addEventListener('timeupdate', this.onTimeUpdateCallback);
+                this.mediaNode.addEventListener('ended', this.onTimeUpdateCallback);
+            }
             if (this._isNotOnlineResources(this.mediaNode.src))
                 resolve(this.mediaNode);
             this.mediaNode.play();
@@ -43,6 +47,28 @@ export class BasePlayer extends Player {
         return new Promise(resolve => {
             this.mediaNode.pause();
             this.mediaNode.currentTime = 0;
+            if (this.onTimeUpdateCallback) {
+                this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
+                this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
+            }
+            resolve();
+        });
+    }
+
+    pausePlaying() {
+        return new Promise(resolve => {
+            this.mediaNode.pause();
+            if (this.onTimeUpdateCallback) {
+                this.mediaNode.removeEventListener('timeupdate', this.onTimeUpdateCallback);
+                this.mediaNode.removeEventListener('ended', this.onTimeUpdateCallback);
+            }
+            resolve();
+        });
+    }
+
+    setProgress(progress) {
+        return new Promise(resolve => {
+            this.mediaNode.currentTime = Math.round(this.duration * progress);
             resolve();
         });
     }
@@ -93,6 +119,10 @@ export class BasePlayer extends Player {
         this.eventBus = eventBus;
         this.sourceID = sourceID;
         this.item = item;
+    }
+
+    getCurrentTime() {
+        return this.mediaNode.currentTime;
     }
 
     _enableEventsHandling() {
@@ -175,5 +205,11 @@ export class BasePlayer extends Player {
 
     _createMediaNode() {
         throw new Error("GetMediaNode accessor is not implemented");
+    }
+
+    _onTimeUpdateEvent(event) {
+        if (this.onTimeUpdateCallback) {
+            this.onTimeUpdateCallback(event);
+        }
     }
 }

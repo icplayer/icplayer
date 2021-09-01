@@ -13,6 +13,8 @@ import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.StringUtils;
+import com.lorepo.icplayer.client.metadata.IScoreWithMetadataPresenter;
+import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.module.IEnterable;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -27,7 +29,7 @@ import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
 import java.util.*;
 
-public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IEnterable, IGradualShowAnswersPresenter {
+public class TextPresenter implements IPresenter, IStateful, IActivity, ICommandReceiver, IWCAGPresenter, IEnterable, IGradualShowAnswersPresenter, IScoreWithMetadataPresenter {
 
 	public interface TextElementDisplay {
 		boolean hasId(String id);
@@ -90,6 +92,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		void setWorkMode();
 		void setShowErrorsMode();
 		void setValue(String text);
+		List<ScoreWithMetadata> getScoreWithMetadata();
 	}
 
 	private final TextModel module;
@@ -334,7 +337,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		for (int i = 0; i < view.getChildrenCount(); i++) {
-			view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
+		        view.getChild(i).setShowErrorsMode(module.isActivity()); // isConnectedToMath ||
 		}
 		resetAudio();
 		this.view.setShowErrorsMode();
@@ -465,7 +468,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 		for (GapInfo gap : module.getGapInfos()) {
 			enteredValue = getElementText(gap).trim();
-			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue)) {
+			if (!enteredValue.isEmpty() && !gap.isCorrect(enteredValue) && !gap.isTextOnlyPlaceholder(enteredValue, module.ignoreDefaultPlaceholderWhenCheck())) {
 				errorCount++;
 			}
 		}
@@ -1109,7 +1112,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 
 	@Override
 	public int getActivitiesCount() {
-		return view.getGapCount();
+	    return 0;
 	}
 
 	private void jsOnEventReceived (String eventName, String jsonData) {
@@ -1531,6 +1534,11 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		this.currentErrorCount = getErrorCount();
 		this.currentMaxScore = getMaxScore();
 		this.currentState = getState();
+	}
+
+	@Override
+	public List<ScoreWithMetadata> getScoreWithMetadata() {
+		return view.getScoreWithMetadata();
 	}
 
 }

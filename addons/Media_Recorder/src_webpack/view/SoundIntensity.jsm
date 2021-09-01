@@ -23,6 +23,19 @@ export class SoundIntensity {
         this.$view = null;
     }
 
+    show() {
+        this.$view.css('display', '');
+    }
+
+    hide() {
+        this.$view.css('display','none');
+    }
+
+    setEventBus(eventBus, sourceID) {
+        this.eventBus = eventBus;
+        this.sourceID = sourceID;
+    }
+
     _updateIntensity(analyser) {
         let frequencyArray = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(frequencyArray);
@@ -30,8 +43,28 @@ export class SoundIntensity {
         let raisedVolume = this._raiseVolume(avgVolume);
         let alignedVolume = this._alignVolume(raisedVolume);
         let intensity = alignedVolume * this.volumeLevels;
-
         this._setIntensity(intensity);
+        if (this.eventBus) {
+            this._handleEvents(intensity);
+        }
+    }
+
+    _handleEvents(intensity) {
+        if (this.lastIntensityLevel === undefined) {
+           this.lastIntensityLevel = 0;
+           return;
+        }
+        let newIntensityLevel = Math.floor(intensity);
+        if (newIntensityLevel !== this.lastIntensityLevel) {
+            this.lastIntensityLevel = newIntensityLevel;
+            var eventData = {
+                'source': this.sourceID,
+                'item': 'intensity',
+                'value': newIntensityLevel,
+                'score': ''
+            };
+            this.eventBus.sendEvent('ValueChanged', eventData);
+        }
     }
 
     _calculateAvgVolume(volumeArray) {

@@ -29,6 +29,8 @@ import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icplayer.client.content.services.PlayerEventBusWrapper;
+import com.lorepo.icplayer.client.metadata.*;
+import com.lorepo.icplayer.client.module.IOpenEndedContentPresenter;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
@@ -43,7 +45,7 @@ import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 import com.lorepo.icplayer.client.page.PageController;
 
 
-public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IWCAG, IWCAGModuleView, IGradualShowAnswersPresenter {
+public class AddonPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IWCAG, IWCAGModuleView, IGradualShowAnswersPresenter, IOpenEndedContentPresenter, IScoreWithMetadataPresenter {
 
 	public interface IDisplay extends IModuleView{
 		public Element getElement();
@@ -625,4 +627,29 @@ public class AddonPresenter implements IPresenter, IActivity, IStateful, IComman
 			presenter.setEventBus(eventBusWrapper);
 		}
 	}-*/;
+
+	@Override
+	public String getOpenEndedContent() {
+		return getOpenEndedContent(jsObject);
+	}
+
+	private native String getOpenEndedContent(JavaScriptObject presenter)/*-{
+		if (presenter && presenter.hasOwnProperty("getOpenEndedContent")) {
+			return presenter.getOpenEndedContent();
+		} else {
+			return null;
+		}
+	}-*/;
+
+	@Override
+	public List<ScoreWithMetadata> getScoreWithMetadata() {
+		IMetadata metadata = this.model.getMetadata();
+		if (!ScoreWithMetadataUtils.validateMetadata(metadata)) {
+			return null;
+		}
+
+		AddonScoreWithMetadata addonScoreWithMetadata = new AddonScoreWithMetadata(model, jsObject);
+
+		return addonScoreWithMetadata.getScoreWithMetadata();
+	}
 }

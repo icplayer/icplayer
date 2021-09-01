@@ -18,6 +18,7 @@ function AddonClock_create() {
     presenter.TimeStandard = 24;
     presenter.showAnswersMode = false;
     presenter.shouldSendEventTime = null;
+    presenter.isGradualShowAnswersActive = false;
 
     function displayText() {
         var textToDisplay = presenter.model['Text to be displayed'], isTextColored = presenter.model['Color text'] === 'True', $textContainer = presenter.$view
@@ -622,8 +623,9 @@ function AddonClock_create() {
 
             presenter.setClockTime(model.InitialTime);
 
-            presenter.eventBus.addEventListener('ShowAnswers', this);
-            presenter.eventBus.addEventListener('HideAnswers', this);
+            ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'].forEach(event => {
+                presenter.eventBus.addEventListener(event, this);
+            });
 
             jQuery(function($) {
                 $(view).find('#analog-clock').mousemove(function(e) {
@@ -999,10 +1001,10 @@ function AddonClock_create() {
     };
 
     presenter.disable = function() {
-        if(presenter.showAnswersMode === true){
+        if (presenter.showAnswersMode && !presenter.isGradualShowAnswersActive) {
             presenter.hideAnswers();
-
         }
+
         presenter.isDisable = true;
         var $myDiv = presenter.$view.find('.analog-clock')[0];
         $($myDiv).addClass('disable');
@@ -1253,60 +1255,67 @@ function AddonClock_create() {
     };
 
     presenter.getMaxScore = function() {
-        if(presenter.showAnswersMode === true){
-            presenter.hideAnswers();
-
-        }
-
-        if (presenter.CorrectAnswer == presenter.InitialTime) {
+        if (presenter.CorrectAnswer === presenter.InitialTime) {
             return 0;
         }
         if (presenter.isActivity === true) {
             return 1;
-        } else {
-            return 0;
-        }
+        } return 0;
     };
 
     presenter.getScore = function() {
+        var isShowAnswerActive = presenter.showAnswersMode;
 
-        if(presenter.showAnswersMode === true){
+        if (presenter.showAnswersMode){
             presenter.hideAnswers();
+        }
 
+        var scoreValue = presenter.getScoreValue();
+
+        if (isShowAnswerActive) {
+            presenter.showAnswers();
         }
-        if (presenter.CorrectAnswer == presenter.InitialTime) {
-            return 0;
-        }
-        if (presenter.isActivity === true) {
-            return presenter.getCurrentTime() == presenter.CorrectAnswer ? 1
-                : 0;
-        } else {
-            return 0;
-        }
+
+        return scoreValue;
+    };
+
+    presenter.getScoreValue = function () {
+        if (presenter.isActivity && presenter.getCurrentTime() === presenter.CorrectAnswer) {
+            return 1;
+        } return 0;
     };
 
     presenter.getErrorCount = function() {
+        var isShowAnswerActive = presenter.showAnswersMode;
 
-        if(presenter.showAnswersMode === true){
+        if(presenter.showAnswersMode){
             presenter.hideAnswers();
-
         }
 
+        var errorCount = presenter.getErrorCountValue();
 
-        if (presenter.isActivity === true) {
+        if (isShowAnswerActive) {
+            presenter.showAnswers();
+        }
 
-            if (presenter.CorrectAnswer == presenter.InitialTime
-                && presenter.getCurrentTime() != presenter.CorrectAnswer) {
+        return errorCount;
+    };
+
+    presenter.getErrorCountValue = function () {
+        var isAnswerDefault = presenter.CorrectAnswer === presenter.InitialTime;
+        var isAnswerCorrect = presenter.getCurrentTime() === presenter.CorrectAnswer;
+        switch (true) {
+            case (presenter.isActivity && isAnswerDefault && !isAnswerCorrect):
                 return 1;
-            }
 
-            if (presenter.neutralOption() == 1) {
+            case (presenter.isActivity && presenter.neutralOption() === 1):
                 return 0;
-            } else {
+
+            case (presenter.isActivity):
                 return presenter.getMaxScore() - presenter.getScore();
-            }
-        } else {
-            return 0;
+
+            default:
+                return 0;
         }
     };
 
@@ -1375,7 +1384,7 @@ function AddonClock_create() {
     };
 
     presenter.showAnswers = function () {
-        if(presenter.isErrorCheckingMode == true){
+        if(presenter.isErrorCheckingMode){
             presenter.setWorkMode();
         }
         if (presenter.isActivity === true) {
@@ -1385,7 +1394,6 @@ function AddonClock_create() {
             $($myDiv).addClass('showAnswers');
             presenter.showAnswersCurrentTime = presenter.getCurrentTime();
             presenter.setShowAnswerTime(presenter.CorrectAnswer);
-
         }
     };
 
@@ -1398,6 +1406,18 @@ function AddonClock_create() {
             presenter.setShowAnswerTime(presenter.showAnswersCurrentTime);
         }
     };
+
+    presenter.gradualShowAnswers = function (data) {
+        if (data.moduleID !== presenter.modelID) {
+            return;
+        }
+        presenter.isGradualShowAnswersActive = true;
+        presenter.showAnswers();
+    };
+
+    presenter.getActivitiesCount = function () {
+        return 1;
+    }
 
     presenter.setShowAnswerTime = function(time) {
 
@@ -1417,18 +1437,23 @@ function AddonClock_create() {
 
         presenter.setAttr('h-hand', h);
         presenter.setAttr('m-hand', m);
-
-
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, eventData) {
+        switch (eventName) {
+            case 'GradualShowAnswers':
+                presenter.gradualShowAnswers(eventData);
+                break;
 
-        if (eventName == "ShowAnswers") {
-            presenter.showAnswers();
-        }
+            case 'ShowAnswers':
+                presenter.showAnswers();
+                break;
 
-        if (eventName == "HideAnswers") {
-            presenter.hideAnswers();
+            case 'GradualHideAnswers':
+                presenter.isGradualShowAnswersActive = false;
+            case 'HideAnswers':
+                presenter.hideAnswers();
+                break;
         }
     };
     return presenter;

@@ -28,6 +28,9 @@ TestCase("Model validation", {
     },
 
     'test proper model': function() {
+        window.ModelValidationUtils = {
+            validateBoolean: sinon.stub(),
+        };
         var validatedModel = this.presenter.readConfiguration(this.model);
         assertFalse(validatedModel.isError);
     },

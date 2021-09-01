@@ -60,6 +60,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	private String printableValue = "No";
 	private boolean isSection = false;
 	private boolean isSplitInPrintBlocked = false;
+	private boolean ignoreDefaultPlaceholderWhenCheck = false;
 	private HashMap<String, String> printableState = null;
 	private boolean blockWrongAnswers = false;
 	private boolean userActionEvents = false;
@@ -101,6 +102,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		addPropertyPrintable();
 		addPropertyIsSection();
 		addPropertyIsSplitInPrintBlocked();
+		addPropertyIgnoreDefaultPlaceholderWhenCheck();
 	}
 
 	@Override
@@ -161,6 +163,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 				printableValue = XMLUtils.getAttributeAsString(textElement, "printable");
 				isSection = XMLUtils.getAttributeAsBoolean(textElement, "isSection", false);
 				isSplitInPrintBlocked = XMLUtils.getAttributeAsBoolean(textElement, "isSplitInPrintBlocked", false);
+				ignoreDefaultPlaceholderWhenCheck = XMLUtils.getAttributeAsBoolean(textElement, "ignoreDefaultPlaceholderWhenCheck", false);
 				allCharactersGapSizeStyle = XMLUtils.getAttributeAsBoolean(textElement, "allAnswersGapSizeCalculationStyle", true);
 				this.speechTextItems.get(TextModel.NUMBER_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "number"));
 				this.speechTextItems.get(TextModel.GAP_INDEX).setText(XMLUtils.getAttributeAsString(textElement, "gap"));
@@ -241,6 +244,7 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 		XMLUtils.setBooleanAttribute(text, "isDisabled", this.isDisabled);
 		XMLUtils.setBooleanAttribute(text, "isSection", this.isSection);
 		XMLUtils.setBooleanAttribute(text, "isSplitInPrintBlocked", this.isSplitInPrintBlocked);
+		XMLUtils.setBooleanAttribute(text, "ignoreDefaultPlaceholderWhenCheck", this.ignoreDefaultPlaceholderWhenCheck);
 		XMLUtils.setBooleanAttribute(text, "isCaseSensitive", this.isCaseSensitive);
 		XMLUtils.setBooleanAttribute(text, "useNumericKeyboard", this.useNumericKeyboard);
 		XMLUtils.setBooleanAttribute(text, "openLinksinNewTab", this.openLinksinNewTab);
@@ -1328,6 +1332,48 @@ public class TextModel extends BasicModuleModel implements IWCAGModuleModel, IPr
 	
 	public boolean isSplitInPrintBlocked() {
 		return isSplitInPrintBlocked;
+	}
+
+	private void addPropertyIgnoreDefaultPlaceholderWhenCheck() {
+
+	    IProperty property = new IBooleanProperty() {
+
+	        @Override
+			public void setValue(String newValue) {
+				boolean value = (newValue.compareToIgnoreCase("true") == 0);
+
+				if (value != ignoreDefaultPlaceholderWhenCheck) {
+					ignoreDefaultPlaceholderWhenCheck = value;
+					sendPropertyChangedEvent(this);
+				}
+			}
+
+			@Override
+			public String getValue() {
+				return ignoreDefaultPlaceholderWhenCheck ? "True" : "False";
+			}
+
+			@Override
+			public String getName() {
+				return DictionaryWrapper.get("text_module_ignore_default_placeholder_when_check");
+			}
+
+			@Override
+			public String getDisplayName() {
+				return DictionaryWrapper.get("text_module_ignore_default_placeholder_when_check");
+			}
+
+			@Override
+			public boolean isDefault() {
+				return false;
+			}
+	    };
+
+	    addProperty(property);
+	}
+
+	public boolean ignoreDefaultPlaceholderWhenCheck() {
+		return ignoreDefaultPlaceholderWhenCheck;
 	}
 
 	@Override

@@ -516,6 +516,10 @@ public class JavaScriptPlayerServices {
 			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getPagesMapping()();
 		}
 
+		playerServices.getOpenEndedContentForCurrentPage = function () {
+			return x.@com.lorepo.icplayer.client.content.services.JavaScriptPlayerServices::getOpenEndedContentForCurrentPage()();
+		}
+
 		return playerServices;
 	}-*/;
 
@@ -993,4 +997,6 @@ public class JavaScriptPlayerServices {
 	public ObserverJSService getJSObserverService() {
 		return playerServices.getObserverService().getAsJS();
 	}
+
+	private JavaScriptObject getOpenEndedContentForCurrentPage() { return this.playerServices.getOpenEndedContentForCurrentPage(); }
 }
