@@ -146,16 +146,16 @@
 
 .printable_addon_TrueFalse .radio-container span:after,
 .printable_addon_TrueFalse .checkbox-container span:after {
-  display: none;
-  content: "";
+    display: none;
+    content: "";
 }
 
 .printable_addon_TrueFalse .radio-container input:checked ~ span:after,
 .printable_addon_TrueFalse .checkbox-container input:checked ~ span:after {
-  display: block;
+    display: block;
 }
 
-.printable_addon_TrueFalse .radio-container span:after {
+.printable_addon_TrueFalse .radio-container span:before {
     position: relative;
     top: 18.5%;
     left: 18.5%;
@@ -163,15 +163,13 @@
     height: 12%;
     border: solid black;
     border-radius: 50%;
-    background: black;
 }
 
-.printable_addon_TrueFalse .checkbox-container span:after {
+.printable_addon_TrueFalse .checkbox-container span:before {
     position: relative;
-    width: 0.4em;
-    height: 0.4em;
+    width: 0.5em;
+    height: 0.5em;
     border: solid black;
-    background: black;
 }
 
 .correctAnswerMark::after {

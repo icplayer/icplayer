@@ -1176,6 +1176,7 @@ function AddonTrueFalse_create() {
 
             for (var j = 0; j < choiceLength; j++) {
                 var $td = $("<td></td>");
+
                 $td.addClass(`${boxType}-container`);
                 $td.addClass(`${boxType}-${i+1}-${j+1}`);
                 var $inputDiv = $("<div></div>");
@@ -1183,14 +1184,18 @@ function AddonTrueFalse_create() {
                 $td.append($inputDiv);
                 var $checkbox = $("<input type=\"checkbox\">");
                 var userAnswerIndex = i * choiceLength + j;
+                var $checkboxSpan = $("<span></span>");
+
                 if (didUserRespond && userAnswers[userAnswerIndex]) {
                     $checkbox.attr("checked", "checked");
+                    $checkboxSpan.css('background', 'black');
                 } else if (showAnswers && answers.indexOf((j+1).toString()) != -1 && !didUserRespond) {
                     $checkbox.attr("checked", "checked");
+                    $checkboxSpan.css('background', 'darkgray');
                 }
 
                 $td.append($checkbox);
-                var $checkboxSpan = $("<span></span>");
+
                 $td.append($checkboxSpan);
                 $tr.append($td);
 

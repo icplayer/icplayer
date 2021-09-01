@@ -28,34 +28,21 @@ TestCase("[TrueFalse] Printable HTML", {
     'test get printable True & False addon model': function () {
         $('<div class="text-identification-container"> </div>');
         this.model['Multi'] = 'True';
-        var expectedHTML = $('<div class="printable_addon_TrueFalse">' +
-            '<table>' +
-                '<tbody>' +
-                    '<tr>' +
-                        '<td></td>' +
-                        '<td>True</td>' +
-                        '<td>False</td>' +
-                    '</tr>' +
-                    '<tr>' +
-                        '<td>True is on the left</td>' +
-                        '<td class="checkbox-container checkbox-1-1">' +
-                            '<div class="placeholder"></div>' +
-                            '<input type="checkbox" checked="checked">' +
-                            '<span></span>' +
-                        '</td>' +
-                        '<td class="checkbox-container checkbox-1-2">' +
-                            '<div class="placeholder"></div>' +
-                            '<input type="checkbox">' +
-                            '<span></span>' +
-                        '</td>' +
-                    '</tr>' +
-                '</tbody>' +
-            '</table>' +
-            '</div>');
+        var expectedHTML = $('<td>True is on the left</td>' +
+            '<td class="checkbox-container checkbox-1-1">' +
+            '<div class="placeholder"></div>' +
+            '<input type="checkbox" checked="checked">' +
+            '<span style="background: darkgray none repeat scroll 0% 0%;"></span>' +
+            '</td>' +
+            '<td class="checkbox-container checkbox-1-2">' +
+            '<div class="placeholder"></div>' +
+            '<input type="checkbox">' +
+            '<span></span>');
 
         var result = this.presenter.getPrintableHTML(this.model, true);
+        var isResultContain = result.includes(expectedHTML[0].outerHTML.toString());
 
-        assertEquals(result, expectedHTML[0].outerHTML.toString());
+        assertTrue(isResultContain);
     },
 
     'test should update model': function () {
