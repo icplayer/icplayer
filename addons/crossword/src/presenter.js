@@ -790,29 +790,35 @@ function Addoncrossword_create(){
     };
 
     presenter.getScore = function() {
+        const restoreState = presenter.isShowAnswersActive;
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
         var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE);
-
-        return presenter.isAttempted() ? score : 0;
+        var finalScore = presenter.isAttempted() ? score : 0;
+        if (restoreState) {
+            presenter.showAnswers();
+        }
+        return finalScore;
     };
 
     presenter.getMaxScore = function() {
-        if (presenter.isShowAnswersActive) {
-            presenter.hideAnswers();
-        }
         return presenter.maxScore;
     };
 
     presenter.getErrorCount = function() {
+        const restoreState = presenter.isShowAnswersActive;
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
         var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE),
             errorCount = presenter.getMaxScore() - score;
-
-        return presenter.isAttempted() ? errorCount : 0;
+        var finalErrorCount = presenter.isAttempted() ? errorCount : 0;
+        if (restoreState) {
+            presenter.showAnswers();
+        }
+        return finalErrorCount
     };
 
     presenter.getState = function() {

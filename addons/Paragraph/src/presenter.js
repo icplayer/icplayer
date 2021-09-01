@@ -925,6 +925,13 @@ function AddonParagraph_create() {
         return presenter.getText();
     }
 
+    presenter.getScoreWithMetadata = function() {
+        return [{
+            userAnswer: presenter.getText(),
+            isCorrect: true
+        }];
+    }
+
     presenter.didUserAnswer = function (usersAnswer) {
         var parsedAnswer = usersAnswer.replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
         return !!parsedAnswer;
