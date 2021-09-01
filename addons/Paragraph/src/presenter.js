@@ -142,7 +142,7 @@ function AddonParagraph_create() {
     presenter.disableParagraph = function () {
         var paragraph = presenter.$view.find(".paragraph-wrapper");
 
-        if(!paragraph.classList.contains('disabled')) {
+        if(!paragraph.hasClass('disabled')) {
             paragraph.addClass('disabled');
         }
     }
