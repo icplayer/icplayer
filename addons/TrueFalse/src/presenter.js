@@ -1178,5 +1178,33 @@ function AddonTrueFalse_create() {
         return $view[0].outerHTML;
     };
 
+    presenter.getScoreWithMetadata = function() {
+        var scores = [];
+        var allAnswers = [];
+        var selectedElements = getSelectedElements();
+        for (var i = 0; i < possibleChoices.length; i++) {
+            allAnswers.push(possibleChoices[i].Choice.trim());
+        }
+        for (var i = 0; i < questions.length; i++) {
+            var score = {
+                userAnswer: "",
+                allAnswers: allAnswers,
+                isCorrect: false,
+            };
+            var correctAnswers = questions[i].Answer.split(',');
+            firstChoiceIndex = i * possibleChoices.length;
+            for (var j = 0; j < possibleChoices.length; j++) {
+                if (selectedElements[firstChoiceIndex + j]) {
+                    score.userAnswer = allAnswers[j];
+                    if (correctAnswers.indexOf((j + 1) + "") != -1) {
+                        score.isCorrect = true;
+                    }
+                }
+            }
+            scores.push(score);
+        }
+        return scores;
+    }
+
     return presenter;
 }
