@@ -1133,7 +1133,7 @@ function AddonTrueFalse_create() {
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
-        var isMulti = model['Multi'] === 'True';
+        var isMulti = model.Multi === 'True';
         var userAnswers = getUserResponses();
         var didUserRespond = userAnswers.some(answer => answer === true);
         var choiceLength = model.Choices.length
