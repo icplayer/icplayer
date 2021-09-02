@@ -1082,6 +1082,9 @@ function Addoncrossword_create(){
             presenter.isShowAnswersActive = false;
             presenter.$view.find(".cell_letter input").attr('disabled', false);
             presenter.$view.find(".cell_letter input").removeClass('crossword_cell_show-answers');
+            if (!presenter.userAnswers) {
+                return;
+            }
             for (var i = 0; i < presenter.rowCount; i++) {
                 for (var j = 0; j < presenter.columnCount; j++) {
                     presenter.$view.find('.cell_' + i + 'x' + j + ' input').val(presenter.userAnswers[i][j]);
