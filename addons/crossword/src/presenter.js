@@ -11,12 +11,10 @@ function Addoncrossword_create(){
     presenter.cellHeight       = null;
     presenter.cellWidth        = null;
     presenter.maxScore         = null;
-    presenter.score            = null;
     presenter.id               = null;
     presenter.isVisible        = true;
     presenter.showAllAnswersInGradualShowAnswersMode;
     presenter.isGradualShowAnswersActive = false;
-    presenter.score = 0;
     presenter.blankCellsBorderStyle  = "solid";
     presenter.blankCellsBorderWidth  = 0;
     presenter.blankCellsBorderColor  = "transparent";
@@ -857,34 +855,35 @@ function Addoncrossword_create(){
     };
 
     presenter.getScore = function() {
-        if(!presenter.isGradualShowAnswersActive) {
-            if (presenter.isShowAnswersActive) {
-                presenter.hideAnswers();
-            }
-            var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE);
-            presenter.score = score;
-    
-            return presenter.isAttempted() ? score : 0;
-        } else {
-            return presenter.score;
-        }
-    };
+        const restoreState = presenter.isShowAnswersActive;
 
-    presenter.getMaxScore = function() {
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
+        var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE);
+        var finalScore = presenter.isAttempted() ? score : 0;
+        if (restoreState) {
+            presenter.showAnswers();
+        }
+        return finalScore;
+    };
+
+    presenter.getMaxScore = function() {
         return presenter.maxScore;
     };
 
     presenter.getErrorCount = function() {
+        const restoreState = presenter.isShowAnswersActive;
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
         var score = presenter.validate(presenter.VALIDATION_MODE.COUNT_SCORE),
             errorCount = presenter.getMaxScore() - score;
-
-        return presenter.isAttempted() ? errorCount : 0;
+        var finalErrorCount = presenter.isAttempted() ? errorCount : 0;
+        if (restoreState) {
+            presenter.showAnswers();
+        }
+        return finalErrorCount
     };
 
     presenter.getState = function() {
@@ -1141,6 +1140,6 @@ function Addoncrossword_create(){
             }
         }
     }
-    
+
     return presenter;
 }
