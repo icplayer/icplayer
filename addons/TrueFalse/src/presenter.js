@@ -13,6 +13,7 @@ function AddonTrueFalse_create() {
     presenter.keyboardNavigationElements = [];
     presenter.keyboardNavigationElementsLen = 0;
     presenter.printableState = null;
+    presenter.didUserRespond = false;
 
     var possibleChoices = [];
     var multi = false;
@@ -564,6 +565,7 @@ function AddonTrueFalse_create() {
     presenter.setPrintableState = function(state) {
         if (state === null || ModelValidationUtils.isStringEmpty(state))
             return;
+        presenter.didUserRespond = true;
         presenter.printableState = JSON.parse(state);
     }
 
@@ -1135,7 +1137,6 @@ function AddonTrueFalse_create() {
         var model = presenter.upgradeModel(model);
         var isMulti = model.Multi === 'True';
         var userAnswers = getUserResponses();
-        var didUserRespond = userAnswers.some(answer => answer === true);
         var choiceLength = model.Choices.length
 
         var $view = $("<div></div>");
@@ -1152,9 +1153,9 @@ function AddonTrueFalse_create() {
             var choice = model.Choices[i];
             var $td = $("<td></td>");
             $td.html(choice.Choice);
-            if (isMulti && showAnswers && didUserRespond) {
+            if (isMulti && showAnswers && presenter.didUserRespond) {
                 $td.attr('colspan', '2');
-            } else if (!isMulti && showAnswers && didUserRespond && i === (choiceLength - 1)) {
+            } else if (!isMulti && showAnswers && presenter.didUserRespond && i === (choiceLength - 1)) {
                 $td.attr('colspan', '2');
             }
             $trHead.append($td);
@@ -1186,10 +1187,10 @@ function AddonTrueFalse_create() {
                 var userAnswerIndex = i * choiceLength + j;
                 var $checkboxSpan = $("<span></span>");
 
-                if (didUserRespond && userAnswers[userAnswerIndex]) {
+                if (presenter.didUserRespond && userAnswers[userAnswerIndex]) {
                     $checkbox.attr("checked", "checked");
                     $checkboxSpan.css('background', 'black');
-                } else if (showAnswers && answers.indexOf((j+1).toString()) != -1 && !didUserRespond) {
+                } else if (showAnswers && answers.indexOf((j+1).toString()) != -1 && !presenter.didUserRespond) {
                     $checkbox.attr("checked", "checked");
                     $checkboxSpan.css('background', 'darkgray');
                 }
@@ -1205,7 +1206,7 @@ function AddonTrueFalse_create() {
                     isAnswerCorrect(answers, userAnswers, i, j, choiceLength) ? $markDiv.addClass("correctAnswerMark") : $markDiv.addClass("incorrectAnswerMark");
                     $markCell.append($markDiv);
                     $tr.append($markCell);
-                } else if (showAnswers && didUserRespond && isMulti) {
+                } else if (showAnswers && presenter.didUserRespond && isMulti) {
                     addCell(answers, userAnswers, $tr, i, choiceLength);
                 }
             }
