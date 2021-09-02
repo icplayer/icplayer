@@ -642,7 +642,17 @@ function Addoncrossword_create(){
         return ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
     };
 
+    presenter.upgradeModel = function (model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+        if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']) {
+            upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
+        }
+        return upgradedModel;
+    };
+
     presenter.initializeLogic = function(view, model) {
+        model = presenter.upgradeModel(model);
         presenter.$view = $(view);
         presenter.ID = model.ID;
         presenter.showAllAnswersInGradualShowAnswersMode = model.showAllAnswersInGradualShowAnswersMode;
