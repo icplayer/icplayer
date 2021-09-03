@@ -1,6 +1,7 @@
 package com.lorepo.icplayer.client.module.text.mockup;
 
 import com.google.gwt.dom.client.Element;
+import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.module.text.*;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
 import com.lorepo.icplayer.client.module.text.TextPresenter.TextElementDisplay;
@@ -209,6 +210,11 @@ public class TextViewMockup implements IDisplay {
 	public void setValue(String text) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public List<ScoreWithMetadata> getScoreWithMetadata() {
+		return null;
 	}
 
 }

@@ -120,6 +120,8 @@ function AddonText_Coloring_create() {
 
     function TextColoringStateMachine(cssConfiguration) {
         StatefullAddonObject.call(this, cssConfiguration);
+        this.blocked = false;
+        this.currentShowingAnswerId = 0;
         this.notifyEdit();
         this.previousActiveColorID = null;
         this.previousActiveColor = null;
@@ -131,6 +133,7 @@ function AddonText_Coloring_create() {
 
     TextColoringStateMachine.prototype.onBlock = function () {
         presenter.disconnectHandlers();
+        this.blocked = true;
     };
 
     TextColoringStateMachine.prototype.onUnblock = function () {
@@ -138,13 +141,11 @@ function AddonText_Coloring_create() {
         if (presenter.configuration.activeColorID != null || presenter.configuration.eraserMode != null) {
             presenter.connectWordTokensHandlers();
         }
+        this.blocked = false;
     };
 
     TextColoringStateMachine.prototype.onShowAnswers = function () {
-        this.savePreviousState();
-        this.onBlock();
-        presenter.unmarkToken(presenter.$wordTokens);
-        presenter.hideTokenClasses(presenter.$wordTokens);
+        this.onBlockAnswers();
         presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
             var colorDefinition = presenter.getColorDefinitionById(token.color);
             if (colorDefinition !== undefined) {
@@ -153,6 +154,46 @@ function AddonText_Coloring_create() {
                 presenter.markToken($tokenElement, colorDefinition.color);
             }
         });
+    };
+
+    TextColoringStateMachine.prototype.onShowSingleAnswer = function () {
+        if (!presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
+            var currentShowingAnswerId = this.currentShowingAnswerId;
+            var id = 0;
+
+            if (!this.blocked) {
+                this.savePreviousState();
+                this.onBlock();
+            }
+
+            try {
+                presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
+                    var colorDefinition = presenter.getColorDefinitionById(token.color);
+                    if (colorDefinition !== undefined) {
+                        if (id === currentShowingAnswerId) {
+                            var $tokenElement = presenter.getWordTokenByIndex(token.index);
+                            presenter.addShowAnswerClass($tokenElement, colorDefinition.id);
+                            presenter.markToken($tokenElement, colorDefinition.color);
+                            throw BreakException;
+                        }
+                        id++;
+                    }
+                });
+            } catch (e) {}
+
+            this.currentShowingAnswerId++;
+        } else {
+            this.onShowAnswers();
+        }
+    };
+
+    TextColoringStateMachine.prototype.onBlockAnswers = function () {
+        if (!this.blocked) {
+            this.savePreviousState();
+            this.onBlock();
+            presenter.unmarkToken(presenter.$wordTokens);
+            presenter.hideTokenClasses(presenter.$wordTokens);
+        }
     };
 
     presenter.addShowAnswerClass = function ($element, colorName) {
@@ -166,6 +207,8 @@ function AddonText_Coloring_create() {
     };
 
     TextColoringStateMachine.prototype.onHideAnswers = function () {
+        this.currentShowingAnswerId = 0;
+        this.blocked = false;
         this.restorePreviousState();
         this.onUnblock();
         presenter.unmarkToken(presenter.$wordTokens);
@@ -193,6 +236,38 @@ function AddonText_Coloring_create() {
         }
 
         presenter.showTokenClasses(presenter.$wordTokens);
+    };
+
+    TextColoringStateMachine.prototype.gradualShowAnswers = function () {
+        switch (this._actualState) {
+            case StatefullAddonObject._internal.STATE.WORK:
+                this.onShowSingleAnswer();
+                this.setCssOnShowAnswers();
+                break;
+            default:
+                break;
+        }
+    };
+
+    TextColoringStateMachine.prototype.gradualBlockAnswers = function () {
+        switch (this._actualState) {
+            case StatefullAddonObject._internal.STATE.WORK:
+                this.onBlockAnswers();
+                this.setCssOnShowAnswers();
+                break;
+            default:
+                break;
+        }
+    };
+
+    TextColoringStateMachine.prototype.gradualHideAnswers = function () {
+        switch (this._actualState) {
+            case StatefullAddonObject._internal.STATE.WORK:
+                StatefullAddonObject._internal.hideAnswersShowAnswersState.call(this);
+                break;
+            default:
+                break;
+        }
     };
 
     TextColoringStateMachine.prototype.isCorrect = function () {
@@ -369,6 +444,7 @@ function AddonText_Coloring_create() {
         filteredTokens: [],
         colors: [],
         buttonsPosition: "left",
+        showAllAnswersInGradualShowAnswersMode: false,
         showSetEraserButtonMode: false,
         hideColorsButtons: false,
         activeColor: null,
@@ -380,8 +456,10 @@ function AddonText_Coloring_create() {
 
     presenter.setPlayerController = function (controller) {
         presenter.eventBus = controller.getEventBus();
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            presenter.eventBus.addEventListener(events[i], this);
+        }
     };
 
 
@@ -633,24 +711,29 @@ function AddonText_Coloring_create() {
     };
 
     presenter.upgradeModel = function(model) {
-        var upgradedModel = presenter.addModelProperty(model, 'Mode', presenter.MODE.DEFAULT);
-        upgradedModel = presenter.addModelProperty(upgradedModel, 'countErrors', false);
-        upgradedModel = presenter.addModelProperty(upgradedModel, 'printable', 'No');
-        upgradedModel = presenter.addModelProperty(upgradedModel, 'Legend title', 'Legend');
-
+        var upgradedModel = upgradeModelAddProperties(model);
         return upgradedModel;
     };
 
-    presenter.addModelProperty = function (model, propertyName, defaultValue) {
+    function upgradeModelAddProperties(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
 
-        if(!upgradedModel.hasOwnProperty(propertyName)) {
-            upgradedModel[propertyName] = defaultValue;
+        if(!upgradedModel['Mode']){
+            upgradedModel['Mode'] = presenter.MODE.DEFAULT;
+        }
+        if(!upgradedModel['countErrors']) {
+            upgradedModel['countErrors'] = false;
+        }
+        if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']) {
+            upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
+        }
+        if(!upgradedModel['Legend title']) {
+            upgradedModel['Legend title'] = 'Legend';
         }
 
         return upgradedModel;
-    }
+    };
 
     presenter.validateModel = function (model) {
         var validatedColors = presenter.validateColors(model.colors);
@@ -677,6 +760,7 @@ function AddonText_Coloring_create() {
             textTokens: parsedText,
             colors: validatedColors.value,
             buttonsPosition: presenter.parseButtonsPosition(model.buttonsPosition),
+            showAllAnswersInGradualShowAnswersMode: ModelValidationUtils.validateBoolean(model.showAllAnswersInGradualShowAnswersMode),
             showSetEraserButtonMode: ModelValidationUtils.validateBoolean(model.showSetEraserModeButton),
             hideColorsButtons: ModelValidationUtils.validateBoolean(model.hideColorsButtons),
             eraserButtonText: presenter.parseEraserButtonText(model.eraserButtonText),
@@ -1106,7 +1190,7 @@ function AddonText_Coloring_create() {
         })[0];
     };
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, data) {
         if (eventName == "ShowAnswers") {
             presenter.stateMachine.showAnswers();
         }
@@ -1114,6 +1198,33 @@ function AddonText_Coloring_create() {
         if (eventName == "HideAnswers") {
             presenter.stateMachine.hideAnswers();
         }
+
+        if (eventName == "GradualShowAnswers") {
+            if (presenter.configuration.ID == data.moduleID) {
+                presenter.stateMachine.gradualBlockAnswers();
+                presenter.stateMachine.gradualShowAnswers();
+            } else {
+                presenter.stateMachine.gradualBlockAnswers();
+            }
+        }
+
+        if (eventName == "GradualHideAnswers") {
+            presenter.stateMachine.gradualHideAnswers();
+        }
+    };
+
+    presenter.getActivitiesCount = function () {
+        if (!presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
+            var answersNumber = 0;
+            presenter.configuration.filteredTokens.filter(filterSelectablesTokens).forEach(function (token) {
+                var colorDefinition = presenter.getColorDefinitionById(token.color);
+                if (colorDefinition !== undefined) {
+                    answersNumber++;
+                }
+            });
+            return answersNumber;
+        }
+        return 1;
     };
 
     presenter.getWordTokenByIndex = function (tokenIndex) {
@@ -1393,7 +1504,7 @@ function AddonText_Coloring_create() {
 
         presenter.printableState = JSON.parse(state);
     }
-    
+
     presenter.getPrintableHTML = function (model, showAnswers) {
         var printableHTML = '';
         var userAnswer = presenter.getUserAnswer();
