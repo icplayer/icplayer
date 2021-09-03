@@ -1402,6 +1402,7 @@ var ice_dictionary_bl = {
 	"Text_Coloring_property_text": "Текст",
 	"Text_Coloring_property_buttons_position": "Позиция на бутоните",
 	"Text_Coloring_property_hide_color_buttons": "Скрий бутони за цвят",
+	"Text_Coloring_property_show_all_answers_in_gradual_show_answers_mode": "Show all answers in gradual show answers mode",
 	"Text_Coloring_property_show_set_eraser_mode_button": "Покажи бутон с гумичка",
 	"Text_Coloring_property_eraser_button_text": "Текст на бутона с гумичка",
 	"Text_Coloring_property_count_errors": "Count Errors",
