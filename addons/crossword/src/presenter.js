@@ -640,14 +640,18 @@ function Addoncrossword_create(){
         return ModelValidationUtils.validateBoolean(model.blockWrongAnswers);
     };
 
-    presenter.upgradeModel = function (model) {
+    presenter.upgradeModel = function(model) {
+        return upgradeModelAddShowAllAnswersInGSAModeProperty(model);
+    };
+
+    function upgradeModelAddShowAllAnswersInGSAModeProperty(model) {
         var upgradedModel = {};
         $.extend(true, upgradedModel, model);
         if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']) {
             upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
         }
         return upgradedModel;
-    };
+    }
 
     presenter.initializeLogic = function(view, model) {
         model = presenter.upgradeModel(model);
@@ -783,16 +787,21 @@ function Addoncrossword_create(){
 
     presenter.run = function(view, model) {
         presenter.preview = false;
-        eventBus = playerController.getEventBus();
         presenter.addonID = model.ID
         presenter.initializeLogic(view, model);
         if (!presenter.configuration.isError) {
             presenter.setVisibility(presenter.configuration.isVisibleByDefault);
-            var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
-            for (var i = 0; i < events.length; i++) {
-                eventBus.addEventListener(events[i], this);
-            }
+            presenter.setEventBus();
        }
+    };
+
+    presenter.setEventBus = function () {
+        eventBus = playerController.getEventBus();
+
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            eventBus.addEventListener(events[i], this);
+        }
     };
 
     presenter.createPreview = function(view, model) {
