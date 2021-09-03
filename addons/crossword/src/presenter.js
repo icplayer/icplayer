@@ -791,12 +791,11 @@ function Addoncrossword_create(){
         presenter.initializeLogic(view, model);
         if (!presenter.configuration.isError) {
             presenter.setVisibility(presenter.configuration.isVisibleByDefault);
-            presenter.setEventBus();
        }
     };
 
-    presenter.setEventBus = function () {
-        eventBus = playerController.getEventBus();
+    presenter.setEventBus = function (wrappedEventBus) {
+        eventBus = wrappedEventBus;
 
         var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
         for (var i = 0; i < events.length; i++) {
