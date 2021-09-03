@@ -268,6 +268,11 @@ public class PlayerServicesMockup implements IPlayerServices {
 	}
 
 	@Override
+	public JavaScriptObject getOpenEndedContentForCurrentPage() {
+		return null;
+	}
+
+	@Override
 	public void sendResizeEvent() {
 		// TODO Auto-generated method stub
 	}

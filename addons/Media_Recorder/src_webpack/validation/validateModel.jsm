@@ -27,6 +27,14 @@ export function validateModel(model) {
         ModelValidators.Boolean("isShowedTimer"),
         ModelValidators.Boolean("isShowedDefaultRecordingButton"),
         ModelValidators.Boolean("enableInErrorCheckingMode"),
-        ModelValidators.Boolean("isDisabled")
+        ModelValidators.Boolean("isDisabled"),
+        ModelValidators.Boolean("extendedMode"),
+        ModelValidators.Boolean("disableRecording"),
+        ModelValidators.Boolean("enableIntensityChangeEvents"),
+        ModelValidators.StaticList('resetDialogLabels', {
+            'resetDialogText': [ModelValidators.String('resetDialogLabel', {default: 'Are you sure you want to reset the recording?'})],
+            'resetDialogConfirm': [ModelValidators.String('resetDialogLabel', {default: 'Yes'})],
+            'resetDialogDeny': [ModelValidators.String('resetDialogLabel', {default: 'No'})]
+        })
     ]);
 }

@@ -932,6 +932,17 @@ function AddonParagraph_create() {
         return $wrapper[0].outerHTML;
     };
 
+    presenter.getOpenEndedContent = function () {
+        return presenter.getText();
+    }
+
+    presenter.getScoreWithMetadata = function() {
+        return [{
+            userAnswer: presenter.getText(),
+            isCorrect: true
+        }];
+    }
+
     function getUserAnswerFromState() {
         var div = document.createElement('div');
         div.innerHTML = presenter.printableState;

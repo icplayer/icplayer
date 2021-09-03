@@ -723,31 +723,32 @@ function AddoneKeyboard_create(){
 
                     switchInput : function(keyboard, goToNext, isAccepted){
                         var base = keyboard, kb, stopped = false,
-                            all = $('input, textarea').filter(':enabled'),
-                            indx = all.index(base.$el) + (goToNext ? 1 : -1);
-
-                        if (indx > all.length - 1) {
+                            all = $('input, textarea').filter(':enabled');
+                        all = all.filter(function (element) {
+                            return presenter.addonIsWorkingWithElement(all.eq(element))
+                        });
+                        var index = all.index(base.$el) + (goToNext ? 1 : -1);
+                        if (index > all.length - 1) {
                             stopped = keyboard.stopAtEnd;
-                            indx = 0; // go to first input
                         }
-                        if (indx < 0) {
+                        if (index < 0) {
                             stopped = keyboard.stopAtEnd;
-                            indx = all.length - 1; // stop or go to last
+                            index = all.length - 1; // stop or go to last
                         }
-                			if (!stopped) {
-                				if (!base.close(isAccepted)) {
-                                    return;
-                                }
-                                if (presenter.addonIsWorkingWithElement(all.eq(indx))) {
-                                        presenter.createEKeyboard(all.eq(indx), display);
-                                }
-                                if (keyboardIsVisible) {
-                                    all.eq(indx).trigger('forceClick');
-                                }
-                                if($(".ic_popup_page").length == 0){
-                                    all.eq(indx).focus();
-                                }
-                			}
+                        if (!stopped) {
+                            if (!base.close(isAccepted)) {
+                                return;
+                            }
+                            if (presenter.addonIsWorkingWithElement(all.eq(index))) {
+                                    presenter.createEKeyboard(all.eq(index), display);
+                            }
+                            if (keyboardIsVisible) {
+                                all.eq(index).trigger('forceClick');
+                            }
+                            if($(".ic_popup_page").length === 0){
+                                all.eq(index).focus();
+                            }
+                        }
 
                         return false;
                 	},

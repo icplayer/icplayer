@@ -419,7 +419,8 @@ function AddonEditableWindow_create() {
                         e.preventDefault();
                     });
                 }
-            }
+            },
+            readonly: !presenter.configuration.model.editingEnabled
         }).then(function (editors) {
             presenter.configuration.editor = editors[0];
             presenter.configuration.isTinyMceLoaded = true;
@@ -877,6 +878,7 @@ function AddonEditableWindow_create() {
     };
 
     presenter.removeCallbacks = function () {
+        var $view = $(presenter.configuration.view);
         $view.off('click', presenter.cssClasses.closeButton.getSelector(), presenter.closeButtonClickedCallback);
         $view.off('click', presenter.cssClasses.fullScreenButton.getSelector(), presenter.fullScreenButtonClickedCallback);
         $view.off('click', presenter.cssClasses.wrapper.getSelector(), presenter.viewClickedCallback);
