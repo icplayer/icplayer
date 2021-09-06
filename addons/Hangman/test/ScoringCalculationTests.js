@@ -56,7 +56,7 @@ TestCase("[Hangman] Getting phrase for scoring", {
         assertEquals(workPhrases, phrases);
     },
 
-    'test get phrases in show answers mode': function () {
+    'test given hangman with show answers mode on when get phrases then returns workModeState phrases as JSON': function () {
         var workPhrases = [{
             letters: this.presenter.DEFAULT_LETTERS,
             phrase: ['HANGMAN'],
