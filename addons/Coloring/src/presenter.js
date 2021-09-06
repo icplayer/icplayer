@@ -48,6 +48,22 @@ function AddonColoring_create(){
         };
     }
 
+    presenter.upgradeModel = function(model) {
+        var upgradedModel = upgradeModelAddProperties(model);
+        return upgradedModel;
+    };
+
+    function upgradeModelAddProperties(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if(!upgradedModel['showAllAnswersInGradualShowAnswersMode']){
+            upgradedModel['showAllAnswersInGradualShowAnswersMode'] = false;
+        }
+
+        return upgradedModel;
+    }
+
     presenter.createPreview = function(view, model){
         runLogic(view, model, true);
     };
@@ -304,8 +320,11 @@ function AddonColoring_create(){
     };
 
     function runLogic(view, model, isPreview) {
+        model = presenter.upgradeModel(model);
+
         presenter.configuration = presenter.validateModel(model, isPreview);
         presenter.allColoredPixels = [];
+        presenter.currentAreaIdInGSAMode = 0;
 
         if (presenter.configuration.isError) {
             DOMOperationsUtils.showErrorMessage($(view), presenter.errorCodes, presenter.configuration.errorCode);
@@ -417,8 +436,10 @@ function AddonColoring_create(){
     presenter.run = function(view, model){
         runLogic(view, model, false);
 
-        presenter.eventBus.addEventListener('ShowAnswers', this);
-        presenter.eventBus.addEventListener('HideAnswers', this);
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            presenter.eventBus.addEventListener(events[i], this);
+        }
     };
 
     presenter.isAlreadyInColorsThatCanBeFilled = function(color) {
@@ -568,7 +589,8 @@ function AddonColoring_create(){
             'isActivity' : !(ModelValidationUtils.validateBoolean(model['isNotActivity'])),
             'lastUsedColor' : validatedDefaultFillingColor.value,
             'disableFill' : ModelValidationUtils.validateBoolean(model['disableFill']),
-            'colorCorrect' : ModelValidationUtils.validateBoolean(model.colorCorrect)
+            'colorCorrect' : ModelValidationUtils.validateBoolean(model.colorCorrect),
+            'showAllAnswersInGradualShowAnswersMode' : ModelValidationUtils.validateBoolean(model.showAllAnswersInGradualShowAnswersMode),
         }
     };
 
@@ -1255,12 +1277,24 @@ function AddonColoring_create(){
         return false;
     }
 
-    presenter.onEventReceived = function (eventName) {
+    presenter.onEventReceived = function (eventName, data) {
         if (eventName == "ShowAnswers") {
             presenter.showAnswers();
         }
 
         if (eventName == "HideAnswers") {
+            presenter.hideAnswers();
+        }
+
+        if (eventName == "GradualShowAnswers") {
+            if (presenter.configuration.addonID == data.moduleID) {
+                presenter.gradualShowAnswers();
+            } else if (!presenter.isShowAnswersActive) {
+                presenter.activateShowAnswersMode();
+            }
+        }
+
+        if (eventName == "GradualHideAnswers") {
             presenter.hideAnswers();
         }
     };
@@ -1269,12 +1303,70 @@ function AddonColoring_create(){
         if (!presenter.configuration.isActivity) {
             return;
         }
+
+        if (!presenter.isShowAnswersActive) {
+            presenter.activateShowAnswersMode();
+        }
+
+        var areas = presenter.configuration.areas;
+        for (var i=0; i< areas.length; i++) {
+            presenter.fillAreaWithCorrectColor(areas[i]);
+        }
+    };
+
+    presenter.gradualShowAnswers = function () {
+        if (!presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
+            if (!presenter.configuration.isActivity) {
+                return;
+            }
+
+            if (!presenter.isShowAnswersActive) {
+                presenter.activateShowAnswersMode();
+            }
+
+            var area = presenter.configuration.areas[presenter.currentAreaIdInGSAMode];
+            presenter.fillAreaWithCorrectColor(area);
+            presenter.currentAreaIdInGSAMode++;
+        } else {
+            presenter.showAnswers();
+        }
+    };
+
+    presenter.hideAnswers = function () {
+        if (!presenter.configuration.isActivity) {
+            return;
+        }
+
+        presenter.deactivateShowAnswersMode();
+    };
+
+    presenter.activateShowAnswersMode = function () {
         presenter.setShowErrorsModeActive = false;
 
         presenter.$view.find('.icon-container').remove();
         presenter.currentScore = presenter.getScore();
         presenter.currentErrorCount = presenter.getErrorCount();
 
+        presenter.backupUserAreas();
+
+        presenter.clearCanvas();
+        presenter.recolorImage();
+
+        presenter.isShowAnswersActive = true;
+    };
+
+    presenter.deactivateShowAnswersMode = function () {
+        presenter.currentAreaIdInGSAMode = 0;
+
+        presenter.clearCanvas();
+        presenter.recolorImage();
+
+        presenter.restoreUserAreas();
+
+        presenter.isShowAnswersActive = false;
+    };
+
+    presenter.backupUserAreas = function () {
         presenter.tmpFilledAreas = [];
         $.each(presenter.configuration.areas, function() {
             if (presenter.shouldBeTakenIntoConsideration(this)) {
@@ -1283,42 +1375,20 @@ function AddonColoring_create(){
                     color: presenter.getColorAtPoint(this.x, this.y)
                 });
             }
-
         });
 
         if (presenter.configuration.userAreas) {
             for (var i = 0; i < presenter.configuration.userAreas.length; i++) {
                 var area = presenter.configuration.userAreas[i];
-                presenter.tmpFilledAreas.push({area: area, color: area.getColor()});
+                presenter.tmpFilledAreas.push({
+                    area: area,
+                    color: area.getColor()
+                });
             }
         }
-
-        presenter.clearCanvas();
-        presenter.recolorImage();
-
-        var areas = presenter.configuration.areas;
-        for (var i=0; i< areas.length; i++) {
-            presenter.floodFill({
-                    x: areas[i].x,
-                    y: areas[i].y,
-                    color: [255, 255, 255, 255]
-                },
-                [areas[i].colorToFill[0], areas[i].colorToFill[1], areas[i].colorToFill[2], areas[i].colorToFill[3]],
-                presenter.configuration.tolerance);
-
-            presenter.allColoredPixels = [];
-        }
-
-        presenter.isShowAnswersActive = true;
     };
 
-    presenter.hideAnswers = function () {
-        if (!presenter.configuration.isActivity) {
-            return;
-        }
-
-        presenter.clearCanvas();
-        presenter.recolorImage();
+    presenter.restoreUserAreas = function () {
         $.each(presenter.tmpFilledAreas, function() {
             presenter.floodFill({
                     x: this.area.x,
@@ -1330,8 +1400,25 @@ function AddonColoring_create(){
 
             presenter.allColoredPixels = [];
         });
+    };
 
-        presenter.isShowAnswersActive = false;
+    presenter.fillAreaWithCorrectColor = function (area) {
+        presenter.floodFill({
+                x: area.x,
+                y: area.y,
+                color: [255, 255, 255, 255]
+            },
+            [area.colorToFill[0], area.colorToFill[1], area.colorToFill[2], area.colorToFill[3]],
+            presenter.configuration.tolerance);
+
+        presenter.allColoredPixels = [];
+    };
+
+    presenter.getActivitiesCount = function () {
+        if (presenter.configuration.showAllAnswersInGradualShowAnswersMode) {
+            return 1;
+        }
+        return presenter.configuration.areas.length;
     };
 
     function scalePoint({x, y}) {
