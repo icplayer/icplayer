@@ -717,6 +717,18 @@ function AddonHangman_create() {
         });
     };
 
+    presenter.upgradeStateForEndOfGame = function (parsedState) {
+        if (parsedState.endOfGame == undefined) {
+            parsedState.endOfGame = false;
+        }
+
+        return parsedState;
+    };
+
+    presenter.upgradeState = function (parsedState) {
+        return presenter.upgradeStateForEndOfGame(parsedState);
+    };
+
     presenter.addMarkedLetter = function (isPreview) {
         presenter.$view.find('.hangman-letter:contains(!)').next().css('display', 'none');
         var exclamationLetters = [];
@@ -748,15 +760,17 @@ function AddonHangman_create() {
 
     presenter.setState = function (stringifiedState) {
         var state = JSON.parse(stringifiedState);
+        var upgradedState = presenter.upgradeState(state);
+
         var phrases = presenter.configuration.phrases;
 
         for (var i = 0; i < phrases.length; i++) {
-            phrases[i].selectedLetters = state.phrases[i].selectedLetters;
-            phrases[i].errorCount = state.phrases[i].errorCount;
-            phrases[i].endOfGame = state.phrases[i].endOfGame;
+            phrases[i].selectedLetters = upgradedState.phrases[i].selectedLetters;
+            phrases[i].errorCount = upgradedState.phrases[i].errorCount;
+            phrases[i].endOfGame = upgradedState.phrases[i].endOfGame;
         }
 
-        presenter.switchPhrase(state.currentPhrase + 1);
+        presenter.switchPhrase(upgradedState.currentPhrase + 1);
 
         presenter.addMarkedLetter(false)
     };
