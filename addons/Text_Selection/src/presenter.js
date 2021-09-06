@@ -1304,10 +1304,8 @@ function AddonText_Selection_create() {
         } else if (eventName === "HideAnswers") {
             presenter.hideAnswers();
         } else if (eventName === "GradualShowAnswers") {
-            if (!presenter.isGradualShowAnswersActive) {
-                presenter.isGradualShowAnswersActive = true;
+            if (presenter.configuration.areEventListenersOn) {
                 presenter.turnOffEventListeners();
-                presenter.saveAndRemoveSelection();
             }
             if (data.moduleID === presenter.configuration.addonID) {
                 presenter.gradualShowAnswers(parseInt(data.item, 10));
@@ -1742,6 +1740,10 @@ function AddonText_Selection_create() {
     }
 
     presenter.gradualShowAnswers = function (item) {
+        if (!presenter.isGradualShowAnswersActive) {
+            presenter.saveAndRemoveSelection();
+            presenter.isGradualShowAnswersActive = true;
+        }
         presenter.showCorrectAnswer(item);
     };
 

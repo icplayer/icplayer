@@ -12,11 +12,11 @@ TestCase("[Cross Lesson] Commands", {
 
         this.spies = {
             setVisibility: sinon.spy(),
-            sendMessage: sinon.spy()
+            sendExternalEvent: sinon.spy()
         };
 
         this.presenter.playerController = {
-            sendMessage: this.spies.sendMessage
+            sendExternalEvent: this.spies.sendExternalEvent
         };
 
         this.presenter.setVisibility = this.spies.setVisibility;
@@ -24,15 +24,11 @@ TestCase("[Cross Lesson] Commands", {
 
     'test given correct model when requestCrossLesson is called then send message with correct request': function () {
         this.presenter.executeCommand('requestCrossLesson');
-
         this.presenter.requestCrossLesson();
+        var rawData = this.spies.sendExternalEvent.getCall(0).args[1];
+        var dataJson = JSON.parse(rawData);
 
-        assertTrue(this.spies.sendMessage.calledOnce);
-        var message = this.spies.sendMessage.getCall(0).args[0];
-        assertEquals(0, message.indexOf('CROSS_LESSON_REQUEST:'));
-        var dataRaw = message.replace('CROSS_LESSON_REQUEST:','');
-        var dataJson = JSON.parse(dataRaw);
-
+        assertTrue(this.spies.sendExternalEvent.calledOnce);
         assertEquals('testLesson', dataJson.lessonID);
         assertEquals('1234567', dataJson.courseID);
         assertEquals('xQNFEDISERT', dataJson.page);
