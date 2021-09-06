@@ -13,6 +13,10 @@ import com.lorepo.icf.utils.StringUtils;
 import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icf.utils.i18n.DictionaryWrapper;
 import com.lorepo.icplayer.client.framework.module.StyleUtils;
+import com.lorepo.icplayer.client.metadata.IMetadata;
+import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
+import com.lorepo.icplayer.client.metadata.ScoreWithMetadataService;
+import com.lorepo.icplayer.client.metadata.ScoreWithMetadataUtils;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGModuleView;
 import com.lorepo.icplayer.client.module.text.TextPresenter.IDisplay;
@@ -813,6 +817,65 @@ public class TextView extends HTML implements IDisplay, IWCAG, MathJaxElement, I
 				this.module.getSpeechTextItem(TextModel.GAP_INDEX);
 
 		return gapType + " " + Integer.toString(index + 1);
+	}
+
+	@Override
+	public List<ScoreWithMetadata> getScoreWithMetadata() {
+		IMetadata metadata = this.module.getMetadata();
+		if (!ScoreWithMetadataUtils.validateMetadata(metadata)) {
+			return null;
+		}
+		if (getGapCount() == 0) return null;
+
+		boolean isAlphabetical = ScoreWithMetadataUtils.enumerateAlphabetically(metadata);
+		String enumerateStart = ScoreWithMetadataUtils.getEnumerateStart(metadata);
+
+		int gapCount = 0;
+		int dropdownCount = 0;
+
+		List<ScoreWithMetadata> scores = new ArrayList<ScoreWithMetadata>();
+		for (TextElementDisplay d : textElements) {
+			if (d.isActivity()) {
+
+				String questionNumber = ScoreWithMetadataUtils.getQuestionNumber(enumerateStart, gapCount+dropdownCount, isAlphabetical);
+				ScoreWithMetadata score = new ScoreWithMetadata(questionNumber);
+				score.setModule(module);
+				score.setMetadata(metadata);
+				score.setQuestionType(d.getGapType());
+				String userAnswer = d.getTextValue();
+				List<String> allAnswers = new ArrayList<String>();
+				if (d.getGapType().equals("dropdown")) {
+					if (userAnswer.equals("---")) {
+						userAnswer = "";
+					}
+					InlineChoiceInfo choiceInfo = module.choiceInfos.get(dropdownCount);
+					allAnswers.add(choiceInfo.getAnswer());
+				} else {
+					GapInfo gapInfo = module.getGapInfos().get(gapCount);
+					if (userAnswer.equals(gapInfo.getPlaceHolder()) && module.ignoreDefaultPlaceholderWhenCheck()) {
+						userAnswer = "";
+					}
+					Iterator<String> answersIterator = gapInfo.getAnswers();
+					while (answersIterator.hasNext()) {
+						allAnswers.add(answersIterator.next());
+					}
+				}
+				score.setUserAnswer(userAnswer);
+				boolean isCorrect = false;
+				if (userAnswer.length() != 0) {
+					isCorrect = allAnswers.indexOf(userAnswer) != -1;
+				}
+				score.setIsCorrect(isCorrect);
+				score.setAllAnswers(allAnswers);
+				scores.add(score);
+				if (d.getGapType().equals("dropdown")) {
+					dropdownCount += 1;
+				} else {
+					gapCount += 1;
+				}
+			}
+		}
+		return scores;
 	}
 
 }
