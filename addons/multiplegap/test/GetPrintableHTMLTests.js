@@ -68,7 +68,7 @@ TestCase("[Multiple Gap] Multiple gap printable HTML validation", {
     'test given printableState is undefined when showAnswers then return with correctAnswers': function() {
         //given
         var expectedHtmlValue = '<div id="multiplegap1" class="printable_addon_multiplegap">' +
-                                    '<div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px;">zebra, dolphin</div>' +
+                                    '<div style="max-width: 150px; min-height: 175px; border: 1px solid; padding: 5px; background-color: rgb(238, 238, 238);">zebra, dolphin</div>' +
                                 '</div>';
 
         //actual
