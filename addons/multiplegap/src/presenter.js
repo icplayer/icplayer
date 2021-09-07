@@ -1435,11 +1435,9 @@ function Addonmultiplegap_create(){
                 presenter.isGradualShowAnswersActive = true;
 
                 presenter.getTemporaryData();
-                setUpResetOnce();
             }
 
             if (presenter.configuration.ID === eventData.moduleID) {
-                presenter.resetOnce();
                 presenter.gradualShowAnswers(parseInt(eventData.item, 10));
             }
         } else if (eventName === 'GradualHideAnswers') {
@@ -1467,14 +1465,14 @@ function Addonmultiplegap_create(){
                 });
             }
     }
-    
+
     presenter.getElementText = function (id, element) {
         var module = presenter.playerController.getModule(id);
-        
+
         if (module == null || !module.hasOwnProperty('getItem')) {
             return '';
         }
-        
+
         return module.getItem(element);
     };
 
@@ -1483,10 +1481,10 @@ function Addonmultiplegap_create(){
         presenter.tmpScore = presenter.getScore();
         presenter.tmpErrorCount = presenter.getErrorCount();
     }
-    
+
     presenter.showAnswers = function () {
         if (!presenter.configuration.isActivity) return;
-        
+
         if (presenter.isShowAnswersActive) {
             presenter.hideAnswers();
         }
@@ -1525,10 +1523,10 @@ function Addonmultiplegap_create(){
 
         presenter.performAcceptDraggable('<div></div>', {type:'string', value: value, item: moduleID}, false, false, false);
     }
-    
+
     presenter.hideAnswers = function () {
         presenter.$view.find('.placeholder-show-answers').remove();
-        
+
         if(presenter.tmpState){
             for(var i = 0; i < presenter.tmpState.length; i++) {
                 presenter.performAcceptDraggable(presenter.$view.find('.multiplegap_container>.handler'), presenter.tmpState[i], false, false, false);
@@ -1707,10 +1705,10 @@ function Addonmultiplegap_create(){
     }
 
     function checkPrintedAnswer (answer1, answer2) {
-        return (answer1.value === answer2.value 
+        return (answer1.value === answer2.value
             && answer1.addonID === answer2.addonID
             && answer1.index === answer2.index );
-    };
+    }
 
     presenter.getPrintableHTML = function (model, showAnswers) {
         var upgradedModel = presenter.upgradeModel(model);
@@ -1767,11 +1765,11 @@ function Addonmultiplegap_create(){
                         answerHTML = prepareCheckedAnswerToPrint (answerHTML, i, ...studentAnswers);
                     }
                 } else {
-                    answerHTML = prepareBasicPrint (answerHTML, ...studentAnswers);
+                    answerHTML = prepareBasicPrint (answerHTML, null, ...studentAnswers);
                 }
             } else {
                 if (showAnswers) {
-                    answerHTML = prepareBasicPrint (answerHTML, ...correctAnswers);
+                    answerHTML = prepareBasicPrint (answerHTML, $wrapper, ...correctAnswers);
                 }
             }
             $wrapper.html(answerHTML);
@@ -1782,7 +1780,7 @@ function Addonmultiplegap_create(){
         return $view[0].outerHTML;
     };
 
-    function prepareBasicPrint (answerHTML, ...answers) {
+    function prepareBasicPrint (answerHTML, $wrapper=null ,...answers) {
         var separator = "</br>";
         if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
             separator = ", ";
@@ -1792,6 +1790,9 @@ function Addonmultiplegap_create(){
             if (i < answers.length - 1) {
                 answerHTML = answerHTML + separator;
             }
+        }
+        if ($wrapper !== null) {
+            $wrapper.css("background-color", "#eeeeee");
         }
         return answerHTML;
     }
@@ -1852,18 +1853,6 @@ function Addonmultiplegap_create(){
     presenter.gradualHideAnswers = function () {
         presenter.hideAnswers();
         presenter.isGradualShowAnswersActive = false;
-    }
-
-    function setUpResetOnce() {
-        presenter.resetOnce = (function() {
-            var didReset = false;
-            return function() {
-                if(!didReset) {
-                    didReset = true;
-                    presenter.reset();
-                }
-            };
-        })();
     }
 
     return presenter;
