@@ -27,6 +27,7 @@ function AddonSingle_State_Button_create() {
         var allowClickInErrorMode = presenter.state.isErrorMode && presenter.configuration.enableInErrorMode;
         if (presenter.configuration.isDisabled) return;
         if (presenter.configuration.isErrorMode && !allowClickInErrorMode) return;
+        if (presenter.configuration.isShowAnswersMode && !presenter.configuration.enableInShowAnswersMode) return;
 
         presenter.executeUserEventCode();
         presenter.triggerButtonClickedEvent();
@@ -127,7 +128,8 @@ function AddonSingle_State_Button_create() {
 
     presenter.upgradeModel = function(model) {
         var upgradedModel = presenter.upgradeDisable(model);
-        return presenter.upgradeEnableInErrorMode(upgradedModel);
+        upgradedModel = presenter.upgradeEnableInErrorMode(upgradedModel);
+        return presenter.upgradeEnableInShowAnswersMode(upgradedModel);
     };
 
     presenter.upgradeDisable = function (model) {
@@ -147,6 +149,17 @@ function AddonSingle_State_Button_create() {
 
         if (!upgradedModel['Enable in error mode']) {
             upgradedModel['Enable in error mode'] = "False";
+        }
+
+        return upgradedModel;
+    }
+
+    presenter.upgradeEnableInShowAnswersMode = function AddonSingleStateButton_upgradeEnableInErrorMode(model) {
+        var upgradedModel = {};
+        $.extend(true, upgradedModel, model);
+
+        if (!upgradedModel['Enable in show answers mode']) {
+            upgradedModel['Enable in show answers mode'] = "False";
         }
 
         return upgradedModel;
@@ -183,6 +196,7 @@ function AddonSingle_State_Button_create() {
         var isVisible = ModelValidationUtils.validateBoolean(model['Is Visible']);
         var isTabindexEnabled = ModelValidationUtils.validateBoolean(model['Is Tabindex Enabled']);
         var enableInErrorMode = ModelValidationUtils.validateBoolean(model['Enable in error mode']);
+        var enableInShowAnswersMode = ModelValidationUtils.validateBoolean(model['Enable in show answers mode']);
 
         return {
             displayContent: presenter.determineDisplayContent(title, image),
@@ -195,7 +209,8 @@ function AddonSingle_State_Button_create() {
             isVisibleByDefault: isVisible,
             isErrorMode: false,
             isTabindexEnabled: isTabindexEnabled,
-            enableInErrorMode: enableInErrorMode
+            enableInErrorMode: enableInErrorMode,
+            enableInShowAnswersMode: enableInShowAnswersMode
         };
     };
 
@@ -302,15 +317,16 @@ function AddonSingle_State_Button_create() {
     presenter.setWorkMode = function () {
         presenter.configuration.isErrorMode = false;
         presenter.state.isErrorMode = false;
+        presenter.configuration.isShowAnswersMode = false;
     };
 
     presenter.onEventReceived = function (eventName) {
         if (eventName === "ShowAnswers") {
-            presenter.configuration.isErrorMode = true;
+            presenter.configuration.isShowAnswersMode = true;
         }
 
         if (eventName === "HideAnswers") {
-            presenter.configuration.isErrorMode = false;
+            presenter.configuration.isShowAnswersMode = false;
         }
     };
 

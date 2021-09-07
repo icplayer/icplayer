@@ -1220,6 +1220,7 @@ var ice_dictionary_fr = {
     "Single_State_Button_property_on_click": "Sur clic",
     "Single_State_Button_property_disable": "Désactiver",
     "Single_State_Button_property_enable_in_error_mode": "Enable in error checking mode",
+    "Single_State_Button_property_enable_in_show_answers_mode": "Enable in show answers mode",
     "External_Link_Button_info": "Permet aux utilisateurs de créer des liens hypertexte vers des ressources externes.",
     "External_Link_Button_name": "Bouton vers des liens externes",
     "External_Link_Button_property_title": "Titre",
