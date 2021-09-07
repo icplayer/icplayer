@@ -924,7 +924,7 @@ function AddonParagraph_create() {
             innerText = modelAnswer;
         }
         if (presenter.printableState) {
-            innerText = getUserAnswerFromState();
+            innerText = presenter.printableState;
         }
         $paragraph.html(innerText);
 
@@ -941,12 +941,6 @@ function AddonParagraph_create() {
             userAnswer: presenter.getText(),
             isCorrect: true
         }];
-    }
-
-    function getUserAnswerFromState() {
-        var div = document.createElement('div');
-        div.innerHTML = presenter.printableState;
-        return div.firstChild.textContent.trim();
     }
 
     presenter.didUserAnswer = function (usersAnswer) {
