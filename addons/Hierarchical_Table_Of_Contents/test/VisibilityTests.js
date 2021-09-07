@@ -95,7 +95,7 @@ TestCase('[Hierarchical_Table_Of_Content] Visibility tests', {
 
     'test given isVisible to false when show() then setVisibility called with true': function () {
         //given
-        this.presenter.configuration.isVisible = false;
+        this.presenter.isVisible = false;
         //when
         this.presenter.show();
         //then
@@ -104,7 +104,7 @@ TestCase('[Hierarchical_Table_Of_Content] Visibility tests', {
 
     'test given isVisible to true when show() then setVisibility not called': function () {
         //given
-        this.presenter.configuration.isVisible = true;
+        this.presenter.isVisible = true;
         //when
         this.presenter.show();
         //then
@@ -113,7 +113,7 @@ TestCase('[Hierarchical_Table_Of_Content] Visibility tests', {
 
     'test given isVisible to true when hide() then setVisibility called with false': function () {
         //given
-        this.presenter.configuration.isVisible = true;
+        this.presenter.isVisible = true;
         //when
         this.presenter.hide();
         //then
@@ -122,7 +122,7 @@ TestCase('[Hierarchical_Table_Of_Content] Visibility tests', {
 
     'test given isVisible to false when hide() then setVisibility not called': function () {
         //given
-        this.presenter.configuration.isVisible = false;
+        this.presenter.isVisible = false;
         //when
         this.presenter.hide();
         //then
