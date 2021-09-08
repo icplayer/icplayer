@@ -1,9 +1,13 @@
 package com.lorepo.icplayer.client.printable;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
+import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.module.api.IModuleModel;
-import com.lorepo.icplayer.client.module.text.TextParser;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class PrintableController {
 
@@ -11,6 +15,7 @@ public class PrintableController {
 	private Page page = null;
 	private SeededRandom random = new SeededRandom();
 	private JavaScriptObject scoreJS = null;
+	private JsArray<JavaScriptObject> contentInformation = null;
 	private IPrintableTextParser textParser;
 	
 	PrintableController(Page page) {
@@ -59,9 +64,13 @@ public class PrintableController {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::scoreJS;
 		};
 
+		controller.getContentInformation = function() {
+			return x.@com.lorepo.icplayer.client.printable.PrintableController::contentInformation;
+		};
+
 		controller.getTextParser = function() {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::getTextParser()();
-		}
+		};
 		
 		return controller;
 	}-*/;
@@ -73,6 +82,19 @@ public class PrintableController {
 	public void setScore(String score) {
 		this.scoreJS = parseJson(score);
 	}
+
+	public void setContentInformation(ArrayList<HashMap<String, String>> contentInformation) {
+		this.contentInformation = JavaScriptUtils.createEmptyJsArray();
+
+		for (HashMap<String, String> elementInformation : contentInformation) {
+			JavaScriptObject elementInformationJS = JavaScriptObject.createObject();
+			for (String key : elementInformation.keySet()) {
+				JavaScriptUtils.addPropertyToJSArray(
+						elementInformationJS, key, elementInformation.get(key));
+			}
+			JavaScriptUtils.addElementToJSArray(this.contentInformation, elementInformationJS);
+		}
+	};
 
 	private JSPrintableTextParser getTextParser() {
 		return this.textParser.getAsJS();
