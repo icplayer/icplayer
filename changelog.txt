@@ -1,6 +1,13 @@
 2021-09-08 Added functionality for the printable version of Hierarchical Lesson Report
 2021-09-08 Added functionality for the printable version in preview of Hierarchical Lesson Report
-2021-08-12 Added functionality to extract content information for Printable Controller
+2021-09-08 Added functionality to extract content information for Printable Controller
+2021-09-01 Fix GSA not working in Text module
+2021-08-31 Add ScoreWithMetadata API
+2021-08-24 Fix bug with eKeyboard going to next input
+2021-08-16 Add Gradual Show Answer to Point and Lines addon
+2021-08-11 Add GSA mode for Coloring addon
+2021-08-09 Add GSA mode for Memo Game addon
+2021-08-02 Add GSA mode for Text Coloring addon
 2021-07-30 Add getOpenEndedContentsForCurrentPage to PlayerServices
 2021-07-28 Added keyboard navigation and TTS to Quiz
 2021-07-27 Fixed bug that audiodescription in Chrome doesn't stop video

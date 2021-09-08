@@ -49,6 +49,10 @@ public class PrintableController {
 
 		return jsObject;
 	}
+
+	public String getPageName() {
+		return page.getName();
+	}
 	
 	private native JavaScriptObject initJSObject(PrintableController x) /*-{
 		var controller = function() {};
@@ -77,6 +81,10 @@ public class PrintableController {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::isPreview()();
 		};
 		
+		controller.getPageName = function() {
+			return x.@com.lorepo.icplayer.client.printable.PrintableController::getPageName()();
+		}
+
 		return controller;
 	}-*/;
 

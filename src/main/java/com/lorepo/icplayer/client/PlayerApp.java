@@ -13,6 +13,7 @@ import com.lorepo.icf.utils.JSONUtils;
 import com.lorepo.icf.utils.JavaScriptUtils;
 import com.lorepo.icf.utils.URLUtils;
 import com.lorepo.icf.utils.dom.DOMInjector;
+import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.CssStyle;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -834,4 +835,9 @@ public class PlayerApp {
 			listener.onFinishedLoading("All pages have been loaded!");
 		}
 	};
+
+	public List<ScoreWithMetadata> getScoreWithMetadata() {
+		playerController.updateState();
+		return playerController.getScoreWithMetadataService().getScoreWithMetadata();
+	}
 }
