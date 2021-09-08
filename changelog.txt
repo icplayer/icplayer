@@ -1,3 +1,5 @@
+2021-09-08 Added functionality for the printable version of Hierarchical Lesson Report
+2021-09-08 Added functionality for the printable version in preview of Hierarchical Lesson Report
 2021-08-12 Added functionality to extract content information for Printable Controller
 2021-07-30 Add getOpenEndedContentsForCurrentPage to PlayerServices
 2021-07-28 Added keyboard navigation and TTS to Quiz

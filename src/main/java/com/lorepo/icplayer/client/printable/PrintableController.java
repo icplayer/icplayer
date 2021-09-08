@@ -17,6 +17,7 @@ public class PrintableController {
 	private JavaScriptObject scoreJS = null;
 	private JsArray<JavaScriptObject> contentInformation = null;
 	private IPrintableTextParser textParser;
+	private boolean preview = false;
 	
 	PrintableController(Page page) {
 		this.page = page;
@@ -71,6 +72,10 @@ public class PrintableController {
 		controller.getTextParser = function() {
 			return x.@com.lorepo.icplayer.client.printable.PrintableController::getTextParser()();
 		};
+
+		controller.isPreview = function() {
+			return x.@com.lorepo.icplayer.client.printable.PrintableController::isPreview()();
+		};
 		
 		return controller;
 	}-*/;
@@ -94,6 +99,14 @@ public class PrintableController {
 			}
 			JavaScriptUtils.addElementToJSArray(this.contentInformation, elementInformationJS);
 		}
+	};
+
+	public void setPreview(boolean preview) {
+		this.preview = preview;
+	};
+
+	public boolean isPreview() {
+		return this.preview;
 	};
 
 	private JSPrintableTextParser getTextParser() {

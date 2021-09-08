@@ -197,3 +197,13 @@
 .printable_hier_report .text-wrapper {
 	overflow: hidden;
 }
+
+.printable_hier_report-progressbar .ui-progressbar-value {
+    color: grey;
+    background: grey;
+    border: 1px solid grey;
+}
+
+.printable_hier_report-progress .ui-widget.ui-widget-content {
+    border: none;
+}
