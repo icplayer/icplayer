@@ -1,3 +1,4 @@
+2021-09-08 Fixed incompatibility bug in getState and setState between versions
 2021-09-03 Fix bug with no event on stop recording android mLibro
 2021-09-01 Fix GSA not working in Text module
 2021-08-31 Add ScoreWithMetadata API
