@@ -167,20 +167,20 @@ function AddonParagraph_create() {
     }
 
     presenter.hideAnswers = function () {
-        if (!presenter.isShowAnswersActive) { return; }
-
         var paragraph = presenter.$view.find(".paragraph-wrapper");
         var elements = presenter.getParagraphs();
 
         paragraph.removeClass('disabled');
         presenter.isShowAnswersActive = false;
 
-        for (var [key, value] of Object.entries(elements)) {
-            if (+key > -1) {
-                value.innerHTML = presenter.cachedAnswer[+key];
+        if (presenter.cachedAnswer.length) {
+            for (var [key, value] of Object.entries(elements)) {
+                if (+key > -1) {
+                    value.innerHTML = presenter.cachedAnswer[+key];
+                }
             }
+            presenter.cachedAnswer = [];
         }
-        presenter.cachedAnswer = [];
     }
 
     presenter.gradualShowAnswers = function (data) {
