@@ -316,7 +316,7 @@ function AddonMultiAudio_create(){
             return {X: scaleX, Y: scaleY};
         } else if (presenter.playerController) {
             var scale = presenter.playerController.getScaleInformation();
-            return {X: scale.scaleX, Y: scale.scaleY}
+            return {X: scale.scaleX, Y: scale.scaleY};
         } else {
             return {X: 1.0, Y: 1.0};
         }
