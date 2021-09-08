@@ -9,13 +9,15 @@ TestCase("[MathText] Disable tests", {
             setToolbarHiddenStub: sinon.stub(),
             findStub: sinon.stub(),
             attrStub: sinon.stub(),
-            removeAttrStub: sinon.stub()
+            removeAttrStub: sinon.stub(),
+            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled')
         };
 
         this.stubs.findStub.returns({
             attr: this.stubs.attrStub,
             removeAttr: this.stubs.removeAttrStub
         });
+        this.stubs.isWirisEnableStub.returns(true);
 
         // inner states
         this.presenter.state = {
