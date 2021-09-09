@@ -12,6 +12,8 @@ function AddonText_Selection_create() {
     presenter._keyboardController = null;
     presenter._firstElementSwitch = true;
     presenter.isGradualShowAnswersActive = false;
+    presenter.printableState = null;
+    presenter.printableStateMode = null;
     var isWCAGOn = false;
 
     var SELECTED_SECTION_START = "&\n&SELECTED_SECTION_START&\n&";
@@ -29,11 +31,28 @@ function AddonText_Selection_create() {
 
     var MATH_JAX_MARKER = 'MATHJAX';
 
+    var CSS_CLASSES = {
+        SELECTABLE: "selectable",
+        SELECTED: "selected",
+        PRINTABLE: "printable_addon_Text_Selection",
+        PRINTABLE_SELECTED: "printable_addon_Text_Selection_selected",
+        PRINTABLE_WRONG: "printable_addon_Text_Selection_wrong",
+        PRINTABLE_CORRECT: "printable_addon_Text_Selection_correct",
+        PRINTABLE_CORRECT_ANSWER: "printable_addon_Text_Selection_correct_answer",
+    };
+
     presenter.setPlayerController = function (controller) {
         this.playerController = controller;
         presenter.eventBus = controller.getEventBus();
         presenter.textParser = new TextParserProxy(controller.getTextParser());
     };
+
+    /**
+     * @param controller (PrintableController)
+     */
+    presenter.setPrintableController = function (controller) {
+        presenter.textParser = new TextParserProxy(controller.getTextParser());
+    }
 
     function getEventData(it, val, sc) {
         return {
@@ -1304,10 +1323,8 @@ function AddonText_Selection_create() {
         } else if (eventName === "HideAnswers") {
             presenter.hideAnswers();
         } else if (eventName === "GradualShowAnswers") {
-            if (!presenter.isGradualShowAnswersActive) {
-                presenter.isGradualShowAnswersActive = true;
+            if (presenter.configuration.areEventListenersOn) {
                 presenter.turnOffEventListeners();
-                presenter.saveAndRemoveSelection();
             }
             if (data.moduleID === presenter.configuration.addonID) {
                 presenter.gradualShowAnswers(parseInt(data.item, 10));
@@ -1704,33 +1721,154 @@ function AddonText_Selection_create() {
         return false;
     };
 
-    presenter.getPrintableHTML = function (model, showAnswers) {
-        var model = presenter.upgradeModel(model);
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
 
+        presenter.printableState = JSON.parse(state);
+    };
+
+    presenter.PRINTABLE_STATE_MODE = {
+        EMPTY: 0,
+        SHOW_ANSWERS: 1,
+        SHOW_USER_ANSWERS: 2,
+        CHECK_ANSWERS: 3
+    };
+
+   presenter.getPrintableHTML = function (model, showAnswers) {
+       var upgradedModel = presenter.upgradeModel(model);
+       var configuration = presenter.validateModel(upgradedModel);
+       var $html = createHTMLStructureForPrintable(configuration);
+
+       chosePrintableStateMode(showAnswers);
+       upgradeHTMLStructureForPrintable($html, configuration.mode);
+       presenter.printableStateMode = null;
+
+       var $view = createViewForPrintable(upgradedModel, $html);
+       return $view[0].outerHTML;
+   };
+
+   function createHTMLStructureForPrintable(configuration) {
+       var $renderedRun = $(configuration.renderedRun).clone();
+       if (presenter.printableState) {
+           var numbers = presenter.printableState.numbers;
+           for (var i = 0; i < numbers.length; i++) {
+               $renderedRun.find("span[number='" + numbers[i] + "']").addClass("selected");
+           }
+       }
+       return $renderedRun;
+   }
+
+    function chosePrintableStateMode(showAnswers) {
+        if (presenter.printableState) {
+            if (showAnswers)
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS;
+            else
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS;
+        } else {
+            if (showAnswers)
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS;
+            else
+                presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.EMPTY;
+        }
+    }
+
+    function upgradeHTMLStructureForPrintable($html, mode) {
+        switch (presenter.printableStateMode) {
+            case presenter.PRINTABLE_STATE_MODE.EMPTY:
+                upgradeHTMLForPrintableWhenEmptyPrintableStateMode($html);
+                break;
+            case presenter.PRINTABLE_STATE_MODE.SHOW_ANSWERS:
+                upgradeHTMLForPrintableWhenShowAnswersPrintableStateMode($html);
+                break;
+            case presenter.PRINTABLE_STATE_MODE.SHOW_USER_ANSWERS:
+                upgradeHTMLForPrintableWhenShowUserAnswersPrintableStateMode($html);
+                break;
+            case presenter.PRINTABLE_STATE_MODE.CHECK_ANSWERS:
+                upgradeHTMLForPrintableWhenCheckAnswersPrintableStateMode($html);
+                break;
+        }
+        upgradeHTMLForPrintableElementsAccordingToMode($html, mode);
+        cleanHTMLStructureFromNotPrintableAttributesAndClasses($html);
+    }
+
+    function upgradeHTMLForPrintableWhenEmptyPrintableStateMode($html) {}
+
+    function upgradeHTMLForPrintableWhenShowAnswersPrintableStateMode($html) {
+        var $spans = $(findSelectableElements($html));
+        $spans.each(function() {
+            var number = parseInt($(this).attr('number'), 10);
+            var isInCorrectArray = $.inArray(number, presenter.markers.markedCorrect) >= 0;
+            if (isInCorrectArray)
+                $(this).wrap(`<u class="${CSS_CLASSES.PRINTABLE_CORRECT_ANSWER}"></u>`);
+        })
+    }
+
+    function upgradeHTMLForPrintableWhenShowUserAnswersPrintableStateMode($html) {
+        var $spans = $(findSelectedElements($html));
+        $spans.each(function() {
+            var $wrapper = $('<u></u>');
+            $wrapper.addClass(CSS_CLASSES.PRINTABLE_SELECTED);
+            $(this).wrap($wrapper);
+        })
+    }
+
+    function upgradeHTMLForPrintableWhenCheckAnswersPrintableStateMode($html) {
+        var $spans = $(findSelectedElements($html));
+        $spans.each(function() {
+            var $span = $( this );
+            var $wrapper = $('<u></u>');
+
+            $wrapper.addClass(CSS_CLASSES.PRINTABLE_SELECTED);
+            if (isCorrect($span)) {
+                $wrapper.addClass(CSS_CLASSES.PRINTABLE_CORRECT);
+            } else {
+                $wrapper.addClass(CSS_CLASSES.PRINTABLE_WRONG);
+            }
+            $span.wrap($wrapper);
+        })
+    }
+
+    function upgradeHTMLForPrintableElementsAccordingToMode($html, mode) {
+        if (mode === 'MARK_PHRASES')
+            upgradeHTMLForPrintableWhenMarkPhrasesToSelectMode($html);
+    }
+
+    function upgradeHTMLForPrintableWhenMarkPhrasesToSelectMode($html) {
+        findSelectableElements($html).wrap('<strong></strong>');
+    }
+
+    function cleanHTMLStructureFromNotPrintableAttributesAndClasses($html) {
+        findSelectableElements($html).removeClass(CSS_CLASSES.SELECTABLE);
+        findSelectedElements($html).removeClass(CSS_CLASSES.SELECTED);
+        findSpaceElements($html).contents().unwrap('<span></span>');
+        findNumberElements($html).contents().unwrap('<span></span>');
+    }
+
+    function findSelectedElements($html) {
+        return $html.find(`.${CSS_CLASSES.SELECTED}`);
+    }
+
+    function findSelectableElements($html) {
+        return $html.find(`.${CSS_CLASSES.SELECTABLE}`);
+    }
+
+    function findSpaceElements($html) {
+        return $html.find('span[left]');
+    }
+
+    function findNumberElements($html) {
+        return $html.find('span[number]');
+    }
+
+    function createViewForPrintable(model, $html) {
         var $view = $("<div></div>");
         $view.attr("id", model.ID);
-        $view.addClass("printable_addon_Text_Selection");
-        $view.css("max-width", model["Width"]+"px");
-
-        var content = model.Text;
-        if (model.Mode == "All selectable") {
-            if (showAnswers) {
-                content = content.replace(/\\correct{(.*?)}/g, '<u>$1</u>');
-            } else {
-                content = content.replace(/\\correct{(.*?)}/g, '$1');
-            }
-        } else {
-            if (showAnswers) {
-                content = content.replace(/\\correct{(.*?)}/g, '<u><strong>$1</strong></u>');
-            } else {
-                content = content.replace(/\\correct{(.*?)}/g, '<strong>$1</strong>');
-            }
-            content = content.replace(/\\wrong{(.*?)}/g, '<strong>$1</strong>');
-        }
-        $view.html(content);
-
-        return $view[0].outerHTML;
-    };
+        $view.addClass(CSS_CLASSES.PRINTABLE);
+        $view.css("max-width", model["Width"] + "px");
+        $view.html($html.html());
+        return $view;
+    }
 
     presenter.getActivitiesCount = function () {
         return presenter.markers.markedCorrect.length;
@@ -1742,6 +1880,10 @@ function AddonText_Selection_create() {
     }
 
     presenter.gradualShowAnswers = function (item) {
+        if (!presenter.isGradualShowAnswersActive) {
+            presenter.saveAndRemoveSelection();
+            presenter.isGradualShowAnswersActive = true;
+        }
         presenter.showCorrectAnswer(item);
     };
 

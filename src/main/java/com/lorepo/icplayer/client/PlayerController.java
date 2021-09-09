@@ -24,6 +24,8 @@ import com.lorepo.icplayer.client.content.services.ReportableService;
 import com.lorepo.icplayer.client.content.services.ScoreService;
 import com.lorepo.icplayer.client.content.services.StateService;
 import com.lorepo.icplayer.client.content.services.TimeService;
+import com.lorepo.icplayer.client.metadata.IScoreWithMetadataService;
+import com.lorepo.icplayer.client.metadata.ScoreWithMetadataService;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.page.Page;
 import com.lorepo.icplayer.client.model.page.PageList;
@@ -60,6 +62,7 @@ public class PlayerController implements IPlayerController {
 	private final StateService		stateService;
 	private final ReportableService reportableService;
 	private final AdaptiveLearningService adaptiveLearningService;
+	private final ScoreWithMetadataService scoreWithMetadataService;
 	private ILoadListener		pageLoadListener;
 	private PagePopupPanel		popupPanel;
 	private final String sessionId;
@@ -88,6 +91,7 @@ public class PlayerController implements IPlayerController {
 		this.stateService = new StateService();
 		this.assetsService = new AssetsService(this.contentModel);
 		this.reportableService = new ReportableService();
+		this.scoreWithMetadataService = new ScoreWithMetadataService();
 
 		this.createPageControllers(bookMode);
 		this.scoreService.setPlayerService(this.pageController1.getPlayerServices());
@@ -799,6 +803,11 @@ public class PlayerController implements IPlayerController {
 	@Override
 	public IAdaptiveLearningService getAdaptiveLearningService() {
 		return this.adaptiveLearningService;
+	}
+
+	@Override
+	public IScoreWithMetadataService getScoreWithMetadataService() {
+		return scoreWithMetadataService;
 	}
 
 	@Override
