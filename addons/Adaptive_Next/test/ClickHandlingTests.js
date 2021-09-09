@@ -54,15 +54,16 @@ TestCase("[Adaptive_Next] Click handling test - next button", {
             moveToNextPageStub: sinon.stub(),
             getCurrentPageConnectionsStub: sinon.stub(),
             addNextPageStub: sinon.stub(),
-
-            evaluateConditionStub: sinon.stub()
+            evaluateConditionStub: sinon.stub(),
+            addAndMoveToNextPageStub: sinon.stub()
         };
 
         this.adaptiveLearningServiceMock = {
             moveToNextPage: this.stubs.moveToNextPageStub,
             isNextAdaptivePageAvailable: this.stubs.isNextAdaptivePageAvailableStub,
             getCurrentPageConnections: this.stubs.getCurrentPageConnectionsStub,
-            addNextPage: this.stubs.addNextPageStub
+            addNextPage: this.stubs.addNextPageStub,
+            addAndMoveToNextPage: this.stubs.addAndMoveToNextPageStub
         };
 
         this.presenter.adaptiveLearningService = this.adaptiveLearningServiceMock;
@@ -120,8 +121,8 @@ TestCase("[Adaptive_Next] Click handling test - next button", {
 
         this.presenter.triggerButtonClickedEvent();
 
-        assertTrue(this.stubs.moveToNextPageStub.called);
-        assertTrue(this.stubs.addNextPageStub.calledWith(connections[1].target));
+        assertFalse(this.stubs.moveToNextPageStub.called);
+        assertTrue(this.stubs.addAndMoveToNextPageStub.calledWith(connections[1].target));
         assertEquals(2, this.stubs.evaluateConditionStub.callCount);
     },
 
@@ -136,8 +137,8 @@ TestCase("[Adaptive_Next] Click handling test - next button", {
 
         this.presenter.triggerButtonClickedEvent();
 
-        assertTrue(this.stubs.moveToNextPageStub.called);
-        assertTrue(this.stubs.addNextPageStub.calledWith(connections[2].target));
+        assertFalse(this.stubs.moveToNextPageStub.called);
+        assertTrue(this.stubs.addAndMoveToNextPageStub.calledWith(connections[2].target));
         assertEquals(3, this.stubs.evaluateConditionStub.callCount);
     },
 });

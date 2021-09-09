@@ -10,5 +10,6 @@
         <property name="isDisabled" displayName="Is Disabled" nameLabel="Coloring_property_is_disabled" type="boolean" />
         <property name="disableFill" displayName="Disable fill on click" nameLabel="Coloring_property_disable_fill" type="boolean" />
         <property name="colorCorrect" displayName="Color correct" nameLabel="Coloring_property_color_correct" type="boolean" />
+        <property name="showAllAnswersInGradualShowAnswersMode" displayName="Show all answers in gradual show answers mode" nameLabel="Coloring_property_show_all_answers_in_gradual_show_answers_mode" type="boolean" />
     </model>
 </addon>

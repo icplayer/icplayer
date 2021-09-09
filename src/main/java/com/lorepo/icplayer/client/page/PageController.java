@@ -13,6 +13,8 @@ import com.lorepo.icf.utils.TextToSpeechVoice;
 import com.lorepo.icplayer.client.IPlayerController;
 import com.lorepo.icplayer.client.content.services.GradualShowAnswersService;
 import com.lorepo.icplayer.client.content.services.PlayerServices;
+import com.lorepo.icplayer.client.metadata.IScoreWithMetadataPresenter;
+import com.lorepo.icplayer.client.metadata.ScoreWithMetadata;
 import com.lorepo.icplayer.client.model.Content;
 import com.lorepo.icplayer.client.model.layout.PageLayout;
 import com.lorepo.icplayer.client.model.page.Page;
@@ -486,6 +488,17 @@ public class PageController implements ITextToSpeechController, IPageController 
 				String state = statefulObj.getState();
 				String key = this.currentPage.getId() + statefulObj.getSerialId();
 				pageState.put(key, state);
+			}
+			if (presenter instanceof IScoreWithMetadataPresenter) {
+				IScoreWithMetadataPresenter swmPresenter = (IScoreWithMetadataPresenter) presenter;
+				List<ScoreWithMetadata> scores = swmPresenter.getScoreWithMetadata();
+				if (scores != null) {
+					int pageIndex = playerController.getModel().getAllPages().indexOf(currentPage);
+					for (ScoreWithMetadata score : scores) {
+						score.setPage(this.currentPage, pageIndex);
+					}
+					playerController.getScoreWithMetadataService().addScoreWithMetadata(scores);
+				}
 			}
 		}
 	}

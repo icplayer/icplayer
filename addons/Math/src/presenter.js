@@ -5,6 +5,7 @@ function AddonMath_create() {
 
     var presenter = function() {};
     presenter.isShowAnswers = false;
+    presenter.currentGapIndex = 0;
 
     presenter.setPlayerController = function (controller) {
         presenter.playerController = controller;
@@ -23,6 +24,8 @@ function AddonMath_create() {
             presenter.eventBus.addEventListener('HideAnswers', this);
             presenter.eventBus.addEventListener('PageLoaded', this);
             presenter.eventBus.addEventListener('ValueChanged', this);
+            presenter.eventBus.addEventListener('GradualShowAnswers', this);
+            presenter.eventBus.addEventListener('GradualHideAnswers', this);
         }
     };
 
@@ -463,7 +466,7 @@ function AddonMath_create() {
 
     presenter.setShowErrorsMode = function() {
         if (presenter.isShowAnswers) {
-            toggleAnswers(false);
+            presenter.toggleAnswers(false);
         }
 
         presenter.isErrorMode = true;
@@ -539,7 +542,7 @@ function AddonMath_create() {
         }
 
         if (presenter.isShowAnswers) {
-            toggleAnswers(false);
+            presenter.toggleAnswers(false);
         }
 
         var variables = presenter.configuration.variables,
@@ -560,7 +563,7 @@ function AddonMath_create() {
         }
 
         if (presenter.isShowAnswers) {
-            toggleAnswers(false);
+            presenter.toggleAnswers(false);
         }
 
         var variables = presenter.configuration.variables,
@@ -658,7 +661,7 @@ function AddonMath_create() {
         return { isValid: true, gaps: notAttemptedGaps };
     };
 
-    function toggleAnswers(on) {
+    presenter.toggleAnswers = function (on) {
         presenter.isShowAnswers = on;
         for (var i=0; i<presenter.configuration.answers.length; i++) {
             var answer = presenter.configuration.answers[i];
@@ -709,15 +712,42 @@ function AddonMath_create() {
 
     presenter.showAnswers = function() {
         if (!presenter.isShowAnswers) {
-            toggleAnswers(true);
+            presenter.toggleAnswers(true);
         }
     };
 
     presenter.hideAnswers = function() {
         if (presenter.isShowAnswers) {
-            toggleAnswers(false);
+            presenter.toggleAnswers(false);
         }
     };
+
+    presenter.getActivitiesCount = function () {
+        return presenter.configuration.answers.length;
+    }
+
+    presenter.gradualShowAnswers = function (data) {
+        if (data.moduleID !== presenter.configuration.addonID) { return; }
+
+        var answer = presenter.configuration.answers[presenter.currentGapIndex];
+        var gapName = null;
+        for (var j = 0; j < presenter.configuration.variables.length; j++) {
+            if (presenter.configuration.variables[j].name === answer.name) {
+                gapName = presenter.configuration.variables[j].value;
+            }
+        }
+        if (gapName == null) {
+            return;
+        }
+
+        var moduleReference = presenter.decodeModuleReference(gapName);
+        var module = presenter.getModule(moduleReference.moduleID);
+
+        module.setGapAnswer(moduleReference.gapIndex, answer.value, presenter.moduleAnswersCounter(moduleReference.moduleID));
+        presenter.currentGapIndex++;
+
+        presenter.reloadMathJax();
+    }
 
     presenter.allOkSent = false;
 
@@ -733,6 +763,13 @@ function AddonMath_create() {
                 }else if(!presenter.isAllOK()){
                     presenter.allOkSent = false;
                 }
+                break;
+            case 'GradualShowAnswers':
+                presenter.gradualShowAnswers(eventData);
+                break;
+            case 'GradualHideAnswers':
+                presenter.currentGapIndex = 0;
+                presenter.hideAnswers();
                 break;
         }
     };

@@ -91,13 +91,7 @@ public class GapInfo implements IGapCommonUtilsProvider {
 
 	public boolean isCorrect(String text) {
 		boolean correct = false;
-		if (!isCaseSensitive) {
-			text = text.toLowerCase();
-		}
-		if (isIgnorePunctuation) {
-			text = removePunctuation(text);
-		}
-		text = AlternativeTextService.getVisibleText(text);
+		text = getCleanedText(text);
 		for (String answer : checkAnswers) {
 			String parsedAnswer = AlternativeTextService.getVisibleText(answer);
 			if (parsedAnswer.compareTo(text) == 0) {
@@ -107,6 +101,14 @@ public class GapInfo implements IGapCommonUtilsProvider {
 		}
 
 		return correct;
+	}
+
+	public boolean isTextOnlyPlaceholder(String text, boolean ignorePlaceholderWhenChecking) {
+	    text = getCleanedText(text);
+	    if (textEqualsPlaceholder(text) && ignorePlaceholderWhenChecking) {
+            return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -162,6 +164,26 @@ public class GapInfo implements IGapCommonUtilsProvider {
 	
 	public boolean isNumericOnly() {
 		return isNumericOnly;
+	}
+
+    private String getCleanedText(String text) {
+        text = cleanStringAccordingToSettings(text);
+		return AlternativeTextService.getVisibleText(text);
+    }
+
+	private boolean textEqualsPlaceholder(String text) {
+	    String placeholder = cleanStringAccordingToSettings(getPlaceHolder());
+	    return placeholder.length() > 0 && text.equals(placeholder);
+	}
+
+	private String cleanStringAccordingToSettings(String text) {
+	    if (!isCaseSensitive) {
+			text = text.toLowerCase();
+		}
+		if (isIgnorePunctuation) {
+			text = removePunctuation(text);
+		}
+		return text;
 	}
 
 }
