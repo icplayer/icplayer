@@ -12,8 +12,6 @@ TestCase("Events test", {
             hideAnswers: sinon.spy(this.presenter, 'hideAnswers'),
             gradualShowAnswers: sinon.spy(this.presenter, 'gradualShowAnswers')
         }
-
-
     },
 
     tearDown: function() {
