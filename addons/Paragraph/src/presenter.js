@@ -1,5 +1,6 @@
 function AddonParagraph_create() {
     var presenter = function () {};
+    var eventBus;
 
     presenter.placeholder = null;
     presenter.editor = null;
@@ -9,6 +10,8 @@ function AddonParagraph_create() {
     presenter.editor = null;
     presenter.playerController = null;
     presenter.isVisibleValue = null;
+    presenter.isShowAnswersActive = false;
+    presenter.cachedAnswer = [];
 
     presenter.isEditorLoaded = false;
 
@@ -106,6 +109,86 @@ function AddonParagraph_create() {
         var clickhandler = $("<div></div>").css({"background":"transparent", 'width': '100%', 'height': '100%', 'position':'absolute', 'top':0, 'left':0});
         presenter.$view.append(clickhandler);
     };
+
+    presenter.setEventBus = function (wrappedEventBus) {
+        eventBus = wrappedEventBus;
+        var events = ['ShowAnswers', 'HideAnswers', 'GradualShowAnswers', 'GradualHideAnswers'];
+        for (var i = 0; i < events.length; i++) {
+            eventBus.addEventListener(events[i], this);
+        }
+    };
+
+    presenter.onEventReceived = function (eventName, eventData) {
+        switch (eventName) {
+            case "GradualShowAnswers":
+                presenter.gradualShowAnswers(eventData);
+                break;
+
+            case "ShowAnswers":
+                presenter.showAnswers();
+                break;
+
+            case "HideAnswers":
+            case "GradualHideAnswers":
+                presenter.hideAnswers();
+                break;
+        }
+    };
+
+    presenter.getActivitiesCount = function () {
+        return 1;
+    }
+
+    presenter.showAnswers = function () {
+        if (presenter.isShowAnswersActive) { return; }
+
+        var paragraph = presenter.$view.find(".paragraph-wrapper");
+        var elements = presenter.getParagraphs();
+
+        paragraph.addClass('disabled');
+        presenter.isShowAnswersActive = true;
+
+        for (var [key, value] of Object.entries(elements)) {
+            if (+key > -1) {
+                presenter.cachedAnswer.push(value.innerHTML);
+                if (+key === 0) {
+                    value.innerHTML = presenter.configuration.modelAnswer;
+                } else {
+                    value.innerHTML = '';
+                }
+            }
+        }
+    }
+
+    presenter.hideAnswers = function () {
+        if (!presenter.isShowAnswersActive) { return; }
+
+        var paragraph = presenter.$view.find(".paragraph-wrapper");
+        var elements = presenter.getParagraphs();
+
+        paragraph.removeClass('disabled');
+        presenter.isShowAnswersActive = false;
+
+        for (var [key, value] of Object.entries(elements)) {
+            if (+key > -1) {
+                value.innerHTML = presenter.cachedAnswer[+key];
+            }
+        }
+        presenter.cachedAnswer = [];
+    }
+
+    presenter.gradualShowAnswers = function (data) {
+        if (data.moduleID !== presenter.configuration.ID) { return; }
+        presenter.showAnswers();
+    }
+
+    presenter.getParagraphs = function () {
+        var paragraph = presenter.$view.find(".paragraph-wrapper"),
+            iframe = paragraph.find("iframe"),
+            body = $(iframe).contents().find("#tinymce");
+
+        return body.find("p");
+    }
 
     presenter.run = function AddonParagraph_run(view, model) {
         presenter.initializeEditor(view, model, false);
@@ -284,7 +367,8 @@ function AddonParagraph_create() {
             layoutType = model["Layout Type"] || "Default",
             title = model["Title"],
             manualGrading = ModelValidationUtils.validateBoolean(model["Manual grading"]),
-            weight = model['Weight'];
+            weight = model['Weight'],
+            modelAnswer = model['Show Answers'];
 
         if (ModelValidationUtils.isStringEmpty(fontFamily)) {
             fontFamily = presenter.DEFAULTS.FONT_FAMILY;
@@ -323,7 +407,8 @@ function AddonParagraph_create() {
             isPlaceholderEditable: isPlaceholderEditable,
             title: title,
             manualGrading: manualGrading,
-            weight: weight
+            weight: weight,
+            modelAnswer: modelAnswer
         };
     };
 
@@ -353,6 +438,7 @@ function AddonParagraph_create() {
             upgradedModel = presenter.upgradeManualGrading(upgradedModel);
             upgradedModel = presenter.upgradeTitle(upgradedModel);
             upgradedModel = presenter.upgradeWeight(upgradedModel);
+            upgradedModel = presenter.upgradeModelAnswer(upgradedModel);
         return presenter.upgradeEditablePlaceholder(upgradedModel);
     };
 
@@ -374,6 +460,10 @@ function AddonParagraph_create() {
 
     presenter.upgradeWeight = function (model) {
         return presenter.upgradeAttribute(model, "Weight", "");
+    };
+
+    presenter.upgradeModelAnswer = function (model) {
+        return presenter.upgradeAttribute(model, "Show Answers", "");
     };
 
     presenter.upgradeAttribute = function (model, attrName, defaultValue) {
@@ -721,13 +811,18 @@ function AddonParagraph_create() {
             tinymceState = '';
         }
 
-
         return JSON.stringify({
             'tinymceState' : tinymceState,
             'isVisible' : presenter.isVisibleValue,
             'isLocked' : presenter.isLocked
         });
     };
+
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state).tinymceState;
+    }
 
     presenter.setState = function AddonParagraph_setState(state) {
         var parsedState = JSON.parse(state),
@@ -809,6 +904,7 @@ function AddonParagraph_create() {
     presenter.getPrintableHTML = function (model, showAnswers) {
         var model = presenter.upgradeModel(model);
         var configuration = presenter.validateModel(model);
+        var modelAnswer = configuration.modelAnswer;
 
         var $wrapper = $('<div></div>');
         $wrapper.addClass('printable_addon_Paragraph');
@@ -822,13 +918,34 @@ function AddonParagraph_create() {
         $paragraph.css("height", "100%");
         $paragraph.css("border", "1px solid");
         $paragraph.css("padding", "10px");
-        $paragraph.html(configuration.placeholderText);
+
+        var innerText = "";
+        if (showAnswers) {
+            innerText = modelAnswer;
+        }
+        if (presenter.printableState) {
+            innerText = presenter.printableState;
+        }
+        $paragraph.html(innerText);
+
         $wrapper.append($paragraph);
         return $wrapper[0].outerHTML;
     };
 
     presenter.getOpenEndedContent = function () {
         return presenter.getText();
+    }
+
+    presenter.getScoreWithMetadata = function() {
+        return [{
+            userAnswer: presenter.getText(),
+            isCorrect: true
+        }];
+    }
+
+    presenter.didUserAnswer = function (usersAnswer) {
+        var parsedAnswer = usersAnswer.replace(/<(.*?)>/g, '').replace(/&nbsp;/g, '');
+        return !!parsedAnswer;
     }
 
     return presenter;

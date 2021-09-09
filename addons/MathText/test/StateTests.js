@@ -6,9 +6,11 @@ TestCase("[MathText] State tests", {
             setVisibilityStub: sinon.stub(),
             setMathMLStub: sinon.stub(),
             getMathMLStub: sinon.stub(),
-            setDisabledStub: sinon.stub()
+            setDisabledStub: sinon.stub(),
+            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled')
         };
 
+        this.stubs.isWirisEnableStub.returns(true);
         this.presenter.configuration = {
             isVisible: true,
             isActivity: true,

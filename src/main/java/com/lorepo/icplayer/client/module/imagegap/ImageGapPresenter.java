@@ -31,8 +31,11 @@ import com.lorepo.icplayer.client.module.api.player.IJsonServices;
 import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.imagesource.ImageSourcePresenter;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
+import com.lorepo.icplayer.client.module.api.IGradualShowAnswersPresenter;
+import com.lorepo.icplayer.client.module.api.event.GradualShowAnswerEvent;
+import com.lorepo.icplayer.client.module.api.event.GradualHideAnswerEvent;
 
-public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IButton {
+public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICommandReceiver, IWCAGPresenter, IButton, IGradualShowAnswersPresenter {
 
 	public interface IDisplay extends IModuleView {
 		public void addListener(IViewListener l);
@@ -75,6 +78,7 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	private boolean showAnswersModeDisabled = false;
 	private boolean isConnectedWithMath = false;
 	private boolean isSetGapAnswers = false;
+	private boolean isGradualShowAnswers = false;
 
 	public ImageGapPresenter(ImageGapModule model, IPlayerServices services) {
 		this.model = model;
@@ -134,6 +138,28 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 			@Override
 			public void onCustomEventOccurred(CustomEvent event) {
 				onEventReceived(event.eventName, event.getData());
+			}
+		});
+
+		eventBus.addHandler(GradualShowAnswerEvent.TYPE, new GradualShowAnswerEvent.Handler() {
+			@Override
+			public void onGradualShowAnswers(GradualShowAnswerEvent event) {
+
+				if (!isGradualShowAnswers) {
+                        isGradualShowAnswers = true;
+				}
+
+                if (event.getModuleID().equals(model.getId())) {
+                    showAnswers();
+				}
+			}
+		});
+
+		eventBus.addHandler(GradualHideAnswerEvent.TYPE, new GradualHideAnswerEvent.Handler() {
+			@Override
+			public void onGradualHideAnswers(GradualHideAnswerEvent event) {
+				isGradualShowAnswers = false;
+				hideAnswers();
 			}
 		});
 	}
@@ -514,6 +540,11 @@ public class ImageGapPresenter implements IPresenter, IActivity, IStateful, ICom
 	@Override
 	public boolean isDisabled() {
 		return view.getDisabled();
+	}
+
+	@Override
+	public int getActivitiesCount() {
+		return 1;
 	}
 
 	private String getValue() {
