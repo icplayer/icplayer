@@ -851,14 +851,20 @@ function Addoncrossword_create(){
 
     presenter.setState = function(state) {
         var parsedState = $.parseJSON(state.toString());
-        setCellsStates(parsedState.cells);
-        presenter.isVisibleByDefault = parsedState.isVisibleByDefault;
-        if (typeof(parsedState.isVisible) === "boolean") {
-            presenter.isVisible = parsedState.isVisible;
+        if (parsedState.hasOwnProperty("cells")) {
+            setCellsStates(parsedState.cells);
         } else {
-            presenter.isVisible = presenter.configuration.isVisibleByDefault;
+            setCellsStates(parsedState);
         }
-        presenter.setVisibility(presenter.isVisible);
+
+        if (parsedState.hasOwnProperty("isVisible")) {
+            if (typeof(parsedState.isVisible) === "boolean") {
+                presenter.isVisible = parsedState.isVisible;
+            } else {
+                presenter.isVisible = presenter.configuration.isVisibleByDefault;
+            }
+            presenter.setVisibility(presenter.isVisible);
+        }
     };
 
     function setCellsStates(cellsStates) {
