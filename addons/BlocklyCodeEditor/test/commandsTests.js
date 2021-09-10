@@ -15,7 +15,7 @@ TestCase('[Blockly_Code_Editor] workspace code tests', {
     },
 
     tearDown: function () {
-        Blockly.JavaScript.workspaceToCode.reset();
+        sinon.mock.restore();
     },
 
     'test given workspace when getWorkspaceCode was called then should return code of workspace': function () {
