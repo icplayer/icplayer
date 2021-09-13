@@ -140,8 +140,8 @@ public class PlayerEntryPoint implements EntryPoint {
 			player.getScoreWithMetadata = function () {
 				return entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::getScoreWithMetadata()();
 			}
-			player.setScoreWithMetadata = function (oldState) {
-				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setScoreWithMetadata(Ljava/lang/String;)(oldState);
+			player.setScoreWithMetadata = function (state) {
+				entryPoint.@com.lorepo.icplayer.client.PlayerEntryPoint::setScoreWithMetadata(Ljava/lang/String;)(state);
 			};
 		}
 
@@ -367,7 +367,7 @@ public class PlayerEntryPoint implements EntryPoint {
 		return jsScores;
 	}
 
-	private void setScoreWithMetadata(String oldState) {
-		this.theApplication.setScoreWithMetadata(oldState);
+	private void setScoreWithMetadata(String state) {
+		this.theApplication.setScoreWithMetadata(state);
 	}
 }

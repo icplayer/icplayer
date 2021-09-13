@@ -25,7 +25,6 @@ public interface IPlayerController {
 	IReportableService getReportableService();
 	IAdaptiveLearningService getAdaptiveLearningService();
 	IScoreWithMetadataService getScoreWithMetadataService();
-	IScoreWithMetadataService setScoreWithMetadataService();
 	int getCurrentPageIndex();
 	IStateService getStateService();
 	void switchToPage(String pageName);

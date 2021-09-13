@@ -10,5 +10,5 @@ public interface IScoreWithMetadataService {
 
     List<ScoreWithMetadata> getScoreWithMetadata();
 
-    void setScoreWithMetadata(String oldState);
+    void setScoreWithMetadata(String state);
 }

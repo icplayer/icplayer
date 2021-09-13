@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONValue;
 
 public class ScoreWithMetadataService implements IScoreWithMetadataService {
 
@@ -32,9 +35,17 @@ public class ScoreWithMetadataService implements IScoreWithMetadataService {
     }
 
     @Override
-    public void setScoreWithMetadata(String oldState) {
-// TODO dodac obsluge
-        JavaScriptUtils.log(oldState);
+    public void setScoreWithMetadata(String state) {
+        JSONValue parsedJsonValue = JSONParser.parseLenient(state);
+	    JSONArray parsedJsonArray = parsedJsonValue.isArray();
+	    if (parsedJsonArray == null) {
+			return;
+		}
+		for (int i = 0; i < parsedJsonArray.size(); i++) {
+		    JSONObject object = parsedJsonArray.get(i).isObject();
+            ScoreWithMetadata swm = new ScoreWithMetadata(object);
+            this.addScoreWithMetadata(swm);
+		}
     }
 
 }

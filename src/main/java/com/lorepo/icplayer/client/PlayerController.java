@@ -805,11 +805,6 @@ public class PlayerController implements IPlayerController {
 		return scoreWithMetadataService;
 	}
 
-    @Override
-	public IScoreWithMetadataService setScoreWithMetadataService() {
-		return scoreWithMetadataService;
-	};
-
 	@Override
 	public String getCurrentPageId() {
 		return this.pageController1.getPage().getId();
