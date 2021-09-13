@@ -20,6 +20,7 @@ public class ScoreWithMetadataService implements IScoreWithMetadataService {
 
     @Override
     public void addScoreWithMetadata(ScoreWithMetadata scoreWithMetadata) {
+        JavaScriptUtils.log("addScoreWithMetadata");
         if (scoreWithMetadata != null) {
             scores.put(scoreWithMetadata.getQuestionNumber(), scoreWithMetadata);
         }
@@ -32,6 +33,7 @@ public class ScoreWithMetadataService implements IScoreWithMetadataService {
 
     @Override
     public void setScoreWithMetadata(String oldState) {
+// TODO dodac obsluge
         JavaScriptUtils.log(oldState);
     }
 
