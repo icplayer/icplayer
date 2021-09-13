@@ -135,6 +135,8 @@ TestCase("[Slideshow] Commands play/stop", {
             audioState: this.presenter.AUDIO_STATE.STOP,
             audioLoadComplete: true
         };
+        var readSlideStub = sinon.stub(this.presenter, 'readSlide');
+        readSlideStub.returns(true);
 
         this.presenter.play();
 
@@ -161,6 +163,8 @@ TestCase("[Slideshow] Commands play/stop", {
             audioState: this.presenter.AUDIO_STATE.STOP_FROM_NAVIGATION,
             audioLoadComplete: true
         };
+        var readSlideStub = sinon.stub(this.presenter, 'readSlide');
+        readSlideStub.returns(true);
 
         this.presenter.play();
 

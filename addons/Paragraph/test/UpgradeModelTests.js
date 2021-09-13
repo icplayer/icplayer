@@ -7,6 +7,7 @@ TestCase("[Paragraph] Upgrade model", {
         this.upgradeManualGradingStub = sinon.stub(this.presenter, 'upgradeManualGrading');
         this.upgradeTitleStub = sinon.stub(this.presenter, 'upgradeTitle');
         this.upgradeWeightStub = sinon.stub(this.presenter, 'upgradeWeight');
+        this.upgradeModelAnswerStub = sinon.stub(this.presenter, 'upgradeModelAnswer');
     },
 
     tearDown: function () {
@@ -14,6 +15,7 @@ TestCase("[Paragraph] Upgrade model", {
         this.presenter.upgradeManualGrading.restore();
         this.presenter.upgradeTitle.restore();
         this.presenter.upgradeWeight.restore();
+        this.presenter.upgradeModelAnswer.restore();
     },
 
     'test upgrade model': function () {
@@ -24,6 +26,7 @@ TestCase("[Paragraph] Upgrade model", {
         assertTrue(this.upgradeManualGradingStub.called);
         assertTrue(this.upgradeTitleStub.called);
         assertTrue(this.upgradeWeightStub.called);
+        assertTrue(this.upgradeModelAnswerStub.called);
     }
 });
 

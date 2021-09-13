@@ -1,5 +1,6 @@
 package com.lorepo.icplayer.client.module.choice;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import com.lorepo.icf.scripting.ICommandReceiver;
 import com.lorepo.icf.scripting.IStringType;
 import com.lorepo.icf.scripting.IType;
 import com.lorepo.icf.utils.JavaScriptUtils;
+import com.lorepo.icplayer.client.metadata.*;
 import com.lorepo.icplayer.client.module.IWCAG;
 import com.lorepo.icplayer.client.module.IWCAGPresenter;
 import com.lorepo.icplayer.client.module.api.*;
@@ -19,7 +21,7 @@ import com.lorepo.icplayer.client.module.api.player.IPlayerServices;
 import com.lorepo.icplayer.client.module.api.player.IScoreService;
 import com.lorepo.icplayer.client.page.KeyboardNavigationController;
 
-public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, IActivity, ICommandReceiver, IWCAGPresenter, IGradualShowAnswersPresenter {
+public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, IActivity, ICommandReceiver, IWCAGPresenter, IGradualShowAnswersPresenter, IScoreWithMetadataPresenter {
 
 	public interface IOptionDisplay{
 		public ChoiceOption getModel();
@@ -771,6 +773,7 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 	}
 
 	public void handleGradualShowAnswers(int itemIndex) {
+		clearStylesAndSelection(false);
 		int currentCorrectOption = 0;
 		for (IOptionDisplay option : view.getOptions()) {
 			if (option.getModel().isCorrect()) {
@@ -797,6 +800,37 @@ public class ChoicePresenter implements IPresenter, IStateful, IOptionListener, 
 		String moduleID = this.module.getId();
 		
 		this.playerServices.getEventBusService().sendValueChangedEvent(moduleType, moduleID, itemID, value, score);
+	}
+
+	@Override
+	public List<ScoreWithMetadata> getScoreWithMetadata() {
+		IMetadata metadata = this.module.getMetadata();
+		if (!ScoreWithMetadataUtils.validateMetadata(metadata)){
+			return null;
+		}
+
+		List<ScoreWithMetadata> list = new ArrayList<ScoreWithMetadata>();
+		boolean isAlphabetical = ScoreWithMetadataUtils.enumerateAlphabetically(metadata);
+		String enumerateStart = ScoreWithMetadataUtils.getEnumerateStart(metadata);
+		String questionNumber = ScoreWithMetadataUtils.getQuestionNumber(enumerateStart, 0, isAlphabetical);
+
+		ScoreWithMetadata scoreWithMetadata = new ScoreWithMetadata(questionNumber);
+		scoreWithMetadata.setModule(this.module);
+		scoreWithMetadata.setMetadata(module.getMetadata());
+
+		List<String> allAnswers = new ArrayList<String>();
+		for(int i = 0; i < view.getOptions().size(); i++){
+			IOptionDisplay option = view.getOptions().get(i);
+			String optionLetter = ScoreWithMetadataUtils.getLetterWithIndex(i);
+			allAnswers.add(optionLetter);
+			if (option.isDown()) {
+				scoreWithMetadata.setUserAnswer(optionLetter);
+				scoreWithMetadata.setIsCorrect(option.getModel().isCorrect());
+			}
+		}
+		scoreWithMetadata.setAllAnswers(allAnswers);
+		list.add(scoreWithMetadata);
+		return list;
 	}
 
 	private void setCurrentViewState() {
