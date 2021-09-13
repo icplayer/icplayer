@@ -7,6 +7,7 @@ import com.lorepo.icf.utils.JavaScriptUtils;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.json.client.JSONParser;
 
 public class ScoreWithMetadataService implements IScoreWithMetadataService {
 
