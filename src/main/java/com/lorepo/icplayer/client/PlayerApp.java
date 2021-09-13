@@ -840,4 +840,9 @@ public class PlayerApp {
 		playerController.updateState();
 		return playerController.getScoreWithMetadataService().getScoreWithMetadata();
 	}
+
+    public void setScoreWithMetadata(String oldState) {
+		playerController.updateState();
+		playerController.setScoreWithMetadataService().setScoreWithMetadata(oldState);
+	}
 }

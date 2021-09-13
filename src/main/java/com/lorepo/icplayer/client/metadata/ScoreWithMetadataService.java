@@ -3,6 +3,7 @@ package com.lorepo.icplayer.client.metadata;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import com.lorepo.icf.utils.JavaScriptUtils;
 
 public class ScoreWithMetadataService implements IScoreWithMetadataService {
 
@@ -27,6 +28,11 @@ public class ScoreWithMetadataService implements IScoreWithMetadataService {
     @Override
     public List<ScoreWithMetadata> getScoreWithMetadata() {
         return new ArrayList<ScoreWithMetadata>(scores.values());
+    }
+
+    @Override
+    public void setScoreWithMetadata(String oldState) {
+        JavaScriptUtils.log(oldState);
     }
 
 }
