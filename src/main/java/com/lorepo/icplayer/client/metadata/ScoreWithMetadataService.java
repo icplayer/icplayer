@@ -24,7 +24,6 @@ public class ScoreWithMetadataService implements IScoreWithMetadataService {
 
     @Override
     public void addScoreWithMetadata(ScoreWithMetadata scoreWithMetadata) {
-        JavaScriptUtils.log("addScoreWithMetadata");
         if (scoreWithMetadata != null) {
             scores.put(scoreWithMetadata.getQuestionNumber(), scoreWithMetadata);
         }

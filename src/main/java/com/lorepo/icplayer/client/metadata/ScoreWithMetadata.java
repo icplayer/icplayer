@@ -83,6 +83,9 @@ public class ScoreWithMetadata {
         IMetadata metadataToSet = new Metadata();
         if (metadata != null) {
             JSONObject metadataObject  = metadata.isObject();
+            if (metadataObject == null) {
+                return;
+            }
 
             JSONValue numeration_type = metadataObject.get("numeration_type");
             if (numeration_type != null) {
