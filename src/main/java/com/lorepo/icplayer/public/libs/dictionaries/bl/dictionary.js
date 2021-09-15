@@ -878,6 +878,7 @@ var ice_dictionary_bl = {
 	"Lesson_Reset_property_reset_mistakes" : "Изчисти грешките",
 	"Lesson_Reset_property_reset_checks" : "Изчисти отметките",
 	"Lesson_Reset_lesson_was_reset" : "Lesson has been reset",
+	"Lesson_Reset_property_reset_visited_pages": "Reset visited pages",
 	"Logger_info": "Имитира JavaScript конзола в браузъра, чиято функционалност в случая може да се сравни с табло за съобщения.",
 	"Logger_name": "Logger",
 	"Magic_Boxes_info": "Позволява добавянето на игра за търсене на думи към презентацията. За създаване на задача е нужно само да зададете всички букви и възможни отговори в настройките на плъгина.",

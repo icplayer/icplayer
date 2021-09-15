@@ -818,6 +818,12 @@ function AddonParagraph_create() {
         });
     };
 
+    presenter.setPrintableState = function(state) {
+        if (state === null || ModelValidationUtils.isStringEmpty(state))
+            return;
+        presenter.printableState = JSON.parse(state).tinymceState;
+    }
+
     presenter.setState = function AddonParagraph_setState(state) {
         var parsedState = JSON.parse(state),
             tinymceState = parsedState.tinymceState;
@@ -913,9 +919,14 @@ function AddonParagraph_create() {
         $paragraph.css("border", "1px solid");
         $paragraph.css("padding", "10px");
 
-        if (showAnswers && modelAnswer) {
-            $paragraph.html(modelAnswer);
+        var innerText = "";
+        if (showAnswers) {
+            innerText = modelAnswer;
         }
+        if (presenter.printableState) {
+            innerText = presenter.printableState;
+        }
+        $paragraph.html(innerText);
 
         $wrapper.append($paragraph);
         return $wrapper[0].outerHTML;

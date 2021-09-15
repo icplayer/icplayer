@@ -54,6 +54,7 @@ public interface IPlayerController {
 	void switchKeyboardNavigationToModule(String moduleId);
 	boolean isPlayerInCrossDomain();
 	Set<IPage> getVisitedPages();
+	void clearVisitedPages();
 	void sendExternalEvent(String eventType, String data);
 	String getCurrentPageId();
 	void setExternalVariable(String key, String value);
