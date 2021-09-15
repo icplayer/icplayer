@@ -537,4 +537,20 @@ public class GWTTextPresenterTestCase extends GwtTest{
 
 		assertEquals(1, presenter.getErrorCount());
 	}
+
+	@Test
+	public void givenNoGapsWhenGetActivitiesCountIsCalledThenReturnZero() {
+		TextViewMockup mockedView = Mockito.mock(TextViewMockup.class);
+		Mockito.when(mockedView.getGapCount()).thenReturn(0);
+		presenter.addView(mockedView);
+		assertEquals(0, presenter.getActivitiesCount());
+	}
+
+	@Test
+	public void givenDisplayWithGapsWhenGetActivitiesCountIsCalledThenReturnNumberOfGaps() {
+		TextViewMockup mockedView = Mockito.mock(TextViewMockup.class);
+		Mockito.when(mockedView.getGapCount()).thenReturn(5);
+		presenter.addView(mockedView);
+		assertEquals(5, presenter.getActivitiesCount());
+	}
 }

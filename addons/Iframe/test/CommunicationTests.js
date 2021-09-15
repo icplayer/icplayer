@@ -119,7 +119,7 @@ TestCase("[Iframe] getMessage", {
         };
 
         this.stubs = {
-            setStateActualization : sinon.stub(this.presenter,'setStateActualization',function (){})
+            setStateActualization : sinon.stub(this.presenter,'setStateActualization').callsFake(function () {})
         };
 
     },

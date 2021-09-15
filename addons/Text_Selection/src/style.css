@@ -22,3 +22,23 @@
 .text_selection div {
     min-height: 20px;
 }
+
+.printable_addon_Text_Selection_selected {
+	text-decoration: underline;
+	text-decoration-style: solid;
+	text-decoration-color: black;
+}
+
+.printable_addon_Text_Selection_wrong::after {
+	content: " \2716";
+}
+
+.printable_addon_Text_Selection_correct::after {
+    content: " \2714";
+}
+
+.printable_addon_Text_Selection_correct_answer {
+	text-decoration: underline;
+	text-decoration-style: dotted;
+	text-decoration-color: black;
+}

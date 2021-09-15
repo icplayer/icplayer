@@ -10,13 +10,15 @@ TestCase("[MathText] Reset tests", {
             attrStub: sinon.stub(),
             removeAttrStub: sinon.stub(),
             setToolbarHiddenStub: sinon.stub(),
-            setDisabledStub: sinon.stub()
+            setDisabledStub: sinon.stub(),
+            isWirisEnableStub: sinon.stub(this.presenter, 'isWirisEnabled')
         };
 
         this.stubs.findStub.returns({
             attr: this.stubs.attrStub,
             removeAttr: this.stubs.removeAttrStub
         });
+        this.stubs.isWirisEnableStub.returns(true);
 
         this.presenter.wrapper = {
             classList: {

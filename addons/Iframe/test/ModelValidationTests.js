@@ -358,6 +358,6 @@ TestCase("[Iframe] validateModelOriginal", {
     'test if there is valid model there should be addon configuration' : function () {
         var result = this.presenter.validateModel(this.validModel);
 
-        assertEquals(this.expectedValue, result);
+        assertEquals(JSON.stringify(result), JSON.stringify(this.expectedValue));
     }
 });

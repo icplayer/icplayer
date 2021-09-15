@@ -1,3 +1,18 @@
+2021-09-09 Added support for printable state for text selection
+2021-09-09 Added tests for printable state in text selection
+2021-09-09 Added support for printable check answers state in text selection
+2021-09-09 Added support for printable show user answers state in text selection
+2021-09-09 Added printable state for text selection
+2021-09-08 Fixed incompatibility bug in getState and setState between versions
+2021-09-03 Fix bug with no event on stop recording android mLibro
+2021-09-01 Fix GSA not working in Text module
+2021-08-31 Add ScoreWithMetadata API
+2021-08-24 Fix bug with eKeyboard going to next input
+2021-08-18 Fixed bug that always gave 100% score or sent end of game event when Hangman addon was in Show Answers mode
+2021-08-16 Add Gradual Show Answer to Point and Lines addon
+2021-08-11 Add GSA mode for Coloring addon
+2021-08-09 Add GSA mode for Memo Game addon
+2021-08-02 Add GSA mode for Text Coloring addon
 2021-07-30 Add getOpenEndedContentsForCurrentPage to PlayerServices
 2021-07-28 Added keyboard navigation and TTS to Quiz
 2021-07-27 Fixed bug that audiodescription in Chrome doesn't stop video
