@@ -1651,6 +1651,10 @@ function AddonImage_Viewer_Public_create() {
     };
 
     presenter.hideAnswers = function () {
+        if (!presenter.isShowAnswersActive) {
+            return;
+        }
+
         if(presenter.currentFrameShowAnswers != undefined){
             presenter.moveToFrameShowAnswers(presenter.currentFrameShowAnswers+1);
             presenter.$element.removeClass('show-answers');

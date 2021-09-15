@@ -990,7 +990,7 @@ function AddonHangman_create() {
     };
 
     presenter.hideAnswers = function () {
-        if(!presenter.isActivity){
+        if(!presenter.isActivity || !presenter.isShowAnswersActive) {
             return;
         }
         presenter.setState(presenter.workModeState);

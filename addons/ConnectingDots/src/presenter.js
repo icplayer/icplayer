@@ -703,7 +703,7 @@ function AddonConnectingDots_create(){
     };
 
     presenter.hideAnswers = function () {
-        if (presenter.activity) {
+        if (presenter.activity && presenter.isShowAnswersActive) {
             presenter.isShowAnswersActive = false;
             presenter.$view.find('.line').removeClass('line-show-answer');
             presenter.$view.find('.line-show-answer').remove();
