@@ -1221,6 +1221,7 @@ var ice_dictionary_mx = {
 	"Single_State_Button_property_on_click": "Acción al clic",
 	"Single_State_Button_property_disable": "Inhabilitar",
 	"Single_State_Button_property_enable_in_error_mode": "Enable in error checking mode",
+	"Single_State_Button_property_enable_in_show_answers_mode": "Enable in show answers mode",
 	"External_Link_Button_info": "Permite a los usuarios a crear hiperenlaces a los recursos externos.",
 	"External_Link_Button_name": "Botón de enlace externo",
 	"External_Link_Button_property_title": "Titulo",
