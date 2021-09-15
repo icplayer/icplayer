@@ -1,7 +1,8 @@
 TestCase("[Hierarchical Lesson Report] Score calculation", {
     setUp: function () {
         this.presenter = AddonHierarchical_Lesson_Report_create();
-        this.presenter.configuration  = {};
+        this.presenter.configuration = {};
+        this.presenter.printableConfiguration = {};
     },
 
     'test no pages': function () {
@@ -38,6 +39,53 @@ TestCase("[Hierarchical Lesson Report] Score calculation", {
 
     'test multiple pages - rounding check': function () {
         this.presenter.lessonScore = {
+            pageCount: 11,
+            scaledScore: 4.5
+        };
+
+        var scaledScore = this.presenter.calculateLessonScaledScore();
+
+        assertEquals(0.4, scaledScore);
+    },
+
+    'test no pages when printable state': function () {
+        setPrintableStateMode(this.presenter);
+        this.presenter.printableLessonScore = {
+            pageCount: 0
+        };
+
+        var scaledScore = this.presenter.calculateLessonScaledScore();
+
+        assertEquals(0, scaledScore);
+    },
+
+    'test single page when printable state': function () {
+        setPrintableStateMode(this.presenter);
+        this.presenter.printableLessonScore = {
+            pageCount: 1,
+            scaledScore: 0.5
+        };
+
+        var scaledScore = this.presenter.calculateLessonScaledScore();
+
+        assertEquals(0.5, scaledScore);
+    },
+
+    'test two pages when printable state': function () {
+        setPrintableStateMode(this.presenter);
+        this.presenter.printableLessonScore = {
+            pageCount: 2,
+            scaledScore: 0.5
+        };
+
+        var scaledScore = this.presenter.calculateLessonScaledScore();
+
+        assertEquals(0.25, scaledScore);
+    },
+
+    'test multiple pages - rounding check when printable state': function () {
+        setPrintableStateMode(this.presenter);
+        this.presenter.printableLessonScore = {
             pageCount: 11,
             scaledScore: 4.5
         };
@@ -109,3 +157,7 @@ TestCase("[Hierarchical Lesson Report] Checking conditions to calculate Page Sca
         assertEquals(1, scaledScore);
     }
 });
+
+function setPrintableStateMode(presenter) {
+    presenter.printableStateMode = presenter.PRINTABLE_STATE_MODE.EMPTY;
+}
