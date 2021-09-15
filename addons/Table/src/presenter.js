@@ -836,19 +836,19 @@ function AddonTable_create() {
     };
 
     presenter.addSpanSpeechTexts = function(model) {
-            var upgradedModel = {};
-            jQuery.extend(true, upgradedModel, model);
+        var upgradedModel = {};
+        jQuery.extend(true, upgradedModel, model);
 
-            if (model['speechTexts']["RowSpan"] === undefined) {
-                upgradedModel['speechTexts']["RowSpan"] = {RowSpan: "Row span"};
-            }
+        if (model['speechTexts']["RowSpan"] === undefined) {
+            upgradedModel['speechTexts']["RowSpan"] = {RowSpan: "Row span"};
+        }
 
-            if (model['speechTexts']["ColSpan"] === undefined) {
-                upgradedModel['speechTexts']["ColSpan"] = {ColSpan: "Column span"};
-            }
+        if (model['speechTexts']["ColSpan"] === undefined) {
+            upgradedModel['speechTexts']["ColSpan"] = {ColSpan: "Column span"};
+        }
 
-            return upgradedModel;
-        };
+        return upgradedModel;
+    };
 
     presenter.upgradeModel = function (model) {
         var upgradedModel = presenter.addColumnsWidth(model);
@@ -1955,8 +1955,6 @@ function AddonTable_create() {
     }
 
     function accountForMergedCells(elements, columnsCount, rowsCount) {
-        console.log(elements.length);
-        console.log(columnsCount, rowsCount);
         if (columnsCount === undefined || rowsCount === undefined ||
             elements.length === 0 || elements[0].getAttribute === undefined) return elements;
         var elementsArray = Array.from(Array(rowsCount), () => new Array(columnsCount));
@@ -1990,8 +1988,8 @@ function AddonTable_create() {
     }
 
     function getRowspan(element) {
-            return getAttributeNumberValue(element, "rowspan", 1);
-        }
+        return getAttributeNumberValue(element, "rowspan", 1);
+    }
 
     function getAttributeNumberValue(element, attributeName, defaultValue) {
         if (element.getAttribute(attributeName)!= null && !isNaN(element.getAttribute(attributeName))) {
@@ -2001,9 +1999,9 @@ function AddonTable_create() {
         }
     }
 
-    TableKeyboardController.prototype.reload = function (elements, columnsCount) {
+    TableKeyboardController.prototype.reload = function (elements, columnsCount, rowsCount) {
         var newElements = accountForMergedCells(elements, columnsCount, rowsCount);
-        KeyboardController.prototype.reload.call(this, newElemenets, columnsCount);
+        KeyboardController.prototype.reload.call(this, newElements, columnsCount);
     }
 
     TableKeyboardController.prototype = Object.create(window.KeyboardController.prototype);
@@ -2100,27 +2098,27 @@ function AddonTable_create() {
         }
         if (this.keyboardNavigationCurrentElement === this.keyboardNavigationElements[new_position_index]
             && this.keyboardNavigationCurrentElementIndex != new_position_index) {
-            this.keyboardNavigationCurrentElementIndex = new_position_index;
-            if (move == this.columnsCount || move == -1 * this.columnsCount) {
-                if (new_position_index + move >=0 && new_position_index + move < this.keyboardNavigationElementsLen) {
-                    this.switchElement(move);
+                this.keyboardNavigationCurrentElementIndex = new_position_index;
+                if (move == this.columnsCount || move == -1 * this.columnsCount) {
+                    if (new_position_index + move >=0 && new_position_index + move < this.keyboardNavigationElementsLen) {
+                        this.switchElement(move);
+                    } else {
+                        this.markCurrentElement(new_position_index);
+                    }
                 } else {
-                    this.markCurrentElement(new_position_index);
-                }
-            } else {
-            if (move < 0) {
-                if (new_position_index % this.columnsCount != 0) {
-                this.switchElement(-1)
+                if (move < 0) {
+                    if (new_position_index % this.columnsCount != 0) {
+                        this.switchElement(-1);
+                    } else {
+                        this.markCurrentElement(new_position_index);
+                    }
                 } else {
-                    this.markCurrentElement(new_position_index);
+                    if (new_position_index % this.columnsCount != this.columnsCount - 1) {
+                        this.switchElement(1);
+                    } else {
+                        this.markCurrentElement(new_position_index);
+                    }
                 }
-            } else {
-                if (new_position_index % this.columnsCount != this.columnsCount - 1) {
-                    this.switchElement(1)
-                } else {
-                    this.markCurrentElement(new_position_index);
-                }
-            }
             }
         } else {
             this.markCurrentElement(new_position_index);

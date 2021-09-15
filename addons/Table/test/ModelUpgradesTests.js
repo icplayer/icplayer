@@ -132,13 +132,13 @@ TestCase("[Table] Model upgrades - add langAttribute", {
     },
 
     'test given model without span speech texts when addSpanSpeechTexts is called then missing properties are added with default values': function () {
-            this.model['speechTexts'] = {};
+        this.model['speechTexts'] = {};
 
-            var upgradedModel = this.presenter.addSpanSpeechTexts(this.model);
+        var upgradedModel = this.presenter.addSpanSpeechTexts(this.model);
 
-            assertNotUndefined(upgradedModel['speechTexts']["RowSpan"]);
-            assertEquals("Row span", upgradedModel['speechTexts']["RowSpan"]["RowSpan"]);
-            assertNotUndefined(upgradedModel['speechTexts']["ColSpan"]);
-            assertEquals("Column span", upgradedModel['speechTexts']["ColSpan"]["ColSpan"]);
-        },
+        assertNotUndefined(upgradedModel['speechTexts']["RowSpan"]);
+        assertEquals("Row span", upgradedModel['speechTexts']["RowSpan"]["RowSpan"]);
+        assertNotUndefined(upgradedModel['speechTexts']["ColSpan"]);
+        assertEquals("Column span", upgradedModel['speechTexts']["ColSpan"]["ColSpan"]);
+    },
 });
