@@ -998,6 +998,7 @@ var ice_dictionary_fr = {
     "Lesson_Reset_property_reset_mistakes" : "Réinitialiser le nombre d’erreurs",
     "Lesson_Reset_property_reset_checks" : "Réinitialiser le nombre de vérification",
 	"Lesson_Reset_lesson_was_reset" : "Lesson has been reset",
+	"Lesson_Reset_property_reset_visited_pages": "Reset visited pages",
     "Logger_info": "Imite la console JavaScript dans un navigateur, qui dans ce cas peut être comparé à une fenêtre de message.",
     "Logger_name": "Console",
     "Magic_Boxes_info": "Permet d'ajouter un jeu de mots-mêlés dans une présentation. Pour que l'activité fonctionne, il suffit de définir toutes les lettres et les réponses possibles dans les Propriétés du module externe.",
