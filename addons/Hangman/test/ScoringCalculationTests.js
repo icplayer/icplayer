@@ -2,6 +2,7 @@ TestCase("[Hangman] Getting phrase for scoring", {
     setUp: function () {
         this.presenter = AddonHangman_create();
         this.presenter.isErrorCheckingMode = false;
+        this.presenter.isShowAnswersActive = false;
         this.presenter.currentPhrase = 0;
         this.presenter.configuration = {
             phrases: [{
@@ -37,6 +38,33 @@ TestCase("[Hangman] Getting phrase for scoring", {
         }];
 
         this.presenter.isErrorCheckingMode = true;
+        this.presenter.configuration = {
+            phrases: [{
+                letters: this.presenter.DEFAULT_LETTERS,
+                phrase: ['HANGMAN'],
+                errorCount: 1,
+                selectedLetters: [7,0,13,6,12]
+            }]
+        };
+        this.presenter.workModeState = JSON.stringify({
+            currentPhrase: 0,
+            phrases: workPhrases
+        });
+
+        var phrases = this.presenter.getPhraseForScoring();
+
+        assertEquals(workPhrases, phrases);
+    },
+
+    'test given hangman with show answers mode on when get phrases then returns workModeState phrases as JSON': function () {
+        var workPhrases = [{
+            letters: this.presenter.DEFAULT_LETTERS,
+            phrase: ['HANGMAN'],
+            errorCount: 1,
+            selectedLetters: [7,0,13,6]
+        }];
+
+        this.presenter.isShowAnswersActive = true;
         this.presenter.configuration = {
             phrases: [{
                 letters: this.presenter.DEFAULT_LETTERS,

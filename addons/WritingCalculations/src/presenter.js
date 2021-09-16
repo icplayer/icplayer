@@ -956,7 +956,7 @@ function AddonWritingCalculations_create() {
     };
 
     presenter.hideAnswers = function () {
-        if(presenter.isNotActivity){
+        if(presenter.isNotActivity || !presenter.isShowAnswersActive) {
             return;
         }
 

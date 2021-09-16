@@ -41,6 +41,10 @@ export class Player {
         throw new Error("setEventBus method is not implemented");
     }
 
+    setIsMlibro(isMlibro) {
+        throw new Error("setIsMlibro method is not implemented");
+    }
+
     reset() {
         throw new Error("Reset method is not implemented");
     }

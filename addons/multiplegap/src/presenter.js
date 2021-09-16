@@ -1527,6 +1527,10 @@ function Addonmultiplegap_create(){
     }
 
     presenter.hideAnswers = function () {
+        if (!presenter.isShowAnswersActive) {
+            return;
+        }
+
         presenter.$view.find('.placeholder-show-answers').remove();
 
         if(presenter.tmpState){

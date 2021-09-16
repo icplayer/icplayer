@@ -1464,6 +1464,10 @@ function AddonShape_Tracing_create() {
     };
 
     presenter.hideAnswers = function() {
+        if (!presenter.isShowAnswersActive) {
+            return;
+        }
+
         presenter.$view.find('.background').removeClass('shape-tracing-show-answers');
 
         if (presenter.correctAnswerlayer) {
