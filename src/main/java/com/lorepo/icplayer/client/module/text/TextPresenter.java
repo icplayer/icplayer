@@ -530,7 +530,6 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		updateScore();
 
 		this.currentState = "";
-		this.updateViewText();
 	}
 
 	private void resetAudio() {
