@@ -792,6 +792,7 @@ public class TextPresenter implements IPresenter, IStateful, IActivity, ICommand
 		}
 
 		sendValueChangedEvent(itemID, newValue, score);
+        view.getChild(Integer.parseInt(itemID) - 1).setText(newValue);
 	}
 	
 	protected void valueChangedOnUserAction(String id, String newValue) {
