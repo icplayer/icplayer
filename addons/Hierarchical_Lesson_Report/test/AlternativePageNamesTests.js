@@ -8,8 +8,10 @@ TestCase("[Hierarchical Lesson Report] Alternative page names tests", {
             alternativePageTitles: []
         };
 
-        this.presenter.configuration.alternativePageTitles = generateRunAlternativePageTitles(3);
-        this.presenter.printableConfiguration.alternativePageTitles = generatePrintableAlternativePageTitles(3);
+        this.presenter.configuration.alternativePageTitles
+          = generateRunAlternativePageTitles(3);
+        this.presenter.printableConfiguration.alternativePageTitles
+          = generatePrintableAlternativePageTitles(3);
     },
 
     'test should return undefined when there is only one alterantive page without number': function () {
@@ -35,7 +37,7 @@ TestCase("[Hierarchical Lesson Report] Alternative page names tests", {
         assertEquals("Alternative Page 3", result);
     },
 
-    'test should return undefined when looking for page without specifed alternative name': function () {
+    'test should return undefined when looking for page without specified alternative name': function () {
         var lookingForChapter = false;
 
         var result = this.presenter.findAlternativeName(11, lookingForChapter);
@@ -118,7 +120,7 @@ TestCase("[Hierarchical Lesson Report] Alternative page names tests", {
         assertEquals("Alternative Printable Page 3", result);
     },
 
-    'test should return undefined when addon is in printable state and looking for page without specifed alternative name': function () {
+    'test should return undefined when addon is in printable state and looking for page without specified alternative name': function () {
         setPrintableStateMode(this.presenter);
         var lookingForChapter = false;
 
