@@ -12,9 +12,11 @@
 2021-09-01 Fix GSA not working in Text module
 2021-08-31 Add ScoreWithMetadata API
 2021-08-24 Fix bug with eKeyboard going to next input
+2021-08-18 Fixed bug that always gave 100% score or sent end of game event when Hangman addon was in Show Answers mode
 2021-08-16 Add Gradual Show Answer to Point and Lines addon
 2021-08-11 Add GSA mode for Coloring addon
 2021-08-09 Add GSA mode for Memo Game addon
+2021-08-04 Add clear visited pages property to lesson reset
 2021-08-02 Add GSA mode for Text Coloring addon
 2021-07-30 Add getOpenEndedContentsForCurrentPage to PlayerServices
 2021-07-28 Added keyboard navigation and TTS to Quiz
