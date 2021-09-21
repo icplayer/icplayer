@@ -14,7 +14,9 @@ TestCase('[FlashCards] handling Flash Cards function', {
                 }
             ]
         };
-        this.view = "<div class=\"flashcards-wrapper\">" +
+        this.view = $("<div></div>");
+        this.view.addClass('flashcards-wrapper');
+        this.view.html(
             "<div class=\"flashcards-main\">" +
             "<div class=\"flashcards-prev-wrapper\">" +
             "<button type=\"button\" class=\"flashcards-prev\"></button>" +
@@ -36,11 +38,11 @@ TestCase('[FlashCards] handling Flash Cards function', {
             "<div class=\"flashcards-card-audio-wrapper flashcards-card-audio-wrapper-back\" style=\"display: block;\">" +
             "<audio class=\"flashcards-card-audio flashcards-card-audio-back\" src=\"//www.mauthor.com/file/serve/5249777514184704\"></audio>" +
             "<div class=\"flashcards-card-audio-button flashcards-card-audio-button-back\"></div>" +
-            "</div></div></div>" +
+            "</div></div><div class=\"flashcards-button-favourite\"></div></div>" +
             "<div class=\"flashcards-prev-wrapper\"></div>" +
             "</div>" +
-            "<div class=\"flashcards-panel\">1/1</div>" +
-            "</div>";
+            "<div class=\"flashcards-panel\">1/1</div>"
+        );
 
         this.spies = {
             'validateModelSpy': sinon.spy(this.presenter, 'validateModel'),
