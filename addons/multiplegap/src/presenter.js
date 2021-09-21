@@ -1786,11 +1786,16 @@ function Addonmultiplegap_create(){
         return $view[0].outerHTML;
     };
 
-    function prepareBasicPrint (answerHTML, $wrapper=null ,...answers) {
-        var separator = "</br>";
+    function getSeparatorBasedOnOrientation() {
         if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
-            separator = ", ";
+            return ", ";
+        } else {
+            return "</br>";
         }
+    }
+
+    function prepareBasicPrint (answerHTML, $wrapper=null ,...answers) {
+        var separator = getSeparatorBasedOnOrientation()
         for (var i = 0; i < answers.length; i++) {
             answerHTML = answerHTML + answers[i].value;
             if (i < answers.length - 1) {
@@ -1830,10 +1835,7 @@ function Addonmultiplegap_create(){
         } else {
             element.classList.add("incorrectAnswerSpan");
         }
-        var separator = "</br>";
-        if (presenter.configuration.orientation === presenter.ORIENTATIONS.HORIZONTAL) {
-            separator = ", ";
-        }
+        var separator = getSeparatorBasedOnOrientation()
         element.innerHTML = answers[i].value;
         answers[i].value = element.outerHTML;
 
