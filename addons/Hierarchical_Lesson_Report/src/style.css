@@ -99,9 +99,6 @@
 }
 
 .printable_hier_report {
-    padding: 15px;
-    border-radius: 5px;
-    border: 1px solid gray;
     background-color: white;
     color: gray;
     overflow: auto;
