@@ -62,6 +62,7 @@ public interface IPlayerServices {
 	public void addEventListener(String eventName, JavaScriptObject listener, boolean isDelayed);
 
 	public boolean isPageVisited(IPage page);
+	public void clearVisitedPages();
 	public JavaScriptObject getContextMetadata();
 	public String getContentMetadata(String key);
 	public void sendResizeEvent();

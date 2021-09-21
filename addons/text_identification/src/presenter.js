@@ -585,6 +585,10 @@ function Addontext_identification_create() {
     };
 
     presenter.hideAnswers = function () {
+        if (!presenter.isShowAnswersActive) {
+            return;
+        }
+
         presenter.configuration.isErrorCheckMode = false;
 
         applySelectionStyleHideAnswers(CSS_CLASSES.SHOW_ANSWERS);

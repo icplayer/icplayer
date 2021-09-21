@@ -90,6 +90,11 @@ public class Metadata implements IMetadata {
 
 	@Override
 	public JavaScriptObject toJavaScript() {
-		return JavaScriptUtils.createHashMap(this.metadata);
+	    JavaScriptObject metadata = JavaScriptUtils.createJSObject();
+
+        for(String key : this.metadata.keySet()){
+            JavaScriptUtils.addPropertyToJSArray(metadata, key, this.metadata.get(key));
+		}
+		return metadata;
 	}
 }
